@@ -22,6 +22,7 @@ const PropertyShape: FormGenerator = {
       order: 1,
       maxCount: 1,
       componentType: { "@id": IM.component.VERTICAL_LAYOUT },
+      argument: [{ valueData: "60", parameter: "width" }],
       property: [
         {
           comment: "A property that auto generates the type as property type",

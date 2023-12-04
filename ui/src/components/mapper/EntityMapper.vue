@@ -39,7 +39,7 @@
                     placeholder="Select status"
                   />
                   <InputText class="col-3" v-model="searchTerm" placeholder="Keyword Search" />
-                  <Button class="col-2 save-button" :loading="loading" icon="pi pi-search" label="Search" @click="search()" />
+                  <Button class="col-2 save-button" :loading="loading" icon="fa-solid fa-magnifying-glass" label="Search" @click="search()" />
                 </div>
               </Panel>
             </div>
@@ -68,13 +68,13 @@
                 <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
-                      icon="pi pi-fw pi-eye"
+                      icon="fa-solid fa-eye"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="view(data.iri)"
                       v-tooltip.top="'View'"
                     />
                     <Button
-                      icon="pi pi-fw pi-info-circle"
+                      icon="fa-solid fa-circle-info"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="showInfo(data.iri)"
                       v-tooltip.top="'Info'"
@@ -86,8 +86,8 @@
           </div>
           <div class="col-12">
             <div class="grid">
-              <div class="col-offset-4 center-button"><Button class="pick-button" icon="pi pi-arrow-down" @click="addSelected" /></div>
-              <div class="col-offset-3 center-button"><Button class="pick-button" icon="pi pi-arrow-up" @click="removeSelected" /></div>
+              <div class="col-offset-4 center-button"><Button class="pick-button" icon="fa-solid fa-arrow-down" @click="addSelected" /></div>
+              <div class="col-offset-3 center-button"><Button class="pick-button" icon="fa-solid fa-arrow-up" @click="removeSelected" /></div>
             </div>
           </div>
           <div class="col-12 mappings-table">
@@ -115,13 +115,13 @@
                 <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
-                      icon="pi pi-fw pi-eye"
+                      icon="fa-solid fa-eye"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="view(data.iri)"
                       v-tooltip.top="'View'"
                     />
                     <Button
-                      icon="pi pi-fw pi-info-circle"
+                      icon="fa-solid fa-circle-info"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="showInfo(data.iri)"
                       v-tooltip.top="'Info'"
@@ -136,8 +136,8 @@
     </div>
   </div>
   <div class="button-bar">
-    <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="$router.go(-1)" />
-    <Button :loading="saveLoading" icon="pi pi-check" label="Save mappings" class="save-button" @click="saveMappings" />
+    <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="$router.go(-1)" />
+    <Button :loading="saveLoading" icon="fa-solid fa-check" label="Save mappings" class="save-button" @click="saveMappings" />
   </div>
 </template>
 

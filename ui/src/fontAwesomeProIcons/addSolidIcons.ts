@@ -48,6 +48,7 @@ import { faCircleInfo } from "@fortawesome/pro-solid-svg-icons/faCircleInfo";
 import { faCircleQuestion } from "@fortawesome/pro-solid-svg-icons/faCircleQuestion";
 import { faLockOpen } from "@fortawesome/pro-solid-svg-icons/faLockOpen";
 import { faShieldSlash } from "@fortawesome/pro-solid-svg-icons/faShieldSlash";
+import { faTrash } from "@fortawesome/pro-solid-svg-icons/faTrash";
 
 export default function addSolidIcons(library: Library) {
   library.add(
@@ -95,7 +96,8 @@ export default function addSolidIcons(library: Library) {
     faCircleInfo,
     faCircleQuestion,
     faLockOpen,
-    faShieldSlash
+    faShieldSlash,
+    faTrash
   );
 }
 // #v-endif

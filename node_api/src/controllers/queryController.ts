@@ -28,6 +28,12 @@ export default class QueryController {
         .catch(next)
     );
 
+    this.router.post("/public/queryDisplayFromQuery", (req, res, next) =>
+      this.getQueryDisplayFromQuery(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+
     this.router.get("/public/allowablePropertySuggestions", (req, res, next) =>
       this.getAllowablePropertySuggestions(req)
         .then(data => res.send(data))
@@ -152,6 +158,10 @@ export default class QueryController {
 
   async getQueryDisplay(req: Request) {
     return await this.queryService.getQueryDisplay(req.query.queryIri as string);
+  }
+
+  async getQueryDisplayFromQuery(req: Request) {
+    return await this.queryService.getQueryDisplayFromQuery(req.body as Query);
   }
 
   async getLabeledQuery(req: Request) {

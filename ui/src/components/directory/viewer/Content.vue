@@ -103,12 +103,12 @@ const selected: Ref<any> = ref({});
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Open",
-    icon: "pi pi-fw pi-folder-open",
+    icon: "fa-solid fa-folder-open",
     command: () => emit("navigateTo", (selected.value as any)["@id"])
   },
   {
     label: "View in new tab",
-    icon: "pi pi-fw pi-external-link",
+    icon: "fa-solid fa-arrow-up-right-from-square",
     command: () => directService.view((selected.value as any)["@id"])
   },
   {
@@ -116,7 +116,7 @@ const rClickOptions: Ref<any[]> = ref([
   },
   {
     label: "Favourite",
-    icon: "pi pi-fw pi-star",
+    icon: "fa-solid fa-star",
     command: () => updateFavourites((selected.value as any)["@id"])
   }
 ]);
@@ -170,7 +170,7 @@ function isFavourite(iri: string) {
 
 function updateRClickOptions() {
   rClickOptions.value[0].label = selected.value.hasChildren ? "Open" : "Select";
-  rClickOptions.value[0].icon = selected.value.hasChildren ? "pi pi-fw pi-folder-open" : "fa-solid fa-sitemap";
+  rClickOptions.value[0].icon = selected.value.hasChildren ? "fa-solid fa-folder-open" : "fa-solid fa-sitemap";
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
 }
 

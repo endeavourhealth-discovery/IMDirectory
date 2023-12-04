@@ -1,4 +1,4 @@
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { SelectedMatch } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
@@ -7,23 +7,33 @@ import { v4 } from "uuid";
 function setupQueryBuilderActions() {
   const showUpdateDialog: Ref<boolean> = ref(false);
   const showViewDialog: Ref<boolean> = ref(false);
-  const showAddDialog: Ref<boolean> = ref(false);
+  const showBuildFeatureAfterDialog: Ref<boolean> = ref(false);
+  const showAddFeatureAfterDialog: Ref<boolean> = ref(false);
+  const showAddFeatureBeforeDialog: Ref<boolean> = ref(false);
+  const showAddTestFeatureDialog: Ref<boolean> = ref(false);
+  const showAddPopulationAfterDirectoryDialog: Ref<boolean> = ref(false);
+  const showAddPopulationBeforeDirectoryDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
-  const showDirectoryDialog: Ref<boolean> = ref(false);
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
-  const addBefore: Ref<boolean> = ref(false);
 
-  function addMatches(parentMatch: Match, newMatches: Match[], index: number = -1, before?: boolean) {
-    if (!isArrayHasLength(parentMatch.match)) {
-      parentMatch.bool = "and";
-      parentMatch.match = newMatches;
-    } else
-      for (const newMatch of newMatches) {
-        parentMatch.match!.push(newMatch);
+  function addThenMatch(match: Match, newMatches: Match[]) {
+    if (isArrayHasLength(newMatches)) {
+      if (!isObjectHasKeys(match.then) && newMatches.length === 1) match.then = newMatches[0];
+      else if (isObjectHasKeys(match.then)) {
+        if (isObjectHasKeys(match.then, ["match"]) && isArrayHasLength(match.then?.match)) {
+          match.then!.match = match.then?.match?.concat(newMatches);
+        } else {
+          const previousThen = { ...match.then };
+          match.then = { match: [previousThen], bool: "and" } as Match;
+          for (const newThen of newMatches) {
+            match.then.match?.push(newThen);
+          }
+        }
       }
+    }
   }
 
   function addMatchesToList(matchList: Match[], newMatches: Match[], index: number = -1, before?: boolean) {
@@ -33,8 +43,6 @@ function setupQueryBuilderActions() {
         const indexToAdd = before ? index : index + 1;
         matchList.splice(indexToAdd, 0, ...newMatches);
       }
-
-      addBefore.value = false;
     }
   }
 
@@ -46,7 +54,13 @@ function setupQueryBuilderActions() {
     }
 
     if (isArrayHasLength(nested)) {
-      addMatches(parentMatch, nested);
+      if (!isArrayHasLength(parentMatch.match)) {
+        parentMatch.bool = "and";
+        parentMatch.match = nested;
+      } else
+        for (const newMatch of nested) {
+          parentMatch.match!.push(newMatch);
+        }
     }
   }
 
@@ -195,8 +209,8 @@ function setupQueryBuilderActions() {
 
   return {
     addMatchesToList,
-    addMatches,
     updateProperties,
+    addThenMatch,
     view,
     keepAs,
     moveUp,
@@ -210,12 +224,15 @@ function setupQueryBuilderActions() {
     dragDrop,
     select,
     showViewDialog,
-    showAddDialog,
     showKeepAsDialog,
-    showDirectoryDialog,
     showAddBaseTypeDialog,
     showUpdateDialog,
-    addBefore
+    showBuildFeatureAfterDialog,
+    showAddFeatureAfterDialog,
+    showAddFeatureBeforeDialog,
+    showAddTestFeatureDialog,
+    showAddPopulationAfterDirectoryDialog,
+    showAddPopulationBeforeDirectoryDialog
   };
 }
 

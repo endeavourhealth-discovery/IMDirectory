@@ -7,25 +7,25 @@
 plugins {
     id 'base'
     id 'com.github.node-gradle.node'
-//    id "org.sonarqube" version "3.5.0.2730"
+    id "org.sonarqube" version "4.4.1.3373"
 }
 
-//def sonarLogin= System.getenv('SONAR_LOGIN')
-//
-//sonar {
-//    properties {
-//        property 'sonar.organization', 'endeavourhealth-discovery'
-//        property 'sonar.login', sonarLogin
-//        property 'sonar.host.url', 'https://sonarcloud.io'
-//        property 'sonar.projectKey', 'endeavourhealth-discovery_IM::im_library'
-//        property 'sonar.sources', 'src'
-//        property 'sonar.exclusions', '**/index.ts,**/*.d.ts,**/src/antlr4/**'
-//        property 'sonar.tests', 'tests'
-//        property 'sonar.test.inclusions', '**/*.spec.ts,**/*.spec.js'
-//        property 'sonar.javascript.lcov.reportPaths', 'coverage/lcov.info'
-//        property 'sonar.coverage.exclusions', '**/src/antlr4/**,**/src/models/**,**/src/vocabulary/**'
-//    }
-//}
+def sonarLogin= System.getenv('SONAR_LOGIN')
+
+sonar {
+    properties {
+        property 'sonar.organization', 'endeavourhealth-discovery'
+        property 'sonar.token', sonarLogin
+        property 'sonar.host.url', 'https://sonarcloud.io'
+        property 'sonar.projectKey', 'endeavourhealth-discovery_IM::im_library'
+        property 'sonar.sources', 'src'
+        property 'sonar.exclusions', '**/index.ts,**/*.d.ts,**/src/antlr4/**'
+        property 'sonar.tests', 'tests'
+        property 'sonar.test.inclusions', '**/*.spec.ts,**/*.spec.js'
+        property 'sonar.javascript.lcov.reportPaths', 'coverage/lcov.info'
+        property 'sonar.coverage.exclusions', '**/src/antlr4/**,**/src/models/**,**/src/vocabulary/**'
+    }
+}
 
 tasks.register('pnpmBuild', PnpmTask) {
     dependsOn pnpmInstall
@@ -46,6 +46,6 @@ clean.doLast {
     file('dist').deleteDir()
 }
 
-//if (env == 'prod') {
-//    check.finalizedBy 'sonar'
-//}
+if (env == 'prod') {
+    check.finalizedBy 'sonar'
+}

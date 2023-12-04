@@ -28,16 +28,23 @@
       :index="index"
       :parent-match="match"
       :match="nestedMatch"
+      :parent-data-model-iri="currentDataModelIri"
     />
+
     <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
       v-for="(property, index) of match.property"
       :index="index"
       :parent-match="match"
       :property="property"
+      :data-model-iri="currentDataModelIri"
     />
     <EditDisplayOrderBy v-if="match.orderBy" :match="match" :order-by="match.orderBy" :on-add-order-by="onAddOrderBy" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
+    <div v-if="isObjectHasKeys(match, ['then'])">
+      {{ match.then!.exclude ? "then" : "then include if" }}
+      <EditDisplayMatch :index="index" :parent-match="match" :match="match.then!" :isThenMatch="true" :parent-data-model-iri="currentDataModelIri" />
+    </div>
   </div>
 
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
@@ -46,21 +53,35 @@
     v-model:showDialog="showUpdateDialog"
     :header="'Refine feature'"
     :show-variable-options="false"
-    :match-type="getMatchType()"
+    :match-type="currentDataModelIri"
     :match="match"
     @on-save="(direct: Match[], nested: Match[]) => updateProperties(match, direct, nested)"
   />
 
   <AddPropertyDialog
-    v-model:showDialog="showAddDialog"
-    :header="'Add feature'"
+    v-model:showDialog="showAddTestFeatureDialog"
+    :header="'Test feature'"
     :show-variable-options="true"
-    :match-type="getMatchType()"
-    @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, addBefore)"
+    :match-type="currentDataModelIri"
+    @on-save="(direct: Match[], nested: Match[]) => addThenMatch(match, direct.concat(nested))"
+  />
+
+  <AddPropertyDialog
+    v-model:showDialog="showBuildFeatureAfterDialog"
+    :header="'Build new feature'"
+    :show-variable-options="true"
+    :match-type="currentDataModelIri"
+    @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, false)"
+  />
+
+  <AddFeatureDialog
+    v-model:show-dialog="showAddFeatureAfterDialog"
+    :validation-query-request="validationQueryRequest"
+    @on-feature-select="(matchToAdd: Match) => addMatchesToList(parentMatchList!, [matchToAdd], index, false)"
   />
 
   <DirectorySearchDialog
-    v-model:show-dialog="showDirectoryDialog"
+    v-model:show-dialog="showAddPopulationAfterDirectoryDialog"
     @update:selected="onSelect"
     :searchByQuery="validationQueryRequest"
     :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
@@ -96,12 +117,15 @@ import { IM } from "@im-library/vocabulary";
 import { ToastSeverity } from "@im-library/enums";
 import { ToastOptions } from "@im-library/models";
 import { useToast } from "primevue/usetoast";
+import AddFeatureDialog from "../edit/dialogs/AddFeatureDialog.vue";
 
 interface Props {
   parentMatch?: Match;
   parentMatchList?: Match[];
   match: Match;
   index: number;
+  isThenMatch?: boolean;
+  parentDataModelIri: string;
 }
 
 const props = defineProps<Props>();
@@ -111,8 +135,10 @@ const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.retur
 const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
 const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
+const currentDataModelIri: Ref<string> = ref("");
 
 const {
+  addThenMatch,
   updateProperties,
   addMatchesToList,
   view,
@@ -127,12 +153,13 @@ const {
   dragDrop,
   dragLeave,
   select,
-  showAddDialog,
   showUpdateDialog,
   showViewDialog,
   showKeepAsDialog,
-  showDirectoryDialog,
-  addBefore
+  showBuildFeatureAfterDialog,
+  showAddFeatureAfterDialog,
+  showAddTestFeatureDialog,
+  showAddPopulationAfterDirectoryDialog
 } = setupQueryBuilderActions();
 const toast = useToast();
 const editMode: Ref<boolean> = ref(false);
@@ -182,20 +209,24 @@ watch(
 onMounted(() => {
   htmlId.value = String(Math.random());
   getStyle();
+  currentDataModelIri.value = getMatchType();
 });
 
 function getMatchType() {
+  if (props.isThenMatch && isObjectHasKeys(props.parentMatch, ["typeOf"])) {
+    return props.parentMatch!.typeOf!["@id"];
+  }
   if (isObjectHasKeys(props.match, ["nodeRef"])) {
     return variableMap.value.get(props.match.nodeRef!).typeOf["@id"];
   } else if (isObjectHasKeys(props.match.typeOf, ["@id"])) return props.match.typeOf!["@id"];
 
-  return queryTypeIri.value;
+  return props.parentDataModelIri ?? queryStore.returnType;
 }
 
-function onSelect(cs: ConceptSummary) {
+function onSelect(cs: ConceptSummary, before?: boolean) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
-  addMatchesToList(props.parentMatchList!, [newMatch], props.index, addBefore.value);
-  showDirectoryDialog.value = false;
+  addMatchesToList(props.parentMatchList!, [newMatch], props.index, before);
+  showAddPopulationAfterDirectoryDialog.value = false;
 }
 
 function getClass() {
@@ -248,14 +279,14 @@ function getMultipleRCOptions() {
   const multipleRCOptions = [
     {
       label: "Group",
-      icon: PrimeIcons.LINK,
+      icon: "fa-solid fa-object-group",
       command: () => {
         group(selectedMatches.value, props.parentMatch?.match, props.parentMatch?.match ?? props.parentMatchList!);
       }
     },
     {
       label: "Delete",
-      icon: PrimeIcons.TRASH,
+      icon: "fa-solid fa-trash",
       command: () => {
         deleteSelected();
       }
@@ -267,80 +298,64 @@ function getMultipleRCOptions() {
 function getSingleRCOptions() {
   const singleRCOptions = [
     {
-      label: "Add feature",
+      label: "Build new feature",
+      icon: "fa-solid fa-hammer",
+      command: () => {
+        showBuildFeatureAfterDialog.value = true;
+      }
+    },
+    {
+      label: "Add existing feature",
       icon: "fa-solid fa-circle-plus",
       command: () => {
-        showAddDialog.value = true;
-      },
-      items: [
-        {
-          label: "Before",
-          command: () => {
-            showAddDialog.value = true;
-            addBefore.value = true;
-          }
-        },
-        {
-          label: "After",
-          command: () => {
-            showAddDialog.value = true;
-          }
-        }
-      ]
+        showAddFeatureAfterDialog.value = true;
+      }
     },
     {
       label: "Add population",
       icon: "fa-solid fa-magnifying-glass",
       command: () => {
-        showDirectoryDialog.value = true;
-      },
-      items: [
-        {
-          label: "Before",
-          command: () => {
-            showDirectoryDialog.value = true;
-            addBefore.value = true;
-          }
-        },
-        {
-          label: "After",
-          command: () => {
-            showDirectoryDialog.value = true;
-          }
-        }
-      ]
+        showAddPopulationAfterDirectoryDialog.value = true;
+      }
     },
     {
       label: props.match.exclude ? "Include" : "Exclude",
-      icon: props.match.exclude ? PrimeIcons.PLUS_CIRCLE : PrimeIcons.MINUS_CIRCLE,
+      icon: props.match.exclude ? "fa-solid fa-square-plus" : "fa-solid fa-square-minus",
       command: () => {
         toggleExclude();
       }
     },
     {
       label: "Change bool logic",
-      icon: PrimeIcons.ARROW_V,
+      icon: "fa-solid fa-arrows-up-down",
       command: () => {
         toggleBoolMatch();
       }
     },
     {
       label: "Label as a variable",
-      icon: PrimeIcons.SAVE,
+      icon: "fa-solid fa-floppy-disk",
       command: () => {
         keepAs();
       }
     },
     {
       label: "earliest/latest highest/lowest",
-      icon: PrimeIcons.SORT_ALT,
+      icon: "fa-solid fa-arrow-up-wide-short",
       command: () => {
         addOrderBy();
       }
     },
     {
+      label: "Test feature",
+      icon: "fa-solid fa-flask",
+      command: () => {
+        showAddTestFeatureDialog.value = true;
+      }
+    },
+    {
       label: "Move feature",
-      icon: PrimeIcons.SORT,
+      icon: "fa-solid fa-sort",
       items: [
         {
           label: "Up",
@@ -358,7 +373,7 @@ function getSingleRCOptions() {
     },
     {
       label: "View JSON",
-      icon: PrimeIcons.EYE,
+      icon: "fa-solid fa-eye",
       command: () => {
         view();
       }
@@ -372,7 +387,7 @@ function getSingleRCOptions() {
     },
     {
       label: "Delete feature",
-      icon: PrimeIcons.TRASH,
+      icon: "fa-solid fa-trash",
       command: () => {
         remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
       }
@@ -403,7 +418,7 @@ function getSingleRCOptions() {
   if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
     singleRCOptions.push({
       label: "Ungroup",
-      icon: PrimeIcons.EJECT,
+      icon: "fa-solid fa-object-ungroup",
       command: () => {
         ungroup(props.index, selectedMatches.value, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
@@ -451,7 +466,7 @@ function getStyle() {
 function copyMatchToClipboard() {
   const copyObject = { queryTypeIri: queryTypeIri.value, match: props.match };
   navigator.clipboard.writeText(JSON.stringify(copyObject));
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Copied value is not a valid match object."));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Feature was copied."));
 }
 </script>
 

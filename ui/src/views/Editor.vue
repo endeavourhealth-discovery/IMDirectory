@@ -37,8 +37,8 @@
             <span class="required-info">(*) item is required.</span>
           </div>
           <div class="button-bar" id="editor-button-bar">
-            <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
-            <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
+            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
+            <Button icon="fa-solid fa-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
           </div>
         </div>
       </div>
@@ -342,8 +342,22 @@ function processEntityValue(property: PropertyShape) {
 }
 
 function closeEditor() {
-  if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
-  else router.go(-1);
+  Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+    showCancelButton: true,
+    confirmButtonText: "Close",
+    reverseButtons: true,
+    confirmButtonColor: "#D32F2F",
+    cancelButtonColor: "#607D8B",
+    customClass: { confirmButton: "swal-reset-button" }
+  }).then((result: any) => {
+    if (result.isConfirmed) {
+      if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
+      else router.go(-1);
+    }
+  });
 }
 </script>
 
@@ -457,7 +471,6 @@ function closeEditor() {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
-  align-items: center;
   align-items: center;
 }
 

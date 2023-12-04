@@ -89,7 +89,6 @@ function setProperties(shape: PropertyShape) {
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: center;
-  overflow: auto;
   padding: 2rem 0 0 0;
 }
 

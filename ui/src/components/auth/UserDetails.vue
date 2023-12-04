@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
 import AuthRoles from "@/components/auth/userDetails/AuthRoles.vue";
@@ -47,7 +47,6 @@ const router = useRouter();
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);
-const isLoggedIn = computed(() => userStore.isLoggedIn);
 const activeItem = ref(0);
 const menuItems = ref([
   {

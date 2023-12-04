@@ -24,7 +24,7 @@
             :severity="hover ? 'danger' : 'secondary'"
             :outlined="!hover"
             :class="!hover && 'hover-button'"
-            icon="pi pi-trash"
+            icon="fa-solid fa-trash"
           />
         </div>
       </div>
@@ -90,6 +90,7 @@ import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { numberAscending } from "@im-library/helpers/Sorters";
 
 interface Props {
   value: any;
@@ -213,7 +214,7 @@ function processGroup() {
       const item = props.value.items.splice(index, 1)[0];
       newGroup.items.push(item);
     }
-    props.value.items.splice(group.value.sort()[0], 0, newGroup);
+    props.value.items.splice(group.value.sort(numberAscending)[0], 0, newGroup);
   }
   groupWithinBoolGroup.value = !groupWithinBoolGroup.value;
   group.value = [];

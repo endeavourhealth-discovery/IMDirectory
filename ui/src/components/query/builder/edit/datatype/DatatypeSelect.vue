@@ -1,7 +1,18 @@
 <template>
   <div v-if="datatype === XMLS.NAMESPACE + 'string'" class="property-input-container">
-    <Dropdown :options="['is', 'startsWith', 'contains']" v-model:model-value="propertyType" />
-    <InputText type="text" v-model:model-value="property.value" />
+    <Dropdown
+      :options="[
+        { id: 'is', name: 'is' },
+        { id: 'startsWith', name: 'starts with' },
+        { id: 'contains', name: 'contains' },
+        { id: 'notNull', name: 'is recorded' },
+        { id: 'isNull', name: 'is not recorded' }
+      ]"
+      optionValue="id"
+      optionLabel="name"
+      v-model:model-value="propertyType"
+    />
+    <InputText v-if="['is', 'startsWith', 'contains'].includes(propertyType)" type="text" v-model:model-value="property.value" />
   </div>
   <Dropdown
     v-else-if="datatype === XMLS.NAMESPACE + 'boolean'"
@@ -14,7 +25,17 @@
     v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer' || datatype === XMLS.NAMESPACE + 'number'"
     class="property-input-container"
   >
-    <Dropdown :options="['is', 'range']" v-model:model-value="propertyType" />
+    <Dropdown
+      :options="[
+        { id: 'is', name: 'is' },
+        { id: 'range', name: 'in range' },
+        { id: 'notNull', name: 'is recorded' },
+        { id: 'isNull', name: 'is not recorded' }
+      ]"
+      optionValue="id"
+      optionLabel="name"
+      v-model:model-value="propertyType"
+    />
     <ComparisonSelect v-if="propertyType === 'is'" :property="property" :datatype="datatype" :property-iri="property['@id']!" />
     <RangeSelect
       v-else-if="propertyType === 'range'"
@@ -54,12 +75,25 @@ watch(
   () => propertyType.value,
   () => {
     if (propertyType.value === "range" && !isObjectHasKeys(props.property, ["range"])) {
+      props.property.operator = undefined;
+      props.property.isNull = undefined;
       props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
     } else if (propertyType.value === "startsWith" || propertyType.value === "contains") {
+      delete props.property.range;
+      props.property.isNull = undefined;
       props.property.operator = propertyType.value;
     } else if (propertyType.value === "is") {
       delete props.property.range;
+      props.property.isNull = undefined;
       props.property.operator = "=";
+    } else if (propertyType.value === "notNull") {
+      delete props.property.range;
+      props.property.operator = undefined;
+      props.property.isNull = false;
+    } else if (propertyType.value === "isNull") {
+      delete props.property.range;
+      props.property.operator = undefined;
+      props.property.isNull = true;
     }
   }
 );
@@ -67,6 +101,8 @@ watch(
 onMounted(() => {
   if (isObjectHasKeys(props.property.range)) propertyType.value = "range";
   else if (props.property.operator === "startsWith" || props.property.operator === "contains") propertyType.value = props.property.operator;
+  else if (props.property.isNull === true) propertyType.value = "isNull";
+  else if (props.property.isNull === false) propertyType.value = "notNull";
   else propertyType.value = "is";
 });
 </script>

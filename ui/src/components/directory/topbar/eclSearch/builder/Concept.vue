@@ -46,7 +46,7 @@
           :severity="hover ? 'danger' : 'secondary'"
           :outlined="!hover"
           :class="!hover && 'hover-button'"
-          icon="pi pi-trash"
+          icon="fa-solid fa-trash"
           class="builder-button"
         />
       </span>
@@ -101,6 +101,7 @@ import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
+import { numberAscending } from "@im-library/helpers/Sorters";
 
 interface Props {
   value: {
@@ -248,7 +249,7 @@ function processGroup() {
       const item = props.value.items.splice(index, 1)[0];
       newGroup.items.push(item);
     }
-    props.value.items.splice(group.value.sort()[0], 0, newGroup);
+    props.value.items.splice(group.value.sort(numberAscending)[0], 0, newGroup);
   }
   groupWithinConcept.value = !groupWithinConcept.value;
   group.value = [];

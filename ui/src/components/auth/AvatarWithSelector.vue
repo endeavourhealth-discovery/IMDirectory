@@ -1,7 +1,7 @@
 <template>
   <div class="avatar-container">
     <img data-testid="avatar-image" id="selected-avatar" :src="getUrl(newAvatar)" alt="avatar icon" />
-    <Button data-testid="avatar-op-button" icon="pi pi-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
+    <Button data-testid="avatar-op-button" icon="fa-solid fa-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
     <OverlayPanel ref="avatar" class="avatar-popup">
       <div>
         Icons made by
@@ -49,8 +49,7 @@ watch(newAvatar, newValue => {
 });
 
 function toggleAvatarSelect(event: any): void {
-  const x = avatar.value as any;
-  x.toggle(event);
+  avatar.value.toggle(event);
 }
 
 function getUrl(item: string): string {
@@ -63,7 +62,6 @@ function getUrl(item: string): string {
 .avatar-container {
   position: relative;
   padding: 1.5em;
-  /* margin: 1em; */
 }
 
 .avatar-button {
