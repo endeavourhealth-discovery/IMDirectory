@@ -19,7 +19,7 @@ import * as d3 from "d3";
 import { onMounted, PropType, reactive, ref, Ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import _ from "lodash";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 

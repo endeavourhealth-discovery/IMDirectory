@@ -5,18 +5,27 @@
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
-        <div v-if="directoryLoading" class="flex flex-row justify-content-center align-items-center loading-container">
-          <ProgressSpinner />
-        </div>
         <router-view
-          v-else
+          v-slot="{ Component, route }"
           @selectedUpdated="routeToSelected"
           :searchResults="searchResults"
           :searchLoading="searchLoading"
           @navigateTo="navigateTo"
           @locateInTree="locateInTree"
           v-model:history="history"
-        />
+        >
+          <transition :name="showTransitions ? route?.meta?.transition : 'fade'" :mode="showTransitions ? route?.meta?.mode : 'in-out'">
+            <div
+              v-if="directoryLoading"
+              class="flex flex-row justify-content-center align-items-center loading-container"
+              :key="route.fullPath"
+              :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }"
+            >
+              <ProgressSpinner />
+            </div>
+            <component v-else :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
+          </transition>
+        </router-view>
       </div>
     </SplitterPanel>
   </Splitter>
@@ -26,7 +35,7 @@
 import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { DirectService } from "@/services";
-import { Ref, computed, ref } from "vue";
+import { Ref, computed, ref, onMounted } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRouter } from "vue-router";
 import { useLoadingStore } from "@/stores/loadingStore";
@@ -42,6 +51,12 @@ const findInTreeIri = computed(() => directoryStore.findInTreeIri);
 const directoryLoading = computed(() => loadingStore.directoryLoading);
 
 const history: Ref<string[]> = ref([]);
+const showTransitions = ref(false);
+
+onMounted(async () => {
+  await router.isReady();
+  showTransitions.value = true;
+});
 
 function updateSplitter(event: any) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
@@ -78,5 +93,19 @@ function locateInTree(iri: string) {
   display: flex;
   flex-flow: row nowrap;
   overflow: auto;
+}
+
+.loading-container {
+  width: 100%;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
