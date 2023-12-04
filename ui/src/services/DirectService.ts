@@ -47,7 +47,7 @@ export default class DirectService {
       header: "Confirmation",
       icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
-        this.directTo({ iri: iri, action: action, appRoute: appRoute });
+        this.directTo({ iri: iri, action: action, appRoute: appRoute, newTab: true });
       },
       reject: () => {
         component.$confirm.close();
@@ -71,7 +71,7 @@ export default class DirectService {
 
   public edit(iri?: string, openInNewTab?: boolean) {
     if (iri) this.directTo({ iri: iri, action: "Edited", appRoute: "editor", newTab: openInNewTab });
-    else this.directTo({});
+    else this.directTo({ newTab: true });
   }
 
   public query() {
