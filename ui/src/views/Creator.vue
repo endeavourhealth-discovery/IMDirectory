@@ -364,7 +364,7 @@ function submit(): void {
           if (result.isConfirmed) {
             Swal.fire({
               title: "Success",
-              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been created.",
+              text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
               icon: "success",
               showCancelButton: true,
               reverseButtons: true,
@@ -373,9 +373,9 @@ function submit(): void {
               cancelButtonColor: "#607D8B"
             }).then((result: any) => {
               if (result.isConfirmed) {
-                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
+                directService.view(editorEntity.value[IM.ID]);
               } else {
-                directService.edit(editorEntity.value["http://endhealth.info/im#id"], true);
+                directService.edit(editorEntity.value[IM.ID], true);
               }
             });
           }
