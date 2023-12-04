@@ -24,10 +24,6 @@ describe("IMQtoSQL.ts", () => {
 
     const actual: string = await queryService.generateQuerySQLFromQuery(def, "2db5b8f6146941f298c1d222b3514388");
 
-    console.log("=================================================================================================");
-    console.log(actual);
-    console.log("=================================================================================================");
-
     expect(actual).not.toBeNull();
     expect(actual).not.toBeUndefined();
     expect(actual).toEqual(testData["SQL"]);
