@@ -472,7 +472,6 @@ function closeEditor() {
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
-  align-items: center;
 }
 
 .required-container {

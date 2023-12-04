@@ -49,8 +49,7 @@ watch(newAvatar, newValue => {
 });
 
 function toggleAvatarSelect(event: any): void {
-  const x = avatar.value as any;
-  x.toggle(event);
+  avatar.value.toggle(event);
 }
 
 function getUrl(item: string): string {
@@ -63,7 +62,6 @@ function getUrl(item: string): string {
 .avatar-container {
   position: relative;
   padding: 1.5em;
-  /* margin: 1em; */
 }
 
 .avatar-button {

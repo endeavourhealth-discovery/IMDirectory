@@ -151,13 +151,7 @@ export const useUserStore = defineStore("user", {
           useUserStore().updateAwsUser(res.userRaw);
           result.authenticated = true;
         } else {
-          this.logoutCurrentUser().then(resLogout => {
-            if (resLogout.status === 200) {
-              // log.info("Force logout successful");
-            } else {
-              // log.error("Force logout failed");
-            }
-          });
+          this.logoutCurrentUser();
         }
       });
       return result;

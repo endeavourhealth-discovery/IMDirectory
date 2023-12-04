@@ -21,6 +21,7 @@
     "format": "prettier --write"
   },
   "dependencies": {
+    "@braintree/sanitize-url": "6.0.4",
     "@fortawesome/fontawesome-svg-core": "6.4.2",
     "@fortawesome/free-brands-svg-icons": "6.4.2",
     "@fortawesome/free-regular-svg-icons": "6.4.2",

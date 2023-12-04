@@ -116,8 +116,8 @@ function setSelectedItem(): String | undefined {
     const found = dropdownOptions.value.find(o => o === props.shape.isIri!["@id"]);
     if (found) return found;
   }
-  if (props.value) return props.value;
-  else if (props.value && isArrayHasLength(props.value)) return props.value[0];
+  if (props.value && isArrayHasLength(props.value)) return props.value[0];
+  else if (props.value) return props.value;
   else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!["@id"]) {
     const found = dropdownOptions.value.find(o => o === props.shape.isIri!["@id"]);
     if (found) return found;
