@@ -5,11 +5,7 @@
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
-        <div v-if="directoryLoading" class="flex flex-row justify-content-center align-items-center loading-container">
-          <ProgressSpinner />
-        </div>
         <router-view
-          v-else
           v-slot="{ Component, route }"
           @selectedUpdated="routeToSelected"
           :searchResults="searchResults"
@@ -19,7 +15,15 @@
           v-model:history="history"
         >
           <transition :name="showTransitions ? route?.meta?.transition : 'fade'" :mode="showTransitions ? route?.meta?.mode : 'in-out'">
-            <component :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
+            <div
+              v-if="directoryLoading"
+              class="flex flex-row justify-content-center align-items-center loading-container"
+              :key="route.fullPath"
+              :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }"
+            >
+              <ProgressSpinner />
+            </div>
+            <component v-else :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
           </transition>
         </router-view>
       </div>
@@ -93,7 +97,7 @@ function locateInTree(iri: string) {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.4s ease;
 }
 
 .fade-enter-from,
