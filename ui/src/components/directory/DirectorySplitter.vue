@@ -54,7 +54,7 @@ const history: Ref<string[]> = ref([]);
 const showTransitions = ref(false);
 
 onMounted(async () => {
-  await router.isReady();
+  await router.isReady;
   showTransitions.value = true;
 });
 
