@@ -70,7 +70,7 @@ const routes: Array<RouteRecordRaw> = [
         component: LandingPage,
         meta: {
           requiresLicense: true,
-          transitionDelay: "1s"
+          transitionDelay: "0.25s"
         }
       },
       {
