@@ -3,12 +3,12 @@
     <Toast />
     <ConfirmDialog />
     <DynamicDialog class="dynamic-dialog" />
-    <ReleaseNotes v-if="!loading && showReleaseNotes" />
+    <ReleaseNotes v-if="!viewsLoading && showReleaseNotes" />
     <CookiesConsent />
     <SnomedConsent />
     <div id="main-container">
-      <BannerBar v-if="!loading && showBanner" :latestRelease="latestRelease" />
-      <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
+      <BannerBar v-if="!viewsLoading && showBanner" :latestRelease="latestRelease" />
+      <div v-if="viewsLoading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
       <router-view v-else />
@@ -36,6 +36,7 @@ import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import setupChangeTheme from "@/composables/setupChangeTheme";
+import { useLoadingStore } from "./stores/loadingStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -45,6 +46,7 @@ const router = useRouter();
 const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const loadingStore = useLoadingStore();
 
 const { changeTheme } = setupChangeTheme();
 
@@ -53,6 +55,7 @@ const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
 const currentTheme = computed(() => userStore.currentTheme);
+const viewsLoading = computed(() => loadingStore.viewsLoading);
 
 watch(
   () => currentTheme.value,
@@ -62,10 +65,9 @@ watch(
 );
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
-const loading = ref(true);
 
 onMounted(async () => {
-  loading.value = true;
+  loadingStore.updateViewsLoading(true);
   await userStore.authenticateCurrentUser();
   await userStore.getAllFromUserDatabase();
   let theme = "saga-blue";
@@ -73,7 +75,7 @@ onMounted(async () => {
   if (currentTheme.value) theme = currentTheme.value;
   changeTheme(theme);
   await setShowBanner();
-  loading.value = false;
+  loadingStore.updateViewsLoading(false);
 });
 
 async function setShowBanner() {

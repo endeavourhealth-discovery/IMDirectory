@@ -10,28 +10,35 @@
     </TopBar>
     <div id="uprn-content">
       <TabMenu :model="items" id="uprn-menu">
-        <template #item="{label,item,props}">
+        <template #item="{ label, item, props }">
           <router-link v-if="item.route" v-slot="routerProps" :to="item.route" custom>
-            <a :href="routerProps.href" v-bind="props.action" @click="($event) => routerProps.navigate($event)">
-                <span v-bind="props.icon" />
-                <span v-bind="props.label">{{ label }}</span>
+            <a :href="routerProps.href" v-bind="props.action" @click="$event => routerProps.navigate($event)">
+              <span v-bind="props.icon" />
+              <span v-bind="props.label">{{ label }}</span>
             </a>
           </router-link>
           <a v-else :href="item.url" :target="item.target" v-bind="props.action">
             <span v-bind="props.icon" />
             <span v-bind="props.label">{{ label }}</span>
-        </a>
+          </a>
         </template>
       </TabMenu>
-      <router-view />
+      <div v-if="uprnLoading" class="flex flex-row justify-content-center align-items-center loading-container">
+        <ProgressSpinner />
+      </div>
+      <router-view v-else />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import UprnConsent from "@/components/uprn/UprnConsent.vue";
+import { useLoadingStore } from "@/stores/loadingStore";
+
+const loadingStore = useLoadingStore();
+const uprnLoading = computed(() => loadingStore.uprnLoading);
 
 const items = ref([
   {
