@@ -16,6 +16,7 @@
     "resolveJsonModule": true,
     "rootDirs": [".", "../im_library"],
     "baseUrl": ".",
+    "types": ["vitest/globals"],
     "outDir": "./dist/types",
     "paths": {
       "@/*": ["src/*"],

@@ -1,0 +1,223 @@
+{
+  "Q_TestQuery": {
+    "@id": "http://endhealth.info/im#Q_TestQuery",
+    "name": "Test for patients either aged between 65 and 70 or with diabetes with the most recent systolic in the last 12 months either home >130 or office >140,not followed by a screening invite, excluding hypertensives",
+    "match": [
+      {
+        "inSet": [
+          {
+            "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+            "name": "Registered for GMS services on reference date"
+          }
+        ]
+      },
+      {
+        "match": [
+          {
+            "property": [
+              {
+                "@id": "http://endhealth.info/im#age",
+                "range": {
+                  "from": {
+                    "operator": ">=",
+                    "value": "65",
+                    "unit": "YEARS"
+                  },
+                  "to": {
+                    "operator": "<",
+                    "value": "70",
+                    "unit": "YEARS"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "inSet": [
+              {
+                "@id": "http://endhealth.info/im#Q_Diabetics"
+              }
+            ]
+          },
+          {
+            "property": [
+              {
+                "@id": "http://endhealth.info/im#observation",
+                "match": {
+                  "property": [
+                    {
+                      "@id": "http://endhealth.info/im#concept",
+                      "is": [
+                        {
+                          "@id": "http://snomed.info/sct#714628002",
+                          "descendantsOf": true
+                        }
+                      ],
+                      "valueLabel": "Prediabetes"
+                    }
+                  ],
+                  "typeOf": {
+                    "@id": "http://endhealth.info/im#Observation"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "bool": "or"
+      },
+      {
+        "property": [
+          {
+            "@id": "http://endhealth.info/im#observation",
+            "match": {
+              "bool": "and",
+              "property": [
+                {
+                  "@id": "http://endhealth.info/im#concept",
+                  "name": "concept",
+                  "is": [
+                    {
+                      "@id": "http://snomed.info/sct#271649006",
+                      "name": "Systolic blood pressure",
+                      "descendantsOrSelfOf": true
+                    },
+                    {
+                      "@id": "http://endhealth.info/emis#1994021000006104",
+                      "name": "Home systolic blood pressure",
+                      "descendantsOrSelfOf": true
+                    }
+                  ],
+                  "valueLabel": "Office or home systolic blood pressure"
+                },
+                {
+                  "@id": "http://endhealth.info/im#effectiveDate",
+                  "operator": ">=",
+                  "value": "-12",
+                  "unit": "MONTHS",
+                  "relativeTo": {
+                    "parameter": "$referenceDate"
+                  },
+                  "valueLabel": "last 12 months"
+                }
+              ],
+              "orderBy": {
+                "property": [
+                  {
+                    "@id": "http://endhealth.info/im#effectiveDate",
+                    "direction": "descending"
+                  }
+                ],
+                "limit": 1
+              },
+              "typeOf": {
+                "@id": "http://endhealth.info/im#Observation"
+              },
+              "then": {
+                "match": [
+                  {
+                    "bool": "and",
+                    "property": [
+                      {
+                        "@id": "http://endhealth.info/im#concept",
+                        "is": [
+                          {
+                            "@id": "http://snomed.info/sct#271649006",
+                            "name": "Systolic blood pressure",
+                            "descendantsOrSelfOf": true
+                          }
+                        ],
+                        "valueLabel": "Office blood pressure"
+                      },
+                      {
+                        "@id": "http://endhealth.info/im#numericValue",
+                        "operator": ">",
+                        "value": "140"
+                      }
+                    ]
+                  },
+                  {
+                    "bool": "and",
+                    "property": [
+                      {
+                        "@id": "http://endhealth.info/im#concept",
+                        "is": [
+                          {
+                            "@id": "http://endhealth.info/emis#1994021000006104",
+                            "name": "Home systolic blood pressure",
+                            "descendantsOrSelfOf": true
+                          }
+                        ],
+                        "valueLabel": "Home blood pressure"
+                      },
+                      {
+                        "@id": "http://endhealth.info/im#numericValue",
+                        "operator": ">",
+                        "value": "130"
+                      }
+                    ]
+                  }
+                ],
+                "bool": "or",
+                "variable": "highBPReading"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "exclude": true,
+        "property": [
+          {
+            "@id": "http://endhealth.info/im#observation",
+            "match": {
+              "bool": "and",
+              "property": [
+                {
+                  "@id": "http://endhealth.info/im#concept",
+                  "inSet": [
+                    {
+                      "@id": "http://endhealth.info/im#InvitedForScreening"
+                    }
+                  ]
+                },
+                {
+                  "@id": "http://endhealth.info/im#effectiveDate",
+                  "operator": ">=",
+                  "relativeTo": {
+                    "@id": "http://endhealth.info/im#effectiveDate",
+                    "nodeRef": "highBPReading"
+                  }
+                }
+              ],
+              "typeOf": {
+                "@id": "http://endhealth.info/im#Observation"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "exclude": true,
+        "inSet": [
+          {
+            "@id": "http://endhealth.info/im#Q_Hypertensives",
+            "name": "Hypertensives"
+          }
+        ]
+      }
+    ],
+    "typeOf": {
+      "@id": "http://endhealth.info/im#Patient"
+    }
+  },
+  "Q_RegisteredGMS": {
+    "http://endhealth.info/im#definition": "{\n      \"@id\": \"http://endhealth.info/im#Q_RegisteredGMS\",\n      \"name\": \"Patient\",\n      \"description\":\n      \"For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date.\",\n      \"match\": [\n        {\n          \"name\": \"Registered GMS services on the reference date\",\n          \"property\": [\n            {\n              \"@id\": \"http://endhealth.info/im#gpRegistration\",\n              \"match\": {\n                \"bool\": \"and\",\n                \"property\": [\n                  {\n                    \"@id\": \"http://endhealth.info/im#gpPatientType\",\n                    \"is\": [\n                      {\n                        \"@id\": \"http://endhealth.info/im#2751000252106\",\n                        \"name\": \"Regular GMS patient\"\n                      }\n                    ]\n                  },\n                  {\n                    \"@id\": \"http://endhealth.info/im#effectiveDate\",\n                    \"operator\": \"<=\",\n                    \"relativeTo\": {\n                      \"parameter\": \"$referenceDate\"\n                    }\n                  },\n                  {\n                    \"bool\": \"or\",\n                    \"property\": [\n                      {\n                        \"@id\": \"http://endhealth.info/im#endDate\",\n                        \"isNull\": true\n                      },\n                      {\n                        \"@id\": \"http://endhealth.info/im#endDate\",\n                        \"operator\": \">\",\n                        \"relativeTo\": {\n                          \"parameter\": \"$referenceDate\"\n                        }\n                      }\n                    ]\n                  }\n                ],\n                \"typeOf\": {\n                  \"@id\": \"http://endhealth.info/im#GPRegistration\"\n                }\n              }\n            }\n          ]\n        }\n      ],\n      \"typeOf\": {\n        \"@id\": \"http://endhealth.info/im#Patient\"\n      }\n    }"
+  },
+  "Q_Diabetics": {
+    "http://endhealth.info/im#definition": "{\n\"@id\": \n\"http://endhealth.info/im#Q_Diabetics\",\n\"name\": \n\"Patients with active diabetes\",\n\"match\": \n[\n{\n\"property\": \n[\n{\n\"@id\": \n\"http://endhealth.info/im#observation\",\n\"match\": \n{\n\"bool\": \n\"and\",\n\"property\": \n[\n{\n\"@id\": \n\"http://endhealth.info/im#concept\",\n\"name\": \n\"concept\",\n\"is\": \n[\n{\n\"@id\": \n\"http://snomed.info/sct#73211009\",\n\"name\": \n\"Diabetes mellitus\",\n\"descendantsOrSelfOf\": \ntrue\n},\n{\n\"@id\": \n\"http://snomed.info/sct#315051004\",\n\"name\": \n\"Diabetes resolved\",\n\"descendantsOrSelfOf\": \ntrue\n}\n],\n\"valueLabel\": \n\"Diabetes mellitus or Diabetes resolved\"\n}\n],\n\"orderBy\": \n{\n\"property\": \n[\n{\n\"@id\": \n\"http://endhealth.info/im#effectiveDate\",\n\"direction\": \n\"descending\"\n}\n],\n\"limit\": \n1\n},\n\"typeOf\": \n{\n\"@id\": \n\"http://endhealth.info/im#Observation\"\n},\n\"then\": \n{\n\"property\": \n[\n{\n\"@id\": \n\"http://endhealth.info/im#concept\",\n\"is\": \n[\n{\n\"@id\": \n\"http://snomed.info/sct#73211009\",\n\"name\": \n\"Diabetes mellitus\",\n\"descendantsOrSelfOf\": \ntrue\n}\n]\n}\n]\n}\n}\n}\n]\n}\n],\n\"typeOf\": \n{\n\"@id\": \n\"http://endhealth.info/im#Patient\"\n}\n}"
+  },
+  "Q_Hypertensives": {
+    "http://endhealth.info/im#definition": "{\n\"@id\": \n\"http://endhealth.info/im#Q_Hypertensives\",\n\"name\": \n\"Patients with active hypertension\",\n\"match\": \n[\n{\n\"property\": \n[\n{\n\"@id\": \n\"http://endhealth.info/im#observation\",\n\"match\": \n{\n\"bool\": \n\"and\",\n\"property\": \n[\n{\n\"@id\": \n\"http://endhealth.info/im#concept\",\n\"name\": \n\"concept\",\n\"is\": \n[\n{\n\"@id\": \n\"http://snomed.info/sct#70995007\",\n\"name\": \n\"Hypertension\",\n\"descendantsOrSelfOf\": \ntrue\n},\n{\n\"@id\": \n\"http://snomed.info/sct#162659009\",\n\"name\": \n\"Hypertension resolved\",\n\"descendantsOrSelfOf\": \ntrue\n}\n],\n\"valueLabel\": \n\"Hypertension or Hypertension resolved\"\n}\n],\n\"orderBy\": \n{\n\"property\": \n[\n{\n\"@id\": \n\"http://endhealth.info/im#effectiveDate\",\n\"direction\": \n\"descending\"\n}\n],\n\"limit\": \n1\n},\n\"typeOf\": \n{\n\"@id\": \n\"http://endhealth.info/im#Observation\"\n},\n\"then\": \n{\n\"property\": \n[\n{\n\"@id\": \n\"http://endhealth.info/im#concept\",\n\"is\": \n[\n{\n\"@id\": \n\"http://snomed.info/sct#70995007\",\n\"name\": \n\"Hypertension\",\n\"descendantsOrSelfOf\": \ntrue\n}\n]\n}\n]\n}\n}\n}\n]\n}\n],\n\"typeOf\": \n{\n\"@id\": \n\"http://endhealth.info/im#Patient\"\n}\n}"
+  }
+}
