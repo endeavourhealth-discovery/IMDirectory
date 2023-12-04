@@ -56,13 +56,13 @@ export default class DirectService {
   }
 
   public file() {
-    this.directTo({ action: "Filed", appRoute: "filer" });
+    this.directTo({ action: "Filed", appRoute: "filer", newTab: true });
   }
 
   public view(iri?: string, appRoute?: string) {
     if (iri && appRoute) this.directTo({ iri: iri, action: "Viewed", appRoute: appRoute, newTab: true });
     else if (iri) this.directTo({ iri: iri, action: "Viewed", appRoute: "directory/folder", newTab: true });
-    else this.directTo({});
+    else this.directTo({ newTab: true });
   }
 
   public select(iri: string, routeName?: string) {
@@ -75,12 +75,12 @@ export default class DirectService {
   }
 
   public query() {
-    this.directTo({ action: "Queried", appRoute: "query" });
+    this.directTo({ action: "Queried", appRoute: "query", newTab: true });
   }
 
   public create(typeIri?: string, propertyIri?: string, valueIri?: string) {
     if (!typeIri && !propertyIri && !valueIri) {
-      this.directTo({ appRoute: "creator" });
+      this.directTo({ appRoute: "creator", newTab: true });
     } else {
       const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, propertyIri: propertyIri, valueIri: valueIri } });
       this.directTo({ appRoute: routeData.href.replace("#/", ""), newTab: true });
@@ -88,6 +88,6 @@ export default class DirectService {
   }
 
   public uprn() {
-    this.directTo({ appRoute: "uprn" });
+    this.directTo({ appRoute: "uprn", newTab: true });
   }
 }
