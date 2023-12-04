@@ -124,7 +124,6 @@ function submitAgree(): void {
   margin: 0.5rem;
   border: 1px solid;
   padding: 0.5rem;
-  overflow: auto;
 }
 
 .license-disclaimer {

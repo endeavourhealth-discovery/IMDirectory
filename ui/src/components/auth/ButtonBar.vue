@@ -13,11 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/authStore";
 
-const authStore = useAuthStore();
 const router = useRouter();
 
 function clickedBack(): void {

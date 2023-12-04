@@ -26,11 +26,10 @@ import FooterBar from "./components/app/FooterBar.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Env, GithubService, UserService } from "@/services";
+import { GithubService, UserService } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
 import semver from "semver";
-import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
@@ -41,7 +40,6 @@ import { useLoadingStore } from "./stores/loadingStore";
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
-const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const userStore = useUserStore();
@@ -82,7 +80,7 @@ async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
   latestRelease.value = await GithubService.getLatestRelease("IMDirectory");
   let currentVersion = "v0.0.0";
-  if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
+  if (latestRelease.value?.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
     sharedStore.updateShowBanner(true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
@@ -93,10 +91,6 @@ async function setShowBanner() {
 
 function getLocalVersion(repoName: string): string | null {
   return localStorage.getItem(repoName + "Version");
-}
-
-function setLocalVersion(repoName: string, versionNo: string) {
-  localStorage.setItem(repoName + "Version", versionNo);
 }
 
 async function setupAxiosInterceptors(axios: any) {

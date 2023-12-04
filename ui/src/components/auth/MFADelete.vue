@@ -23,8 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, h, computed, Ref } from "vue";
-import _ from "lodash";
+import { ref, h, computed } from "vue";
 import { useDialog } from "primevue/usedialog";
 import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";

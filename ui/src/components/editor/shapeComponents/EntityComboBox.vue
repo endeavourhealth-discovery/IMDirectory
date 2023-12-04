@@ -133,7 +133,6 @@ function processPropsValue() {
     const foundFixedOption = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri!["@id"]);
     if (!foundFixedOption) {
       throw new Error("shape isIri value did not match any dropdown option");
-      return;
     } else {
       fixedOption.value = foundFixedOption;
       dropdownOptions.value = dropdownOptions.value.filter(o => o["@id"] != fixedOption.value["@id"]);
