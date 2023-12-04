@@ -23,16 +23,23 @@
           </a>
         </template>
       </TabMenu>
-      <router-view />
+      <div v-if="uprnLoading" class="flex flex-row justify-content-center align-items-center loading-container">
+        <ProgressSpinner />
+      </div>
+      <router-view v-else />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import UprnConsent from "@/components/uprn/UprnConsent.vue";
 import { sanitizeUrl } from "@braintree/sanitize-url";
+import { useLoadingStore } from "@/stores/loadingStore";
+
+const loadingStore = useLoadingStore();
+const uprnLoading = computed(() => loadingStore.uprnLoading);
 
 const items = ref([
   {
