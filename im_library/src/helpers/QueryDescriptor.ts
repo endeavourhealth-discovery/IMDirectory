@@ -48,8 +48,7 @@ export function describeMatch(match: Match, index: number, bool: Bool, matchType
 export function describeProperty(property: Property, index: number, bool: Bool, matchType?: MatchType) {
   if (property.match) describeMatch(property.match, 0, "and", "path");
   if (isObjectHasKeys(property, ["@id"])) {
-    let display = getDisplayFromEntailment(property);
-    display += getDisplayFromProperty(property, matchType);
+    let display = getDisplayFromProperty(property, matchType);
     if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
     property.description = display;
   }
@@ -64,9 +63,16 @@ export function describeProperty(property: Property, index: number, bool: Bool, 
 export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   let display = "";
   if (match.inSet) display = getDisplayFromInSet(match.inSet);
-  else if (match.typeOf) display = getNameFromRef(match.typeOf);
-  else if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
-  else if (!match.property && match["@id"] && match.name) display = match.name;
+  else if (match.typeOf) {
+    display = getNameFromRef(match.typeOf);
+    display += getDisplaySuffixFromEntailment(match.typeOf);
+  } else if (match.instanceOf) {
+    display = "is instance of " + getNameFromRef(match.instanceOf);
+    display += getDisplaySuffixFromEntailment(match.instanceOf);
+  } else if (!match.property && match["@id"] && match.name) {
+    display = match.name;
+    display += getDisplaySuffixFromEntailment(match as any);
+  }
 
   if (match.orderBy) describeOrderByList(match.orderBy, matchType);
   if ("path" == matchType) display += " with";
@@ -113,14 +119,18 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
   if (!property.match) display += propertyName;
 
   if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
+  display += getDisplaySuffixFromEntailment(property);
 
-  if (property.is) display += getDisplayFromList(property, true, property.is);
-  if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
-  if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
-  if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
-  if (property.operator) display = getDisplayFromOperator(propertyName, property);
-  if (property.range) display = getDisplayFromRange(propertyName, property);
-  if (property.isNull) display += " is null";
+  if (property.isNull) display += " is not recorded";
+  else if (property.isNull === false) display += " is recorded";
+  else {
+    if (property.is) display += getDisplayFromList(property, true, property.is);
+    if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
+    if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
+    if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
+    if (property.operator) display = getDisplayFromOperator(propertyName, property);
+    if (property.range) display = getDisplayFromRange(propertyName, property);
+  }
   return display;
 }
 
@@ -178,7 +188,7 @@ export function getDisplayFromRange(propertyName: string, property: Property) {
   const propertyDisplay = propertyName;
   let display = propertyDisplay + " between ";
   display += property.range?.from.value + " and " + property.range?.to.value;
-  if (!propertyName.toLowerCase().includes("date")) display += " " + property.range?.to.unit;
+  if (!propertyName.toLowerCase().includes("date") && property.range?.to.unit) display += " " + property.range?.to.unit;
   return display;
 }
 
@@ -282,10 +292,17 @@ export function getDisplayFromList(property: Property, include: boolean, nodes: 
   return display;
 }
 
+export function getDisplaySuffixFromEntailment(entailment: Entailment) {
+  if (entailment.ancestorsOf) return " (ancestors only)";
+  if (entailment.descendantsOf) return " (descendants only)";
+  if (entailment.descendantsOrSelfOf) return " (including descendants)";
+  return "";
+}
+
 export function getDisplayFromEntailment(entailment: Entailment) {
   if (entailment.ancestorsOf) return "ancestors of ";
   if (entailment.descendantsOf) return "descendants of ";
-  if (entailment.descendantsOrSelfOf) return "";
+  if (entailment.descendantsOrSelfOf) return "descendants of or ";
   return "";
 }
 

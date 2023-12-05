@@ -74,6 +74,7 @@ watch(
       else {
         if (newValue?.property?.concept?.iri !== oldValue?.property?.concept?.iri) await processProps();
         if (newValue?.value?.concept?.iri !== oldValue?.value?.concept?.iri) await processProps();
+        props.value.ecl = generateEcl();
       }
     }
   }

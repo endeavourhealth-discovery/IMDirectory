@@ -11,7 +11,7 @@
 import { ref } from "vue";
 import { Assignable } from "@im-library/interfaces/AutoGen";
 import RelativeToSelect from "./RelativeToSelect.vue";
-const operatorOptions = ["=", ">=", ">", "<="];
+const operatorOptions = ["=", ">=", ">", "<=", "<"];
 const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 
 interface Props {

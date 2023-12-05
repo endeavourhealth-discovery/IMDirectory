@@ -5,7 +5,11 @@
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
+        <div v-if="directoryLoading" class="flex flex-row justify-content-center align-items-center loading-container">
+          <ProgressSpinner />
+        </div>
         <router-view
+          v-else
           @selectedUpdated="routeToSelected"
           :searchResults="searchResults"
           :searchLoading="searchLoading"
@@ -25,14 +29,17 @@ import { DirectService } from "@/services";
 import { Ref, computed, ref } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRouter } from "vue-router";
+import { useLoadingStore } from "@/stores/loadingStore";
 
 const router = useRouter();
+const loadingStore = useLoadingStore();
 const directoryStore = useDirectoryStore();
 const directService = new DirectService();
 
 const searchResults = computed(() => directoryStore.searchResults);
 const searchLoading = computed(() => directoryStore.searchLoading);
 const findInTreeIri = computed(() => directoryStore.findInTreeIri);
+const directoryLoading = computed(() => loadingStore.directoryLoading);
 
 const history: Ref<string[]> = ref([]);
 

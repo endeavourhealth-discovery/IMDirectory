@@ -362,6 +362,12 @@ export default class QueryService {
     return await this.generateQueryDescriptions(queryWithMatchIds);
   }
 
+  public async getQueryDisplayFromQuery(query: Query) {
+    const labeledQuery = await this.getLabeledQuery(query);
+    const queryWithMatchIds = generateMatchIds(labeledQuery);
+    return await this.generateQueryDescriptions(queryWithMatchIds);
+  }
+
   public async getLabeledQuery(query: Query) {
     const sparqlStart = "SELECT ?s ?o {" + " ?s rdfs:label ?o " + "VALUES ?s { ";
     let sparqlBody = "";

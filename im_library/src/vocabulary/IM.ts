@@ -92,6 +92,7 @@ export class IM {
   public static MODULE_QUERIES = IM.NAMESPACE + "Q_Queries";
   public static MODULE_IM = IM.NAMESPACE + "InformationModel";
   public static MODULE_TASKS = IM.NAMESPACE + "Tasks";
+  public static MODULE_FEATURES = IM.NAMESPACE + "M_MatchClauses";
 
   // Stats reports
   public static CONCEPT_CATEGORY = IM.NAMESPACE + "ontologyOverview";

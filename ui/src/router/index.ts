@@ -52,6 +52,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
 import Swal, { SweetAlertResult } from "sweetalert2";
+import { useLoadingStore } from "@/stores/loadingStore";
 
 const APP_TITLE = "IM Directory";
 
@@ -193,8 +194,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       requiresAuth: true,
       requiresCreateRole: true
-    },
-    children: [{ path: "type", name: "TypeSelector", component: TypeSelector }]
+    }
   },
   {
     path: "/editor/:selectedIri?",
@@ -206,8 +206,7 @@ const routes: Array<RouteRecordRaw> = [
       requiresLicense: true,
       requiresEditRole: true,
       requiresOrganisation: true
-    },
-    children: []
+    }
   },
   {
     path: "/workflow",
@@ -283,7 +282,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "Privacy",
     component: PrivacyPolicy
   },
-  { path: "/cookies", name: "Cookies", component: Cookies },
+  { path: "/cookies", name: "Cookies", component: Cookies, meta: { view: true } },
   {
     path: "/uprn-agreement",
     name: "UPRNAgreement",
@@ -350,6 +349,16 @@ async function directToLogin() {
 }
 
 router.beforeEach(async (to, from) => {
+  const loadingStore = useLoadingStore();
+  if (routes.findIndex(view => view.name === to.meta.name) != -1) {
+    loadingStore.updateViewsLoading(true);
+  }
+  if (to.matched.some((record: any) => record.name === "Directory")) {
+    loadingStore.updateDirectoryLoading(true);
+  }
+  if (to.matched.some(record => record.name === "Uprn")) {
+    loadingStore.updateUprnLoading(true);
+  }
   const directoryStore = useDirectoryStore();
   const authStore = useAuthStore();
   const creatorStore = useCreatorStore();
@@ -471,6 +480,16 @@ router.beforeEach(async (to, from) => {
 });
 
 router.afterEach(to => {
+  const loadingStore = useLoadingStore();
+  if (routes.findIndex(view => view.name === to.meta.name) != -1) {
+    loadingStore.updateViewsLoading(false);
+  }
+  if (to.matched.some((record: any) => record.name === "Directory")) {
+    loadingStore.updateDirectoryLoading(false);
+  }
+  if (to.matched.some(record => record.name === "Uprn")) {
+    loadingStore.updateUprnLoading(false);
+  }
   nextTick(() => {
     document.title = (to.meta.title as string) || APP_TITLE;
   });
