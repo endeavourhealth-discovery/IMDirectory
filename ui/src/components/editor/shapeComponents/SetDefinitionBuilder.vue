@@ -324,11 +324,19 @@ Textarea {
 #defintion-panel-container:deep(.p-tabview-panel) {
   height: 100%;
   overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 #defintion-panel-container {
   height: 100%;
   width: 100%;
   overflow: auto;
+}
+
+#defintion-panel-container:deep(.p-tabview) {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
 }
 </style>

@@ -35,9 +35,15 @@ const EclService = {
   },
 
   async getECLFromQuery(query: Query, includeNames?: boolean): Promise<any> {
-    const result: any = await axios.post(Env.API + "api/ecl/public/eclFromQuery", query, { params: { includeNames: includeNames } });
-    if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
-    else return result;
+    if (includeNames) {
+      const result: any = await axios.post(Env.API + "api/ecl/public/eclFromQueryWithNames", query);
+      if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
+      else return result;
+    } else {
+      const result: any = await axios.post(Env.API + "api/ecl/public/eclFromQuery", query);
+      if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
+      else return result;
+    }
   },
 
   async getBuildFromEcl(ecl: string, raw: boolean = false): Promise<any> {
