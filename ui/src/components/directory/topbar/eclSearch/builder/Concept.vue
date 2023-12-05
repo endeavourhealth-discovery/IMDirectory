@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch, inject } from "vue";
+import { Ref, ref, onMounted, watch, inject } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
@@ -156,7 +156,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  if (props.value && props.value.concept) {
+  if (props.value?.concept) {
     props.value.ecl = generateEcl();
   }
 }
@@ -245,11 +245,11 @@ function generateEcl(): string {
 function processGroup() {
   if (groupWithinConcept.value && group.value.length) {
     const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
-    for (const index of group.value.sort((a, b) => a - b).reverse()) {
+    for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
       const item = props.value.items.splice(index, 1)[0];
       newGroup.items.push(item);
     }
-    props.value.items.splice(group.value.sort(numberAscending)[0], 0, newGroup);
+    props.value.items.splice(group.value.toSorted(numberAscending)[0], 0, newGroup);
   }
   groupWithinConcept.value = !groupWithinConcept.value;
   group.value = [];

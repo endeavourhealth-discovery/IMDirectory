@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import * as d3 from "d3";
-import { onMounted, PropType, reactive, ref, Ref, watch } from "vue";
+import { createVNode, onMounted, reactive, ref, Ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import _ from "lodash";
 import { EntityService } from "@/services";
@@ -52,12 +52,6 @@ const nodeMap = reactive(new Map<string, any[]>());
 const overlayTop = ref(0);
 const displayMenu = ref(true);
 const tangleLayout2: any = ref();
-const bundles: any = ref();
-const layout: any = ref();
-const levels: any = ref();
-const links: any = ref();
-const nodes: any = ref();
-const nodesIndex: any = ref();
 
 const menu = ref();
 
@@ -68,7 +62,7 @@ onMounted(() => {
 });
 
 async function getMultiselectMenu(d: any) {
-  let node = d["target"]["__data__"] as any;
+  let node = d["target"]["__data__"];
   multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
   let result = [] as PropertyDisplay[];
   if (node.type === "group") {
@@ -86,44 +80,48 @@ async function getMultiselectMenu(d: any) {
   }
   if (result && result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
-      let propId = "";
-      let propLabel = "";
-      r.property.forEach(p => {
-        propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
-        propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
-      });
-      if (r.group) {
-        if (node.type === "group") {
-          if (node.id === r.group?.["@id"]) {
-            multiselectMenu.value.push({
-              iri: propId,
-              label: propLabel,
-              result: r
-            });
-          }
-        } else {
-          multiselectMenu.value.push({
-            iri: propId,
-            label: propLabel,
-            result: r
-          });
-        }
-      } else {
+      processPropertyDisplay(r, node);
+    });
+  }
+  displayMenu.value = multiselectMenu.value.length !== 0;
+}
+
+function processPropertyDisplay(r: PropertyDisplay, node: any) {
+  let propId = "";
+  let propLabel = "";
+  r.property.forEach(p => {
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
+  });
+  if (r.group) {
+    if (node.type === "group") {
+      if (node.id === r.group?.["@id"]) {
         multiselectMenu.value.push({
           iri: propId,
           label: propLabel,
           result: r
         });
       }
+    } else {
+      multiselectMenu.value.push({
+        iri: propId,
+        label: propLabel,
+        result: r
+      });
+    }
+  } else {
+    multiselectMenu.value.push({
+      iri: propId,
+      label: propLabel,
+      result: r
     });
   }
-  displayMenu.value = multiselectMenu.value.length !== 0;
 }
 
 function addNode(node: any, r: PropertyDisplay) {
   let propId = "";
   let propLabel = "";
-  const range = [] as TTIriRef[];
+  const range: TTIriRef[] = [];
   r.type?.forEach(t => {
     range.push(t);
   });
@@ -136,57 +134,45 @@ function addNode(node: any, r: PropertyDisplay) {
       chartData.value.push([
         {
           id: r.group["@id"],
-          parents: [node.id as any],
-          name: r.group.name || r.group["@id"],
+          parents: [node.id],
+          name: r.group.name ?? r.group["@id"],
           type: "group"
         }
       ]);
     } else {
       chartData.value[node.level + 1]?.push({
         id: r.group["@id"],
-        parents: [node.id as any],
-        name: r.group.name || r.group["@id"],
+        parents: [node.id],
+        name: r.group.name ?? r.group["@id"],
         type: "group"
       });
     }
-  } else {
-    if (r.isType) {
-      if (chartData.value.length < node.level + 2) {
-        chartData.value.push([
-          {
-            id: propId,
-            parents: [node.id],
-            name: propLabel,
-            type: "type",
-            cardinality: r.cardinality,
-            isOr: r.isOr
-          }
-        ]);
-      } else {
-        chartData.value[node.level + 1].push({
+  } else if (r.isType) {
+    if (chartData.value.length < node.level + 2) {
+      chartData.value.push([
+        {
           id: propId,
           parents: [node.id],
           name: propLabel,
           type: "type",
           cardinality: r.cardinality,
           isOr: r.isOr
-        });
-      }
+        }
+      ]);
     } else {
-      if (chartData.value.length < node.level + 2) {
-        chartData.value.push([
-          {
-            id: propId,
-            parents: [node.id],
-            name: propLabel,
-            type: "property",
-            cardinality: r.cardinality,
-            isOr: r.isOr,
-            range: range
-          }
-        ]);
-      } else {
-        chartData.value[node.level + 1].push({
+      chartData.value[node.level + 1].push({
+        id: propId,
+        parents: [node.id],
+        name: propLabel,
+        type: "type",
+        cardinality: r.cardinality,
+        isOr: r.isOr
+      });
+    }
+  } else {
+    if (chartData.value.length < node.level + 2) {
+      chartData.value.push([
+        {
           id: propId,
           parents: [node.id],
           name: propLabel,
@@ -194,8 +180,18 @@ function addNode(node: any, r: PropertyDisplay) {
           cardinality: r.cardinality,
           isOr: r.isOr,
           range: range
-        });
-      }
+        }
+      ]);
+    } else {
+      chartData.value[node.level + 1].push({
+        id: propId,
+        parents: [node.id],
+        name: propLabel,
+        type: "property",
+        cardinality: r.cardinality,
+        isOr: r.isOr,
+        range: range
+      });
     }
   }
   renderChart();
@@ -238,13 +234,13 @@ function hideNode(node: any, parentId: any) {
 }
 
 async function setSelected(iri: any) {
-  const result = (await EntityService.getPropertiesDisplay(iri)) || [];
+  const result = await EntityService.getPropertiesDisplay(iri);
   if (result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
       if (r.group) {
         if (!selected.value.some((n: any) => n.iri === r.group?.["@id"])) {
           selected.value.push({
-            iri: r.group?.["@id"],
+            iri: r.group["@id"],
             label: r.group.name as string,
             result: r
           });
@@ -271,16 +267,6 @@ function change(event: any) {
   hideAll(selectedNode.value);
   if (event.value.length > 0) {
     event.value.forEach((p: any) => {
-      let isExist = false;
-      // chartData.value.forEach((d: any) => {
-      //   const result = d[0]?.level !== chartData.value.length - 1 && d.some((n: any) => n.id == p.result.type?.["@id"]);
-      //   if (result) isExist = true;
-      // });
-      // if (isExist) {
-      //   addNode(selectedNode.value, p.result, twinNode + p.result.type?.["@id"]);
-      // } else {
-      //   addNode(selectedNode.value, p.result, p.result.type?.["@id"]);
-      // }
       addNode(selectedNode.value, p.result);
     });
   }
@@ -305,12 +291,6 @@ function renderChart() {
 
   const tangleLayout = constructTangleLayout(chartData.value, options.value);
   tangleLayout2.value = tangleLayout;
-  bundles.value = tangleLayout.bundles;
-  layout.value = tangleLayout.layout;
-  levels.value = tangleLayout.levels;
-  links.value = tangleLayout.links;
-  nodes.value = tangleLayout.nodes;
-  nodesIndex.value = tangleLayout.nodes_index;
 
   const w = tangleLayout.layout.width ? tangleLayout.layout.width + 300 : 1000;
   const h = tangleLayout.layout.height ? tangleLayout.layout.height + 300 : 1000;
@@ -319,104 +299,10 @@ function renderChart() {
 
   svg.append("g").attr("class", "labels").selectAll("title").data(tangleLayout.nodes).enter().append("g");
 
-  const link = svg.append("g").attr("fill", "none").attr("stroke-width", 1).selectAll("g").data(tangleLayout.links).join("g");
-
-  link
-    .append("path")
-    .attr("stroke-width", 2)
-    .attr("stroke", (l: any) => color.value(l.bundle.id))
-    .attr(
-      "d",
-      (l: any) => `M${l.xt} ${l.yt}L${l.xb - l.c1} ${l.yt}
-                                  A${l.c1} ${l.c1} 90 0 1 ${l.xb} ${l.yt + l.c1}
-                                  L${l.xb} ${l.ys - l.c2}
-                                  A${l.c2} ${l.c2} 90 0 0 ${l.xb + l.c2} ${l.ys}
-                                  L${l.xs} ${l.ys}`
-    )
-    .join("");
-
-  const node = svg
-    .append("g")
-    .attr("fill", "currentColor")
-    .attr("stroke-linecap", "round")
-    .attr("stroke-linejoin", "round")
-    .selectAll("g")
-    .data(tangleLayout.nodes)
-    .join("g");
-
-  node
-    .append("path")
-    .attr("stroke", "black")
-    .attr("stroke-width", 10)
-    .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
-
-  const nodeCircle = node
-    .append("path")
-    .attr("stroke", "white")
-    .attr("stroke-width", 7)
-    .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
-
-  nodeCircle.on("click", e => {
-    const node = e["target"]["__data__"];
-    e.preventDefault();
-    toggleSubProperties(e);
-    if (selectedNode.value !== node) {
-      selectedNode.value = node;
-      selected.value = (nodeMap.get(node.id) as any) || [];
-    }
-  });
-
-  nodeCircle
-    .on("mouseover", (d: any) => {
-      d3.select(d.srcElement).style("cursor", "pointer").attr("stroke-width", 14).attr("stroke", "grey");
-    })
-    .on("mouseout", (d: any) => {
-      d3.select(d.srcElement).attr("stroke-width", 7).attr("stroke", "white");
-    });
-
-  nodeCircle.on("contextmenu", e => {
-    const node = e["target"]["__data__"];
-    e.preventDefault();
-    getMultiselectMenu(e);
-    if (displayMenu.value) {
-      menu.value.show(e);
-    }
-
-    overlayTop.value = e.clientY;
-    if (selectedNode.value !== node) {
-      selectedNode.value = node;
-      selected.value = (nodeMap.get(node.id) as any) || [];
-    }
-  });
-
-  const selectedCircle = nodeCircle.filter((n: any) => n.cardinality !== undefined);
-  let cardRect: any;
-  let cardinality: any;
-  selectedCircle
-    .on("mouseover", (d: any) => {
-      const n = d["target"]["__data__"];
-      cardRect = svg
-        .append("rect")
-        .attr("x", n.x + 30)
-        .attr("y", n.y - 40)
-        .attr("width", 103)
-        .attr("height", 40)
-        .attr("fill", "white")
-        .attr("stroke", "black");
-      cardinality = svg
-        .append("text")
-        .attr("x", n.x + 40)
-        .attr("y", n.y - 15)
-        .text("Cardinality: " + n.cardinality)
-        .attr("stroke-width", 0.1)
-        .style("font-size", 12);
-    })
-    .on("mouseout", (_d: any) => {
-      if (cardRect && cardinality) {
-        cardRect.remove();
-        cardinality.remove();
-      }
-    });
+  createLink(svg, tangleLayout);
+  const node = createNode(svg, tangleLayout);
+  const nodeCircle = createNodeCircle(node);
+  createSelectedCircle(nodeCircle, svg);
 
   const div = d3.selectAll("#data-model-svg-container").append("div").attr("class", "tooltip").style("opacity", 0);
 
@@ -463,23 +349,156 @@ function renderChart() {
     });
 }
 
-function constructTangleLayout(levels: any, options: any) {
-  // precompute level depth
+function createLink(svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, tangleLayout: TangleLayout): void {
+  const link = svg.append("g").attr("fill", "none").attr("stroke-width", 1).selectAll("g").data(tangleLayout.links).join("g");
+
+  link
+    .append("path")
+    .attr("stroke-width", 2)
+    .attr("stroke", (l: any) => color.value(l.bundle.id))
+    .attr(
+      "d",
+      (l: any) => `M${l.xt} ${l.yt}L${l.xb - l.c1} ${l.yt}
+                                A${l.c1} ${l.c1} 90 0 1 ${l.xb} ${l.yt + l.c1}
+                                L${l.xb} ${l.ys - l.c2}
+                                A${l.c2} ${l.c2} 90 0 0 ${l.xb + l.c2} ${l.ys}
+                                L${l.xs} ${l.ys}`
+    )
+    .join("");
+}
+
+function createNode(
+  svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>,
+  tangleLayout: TangleLayout
+): d3.Selection<d3.BaseType | SVGGElement, unknown, SVGGElement, unknown> {
+  const node = svg
+    .append("g")
+    .attr("fill", "currentColor")
+    .attr("stroke-linecap", "round")
+    .attr("stroke-linejoin", "round")
+    .selectAll("g")
+    .data(tangleLayout.nodes)
+    .join("g");
+
+  node
+    .append("path")
+    .attr("stroke", "black")
+    .attr("stroke-width", 10)
+    .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
+
+  return node;
+}
+
+function createSelectedCircle(
+  nodeCircle: d3.Selection<SVGPathElement, unknown, SVGGElement, unknown>,
+  svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>
+) {
+  const selectedCircle = nodeCircle.filter((n: any) => n.cardinality !== undefined);
+  let cardRect: any;
+  let cardinality: any;
+  selectedCircle
+    .on("mouseover", (d: any) => {
+      const n = d["target"]["__data__"];
+      cardRect = svg
+        .append("rect")
+        .attr("x", n.x + 30)
+        .attr("y", n.y - 40)
+        .attr("width", 103)
+        .attr("height", 40)
+        .attr("fill", "white")
+        .attr("stroke", "black");
+      cardinality = svg
+        .append("text")
+        .attr("x", n.x + 40)
+        .attr("y", n.y - 15)
+        .text("Cardinality: " + n.cardinality)
+        .attr("stroke-width", 0.1)
+        .style("font-size", 12);
+    })
+    .on("mouseout", (_d: any) => {
+      if (cardRect && cardinality) {
+        cardRect.remove();
+        cardinality.remove();
+      }
+    });
+}
+
+function createNodeCircle(
+  node: d3.Selection<d3.BaseType | SVGGElement, unknown, SVGGElement, unknown>
+): d3.Selection<SVGPathElement, unknown, SVGGElement, unknown> {
+  const nodeCircle = node
+    .append("path")
+    .attr("stroke", "white")
+    .attr("stroke-width", 7)
+    .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
+
+  nodeCircle.on("click", e => {
+    const node = e["target"]["__data__"];
+    e.preventDefault();
+    toggleSubProperties(e);
+    if (selectedNode.value !== node) {
+      selectedNode.value = node;
+      selected.value = (nodeMap.get(node.id) as any) || [];
+    }
+  });
+
+  nodeCircle
+    .on("mouseover", (d: any) => {
+      d3.select(d.srcElement).style("cursor", "pointer").attr("stroke-width", 14).attr("stroke", "grey");
+    })
+    .on("mouseout", (d: any) => {
+      d3.select(d.srcElement).attr("stroke-width", 7).attr("stroke", "white");
+    });
+
+  nodeCircle.on("contextmenu", e => {
+    const node = e["target"]["__data__"];
+    e.preventDefault();
+    getMultiselectMenu(e);
+    if (displayMenu.value) {
+      menu.value.show(e);
+    }
+
+    overlayTop.value = e.clientY;
+    if (selectedNode.value !== node) {
+      selectedNode.value = node;
+      selected.value = (nodeMap.get(node.id) as any) || [];
+    }
+  });
+  return nodeCircle;
+}
+
+interface TangleLayout {
+  levels: any;
+  nodes: any;
+  nodes_index: any;
+  links: any[];
+  bundles: any;
+  layout: {
+    width: string;
+    height: string;
+    node_height: number;
+    node_width: number;
+    bundle_width: number;
+    level_y_padding: number;
+  };
+}
+
+function precomputeLevelDepth(levels: any) {
   levels.forEach((l: any, i: any) => l.forEach((n: any) => (n.level = i)));
 
   let nodes = levels.reduce((a: any, x: any) => a.concat(x), []);
   let nodes_index = {} as any;
   nodes.forEach((d: any) => (nodes_index[d.id] = d));
-
-  // objectification
   nodes.forEach((d: any) => {
     d.parents = (d.parents === undefined ? [] : d.parents).map((p: any) => {
       if (typeof p === "string") return nodes_index[p];
       else return p;
     });
   });
+  return { nodes, nodes_index };
+}
 
-  // precompute bundles
+function precomputeBundles(levels: any, nodes: any) {
   levels.forEach((l: any, i: any) => {
     let index = {} as any;
     l.forEach((n: any) => {
@@ -507,10 +526,12 @@ function constructTangleLayout(levels: any, options: any) {
   nodes.forEach((d: any) => {
     d.parents.forEach((p: any) => links.push({ source: d, bundle: d.bundle, target: p }));
   });
+  const bundles = levels.reduce((a: any, x: any) => a.concat(x.bundles), []);
 
-  let bundles = levels.reduce((a: any, x: any) => a.concat(x.bundles), []);
+  return { bundles, links };
+}
 
-  // reverse pointer from parent to bundles
+function reversePointers(bundles: any, nodes: any, links: any) {
   bundles.forEach((b: any) =>
     b.parents.forEach((p: any) => {
       if (p.bundles_index === undefined) {
@@ -522,7 +543,6 @@ function constructTangleLayout(levels: any, options: any) {
       p.bundles_index[b.id].push(b);
     })
   );
-
   nodes.forEach((n: any) => {
     if (n.bundles_index !== undefined) {
       n.bundles = Object.keys(n.bundles_index).map(k => n.bundles_index[k]);
@@ -539,12 +559,18 @@ function constructTangleLayout(levels: any, options: any) {
     n.bundles.forEach((b: any, i: any) => (b.i = i));
   });
 
-  links.forEach(l => {
+  links.forEach((l: any) => {
     if (l.bundle.links === undefined) {
       l.bundle.links = [];
     }
     l.bundle.links.push(l);
   });
+}
+
+function constructTangleLayout(levels: any, options: any): TangleLayout {
+  const { nodes, nodes_index } = precomputeLevelDepth(levels);
+  const { bundles, links } = precomputeBundles(levels, nodes);
+  reversePointers(bundles, nodes, links);
 
   // layout
   const padding = 8;
@@ -585,7 +611,7 @@ function constructTangleLayout(levels: any, options: any) {
     i += l.length;
   });
 
-  links.forEach(l => {
+  links.forEach((l: any) => {
     l.xt = l.target.x;
     l.yt = l.target.y;
     l.xb = l.bundle.x;
@@ -595,7 +621,7 @@ function constructTangleLayout(levels: any, options: any) {
   });
 
   let color = 16;
-  links.forEach(l => {
+  links.forEach((l: any) => {
     l.yt = l.target.y;
     l.ys = l.source.y;
     l.c1 = l.source.level - l.target.level > 1 ? Math.min(options.bigc, l.xb - l.xt, l.yb - l.yt) - c : c;

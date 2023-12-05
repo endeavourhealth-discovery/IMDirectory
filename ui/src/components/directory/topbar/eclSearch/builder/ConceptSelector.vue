@@ -15,7 +15,7 @@
       v-model:show-dialog="showDialog"
       v-model:selected="selected"
       :search-by-function="functionRequest"
-      :root-entities="['http://endhealth.info/im#HealthModelOntology']"
+      :root-entities="['http://snomed.info/sct#138875005']"
     />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
@@ -24,11 +24,10 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, inject } from "vue";
-import { IM, SNOMED } from "@im-library/vocabulary";
+import { IM } from "@im-library/vocabulary";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { FunctionRequest, QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { FunctionRequest } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -36,16 +35,15 @@ import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl"
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 
 interface Props {
-  value:
-    | {
-        type: string;
-        descendants: string;
-        conjunction: string;
-        items: any[];
-        concept: { iri: string; name?: string; code?: string } | undefined;
-        ecl?: string;
-      }
-    | any;
+  value: {
+    type: string;
+    descendants: string;
+    conjunction: string;
+    items: any[];
+    concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
+    ecl?: string;
+    exclude?: boolean;
+  };
   parent?: any;
 }
 const props = defineProps<Props>();
@@ -107,7 +105,7 @@ watch(isAny, newValue => {
 });
 
 async function init() {
-  if (props.value && props.value.concept) {
+  if (props.value?.concept) {
     if (isAliasIriRef(props.value.concept)) {
       loading.value = true;
       await updateSelectedResult(props.value.concept);

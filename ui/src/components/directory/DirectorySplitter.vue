@@ -69,7 +69,7 @@ function routeToSelected(selected: any) {
 }
 
 function navigateTo(iri: any) {
-  if (iri.item && iri.item.icon.includes("fa-house")) {
+  if (iri.item?.icon.includes("fa-house")) {
     router.push("/");
   } else {
     directService.select(iri, "Folder");

@@ -3,12 +3,12 @@
     <span>
       <IMFontAwesomeIcon v-if="types && types.length" :icon="icon" :style="'color: ' + colour" class="p-mx-2" />
     </span>
-    <a v-tooltip.right="'See in viewer app'" class="info-bar-title" @click="navigate">{{ header }}</a>
+    <a v-tooltip.right="'See in viewer app'" class="info-bar-title">{{ header }}</a>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch } from "vue";
+import { ref, Ref, watch } from "vue";
 import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
@@ -33,8 +33,6 @@ watch(
     }
   }
 );
-
-function navigate() {}
 </script>
 
 <style scoped>

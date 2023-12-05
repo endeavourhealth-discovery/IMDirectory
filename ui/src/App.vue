@@ -23,7 +23,7 @@ import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
 import FooterBar from "./components/app/FooterBar.vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { GithubService, UserService } from "@/services";
@@ -114,34 +114,9 @@ async function setupAxiosInterceptors(axios: any) {
         } else return Promise.reject(error);
       }
       if (error?.response?.status === 403) {
-        if (error.response.data) {
-          toast.add({
-            severity: "error",
-            summary: "Access denied",
-            detail: error.response.data.debugMessage
-          });
-        } else if (error.config.url) {
-          toast.add({
-            severity: "error",
-            summary: "Access denied",
-            detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-          });
-        } else {
-          toast.add({
-            severity: "error",
-            summary: "Access denied"
-          });
-        }
+        handle403(error);
       } else if (error?.response?.status === 401) {
-        toast.add({
-          severity: "error",
-          summary: "Access denied",
-          detail:
-            "Insufficient clearance to access " +
-            error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
-            ". Please contact an admin to change your account security clearance if you require access to this resource."
-        });
-        router.push({ name: "AccessDenied" }).then();
+        handle401(error);
       } else if (error?.response?.data?.code && error?.response?.status > 399 && error?.response?.status < 500) {
         console.error(error.response.data);
         toast.add({
@@ -158,6 +133,39 @@ async function setupAxiosInterceptors(axios: any) {
       }
     }
   );
+}
+
+function handle401(error: any) {
+  toast.add({
+    severity: "error",
+    summary: "Access denied",
+    detail:
+      "Insufficient clearance to access " +
+      error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
+      ". Please contact an admin to change your account security clearance if you require access to this resource."
+  });
+  router.push({ name: "AccessDenied" }).then();
+}
+
+function handle403(error: any) {
+  if (error.response.data) {
+    toast.add({
+      severity: "error",
+      summary: "Access denied",
+      detail: error.response.data.debugMessage
+    });
+  } else if (error.config.url) {
+    toast.add({
+      severity: "error",
+      summary: "Access denied",
+      detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+    });
+  } else {
+    toast.add({
+      severity: "error",
+      summary: "Access denied"
+    });
+  }
 }
 
 function setupExternalErrorHandler() {
