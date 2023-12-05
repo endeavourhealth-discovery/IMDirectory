@@ -13,7 +13,7 @@
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <div
       class="search-text"
-      :class="[!isValidPropertyValue && 'p-invalid', !loadingValue && selectedProperty && 'clickable', loadingValue && 'inactive']"
+      :class="[!isValidPropertyValue && 'p-invalid', !loadingValue && hasProperty && 'clickable', loadingValue && 'inactive']"
       @click="hasProperty ? (showValueDialog = true) : (showValueDialog = false)"
       v-tooltip="{ value: selectedValue.name ?? '', class: 'entity-tooltip' }"
     >
@@ -27,27 +27,27 @@
     v-model:show-dialog="showPropertyDialog"
     v-model:selected="selectedProperty"
     :search-by-function="propertyFunctionRequest"
-    :root-entities="propertyTreeRoots.length ? propertyTreeRoots : undefined"
+    :root-entities="propertyTreeRoots.length ? propertyTreeRoots : ['http://snomed.info/sct#138875005']"
   />
   <DirectorySearchDialog
     v-if="showValueDialog"
     v-model:show-dialog="showValueDialog"
     v-model:selected="selectedValue"
     :search-by-function="valueFunctionRequest"
-    :root-entities="valueTreeRoots.length ? valueTreeRoots : undefined"
+    :root-entities="valueTreeRoots.length ? valueTreeRoots : ['http://snomed.info/sct#138875005']"
   />
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, PropType, onMounted, watch, onBeforeUnmount, h, inject, computed } from "vue";
+import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import { EntityService, FunctionService } from "@/services";
 import { useDialog } from "primevue/usedialog";
-import { IM, RDFS } from "@im-library/vocabulary";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { IM } from "@im-library/vocabulary";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
 import { ToastSeverity } from "@im-library/enums";
-import _, { property } from "lodash";
+import { cloneDeep } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
@@ -67,7 +67,7 @@ interface Props {
 const props = defineProps<Props>();
 
 watch(
-  () => _.cloneDeep(props.value),
+  () => cloneDeep(props.value),
   async (newValue, oldValue) => {
     if (newValue) {
       if (!oldValue) await processProps();
@@ -80,9 +80,10 @@ watch(
 );
 
 watch(
-  () => _.cloneDeep(props.focus),
+  () => cloneDeep(props.focus),
   async (newValue, oldValue) => {
     if (newValue && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
+      console.log("here");
       loadingProperty.value = true;
       loadingValue.value = true;
       await processProps();
@@ -106,7 +107,7 @@ const hasValue = computed(() => {
 });
 
 const hasFocus = computed(() => {
-  if (isObjectHasKeys(props, ["focus"]) && (isAliasIriRef(props.focus) || isBoolGroup(props.focus))) return true;
+  if (isObjectHasKeys(props, ["focus"]) && ((isAliasIriRef(props.focus) && props.focus.iri) || isBoolGroup(props.focus))) return true;
   else return false;
 });
 
@@ -129,21 +130,37 @@ const propertyTreeRoots: Ref<string[]> = ref([]);
 const valueTreeRoots: Ref<string[]> = ref([]);
 
 watch(selectedProperty, async newValue => {
-  if (newValue) await updateProperty(newValue);
+  if (newValue) {
+    loadingProperty.value = true;
+    loadingValue.value = true;
+    await updateProperty(newValue);
+    loadingProperty.value = false;
+    loadingValue.value = false;
+  }
 });
 
 watch(selectedValue, async newValue => {
-  if (newValue) await updateValue(newValue);
+  if (newValue) {
+    loadingValue.value = true;
+    await updateValue(newValue);
+    loadingValue.value = false;
+  }
 });
 
-watch([() => _.cloneDeep(props.focus), () => _.cloneDeep(props.value.property.concept)], async () => {
+watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concept)], async () => {
+  loadingProperty.value = true;
+  await getPropertyTreeRoots();
   updateFunctionArguments();
   await updateIsValidProperty();
+  loadingProperty.value = false;
 });
 
-watch([selectedProperty, () => _.cloneDeep(props.value.value.concept)], async () => {
+watch([selectedProperty, () => cloneDeep(props.value.value.concept)], async () => {
+  loadingValue.value = true;
+  await getValueTreeRoots();
   updateFunctionArguments();
   await updateIsValidPropertyValue();
+  loadingValue.value = false;
 });
 
 const descendantOptions = [
@@ -243,58 +260,66 @@ async function updateIsValidPropertyValue(): Promise<void> {
 
 async function processProps() {
   if (hasProperty.value && hasFocus.value) {
-    if (isObjectHasKeys(props.value.property.concept, ["entityType"])) selectedProperty.value = props.value.property.concept as ConceptSummary;
-    else {
-      const propertySummary = (selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri));
-      if (isObjectHasKeys(propertySummary)) selectedProperty.value = propertySummary;
-      else {
-        selectedProperty.value = {} as ConceptSummary;
-        throw new Error("Property iri does not exist");
-      }
-    }
-    await updateIsValidProperty();
-    if (!isValidProperty.value) {
-      if (isAliasIriRef(props.focus))
-        toast.add({
-          severity: ToastSeverity.ERROR,
-          summary: "Invalid property",
-          detail: `Property "${selectedProperty.value.name ? selectedProperty.value.name : props.value.property.concept.iri}" is not valid for concept "${
-            props.focus?.name ? props.focus.name : props.focus?.iri
-          }"`,
-          life: 3000
-        });
-      else if (isBoolGroup(props.focus))
-        toast.add({
-          severity: ToastSeverity.ERROR,
-          summary: "Invalid property",
-          detail: `Property "${selectedProperty.value.name ? selectedProperty.value.name : props.value.property.concept.iri}" is not valid for focus "${props
-            .focus?.ecl}"`,
-          life: 3000
-        });
-    }
+    await processPropertyProp();
   }
   if (hasValue.value && hasProperty.value) {
-    if (isObjectHasKeys(props.value.value.concept, ["entityType"])) selectedValue.value = props.value.value.concept as ConceptSummary;
+    await processValueProp();
+  }
+}
+
+async function processPropertyProp() {
+  if (isObjectHasKeys(props.value.property.concept, ["entityType"])) selectedProperty.value = props.value.property.concept as ConceptSummary;
+  else {
+    const propertySummary = (selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri));
+    if (isObjectHasKeys(propertySummary)) selectedProperty.value = propertySummary;
     else {
-      const valueSummary = (selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri));
-      if (isObjectHasKeys(valueSummary)) {
-        selectedValue.value = valueSummary;
-      } else {
-        selectedValue.value = {} as ConceptSummary;
-        throw new Error("Value iri does not exist");
-      }
+      selectedProperty.value = {} as ConceptSummary;
+      throw new Error("Property iri does not exist");
     }
-    await updateIsValidPropertyValue();
-    if (!isValidPropertyValue.value) {
+  }
+  await updateIsValidProperty();
+  if (!isValidProperty.value) {
+    if (isAliasIriRef(props.focus))
       toast.add({
         severity: ToastSeverity.ERROR,
-        summary: "Invalid property value",
-        detail: `Value "${props.value.value.concept.name ? props.value.value.concept.name : props.value.value.concept.iri}" is not valid for property "${
-          props.value.property.concept.name ? props.value.property.concept.name : props.value.property.concept.iri
+        summary: "Invalid property",
+        detail: `Property "${selectedProperty.value.name ? selectedProperty.value.name : props.value.property.concept.iri}" is not valid for concept "${
+          props.focus?.name ? props.focus.name : props.focus?.iri
         }"`,
         life: 3000
       });
+    else if (isBoolGroup(props.focus))
+      toast.add({
+        severity: ToastSeverity.ERROR,
+        summary: "Invalid property",
+        detail: `Property "${selectedProperty.value.name ? selectedProperty.value.name : props.value.property.concept.iri}" is not valid for focus "${props
+          .focus?.ecl}"`,
+        life: 3000
+      });
+  }
+}
+
+async function processValueProp() {
+  if (isObjectHasKeys(props.value.value.concept, ["entityType"])) selectedValue.value = props.value.value.concept as ConceptSummary;
+  else {
+    const valueSummary = (selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri));
+    if (isObjectHasKeys(valueSummary)) {
+      selectedValue.value = valueSummary;
+    } else {
+      selectedValue.value = {} as ConceptSummary;
+      throw new Error("Value iri does not exist");
     }
+  }
+  await updateIsValidPropertyValue();
+  if (!isValidPropertyValue.value) {
+    toast.add({
+      severity: ToastSeverity.ERROR,
+      summary: "Invalid property value",
+      detail: `Value "${props.value.value.concept.name ? props.value.value.concept.name : props.value.value.concept.iri}" is not valid for property "${
+        props.value.property.concept.name ? props.value.property.concept.name : props.value.property.concept.iri
+      }"`,
+      life: 3000
+    });
   }
 }
 
@@ -373,5 +398,9 @@ async function updateValue(value: ConceptSummary) {
 
 .selected-label {
   padding-left: 0.5rem;
+}
+
+.p-invalid {
+  border: 1px solid var(--red-500);
 }
 </style>

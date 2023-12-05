@@ -198,23 +198,29 @@ function generateEcl(): string {
     if (props.value.exclude) ecl += "MINUS ";
     if (props.parent) ecl += "( ";
     for (const [index, item] of props.value.items.entries()) {
-      if (index !== 0 && !item.exclude) ecl += props.value.conjunction + " ";
-      if (item.ecl) ecl += item.ecl;
-      if (index + 1 !== props.value.items.length) ecl += "\n";
+      ecl += generateChildEcl(index, item);
     }
     if (props.parent) ecl += " )";
   }
-  return ecl.replace(/  +/g, " ");
+  return ecl.replace(/ {2,}/g, " ");
+}
+
+function generateChildEcl(index: number, item: any) {
+  let ecl = "";
+  if (index !== 0 && !item.exclude) ecl += props.value.conjunction + " ";
+  if (item.ecl) ecl += item.ecl;
+  if (index + 1 !== props.value.items.length) ecl += "\n";
+  return ecl;
 }
 
 function processGroup() {
   if (groupWithinBoolGroup.value && group.value.length) {
     const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
-    for (const index of group.value.sort((a, b) => a - b).reverse()) {
+    for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
       const item = props.value.items.splice(index, 1)[0];
       newGroup.items.push(item);
     }
-    props.value.items.splice(group.value.sort(numberAscending)[0], 0, newGroup);
+    props.value.items.splice(group.value.toSorted(numberAscending)[0], 0, newGroup);
   }
   groupWithinBoolGroup.value = !groupWithinBoolGroup.value;
   group.value = [];
