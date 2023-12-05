@@ -55,17 +55,14 @@ import { DefinitionConfig } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getContainerElementOptimalHeight } from "@im-library/helpers/ContainerDimensionGetters";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { byOrder } from "@im-library/helpers/Sorters";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { ConfigService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 import { useRouter } from "vue-router";
 import { getLogger } from "@im-library/logger/LogConfig";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import setupConfig from "@/composables/setupConfig";
 const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = setupConfig();
-
-const log = getLogger("components.editor.infobar.InfoSideBar");
 
 interface Props {
   selectedConceptIri: string;
@@ -88,14 +85,11 @@ const router = useRouter();
 
 let loading = ref(false);
 let concept: Ref<any> = ref({});
-let definitionText = ref("");
 let types: Ref<TTIriRef[]> = ref([]);
 let header = ref("");
 let contentHeight = ref("");
 let contentHeightValue = ref(0);
-let conceptAsString = ref("");
 let terms: Ref<any[] | undefined> = ref([]);
-// let isQuery = ref(false);
 let children: Ref<any> = ref({});
 let totalCount = ref(0);
 
@@ -116,17 +110,6 @@ function closeBar() {
 
 function onResize(): void {
   setContentHeight();
-}
-
-function directToEditRoute(): void {
-  router.push({
-    name: "Edit",
-    params: { iri: concept.value["@id"] }
-  });
-}
-
-function directToCreateRoute(): void {
-  router.push({ name: "Create" });
 }
 
 async function getConcept(iri: string): Promise<void> {

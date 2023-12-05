@@ -104,12 +104,12 @@ const rClickOptions: Ref<any[]> = ref([
   {
     label: "Open",
     icon: "fa-solid fa-folder-open",
-    command: () => emit("navigateTo", (selected.value as any)["@id"])
+    command: () => emit("navigateTo", selected.value["@id"])
   },
   {
     label: "View in new tab",
     icon: "fa-solid fa-arrow-up-right-from-square",
-    command: () => directService.view((selected.value as any)["@id"])
+    command: () => directService.view(selected.value["@id"])
   },
   {
     separator: true
@@ -117,7 +117,7 @@ const rClickOptions: Ref<any[]> = ref([
   {
     label: "Favourite",
     icon: "fa-solid fa-star",
-    command: () => updateFavourites((selected.value as any)["@id"])
+    command: () => updateFavourites(selected.value["@id"])
   }
 ]);
 const totalCount = ref(0);

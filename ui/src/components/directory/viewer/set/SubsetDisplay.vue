@@ -41,5 +41,3 @@ onMounted(async () => {
   if (entity[IM.HAS_SUBSET]) subsets.value = entity[IM.HAS_SUBSET].filter((subset: any) => subset["@id"] !== props.entityIri);
 });
 </script>
-
-<style scoped></style>

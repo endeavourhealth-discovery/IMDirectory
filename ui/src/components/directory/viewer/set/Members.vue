@@ -105,8 +105,7 @@ async function getPage(event: any) {
 }
 
 function toggle(event: any) {
-  const x = menu.value as any;
-  x.toggle(event);
+  menu.value.toggle(event);
 }
 </script>
 

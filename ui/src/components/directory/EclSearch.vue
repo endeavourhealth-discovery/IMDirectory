@@ -124,7 +124,7 @@ watch(queryString, () => {
 });
 
 watch(selectedStatus, async () => {
-  selectedStatus.value = selectedStatus.value.sort(byName);
+  selectedStatus.value.sort(byName);
 });
 
 onMounted(() => {
@@ -150,13 +150,7 @@ function updateError(errorUpdate: { error: boolean; message: string }): void {
 async function search(loadMore?: boolean): Promise<void> {
   if (queryString.value) {
     loading.value = true;
-    if (!isObject(controller.value)) {
-      controller.value.abort();
-    }
-    if (!isObject(controllerTotal.value)) {
-      controllerTotal.value.abort();
-    }
-    controller.value = new AbortController();
+    abortPreviousRequests();
     if (!loadMore) {
       eclQuery.value = await EclService.getQueryFromECL(queryString.value);
       eclQuery.value.orderBy = {} as OrderLimit;
@@ -169,7 +163,7 @@ async function search(loadMore?: boolean): Promise<void> {
     } as EclSearchRequest;
     if (!loadMore) {
       const count = await EclService.eclSearchTotalCount(eclSearchRequest, controllerTotal.value);
-      if (count) totalCount.value = count;
+      totalCount.value = count;
     }
     if (requiresLazy.value) {
       eclSearchRequest.page = currentPage.value;
@@ -182,6 +176,17 @@ async function search(loadMore?: boolean): Promise<void> {
     }
     loading.value = false;
   }
+}
+
+function abortPreviousRequests() {
+  if (!isObject(controller.value)) {
+    controller.value.abort();
+  }
+  if (!isObject(controllerTotal.value)) {
+    controllerTotal.value.abort();
+  }
+  controller.value = new AbortController();
+  controllerTotal.value = new AbortController();
 }
 
 async function loadMore(event: any) {
@@ -212,7 +217,6 @@ async function downloadAll() {
   const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
   if (isObjectHasKeys(result, ["entities"])) {
     const entities = result.entities;
-    const total = result.count;
     const heading = ["name", "iri", "code"].join(",");
     const body = entities.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
     const csv = [heading, body].join("\n");
@@ -242,7 +246,6 @@ function onCopyError(): void {
 #query-search-container {
   height: 100%;
   width: 100%;
-  /* overflow: auto; */
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;

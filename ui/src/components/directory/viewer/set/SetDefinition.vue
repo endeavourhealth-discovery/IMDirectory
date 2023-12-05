@@ -115,7 +115,7 @@
 <script setup lang="ts">
 import Members from "./Members.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
-import { computed, ComputedRef, onMounted, Ref, ref, watch } from "vue";
+import { computed, onMounted, Ref, ref, watch } from "vue";
 import { EntityService, SetService } from "@/services";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
@@ -128,7 +128,6 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { FilterOptions } from "@im-library/interfaces";
 
 interface Props {
   entityIri: string;
