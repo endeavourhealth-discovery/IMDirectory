@@ -34,6 +34,7 @@ export class IM {
   public static VERSION = IM.NAMESPACE + "version";
   public static FUNCTION = IM.NAMESPACE + "function";
   public static GRAPH = IM.NAMESPACE + "Graph";
+  public static PREFERRED_NAME = IM.NAMESPACE + "preferredName"
 
   // task
   public static IN_TASK = IM.NAMESPACE + "inTask";
