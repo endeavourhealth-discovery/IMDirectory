@@ -80,7 +80,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "Property that derives a concept code from the concept iri",
-              order: 4,
+              order: 3,
               name: "Code",
               showTitle: true,
               maxCount: 1,
@@ -110,7 +110,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "name or main term of concept",
-              order: 5,
+              order: 4,
               name: "Concept name",
               showTitle: true,
               maxCount: 1,
@@ -126,8 +126,18 @@ const ConceptShape: FormGenerator = {
               }
             },
             {
-              comment: "optional description",
+              comment: "optional peferred name for efficiency during searching",
               order: 5,
+              name: "Preferred name",
+              showTitle: true,
+              maxCount: 1,
+              path: { "@id": IM.PREFERRED_NAME },
+              minCount: 0,
+              componentType: { "@id": IM.component.TEXT_INPUT }
+            },
+            {
+              comment: "optional description",
+              order: 6,
               datatype: {
                 "@id": XSD.STRING
               },
@@ -144,7 +154,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               name: "Status",
-              order: 6,
+              order: 7,
               path: { "@id": IM.HAS_STATUS },
               componentType: { "@id": IM.component.ARRAY_BUILDER },
               validation: { "@id": IM.validation.IS_STATUS },
@@ -187,7 +197,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "optional im1id",
-              order: 7,
+              order: 8,
               name: "IM1Id",
               showTitle: true,
               maxCount: 1,
@@ -201,7 +211,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "optional im1scheme",
-              order: 8,
+              order: 9,
               function: {
                 "@id": IM.function.IM1SCHEME_OPTIONS
               },
@@ -220,7 +230,7 @@ const ConceptShape: FormGenerator = {
               label: "Subclass of array builder",
               name: "Subclass of",
               showTitle: true,
-              order: 9,
+              order: 10,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
@@ -267,7 +277,7 @@ const ConceptShape: FormGenerator = {
               label: "Contained in array builder",
               name: "Contained in",
               showTitle: true,
-              order: 10,
+              order: 11,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
@@ -311,7 +321,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "Toggle controlling sub components visibility",
-              order: 11,
+              order: 12,
               name: "Replaced by",
               label: "Deactivate | Activate",
               minCount: 1,
