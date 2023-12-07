@@ -25,7 +25,7 @@
           <Column field="status" header="Status" style="width: 5rem">
             <template #body="{ data }"> <Tag v-tooltip="data.status" :value="getStatus(data)" :severity="getSeverity(data)" /> </template
           ></Column>
-          <Column field="pid" header="Actions" class="space-children" style="width: 10rem">
+          <Column field="pid" header="Actions" class="space-children" style="width: 13rem">
             <template #body="{ data }">
               <Button
                 v-if="data.status == 'Finished'"
@@ -39,9 +39,17 @@
                 v-if="data.status == 'Finished'"
                 icon="pi pi-eye"
                 size="small"
-                @click="viewData(data.id)"
+                @click="viewResults(data.id)"
                 outlined
                 v-tooltip.left="'View query results'"
+              ></Button>
+              <Button
+                v-if="data.status == 'Finished'"
+                icon="pi pi-chart-bar"
+                size="small"
+                @click="graphResults(data.id, data.baseType)"
+                outlined
+                v-tooltip.left="'Graph results'"
               ></Button>
               <!--              <Button v-if="data.status.startsWith('Error')" size="small">Retry</Button>-->
               <Button
@@ -71,7 +79,13 @@
       </div>
     </div>
   </div>
-  <Dialog header="Query Results" :visible="resultData != undefined" :modal="true" :style="{ width: '80vw' }" @update:visible="resultData = undefined">
+  <Dialog
+    header="Query Results"
+    :visible="tableView && resultData != undefined"
+    :modal="true"
+    :style="{ width: '80vw' }"
+    @update:visible="resultData = undefined"
+  >
     <DataTable
       :value="resultData"
       scrollable
@@ -91,7 +105,23 @@
       <Column field="id" header="Id" /> <Column field="json" header="Data"
     /></DataTable>
     <template #footer>
-      <Button label="Close" @click="resultData = undefined" data-testid="close-button" />
+      <Button label="Close" @click="tableView = false" data-testid="close-button" />
+    </template>
+  </Dialog>
+  <Dialog header="Query Results" :visible="graphView" :modal="true" :style="{ width: '80vw' }" @update:visible="resultData = undefined">
+    <div class="chart-options">
+      <div>
+        <label for="group">Group by</label>
+        <Dropdown id="group" v-model="selectedGroup" :options="modelProps" optionLabel="name" placeholder="Select a property"></Dropdown>
+      </div>
+      <div>
+        <label for="show">Showing</label>
+        <Dropdown id="show" v-model="selectedCalc" :options="calcOptions" placeholder="Select a calculation"></Dropdown>
+      </div>
+    </div>
+    <v-chart class="chart" :option="graphOptions" autoresize />
+    <template #footer>
+      <Button label="Close" @click="graphView = false" data-testid="close-button" />
     </template>
   </Dialog>
 </template>
@@ -99,19 +129,68 @@
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
-import { ComputedRef, computed, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { QueryService } from "@/services";
+import { DataModelService, QueryService } from "@/services";
 import { Ref } from "vue/dist/vue";
 import { QueryQueueItem } from "@im-library/interfaces";
 import Swal from "sweetalert2";
 import { DataTablePageEvent } from "primevue/datatable";
+import VChart from "vue-echarts";
+import { EChartsOption } from "echarts";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 const route = useRoute();
 const queueId: Ref<any> = ref(); // : ComputedRef<any[]> = computed(() => [{ id: route.params.queueId as string }]);
 const loading: Ref<boolean> = ref(true);
 const queueData: Ref<QueryQueueItem[]> = ref([]);
 const resultData: Ref<any[] | undefined> = ref();
+const tableView: Ref<boolean> = ref(false);
+const graphView: Ref<boolean> = ref(false);
+const modelProps: Ref<TTIriRef[]> = ref([]);
+const selectedGroup: Ref<TTIriRef | undefined> = ref();
+const selectedCalc: Ref<string> = ref("Count");
+const selectedCalcField: Ref<string | undefined> = ref();
+const calcOptions: string[] = ["Count", "Sum", "Average", "Percentage"];
+const graphData = ref();
+
+const graphOptions: Ref<EChartsOption> = ref({
+  title: {
+    text: "Traffic Sources",
+    left: "center"
+  },
+  tooltip: {
+    trigger: "item",
+    formatter: "{a} <br/>{b} : {c} ({d}%)"
+  },
+  legend: {
+    orient: "vertical",
+    left: "left",
+    data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"]
+  },
+  series: [
+    {
+      name: "Traffic Sources",
+      type: "pie",
+      radius: "55%",
+      center: ["50%", "60%"],
+      data: [
+        { value: 335, name: "Direct" },
+        { value: 310, name: "Email" },
+        { value: 234, name: "Ad Networks" },
+        { value: 135, name: "Video Ads" },
+        { value: 1548, name: "Search Engines" }
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: "rgba(0, 0, 0, 0.5)"
+        }
+      }
+    }
+  ]
+});
 
 onMounted(async () => {
   await refresh();
@@ -122,6 +201,13 @@ watch(
   async newValue => {
     queueId.value = { id: newValue };
     await refresh();
+  }
+);
+
+watch(
+  () => [selectedGroup.value, selectedCalc.value],
+  async () => {
+    await refreshGraph();
   }
 );
 
@@ -203,11 +289,33 @@ function download(id: string) {
   console.log("DOWNLOAD " + id);
 }
 
-async function viewData(id: string) {
+async function viewResults(id: string) {
   console.log("VIEW " + id);
   console.log(queueId.value);
   queueId.value = { id: id };
   resultData.value = await QueryService.getResultData(queueId.value.id);
+  tableView.value = true;
+}
+
+async function graphResults(id: string, modelIri: string) {
+  console.log("GRAPH " + id);
+  console.log(queueId.value);
+
+  if (modelProps.value.length == 0) {
+    console.log("Loading model properties for");
+    console.log(modelIri);
+    modelProps.value = (await DataModelService.getDataModelProperties(modelIri)).map(p => p.property!);
+    console.log(modelProps.value);
+  }
+
+  queueId.value = { id: id };
+  graphView.value = true;
+}
+
+async function refreshGraph() {
+  if (!selectedGroup.value || !selectedCalc.value) return;
+
+  graphData.value = await QueryService.getGraphData(queueId.value.id, selectedGroup.value["@id"], selectedCalc.value, selectedCalcField.value);
 }
 
 async function pageTable(data: DataTablePageEvent) {
@@ -255,5 +363,28 @@ async function pageTable(data: DataTablePageEvent) {
 
 .space-children > * {
   margin: 0 0.2rem;
+}
+
+.chart {
+  height: 70vh;
+}
+
+.chart-options {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.chart-options * {
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  display: flex;
+  gap: 10px;
 }
 </style>

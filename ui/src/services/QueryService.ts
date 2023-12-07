@@ -151,6 +151,10 @@ const QueryService = {
 
   async getResultData(queueId: string, page = 1, size = 50): Promise<any[]> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/data", { params: { queueId: queueId, page: page, size: size } });
+  },
+
+  async getGraphData(queueId: string, groupIri: String, calc: string, calcField?: string): Promise<any> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/graphData", { params: { queueId, groupIri, calc, calcField } });
   }
 };
 

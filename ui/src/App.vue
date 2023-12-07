@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef, Ref, watch } from "vue";
+import { onMounted, ref, computed, ComputedRef, Ref, watch, provide } from "vue";
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
@@ -36,6 +36,11 @@ import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import setupChangeTheme from "@/composables/setupChangeTheme";
 import { useLoadingStore } from "./stores/loadingStore";
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { PieChart } from "echarts/charts";
+import { TitleComponent, TooltipComponent, LegendComponent } from "echarts/components";
+import { THEME_KEY } from "vue-echarts";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -54,6 +59,10 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
 const currentTheme = computed(() => userStore.currentTheme);
 const viewsLoading = computed(() => loadingStore.viewsLoading);
+
+use([CanvasRenderer, PieChart, TitleComponent, TooltipComponent, LegendComponent]);
+
+provide(THEME_KEY, "dark");
 
 watch(
   () => currentTheme.value,

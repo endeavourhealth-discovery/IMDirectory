@@ -5,7 +5,7 @@ import axios from "axios";
 import { Request } from "express";
 import router from "express-promise-router";
 import AuthMiddleware from "@/middlewares/auth.middleware";
-import { RDFS } from "@im-library/vocabulary";
+import { IM, RDFS } from "@im-library/vocabulary";
 
 export default class QueryController {
   public path = "/node_api/query";
@@ -124,6 +124,12 @@ export default class QueryController {
         .then(data => res.send(data))
         .catch(next)
     );
+
+    this.router.get("/graphData", this.auth.secure("IMAdmin"), (req, res, next) =>
+      this.getGraphData(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
   }
 
   async getAllowableChildTypes(req: Request) {
@@ -188,11 +194,13 @@ export default class QueryController {
     return await this.queryService.validateSelectionWithQuery(selectedIri, queryRequest);
   }
 
+  // TODO - CHECK USER RESULT (remove "!")
   async queueQuery(req: Request) {
     const user = await this.auth.getUser(req);
     const iri = req.query.queryIri as string;
-    const name = (await this.entityService.getPartialEntity(iri, [RDFS.LABEL])).data[RDFS.LABEL];
-    return await this.queryService.queueQuery(iri, name, user!);
+    const meta = (await this.entityService.getPartialEntity(iri, [RDFS.LABEL, IM.RETURN_TYPE])).data;
+
+    return await this.queryService.queueQuery(iri, meta[RDFS.LABEL], meta[IM.RETURN_TYPE], user!);
   }
 
   async listQueries(req: Request) {
@@ -213,5 +221,16 @@ export default class QueryController {
   async getResultData(req: Request) {
     const user = await this.auth.getUser(req);
     return await this.queryService.getResultData(req.query.queueId as string, user!, +(req.query.page as string), +(req.query.size as string));
+  }
+
+  async getGraphData(req: Request) {
+    const user = await this.auth.getUser(req);
+
+    const queueId = req.query.queueId as string;
+    const groupIri = req.query.groupIri as string;
+    const calc = req.query.calc as string;
+    const calcField = req.query.calcField as string;
+
+    return await this.queryService.getGraphData(queueId, user!, groupIri, calc, calcField);
   }
 }

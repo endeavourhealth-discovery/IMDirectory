@@ -1,6 +1,18 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-11-15 11:50:45.
+// Generated using typescript-generator version 3.2.1263 on 2023-12-06 13:56:15.
+
+export interface DataModelProperty extends Serializable {
+    property?: TTIriRef;
+    type?: TTIriRef;
+    minInclusive?: string;
+    minExclusive?: string;
+    maxInclusive?: string;
+    maxExclusive?: string;
+    pattern?: string;
+    inheritedFrom?: TTIriRef;
+    order?: number;
+}
 
 /**
  * Structure containing search request parameters and filters
@@ -50,6 +62,9 @@ export interface SearchRequest {
     select?: string[];
     sortField?: string;
     sortDirection?: string;
+    orderBy?: OrderBy[];
+    filter?: Filter[];
+    timings?: { [index: string]: string }[];
 }
 
 export interface SearchResponse {
@@ -189,10 +204,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
-    dataType?: TTIriRef;
     operator?: Operator;
     relativeTo?: PropertyRef;
+    dataType?: TTIriRef;
+    unit?: string;
 }
 
 export interface Case {
@@ -220,9 +235,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -384,7 +399,27 @@ export interface EntityDocument {
     match?: string;
     isA?: TTIriRef[];
     memberOf?: TTIriRef[];
+    subsumptionCount?: number;
     isDescendentOf?: TTIriRef[];
+}
+
+export interface Filter {
+    field?: string;
+    iriValue?: TTIriRef[];
+    and?: Filter[];
+    not?: boolean;
+    textValue?: string[];
+    startsWithTerm?: boolean;
+}
+
+export interface OrderBy {
+    field?: string;
+    direction?: Order;
+    iriValue?: TTIriRef[];
+    and?: OrderBy[];
+    textValue?: string[];
+    not?: boolean;
+    startsWithTerm?: boolean;
 }
 
 export interface SearchResultSummary {
@@ -413,6 +448,9 @@ export interface TTIriRef extends TTValue, Serializable {
     name?: string;
     description?: string;
     "@id": string;
+}
+
+export interface Serializable {
 }
 
 export interface TTContext extends Serializable {
@@ -444,9 +482,6 @@ export interface Exception extends Throwable {
 
 export interface TTValue extends Serializable {
     order?: number;
-}
-
-export interface Serializable {
 }
 
 export interface TTPrefix {

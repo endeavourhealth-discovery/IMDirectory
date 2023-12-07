@@ -7,10 +7,11 @@ SET SCHEMA 'lair';
 DROP TABLE IF EXISTS query_queue;
 
 CREATE TABLE query_queue (
-    id UUID PRIMARY KEY,        -- Unique run identifier
-    iri VARCHAR(255) NOT NULL,  -- Query IRI
-    name VARCHAR(255) NOT NULL, -- Query name
-    user_id UUID NOT NULL,         -- User UUID
+    id UUID PRIMARY KEY,                -- Unique run identifier
+    iri VARCHAR(255) NOT NULL,          -- Query IRI
+    name VARCHAR(255) NOT NULL,         -- Query name
+    base_type VARCHAR(255) NOT NULL,    -- IRI of the query base type/model
+    user_id UUID NOT NULL,              -- User UUID
     queued TIMESTAMP NOT NULL,
     started TIMESTAMP,
     pid INT,                    -- Internal (postgres) process ID (for killing)

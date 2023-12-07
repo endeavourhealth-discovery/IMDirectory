@@ -498,46 +498,46 @@ export default class QueryService {
     );
   }
 
-  public async queueQuery(queryIri: string, name: string, user: string) {
-    const queryId = uuid().replaceAll("-", "");
+  public async queueQuery(queryIri: string, name: string, modelIri: string, user: string) {
+    const queueId = uuid().replaceAll("-", "");
     const conn = await this.dbPool.acquire();
     const pid = conn.processID;
 
-    await this.initialiseQueue(queryId, queryIri, name, user, pid);
+    await this.initialiseQueue(queueId, queryIri, name, modelIri, user, pid);
 
     let sql = await this.generateQuerySQL(queryIri);
     sql = sql?.replaceAll("$referenceDate", "NOW()");
-    sql = "CREATE TABLE qry_" + queryId + " AS " + sql;
+    sql = "CREATE TABLE qry_" + queueId + " AS " + sql;
 
     conn
       .query(sql)
       .then(async result => {
         // await this.updateQueryQueue(queryId, "Finished: " + result.rowsAffected + " rows");
-        await this.updateQueryQueue(queryId, "Finished");
+        await this.updateQueryQueue(queueId, "Finished");
       })
       .catch(async (error: any) => {
-        await this.updateQueryQueue(queryId, "Error: " + error);
+        await this.updateQueryQueue(queueId, "Error: " + error);
       })
       .finally(async () => {
         await conn.close();
       });
 
-    return queryId;
+    return queueId;
   }
 
-  private async initialiseQueue(queryId: string, queryIri: string, name: string, user: string, pid: Maybe<number>) {
+  private async initialiseQueue(queueId: string, queryIri: string, modelIri: string, name: string, user: string, pid: Maybe<number>) {
     const conn = await this.dbPool.acquire();
 
     try {
       const stmt = await conn.prepare(
-        "INSERT INTO query_queue(id, iri, name, user_id, queued, started, pid, status) VALUES ($1, $2, $3, $4, NOW(), NOW(), $5, 'Running')",
+        "INSERT INTO query_queue(id, iri, name, base_type, user_id, queued, started, pid, status) VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), $6, 'Running')",
         {
-          paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.varchar, DataTypeOIDs.varchar, DataTypeOIDs.uuid, DataTypeOIDs.int4]
+          paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.varchar, DataTypeOIDs.varchar, DataTypeOIDs.varchar, DataTypeOIDs.uuid, DataTypeOIDs.int4]
         }
       );
 
       try {
-        await stmt.execute({ params: [queryId, queryIri, name, user, pid] });
+        await stmt.execute({ params: [queueId, queryIri, name, modelIri, user, pid] });
       } finally {
         await stmt.close();
       }
@@ -546,7 +546,7 @@ export default class QueryService {
     }
   }
 
-  private async updateQueryQueue(id: string, status: string, stopped: boolean = false) {
+  private async updateQueryQueue(queueId: string, status: string, stopped: boolean = false) {
     const conn = await this.dbPool.acquire();
     try {
       const sql = stopped
@@ -556,7 +556,7 @@ export default class QueryService {
         paramTypes: [DataTypeOIDs.text, DataTypeOIDs.uuid]
       });
       try {
-        await stmt.execute({ params: [status, id] });
+        await stmt.execute({ params: [status, queueId] });
       } finally {
         await stmt.close();
       }
@@ -569,7 +569,7 @@ export default class QueryService {
     const conn = await this.dbPool.acquire();
     try {
       const stmt = await conn.prepare(
-        "SELECT id, iri, name, queued, started, finished, stopped, status, p.pid FROM query_queue q LEFT JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 ORDER BY queued DESC",
+        "SELECT id, iri, name, queued, started, finished, stopped, status, p.pid, base_type FROM query_queue q LEFT JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 ORDER BY queued DESC",
         {
           paramTypes: [DataTypeOIDs.uuid]
         }
@@ -595,7 +595,8 @@ export default class QueryService {
             stopped: k?.toLocaleString(),
             time: t?.toLocaleString(),
             status: r[7] == "Stopped" && r[8] ? "Stopping..." : r[7],
-            pid: r[8]
+            pid: r[8],
+            baseType: r[9]
           } as QueryQueueItem;
         });
       } finally {
@@ -628,25 +629,25 @@ export default class QueryService {
     return result;
   }
 
-  public async stopQuery(query_id: string, user: string) {
+  public async stopQuery(queueId: string, user: string) {
     const conn = await this.dbPool.acquire();
     try {
-      const pid = await this.getQueryQueuePid(conn, query_id, user);
+      const pid = await this.getQueryQueuePid(conn, queueId, user);
       if (pid) {
         await conn.execute("SELECT pg_terminate_backend(" + pid + ")");
-        await this.updateQueryQueue(query_id, "Stopped", true);
+        await this.updateQueryQueue(queueId, "Stopped", true);
       }
     } finally {
       await conn.close();
     }
   }
 
-  private async getQueryQueuePid(conn: Connection, query_id: string, user: string) {
+  private async getQueryQueuePid(conn: Connection, queueId: string, user: string) {
     const stmt = await conn.prepare("SELECT q.pid FROM query_queue q JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 AND id = $2", {
       paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.uuid]
     });
     try {
-      const rs = await stmt.execute({ params: [user, query_id] });
+      const rs = await stmt.execute({ params: [user, queueId] });
       if (rs?.rows?.length == 1) return rs.rows[0];
     } finally {
       await stmt.close();
@@ -654,16 +655,16 @@ export default class QueryService {
     return null;
   }
 
-  public async deleteFromQueue(query_id: string, user: string) {
+  public async deleteFromQueue(queueId: string, user: string) {
     const conn = await this.dbPool.acquire();
     try {
-      await conn.execute('DROP TABLE IF EXISTS "qry_' + query_id + '"');
+      await conn.execute('DROP TABLE IF EXISTS "qry_' + queueId + '"');
 
       let stmt = await conn.prepare("DELETE FROM query_queue WHERE user_id = $1 AND id = $2", {
         paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.uuid]
       });
       try {
-        const rs = await stmt.execute({ params: [user, query_id] });
+        const rs = await stmt.execute({ params: [user, queueId] });
         return rs?.rowsAffected == 1;
       } finally {
         await stmt.close();
@@ -673,10 +674,12 @@ export default class QueryService {
     }
   }
 
-  public async getResultData(query_id: string, user: string, page: number, size: number) {
+  public async getResultData(queueId: string, user: string, page: number, size: number) {
     const conn = await this.dbPool.acquire();
+
     try {
-      const rs = await conn.query("SELECT * FROM qry_" + query_id.replaceAll("-", "") + " LIMIT " + size + " OFFSET " + (page - 1) * size);
+      await this.checkQueryIsUsers(conn, queueId, user);
+      const rs = await conn.query("SELECT * FROM qry_" + queueId.replaceAll("-", "") + " LIMIT " + size + " OFFSET " + (page - 1) * size);
       if (!rs.rows) return [];
 
       const result = rs.rows.map((r: any[]) => ({ id: r[0], json: r[1] }));
@@ -684,6 +687,39 @@ export default class QueryService {
       return result;
     } finally {
       await conn.close();
+    }
+  }
+
+  public async getGraphData(queueId: string, user: string, groupIri: string, calc: string, calcField?: string) {
+    console.log("Get Graph Data");
+    console.log("Q: " + queueId);
+    console.log("U: " + user);
+    console.log("G: " + groupIri);
+    console.log("C: " + calc);
+    console.log("F: " + calcField);
+
+    const conn = await this.dbPool.acquire();
+
+    try {
+      await this.checkQueryIsUsers(conn, queueId, user);
+
+      return [];
+    } finally {
+      await conn.close();
+    }
+  }
+
+  private async checkQueryIsUsers(conn: Connection, queueId: string, user: string) {
+    const stmt = await conn.prepare("SELECT 1 FROM query_queue WHERE user_id = $1 AND id = $2", {
+      paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.uuid]
+    });
+
+    try {
+      const rs = await stmt.execute({ params: [user, queueId] });
+
+      if (rs?.rowsAffected == 0) throw new Error("Queue item does not belong to user!");
+    } finally {
+      await stmt.close();
     }
   }
 }
