@@ -91,7 +91,7 @@ function hasData(data: any): boolean {
   } else if (typeof data === "number") {
     return true;
   } else if (isObjectHasKeys(data, ["count"])) {
-    return !data.count;
+    return !!data.count;
   } else if (isObjectHasKeys(data, ["entity", "predicates"])) {
     return isObjectHasKeys(data.entity);
   } else if (isObject(data)) {
