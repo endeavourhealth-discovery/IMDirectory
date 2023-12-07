@@ -88,20 +88,20 @@ describe("QueryDescriptor.ts ___", () => {
     it("can describe a match with one nested property of is", () => {
       const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfIs);
       describeMatch(testMatch, 0, "and");
-      expect(testMatch.property[0].match.property[0].description).toEqual("concept of Prediabetes");
+      expect(testMatch.property[0].match.property[0].description).toEqual("concept is Prediabetes");
     });
 
     it("can describe a match with one nested property of inSet", () => {
       const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfInSet);
       describeMatch(testMatch, 0, "and");
-      expect(testMatch.property[0].match.property[0].description).toEqual("concept of Prediabetes");
+      expect(testMatch.property[0].match.property[0].description).toEqual("concept is Prediabetes");
     });
 
     it("can describe a match with one nested property of is", () => {
       const testMatch: Match = _.cloneDeep(fullTestQueryDefinition);
       describeMatch(testMatch, 0, "and");
       expect(testMatch.match[2].property[0].match.property[0].description).toEqual(
-        "concept of <span class='node-ref'>Office or home systolic blood pressure</span> "
+        "concept is <span class='node-ref'>Office or home systolic blood pressure</span> "
       );
     });
   });
