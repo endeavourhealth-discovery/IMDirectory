@@ -23,7 +23,13 @@
     />
     <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
       <div class="p-fluid results-filter-container">
-        <Filters :search="search" data-testid="filters" />
+        <Filters
+          :search="search"
+          data-testid="filters"
+          :filterOptions="filterOptions"
+          :filterDefaults="filterDefaults"
+          @selectedFiltersUpdated="handleSelectedFiltersUpdated"
+        />
       </div>
     </OverlayPanel>
   </div>
@@ -50,6 +56,7 @@ interface Props {
   searchLoading: boolean;
   selected?: ConceptSummary;
   filterOptions?: FilterOptions;
+  filterDefaults?: FilterOptions;
 }
 
 const props = defineProps<Props>();
@@ -64,8 +71,12 @@ const emit = defineEmits({
 const filterStore = useFilterStore();
 const sharedStore = useSharedStore();
 
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
+const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+
+watch(storeSelectedFilters, newValue => {
+  if (!props.filterDefaults && !props.filterOptions) selectedFilters.value = newValue;
+});
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
@@ -76,6 +87,7 @@ const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
 ]);
+const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters });
 
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 
@@ -84,6 +96,10 @@ watch(results, newValue => emit("update:searchResults", newValue));
 watch(loading, newValue => emit("update:searchLoading", newValue));
 
 const filtersOP = ref();
+
+function handleSelectedFiltersUpdated(updatedSelectedFilters: FilterOptions) {
+  selectedFilters.value = updatedSelectedFilters;
+}
 
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
