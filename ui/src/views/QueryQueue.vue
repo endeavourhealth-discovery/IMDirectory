@@ -119,7 +119,7 @@
         <Dropdown id="show" v-model="selectedCalc" :options="calcOptions" placeholder="Select a calculation"></Dropdown>
       </div>
     </div>
-    <v-chart class="chart" :option="graphOptions" autoresize />
+    <v-chart v-if="graphData" class="chart" :option="graphOptions" autoresize />
     <template #footer>
       <Button label="Close" @click="graphView = false" data-testid="close-button" />
     </template>
@@ -156,7 +156,7 @@ const graphData = ref();
 
 const graphOptions: Ref<EChartsOption> = ref({
   title: {
-    text: "Traffic Sources",
+    text: "Query Results",
     left: "center"
   },
   tooltip: {
@@ -170,7 +170,7 @@ const graphOptions: Ref<EChartsOption> = ref({
   },
   series: [
     {
-      name: "Traffic Sources",
+      name: "Cohort",
       type: "pie",
       radius: "55%",
       center: ["50%", "60%"],
@@ -316,6 +316,32 @@ async function refreshGraph() {
   if (!selectedGroup.value || !selectedCalc.value) return;
 
   graphData.value = await QueryService.getGraphData(queueId.value.id, selectedGroup.value["@id"], selectedCalc.value, selectedCalcField.value);
+  graphOptions.value = {
+    ...graphOptions.value,
+    ...{
+      legend: {
+        orient: "vertical",
+        left: "left",
+        data: graphData.value.map((v: any) => v.name)
+      },
+      series: [
+        {
+          name: "Cohort",
+          type: "pie",
+          radius: "55%",
+          center: ["50%", "60%"],
+          data: graphData.value,
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.5)"
+            }
+          }
+        }
+      ]
+    }
+  };
 }
 
 async function pageTable(data: DataTablePageEvent) {
@@ -366,7 +392,7 @@ async function pageTable(data: DataTablePageEvent) {
 }
 
 .chart {
-  height: 70vh;
+  height: 60vh;
 }
 
 .chart-options {

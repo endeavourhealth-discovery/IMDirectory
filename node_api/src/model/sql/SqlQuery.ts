@@ -110,7 +110,11 @@ export class SqlQuery {
 
   public getFieldName(field: string, table?: string): string {
     const alias = table ?? this.alias;
-    const fieldName = this.getField(field, table).field;
+    const fieldData = this.getField(field, table);
+
+    if (!fieldData) throw new Error("Field " + field + " not found");
+
+    const fieldName = fieldData.field;
 
     if (fieldName.includes("{alias}")) return fieldName.replaceAll("{alias}", alias);
     else return alias + "." + fieldName;
@@ -121,7 +125,13 @@ export class SqlQuery {
   }
 
   private getField(field: string, table?: string): Field {
+    console.log("GET FIELD");
+    console.log(field);
+    console.log(table);
+
     const map = table ? (mapData.typeTables as any)[table] : this.map;
+    console.log("MAP");
+    console.log(map);
 
     if (!map) throw new Error("Unknown table [" + table + "]");
 

@@ -14,6 +14,7 @@ import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import IMQtoSQL from "@/logic/IMQtoSQL";
 import { DataTypeOIDs, Pool, Connection, Maybe } from "postgresql-client";
 import { v4 as uuid } from "uuid";
+import { SqlQuery } from "@/model/sql/SqlQuery";
 
 export default class QueryService {
   axios: any;
@@ -699,11 +700,19 @@ export default class QueryService {
     console.log("F: " + calcField);
 
     const conn = await this.dbPool.acquire();
+    const tbl = "qry_" + queueId.replaceAll("-", "");
 
     try {
       await this.checkQueryIsUsers(conn, queueId, user);
 
-      return [];
+      const qry = SqlQuery.create("http://endhealth.info/im#Patient", "", tbl);
+      const grpField = qry.getFieldName(groupIri);
+      const sql = "SELECT " + grpField + ", COUNT(1)\n" + "FROM " + tbl + "\n" + "GROUP BY " + grpField;
+
+      console.log(sql);
+
+      const rows = (await conn.execute(sql))?.results?.[0]?.rows;
+      return rows?.map(r => ({ name: r[0], value: r[1] }));
     } finally {
       await conn.close();
     }
