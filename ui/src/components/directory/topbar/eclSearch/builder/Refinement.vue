@@ -82,9 +82,8 @@ watch(
 
 watch(
   () => cloneDeep(props.focus),
-  async (newValue, oldValue) => {
+  async newValue => {
     if (newValue && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
-      console.log("here");
       loadingProperty.value = true;
       loadingValue.value = true;
       await processProps();
@@ -95,8 +94,6 @@ watch(
 );
 
 const toast = useToast();
-
-let treeDialog = useDialog();
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 
