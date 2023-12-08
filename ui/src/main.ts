@@ -13,6 +13,15 @@ declare module "axios" {
   }
 }
 
+declare module "vue-router" {
+  interface RouteMeta {
+    requiresLicense?: boolean;
+    transition?: string;
+    mode?: "in-out" | "out-in" | "default" | undefined;
+    transitionDelay?: string;
+  }
+}
+
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";

@@ -377,7 +377,7 @@ function passwordFieldsVerified(): boolean {
 }
 
 function passwordDifferentFromOriginal(): boolean {
-  return !(passwordOld.value !== passwordNew1.value);
+  return passwordOld.value !== passwordNew1.value;
 }
 
 function resetForm(): void {

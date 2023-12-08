@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, Ref } from "vue";
+import { computed, onMounted, ref, Ref } from "vue";
 import { DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDFS } from "@im-library/vocabulary";
 const { isObjectHasKeys } = DataTypeCheckers;

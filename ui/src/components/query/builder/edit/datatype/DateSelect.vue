@@ -131,7 +131,7 @@ async function initValues() {
     valueType.value = "variable";
   } else if (props.property.isNull) {
     propertyType.value = "isNull";
-  } else if (props.property.isNull === false) {
+  } else if (props.property.isNotNull) {
     propertyType.value = "notNull";
   } else {
     propertyType.value = "is";
@@ -167,7 +167,7 @@ function updatePropertyValues() {
   } else if (propertyType.value === "isNull") {
     props.property.isNull = true;
   } else if (propertyType.value === "notNull") {
-    props.property.isNull = false;
+    props.property.isNotNull = true;
   }
 }
 
@@ -177,6 +177,7 @@ function clearAllProperties() {
   delete props.property.unit;
   delete props.property.relativeTo;
   delete props.property.isNull;
+  delete props.property.isNotNull;
   delete props.property.range;
 }
 

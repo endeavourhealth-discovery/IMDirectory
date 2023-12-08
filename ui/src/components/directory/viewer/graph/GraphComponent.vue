@@ -22,7 +22,6 @@
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
-import { useRoute } from "vue-router";
 import _ from "lodash";
 import { TTGraphData } from "@im-library/interfaces";
 import { GraphExcludePredicates } from "@im-library/config";
@@ -49,7 +48,6 @@ const emit = defineEmits({
   navigateTo: (_payload: string) => true
 });
 
-const route = useRoute();
 const toast = useToast();
 const directoryStore = useDirectoryStore();
 const graphData = ref();

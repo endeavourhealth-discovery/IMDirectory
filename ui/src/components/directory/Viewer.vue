@@ -156,13 +156,13 @@ watch(
 
 function setDefaultTab() {
   if (isFolder(types.value)) {
-    activeTab.value = tabMap.get("Contents") || 0;
+    activeTab.value = tabMap.get("Contents") ?? 0;
   } else if (isRecordModel(types.value)) {
-    activeTab.value = tabMap.get("Data Model") || 0;
+    activeTab.value = tabMap.get("Data Model") ?? 0;
   } else if (isQuery(types.value) || isFeature(types.value)) {
-    activeTab.value = tabMap.get("Query") || 0;
+    activeTab.value = tabMap.get("Query") ?? 0;
   } else if (isValueSet(types.value)) {
-    activeTab.value = tabMap.get("Set") || 0;
+    activeTab.value = tabMap.get("Set") ?? 0;
   } else {
     activeTab.value = 0;
   }
@@ -170,7 +170,7 @@ function setDefaultTab() {
 
 function setTabMap() {
   const tabList = document.getElementById("info-side-bar-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
-  if (tabList && tabList.length) {
+  if (tabList?.length) {
     for (let i = 0; i < tabList.length; i++) {
       if (tabList[i].textContent) {
         tabMap.set(tabList[i].textContent as string, i);
@@ -208,13 +208,13 @@ async function getInferred(iri: string, concept: Ref<any>): Promise<void> {
 function onOpenTab(predicate: string) {
   switch (predicate) {
     case SHACL.PROPERTY:
-      activeTab.value = tabMap.get("Properties") || 0;
+      activeTab.value = tabMap.get("Properties") ?? 0;
       break;
     case IM.DEFINITION:
-      if (isQuery(types.value) || isFeature(types.value)) {
-        activeTab.value = tabMap.get("Query") || 0;
+      if (isQuery(types.value) ?? isFeature(types.value)) {
+        activeTab.value = tabMap.get("Query") ?? 0;
       } else if (isValueSet(types.value)) {
-        activeTab.value = tabMap.get("Set") || 0;
+        activeTab.value = tabMap.get("Set") ?? 0;
       }
       break;
     default:

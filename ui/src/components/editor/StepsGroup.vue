@@ -7,7 +7,6 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
 import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
@@ -39,7 +38,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
-import { ref, Ref, watch, inject, onMounted, PropType } from "vue";
+import { ref, Ref, watch, inject, onMounted, defineComponent } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
@@ -100,7 +99,5 @@ function setProperties(shape: PropertyShape) {
   flex-flow: row;
   justify-content: center;
   align-content: flex-start;
-  /* overflow: auto; */
-  /* padding: 2rem 0 0 0; */
 }
 </style>

@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, nextTick, onUnmounted } from "vue";
+import { onMounted, nextTick, onUnmounted } from "vue";
 import ResizeablePieChart from "./pieChartDashCard/ResizeablePieChart.vue";
 import { getLogger } from "@im-library/logger/LogConfig";
 

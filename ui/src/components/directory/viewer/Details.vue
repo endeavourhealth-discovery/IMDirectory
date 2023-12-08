@@ -43,7 +43,6 @@ import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 
 interface Props {
   entityIri: string;
@@ -79,7 +78,7 @@ const collapseAll = () => {
 const expandNode = (node: TreeNode) => {
   const hasExpandToSeeMore = (node.label as string).includes("(expand to see more...)");
 
-  if (node.children && node.children.length && !hasExpandToSeeMore) {
+  if (node.children?.length && !hasExpandToSeeMore) {
     expandedKeys.value[node.key!] = true;
 
     for (let child of node.children) {
