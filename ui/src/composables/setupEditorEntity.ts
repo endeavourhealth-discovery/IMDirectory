@@ -96,7 +96,7 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
     }
     if (wasUpdated) {
       if (mode === EditorMode.CREATE) creatorStore.updateCreatorSavedEntity(editorEntity.value);
-      else editorStore.updateEditorSavedEntity(editorEntity.value);
+      editorStore.updateEditorSavedEntity(editorEntity.value);
     }
   }
 

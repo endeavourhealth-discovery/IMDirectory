@@ -91,27 +91,44 @@ const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const userInput = ref("");
 const showValidation = ref(true);
+const undoRedoUpdate = ref(false);
 
 onMounted(() => {
   if (props.value) userInput.value = props.value;
 });
+
+// watch(
+//   () => _.cloneDeep(editorEntity?.value),
+//   () => {
+//     undoRedoUpdate.value = true;
+//     userInput.value = editorEntity?.value[props.shape.path["@id"]];
+//     undoRedoUpdate.value = false;
+//   }
+// );
+
 watch(
   () => props.value,
   newValue => {
-    if (newValue) userInput.value = newValue;
+    if (!undoRedoUpdate.value && newValue) userInput.value = newValue;
   }
 );
+
 watch(userInput, async newValue => {
-  if (!props.shape.builderChild) updateEntity(newValue);
-  else emit("updateClicked", newValue);
-  updateValueVariableMap(newValue);
-  if (updateValidity) {
-    if (props.shape.builderChild) {
-      hasData();
-    } else {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+  console.log(userInput.value);
+  console.log(undoRedoUpdate.value);
+  if (!undoRedoUpdate.value) {
+    if (!props.shape.builderChild) updateEntity(newValue);
+    else emit("updateClicked", newValue);
+    updateValueVariableMap(newValue);
+    console.log("eneter");
+    if (updateValidity) {
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      }
+      showValidation.value = true;
     }
-    showValidation.value = true;
   }
 });
 

@@ -15,6 +15,19 @@
             <ProgressSpinner />
           </div>
           <div v-else class="creator-layout-container">
+            <div>
+              {{ currentEntityStateIndex }}
+              /
+              {{ editorEntityStates.length - 1 }}
+            </div>
+
+            <div>
+              {{ editorEntityStates[currentEntityStateIndex] }}
+            </div>
+            <div>n</div>
+            <div>
+              {{ editorEntity }}
+            </div>
             <template v-for="group of groups">
               <component :is="processComponentType(group.componentType)" :shape="group" :mode="EditorMode.CREATE" :value="processEntityValue(group)" />
             </template>
@@ -36,14 +49,8 @@
           </div>
           <div class="button-bar" id="creator-button-bar">
             <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
-            <Button
-              icon="fa-solid fa-rotate-left"
-              label="Undo"
-              severity="warning"
-              @click="undo"
-              data-testid="undo-button"
-              :disabled="!editorEntityStates.length"
-            />
+            <Button icon="fa-solid fa-rotate-left" label="Undo" severity="warning" @click="undo" data-testid="undo-button" :disabled="!hasPreviousState" />
+            <Button icon="fa-solid fa-rotate-right" label="Redo" severity="warning" @click="redo" data-testid="redo-button" :disabled="!hasNextState" />
             <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
           </div>
         </div>
@@ -186,23 +193,38 @@ const targetShape: Ref<TTIriRef | undefined> = ref();
 const showTypeSelector = ref(false);
 const forceValidation = ref(false);
 
+const currentEntityStateIndex: ComputedRef<number> = computed(() => editorStore.currentEntityStateIndex);
 const editorEntityStates: ComputedRef<any[]> = computed(() => editorStore.editorEntityStates);
-const editorEntityUpdate: ComputedRef<boolean> = computed(() => editorStore.editorEntityUpdate);
+const hasPreviousState: ComputedRef<boolean> = computed(() => editorEntityStates.value.length > 0 && currentEntityStateIndex.value > 0);
+const hasNextState: ComputedRef<boolean> = computed(() => currentEntityStateIndex.value !== editorEntityStates.value.length - 1);
 
-watch(
-  () => _.cloneDeep(editorEntityUpdate.value),
-  newValue => {
-    if (newValue) {
-      editorStore.addToEditorEntityStates(editorEntity.value);
-    }
-  }
-);
+// const editorEntityUpdate: ComputedRef<boolean> = computed(() => editorStore.editorEntityUpdate);
+
+// watch(
+//   () => _.cloneDeep(editorEntityUpdate.value),
+//   newValue => {
+//     if (newValue) {
+//       editorStore.addToEditorEntityStates(editorEntity.value);
+//     }
+//   }
+// );
 
 function undo() {
   if (editorEntityStates.value.length) {
-    const index = editorEntityStates.value.findIndex(state => JSON.stringify(editorEntity.value) === JSON.stringify(state));
-    if (index !== -1) {
-      editorEntity.value = editorEntityStates.value[index];
+    const previousIndex = currentEntityStateIndex.value - 1;
+    if (previousIndex >= 0) {
+      editorEntity.value = { ...editorEntityStates.value[previousIndex] };
+      editorStore.updateCurrentEntityStateIndex(currentEntityStateIndex.value - 1);
+    }
+  }
+}
+
+function redo() {
+  if (editorEntityStates.value.length) {
+    const nextIndex = currentEntityStateIndex.value + 1;
+    if (nextIndex < editorEntityStates.value.length) {
+      editorEntity.value = { ...editorEntityStates.value[nextIndex] };
+      editorStore.updateCurrentEntityStateIndex(currentEntityStateIndex.value + 1);
     }
   }
 }

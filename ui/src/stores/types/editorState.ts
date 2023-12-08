@@ -7,4 +7,5 @@ export interface EditorState {
   eclEditorSavedString: string;
   editorEntityStates: any[];
   editorEntityUpdate: boolean;
+  currentEntityStateIndex: number;
 }

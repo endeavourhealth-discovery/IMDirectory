@@ -8,6 +8,7 @@ export const useEditorStore = defineStore("editor", {
     editorSavedEntity: JSON.parse(localStorage.getItem("editorSavedEntity") ?? "{}") as any,
     editorHasChanges: false,
     editorEntityStates: [] as any[],
+    currentEntityStateIndex: 0,
     editorEntityUpdate: false,
     findInEditorTreeIri: "",
     refreshEditorTree: false,
@@ -20,6 +21,7 @@ export const useEditorStore = defineStore("editor", {
     },
     updateEditorSavedEntity(entity: any) {
       this.editorSavedEntity = entity;
+      this.addToEditorEntityStates(entity);
       if (entity && useUserStore().cookiesOptionalAccepted) localStorage.setItem("editorSavedEntity", JSON.stringify(entity));
       else localStorage.removeItem("editorSavedEntity");
     },
@@ -38,9 +40,17 @@ export const useEditorStore = defineStore("editor", {
       else localStorage.removeItem("eclEditorSavedString");
     },
     addToEditorEntityStates(editedEntity: any) {
-      console.log(this.editorEntityStates.length);
-      this.editorEntityStates.push(editedEntity);
-      this.editorEntityUpdate = false;
+      this.editorEntityStates.push({ ...editedEntity });
+      // this.editorEntityUpdate = false;
+      this.currentEntityStateIndex = this.editorEntityStates.length - 1;
+    },
+    updateCurrentEntityStateIndex(index: number) {
+      this.currentEntityStateIndex = index;
+    },
+    initEditorState(currentEntity: any) {
+      this.updateEditorSavedEntity(currentEntity);
+      this.currentEntityStateIndex = 0;
+      this.editorEntityStates = [];
     },
     updateEditorEntityUpdate(update: boolean) {
       console.log("store change");
