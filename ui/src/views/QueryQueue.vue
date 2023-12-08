@@ -111,6 +111,10 @@
   <Dialog header="Query Results" :visible="graphView" :modal="true" :style="{ width: '80vw' }" @update:visible="resultData = undefined">
     <div class="chart-options">
       <div>
+        <label for="style">Style</label>
+        <Dropdown id="style" v-model="selectedStyle" :options="styleOptions" placeholder="Select a style"></Dropdown>
+      </div>
+      <div>
         <label for="group">Group by</label>
         <Dropdown id="group" v-model="selectedGroup" :options="modelProps" optionLabel="name" placeholder="Select a property"></Dropdown>
       </div>
@@ -150,8 +154,10 @@ const graphView: Ref<boolean> = ref(false);
 const modelProps: Ref<TTIriRef[]> = ref([]);
 const selectedGroup: Ref<TTIriRef | undefined> = ref();
 const selectedCalc: Ref<string> = ref("Count");
-const selectedCalcField: Ref<string | undefined> = ref();
 const calcOptions: string[] = ["Count", "Sum", "Average", "Percentage"];
+const selectedCalcField: Ref<string | undefined> = ref();
+const selectedStyle: Ref<any> = ref("pie");
+const styleOptions: string[] = ["pie", "bar", "line"];
 const graphData = ref();
 
 const graphOptions: Ref<EChartsOption> = ref({
@@ -162,34 +168,7 @@ const graphOptions: Ref<EChartsOption> = ref({
   tooltip: {
     trigger: "item",
     formatter: "{a} <br/>{b} : {c} ({d}%)"
-  },
-  legend: {
-    orient: "vertical",
-    left: "left",
-    data: ["Direct", "Email", "Ad Networks", "Video Ads", "Search Engines"]
-  },
-  series: [
-    {
-      name: "Cohort",
-      type: "pie",
-      radius: "55%",
-      center: ["50%", "60%"],
-      data: [
-        { value: 335, name: "Direct" },
-        { value: 310, name: "Email" },
-        { value: 234, name: "Ad Networks" },
-        { value: 135, name: "Video Ads" },
-        { value: 1548, name: "Search Engines" }
-      ],
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 10,
-          shadowOffsetX: 0,
-          shadowColor: "rgba(0, 0, 0, 0.5)"
-        }
-      }
-    }
-  ]
+  }
 });
 
 onMounted(async () => {
@@ -205,7 +184,7 @@ watch(
 );
 
 watch(
-  () => [selectedGroup.value, selectedCalc.value],
+  () => [selectedGroup.value, selectedCalc.value, selectedStyle.value],
   async () => {
     await refreshGraph();
   }
@@ -234,7 +213,6 @@ function getSeverity(data: QueryQueueItem) {
 }
 
 function confirmStop(id: string) {
-  console.log("Confirm");
   Swal.fire({
     title: "Stop the query?",
     html: "No query results will be produced",
@@ -253,7 +231,6 @@ async function stop(id: string) {
 }
 
 function confirmRemove(id: string) {
-  console.log("Confirm");
   Swal.fire({
     title: "Delete queue item?",
     html: "This will also delete the associated query results",
@@ -272,7 +249,6 @@ async function remove(id: string) {
 }
 
 function confirmDownload(id: string) {
-  console.log("Confirm");
   Swal.fire({
     title: "Download query results?",
     html: "This could take a while for large amounts of data",
@@ -290,22 +266,14 @@ function download(id: string) {
 }
 
 async function viewResults(id: string) {
-  console.log("VIEW " + id);
-  console.log(queueId.value);
   queueId.value = { id: id };
   resultData.value = await QueryService.getResultData(queueId.value.id);
   tableView.value = true;
 }
 
 async function graphResults(id: string, modelIri: string) {
-  console.log("GRAPH " + id);
-  console.log(queueId.value);
-
   if (modelProps.value.length == 0) {
-    console.log("Loading model properties for");
-    console.log(modelIri);
     modelProps.value = (await DataModelService.getDataModelProperties(modelIri)).map(p => p.property!);
-    console.log(modelProps.value);
   }
 
   queueId.value = { id: id };
@@ -316,37 +284,70 @@ async function refreshGraph() {
   if (!selectedGroup.value || !selectedCalc.value) return;
 
   graphData.value = await QueryService.getGraphData(queueId.value.id, selectedGroup.value["@id"], selectedCalc.value, selectedCalcField.value);
-  graphOptions.value = {
-    ...graphOptions.value,
-    ...{
-      legend: {
-        orient: "vertical",
-        left: "left",
-        data: graphData.value.map((v: any) => v.name)
-      },
-      series: [
-        {
-          name: "Cohort",
-          type: "pie",
-          radius: "55%",
-          center: ["50%", "60%"],
-          data: graphData.value,
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: "rgba(0, 0, 0, 0.5)"
+
+  if ("pie" === selectedStyle.value) {
+    graphOptions.value = {
+      ...graphOptions.value,
+      ...{
+        legend: {
+          orient: "vertical",
+          left: "left",
+          data: graphData.value.map((v: any) => v.name)
+        },
+        series: [
+          {
+            name: "Cohort",
+            type: selectedStyle.value,
+            radius: "55%",
+            center: ["50%", "60%"],
+            data: graphData.value,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: "rgba(0, 0, 0, 0.5)"
+              }
             }
           }
-        }
-      ]
-    }
-  };
+        ]
+      }
+    };
+  } else {
+    graphOptions.value = {
+      ...graphOptions.value,
+      ...{
+        legend: {
+          orient: "vertical",
+          left: "left",
+          data: graphData.value.map((v: any) => v.name)
+        },
+        xAxis: {
+          type: "category",
+          data: graphData.value.map((v: any) => v.name)
+        },
+        yAxis: {
+          type: "value"
+        },
+        series: [
+          {
+            name: "Cohort",
+            type: selectedStyle.value,
+            data: graphData.value.map((v: any) => v.value),
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: "rgba(0, 0, 0, 0.5)"
+              }
+            }
+          }
+        ]
+      }
+    };
+  }
 }
 
 async function pageTable(data: DataTablePageEvent) {
-  console.log("PAGE");
-  console.log(data);
   resultData.value = await QueryService.getResultData(queueId.value.id, data.page + 1, data.rows);
 }
 </script>

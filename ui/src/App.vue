@@ -38,9 +38,8 @@ import setupChangeTheme from "@/composables/setupChangeTheme";
 import { useLoadingStore } from "./stores/loadingStore";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
-import { PieChart } from "echarts/charts";
-import { TitleComponent, TooltipComponent, LegendComponent } from "echarts/components";
-import { THEME_KEY } from "vue-echarts";
+import { BarChart, LineChart, PieChart } from "echarts/charts";
+import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from "echarts/components";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -60,9 +59,7 @@ const currentUser = computed(() => userStore.currentUser);
 const currentTheme = computed(() => userStore.currentTheme);
 const viewsLoading = computed(() => loadingStore.viewsLoading);
 
-use([CanvasRenderer, PieChart, TitleComponent, TooltipComponent, LegendComponent]);
-
-provide(THEME_KEY, "dark");
+use([CanvasRenderer, PieChart, BarChart, LineChart, GridComponent, TitleComponent, TooltipComponent, LegendComponent]);
 
 watch(
   () => currentTheme.value,

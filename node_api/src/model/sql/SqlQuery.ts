@@ -125,13 +125,7 @@ export class SqlQuery {
   }
 
   private getField(field: string, table?: string): Field {
-    console.log("GET FIELD");
-    console.log(field);
-    console.log(table);
-
     const map = table ? (mapData.typeTables as any)[table] : this.map;
-    console.log("MAP");
-    console.log(map);
 
     if (!map) throw new Error("Unknown table [" + table + "]");
 
