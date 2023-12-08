@@ -3,7 +3,7 @@ import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
 
-const propertyDisplayMap: { path: any; then: any } = { path: { concept: "of", ethnicity: "of", language: "of" }, then: { concept: "is" } };
+const propertyDisplayMap: { path: any; then: any } = { path: { concept: "is", ethnicity: "of", language: "of" }, then: { concept: "is" } };
 
 export type MatchType = "path" | "then";
 
@@ -118,12 +118,12 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
   if (!property.match) display += propertyName;
 
-  if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
-  display += getDisplaySuffixFromEntailment(property);
-
   if (property.isNull) display += " is not recorded";
-  else if (property.isNull === false) display += " is recorded";
+  else if (property.isNotNull) display += " is recorded";
   else {
+    if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
+    display += getDisplaySuffixFromEntailment(property);
+
     if (property.is) display += getDisplayFromList(property, true, property.is);
     if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
     if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
