@@ -707,7 +707,7 @@ export default class QueryService {
 
       const qry = SqlQuery.create("http://endhealth.info/im#Patient", "", tbl);
       const grpField = qry.getFieldName(groupIri);
-      const sql = "SELECT " + grpField + ", COUNT(1)\n" + "FROM " + tbl + "\n" + "GROUP BY " + grpField;
+      const sql = "SELECT " + grpField + ", COUNT(1)\n" + "FROM " + tbl + "\n" + "GROUP BY " + grpField + "\nORDER BY " + grpField + " ASC";
 
       console.log(sql);
 
