@@ -80,7 +80,7 @@ const emit = defineEmits({
 const filterStore = useFilterStore();
 const filterStoreOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const filterStoreDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
+const selectedStoreFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const quickFiltersStatus = computed(() => filterStore.quickFiltersStatus);
 
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
@@ -89,8 +89,9 @@ const selectedTypes: Ref<TTIriRef[]> = ref([]);
 const selectedSortField: Ref<TTIriRef> = ref({} as TTIriRef);
 const selectedSortDirection: Ref<TTIriRef> = ref({} as TTIriRef);
 const includeLegacy = ref(false);
-const filterOptions: Ref<FilterOptions | undefined> = ref();
-const filterDefaults: Ref<FilterOptions | undefined> = ref();
+const filterOptions: Ref<FilterOptions> = ref({ ...filterStoreOptions.value });
+const filterDefaults: Ref<FilterOptions> = ref({ ...filterStoreDefaults.value });
+const selectedFilters: Ref<FilterOptions> = ref({ ...selectedStoreFilters.value });
 const loading = ref(false);
 
 watch(includeLegacy, newValue => setLegacy(newValue));
@@ -168,13 +169,11 @@ function updateStoreSelectedFilters(): void {
 function setDefaults(): void {
   if (props.filterOptions) {
     filterOptions.value = props.filterOptions;
-  } else {
-    filterOptions.value = filterStoreOptions.value;
+    filterDefaults.value = { schemes: [], status: [], types: [], sortDirections: [], sortFields: [] };
+    selectedFilters.value = { schemes: [], status: [], types: [], sortDirections: [], sortFields: [] };
   }
   if (props.filterDefaults) {
     filterDefaults.value = props.filterDefaults;
-  } else {
-    filterDefaults.value = filterStoreDefaults.value;
   }
   if (!isArrayHasLength(selectedFilters.value.status) && !isArrayHasLength(selectedFilters.value.schemes) && !isArrayHasLength(selectedFilters.value.types)) {
     selectedStatus.value = filterOptions.value.status.filter(

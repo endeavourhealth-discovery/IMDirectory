@@ -87,7 +87,7 @@ const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
 ]);
-const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters });
+const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
 
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 
