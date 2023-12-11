@@ -19,6 +19,7 @@ export default class Validator {
     if (iri === IM.validation.IS_PROPERTY) return this.isValidProperties(data);
     if (iri === IM.validation.IS_SCHEME) return await this.isValidScheme(data);
     if (iri === IM.validation.IS_STATUS) return await this.isValidStatus(data);
+    if (iri === IM.validation.IS_ROLE_GROUP) return this.isValidRoleGroups(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -206,6 +207,37 @@ export default class Validator {
           }
         }
       }
+    }
+    return { isValid: valid, message: message };
+  }
+
+  private isValidRoleGroups(data: any): { isValid: boolean; message?: string } {
+    let valid = false;
+    let message: string | undefined = "1 or more role groups are invalid.";
+    if (isObjectHasKeys(data, [IM.ROLE_GROUP])) {
+      for (let group in data[IM.ROLE_GROUP]) {
+        if (isObjectHasKeys(data[IM.ROLE_GROUP][group], [IM.GROUP_NUMBER])) {
+          if (Object.keys(data[IM.ROLE_GROUP][group]).length > 1) {
+            for (let roles in data[IM.ROLE_GROUP][group]) {
+              if (null !== data[IM.ROLE_GROUP][group][roles]["@id"] && "" !== data[IM.ROLE_GROUP][group][roles].name) {
+                valid = true;
+                message = undefined;
+              } else {
+                valid = false;
+                message = "1 or more role groups are invalid.";
+                break;
+              }
+            }
+          } else {
+            valid = false;
+            message = "1 or more role groups are invalid.";
+            break;
+          }
+        }
+      }
+    } else {
+      valid = true;
+      message = undefined;
     }
     return { isValid: valid, message: message };
   }
