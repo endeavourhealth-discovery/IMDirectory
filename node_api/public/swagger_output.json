@@ -3,7 +3,7 @@
   "info": {
     "version": "1.0.0",
     "title": "FHIR Value set API",
-    "description": "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource"
+    "description": "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource<br>Definition file: <a href=\"./swagger.json\">swagger.json</a>"
   },
   "basePath": "/node_api/fhir/r4",
   "schemes": [

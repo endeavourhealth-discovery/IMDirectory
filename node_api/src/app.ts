@@ -26,6 +26,9 @@ class App {
       })
     );
 
+    this.app.get("/doc/swagger.json", (req, res) => {
+      res.send(swaggerFile);
+    });
     this.app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
     this.app.options("*", cors());
