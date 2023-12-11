@@ -18,6 +18,12 @@ export default class QueryController {
   }
 
   private initRoutes() {
+    this.router.get("/public/tokenizeMatches", (req, res, next) =>
+      this.tokenizeMatches(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+
     this.router.get("/public/queryDisplay", (req, res, next) =>
       this.getQueryDisplay(req)
         .then(data => res.send(data))
@@ -90,6 +96,10 @@ export default class QueryController {
         .then(data => res.send(data))
         .catch(next)
     );
+  }
+
+  async tokenizeMatches(req: Request) {
+    return await this.queryService.tokenizeMatches();
   }
 
   async getAllowableChildTypes(req: Request) {

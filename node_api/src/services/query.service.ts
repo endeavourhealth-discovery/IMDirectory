@@ -3,7 +3,7 @@ import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest, QueryResponse } from "@im-library/interfaces";
-import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Match, Property, Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 import { GraphdbService, sanitise } from "@/services/graphdb.service";
@@ -24,6 +24,58 @@ export default class QueryService {
     this.eclService = new EclService(axios);
     this.graph = GraphdbService.imRepo();
     this.entityService = new EntityService(axios);
+  }
+
+  public async tokenizeMatches() {
+    console.log("Tokenize Matches");
+    console.log("Fetching query list");
+    const queries = (await this.axios.get(Env.API + "api/query/public/allByType", { params: { iri: IM.COHORT_QUERY } })).data;
+    console.log("Processing '" + queries.length + "' queries");
+
+    // const queries = [{ "@id": "http://endhealth.info/im#Q_TestQuery", name: "Test query" }];
+
+    const result = new Set<string>();
+
+    for (const q of queries) {
+      console.log("Loading " + q.name + "...");
+      const definition = await this.getQueryDefinition(q["@id"]);
+
+      if (definition.match) {
+        const depResult = await this.getQueryDisplayFromQuery(definition);
+
+        for (const m of depResult.match!) {
+          result.add(this.getMatch(m));
+        }
+      }
+    }
+
+    console.log("Results");
+    console.log("====================================");
+
+    let r = Array.from(result).join("\n");
+    r = r.replaceAll(/<\/span>/g, "").replaceAll(/<span ((style='color: (orange|blue|red);')|(class='node-ref'))>/g, "");
+    return r;
+  }
+
+  private getMatch(match: Match): string {
+    if (!match) return "";
+
+    let result = match.description?.trim() || "";
+    if (match.match) for (const m of match.match) result += " " + this.getMatch(m).trim();
+    if (match.then) result += " " + this.getMatch(match.then).trim();
+    if (match.property) for (const p of match.property) result += " " + this.getProperty(p).trim();
+
+    return result;
+  }
+
+  private getProperty(property: Property): string {
+    if (!property) return "";
+
+    let result = property.description?.trim() || "";
+
+    if (property.match) result += " " + this.getMatch(property.match).trim();
+
+    return result;
   }
 
   public async queryIM(query: QueryRequest, controller?: AbortController): Promise<QueryResponse> {
