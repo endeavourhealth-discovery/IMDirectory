@@ -13,7 +13,7 @@
     "build": "pnpm tsc:build"
   },
   "dependencies": {
-    "antlr4": "4.11.0",
+    "antlr4": "4.13.1",
     "d3": "7.8.5",
     "google-palette": "1.1.1",
     "lodash": "4.17.21",
@@ -28,7 +28,7 @@
     "@faker-js/faker": "8.0.2",
     "@mswjs/data": "0.15.0",
     "@originjs/vite-plugin-commonjs": "1.0.3",
-    "@types/antlr4": "4.11.2",
+    "@types/antlr4": "4.11.6",
     "@types/d3": "7.4.0",
     "@types/lodash": "4.14.198",
     "@types/node": "18.17.18",
