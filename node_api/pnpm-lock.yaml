@@ -15,8 +15,8 @@ dependencies:
     specifier: 2.0.7
     version: 2.0.7
   antlr4:
-    specifier: 4.11.0
-    version: 4.11.0
+    specifier: 4.13.1
+    version: 4.13.1
   axios:
     specifier: 1.6.2
     version: 1.6.2
@@ -101,8 +101,8 @@ dependencies:
 
 devDependencies:
   '@types/antlr4':
-    specifier: 4.11.2
-    version: 4.11.2
+    specifier: 4.11.6
+    version: 4.11.6
   '@types/body-parser':
     specifier: 1.19.3
     version: 1.19.3
@@ -1623,8 +1623,8 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@types/antlr4@4.11.2:
-    resolution: {integrity: sha512-WVDiUppozGAKAL76KbXX63A4U4a0HfHM/5X7+GWzen7OaS/7eJEMdd61B+Hhl52Kedcmr80/jNeeWrM3Z/icig==}
+  /@types/antlr4@4.11.6:
+    resolution: {integrity: sha512-YtxtT6vYfLK6jC55zC4Pb2YwV6Z8exn4DbDlQgoSEc6VqlFZloi6bgm0AqZns/7U4XQCAVMhv/+vnGcfyCkPfg==}
     dev: true
 
   /@types/body-parser@1.19.3:
@@ -2071,9 +2071,9 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /antlr4@4.11.0:
-    resolution: {integrity: sha512-GUGlpE2JUjAN+G8G5vY+nOoeyNhHsXoIJwP1XF1oRw89vifA1K46T6SEkwLwr7drihN7I/lf0DIjKc4OZvBX8w==}
-    engines: {node: '>=14'}
+  /antlr4@4.13.1:
+    resolution: {integrity: sha512-kiXTspaRYvnIArgE97z5YVVf/cDVQABr3abFRR6mE7yesLMkgu4ujuyV/sgxafQ8wgve0DJQUJ38Z8tkgA2izA==}
+    engines: {node: '>=16'}
     dev: false
 
   /anymatch@3.1.3:
