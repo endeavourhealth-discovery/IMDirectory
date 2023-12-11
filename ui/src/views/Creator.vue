@@ -16,15 +16,10 @@
           </div>
           <div v-else class="creator-layout-container">
             <div>
-              {{ currentEntityStateIndex }}
+              {{ currentEditHistoryStateIndex }}
               /
-              {{ editorEntityStates.length - 1 }}
+              {{ editHistory.length }}
             </div>
-
-            <div>
-              {{ editorEntityStates[currentEntityStateIndex] }}
-            </div>
-            <div>n</div>
             <div>
               {{ editorEntity }}
             </div>
@@ -82,6 +77,7 @@ import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
 import QuickQuery from "@/components/query/QuickQuery.vue";
+import { EditHistoryItem } from "@im-library/interfaces";
 
 export default defineComponent({
   components: {
@@ -193,41 +189,26 @@ const targetShape: Ref<TTIriRef | undefined> = ref();
 const showTypeSelector = ref(false);
 const forceValidation = ref(false);
 
-const currentEntityStateIndex: ComputedRef<number> = computed(() => editorStore.currentEntityStateIndex);
-const editorEntityStates: ComputedRef<any[]> = computed(() => editorStore.editorEntityStates);
-const hasPreviousState: ComputedRef<boolean> = computed(() => editorEntityStates.value.length > 0 && currentEntityStateIndex.value > 0);
-const hasNextState: ComputedRef<boolean> = computed(() => currentEntityStateIndex.value !== editorEntityStates.value.length - 1);
-
-// const editorEntityUpdate: ComputedRef<boolean> = computed(() => editorStore.editorEntityUpdate);
-
-// watch(
-//   () => _.cloneDeep(editorEntityUpdate.value),
-//   newValue => {
-//     if (newValue) {
-//       editorStore.addToEditorEntityStates(editorEntity.value);
-//     }
-//   }
-// );
+const editHistory: ComputedRef<EditHistoryItem[]> = computed(() => editorStore.editHistory);
+const currentEditHistoryStateIndex: ComputedRef<number> = computed(() => editorStore.currentEditHistoryStateIndex);
+const hasPreviousState: ComputedRef<boolean> = computed(() => editHistory.value.length > 0 && currentEditHistoryStateIndex.value > 0);
+const hasNextState: ComputedRef<boolean> = computed(() => currentEditHistoryStateIndex.value !== editHistory.value.length - 1);
 
 function undo() {
-  if (editorEntityStates.value.length) {
-    const previousIndex = currentEntityStateIndex.value - 1;
-    if (previousIndex >= 0) {
-      editorEntity.value = { ...editorEntityStates.value[previousIndex] };
-      editorStore.updateCurrentEntityStateIndex(currentEntityStateIndex.value - 1);
-    }
-  }
+  const previousIndex = currentEditHistoryStateIndex.value - 1;
+  const previousStateAction = editHistory.value[previousIndex];
+  editorEntity.value[previousStateAction.key] = previousStateAction.value;
+
+  // {
+  //   const result = {} as any;
+  //   result[previousStateAction.key] = previousStateAction.value;
+  //   if (!previousStateAction.value && deleteEntityKey) deleteEntityKey(previousStateAction.key);
+  //   else if (updateEntity) updateEntity(result);
+  // }
+  editorStore.updateCurrentEditHistoryStateIndex(previousIndex);
 }
 
-function redo() {
-  if (editorEntityStates.value.length) {
-    const nextIndex = currentEntityStateIndex.value + 1;
-    if (nextIndex < editorEntityStates.value.length) {
-      editorEntity.value = { ...editorEntityStates.value[nextIndex] };
-      editorStore.updateCurrentEntityStateIndex(currentEntityStateIndex.value + 1);
-    }
-  }
-}
+function redo() {}
 
 provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
 

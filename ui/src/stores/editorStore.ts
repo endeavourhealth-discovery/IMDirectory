@@ -1,18 +1,18 @@
 import { defineStore } from "pinia";
 import { EditorState } from "@/stores/types/editorState";
 import { useUserStore } from "@/stores/userStore";
+import { EditHistoryItem } from "@im-library/interfaces";
 
 export const useEditorStore = defineStore("editor", {
   state: (): EditorState => ({
     editorIri: localStorage.getItem("editorSelectedIri") as string,
     editorSavedEntity: JSON.parse(localStorage.getItem("editorSavedEntity") ?? "{}") as any,
     editorHasChanges: false,
-    editorEntityStates: [] as any[],
-    currentEntityStateIndex: 0,
-    editorEntityUpdate: false,
     findInEditorTreeIri: "",
     refreshEditorTree: false,
-    eclEditorSavedString: localStorage.getItem("eclEditorSavedString") ?? ("" as string)
+    eclEditorSavedString: localStorage.getItem("eclEditorSavedString") ?? ("" as string),
+    editHistory: [],
+    currentEditHistoryStateIndex: 0
   }),
   actions: {
     updateEditorIri(iri: string) {
@@ -21,7 +21,6 @@ export const useEditorStore = defineStore("editor", {
     },
     updateEditorSavedEntity(entity: any) {
       this.editorSavedEntity = entity;
-      this.addToEditorEntityStates(entity);
       if (entity && useUserStore().cookiesOptionalAccepted) localStorage.setItem("editorSavedEntity", JSON.stringify(entity));
       else localStorage.removeItem("editorSavedEntity");
     },
@@ -39,22 +38,12 @@ export const useEditorStore = defineStore("editor", {
       if (ecl && useUserStore().cookiesOptionalAccepted) localStorage.setItem("eclEditorSavedString", ecl);
       else localStorage.removeItem("eclEditorSavedString");
     },
-    addToEditorEntityStates(editedEntity: any) {
-      this.editorEntityStates.push({ ...editedEntity });
-      // this.editorEntityUpdate = false;
-      this.currentEntityStateIndex = this.editorEntityStates.length - 1;
+    addToEditHistory(editHistoryItem: EditHistoryItem) {
+      this.editHistory.push(editHistoryItem);
+      this.currentEditHistoryStateIndex++;
     },
-    updateCurrentEntityStateIndex(index: number) {
-      this.currentEntityStateIndex = index;
-    },
-    initEditorState(currentEntity: any) {
-      this.updateEditorSavedEntity(currentEntity);
-      this.currentEntityStateIndex = 0;
-      this.editorEntityStates = [];
-    },
-    updateEditorEntityUpdate(update: boolean) {
-      console.log("store change");
-      this.editorEntityUpdate = update;
+    updateCurrentEditHistoryStateIndex(currentEditHistoryStateIndex: number) {
+      this.currentEditHistoryStateIndex = currentEditHistoryStateIndex;
     }
   }
 });

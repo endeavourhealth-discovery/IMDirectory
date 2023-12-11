@@ -73,7 +73,6 @@ async function save() {
     props.query.match!.splice(0, 0, buildInSetMatchFromCS(selected.value));
   }
   // update
-  editorStore.updateEditorEntityUpdate(true);
 
   visible.value = false;
 }

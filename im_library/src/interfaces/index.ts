@@ -56,6 +56,7 @@ import { MailOptions } from "./MailOptions";
 import { Workflow } from "./Workflow";
 import { BugReport } from "./BugReport";
 import { QueryResponse } from "./QueryResponse";
+import { EditHistoryItem } from "./EditHistoryItem";
 
 export {
   type AccountItem,
@@ -115,5 +116,6 @@ export {
   type MailOptions,
   type Workflow,
   type BugReport,
-  type QueryResponse
+  type QueryResponse,
+  type EditHistoryItem
 };

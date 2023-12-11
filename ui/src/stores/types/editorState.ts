@@ -1,3 +1,5 @@
+import { EditHistoryItem } from "@im-library/interfaces";
+
 export interface EditorState {
   editorIri: string;
   editorSavedEntity: any;
@@ -5,7 +7,6 @@ export interface EditorState {
   findInEditorTreeIri: string;
   refreshEditorTree: boolean;
   eclEditorSavedString: string;
-  editorEntityStates: any[];
-  editorEntityUpdate: boolean;
-  currentEntityStateIndex: number;
+  editHistory: EditHistoryItem[];
+  currentEditHistoryStateIndex: number;
 }

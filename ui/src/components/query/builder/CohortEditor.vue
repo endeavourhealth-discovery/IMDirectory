@@ -171,7 +171,6 @@ function onSelect(cs: ConceptSummary) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match.push(newMatch);
   // update
-  editorStore.updateEditorEntityUpdate(true);
   showDirectoryDialog.value = false;
 }
 
@@ -179,7 +178,6 @@ function onPropertyAdd(direct: Match[], nested: Match[]) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match = query.value.match.concat(direct.concat(nested));
   // update
-  editorStore.updateEditorEntityUpdate(true);
 }
 
 function addVariableRefFromMatch(map: Map<string, any>, match: Match) {
@@ -220,7 +218,6 @@ async function pasteMatch() {
         query.value.match.push(copyObject.match);
         toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value was pasted."));
         // update
-        editorStore.updateEditorEntityUpdate(true);
       }
     } catch (error: any) {
       if (error.name === "SyntaxError") toast.add(new ToastOptions(ToastSeverity.ERROR, "Copied value is not a valid match object."));
