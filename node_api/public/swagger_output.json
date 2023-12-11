@@ -3,7 +3,7 @@
   "info": {
     "version": "1.0.0",
     "title": "FHIR Value set API",
-    "description": "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource<br>Definition file: <a href=\"./swagger.json\">swagger.json</a>"
+    "description": "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource<br><br>Definition file: <a href=\"./swagger.json\">swagger.json</a>"
   },
   "basePath": "/node_api/fhir/r4",
   "schemes": [
@@ -28,6 +28,9 @@
         "responses": {
           "200": {
             "description": "Valuset successfully obtained - https://hl7.org/fhir/valueset.html#resource"
+          },
+          "404": {
+            "description": "Valuset not specified or not found"
           }
         }
       }
@@ -47,6 +50,9 @@
         "responses": {
           "200": {
             "description": "Valuset successfully obtained and expanded - https://hl7.org/fhir/valueset.html#resource"
+          },
+          "404": {
+            "description": "Valuset not specified or not found"
           }
         }
       }
@@ -54,13 +60,6 @@
     "/ValueSet/ECL": {
       "post": {
         "description": "",
-        "parameters": [
-          {
-            "name": "url",
-            "in": "query",
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""

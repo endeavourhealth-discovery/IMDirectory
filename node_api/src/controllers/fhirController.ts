@@ -20,9 +20,15 @@ export default class FhirController {
         #swagger.responses[200] = {
           description: 'Valuset successfully obtained - https://hl7.org/fhir/valueset.html#resource'
         }
+        #swagger.responses[404] = {
+          description: 'Valuset not specified or not found'
+        }
       */
       this.getValueSet(req, false)
-        .then(data => res.setHeader("content-type", "application/fhir+json").send(data))
+        .then(data => {
+          if (!data) res.status(404);
+          else res.setHeader("content-type", "application/fhir+json").send(data);
+        })
         .catch(next)
     );
     this.router.get("/ValueSet/[$]expand", (req, res, next) =>
@@ -33,14 +39,23 @@ export default class FhirController {
         #swagger.responses[200] = {
           description: 'Valuset successfully obtained and expanded - https://hl7.org/fhir/valueset.html#resource'
         }
+        #swagger.responses[404] = {
+          description: 'Valuset not specified or not found'
+        }
       */
       this.getValueSet(req, true)
-        .then(data => res.setHeader("content-type", "application/fhir+json").send(data))
+        .then(data => {
+          if (!data) res.status(404);
+          else res.setHeader("content-type", "application/fhir+json").send(data);
+        })
         .catch(next)
     );
     this.router.post("/ValueSet/ECL", (req, res, next) =>
       this.eclToFhir(req)
-        .then(data => res.setHeader("content-type", "text/plain").send(data))
+        .then(data => {
+          if (!data) res.status(404);
+          else res.setHeader("content-type", "text/plain").send(data);
+        })
         .catch(next)
     );
   }
