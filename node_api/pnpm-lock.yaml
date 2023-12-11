@@ -128,8 +128,8 @@ devDependencies:
     specifier: 1.9.4
     version: 1.9.4
   '@types/mysql':
-    specifier: 2.15.21
-    version: 2.15.21
+    specifier: 2.15.24
+    version: 2.15.24
   '@types/node':
     specifier: 18.17.18
     version: 18.17.18
@@ -1731,8 +1731,8 @@ packages:
     resolution: {integrity: sha512-AuHIyzR5Hea7ij0P9q7vx7xu4z0C28ucwjAZC0ja7JhINyCnOw8/DnvAPQQ9TfOlCtZAmCERKQX9+o1mgQhuOQ==}
     dev: false
 
-  /@types/mysql@2.15.21:
-    resolution: {integrity: sha512-NPotx5CVful7yB+qZbWtXL2fA4e7aEHkihHLjklc6ID8aq7bhguHgeIoC1EmSNTAuCgI6ZXrjt2ZSaXnYX0EUg==}
+  /@types/mysql@2.15.24:
+    resolution: {integrity: sha512-I0qULi8JBEg0oso69Fe4H4QPR+IdE0yRhZLu3uRhGwQ92m2Epz1cSD5jnXY0nMeZQKd61U8EvnOVMbNE74o3Kw==}
     dependencies:
       '@types/node': 18.17.18
     dev: true
