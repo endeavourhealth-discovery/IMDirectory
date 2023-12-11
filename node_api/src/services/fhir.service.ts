@@ -19,10 +19,14 @@ export default class FhirService {
 
   public async getValueSet(url: string, expand: boolean): Promise<any> {
     const result = new fhirR4.ValueSet();
+    if (!url) return null;
+
+    const details = await this.repo.getMetaData(url);
+    if (!details || details.length == 0) return null;
+
     const members = await this.repo.getMembers(url);
     const subsets = await this.repo.getSubsets(url);
     const def = await this.repo.getDefinition(url);
-    const details = await this.repo.getMetaData(url);
 
     result.resourceType = "ValueSet";
     result.language = "en";
