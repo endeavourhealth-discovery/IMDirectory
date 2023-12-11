@@ -51,6 +51,18 @@ export default class FhirController {
         .catch(next)
     );
     this.router.post("/ValueSet/ECL", (req, res, next) =>
+      /*
+        #swagger.path = '/ValueSet/ECL'
+        #swagger.summary = 'Evaluates an ECL expression and returns the result as a FHIR r4 value set'
+        #swagger.consumes = ['text/plain']
+        #swagger.parameters['body'] = { in: 'body', description: 'ECL expression', schema: { type: 'string' } }
+        #swagger.responses[200] = {
+          description: 'ECL successfully evaluated, value set obtained and expanded - https://hl7.org/fhir/valueset.html#resource'
+        }
+        #swagger.responses[404] = {
+          description: 'ECL not specified or invalid'
+        }
+      */
       this.eclToFhir(req)
         .then(data => {
           if (!data) res.status(404).setHeader("content-type", "text/plain").send("Not found");

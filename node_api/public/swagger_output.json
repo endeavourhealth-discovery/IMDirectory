@@ -59,10 +59,27 @@
     },
     "/ValueSet/ECL": {
       "post": {
+        "summary": "Evaluates an ECL expression and returns the result as a FHIR r4 value set",
         "description": "",
+        "consumes": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "ECL expression",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "ECL successfully evaluated, value set obtained and expanded - https://hl7.org/fhir/valueset.html#resource"
+          },
+          "404": {
+            "description": "ECL not specified or invalid"
           }
         }
       }
