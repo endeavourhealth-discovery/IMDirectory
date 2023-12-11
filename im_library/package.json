@@ -30,7 +30,7 @@
     "@originjs/vite-plugin-commonjs": "1.0.3",
     "@types/antlr4": "4.11.2",
     "@types/d3": "7.4.0",
-    "@types/lodash": "4.14.198",
+    "@types/lodash": "4.14.202",
     "@types/node": "18.17.18",
     "@types/uuid": "9.0.4",
     "@vitest/coverage-v8": "0.32.0",
