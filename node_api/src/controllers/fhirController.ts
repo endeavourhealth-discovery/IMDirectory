@@ -26,7 +26,7 @@ export default class FhirController {
       */
       this.getValueSet(req, false)
         .then(data => {
-          if (!data) res.status(404);
+          if (!data) res.status(404).setHeader("content-type", "text/plain").send("Not found");
           else res.setHeader("content-type", "application/fhir+json").send(data);
         })
         .catch(next)
@@ -45,7 +45,7 @@ export default class FhirController {
       */
       this.getValueSet(req, true)
         .then(data => {
-          if (!data) res.status(404);
+          if (!data) res.status(404).setHeader("content-type", "text/plain").send("Not found");
           else res.setHeader("content-type", "application/fhir+json").send(data);
         })
         .catch(next)
@@ -53,7 +53,7 @@ export default class FhirController {
     this.router.post("/ValueSet/ECL", (req, res, next) =>
       this.eclToFhir(req)
         .then(data => {
-          if (!data) res.status(404);
+          if (!data) res.status(404).setHeader("content-type", "text/plain").send("Not found");
           else res.setHeader("content-type", "text/plain").send(data);
         })
         .catch(next)
