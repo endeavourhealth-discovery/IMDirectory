@@ -34,7 +34,7 @@ export class IM {
   public static VERSION = IM.NAMESPACE + "version";
   public static FUNCTION = IM.NAMESPACE + "function";
   public static GRAPH = IM.NAMESPACE + "Graph";
-  public static PREFERRED_NAME = IM.NAMESPACE + "preferredName"
+  public static PREFERRED_NAME = IM.NAMESPACE + "preferredName";
 
   // task
   public static IN_TASK = IM.NAMESPACE + "inTask";
@@ -136,6 +136,7 @@ export class IM {
   public static GROUP_NUMBER = IM.NAMESPACE + "groupNumber";
 
   //argument options
+  public static VALUE = IM.NAMESPACE + "value";
   public static VALUE_DATA = IM.NAMESPACE + "valueData";
   public static VALUE_VARIABLE = IM.NAMESPACE + "valueVariable";
   public static VALUE_OBJECT = IM.NAMESPACE + "valueObject";

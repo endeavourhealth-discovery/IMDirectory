@@ -2,6 +2,7 @@ import { Bool, Entailment, Operator, OrderDirection, Property } from "../interfa
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
+import { IM } from "../vocabulary";
 
 const propertyDisplayMap: { path: any; then: any } = { path: { concept: "is", ethnicity: "of", language: "of" }, then: { concept: "is" } };
 
@@ -144,15 +145,10 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
 
 export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchType) {
   if (orderLimit?.property && orderLimit.property.length > 0) {
-    let desc = [];
-    for (const ob of orderLimit.property) {
-      desc.push(getDisplayFromOrderBy(ob, matchType));
-    }
+    // TODO: Temporary fix - model to be updated later
+    const desc = getDisplayFromOrderBy(orderLimit.property[0], matchType, orderLimit.limit);
 
-    if (desc.length > 0) {
-      orderLimit.description =
-        "<div class='variable-line'>order by " + desc.join(" then by ") + ", keep " + (orderLimit.limit === 1 ? "first" : orderLimit.limit) + "</div>";
-    }
+    orderLimit.description = "<div class='variable-line'>get " + desc + "</div>";
   }
 }
 
@@ -170,27 +166,36 @@ export function getNumberOfListItems(property: Property) {
   return totalNumberOfNodes;
 }
 
-function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: MatchType) {
+function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: MatchType, count = 0) {
   let display = "";
+  const limit = count > 1 ? " " + count + " " : " ";
+
   if (orderDirection.variable) display += orderDirection.variable + ".";
+
   const propertyName = getNameFromRef(orderDirection);
+
   if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += propertyName + " " + propertyDisplayMap[matchType][propertyName] + " ";
   else display += propertyName;
+
+  // Shortcut for effectiveDate and Value
+  if (IM.EFFECTIVE_DATE === orderDirection["@id"] || IM.VALUE === orderDirection["@id"]) display = "";
+  else display = "by " + display;
+
   if (propertyName.toLocaleLowerCase().includes("date")) {
     if ("descending" === orderDirection.direction) {
-      display = "latest " + display;
+      display = "latest" + limit + display;
     } else if ("ascending" === orderDirection.direction) {
-      display = "earliest " + display;
+      display = "earliest" + limit + display;
     }
   } else if (propertyName) {
     if ("descending" === orderDirection.direction) {
-      display = "highest " + display;
+      display = "highest" + limit + display;
     } else if ("ascending" === orderDirection.direction) {
-      display = "lowest " + display;
+      display = "lowest" + limit + display;
     }
   }
 
-  return display;
+  return display.trim();
 }
 
 export function getDisplayFromLogic(title: string) {
