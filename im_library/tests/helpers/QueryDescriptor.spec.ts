@@ -15,11 +15,23 @@ describe("QueryDescriptor.ts ___", () => {
   describe("getDisplayFromOrderBy", () => {
     it("can get description from OrderBy latest", () => {
       describeOrderByList(orderBy.getLatest as OrderLimit);
-      expect(orderBy.getLatest.description).toEqual("<div class='variable-line'>order by latest effectiveDate, keep first</div>");
+      expect(orderBy.getLatest.description).toEqual("<div class='variable-line'>get latest</div>");
     });
     it("can get description from OrderBy earliest", () => {
       describeOrderByList(orderBy.getEarliest as OrderLimit);
-      expect(orderBy.getEarliest.description).toEqual("<div class='variable-line'>order by earliest effectiveDate, keep first</div>");
+      expect(orderBy.getEarliest.description).toEqual("<div class='variable-line'>get earliest</div>");
+    });
+    it("can get description from OrderBy latest with limit", () => {
+      describeOrderByList(orderBy.getLatest3 as OrderLimit);
+      expect(orderBy.getLatest3.description).toEqual("<div class='variable-line'>get latest 3</div>");
+    });
+    it("can get description from OrderBy latest full", () => {
+      describeOrderByList(orderBy.getLatestFull as OrderLimit);
+      expect(orderBy.getLatestFull.description).toEqual("<div class='variable-line'>get latest by endDate</div>");
+    });
+    it("can get description from OrderBy latest with limit full", () => {
+      describeOrderByList(orderBy.getLatest3Full as OrderLimit);
+      expect(orderBy.getLatest3Full.description).toEqual("<div class='variable-line'>get latest 3 by endDate</div>");
     });
   });
 

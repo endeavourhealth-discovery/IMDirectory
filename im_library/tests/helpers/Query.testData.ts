@@ -237,9 +237,15 @@ export const where: {
 export const orderBy: {
   getLatest: OrderLimit;
   getEarliest: OrderLimit;
+  getLatest3: OrderLimit;
+  getLatestFull: OrderLimit;
+  getLatest3Full: OrderLimit;
 } = {
   getLatest: { property: [{ direction: "descending", "@id": "http://endhealth.info/im#effectiveDate" }], limit: 1 },
-  getEarliest: { property: [{ direction: "ascending", "@id": "http://endhealth.info/im#effectiveDate" }], limit: 1 }
+  getEarliest: { property: [{ direction: "ascending", "@id": "http://endhealth.info/im#effectiveDate" }], limit: 1 },
+  getLatest3: { property: [{ direction: "descending", "@id": "http://endhealth.info/im#effectiveDate" }], limit: 3 },
+  getLatestFull: { property: [{ direction: "descending", "@id": "http://endhealth.info/im#endDate" }], limit: 1 },
+  getLatest3Full: { property: [{ direction: "descending", "@id": "http://endhealth.info/im#endDate" }], limit: 3 }
 };
 
 export const fullTestQueryDefinition: Query = {
