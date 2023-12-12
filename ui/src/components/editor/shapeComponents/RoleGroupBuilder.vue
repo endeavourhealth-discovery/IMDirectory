@@ -334,7 +334,6 @@ function validateEntity() {
       invalidGroups.value.push({ groupIndex: index, errorMessage: specificValidationErrorMessage.value });
     }
   });
-  console.log(invalidGroups.value);
 }
 
 function isGroupValid(group: any[]): boolean {
