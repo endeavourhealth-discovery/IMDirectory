@@ -15,11 +15,23 @@ describe("QueryDescriptor.ts ___", () => {
   describe("getDisplayFromOrderBy", () => {
     it("can get description from OrderBy latest", () => {
       describeOrderByList(orderBy.getLatest as OrderLimit);
-      expect(orderBy.getLatest.description).toEqual("<div class='variable-line'>order by latest effectiveDate, keep first</div>");
+      expect(orderBy.getLatest.description).toEqual("<div class='variable-line'>get latest</div>");
     });
     it("can get description from OrderBy earliest", () => {
       describeOrderByList(orderBy.getEarliest as OrderLimit);
-      expect(orderBy.getEarliest.description).toEqual("<div class='variable-line'>order by earliest effectiveDate, keep first</div>");
+      expect(orderBy.getEarliest.description).toEqual("<div class='variable-line'>get earliest</div>");
+    });
+    it("can get description from OrderBy latest with limit", () => {
+      describeOrderByList(orderBy.getLatest3 as OrderLimit);
+      expect(orderBy.getLatest3.description).toEqual("<div class='variable-line'>get latest 3</div>");
+    });
+    it("can get description from OrderBy latest full", () => {
+      describeOrderByList(orderBy.getLatestFull as OrderLimit);
+      expect(orderBy.getLatestFull.description).toEqual("<div class='variable-line'>get latest by endDate</div>");
+    });
+    it("can get description from OrderBy latest with limit full", () => {
+      describeOrderByList(orderBy.getLatest3Full as OrderLimit);
+      expect(orderBy.getLatest3Full.description).toEqual("<div class='variable-line'>get latest 3 by endDate</div>");
     });
   });
 
@@ -88,20 +100,20 @@ describe("QueryDescriptor.ts ___", () => {
     it("can describe a match with one nested property of is", () => {
       const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfIs);
       describeMatch(testMatch, 0, "and");
-      expect(testMatch.property[0].match.property[0].description).toEqual("concept of Prediabetes");
+      expect(testMatch.property[0].match.property[0].description).toEqual("concept is Prediabetes");
     });
 
     it("can describe a match with one nested property of inSet", () => {
       const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfInSet);
       describeMatch(testMatch, 0, "and");
-      expect(testMatch.property[0].match.property[0].description).toEqual("concept of Prediabetes");
+      expect(testMatch.property[0].match.property[0].description).toEqual("concept is Prediabetes");
     });
 
     it("can describe a match with one nested property of is", () => {
       const testMatch: Match = _.cloneDeep(fullTestQueryDefinition);
       describeMatch(testMatch, 0, "and");
       expect(testMatch.match[2].property[0].match.property[0].description).toEqual(
-        "concept of <span class='node-ref'>Office or home systolic blood pressure</span> "
+        "concept is <span class='node-ref'>Office or home systolic blood pressure</span> "
       );
     });
   });

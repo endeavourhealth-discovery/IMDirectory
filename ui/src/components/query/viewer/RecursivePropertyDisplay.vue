@@ -29,6 +29,7 @@ import { ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
 import RecursiveQueryDisplay from "./RecursiveQueryDisplay.vue";
+import { getNumberOfListItems } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   fullQuery: Query;
@@ -46,7 +47,8 @@ const clickedProperty: Ref<Property> = ref({} as Property);
 const list: Ref<Node[]> = ref([]);
 
 function hasBigList(property: Property) {
-  return (isArrayHasLength(property.is) && property.is!.length > 1) || (isArrayHasLength(property.isNot) && property.isNot!.length > 1);
+  const numberOfItems = getNumberOfListItems(property);
+  return numberOfItems > 1;
 }
 
 function onNodeRefClick(property: Property, event: any) {
@@ -55,8 +57,17 @@ function onNodeRefClick(property: Property, event: any) {
 }
 
 function onPropertyInClick(property: Property, event: any) {
-  list.value = (property.is ?? property.isNot) as Node[];
+  list.value = getFullList(property);
   op1.value.toggle(event);
+}
+
+function getFullList(property: Property) {
+  let fullList: Node[] = [];
+  if (isArrayHasLength(property.is)) fullList = fullList.concat(property.is!);
+  if (isArrayHasLength(property.isNot)) fullList = fullList.concat(property.isNot!);
+  if (isArrayHasLength(property.inSet)) fullList = fullList.concat(property.inSet!);
+  if (isArrayHasLength(property.notInSet)) fullList = fullList.concat(property.notInSet!);
+  return fullList;
 }
 
 function hasNodeRef(property: Property) {

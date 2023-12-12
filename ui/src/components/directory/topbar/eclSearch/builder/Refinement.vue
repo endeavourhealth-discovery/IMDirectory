@@ -28,6 +28,8 @@
     v-model:selected="selectedProperty"
     :search-by-function="propertyFunctionRequest"
     :root-entities="propertyTreeRoots.length ? propertyTreeRoots : ['http://snomed.info/sct#138875005']"
+    :filterOptions="propertyFilterOptions"
+    :filterDefaults="propertyFilterDefaults"
   />
   <DirectorySearchDialog
     v-if="showValueDialog"
@@ -35,6 +37,8 @@
     v-model:selected="selectedValue"
     :search-by-function="valueFunctionRequest"
     :root-entities="valueTreeRoots.length ? valueTreeRoots : ['http://snomed.info/sct#138875005']"
+    :filterOptions="valueFilterOptions"
+    :filterDefaults="valueFilterDefaults"
   />
 </template>
 
@@ -42,7 +46,7 @@
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import { EntityService, FunctionService } from "@/services";
 import { useDialog } from "primevue/usedialog";
-import { IM } from "@im-library/vocabulary";
+import { IM, RDF, SNOMED } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
@@ -50,8 +54,9 @@ import { ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest } from "@im-library/interfaces/AutoGen";
+import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {
   value: {
@@ -82,9 +87,8 @@ watch(
 
 watch(
   () => cloneDeep(props.focus),
-  async (newValue, oldValue) => {
+  async newValue => {
     if (newValue && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
-      console.log("here");
       loadingProperty.value = true;
       loadingValue.value = true;
       await processProps();
@@ -95,8 +99,9 @@ watch(
 );
 
 const toast = useToast();
-
-let treeDialog = useDialog();
+const filterStore = useFilterStore();
+const filterStoreDefaults = computed(() => filterStore.filterDefaults);
+const filterStoreOptions = computed(() => filterStore.filterOptions);
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 
@@ -180,6 +185,38 @@ const descendantOptions = [
 ];
 
 const operatorOptions = ["=", "!="];
+
+const propertyFilterOptions: FilterOptions = {
+  status: [...filterStoreOptions.value.status],
+  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
+  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === RDF.PROPERTY)],
+  sortDirections: [...filterStoreOptions.value.sortDirections],
+  sortFields: [...filterStoreOptions.value.sortFields]
+};
+
+const propertyFilterDefaults: FilterOptions = {
+  status: [...filterStoreOptions.value.status.filter(s => s["@id"] === IM.ACTIVE)],
+  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
+  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === RDF.PROPERTY)],
+  sortDirections: [...filterStoreOptions.value.sortDirections],
+  sortFields: [...filterStoreOptions.value.sortFields]
+};
+
+const valueFilterOptions: FilterOptions = {
+  status: [...filterStoreOptions.value.status],
+  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
+  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
+  sortDirections: [...filterStoreOptions.value.sortDirections],
+  sortFields: [...filterStoreOptions.value.sortFields]
+};
+
+const valueFilterDefaults: FilterOptions = {
+  status: [...filterStoreOptions.value.status.filter(s => s["@id"] === IM.ACTIVE)],
+  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
+  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
+  sortDirections: [...filterStoreOptions.value.sortDirections],
+  sortFields: [...filterStoreOptions.value.sortFields]
+};
 
 onMounted(async () => {
   loadingProperty.value = true;
