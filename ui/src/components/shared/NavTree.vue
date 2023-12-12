@@ -62,12 +62,14 @@ import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 interface Props {
   allowDragAndDrop?: boolean;
   allowRightClick?: boolean;
   rootEntities?: string[];
   selectedIri?: string;
+  findInTree?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowRightClick: false, allowDragAndDrop: false });
@@ -82,6 +84,7 @@ const toast = useToast();
 const confirm = useConfirm();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
@@ -123,9 +126,10 @@ const menu = ref();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
-  () => props.selectedIri,
+  () => props.findInTree,
   async newValue => {
-    if (newValue) await findPathToNode(newValue, loading, "hierarchy-tree-bar-container");
+    if (newValue && props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
+    directoryStore.updateFindInTreeBoolean(false);
   }
 );
 
@@ -136,6 +140,14 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (isObjectHasKeys(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
     hideOverlay(overlayLocation.value);
+  }
+});
+
+document.addEventListener("visibilitychange", function () {
+  if (document.hidden) {
+    console.log("Browser tab is hidden");
+  } else {
+    console.log("Browser tab is visible");
   }
 });
 

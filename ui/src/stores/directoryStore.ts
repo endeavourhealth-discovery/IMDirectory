@@ -11,6 +11,7 @@ export const useDirectoryStore = defineStore("directory", {
   state: (): DirectoryState => ({
     conceptIri: IM.MODULE_ONTOLOGY,
     findInTreeIri: "",
+    findInTreeBoolean: false,
     searchResults: [] as ConceptSummary[],
     searchLoading: false,
     sidebarControlActivePanel: 0,
@@ -33,7 +34,13 @@ export const useDirectoryStore = defineStore("directory", {
     },
     // Mutations
     updateFindInTreeIri(value: string) {
+      console.log(this.findInTreeBoolean);
+      this.updateFindInTreeBoolean(true);
       this.findInTreeIri = value;
+    },
+    updateFindInTreeBoolean(value: boolean) {
+      console.log(this.findInTreeBoolean);
+      this.findInTreeBoolean = value;
     },
     updateSearchLoading(loading: boolean) {
       this.searchLoading = loading;
