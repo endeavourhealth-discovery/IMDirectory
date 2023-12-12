@@ -8,6 +8,7 @@ import axios from "axios";
 
 export default class Validator {
   constructor() {}
+
   entityService: EntityService = new EntityService(axios);
   queryService: QueryService = new QueryService(axios);
 
@@ -212,33 +213,21 @@ export default class Validator {
   }
 
   private isValidRoleGroups(data: any): { isValid: boolean; message?: string } {
-    let valid = false;
-    let message: string | undefined = "1 or more role groups are invalid.";
-    if (isObjectHasKeys(data, [IM.ROLE_GROUP])) {
-      for (let group in data[IM.ROLE_GROUP]) {
-        if (isObjectHasKeys(data[IM.ROLE_GROUP][group], [IM.GROUP_NUMBER])) {
-          if (Object.keys(data[IM.ROLE_GROUP][group]).length > 1) {
-            for (let roles in data[IM.ROLE_GROUP][group]) {
-              if (null !== data[IM.ROLE_GROUP][group][roles]["@id"] && "" !== data[IM.ROLE_GROUP][group][roles].name) {
-                valid = true;
-                message = undefined;
-              } else {
-                valid = false;
-                message = "1 or more role groups are invalid.";
-                break;
-              }
+    if (!isObjectHasKeys(data, [IM.ROLE_GROUP])) return { isValid: true };
+
+    for (let group in data[IM.ROLE_GROUP]) {
+      if (isObjectHasKeys(data[IM.ROLE_GROUP][group], [IM.GROUP_NUMBER])) {
+        if (Object.keys(data[IM.ROLE_GROUP][group]).length <= 1) {
+          return { isValid: false, message: "1 or more role groups are invalid." };
+        } else {
+          for (let roles in data[IM.ROLE_GROUP][group]) {
+            if (null === data[IM.ROLE_GROUP][group][roles]["@id"] || "" === data[IM.ROLE_GROUP][group][roles].name) {
+              return { isValid: false, message: "1 or more role groups are invalid." };
             }
-          } else {
-            valid = false;
-            message = "1 or more role groups are invalid.";
-            break;
           }
         }
       }
-    } else {
-      valid = true;
-      message = undefined;
     }
-    return { isValid: valid, message: message };
+    return { isValid: true };
   }
 }
