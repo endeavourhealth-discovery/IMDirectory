@@ -124,10 +124,18 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
     if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
     display += getDisplaySuffixFromEntailment(property);
 
-    if (property.is) display += getDisplayFromList(property, true, property.is);
-    if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
-    if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
-    if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
+    if (isPropertyValueList(property)) {
+      if (property.valueLabel) {
+        const totalNumberOfNodes = getNumberOfListItems(property);
+        if (totalNumberOfNodes === 1) display += " " + property.valueLabel;
+        else display += " " + getDisplayFromNodeRef(property.valueLabel);
+      } else {
+        if (property.is) display += " " + getDisplayFromList(true, property.is);
+        if (property.isNot) display += " " + getDisplayFromList(false, property.isNot);
+        if (property.inSet) display += " " + getDisplayFromList(true, property.inSet);
+        if (property.notInSet) display += " " + getDisplayFromList(false, property.notInSet);
+      }
+    }
     if (property.operator) display = getDisplayFromOperator(propertyName, property);
     if (property.range) display = getDisplayFromRange(propertyName, property);
   }
@@ -146,6 +154,20 @@ export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchTyp
         "<div class='variable-line'>order by " + desc.join(" then by ") + ", keep " + (orderLimit.limit === 1 ? "first" : orderLimit.limit) + "</div>";
     }
   }
+}
+
+function isPropertyValueList(property: Property) {
+  return isArrayHasLength(property.is) || isArrayHasLength(property.isNot) || isArrayHasLength(property.inSet) || isArrayHasLength(property.notInSet);
+}
+
+export function getNumberOfListItems(property: Property) {
+  let totalNumberOfNodes = 0;
+  if (isArrayHasLength(property.is)) totalNumberOfNodes += property.is!.length;
+  if (isArrayHasLength(property.isNot)) totalNumberOfNodes += property.isNot!.length;
+  if (isArrayHasLength(property.inSet)) totalNumberOfNodes += property.inSet!.length;
+  if (isArrayHasLength(property.notInSet)) totalNumberOfNodes += property.notInSet!.length;
+
+  return totalNumberOfNodes;
 }
 
 function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: MatchType) {
@@ -264,13 +286,8 @@ export function getDisplayFromOperatorForDate(operator: Operator) {
   }
 }
 
-export function getDisplayFromList(property: Property, include: boolean, nodes: Node[]) {
-  let display = include ? " " : " not ";
-  if (property.valueLabel) {
-    if (nodes.length === 1) display += property.valueLabel;
-    else display += getDisplayFromNodeRef(property.valueLabel);
-    return display;
-  }
+export function getDisplayFromList(include: boolean, nodes: Node[]) {
+  let display = "";
 
   if (nodes.length === 1) {
     display += getDisplayFromEntailment(nodes[0]);
