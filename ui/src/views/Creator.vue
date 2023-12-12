@@ -15,11 +15,8 @@
             <ProgressSpinner />
           </div>
           <div v-else class="creator-layout-container">
-            <div>
-              {{ currentEditHistoryStateIndex }}
-              /
-              {{ editHistory.length }}
-            </div>
+            <div>currentIndex: {{ currentEditHistoryStateIndex }}</div>
+            <div v-for="[index, action] of editHistory.entries()">{{ index }} - {{ action.key }} : {{ action.value }}</div>
             <div>
               {{ editorEntity }}
             </div>
@@ -191,24 +188,32 @@ const forceValidation = ref(false);
 
 const editHistory: ComputedRef<EditHistoryItem[]> = computed(() => editorStore.editHistory);
 const currentEditHistoryStateIndex: ComputedRef<number> = computed(() => editorStore.currentEditHistoryStateIndex);
-const hasPreviousState: ComputedRef<boolean> = computed(() => editHistory.value.length > 0 && currentEditHistoryStateIndex.value > 0);
+const hasPreviousState: ComputedRef<boolean> = computed(() => JSON.stringify(editorEntity.value) !== JSON.stringify(editorEntityOriginal.value));
 const hasNextState: ComputedRef<boolean> = computed(() => currentEditHistoryStateIndex.value !== editHistory.value.length - 1);
 
 function undo() {
   const previousIndex = currentEditHistoryStateIndex.value - 1;
-  const previousStateAction = editHistory.value[previousIndex];
-  editorEntity.value[previousStateAction.key] = previousStateAction.value;
-
-  // {
-  //   const result = {} as any;
-  //   result[previousStateAction.key] = previousStateAction.value;
-  //   if (!previousStateAction.value && deleteEntityKey) deleteEntityKey(previousStateAction.key);
-  //   else if (updateEntity) updateEntity(result);
-  // }
+  if (previousIndex === -1) {
+    editorEntity.value = { ...editorEntityOriginal.value };
+  } else {
+    const previousStateAction = editHistory.value[previousIndex];
+    editorEntity.value[previousStateAction.key] = previousStateAction.value;
+    // {
+    //   const result = {} as any;
+    //   result[previousStateAction.key] = previousStateAction.value;
+    //   if (!previousStateAction.value && deleteEntityKey) deleteEntityKey(previousStateAction.key);
+    //   else if (updateEntity) updateEntity(result);
+    // }
+  }
   editorStore.updateCurrentEditHistoryStateIndex(previousIndex);
 }
 
-function redo() {}
+function redo() {
+  const nextIndex = currentEditHistoryStateIndex.value + 1;
+  const nextStateAction = editHistory.value[nextIndex];
+  editorEntity.value[nextStateAction.key] = nextStateAction.value;
+  editorStore.updateCurrentEditHistoryStateIndex(nextIndex);
+}
 
 provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
 
