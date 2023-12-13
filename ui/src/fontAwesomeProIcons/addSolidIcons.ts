@@ -49,6 +49,7 @@ import { faCircleQuestion } from "@fortawesome/pro-solid-svg-icons/faCircleQuest
 import { faLockOpen } from "@fortawesome/pro-solid-svg-icons/faLockOpen";
 import { faShieldSlash } from "@fortawesome/pro-solid-svg-icons/faShieldSlash";
 import { faTrash } from "@fortawesome/pro-solid-svg-icons/faTrash";
+import { faRotateLeft } from "@fortawesome/pro-solid-svg-icons/faRotateLeft";
 
 export default function addSolidIcons(library: Library) {
   library.add(
@@ -97,7 +98,8 @@ export default function addSolidIcons(library: Library) {
     faCircleQuestion,
     faLockOpen,
     faShieldSlash,
-    faTrash
+    faTrash,
+    faRotateLeft
   );
 }
 // #v-endif
