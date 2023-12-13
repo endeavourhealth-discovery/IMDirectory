@@ -102,7 +102,7 @@ function locateInTree(iri: string) {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.15s ease;
 }
 
 .fade-enter-from,

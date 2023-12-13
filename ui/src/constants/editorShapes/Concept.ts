@@ -375,10 +375,10 @@ const ConceptShape: FormGenerator = {
             {
               label: "Property Group - Role group builder",
               order: 1,
-              maxCount: 1,
               path: {
                 "@id": IM.ROLE_GROUP
               },
+              validation: { "@id": IM.validation.IS_ROLE_GROUP },
               name: "Role group",
               showTitle: true,
               minCount: 0,
