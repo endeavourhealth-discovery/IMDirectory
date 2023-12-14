@@ -169,6 +169,7 @@ export class IM {
   public static FOLDER_VALUESETS = IM.NAMESPACE + "ValueSets";
   public static FOLDER_SETS = IM.NAMESPACE + "Sets";
   public static FOLDER_QUERY_CONCEPT_SETS = IM.NAMESPACE + "QueryConceptSets";
+  public static FOLDER_COMMON_FEATURE_DEFINITIONS = IM.NAMESPACE + "M_CommonClauses";
 
   // SUB VOCABULARIES
   public static component = componentVocabulary;

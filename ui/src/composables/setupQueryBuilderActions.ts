@@ -13,6 +13,7 @@ function setupQueryBuilderActions() {
   const showAddTestFeatureDialog: Ref<boolean> = ref(false);
   const showAddPopulationAfterDirectoryDialog: Ref<boolean> = ref(false);
   const showAddPopulationBeforeDirectoryDialog: Ref<boolean> = ref(false);
+  const showSaveFeatureDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
   const allowDrop: Ref<boolean> = ref(true);
@@ -232,7 +233,8 @@ function setupQueryBuilderActions() {
     showAddFeatureBeforeDialog,
     showAddTestFeatureDialog,
     showAddPopulationAfterDirectoryDialog,
-    showAddPopulationBeforeDirectoryDialog
+    showAddPopulationBeforeDirectoryDialog,
+    showSaveFeatureDialog
   };
 }
 

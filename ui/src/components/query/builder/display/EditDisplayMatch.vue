@@ -87,6 +87,8 @@
     :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
   />
 
+  <SaveFeatureDialog v-model:show-dialog="showSaveFeatureDialog" :feature="match" />
+
   <KeepAsDialog
     v-model:showDialog="showKeepAsDialog"
     :match="match"
@@ -118,6 +120,7 @@ import { ToastSeverity } from "@im-library/enums";
 import { ToastOptions } from "@im-library/models";
 import { useToast } from "primevue/usetoast";
 import AddFeatureDialog from "../edit/dialogs/AddFeatureDialog.vue";
+import SaveFeatureDialog from "../edit/dialogs/SaveFeatureDialog.vue";
 
 interface Props {
   parentMatch?: Match;
@@ -159,7 +162,8 @@ const {
   showBuildFeatureAfterDialog,
   showAddFeatureAfterDialog,
   showAddTestFeatureDialog,
-  showAddPopulationAfterDirectoryDialog
+  showAddPopulationAfterDirectoryDialog,
+  showSaveFeatureDialog
 } = setupQueryBuilderActions();
 const toast = useToast();
 const editMode: Ref<boolean> = ref(false);
@@ -343,7 +347,7 @@ function getSingleRCOptions() {
     },
     {
       label: "Label as a variable",
-      icon: "fa-solid fa-floppy-disk",
+      icon: "fa-solid fa-tag",
       command: () => {
         keepAs();
       }
@@ -385,6 +389,13 @@ function getSingleRCOptions() {
       icon: "fa-solid fa-eye",
       command: () => {
         view();
+      }
+    },
+    {
+      label: "Save feature",
+      icon: "fa-solid fa-floppy-disk",
+      command: () => {
+        showSaveFeatureDialog.value = true;
       }
     },
     {
