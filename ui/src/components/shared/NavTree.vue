@@ -94,6 +94,7 @@ const {
   selectedKeys,
   selectedNode,
   expandedKeys,
+  expandedData,
   pageSize,
   createTreeNode,
   createLoadMoreNode,
@@ -144,10 +145,11 @@ onBeforeUnmount(() => {
 });
 
 document.addEventListener("visibilitychange", function () {
-  if (document.hidden) {
-    console.log("Browser tab is hidden");
-  } else {
-    console.log("Browser tab is visible");
+  if (!document.hidden) {
+    expandedKeys.value = {};
+    for (let newNode in expandedData.value) {
+      onNodeExpand(expandedData.value[newNode]);
+    }
   }
 });
 

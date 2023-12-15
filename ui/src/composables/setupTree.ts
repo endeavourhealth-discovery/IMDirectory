@@ -18,6 +18,7 @@ function setupTree() {
   const selectedNode: Ref<TreeNode> = ref({});
   const root: Ref<TreeNode[]> = ref([]);
   const expandedKeys: Ref<any> = ref({});
+  const expandedData: Ref<TreeNode[]> = ref([]);
   const pageSize = ref(20);
 
   const directService = new DirectService();
@@ -101,7 +102,10 @@ function setupTree() {
   async function onNodeExpand(node: any) {
     if (isObjectHasKeys(node)) {
       node.loading = true;
-      if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
+      if (!isObjectHasKeys(expandedKeys.value, [node.key])) {
+        expandedKeys.value[node.key] = true;
+      }
+      if (!expandedData.value.find(x => x.key === node.key)) expandedData.value.push(node);
       const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
       children.result.forEach((child: any) => {
         if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
@@ -118,6 +122,11 @@ function setupTree() {
   }
 
   function onNodeCollapse(node: any) {
+    if (isObjectHasKeys(expandedKeys.value, [node.key])) {
+      delete expandedKeys.value[node.key];
+      const index = expandedData.value.findIndex(x => x.key === node.key);
+      if (index > -1) expandedData.value.splice(index, 1);
+    }
     node.children = [];
     node.leaf = false;
   }
@@ -192,6 +201,7 @@ function setupTree() {
     }
     expandedKeys.value[node.key] = true;
     expandedKeys.value = { ...expandedKeys.value };
+    expandedData.value.push(node);
   }
 
   function scrollToHighlighted(containerId: string) {
@@ -213,6 +223,7 @@ function setupTree() {
     selectedNode,
     root,
     expandedKeys,
+    expandedData,
     createTreeNode,
     createLoadMoreNode,
     onNodeCollapse,
