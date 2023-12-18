@@ -116,7 +116,8 @@
       </div>
       <div>
         <label for="group">Group by</label>
-        <Dropdown id="group" v-model="selectedGroup" :options="modelProps" optionLabel="name" placeholder="Select a property"></Dropdown>
+        <MultiSelect id="group" v-model="selectedGroups" :options="modelProps" optionLabel="name" placeholder="Select property"></MultiSelect>
+        <!--        <Dropdown id="group" v-model="selectedGroup" :options="modelProps" optionLabel="name" placeholder="Select a property"></Dropdown>-->
       </div>
       <div>
         <label for="show">Showing</label>
@@ -152,7 +153,7 @@ const resultData: Ref<any[] | undefined> = ref();
 const tableView: Ref<boolean> = ref(false);
 const graphView: Ref<boolean> = ref(false);
 const modelProps: Ref<TTIriRef[]> = ref([]);
-const selectedGroup: Ref<TTIriRef | undefined> = ref();
+const selectedGroups: Ref<TTIriRef[]> = ref([]);
 const selectedCalc: Ref<string> = ref("Count");
 const calcOptions: string[] = ["Count", "Sum", "Average", "Percentage"];
 const selectedCalcField: Ref<string | undefined> = ref();
@@ -160,16 +161,7 @@ const selectedStyle: Ref<any> = ref("pie");
 const styleOptions: string[] = ["pie", "bar", "line"];
 const graphData = ref();
 
-const graphOptions: Ref<EChartsOption> = ref({
-  title: {
-    text: "Query Results",
-    left: "center"
-  },
-  tooltip: {
-    trigger: "item",
-    formatter: "{a} <br/>{b} : {c} ({d}%)"
-  }
-});
+const graphOptions: Ref<EChartsOption> = ref({});
 
 onMounted(async () => {
   await refresh();
@@ -184,7 +176,7 @@ watch(
 );
 
 watch(
-  () => [selectedGroup.value, selectedCalc.value, selectedStyle.value],
+  () => [selectedGroups.value, selectedCalc.value, selectedStyle.value],
   async () => {
     await refreshGraph();
   }
@@ -281,68 +273,99 @@ async function graphResults(id: string, modelIri: string) {
 }
 
 async function refreshGraph() {
-  if (!selectedGroup.value || !selectedCalc.value) return;
+  if (!selectedGroups.value || !selectedCalc.value) return;
 
-  graphData.value = await QueryService.getGraphData(queueId.value.id, selectedGroup.value["@id"], selectedCalc.value, selectedCalcField.value);
+  graphData.value = await QueryService.getGraphData(
+    queueId.value.id,
+    selectedGroups.value.map(g => g["@id"]),
+    selectedCalc.value,
+    selectedCalcField.value
+  );
 
   if ("pie" === selectedStyle.value) {
     graphOptions.value = {
-      ...graphOptions.value,
-      ...{
-        legend: {
-          orient: "vertical",
-          left: "left",
-          data: graphData.value.map((v: any) => v.name)
-        },
-        series: [
-          {
-            name: "Cohort",
-            type: selectedStyle.value,
-            radius: "55%",
-            center: ["50%", "60%"],
-            data: graphData.value,
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)"
-              }
+      title: {
+        text: "Query Results",
+        left: "center"
+      },
+      tooltip: {
+        trigger: "item",
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+      },
+      legend: {
+        orient: "vertical",
+        left: "left",
+        data: graphData.value.map((v: any) => v[0])
+      },
+      series: [
+        {
+          name: "Cohort",
+          type: selectedStyle.value,
+          radius: "55%",
+          center: ["50%", "60%"],
+          data: graphData.value.map((v: any) => ({ name: v[0], value: v[1] })),
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.5)"
             }
           }
-        ]
-      }
+        }
+      ]
     };
   } else {
-    graphOptions.value = {
-      ...graphOptions.value,
-      ...{
-        legend: {
-          orient: "vertical",
-          left: "left",
-          data: graphData.value.map((v: any) => v.name)
-        },
-        xAxis: {
-          type: "category",
-          data: graphData.value.map((v: any) => v.name)
-        },
-        yAxis: {
-          type: "value"
-        },
-        series: [
-          {
-            name: "Cohort",
-            type: selectedStyle.value,
-            data: graphData.value.map((v: any) => v.value),
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)"
-              }
-            }
+    const series: any[] = [];
+    const groups: string[] = [...new Set<string>(graphData.value.map((v: any) => v[0]))];
+
+    if (selectedGroups.value.length == 1) {
+      series.push({
+        name: "Cohort",
+        type: selectedStyle.value,
+        data: graphData.value.map((v: any) => v[1]),
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: "rgba(0, 0, 0, 0.5)"
           }
-        ]
+        }
+      });
+    } else {
+      const subGroups: string[] = [...new Set<string>(graphData.value.map((v: any) => v[1]))];
+      const keyData: any = {};
+      for (const g of groups) {
+        keyData[g] = {};
+        for (const s of subGroups) {
+          keyData[g][s] = 0;
+        }
       }
+
+      for (const r of graphData.value) {
+        keyData[r[0]][r[1]] = r[2];
+      }
+
+      for (const s of subGroups) {
+        const sg = { name: s, data: groups.map((g: any) => keyData[g][s]), type: selectedStyle.value, stack: "Total" };
+        series.push(sg);
+      }
+    }
+
+    graphOptions.value = {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: {
+          type: "shadow"
+        }
+      },
+      xAxis: {
+        type: "category",
+        data: groups
+      },
+      yAxis: {
+        type: "value"
+      },
+      series: series
     };
   }
 }

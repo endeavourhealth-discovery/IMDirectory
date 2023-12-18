@@ -79,7 +79,7 @@ export default class DirectService {
   }
 
   public queryQueue() {
-    this.directTo(Env.DIRECTORY_URL, "", "", "QueryQueue");
+    this.directTo({ appRoute: "QueryQueue", newTab: true });
   }
 
   public create(typeIri?: string, propertyIri?: string, valueIri?: string) {

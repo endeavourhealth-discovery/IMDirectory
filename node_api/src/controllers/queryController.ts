@@ -227,10 +227,10 @@ export default class QueryController {
     const user = await this.auth.getUser(req);
 
     const queueId = req.query.queueId as string;
-    const groupIri = req.query.groupIri as string;
+    const groupIris = req.query.groupIris as string[];
     const calc = req.query.calc as string;
     const calcField = req.query.calcField as string;
 
-    return await this.queryService.getGraphData(queueId, user!, groupIri, calc, calcField);
+    return await this.queryService.getGraphData(queueId, user!, groupIris, calc, calcField);
   }
 }

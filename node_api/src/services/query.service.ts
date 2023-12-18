@@ -691,14 +691,7 @@ export default class QueryService {
     }
   }
 
-  public async getGraphData(queueId: string, user: string, groupIri: string, calc: string, calcField?: string) {
-    console.log("Get Graph Data");
-    console.log("Q: " + queueId);
-    console.log("U: " + user);
-    console.log("G: " + groupIri);
-    console.log("C: " + calc);
-    console.log("F: " + calcField);
-
+  public async getGraphData(queueId: string, user: string, groupIris: string[], calc: string, calcField?: string) {
     const conn = await this.dbPool.acquire();
     const tbl = "qry_" + queueId.replaceAll("-", "");
 
@@ -706,13 +699,23 @@ export default class QueryService {
       await this.checkQueryIsUsers(conn, queueId, user);
 
       const qry = SqlQuery.create("http://endhealth.info/im#Patient", "", tbl);
-      const grpField = qry.getFieldName(groupIri);
-      const sql = "SELECT " + grpField + ", COUNT(1)\n" + "FROM " + tbl + "\n" + "GROUP BY " + grpField + "\nORDER BY " + grpField + " ASC";
+      const grpFields = groupIris.map(gi => qry.getFieldName(gi));
+      const sql =
+        "SELECT " +
+        grpFields.join(", ") +
+        ", COUNT(1)\n" +
+        "FROM " +
+        tbl +
+        "\n" +
+        "GROUP BY " +
+        grpFields.join(", ") +
+        "\nORDER BY " +
+        grpFields.join(" ASC, ") +
+        " ASC";
 
-      console.log(sql);
+      const result = (await conn.execute(sql))?.results?.[0]?.rows;
 
-      const rows = (await conn.execute(sql))?.results?.[0]?.rows;
-      return rows?.map(r => ({ name: r[0], value: r[1] }));
+      return result;
     } finally {
       await conn.close();
     }
