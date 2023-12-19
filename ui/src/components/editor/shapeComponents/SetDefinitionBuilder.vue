@@ -146,7 +146,7 @@ watch(
 const debounceTimer = ref(0);
 watch(ecl, async newValue => {
   clearTimeout(debounceTimer.value);
-  debounceTimer.value = window.setTimeout(async () => {
+  debounceTimer.value = window.setTimeout(async (): Promise<void> => {
     if (await EclService.isValidECL(newValue)) {
       eclAsQuery.value = await EclService.getQueryFromECL(newValue);
     }

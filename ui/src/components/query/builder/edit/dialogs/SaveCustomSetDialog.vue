@@ -146,7 +146,7 @@ async function getTypeOptions(): Promise<TTIriRef[]> {
 }
 
 async function getSchemeOptions(): Promise<TTIriRef[]> {
-  return await FunctionService.runFunction(IM.function.GET_USER_EDITABLE_SCHEMES);
+  return await FunctionService.runFunction(FUNCTION.GET_USER_EDITABLE_SCHEMES);
 }
 
 function onNameGenIri() {

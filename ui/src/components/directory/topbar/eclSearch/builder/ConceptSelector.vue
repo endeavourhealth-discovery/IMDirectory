@@ -71,7 +71,7 @@ const showDialog = ref(false);
 const isAny = ref(false);
 
 const functionRequest: FunctionRequest = {
-  functionIri: IM.function.IS_TYPE,
+  functionIri: FUNCTION.IS_TYPE,
   arguments: [{ parameter: "type", valueIri: { "@id": IM.CONCEPT } }]
 };
 const descendantOptions = [

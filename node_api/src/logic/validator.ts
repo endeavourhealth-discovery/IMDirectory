@@ -3,7 +3,7 @@ import QueryService from "@/services/query.service";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { TTIriRef } from "../interfaces/AutoGen";
-import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, RDFS, SHACL, VALIDATION, QUERY } from "@im-library/vocabulary";
 import axios from "axios";
 
 export default class Validator {
@@ -12,13 +12,13 @@ export default class Validator {
   queryService: QueryService = new QueryService(axios);
 
   public async validate(iri: string, data: any): Promise<{ isValid: boolean; message?: string }> {
-    if (iri === IM.validation.HAS_PARENT) return this.hasValidParents(data);
-    if (iri === IM.validation.IS_DEFINITION) return this.isValidDefinition(data);
-    if (iri === IM.validation.IS_IRI) return this.isValidIri(data);
-    if (iri === IM.validation.IS_TERMCODE) return this.isValidTermcodes(data);
-    if (iri === IM.validation.IS_PROPERTY) return this.isValidProperties(data);
-    if (iri === IM.validation.IS_SCHEME) return await this.isValidScheme(data);
-    if (iri === IM.validation.IS_STATUS) return await this.isValidStatus(data);
+    if (iri === VALIDATION.HAS_PARENT) return this.hasValidParents(data);
+    if (iri === VALIDATION.IS_DEFINITION) return this.isValidDefinition(data);
+    if (iri === VALIDATION.IS_IRI) return this.isValidIri(data);
+    if (iri === VALIDATION.IS_TERMCODE) return this.isValidTermcodes(data);
+    if (iri === VALIDATION.IS_PROPERTY) return this.isValidProperties(data);
+    if (iri === VALIDATION.IS_SCHEME) return await this.isValidScheme(data);
+    if (iri === VALIDATION.IS_STATUS) return await this.isValidStatus(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -170,8 +170,8 @@ export default class Validator {
     let valid = false;
     let message: string | undefined = "Scheme is invalid";
     const schemes = await this.entityService.getEntityChildren(IM.GRAPH);
-    if (isObjectHasKeys(data, [IM.SCHEME]) && isArrayHasLength(data[IM.SCHEME]) && isTTIriRef(data[IM.SCHEME][0])) {
-      if (schemes.findIndex(s => s["@id"] === data[IM.SCHEME][0]["@id"]) !== -1) {
+    if (isObjectHasKeys(data, [IM.HAS_SCHEME]) && isArrayHasLength(data[IM.HAS_SCHEME]) && isTTIriRef(data[IM.HAS_SCHEME][0])) {
+      if (schemes.findIndex(s => s["@id"] === data[IM.HAS_SCHEME][0]["@id"]) !== -1) {
         valid = true;
         message = undefined;
       }
@@ -192,7 +192,7 @@ export default class Validator {
         }
       ],
       query: {
-        "@id": IM.query.GET_DESCENDANTS
+        "@id": QUERY.GET_DESCENDANTS
       }
     };
     const statuses = await this.queryService.queryIM(queryReq);

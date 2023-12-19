@@ -252,7 +252,7 @@ function drawGraph() {
       return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.centerNode.fill;
     })
     .style("font-size", () => `${nodeFontSize.value}px`)
-    .on("dblclick", async (d: any) => await dblclick(d))
+    .on("dblclick", async (d: any): Promise<void> => await dblclick(d))
     .on("click", (d: any) => click(d))
     .on("mouseover", (d: any) => {
       const graphContainer = d3.select("#force-layout-graph").node() as Element;
