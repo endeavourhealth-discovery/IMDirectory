@@ -157,7 +157,7 @@ function convertMatchProperty(qry: SqlQuery, property: Property) {
     convertMatchPropertyRange(qry, property);
   } else if (property.match) {
     convertMatchPropertySubMatch(qry, property);
-  } else if (property.inSet) {
+  } else if (property.is) {
     convertMatchPropertyInSet(qry, property);
   } else if (property.relativeTo) {
     convertMatchPropertyRelative(qry, property);
@@ -269,13 +269,13 @@ function convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
 function convertMatchPropertyInSet(qry: SqlQuery, property: Property) {
   if (!property["@id"]) throw new Error("INVALID PROPERTY\n" + JSON.stringify(property, null, 2));
 
-  if (!property.inSet) {
+  if (!property.is) {
     throw new Error("INVALID MatchPropertyIn\n" + JSON.stringify(property, null, 2));
   }
 
   const inList = [];
 
-  for (const pIn of property.inSet) {
+  for (const pIn of property.is) {
     if (pIn["@id"]) inList.push(pIn["@id"]);
     else {
       throw new Error("UNHANDLED 'IN' ENTRY\n" + JSON.stringify(pIn, null, 2));

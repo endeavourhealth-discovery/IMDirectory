@@ -67,7 +67,7 @@ export const match: {
     property: [
       {
         "@id": "http://endhealth.info/im#statedGender",
-        inSet: [
+        is: [
           {
             "@id": "http://endhealth.info/im#905041000252107",
             name: "Female (stated gender)",
@@ -138,7 +138,7 @@ export const match: {
           property: [
             {
               "@id": "http://endhealth.info/im#concept",
-              inSet: [
+              is: [
                 {
                   "@id": "http://snomed.info/sct#714628002"
                 }
@@ -430,7 +430,7 @@ export const fullTestQueryDefinition: Query = {
             property: [
               {
                 "@id": "http://endhealth.info/im#concept",
-                inSet: [
+                is: [
                   {
                     "@id": "http://endhealth.info/im#InvitedForScreening"
                   }
