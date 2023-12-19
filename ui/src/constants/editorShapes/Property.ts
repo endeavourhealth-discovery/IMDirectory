@@ -118,8 +118,18 @@ const PropertyShape: FormGenerator = {
           }
         },
         {
-          comment: "optional description",
+          comment: "optional peferred name for efficiency during searching",
           order: 5,
+          name: "Preferred name",
+          showTitle: true,
+          maxCount: 1,
+          path: { "@id": IM.PREFERRED_NAME },
+          minCount: 0,
+          componentType: { "@id": IM.component.TEXT_INPUT }
+        },
+        {
+          comment: "optional description",
+          order: 6,
           datatype: {
             "@id": XSD.STRING
           },
@@ -136,7 +146,7 @@ const PropertyShape: FormGenerator = {
         },
         {
           name: "Status",
-          order: 6,
+          order: 7,
           path: { "@id": IM.HAS_STATUS },
           componentType: { "@id": COMPONENT.ARRAY_BUILDER },
           validation: { "@id": VALIDATION.IS_STATUS },
@@ -179,7 +189,7 @@ const PropertyShape: FormGenerator = {
         },
         {
           label: "Property group - Sub type array builder",
-          order: 1,
+          order: 8,
           path: {
             "@id": RDFS.SUBCLASS_OF
           },
@@ -225,7 +235,7 @@ const PropertyShape: FormGenerator = {
         },
         {
           label: "Property group - Contained in array builder",
-          order: 1,
+          order: 9,
           path: {
             "@id": IM.IS_CONTAINED_IN
           },

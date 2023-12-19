@@ -22,6 +22,7 @@ import { EntityReferenceNode } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import { RDF } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import editorShapes from "@/constants/editorShapes";
 
 interface Props {
   showTypeSelector?: boolean;
@@ -42,7 +43,8 @@ onMounted(async () => {
 
 async function setOptions() {
   loading.value = true;
-  typeOptions.value = await EntityService.getEntityChildren("http://endhealth.info/im#EntityTypes");
+  const entityTypes = await EntityService.getEntityChildren("http://endhealth.info/im#EntityTypes");
+  typeOptions.value = entityTypes.filter(entityType => editorShapes.some(shape => shape.targetShape?.["@id"] === entityType["@id"]));
   loading.value = false;
 }
 

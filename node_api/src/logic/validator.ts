@@ -8,6 +8,7 @@ import axios from "axios";
 
 export default class Validator {
   constructor() {}
+
   entityService: EntityService = new EntityService(axios);
   queryService: QueryService = new QueryService(axios);
 
@@ -19,6 +20,7 @@ export default class Validator {
     if (iri === VALIDATION.IS_PROPERTY) return this.isValidProperties(data);
     if (iri === VALIDATION.IS_SCHEME) return await this.isValidScheme(data);
     if (iri === VALIDATION.IS_STATUS) return await this.isValidStatus(data);
+    if (iri === VALIDATION.IS_ROLE_GROUP) return await this.isValidRoleGroups(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -208,5 +210,24 @@ export default class Validator {
       }
     }
     return { isValid: valid, message: message };
+  }
+
+  private isValidRoleGroups(data: any): { isValid: boolean; message?: string } {
+    if (!isObjectHasKeys(data, [IM.ROLE_GROUP])) return { isValid: true };
+
+    for (let group in data[IM.ROLE_GROUP]) {
+      if (isObjectHasKeys(data[IM.ROLE_GROUP][group], [IM.GROUP_NUMBER])) {
+        if (Object.keys(data[IM.ROLE_GROUP][group]).length <= 1) {
+          return { isValid: false, message: "1 or more role groups are invalid." };
+        } else {
+          for (let roles in data[IM.ROLE_GROUP][group]) {
+            if (null === data[IM.ROLE_GROUP][group][roles]["@id"] || "" === data[IM.ROLE_GROUP][group][roles].name) {
+              return { isValid: false, message: "1 or more role groups are invalid." };
+            }
+          }
+        }
+      }
+    }
+    return { isValid: true };
   }
 }

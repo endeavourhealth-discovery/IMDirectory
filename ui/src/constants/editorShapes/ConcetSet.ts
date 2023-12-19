@@ -109,8 +109,18 @@ const ConceptSetShape: FormGenerator = {
               }
             },
             {
-              comment: "optional description",
+              comment: "optional peferred name for efficiency during searching",
               order: 4,
+              name: "Preferred name",
+              showTitle: true,
+              maxCount: 1,
+              path: { "@id": IM.PREFERRED_NAME },
+              minCount: 0,
+              componentType: { "@id": IM.component.TEXT_INPUT }
+            },
+            {
+              comment: "optional description",
+              order: 5,
               datatype: {
                 "@id": XSD.STRING
               },
@@ -172,7 +182,7 @@ const ConceptSetShape: FormGenerator = {
               label: "Subset of array builder",
               name: "Subset of",
               showTitle: true,
-              order: 1,
+              order: 7,
               minCount: 0,
               componentType: {
                 "@id": COMPONENT.ARRAY_BUILDER
@@ -219,7 +229,7 @@ const ConceptSetShape: FormGenerator = {
               label: "Contained in array builder",
               name: "Contained in",
               showTitle: true,
-              order: 1,
+              order: 8,
               minCount: 0,
               componentType: {
                 "@id": COMPONENT.ARRAY_BUILDER

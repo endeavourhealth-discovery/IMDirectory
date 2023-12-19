@@ -101,8 +101,18 @@ const CohortQueryShape: FormGenerator = {
               }
             },
             {
-              comment: "optional description",
+              comment: "optional peferred name for efficiency during searching",
               order: 4,
+              name: "Preferred name",
+              showTitle: true,
+              maxCount: 1,
+              path: { "@id": IM.PREFERRED_NAME },
+              minCount: 0,
+              componentType: { "@id": IM.component.TEXT_INPUT }
+            },
+            {
+              comment: "optional description",
+              order: 5,
               datatype: {
                 "@id": XSD.STRING
               },

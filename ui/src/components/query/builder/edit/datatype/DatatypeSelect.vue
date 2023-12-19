@@ -77,23 +77,28 @@ watch(
     if (propertyType.value === "range" && !isObjectHasKeys(props.property, ["range"])) {
       props.property.operator = undefined;
       props.property.isNull = undefined;
+      props.property.isNotNull = undefined;
       props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
     } else if (propertyType.value === "startsWith" || propertyType.value === "contains") {
       delete props.property.range;
       props.property.isNull = undefined;
+      props.property.isNotNull = undefined;
       props.property.operator = propertyType.value;
     } else if (propertyType.value === "is") {
       delete props.property.range;
       props.property.isNull = undefined;
+      props.property.isNotNull = undefined;
       props.property.operator = "=";
     } else if (propertyType.value === "notNull") {
       delete props.property.range;
       props.property.operator = undefined;
-      props.property.isNull = false;
+      props.property.isNull = undefined;
+      props.property.isNotNull = true;
     } else if (propertyType.value === "isNull") {
       delete props.property.range;
       props.property.operator = undefined;
       props.property.isNull = true;
+      props.property.isNotNull = undefined;
     }
   }
 );
@@ -101,8 +106,8 @@ watch(
 onMounted(() => {
   if (isObjectHasKeys(props.property.range)) propertyType.value = "range";
   else if (props.property.operator === "startsWith" || props.property.operator === "contains") propertyType.value = props.property.operator;
-  else if (props.property.isNull === true) propertyType.value = "isNull";
-  else if (props.property.isNull === false) propertyType.value = "notNull";
+  else if (props.property.isNull) propertyType.value = "isNull";
+  else if (props.property.isNotNull) propertyType.value = "notNull";
   else propertyType.value = "is";
 });
 </script>

@@ -217,7 +217,7 @@ async function saveMappings() {
 }
 
 function view(iri: string) {
-  if (iri) directService.directTo(Env.VIEWER_URL, iri, "concept");
+  if (iri) directService.view(iri, "concept");
 }
 
 function showInfo(iri: string) {

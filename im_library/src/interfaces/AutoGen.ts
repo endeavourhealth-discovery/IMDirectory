@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-12-19 13:16:20.
+// Generated using typescript-generator version 3.2.1263 on 2023-12-19 14:12:38.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -133,10 +133,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
+    operator?: Operator;
     dataType?: TTIriRef;
     relativeTo?: PropertyRef;
-    operator?: Operator;
+    unit?: string;
 }
 
 export interface Case {
@@ -164,9 +164,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -1089,4 +1089,5 @@ export const enum VALIDATION {
     IS_PROPERTY = "http://endhealth.info/im#Validation_isProperty",
     IS_SCHEME = "http://endhealth.info/im#Validation_isScheme",
     IS_STATUS = "http://endhealth.info/im#Validation_isStatus",
+    IS_ROLE_GROUP = "http://endhealth.info/im#Validation_isRoleGroup",
 }

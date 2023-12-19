@@ -2,8 +2,9 @@ import { Bool, Entailment, Operator, OrderDirection, Property } from "../interfa
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
+import { IM } from "../vocabulary";
 
-const propertyDisplayMap: { path: any; then: any } = { path: { concept: "of", ethnicity: "of", language: "of" }, then: { concept: "is" } };
+const propertyDisplayMap: { path: any; then: any } = { path: { concept: "is", ethnicity: "of", language: "of" }, then: { concept: "is" } };
 
 export type MatchType = "path" | "then";
 
@@ -118,16 +119,24 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
   if (!property.match) display += propertyName;
 
-  if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
-  display += getDisplaySuffixFromEntailment(property);
-
   if (property.isNull) display += " is not recorded";
-  else if (property.isNull === false) display += " is recorded";
+  else if (property.isNotNull) display += " is recorded";
   else {
-    if (property.is) display += getDisplayFromList(property, true, property.is);
-    if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
-    if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
-    if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
+    if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
+    display += getDisplaySuffixFromEntailment(property);
+
+    if (isPropertyValueList(property)) {
+      if (property.valueLabel) {
+        const totalNumberOfNodes = getNumberOfListItems(property);
+        if (totalNumberOfNodes === 1) display += " " + property.valueLabel;
+        else display += " " + getDisplayFromNodeRef(property.valueLabel);
+      } else {
+        if (property.is) display += " " + getDisplayFromList(true, property.is);
+        if (property.isNot) display += " " + getDisplayFromList(false, property.isNot);
+        if (property.inSet) display += " " + getDisplayFromList(true, property.inSet);
+        if (property.notInSet) display += " " + getDisplayFromList(false, property.notInSet);
+      }
+    }
     if (property.operator) display = getDisplayFromOperator(propertyName, property);
     if (property.range) display = getDisplayFromRange(propertyName, property);
   }
@@ -136,39 +145,57 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
 
 export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchType) {
   if (orderLimit?.property && orderLimit.property.length > 0) {
-    let desc = [];
-    for (const ob of orderLimit.property) {
-      desc.push(getDisplayFromOrderBy(ob, matchType));
-    }
+    // TODO: Temporary fix - model to be updated later
+    const desc = getDisplayFromOrderBy(orderLimit.property[0], matchType, orderLimit.limit);
 
-    if (desc.length > 0) {
-      orderLimit.description =
-        "<div class='variable-line'>order by " + desc.join(" then by ") + ", keep " + (orderLimit.limit === 1 ? "first" : orderLimit.limit) + "</div>";
-    }
+    orderLimit.description = "<div class='variable-line'>get " + desc + "</div>";
   }
 }
 
-function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: MatchType) {
+function isPropertyValueList(property: Property) {
+  return isArrayHasLength(property.is) || isArrayHasLength(property.isNot) || isArrayHasLength(property.inSet) || isArrayHasLength(property.notInSet);
+}
+
+export function getNumberOfListItems(property: Property) {
+  let totalNumberOfNodes = 0;
+  if (isArrayHasLength(property.is)) totalNumberOfNodes += property.is!.length;
+  if (isArrayHasLength(property.isNot)) totalNumberOfNodes += property.isNot!.length;
+  if (isArrayHasLength(property.inSet)) totalNumberOfNodes += property.inSet!.length;
+  if (isArrayHasLength(property.notInSet)) totalNumberOfNodes += property.notInSet!.length;
+
+  return totalNumberOfNodes;
+}
+
+function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: MatchType, count = 0) {
   let display = "";
+  const limit = count > 1 ? " " + count + " " : " ";
+
   if (orderDirection.variable) display += orderDirection.variable + ".";
+
   const propertyName = getNameFromRef(orderDirection);
+
   if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += propertyName + " " + propertyDisplayMap[matchType][propertyName] + " ";
   else display += propertyName;
+
+  // Shortcut for effectiveDate and Value
+  if (IM.EFFECTIVE_DATE === orderDirection["@id"] || IM.VALUE === orderDirection["@id"]) display = "";
+  else display = "by " + display;
+
   if (propertyName.toLocaleLowerCase().includes("date")) {
     if ("descending" === orderDirection.direction) {
-      display = "latest " + display;
+      display = "latest" + limit + display;
     } else if ("ascending" === orderDirection.direction) {
-      display = "earliest " + display;
+      display = "earliest" + limit + display;
     }
   } else if (propertyName) {
     if ("descending" === orderDirection.direction) {
-      display = "highest " + display;
+      display = "highest" + limit + display;
     } else if ("ascending" === orderDirection.direction) {
-      display = "lowest " + display;
+      display = "lowest" + limit + display;
     }
   }
 
-  return display;
+  return display.trim();
 }
 
 export function getDisplayFromLogic(title: string) {
@@ -264,13 +291,8 @@ export function getDisplayFromOperatorForDate(operator: Operator) {
   }
 }
 
-export function getDisplayFromList(property: Property, include: boolean, nodes: Node[]) {
-  let display = include ? " " : " not ";
-  if (property.valueLabel) {
-    if (nodes.length === 1) display += property.valueLabel;
-    else display += getDisplayFromNodeRef(property.valueLabel);
-    return display;
-  }
+export function getDisplayFromList(include: boolean, nodes: Node[]) {
+  let display = "";
 
   if (nodes.length === 1) {
     display += getDisplayFromEntailment(nodes[0]);

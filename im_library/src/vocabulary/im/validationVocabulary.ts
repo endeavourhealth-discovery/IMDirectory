@@ -8,4 +8,5 @@ export class validationVocabulary {
   public static IS_PROPERTY = this.NAMESPACE + "isProperty";
   public static IS_SCHEME = this.NAMESPACE + "isScheme";
   public static IS_STATUS = this.NAMESPACE + "isStatus";
+  public static IS_ROLE_GROUP = this.NAMESPACE + "isRoleGroup";
 }

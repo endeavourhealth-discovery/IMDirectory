@@ -17,6 +17,7 @@
           @to-query-search="showQuerySearch"
           :selected="selected"
           :filter-options="filterOptions"
+          :filterDefaults="filterDefaults"
         />
       </div>
       <div class="vertical-divider">
@@ -82,6 +83,7 @@ interface Props {
   selected?: ConceptSummary;
   rootEntities?: string[];
   filterOptions?: FilterOptions;
+  filterDefaults?: FilterOptions;
 }
 const props = defineProps<Props>();
 watch(

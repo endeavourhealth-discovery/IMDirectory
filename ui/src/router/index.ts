@@ -61,7 +61,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/directory",
     name: "Directory",
     component: Directory,
-    meta: { requiresLicense: true },
+    meta: { requiresLicense: true, transition: "fade", mode: "out-in" },
     redirect: { name: "LandingPage" },
     children: [
       {
@@ -70,7 +70,8 @@ const routes: Array<RouteRecordRaw> = [
         name: "LandingPage",
         component: LandingPage,
         meta: {
-          requiresLicense: true
+          requiresLicense: true,
+          transitionDelay: "0.2s"
         }
       },
       {

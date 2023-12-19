@@ -23,7 +23,7 @@
       :icon="fontAwesomePro ? 'fa-duotone fa-pen-to-square' : 'fa-solid fa-pen-to-square'"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="directService.edit(iri)"
+      @click="directService.edit(iri, true)"
       v-tooltip.top="'Edit'"
       data-testid="edit-button"
       :disabled="!editAllowed"

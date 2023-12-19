@@ -48,7 +48,7 @@
   </div>
 
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
-  <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
+  <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" @save="onSaveJson" />
   <AddPropertyDialog
     v-model:showDialog="showUpdateDialog"
     :header="'Refine feature'"
@@ -227,6 +227,15 @@ function onSelect(cs: ConceptSummary, before?: boolean) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
   addMatchesToList(props.parentMatchList!, [newMatch], props.index, before);
   showAddPopulationAfterDirectoryDialog.value = false;
+}
+
+function onSaveJson(updatedMatch: Match) {
+  for (const property of Object.keys(props.match)) {
+    delete (props.match as any)[property];
+  }
+  for (const property of Object.keys(updatedMatch)) {
+    (props.match as any)[property] = (updatedMatch as any)[property];
+  }
 }
 
 function getClass() {
