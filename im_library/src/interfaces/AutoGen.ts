@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-12-19 14:12:38.
+// Generated using typescript-generator version 3.2.1263 on 2023-12-19 15:10:58.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -133,10 +133,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
-    dataType?: TTIriRef;
-    relativeTo?: PropertyRef;
     unit?: string;
+    relativeTo?: PropertyRef;
+    dataType?: TTIriRef;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -925,6 +925,7 @@ export const enum SNOMED {
     NAMESPACE = "http://snomed.info/sct#",
     PREFIX = "sn",
     GRAPH_SNOMED = "http://snomed.info/sct#",
+    ATTRIBUTE = "http://snomed.info/sct#246061005",
 }
 
 export const enum USER {

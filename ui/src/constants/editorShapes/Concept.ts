@@ -133,7 +133,7 @@ const ConceptShape: FormGenerator = {
               maxCount: 1,
               path: { "@id": IM.PREFERRED_NAME },
               minCount: 0,
-              componentType: { "@id": IM.component.TEXT_INPUT }
+              componentType: { "@id": COMPONENT.TEXT_INPUT }
             },
             {
               comment: "optional description",
@@ -378,7 +378,7 @@ const ConceptShape: FormGenerator = {
               path: {
                 "@id": IM.ROLE_GROUP
               },
-              validation: { "@id": IM.validation.IS_ROLE_GROUP },
+              validation: { "@id": VALIDATION.IS_ROLE_GROUP },
               name: "Role group",
               showTitle: true,
               minCount: 0,

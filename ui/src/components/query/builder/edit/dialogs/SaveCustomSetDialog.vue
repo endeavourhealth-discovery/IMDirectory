@@ -69,7 +69,7 @@ import { useForm } from "vee-validate";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Node, TTIriRef, Match } from "@im-library/interfaces/AutoGen";
 import { EntityService, FilerService, FunctionService, QueryService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, FUNCTION } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
 import * as yup from "yup";
 
@@ -169,7 +169,7 @@ const onSubmit = handleSubmit(async () => {
   try {
     await FilerService.fileEntity(setEntity, IM.NAMESPACE, IM.ADD_QUADS);
     const createdEntity = await EntityService.getFullEntity(setEntity["@id"]);
-    if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
+    if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.HAS_SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
       toast.add({ severity: "success", summary: "Created", detail: "Created " + createdEntity[RDFS.LABEL], life: 3000 });
   } catch (e: any) {
     loading.value = false;
@@ -218,7 +218,7 @@ function buildSetEntity() {
   setEntity[RDFS.LABEL] = name.value.modelValue;
   setEntity[RDF.TYPE] = [{ "@id": type.value.modelValue }];
   setEntity[IM.HAS_STATUS] = [{ "@id": IM.DRAFT }];
-  setEntity[IM.SCHEME] = [{ "@id": scheme.value.modelValue }];
+  setEntity[IM.HAS_SCHEME] = [{ "@id": scheme.value.modelValue }];
   setEntity[IM.IS_CONTAINED_IN] = [{ "@id": getIsContainedIn() }];
   setEntity[IM.DEFINITION] = getDefinition();
   return setEntity;
