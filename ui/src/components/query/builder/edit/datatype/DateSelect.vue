@@ -159,7 +159,7 @@ function updatePropertyValues() {
     if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);
   } else if (propertyType.value === "within") {
     props.property.unit = unit.value;
-    props.property.operator = ">=";
+    props.property.operator = Operator.gte;
     props.property.value = "-" + numberValue.value.toString();
     props.property.relativeTo = {
       parameter: "$referenceDate"

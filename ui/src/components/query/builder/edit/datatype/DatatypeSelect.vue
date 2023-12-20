@@ -56,7 +56,7 @@ import { Ref, onMounted, ref, watch } from "vue";
 import ComparisonSelect from "./ComparisonSelect.vue";
 import RangeSelect from "./RangeSelect.vue";
 import { IM, GRAPH } from "@im-library/vocabulary";
-import { Assignable, Range, Property } from "@im-library/interfaces/AutoGen";
+import { Assignable, Range, Property, Operator } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DateSelect from "./DateSelect.vue";
 interface Props {
@@ -79,16 +79,21 @@ watch(
       props.property.isNull = undefined;
       props.property.isNotNull = undefined;
       props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
-    } else if (propertyType.value === "startsWith" || propertyType.value === "contains") {
+    } else if (propertyType.value === "startsWith") {
       delete props.property.range;
       props.property.isNull = undefined;
       props.property.isNotNull = undefined;
-      props.property.operator = propertyType.value;
+      props.property.operator = Operator.start;
+    } else if (propertyType.value === "contains") {
+      delete props.property.range;
+      props.property.isNull = undefined;
+      props.property.isNotNull = undefined;
+      props.property.operator = Operator.contains;
     } else if (propertyType.value === "is") {
       delete props.property.range;
       props.property.isNull = undefined;
       props.property.isNotNull = undefined;
-      props.property.operator = "=";
+      props.property.operator = Operator.eq;
     } else if (propertyType.value === "notNull") {
       delete props.property.range;
       props.property.operator = undefined;
