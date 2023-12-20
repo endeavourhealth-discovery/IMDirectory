@@ -1,7 +1,7 @@
 import { ComponentType } from "../../src/enums";
 import { getTreeQueryIri, processArguments, processComponentType } from "../../src/helpers/EditorMethods";
 import { fakerFactory } from "../../src/mocks/fakerFactory";
-import { IM } from "../../src/vocabulary";
+import { IM, COMPONENT } from "../../src/vocabulary";
 
 describe("EditorMethods", () => {
   describe("processArguments", () => {
