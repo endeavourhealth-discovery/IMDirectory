@@ -46,7 +46,7 @@
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import { EntityService, FunctionService } from "@/services";
 import { useDialog } from "primevue/usedialog";
-import { IM, RDF, SNOMED } from "@im-library/vocabulary";
+import { IM, RDF, SNOMED, FUNCTION } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";

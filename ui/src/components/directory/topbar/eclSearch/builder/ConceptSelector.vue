@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, inject, computed } from "vue";
-import { IM, SNOMED } from "@im-library/vocabulary";
+import { IM, SNOMED, FUNCTION } from "@im-library/vocabulary";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest } from "@im-library/interfaces/AutoGen";

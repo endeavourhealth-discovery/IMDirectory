@@ -131,7 +131,7 @@ async function getContextMenu(d: any) {
     }
     Object.keys(bundle.entity)
       .filter(value => value !== "@id")
-      .filter(value => !graphExcludePredicates.includes(value))
+      .filter(value => !graphExcludePredicates.find(gep => gep === value))
       .forEach((key: string) => {
         contextMenu.value.push({
           iri: key,
