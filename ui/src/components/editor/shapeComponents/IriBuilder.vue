@@ -96,7 +96,7 @@ const disableCodeEdit: ComputedRef<boolean> = computed(() => {
     loading.value ||
     props.mode === "edit" ||
     (props.mode === "create" &&
-      fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE &&
+      fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE &&
       selectedDropdownOption.value &&
       [IM.NAMESPACE, SNOMED.NAMESPACE].includes(selectedDropdownOption.value["@id"]))
   )
@@ -178,7 +178,7 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
 });
 
 watch(selectedDropdownOption, async () => {
-  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
+  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
   }
 });
@@ -194,7 +194,7 @@ onMounted(async () => {
   }
 
   setSelectedOption();
-  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
+  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
   }
 
@@ -236,7 +236,7 @@ function deconstructInputValue(inputValue: String) {
 async function generateCode(): Promise<string> {
   if (selectedDropdownOption.value && isConcept(editorEntity?.value[RDF.TYPE])) {
     loading.value = true;
-    const result = await FunctionService.runFunction(IM.function.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
+    const result = await FunctionService.runFunction(FUNCTION.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
     loading.value = false;
     return result.code;
   }

@@ -205,7 +205,7 @@ async function searchProperties(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    propertySuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef));
+    propertySuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
   }
 }
 
@@ -219,7 +219,7 @@ async function searchValues(event: AutoCompleteCompleteEvent) {
           {
             property: [
               {
-                "@id": IM.SCHEME,
+                "@id": IM.HAS_SCHEME,
                 is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
               }
             ]
@@ -228,7 +228,7 @@ async function searchValues(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    valueSuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef));
+    valueSuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
   }
 }
 
@@ -306,7 +306,7 @@ async function isValidValue(iri: string): Promise<boolean> {
           },
           property: [
             {
-              "@id": IM.SCHEME,
+              "@id": IM.HAS_SCHEME,
               is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
             }
           ]

@@ -22,12 +22,12 @@ export default class ProvRepository {
       "} order by desc(?effectiveDate)";
 
     return await this.graph.execute(qry, {
-      imProvTarget: sanitise(IM.PROV_TARGET),
+      imProvTarget: sanitise(IM.PROVENANCE_TARGET),
       entity: sanitise(url),
       imEffectiveDate: sanitise(IM.EFFECTIVE_DATE),
       imProvActivityType: sanitise(IM.PROV_ACTIVITY_TYPE),
-      imProvAgent: sanitise(IM.PROV_AGENT),
-      imUsedEntity: sanitise(IM.PROV_USED)
+      imProvAgent: sanitise(IM.PROVENANCE_AGENT),
+      imUsedEntity: sanitise(IM.PROVENANCE_USED)
     });
   }
 }

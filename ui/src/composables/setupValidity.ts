@@ -4,7 +4,7 @@ import { deferred } from "@im-library/helpers/Deferred";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { FormGenerator, PropertyShape } from "@im-library/interfaces/AutoGen";
-import { IM } from "@im-library/vocabulary";
+import { IM, COMPONENT } from "@im-library/vocabulary";
 import { isArray } from "lodash";
 import { Ref, provide, ref } from "vue";
 
@@ -49,7 +49,7 @@ export function setupValidity(shape?: FormGenerator) {
 
   function addPropertyToValidationCheckStatus(property: PropertyShape) {
     if (
-      ![IM.component.HORIZONTAL_LAYOUT, IM.component.VERTICAL_LAYOUT, IM.component.TOGGLEABLE].includes(property.componentType["@id"]) &&
+      ![COMPONENT.HORIZONTAL_LAYOUT.valueOf(), COMPONENT.VERTICAL_LAYOUT.valueOf(), COMPONENT.TOGGLEABLE.valueOf()].includes(property.componentType["@id"]) &&
       validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1
     ) {
       validationCheckStatus.value.push({
@@ -57,7 +57,7 @@ export function setupValidity(shape?: FormGenerator) {
         deferred: deferred(60000)
       });
     }
-    if (property.componentType["@id"] !== IM.component.TOGGLEABLE)
+    if (property.componentType["@id"] !== COMPONENT.TOGGLEABLE)
       if (property.property) {
         for (const subProperty of property.property) {
           addPropertyToValidationCheckStatus(subProperty);

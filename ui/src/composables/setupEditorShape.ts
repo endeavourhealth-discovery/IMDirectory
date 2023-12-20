@@ -62,9 +62,9 @@ export function setupEditorShape() {
       const validMappingSchemes = ["http://endhealth.info/emis#", "http://endhealth.info/tpp#"];
       if (shape.property.findIndex(property => property.path["@id"] === IM.MAPPED_TO) !== -1) {
         if (
-          isObjectHasKeys(entity, [RDF.TYPE, IM.SCHEME]) &&
+          isObjectHasKeys(entity, [RDF.TYPE, IM.HAS_SCHEME]) &&
           entity[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === IM.CONCEPT) !== -1 &&
-          !validMappingSchemes.includes(entity[IM.SCHEME][0]["@id"])
+          !validMappingSchemes.includes(entity[IM.HAS_SCHEME][0]["@id"])
         ) {
           shape.property.splice(
             shape.property.findIndex(property => property.path["@id"] === IM.MAPPED_TO),
