@@ -1,4 +1,4 @@
-import { Match, Query, Property, Assignable, OrderLimit } from "@im-library/interfaces/AutoGen";
+import { Match, Query, Property, Assignable, OrderLimit, Bool } from "@im-library/interfaces/AutoGen";
 import { SqlQuery } from "@/model/sql/SqlQuery";
 
 function IMQtoSQL(definition: Query): string {
@@ -71,7 +71,7 @@ function convertMatch(match: Match, qry: SqlQuery) {
     convertMatchProperties(qry, match);
   } else if (match.match && match.match.length > 0) {
     // Assume bool match "AND"
-    match.bool = "and";
+    match.bool = Bool.and;
     convertMatchBoolSubMatch(qry, match);
   } else {
     throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
