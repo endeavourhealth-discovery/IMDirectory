@@ -31,7 +31,7 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
-import { IM, RDF, RDFS, SNOMED } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SNOMED, EDITOR, FUNCTION } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import _ from "lodash";
@@ -98,7 +98,7 @@ const disableCodeEdit: ComputedRef<boolean> = computed(() => {
     (props.mode === "create" &&
       fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE &&
       selectedDropdownOption.value &&
-      [IM.NAMESPACE, SNOMED.NAMESPACE].includes(selectedDropdownOption.value["@id"]))
+      (selectedDropdownOption.value["@id"] === IM.NAMESPACE || selectedDropdownOption.value["@id"] === SNOMED.NAMESPACE))
   )
     return true;
   else return false;

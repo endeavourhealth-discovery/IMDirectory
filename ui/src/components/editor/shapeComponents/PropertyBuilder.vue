@@ -367,7 +367,7 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
                 is: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }, { "@id": IM.CONCEPT }, { "@id": SHACL.NODESHAPE }, { "@id": RDFS.DATATYPE }]
               },
               {
-                "@id": IM.SCHEME,
+                "@id": IM.HAS_SCHEME,
                 is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
               }
             ]
@@ -437,7 +437,7 @@ async function isValidRange(iri: string): Promise<boolean> {
           },
           property: [
             {
-              "@id": IM.SCHEME,
+              "@id": IM.HAS_SCHEME,
               is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
             }
           ]
