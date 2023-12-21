@@ -1,7 +1,7 @@
 import ConfigRepository from "@/repositories/configRepository";
 import GithubService from "@/services/github.service";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { CONFIG } from "@im-library/vocabulary/CONFIG";
+import { CONFIG } from "@im-library/vocabulary";
 import _ from "lodash";
 import logger from "@/middlewares/logger.middleware";
 

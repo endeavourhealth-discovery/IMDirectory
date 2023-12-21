@@ -51,7 +51,7 @@ function getKey(parent: TreeNode | undefined) {
 }
 
 function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNodes: TreeNode[]) {
-  const group = property[SHACL.GROUP][0];
+  const group = property[SHACL.GROUP]![0];
   const treeNode = groupMap.get(group["@id"]);
   if (treeNode) {
     const propertyTreeNode = buildPropertyTreeNode(property, treeNode);
@@ -59,7 +59,7 @@ function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNod
     if (!isArrayHasLength(treeNode.children)) treeNode.children = [];
     treeNode.children.push(propertyTreeNode);
   } else {
-    const newGroup = buildGroupTreeNode(group.name, String(treeNodes.length), {} as TreeNode);
+    const newGroup = buildGroupTreeNode(group.name!, String(treeNodes.length), {} as TreeNode);
     const propertyTreeNode = buildPropertyTreeNode(property, newGroup);
     addDataModel(property, propertyTreeNode);
     if (!isArrayHasLength(newGroup.children)) newGroup.children = [];
@@ -81,7 +81,7 @@ function buildDataModelTreeNode(property: TTProperty, parent: TreeNode) {
 
   return {
     key: getKey(parent),
-    label: property[SHACL.NODE][0].name,
+    label: property[SHACL.NODE]![0].name,
     iri: property[SHACL.PATH][0]["@id"],
     data: property,
     conceptTypes: [imtype],

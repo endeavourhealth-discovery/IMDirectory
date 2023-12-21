@@ -1,8 +1,8 @@
-import { RDF, IM, XSD, RDFS, SHACL } from "@im-library/vocabulary";
+import { RDF, IM, XSD, RDFS, EDITOR, COMPONENT, VALIDATION, FUNCTION, QUERY } from "@im-library/vocabulary";
 
 export default {
   testShape: {
-    "@id": IM.editor.CONCEPT_SHAPE,
+    "@id": EDITOR.CONCEPT_SHAPE,
     type: [
       {
         "@id": IM.FORM_GENERATOR
@@ -21,7 +21,7 @@ export default {
         path: { "@id": IM.CONCEPT },
         minCount: 0,
         maxCount: 1,
-        componentType: { "@id": IM.component.HORIZONTAL_LAYOUT },
+        componentType: { "@id": COMPONENT.HORIZONTAL_LAYOUT },
         argument: [{ parameter: "subGroup widths", valueData: "40%,60%" }],
         property: [
           {
@@ -32,13 +32,13 @@ export default {
             order: 1,
             maxCount: 1,
             minCount: 1,
-            componentType: { "@id": IM.component.VERTICAL_LAYOUT },
+            componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
             property: [
               {
                 comment: "A property that auto generates the type as  concept type",
                 order: 1,
                 function: {
-                  "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
+                  "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
                 },
                 name: "Type",
                 showTitle: true,
@@ -58,7 +58,7 @@ export default {
                 },
                 minCount: 1,
                 componentType: {
-                  "@id": IM.component.ENTITY_COMBOBOX
+                  "@id": COMPONENT.ENTITY_COMBOBOX
                 }
               },
               {
@@ -72,11 +72,11 @@ export default {
                 },
                 minCount: 1,
                 componentType: {
-                  "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+                  "@id": COMPONENT.DROPDOWN_TEXT_INPUT_CONCATENATOR
                 },
                 valueVariable: "conceptIri",
                 function: {
-                  "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
+                  "@id": FUNCTION.GET_SET_EDITOR_IRI_SCHEMES
                 }
               },
               {
@@ -100,13 +100,13 @@ export default {
                 ],
                 minCount: 1,
                 componentType: {
-                  "@id": IM.component.TEXT_DISPLAY
+                  "@id": COMPONENT.TEXT_DISPLAY
                 },
                 datatype: {
                   "@id": XSD.STRING
                 },
                 function: {
-                  "@id": IM.function.LOCAL_NAME_RETRIEVER
+                  "@id": FUNCTION.LOCAL_NAME_RETRIEVER
                 }
               },
               {
@@ -120,7 +120,7 @@ export default {
                 },
                 minCount: 1,
                 componentType: {
-                  "@id": IM.component.TEXT_INPUT
+                  "@id": COMPONENT.TEXT_INPUT
                 },
                 datatype: {
                   "@id": XSD.STRING
@@ -140,7 +140,7 @@ export default {
                 },
                 minCount: 0,
                 componentType: {
-                  "@id": IM.component.HTML_INPUT
+                  "@id": COMPONENT.HTML_INPUT
                 }
               },
               {
@@ -148,7 +148,7 @@ export default {
                 order: 6,
                 select: [
                   {
-                    "@id": IM.query.GET_DESCENDANTS
+                    "@id": QUERY.GET_DESCENDANTS
                   }
                 ],
                 name: "Status",
@@ -170,7 +170,7 @@ export default {
                 },
                 minCount: 1,
                 componentType: {
-                  "@id": IM.component.ENTITY_DROPDOWN
+                  "@id": COMPONENT.ENTITY_DROPDOWN
                 },
                 forceIsValue: true
               },
@@ -181,11 +181,11 @@ export default {
                 order: 1,
                 minCount: 0,
                 componentType: {
-                  "@id": IM.component.ARRAY_BUILDER
+                  "@id": COMPONENT.ARRAY_BUILDER
                 },
                 arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
                 validation: {
-                  "@id": IM.validation.HAS_PARENT
+                  "@id": VALIDATION.HAS_PARENT
                 },
                 validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
                 path: {
@@ -199,11 +199,11 @@ export default {
                     minCount: 0,
                     builderChild: true,
                     componentType: {
-                      "@id": IM.component.ENTITY_SEARCH
+                      "@id": COMPONENT.ENTITY_SEARCH
                     },
                     select: [
                       {
-                        "@id": IM.query.SEARCH_FOLDERS
+                        "@id": QUERY.SEARCH_FOLDERS
                       }
                     ],
                     path: {
@@ -219,11 +219,11 @@ export default {
                 order: 1,
                 minCount: 0,
                 componentType: {
-                  "@id": IM.component.ARRAY_BUILDER
+                  "@id": COMPONENT.ARRAY_BUILDER
                 },
                 arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
                 validation: {
-                  "@id": IM.validation.HAS_PARENT
+                  "@id": VALIDATION.HAS_PARENT
                 },
                 validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
                 path: {
@@ -238,7 +238,7 @@ export default {
                     minCount: 0,
                     builderChild: true,
                     componentType: {
-                      "@id": IM.component.ENTITY_SEARCH
+                      "@id": COMPONENT.ENTITY_SEARCH
                     },
                     path: {
                       "@id": RDFS.SUBCLASS_OF
@@ -257,7 +257,7 @@ export default {
                   "@id": "http://snomed.info/sct#370124000"
                 },
                 componentType: {
-                  "@id": IM.component.TOGGLEABLE
+                  "@id": COMPONENT.TOGGLEABLE
                 },
                 property: [
                   {
@@ -265,7 +265,7 @@ export default {
                     order: 1,
                     select: [
                       {
-                        "@id": IM.query.SEARCH_ENTITIES
+                        "@id": QUERY.SEARCH_ENTITIES
                       }
                     ],
                     argument: [
@@ -283,7 +283,7 @@ export default {
                     },
                     minCount: 1,
                     componentType: {
-                      "@id": IM.component.ENTITY_SEARCH
+                      "@id": COMPONENT.ENTITY_SEARCH
                     }
                   }
                 ]
@@ -297,7 +297,7 @@ export default {
             order: 1,
             minCount: 0,
             maxCount: 1,
-            componentType: { "@id": IM.component.VERTICAL_LAYOUT },
+            componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
             property: [
               {
                 label: "Property Group - Role group builder",
@@ -309,7 +309,7 @@ export default {
                 name: "Role group",
                 minCount: 0,
                 componentType: {
-                  "@id": IM.component.ROLE_GROUP_BUILDER
+                  "@id": COMPONENT.ROLE_GROUP_BUILDER
                 }
               },
               {
@@ -331,14 +331,14 @@ export default {
                     },
                     minCount: 0,
                     componentType: {
-                      "@id": IM.component.ENTITY_SEARCH
+                      "@id": COMPONENT.ENTITY_SEARCH
                     }
                   }
                 ],
                 name: "Mapped to",
                 minCount: 0,
                 componentType: {
-                  "@id": IM.component.ARRAY_BUILDER
+                  "@id": COMPONENT.ARRAY_BUILDER
                 },
                 arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
               },
@@ -351,9 +351,9 @@ export default {
                 },
                 showTitle: true,
                 minCount: 0,
-                componentType: { "@id": IM.component.ARRAY_BUILDER },
+                componentType: { "@id": COMPONENT.ARRAY_BUILDER },
                 arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
-                validation: { "@id": IM.validation.IS_TERMCODE },
+                validation: { "@id": VALIDATION.IS_TERMCODE },
                 property: [
                   {
                     name: "Term code",
@@ -361,8 +361,8 @@ export default {
                     builderChild: true,
                     order: 1,
                     minCount: 0,
-                    componentType: { "@id": IM.component.TERM_CODE_EDITOR },
-                    validation: { "@id": IM.validation.IS_TERMCODE }
+                    componentType: { "@id": COMPONENT.TERM_CODE_EDITOR },
+                    validation: { "@id": VALIDATION.IS_TERMCODE }
                   }
                 ]
               },
@@ -373,7 +373,7 @@ export default {
                 path: { "@id": IM.IS_CHILD_OF },
                 showTitle: true,
                 minCount: 0,
-                componentType: { "@id": IM.component.ARRAY_BUILDER },
+                componentType: { "@id": COMPONENT.ARRAY_BUILDER },
                 arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
                 property: [
                   {
@@ -382,7 +382,7 @@ export default {
                     builderChild: true,
                     order: 1,
                     minCount: 0,
-                    componentType: { "@id": IM.component.ENTITY_SEARCH }
+                    componentType: { "@id": COMPONENT.ENTITY_SEARCH }
                   }
                 ]
               }

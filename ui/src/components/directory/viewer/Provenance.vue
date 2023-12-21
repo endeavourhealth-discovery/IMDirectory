@@ -31,10 +31,10 @@ async function getProvHistory(iri: string) {
   result.forEach((p: any) =>
     provenances.value.push({
       prov: p["@id"],
-      usedEntity: p[IM.PROV_USED]?.[0].name || p[IM.PROV_USED]?.[0]["@id"] || "---",
+      usedEntity: p[IM.PROVENANCE_USED]?.[0].name || p[IM.PROVENANCE_USED]?.[0]["@id"] || "---",
       effectiveDate: p[IM.EFFECTIVE_DATE],
       activityType: p[IM.PROV_ACTIVITY_TYPE][0].name || p[IM.PROV_ACTIVITY_TYPE][0]["@id"],
-      agent: p[IM.PROV_AGENT]?.[0].name || p[IM.PROV_AGENT]?.[0]["@id"] || "---"
+      agent: p[IM.PROVENANCE_AGENT]?.[0].name || p[IM.PROVENANCE_AGENT]?.[0]["@id"] || "---"
     })
   );
   loading.value = false;

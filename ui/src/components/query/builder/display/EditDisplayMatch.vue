@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, OrderDirection, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Node, OrderDirection, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { PrimeIcons } from "primevue/api";
@@ -269,8 +269,8 @@ function saveSelect(property: "typeOf" | "instanceOf" | "inSet", selectedCSs: No
 }
 
 function toggleBoolMatch() {
-  if (props.match.bool === "and") props.match.bool = "or";
-  else if (props.match.bool === "or") props.match.bool = "and";
+  if (props.match.bool === "and") props.match.bool = Bool.or;
+  else if (props.match.bool === "or") props.match.bool = Bool.and;
 }
 
 function toggleExclude() {
