@@ -102,9 +102,7 @@ function setupTree() {
   async function onNodeExpand(node: any) {
     if (isObjectHasKeys(node)) {
       node.loading = true;
-      if (!isObjectHasKeys(expandedKeys.value, [node.key])) {
-        expandedKeys.value[node.key] = true;
-      }
+      if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       if (!expandedData.value.find(x => x.key === node.key)) expandedData.value.push(node);
       const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
       children.result.forEach((child: any) => {
