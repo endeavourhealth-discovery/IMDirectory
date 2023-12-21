@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-12-19 15:10:58.
+// Generated using typescript-generator version 3.2.1263 on 2023-12-21 13:12:23.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -134,9 +134,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: string;
-    relativeTo?: PropertyRef;
     dataType?: TTIriRef;
     operator?: Operator;
+    relativeTo?: PropertyRef;
 }
 
 export interface Case {
@@ -164,9 +164,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    ancestorsOf?: boolean;
     descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
-    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -431,6 +431,12 @@ export interface SearchTermCode {
     term?: string;
     code?: string;
     status?: TTIriRef;
+}
+
+export interface SNOMED {
+}
+
+export interface USER {
 }
 
 export interface Vocabulary {
@@ -919,23 +925,6 @@ export const enum SHACL {
     NAME = "http://www.w3.org/ns/shacl#name",
     EXPRESSION = "http://www.w3.org/ns/shacl#expression",
     HAS_VALUE = "http://www.w3.org/ns/shacl#hasValue",
-}
-
-export const enum SNOMED {
-    NAMESPACE = "http://snomed.info/sct#",
-    PREFIX = "sn",
-    GRAPH_SNOMED = "http://snomed.info/sct#",
-    ATTRIBUTE = "http://snomed.info/sct#246061005",
-}
-
-export const enum USER {
-    DOMAIN = "http://endhealth.info/",
-    NAMESPACE = "http://endhealth.info/user#",
-    PREFIX = "usr",
-    USER_THEME = "http://endhealth.info/user#UserTheme",
-    USER_MRU = "http://endhealth.info/user#UserMRU",
-    USER_FAVOURITES = "http://endhealth.info/user#UserFavourites",
-    ORGANISATIONS = "http://endhealth.info/user#Organisations",
 }
 
 export const enum WORKFLOW {
