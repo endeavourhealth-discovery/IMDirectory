@@ -2,9 +2,9 @@
   <div class="set-definition-wrapper">
     <div class="details-container">
       <div class="table-header-bar">
-        <ArrayObjectNamesToStringWithLabel v-if="isContainedIn" label="Contained in" :data="isContainedIn" :show="true" />
-        <ArrayObjectNamesToStringWithLabel v-if="subsetOf" label="Subset of" :data="subsetOf" :show="true" />
-        <ArrayObjectNamesToStringWithLabel v-if="subclassOf" label="Subclass of" :data="subclassOf" :show="true" />
+        <ArrayObjectNamesToStringWithLabel v-if="isContainedIn" label="Contained in" :data="isContainedIn" />
+        <ArrayObjectNamesToStringWithLabel v-if="subsetOf" label="Subset of" :data="subsetOf" />
+        <ArrayObjectNamesToStringWithLabel v-if="subclassOf" label="Subclass of" :data="subclassOf" />
         <div class="buttons-container">
           <template v-if="checkAuthorization()">
             <Button type="button" label="Publish" @click="publish" :loading="isPublishing" data-testid="publishButton"></Button>

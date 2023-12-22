@@ -4,7 +4,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { ref, Ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import rowClick from "./rowClick";

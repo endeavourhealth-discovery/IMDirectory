@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="container" :style="{ width: size }">
+  <div class="container" :style="{ width: size }">
     <strong class="label" data-testid="label">{{ label }}: </strong>
     <Tag v-if="isObjectWithName" :value="data.name" :severity="getSeverity(data)" class="data-tag" data-testid="data-tag" />
     <span v-else class="data">None</span>
@@ -21,7 +21,6 @@ interface Props {
   data: TTIriRef;
   size?: string;
   id?: string;
-  show: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {

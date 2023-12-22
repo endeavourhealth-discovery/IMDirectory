@@ -17,26 +17,26 @@
       </div>
     </div>
     <div class="flex flex-row">
-      <TextWithLabel label="Iri" :data="entity['@id']" :show="!!entity['@id']" />
-      <TextWithLabel label="Code" :data="entity[IM.CODE]" :show="!!entity[IM.CODE]" />
+      <TextWithLabel label="Iri" :data="entity['@id']" v-if="!!entity['@id']" />
+      <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
     </div>
     <div class="flex flex-row justify-content-start">
-      <ArrayObjectNameTagWithLabel label="Status" :data="entity['http://endhealth.info/im#status']" :show="!!entity['http://endhealth.info/im#status']" />
+      <ArrayObjectNameTagWithLabel v-if="!!entity['http://endhealth.info/im#status']" label="Status" :data="entity['http://endhealth.info/im#status']" />
       <ArrayObjectNamesToStringWithLabel
         label="Types"
         :data="entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']"
-        :show="!!entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']"
+        v-if="!!entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']"
       />
     </div>
     <div>
-      <TextWithLabel label="Preferred name" :data="entity[IM.PREFERRED_NAME]" :show="!!entity[IM.PREFERRED_NAME]" />
-      <ArrayObjectNamesToStringWithLabel label="Return Type" :data="entity[IM.RETURN_TYPE]" :show="!!entity[IM.RETURN_TYPE]" />
+      <TextWithLabel label="Preferred name" :data="entity[IM.PREFERRED_NAME]" v-if="!!entity[IM.PREFERRED_NAME]" />
+      <ArrayObjectNamesToStringWithLabel label="Return Type" :data="entity[IM.RETURN_TYPE]" v-if="!!entity[IM.RETURN_TYPE]" />
     </div>
 
     <TextHTMLWithLabel
       label="Description"
       :data="entity['http://www.w3.org/2000/01/rdf-schema#comment']"
-      :show="!!entity['http://www.w3.org/2000/01/rdf-schema#comment']"
+      v-if="!!entity['http://www.w3.org/2000/01/rdf-schema#comment']"
     />
   </div>
 </template>

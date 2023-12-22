@@ -19,12 +19,7 @@ const MFASetup = () => import("@/components/auth/MFASetup.vue");
 const MFALogin = () => import("@/components/auth/MFALogin.vue");
 const MFADelete = () => import("@/components/auth/MFADelete.vue");
 const Creator = () => import("@/views/Creator.vue");
-const TypeSelector = () => import("@/components/creator/TypeSelector.vue");
 const Editor = () => import("@/views/Editor.vue");
-const Mapper = () => import("@/views/Mapper.vue");
-const Workflow = () => import("@/views/Workflow.vue");
-const TaskDefinition = () => import("@/components/workflow/TaskDefinition.vue");
-const TaskViewer = () => import("@/components/workflow/TaskViewer.vue");
 const AccessDenied = () => import("@/views/AccessDenied.vue");
 const PageNotFound = () => import("@/views/PageNotFound.vue");
 const EntityNotFound = () => import("@/views/EntityNotFound.vue");
@@ -207,36 +202,6 @@ const routes: Array<RouteRecordRaw> = [
       requiresLicense: true,
       requiresEditRole: true,
       requiresOrganisation: true
-    }
-  },
-  {
-    path: "/workflow",
-    name: "Workflow",
-    component: Workflow,
-    meta: {
-      requiresAuth: true,
-      requiresLicense: true
-    },
-    children: [
-      {
-        path: "task",
-        name: "TaskDefinition",
-        component: TaskDefinition
-      },
-      {
-        path: "tasks",
-        name: "TaskViewer",
-        component: TaskViewer
-      }
-    ]
-  },
-  {
-    path: "/mapper",
-    name: "Mapper",
-    component: Mapper,
-    meta: {
-      requiresAuth: true,
-      requiresLicense: true
     }
   },
   {

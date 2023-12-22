@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" :style="{ width: size }" class="section-divider">
+  <div :style="{ width: size }" class="section-divider">
     <Divider />
   </div>
 </template>
@@ -7,7 +7,6 @@
 <script setup lang="ts">
 interface Props {
   size?: string;
-  show: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {

@@ -8,7 +8,6 @@ export enum ComponentType {
   REFINEMENT = "Refinement",
   QUANTIFIER = "Quantifier",
   PROPERTY = "Property",
-  STEPS_GROUP = "StepsGroup",
   ARRAY_BUILDER = "ArrayBuilder",
   ENTITY_COMBOBOX = "EntityComboBox",
   ENTITY_MULTI_SEARCH = "EntityMultiSearch",
