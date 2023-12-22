@@ -65,8 +65,6 @@ function getFullList(property: Property) {
   let fullList: Node[] = [];
   if (isArrayHasLength(property.is)) fullList = fullList.concat(property.is!);
   if (isArrayHasLength(property.isNot)) fullList = fullList.concat(property.isNot!);
-  if (isArrayHasLength(property.inSet)) fullList = fullList.concat(property.inSet!);
-  if (isArrayHasLength(property.notInSet)) fullList = fullList.concat(property.notInSet!);
   return fullList;
 }
 
