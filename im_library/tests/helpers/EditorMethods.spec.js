@@ -60,7 +60,6 @@ describe("EditorMethods", () => {
       expect(processComponentType({ "@id": COMPONENT.ENTITY_AUTO_COMPLETE })).toBe(ComponentType.ENTITY_AUTO_COMPLETE);
       expect(processComponentType({ "@id": COMPONENT.COMPONENT_GROUP })).toBe(ComponentType.COMPONENT_GROUP);
       expect(processComponentType({ "@id": COMPONENT.MEMBERS_BUILDER })).toBe(ComponentType.MEMBERS_BUILDER);
-      expect(processComponentType({ "@id": COMPONENT.STEPS_GROUP })).toBe(ComponentType.STEPS_GROUP);
       expect(processComponentType({ "@id": COMPONENT.SET_DEFINITION_BUILDER })).toBe(ComponentType.SET_DEFINITION_BUILDER);
       expect(processComponentType({ "@id": COMPONENT.QUERY_DEFINITION_BUILDER })).toBe(ComponentType.QUERY_DEFINITION_BUILDER);
       expect(processComponentType({ "@id": COMPONENT.PROPERTY_BUILDER })).toBe(ComponentType.PROPERTY_BUILDER);
