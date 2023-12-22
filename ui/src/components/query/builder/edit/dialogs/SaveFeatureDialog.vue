@@ -88,7 +88,7 @@ const { defineComponentBinds, handleSubmit, resetForm, errors, setFieldValue } =
   validationSchema: schema
 });
 
-const fullIri: ComputedRef<string> = computed(() => `${scheme.value.modelValue ?? ""}${iri.value.modelValue ?? ""}`);
+const fullIri: ComputedRef<string> = computed(() => scheme.value.modelValue ?? "" + iri.value.modelValue ?? "");
 
 const scheme = defineComponentBinds("scheme");
 const iri = defineComponentBinds("iri");
@@ -99,23 +99,15 @@ const showSaveFeatureDialog = ref(false);
 const loading = ref(false);
 const definition = ref("");
 
-watch(
-  () => showSaveFeatureDialog.value,
-  async newValue => {
-    if (newValue === true) await init();
-  }
-);
+watch(showSaveFeatureDialog, async newValue => {
+  if (newValue) await init();
+  else emit("update:showDialog", newValue);
+});
 
 watch(
   () => name.value,
   () => onNameGenIri()
 );
-
-watch(showSaveFeatureDialog, newValue => {
-  if (!newValue) {
-    emit("update:showDialog", newValue);
-  }
-});
 
 watch(
   () => props.showDialog,
@@ -145,7 +137,7 @@ async function getSchemeOptions(): Promise<TTIriRef[]> {
 }
 
 function onNameGenIri() {
-  if (name.value && name.value.modelValue) {
+  if (name.value?.modelValue) {
     const nameValue: string = name.value.modelValue;
     setFieldValue("iri", nameValue.replaceAll(" ", ""));
   }
