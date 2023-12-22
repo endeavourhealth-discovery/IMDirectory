@@ -88,7 +88,7 @@ const { defineComponentBinds, handleSubmit, resetForm, errors, setFieldValue } =
   validationSchema: schema
 });
 
-const fullIri: ComputedRef<string> = computed(() => scheme.value.modelValue ?? "" + iri.value.modelValue ?? "");
+const fullIri: ComputedRef<string> = computed(() => `${scheme.value.modelValue ?? ""}${iri.value.modelValue ?? ""}`);
 
 const scheme = defineComponentBinds("scheme");
 const iri = defineComponentBinds("iri");
