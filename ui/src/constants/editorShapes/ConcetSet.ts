@@ -1,8 +1,8 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, FUNCTION, VALIDATION, QUERY } from "@im-library/vocabulary";
 
 const ConceptSetShape: FormGenerator = {
-  "@id": IM.editor.CONCEPT_SET_SHAPE,
+  "@id": EDITOR.CONCEPT_SET_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -23,7 +23,7 @@ const ConceptSetShape: FormGenerator = {
       },
       maxCount: 1,
       componentType: {
-        "@id": IM.component.HORIZONTAL_LAYOUT
+        "@id": COMPONENT.HORIZONTAL_LAYOUT
       },
       argument: [
         {
@@ -42,14 +42,14 @@ const ConceptSetShape: FormGenerator = {
           order: 1,
           maxCount: 1,
           componentType: {
-            "@id": IM.component.VERTICAL_LAYOUT
+            "@id": COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
               comment: "A property that auto generates the type as  concept type",
               order: 1,
               function: {
-                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -69,7 +69,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.ENTITY_COMBOBOX
+                "@id": COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -83,13 +83,13 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.IRI_BUILDER
+                "@id": COMPONENT.IRI_BUILDER
               },
               argument: [{ parameter: "prefix", valueData: "CSET_" }],
               function: {
-                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+                "@id": FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
-              validation: { "@id": IM.validation.IS_IRI }
+              validation: { "@id": VALIDATION.IS_IRI }
             },
             {
               comment: "name or main term of concept",
@@ -102,7 +102,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_INPUT
+                "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
                 "@id": XSD.STRING
@@ -116,7 +116,7 @@ const ConceptSetShape: FormGenerator = {
               maxCount: 1,
               path: { "@id": IM.PREFERRED_NAME },
               minCount: 0,
-              componentType: { "@id": IM.component.TEXT_INPUT }
+              componentType: { "@id": COMPONENT.TEXT_INPUT }
             },
             {
               comment: "optional description",
@@ -132,15 +132,15 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": IM.component.HTML_INPUT
+                "@id": COMPONENT.HTML_INPUT
               }
             },
             {
               name: "Status",
               order: 6,
               path: { "@id": IM.HAS_STATUS },
-              componentType: { "@id": IM.component.ARRAY_BUILDER },
-              validation: { "@id": IM.validation.IS_STATUS },
+              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              validation: { "@id": VALIDATION.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
@@ -149,7 +149,7 @@ const ConceptSetShape: FormGenerator = {
                   order: 6,
                   select: [
                     {
-                      "@id": IM.query.GET_DESCENDANTS
+                      "@id": QUERY.GET_DESCENDANTS
                     }
                   ],
                   name: "Status",
@@ -172,7 +172,7 @@ const ConceptSetShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": IM.component.ENTITY_DROPDOWN
+                    "@id": COMPONENT.ENTITY_DROPDOWN
                   },
                   forceIsValue: true
                 }
@@ -185,11 +185,11 @@ const ConceptSetShape: FormGenerator = {
               order: 7,
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
-                "@id": IM.validation.HAS_PARENT
+                "@id": VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubsetOf' or 'isContainedIn'.",
               path: {
@@ -204,14 +204,14 @@ const ConceptSetShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   },
                   path: {
                     "@id": IM.IS_SUBSET_OF
                   },
                   select: [
                     {
-                      "@id": IM.query.SEARCH_SUBCLASS
+                      "@id": QUERY.SEARCH_SUBCLASS
                     }
                   ],
                   argument: [
@@ -232,11 +232,11 @@ const ConceptSetShape: FormGenerator = {
               order: 8,
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
-                "@id": IM.validation.HAS_PARENT
+                "@id": VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'subsetOf' or 'isContainedIn'.",
               path: {
@@ -250,11 +250,11 @@ const ConceptSetShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   },
                   select: [
                     {
-                      "@id": IM.query.SEARCH_ALLOWABLE_CONTAINED_IN
+                      "@id": QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
                     }
                   ],
                   argument: [
@@ -280,10 +280,10 @@ const ConceptSetShape: FormGenerator = {
           order: 2,
           minCount: 1,
           componentType: {
-            "@id": IM.component.SET_DEFINITION_BUILDER
+            "@id": COMPONENT.SET_DEFINITION_BUILDER
           },
           validation: {
-            "@id": IM.validation.IS_DEFINITION
+            "@id": VALIDATION.IS_DEFINITION
           },
           validationErrorMessage: "Set definition is not valid",
           path: {

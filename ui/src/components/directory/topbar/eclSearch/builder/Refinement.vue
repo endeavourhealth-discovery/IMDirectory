@@ -46,7 +46,7 @@
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import { EntityService, FunctionService } from "@/services";
 import { useDialog } from "primevue/usedialog";
-import { IM, RDF, SNOMED } from "@im-library/vocabulary";
+import { IM, RDF, SNOMED, FUNCTION } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
@@ -130,8 +130,8 @@ const isValidProperty = ref(false);
 const isValidPropertyValue = ref(false);
 const showPropertyDialog = ref(false);
 const showValueDialog = ref(false);
-const propertyFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM.function.ALLOWABLE_PROPERTIES, arguments: [] });
-const valueFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM.function.ALLOWABLE_RANGES, arguments: [] });
+const propertyFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: FUNCTION.ALLOWABLE_PROPERTIES, arguments: [] });
+const valueFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: FUNCTION.ALLOWABLE_RANGES, arguments: [] });
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const valueTreeRoots: Ref<string[]> = ref([]);
 
@@ -273,7 +273,7 @@ async function updateIsValidProperty(): Promise<void> {
   if (props.focus?.iri === "any" || props.focus?.iri === "*") isValidProperty.value = true;
   else if (props.focus && hasProperty.value) {
     const request = {
-      functionIri: IM.function.ALLOWABLE_PROPERTIES,
+      functionIri: FUNCTION.ALLOWABLE_PROPERTIES,
       arguments: [
         { parameter: "focus", valueObject: props.focus },
         { parameter: "searchIri", valueData: props.value.property.concept.iri }
@@ -286,7 +286,7 @@ async function updateIsValidProperty(): Promise<void> {
 async function updateIsValidPropertyValue(): Promise<void> {
   if (hasValue.value && hasProperty.value) {
     const request = {
-      functionIri: IM.function.ALLOWABLE_RANGES,
+      functionIri: FUNCTION.ALLOWABLE_RANGES,
       arguments: [
         { parameter: "property", valueObject: props.value.property.concept },
         { parameter: "searchIri", valueData: props.value.value.concept.iri }

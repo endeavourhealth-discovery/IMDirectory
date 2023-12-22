@@ -63,7 +63,7 @@
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM } from "@im-library/vocabulary";
+import { IM, GRAPH } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
 interface Props {
@@ -209,10 +209,10 @@ function setDefaults(): void {
 }
 
 function setLegacy(include: boolean): void {
-  const emisScheme = selectedSchemes.value.findIndex(scheme => scheme["@id"] === IM.GRAPH_EMIS);
+  const emisScheme = selectedSchemes.value.findIndex(scheme => scheme["@id"] === GRAPH.EMIS);
   if (include) {
     if (emisScheme === -1) {
-      const found = filterOptions.value?.schemes.find(scheme => scheme["@id"] === IM.GRAPH_EMIS);
+      const found = filterOptions.value?.schemes.find(scheme => scheme["@id"] === GRAPH.EMIS);
       if (found) selectedSchemes.value.push(found);
     }
   } else {

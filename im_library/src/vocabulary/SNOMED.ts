@@ -1,4 +1,6 @@
 export class SNOMED {
-  public static NAMESPACE = "http://snomed.info/sct#";
-  public static ATTRIBUTE = SNOMED.NAMESPACE + "246061005";
+	public static readonly DOMAIN = "http://snomed.info/";
+	public static readonly NAMESPACE = SNOMED.DOMAIN + "sct#";
+	public static readonly PREFIX = "sn";
+	public static readonly ATTRIBUTE = SNOMED.DOMAIN + "246061005";
 }

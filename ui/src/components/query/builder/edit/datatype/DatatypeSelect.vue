@@ -1,5 +1,5 @@
 <template>
-  <div v-if="datatype === XMLS.NAMESPACE + 'string'" class="property-input-container">
+  <div v-if="datatype === GRAPH.XMLS + 'string'" class="property-input-container">
     <Dropdown
       :options="[
         { id: 'is', name: 'is' },
@@ -15,14 +15,14 @@
     <InputText v-if="['is', 'startsWith', 'contains'].includes(propertyType)" type="text" v-model:model-value="property.value" />
   </div>
   <Dropdown
-    v-else-if="datatype === XMLS.NAMESPACE + 'boolean'"
+    v-else-if="datatype === GRAPH.XMLS + 'boolean'"
     :options="booleanOptions"
     option-label="name"
     option-value="value"
     v-model:model-value="property.value"
   />
   <div
-    v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer' || datatype === XMLS.NAMESPACE + 'number'"
+    v-else-if="datatype === GRAPH.XMLS + 'long' || datatype === GRAPH.XMLS + 'integer' || datatype === GRAPH.XMLS + 'number'"
     class="property-input-container"
   >
     <Dropdown
@@ -55,8 +55,8 @@ import Dropdown from "primevue/dropdown";
 import { Ref, onMounted, ref, watch } from "vue";
 import ComparisonSelect from "./ComparisonSelect.vue";
 import RangeSelect from "./RangeSelect.vue";
-import { IM, XMLS } from "@im-library/vocabulary";
-import { Assignable, Range, Property } from "@im-library/interfaces/AutoGen";
+import { IM, GRAPH } from "@im-library/vocabulary";
+import { Assignable, Range, Property, Operator } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DateSelect from "./DateSelect.vue";
 interface Props {
@@ -79,16 +79,21 @@ watch(
       props.property.isNull = undefined;
       props.property.isNotNull = undefined;
       props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
-    } else if (propertyType.value === "startsWith" || propertyType.value === "contains") {
+    } else if (propertyType.value === "startsWith") {
       delete props.property.range;
       props.property.isNull = undefined;
       props.property.isNotNull = undefined;
-      props.property.operator = propertyType.value;
+      props.property.operator = Operator.start;
+    } else if (propertyType.value === "contains") {
+      delete props.property.range;
+      props.property.isNull = undefined;
+      props.property.isNotNull = undefined;
+      props.property.operator = Operator.contains;
     } else if (propertyType.value === "is") {
       delete props.property.range;
       props.property.isNull = undefined;
       props.property.isNotNull = undefined;
-      props.property.operator = "=";
+      props.property.operator = Operator.eq;
     } else if (propertyType.value === "notNull") {
       delete props.property.range;
       props.property.operator = undefined;
