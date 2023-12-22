@@ -72,7 +72,7 @@ const schema = yup.object({
     .string()
     .required()
     .label("Scheme")
-    .default(IM.NAMESPACE + "M_"),
+    .default(IM.NAMESPACE + "M_"), // TODO: add to IM vocab
   iri: yup
     .string()
     .required()
@@ -133,7 +133,7 @@ async function isValidIri() {
 }
 
 async function getSchemeOptions(): Promise<TTIriRef[]> {
-  return await FunctionService.runFunction(IM.function.GET_USER_EDITABLE_SCHEMES);
+  return await FunctionService.runFunction(IM.NAMESPACE + "Function_GetUserEditableSchemes"); // TODO: add to IM FUNCTION vocab
 }
 
 function onNameGenIri() {
@@ -154,7 +154,7 @@ const onSubmit = handleSubmit(async () => {
   try {
     await FilerService.fileEntity(setEntity, IM.NAMESPACE, IM.ADD_QUADS);
     const createdEntity = await EntityService.getFullEntity(setEntity["@id"]);
-    if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
+    if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.HAS_SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
       toast.add({ severity: "success", summary: "Created", detail: "Created " + createdEntity[RDFS.LABEL], life: 3000 });
   } catch (e: any) {
     loading.value = false;
@@ -182,8 +182,8 @@ function buildSetEntity() {
   setEntity[RDFS.LABEL] = name.value.modelValue;
   setEntity[RDF.TYPE] = [{ "@id": IM.FEATURE }];
   setEntity[IM.HAS_STATUS] = [{ "@id": IM.DRAFT }];
-  setEntity[IM.SCHEME] = [{ "@id": scheme.value.modelValue }];
-  setEntity[IM.IS_CONTAINED_IN] = [{ "@id": IM.FOLDER_COMMON_FEATURE_DEFINITIONS }];
+  setEntity[IM.HAS_SCHEME] = [{ "@id": scheme.value.modelValue }];
+  setEntity[IM.IS_CONTAINED_IN] = [{ "@id": IM.NAMESPACE + "M_CommonClauses" }]; // TODO: add to IM vocab
   setEntity[IM.DEFINITION] = definition.value;
   return setEntity;
 }
