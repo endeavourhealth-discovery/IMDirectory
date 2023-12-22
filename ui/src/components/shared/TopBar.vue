@@ -37,9 +37,7 @@
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
       />
-      <Menu ref="adminMenu" :model="getAdminItems()" :popup="true">
-        <template #item="{ item }: any"> </template>
-      </Menu>
+      <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
         :icon="fontAwesomePro ? 'fa-regular fa-grid-2' : 'pi pi-th-large'"
