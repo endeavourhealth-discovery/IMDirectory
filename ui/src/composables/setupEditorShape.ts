@@ -17,7 +17,6 @@ export function setupEditorShape() {
   let shape: Ref<FormGenerator | undefined> = ref();
   let targetShape: Ref<TTIriRef | undefined> = ref();
   let groups: Ref<PropertyShape[]> = ref([]);
-  let stepsItems: Ref<{ label: string; to: string }[]> = ref([]);
 
   function getShapesCombined(types: TTIriRef[], primaryType?: TTIriRef) {
     let shapeCombined: FormGenerator = {} as FormGenerator;
@@ -74,40 +73,6 @@ export function setupEditorShape() {
       }
       targetShape.value = shape.targetShape;
       groups.value = shape.property;
-      // if (mode === EditorMode.EDIT) setEditorSteps();
-      // if (mode === EditorMode.CREATE) setCreatorSteps();
-    }
-  }
-
-  function setEditorSteps() {
-    stepsItems.value = [];
-    const editorRoute = router.options.routes.find(r => r.name === "Editor");
-    const currentPath = removeUrlSubroute(route.fullPath);
-    if (editorRoute) {
-      groups.value.forEach(group => {
-        const component = processComponentType(group.componentType);
-        if (editorRoute.children?.findIndex(route => route.name === group.name) === -1) {
-          editorRoute.children?.push({ path: group.name as string, name: group.name, component: component });
-        }
-        stepsItems.value.push({ label: group.name as string, to: currentPath + "/" + group.name });
-      });
-      router.addRoute(editorRoute);
-    }
-  }
-
-  function setCreatorSteps() {
-    stepsItems.value = [];
-    stepsItems.value.push({ label: "Type", to: "/creator/type" });
-    const creatorRoute = router.options.routes.find(r => r.name === "Creator");
-    if (creatorRoute) {
-      groups.value.forEach(group => {
-        const component = processComponentType(group.componentType);
-        if (creatorRoute.children?.findIndex(route => route.name === group.name) === -1) {
-          creatorRoute.children?.push({ path: group.name as string, name: group.name, component: component });
-        }
-        stepsItems.value.push({ label: group.name as string, to: "/creator/" + group.name });
-      });
-      router.addRoute(creatorRoute);
     }
   }
 
@@ -124,9 +89,6 @@ export function setupEditorShape() {
     addToShape,
     getShape,
     getShapesCombined,
-    stepsItems,
-    processShape,
-    setEditorSteps,
-    setCreatorSteps
+    processShape
   };
 }

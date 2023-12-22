@@ -100,6 +100,7 @@ import TreeSelect from "primevue/treeselect";
 import Inplace from "primevue/inplace";
 import TieredMenu from "primevue/tieredmenu";
 import TabMenu from "primevue/tabmenu";
+import Ripple from "primevue/ripple";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -129,6 +130,7 @@ const app = createApp(App)
   })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
+  .directive("ripple", Ripple)
   .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
   .component("Card", Card)
   .component("ProgressSpinner", ProgressSpinner)

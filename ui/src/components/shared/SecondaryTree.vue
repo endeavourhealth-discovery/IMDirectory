@@ -111,7 +111,7 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 
 interface Props {
   entityIri: string;

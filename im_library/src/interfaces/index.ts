@@ -1,4 +1,3 @@
-import { AccountItem } from "./AccountItem";
 import { Address } from "./Address";
 import { ChartMapNode } from "./ChartMapNode";
 import { ChartOptions } from "./ChartOptions";
@@ -17,7 +16,6 @@ import { FiltersAsIris } from "./FiltersAsIris";
 import GraphData from "./GraphData";
 import { HistoryItem } from "./HistoryItem";
 import { IriCount } from "./IriCount";
-import { LoginItem } from "./LoginItem";
 import { MapItem } from "./MapItem";
 import { MatchPattern } from "./MatchPattern";
 import { Namespace } from "./Namespace";
@@ -58,7 +56,6 @@ import { BugReport } from "./BugReport";
 import { QueryResponse } from "./QueryResponse";
 
 export {
-  type AccountItem,
   type Address,
   type ChartMapNode,
   type ChartOptions,
@@ -77,7 +74,6 @@ export {
   type GraphData,
   type HistoryItem,
   type IriCount,
-  type LoginItem,
   type MapItem,
   type MatchPattern,
   type Namespace,

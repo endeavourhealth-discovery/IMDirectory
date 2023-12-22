@@ -133,7 +133,7 @@ const {
   deleteEntityKey,
   checkForChanges
 } = setupEditorEntity(EditorMode.EDIT, updateType);
-const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const { shape, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
 const {
   editorValidity,
   updateValidity,

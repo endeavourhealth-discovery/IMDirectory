@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
