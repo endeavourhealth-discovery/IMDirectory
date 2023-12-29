@@ -16,7 +16,11 @@
       :parent-match="match"
       :full-query="fullQuery"
     />
-    <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
+    <span v-if="match.orderBy"> <div v-html="match.orderBy.description"></div></span>
+    <span v-if="match.then" class="feature">
+      {{ match.then.exclude ? "then" : "then include if" }}
+      <RecursiveQueryDisplay :match="match.then" :parent-match="match" :full-query="fullQuery" />
+    </span>
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
 

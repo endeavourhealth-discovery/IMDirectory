@@ -14,7 +14,9 @@
     :lazy="true"
   >
     <Column field="member" header="Name">
-      <template #body="{ data }: any"><IMViewerLink :iri="data['@id']" :label="data.name" @navigateTo="(iri:string) => emit('navigateTo', iri)"  /></template>
+      <template #body="{ data }: any">
+        <IMViewerLink :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+      </template>
     </Column>
   </DataTable>
 </template>
@@ -34,11 +36,8 @@ const subsets: Ref<{ "@id": string; name: string }[]> = ref([]);
 
 const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
 
-
 onMounted(async () => {
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.HAS_SUBSET]);
   if (entity[IM.HAS_SUBSET]) subsets.value = entity[IM.HAS_SUBSET].filter((subset: any) => subset["@id"] !== props.entityIri);
 });
 </script>
-
-<style scoped></style>

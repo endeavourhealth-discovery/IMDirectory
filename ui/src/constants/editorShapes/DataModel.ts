@@ -1,8 +1,8 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, SHACL, XSD } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL, XSD, EDITOR, COMPONENT, FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
 
 const DataModelShape: FormGenerator = {
-  "@id": IM.editor.DATA_MODEL_SHAPE,
+  "@id": EDITOR.DATA_MODEL_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -21,15 +21,14 @@ const DataModelShape: FormGenerator = {
       path: {
         "@id": RDF.PROPERTY
       },
-      minCount: 1,
       maxCount: 1,
       componentType: {
-        "@id": IM.component.HORIZONTAL_LAYOUT
+        "@id": COMPONENT.HORIZONTAL_LAYOUT
       },
       argument: [
         {
           parameter: "subGroup widths",
-          valueData: "50%,50%"
+          valueData: "40%,60%"
         }
       ],
       property: [
@@ -41,17 +40,16 @@ const DataModelShape: FormGenerator = {
             "@id": RDF.PROPERTY
           },
           order: 1,
-          minCount: 1,
           maxCount: 1,
           componentType: {
-            "@id": IM.component.VERTICAL_LAYOUT
+            "@id": COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
               comment: "A property that auto generates the type as data model type",
               order: 1,
               function: {
-                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -71,7 +69,7 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.ENTITY_COMBOBOX
+                "@id": COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -85,12 +83,13 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_DISPLAY
+                "@id": COMPONENT.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.SNOMED_CONCEPT_GENERATOR
-              }
+                "@id": FUNCTION.GET_USER_EDITABLE_SCHEMES
+              },
+              validation: { "@id": VALIDATION.IS_IRI }
             },
             {
               comment: "Property that derives a concept code from the concept iri",
@@ -113,13 +112,13 @@ const DataModelShape: FormGenerator = {
               ],
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_DISPLAY
+                "@id": COMPONENT.TEXT_DISPLAY
               },
               datatype: {
                 "@id": XSD.STRING
               },
               function: {
-                "@id": IM.function.LOCAL_NAME_RETRIEVER
+                "@id": FUNCTION.LOCAL_NAME_RETRIEVER
               }
             },
             {
@@ -133,15 +132,25 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_INPUT
+                "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
                 "@id": XSD.STRING
               }
             },
             {
-              comment: "optional description",
+              comment: "optional peferred name for efficiency during searching",
               order: 5,
+              name: "Preferred name",
+              showTitle: true,
+              maxCount: 1,
+              path: { "@id": IM.PREFERRED_NAME },
+              minCount: 0,
+              componentType: { "@id": COMPONENT.TEXT_INPUT }
+            },
+            {
+              comment: "optional description",
+              order: 6,
               datatype: {
                 "@id": XSD.STRING
               },
@@ -153,59 +162,66 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": IM.component.HTML_INPUT
+                "@id": COMPONENT.HTML_INPUT
               }
             },
             {
-              comment: "selects the status with a default of draft",
-              order: 6,
-              select: [
-                {
-                  "@id": IM.query.GET_ISAS
-                }
-              ],
               name: "Status",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.HAS_STATUS
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
+              order: 7,
+              path: { "@id": IM.HAS_STATUS },
+              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              validation: { "@id": VALIDATION.IS_STATUS },
               minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
-              },
-              forceIsValue: true
+              arrayButtons: { up: false, down: false, plus: false, minus: false },
+              property: [
+                {
+                  comment: "selects the status with a default of draft",
+                  order: 6,
+                  select: [
+                    {
+                      "@id": QUERY.GET_DESCENDANTS
+                    }
+                  ],
+                  name: "Status",
+                  showTitle: true,
+                  builderChild: true,
+                  maxCount: 1,
+                  path: {
+                    "@id": IM.HAS_STATUS
+                  },
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.STATUS
+                      },
+                      parameter: "this"
+                    }
+                  ],
+                  isIri: {
+                    "@id": IM.DRAFT
+                  },
+                  minCount: 1,
+                  componentType: {
+                    "@id": COMPONENT.ENTITY_DROPDOWN
+                  },
+                  forceIsValue: true
+                }
+              ]
             },
             {
               label: "Property group - Sub type array builder",
-              order: 1,
+              order: 8,
               path: {
                 "@id": RDFS.SUBCLASS_OF
               },
               validation: {
-                "@id": IM.validation.HAS_PARENT
+                "@id": VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf'.",
               property: [
                 {
                   comment: "selects an entity based on select query",
                   order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
-                    }
-                  ],
                   builderChild: true,
                   name: "Entity",
                   path: {
@@ -213,20 +229,34 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
-                  }
+                    "@id": COMPONENT.ENTITY_SEARCH
+                  },
+                  select: [
+                    {
+                      "@id": QUERY.SEARCH_SUBCLASS
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": SHACL.NODESHAPE
+                      },
+                      parameter: "value"
+                    }
+                  ]
                 }
               ],
               name: "Subclass of",
               showTitle: true,
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
-              }
+                "@id": COMPONENT.ARRAY_BUILDER
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             },
             {
               label: "Property group - Is contained in array builder",
-              order: 1,
+              order: 9,
               path: {
                 "@id": IM.IS_CONTAINED_IN
               },
@@ -236,15 +266,15 @@ const DataModelShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_ENTITIES
+                      "@id": QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
                     }
                   ],
                   argument: [
                     {
-                      parameter: "this",
                       valueIri: {
-                        "@id": IM.FOLDER
-                      }
+                        "@id": SHACL.NODESHAPE
+                      },
+                      parameter: "value"
                     }
                   ],
                   builderChild: true,
@@ -254,91 +284,51 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ],
-              name: "Is contained in",
+              name: "Contained in",
               showTitle: true,
               minCount: 0,
               validation: {
-                "@id": IM.validation.HAS_PARENT
+                "@id": VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
-              }
-            },
-            {
-              comment: "Toggle controlling sub components visibility",
-              order: 7,
-              name: "Replaced by",
-              label: "Deactivate | Activate",
-              minCount: 1,
-              maxCount: 1,
-              path: {
-                "@id": "http://snomed.info/sct#370124000"
+                "@id": COMPONENT.ARRAY_BUILDER
               },
-              componentType: {
-                "@id": IM.component.TOGGLEABLE
-              },
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_ENTITIES
-                    }
-                  ],
-                  argument: [
-                    {
-                      parameter: "this",
-                      valueIri: {
-                        "@id": SHACL.NODESHAPE
-                      }
-                    }
-                  ],
-                  name: "Replaced by",
-                  showTitle: true,
-                  path: {
-                    "@id": "http://snomed.info/sct#370124000"
-                  },
-                  minCount: 1,
-                  componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
-                  }
-                }
-              ]
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             }
           ]
         },
         {
-          label: "Property group - Property array builder",
+          name: "Properties",
+          showTitle: true,
+          comment: "Role group | Mapped to splitter",
+          path: { "@id": IM.CONCEPT },
           order: 1,
-          path: {
-            "@id": SHACL.PROPERTY
-          },
+          minCount: 1,
+          maxCount: 1,
+          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
           property: [
             {
-              comment: "builds a property",
+              label: "Property group - Property array builder",
               order: 1,
-              builderChild: true,
               path: {
                 "@id": SHACL.PROPERTY
               },
               name: "Property",
+              minCount: 1,
               componentType: {
-                "@id": IM.component.PROPERTY_BUILDER
-              }
+                "@id": COMPONENT.PROPERTY_BUILDER
+              },
+              validation: {
+                "@id": VALIDATION.IS_PROPERTY
+              },
+              validationErrorMessage: "Invalid data model properties"
             }
-          ],
-          name: "Property",
-          showTitle: true,
-          minCount: 0,
-          componentType: {
-            "@id": IM.component.ARRAY_BUILDER
-          }
+          ]
         }
       ]
     }

@@ -9,7 +9,7 @@
               <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
             </span>
             <ProgressSpinner v-if="node.loading" />
-            <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+            <span @mouseover="displayOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
           </div>
         </template>
       </Tree>
@@ -19,28 +19,30 @@
 </template>
 
 <script async setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { ComputedRef, computed, onMounted, onUnmounted, ref } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
 import setupQueryTree from "@/composables/setupQueryTree";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
+import { isFolder, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match, Property } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
+import { useQueryStore } from "@/stores/queryStore";
 
 interface Props {
-  baseType: string;
   editMatch: Match;
-  variableMap: Map<string, any>;
-  addMode: "editProperty" | "addBefore" | "addAfter";
+  showVariableOptions: boolean;
+  dmIri: string;
 }
 const props = defineProps<Props>();
+const queryStore = useQueryStore();
+const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 
 const emit = defineEmits({
   onSelectedUpdate: (_payload: TreeNode[]) => true
@@ -48,12 +50,12 @@ const emit = defineEmits({
 
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
-const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, unselect, selectedNodes } = setupQueryTree();
+const { removeOverlay, OS, displayOverlay, hideOverlay, createTreeNode, select, unselect, selectedNodes } = setupQueryTree();
 
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  if (props.addMode === "editProperty") await populateCheckBoxes(props.editMatch);
+  if (isArrayHasLength(props.editMatch.property)) await populateCheckBoxes(props.editMatch);
   loading.value = false;
 });
 
@@ -81,7 +83,17 @@ async function selectByIri(property: Property, iri: string, nodes: TreeNode[]) {
     found.property = property;
     select(found);
   } else {
-    found = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
+    found = nodes.find(node =>
+      node.children!.some(grandChild => {
+        if (grandChild.data === iri) return true;
+        else
+          return (
+            isFolder(grandChild.conceptTypes) &&
+            isArrayHasLength(grandChild.children) &&
+            grandChild.children!.some(grandGrandChild => grandGrandChild.data === iri)
+          );
+      })
+    );
     if (found) {
       expandedKeys.value[found.key!] = true;
       if (isArrayHasLength(found.children)) {
@@ -192,13 +204,13 @@ async function onClassExpand(node: TreeNode) {
 }
 
 async function addParentFoldersToRoot() {
-  const resolvedIri = resolveIri(props.baseType);
+  const resolvedIri = resolveIri(props.dmIri);
   if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
-  if (props.addMode !== "editProperty" && props.variableMap && props.variableMap.size) addVariableNodes();
+  if (props.showVariableOptions && variableMap.value && variableMap.value.size) addVariableNodes();
 }
 
 function addVariableNodes() {
-  for (const [key, object] of props.variableMap.entries()) {
+  for (const [key, object] of variableMap.value.entries()) {
     const types: string[] = [];
     getVariableTypesFromMatch(object, types);
     for (const typeIri of types) {
@@ -210,7 +222,8 @@ function addVariableNodes() {
 }
 
 function getVariableTypesFromMatch(match: Match, types: string[]) {
-  const type = resolveIri(match["@type"] || "");
+  const type = isObjectHasKeys(match.typeOf, ["@id"]) ? resolveIri(match.typeOf!["@id"]!) : resolveIri("");
+
   if (type && !types.includes(type)) types.push(type);
   if (isArrayHasLength(match.match))
     for (const nestedMatch of match.match!) {
@@ -222,8 +235,8 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
       getVariableTypesFromProperty(property, types);
     }
 
-  if (match.nodeRef && props.variableMap.has(match.nodeRef)) {
-    const nodeRefMatch = props.variableMap.get(match.nodeRef);
+  if (match.nodeRef && variableMap.value.has(match.nodeRef)) {
+    const nodeRefMatch = variableMap.value.get(match.nodeRef);
     getVariableTypesFromMatch(nodeRefMatch, types);
   }
 }

@@ -9,12 +9,6 @@
       </template>
     </TopBar>
     <ConfirmDialog></ConfirmDialog>
-    <TestQueryResults
-      v-if="showTestQueryResults"
-      :showDialog="showTestQueryResults"
-      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
-      @close-dialog="showTestQueryResults = false"
-    />
     <div id="editor-main-container">
       <div class="content-buttons-container">
         <div class="content-sidebar-container">
@@ -38,11 +32,14 @@
             data-testid="show-sidebar-button"
           />
         </div>
-        <div class="button-bar" id="editor-button-bar">
-          <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="router.go(-1)" data-testid="cancel-button" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
-          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshEditor" data-testid="refresh-button" />
-          <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
+        <div id="editor-footer-bar">
+          <div class="required-container">
+            <span class="required-info">(*) item is required.</span>
+          </div>
+          <div class="button-bar" id="editor-button-bar">
+            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
+            <Button icon="fa-solid fa-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
+          </div>
         </div>
       </div>
     </div>
@@ -62,7 +59,6 @@ import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
@@ -85,7 +81,6 @@ export default defineComponent({
     ToggleableComponent,
     QueryDefinitionBuilder,
     ComponentGroup,
-    ArrayBuilderWithDropdown,
     DropdownTextInputConcatenator
   }
 });
@@ -94,7 +89,6 @@ export default defineComponent({
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, Ref, watch, nextTick } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
-import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRouter, useRoute } from "vue-router";
@@ -139,7 +133,7 @@ const {
   deleteEntityKey,
   checkForChanges
 } = setupEditorEntity(EditorMode.EDIT, updateType);
-const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const { shape, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -150,9 +144,10 @@ const {
   updateValidationCheckStatus,
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus,
-  validationChecksCompleted
+  validationChecksCompleted,
+  checkValidity
 } = setupValidity(shape.value);
-const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
+const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
 
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
@@ -167,12 +162,11 @@ function onShowSidebar() {
 
 const loading = ref(true);
 const showSidebar = ref(false);
-const showTestQueryResults: Ref<boolean> = ref(false);
 const forceValidation = ref(false);
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
-provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
-provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
+provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap, valueVariableHasChanged });
+provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
 provide(injectionKeys.forceValidation, {
   forceValidation,
   validationCheckStatus,
@@ -180,6 +174,7 @@ provide(injectionKeys.forceValidation, {
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus
 });
+provide(injectionKeys.fullShape, shape);
 
 onMounted(async () => {
   loading.value = true;
@@ -204,7 +199,6 @@ watch(
 );
 
 const directService = new DirectService();
-const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 function updateType(types: TTIriRef[]) {
   loading.value = true;
@@ -245,61 +239,73 @@ function submit(): void {
   forceValidation.value = true;
   validationChecksCompleted()
     .then(async res => {
-      forceValidation.value = false;
-      verificationDialog.close();
-      if (isValidEntity(editorEntity.value)) {
-        console.log("submit");
-        Swal.fire({
-          icon: "info",
-          title: "Confirm save",
-          text: "Are you sure you want to save your changes?",
-          showCancelButton: true,
-          confirmButtonText: "Save",
-          reverseButtons: true,
-          confirmButtonColor: "#2196F3",
-          cancelButtonColor: "#607D8B",
-          showLoaderOnConfirm: true,
-          allowOutsideClick: () => !Swal.isLoading(),
-          backdrop: true,
-          preConfirm: async () => {
-            const res = await EntityService.updateEntity(editorEntity.value);
-            if (res) {
-              editorStore.updateEditorSavedEntity(undefined);
-              return res;
-            } else Swal.showValidationMessage("Error saving entity to server.");
-          }
-        }).then(async (result: any) => {
-          if (result.isConfirmed) {
-            Swal.fire({
-              title: "Success",
-              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been updated.",
-              icon: "success",
-              showCancelButton: true,
-              reverseButtons: true,
-              confirmButtonText: "Open in Viewer",
-              confirmButtonColor: "#2196F3",
-              cancelButtonColor: "#607D8B"
-            }).then(async (result: any) => {
-              if (result.isConfirmed) {
-                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
-              } else {
-                await fetchEntity();
-              }
-            });
-          }
-        });
+      if (res) {
+        forceValidation.value = false;
+        verificationDialog.close();
+        if (isValidEntity(editorEntity.value)) {
+          Swal.fire({
+            icon: "info",
+            title: "Confirm save",
+            text: "Are you sure you want to save your changes?",
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            reverseButtons: true,
+            confirmButtonColor: "#2196F3",
+            cancelButtonColor: "#607D8B",
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading(),
+            backdrop: true,
+            preConfirm: async () => {
+              const res = await EntityService.updateEntity(editorEntity.value);
+              if (res) {
+                editorStore.updateEditorSavedEntity(undefined);
+                return res;
+              } else Swal.showValidationMessage("Error saving entity to server.");
+            }
+          }).then(async (result: any) => {
+            if (result.isConfirmed) {
+              Swal.fire({
+                title: "Success",
+                text: "Entity: " + editorEntity.value[IM.ID] + " has been updated.",
+                icon: "success",
+                showCancelButton: true,
+                reverseButtons: true,
+                confirmButtonText: "Open in Viewer",
+                confirmButtonColor: "#2196F3",
+                cancelButtonColor: "#607D8B"
+              }).then(async (result: any) => {
+                if (result.isConfirmed) {
+                  directService.view(editorEntity.value[IM.ID]);
+                } else {
+                  await fetchEntity();
+                }
+              });
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "Warning",
+            text: "Invalid values found. Please review your entries.",
+            confirmButtonText: "Close",
+            confirmButtonColor: "#689F38"
+          });
+        }
       } else {
-        console.log("invalid entity");
+        forceValidation.value = false;
+        verificationDialog.close();
         Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "Invalid values found. Please review your entries.",
+          icon: "error",
+          title: "Timeout",
+          text: "Validation timed out. Please contact an admin for support.",
           confirmButtonText: "Close",
           confirmButtonColor: "#689F38"
         });
       }
     })
     .catch(err => {
+      forceValidation.value = false;
+      verificationDialog.close();
       Swal.fire({
         icon: "error",
         title: "Timeout",
@@ -308,10 +314,6 @@ function submit(): void {
         confirmButtonColor: "#689F38"
       });
     });
-}
-
-function testQuery() {
-  if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
 }
 
 function refreshEditor() {
@@ -338,7 +340,40 @@ function processEntityValue(property: PropertyShape) {
   }
   return undefined;
 }
+
+function closeEditor() {
+  Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+    showCancelButton: true,
+    confirmButtonText: "Close",
+    reverseButtons: true,
+    confirmButtonColor: "#D32F2F",
+    cancelButtonColor: "#607D8B",
+    customClass: { confirmButton: "swal-reset-button" }
+  }).then((result: any) => {
+    if (result.isConfirmed) {
+      if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
+      else router.go(-1);
+    }
+  });
+}
 </script>
+
+<style>
+.p-dropdown-label {
+  font-size: 1rem;
+}
+
+.p-dropdown {
+  height: 2.7rem;
+}
+
+.p-inputtext {
+  font-size: 1rem;
+}
+</style>
 
 <style scoped>
 #topbar-editor-container {
@@ -390,10 +425,6 @@ function processEntityValue(property: PropertyShape) {
   align-items: center;
 }
 
-.p-steps {
-  width: 90%;
-}
-
 .sidebar-toggle {
   position: absolute;
   top: 5px;
@@ -409,21 +440,6 @@ function processEntityValue(property: PropertyShape) {
   align-items: center;
 }
 
-.steps-content {
-  flex: 1 1 auto;
-  width: 100%;
-  overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.p-steps {
-  width: 100%;
-  padding-top: 1rem;
-}
-
 .placeholder {
   height: 100%;
 }
@@ -437,10 +453,16 @@ function processEntityValue(property: PropertyShape) {
   flex: 0 1 auto;
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
-  width: 100%;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
+}
+
+#editor-footer-bar {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
 }
 
 .topbar-content {
@@ -452,11 +474,22 @@ function processEntityValue(property: PropertyShape) {
   align-items: center;
 }
 
+.required-container {
+  flex: 0 1 auto;
+  padding: 1rem;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.required-info {
+  color: var(--red-500);
+}
+
 .entity-name {
   margin-left: 0.5rem;
   font-size: 1.5rem;
   overflow: hidden;
-  height: 1.75rem;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 0 1 auto;

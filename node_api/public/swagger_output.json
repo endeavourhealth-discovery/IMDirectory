@@ -3,7 +3,7 @@
   "info": {
     "version": "1.0.0",
     "title": "FHIR Value set API",
-    "description": "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource"
+    "description": "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource<br><br>Definition file: <a href=\"./swagger.json\">swagger.json</a>"
   },
   "basePath": "/node_api/fhir/r4",
   "schemes": [
@@ -28,6 +28,9 @@
         "responses": {
           "200": {
             "description": "Valuset successfully obtained - https://hl7.org/fhir/valueset.html#resource"
+          },
+          "404": {
+            "description": "Valuset not specified or not found"
           }
         }
       }
@@ -47,21 +50,38 @@
         "responses": {
           "200": {
             "description": "Valuset successfully obtained and expanded - https://hl7.org/fhir/valueset.html#resource"
+          },
+          "404": {
+            "description": "Valuset not specified or not found"
           }
         }
       }
     },
     "/ValueSet/ECL": {
       "post": {
+        "summary": "Evaluates an ECL expression and returns the result as a FHIR r4 value set",
         "description": "",
+        "consumes": [
+          "text/plain"
+        ],
         "parameters": [
           {
-            "name": "url",
-            "in": "query",
-            "type": "string"
+            "name": "body",
+            "in": "body",
+            "description": "ECL expression",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "responses": {}
+        "responses": {
+          "200": {
+            "description": "ECL successfully evaluated, value set obtained and expanded - https://hl7.org/fhir/valueset.html#resource"
+          },
+          "404": {
+            "description": "ECL not specified or invalid"
+          }
+        }
       }
     }
   }

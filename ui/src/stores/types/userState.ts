@@ -11,4 +11,5 @@ export interface UserState {
   recentLocalActivity: RecentActivityItem[];
   snomedLicenseAccepted: boolean;
   uprnAgreementAccepted: boolean;
+  organisations: string[];
 }

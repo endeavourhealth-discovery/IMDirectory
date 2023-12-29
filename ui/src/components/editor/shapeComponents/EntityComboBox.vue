@@ -1,6 +1,9 @@
 <template>
   <div class="entity-combobox-container">
-    <label v-if="shape.showTitle" for="chip-group">{{ shape.name }}</label>
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
     <div class="multiselect-loading-container">
       <div id="chip-group" class="chip-group">
         <Chip v-if="fixedOption" :label="fixedOption.name" class="fixed-chip" />
@@ -21,13 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, Ref, watch, onMounted, inject, PropType, ComputedRef, computed } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { mapToObject } from "@im-library/helpers/Transforms";
-import { QueryService } from "@/services";
+import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
@@ -42,23 +45,54 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const emit = defineEmits({ updateClicked: (_payload: TTIriRef[]) => true });
+
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      }
       showValidation.value = true;
     }
   });
 }
+
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
+        }
+      }
+    }
+  );
+}
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const fixedOption: Ref<TTIriRef> = ref({} as TTIriRef);
@@ -99,7 +133,6 @@ function processPropsValue() {
     const foundFixedOption = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri!["@id"]);
     if (!foundFixedOption) {
       throw new Error("shape isIri value did not match any dropdown option");
-      return;
     } else {
       fixedOption.value = foundFixedOption;
       dropdownOptions.value = dropdownOptions.value.filter(o => o["@id"] != fixedOption.value["@id"]);
@@ -116,10 +149,16 @@ function combineSelectedAndFixed(selected: TTIriRef[], fixed: TTIriRef) {
 }
 
 async function updateAll(selected: TTIriRef[]) {
-  updateEntity(combineSelectedAndFixed(selected, fixedOption.value));
+  if (!selected && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  else if (!props.shape.builderChild) updateEntity(combineSelectedAndFixed(selected, fixedOption.value));
+  else emit("updateClicked", selected);
   updateValueVariableMap(combineSelectedAndFixed(selected, fixedOption.value));
   if (updateValidity) {
-    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    if (props.shape.builderChild) {
+      hasData();
+    } else {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    }
     showValidation.value = true;
   }
 }
@@ -141,9 +180,9 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape);
-    return QueryService.runFunction(props.shape.function!["@id"], args);
+    return FunctionService.runFunction(props.shape.function!["@id"], args);
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return QueryService.runFunction(props.shape.function!["@id"]);
+    return FunctionService.runFunction(props.shape.function!["@id"]);
   } else throw new Error("propertyshape is missing 'search' or 'function' parameter to fetch dropdown options");
 }
 
@@ -158,6 +197,16 @@ function updateValueVariableMap(data: TTIriRef[]) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
+}
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && selectedEntities.value.length === 0) return;
+  if (selectedEntities.value.length === 0) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Item required. ";
+  }
 }
 </script>
 
@@ -206,5 +255,15 @@ function updateValueVariableMap(data: TTIriRef[]) {
 
 .invalid {
   border: 1px solid var(--red-500);
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

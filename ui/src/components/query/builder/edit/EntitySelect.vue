@@ -1,6 +1,6 @@
 <template>
   <div class="property-input-container">
-    in
+    is
     <InputText type="text" @click="openDialog" placeholder="Value" v-model:model-value="selected.name" />
     <DirectorySearchDialog
       v-model:selected="selected"
@@ -27,7 +27,6 @@ import { cloneDeep } from "lodash";
 const emit = defineEmits({ onCancel: () => true, onSave: (_payload: ConceptSummary) => true, "update:selected": payload => true });
 
 interface Props {
-  queryTypeIri: string;
   editNode: Node;
   excludeEntailment?: boolean;
   rootEntities?: string[];
@@ -54,7 +53,7 @@ function openDialog() {
 
 function populateSelected() {
   if (isObjectHasKeys(props.editNode)) {
-    const iri = props.editNode["@id"] ?? props.editNode["@set"] ?? props.editNode["@type"];
+    const iri = props.editNode["@id"];
     const name = getNameFromRef(props.editNode);
     if (iri && name) selected.value = { iri: iri, name: name } as ConceptSummary;
   }
@@ -65,7 +64,6 @@ function populateSelected() {
 .property-input-container {
   display: flex;
   flex-wrap: wrap;
-  margin-left: 0.5rem;
   width: 100%;
   gap: 0.5rem;
   align-items: center;

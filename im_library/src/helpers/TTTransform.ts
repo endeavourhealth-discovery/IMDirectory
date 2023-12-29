@@ -1,5 +1,6 @@
 import { IM, SNOMED } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { TTIriRef } from "../interfaces/AutoGen";
 
 export function transformTT(ttEntity: any, map?: any) {
   if (!isObjectHasKeys(ttEntity)) return {};
@@ -45,15 +46,17 @@ function getNameFromIri(iri: string) {
   return iri;
 }
 
-export function getIriFromRef(ref: any): string {
-  return ref["@id"] ?? ref["@set"] ?? ref["@type"] ?? "";
+export function getNameListFromIriList(iris: TTIriRef[]): string {
+  const result: string[] = [];
+  for (const iri of iris) result.push(getNameFromIri(iri["@id"]));
+
+  return result.join(", ");
 }
 
 export function getNameFromRef(ref: any): string {
   if (isObjectHasKeys(ref, ["name"])) return ref.name;
   else if (isObjectHasKeys(ref, ["@id"])) return getNameFromIri(ref["@id"]);
-  else if (isObjectHasKeys(ref, ["@set"])) return getNameFromIri(ref["@set"]);
-  else if (isObjectHasKeys(ref, ["@type"])) return getNameFromIri(ref["@type"]);
+  else if (isObjectHasKeys(ref, ["typeOf"])) return getNameFromIri(ref["typeOf"]["@id"]);
   else if (isObjectHasKeys(ref, ["parameter"])) return ref["parameter"];
   return "";
 }
@@ -61,7 +64,7 @@ export function getNameFromRef(ref: any): string {
 export function resolveIri(iri: string) {
   if (!iri) return undefined;
   const prefixes: any = { im: IM.NAMESPACE, sn: SNOMED.NAMESPACE };
-  if (iri.includes("#")) {
+  if (iri.includes("#") || iri.includes("urn:uuid:")) {
     return iri;
   } else if (iri.includes(":")) {
     const splits = iri.split(":");
@@ -74,6 +77,5 @@ export function resolveIri(iri: string) {
 export default {
   transformTT,
   getNameFromRef,
-  resolveIri,
-  getIriFromRef
+  resolveIri
 };

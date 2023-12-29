@@ -31,8 +31,8 @@
             <a href="http://www.ihtsdo.org/members">www.ihtsdo.org/members</a>. Countries not included in that list are "Non-Member Territories".
           </li>
           <li>
-            End Users, that do not hold an IHTSDO Affiliate License, may access SNOMED CT® using <strong>Information Model</strong> subject to acceptance of and
-            adherence to the following sub-license limitations:
+            End Users, that do not hold an IHTSDO Affiliate License, may access SNOMED CT® using <strong>Information Model</strong> subject to acceptance of
+            and adherence to the following sub-license limitations:
             <ul>
               <li>
                 The sub-licensee is only permitted to access SNOMED CT® using this software (or service) for the purpose of exploring and evaluating the
@@ -70,14 +70,14 @@
       </div>
     </div>
     <template #footer>
-      <Button severity="warning" label="Decline" icon="pi pi-times" @click="submitDecline" data-testid="decline-button" />
-      <Button label="Agree" icon="pi pi-check" @click="submitAgree" data-testid="agree-button" />
+      <Button severity="warning" label="Decline" icon="fa-solid fa-xmark" @click="submitDecline" data-testid="decline-button" />
+      <Button label="Agree" icon="fa-solid fa-check" @click="submitAgree" data-testid="agree-button" />
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { useUserStore } from "@/stores/userStore";

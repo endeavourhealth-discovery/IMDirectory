@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="container" :style="{ width: size }" :id="id">
+  <div class="container" :style="{ width: size }" :id="id">
     <strong class="label" data-testid="label">{{ label }}: </strong>
     <span class="data-string" data-testid="data-string">
       {{ arrayToString ? arrayToString : "None" }}
@@ -14,10 +14,9 @@ import { SHACL } from "@im-library/vocabulary";
 
 interface Props {
   label: string;
-  data: string[];
+  data?: string[];
   size?: string;
   id?: string;
-  show: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -26,7 +25,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const arrayToString = computed(() => {
-  if (isArrayHasLength(props.data) && props.data.every(item => isObjectHasKeys(item, ["name"]))) {
+  if (props.data && isArrayHasLength(props.data) && props.data.every(item => isObjectHasKeys(item, ["name"]))) {
     return props.data
       .map(function (item: any) {
         if (item["@id"] === SHACL.NODESHAPE) return "Data model";

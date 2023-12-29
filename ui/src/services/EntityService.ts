@@ -13,7 +13,7 @@ import {
 import { TTIriRef, SearchRequest } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { OrganizationChartNode } from "primevue/organizationchart";
@@ -30,14 +30,19 @@ const EntityService = {
     });
   },
 
-  async getFullExportSet(iri: string, definition:boolean, core: boolean, legacy: boolean, includeSubsets: boolean,
-                         ownRow: boolean, im1id: boolean, format: string, schemes: string[]): Promise<any> {
-    const client = axios.create({
-      baseURL: api,
-      timeout: 0
-    });
-
-    return client.get("api/entity/public/setExport", {
+  async getFullExportSet(
+    iri: string,
+    definition: boolean,
+    core: boolean,
+    legacy: boolean,
+    includeSubsets: boolean,
+    ownRow: boolean,
+    im1id: boolean,
+    format: string,
+    schemes: string[],
+    raw?: boolean
+  ): Promise<any> {
+    return axios.get(api + "api/entity/public/setExport", {
       params: {
         iri: iri,
         definition: definition,
@@ -49,7 +54,8 @@ const EntityService = {
         format: format,
         schemes: schemes.join(",")
       },
-      responseType: "blob"
+      responseType: "blob",
+      raw: raw
     });
   },
 
@@ -78,10 +84,11 @@ const EntityService = {
     });
   },
 
-  async getFullEntity(iri: string): Promise<any> {
+  async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<any> {
     return axios.get(api + "api/entity/fullEntity", {
       params: {
-        iri: iri
+        iri: iri,
+        includeInactiveTermCodes: includeInactiveTermCodes
       }
     });
   },
@@ -149,7 +156,7 @@ const EntityService = {
 
   async getFilterOptions(): Promise<FilterOptions> {
     let schemeOptions: TTIriRef[] = [];
-    const schemeResults = await this.getEntityChildren(IM.NAMESPACE + "Graph");
+    const schemeResults = await this.getEntityChildren(IM.GRAPH);
     if (isArrayHasLength(schemeResults)) {
       schemeOptions = schemeResults.map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
@@ -245,9 +252,9 @@ const EntityService = {
     return axios.get(api + "api/entity/public/graph", { params: { iri: iri } });
   },
 
-  async getEntityTermCodes(iri: string): Promise<TermCode[]> {
+  async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
     return axios.get(Env.API + "api/entity/public/termCode", {
-      params: { iri: iri }
+      params: { iri: iri, includeInactive: includeInactive }
     });
   },
 
@@ -410,8 +417,8 @@ const EntityService = {
 
   async getSuperiorPropertiesPaged(
     conceptIri: string,
-    pageIndex: number,
-    pageSize: number,
+    pageIndex?: number,
+    pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
@@ -423,8 +430,8 @@ const EntityService = {
 
   async getSuperiorPropertiesBoolFocusPaged(
     focus: any,
-    pageIndex: number,
-    pageSize: number,
+    pageIndex?: number,
+    pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
@@ -437,8 +444,8 @@ const EntityService = {
 
   async getSuperiorPropertyValuesPaged(
     propertyIri: string,
-    pageIndex: number,
-    pageSize: number,
+    pageIndex?: number,
+    pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
@@ -466,7 +473,7 @@ const EntityService = {
     return EntityService.advancedSearch(searchRequest, abortController);
   },
 
-  async hasPredicates(subjectIri: string, predicateIris: string[]) {
+  async hasPredicates(subjectIri: string, predicateIris: string[]): Promise<boolean> {
     return axios.get(api + "api/entity/public/hasPredicates", {
       params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
     });
@@ -491,6 +498,12 @@ const EntityService = {
   async getQueriesByReturnType(returnTypeIri: string): Promise<TTIriRef[]> {
     return axios.get(Env.API + "api/query/public/allQueries", {
       params: { iri: returnTypeIri }
+    });
+  },
+
+  async getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
+    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyOptions", {
+      params: { dataModelIri: dataModelIri, dataTypeIri: dataTypeIri, key: key }
     });
   }
 };

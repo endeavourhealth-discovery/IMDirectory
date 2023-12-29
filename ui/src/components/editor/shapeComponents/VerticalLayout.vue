@@ -1,6 +1,9 @@
 <template>
-  <div class="vertical-layout-container">
-    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+  <div class="vertical-layout-container" :style="manualWidth">
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
+      <h2 v-if="showRequired" class="required">*</h2>
+    </div>
     <div v-for="(component, index) in components" class="component-container" :style="'height:' + heights[index]">
       <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>
@@ -9,7 +12,6 @@
 
 <script lang="ts">
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
 import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
@@ -20,13 +22,18 @@ import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDef
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
 import RoleGroupBuilder from "./RoleGroupBuilder.vue";
+import TermCodeEditor from "./TermCodeEditor.vue";
 import { defineComponent } from "vue";
+import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
+import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
+import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
+import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
+import { shapeTypes } from "qr-code-styling";
 
 export default defineComponent({
   components: {
     EntityComboBox,
     ArrayBuilder,
-    ArrayBuilderWithDropdown,
     SetDefinitionBuilder,
     QueryDefinitionBuilder,
     EntityDropdown,
@@ -35,14 +42,19 @@ export default defineComponent({
     TextInput,
     ToggleableComponent,
     DropdownTextInputConcatenator,
-    RoleGroupBuilder
+    RoleGroupBuilder,
+    PropertyBuilder,
+    TermCodeEditor,
+    TextDropdown,
+    EntityDisplay,
+    IriBuilder
   }
 });
 </script>
 
 <script setup lang="ts">
 import { EditorMode } from "@im-library/enums";
-import { PropType, inject, ref, Ref, onMounted } from "vue";
+import { PropType, inject, ref, Ref, onMounted, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -58,6 +70,16 @@ interface Props {
 const props = defineProps<Props>();
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
+const manualWidth = computed(() =>
+  props.shape.argument?.find(arg => arg.parameter === "width")?.valueData?.length
+    ? "width: " + props.shape.argument?.find(arg => arg.parameter === "width")?.valueData + "%;"
+    : ""
+);
 
 const components: Ref<any[]> = ref([]);
 const heights: Ref<String[]> = ref([]);
@@ -76,18 +98,11 @@ function setHeights() {
     const splitArgs = props.shape.argument[0].valueData?.split(",");
     if (splitArgs && splitArgs?.length) {
       heights.value = splitArgs;
-    } else {
-      if (isObjectHasKeys(props.shape, ["property"]))
-        for (let i = 0; i < props.shape.property!.length; i++) {
-          heights.value.push(100 / props.shape.property!.length + "%");
-        }
+      return;
     }
-  } else {
-    if (isObjectHasKeys(props.shape, ["property"]))
-      for (let i = 0; i < props.shape.property!.length; i++) {
-        heights.value.push("fit-content");
-      }
   }
+
+  if (isObjectHasKeys(props.shape, ["property"])) props.shape.property?.forEach(() => heights.value.push("fit-content"));
 }
 
 function processEntityValue(property: PropertyShape) {
@@ -116,6 +131,17 @@ function processEntityValue(property: PropertyShape) {
 
 .vertical-layout-container:deep(label) {
   display: block;
-  margin-bottom: 0.5rem !important;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

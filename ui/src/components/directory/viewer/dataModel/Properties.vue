@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import { PropertyDisplay } from "@im-library/interfaces";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {

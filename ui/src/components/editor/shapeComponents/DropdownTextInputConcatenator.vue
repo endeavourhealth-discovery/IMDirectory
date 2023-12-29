@@ -1,7 +1,10 @@
 <template>
   <div class="dropdown-text-input-concatenator-container">
     <div class="label-content-container">
-      <label v-if="shape.showTitle">{{ shape.name }}</label>
+      <div class="title-bar">
+        <span v-if="shape.showTitle">{{ shape.name }}</span>
+        <span v-if="showRequired" class="required">*</span>
+      </div>
       <div class="content-container">
         <Dropdown :disabled="loading" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
         <InputText :disabled="loading" class="p-inputtext-lg input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
@@ -14,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, PropType, ref, Ref, watch, onMounted } from "vue";
+import { inject, PropType, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
@@ -23,7 +26,8 @@ import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { QueryService } from "@/services";
+import { FunctionService, QueryService } from "@/services";
+import _ from "lodash";
 
 interface Props {
   shape: PropertyShape;
@@ -34,23 +38,54 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const emit = defineEmits({ updateClicked: (_payload: string) => true });
+
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      }
       showValidation.value = true;
     }
   });
 }
+
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
+        }
+      }
+    }
+  );
+}
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const loading = ref(false);
@@ -66,7 +101,11 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
     updateEntity(concatenated);
     updateValueVariableMap(concatenated);
     if (updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      }
       showValidation.value = true;
     }
   }
@@ -121,14 +160,16 @@ async function getDropdownOptions() {
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await QueryService.runFunction(props.shape.function!["@id"])).sort(byName);
+    return (await FunctionService.runFunction(props.shape.function!["@id"])).sort(byName);
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
 function updateEntity(data: string) {
   const result = {} as any;
   result[key] = data;
-  if (entityUpdate) entityUpdate(result);
+  if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
+  else emit("updateClicked", data);
 }
 
 function updateValueVariableMap(data: string) {
@@ -140,6 +181,20 @@ function updateValueVariableMap(data: string) {
 
 function defaultValidation(data: string) {
   return true;
+}
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && !selectedDropdownOption.value && !userInput.value) return;
+  if (!selectedDropdownOption.value) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Missing dropdown value. ";
+  }
+  if (!userInput.value) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Missing data. ";
+  }
 }
 </script>
 
@@ -189,5 +244,15 @@ function defaultValidation(data: string) {
 
 .invalid {
   border: 1px solid var(--red-500);
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

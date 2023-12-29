@@ -29,11 +29,11 @@ describe("setupValidity", () => {
     it("can remove a check", () => {
       const itemToRemove = testData.testShape.property[0].property[0].property[0];
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(wrapper.vm.validationCheckStatus).toHaveLength(10);
-      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: itemToRemove.path["@id"], checkCompleted: false });
+      expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
+      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: itemToRemove.path["@id"], deferred: expect.anything() });
       wrapper.vm.removeValidationCheckStatus(itemToRemove);
-      expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: itemToRemove.path["@id"], checkCompleted: false });
-      expect(wrapper.vm.validationCheckStatus).toHaveLength(9);
+      expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: itemToRemove.path["@id"], deferred: expect.anything() });
+      expect(wrapper.vm.validationCheckStatus).toHaveLength(11);
     });
   });
 
@@ -44,7 +44,7 @@ describe("setupValidity", () => {
 
     it("can clear validationCheckStatus", () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(wrapper.vm.validationCheckStatus).toHaveLength(10);
+      expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
       wrapper.vm.clearValidationCheckStatus();
       expect(wrapper.vm.validationCheckStatus).toEqual([]);
     });
@@ -90,7 +90,7 @@ describe("setupValidity", () => {
       wrapper.vm.addPropertyToValidationCheckStatus(testData.testShape.property[0].property[0].property[0]);
       expect(wrapper.vm.validationCheckStatus).toEqual([
         {
-          checkCompleted: false,
+          deferred: expect.anything(),
           key: testData.testShape.property[0].property[0].property[0].path["@id"]
         }
       ]);
@@ -117,11 +117,16 @@ describe("setupValidity", () => {
       vi.resetAllMocks();
     });
 
-    it("can change status", () => {
+    it("can change status", async () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: testData.validationCheckStatus[0].key, checkCompleted: false });
+      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: testData.validationCheckStatus[0].key, deferred: expect.anything() });
       wrapper.vm.updateValidationCheckStatus(testData.validationCheckStatus[0].key);
-      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: testData.validationCheckStatus[0].key, checkCompleted: true });
+      await flushPromises();
+      const found = wrapper.vm.validationCheckStatus.find(s => s.key === testData.validationCheckStatus[0].key);
+      let result;
+      found.deferred.promise.then(res => (result = res));
+      await flushPromises();
+      expect(result).toEqual("resolved");
     });
   });
 

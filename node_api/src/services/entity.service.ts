@@ -2,12 +2,13 @@ import Env from "@/services/env.service";
 import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap } from "@im-library/interfaces";
+import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris, ConceptSummary } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 export default class EntityService {
   axios: any;
@@ -20,6 +21,35 @@ export default class EntityService {
     this.entityRepository = new EntityRepository();
   }
 
+  public async getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
+    const propertiesEntity = await this.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
+    if (!isObjectHasKeys(propertiesEntity.data, [SHACL.PROPERTY])) return {} as TreeNode;
+    const allProperties: any[] = propertiesEntity.data[SHACL.PROPERTY];
+    const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === dataTypeIri);
+    if (!isArrayHasLength(validOptions)) return {} as TreeNode;
+
+    const treeNode = {
+      key: key,
+      label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
+      children: [] as TreeNode[],
+      selectable: false
+    } as TreeNode;
+
+    for (const property of validOptions) {
+      treeNode.children!.push({
+        key: key + "/" + property[SHACL.PATH][0]["@id"],
+        label: property[SHACL.PATH][0].name,
+        data: {
+          "@id": property[SHACL.PATH][0]["@id"],
+          nodeRef: key,
+          name: property[SHACL.PATH][0].name
+        }
+      } as TreeNode);
+    }
+
+    return treeNode;
+  }
+
   public async getPartialEntity(iri: string, predicates: string[]): Promise<any> {
     return await this.axios.get(Env.API + "api/entity/public/partial", {
       params: {
@@ -27,6 +57,15 @@ export default class EntityService {
         predicates: predicates.join(",")
       }
     });
+  }
+
+  public async getEntityChildren(iri: string, filters?: FiltersAsIris, controller?: AbortController): Promise<EntityReferenceNode[]> {
+    return (
+      await this.axios.get(Env.API + "api/entity/public/children", {
+        params: { iri: iri, schemeIris: filters?.schemes.join(",") },
+        signal: controller?.signal
+      })
+    ).data;
   }
 
   public async getBundleByPredicateExclusions(iri: string, predicates: string[]): Promise<TTBundle> {
@@ -184,5 +223,21 @@ export default class EntityService {
 
   async getConceptContextMaps(iri: string): Promise<ContextMap[]> {
     return await this.entityRepository.getConceptContextMaps(iri);
+  }
+
+  async getInverseIsas(iri: string, searchTerm?: string): Promise<any[]> {
+    return await this.entityRepository.getInverseIsas(iri, searchTerm);
+  }
+
+  async isInverseIsa(iri: string, searchTerm?: string): Promise<boolean> {
+    return (await this.axios.get(Env.API + "api/entity/public/isInverseIsa", { params: { subjectIri: iri, objectIri: searchTerm } })).data;
+  }
+
+  async getEntityReferenceNode(iri: string): Promise<EntityReferenceNode> {
+    return (await this.axios.get(Env.API + "api/entity/public/asEntityReferenceNode", { params: { iri: iri } })).data;
+  }
+
+  async getEntitySummary(iri: string): Promise<ConceptSummary> {
+    return (await this.axios.get(Env.API + "api/entity/public/summary", { params: { iri: iri } })).data;
   }
 }

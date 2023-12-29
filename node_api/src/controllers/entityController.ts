@@ -44,6 +44,15 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
+    this.router.get("/public/propertyOptions", (req, res, next) =>
+      this.getPropertyOptions(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+  }
+
+  async getPropertyOptions(req: Request) {
+    return await this.entityService.getPropertyOptions(req.query.dataModelIri as string, req.query.dataTypeIri as string, req.query.key as string);
   }
 
   async getPropertiesDisplay(req: Request) {

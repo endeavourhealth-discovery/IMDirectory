@@ -59,12 +59,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
 import ActionButtons from "../shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
+import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
 
 export default defineComponent({
   components: { ReportTable, PieChartDashCard, ActionButtons, IMFontAwesomeIcon }
@@ -72,8 +72,8 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { computed, Ref, ref, watch, onMounted } from "vue";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { computed, Ref, ref, watch, onMounted, defineComponent } from "vue";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
@@ -98,7 +98,7 @@ const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
-  async () => getRecentActivityDetails()
+  async () => await getRecentActivityDetails()
 );
 
 onMounted(async () => init());
@@ -162,16 +162,7 @@ function getActivityTooltipMessage(activity: RecentActivityItem) {
 
 function getActivityMessage(activity: RecentActivityItem) {
   const dateTime = new Date(activity.dateTime);
-  return activity.action + " " + getDayDisplay(dateTime);
-}
-
-function getDayDisplay(dateTime: Date) {
-  const now = new Date();
-  if (dateTime.getDay() === now.getDay()) return "today";
-  if (now.getDay() - dateTime.getDay() === 1) return "yesterday";
-  if (now.getDay() - dateTime.getDay() < 7) return "this week";
-  if (dateTime.getMonth() === now.getMonth()) return "this month";
-  if (dateTime.getFullYear() === now.getFullYear()) return "this year";
+  return activity.action + " " + getDisplayFromDate(new Date(), dateTime);
 }
 
 async function getCardsData(): Promise<void> {
@@ -224,6 +215,7 @@ function locateInTree(iri: string) {
 .activity-container {
   flex: 1 1 auto;
   display: flex;
+  width: 100%;
   flex-flow: column nowrap;
   overflow: auto;
   padding: 1rem;

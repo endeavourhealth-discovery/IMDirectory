@@ -1,7 +1,8 @@
 import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
+import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import axios from "axios";
-import express, { NextFunction, Request, Response } from "express";
+import { Request } from "express";
 import router from "express-promise-router";
 
 export default class QueryController {
@@ -19,6 +20,12 @@ export default class QueryController {
   private initRoutes() {
     this.router.get("/public/queryDisplay", (req, res, next) =>
       this.getQueryDisplay(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+
+    this.router.post("/public/queryDisplayFromQuery", (req, res, next) =>
+      this.getQueryDisplayFromQuery(req)
         .then(data => res.send(data))
         .catch(next)
     );
@@ -61,9 +68,27 @@ export default class QueryController {
     );
 
     this.router.get("/public/dataModelProperty", (req, res, next) =>
-        this.getDataModelProperty(req)
-            .then(data => res.send(data))
-            .catch(next)
+      this.getDataModelProperty(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+
+    this.router.get("/public/generateQuerySQL", (req, res, next) =>
+      this.generateQuerySQL(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+
+    this.router.post("/public/generateQuerySQL", (req, res, next) =>
+      this.generateQuerySQLfromQuery(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+
+    this.router.post("/public/selection/validate", (req, res, next) =>
+      this.validateSelectionWithQuery(req)
+        .then(data => res.send(data))
+        .catch(next)
     );
   }
 
@@ -101,11 +126,31 @@ export default class QueryController {
     return await this.queryService.getQueryDisplay(req.query.queryIri as string);
   }
 
+  async getQueryDisplayFromQuery(req: Request) {
+    return await this.queryService.getQueryDisplayFromQuery(req.body as Query);
+  }
+
   async getLabeledQuery(req: Request) {
     const query: any = req.body;
     return await this.queryService.getLabeledQuery(query);
   }
+
   async getDataModelProperty(req: Request) {
     return await this.queryService.getDataModelProperty(req.query.dataModelIri as string, req.query.propertyIri as string);
+  }
+
+  async generateQuerySQL(req: Request) {
+    return await this.queryService.generateQuerySQL(req.query.queryIri as string);
+  }
+
+  async generateQuerySQLfromQuery(req: Request) {
+    const query: any = req.body;
+    return await this.queryService.generateQuerySQLfromQuery(query as Query);
+  }
+
+  async validateSelectionWithQuery(req: Request) {
+    const queryRequest: QueryRequest = req.body.queryRequest;
+    const selectedIri: string = req.body.iri;
+    return await this.queryService.validateSelectionWithQuery(selectedIri, queryRequest);
   }
 }

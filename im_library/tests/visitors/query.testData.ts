@@ -10,12 +10,16 @@ export default {
             bool: "or",
             match: [
               {
-                "@id": "http://snomed.info/sct#386725007",
-                descendantsOrSelfOf: true
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#386725007",
+                  descendantsOrSelfOf: true
+                }
               },
               {
-                "@id": "http://snomed.info/sct#431314004",
-                descendantsOrSelfOf: true
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#431314004",
+                  descendantsOrSelfOf: true
+                }
               }
             ]
           },
@@ -24,12 +28,16 @@ export default {
             bool: "or",
             match: [
               {
-                "@id": "http://snomed.info/sct#838441000000103",
-                descendantsOrSelfOf: true
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#838441000000103",
+                  descendantsOrSelfOf: true
+                }
               },
               {
-                "@id": "http://snomed.info/sct#838451000000100",
-                descendantsOrSelfOf: true
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#838451000000100",
+                  descendantsOrSelfOf: true
+                }
               }
             ]
           }
@@ -43,18 +51,22 @@ export default {
         bool: "or",
         match: [
           {
-            "@id": "http://snomed.info/sct#91936005",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#91936005",
+              descendantsOrSelfOf: true
+            }
           },
           {
-            "@id": "http://snomed.info/sct#294532003",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#294532003",
+              descendantsOrSelfOf: true
+            }
           }
         ],
         property: [
           {
             "@id": "http://snomed.info/sct#246075003",
-            in: [
+            is: [
               {
                 "@id": "http://snomed.info/sct#771577000",
                 descendantsOrSelfOf: true
@@ -73,26 +85,32 @@ export default {
         bool: "and",
         match: [
           {
-            "@id": "http://snomed.info/sct#298705000",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705000",
+              descendantsOrSelfOf: true
+            }
           },
           {
-            "@id": "http://snomed.info/sct#301366005",
-            descendantsOrSelfOf: true,
+            instanceOf: {
+              "@id": "http://snomed.info/sct#301366005",
+              descendantsOrSelfOf: true
+            },
             property: [
               {
                 "@id": "http://endhealth.info/im#roleGroup",
-                property: [
-                  {
-                    "@id": "http://snomed.info/sct#363698007",
-                    in: [
-                      {
-                        "@id": "http://snomed.info/sct#51185008",
-                        descendantsOrSelfOf: true
-                      }
-                    ]
-                  }
-                ]
+                match: {
+                  property: [
+                    {
+                      "@id": "http://snomed.info/sct#363698007",
+                      is: [
+                        {
+                          "@id": "http://snomed.info/sct#51185008",
+                          descendantsOrSelfOf: true
+                        }
+                      ]
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -106,18 +124,22 @@ export default {
         bool: "and",
         match: [
           {
-            "@id": "http://snomed.info/sct#298705000",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705000",
+              descendantsOrSelfOf: true
+            }
           },
           {
-            "@id": "http://snomed.info/sct#301366005",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#301366005",
+              descendantsOrSelfOf: true
+            }
           }
         ],
         property: [
           {
             "@id": "http://snomed.info/sct#762705008",
-            in: [
+            is: [
               {
                 "@id": "http://snomed.info/sct#51185008",
                 descendantsOrSelfOf: true
@@ -136,25 +158,31 @@ export default {
         bool: "and",
         match: [
           {
-            "@id": "http://snomed.info/sct#298705000",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705000",
+              descendantsOrSelfOf: true
+            }
           },
           {
-            "@id": "http://snomed.info/sct#301366005",
-            descendantsOrSelfOf: true,
+            instanceOf: {
+              "@id": "http://snomed.info/sct#301366005",
+              descendantsOrSelfOf: true
+            },
             property: [
               {
                 "@id": "http://endhealth.info/im#roleGroup",
-                property: [
-                  {
-                    "@id": "http://snomed.info/sct#363698007",
-                    in: [
-                      {
-                        "@id": "http://snomed.info/sct#51185008"
-                      }
-                    ]
-                  }
-                ]
+                match: {
+                  property: [
+                    {
+                      "@id": "http://snomed.info/sct#363698007",
+                      is: [
+                        {
+                          "@id": "http://snomed.info/sct#51185008"
+                        }
+                      ]
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -168,27 +196,33 @@ export default {
         bool: "and",
         match: [
           {
-            "@id": "http://snomed.info/sct#298705000",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705000",
+              descendantsOrSelfOf: true
+            }
           },
           {
-            "@id": "http://snomed.info/sct#301366005",
-            descendantsOrSelfOf: true,
+            instanceOf: {
+              "@id": "http://snomed.info/sct#301366005",
+              descendantsOrSelfOf: true
+            },
             property: [
               {
                 "@id": "http://endhealth.info/im#roleGroup",
-                property: [
-                  {
-                    "@id": "http://snomed.info/sct#762705008",
-                    in: [
-                      {
-                        "@id": "http://snomed.info/sct#51185008",
-                        descendantsOrSelfOf: true
-                      }
-                    ],
-                    descendantsOrSelfOf: true
-                  }
-                ]
+                match: {
+                  property: [
+                    {
+                      "@id": "http://snomed.info/sct#762705008",
+                      is: [
+                        {
+                          "@id": "http://snomed.info/sct#51185008",
+                          descendantsOrSelfOf: true
+                        }
+                      ],
+                      descendantsOrSelfOf: true
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -202,29 +236,35 @@ export default {
         bool: "and",
         match: [
           {
-            "@id": "http://snomed.info/sct#298705000",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705000",
+              descendantsOrSelfOf: true
+            }
           },
           {
-            "@id": "http://snomed.info/sct#301366005",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#301366005",
+              descendantsOrSelfOf: true
+            }
           }
         ],
         property: [
           {
             "@id": "http://endhealth.info/im#roleGroup",
-            property: [
-              {
-                "@id": "http://snomed.info/sct#762705008",
-                in: [
-                  {
-                    "@id": "http://snomed.info/sct#51185008",
-                    descendantsOrSelfOf: true
-                  }
-                ],
-                descendantsOrSelfOf: true
-              }
-            ]
+            match: {
+              property: [
+                {
+                  "@id": "http://snomed.info/sct#762705008",
+                  is: [
+                    {
+                      "@id": "http://snomed.info/sct#51185008",
+                      descendantsOrSelfOf: true
+                    }
+                  ],
+                  descendantsOrSelfOf: true
+                }
+              ]
+            }
           }
         ]
       }
@@ -233,50 +273,59 @@ export default {
   descendantsAndSelf: {
     match: [
       {
-        "@id": "http://snomed.info/sct#29857009",
-        descendantsOrSelfOf: true
+        instanceOf: {
+          "@id": "http://snomed.info/sct#29857009",
+          descendantsOrSelfOf: true
+        }
       }
     ]
   },
   descendantsNotSelf: {
     match: [
       {
-        "@id": "http://snomed.info/sct#29857009",
-        descendantsOf: true
+        instanceOf: {
+          "@id": "http://snomed.info/sct#29857009",
+          descendantsOf: true
+        }
       }
     ]
   },
   mergedGroupError: {
     match: [
       {
-        "@id": "http://snomed.info/sct#225399009",
-        descendantsOrSelfOf: true,
+        instanceOf: {
+          "@id": "http://snomed.info/sct#225399009",
+          descendantsOrSelfOf: true
+        },
         property: [
           {
             "@id": "http://endhealth.info/im#roleGroup",
-            bool: "and",
-            property: [
-              {
-                "@id": "http://snomed.info/sct#260686004",
-                in: [
-                  {
-                    "@id": "http://snomed.info/sct#129265001",
-                    descendantsOrSelfOf: true
-                  }
-                ],
-                descendantsOrSelfOf: true
-              },
-              {
-                "@id": "http://snomed.info/sct#363702006",
-                in: [
-                  {
-                    "@id": "http://snomed.info/sct#29857009",
-                    descendantsOrSelfOf: true
-                  }
-                ],
-                descendantsOrSelfOf: true
-              }
-            ]
+
+            match: {
+              bool: "and",
+              property: [
+                {
+                  "@id": "http://snomed.info/sct#260686004",
+                  is: [
+                    {
+                      "@id": "http://snomed.info/sct#129265001",
+                      descendantsOrSelfOf: true
+                    }
+                  ],
+                  descendantsOrSelfOf: true
+                },
+                {
+                  "@id": "http://snomed.info/sct#363702006",
+                  is: [
+                    {
+                      "@id": "http://snomed.info/sct#29857009",
+                      descendantsOrSelfOf: true
+                    }
+                  ],
+                  descendantsOrSelfOf: true
+                }
+              ]
+            }
           }
         ]
       }
@@ -291,29 +340,35 @@ export default {
             bool: "and",
             match: [
               {
-                "@id": "http://snomed.info/sct#298705000",
-                descendantsOrSelfOf: true
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#298705000",
+                  descendantsOrSelfOf: true
+                }
               },
               {
-                "@id": "http://snomed.info/sct#301366005",
-                descendantsOrSelfOf: true
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#301366005",
+                  descendantsOrSelfOf: true
+                }
               }
             ],
             property: [
               {
                 "@id": "http://endhealth.info/im#roleGroup",
-                property: [
-                  {
-                    "@id": "http://snomed.info/sct#762705008",
-                    in: [
-                      {
-                        "@id": "http://snomed.info/sct#51185008",
-                        descendantsOrSelfOf: true
-                      }
-                    ],
-                    descendantsOrSelfOf: true
-                  }
-                ]
+                match: {
+                  property: [
+                    {
+                      "@id": "http://snomed.info/sct#762705008",
+                      is: [
+                        {
+                          "@id": "http://snomed.info/sct#51185008",
+                          descendantsOrSelfOf: true
+                        }
+                      ],
+                      descendantsOrSelfOf: true
+                    }
+                  ]
+                }
               }
             ]
           },
@@ -321,8 +376,10 @@ export default {
             exclude: true,
             match: [
               {
-                "@id": "http://snomed.info/sct#426396005",
-                descendantsOrSelfOf: true
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#426396005",
+                  descendantsOrSelfOf: true
+                }
               }
             ]
           }
@@ -339,29 +396,35 @@ export default {
             bool: "and",
             match: [
               {
-                "@id": "http://snomed.info/sct#298705000",
-                descendantsOrSelfOf: true
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#298705000",
+                  descendantsOrSelfOf: true
+                }
               },
               {
-                "@id": "http://snomed.info/sct#301366005",
-                descendantsOrSelfOf: true
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#301366005",
+                  descendantsOrSelfOf: true
+                }
               }
             ],
             property: [
               {
                 "@id": "http://endhealth.info/im#roleGroup",
-                property: [
-                  {
-                    "@id": "http://snomed.info/sct#762705008",
-                    in: [
-                      {
-                        "@id": "http://snomed.info/sct#51185008",
-                        descendantsOrSelfOf: true
-                      }
-                    ],
-                    descendantsOrSelfOf: true
-                  }
-                ]
+                match: {
+                  property: [
+                    {
+                      "@id": "http://snomed.info/sct#762705008",
+                      is: [
+                        {
+                          "@id": "http://snomed.info/sct#51185008",
+                          descendantsOrSelfOf: true
+                        }
+                      ],
+                      descendantsOrSelfOf: true
+                    }
+                  ]
+                }
               }
             ]
           },
@@ -372,16 +435,18 @@ export default {
                 property: [
                   {
                     "@id": "http://endhealth.info/im#roleGroup",
-                    property: [
-                      {
-                        "@id": "http://snomed.info/sct#363698007",
-                        in: [
-                          {
-                            "@id": "http://snomed.info/sct#722725008"
-                          }
-                        ]
-                      }
-                    ]
+                    match: {
+                      property: [
+                        {
+                          "@id": "http://snomed.info/sct#363698007",
+                          is: [
+                            {
+                              "@id": "http://snomed.info/sct#722725008"
+                            }
+                          ]
+                        }
+                      ]
+                    }
                   }
                 ]
               }
@@ -394,15 +459,17 @@ export default {
   oralNsaids: {
     match: [
       {
-        "@id": "http://snomed.info/sct#763158003",
-        descendantsOrSelfOf: true,
+        instanceOf: {
+          "@id": "http://snomed.info/sct#763158003",
+          descendantsOrSelfOf: true
+        },
         property: [
           {
             bool: "and",
             property: [
               {
                 "@id": "http://snomed.info/sct#127489000",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#372665008",
                     descendantsOrSelfOf: true
@@ -413,7 +480,7 @@ export default {
               },
               {
                 "@id": "http://snomed.info/sct#411116001",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#385268001"
                   }
@@ -433,12 +500,16 @@ export default {
         bool: "and",
         match: [
           {
-            "@id": "http://snomed.info/sct#298705000",
-            descendantsOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705000",
+              descendantsOf: true
+            }
           },
           {
-            "@id": "http://snomed.info/sct#301366005",
-            descendantsOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#301366005",
+              descendantsOf: true
+            }
           }
         ]
       }
@@ -450,10 +521,14 @@ export default {
         bool: "and",
         match: [
           {
-            "@id": "http://snomed.info/sct#298705000"
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705000"
+            }
           },
           {
-            "@id": "http://snomed.info/sct#301366005"
+            instanceOf: {
+              "@id": "http://snomed.info/sct#301366005"
+            }
           }
         ]
       }
@@ -462,48 +537,56 @@ export default {
   singleConcept: {
     match: [
       {
-        "@id": "http://snomed.info/sct#29857009"
+        instanceOf: {
+          "@id": "http://snomed.info/sct#29857009"
+        }
       }
     ]
   },
   twoAttributeGroups: {
     match: [
       {
-        "@id": "http://snomed.info/sct#225399009",
-        descendantsOrSelfOf: true,
+        instanceOf: {
+          "@id": "http://snomed.info/sct#225399009",
+          descendantsOrSelfOf: true
+        },
         property: [
           {
             bool: "and",
             property: [
               {
                 "@id": "http://endhealth.info/im#roleGroup",
-                property: [
-                  {
-                    "@id": "http://snomed.info/sct#260686004",
-                    in: [
-                      {
-                        "@id": "http://snomed.info/sct#129265001",
-                        descendantsOrSelfOf: true
-                      }
-                    ],
-                    descendantsOrSelfOf: true
-                  }
-                ]
+                match: {
+                  property: [
+                    {
+                      "@id": "http://snomed.info/sct#260686004",
+                      is: [
+                        {
+                          "@id": "http://snomed.info/sct#129265001",
+                          descendantsOrSelfOf: true
+                        }
+                      ],
+                      descendantsOrSelfOf: true
+                    }
+                  ]
+                }
               },
               {
                 "@id": "http://endhealth.info/im#roleGroup",
-                property: [
-                  {
-                    "@id": "http://snomed.info/sct#363702006",
-                    in: [
-                      {
-                        "@id": "http://snomed.info/sct#29857009",
-                        descendantsOrSelfOf: true
-                      }
-                    ],
-                    descendantsOrSelfOf: true
-                  }
-                ]
+                match: {
+                  property: [
+                    {
+                      "@id": "http://snomed.info/sct#363702006",
+                      is: [
+                        {
+                          "@id": "http://snomed.info/sct#29857009",
+                          descendantsOrSelfOf: true
+                        }
+                      ],
+                      descendantsOrSelfOf: true
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -514,15 +597,17 @@ export default {
   ungroupedButSeparateGroups: {
     match: [
       {
-        "@id": "http://snomed.info/sct#225399009",
-        descendantsOrSelfOf: true,
+        instanceOf: {
+          "@id": "http://snomed.info/sct#225399009",
+          descendantsOrSelfOf: true
+        },
         property: [
           {
             bool: "and",
             property: [
               {
                 "@id": "http://snomed.info/sct#260686004",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#129265001",
                     descendantsOrSelfOf: true
@@ -533,7 +618,7 @@ export default {
               },
               {
                 "@id": "http://snomed.info/sct#363702006",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#29857009",
                     descendantsOrSelfOf: true
@@ -554,12 +639,16 @@ export default {
         bool: "or",
         match: [
           {
-            "@id": "http://snomed.info/sct#116536008",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#116536008",
+              descendantsOrSelfOf: true
+            }
           },
           {
-            "@id": "http://snomed.info/sct#350312004",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#350312004",
+              descendantsOrSelfOf: true
+            }
           }
         ],
         property: [
@@ -568,7 +657,7 @@ export default {
             property: [
               {
                 "@id": "http://snomed.info/sct#127489000",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#372665008",
                     descendantsOrSelfOf: true
@@ -579,7 +668,7 @@ export default {
               },
               {
                 "@id": "http://snomed.info/sct#411116001",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#385268001",
                     descendantsOrSelfOf: true
@@ -600,8 +689,10 @@ export default {
         bool: "and",
         match: [
           {
-            "@id": "http://snomed.info/sct#763158003",
-            descendantsOrSelfOf: true,
+            instanceOf: {
+              "@id": "http://snomed.info/sct#763158003",
+              descendantsOrSelfOf: true
+            },
             property: [
               {
                 bool: "and",
@@ -610,7 +701,7 @@ export default {
                     "@id": "http://snomed.info/sct#127489000",
                     anyRoleGroup: true,
                     descendantsOrSelfOf: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#372695000",
                         descendantsOrSelfOf: true
@@ -620,7 +711,7 @@ export default {
                   {
                     "@id": "http://snomed.info/sct#8940601000001102",
                     anyRoleGroup: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#8940901000001109"
                       }
@@ -629,7 +720,7 @@ export default {
                   {
                     "@id": "http://snomed.info/sct#8940001000001105",
                     anyRoleGroup: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#8940201000001104"
                       }
@@ -643,13 +734,15 @@ export default {
             exclude: true,
             match: [
               {
-                "@id": "http://snomed.info/sct#763158003",
-                descendantsOrSelfOf: true,
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#763158003",
+                  descendantsOrSelfOf: true
+                },
                 property: [
                   {
                     "@id": "http://snomed.info/sct#8940601000001102",
                     anyRoleGroup: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#8941001000001100"
                       }
@@ -666,8 +759,10 @@ export default {
   orRefinement: {
     match: [
       {
-        "@id": "http://snomed.info/sct#763158003",
-        descendantsOrSelfOf: true,
+        instanceOf: {
+          "@id": "http://snomed.info/sct#763158003",
+          descendantsOrSelfOf: true
+        },
         property: [
           {
             bool: "or",
@@ -677,7 +772,7 @@ export default {
 
                 "@id": "http://snomed.info/sct#127489000",
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#698090000",
                     descendantsOrSelfOf: true
@@ -688,7 +783,7 @@ export default {
                 anyRoleGroup: true,
                 "@id": "http://snomed.info/sct#127489000",
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#442031002",
                     descendantsOrSelfOf: true
@@ -704,8 +799,10 @@ export default {
   multipeOrRefinement: {
     match: [
       {
-        "@id": "http://snomed.info/sct#763158003",
-        descendantsOrSelfOf: true,
+        instanceOf: {
+          "@id": "http://snomed.info/sct#763158003",
+          descendantsOrSelfOf: true
+        },
         property: [
           {
             bool: "or",
@@ -714,7 +811,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#698090000",
                     descendantsOrSelfOf: true
@@ -725,7 +822,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#442031002",
                     descendantsOrSelfOf: true
@@ -736,7 +833,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#698871007",
                     descendantsOrSelfOf: true
@@ -747,7 +844,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#712778008",
                     descendantsOrSelfOf: true
@@ -758,7 +855,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#387260007",
                     descendantsOrSelfOf: true
@@ -769,7 +866,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#59488002",
                     descendantsOrSelfOf: true
@@ -780,7 +877,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#372756006",
                     descendantsOrSelfOf: true
@@ -796,8 +893,10 @@ export default {
   refinementConjunctionWithGroup: {
     match: [
       {
-        "@id": "http://snomed.info/sct#763158003",
-        descendantsOrSelfOf: true,
+        instanceOf: {
+          "@id": "http://snomed.info/sct#763158003",
+          descendantsOrSelfOf: true
+        },
         property: [
           {
             bool: "and",
@@ -806,7 +905,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#387207008",
                     descendantsOrSelfOf: true
@@ -820,7 +919,7 @@ export default {
                     "@id": "http://snomed.info/sct#411116001",
                     anyRoleGroup: true,
                     descendantsOrSelfOf: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#763820000",
                         descendantsOrSelfOf: true
@@ -831,7 +930,7 @@ export default {
                     "@id": "http://snomed.info/sct#411116001",
                     anyRoleGroup: true,
                     descendantsOrSelfOf: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#421701006",
                         descendantsOrSelfOf: true
@@ -849,14 +948,16 @@ export default {
   startGroupedConceptWithRefinement: {
     match: [
       {
-        "@id": "http://snomed.info/sct#763158003",
-        descendantsOrSelfOf: true,
+        instanceOf: {
+          "@id": "http://snomed.info/sct#763158003",
+          descendantsOrSelfOf: true
+        },
         property: [
           {
             "@id": "http://snomed.info/sct#127489000",
             anyRoleGroup: true,
             descendantsOrSelfOf: true,
-            in: [
+            is: [
               {
                 "@id": "http://snomed.info/sct#387207008",
                 descendantsOrSelfOf: true
@@ -873,10 +974,17 @@ export default {
         bool: "and",
         match: [
           {
-            "@id": "http://snomed.info/sct#298705000",
-            descendantsOrSelfOf: true
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705000",
+              descendantsOrSelfOf: true
+            }
           },
-          { "@id": "http://snomed.info/sct#298705001", descendantsOrSelfOf: true }
+          {
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705001",
+              descendantsOrSelfOf: true
+            }
+          }
         ]
       }
     ]
@@ -884,17 +992,64 @@ export default {
   groupedConceptsWithSharedRefinement: {
     match: [
       {
-        match: [
-          { "@id": "http://snomed.info/sct#298705000", descendantsOrSelfOf: true },
-          { "@id": "http://snomed.info/sct#301366005", descendantsOrSelfOf: true }
-        ],
         bool: "and",
+        match: [
+          {
+            instanceOf: {
+              "@id": "http://snomed.info/sct#298705000",
+              descendantsOrSelfOf: true
+            }
+          },
+          {
+            instanceOf: {
+              "@id": "http://snomed.info/sct#301366005",
+              descendantsOrSelfOf: true
+            }
+          }
+        ],
         property: [
           {
             "@id": IM.ROLE_GROUP,
-            property: [{ "@id": "http://snomed.info/sct#363698007", in: [{ "@id": "http://snomed.info/sct#51185008", descendantsOrSelfOf: true }] }]
+            match: {
+              property: [
+                {
+                  "@id": "http://snomed.info/sct#363698007",
+                  is: [{ "@id": "http://snomed.info/sct#51185008", descendantsOrSelfOf: true }]
+                }
+              ]
+            }
           }
         ]
+      }
+    ]
+  },
+  chis: {
+    match: [
+      {
+        match: [
+          {
+            instanceOf: {
+              "@id": "http://snomed.info/sct#312871001",
+              descendantsOrSelfOf: true
+            }
+          },
+          {
+            property: [
+              {
+                "@id": "http://snomed.info/sct#363589002",
+                anyRoleGroup: true,
+                descendantsOrSelfOf: true,
+                is: [
+                  {
+                    "@id": "http://snomed.info/sct#117103007",
+                    descendantsOrSelfOf: true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        bool: "or"
       }
     ]
   }

@@ -37,12 +37,14 @@
 import EntitySearch from "./EntitySearch.vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import ComponentGroup from "./ComponentGroup.vue";
-import ArrayBuilderWithDropdown from "./ArrayBuilderWithDropdown.vue";
 import PropertyBuilder from "./PropertyBuilder.vue";
+import TermCodeEditor from "./TermCodeEditor.vue";
+import EntityDropdown from "./EntityDropdown.vue";
+import EntityDisplay from "./EntityDisplay.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  components: { EntitySearch, EntityAutoComplete, ComponentGroup, ArrayBuilderWithDropdown, PropertyBuilder }
+  components: { EntitySearch, EntityAutoComplete, ComponentGroup, PropertyBuilder, TermCodeEditor, EntityDropdown, EntityDisplay }
 });
 </script>
 
@@ -72,7 +74,8 @@ const emit = defineEmits({
   deleteClicked: (_payload: any) => true,
   addClicked: (_payload: any) => true,
   moveUpClicked: (_payload: any) => true,
-  moveDownClicked: (_payload: any) => true
+  moveDownClicked: (_payload: any) => true,
+  verifyChild: (_payload: { valid: boolean; validateErrorMessage: string | undefined; position: number }) => true
 });
 
 function createEntity(data?: any): ComponentDetails {

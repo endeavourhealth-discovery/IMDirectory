@@ -4,21 +4,27 @@ run-as: root
 phases:
   install:
     runtime-versions:
-      java: corretto11
+      java: corretto17
   pre_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
       - echo $IP of CodeBuild Instance
       - echo Node install
       - rm /usr/local/bin/node
-      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-      - curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-      - sudo apt-get install nodejs
+      - apt-get update
+      - apt-get install -y ca-certificates curl gnupg
+      - mkdir -p /etc/apt/keyrings
+      - curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+      - NODE_MAJOR=18
+      - echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+      - apt-get update
+      - apt-get install nodejs
       - node -v
       - export NODE_OPTIONS=--max-old-space-size=4096
       - npm config set "@fortawesome:registry" https://npm.fontawesome.com/
       - npm config set "//npm.fontawesome.com/:_authToken" $VITE_FONT_AWESOME_PACKAGE_TOKEN
       - npm i -g pnpm
+      - pnpm store path
   build:
     commands:
       - chmod +x aws_scripts/build.sh
@@ -36,3 +42,6 @@ artifacts:
     - ui/dist/**/*
     - node_api/dist/**/*
     - node_api/package.json
+cache:
+  paths:
+    - /codebuild/output/.pnpm-store/**/*

@@ -8,7 +8,6 @@ export enum ComponentType {
   REFINEMENT = "Refinement",
   QUANTIFIER = "Quantifier",
   PROPERTY = "Property",
-  STEPS_GROUP = "StepsGroup",
   ARRAY_BUILDER = "ArrayBuilder",
   ENTITY_COMBOBOX = "EntityComboBox",
   ENTITY_MULTI_SEARCH = "EntityMultiSearch",
@@ -21,8 +20,6 @@ export enum ComponentType {
   ENTITY_AUTO_COMPLETE = "EntityAutoComplete",
   MEMBERS_BUILDER = "MembersBuilder",
   COMPONENT_GROUP = "ComponentGroup",
-  ARRAY_BUILDER_WITH_DROPDOWN = "ArrayBuilderWithDropdown",
-  BUILDER_DROPDOWN_CHILD_WRAPPER = "BuilderDropdownChildWrapper",
   PROPERTY_BUILDER = "PropertyBuilder",
   SET_DEFINITION_BUILDER = "SetDefinitionBuilder",
   QUERY_DEFINITION_BUILDER = "QueryDefinitionBuilder",
@@ -30,5 +27,9 @@ export enum ComponentType {
   HORIZONTAL_LAYOUT = "HorizontalLayout",
   VERTICAL_LAYOUT = "VerticalLayout",
   DROPDOWN_TEXT_INPUT_CONCATENATOR = "DropdownTextInputConcatenator",
-  ROLE_GROUP_BUILDER = "RoleGroupBuilder"
+  ROLE_GROUP_BUILDER = "RoleGroupBuilder",
+  TERM_CODE_EDITOR = "TermCodeEditor",
+  TEXT_DROPDOWN = "TextDropdown",
+  ENTITY_DISPLAY = "EntityDisplay",
+  IRI_BUILDER = "IriBuilder"
 }

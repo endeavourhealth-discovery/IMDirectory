@@ -1,12 +1,18 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group">
-      <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
-      <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" />
+      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
+      <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
+      <InputText
+        id="autocomplete-search"
+        v-model="searchText"
+        :placeholder="searchPlaceholder"
+        @complete="debounceForSearch"
+        data-testid="search-input"
+        autofocus
+      />
     </span>
-    <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
-      <Button @click="search" class="search-button p-button-secondary" label="Search" />
-    </SplitButton>
+    <SplitButton class="search-button p-button-secondary" @click="search" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
       v-tooltip.bottom="'Filters'"
       id="filter-button"
@@ -17,7 +23,13 @@
     />
     <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
       <div class="p-fluid results-filter-container">
-        <Filters :search="search" data-testid="filters" />
+        <Filters
+          :search="search"
+          data-testid="filters"
+          :filterOptions="filterOptions"
+          :filterDefaults="filterDefaults"
+          @selectedFiltersUpdated="handleSelectedFiltersUpdated"
+        />
       </div>
     </OverlayPanel>
   </div>
@@ -26,12 +38,12 @@
 <script setup lang="ts">
 import Filters from "@/components/shared/Filters.vue";
 
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, ref, Ref, watch } from "vue";
 import { FilterOptions, ConceptSummary } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM } from "@im-library/vocabulary";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import { useFilterStore } from "@/stores/filterStore";
 import { useSharedStore } from "@/stores/sharedStore";
@@ -42,8 +54,9 @@ import _ from "lodash";
 interface Props {
   searchResults: ConceptSummary[];
   searchLoading: boolean;
-  searchByQuery?: QueryRequest;
   selected?: ConceptSummary;
+  filterOptions?: FilterOptions;
+  filterDefaults?: FilterOptions;
 }
 
 const props = defineProps<Props>();
@@ -58,29 +71,47 @@ const emit = defineEmits({
 const filterStore = useFilterStore();
 const sharedStore = useSharedStore();
 
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
+const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+
+watch(storeSelectedFilters, newValue => {
+  if (!props.filterDefaults && !props.filterOptions) selectedFilters.value = newValue;
+});
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
 const searchPlaceholder = ref("Search");
 const loading = ref(false);
-const results: Ref<ConceptSummary[]> = ref([]);
+const results: Ref<SearchResultSummary[]> = ref([]);
 const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
 ]);
+const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
 
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 
-watch(searchText, async () => await search());
+watch(searchText, async () => debounceForSearch());
 watch(results, newValue => emit("update:searchResults", newValue));
 watch(loading, newValue => emit("update:searchLoading", newValue));
 
 const filtersOP = ref();
 
+function handleSelectedFiltersUpdated(updatedSelectedFilters: FilterOptions) {
+  selectedFilters.value = updatedSelectedFilters;
+}
+
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
+}
+
+const debounce = ref(0);
+
+function debounceForSearch(): void {
+  clearTimeout(debounce.value);
+  debounce.value = window.setTimeout(() => {
+    search();
+  }, 600);
 }
 
 async function search(): Promise<void> {
@@ -92,17 +123,33 @@ async function search(): Promise<void> {
     searchRequest.sortField = "weighting";
     searchRequest.page = 1;
     searchRequest.size = 100;
-    searchRequest.schemeFilter = selectedFilters.value.schemes.map(scheme => scheme["@id"]);
+
+    searchRequest.schemeFilter = [];
+    const schemes =
+      isObjectHasKeys(props.filterOptions, ["schemes"]) && isArrayHasLength(props.filterOptions!.schemes)
+        ? props.filterOptions!.schemes
+        : selectedFilters.value.schemes;
+    for (const scheme of schemes) {
+      searchRequest.schemeFilter!.push(scheme["@id"]);
+    }
 
     searchRequest.statusFilter = [];
-    selectedFilters.value.status.forEach((status: TTIriRef) => {
+    const statusList =
+      isObjectHasKeys(props.filterOptions, ["status"]) && isArrayHasLength(props.filterOptions!.status)
+        ? props.filterOptions!.status
+        : selectedFilters.value.status;
+    for (const status of statusList) {
       searchRequest.statusFilter!.push(status["@id"]);
-    });
+    }
 
     searchRequest.typeFilter = [];
-    selectedFilters.value.types.forEach((type: TTIriRef) => {
+    const types =
+      isObjectHasKeys(props.filterOptions, ["types"]) && isArrayHasLength(props.filterOptions!.types)
+        ? props.filterOptions!.types
+        : selectedFilters.value.types;
+    for (const type of types) {
       searchRequest.typeFilter!.push(type["@id"]);
-    });
+    }
 
     if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
       const sortField = selectedFilters.value.sortFields[0];
@@ -119,19 +166,56 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    let result;
-    if (props.searchByQuery) {
-      const queryRequest = _.cloneDeep(props.searchByQuery);
-      queryRequest.textSearch = searchText.value;
-      const queryResult = await QueryService.queryIMSearch(queryRequest, controller.value);
-      if (queryResult && queryResult.entities) result = queryResult.entities;
-    } else {
-      result = await EntityService.advancedSearch(searchRequest, controller.value);
-    }
+    const result = await EntityService.advancedSearch(searchRequest, controller.value);
     if (result) results.value = result;
     else results.value = [];
     loading.value = false;
   }
+}
+
+async function prepareQueryRequest(queryRequest: QueryRequest) {
+  queryRequest.textSearch = searchText.value;
+
+  if (isObjectHasKeys(queryRequest.query, ["@id"]) && !isObjectHasKeys(queryRequest.query, ["match"])) {
+    const partialEntity = await EntityService.getPartialEntity(queryRequest.query["@id"]!, [IM.DEFINITION]);
+    if (partialEntity[IM.DEFINITION]) {
+      queryRequest.query = JSON.parse(partialEntity[IM.DEFINITION]);
+      if (!isArrayHasLength(queryRequest.query.match)) queryRequest.query.match = [];
+      queryRequest.query.match!.push(getMatchFromTypeFilters(), getMatchFromStatusFilters(), getMatchFromSchemeFilters());
+    }
+  }
+
+  return queryRequest;
+}
+
+function getMatchFromTypeFilters(): Match {
+  const typeMatch = { bool: "or", match: [] } as Match;
+  selectedFilters.value.types.forEach((type: TTIriRef) => {
+    typeMatch.match!.push({ typeOf: type } as Match);
+  });
+  return typeMatch;
+}
+
+function getMatchFromStatusFilters(): Match {
+  return {
+    property: [
+      {
+        "@id": IM.HAS_STATUS,
+        is: selectedFilters.value.status
+      }
+    ]
+  };
+}
+
+function getMatchFromSchemeFilters(): Match {
+  return {
+    property: [
+      {
+        "@id": IM.HAS_SCHEME,
+        is: selectedFilters.value.schemes
+      }
+    ]
+  };
 }
 </script>
 

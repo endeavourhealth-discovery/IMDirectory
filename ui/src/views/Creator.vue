@@ -8,12 +8,6 @@
       </template>
     </TopBar>
     <ConfirmDialog />
-    <TestQueryResults
-      v-if="showTestQueryResults"
-      :showDialog="showTestQueryResults"
-      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
-      @close-dialog="showTestQueryResults = false"
-    />
     <div id="creator-main-container">
       <div class="content-buttons-container">
         <div class="content-sidebar-container">
@@ -36,10 +30,14 @@
             @click="onShowSidebar"
           />
         </div>
-        <div class="button-bar" id="creator-button-bar">
-          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshCreator" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
-          <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
+        <div id="creator-footer-bar">
+          <div class="required-container">
+            <span class="required-info">(*) item is required.</span>
+          </div>
+          <div class="button-bar" id="creator-button-bar">
+            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
+            <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
+          </div>
         </div>
       </div>
     </div>
@@ -61,13 +59,14 @@ import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
+import { QueryService } from "@/services";
 import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
+import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
   components: {
@@ -85,7 +84,6 @@ export default defineComponent({
     ToggleableComponent,
     QueryDefinitionBuilder,
     ComponentGroup,
-    ArrayBuilderWithDropdown,
     DropdownTextInputConcatenator
   }
 });
@@ -94,7 +92,6 @@ export default defineComponent({
 <script setup lang="ts">
 import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
-import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import _ from "lodash";
@@ -134,7 +131,6 @@ const directService = new DirectService();
 const currentUser = computed(() => userStore.currentUser).value;
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
-const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
@@ -159,7 +155,7 @@ const {
   deleteEntityKey,
   checkForChanges
 } = setupEditorEntity(EditorMode.CREATE, updateType);
-const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const { shape, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -170,22 +166,22 @@ const {
   updateValidationCheckStatus,
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus,
-  validationChecksCompleted
+  validationChecksCompleted,
+  checkValidity
 } = setupValidity(shape.value);
-const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
+const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
 const showSidebar: Ref<boolean> = ref(false);
 const targetShape: Ref<TTIriRef | undefined> = ref();
-const showTestQueryResults: Ref<boolean> = ref(false);
 const showTypeSelector = ref(false);
 const forceValidation = ref(false);
 
-provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
+provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
-provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
+provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap, valueVariableHasChanged });
 provide(injectionKeys.forceValidation, {
   forceValidation,
   validationCheckStatus,
@@ -193,6 +189,7 @@ provide(injectionKeys.forceValidation, {
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus
 });
+provide(injectionKeys.fullShape, shape);
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
@@ -218,8 +215,34 @@ onMounted(async () => {
     shape.value = getShape(typeIri as string);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
-      const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
-      editorEntity.value[propertyIri as string] = [{ "@id": containingEntity["@id"], name: containingEntity[RDFS.LABEL] }];
+      if (propertyIri === IM.DEFINITION) {
+        const newValue = await QueryService.getQueryDisplay(valueIri as string);
+        editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
+        editorEntity.value[IM.DEFINITION] = JSON.stringify({
+          match: [
+            {
+              inSet: [
+                {
+                  "@id": newValue["@id"],
+                  name: newValue.name
+                }
+              ],
+              description: newValue.description
+            }
+          ],
+          typeOf: {
+            "@id": newValue.typeOf!["@id"]
+          }
+        });
+      } else {
+        const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDFS.LABEL]);
+        editorEntity.value[propertyIri as string] = [
+          {
+            "@id": containingEntity["@id"],
+            name: containingEntity[RDFS.LABEL]
+          }
+        ];
+      }
     }
   } else {
     showTypeSelector.value = true;
@@ -319,7 +342,6 @@ function submit(): void {
       forceValidation.value = false;
       verificationDialog.close();
       if (isValidEntity(editorEntity.value)) {
-        console.log("submit");
         await Swal.fire({
           icon: "info",
           title: "Confirm create",
@@ -342,7 +364,7 @@ function submit(): void {
           if (result.isConfirmed) {
             Swal.fire({
               title: "Success",
-              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been created.",
+              text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
               icon: "success",
               showCancelButton: true,
               reverseButtons: true,
@@ -351,15 +373,14 @@ function submit(): void {
               cancelButtonColor: "#607D8B"
             }).then((result: any) => {
               if (result.isConfirmed) {
-                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
+                directService.view(editorEntity.value[IM.ID]);
               } else {
-                directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
+                directService.edit(editorEntity.value[IM.ID], true);
               }
             });
           }
         });
       } else {
-        console.log("invalid entity");
         Swal.fire({
           icon: "warning",
           title: "Warning",
@@ -380,8 +401,22 @@ function submit(): void {
     });
 }
 
-function testQuery() {
-  if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
+function closeCreator() {
+  Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+    showCancelButton: true,
+    confirmButtonText: "Close",
+    reverseButtons: true,
+    confirmButtonColor: "#D32F2F",
+    cancelButtonColor: "#607D8B",
+    customClass: { confirmButton: "swal-reset-button" }
+  }).then((result: any) => {
+    if (result.isConfirmed) {
+      router.push({ name: "LandingPage" });
+    }
+  });
 }
 
 function refreshCreator() {
@@ -398,8 +433,6 @@ function refreshCreator() {
   }).then((result: any) => {
     if (result.isConfirmed) {
       editorEntity.value = { ...editorEntityOriginal.value };
-      currentStep.value = 0;
-      router.push(stepsItems.value[currentStep.value].to);
     }
   });
 }
@@ -412,6 +445,20 @@ function processEntityValue(property: PropertyShape) {
 }
 </script>
 
+<style>
+.p-dropdown-label {
+  font-size: 1rem;
+}
+
+.p-dropdown {
+  height: 2.7rem;
+}
+
+.p-inputtext {
+  font-size: 1rem;
+}
+</style>
+
 <style scoped>
 #topbar-creator-container {
   height: 100%;
@@ -422,7 +469,6 @@ function processEntityValue(property: PropertyShape) {
 #creator-main-container {
   height: calc(100% - 3.5rem);
   width: 100%;
-  overflow: auto;
   overflow: auto;
 }
 
@@ -514,11 +560,29 @@ function processEntityValue(property: PropertyShape) {
   padding-top: 1rem;
 }
 
+#creator-footer-bar {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+
+.required-container {
+  flex: 0 1 auto;
+  padding: 1rem;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.required-info {
+  color: var(--red-500);
+}
+
 .button-bar {
   flex: 0 1 auto;
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
-  width: 100%;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;

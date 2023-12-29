@@ -1,10 +1,10 @@
 import { DirectService, EntityService } from "@/services";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { ref, Ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import rowClick from "./rowClick";
@@ -77,7 +77,7 @@ function setupTree() {
 
   async function loadMore(node: any) {
     node.loading = true;
-    if (node.nextPage * pageSize.value < node.totalCount) {
+    if (node.nextPage * pageSize.value <= node.totalCount) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
       children.result.forEach((child: any) => {

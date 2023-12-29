@@ -26,7 +26,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color:' + data.colour" class="p-mx-1 type-icon" />
-            <span class="text-name" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+            <span class="text-name" @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -36,19 +36,21 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 import { RDF, RDFS } from "@im-library/vocabulary";
-import rowClick from "@/composables/rowClick";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   entityIri: string;
 }
 const props = defineProps<Props>();
 
-const directService = new DirectService();
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 const usages: Ref<any[]> = ref([]);
 const loading = ref(false);
@@ -57,8 +59,8 @@ const recordsTotal = ref(0);
 const currentPage = ref(0);
 const pageSize = ref(25);
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
-const { onRowClick }: { onRowClick: Function } = rowClick();
-const OS = ref();
+
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 onMounted(async () => {
   await init();
@@ -77,7 +79,7 @@ async function init() {
 }
 
 function onRowSelect(event: any) {
-  onRowClick(event.data["@id"]);
+  emit("navigateTo", event.data["@id"]);
 }
 
 async function getUsages(iri: string, pageIndex: number, pageSize: number): Promise<void> {
@@ -112,14 +114,6 @@ function scrollToTop(): void {
   if (scrollBox) {
     scrollBox.scrollTop = 0;
   }
-}
-
-async function showOverlay(event: any, data: any): Promise<void> {
-  await OS.value.showOverlay(event, data["@id"]);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 </script>
 

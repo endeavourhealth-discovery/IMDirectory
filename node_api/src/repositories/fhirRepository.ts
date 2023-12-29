@@ -1,4 +1,4 @@
-import { GraphdbService, iri } from "@/services/graphdb.service";
+import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import Env from "@/services/env.service";
 import axios from "axios";
 import { IM, RDFS } from "@im-library/vocabulary";
@@ -19,19 +19,19 @@ export default class FhirRepository {
         "            ?label ?term .\n" +
         "}",
       {
-        s: iri(url),
-        hasMember: iri(IM.HAS_MEMBER),
-        imCode: iri(IM.CODE),
-        imScheme: iri(IM.SCHEME),
-        label: iri(RDFS.LABEL)
+        s: sanitise(url),
+        hasMember: sanitise(IM.HAS_MEMBER),
+        imCode: sanitise(IM.CODE),
+        imScheme: sanitise(IM.HAS_SCHEME),
+        label: sanitise(RDFS.LABEL)
       }
     );
   }
 
   public async getSubsets(url: string): Promise<any[]> {
     const rs = await this.graph.execute("SELECT ?subset WHERE { ?subset ?p ?o }", {
-      o: iri(url),
-      p: iri(IM.IS_SUBSET_OF)
+      o: sanitise(url),
+      p: sanitise(IM.IS_SUBSET_OF)
     });
 
     const result = [] as any[];
@@ -42,8 +42,8 @@ export default class FhirRepository {
 
   public async getDefinition(url: string): Promise<any[]> {
     const rs = await this.graph.execute("SELECT ?def WHERE { ?s ?p ?def }", {
-      s: iri(url),
-      p: iri(IM.DEFINITION)
+      s: sanitise(url),
+      p: sanitise(IM.DEFINITION)
     });
 
     const result = [] as any[];
@@ -72,13 +72,13 @@ export default class FhirRepository {
         "   OPTIONAL{ ?s  ?imVersion ?version .}\n" +
         "}",
       {
-        s: iri(url),
-        imCode: iri(IM.CODE),
-        imScheme: iri(IM.SCHEME),
-        label: iri(RDFS.LABEL),
-        imStatus: iri(IM.HAS_STATUS),
-        comment: iri(RDFS.COMMENT),
-        imVersion: iri(IM.VERSION)
+        s: sanitise(url),
+        imCode: sanitise(IM.CODE),
+        imScheme: sanitise(IM.HAS_SCHEME),
+        label: sanitise(RDFS.LABEL),
+        imStatus: sanitise(IM.HAS_STATUS),
+        comment: sanitise(RDFS.COMMENT),
+        imVersion: sanitise(IM.VERSION)
       }
     );
   }

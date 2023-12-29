@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, PropType, Ref, ref, watch } from "vue";
+import { nextTick, onMounted, Ref, ref, watch } from "vue";
 import palette from "google-palette";
 import _ from "lodash";
 import { ChartOptions, PieChartData } from "@im-library/interfaces";

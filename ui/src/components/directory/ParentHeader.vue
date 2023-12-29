@@ -8,35 +8,35 @@
         </h4>
       </div>
       <div class="entity-buttons-container">
-        <Button v-if="showSelectButton" :disabled="!isSelectableEntity" label="Select" @click="emit('entitySelected', entity['@id'])" />
         <ActionButtons
-          :buttons="hasQueryDefinition ? ['runQuery', 'findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'edit', 'favourite']"
+          :buttons="['findInTree', 'view', 'edit', 'favourite']"
           :iri="entity['@id']"
           :type="'entityButton'"
-          @locate-in-tree="(iri:string) => emit('locateInTree', iri)"
+          @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
         />
       </div>
     </div>
-    <TextWithLabel label="Iri" :data="entity['@id']" :show="entity['@id'] ? true : false" />
-    <TextWithLabel label="Code" :data="entity[IM.CODE]" :show="entity[IM.CODE] ? true : false" />
+    <div class="flex flex-row">
+      <TextWithLabel label="Iri" :data="entity['@id']" v-if="!!entity['@id']" />
+      <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
+    </div>
     <div class="flex flex-row justify-content-start">
-      <ArrayObjectNameTagWithLabel
-        label="Status"
-        :data="entity['http://endhealth.info/im#status']"
-        :show="entity['http://endhealth.info/im#status'] ? true : false"
-      />
+      <ArrayObjectNameTagWithLabel v-if="!!entity['http://endhealth.info/im#status']" label="Status" :data="entity['http://endhealth.info/im#status']" />
       <ArrayObjectNamesToStringWithLabel
         label="Types"
         :data="entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']"
-        :show="entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] ? true : false"
+        v-if="!!entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']"
       />
-      <ArrayObjectNamesToStringWithLabel label="Return Type" v-if="entity[IM.RETURN_TYPE]" :data="entity[IM.RETURN_TYPE]" :show="!!entity[IM.RETURN_TYPE]" />
+    </div>
+    <div>
+      <TextWithLabel label="Preferred name" :data="entity[IM.PREFERRED_NAME]" v-if="!!entity[IM.PREFERRED_NAME]" />
+      <ArrayObjectNamesToStringWithLabel label="Return Type" :data="entity[IM.RETURN_TYPE]" v-if="!!entity[IM.RETURN_TYPE]" />
     </div>
 
     <TextHTMLWithLabel
       label="Description"
       :data="entity['http://www.w3.org/2000/01/rdf-schema#comment']"
-      :show="entity['http://www.w3.org/2000/01/rdf-schema#comment'] ? true : false"
+      v-if="!!entity['http://www.w3.org/2000/01/rdf-schema#comment']"
     />
   </div>
 </template>
@@ -48,39 +48,33 @@ import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjec
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { getColourFromType, getFAIconFromType, isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { IM, RDF } from "@im-library/vocabulary";
+import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, watch, ref, onMounted } from "vue";
-import { EntityService, QueryService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { EntityService } from "@/services";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
-import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   entity: any;
-  showSelectButton?: boolean;
-  validationQuery?: QueryRequest;
 }
-const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
-
+const props = defineProps<Props>();
 const emit = defineEmits({
   entitySelected: (_payload: string) => true,
   locateInTree: (_payload: string) => true,
   navigateTo: (_payload: string) => true
 });
-
 const hasQueryDefinition: Ref<boolean> = ref(false);
-const isSelectableEntity: Ref<boolean> = ref(false);
+
 onMounted(async () => {
   if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
-  isSelectableEntity.value = await getIsSelectableEntity();
 });
 
 watch(
   () => _.cloneDeep(props.entity),
   async () => {
     if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
-    isSelectableEntity.value = await getIsSelectableEntity();
   }
 );
 
@@ -98,15 +92,6 @@ function getIcon(entity: any) {
 
 function getColour(entity: any) {
   return "color: " + getColourFromType(entity[RDF.TYPE]);
-}
-
-async function getIsSelectableEntity(): Promise<boolean> {
-  if (!props.validationQuery) return true;
-  const queryRequest = _.cloneDeep(props.validationQuery);
-  queryRequest.textSearch = props.entity[RDFS.LABEL];
-  const queryResults = await QueryService.queryIM(queryRequest);
-  if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
-  return queryResults.entities.some(item => item["@id"] === props.entity["@id"]);
 }
 </script>
 

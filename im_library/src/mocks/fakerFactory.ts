@@ -23,7 +23,7 @@ const fakerFactory = factory({
     hasChildren: Boolean,
     hasGrandChildren: Boolean,
     name: faker.lorem.sentence,
-    orderNumber: faker.datatype.number,
+    orderNumber: faker.number.int,
     parents: manyOf("iriRef", { unique: true }),
     type: manyOf("iriRef", { unique: true })
   },
@@ -31,11 +31,11 @@ const fakerFactory = factory({
     name: faker.lorem.sentence,
     iri: primaryKey(faker.internet.url),
     scheme: manyOf("iriRef", { unique: true }),
-    code: faker.datatype.string,
+    code: faker.string.sample,
     entityType: manyOf("iriRef", { unique: true }),
     isDescendentOf: manyOf("iriRef", { unique: true }),
-    weighting: faker.datatype.number,
-    match: faker.datatype.string,
+    weighting: faker.number.int,
+    match: faker.string.sample,
     status: manyOf("iriRef", { unique: true })
   },
   eclSearch: {
@@ -48,22 +48,22 @@ const fakerFactory = factory({
     label: faker.lorem.sentence,
     predicate: primaryKey(faker.internet.url),
     type: String,
-    size: faker.datatype.string,
-    order: faker.datatype.number
+    size: faker.string.sample,
+    order: faker.number.int
   },
   githubRelease: {
-    version: faker.datatype.string,
-    title: faker.datatype.string,
+    version: faker.string.sample,
+    title: faker.string.sample,
     createdDate: faker.date.recent,
     publishedDate: faker.date.past,
     releaseNotes: faker.datatype.array,
-    author: faker.name.fullName,
+    author: faker.person.fullName,
     url: primaryKey(faker.internet.url)
   },
   argument: {
     parameter: primaryKey(faker.internet.url),
-    valueData: faker.datatype.string,
-    valueVariable: faker.datatype.string,
+    valueData: faker.string.sample,
+    valueVariable: faker.string.sample,
     valueIri: oneOf("iriRef"),
     valueIriList: manyOf("iriRef"),
     valueDataList: faker.datatype.array
@@ -72,9 +72,9 @@ const fakerFactory = factory({
     label: faker.lorem.sentence,
     comment: faker.lorem.sentence,
     name: primaryKey(faker.lorem.words),
-    order: faker.datatype.number,
-    minCount: faker.datatype.number,
-    maxCount: faker.datatype.number,
+    order: faker.number.int,
+    minCount: faker.number.int,
+    maxCount: faker.number.int,
     componentType: oneOf("iriRef"),
     path: oneOf("iriRef", { unique: true }),
     node: manyOf("iriRef", { unique: true }),
@@ -96,9 +96,9 @@ const fakerFactory = factory({
     subProperty: manyOf("propertyShape")
   },
   componentDetails: {
-    id: primaryKey(faker.datatype.string),
+    id: primaryKey(faker.string.sample),
     value: Object,
-    position: faker.datatype.number,
+    position: faker.number.int,
     type: String,
     json: Object,
     showButtons: nullable(Object),
@@ -111,19 +111,19 @@ const fakerFactory = factory({
     group: oneOf("iriRef"),
     property: oneOf("iriRef"),
     type: oneOf("iriRef"),
-    cardinality: faker.datatype.string
+    cardinality: faker.string.sample
   },
   tangledTreeData: {
     id: primaryKey(faker.internet.url),
     parents: nullable(manyOf("tangledTreeData")),
     name: faker.lorem.sentence,
     type: faker.lorem.word,
-    cardinality: nullable(faker.datatype.string)
+    cardinality: nullable(faker.string.sample)
   },
   user: {
     id: primaryKey(faker.datatype.uuid),
-    firstName: faker.name.firstName,
-    lastName: faker.name.lastName,
+    firstName: faker.person.firstName,
+    lastName: faker.person.lastName,
     email: faker.internet.email,
     password: faker.random.alphaNumeric,
     avatar: faker.system.directoryPath,

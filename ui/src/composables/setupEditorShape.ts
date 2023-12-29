@@ -17,11 +17,10 @@ export function setupEditorShape() {
   let shape: Ref<FormGenerator | undefined> = ref();
   let targetShape: Ref<TTIriRef | undefined> = ref();
   let groups: Ref<PropertyShape[]> = ref([]);
-  let stepsItems: Ref<{ label: string; to: string }[]> = ref([]);
 
   function getShapesCombined(types: TTIriRef[], primaryType?: TTIriRef) {
     let shapeCombined: FormGenerator = {} as FormGenerator;
-    types = types.filter((item) => item["@id"] !== RDFS.CLASS);
+    types = types.filter(item => item["@id"] !== RDFS.CLASS);
     if (primaryType) {
       types.sort(function (x, y) {
         return x["@id"] == primaryType["@id"] ? -1 : y["@id"] == primaryType["@id"] ? 1 : 0;
@@ -62,9 +61,9 @@ export function setupEditorShape() {
       const validMappingSchemes = ["http://endhealth.info/emis#", "http://endhealth.info/tpp#"];
       if (shape.property.findIndex(property => property.path["@id"] === IM.MAPPED_TO) !== -1) {
         if (
-          isObjectHasKeys(entity, [RDF.TYPE, IM.SCHEME]) &&
+          isObjectHasKeys(entity, [RDF.TYPE, IM.HAS_SCHEME]) &&
           entity[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === IM.CONCEPT) !== -1 &&
-          !validMappingSchemes.includes(entity[IM.SCHEME][0]["@id"])
+          !validMappingSchemes.includes(entity[IM.HAS_SCHEME][0]["@id"])
         ) {
           shape.property.splice(
             shape.property.findIndex(property => property.path["@id"] === IM.MAPPED_TO),
@@ -74,40 +73,6 @@ export function setupEditorShape() {
       }
       targetShape.value = shape.targetShape;
       groups.value = shape.property;
-      // if (mode === EditorMode.EDIT) setEditorSteps();
-      // if (mode === EditorMode.CREATE) setCreatorSteps();
-    }
-  }
-
-  function setEditorSteps() {
-    stepsItems.value = [];
-    const editorRoute = router.options.routes.find(r => r.name === "Editor");
-    const currentPath = removeUrlSubroute(route.fullPath);
-    if (editorRoute) {
-      groups.value.forEach(group => {
-        const component = processComponentType(group.componentType);
-        if (editorRoute.children?.findIndex(route => route.name === group.name) === -1) {
-          editorRoute.children?.push({ path: group.name as string, name: group.name, component: component });
-        }
-        stepsItems.value.push({ label: group.name as string, to: currentPath + "/" + group.name });
-      });
-      router.addRoute(editorRoute);
-    }
-  }
-
-  function setCreatorSteps() {
-    stepsItems.value = [];
-    stepsItems.value.push({ label: "Type", to: "/creator/type" });
-    const creatorRoute = router.options.routes.find(r => r.name === "Creator");
-    if (creatorRoute) {
-      groups.value.forEach(group => {
-        const component = processComponentType(group.componentType);
-        if (creatorRoute.children?.findIndex(route => route.name === group.name) === -1) {
-          creatorRoute.children?.push({ path: group.name as string, name: group.name, component: component });
-        }
-        stepsItems.value.push({ label: group.name as string, to: "/creator/" + group.name });
-      });
-      router.addRoute(creatorRoute);
     }
   }
 
@@ -124,9 +89,6 @@ export function setupEditorShape() {
     addToShape,
     getShape,
     getShapesCombined,
-    stepsItems,
-    processShape,
-    setEditorSteps,
-    setCreatorSteps
+    processShape
   };
 }

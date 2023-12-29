@@ -1,6 +1,9 @@
 <template>
   <div class="autocomplete-container">
-    <label v-if="shape.showTitle" for="name">{{ shape.name }}</label>
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
     <div class="label-container">
       <div v-if="loading" class="loading-container">
         <ProgressSpinner style="width: 1.5rem; height: 1.5rem" strokeWidth="6" />
@@ -105,21 +108,45 @@ const emit = defineEmits({
 });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      }
       showValidation.value = true;
     }
   });
+}
+
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
+        }
+      }
+    }
+  );
 }
 
 watch(
@@ -150,6 +177,11 @@ const showValidation = ref(false);
 const invalidAssociatedProperty: ComputedRef<boolean> = computed(
   () => validationErrorMessage.value === `Missing required related item: ${props.shape.argument![0].valueVariable}`
 );
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 onBeforeUnmount(() => {
   if (isObjectHasKeys(optionsOverlayLocation.value)) {
@@ -239,7 +271,7 @@ function convertToConceptSummary(results: any[]) {
     conceptSummary.name = result[RDFS.LABEL] ? result[RDFS.LABEL] : result["@id"];
     conceptSummary.code = result[IM.CODE];
     conceptSummary.entityType = result[RDF.TYPE];
-    conceptSummary.scheme = result[IM.SCHEME];
+    conceptSummary.scheme = result[IM.HAS_SCHEME];
     conceptSummary.status = result[IM.HAS_STATUS];
     return conceptSummary;
   });
@@ -260,14 +292,18 @@ async function itemSelected(value: ConceptSummary) {
     if (!props.shape.builderChild && key.value) {
       updateEntity(value);
       if (updateValidity) {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        if (props.shape.builderChild) {
+          hasData();
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        }
         showValidation.value = true;
       }
     } else {
       emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }
     updateValueVariableMap(value);
-  }
+  } else if (!props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
 }
 
 function updateValueVariableMap(data: ConceptSummary) {
@@ -298,6 +334,16 @@ function showOptionsOverlay(event: any, data?: any) {
 function hideOptionsOverlay(event: any): void {
   optionsOP.value.hide(event);
   optionsOverlayLocation.value = {};
+}
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && !selectedResult.value) return;
+  if (!selectedResult.value) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Entity required.";
+  }
 }
 </script>
 
@@ -366,5 +412,15 @@ function hideOptionsOverlay(event: any): void {
 .result-overlay {
   all: unset;
   z-index: 999;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

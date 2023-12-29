@@ -1,8 +1,8 @@
 import { Argument, FormGenerator, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { RDF, IM, XSD, RDFS, SHACL } from "@im-library/vocabulary";
+import { RDF, IM, XSD, RDFS, SHACL, EDITOR, COMPONENT, FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
 
 const ConceptShape: FormGenerator = {
-  "@id": IM.editor.CONCEPT_SHAPE,
+  "@id": EDITOR.CONCEPT_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -19,10 +19,9 @@ const ConceptShape: FormGenerator = {
       order: 1,
       name: "splitter",
       path: { "@id": IM.CONCEPT },
-      minCount: 1,
       maxCount: 1,
-      componentType: { "@id": IM.component.HORIZONTAL_LAYOUT },
-      argument: [{ parameter: "subGroup widths", valueData: "50%,50%" }],
+      componentType: { "@id": COMPONENT.HORIZONTAL_LAYOUT },
+      argument: [{ parameter: "subGroup widths", valueData: "40%,60%" }],
       property: [
         {
           comment: "Summary layout",
@@ -31,14 +30,13 @@ const ConceptShape: FormGenerator = {
           showTitle: true,
           order: 1,
           maxCount: 1,
-          minCount: 1,
-          componentType: { "@id": IM.component.VERTICAL_LAYOUT },
+          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
           property: [
             {
               comment: "A property that auto generates the type as  concept type",
               order: 1,
               function: {
-                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -58,7 +56,7 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.ENTITY_COMBOBOX
+                "@id": COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -72,12 +70,13 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_DISPLAY
+                "@id": COMPONENT.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.SNOMED_CONCEPT_GENERATOR
-              }
+                "@id": FUNCTION.GET_USER_EDITABLE_SCHEMES
+              },
+              validation: { "@id": VALIDATION.IS_IRI }
             },
             {
               comment: "Property that derives a concept code from the concept iri",
@@ -100,13 +99,13 @@ const ConceptShape: FormGenerator = {
               ],
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_DISPLAY
+                "@id": COMPONENT.TEXT_DISPLAY
               },
               datatype: {
                 "@id": XSD.STRING
               },
               function: {
-                "@id": IM.function.LOCAL_NAME_RETRIEVER
+                "@id": FUNCTION.LOCAL_NAME_RETRIEVER
               }
             },
             {
@@ -120,15 +119,25 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_INPUT
+                "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
                 "@id": XSD.STRING
               }
             },
             {
-              comment: "optional description",
+              comment: "optional peferred name for efficiency during searching",
               order: 5,
+              name: "Preferred name",
+              showTitle: true,
+              maxCount: 1,
+              path: { "@id": IM.PREFERRED_NAME },
+              minCount: 0,
+              componentType: { "@id": COMPONENT.TEXT_INPUT }
+            },
+            {
+              comment: "optional description",
+              order: 6,
               datatype: {
                 "@id": XSD.STRING
               },
@@ -140,88 +149,95 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": IM.component.HTML_INPUT
+                "@id": COMPONENT.HTML_INPUT
               }
             },
             {
-              comment: "selects the status with a default of draft",
-              order: 6,
-              select: [
-                {
-                  "@id": IM.query.GET_ISAS
-                }
-              ],
               name: "Status",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.HAS_STATUS
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
+              order: 7,
+              path: { "@id": IM.HAS_STATUS },
+              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              validation: { "@id": VALIDATION.IS_STATUS },
               minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
-              },
-              forceIsValue: true
-            },
-            {
-              label: "Contained in array builder",
-              name: "isContainedIn",
-              showTitle: true,
-              order: 1,
-              minCount: 0,
-              componentType: {
-                "@id": IM.component.ARRAY_BUILDER
-              },
-              validation: {
-                "@id": IM.validation.HAS_PARENT
-              },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
-              path: {
-                "@id": IM.IS_CONTAINED_IN
-              },
+              arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
                 {
-                  comment: "selects an entity based on select query",
-                  name: "Entity",
-                  order: 1,
-                  minCount: 0,
-                  builderChild: true,
-                  componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
-                  },
+                  comment: "selects the status with a default of draft",
+                  order: 6,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
+                      "@id": QUERY.GET_DESCENDANTS
                     }
                   ],
+                  name: "Status",
+                  showTitle: true,
+                  builderChild: true,
+                  maxCount: 1,
                   path: {
-                    "@id": IM.IS_CONTAINED_IN
-                  }
+                    "@id": IM.HAS_STATUS
+                  },
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.STATUS
+                      },
+                      parameter: "this"
+                    }
+                  ],
+                  isIri: {
+                    "@id": IM.DRAFT
+                  },
+                  minCount: 1,
+                  componentType: {
+                    "@id": COMPONENT.ENTITY_DROPDOWN
+                  },
+                  forceIsValue: true
                 }
               ]
             },
             {
-              label: "Subclass of array builder",
-              name: "subclassOf",
+              comment: "optional im1id",
+              order: 8,
+              name: "IM1Id",
               showTitle: true,
-              order: 1,
+              maxCount: 1,
+              path: {
+                "@id": IM.IM_1_ID
+              },
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": COMPONENT.TEXT_DISPLAY
+              }
+            },
+            {
+              comment: "optional im1scheme",
+              order: 9,
+              function: {
+                "@id": FUNCTION.IM1_SCHEME_OPTIONS
               },
+              name: "IM1Scheme",
+              showTitle: true,
+              maxCount: 1,
+              path: {
+                "@id": IM.IM_1_SCHEME
+              },
+              minCount: 0,
+              componentType: {
+                "@id": COMPONENT.TEXT_DISPLAY
+              }
+            },
+            {
+              label: "Subclass of array builder",
+              name: "Subclass of",
+              showTitle: true,
+              order: 10,
+              minCount: 0,
+              componentType: {
+                "@id": COMPONENT.ARRAY_BUILDER
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
-                "@id": IM.validation.HAS_PARENT
+                "@id": VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
               path: {
@@ -236,22 +252,76 @@ const ConceptShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
+                  },
+                  path: {
+                    "@id": RDFS.SUBCLASS_OF
                   },
                   select: [
                     {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
+                      "@id": QUERY.SEARCH_SUBCLASS
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.CONCEPT
+                      },
+                      parameter: "value"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              label: "Contained in array builder",
+              name: "Contained in",
+              showTitle: true,
+              order: 11,
+              minCount: 0,
+              componentType: {
+                "@id": COMPONENT.ARRAY_BUILDER
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              validation: {
+                "@id": VALIDATION.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              path: {
+                "@id": IM.IS_CONTAINED_IN
+              },
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 0,
+                  builderChild: true,
+                  componentType: {
+                    "@id": COMPONENT.ENTITY_SEARCH
+                  },
+                  select: [
+                    {
+                      "@id": QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.CONCEPT
+                      },
+                      parameter: "value"
                     }
                   ],
                   path: {
-                    "@id": RDFS.SUBCLASS_OF
+                    "@id": IM.IS_CONTAINED_IN
                   }
                 }
               ]
             },
             {
               comment: "Toggle controlling sub components visibility",
-              order: 8,
+              order: 12,
               name: "Replaced by",
               label: "Deactivate | Activate",
               minCount: 1,
@@ -260,7 +330,7 @@ const ConceptShape: FormGenerator = {
                 "@id": "http://snomed.info/sct#370124000"
               },
               componentType: {
-                "@id": IM.component.TOGGLEABLE
+                "@id": COMPONENT.TOGGLEABLE
               },
               property: [
                 {
@@ -268,7 +338,7 @@ const ConceptShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_ENTITIES
+                      "@id": QUERY.SEARCH_ENTITIES
                     }
                   ],
                   argument: [
@@ -286,7 +356,7 @@ const ConceptShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ]
@@ -298,21 +368,22 @@ const ConceptShape: FormGenerator = {
           comment: "Role group | Mapped to splitter",
           path: { "@id": IM.CONCEPT },
           order: 1,
-          minCount: 1,
+          minCount: 0,
           maxCount: 1,
-          componentType: { "@id": IM.component.VERTICAL_LAYOUT },
+          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
           property: [
             {
               label: "Property Group - Role group builder",
               order: 1,
-              maxCount: 1,
               path: {
                 "@id": IM.ROLE_GROUP
               },
+              validation: { "@id": VALIDATION.IS_ROLE_GROUP },
               name: "Role group",
+              showTitle: true,
               minCount: 0,
               componentType: {
-                "@id": IM.component.ROLE_GROUP_BUILDER
+                "@id": COMPONENT.ROLE_GROUP_BUILDER
               }
             },
             {
@@ -321,33 +392,73 @@ const ConceptShape: FormGenerator = {
               maxCount: 1,
               showTitle: true,
               path: {
-                "@id": IM.MAPPED_TO
+                "@id": IM.MATCHED_TO
               },
               property: [
                 {
                   comment: "selects an entity based on select query",
                   order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
-                    }
-                  ],
                   builderChild: true,
                   name: "Entity",
                   path: {
-                    "@id": IM.MAPPED_TO
+                    "@id": IM.MATCHED_TO
                   },
-                  minCount: 1,
+                  minCount: 0,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ],
               name: "Mapped to",
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
-              }
+                "@id": COMPONENT.ARRAY_BUILDER
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
+            },
+            {
+              name: "Term code",
+              comment: "Term code array builder",
+              order: 1,
+              path: {
+                "@id": IM.HAS_TERM_CODE
+              },
+              showTitle: true,
+              minCount: 0,
+              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              validation: { "@id": VALIDATION.IS_TERMCODE },
+              property: [
+                {
+                  name: "Term code",
+                  path: { "@id": IM.HAS_TERM_CODE },
+                  builderChild: true,
+                  order: 1,
+                  minCount: 0,
+                  componentType: { "@id": COMPONENT.TERM_CODE_EDITOR },
+                  validation: { "@id": VALIDATION.IS_TERMCODE }
+                }
+              ]
+            },
+            {
+              name: "Child of",
+              comment: "Child of array builder",
+              order: 1,
+              path: { "@id": IM.IS_CHILD_OF },
+              showTitle: true,
+              minCount: 0,
+              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              property: [
+                {
+                  name: "Child of",
+                  path: { "@id": IM.IS_CHILD_OF },
+                  builderChild: true,
+                  order: 1,
+                  minCount: 0,
+                  componentType: { "@id": COMPONENT.ENTITY_SEARCH }
+                }
+              ]
             }
           ]
         }

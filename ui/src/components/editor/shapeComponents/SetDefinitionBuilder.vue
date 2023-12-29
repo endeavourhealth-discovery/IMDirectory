@@ -2,27 +2,36 @@
   <div class="set-definition-container">
     <div class="ecl-container">
       <div class="text-copy-container">
-        <!-- <div class="field-checkbox">
-          <Checkbox inputId="showNames" v-model="showNames" :binary="true" />
-          <label for="showNames">Show names</label>
-        </div> -->
-        <h1>{{ shape.name }}</h1>
-        <Textarea
-          v-model="ecl"
-          id="ecl-string-container"
-          :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
-          :class="eclError ? 'p-invalid' : ''"
-          data-testid="ecl-string"
-          :disabled="loading"
-          @dragenter.prevent
-          @dragover.prevent
-          @drop="dropReceived($event)"
-        />
+        <div class="title-bar">
+          <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
+          <h2 v-if="showRequired" class="required">*</h2>
+        </div>
+        <div id="defintion-panel-container">
+          <TabView>
+            <TabPanel header="ECL">
+              <Textarea
+                v-model="ecl"
+                id="ecl-string-container"
+                :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
+                :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
+                data-testid="ecl-string"
+                :disabled="loading"
+                @dragenter.prevent
+                @dragover.prevent
+                @drop="dropReceived($event)"
+              />
+              <div class="show-names-container"><label for="">Show names</label><Checkbox v-model="showNames" :binary="true" /></div>
+            </TabPanel>
+            <TabPanel header="Display">
+              <QueryDisplay :definition="value" />
+            </TabPanel>
+          </TabView>
+        </div>
       </div>
       <div class="button-container">
         <Button label="Import" @click="toggleMenuOptions" aria-haspopup="true" aria-controls="import_menu" />
         <Menu id="import_menu" ref="importMenu" :model="buttonOptions" :popup="true" />
-        <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" />
+        <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" :loading="loading" />
         <Button
           icon="fa-solid fa-copy"
           label="Copy to clipboard"
@@ -41,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, Ref, PropType, inject } from "vue";
+import { onMounted, ref, watch, Ref, PropType, inject, ComputedRef, computed } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 import { EditorMode } from "@im-library/enums";
@@ -54,6 +63,7 @@ import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary } from "@im-library/interfaces";
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -79,11 +89,44 @@ const loading = ref(false);
 const showNames = ref(false);
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
+
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        if (updateValidity) {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          showValidation.value = true;
+        }
+      }
+    }
+  );
+}
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const key = props.shape.path["@id"];
 const buttonOptions = [
@@ -95,15 +138,26 @@ watch(
   () => props.value,
   async (newValue, oldValue) => {
     loading.value = true;
-    if (newValue && newValue !== oldValue) ecl.value = await EclService.getECLFromQuery(JSON.parse(newValue));
+    if (newValue && newValue !== oldValue) ecl.value = await EclService.getECLFromQuery(JSON.parse(newValue), showNames.value);
     loading.value = false;
   }
 );
 
+const debounceTimer = ref(0);
 watch(ecl, async newValue => {
-  // eclNoNames.value = ecl.value.replace(/\|.*?\|/g, "").replace(/\s\s+/g, " ");
-  if (await EclService.isValidECL(newValue)) {
-    eclAsQuery.value = await EclService.getQueryFromECL(newValue);
+  clearTimeout(debounceTimer.value);
+  debounceTimer.value = window.setTimeout(async (): Promise<void> => {
+    if (await EclService.isValidECL(newValue)) {
+      eclAsQuery.value = await EclService.getQueryFromECL(newValue);
+    }
+  }, 600);
+});
+
+watch(showNames, async newValue => {
+  if (props.value) {
+    loading.value = true;
+    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), newValue);
+    loading.value = false;
   }
 });
 
@@ -111,14 +165,17 @@ watch(
   () => _.cloneDeep(eclAsQuery.value),
   async () => {
     updateEntity();
-    if (updateValidity && valueVariableMap) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    if (updateValidity && valueVariableMap) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      showValidation.value = true;
+    }
   }
 );
 
 onMounted(async () => {
   if (props.value) {
     loading.value = true;
-    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value));
+    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
     loading.value = false;
   }
 });
@@ -162,7 +219,8 @@ function updateEntity() {
   if (entityUpdate) {
     const result = {} as any;
     result[key] = JSON.stringify(eclAsQuery.value);
-    entityUpdate(result);
+    if (!eclAsQuery.value && deleteEntityKey) deleteEntityKey(key);
+    else entityUpdate(result);
   }
 }
 
@@ -220,7 +278,7 @@ async function dropReceived(event: any) {
 
 #ecl-string-container {
   width: 100%;
-  height: 100%;
+  height: 17rem;
   overflow: auto;
   flex-grow: 100;
 }
@@ -244,5 +302,41 @@ Textarea {
   flex-flow: row;
   gap: 1rem;
   margin: 1rem 0 1rem 0;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.required {
+  color: var(--red-500);
+}
+
+#defintion-panel-container:deep(.p-tabview-panels) {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+#defintion-panel-container:deep(.p-tabview-panel) {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#defintion-panel-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+#defintion-panel-container:deep(.p-tabview) {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
 }
 </style>

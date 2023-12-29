@@ -35,7 +35,6 @@ import { onMounted, ref, Ref, watch, computed } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { useRoute, useRouter } from "vue-router";
 import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
@@ -49,13 +48,11 @@ const emit = defineEmits({
   "update:history": (_payload: string[]) => true
 });
 
-const router = useRouter();
-const route = useRoute();
 const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
-const canGoBack = computed(() => props.history.length > 0 && props.history.indexOf(props.entityIri) > 0);
-const canGoForward = computed(() => props.history.length > 0 && props.history.indexOf(props.entityIri) < props.history.length - 1);
+const canGoBack = computed(() => props.history.length && props.history.indexOf(props.entityIri) !== 0);
+const canGoForward = computed(() => props.history.length && props.history.indexOf(props.entityIri) < props.history.length - 1);
 
 watch(
   () => props.entityIri,

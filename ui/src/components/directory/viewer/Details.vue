@@ -1,8 +1,8 @@
 <template>
   <div class="details-container">
     <div style="margin-bottom: 1em">
-      <Button class="details-tree-button" icon="pi pi-plus" label="Expand All" @click="expandAll" />
-      <Button class="details-tree-button p-button-secondary" icon="pi pi-minus" label="Collapse All" @click="collapseAll" />
+      <Button class="details-tree-button" icon="fa-solid fa-plus" label="Expand All" @click="expandAll" />
+      <Button class="details-tree-button p-button-secondary" icon="fa-solid fa-minus" label="Collapse All" @click="collapseAll" />
     </div>
     <Tree
       v-model:selectionKeys="selectedKeys"
@@ -19,32 +19,30 @@
         </div>
 
         <div v-else-if="node.data">
-          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
         <div v-else>{{ node.label }}</div>
       </template>
       <template #string="{ node }: any">{{ node.value }}</template>
-      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" @navigateTo="(iri:string) => emit('navigateTo', iri)" /></template>
+      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" @navigateTo="(iri: string) => emit('navigateTo', iri)" /></template>
       <template #boolean="{ node }: any">{{ node.label }}</template>
       <template #link="{ node }: any">
-        <IMViewerLink :iri="node.key!" :label="node.label" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+        <IMViewerLink :iri="node.key!" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
       </template>
       <template #loadMore="{ node }: any">
         <b>{{ node.label }}...</b>
       </template>
     </Tree>
-    <OverlaySummary ref="OS" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 
 interface Props {
   entityIri: string;
@@ -80,7 +78,7 @@ const collapseAll = () => {
 const expandNode = (node: TreeNode) => {
   const hasExpandToSeeMore = (node.label as string).includes("(expand to see more...)");
 
-  if (node.children && node.children.length && !hasExpandToSeeMore) {
+  if (node.children?.length && !hasExpandToSeeMore) {
     expandedKeys.value[node.key!] = true;
 
     for (let child of node.children) {
@@ -113,14 +111,6 @@ async function onSelect(node: TreeNode) {
 async function onExpand(node: TreeNode) {
   const hasLoadMore = node.children?.some(child => child.key === IM.NAMESPACE + "loadMore");
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
-}
-
-async function showOverlay(event: any, iri: any): Promise<void> {
-  await OS.value.showOverlay(event, iri);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 
 function openTab(predicate: string) {

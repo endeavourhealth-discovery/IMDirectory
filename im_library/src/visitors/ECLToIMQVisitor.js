@@ -53,7 +53,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           }
           if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
             const subExpressionConstraint = result.subExpressionConstraint;
-            query.expressionConstraint = subExpressionConstraint;
+            query.expressionConstraint.instanceOf = subExpressionConstraint;
           }
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
             const bracketCompoundExpressionConstraint = result.bracketCompoundExpressionConstraint;
@@ -73,7 +73,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       for (const result of results) {
         if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
           const subExpressionConstraint = result.subExpressionConstraint;
-          query.refinedExpressionConstraint = subExpressionConstraint;
+          if (subExpressionConstraint["@id"]) query.refinedExpressionConstraint.instanceOf = subExpressionConstraint;
         }
         if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
           const bracketCompoundExpressionConstraint = result.bracketCompoundExpressionConstraint;
@@ -107,7 +107,8 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["conjunction"])) query.conjunctionExpressionConstraint.bool = result.conjunction;
-          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.conjunctionExpressionConstraint.match.push(result.subExpressionConstraint);
+          if (isObjectHasKeys(result, ["subExpressionConstraint"]))
+            query.conjunctionExpressionConstraint.match.push({ instanceOf: result.subExpressionConstraint });
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"]))
             query.conjunctionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint);
         }
@@ -124,9 +125,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["disjunction"])) query.disjunctionExpressionConstraint.bool = result.disjunction;
-          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.disjunctionExpressionConstraint.match.push(result.subExpressionConstraint);
+          if (isObjectHasKeys(result, ["subExpressionConstraint"]))
+            query.disjunctionExpressionConstraint.match.push({ instanceOf: result.subExpressionConstraint });
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"]))
-            query.disjunctionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint.match);
+            query.disjunctionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint);
         }
       }
     }
@@ -143,10 +145,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         for (const result of results) {
           if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
             if (first) {
-              query.exclusionExpressionConstraint.match.push(result.subExpressionConstraint);
+              query.exclusionExpressionConstraint.match.push({ instanceOf: result.subExpressionConstraint });
               first = false;
             } else {
-              query.exclusionExpressionConstraint.match.push({ exclude: true, match: [result.subExpressionConstraint] });
+              query.exclusionExpressionConstraint.match.push({ exclude: true, match: [{ instanceOf: result.subExpressionConstraint }] });
             }
           }
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
@@ -161,7 +163,8 @@ export default class ECLBuilderVisitor extends ECLVisitor {
                   match: result.bracketCompoundExpressionConstraint.match
                 });
               } else {
-                query.exclusionExpressionConstraint.match.push({ exclude: true, match: [result.bracketCompoundExpressionConstraint] });
+                const exclusionMatch = result.bracketCompoundExpressionConstraint;
+                query.exclusionExpressionConstraint.match.push({ exclude: true, match: [exclusionMatch] });
               }
             }
           }
@@ -215,7 +218,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           }
           if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
             const subExpressionConstraint = result.subExpressionConstraint;
-            query.bracketCompoundExpressionConstraint = subExpressionConstraint;
+            query.bracketCompoundExpressionConstraint.instanceOf = subExpressionConstraint;
           }
         }
       }
@@ -401,17 +404,17 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitEclattributegroup(ctx) {
     logItem("found ecl attribute group", ctx.getText());
-    let query = { eclAttributeGroup: { property: [] } };
+    let query = { eclAttributeGroup: { match: {} } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["compoundAttributeSet"])) {
             result.compoundAttributeSet.property.forEach(item => delete item.anyRoleGroup);
-            query.eclAttributeGroup = result.compoundAttributeSet;
+            query.eclAttributeGroup.match = result.compoundAttributeSet;
             query.eclAttributeGroup["@id"] = IM.ROLE_GROUP;
           }
-          if (isObjectHasKeys(result, ["eclAttribute"])) query.eclAttributeGroup = { "@id": IM.ROLE_GROUP, property: [result.eclAttribute] };
+          if (isObjectHasKeys(result, ["eclAttribute"])) query.eclAttributeGroup = { "@id": IM.ROLE_GROUP, match: { property: [result.eclAttribute] } };
         }
       }
     }
@@ -528,18 +531,18 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           }
           if (isObjectHasKeys(result, ["eclAttributeExpressionValue"])) {
             const eclAttributeExpressionValue = result.eclAttributeExpressionValue;
-            if (eclAttributeExpressionValue.in) query.eclAttribute.in = eclAttributeExpressionValue.in;
-            if (eclAttributeExpressionValue.notIn) query.eclAttribute.notIn = eclAttributeExpressionValue.notIn;
+            if (eclAttributeExpressionValue.is) query.eclAttribute.is = eclAttributeExpressionValue.is;
+            if (eclAttributeExpressionValue.isNot) query.eclAttribute.isNot = eclAttributeExpressionValue.isNot;
           }
           if (isObjectHasKeys(result, ["eclAttributeNumberValue"])) {
             const eclAttributeNumberValue = result.eclAttributeNumberValue;
-            if (eclAttributeNumberValue.in) query.eclAttribute.in = eclAttributeNumberValue.in;
-            if (eclAttributeNumberValue.notIn) query.eclAttribute.notIn = eclAttributeNumberValue.notIn;
+            if (eclAttributeNumberValue.is) query.eclAttribute.is = eclAttributeNumberValue.is;
+            if (eclAttributeNumberValue.isNot) query.eclAttribute.isNot = eclAttributeNumberValue.isNot;
           }
           if (isObjectHasKeys(result, ["eclattributestringvalue"])) {
             const eclattributestringvalue = result.eclattributestringvalue;
-            if (eclattributestringvalue.in) query.eclAttribute.in = eclattributestringvalue.value.in;
-            if (eclattributestringvalue.notIn) query.eclAttribute.notIn = eclattributestringvalue.notIn;
+            if (eclattributestringvalue.is) query.eclAttribute.is = eclattributestringvalue.value.is;
+            if (eclattributestringvalue.isNot) query.eclAttribute.isNot = eclattributestringvalue.isNot;
           }
         }
       }
@@ -556,23 +559,23 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         for (const result of results) {
           if (isObjectHasKeys(result, ["expressionComparisonOperator"])) {
             const expressionComparisonOperator = result.expressionComparisonOperator;
-            if (expressionComparisonOperator === "=") query.eclAttributeExpressionValue.in = [];
-            else if (expressionComparisonOperator === "!=") query.eclAttributeExpressionValue.notIn = [];
+            if (expressionComparisonOperator === "=") query.eclAttributeExpressionValue.is = [];
+            else if (expressionComparisonOperator === "!=") query.eclAttributeExpressionValue.isNot = [];
             else throw new Error(`attribute value operator: '${expressionComparisonOperator}' is not currently supported`);
           }
           if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
             const subExpressionConstraint = result.subExpressionConstraint;
-            if (query.eclAttributeExpressionValue.in && _.isArray(query.eclAttributeExpressionValue.in))
-              query.eclAttributeExpressionValue.in.push(subExpressionConstraint);
-            if (query.eclAttributeExpressionValue.notIn && _.isArray(query.eclAttributeExpressionValue.notIn))
-              query.eclAttributeExpressionValue.notIn.push(subExpressionConstraint);
+            if (query.eclAttributeExpressionValue.is && _.isArray(query.eclAttributeExpressionValue.is))
+              query.eclAttributeExpressionValue.is.push(subExpressionConstraint);
+            if (query.eclAttributeExpressionValue.isNot && _.isArray(query.eclAttributeExpressionValue.isNot))
+              query.eclAttributeExpressionValue.isNot.push(subExpressionConstraint);
           }
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
             const bracketCompoundExpressionConstraint = result.bracketCompoundExpressionConstraint;
-            if (query.eclAttributeExpressionValue.in && _.isArray(query.eclAttributeExpressionValue.in))
-              query.eclAttributeExpressionValue.in.push(bracketCompoundExpressionConstraint);
-            if (query.eclAttributeExpressionValue.notIn && _.isArray(query.eclAttributeExpressionValue.notIn))
-              query.eclAttributeExpressionValue.notIn.push(bracketCompoundExpressionConstraint);
+            if (query.eclAttributeExpressionValue.is && _.isArray(query.eclAttributeExpressionValue.is))
+              query.eclAttributeExpressionValue.is.push(bracketCompoundExpressionConstraint);
+            if (query.eclAttributeExpressionValue.isNot && _.isArray(query.eclAttributeExpressionValue.isNot))
+              query.eclAttributeExpressionValue.isNot.push(bracketCompoundExpressionConstraint);
           }
         }
       }
@@ -589,16 +592,16 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         for (const result of results) {
           if (isObjectHasKeys(result, ["stringComparisonOperator"])) {
             const stringComparisonOperator = result.stringComparisonOperator;
-            if (stringComparisonOperator === "=") query.eclAttributeStringValue.in = [];
-            else if (stringComparisonOperator === "!=") query.eclAttributeStringValue.notIn = [];
+            if (stringComparisonOperator === "=") query.eclAttributeStringValue.is = [];
+            else if (stringComparisonOperator === "!=") query.eclAttributeStringValue.isNot = [];
             else throw new Error(`attribute value operator: '${stringComparisonOperator}' is not currently supported`);
           }
           if (isObjectHasKeys(result, ["stringValue"])) {
             const stringValue = result.stringValue;
-            if (query.eclAttributeStringValue.in && _.isArray(query.eclAttributeStringValue.in))
-              query.eclAttributeStringValue.in.push({ variable: stringValue });
-            if (query.eclAttributeStringValue.notIn && _.isArray(query.eclAttributeStringValue.notIn))
-              query.eclAttributeStringValue.notIn.push({ variable: stringValue });
+            if (query.eclAttributeStringValue.is && _.isArray(query.eclAttributeStringValue.is))
+              query.eclAttributeStringValue.is.push({ variable: stringValue });
+            if (query.eclAttributeStringValue.isNot && _.isArray(query.eclAttributeStringValue.isNot))
+              query.eclAttributeStringValue.isNot.push({ variable: stringValue });
           }
         }
       }
@@ -615,15 +618,15 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         for (const result of results) {
           if (isObjectHasKeys(result, ["numericComparisonOperator"])) {
             const numericComparisonOperator = result.numericComparisonOperator;
-            if (numericComparisonOperator === "=") query.eclAttributeNumberValue.in = [];
-            else if (numericComparisonOperator === "!=") query.eclAttributeNumberValue.notIn = [];
+            if (numericComparisonOperator === "=") query.eclAttributeNumberValue.is = [];
+            else if (numericComparisonOperator === "!=") query.eclAttributeNumberValue.isNot = [];
             else throw new Error(`attribute value operator: '${numericComparisonOperator}' is not currently supported`);
           }
           if (isObjectHasKeys(result, ["numericValue"])) {
             const numericValue = result.numericValue;
-            if (query.eclAttributeNumberValue.in && _.isArray(query.eclAttributeNumberValue.in)) query.eclAttributeNumberValue.in.push({ value: numericValue });
-            if (query.eclAttributeNumberValue.notIn && _.isArray(query.eclAttributeNumberValue.notIn))
-              query.eclAttributeNumberValue.notIn.push({ variable: numericValue });
+            if (query.eclAttributeNumberValue.is && _.isArray(query.eclAttributeNumberValue.is)) query.eclAttributeNumberValue.is.push({ value: numericValue });
+            if (query.eclAttributeNumberValue.isNot && _.isArray(query.eclAttributeNumberValue.isNot))
+              query.eclAttributeNumberValue.isNot.push({ variable: numericValue });
           }
         }
       }

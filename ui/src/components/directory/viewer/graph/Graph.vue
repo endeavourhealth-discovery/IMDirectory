@@ -11,7 +11,7 @@
     <div class="loading-container" v-if="loading">
       <ProgressSpinner />
     </div>
-    <GraphComponent v-else :data="data" />
+    <GraphComponent v-else :data="data" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
   </div>
 </template>
 
@@ -30,6 +30,10 @@ interface Props {
   entityIri: string;
 }
 const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 watch(
   () => props.entityIri,
@@ -70,9 +74,9 @@ async function getEntityBundle(iri: string) {
   }
   predicatesIris.value = Object.keys(bundle.value.entity).filter(value => value !== "@id");
   predicatesIris.value.forEach(i => {
-    if (!graphExcludePredicates.includes(i)) options.value.push({ iri: i, name: bundle.value.predicates[i] });
+    if (!graphExcludePredicates.find(gep => gep === i)) options.value.push({ iri: i, name: bundle.value.predicates[i] });
   });
-  selectedPredicates.value = options.value.filter(value => !graphExcludePredicates.includes(value.iri));
+  selectedPredicates.value = options.value.filter(value => !graphExcludePredicates.find(gep => gep === value.iri));
   selectedPredicates.value.forEach(i => {
     selectedIris.value.push(i.iri);
   });

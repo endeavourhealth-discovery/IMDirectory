@@ -28,7 +28,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
-            <span @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -57,26 +57,31 @@ import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, DirectService, UserService } from "@/services";
-import rowClick from "@/composables/rowClick";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
+import setupOverlay from "@/composables/setupOverlay";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
 interface Props {
   entityIri: string;
 }
+
 const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
-
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
-const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => props.entityIri,
@@ -98,21 +103,21 @@ const selected: Ref<any> = ref({});
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Open",
-    icon: "pi pi-fw pi-folder-open",
-    command: () => directService.select((selected.value as any)["@id"])
+    icon: "fa-solid fa-folder-open",
+    command: () => emit("navigateTo", selected.value["@id"])
   },
   {
     label: "View in new tab",
-    icon: "pi pi-fw pi-external-link",
-    command: () => directService.view((selected.value as any)["@id"])
+    icon: "fa-solid fa-arrow-up-right-from-square",
+    command: () => directService.view(selected.value["@id"])
   },
   {
     separator: true
   },
   {
     label: "Favourite",
-    icon: "pi pi-fw pi-star",
-    command: () => updateFavourites((selected.value as any)["@id"])
+    icon: "fa-solid fa-star",
+    command: () => updateFavourites(selected.value["@id"])
   }
 ]);
 const totalCount = ref(0);
@@ -121,7 +126,6 @@ const pageSize = ref(25);
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
 
 const menu = ref();
-const OS: Ref<any> = ref();
 
 onMounted(() => init());
 
@@ -166,7 +170,7 @@ function isFavourite(iri: string) {
 
 function updateRClickOptions() {
   rClickOptions.value[0].label = selected.value.hasChildren ? "Open" : "Select";
-  rClickOptions.value[0].icon = selected.value.hasChildren ? "pi pi-fw pi-folder-open" : "fa-solid fa-sitemap";
+  rClickOptions.value[0].icon = selected.value.hasChildren ? "fa-solid fa-folder-open" : "fa-solid fa-sitemap";
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
 }
 
@@ -181,7 +185,7 @@ function updateFavourites(iri: string) {
 }
 
 function onRowSelect(event: any) {
-  onRowClick(event.data["@id"]);
+  emit("navigateTo", event.data["@id"]);
 }
 
 async function onPage(event: any) {
@@ -198,14 +202,6 @@ async function onPage(event: any) {
 function scrollToTop(): void {
   const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
   scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
-}
-
-async function showOverlay(event: any, data: any): Promise<void> {
-  await OS.value.showOverlay(event, data["@id"]);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 
 function locateInTree(iri: string) {

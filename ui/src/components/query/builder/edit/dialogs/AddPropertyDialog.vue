@@ -1,17 +1,10 @@
 <template>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    maximizable
-    :header="addMode === 'editProperty' ? 'Edit property list' : 'Add new properties'"
-    :style="{ minWidth: '50vw' }"
-  >
+  <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
     <QueryNavTree
-      :base-type="baseType"
       :editMatch="editMatch"
       :selected-properties="selectedProperties"
-      :variable-map="variableMap"
-      :add-mode="addMode"
+      :dm-iri="matchType"
+      :show-variable-options="showVariableOptions"
       @on-selected-update="onSelectedUpdate"
     />
     <template #footer>
@@ -25,23 +18,23 @@
 import { Ref, onMounted, ref, watch } from "vue";
 import { Match } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { buildMatchesFromProperties } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "../QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   showDialog: boolean;
-  baseType: string;
   match?: Match;
-  variableMap: Map<string, any>;
-  addMode: "editProperty" | "addBefore" | "addAfter";
+  header: string;
+  matchType: string;
+  showVariableOptions: boolean;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits({
   onClose: () => true,
-  onAddOrEdit: (_direct: Match[], _nested: Match[]) => true,
+  onSave: (_direct: Match[], _nested: Match[]) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
@@ -79,7 +72,7 @@ function onSelectedUpdate(selected: TreeNode[]) {
 async function save() {
   editMatch.value.property = [];
   const { direct, nested } = buildMatchesFromProperties(selectedProperties.value as any);
-  emit("onAddOrEdit", direct, nested);
+  emit("onSave", direct, nested);
   visible.value = false;
 }
 </script>

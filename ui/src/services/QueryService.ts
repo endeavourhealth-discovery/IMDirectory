@@ -1,8 +1,8 @@
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
+import { AllowableChildProperty, AliasEntity, QueryResponse } from "@im-library/interfaces";
 import axios from "axios";
-import { PathDocument, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { PathDocument, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -29,28 +29,17 @@ const QueryService = {
     });
   },
 
-  async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<{ entities: any[]; "@context": any }> {
+  async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {
     if (controller) return await axios.post(Env.API + "api/query/public/queryIM", query, { signal: controller.signal, raw: raw });
     else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
   },
 
-  async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<{ entities: any[]; "@context": any }> {
+  async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResultSummary[]> {
     return await axios.post(Env.API + "api/query/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
   },
 
   async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
     return axios.post(Env.VITE_NODE_API + "node_api/validation/public/validate", data, { params: { iri: validationIri } });
-  },
-
-  async runFunction(iri: string, args?: any[]): Promise<any> {
-    if (args && args.length > 0) {
-      const result: any = await axios.post(Env.API + "api/function/public/callFunction", {
-        functionIri: iri,
-        arguments: args
-      });
-      if (isArrayHasLength(args) && args.find(arg => arg.parameter === "fieldName")) return result[args.find(arg => arg.parameter === "fieldName").valueData];
-      else return result;
-    } else return await axios.post(Env.API + "api/function/public/callFunction", { functionIri: iri });
   },
 
   async entityQuery(query: QueryRequest, controller?: AbortController) {
@@ -115,6 +104,10 @@ const QueryService = {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri } });
   },
 
+  async getQueryDisplayFromQuery(query: Query): Promise<Query> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplayFromQuery", query);
+  },
+
   async getAllQueries(): Promise<any> {
     return axios.get(Env.API + "api/query/public/allQueries");
   },
@@ -125,6 +118,18 @@ const QueryService = {
 
   async getDataModelProperty(dataModelIri: string, propertyIri: string) {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/dataModelProperty", { params: { dataModelIri: dataModelIri, propertyIri: propertyIri } });
+  },
+
+  async generateQuerySQL(queryIri: string): Promise<string> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", { params: { queryIri: queryIri } });
+  },
+
+  async generateQuerySQLfromQuery(query: Query): Promise<string> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", query);
+  },
+
+  async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<string> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/selection/validate", { iri: selectedIri, queryRequest: queryRequest });
   }
 };
 

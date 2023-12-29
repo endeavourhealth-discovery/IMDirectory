@@ -1,11 +1,13 @@
 <template>
   <div class="array-builder-container">
-    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+      <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
+    </div>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
     <div v-else class="children-container" :class="invalid && showValidation && 'invalid'">
-      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
       <template v-for="(item, index) in build" :key="item.id">
         <component
           :is="item.type"
@@ -25,6 +27,9 @@
         />
       </template>
     </div>
+    <div class="validate-error-container">
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
+    </div>
   </div>
 </template>
 
@@ -38,7 +43,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, PropType, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";
@@ -65,6 +70,7 @@ const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
@@ -78,6 +84,30 @@ if (forceValidation) {
   });
 }
 
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        if (updateValidity) {
+          if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+            invalid.value = false;
+            validationErrorMessage.value = undefined;
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+            showValidation.value = true;
+          }
+        }
+      }
+    }
+  );
+}
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
+
 let key = props.shape.path["@id"];
 
 const loading = ref(true);
@@ -88,8 +118,12 @@ const build: Ref<ComponentDetails[]> = ref([]);
 onMounted(async () => {
   init();
   if (updateValidity) {
-    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-    showValidation.value = false;
+    if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+      invalid.value = false;
+      validationErrorMessage.value = undefined;
+    } else {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    }
   }
 });
 
@@ -105,8 +139,12 @@ watch(
     if (!loading.value && finishedChildLoading.value) {
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
       if (updateValidity) {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-        showValidation.value = true;
+        if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+          invalid.value = false;
+          validationErrorMessage.value = undefined;
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        }
       }
       updateValueVariableMap(props.value);
     }
@@ -167,14 +205,7 @@ function createDefaultBuild() {
   if (isObjectHasKeys(props.shape, ["property"])) {
     props.shape.property!.forEach(property => {
       build.value.push(
-        generateNewComponent(
-          ComponentType.BUILDER_CHILD_WRAPPER,
-          property.order - 1,
-          undefined,
-          property,
-          setButtonsByTypeAndPath(property.order - 1, true),
-          props.mode
-        )
+        generateNewComponent(ComponentType.BUILDER_CHILD_WRAPPER, property.order - 1, undefined, property, setButtons(property.order - 1, true), props.mode)
       );
     });
   }
@@ -186,41 +217,51 @@ function processChild(child: any, position: number) {
     position,
     child,
     props.shape.property?.[0] ?? ({} as PropertyShape),
-    setButtonsByTypeAndPath(position, true),
+    setButtons(position, true),
     props.mode
   );
 }
 
-function setButtonsByTypeAndPath(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
-  const path = props.shape.path["@id"];
-  const types: TTIriRef[] = editorEntity?.value[RDF.TYPE];
-  if (path === RDFS.SUBCLASS_OF) {
-    return addButtonOnlyIfLast(position, isNewItem);
-  } else if (path === IM.IS_CONTAINED_IN) {
-    return addButtonOnlyIfLast(position, isNewItem);
-  } else if (path === IM.ROLE_GROUP) {
-    return addButtonOnlyIfLast(position, isNewItem);
-  } else if (path === SHACL.PROPERTY) {
-    return addButtonOnlyIfLastWithUpDown(position, isNewItem);
-  } else {
-    return { minus: true, plus: true, up: true, down: true };
-  }
-}
-
-function addButtonOnlyIfLastWithUpDown(position: number, isNewItem: boolean) {
-  if (isNewItem && position !== build.value.length) return { minus: true, plus: false, up: true, down: true };
-  else if (!isNewItem && position !== build.value.length - 1) return { minus: true, plus: false, up: true, down: true };
-  else return { minus: true, plus: true, up: true, down: true };
+function setButtons(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
+  if (props.shape.arrayButtons) {
+    if (props.shape.arrayButtons.addOnlyIfLast) {
+      return addButtonOnlyIfLast(position, isNewItem);
+    } else
+      return {
+        minus: props.shape.arrayButtons?.minus ?? true,
+        plus: props.shape.arrayButtons?.plus ?? true,
+        up: props.shape.arrayButtons?.up ?? true,
+        down: props.shape.arrayButtons?.down ?? true
+      };
+  } else return { minus: true, plus: true, up: true, down: true };
 }
 
 function addButtonOnlyIfLast(position: number, isNewItem: boolean) {
-  if (isNewItem && position !== build.value.length) return { minus: true, plus: false, up: false, down: false };
-  else if (!isNewItem && position !== build.value.length - 1) return { minus: true, plus: false, up: false, down: false };
-  else return { minus: true, plus: true, up: false, down: false };
+  if (isNewItem && position !== build.value.length)
+    return {
+      minus: props.shape.arrayButtons?.minus ?? true,
+      plus: false,
+      up: props.shape.arrayButtons?.up ?? true,
+      down: props.shape.arrayButtons?.down ?? true
+    };
+  else if (!isNewItem && position !== build.value.length - 1)
+    return {
+      minus: props.shape.arrayButtons?.minus ?? true,
+      plus: false,
+      up: props.shape.arrayButtons?.up ?? true,
+      down: props.shape.arrayButtons?.down ?? true
+    };
+  else
+    return {
+      minus: props.shape.arrayButtons?.minus ?? true,
+      plus: props.shape.arrayButtons?.plus ?? true,
+      up: props.shape.arrayButtons?.up ?? true,
+      down: props.shape.arrayButtons?.down ?? true
+    };
 }
 
 function updateButtons() {
-  build.value.forEach(child => (child.showButtons = setButtonsByTypeAndPath(child.position, false)));
+  build.value.forEach(child => (child.showButtons = setButtons(child.position, false)));
 }
 
 function generateBuildAsJson() {
@@ -237,7 +278,8 @@ function updateEntity() {
   const value = generateBuildAsJson();
   const result = {} as any;
   result[key] = value;
-  if (entityUpdate && value.length) entityUpdate(result);
+  if (!value.length && deleteEntityKey) deleteEntityKey(key);
+  else if (entityUpdate) entityUpdate(result);
 }
 
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {
@@ -248,7 +290,7 @@ function addItemWrapper(data: { selectedType: ComponentType; position: number; v
   if (data.selectedType !== ComponentType.BUILDER_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_CHILD_WRAPPER;
   }
-  if (shape) addItem(data, build.value, setButtonsByTypeAndPath(data.position, true), shape, props.mode);
+  if (shape) addItem(data, build.value, setButtons(data.position, true), shape, props.mode);
   updateButtons();
 }
 
@@ -362,5 +404,22 @@ function updateValueVariableMap(data: any[] | undefined) {
 
 .invalid {
   border: 1px solid var(--red-500);
+  border-radius: 5px;
+  padding: 0.25rem;
+}
+
+.validate-error-container {
+  width: 100%;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

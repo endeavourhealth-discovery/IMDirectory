@@ -45,6 +45,10 @@ function findRecursively(found: any[], type: string, matchOrProperty: any): any 
       findRecursively(found, "property", property);
     }
   }
+
+  if (isObjectHasKeys(matchOrProperty.match)) {
+    findRecursively(found, "match", matchOrProperty.match);
+  }
 }
 </script>
 

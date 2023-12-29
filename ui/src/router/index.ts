@@ -19,17 +19,13 @@ const MFASetup = () => import("@/components/auth/MFASetup.vue");
 const MFALogin = () => import("@/components/auth/MFALogin.vue");
 const MFADelete = () => import("@/components/auth/MFADelete.vue");
 const Creator = () => import("@/views/Creator.vue");
-const TypeSelector = () => import("@/components/creator/TypeSelector.vue");
 const Editor = () => import("@/views/Editor.vue");
-const Mapper = () => import("@/views/Mapper.vue");
-const Workflow = () => import("@/views/Workflow.vue");
-const TaskDefinition = () => import("@/components/workflow/TaskDefinition.vue");
-const TaskViewer = () => import("@/components/workflow/TaskViewer.vue");
 const AccessDenied = () => import("@/views/AccessDenied.vue");
 const PageNotFound = () => import("@/views/PageNotFound.vue");
 const EntityNotFound = () => import("@/views/EntityNotFound.vue");
 const ServerOffline = () => import("@/views/ServerOffline.vue");
 const VueError = () => import("@/views/VueError.vue");
+const BugReport = () => import("@/views/BugReport.vue");
 const SnomedLicense = () => import("@/views/SnomedLicense.vue");
 const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
 const Cookies = () => import("@/views/Cookies.vue");
@@ -40,10 +36,10 @@ const AddressFileWorkflow = () => import("@/components/uprn/AddressFileWorkflow.
 const AddressFileDownload = () => import("@/components/uprn/AddressFileDownload.vue");
 const Query = () => import("@/views/Query.vue");
 const UprnAgreement = () => import("@/views/UprnAgreement.vue");
-import { EntityService, Env } from "@/services";
+import { EntityService, Env, UserService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
-import { nextTick } from "vue";
+import { nextTick, computed } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
@@ -51,6 +47,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
 import Swal, { SweetAlertResult } from "sweetalert2";
+import { useLoadingStore } from "@/stores/loadingStore";
 
 const APP_TITLE = "IM Directory";
 
@@ -59,7 +56,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/directory",
     name: "Directory",
     component: Directory,
-    meta: { requiresLicense: true },
+    meta: { requiresLicense: true, transition: "fade", mode: "out-in" },
     redirect: { name: "LandingPage" },
     children: [
       {
@@ -68,7 +65,8 @@ const routes: Array<RouteRecordRaw> = [
         name: "LandingPage",
         component: LandingPage,
         meta: {
-          requiresLicense: true
+          requiresLicense: true,
+          transitionDelay: "0.2s"
         }
       },
       {
@@ -192,8 +190,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       requiresAuth: true,
       requiresCreateRole: true
-    },
-    children: [{ path: "type", name: "TypeSelector", component: TypeSelector }]
+    }
   },
   {
     path: "/editor/:selectedIri?",
@@ -203,38 +200,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       requiresAuth: true,
       requiresLicense: true,
-      requiresEditRole: true
-    },
-    children: []
-  },
-  {
-    path: "/workflow",
-    name: "Workflow",
-    component: Workflow,
-    meta: {
-      requiresAuth: true,
-      requiresLicense: true
-    },
-    children: [
-      {
-        path: "task",
-        name: "TaskDefinition",
-        component: TaskDefinition
-      },
-      {
-        path: "tasks",
-        name: "TaskViewer",
-        component: TaskViewer
-      }
-    ]
-  },
-  {
-    path: "/mapper",
-    name: "Mapper",
-    component: Mapper,
-    meta: {
-      requiresAuth: true,
-      requiresLicense: true
+      requiresEditRole: true,
+      requiresOrganisation: true
     }
   },
   {
@@ -281,14 +248,14 @@ const routes: Array<RouteRecordRaw> = [
     name: "Privacy",
     component: PrivacyPolicy
   },
-  { path: "/cookies", name: "Cookies", component: Cookies },
+  { path: "/cookies", name: "Cookies", component: Cookies, meta: { view: true } },
   {
     path: "/uprn-agreement",
     name: "UPRNAgreement",
     component: UprnAgreement
   },
   {
-    path: "/401/:requiredRole?",
+    path: "/401/:requiredAccess?:accessType?",
     name: "AccessDenied",
     component: AccessDenied,
     props: true
@@ -313,6 +280,14 @@ const routes: Array<RouteRecordRaw> = [
     path: "/error",
     name: "VueError",
     component: VueError
+  },
+  {
+    path: "/bugReport",
+    name: "BugReport",
+    component: BugReport,
+    meta: {
+      requiresAuth: true
+    }
   }
 ];
 
@@ -340,6 +315,16 @@ async function directToLogin() {
 }
 
 router.beforeEach(async (to, from) => {
+  const loadingStore = useLoadingStore();
+  if (routes.findIndex(view => view.name === to.meta.name) != -1) {
+    loadingStore.updateViewsLoading(true);
+  }
+  if (to.matched.some((record: any) => record.name === "Directory")) {
+    loadingStore.updateDirectoryLoading(true);
+  }
+  if (to.matched.some(record => record.name === "Uprn")) {
+    loadingStore.updateUprnLoading(true);
+  }
   const directoryStore = useDirectoryStore();
   const authStore = useAuthStore();
   const creatorStore = useCreatorStore();
@@ -358,10 +343,10 @@ router.beforeEach(async (to, from) => {
     if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
-        router.push({ name: "EntityNotFound", params: { iri: iri } });
+        await router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
     } catch (_error) {
-      router.push({ name: "EntityNotFound", params: { iri: iri } });
+      await router.push({ name: "EntityNotFound", params: { iri: iri } });
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
@@ -369,6 +354,7 @@ router.beforeEach(async (to, from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       await directToLogin();
+      return false;
     }
   }
 
@@ -376,6 +362,7 @@ router.beforeEach(async (to, from) => {
     if (from.name !== "Login" && from.name !== "MFALogin") {
       console.log("requires re-authentication");
       await directToLogin();
+      return false;
     }
   }
 
@@ -384,8 +371,9 @@ router.beforeEach(async (to, from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       await directToLogin();
+      return false;
     } else if (!userStore.currentUser?.roles?.includes("create")) {
-      router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
+      await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
     }
   }
 
@@ -394,8 +382,9 @@ router.beforeEach(async (to, from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       await directToLogin();
+      return false;
     } else if (!userStore.currentUser?.roles?.includes("edit")) {
-      router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
+      await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
     }
   }
 
@@ -407,16 +396,24 @@ router.beforeEach(async (to, from) => {
     console.log("uprn agreement accepted: " + userStore.uprnAgreementAccepted);
   }
 
+  if (to.matched.some((record: any) => record.meta.requiresOrganisation)) {
+    let isEditAllowed = false;
+    if (userStore.isLoggedIn) isEditAllowed = await UserService.canUserEdit(iri as string);
+    if (!isEditAllowed) {
+      await router.push({ name: "AccessDenied", params: { requiredAccess: iri.slice(0, iri.indexOf("#") + 1), accessType: "organisation" } });
+    }
+  }
+
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {
-    router.push({ name: "Creator" });
+    await router.push({ name: "Creator" });
   }
   if (to.name === "PageNotFound" && to.path.startsWith("/editor/")) {
     const urlSections = to.path.split("/");
     if (urlSections.length > 2) {
       const selectedIriParam = to.path.split("/")[2];
-      if (!selectedIriParam) router.push({ name: "EntityNotFound", params: { iri: selectedIriParam } });
-      else router.push({ name: "Editor", params: { selectedIri: urlToIri(selectedIriParam) } });
-    } else router.push({ name: "Editor" });
+      if (!selectedIriParam) await router.push({ name: "EntityNotFound", params: { iri: selectedIriParam } });
+      else await router.push({ name: "Editor", params: { selectedIri: urlToIri(selectedIriParam) } });
+    } else await router.push({ name: "Editor" });
   }
 
   if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {
@@ -424,10 +421,10 @@ router.beforeEach(async (to, from) => {
     try {
       new URL(iri);
       if (!(await EntityService.iriExists(iri))) {
-        router.push({ name: "EntityNotFound", params: { iri: iri } });
+        await router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
     } catch (_error) {
-      router.push({ name: "EntityNotFound", params: { iri: iri } });
+      await router.push({ name: "EntityNotFound", params: { iri: iri } });
     }
   }
 
@@ -449,6 +446,16 @@ router.beforeEach(async (to, from) => {
 });
 
 router.afterEach(to => {
+  const loadingStore = useLoadingStore();
+  if (routes.findIndex(view => view.name === to.meta.name) != -1) {
+    loadingStore.updateViewsLoading(false);
+  }
+  if (to.matched.some((record: any) => record.name === "Directory")) {
+    loadingStore.updateDirectoryLoading(false);
+  }
+  if (to.matched.some(record => record.name === "Uprn")) {
+    loadingStore.updateUprnLoading(false);
+  }
   nextTick(() => {
     document.title = (to.meta.title as string) || APP_TITLE;
   });

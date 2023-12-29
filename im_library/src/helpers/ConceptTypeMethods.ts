@@ -31,7 +31,7 @@ export function isTask(conceptTypes: TTIriRef[]): boolean {
 }
 
 export function isProperty(conceptTypes: TTIriRef[]): boolean {
-  return isOfTypes(conceptTypes, RDF.PROPERTY, IM.NAMESPACE + "Property");
+  return isOfTypes(conceptTypes, RDF.PROPERTY);
 }
 
 export function isConcept(conceptTypes: TTIriRef[]): boolean {
@@ -50,50 +50,8 @@ export function isFolder(entityTypes: TTIriRef[]): boolean {
   return isOfTypes(entityTypes, IM.FOLDER);
 }
 
-export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
-  if (isOfTypes(conceptTypes, SHACL.NODESHAPE)) {
-    return ["fa-solid", "fa-diagram-project"];
-  }
-  if (isTask(conceptTypes)) {
-    return ["fa-solid", "fa-clipboard-check"];
-  }
-  if (isProperty(conceptTypes)) {
-    return ["fa-solid", "fa-pen-to-square"];
-  }
-  if (isValueSet(conceptTypes)) {
-    return ["fa-solid", "fa-list-check"];
-  }
-  if (isFolder(conceptTypes)) {
-    return ["fa-solid", "fa-folder"];
-  }
-  if (isQuery(conceptTypes)) {
-    return ["fa-solid", "fa-magnifying-glass"];
-  }
-  return ["fa-solid", "fa-lightbulb"];
-}
-
-export function getColourFromType(conceptTypes: TTIriRef[]): string {
-  const bgs = palette("tol-rainbow", 7);
-  const bgsFixed = bgs.map((color: string) => "#" + color + "88");
-  if (isOfTypes(conceptTypes, SHACL.NODESHAPE)) {
-    return bgsFixed[0];
-  }
-  if (isTask(conceptTypes)) {
-    return bgsFixed[6];
-  }
-  if (isProperty(conceptTypes)) {
-    return bgsFixed[5];
-  }
-  if (isValueSet(conceptTypes)) {
-    return bgsFixed[2];
-  }
-  if (isFolder(conceptTypes)) {
-    return bgsFixed[1];
-  }
-  if (isQuery(conceptTypes)) {
-    return bgsFixed[3];
-  }
-  return bgsFixed[4];
+export function isFeature(entityTypes: TTIriRef[]): boolean {
+  return isOfTypes(entityTypes, IM.FEATURE);
 }
 
 export function getNamesAsStringFromTypes(typeList: TTIriRef[]) {
@@ -114,7 +72,6 @@ export default {
   isFolder,
   isQuery,
   isRecordModel,
-  getColourFromType,
-  getFAIconFromType,
+  isFeature,
   getNamesAsStringFromTypes
 };

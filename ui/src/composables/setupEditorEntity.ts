@@ -28,7 +28,7 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
         editorEntity.value = editorSavedEntity;
         return;
       }
-      const fullEntity = await EntityService.getFullEntity(editorIri);
+      const fullEntity = await EntityService.getFullEntity(editorIri, true);
       if (isObjectHasKeys(fullEntity)) {
         const processedEntity = processEntity(fullEntity);
         editorEntityOriginal.value = processedEntity;
@@ -44,8 +44,6 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
       result[IM.ID] = result["@id"];
       delete result["@id"];
     }
-    if (isObjectHasKeys(result, [IM.IM_1_ID])) delete result[IM.IM_1_ID];
-    if (isObjectHasKeys(result, [IM.IM_1_SCHEME])) delete result[IM.IM_1_SCHEME];
     return result;
   }
 

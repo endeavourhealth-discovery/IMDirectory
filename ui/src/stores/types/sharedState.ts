@@ -6,4 +6,5 @@ export interface SharedState {
   showReleaseNotes: boolean;
   showBanner: boolean;
   activeProfile: any;
+  error: any | undefined;
 }

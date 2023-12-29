@@ -13,6 +13,15 @@ declare module "axios" {
   }
 }
 
+declare module "vue-router" {
+  interface RouteMeta {
+    requiresLicense?: boolean;
+    transition?: string;
+    mode?: "in-out" | "out-in" | "default" | undefined;
+    transitionDelay?: string;
+  }
+}
+
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
@@ -87,9 +96,11 @@ import DynamicDialog from "primevue/dynamicdialog";
 import Image from "primevue/image";
 import InputNumber from "primevue/inputnumber";
 import Calendar from "primevue/calendar";
+import TreeSelect from "primevue/treeselect";
 import Inplace from "primevue/inplace";
 import TieredMenu from "primevue/tieredmenu";
 import TabMenu from "primevue/tabmenu";
+import Ripple from "primevue/ripple";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -119,6 +130,7 @@ const app = createApp(App)
   })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
+  .directive("ripple", Ripple)
   .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
   .component("Card", Card)
   .component("ProgressSpinner", ProgressSpinner)
@@ -181,6 +193,7 @@ const app = createApp(App)
   .component("InputNumber", InputNumber)
   .component("Inplace", Inplace)
   .component("TieredMenu", TieredMenu)
+  .component("TreeSelect", TreeSelect)
   .component("TabMenu", TabMenu);
 
 const sharedStore = useSharedStore();
@@ -206,4 +219,7 @@ app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | nu
     summary: info,
     detail: err
   });
+
+  sharedStore.updateError(err);
+  router.push({ name: "VueError" });
 };

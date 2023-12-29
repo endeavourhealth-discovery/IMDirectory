@@ -6,7 +6,7 @@
         :key="altParent.iri"
         :label="altParent.name"
         :disabled="loading || altParent.name === ''"
-        icon="pi pi-chevron-up"
+        icon="fa-solid fa-chevron-up"
         @click="expandParents(altParent.listPosition)"
         @mouseenter="showPopup($event, altParent.iri)"
         @mouseleave="hidePopup($event)"
@@ -18,7 +18,7 @@
       <Button
         :label="currentParent?.name"
         :disabled="loading || !currentParent"
-        icon="pi pi-chevron-up"
+        icon="fa-solid fa-chevron-up"
         @click="expandParents(parentPosition)"
         @mouseenter="showPopup($event, currentParent?.iri)"
         @mouseleave="hidePopup($event)"
@@ -111,7 +111,7 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 
 interface Props {
   entityIri: string;
@@ -123,8 +123,7 @@ const emit = defineEmits({
   navigateTo: (_payload: string) => true
 });
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, onRowClick, loadMore } =
-  setupTree();
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, loadMore } = setupTree();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const currentParent: Ref<TreeParent | null> = ref(null);

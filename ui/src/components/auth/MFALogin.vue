@@ -23,8 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, h, computed } from "vue";
-import _ from "lodash";
+import { onMounted, ref, h, computed } from "vue";
 import { useDialog } from "primevue/usedialog";
 import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
@@ -40,7 +39,7 @@ const helpDialog = useDialog();
 const userStore = useUserStore();
 const authStore = useAuthStore();
 
-const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
+const isValidCode = computed(() => /\d{6}/.test(code.value));
 const authReturnPath = computed(() => authStore.authReturnPath);
 const awsUser = computed(() => userStore.awsUser);
 
@@ -65,7 +64,7 @@ function showHelpDialog() {
     props: dialogProps,
     templates: {
       footer: () => {
-        return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+        return [h(Button, { label: "Close", icon: "fa-solid fa-xmark", onClick: () => dialogRef.close() })];
       }
     }
   });

@@ -2,6 +2,7 @@
 // @ts-ignore
 import Graphdb from "graphdb";
 import Env from "@/services/env.service";
+import logger from "@/middlewares/logger.middleware";
 
 const { ServerClientConfig, ServerClient, RDFRepositoryClient } = Graphdb.server;
 const { RDFMimeType } = Graphdb.http;
@@ -21,6 +22,10 @@ export class GraphdbService {
 
   public static userRepo() {
     return new GraphdbService(Env.GRAPH_REPO_USER);
+  }
+
+  public static workflowRepo() {
+    return new GraphdbService(Env.GRAPH_REPO_WORKFLOW);
   }
 
   private constructor(repoName: string) {
@@ -50,7 +55,9 @@ export class GraphdbService {
         stmt.addBinding("$" + key, bindings[key]);
       }
     }
-    const rs = await client.query(stmt);
+    let rs: any;
+
+    rs = await client.query(stmt);
 
     const result: any[] = [];
     rs.on("data", (binding: any) => {
@@ -94,12 +101,15 @@ export class GraphdbService {
   }
 }
 
-export function iri(url: string) {
+function iri(url: string) {
   return "<" + url + ">";
 }
 
 export function sanitise(data: any) {
-  if (typeof data === "string") return "'" + data + "'";
+  if (typeof data === "string") {
+    if (data.startsWith("http") || data.startsWith("https")) return iri(data);
+    else return "'" + data + "'";
+  }
   if (typeof data === "object") return "'" + JSON.stringify(data).replaceAll('"', "`").replaceAll("'", '"') + "'";
   if (typeof data === "number") return "'" + data + "'";
 }

@@ -20,13 +20,15 @@
           @dblclick="emit('rowDblClicked', node)"
           @contextmenu="onNodeContext($event, node)"
         >
-          <IMFontAwesomeIcon v-if="allowDragAndDrop" icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
+          <span v-if="allowDragAndDrop">
+            <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
+          </span>
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
           <ProgressSpinner v-if="node.loading" />
-          <span class="row-name" @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+          <span class="row-name" @mouseover="displayOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
         </div>
       </template>
     </Tree>
@@ -35,14 +37,14 @@
       <InputText type="text" v-model="newFolderName" autofocus @keyup.enter="createFolder" />
       <template #footer>
         <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
-        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" :disabled="!newFolderName" @click="createFolder" />
+        <Button label="Create" :icon="newFolderIcon" :disabled="creating || !newFolderName" @click="createFolder" />
       </template>
     </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
+import { computed, ref, Ref, watch, onMounted, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import OverlaySummary from "./OverlaySummary.vue";
 import { useToast } from "primevue/usetoast";
@@ -52,15 +54,14 @@ import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import setupTree from "@/composables/setupTree";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { useEditorStore } from "@/stores/editorStore";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   allowDragAndDrop?: boolean;
@@ -112,8 +113,14 @@ const items: Ref<any[]> = ref([]);
 const newFolder: Ref<null | TreeNode> = ref(null);
 const newFolderName = ref("");
 
+const creating = ref(false);
+const newFolderIcon = computed(() => {
+  if (creating.value) return "fa-solid fa-spinner";
+  else return "fa-solid fa-check";
+});
+
 const menu = ref();
-const OS = ref();
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
   () => props.selectedIri,
@@ -146,7 +153,7 @@ async function addParentFoldersToRoot() {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
   }
-  root.value.sort((r1,r2) => r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0);
+  root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
   const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "var(--yellow-500)";
@@ -170,31 +177,34 @@ async function onNodeContext(event: any, node: any) {
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
 
-  if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
-    items.value.push({
-      label: "Move selection here",
-      icon: "fa-solid fa-fw fa-file-import",
-      command: () => {
-        confirmMove(node);
-      }
-    });
-    items.value.push({
-      label: "Add selection here",
-      icon: "fa-solid fa-fw fa-copy",
-      command: () => {
-        confirmAdd(node);
-      }
-    });
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.key && node.key !== selectedNode.value.key && node.typeIcon.includes("fa-folder")) {
+    const isOwnDescendant = await EntityService.getPathBetweenNodes(node.key, selectedNode.value.key);
+    if (isOwnDescendant.findIndex(pathItem => pathItem["@id"] === selectedNode.value.key) === -1) {
+      items.value.push({
+        label: "Move selection here",
+        icon: "fa-solid fa-fw fa-file-import",
+        command: () => {
+          confirmMove(node);
+        }
+      });
+      items.value.push({
+        label: "Add selection here",
+        icon: "fa-solid fa-fw fa-copy",
+        command: () => {
+          confirmAdd(node);
+        }
+      });
+    }
   }
   if (items.value.length > 0) menu.value.show(event);
 }
 
 function confirmMove(node: TreeNode) {
-  if (selectedNode.value) {
+  if (isObjectHasKeys(selectedNode.value)) {
     confirm.require({
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         moveConcept(node);
       },
@@ -206,7 +216,7 @@ function confirmMove(node: TreeNode) {
 }
 
 async function moveConcept(target: TreeNode) {
-  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
     try {
       await FilerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
       toast.add({ severity: "success", summary: "Move", detail: 'Moved "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
@@ -220,11 +230,11 @@ async function moveConcept(target: TreeNode) {
 }
 
 function confirmAdd(node: TreeNode) {
-  if (selectedNode.value) {
+  if (isObjectHasKeys(selectedNode.value)) {
     confirm.require({
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         addConcept(node);
       },
@@ -236,7 +246,7 @@ function confirmAdd(node: TreeNode) {
 }
 
 async function addConcept(target: TreeNode) {
-  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
     try {
       await FilerService.addToFolder(selectedNode.value.key, target.key);
       toast.add({ severity: "success", summary: "Add", detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
@@ -250,24 +260,26 @@ async function addConcept(target: TreeNode) {
 async function createFolder() {
   if (!newFolder.value || !newFolder.value.key || !newFolderName.value) return;
 
-  console.log("Create new folder " + newFolderName.value + " in " + newFolder.value.key);
+  creating.value = true;
+
   try {
     const iri = await FilerService.createFolder(newFolder.value.key, newFolderName.value);
-    console.log("Created folder");
-    console.log(iri);
     toast.add({ severity: "success", summary: "New folder", detail: 'New folder "' + newFolderName.value + '" created', life: 3000 });
     if (newFolder.value.children) {
       newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" } as TTIriRef], false, newFolder.value));
     }
   } catch (e) {
     toast.add({ severity: "error", summary: "New folder", detail: '"' + newFolderName.value + '" already exists', life: 3000 });
+  } finally {
+    newFolder.value = null;
+    creating.value = false;
+    await onNodeExpand(selectedNode.value);
   }
-  newFolder.value = null;
 }
 
-async function showOverlay(event: any, node: any): Promise<void> {
+async function displayOverlay(event: any, node: any): Promise<void> {
   if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
-    await OS.value.showOverlay(event, node.key);
+    showOverlay(event, node.key);
   }
 }
 
@@ -278,10 +290,6 @@ function onNodeSelect(node: any): void {
     selectedNode.value = node;
     emit("rowSelected", node);
   }
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 
 function dragStart(event: any, data: any) {

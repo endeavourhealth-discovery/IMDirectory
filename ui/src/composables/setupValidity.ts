@@ -1,15 +1,16 @@
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
+import { deferred } from "@im-library/helpers/Deferred";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { FormGenerator, PropertyShape } from "@im-library/interfaces/AutoGen";
-import { IM } from "@im-library/vocabulary";
+import { IM, COMPONENT } from "@im-library/vocabulary";
 import { isArray } from "lodash";
 import { Ref, provide, ref } from "vue";
 
 export function setupValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);
-  const validationCheckStatus: Ref<{ key: string; checkCompleted: boolean }[]> = ref([]);
+  const validationCheckStatus: Ref<{ key: string; deferred: { promise: any; reject: any; resolve: any } }[]> = ref([]);
 
   constructValidationCheckStatus(shape);
   function constructValidationCheckStatus(shape?: FormGenerator) {
@@ -34,29 +35,29 @@ export function setupValidity(shape?: FormGenerator) {
     validationCheckStatus.value = [];
   }
 
-  async function validationChecksCompleted(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const startTime = Date.now();
-      let delta = Date.now() - startTime;
-      const interval = setInterval(() => {
-        delta = Date.now() - startTime;
-        if (Math.floor(delta / 1000) >= 10 /* 10s timeout */ || validationCheckStatus.value.every(item => item.checkCompleted === true))
-          clearInterval(interval);
-      }, 500);
-      if (Math.floor(delta / 1000) >= 10) {
-        reject(`Validation checks timed out: ${JSON.stringify(validationCheckStatus.value.filter(item => item.checkCompleted === false))}`);
-      }
-      resolve(true);
-    });
+  async function validationChecksCompleted(): Promise<boolean> {
+    const promises = validationCheckStatus.value.map(v => v.deferred.promise);
+    const result = await Promise.allSettled(promises)
+      .then(result => {
+        return result.every(r => r.status === "fulfilled");
+      })
+      .catch(err => {
+        throw err;
+      });
+    return result;
   }
 
   function addPropertyToValidationCheckStatus(property: PropertyShape) {
     if (
-      ![IM.component.HORIZONTAL_LAYOUT, IM.component.VERTICAL_LAYOUT, IM.component.TOGGLEABLE].includes(property.componentType["@id"]) &&
+      ![COMPONENT.HORIZONTAL_LAYOUT.valueOf(), COMPONENT.VERTICAL_LAYOUT.valueOf(), COMPONENT.TOGGLEABLE.valueOf()].includes(property.componentType["@id"]) &&
       validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1
-    )
-      validationCheckStatus.value.push({ key: property.path["@id"], checkCompleted: false });
-    if (property.componentType["@id"] !== IM.component.TOGGLEABLE)
+    ) {
+      validationCheckStatus.value.push({
+        key: property.path["@id"],
+        deferred: deferred(60000)
+      });
+    }
+    if (property.componentType["@id"] !== COMPONENT.TOGGLEABLE)
       if (property.property) {
         for (const subProperty of property.property) {
           addPropertyToValidationCheckStatus(subProperty);
@@ -66,10 +67,10 @@ export function setupValidity(shape?: FormGenerator) {
 
   function updateValidationCheckStatus(key: string) {
     const found = validationCheckStatus.value.find(item => item.key === key);
-    if (found) found.checkCompleted = true;
+    if (found) found.deferred.resolve("resolved");
   }
 
-  async function updateValidity(
+  async function checkValidity(
     componentShape: PropertyShape,
     editorEntity: Ref<any>,
     valueVariableMap: Ref<Map<string, any>>,
@@ -93,9 +94,20 @@ export function setupValidity(shape?: FormGenerator) {
     }
     invalid.value = !valid;
     validationErrorMessage.value = message;
+  }
+
+  async function updateValidity(
+    componentShape: PropertyShape,
+    editorEntity: Ref<any>,
+    valueVariableMap: Ref<Map<string, any>>,
+    key: string,
+    invalid: Ref<boolean>,
+    validationErrorMessage: Ref<string | undefined>
+  ) {
+    await checkValidity(componentShape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
     const index = editorValidity.value.findIndex(item => item.key === key);
-    if (index != -1) editorValidity.value[index] = { key: key, valid: valid, message: message };
-    else editorValidity.value.push({ key: key, valid: valid, message: message });
+    if (index != -1) editorValidity.value[index] = { key: key, valid: !invalid.value, message: validationErrorMessage.value };
+    else editorValidity.value.push({ key: key, valid: !invalid.value, message: validationErrorMessage.value });
   }
 
   function defaultValidation(
@@ -152,6 +164,7 @@ export function setupValidity(shape?: FormGenerator) {
     removeValidationCheckStatus,
     clearValidationCheckStatus,
     addPropertyToValidationCheckStatus,
-    validationChecksCompleted
+    validationChecksCompleted,
+    checkValidity
   };
 }

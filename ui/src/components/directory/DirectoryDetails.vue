@@ -6,39 +6,35 @@
     <div class="header-container">
       <ParentHierarchy
         :entityIri="entity['@id']"
-        @navigateTo="(iri:string) => $emit('navigateTo', iri)"
+        @navigateTo="(iri: string) => $emit('navigateTo', iri)"
         :history="history"
-        @update:history="(newHistory:string[]) => $emit('update:history', newHistory)"
+        @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
       />
       <ParentHeader
         v-if="selectedIri !== 'http://endhealth.info/im#Favourites'"
         :entity="entity"
-        @locateInTree="(iri:string) => $emit('locateInTree', iri)"
+        @locateInTree="(iri: string) => $emit('locateInTree', iri)"
         :showSelectButton="showSelectButton"
-        :validationQuery="validationQuery"
-        @entitySelected="(iri:string) => emit('selectedUpdated', iri)"
+        @entitySelected="(iri: string) => emit('selectedUpdated', iri)"
       />
     </div>
     <div class="datatable-container">
-      <Viewer :entityIri="entity['@id']" @navigateTo="(iri:string) => $emit('navigateTo', iri)" />
+      <Viewer :entityIri="entity['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { onMounted, ref, Ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import { ConceptSummary } from "@im-library/interfaces";
-import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   selectedIri: string;
   showSelectButton?: boolean;
-  validationQuery?: QueryRequest;
   history: string[];
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
