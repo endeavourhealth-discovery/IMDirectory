@@ -5,8 +5,7 @@
         { id: 'is', name: 'is' },
         { id: 'isNot', name: 'is not' },
         { id: 'isNull', name: 'is not recorded' },
-        { id: 'isNotNull', name: 'is recorded' },
-        { id: 'inSet', name: 'in set' }
+        { id: 'isNotNull', name: 'is recorded' }
       ]"
       optionValue="id"
       optionLabel="name"
@@ -67,7 +66,7 @@ watch(
 function onCustomSetSave(customSetRef: Node) {
   editValues.value.length = 0;
   editValues.value.push(customSetRef);
-  propertyType.value = "inSet";
+  propertyType.value = "is";
 }
 
 function handlePropertyTypeChange() {
@@ -76,31 +75,21 @@ function handlePropertyTypeChange() {
     delete props.property.is;
     delete props.property.isNull;
     delete props.property.isNotNull;
-    delete props.property.inSet;
   } else if (propertyType.value === "is") {
     props.property.is = editValues.value;
     delete props.property.isNot;
     delete props.property.isNull;
     delete props.property.isNotNull;
-    delete props.property.inSet;
   } else if (propertyType.value === "isNull") {
     props.property.isNull = true;
     delete props.property.is;
     delete props.property.isNotNull;
     delete props.property.isNot;
-    delete props.property.inSet;
   } else if (propertyType.value === "isNotNull") {
     props.property.isNotNull = true;
     delete props.property.is;
     delete props.property.isNull;
     delete props.property.isNot;
-    delete props.property.inSet;
-  } else if (propertyType.value === "inSet") {
-    props.property.inSet = editValues.value;
-    delete props.property.is;
-    delete props.property.isNot;
-    delete props.property.isNull;
-    delete props.property.isNotNull;
   }
 }
 
@@ -109,7 +98,6 @@ function initEditValues() {
   else if (isObjectHasKeys(props.property, ["isNot"])) propertyType.value = "isNot";
   else if (isObjectHasKeys(props.property, ["isNull"])) propertyType.value = "isNull";
   else if (isObjectHasKeys(props.property, ["isNotNull"])) propertyType.value = "isNotNull";
-  else if (isObjectHasKeys(props.property, ["inSet"])) propertyType.value = "inSet";
 
   if (propertyType.value && propertyType.value !== "isNull" && propertyType.value !== "isNotNull") {
     if (!isArrayHasLength((props.property as any)[propertyType.value])) (props.property as any)[propertyType.value] = [{} as Node];

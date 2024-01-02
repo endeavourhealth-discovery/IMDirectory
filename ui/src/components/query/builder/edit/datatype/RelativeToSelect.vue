@@ -29,7 +29,7 @@ import { useQueryStore } from "@/stores/queryStore";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { Property, PropertyRef } from "@im-library/interfaces/AutoGen";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
 interface Props {

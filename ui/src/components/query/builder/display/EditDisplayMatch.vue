@@ -87,6 +87,8 @@
     :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
   />
 
+  <SaveFeatureDialog v-model:show-dialog="showSaveFeatureDialog" :feature="match" />
+
   <KeepAsDialog
     v-model:showDialog="showKeepAsDialog"
     :match="match"
@@ -96,7 +98,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, OrderDirection, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Node, OrderDirection, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { PrimeIcons } from "primevue/api";
@@ -118,6 +120,7 @@ import { ToastSeverity } from "@im-library/enums";
 import { ToastOptions } from "@im-library/models";
 import { useToast } from "primevue/usetoast";
 import AddFeatureDialog from "../edit/dialogs/AddFeatureDialog.vue";
+import SaveFeatureDialog from "../edit/dialogs/SaveFeatureDialog.vue";
 
 interface Props {
   parentMatch?: Match;
@@ -159,7 +162,8 @@ const {
   showBuildFeatureAfterDialog,
   showAddFeatureAfterDialog,
   showAddTestFeatureDialog,
-  showAddPopulationAfterDirectoryDialog
+  showAddPopulationAfterDirectoryDialog,
+  showSaveFeatureDialog
 } = setupQueryBuilderActions();
 const toast = useToast();
 const editMode: Ref<boolean> = ref(false);
@@ -269,8 +273,8 @@ function saveSelect(property: "typeOf" | "instanceOf" | "inSet", selectedCSs: No
 }
 
 function toggleBoolMatch() {
-  if (props.match.bool === "and") props.match.bool = "or";
-  else if (props.match.bool === "or") props.match.bool = "and";
+  if (props.match.bool === "and") props.match.bool = Bool.or;
+  else if (props.match.bool === "or") props.match.bool = Bool.and;
 }
 
 function toggleExclude() {
@@ -343,7 +347,7 @@ function getSingleRCOptions() {
     },
     {
       label: "Label as a variable",
-      icon: "fa-solid fa-floppy-disk",
+      icon: "fa-solid fa-tag",
       command: () => {
         keepAs();
       }
@@ -385,6 +389,13 @@ function getSingleRCOptions() {
       icon: "fa-solid fa-eye",
       command: () => {
         view();
+      }
+    },
+    {
+      label: "Save feature",
+      icon: "fa-solid fa-floppy-disk",
+      command: () => {
+        showSaveFeatureDialog.value = true;
       }
     },
     {

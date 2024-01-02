@@ -211,7 +211,7 @@ function getMatchFromSchemeFilters(): Match {
   return {
     property: [
       {
-        "@id": IM.SCHEME,
+        "@id": IM.HAS_SCHEME,
         is: selectedFilters.value.schemes
       }
     ]

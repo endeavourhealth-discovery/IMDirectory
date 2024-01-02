@@ -3,7 +3,7 @@ import QueryService from "@/services/query.service";
 import { ErrorType } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { CustomError } from "@im-library/models";
-import { IM } from "@im-library/vocabulary";
+import { IM, FUNCTION } from "@im-library/vocabulary";
 import axios from "axios";
 import { Request } from "express";
 import router from "express-promise-router";
@@ -37,9 +37,9 @@ export default class FunctionController {
     const functionRequest = req.body;
     if (functionRequest && isObjectHasKeys(functionRequest, ["functionIri"])) {
       switch (functionRequest.functionIri) {
-        case IM.function.ALLOWABLE_PROPERTIES:
+        case FUNCTION.ALLOWABLE_PROPERTIES:
           return this.functionService.getAllowablePropertySuggestions(functionRequest);
-        case IM.function.ALLOWABLE_RANGES:
+        case FUNCTION.ALLOWABLE_RANGES:
           return this.functionService.getAllowableRangeSuggestions(functionRequest);
         default:
           throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
@@ -51,11 +51,11 @@ export default class FunctionController {
     const functionRequest = req.body;
     if (functionRequest && isObjectHasKeys(functionRequest, ["functionIri"])) {
       switch (functionRequest.functionIri) {
-        case IM.function.ALLOWABLE_PROPERTIES:
+        case FUNCTION.ALLOWABLE_PROPERTIES:
           return this.functionService.isAllowablePropertySuggestion(functionRequest);
-        case IM.function.ALLOWABLE_RANGES:
+        case FUNCTION.ALLOWABLE_RANGES:
           return this.functionService.isAllowableRangeSuggestion(functionRequest);
-        case IM.function.IS_TYPE:
+        case FUNCTION.IS_TYPE:
           return this.functionService.isType(functionRequest);
         default:
           throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);

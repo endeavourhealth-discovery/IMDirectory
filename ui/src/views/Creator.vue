@@ -155,7 +155,7 @@ const {
   deleteEntityKey,
   checkForChanges
 } = setupEditorEntity(EditorMode.CREATE, updateType);
-const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const { shape, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -433,8 +433,6 @@ function refreshCreator() {
   }).then((result: any) => {
     if (result.isConfirmed) {
       editorEntity.value = { ...editorEntityOriginal.value };
-      currentStep.value = 0;
-      router.push(stepsItems.value[currentStep.value].to);
     }
   });
 }

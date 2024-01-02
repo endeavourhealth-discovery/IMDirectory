@@ -1,10 +1,9 @@
 export class USER {
-  public static DOMAIN = "http://endhealth.info/";
-  public static NAMESPACE = USER.DOMAIN + "user#";
-  public static PREFIX = "usr";
-
-  // USER entries
-  public static USER_THEME = USER.NAMESPACE + "UserTheme";
-  public static USER_MRU = USER.NAMESPACE + "UserMRU";
-  public static USER_FAVOURITES = USER.NAMESPACE + "UserFavourites";
+	public static readonly DOMAIN = "http://endhealth.info/";
+	public static readonly NAMESPACE = USER.DOMAIN + "user#";
+	public static readonly PREFIX = "usr";
+	public static readonly USER_THEME = USER.DOMAIN + "UserTheme";
+	public static readonly USER_MRU = USER.DOMAIN + "UserMRU";
+	public static readonly USER_FAVOURITES = USER.DOMAIN + "UserFavourites";
+	public static readonly ORGANISATIONS = USER.DOMAIN + "ORGANISATIONS";
 }

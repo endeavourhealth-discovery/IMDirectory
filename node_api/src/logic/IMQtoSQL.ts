@@ -1,4 +1,4 @@
-import { Match, Query, Property, Assignable, OrderLimit } from "@im-library/interfaces/AutoGen";
+import { Match, Query, Property, Assignable, OrderLimit, Bool } from "@im-library/interfaces/AutoGen";
 import { SqlQuery } from "@/model/sql/SqlQuery";
 import { IMQSQL } from "@im-library/interfaces";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -83,7 +83,7 @@ function convertMatch(match: Match, qry: SqlQuery) {
     convertMatchProperties(qry, match);
   } else if (match.match && match.match.length > 0) {
     // Assume bool match "AND"
-    match.bool = "and";
+    match.bool = Bool.and;
     convertMatchBoolSubMatch(qry, match);
   } else {
     throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
@@ -171,7 +171,7 @@ function convertMatchProperty(qry: SqlQuery, property: Property) {
     convertMatchPropertyRange(qry, property);
   } else if (property.match) {
     convertMatchPropertySubMatch(qry, property);
-  } else if (property.inSet) {
+  } else if (property.is) {
     convertMatchPropertyInSet(qry, property);
   } else if (property.relativeTo) {
     convertMatchPropertyRelative(qry, property);
@@ -289,13 +289,13 @@ function convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
 function convertMatchPropertyInSet(qry: SqlQuery, property: Property) {
   if (!property["@id"]) throw new Error("INVALID PROPERTY\n" + JSON.stringify(property, null, 2));
 
-  if (!property.inSet) {
+  if (!property.is) {
     throw new Error("INVALID MatchPropertyIn\n" + JSON.stringify(property, null, 2));
   }
 
   const inList: string[] = [];
 
-  for (const pIn of property.inSet) {
+  for (const pIn of property.is) {
     if (pIn["@id"]) {
       inList.push(pIn["@id"]);
       qry.addDependentSet(pIn["@id"]);

@@ -1,6 +1,6 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { SelectedMatch } from "@im-library/interfaces";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Bool, Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 import { v4 } from "uuid";
 
@@ -13,6 +13,7 @@ function setupQueryBuilderActions() {
   const showAddTestFeatureDialog: Ref<boolean> = ref(false);
   const showAddPopulationAfterDirectoryDialog: Ref<boolean> = ref(false);
   const showAddPopulationBeforeDirectoryDialog: Ref<boolean> = ref(false);
+  const showSaveFeatureDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
   const allowDrop: Ref<boolean> = ref(true);
@@ -55,7 +56,7 @@ function setupQueryBuilderActions() {
 
     if (isArrayHasLength(nested)) {
       if (!isArrayHasLength(parentMatch.match)) {
-        parentMatch.bool = "and";
+        parentMatch.bool = Bool.and;
         parentMatch.match = nested;
       } else
         for (const newMatch of nested) {
@@ -232,7 +233,8 @@ function setupQueryBuilderActions() {
     showAddFeatureBeforeDialog,
     showAddTestFeatureDialog,
     showAddPopulationAfterDirectoryDialog,
-    showAddPopulationBeforeDirectoryDialog
+    showAddPopulationBeforeDirectoryDialog,
+    showSaveFeatureDialog
   };
 }
 

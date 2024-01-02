@@ -74,16 +74,29 @@
       >
         <img class="avatar-icon" alt="avatar icon" :src="getUrl(currentUser.avatar)" style="min-width: 1.75rem" />
       </Button>
-      <Menu ref="userMenu" :model="getItems()" :popup="true" />
+      <Menu ref="userMenu" :model="getItems()" :popup="true">
+        <template #item="{ item, props }">
+          <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
+            <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--text-color)">
+              <span :class="item.icon" />
+              <span class="ml-2">{{ item.label }}</span>
+            </a>
+          </router-link>
+          <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action" style="color: var(--text-color)">
+            <span :class="item.icon" />
+            <span class="ml-2">{{ item.label }}</span>
+          </a>
+        </template>
+      </Menu>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, Ref, onMounted } from "vue";
-import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
+import { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
@@ -105,8 +118,8 @@ const currentTheme = computed(() => userStore.currentTheme);
 const { changeTheme } = setupChangeTheme();
 
 const loading = ref(false);
-const loginItems: Ref<LoginItem[]> = ref([]);
-const accountItems: Ref<AccountItem[]> = ref([]);
+const loginItems: Ref<MenuItem[]> = ref([]);
+const accountItems: Ref<MenuItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 
@@ -136,7 +149,7 @@ function open(item: { icon: string; command: Function; label: string }) {
   item.command();
 }
 
-function getItems(): LoginItem[] | AccountItem[] {
+function getItems(): MenuItem[] {
   if (isLoggedIn.value) {
     return accountItems.value;
   } else {
@@ -162,34 +175,34 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.DIRECTORY_URL + "user/" + "login"
+      route: "/user/login"
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      url: Env.DIRECTORY_URL + "user/" + "register"
+      route: "/user/register"
     }
   ];
   accountItems.value = [
     {
       label: "My account",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.DIRECTORY_URL + "user/" + "my-account"
+      route: "/user/my-account"
     },
     {
       label: "Edit account",
       icon: "fa-solid fa-fw fa-user-pen",
-      url: Env.DIRECTORY_URL + "user/" + "my-account/edit"
+      route: "/user/my-account/edit"
     },
     {
       label: "Change password",
       icon: "fa-solid fa-fw fa-user-lock",
-      url: Env.DIRECTORY_URL + "user/" + "my-account/password-edit"
+      route: "/user/my-account/password-edit"
     },
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      url: Env.DIRECTORY_URL + "user/" + "logout"
+      route: "/user/logout"
     }
   ];
 }
