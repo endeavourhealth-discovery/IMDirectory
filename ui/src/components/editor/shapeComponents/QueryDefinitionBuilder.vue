@@ -158,7 +158,7 @@ function updateEntity() {
   height: 60vh;
   overflow-y: auto;
   border: 1px solid var(--surface-border);
-  background-color: #ffffff;
+  background-color: var(--default);
 }
 
 .validate-error {
