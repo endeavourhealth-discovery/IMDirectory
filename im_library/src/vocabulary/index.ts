@@ -14,11 +14,34 @@ import { PRSB } from "../interfaces/AutoGen";
 import { QR } from "../interfaces/AutoGen";
 import { COMPONENT } from "../interfaces/AutoGen";
 import { EDITOR } from "../interfaces/AutoGen";
-import { FUNCTION } from "../interfaces/AutoGen";
 import { GRAPH } from "../interfaces/AutoGen";
 import { VALIDATION } from "../interfaces/AutoGen";
 import { QUERY } from "../interfaces/AutoGen";
 import { SNOMED } from "./SNOMED";
 import { USER } from "./USER";
+import { IM_FUNCTION } from "./IM_FUNCTION";
 
-export { IM, OWL, RDF, RDFS, SHACL, CONFIG, XSD, WORKFLOW, FHIR, FUNCTION, MAP, ODS, ORG, PRSB, QR, QUERY, COMPONENT, EDITOR, GRAPH, VALIDATION, SNOMED, USER };
+export {
+  IM,
+  OWL,
+  RDF,
+  RDFS,
+  SHACL,
+  CONFIG,
+  XSD,
+  WORKFLOW,
+  FHIR,
+  MAP,
+  ODS,
+  ORG,
+  PRSB,
+  QR,
+  QUERY,
+  COMPONENT,
+  EDITOR,
+  GRAPH,
+  VALIDATION,
+  SNOMED,
+  USER,
+  IM_FUNCTION
+};

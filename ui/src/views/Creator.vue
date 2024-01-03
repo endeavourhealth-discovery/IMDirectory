@@ -221,7 +221,7 @@ onMounted(async () => {
         editorEntity.value[IM.DEFINITION] = JSON.stringify({
           match: [
             {
-              inSet: [
+              is: [
                 {
                   "@id": newValue["@id"],
                   name: newValue.name

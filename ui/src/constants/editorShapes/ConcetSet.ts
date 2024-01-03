@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, FUNCTION, VALIDATION, QUERY } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY } from "@im-library/vocabulary";
 
 const ConceptSetShape: FormGenerator = {
   "@id": EDITOR.CONCEPT_SET_SHAPE,
@@ -49,7 +49,7 @@ const ConceptSetShape: FormGenerator = {
               comment: "A property that auto generates the type as  concept type",
               order: 1,
               function: {
-                "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -87,7 +87,7 @@ const ConceptSetShape: FormGenerator = {
               },
               argument: [{ parameter: "prefix", valueData: "CSET_" }],
               function: {
-                "@id": FUNCTION.GET_USER_EDITABLE_SCHEMES
+                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
               validation: { "@id": VALIDATION.IS_IRI }
             },

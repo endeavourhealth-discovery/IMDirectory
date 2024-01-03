@@ -1,6 +1,18 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-12-21 13:12:23.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-02 13:23:09.
+
+export interface DataModelProperty extends Serializable {
+    property?: TTIriRef;
+    type?: TTIriRef;
+    minInclusive?: string;
+    minExclusive?: string;
+    maxInclusive?: string;
+    maxExclusive?: string;
+    pattern?: string;
+    inheritedFrom?: TTIriRef;
+    order?: number;
+}
 
 export interface ArrayButtons {
     up?: boolean;
@@ -134,9 +146,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: string;
-    dataType?: TTIriRef;
     operator?: Operator;
     relativeTo?: PropertyRef;
+    dataType?: TTIriRef;
 }
 
 export interface Case {
@@ -187,7 +199,7 @@ export interface Match extends IriLD {
     graph?: Element;
     match?: Match[];
     bool?: Bool;
-    inSet?: Node[];
+    is?: Node[];
     property?: Property[];
     orderBy?: OrderLimit;
     optional?: boolean;
@@ -230,8 +242,6 @@ export interface Property extends PropertyRef, Assignable {
     range?: Range;
     isNull?: boolean;
     isNot?: Node[];
-    notInSet?: Node[];
-    inSet?: Node[];
     anyRoleGroup?: boolean;
     is?: Node[];
     valueLabel?: string;
@@ -295,8 +305,8 @@ export interface ReturnProperty {
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -433,6 +443,9 @@ export interface SearchTermCode {
     status?: TTIriRef;
 }
 
+export interface IM_FUNCTION {
+}
+
 export interface SNOMED {
 }
 
@@ -447,6 +460,9 @@ export interface TTIriRef extends TTValue, Serializable {
     name?: string;
     description?: string;
     "@id": string;
+}
+
+export interface Serializable {
 }
 
 export interface TTContext extends Serializable {
@@ -478,9 +494,6 @@ export interface Exception extends Throwable {
 
 export interface TTValue extends Serializable {
     order?: number;
-}
-
-export interface Serializable {
 }
 
 export interface TTPrefix {
@@ -1002,27 +1015,10 @@ export const enum EDITOR {
     PROPERTY_SHAPE = "http://endhealth.info/im#Editor_PropertyShape",
 }
 
-export const enum FUNCTION {
-    NAMESPACE = "http://endhealth.info/im#Function_",
-    SNOMED_CONCEPT_GENERATOR = "http://endhealth.info/im#Function_SnomedConceptGenerator",
-    LOCAL_NAME_RETRIEVER = "http://endhealth.info/im#Function_LocalNameRetriever",
-    GET_ADDITIONAL_ALLOWABLE_TYPES = "http://endhealth.info/im#Function_GetAdditionalAllowableTypes",
-    GET_LOGIC_OPTIONS = "http://endhealth.info/im#Function_GetLogicOptions",
-    GET_SET_EDITOR_IRI_SCHEMES = "http://endhealth.info/im#Function_GetSetEditorIriSchemes",
-    IM1_SCHEME_OPTIONS = "http://endhealth.info/im#Function_IM1SchemeOptions",
-    SCHEME_FROM_IRI = "http://endhealth.info/im#Function_SchemeFromIri",
-    GET_USER_EDITABLE_SCHEMES = "http://endhealth.info/im#Function_GetUserEditableSchemes",
-    GENERATE_IRI_CODE = "http://endhealth.info/im#Function_GenerateIriCode",
-    IS_TYPE = "http://endhealth.info/im#Function_IsType",
-    ALLOWABLE_PROPERTIES = "http://endhealth.info/im#Function_AllowableProperties",
-    ALLOWABLE_RANGES = "http://endhealth.info/im#Function_AllowableRanges",
-}
-
 export const enum GRAPH {
     DISCOVERY = "http://endhealth.info/im#",
     ICD10 = "http://endhealth.info/icd10#",
     EMIS = "http://endhealth.info/emis#",
-    EMIS_CORE = "http://endhealth.info/emisc",
     CPRD_MED = "http://endhealth.info/cprdm#",
     CPRD_PROD = "http://endhealth.info/cprdp#",
     OPCS4 = "http://endhealth.info/opcs4#",

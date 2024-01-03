@@ -63,7 +63,7 @@ export function describeProperty(property: Property, index: number, bool: Bool, 
 // getters
 export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   let display = "";
-  if (match.inSet) display = getDisplayFromInSet(match.inSet);
+  if (match.is) display = getDisplayFromIs(match.is);
   else if (match.typeOf) {
     display = getNameFromRef(match.typeOf);
     display += getDisplaySuffixFromEntailment(match.typeOf);
@@ -81,24 +81,24 @@ export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   return display;
 }
 
-export function getDisplayFromInSet(inSet: Node[]) {
+export function getDisplayFromIs(_is: Node[]) {
   let display = "in '";
 
-  if (inSet.length === 1) {
-    display += getDisplayFromEntailment(inSet[0]);
-    display += getNameFromRef(inSet[0]);
-  } else if (inSet.length <= 3) {
+  if (_is.length === 1) {
+    display += getDisplayFromEntailment(_is[0]);
+    display += getNameFromRef(_is[0]);
+  } else if (_is.length <= 3) {
     display += "any of [";
-    for (const [index, node] of inSet.entries()) {
+    for (const [index, node] of _is.entries()) {
       display += getDisplayFromEntailment(node);
       display += getNameFromRef(node);
-      if (index !== inSet.length - 1) display += ", ";
+      if (index !== _is.length - 1) display += ", ";
     }
     display += "]";
   } else {
     display += "any of [";
-    display += getDisplayFromEntailment(inSet[0]);
-    display += getNameFromRef(inSet[0]);
+    display += getDisplayFromEntailment(_is[0]);
+    display += getNameFromRef(_is[0]);
     display += " and " + getDisplayFromNodeRef("more...") + "]";
   }
   return display + "'";
@@ -351,11 +351,11 @@ function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
   let iri = "";
   if (isObjectHasKeys(object, ["@id"])) iri = object["@id"];
   else if (isObjectHasKeys(object.typeOf, ["@id"])) iri = object["typeOf"]?.["@id"];
-  else if (isArrayHasLength(object.inSet)) {
-    if (object.inSet.length === 1) iri = object["inSet"][0]["@id"];
-    else if (object.inSet.length > 1) {
-      for (const inSetItem of object.inSet) {
-        addUnnamedObject(unnamedObjects, inSetItem);
+  else if (isArrayHasLength(object.is)) {
+    if (object.is.length === 1) iri = object["is"][0]["@id"];
+    else if (object.is.length > 1) {
+      for (const item of object.is) {
+        addUnnamedObject(unnamedObjects, item);
       }
     }
   }

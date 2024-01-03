@@ -173,7 +173,7 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 });
 
 const hasValue: ComputedRef<boolean> = computed(() => {
-  return isObjectHasKeys(props.match, ["inSet"]) || isObjectHasKeys(props.match, ["typeOf"]) || isObjectHasKeys(props.match, ["instanceOf"]);
+  return isObjectHasKeys(props.match, ["is"]) || isObjectHasKeys(props.match, ["typeOf"]) || isObjectHasKeys(props.match, ["instanceOf"]);
 });
 
 const hasProperty: ComputedRef<boolean> = computed(() => {
@@ -249,14 +249,14 @@ function getClass() {
   return clazz;
 }
 
-function saveSelect(property: "typeOf" | "instanceOf" | "inSet", selectedCSs: Node[], selectedCS: ConceptSummary) {
-  if (isObjectHasKeys(props.match, ["inSet"])) delete props.match.inSet;
+function saveSelect(property: "typeOf" | "instanceOf" | "is", selectedCSs: Node[], selectedCS: ConceptSummary) {
+  if (isObjectHasKeys(props.match, ["is"])) delete props.match.is;
   if (isObjectHasKeys(props.match, ["instanceOf"])) delete props.match.instanceOf;
   if (isObjectHasKeys(props.match, ["typeOf"])) delete props.match.typeOf;
 
   switch (property) {
-    case "inSet":
-      props.match.inSet = [...selectedCSs];
+    case "is":
+      props.match.is = [...selectedCSs];
       break;
     case "typeOf":
       props.match.typeOf = { "@id": selectedCS.iri, name: selectedCS.name };
