@@ -42,7 +42,6 @@
     <EditDisplayOrderBy v-if="match.orderBy" :match="match" :order-by="match.orderBy" :on-add-order-by="onAddOrderBy" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     <div v-if="isObjectHasKeys(match, ['then'])">
-      {{ match.then!.exclude ? "then" : "then include if" }}
       <EditDisplayMatch :index="index" :parent-match="match" :match="match.then!" :isThenMatch="true" :parent-data-model-iri="currentDataModelIri" />
     </div>
   </div>
