@@ -530,8 +530,4 @@ function copyMatchToClipboard() {
   margin-top: 0;
   padding-left: 1rem;
 }
-
-.then {
-  padding-left: 1rem;
-}
 </style>
