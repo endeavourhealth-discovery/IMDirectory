@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, inject, computed } from "vue";
-import { IM, SNOMED, FUNCTION } from "@im-library/vocabulary";
+import { IM, SNOMED, IM_FUNCTION } from "@im-library/vocabulary";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest } from "@im-library/interfaces/AutoGen";
@@ -78,7 +78,7 @@ const showDialog = ref(false);
 const isAny = ref(false);
 
 const functionRequest: FunctionRequest = {
-  functionIri: FUNCTION.IS_TYPE,
+  functionIri: IM_FUNCTION.IS_TYPE,
   arguments: [{ parameter: "type", valueIri: { "@id": IM.CONCEPT } }]
 };
 const descendantOptions = [

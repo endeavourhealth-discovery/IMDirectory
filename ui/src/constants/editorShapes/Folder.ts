@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, VALIDATION, QUERY, FUNCTION } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, VALIDATION, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
 
 const FolderShape: FormGenerator = {
   "@id": EDITOR.FOLDER_SHAPE,
@@ -45,7 +45,7 @@ const FolderShape: FormGenerator = {
               comment: "A property that auto generates the type as folder type",
               order: 1,
               function: {
-                "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -83,7 +83,7 @@ const FolderShape: FormGenerator = {
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": FUNCTION.GET_USER_EDITABLE_SCHEMES
+                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
               validation: { "@id": VALIDATION.IS_IRI }
             },

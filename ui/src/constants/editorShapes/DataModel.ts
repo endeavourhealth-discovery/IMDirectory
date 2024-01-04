@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, SHACL, XSD, EDITOR, COMPONENT, FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL, XSD, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
 
 const DataModelShape: FormGenerator = {
   "@id": EDITOR.DATA_MODEL_SHAPE,
@@ -49,7 +49,7 @@ const DataModelShape: FormGenerator = {
               comment: "A property that auto generates the type as data model type",
               order: 1,
               function: {
-                "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -87,7 +87,7 @@ const DataModelShape: FormGenerator = {
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": FUNCTION.GET_USER_EDITABLE_SCHEMES
+                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
               validation: { "@id": VALIDATION.IS_IRI }
             },
@@ -118,7 +118,7 @@ const DataModelShape: FormGenerator = {
                 "@id": XSD.STRING
               },
               function: {
-                "@id": FUNCTION.LOCAL_NAME_RETRIEVER
+                "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
               }
             },
             {
