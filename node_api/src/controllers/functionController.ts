@@ -3,7 +3,6 @@ import QueryService from "@/services/query.service";
 import { ErrorType } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { CustomError } from "@im-library/models";
-import { IM, IM_FUNCTION } from "@im-library/vocabulary";
 import axios from "axios";
 import { Request } from "express";
 import router from "express-promise-router";
