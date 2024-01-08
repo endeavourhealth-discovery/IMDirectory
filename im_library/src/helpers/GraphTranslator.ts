@@ -1,6 +1,6 @@
-import { GRAPH, TTIriRef } from "../interfaces/AutoGen";
+import { TTIriRef } from "../interfaces/AutoGen";
 import { TTBundle, TTGraphData } from "../interfaces";
-import { SHACL, OWL, IM, RDFS, SNOMED } from "../vocabulary";
+import { SHACL, OWL, IM, RDFS, SNOMED, GRAPH } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {

@@ -26,7 +26,7 @@ export function describeQuery(query: Query): Query {
 
 export function describeMatch(match: Match, index: number, bool: Bool, matchType?: MatchType) {
   let display = getDisplayFromMatch(match, matchType);
-  if (match.exclude) display = getDisplayFromLogic("exclude") + " " + display;
+  if (match.exclude && matchType !== "then") display = getDisplayFromLogic("exclude") + " " + display;
   if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
 
   if (isArrayHasLength(match.match))
@@ -63,6 +63,10 @@ export function describeProperty(property: Property, index: number, bool: Bool, 
 // getters
 export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   let display = "";
+  if (matchType === "then") {
+    display = "then";
+    display += " " + getDisplayFromLogic(match.exclude ? "exclude" : "include");
+  }
   if (match.is) display = getDisplayFromIs(match.is);
   else if (match.typeOf) {
     display = getNameFromRef(match.typeOf);
@@ -76,7 +80,7 @@ export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   }
 
   if (match.orderBy) describeOrderByList(match.orderBy, matchType);
-  if ("path" == matchType) display += " with";
+  if ("path" === matchType) display += " with";
 
   return display;
 }
@@ -196,6 +200,8 @@ function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: Match
 
 export function getDisplayFromLogic(title: string) {
   switch (title) {
+    case "include":
+      return "<span style='color: green;'>include if</span> ";
     case "exclude":
       return "<span style='color: red;'>exclude if</span> ";
     case "or":

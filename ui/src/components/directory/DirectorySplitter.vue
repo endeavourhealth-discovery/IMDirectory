@@ -1,7 +1,7 @@
 <template>
   <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter">
     <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
-      <NavTree :allow-right-click="true" :selected-iri="findInTreeIri" @row-selected="routeToSelected" />
+      <NavTree :allow-right-click="true" :selected-iri="findInTreeIri" :find-in-tree="findInTreeBoolean" @row-selected="routeToSelected" />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
@@ -48,6 +48,7 @@ const directService = new DirectService();
 const searchResults = computed(() => directoryStore.searchResults);
 const searchLoading = computed(() => directoryStore.searchLoading);
 const findInTreeIri = computed(() => directoryStore.findInTreeIri);
+const findInTreeBoolean = computed(() => directoryStore.findInTreeBoolean);
 const directoryLoading = computed(() => loadingStore.directoryLoading);
 
 const history: Ref<string[]> = ref([]);
@@ -101,7 +102,7 @@ function locateInTree(iri: string) {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.15s ease;
+  transition: opacity 0.25s ease;
 }
 
 .fade-enter-from,
