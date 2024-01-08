@@ -50,6 +50,9 @@ import { useSharedStore } from "@/stores/sharedStore";
 import EntityService from "@/services/EntityService";
 import QueryService from "@/services/QueryService";
 import _ from "lodash";
+import setupDownloadFile from "@/composables/downloadFile";
+import { useDialog } from "primevue/usedialog";
+import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 
 interface Props {
   searchResults: SearchResponse | undefined;
@@ -58,6 +61,7 @@ interface Props {
   filterOptions?: FilterOptions;
   loadMore: { page: number; rows: number } | undefined;
   filterDefaults?: FilterOptions;
+  download: { term: string; count: number } | undefined;
 }
 
 const props = defineProps<Props>();
@@ -65,7 +69,20 @@ const props = defineProps<Props>();
 watch(
   () => _.cloneDeep(props.loadMore),
   async newValue => {
-    if (isObjectHasKeys(newValue)) await search(true);
+    if (isObjectHasKeys(newValue)) {
+      await search(true);
+      emit("update:loadMore", undefined);
+    }
+  }
+);
+
+watch(
+  () => _.cloneDeep(props.download),
+  async newValue => {
+    if (newValue) {
+      await downloadAll(newValue);
+      emit("update:download", undefined);
+    }
   }
 );
 
@@ -73,11 +90,16 @@ const emit = defineEmits({
   "update:searchResults": payload => true,
   "update:searchLoading": payload => typeof payload === "boolean",
   toEclSearch: () => true,
-  toQuerySearch: () => true
+  toQuerySearch: () => true,
+  "update:download": _payload => undefined,
+  "update:loadMore": _payload => undefined
 });
 
 const filterStore = useFilterStore();
 const sharedStore = useSharedStore();
+const dynamicDialog = useDialog();
+
+const { downloadFile } = setupDownloadFile(window, document);
 
 const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
@@ -122,10 +144,11 @@ function debounceForSearch(): void {
   }, 600);
 }
 
-async function search(loadMore: boolean = false): Promise<void> {
+async function search(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }): Promise<void | SearchResponse> {
   searchPlaceholder.value = "Search";
+  if (downloadData) searchText.value = downloadData.term;
   if (searchText.value && searchText.value.length > 2) {
-    loading.value = true;
+    if (!downloadAll) loading.value = true;
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText.value;
     searchRequest.sortField = "weighting";
@@ -135,6 +158,10 @@ async function search(loadMore: boolean = false): Promise<void> {
     } else {
       searchRequest.page = 1;
       searchRequest.size = 100;
+    }
+    if (downloadAll && downloadData) {
+      searchRequest.page = 1;
+      searchRequest.size = downloadData.count;
     }
 
     searchRequest.schemeFilter = [];
@@ -180,6 +207,7 @@ async function search(loadMore: boolean = false): Promise<void> {
     }
     controller.value = new AbortController();
     const result = await EntityService.advancedSearch(searchRequest, controller.value);
+    if (downloadAll) return result;
     if (result?.entities) results.value = result;
     else results.value = undefined;
     loading.value = false;
@@ -229,6 +257,19 @@ function getMatchFromSchemeFilters(): Match {
       }
     ]
   };
+}
+
+async function downloadAll(data: { term: string; count: number }) {
+  const downloadDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Downloading", text: "Preparing your download..." }
+  });
+  const results = await search(undefined, true, data);
+  const heading = ["name", "iri", "code"].join(",");
+  const body = results?.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
+  const csv = [heading, body].join("\n");
+  downloadFile(csv, "results.csv");
+  downloadDialog.close();
 }
 </script>
 

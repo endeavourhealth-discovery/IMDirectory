@@ -11,6 +11,7 @@
             @to-ecl-search="toEclSearch"
             @to-query-search="toQuerySearch"
             v-model:loadMore="loadMore"
+            v-model:download="download"
           />
         </div>
       </template>
@@ -19,7 +20,7 @@
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
-      <DirectorySplitter v-else @lazyLoadRequested="lazyLoadRequested" />
+      <DirectorySplitter v-else @lazyLoadRequested="lazyLoadRequested" @downloadRequested="downloadRequested" />
     </div>
   </div>
 </template>
@@ -49,6 +50,7 @@ const searchLoading = computed(() => directoryStore.searchLoading);
 
 const loading = ref(true);
 const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
+const download: Ref<{ term: string; count: number } | undefined> = ref();
 
 onMounted(async () => {
   loading.value = true;
@@ -76,6 +78,10 @@ function toQuerySearch() {
 
 function lazyLoadRequested(event: any) {
   loadMore.value = event;
+}
+
+function downloadRequested(data: { term: string; count: number }) {
+  download.value = data;
 }
 </script>
 

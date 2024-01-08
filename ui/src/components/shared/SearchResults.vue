@@ -28,6 +28,7 @@
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
       @lazyLoadRequested="(data: any) => $emit('lazyLoadRequested', data)"
+      @downloadRequested="(data: any) => $emit('downloadRequested', data)"
     />
   </div>
 </template>
@@ -58,7 +59,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  lazyLoadRequested: (_payload: any) => true
+  lazyLoadRequested: (_payload: any) => true,
+  downloadRequested: (_payload: { term: string; count: number }) => true
 });
 
 const filterStore = useFilterStore();

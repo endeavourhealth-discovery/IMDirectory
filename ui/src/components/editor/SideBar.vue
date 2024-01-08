@@ -6,6 +6,7 @@
       :search-loading="searchLoading"
       @update:search-results="updateSearchResults"
       v-model:loadMore="loadMore"
+      v-model:download="download"
     />
     <TabView :lazy="true" v-model:activeIndex="activeIndex">
       <TabPanel header="NavTree">
@@ -21,6 +22,7 @@
           @lazy-load-requested="lazyLoadRequested"
           :lazy-loading="true"
           :rows="100"
+          @download-requested="downloadRequested"
         />
       </TabPanel>
       <TabPanel header="JSON viewer">
@@ -54,6 +56,7 @@ const selectedResult: Ref<SearchResultSummary | undefined> = ref();
 const findInTreeIri = ref("");
 const editorEntityDisplay = ref();
 const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
+const download: Ref<{ term: string; count: number } | undefined> = ref();
 
 watch(
   () => cloneDeep(props.editorEntity),
@@ -101,6 +104,10 @@ function locateInTree(event: any, iri: string) {
 
 function lazyLoadRequested(event: any) {
   loadMore.value = event;
+}
+
+function downloadRequested(data: { term: string; count: number }) {
+  download.value = data;
 }
 </script>
 

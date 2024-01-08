@@ -98,7 +98,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits({
   rowSelected: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  downloadRequested: () => true,
+  downloadRequested: (_payload: { term: string; count: number }) => true,
   lazyLoadRequested: (_payload: any) => true
 });
 
@@ -225,8 +225,13 @@ function onRowSelect(event: any) {
 
 function exportCSV(): void {
   if (props.searchResults) {
-    if (props.searchResults.count && props.searchResults.entities && props.searchResults.entities.length < props.searchResults.count) {
-      emit("downloadRequested");
+    if (
+      props.searchResults.count &&
+      props.searchResults.entities &&
+      props.searchResults.entities.length < props.searchResults.count &&
+      props.searchResults.term
+    ) {
+      emit("downloadRequested", { term: props.searchResults.term, count: props.searchResults.count });
       return;
     }
     const downloadDialog = dynamicDialog.open(LoadingDialog, {

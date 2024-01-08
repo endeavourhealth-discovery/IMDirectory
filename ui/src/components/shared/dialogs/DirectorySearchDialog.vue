@@ -19,6 +19,7 @@
           :filter-options="filterOptions"
           v-model:loadMore="loadMore"
           :filterDefaults="filterDefaults"
+          v-model:download="download"
         />
       </div>
       <div class="vertical-divider">
@@ -36,6 +37,7 @@
             @lazy-load-requested="lazyLoadRequested"
             :lazy-loading="true"
             :rows="100"
+            @download-requested="downloadRequested"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -110,6 +112,7 @@ const hasQueryDefinition: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
 const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
+const download: Ref<{ term: string; count: number } | undefined> = ref();
 
 const visible = ref(false);
 watch(visible, newValue => {
@@ -246,6 +249,10 @@ function onEnter() {
 
 function lazyLoadRequested(event: any) {
   loadMore.value = event;
+}
+
+function downloadRequested(data: { term: string; count: number }) {
+  download.value = data;
 }
 </script>
 
