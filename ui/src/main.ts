@@ -5,6 +5,7 @@ import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
 import axios from "axios";
+import { install as VueMonacoEditorPlugin } from "@guolao/vue-monaco-editor";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -127,6 +128,12 @@ const app = createApp(App)
   .use(VueClipboard, {
     autoSetContainer: true,
     appendToBody: true
+  })
+  .use(VueMonacoEditorPlugin, {
+    paths: {
+      // The recommended CDN config
+      vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs"
+    }
   })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)

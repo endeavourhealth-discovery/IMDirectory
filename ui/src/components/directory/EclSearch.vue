@@ -3,12 +3,20 @@
     <h3 class="title">Expression constraints language search</h3>
     <h5 class="info">ECL expression:</h5>
     <div class="text-copy-container">
-      <Textarea
+      <!-- <Textarea
         v-model="queryString"
         id="query-string-container"
         placeholder="Enter expression here or use the ECL builder to generate your search..."
         :class="eclError ? 'p-invalid' : ''"
         data-testid="query-string"
+      /> -->
+      <VueMonacoEditor
+        id="query-string-container"
+        v-model:value="code"
+        theme="vs-dark"
+        :options="MONACO_EDITOR_OPTIONS"
+        @mount="handleMount"
+        language="mylang"
       />
       <Button
         :disabled="!queryString.length"
@@ -66,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, computed, onMounted } from "vue";
+import { Ref, ref, watch, computed, onMounted, shallowRef } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
@@ -84,6 +92,34 @@ import { useFilterStore } from "@/stores/filterStore";
 import setupDownloadFile from "@/composables/downloadFile";
 import LoadingDialog from "../shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
+import { useMonaco } from "@guolao/vue-monaco-editor";
+
+const monaco = useMonaco().monacoRef.value;
+
+const keywords = ["is", "and", "or"];
+
+const MONACO_EDITOR_OPTIONS = {
+  automaticLayout: true,
+  formatOnType: true,
+  formatOnPaste: true
+};
+
+const code = ref("// some code...");
+const editorRef = shallowRef();
+const handleMount = (editor: any) => (editorRef.value = editor);
+
+onMounted(() => {
+  if (monaco) {
+    console.log("e=here");
+    monaco.languages.register({ id: "mylang" });
+    monaco.languages.setMonarchTokensProvider("mylang", {
+      keywords,
+      tokenizer: {
+        root: [[/@? [a-zA-Z] [\w$]*/, { cases: { "@keywords": "keyword", "@default": "variable" } }]]
+      }
+    });
+  }
+});
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
@@ -325,5 +361,6 @@ function onCopyError(): void {
   display: flex;
   flex-flow: row;
   align-items: center;
+  height: 20rem;
 }
 </style>
