@@ -35,8 +35,8 @@
             <span class="required-info">(*) item is required.</span>
           </div>
           <div class="button-bar" id="creator-button-bar">
-            <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
-            <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
+            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
+            <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
           </div>
         </div>
       </div>
@@ -155,7 +155,7 @@ const {
   deleteEntityKey,
   checkForChanges
 } = setupEditorEntity(EditorMode.CREATE, updateType);
-const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const { shape, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -364,7 +364,7 @@ function submit(): void {
           if (result.isConfirmed) {
             Swal.fire({
               title: "Success",
-              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been created.",
+              text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
               icon: "success",
               showCancelButton: true,
               reverseButtons: true,
@@ -373,9 +373,9 @@ function submit(): void {
               cancelButtonColor: "#607D8B"
             }).then((result: any) => {
               if (result.isConfirmed) {
-                directService.view(editorEntity.value["http://endhealth.info/im#id"], false);
+                directService.view(editorEntity.value[IM.ID]);
               } else {
-                directService.edit(editorEntity.value["http://endhealth.info/im#id"], false);
+                directService.edit(editorEntity.value[IM.ID], true);
               }
             });
           }
@@ -402,8 +402,21 @@ function submit(): void {
 }
 
 function closeCreator() {
-  if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
-  else router.go(-1);
+  Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+    showCancelButton: true,
+    confirmButtonText: "Close",
+    reverseButtons: true,
+    confirmButtonColor: "#D32F2F",
+    cancelButtonColor: "#607D8B",
+    customClass: { confirmButton: "swal-reset-button" }
+  }).then((result: any) => {
+    if (result.isConfirmed) {
+      router.push({ name: "LandingPage" });
+    }
+  });
 }
 
 function refreshCreator() {
@@ -420,8 +433,6 @@ function refreshCreator() {
   }).then((result: any) => {
     if (result.isConfirmed) {
       editorEntity.value = { ...editorEntityOriginal.value };
-      currentStep.value = 0;
-      router.push(stepsItems.value[currentStep.value].to);
     }
   });
 }
@@ -458,7 +469,6 @@ function processEntityValue(property: PropertyShape) {
 #creator-main-container {
   height: calc(100% - 3.5rem);
   width: 100%;
-  overflow: auto;
   overflow: auto;
 }
 

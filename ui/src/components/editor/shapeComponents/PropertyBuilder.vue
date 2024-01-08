@@ -54,30 +54,37 @@
                     v-model="row.required"
                     onLabel="Required"
                     offLabel="Required"
-                    onIcon="pi pi-check"
-                    offIcon="pi pi-times"
+                    onIcon="fa-solid fa-check"
+                    offIcon="fa-solid fa-xmark"
                   />
-                  <ToggleButton class="toggle-button" v-model="row.unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+                  <ToggleButton
+                    class="toggle-button"
+                    v-model="row.unique"
+                    onLabel="Unique"
+                    offLabel="Unique"
+                    onIcon="fa-solid fa-check"
+                    offIcon="fa-solid fa-xmark"
+                  />
                   <Button
-                    icon="pi pi-chevron-up"
+                    icon="fa-solid fa-chevron-up"
                     class="p-button-rounded p-button-text"
                     @click="moveUp(index)"
                     :disabled="index == 0 || dmProperties[index - 1].inherited != undefined"
                   />
                   <Button
-                    icon="pi pi-chevron-down"
+                    icon="fa-solid fa-chevron-down"
                     class="p-button-rounded p-button-text"
                     @click="moveDown(index)"
                     :disabled="index == dmProperties.length - 1"
                   />
-                  <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
+                  <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
                 </span>
               </td>
             </tr>
           </template>
         </table>
         <div class="buttonGroup">
-          <Button icon="pi pi-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
+          <Button icon="fa-solid fa-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
         </div>
       </div>
       <span v-if="invalid && showValidation" class="error-message-text">{{ validationErrorMessage }}</span>
@@ -274,7 +281,7 @@ async function searchPath(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results && results.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   pathSuggestions.value = ps;
@@ -360,7 +367,7 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
                 is: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }, { "@id": IM.CONCEPT }, { "@id": SHACL.NODESHAPE }, { "@id": RDFS.DATATYPE }]
               },
               {
-                "@id": IM.SCHEME,
+                "@id": IM.HAS_SCHEME,
                 is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
               }
             ]
@@ -369,7 +376,7 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results && results.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
 
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
@@ -430,7 +437,7 @@ async function isValidRange(iri: string): Promise<boolean> {
           },
           property: [
             {
-              "@id": IM.SCHEME,
+              "@id": IM.HAS_SCHEME,
               is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
             }
           ]

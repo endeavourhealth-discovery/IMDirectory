@@ -10,9 +10,9 @@
       </svg>
     </div>
     <div class="custom-control-buttons">
-      <Button class="svg-pan-zoom-control" severity="secondary" icon="pi pi-plus" @click="zoomIn" />
+      <Button class="svg-pan-zoom-control" severity="secondary" icon="fa-solid fa-plus" @click="zoomIn" />
       <Button class="svg-pan-zoom-control" severity="secondary" label="RESET" @click="resetZoom" />
-      <Button class="svg-pan-zoom-control" severity="secondary" icon="pi pi-minus" @click="zoomOut" />
+      <Button class="svg-pan-zoom-control" severity="secondary" icon="fa-solid fa-minus" @click="zoomOut" />
     </div>
   </div>
   <ContextMenu ref="menu" :model="contextMenu" />
@@ -22,7 +22,6 @@
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
-import { useRoute } from "vue-router";
 import _ from "lodash";
 import { TTGraphData } from "@im-library/interfaces";
 import { GraphExcludePredicates } from "@im-library/config";
@@ -49,7 +48,6 @@ const emit = defineEmits({
   navigateTo: (_payload: string) => true
 });
 
-const route = useRoute();
 const toast = useToast();
 const directoryStore = useDirectoryStore();
 const graphData = ref();
@@ -133,7 +131,7 @@ async function getContextMenu(d: any) {
     }
     Object.keys(bundle.entity)
       .filter(value => value !== "@id")
-      .filter(value => !graphExcludePredicates.includes(value))
+      .filter(value => !graphExcludePredicates.find(gep => gep === value))
       .forEach((key: string) => {
         contextMenu.value.push({
           iri: key,
@@ -254,7 +252,7 @@ function drawGraph() {
       return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.centerNode.fill;
     })
     .style("font-size", () => `${nodeFontSize.value}px`)
-    .on("dblclick", (d: any) => dblclick(d))
+    .on("dblclick", async (d: any): Promise<void> => await dblclick(d))
     .on("click", (d: any) => click(d))
     .on("mouseover", (d: any) => {
       const graphContainer = d3.select("#force-layout-graph").node() as Element;
@@ -326,7 +324,7 @@ function getFODimensions(_d: any) {
   return { x: -radius.value / 1.1, y: -radius.value / 1.3, height: (2 * radius.value) / 1.3, width: (2 * radius.value) / 1.1 };
 }
 
-async function click(d: any) {
+function click(d: any) {
   if (d.metaKey || d.ctrlKey) {
     const node = d["target"]["__data__"]["data"] as TTGraphData;
     navigate(node.iri);

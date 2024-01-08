@@ -17,8 +17,7 @@
       :full-query="fullQuery"
     />
     <span v-if="match.orderBy"> <div v-html="match.orderBy.description"></div></span>
-    <span v-if="match.then" class="feature">
-      {{ match.then.exclude ? "then" : "then include if" }}
+    <span v-if="match.then">
       <RecursiveQueryDisplay :match="match.then" :parent-match="match" :full-query="fullQuery" />
     </span>
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>

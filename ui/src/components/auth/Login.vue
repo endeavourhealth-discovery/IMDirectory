@@ -40,11 +40,11 @@ import { computed, onMounted, ref } from "vue";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { Avatars } from "@im-library/constants";
-import Swal from "sweetalert2";
-import { SweetAlertResult } from "sweetalert2";
+import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
+import { CustomAlert } from "@im-library/interfaces";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -62,81 +62,95 @@ onMounted(() => {
   }
 });
 
+async function handle200(res: CustomAlert) {
+  const loggedInUser = res.user;
+  if (loggedInUser) {
+    // check if avatar exists and replace lagacy images with default avatar on signin
+    const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
+    if (!result) {
+      loggedInUser.avatar = Avatars[0];
+    }
+    userStore.updateCurrentUser(loggedInUser);
+    userStore.updateAwsUser(res.userRaw);
+    await userStore.getAllFromUserDatabase();
+    authStore.updateRegisteredUsername("");
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "Login successful",
+      footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
+    }).then(() => {
+      userStore.clearOptionalCookies();
+      if (authReturnPath.value) {
+        router.push({ path: authReturnPath.value });
+      } else {
+        router.push({ name: "LandingPage" });
+      }
+    });
+  }
+}
+
+function handle401(res: CustomAlert) {
+  Swal.fire({
+    icon: "warning",
+    title: "User Unconfirmed",
+    text: "Account has not been confirmed. Please confirm account to continue.",
+    showCloseButton: true,
+    showCancelButton: true,
+    confirmButtonText: "Confirm Account"
+  }).then((result: SweetAlertResult) => {
+    if (result.isConfirmed) {
+      authStore.updateRegisteredUsername(username.value);
+      router.push({ name: "ConfirmCode" });
+    }
+  });
+}
+
+function handle403(res: CustomAlert) {
+  if (res.message === "NEW_PASSWORD_REQUIRED") {
+    Swal.fire({
+      icon: "warning",
+      title: "New password required",
+      text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+      showCloseButton: false,
+      showCancelButton: false,
+      confirmButtonText: "Reset password"
+    }).then((result: SweetAlertResult) => {
+      if (result.isConfirmed) {
+        router.push({ name: "ForgotPassword" });
+      }
+    });
+  } else if (res.message === "MFA_SETUP") {
+    userStore.updateAwsUser(res.userRaw);
+    Swal.fire({
+      icon: "info",
+      title: "Redirecting to 2-factor authentication setup...",
+      text: "A request for 2-factor authentication was made. We will redirect you to the 2-factor authentication setup page shortly.",
+      timer: 2000,
+      timerProgressBar: true,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      showCloseButton: true
+    }).then(() => {
+      router.push({ name: "MFASetup" });
+    });
+  } else if (res.message === "SOFTWARE_TOKEN_MFA") {
+    userStore.updateAwsUser(res.userRaw);
+    router.push({ name: "MFALogin" });
+  }
+}
+
 async function handleSubmit(): Promise<void> {
   loading.value = true;
   await AuthService.signIn(username.value, password.value)
     .then(async res => {
-      if (res.status === 200 && res.user) {
-        const loggedInUser = res.user;
-        // check if avatar exists and replace lagacy images with default avatar on signin
-        const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-        if (!result) {
-          loggedInUser.avatar = Avatars[0];
-        }
-        userStore.updateCurrentUser(loggedInUser);
-        userStore.updateAwsUser(res.userRaw);
-        await userStore.getAllFromUserDatabase();
-        authStore.updateRegisteredUsername("");
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Login successful",
-          footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
-        }).then(() => {
-          userStore.clearOptionalCookies();
-          if (authReturnPath.value) {
-            router.push({ path: authReturnPath.value });
-          } else {
-            router.push({ name: "LandingPage" });
-          }
-        });
+      if (res.status === 200) {
+        await handle200(res);
       } else if (res.status === 401) {
-        Swal.fire({
-          icon: "warning",
-          title: "User Unconfirmed",
-          text: "Account has not been confirmed. Please confirm account to continue.",
-          showCloseButton: true,
-          showCancelButton: true,
-          confirmButtonText: "Confirm Account"
-        }).then((result: SweetAlertResult) => {
-          if (result.isConfirmed) {
-            authStore.updateRegisteredUsername(username.value);
-            router.push({ name: "ConfirmCode" });
-          }
-        });
+        handle401(res);
       } else if (res.status === 403) {
-        if (res.message === "NEW_PASSWORD_REQUIRED") {
-          Swal.fire({
-            icon: "warning",
-            title: "New password required",
-            text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
-            showCloseButton: false,
-            showCancelButton: false,
-            confirmButtonText: "Reset password"
-          }).then((result: SweetAlertResult) => {
-            if (result.isConfirmed) {
-              router.push({ name: "ForgotPassword" });
-            }
-          });
-        } else if (res.message === "MFA_SETUP") {
-          userStore.updateAwsUser(res.userRaw);
-          Swal.fire({
-            icon: "info",
-            title: "Redirecting to 2-factor authentication setup...",
-            text: "A request for 2-factor authentication was made. We will redirect you to the 2-factor authentication setup page shortly.",
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: () => {
-              Swal.showLoading();
-            },
-            showCloseButton: true
-          }).then(() => {
-            router.push({ name: "MFASetup" });
-          });
-        } else if (res.message === "SOFTWARE_TOKEN_MFA") {
-          userStore.updateAwsUser(res.userRaw);
-          router.push({ name: "MFALogin" });
-        }
+        handle403(res);
       } else {
         Swal.fire({
           icon: "error",

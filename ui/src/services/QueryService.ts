@@ -104,6 +104,10 @@ const QueryService = {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri } });
   },
 
+  async getQueryDisplayFromQuery(query: Query): Promise<Query> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplayFromQuery", query);
+  },
+
   async getAllQueries(): Promise<any> {
     return axios.get(Env.API + "api/query/public/allQueries");
   },

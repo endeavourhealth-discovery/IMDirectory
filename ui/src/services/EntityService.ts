@@ -3,7 +3,7 @@ import { EntityReferenceNode, FiltersAsIris, TTBundle, TermCode, Namespace, Expo
 import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { OrganizationChartNode } from "primevue/organizationchart";

@@ -3,7 +3,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { AllowableChildProperty } from "@im-library/interfaces";
 import { DirectService, QueryService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 
 function createNew() {
@@ -50,7 +50,7 @@ function createNew() {
     if (!isArrayHasLength(allowableTypes)) {
       selectionWrapperCopy[0].items.push({
         label: "No options",
-        icon: "pi pi-ban",
+        icon: "fa-solid fa-ban",
         disabled: true
       });
       return selectionWrapperCopy;

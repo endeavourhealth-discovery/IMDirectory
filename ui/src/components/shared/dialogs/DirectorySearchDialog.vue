@@ -18,6 +18,7 @@
           :selected="selected"
           :filter-options="filterOptions"
           v-model:loadMore="loadMore"
+          :filterDefaults="filterDefaults"
         />
       </div>
       <div class="vertical-divider">
@@ -86,6 +87,7 @@ interface Props {
   selected?: SearchResultSummary;
   rootEntities?: string[];
   filterOptions?: FilterOptions;
+  filterDefaults?: FilterOptions;
 }
 const props = defineProps<Props>();
 watch(

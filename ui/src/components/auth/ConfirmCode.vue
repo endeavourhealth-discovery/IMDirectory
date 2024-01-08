@@ -72,7 +72,7 @@ let showDialog = ref(false);
 const codeVerified = computed(() => verifyCode(code.value));
 
 const usernameInvalid = computed(() => {
-  return username.value ? false : true;
+  return !username.value;
 });
 
 onMounted(() => {

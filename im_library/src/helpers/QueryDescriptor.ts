@@ -2,24 +2,31 @@ import { Bool, Entailment, Operator, OrderDirection, Property } from "../interfa
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
+import { IM } from "../vocabulary";
 
-const propertyDisplayMap: { path: any; then: any } = { path: { concept: "of", ethnicity: "of", language: "of" }, then: { concept: "is" } };
+const propertyDisplayMap: { path: any; then: any } = { path: { concept: "is", ethnicity: "of", language: "of" }, then: { concept: "is" } };
 
 export type MatchType = "path" | "then";
 
 // descriptors
 export function describeQuery(query: Query): Query {
   const describedQuery = { ...query };
+
   if (isArrayHasLength(describedQuery.match))
     for (const [index, match] of describedQuery.match!.entries()) {
-      describeMatch(match, index, "and");
+      describeMatch(match, index, Bool.and);
     }
+  else if (isArrayHasLength(describedQuery.property)) {
+    for (const [index, prop] of describedQuery.property!.entries()) {
+      describeProperty(prop, index, Bool.and);
+    }
+  }
   return describedQuery;
 }
 
 export function describeMatch(match: Match, index: number, bool: Bool, matchType?: MatchType) {
   let display = getDisplayFromMatch(match, matchType);
-  if (match.exclude) display = getDisplayFromLogic("exclude") + " " + display;
+  if (match.exclude && matchType !== "then") display = getDisplayFromLogic("exclude") + " " + display;
   if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
 
   if (isArrayHasLength(match.match))
@@ -33,17 +40,16 @@ export function describeMatch(match: Match, index: number, bool: Bool, matchType
     }
 
   if (match.then) {
-    describeMatch(match.then, 0, "and", "then");
+    describeMatch(match.then, 0, Bool.and, "then");
   }
 
   match.description = display;
 }
 
 export function describeProperty(property: Property, index: number, bool: Bool, matchType?: MatchType) {
-  if (property.match) describeMatch(property.match, 0, "and", "path");
+  if (property.match) describeMatch(property.match, 0, Bool.and, "path");
   if (isObjectHasKeys(property, ["@id"])) {
-    let display = getDisplayFromEntailment(property);
-    display += getDisplayFromProperty(property, matchType);
+    let display = getDisplayFromProperty(property, matchType);
     if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
     property.description = display;
   }
@@ -57,13 +63,24 @@ export function describeProperty(property: Property, index: number, bool: Bool, 
 // getters
 export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   let display = "";
-  if (match.orderBy) describeOrderByList(match.orderBy, matchType);
-  else if (match.inSet) display = getDisplayFromInSet(match.inSet);
-  else if (match.typeOf) display = getNameFromRef(match.typeOf);
-  else if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
-  else if (!match.property && match["@id"] && match.name) display = match.name;
+  if (matchType === "then") {
+    display = "then";
+    display += " " + getDisplayFromLogic(match.exclude ? "exclude" : "include");
+  }
+  if (match.inSet) display = getDisplayFromInSet(match.inSet);
+  else if (match.typeOf) {
+    display = getNameFromRef(match.typeOf);
+    display += getDisplaySuffixFromEntailment(match.typeOf);
+  } else if (match.instanceOf) {
+    display = "is instance of " + getNameFromRef(match.instanceOf);
+    display += getDisplaySuffixFromEntailment(match.instanceOf);
+  } else if (!match.property && match["@id"] && match.name) {
+    display = match.name;
+    display += getDisplaySuffixFromEntailment(match as any);
+  }
 
-  if ("path" == matchType) display += " with";
+  if (match.orderBy) describeOrderByList(match.orderBy, matchType);
+  if ("path" === matchType) display += " with";
 
   return display;
 }
@@ -106,57 +123,85 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
   if (!property.match) display += propertyName;
 
-  if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
+  if (property.isNull) display += " is not recorded";
+  else if (property.isNotNull) display += " is recorded";
+  else {
+    if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
+    display += getDisplaySuffixFromEntailment(property);
 
-  if (property.is) display += getDisplayFromList(property, true, property.is);
-  if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
-  if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
-  if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
-  if (property.operator) display = getDisplayFromOperator(propertyName, property);
-  if (property.range) display = getDisplayFromRange(propertyName, property);
-  if (property.isNull) display += " is null";
+    if (isPropertyValueList(property)) {
+      if (property.valueLabel) {
+        const totalNumberOfNodes = getNumberOfListItems(property);
+        if (totalNumberOfNodes === 1) display += " " + property.valueLabel;
+        else display += " " + getDisplayFromNodeRef(property.valueLabel);
+      } else {
+        if (property.is) display += " " + getDisplayFromList(true, property.is);
+        if (property.isNot) display += " " + getDisplayFromList(false, property.isNot);
+      }
+    }
+    if (property.operator) display = getDisplayFromOperator(propertyName, property);
+    if (property.range) display = getDisplayFromRange(propertyName, property);
+  }
   return display;
 }
 
 export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchType) {
   if (orderLimit?.property && orderLimit.property.length > 0) {
-    let desc = [];
-    for (const ob of orderLimit.property) {
-      desc.push(getDisplayFromOrderBy(ob, matchType));
-    }
+    // TODO: Temporary fix - model to be updated later
+    const desc = getDisplayFromOrderBy(orderLimit.property[0], matchType, orderLimit.limit);
 
-    if (desc.length > 0) {
-      orderLimit.description =
-        "<div class='variable-line'>order by " + desc.join(" then by ") + ", keep " + (orderLimit.limit === 1 ? "first" : orderLimit.limit) + "</div>";
-    }
+    orderLimit.description = "<div class='variable-line'>get " + desc + "</div>";
   }
 }
 
-function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: MatchType) {
+function isPropertyValueList(property: Property) {
+  return isArrayHasLength(property.is) || isArrayHasLength(property.isNot);
+}
+
+export function getNumberOfListItems(property: Property) {
+  let totalNumberOfNodes = 0;
+  if (isArrayHasLength(property.is)) totalNumberOfNodes += property.is!.length;
+  if (isArrayHasLength(property.isNot)) totalNumberOfNodes += property.isNot!.length;
+
+  return totalNumberOfNodes;
+}
+
+function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: MatchType, count = 0) {
   let display = "";
+  const limit = count > 1 ? " " + count + " " : " ";
+
   if (orderDirection.variable) display += orderDirection.variable + ".";
+
   const propertyName = getNameFromRef(orderDirection);
+
   if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += propertyName + " " + propertyDisplayMap[matchType][propertyName] + " ";
   else display += propertyName;
+
+  // Shortcut for effectiveDate and Value
+  if (IM.EFFECTIVE_DATE === orderDirection["@id"] || IM.VALUE === orderDirection["@id"]) display = "";
+  else display = "by " + display;
+
   if (propertyName.toLocaleLowerCase().includes("date")) {
     if ("descending" === orderDirection.direction) {
-      display = "latest " + display;
+      display = "latest" + limit + display;
     } else if ("ascending" === orderDirection.direction) {
-      display = "earliest " + display;
+      display = "earliest" + limit + display;
     }
   } else if (propertyName) {
     if ("descending" === orderDirection.direction) {
-      display = "highest " + display;
+      display = "highest" + limit + display;
     } else if ("ascending" === orderDirection.direction) {
-      display = "lowest " + display;
+      display = "lowest" + limit + display;
     }
   }
 
-  return display;
+  return display.trim();
 }
 
 export function getDisplayFromLogic(title: string) {
   switch (title) {
+    case "include":
+      return "<span style='color: green;'>include if</span> ";
     case "exclude":
       return "<span style='color: red;'>exclude if</span> ";
     case "or":
@@ -172,7 +217,7 @@ export function getDisplayFromRange(propertyName: string, property: Property) {
   const propertyDisplay = propertyName;
   let display = propertyDisplay + " between ";
   display += property.range?.from.value + " and " + property.range?.to.value;
-  if (!propertyName.toLowerCase().includes("date")) display += " " + property.range?.to.unit;
+  if (!propertyName.toLowerCase().includes("date") && property.range?.to.unit) display += " " + property.range?.to.unit;
   return display;
 }
 
@@ -248,13 +293,8 @@ export function getDisplayFromOperatorForDate(operator: Operator) {
   }
 }
 
-export function getDisplayFromList(property: Property, include: boolean, nodes: Node[]) {
-  let display = include ? " " : " not ";
-  if (property.valueLabel) {
-    if (nodes.length === 1) display += property.valueLabel;
-    else display += getDisplayFromNodeRef(property.valueLabel);
-    return display;
-  }
+export function getDisplayFromList(include: boolean, nodes: Node[]) {
+  let display = "";
 
   if (nodes.length === 1) {
     display += getDisplayFromEntailment(nodes[0]);
@@ -276,10 +316,17 @@ export function getDisplayFromList(property: Property, include: boolean, nodes: 
   return display;
 }
 
+export function getDisplaySuffixFromEntailment(entailment: Entailment) {
+  if (entailment.ancestorsOf) return " (ancestors only)";
+  if (entailment.descendantsOf) return " (descendants only)";
+  if (entailment.descendantsOrSelfOf) return " (including descendants)";
+  return "";
+}
+
 export function getDisplayFromEntailment(entailment: Entailment) {
   if (entailment.ancestorsOf) return "ancestors of ";
   if (entailment.descendantsOf) return "descendants of ";
-  if (entailment.descendantsOrSelfOf) return "";
+  if (entailment.descendantsOrSelfOf) return "descendants of or ";
   return "";
 }
 

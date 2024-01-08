@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { PropType, ref, Ref } from "vue";
+import { ref, Ref } from "vue";
 import BoolGroupSkeleton from "./BoolGroupSkeleton.vue";
 import ConceptSkeleton from "./ConceptSkeleton.vue";
 

@@ -2,9 +2,9 @@
   <div class="set-definition-wrapper">
     <div class="details-container">
       <div class="table-header-bar">
-        <ArrayObjectNamesToStringWithLabel v-if="isContainedIn" label="Contained in" :data="isContainedIn" :show="true" />
-        <ArrayObjectNamesToStringWithLabel v-if="subsetOf" label="Subset of" :data="subsetOf" :show="true" />
-        <ArrayObjectNamesToStringWithLabel v-if="subclassOf" label="Subclass of" :data="subclassOf" :show="true" />
+        <ArrayObjectNamesToStringWithLabel v-if="isContainedIn" label="Contained in" :data="isContainedIn" />
+        <ArrayObjectNamesToStringWithLabel v-if="subsetOf" label="Subset of" :data="subsetOf" />
+        <ArrayObjectNamesToStringWithLabel v-if="subclassOf" label="Subclass of" :data="subclassOf" />
         <div class="buttons-container">
           <template v-if="checkAuthorization()">
             <Button type="button" label="Publish" @click="publish" :loading="isPublishing" data-testid="publishButton"></Button>
@@ -33,7 +33,7 @@
           <div class="definition-header">
             <span>Definition</span>
             <Button
-              icon="pi pi-copy"
+              icon="fa-solid fa-copy"
               severity="secondary"
               class="p-button-outlined concept-button"
               v-tooltip.top="'Copy definition'"
@@ -115,7 +115,7 @@
 <script setup lang="ts">
 import Members from "./Members.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
-import { computed, ComputedRef, onMounted, Ref, ref, watch } from "vue";
+import { computed, onMounted, Ref, ref, watch } from "vue";
 import { EntityService, SetService } from "@/services";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
@@ -128,7 +128,6 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { FilterOptions } from "@im-library/interfaces";
 
 interface Props {
   entityIri: string;

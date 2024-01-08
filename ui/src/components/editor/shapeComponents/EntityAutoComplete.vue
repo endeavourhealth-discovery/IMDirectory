@@ -270,7 +270,7 @@ function convertToConceptSummary(results: any[]) {
     conceptSummary.name = result[RDFS.LABEL] ? result[RDFS.LABEL] : result["@id"];
     conceptSummary.code = result[IM.CODE];
     conceptSummary.entityType = result[RDF.TYPE];
-    conceptSummary.scheme = result[IM.SCHEME];
+    conceptSummary.scheme = result[IM.HAS_SCHEME];
     conceptSummary.status = result[IM.HAS_STATUS];
     return conceptSummary;
   });

@@ -3,25 +3,40 @@
     <div class="include">include if</div>
     <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
-    <EditDisplayMatch v-if="isArrayHasLength(query.match)" v-for="(match, index) of query.match" :match="match" :index="index" :parentMatchList="query.match" />
+    <EditDisplayMatch
+      v-if="isArrayHasLength(query.match)"
+      v-for="(match, index) of query.match"
+      :match="match"
+      :index="index"
+      :parentMatchList="query.match"
+      :parent-data-model-iri="queryTypeIri"
+    />
 
     <div v-else-if="!queryTypeIri" class="flex gap-1">
       <Button label="Set base type" icon="fa-solid fa-diagram-project" @click="showAddBaseTypeDialog = true" severity="help" />
       <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showAddBaseTypeByCohortDialog = true" severity="success" />
     </div>
     <div v-if="query.typeOf" class="flex gap-1">
-      <Button label="Add feature" icon="fa-solid fa-circle-plus" @click="showAddDialog = true" severity="warning" />
+      <Button label="Build new feature" icon="fa-solid fa-hammer" @click="showBuildFeatureAfterDialog = true" severity="help" />
+      <Button label="Add existing feature" icon="fa-solid fa-circle-plus" @click="showAddFeatureAfterDialog = true" severity="warning" />
       <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showDirectoryDialog = true" severity="success" />
-      <Button label="Paste feature" icon="fa-solid fa-paste" @click="pasteMatch" severity="info" />
+      <Button label="Paste copied feature" icon="fa-solid fa-paste" @click="pasteMatch" severity="info" />
     </div>
 
     <AddPropertyDialog
-      v-model:show-dialog="showAddDialog"
-      :header="'Add feature'"
+      v-model:show-dialog="showBuildFeatureAfterDialog"
+      :header="'Build new feature'"
       :show-variable-options="true"
       :match-type="queryTypeIri"
       @on-save="onPropertyAdd"
     />
+
+    <AddFeatureDialog
+      v-model:show-dialog="showAddFeatureAfterDialog"
+      :validation-query-request="validationQueryRequest"
+      @on-feature-select="handleFeatureSelect"
+    />
+
     <AddBaseTypeDialog
       v-model:show-dialog="showAddBaseTypeDialog"
       :query="query"
@@ -68,6 +83,7 @@ import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { v4 } from "uuid";
+import AddFeatureDialog from "./edit/dialogs/AddFeatureDialog.vue";
 
 interface Props {
   queryDefinition: Query;
@@ -80,7 +96,7 @@ const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => querySt
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const showDirectoryDialog: Ref<boolean> = ref(false);
-const { showAddDialog, showAddBaseTypeDialog, addMatchesToList } = setupQueryBuilderActions();
+const { showAddFeatureAfterDialog, showAddBaseTypeDialog, showBuildFeatureAfterDialog } = setupQueryBuilderActions();
 const showAddBaseTypeByCohortDialog = ref(false);
 const filterOptionsForCohort: FilterOptions = { types: [{ "@id": IM.COHORT_QUERY }] } as FilterOptions;
 const filterOptionsForBaseType: FilterOptions = { types: [{ "@id": SHACL.NODESHAPE }] } as FilterOptions;
@@ -159,6 +175,12 @@ function onSelect(cs: SearchResultSummary) {
 function onPropertyAdd(direct: Match[], nested: Match[]) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match = query.value.match.concat(direct.concat(nested));
+}
+
+async function handleFeatureSelect(selectedFeatureDefinition: Match) {
+  if (!isArrayHasLength(query.value.match)) query.value.match = [];
+  query.value.match.push(selectedFeatureDefinition);
+  showAddFeatureAfterDialog.value = false;
 }
 
 function addVariableRefFromMatch(map: Map<string, any>, match: Match) {

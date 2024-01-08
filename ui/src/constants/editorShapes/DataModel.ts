@@ -1,8 +1,8 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, SHACL, XSD } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL, XSD, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
 
 const DataModelShape: FormGenerator = {
-  "@id": IM.editor.DATA_MODEL_SHAPE,
+  "@id": EDITOR.DATA_MODEL_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -23,7 +23,7 @@ const DataModelShape: FormGenerator = {
       },
       maxCount: 1,
       componentType: {
-        "@id": IM.component.HORIZONTAL_LAYOUT
+        "@id": COMPONENT.HORIZONTAL_LAYOUT
       },
       argument: [
         {
@@ -42,14 +42,14 @@ const DataModelShape: FormGenerator = {
           order: 1,
           maxCount: 1,
           componentType: {
-            "@id": IM.component.VERTICAL_LAYOUT
+            "@id": COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
               comment: "A property that auto generates the type as data model type",
               order: 1,
               function: {
-                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -69,7 +69,7 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.ENTITY_COMBOBOX
+                "@id": COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -83,13 +83,13 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.IRI_BUILDER
+                "@id": COMPONENT.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
-              validation: { "@id": IM.validation.IS_IRI }
+              validation: { "@id": VALIDATION.IS_IRI }
             },
             {
               comment: "Property that derives a concept code from the concept iri",
@@ -112,13 +112,13 @@ const DataModelShape: FormGenerator = {
               ],
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_DISPLAY
+                "@id": COMPONENT.TEXT_DISPLAY
               },
               datatype: {
                 "@id": XSD.STRING
               },
               function: {
-                "@id": IM.function.LOCAL_NAME_RETRIEVER
+                "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
               }
             },
             {
@@ -132,15 +132,25 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_INPUT
+                "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
                 "@id": XSD.STRING
               }
             },
             {
-              comment: "optional description",
+              comment: "optional peferred name for efficiency during searching",
               order: 5,
+              name: "Preferred name",
+              showTitle: true,
+              maxCount: 1,
+              path: { "@id": IM.PREFERRED_NAME },
+              minCount: 0,
+              componentType: { "@id": COMPONENT.TEXT_INPUT }
+            },
+            {
+              comment: "optional description",
+              order: 6,
               datatype: {
                 "@id": XSD.STRING
               },
@@ -152,15 +162,15 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": IM.component.HTML_INPUT
+                "@id": COMPONENT.HTML_INPUT
               }
             },
             {
               name: "Status",
-              order: 6,
+              order: 7,
               path: { "@id": IM.HAS_STATUS },
-              componentType: { "@id": IM.component.ARRAY_BUILDER },
-              validation: { "@id": IM.validation.IS_STATUS },
+              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              validation: { "@id": VALIDATION.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
@@ -169,7 +179,7 @@ const DataModelShape: FormGenerator = {
                   order: 6,
                   select: [
                     {
-                      "@id": IM.query.GET_DESCENDANTS
+                      "@id": QUERY.GET_DESCENDANTS
                     }
                   ],
                   name: "Status",
@@ -192,7 +202,7 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": IM.component.ENTITY_DROPDOWN
+                    "@id": COMPONENT.ENTITY_DROPDOWN
                   },
                   forceIsValue: true
                 }
@@ -200,12 +210,12 @@ const DataModelShape: FormGenerator = {
             },
             {
               label: "Property group - Sub type array builder",
-              order: 1,
+              order: 8,
               path: {
                 "@id": RDFS.SUBCLASS_OF
               },
               validation: {
-                "@id": IM.validation.HAS_PARENT
+                "@id": VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf'.",
               property: [
@@ -219,11 +229,11 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   },
                   select: [
                     {
-                      "@id": IM.query.SEARCH_SUBCLASS
+                      "@id": QUERY.SEARCH_SUBCLASS
                     }
                   ],
                   argument: [
@@ -240,13 +250,13 @@ const DataModelShape: FormGenerator = {
               showTitle: true,
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             },
             {
               label: "Property group - Is contained in array builder",
-              order: 1,
+              order: 9,
               path: {
                 "@id": IM.IS_CONTAINED_IN
               },
@@ -256,7 +266,7 @@ const DataModelShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_ALLOWABLE_CONTAINED_IN
+                      "@id": QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
                     }
                   ],
                   argument: [
@@ -274,7 +284,7 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ],
@@ -282,11 +292,11 @@ const DataModelShape: FormGenerator = {
               showTitle: true,
               minCount: 0,
               validation: {
-                "@id": IM.validation.HAS_PARENT
+                "@id": VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             }
@@ -300,7 +310,7 @@ const DataModelShape: FormGenerator = {
           order: 1,
           minCount: 1,
           maxCount: 1,
-          componentType: { "@id": IM.component.VERTICAL_LAYOUT },
+          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
           property: [
             {
               label: "Property group - Property array builder",
@@ -311,10 +321,10 @@ const DataModelShape: FormGenerator = {
               name: "Property",
               minCount: 1,
               componentType: {
-                "@id": IM.component.PROPERTY_BUILDER
+                "@id": COMPONENT.PROPERTY_BUILDER
               },
               validation: {
-                "@id": IM.validation.IS_PROPERTY
+                "@id": VALIDATION.IS_PROPERTY
               },
               validationErrorMessage: "Invalid data model properties"
             }

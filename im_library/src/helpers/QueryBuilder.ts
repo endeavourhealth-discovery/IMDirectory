@@ -1,6 +1,6 @@
 import { SHACL } from "../vocabulary";
 import { TreeNode } from "../interfaces";
-import { Match, Node, Property, Query, SearchResultSummary } from "../interfaces/AutoGen";
+import { Match, Node, Operator, Property, Query, SearchResultSummary } from "../interfaces/AutoGen";
 import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { cloneDeep } from "lodash";
@@ -128,7 +128,7 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
   // DateTime - is today's date
 
   if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
-    property.operator = "=";
+    property.operator = Operator.eq;
     property.value = "";
   } else if (isObjectHasKeys(treeNode.ttproperty, [SHACL.CLASS])) {
     property.is = [{ "@id": "http://endhealth.info/im#Example", name: "Example concept" }];
@@ -166,6 +166,8 @@ export function generateMatchIdsRecursively(match: Match) {
     for (const nestedMatch of match.match!) {
       generateMatchIdsRecursively(nestedMatch);
     }
+
+  if (isObjectHasKeys(match, ["then"]) && isObjectHasKeys(match.then)) generateMatchIdsRecursively(match.then!);
 
   if (isArrayHasLength(match.property))
     for (const property of match.property!) {

@@ -129,14 +129,14 @@ function getDirectionOptions(property: OrderDirection) {
   const prop = orderProperties.value.find(op => op.iri == property["@id"]);
   if (prop) {
     if (prop.entityType[0]["@id"] === IM.NAMESPACE + "DateTime") {
-      directionOptions.push({ name: "earliest", value: "ascending" });
-      directionOptions.push({ name: "latest", value: "descending" });
+      directionOptions.push({ name: "earliest", value: Order.ascending });
+      directionOptions.push({ name: "latest", value: Order.descending });
     } else if (prop.entityType[0]["@id"] === XSD.NAMESPACE + "number") {
-      directionOptions.push({ name: "lowest", value: "ascending" });
-      directionOptions.push({ name: "highest", value: "descending" });
+      directionOptions.push({ name: "lowest", value: Order.ascending });
+      directionOptions.push({ name: "highest", value: Order.descending });
     } else {
-      directionOptions.push({ name: "first", value: "ascending" });
-      directionOptions.push({ name: "last", value: "descending" });
+      directionOptions.push({ name: "first", value: Order.ascending });
+      directionOptions.push({ name: "last", value: Order.descending });
     }
   }
   return directionOptions;

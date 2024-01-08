@@ -12,6 +12,7 @@ import { PropType, ref, Ref, watch, onMounted } from "vue";
 import { NextComponentSummary, ComponentDetails } from "@im-library/interfaces";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
+import { stringAscending } from "@im-library/helpers/Sorters";
 
 interface Props {
   id: string;
@@ -32,7 +33,7 @@ const emit = defineEmits({
 let options: Ref<ComponentType[]> = ref([]);
 
 watch(options, newValue => {
-  newValue.sort();
+  newValue.sort(stringAscending);
 });
 
 onMounted(() => {

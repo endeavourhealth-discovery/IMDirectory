@@ -53,7 +53,7 @@ import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
@@ -61,12 +61,14 @@ import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
 import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 interface Props {
   allowDragAndDrop?: boolean;
   allowRightClick?: boolean;
   rootEntities?: string[];
   selectedIri?: string;
+  findInTree?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowRightClick: false, allowDragAndDrop: false });
@@ -81,6 +83,7 @@ const toast = useToast();
 const confirm = useConfirm();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
@@ -90,6 +93,7 @@ const {
   selectedKeys,
   selectedNode,
   expandedKeys,
+  expandedData,
   pageSize,
   createTreeNode,
   createLoadMoreNode,
@@ -114,17 +118,18 @@ const newFolderName = ref("");
 
 const creating = ref(false);
 const newFolderIcon = computed(() => {
-  if (creating.value) return "pi pi-spin pi-spinner";
-  else return fontAwesomePro.value ? "fa-solid fa-check" : "pi pi-check";
+  if (creating.value) return "fa-solid fa-spinner";
+  else return "fa-solid fa-check";
 });
 
 const menu = ref();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
-  () => props.selectedIri,
+  () => props.findInTree,
   async newValue => {
-    if (newValue) await findPathToNode(newValue, loading, "hierarchy-tree-bar-container");
+    if (newValue && props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
+    directoryStore.updateFindInTreeBoolean(false);
   }
 );
 
@@ -135,6 +140,15 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (isObjectHasKeys(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
     hideOverlay(overlayLocation.value);
+  }
+});
+
+document.addEventListener("visibilitychange", function () {
+  if (!document.hidden) {
+    expandedKeys.value = {};
+    for (let newNode in expandedData.value) {
+      onNodeExpand(expandedData.value[newNode]);
+    }
   }
 });
 
@@ -203,7 +217,7 @@ function confirmMove(node: TreeNode) {
     confirm.require({
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         moveConcept(node);
       },
@@ -233,7 +247,7 @@ function confirmAdd(node: TreeNode) {
     confirm.require({
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         addConcept(node);
       },

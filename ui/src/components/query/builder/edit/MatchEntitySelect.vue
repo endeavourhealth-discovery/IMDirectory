@@ -13,7 +13,7 @@
       <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
       <EntailmentOptionsSelect :entailment-object="editValue" />
       <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
-      <Button icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
+      <Button icon="fa-solid fa-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
       <DirectorySearchDialog
         v-model:show-dialog="showDialog"
         :selected="{ iri: editValue['@id'], name: editValue.name } as SearchResultSummary"

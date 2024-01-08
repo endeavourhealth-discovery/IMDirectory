@@ -4,58 +4,63 @@
       <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
       <h2 v-if="showRequired" class="required">*</h2>
     </div>
-    <div :class="validationErrorMessage ? 'error-message' : ''">
-      <span v-if="validationErrorMessage" class="error-message">{{ validationErrorMessage }}</span>
+    <div :class="invalid && showValidation ? 'error-message' : ''">
+      <span v-if="invalid && showValidation" class="error-message">{{ validationErrorMessage }}</span>
       <div v-if="loading" class="loading-container">
         <ProgressSpinner strokeWidth="8" />
       </div>
       <div v-else class="children-container">
         <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup">
-          <div class="roleGroupRow">
-            <label>Role Group {{ rgIndex }}</label>
-            <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRoleGroup(rgIndex)" size="small" />
-          </div>
-          <div v-for="(row, rIndex) in rg">
-            <div v-if="row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow">
-              <AutoComplete
-                class="roleProperty"
-                :dropdown="true"
-                dropdownMode="current"
-                optionLabel="name"
-                placeholder="Select property"
-                v-model="row.key"
-                :suggestions="propertySuggestions"
-                @complete="searchProperties"
-                @drop="propertyDrop($event, row)"
-                @itemSelect="update"
-                @dragover.prevent
-                @dragenter.prevent
-              ></AutoComplete>
-              <span style="width: 1rem; text-align: center">:</span>
-              <AutoComplete
-                class="roleVal"
-                :dropdown="true"
-                dropdownMode="current"
-                optionLabel="name"
-                placeholder="Select quantifier"
-                v-model="row.value"
-                :suggestions="valueSuggestions"
-                @complete="searchValues"
-                @drop="valueDrop($event, row)"
-                @itemSelect="update"
-                @dragover.prevent
-                @dragenter.prevent
-              ></AutoComplete>
-              <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRole(rg, rIndex)" />
+          <div :class="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation ? 'error-message' : ''">
+            <span v-if="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation" class="error-message">{{
+              invalidGroups.find(o => o.groupIndex === rgIndex).errorMessage
+            }}</span>
+            <div class="roleGroupRow">
+              <label>Role Group {{ rgIndex }}</label>
+              <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRoleGroup(rgIndex)" size="small" />
             </div>
-          </div>
-          <div class="buttonGroup">
-            <Button icon="pi pi-plus" label="Add role" severity="success" class="p-button" @click="addRole(rg)" />
+            <div v-for="(row, rIndex) in rg">
+              <div v-if="row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow">
+                <AutoComplete
+                  class="roleProperty"
+                  :dropdown="true"
+                  dropdownMode="current"
+                  optionLabel="name"
+                  placeholder="Select property"
+                  v-model="row.key"
+                  :suggestions="propertySuggestions"
+                  @complete="searchProperties"
+                  @drop="propertyDrop($event, row)"
+                  @itemSelect="update"
+                  @dragover.prevent
+                  @dragenter.prevent
+                ></AutoComplete>
+                <span style="width: 1rem; text-align: center">:</span>
+                <AutoComplete
+                  class="roleVal"
+                  :dropdown="true"
+                  dropdownMode="current"
+                  optionLabel="name"
+                  placeholder="Select quantifier"
+                  v-model="row.value"
+                  :suggestions="valueSuggestions"
+                  @complete="searchValues"
+                  @drop="valueDrop($event, row)"
+                  @itemSelect="update"
+                  @dragover.prevent
+                  @dragenter.prevent
+                ></AutoComplete>
+                <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRole(rg, rIndex)" />
+              </div>
+            </div>
+            <div class="buttonGroup role-button">
+              <Button icon="fa-solid fa-plus" label="Add role" severity="success" class="p-button" @click="addRole(rg)" />
+            </div>
           </div>
         </div>
       </div>
       <div class="buttonGroup">
-        <Button icon="pi pi-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" :disabled="loading" />
+        <Button icon="fa-solid fa-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" :disabled="loading" />
       </div>
     </div>
   </div>
@@ -77,7 +82,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { Argument, PropertyShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
-import { isArray } from "lodash";
+import _, { isArray } from "lodash";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -104,6 +109,7 @@ if (forceValidation) {
     if (updateValidity) {
       await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
       if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
     }
   });
 }
@@ -116,8 +122,10 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 const roleGroups: Ref<any[][]> = ref([]);
 const propertySuggestions: Ref<TTIriRef[]> = ref([]);
 const valueSuggestions: Ref<TTIriRef[]> = ref([]);
+const specificValidationErrorMessage: Ref<string | undefined> = ref();
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
+const invalidGroups: Ref<any[]> = ref([]);
 const showValidation = ref(false);
 const loading = ref(true);
 
@@ -127,20 +135,33 @@ onMounted(async () => {
   await processProps();
 });
 
+watch(
+  () => _.cloneDeep(roleGroups.value),
+  async () => {
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+    }
+  }
+);
+
 function addRoleGroup() {
   roleGroups.value.push([{ key: { "@id": IM.GROUP_NUMBER, name: "Group Number" }, value: roleGroups.value.length }]);
+  update();
 }
 
 function deleteRoleGroup(index: number) {
   roleGroups.value.splice(index, 1);
+  update();
 }
 
 function addRole(rg: any) {
   rg.push({ key: { "@id": null, name: "" }, value: { "@id": null, name: "" } });
+  update();
 }
 
 function deleteRole(rg: any, index: number) {
   rg.splice(index, 1);
+  update();
 }
 
 async function processProps() {
@@ -200,7 +221,7 @@ async function searchValues(event: AutoCompleteCompleteEvent) {
           {
             property: [
               {
-                "@id": IM.SCHEME,
+                "@id": IM.HAS_SCHEME,
                 is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
               }
             ]
@@ -289,7 +310,7 @@ async function isValidValue(iri: string): Promise<boolean> {
           },
           property: [
             {
-              "@id": IM.SCHEME,
+              "@id": IM.HAS_SCHEME,
               is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
             }
           ]
@@ -306,31 +327,36 @@ async function isValidValue(iri: string): Promise<boolean> {
 async function update() {
   validateEntity();
 
-  if (!validationErrorMessage.value) updateEntity();
+  updateEntity();
 }
 
 function validateEntity() {
-  validationErrorMessage.value = undefined;
-
-  for (let group of roleGroups.value) {
-    if (!isGroupValid(group)) return;
-  }
+  specificValidationErrorMessage.value = undefined;
+  invalidGroups.value = [];
+  roleGroups.value.forEach((group, index) => {
+    if (!isGroupValid(group)) {
+      invalidGroups.value.push({ groupIndex: index, errorMessage: specificValidationErrorMessage.value });
+    }
+  });
 }
 
 function isGroupValid(group: any[]): boolean {
+  invalid.value = false;
   if (group.length == 0 || (group.length == 1 && group[0].key["@id"] == IM.GROUP_NUMBER)) {
-    validationErrorMessage.value = "Role groups can not be empty";
+    specificValidationErrorMessage.value = "Role groups can not be empty.";
     return false;
   }
   for (const pair of group) {
     if (pair.key["@id"] != IM.GROUP_NUMBER) {
       if (!pair?.key?.["@id"] || pair.key["@id"] == "") {
-        validationErrorMessage.value = "Missing role property";
+        specificValidationErrorMessage.value = "Missing role property.";
+        invalid.value = true;
         return false;
       }
 
       if (!pair?.value?.["@id"] || pair.value["@id"] == "") {
-        validationErrorMessage.value = "Missing role quantifier";
+        specificValidationErrorMessage.value = "Missing role quantifier.";
+        invalid.value = true;
         return false;
       }
     }
@@ -351,7 +377,6 @@ function updateEntity() {
       group[pair.key["@id"]] = pair.value;
     }
   }
-
   if (!isArrayHasLength(groups[IM.ROLE_GROUP]) && deleteEntityKey) deleteEntityKey(key);
   else if (entityUpdate) entityUpdate(groups);
 }
@@ -423,5 +448,13 @@ div.error-message {
 
 .required {
   color: var(--red-500);
+}
+
+.role-button {
+  margin-top: 1rem;
+}
+
+.error-message {
+  padding: 0.25rem;
 }
 </style>

@@ -635,4 +635,30 @@ describe("eclToBuild", () => {
   it("converts chis", () => {
     expect(eclToBuild(eclTestData.chis)).toEqual(buildTestData.chis);
   });
+
+  it("only allows numerical codes ___ number", () => {
+    expect(eclToBuild("<< 12345678")).toEqual({
+      conjunction: "AND",
+      items: [
+        {
+          concept: {
+            iri: "http://snomed.info/sct#12345678"
+          },
+          conjunction: "AND",
+          descendants: "<<",
+          items: [],
+          type: "Concept"
+        }
+      ],
+      type: "BoolGroup"
+    });
+  });
+
+  it("only allows numerical codes ___ string", () => {
+    expect(() => eclToBuild("<< Ontology")).toThrow("Invalid ecl");
+  });
+
+  it("only allows numerical codes ___ url", () => {
+    expect(() => eclToBuild("<< http://endhealth.info/im#Ontology")).toThrow("Invalid ecl");
+  });
 });

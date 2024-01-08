@@ -4,6 +4,7 @@ export interface DirectoryState {
   conceptIri: string;
   findInTreeIri: string;
   searchResults: SearchResponse;
+  findInTreeBoolean: boolean;
   searchLoading: boolean;
   sidebarControlActivePanel: number;
   splitterRightSize: number;

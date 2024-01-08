@@ -1,5 +1,21 @@
 import { isObjectHasKeys } from "./DataTypeCheckers";
 
+export function stringAscending(a: string, b: string): number {
+  return a.localeCompare(b);
+}
+
+export function stringDescending(a: string, b: string): number {
+  return b.localeCompare(a);
+}
+
+export function numberAscending(a: number, b: number): number {
+  return a - b;
+}
+
+export function numberDescending(a: number, b: number): number {
+  return b - a;
+}
+
 export function byPriority(a: any, b: any): number {
   if (!isObjectHasKeys(a, ["priority"]) || !isObjectHasKeys(b, ["priority"])) return 0;
   if (a.priority < b.priority) {
@@ -84,5 +100,9 @@ export default {
   byPosition,
   byPriority,
   byScheme,
-  byKey
+  byKey,
+  stringAscending,
+  stringDescending,
+  numberAscending,
+  numberDescending
 };

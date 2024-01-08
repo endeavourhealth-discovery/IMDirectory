@@ -24,7 +24,7 @@
         />
       </TabPanel>
       <TabPanel header="JSON viewer">
-        <VueJsonPretty class="json" :path="'res'" :data="editorEntityDisplay" @click="handleClick" />
+        <VueJsonPretty class="json" :path="'res'" :data="editorEntityDisplay" />
       </TabPanel>
     </TabView>
   </div>
@@ -98,8 +98,6 @@ function locateInTree(event: any, iri: string) {
   findInTreeIri.value = iri;
   if (activeIndex.value !== 0) openTreePanel();
 }
-
-function handleClick(data: any) {}
 
 function lazyLoadRequested(event: any) {
   loadMore.value = event;

@@ -1,14 +1,29 @@
 <template>
   <div class="property-input-container">
-    <Dropdown :options="['is', 'isNot', 'isNull', 'inSet']" v-model:model-value="propertyType" />
-    <InputText v-if="propertyType !== 'isNull'" type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
-    <SaveCustomSetDialog v-if="propertyType !== 'isNull'" :set-members="editValues" @on-save="onCustomSetSave" />
+    <Dropdown
+      :options="[
+        { id: 'is', name: 'is' },
+        { id: 'isNot', name: 'is not' },
+        { id: 'isNull', name: 'is not recorded' },
+        { id: 'isNotNull', name: 'is recorded' }
+      ]"
+      optionValue="id"
+      optionLabel="name"
+      v-model:model-value="propertyType"
+    />
+    <InputText
+      v-if="propertyType !== 'isNull' && propertyType !== 'isNotNull'"
+      type="text"
+      placeholder="Value label"
+      v-model:model-value="props.property.valueLabel"
+    />
+    <SaveCustomSetDialog v-if="propertyType !== 'isNull' && propertyType !== 'isNotNull'" :set-members="editValues" @on-save="onCustomSetSave" />
   </div>
-  <div v-if="propertyType !== 'isNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
+  <div v-if="propertyType !== 'isNull' && propertyType !== 'isNotNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
     <EntailmentOptionsSelect :entailment-object="editValue" />
     <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
-    <Button icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
+    <Button icon="fa-solid fa-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
     <DirectorySearchDialog
       :selected="{ iri: editValue['@id'], name: editValue.name } as SearchResultSummary"
       v-model:show-dialog="visible"
@@ -51,7 +66,7 @@ watch(
 function onCustomSetSave(customSetRef: Node) {
   editValues.value.length = 0;
   editValues.value.push(customSetRef);
-  propertyType.value = "inSet";
+  propertyType.value = "is";
 }
 
 function handlePropertyTypeChange() {
@@ -59,22 +74,22 @@ function handlePropertyTypeChange() {
     props.property.isNot = editValues.value;
     delete props.property.is;
     delete props.property.isNull;
-    delete props.property.inSet;
+    delete props.property.isNotNull;
   } else if (propertyType.value === "is") {
     props.property.is = editValues.value;
     delete props.property.isNot;
     delete props.property.isNull;
-    delete props.property.inSet;
+    delete props.property.isNotNull;
   } else if (propertyType.value === "isNull") {
     props.property.isNull = true;
     delete props.property.is;
+    delete props.property.isNotNull;
     delete props.property.isNot;
-    delete props.property.inSet;
-  } else if (propertyType.value === "inSet") {
-    props.property.inSet = editValues.value;
+  } else if (propertyType.value === "isNotNull") {
+    props.property.isNotNull = true;
     delete props.property.is;
-    delete props.property.isNot;
     delete props.property.isNull;
+    delete props.property.isNot;
   }
 }
 
@@ -82,9 +97,9 @@ function initEditValues() {
   if (isObjectHasKeys(props.property, ["is"])) propertyType.value = "is";
   else if (isObjectHasKeys(props.property, ["isNot"])) propertyType.value = "isNot";
   else if (isObjectHasKeys(props.property, ["isNull"])) propertyType.value = "isNull";
-  else if (isObjectHasKeys(props.property, ["inSet"])) propertyType.value = "inSet";
+  else if (isObjectHasKeys(props.property, ["isNotNull"])) propertyType.value = "isNotNull";
 
-  if (propertyType.value && propertyType.value !== "isNull") {
+  if (propertyType.value && propertyType.value !== "isNull" && propertyType.value !== "isNotNull") {
     if (!isArrayHasLength((props.property as any)[propertyType.value])) (props.property as any)[propertyType.value] = [{} as Node];
     editValues.value = (props.property as any)[propertyType.value];
   } else {

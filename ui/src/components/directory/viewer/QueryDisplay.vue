@@ -2,10 +2,10 @@
   <div v-if="!isObjectHasKeys(query)">No definition found.</div>
   <div v-else class="query-display-container flex flex-column gap-3">
     <div class="flex flex-row gap-2">
-      <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
+      <div v-if="!hideSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
       <!-- <QuickQuery :query-iri="entityIri" v-if="canTestQuery">
         <template #button="{ runQuickQuery }">
-          <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
+          <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
         </template>
       </QuickQuery> -->
     </div>
@@ -13,6 +13,13 @@
       <div class="rec-query-display">
         <div class="include-title" style="color: green">include if</div>
         <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" v-for="match of query.match" :match="match" :parent-match="undefined" :full-query="query" />
+        <RecursivePropertyDisplay
+          v-if="isArrayHasLength(query.property)"
+          v-for="property of query.property"
+          :property="property"
+          :parent-match="undefined"
+          :full-query="query"
+        />
       </div>
     </div>
   </div>
@@ -34,11 +41,13 @@ import { onMounted, watch, Ref, ref, computed } from "vue";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import QuickQuery from "@/components/query/QuickQuery.vue";
 import { useUserStore } from "@/stores/userStore";
+import RecursivePropertyDisplay from "@/components/query/viewer/RecursivePropertyDisplay.vue";
 
 interface Props {
-  entityIri: string;
+  entityIri?: string;
+  definition?: string;
+  hideSqlButton?: boolean;
 }
 
 const userStore = useUserStore();
@@ -49,6 +58,13 @@ const showSql: Ref<boolean> = ref(false);
 const toast = useToast();
 const canTestQuery = computed(
   () => userStore.isLoggedIn && (userStore.currentUser?.roles?.includes("create") || userStore.currentUser?.roles?.includes("edit"))
+);
+
+watch(
+  () => props.definition,
+  async newValue => {
+    init();
+  }
 );
 
 watch(
@@ -63,11 +79,12 @@ onMounted(async () => {
 });
 
 async function init() {
-  query.value = await QueryService.getQueryDisplay(props.entityIri);
+  if (props.entityIri) query.value = await QueryService.getQueryDisplay(props.entityIri);
+  else if (props.definition) query.value = await QueryService.getQueryDisplayFromQuery(JSON.parse(props.definition));
 }
 
 async function generateSQL() {
-  sql.value = await QueryService.generateQuerySQL(props.entityIri);
+  if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri);
   showSql.value = true;
 }
 

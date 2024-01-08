@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref, Ref, watch } from "vue";
+import { onMounted, ref, Ref, watch } from "vue";
 import { ECLComponent } from "@im-library/enums";
 
 interface Props {

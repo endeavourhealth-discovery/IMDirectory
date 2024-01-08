@@ -31,7 +31,7 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
-import { IM, RDF, RDFS, SNOMED } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SNOMED, EDITOR, IM_FUNCTION } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import _ from "lodash";
@@ -96,9 +96,9 @@ const disableCodeEdit: ComputedRef<boolean> = computed(() => {
     loading.value ||
     props.mode === "edit" ||
     (props.mode === "create" &&
-      fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE &&
+      fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE &&
       selectedDropdownOption.value &&
-      [IM.NAMESPACE, SNOMED.NAMESPACE].includes(selectedDropdownOption.value["@id"]))
+      (selectedDropdownOption.value["@id"] === IM.NAMESPACE || selectedDropdownOption.value["@id"] === SNOMED.NAMESPACE))
   )
     return true;
   else return false;
@@ -178,10 +178,8 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
 });
 
 watch(selectedDropdownOption, async () => {
-  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
+  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
-  } else {
-    userInput.value = "";
   }
 });
 
@@ -194,10 +192,12 @@ onMounted(async () => {
     const prefixArg = props.shape.argument?.find(arg => arg.parameter === "prefix");
     if (prefixArg && prefixArg.valueData) prefix.value = prefixArg.valueData;
   }
+
   setSelectedOption();
-  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
+  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
   }
+
   loading.value = false;
 });
 
@@ -236,7 +236,7 @@ function deconstructInputValue(inputValue: String) {
 async function generateCode(): Promise<string> {
   if (selectedDropdownOption.value && isConcept(editorEntity?.value[RDF.TYPE])) {
     loading.value = true;
-    const result = await FunctionService.runFunction(IM.function.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
+    const result = await FunctionService.runFunction(IM_FUNCTION.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
     loading.value = false;
     return result.code;
   }

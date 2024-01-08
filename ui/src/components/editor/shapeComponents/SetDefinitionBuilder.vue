@@ -6,18 +6,27 @@
           <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
           <h2 v-if="showRequired" class="required">*</h2>
         </div>
-        <Textarea
-          v-model="ecl"
-          id="ecl-string-container"
-          :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
-          :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
-          data-testid="ecl-string"
-          :disabled="loading"
-          @dragenter.prevent
-          @dragover.prevent
-          @drop="dropReceived($event)"
-        />
-        <div class="show-names-container"><label for="">Show names</label><Checkbox v-model="showNames" :binary="true" /></div>
+        <div id="defintion-panel-container">
+          <TabView>
+            <TabPanel header="ECL">
+              <Textarea
+                v-model="ecl"
+                id="ecl-string-container"
+                :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
+                :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
+                data-testid="ecl-string"
+                :disabled="loading"
+                @dragenter.prevent
+                @dragover.prevent
+                @drop="dropReceived($event)"
+              />
+              <div class="show-names-container"><label for="">Show names</label><Checkbox v-model="showNames" :binary="true" /></div>
+            </TabPanel>
+            <TabPanel header="Display">
+              <QueryDisplay :definition="value" />
+            </TabPanel>
+          </TabView>
+        </div>
       </div>
       <div class="button-container">
         <Button label="Import" @click="toggleMenuOptions" aria-haspopup="true" aria-controls="import_menu" />
@@ -53,7 +62,7 @@ import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { debounce } from "@im-library/helpers/UtilityMethods";
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -136,7 +145,7 @@ watch(
 const debounceTimer = ref(0);
 watch(ecl, async newValue => {
   clearTimeout(debounceTimer.value);
-  debounceTimer.value = window.setTimeout(async () => {
+  debounceTimer.value = window.setTimeout(async (): Promise<void> => {
     if (await EclService.isValidECL(newValue)) {
       eclAsQuery.value = await EclService.getQueryFromECL(newValue);
     }
@@ -268,7 +277,7 @@ async function dropReceived(event: any) {
 
 #ecl-string-container {
   width: 100%;
-  height: 100%;
+  height: 17rem;
   overflow: auto;
   flex-grow: 100;
 }
@@ -304,5 +313,29 @@ Textarea {
 
 .required {
   color: var(--red-500);
+}
+
+#defintion-panel-container:deep(.p-tabview-panels) {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+#defintion-panel-container:deep(.p-tabview-panel) {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#defintion-panel-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+#defintion-panel-container:deep(.p-tabview) {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
 }
 </style>
