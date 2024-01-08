@@ -73,7 +73,7 @@ export function getLastMatchFromNestedProperty(matchOrProperty: any, found: Matc
 }
 
 export function buildInSetMatchFromCS(cs: ConceptSummary) {
-  return { "@id": v4(), inSet: [buildNodeFromCS(cs)] } as Match;
+  return { "@id": v4(), is: [buildNodeFromCS(cs)] } as Match;
 }
 
 export function buildNodeFromCS(cs: ConceptSummary) {

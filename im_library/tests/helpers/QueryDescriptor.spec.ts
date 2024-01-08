@@ -103,12 +103,6 @@ describe("QueryDescriptor.ts ___", () => {
       expect(testMatch.property[0].match.property[0].description).toEqual("concept is Prediabetes");
     });
 
-    it("can describe a match with one nested property of inSet", () => {
-      const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfInSet);
-      describeMatch(testMatch, 0, Bool.and);
-      expect(testMatch.property[0].match.property[0].description).toEqual("concept is Prediabetes");
-    });
-
     it("can describe a match with one nested property of is", () => {
       const testMatch: Match = _.cloneDeep(fullTestQueryDefinition);
       describeMatch(testMatch, 0, Bool.and);

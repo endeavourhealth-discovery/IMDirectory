@@ -16,10 +16,9 @@ export const match: {
   withOneDirectPropertyOfIs: Match;
   withMultipleDirectProperties: Match;
   withOneNestedPropertyOfIs: Match;
-  withOneNestedPropertyOfInSet: Match;
 } = {
   withType: { typeOf: { "@id": "Patient" } },
-  withSet: { inSet: [{ "@id": "CSET_EmailOnlineEncounter" }] },
+  withSet: { is: [{ "@id": "CSET_EmailOnlineEncounter" }] },
   withInstance: { instanceOf: { "@id": "http://snomed.info/sct#325841000000109" } },
   withName: {
     name: "Text message consultation",
@@ -40,7 +39,7 @@ export const match: {
     ancestorsOf: true,
     "@id": "http://endhealth.info/im#1681000252102"
   },
-  withExclude: { exclude: true, inSet: [{ "@id": "http://endhealth.info/im#Q_Hypertensives" }] },
+  withExclude: { exclude: true, is: [{ "@id": "http://endhealth.info/im#Q_Hypertensives" }] },
   withVariable: {},
   withOneDirectPropertyOfRange: {
     property: [
@@ -120,27 +119,6 @@ export const match: {
                 {
                   "@id": "http://snomed.info/sct#714628002",
                   descendantsOf: true
-                }
-              ],
-              valueLabel: "Prediabetes"
-            }
-          ]
-        }
-      }
-    ]
-  },
-  withOneNestedPropertyOfInSet: {
-    property: [
-      {
-        "@id": "http://endhealth.info/im#observation",
-        match: {
-          typeOf: { "@id": "Observation" },
-          property: [
-            {
-              "@id": "http://endhealth.info/im#concept",
-              is: [
-                {
-                  "@id": "http://snomed.info/sct#714628002"
                 }
               ],
               valueLabel: "Prediabetes"
@@ -253,7 +231,7 @@ export const fullTestQueryDefinition: Query = {
   name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
   match: [
     {
-      inSet: [
+      is: [
         {
           "@id": "http://endhealth.info/im#Q_RegisteredGMS",
           name: "Registered for GMS services on reference date"
@@ -286,7 +264,7 @@ export const fullTestQueryDefinition: Query = {
           ]
         },
         {
-          inSet: [
+          is: [
             {
               "@id": "http://example/queries#Q_Diabetics"
             }
@@ -454,7 +432,7 @@ export const fullTestQueryDefinition: Query = {
     },
     {
       exclude: true,
-      inSet: [
+      is: [
         {
           "@id": "http://endhealth.info/im#Q_Hypertensives",
           name: "Hypertensives"
