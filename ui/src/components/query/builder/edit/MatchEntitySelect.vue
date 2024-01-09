@@ -1,15 +1,15 @@
 <template>
   <div class="property-input-container">
     <div class="property-input-container">
-      <Dropdown :options="['inSet', 'typeOf', 'instanceOf']" v-model:model-value="propertyType" />
-      <SaveCustomSetDialog v-if="propertyType === 'inSet'" :set-members="editValues" @on-save="onCustomSetSave" />
+      <Dropdown :options="['is', 'typeOf', 'instanceOf']" v-model:model-value="propertyType" />
+      <SaveCustomSetDialog v-if="propertyType === 'is'" :set-members="editValues" @on-save="onCustomSetSave" />
       <div v-else>
         <InputText type="text" @click="openDialog()" placeholder="Value" v-model:model-value="selected.name" />
         <DirectorySearchDialog v-model:selected="selected" v-model:show-dialog="showDialog" />
         <EntailmentOptionsSelect v-if="!excludeEntailment" :entailment-object="editNode" />
       </div>
     </div>
-    <div v-if="propertyType === 'inSet'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
+    <div v-if="propertyType === 'is'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
       <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
       <EntailmentOptionsSelect :entailment-object="editValue" />
       <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
@@ -44,7 +44,7 @@ import SaveCustomSetDialog from "./dialogs/SaveCustomSetDialog.vue";
 
 const emit = defineEmits({
   onCancel: () => true,
-  onSave: (_property: "typeOf" | "instanceOf" | "inSet", _selectedCSs: Node[], _selectedCS: SearchResultSummary) => true,
+  onSave: (_property: "typeOf" | "instanceOf" | "is", _selectedCSs: Node[], _selectedCS: SearchResultSummary) => true,
   "update:selected": payload => true
 });
 
@@ -60,7 +60,7 @@ const selected: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const showDialog = ref(false);
 const editValues: Ref<Node[]> = ref([] as Node[]);
 const selectedIndex: Ref<number> = ref(0);
-const propertyType: Ref<"inSet" | "typeOf" | "instanceOf"> = ref("inSet");
+const propertyType: Ref<"is" | "typeOf" | "instanceOf"> = ref("is");
 
 onMounted(() => {
   init();
@@ -79,7 +79,7 @@ watch(
 watch(
   () => propertyType.value,
   () => {
-    if (propertyType.value === "inSet" && !isArrayHasLength(editValues.value)) {
+    if (propertyType.value === "is" && !isArrayHasLength(editValues.value)) {
       editValues.value.push({ "@id": "", name: "" });
     } else {
       selected.value = {} as SearchResultSummary;
@@ -87,14 +87,14 @@ watch(
   }
 );
 function init() {
-  if (isObjectHasKeys(props.editNode, ["inSet"])) initEditValues();
+  if (isObjectHasKeys(props.editNode, ["is"])) initEditValues();
   else populateSelected();
 }
 
 function initEditValues() {
-  propertyType.value = "inSet";
+  propertyType.value = "is";
   const editMatch: Match = props.editNode;
-  for (const item of editMatch.inSet!) {
+  for (const item of editMatch.is!) {
     editValues.value.push(item);
   }
 }

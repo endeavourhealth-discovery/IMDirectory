@@ -3,21 +3,19 @@ import QueryService from "@/services/query.service";
 import { ErrorType } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { CustomError } from "@im-library/models";
-import { IM, IM_FUNCTION } from "@im-library/vocabulary";
 import axios from "axios";
 import { Request } from "express";
 import router from "express-promise-router";
+import { IM_FUNCTION } from "@im-library/vocabulary";
 
 export default class FunctionController {
   public path = "/node_api/function";
   public router = router();
   private functionService: FunctionService;
-  private queryService: QueryService;
 
   constructor() {
     this.initRoutes();
     this.functionService = new FunctionService(axios);
-    this.queryService = new QueryService(axios);
   }
 
   private initRoutes() {

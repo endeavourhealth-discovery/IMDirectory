@@ -187,7 +187,7 @@ export interface Match extends IriLD {
     graph?: Element;
     match?: Match[];
     bool?: Bool;
-    inSet?: Node[];
+    is?: Node[];
     property?: Property[];
     orderBy?: OrderLimit;
     optional?: boolean;
@@ -504,6 +504,9 @@ export interface TTIriRef extends TTValue, Serializable {
     "@id": string;
 }
 
+export interface Serializable {
+}
+
 export interface TTContext extends Serializable {
     nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
@@ -533,9 +536,6 @@ export interface Exception extends Throwable {
 
 export interface TTValue extends Serializable {
     order?: number;
-}
-
-export interface Serializable {
 }
 
 export interface TTPrefix {
