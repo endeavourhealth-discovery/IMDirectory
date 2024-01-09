@@ -1,4 +1,4 @@
-import { Namespace, ConceptSummary, RecentActivityItem, HistoryItem, FilterOptions, User } from "@im-library/interfaces";
+import { Namespace, RecentActivityItem, HistoryItem, FilterOptions, User } from "@im-library/interfaces";
 
 export interface UserState {
   cookiesEssentialAccepted: boolean;

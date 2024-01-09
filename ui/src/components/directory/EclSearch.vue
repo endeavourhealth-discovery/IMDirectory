@@ -48,7 +48,7 @@
         :lazy-loading="requiresLazy"
         :total-records="totalCount"
         @locate-in-tree="(iri: string) => $emit('locateInTree', iri)"
-        @row-selected="(selected: ConceptSummary) => emit('selectedUpdated', selected)"
+        @row-selected="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
         @lazy-load-requested="loadMore"
         @download-requested="downloadAll"
       />
@@ -69,8 +69,8 @@
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
-import { OrderLimit, Query, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { EclSearchRequest } from "@im-library/interfaces";
+import { OrderLimit, Query, TTIriRef, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
@@ -87,7 +87,7 @@ import { useDialog } from "primevue/usedialog";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
-  selectedUpdated: (_payload: ConceptSummary) => true
+  selectedUpdated: (_payload: SearchResultSummary) => true
 });
 
 const toast = useToast();
@@ -99,13 +99,13 @@ const { downloadFile } = setupDownloadFile(window, document);
 
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
-const requiresLazy = computed(() => totalCount.value > 1000);
+const requiresLazy = computed(() => totalCount.value > currentRows.value);
 
 const rowsStart = 20;
 
 const queryString = ref("");
 const showDialog = ref(false);
-const searchResults: Ref<ConceptSummary[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const totalCount = ref(0);
 const eclError = ref(false);
 const eclErrorMessage = ref("");
@@ -161,17 +161,11 @@ async function search(loadMore?: boolean): Promise<void> {
       includeLegacy: false,
       statusFilter: selectedStatus.value
     } as EclSearchRequest;
-    if (!loadMore) {
-      const count = await EclService.eclSearchTotalCount(eclSearchRequest, controllerTotal.value);
-      totalCount.value = count;
-    }
-    if (requiresLazy.value) {
-      eclSearchRequest.page = currentPage.value;
-      eclSearchRequest.size = currentRows.value;
-    }
+    eclSearchRequest.page = currentPage.value;
+    eclSearchRequest.size = currentRows.value;
     const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
     if (isObjectHasKeys(result, ["entities"])) {
-      searchResults.value = result.entities;
+      searchResults.value = result;
       totalCount.value = result.count;
     }
     loading.value = false;

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-03 15:46:38.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-08 16:18:46.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -164,9 +164,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -407,22 +407,23 @@ export interface SearchResponse {
     page?: number;
     count?: number;
     entities?: SearchResultSummary[];
+    term?: string;
 }
 
 export interface SearchResultSummary {
     name?: string;
-    iri?: string;
     code?: string;
     description?: string;
-    status?: TTIriRef;
-    scheme?: TTIriRef;
-    entityType?: TTIriRef[];
+    status: TTIriRef;
+    scheme: TTIriRef;
+    entityType: TTIriRef[];
     weighting?: number;
     match?: string;
     preferredName?: string;
     key?: string[];
     isA?: TTIriRef[];
     termCode?: SearchTermCode[];
+    iri: string;
 }
 
 export interface SearchTermCode {

@@ -13,8 +13,8 @@ import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDi
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { generateMatchIdsRecursively } from "@im-library/helpers/QueryBuilder";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { Match, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { Match, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { Ref, ref, watch } from "vue";
 
@@ -41,7 +41,7 @@ watch(visible, newValue => {
   }
 });
 
-async function onSelect(selectedFeature: ConceptSummary) {
+async function onSelect(selectedFeature: SearchResultSummary) {
   const partialEntity = await EntityService.getPartialEntity(selectedFeature.iri, [IM.DEFINITION]);
   if (isObjectHasKeys(partialEntity, [IM.DEFINITION])) {
     const matchToAdd: Match = JSON.parse(partialEntity[IM.DEFINITION]);

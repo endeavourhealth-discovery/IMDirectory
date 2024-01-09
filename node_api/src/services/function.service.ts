@@ -1,4 +1,4 @@
-import { FunctionRequest } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import QueryService from "./query.service";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import { CustomError } from "@im-library/models";
@@ -6,7 +6,7 @@ import { ErrorType } from "@im-library/enums";
 import EntityService from "./entity.service";
 import { IM } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptSummary, EntityReferenceNode } from "@im-library/interfaces";
+import { EntityReferenceNode } from "@im-library/interfaces";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import Env from "./env.service";
 
@@ -28,7 +28,7 @@ export default class FunctionService {
       if (isAliasIriRef(focus.valueObject)) {
         if (focus.valueObject.iri === "any") {
           const results = await this.entityService.getInverseIsas("http://snomed.info/sct#410662002", term?.valueData);
-          const resultsAsSummary: ConceptSummary[] = [];
+          const resultsAsSummary: SearchResultSummary[] = [];
           for (const result of results) {
             const asSummary = await this.entityService.getEntitySummary(result["@id"]);
             entityToAliasEntity(asSummary);

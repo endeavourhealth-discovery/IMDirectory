@@ -13,6 +13,10 @@
           @navigateTo="navigateTo"
           @locateInTree="locateInTree"
           v-model:history="history"
+          @lazyLoadRequested="(event: any) => $emit('lazyLoadRequested', event)"
+          :lazyLoading="true"
+          @downloadRequested="(data: any) => $emit('downloadRequested', data)"
+          :rows="100"
         >
           <transition :name="showTransitions ? route?.meta?.transition : 'fade'" :mode="showTransitions ? route?.meta?.mode : 'in-out'">
             <div
@@ -39,6 +43,8 @@ import { Ref, computed, ref, onMounted } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRouter } from "vue-router";
 import { useLoadingStore } from "@/stores/loadingStore";
+
+const emit = defineEmits({ lazyLoadRequested: (_payload: any) => true, downloadRequested: (_payload: { term: string; count: number }) => true });
 
 const router = useRouter();
 const loadingStore = useLoadingStore();

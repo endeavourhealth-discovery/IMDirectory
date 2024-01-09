@@ -97,7 +97,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Bool, Match, Node, OrderDirection, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Node, OrderDirection, OrderLimit, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { PrimeIcons } from "primevue/api";
@@ -105,7 +105,7 @@ import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
 import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
-import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
+import { SelectedMatch } from "@im-library/interfaces";
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 import { useUserStore } from "@/stores/userStore";
@@ -226,7 +226,7 @@ function getMatchType() {
   return props.parentDataModelIri ?? queryStore.returnType;
 }
 
-function onSelect(cs: ConceptSummary, before?: boolean) {
+function onSelect(cs: SearchResultSummary, before?: boolean) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
   addMatchesToList(props.parentMatchList!, [newMatch], props.index, before);
   showAddPopulationAfterDirectoryDialog.value = false;
@@ -248,7 +248,7 @@ function getClass() {
   return clazz;
 }
 
-function saveSelect(property: "typeOf" | "instanceOf" | "is", selectedCSs: Node[], selectedCS: ConceptSummary) {
+function saveSelect(property: "typeOf" | "instanceOf" | "is", selectedCSs: Node[], selectedCS: SearchResultSummary) {
   if (isObjectHasKeys(props.match, ["is"])) delete props.match.is;
   if (isObjectHasKeys(props.match, ["instanceOf"])) delete props.match.instanceOf;
   if (isObjectHasKeys(props.match, ["typeOf"])) delete props.match.typeOf;

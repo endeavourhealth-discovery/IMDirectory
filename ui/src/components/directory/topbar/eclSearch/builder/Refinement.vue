@@ -54,16 +54,16 @@ import { ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { FunctionRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {
   value: {
     type: string;
     operator: string;
-    property: { concept: { iri: string; name?: string } | ConceptSummary; descendants: string };
-    value: { concept: { iri: string; name?: string } | ConceptSummary; descendants: string };
+    property: { concept: { iri: string; name?: string } | SearchResultSummary; descendants: string };
+    value: { concept: { iri: string; name?: string } | SearchResultSummary; descendants: string };
     ecl?: string;
   };
   parent?: any;
@@ -122,8 +122,8 @@ const hasProperty = computed(() => {
   else return false;
 });
 
-const selectedProperty: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const selectedValue: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const selectedProperty: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
+const selectedValue: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const loadingProperty = ref(false);
 const loadingValue = ref(false);
 const isValidProperty = ref(false);
@@ -306,12 +306,12 @@ async function processProps() {
 }
 
 async function processPropertyProp() {
-  if (isObjectHasKeys(props.value.property.concept, ["entityType"])) selectedProperty.value = props.value.property.concept as ConceptSummary;
+  if (isObjectHasKeys(props.value.property.concept, ["entityType"])) selectedProperty.value = props.value.property.concept as SearchResultSummary;
   else {
     const propertySummary = (selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri));
     if (isObjectHasKeys(propertySummary)) selectedProperty.value = propertySummary;
     else {
-      selectedProperty.value = {} as ConceptSummary;
+      selectedProperty.value = {} as SearchResultSummary;
       throw new Error("Property iri does not exist");
     }
   }
@@ -338,13 +338,13 @@ async function processPropertyProp() {
 }
 
 async function processValueProp() {
-  if (isObjectHasKeys(props.value.value.concept, ["entityType"])) selectedValue.value = props.value.value.concept as ConceptSummary;
+  if (isObjectHasKeys(props.value.value.concept, ["entityType"])) selectedValue.value = props.value.value.concept as SearchResultSummary;
   else {
     const valueSummary = (selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri));
     if (isObjectHasKeys(valueSummary)) {
       selectedValue.value = valueSummary;
     } else {
-      selectedValue.value = {} as ConceptSummary;
+      selectedValue.value = {} as SearchResultSummary;
       throw new Error("Value iri does not exist");
     }
   }
@@ -371,13 +371,13 @@ function generateEcl(): string {
   return ecl;
 }
 
-async function updateProperty(property: ConceptSummary) {
+async function updateProperty(property: SearchResultSummary) {
   props.value.property.concept = property;
   props.value.ecl = generateEcl();
   await getPropertyTreeRoots();
 }
 
-async function updateValue(value: ConceptSummary) {
+async function updateValue(value: SearchResultSummary) {
   props.value.value.concept = value;
   props.value.ecl = generateEcl();
   await getValueTreeRoots();

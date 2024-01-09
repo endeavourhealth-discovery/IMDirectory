@@ -3,14 +3,15 @@ import setupDebounce from "./setupDebounce";
 import { isObject } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
+import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 function setupSimpleSearch() {
   const filterStore = useFilterStore();
   const { debounceFunction } = setupDebounce();
   const controller: Ref<AbortController> = ref({} as AbortController);
   const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
-  const suggestions: Ref<ConceptSummary[]> = ref([]);
+  const suggestions: Ref<SearchResultSummary[]> = ref([]);
 
   async function simpleSearch(searchTerm: string, filters?: FilterOptions) {
     if (!isObject(controller.value)) {

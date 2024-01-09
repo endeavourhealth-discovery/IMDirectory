@@ -17,14 +17,13 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
-import { ConceptSummary } from "@im-library/interfaces";
-import { Node, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Node, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash";
 
-const emit = defineEmits({ onCancel: () => true, onSave: (_payload: ConceptSummary) => true, "update:selected": payload => true });
+const emit = defineEmits({ onCancel: () => true, onSave: (_payload: SearchResultSummary) => true, "update:selected": payload => true });
 
 interface Props {
   editNode: Node;
@@ -34,7 +33,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const selected: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const showDialog = ref(false);
 
 watch(
@@ -55,7 +54,7 @@ function populateSelected() {
   if (isObjectHasKeys(props.editNode)) {
     const iri = props.editNode["@id"];
     const name = getNameFromRef(props.editNode);
-    if (iri && name) selected.value = { iri: iri, name: name } as ConceptSummary;
+    if (iri && name) selected.value = { iri: iri, name: name } as SearchResultSummary;
   }
 }
 </script>

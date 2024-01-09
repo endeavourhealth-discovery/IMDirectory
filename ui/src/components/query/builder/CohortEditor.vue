@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
-import { Match, Property, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Property, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
@@ -76,7 +76,7 @@ import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddProper
 import { describeQuery } from "@im-library/helpers/QueryDescriptor";
 import { useQueryStore } from "@/stores/queryStore";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
@@ -165,7 +165,7 @@ function initVariableMap() {
   queryStore.updateVariableMap(initMap);
 }
 
-function onSelect(cs: ConceptSummary) {
+function onSelect(cs: SearchResultSummary) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match.push(newMatch);

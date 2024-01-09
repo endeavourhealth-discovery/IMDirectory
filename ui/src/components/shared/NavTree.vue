@@ -48,7 +48,6 @@ import { computed, ref, Ref, watch, onMounted, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import OverlaySummary from "./OverlaySummary.vue";
 import { useToast } from "primevue/usetoast";
-import { ConceptSummary } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService, FilerService } from "@/services";
@@ -60,7 +59,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
@@ -111,7 +110,7 @@ const {
 const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 
 const loading = ref(true);
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const overlayLocation: Ref<any> = ref({});
 const items: Ref<any[]> = ref([]);
 const newFolder: Ref<null | TreeNode> = ref(null);

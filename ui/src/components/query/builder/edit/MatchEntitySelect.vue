@@ -16,7 +16,7 @@
       <Button icon="fa-solid fa-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
       <DirectorySearchDialog
         v-model:show-dialog="showDialog"
-        :selected="{ iri: editValue['@id'], name: editValue.name } as ConceptSummary"
+        :selected="{ iri: editValue['@id'], name: editValue.name } as SearchResultSummary"
         @update:selected="onSelect"
         :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
         :search-by-query="validationQueryRequest"
@@ -33,8 +33,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
-import { ConceptSummary } from "@im-library/interfaces";
-import { Match, Node, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Node, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -45,7 +44,7 @@ import SaveCustomSetDialog from "./dialogs/SaveCustomSetDialog.vue";
 
 const emit = defineEmits({
   onCancel: () => true,
-  onSave: (_property: "typeOf" | "instanceOf" | "is", _selectedCSs: Node[], _selectedCS: ConceptSummary) => true,
+  onSave: (_property: "typeOf" | "instanceOf" | "is", _selectedCSs: Node[], _selectedCS: SearchResultSummary) => true,
   "update:selected": payload => true
 });
 
@@ -57,7 +56,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const selected: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const showDialog = ref(false);
 const editValues: Ref<Node[]> = ref([] as Node[]);
 const selectedIndex: Ref<number> = ref(0);
@@ -83,7 +82,7 @@ watch(
     if (propertyType.value === "is" && !isArrayHasLength(editValues.value)) {
       editValues.value.push({ "@id": "", name: "" });
     } else {
-      selected.value = {} as ConceptSummary;
+      selected.value = {} as SearchResultSummary;
     }
   }
 );
@@ -111,16 +110,16 @@ function populateSelected() {
     propertyType.value = "typeOf";
     const iri = editMatch.typeOf!["@id"];
     const name = getNameFromRef(editMatch.typeOf);
-    if (iri && name) selected.value = { iri: iri, name: name } as ConceptSummary;
+    if (iri && name) selected.value = { iri: iri, name: name } as SearchResultSummary;
   } else if (isObjectHasKeys(editMatch, ["instanceOf"])) {
     propertyType.value = "instanceOf";
     const iri = editMatch.instanceOf!["@id"];
     const name = getNameFromRef(editMatch.instanceOf);
-    if (iri && name) selected.value = { iri: iri, name: name } as ConceptSummary;
+    if (iri && name) selected.value = { iri: iri, name: name } as SearchResultSummary;
   }
 }
 
-function onSelect(cs: ConceptSummary) {
+function onSelect(cs: SearchResultSummary) {
   showDialog.value = false;
   const node = buildNodeFromCS(cs);
   editValues.value[selectedIndex.value] = node;

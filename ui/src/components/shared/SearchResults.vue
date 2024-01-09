@@ -23,31 +23,45 @@
     <ResultsTable
       :searchResults="localSearchResults"
       :loading="isLoading"
+      :lazyLoading="lazyLoading"
+      :rows="rows"
       @rowSelected="updateSelected"
-      @locateInTree="(iri:string) => $emit('locateInTree', iri)"
+      @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+      @lazyLoadRequested="(data: any) => $emit('lazyLoadRequested', data)"
+      @downloadRequested="(data: any) => $emit('downloadRequested', data)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
+import { SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   showFilters?: boolean;
-  searchResults: ConceptSummary[];
+  searchResults: SearchResponse | undefined;
   searchLoading?: boolean;
+  rows?: number;
+  lazyLoading?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
-  searchLoading: false
+  searchLoading: false,
+  lazyLoading: false,
+  rows: 20
 });
 
-const emit = defineEmits({ selectedUpdated: (_payload: ConceptSummary) => true, locateInTree: (_payload: string) => true });
+const emit = defineEmits({
+  selectedUpdated: (_payload: SearchResultSummary) => true,
+  locateInTree: (_payload: string) => true,
+  lazyLoadRequested: (_payload: any) => true,
+  downloadRequested: (_payload: { term: string; count: number }) => true
+});
 
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
@@ -59,7 +73,7 @@ const selectedTypes: Ref<string[]> = ref([]);
 const schemeOptions: Ref<string[]> = ref([]);
 const statusOptions: Ref<string[]> = ref([]);
 const typeOptions: Ref<string[]> = ref([]);
-const localSearchResults: Ref<any[]> = ref([]);
+const localSearchResults: Ref<SearchResponse | undefined> = ref();
 const loading = ref(true);
 
 watch(
@@ -100,7 +114,7 @@ function setFiltersFromSearchResults() {
   const schemes = [] as string[];
   const types = [] as string[];
   const status = [] as string[];
-  (localSearchResults.value as ConceptSummary[]).forEach(searchResult => {
+  (localSearchResults.value as SearchResultSummary[]).forEach(searchResult => {
     if (isObjectHasKeys(searchResult.scheme, ["name"])) schemes.push(searchResult.scheme.name!);
     searchResult.entityType.forEach((type: any) => {
       if (filterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type.name);
@@ -117,23 +131,25 @@ function setFiltersFromSearchResults() {
 }
 
 function filterResults() {
-  const filteredSearchResults = [] as ConceptSummary[];
-  localSearchResults.value.forEach(searchResult => {
-    let isSelectedType = false;
-    searchResult.entityType.forEach((type: any) => {
-      if (selectedTypes.value.indexOf(type.name) != -1) {
-        isSelectedType = true;
+  if (localSearchResults.value && localSearchResults.value.entities && isArrayHasLength(localSearchResults.value?.entities)) {
+    const filteredSearchResults = [] as SearchResultSummary[];
+    localSearchResults.value?.entities.forEach(searchResult => {
+      let isSelectedType = false;
+      searchResult.entityType.forEach((type: any) => {
+        if (selectedTypes.value.indexOf(type.name) != -1) {
+          isSelectedType = true;
+        }
+      });
+
+      if (selectedSchemes.value.indexOf(searchResult.scheme.name!) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name!) != -1) {
+        filteredSearchResults.push(searchResult);
       }
     });
-
-    if (selectedSchemes.value.indexOf(searchResult.scheme.name!) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name!) != -1) {
-      filteredSearchResults.push(searchResult);
-    }
-  });
-  localSearchResults.value = [...filteredSearchResults];
+    localSearchResults.value.entities = [...filteredSearchResults];
+  }
 }
 
-function updateSelected(selected: ConceptSummary) {
+function updateSelected(selected: SearchResultSummary) {
   emit("selectedUpdated", selected);
 }
 </script>

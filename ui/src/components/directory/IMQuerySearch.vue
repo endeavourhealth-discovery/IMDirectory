@@ -23,8 +23,8 @@
         :show-filters="false"
         :search-results="searchResults"
         :search-loading="loading"
-        @locate-in-tree="(iri:string) => emit('locateInTree', iri)"
-        @selected-updated="(selected:ConceptSummary) => emit('selectedUpdated', selected)"
+        @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
+        @selected-updated="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
       />
     </div>
   </div>
@@ -33,8 +33,7 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { ConceptSummary } from "@im-library/interfaces";
-import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
@@ -47,12 +46,12 @@ import Textarea from "primevue/textarea";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
-  selectedUpdated: (_payload: ConceptSummary) => true
+  selectedUpdated: (_payload: SearchResultSummary) => true
 });
 
 const toast = useToast();
 const queryString = ref("");
-const searchResults: Ref<ConceptSummary[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const controller: Ref<AbortController> = ref({} as AbortController);
 const loading = ref(false);
 
@@ -70,7 +69,7 @@ async function search(): Promise<void> {
       addDefaultQuerySelect(queryRequest.query);
       const result = await QueryService.queryIM(queryRequest);
       const queryResults = convertResultsToConceptSummaryList(result.entities);
-      searchResults.value = queryResults;
+      searchResults.value = { entities: queryResults, page: 1, count: queryResults.length };
     } catch (error) {
       if (!(error instanceof SyntaxError) && !(error instanceof TypeError))
         toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));
@@ -90,7 +89,7 @@ function parseQuery() {
   }
 }
 
-function convertResultsToConceptSummaryList(entities: any[]) {
+function convertResultsToConceptSummaryList(entities: any[]): SearchResultSummary[] {
   if (!isArrayHasLength(entities)) return [];
   return entities.map(entity => {
     return {
@@ -99,7 +98,7 @@ function convertResultsToConceptSummaryList(entities: any[]) {
       match: entity[RDFS.LABEL],
       entityType: entity[RDF.TYPE],
       code: entity[IM.CODE]
-    } as ConceptSummary;
+    } as SearchResultSummary;
   });
 }
 

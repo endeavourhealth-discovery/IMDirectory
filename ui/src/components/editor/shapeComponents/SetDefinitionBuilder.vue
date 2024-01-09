@@ -57,12 +57,11 @@ import { EditorMode } from "@im-library/enums";
 import { EclService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, Query } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptSummary } from "@im-library/interfaces";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 
 interface Props {
@@ -201,7 +200,7 @@ function closeAddByDialog(): void {
   showAddByFileDialog.value = false;
 }
 
-function processCodeList(data: ConceptSummary[]) {
+function processCodeList(data: SearchResultSummary[]) {
   closeAddByDialog();
   if (isArrayHasLength(data)) {
     let arrayAsStrings = data.map(item => {
