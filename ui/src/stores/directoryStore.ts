@@ -25,11 +25,7 @@ export const useDirectoryStore = defineStore("directory", {
     },
     async fetchSearchResults(data: { searchRequest: SearchRequest; controller: AbortController }) {
       const result = await EntityService.advancedSearch(data.searchRequest, data.controller);
-      if (result) {
-        this.updateSearchResults(result);
-      } else {
-        this.updateSearchResults({} as SearchResponse);
-      }
+      this.updateSearchResults(result);
     },
     // Mutations
     updateFindInTreeIri(value: string) {

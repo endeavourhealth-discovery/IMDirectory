@@ -26,6 +26,7 @@ describe("state", () => {
         "conceptIri",
         "findInTreeIri",
         "searchResults",
+        "findInTreeBoolean",
         "searchLoading",
         "sidebarControlActivePanel",
         "splitterRightSize",
@@ -35,7 +36,7 @@ describe("state", () => {
       ])
     );
     expect(directoryStore.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
-    expect(directoryStore.searchResults).toEqual([]);
+    expect(directoryStore.searchResults).toEqual({});
     expect(directoryStore.focusHierarchy).toBe(false);
   });
 });
@@ -95,18 +96,6 @@ describe("actions", () => {
     expect(advancedSearchSpy).toBeCalledWith(testInput.searchRequest, testInput.controller);
     await flushPromises();
     expect(directoryStore.searchResults).toEqual(testData.SEARCH_RESULTS);
-  });
-
-  it("can fetchSearchResults ___ failed", async () => {
-    const directoryStore = useDirectoryStore();
-    advancedSearchSpy.mockRejectedValue({ status: 400, message: "test fail" });
-    const testInput = { searchRequest: {} as SearchRequest, controller: new AbortController() };
-    await directoryStore.fetchSearchResults(testInput);
-    await flushPromises();
-    expect(advancedSearchSpy).toBeCalledTimes(1);
-    expect(advancedSearchSpy).toBeCalledWith(testInput.searchRequest, testInput.controller);
-    await flushPromises();
-    expect(directoryStore.searchResults).toStrictEqual({} as SearchResponse);
   });
 });
 
