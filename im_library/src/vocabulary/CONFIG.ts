@@ -9,7 +9,7 @@ export class CONFIG {
   public static readonly FILTER_DEFAULTS = CONFIG.NAMESPACE + "filterDefaults";
   public static readonly INFERRED_PREDICATES = CONFIG.NAMESPACE + "inferredPredicates";
   public static readonly INFERRED_EXCLUDE_PREDICATES = CONFIG.NAMESPACE + "inferredExcludePredicates";
-  public static readonly CONCEPT_DASHBOARD = CONFIG.NAMESPACE + "CONCEPT_DASHBOARD";
+  public static readonly CONCEPT_DASHBOARD = CONFIG.NAMESPACE + "conceptDashboard";
   public static readonly DEFAULT_PREDICATE_NAMES = CONFIG.NAMESPACE + "defaultPredicateNames";
   public static readonly XML_SCHEMA_DATA_TYPES = CONFIG.NAMESPACE + "xmlSchemaDataTypes";
   public static readonly DEFAULT_PREFIXES = CONFIG.NAMESPACE + "defaultPrefixes";
