@@ -6,7 +6,7 @@ import { IM } from "../vocabulary";
 
 const propertyDisplayMap: { path: any; then: any } = { path: { concept: "is", ethnicity: "of", language: "of" }, then: { concept: "is" } };
 
-export type MatchType = "path" | "then";
+export type MatchType = "path" | "then" | "";
 
 // descriptors
 export function describeQuery(query: Query): Query {
@@ -29,15 +29,19 @@ export function describeMatch(match: Match, index: number, bool: Bool, matchType
   if (match.exclude && matchType !== "then") display = getDisplayFromLogic("exclude") + " " + display;
   if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
 
-  if (isArrayHasLength(match.match))
+  if (isArrayHasLength(match.match)) {
+    if (matchType === "then") matchType = "";
     for (const [index, nestedMatch] of match.match!.entries()) {
       describeMatch(nestedMatch, index, match.bool!, matchType);
     }
+  }
 
-  if (isArrayHasLength(match.property))
+  if (isArrayHasLength(match.property)) {
+    if (matchType === "then") matchType = "";
     for (const [index, property] of match.property!.entries()) {
       describeProperty(property, index, property.bool!, matchType);
     }
+  }
 
   if (match.then) {
     describeMatch(match.then, 0, Bool.and, "then");
