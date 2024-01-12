@@ -322,15 +322,14 @@ export function getDisplayFromList(include: boolean, nodes: Node[]) {
 
 export function getDisplaySuffixFromEntailment(entailment: Entailment) {
   if (entailment.ancestorsOf) return " (ancestors only)";
-  if (entailment.descendantsOf) return " (descendants only)";
-  if (entailment.descendantsOrSelfOf) return " (including descendants)";
+  if (entailment.descendantsOf) return " (excluding subtypes)";
   return "";
 }
 
 export function getDisplayFromEntailment(entailment: Entailment) {
   if (entailment.ancestorsOf) return "ancestors of ";
-  if (entailment.descendantsOf) return "descendants of ";
-  if (entailment.descendantsOrSelfOf) return "descendants of or ";
+  if (entailment.descendantsOf) return "subtypes of ";
+  if (entailment.descendantsOrSelfOf) return "of ";
   return "";
 }
 

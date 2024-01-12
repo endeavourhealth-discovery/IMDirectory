@@ -57,7 +57,7 @@ describe("QueryDescriptor.ts ___", () => {
     it("can describe a concept property with DescendantsOrSelfOf", () => {
       const testProperty: Property = _.cloneDeep(match.withDescendantsOrSelfOf);
       describeProperty(testProperty, 0, Bool.and);
-      expect(testProperty.description).toEqual("Text message consultation (including descendants)");
+      expect(testProperty.description).toEqual("Text message consultation");
     });
 
     it("can describe a concept property with AncestorsOf", () => {
@@ -69,7 +69,7 @@ describe("QueryDescriptor.ts ___", () => {
     it("can describe a concept match with DescendantsOf", () => {
       const testProperty: Property = _.cloneDeep(match.withDescendantsOf);
       describeProperty(testProperty, 0, Bool.and);
-      expect(testProperty.description).toEqual("Text message consultation (descendants only)");
+      expect(testProperty.description).toEqual("Text message consultation (excluding subtypes)");
     });
 
     it("can describe a concept match with Exclude", () => {
