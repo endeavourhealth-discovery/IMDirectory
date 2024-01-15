@@ -3,6 +3,7 @@
 import Graphdb from "graphdb";
 import Env from "@/services/env.service";
 import logger from "@/middlewares/logger.middleware";
+import { isArray, isObject } from "lodash";
 
 const { ServerClientConfig, ServerClient, RDFRepositoryClient } = Graphdb.server;
 const { RDFMimeType } = Graphdb.http;
@@ -108,12 +109,62 @@ function iri(url: string) {
 export function sanitise(data: any) {
   if (typeof data === "string") {
     if (data.startsWith("http") || data.startsWith("https")) return iri(data);
-    else return "'" + data + "'";
+    else return "'" + sanitiseString(data) + "'";
+  } else if (isArray(data)) {
+    sanitiseArray(data);
+    return "'" + JSON.stringify(data) + "'";
   }
-  if (typeof data === "object") return "'" + JSON.stringify(data).replaceAll('"', "`").replaceAll("'", '"') + "'";
+  if (isObject(data)) {
+    sanitiseObject(data);
+    return "'" + JSON.stringify(data) + "'";
+  }
   if (typeof data === "number") return "'" + data + "'";
 }
 
 export function desanitise(data: string) {
-  return JSON.parse(data.replaceAll('"', "'").replaceAll("`", '"'));
+  const parsed = JSON.parse(data);
+  if (isArray(parsed)) desanitiseArray(parsed);
+  else if (isObject(parsed)) desanitiseObject(parsed);
+  return parsed;
+}
+
+function sanitiseObject(data: any): void {
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === "string") data[key] = sanitiseString(value);
+    else if (isArray(value)) {
+      sanitiseArray(value);
+    } else if (isObject(value)) sanitiseObject(value);
+  }
+}
+
+function sanitiseString(data: string): string {
+  return data.replaceAll('"', "`");
+}
+
+function sanitiseArray(data: any[]): void {
+  for (const [i, value] of data.entries()) {
+    if (typeof value === "string") data[i] = sanitiseString(value);
+    else if (isArray(value)) sanitiseArray(value);
+    else if (isObject(value)) sanitiseObject(value);
+  }
+}
+
+function desanitiseObject(data: any) {
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === "string") data[key] = desanitiseString(value);
+    else if (isArray(value)) desanitiseArray(value);
+    else if (isObject(value)) desanitiseObject(value);
+  }
+}
+
+function desanitiseArray(data: any[]) {
+  for (const [i, value] of data.entries()) {
+    if (typeof value === "string") data[i] = desanitiseString(value);
+    else if (isArray(value)) desanitiseArray(value);
+    else if (isObject(value)) desanitiseObject(value);
+  }
+}
+
+function desanitiseString(data: string) {
+  return data.replaceAll("`", '"');
 }
