@@ -138,7 +138,7 @@ function sanitiseObject(data: any): void {
 }
 
 function sanitiseString(data: string): string {
-  return data.replaceAll('"', "`");
+  return data.replaceAll("'", "%27").replaceAll('"', "%22").replaceAll("`", "%60");
 }
 
 function sanitiseArray(data: any[]): void {
@@ -166,5 +166,5 @@ function desanitiseArray(data: any[]) {
 }
 
 function desanitiseString(data: string) {
-  return data.replaceAll("`", '"');
+  return data.replaceAll("%27", "'").replaceAll("%22", '"').replaceAll("%60", "`");
 }
