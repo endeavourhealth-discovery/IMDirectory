@@ -1,4 +1,4 @@
-import { isOfTypes, isValueSet, isProperty, getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeMethods";
+import { isOfTypes, isValueSet, isProperty } from "@/helpers/ConceptTypeMethods";
 import { IM } from "@/vocabulary";
 
 describe("ConceptTypeMethods", () => {
@@ -14,8 +14,6 @@ describe("ConceptTypeMethods", () => {
       name: "Property"
     }
   ];
-  const testQueryType = [{ "@id": "http://endhealth.info/im#Query", name: "Query template" }];
-  const testFolder = [{ "@id": "http://endhealth.info/im#Folder", name: "Folder" }];
 
   describe("isOfTypes", () => {
     it("returns false if no conceptTypeElements", () => {
@@ -44,58 +42,6 @@ describe("ConceptTypeMethods", () => {
 
     it("returns false if not property", () => {
       expect(isValueSet(testDataModelType)).toBe(false);
-    });
-  });
-
-  describe("getFAIconFromType", () => {
-    it("returns icon for nodeshape", () => {
-      expect(getFAIconFromType(testDataModelType)).toStrictEqual(["fa-solid", "fa-diagram-project"]);
-    });
-
-    it("returns icon for property", () => {
-      expect(getFAIconFromType(testPropertyType)).toStrictEqual(["fa-solid", "fa-pen-to-square"]);
-    });
-
-    it("returns icon for valueset", () => {
-      expect(getFAIconFromType(testSetType)).toStrictEqual(["fa-solid", "fa-list-check"]);
-    });
-
-    it("returns icon for folder", () => {
-      expect(getFAIconFromType(testFolder)).toStrictEqual(["fa-solid", "fa-folder"]);
-    });
-
-    it("returns icon for query", () => {
-      expect(getFAIconFromType(testQueryType)).toStrictEqual(["fa-solid", "fa-magnifying-glass"]);
-    });
-
-    it("returns default icon, type not found", () => {
-      expect(getFAIconFromType([])).toStrictEqual(["fa-solid", "fa-lightbulb"]);
-    });
-  });
-
-  describe("getColourFromType", () => {
-    it("returns correct colour for nodeshape", () => {
-      expect(getColourFromType(testDataModelType)).toBe("#781c8188");
-    });
-
-    it("returns correct colour for property", () => {
-      expect(getColourFromType(testPropertyType)).toBe("#e68a3388");
-    });
-
-    it("returns correct colour for valueset", () => {
-      expect(getColourFromType(testSetType)).toBe("#519cb888");
-    });
-
-    it("returns correct colour for folder", () => {
-      expect(getColourFromType(testFolder)).toBe("#3f51a388");
-    });
-
-    it("returns correct colour for query", () => {
-      expect(getColourFromType(testQueryType)).toBe("#83ba6d88");
-    });
-
-    it("returns correct colour for default no type", () => {
-      expect(getColourFromType([])).toBe("#c3ba4588");
     });
   });
 });

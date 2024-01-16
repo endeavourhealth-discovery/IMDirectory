@@ -7,7 +7,7 @@ import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 export default class EntityService {
@@ -223,5 +223,21 @@ export default class EntityService {
 
   async getConceptContextMaps(iri: string): Promise<ContextMap[]> {
     return await this.entityRepository.getConceptContextMaps(iri);
+  }
+
+  async getInverseIsas(iri: string, searchTerm?: string): Promise<any[]> {
+    return await this.entityRepository.getInverseIsas(iri, searchTerm);
+  }
+
+  async isInverseIsa(iri: string, searchTerm?: string): Promise<boolean> {
+    return (await this.axios.get(Env.API + "api/entity/public/isInverseIsa", { params: { subjectIri: iri, objectIri: searchTerm } })).data;
+  }
+
+  async getEntityReferenceNode(iri: string): Promise<EntityReferenceNode> {
+    return (await this.axios.get(Env.API + "api/entity/public/asEntityReferenceNode", { params: { iri: iri } })).data;
+  }
+
+  async getEntitySummary(iri: string): Promise<SearchResultSummary> {
+    return (await this.axios.get(Env.API + "api/entity/public/summary", { params: { iri: iri } })).data;
   }
 }

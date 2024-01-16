@@ -1,6 +1,9 @@
 <template>
   <div class="array-builder-container">
-    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+      <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
+    </div>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
@@ -40,7 +43,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, PropType, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";
@@ -67,6 +70,7 @@ const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
@@ -83,19 +87,26 @@ if (forceValidation) {
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
-    async () => {
-      if (updateValidity) {
-        if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
-          invalid.value = false;
-          validationErrorMessage.value = undefined;
-        } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-          showValidation.value = true;
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        if (updateValidity) {
+          if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+            invalid.value = false;
+            validationErrorMessage.value = undefined;
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+            showValidation.value = true;
+          }
         }
       }
     }
   );
 }
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 let key = props.shape.path["@id"];
 
@@ -112,7 +123,6 @@ onMounted(async () => {
       validationErrorMessage.value = undefined;
     } else {
       await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      showValidation.value = true;
     }
   }
 });
@@ -134,7 +144,6 @@ watch(
           validationErrorMessage.value = undefined;
         } else {
           await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-          showValidation.value = true;
         }
       }
       updateValueVariableMap(props.value);
@@ -401,5 +410,16 @@ function updateValueVariableMap(data: any[] | undefined) {
 
 .validate-error-container {
   width: 100%;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

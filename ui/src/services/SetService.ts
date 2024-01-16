@@ -8,10 +8,11 @@ const SetService = {
     });
   },
 
-  async IMV1(conceptIri: string) {
+  async IMV1(conceptIri: string, raw?: boolean) {
     return axios.get(Env.API + "api/set/public/export", {
       params: { iri: conceptIri },
-      responseType: "blob"
+      responseType: "blob",
+      raw: raw
     });
   }
 };

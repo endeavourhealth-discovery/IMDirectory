@@ -25,8 +25,8 @@
     "vuex": "4.1.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "8.0.2",
-    "@mswjs/data": "0.13.0",
+    "@faker-js/faker": "8.3.1",
+    "@mswjs/data": "0.15.0",
     "@originjs/vite-plugin-commonjs": "1.0.3",
     "@types/antlr4": "4.11.2",
     "@types/d3": "7.4.0",
@@ -35,9 +35,9 @@
     "@types/uuid": "9.0.4",
     "@vitest/coverage-v8": "0.32.0",
     "@vue/test-utils": "2.4.1",
-    "jsdom": "22.1.0",
+    "happy-dom": "12.10.3",
     "typescript": "5.2.2",
-    "vite": "4.4.9",
+    "vite": "4.4.12",
     "vite-plugin-dts": "3.5.4",
     "vitest": "0.32.0"
   },

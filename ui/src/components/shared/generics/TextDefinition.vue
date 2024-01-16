@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show && hasData" id="axioms-container" :style="{ width: size }">
+  <div v-if="hasData" id="axioms-container" :style="{ width: size }">
     <div class="head-container">
       <strong class="label" data-testid="label">{{ label }}</strong>
       <span v-if="getCount()" data-testid="count">&nbsp;({{ getCount() }})</span>
@@ -42,7 +42,6 @@ interface Props {
   data: TTBundle;
   size?: string;
   id?: string;
-  show: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {

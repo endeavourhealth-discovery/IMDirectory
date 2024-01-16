@@ -22,7 +22,7 @@ export default class FhirRepository {
         s: sanitise(url),
         hasMember: sanitise(IM.HAS_MEMBER),
         imCode: sanitise(IM.CODE),
-        imScheme: sanitise(IM.SCHEME),
+        imScheme: sanitise(IM.HAS_SCHEME),
         label: sanitise(RDFS.LABEL)
       }
     );
@@ -74,7 +74,7 @@ export default class FhirRepository {
       {
         s: sanitise(url),
         imCode: sanitise(IM.CODE),
-        imScheme: sanitise(IM.SCHEME),
+        imScheme: sanitise(IM.HAS_SCHEME),
         label: sanitise(RDFS.LABEL),
         imStatus: sanitise(IM.HAS_STATUS),
         comment: sanitise(RDFS.COMMENT),

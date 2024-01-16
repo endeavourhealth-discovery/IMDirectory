@@ -12,14 +12,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType, Ref } from "vue";
+import { ref, watch, onMounted, inject, PropType, Ref, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, Argument } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
-import { QueryService } from "@/services";
+import { FunctionService, QueryService } from "@/services";
 
 interface Props {
   shape: PropertyShape;
@@ -42,6 +42,7 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
@@ -62,16 +63,19 @@ if (forceValidation) {
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
-    async () => {
-      const result = await processPropertyValue(props.shape);
-      if (result) userInput.value = result;
-      if (updateValidity) {
-        if (props.shape.builderChild) {
-          hasData();
-        } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        const result = await processPropertyValue(props.shape);
+        if (result) userInput.value = result;
+        else userInput.value = "";
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
         }
-        showValidation.value = true;
       }
     }
   );
@@ -98,6 +102,8 @@ watch(userInput, async newValue => {
       }
       showValidation.value = true;
     }
+  } else {
+    if (deleteEntityKey) deleteEntityKey(key);
   }
 });
 
@@ -134,16 +140,15 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
     if (props.shape.argument!.find((a: Argument) => a.valueVariable)) {
       const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
       if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
-        const result = await QueryService.runFunction(property.function!["@id"], args);
+        const result = await FunctionService.runFunction(property.function!["@id"], args);
         if (result) return result;
       } else return "";
     } else {
-      const result = await QueryService.runFunction(property.function!["@id"], args);
+      const result = await FunctionService.runFunction(property.function!["@id"], args);
       if (result) return result;
     }
-  }
-  if (isObjectHasKeys(property, ["function"])) {
-    const result = await QueryService.runFunction(property.function!["@id"]);
+  } else if (isObjectHasKeys(property, ["function"])) {
+    const result = await FunctionService.runFunction(property.function!["@id"]);
     if (result && isObjectHasKeys(result, ["iri"])) return result.iri["@id"];
   }
   return "";

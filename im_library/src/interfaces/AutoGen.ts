@@ -1,62 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-10-09 16:15:28.
-
-/**
- * Structure containing search request parameters and filters
- */
-export interface SearchRequest {
-    /**
-     * Plain text, space separated list of terms
-     */
-    termFilter?: string;
-    index?: string;
-    /**
-     * List of entity status IRI's
-     */
-    statusFilter?: string[];
-    /**
-     * List of entity type IRI's
-     */
-    typeFilter?: string[];
-    /**
-     * List of code scheme IRI's
-     */
-    schemeFilter?: string[];
-    /**
-     * Marks the results if they are descendants of any of these entities, but does not filter by them
-     */
-    markIfDescendentOf?: string[];
-    /**
-     * List of IRIs that must be supertypes of the matches
-     */
-    isA?: string[];
-    /**
-     * List of set IRIs that the match must be a member of
-     */
-    memberOf?: string[];
-    /**
-     * The search result page number to retrieve
-     */
-    page?: number;
-    /**
-     * The number of results to retrieve per page
-     */
-    size?: number;
-    from?: number;
-    /**
-     * list of fields or property paths from search result summary to return 
-     */
-    select?: string[];
-    sortField?: string;
-    sortDirection?: string;
-}
-
-export interface SearchResponse {
-    page?: number;
-    count?: number;
-    entities?: SearchResultSummary[];
-}
+// Generated using typescript-generator version 3.2.1263 on 2024-01-08 16:18:46.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -78,6 +22,7 @@ export interface Concept extends Entity {
     matchedFrom?: Concept[];
     usage?: number;
     codeId?: string;
+    alternativeCode?: string;
 }
 
 export interface ConceptSet extends Entity {
@@ -188,8 +133,8 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    relativeTo?: PropertyRef;
     operator?: Operator;
+    relativeTo?: PropertyRef;
     dataType?: TTIriRef;
     unit?: string;
 }
@@ -219,9 +164,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -242,25 +187,29 @@ export interface Match extends IriLD {
     graph?: Element;
     match?: Match[];
     bool?: Bool;
-    inSet?: Node[];
+    is?: Node[];
     property?: Property[];
-    orderBy?: OrderLimit[];
+    orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
     instanceOf?: Node;
     typeOf?: Node;
     variable?: string;
+    then?: Match;
 }
 
 export interface Node extends Element {
 }
 
-export interface OrderLimit extends PropertyRef {
+export interface OrderDirection extends PropertyRef {
     direction?: Order;
+}
+
+export interface OrderLimit {
+    property?: OrderDirection[];
     limit?: number;
     description?: string;
     partitionBy?: PropertyRef;
-    id?: string;
 }
 
 export interface PathDocument {
@@ -279,13 +228,12 @@ export interface Property extends PropertyRef, Assignable {
     match?: Match;
     property?: Property[];
     range?: Range;
+    isNull?: boolean;
     isNot?: Node[];
-    notInSet?: Node[];
-    inSet?: Node[];
     anyRoleGroup?: boolean;
     is?: Node[];
     valueLabel?: string;
-    null?: boolean;
+    isNotNull?: boolean;
 }
 
 export interface PropertyRef extends Element {
@@ -318,6 +266,7 @@ export interface QueryRequest extends ContextMap {
     update?: Update;
     name?: string;
     page?: Page;
+    askIri?: string;
 }
 
 export interface Range {
@@ -378,23 +327,103 @@ export interface EntityDocument {
     match?: string;
     isA?: TTIriRef[];
     memberOf?: TTIriRef[];
+    subsumptionCount?: number;
     isDescendentOf?: TTIriRef[];
+}
+
+export interface Filter {
+    field?: string;
+    iriValue?: TTIriRef[];
+    and?: Filter[];
+    not?: boolean;
+    textValue?: string[];
+    startsWithTerm?: boolean;
+}
+
+export interface OrderBy {
+    field?: string;
+    direction?: Order;
+    iriValue?: TTIriRef[];
+    and?: OrderBy[];
+    textValue?: string[];
+    not?: boolean;
+    startsWithTerm?: boolean;
+}
+
+/**
+ * Structure containing search request parameters and filters
+ */
+export interface SearchRequest {
+    /**
+     * Plain text, space separated list of terms
+     */
+    termFilter?: string;
+    index?: string;
+    /**
+     * List of entity status IRI's
+     */
+    statusFilter?: string[];
+    /**
+     * List of entity type IRI's
+     */
+    typeFilter?: string[];
+    /**
+     * List of code scheme IRI's
+     */
+    schemeFilter?: string[];
+    /**
+     * Marks the results if they are descendants of any of these entities, but does not filter by them
+     */
+    markIfDescendentOf?: string[];
+    /**
+     * List of IRIs that must be supertypes of the matches
+     */
+    isA?: string[];
+    /**
+     * List of set IRIs that the match must be a member of
+     */
+    memberOf?: string[];
+    /**
+     * The search result page number to retrieve
+     */
+    page?: number;
+    /**
+     * The number of results to retrieve per page
+     */
+    size?: number;
+    from?: number;
+    /**
+     * list of fields or property paths from search result summary to return 
+     */
+    select?: string[];
+    sortField?: string;
+    sortDirection?: string;
+    orderBy?: OrderBy[];
+    filter?: Filter[];
+    timings?: { [index: string]: string }[];
+}
+
+export interface SearchResponse {
+    page?: number;
+    count?: number;
+    entities?: SearchResultSummary[];
+    term?: string;
 }
 
 export interface SearchResultSummary {
     name?: string;
-    iri?: string;
     code?: string;
     description?: string;
-    status?: TTIriRef;
-    scheme?: TTIriRef;
-    entityType?: TTIriRef[];
+    status: TTIriRef;
+    scheme: TTIriRef;
+    entityType: TTIriRef[];
     weighting?: number;
     match?: string;
     preferredName?: string;
     key?: string[];
     isA?: TTIriRef[];
     termCode?: SearchTermCode[];
+    iri: string;
 }
 
 export interface SearchTermCode {
@@ -403,10 +432,79 @@ export interface SearchTermCode {
     status?: TTIriRef;
 }
 
+export interface COMPONENT {
+}
+
+export interface CONFIG {
+}
+
+export interface EDITOR {
+}
+
+export interface FHIR {
+}
+
+export interface GRAPH {
+}
+
+export interface IM {
+}
+
+export interface IM_FUNCTION {
+}
+
+export interface MAP {
+}
+
+export interface ODS {
+}
+
+export interface ORG {
+}
+
+export interface OWL {
+}
+
+export interface PRSB {
+}
+
+export interface QR {
+}
+
+export interface QUERY {
+}
+
+export interface RDF {
+}
+
+export interface RDFS {
+}
+
+export interface SHACL {
+}
+
+export interface SNOMED {
+}
+
+export interface USER {
+}
+
+export interface VALIDATION {
+}
+
+export interface WORKFLOW {
+}
+
+export interface XSD {
+}
+
 export interface TTIriRef extends TTValue, Serializable {
     name?: string;
     description?: string;
     "@id": string;
+}
+
+export interface Serializable {
 }
 
 export interface TTContext extends Serializable {
@@ -440,29 +538,68 @@ export interface TTValue extends Serializable {
     order?: number;
 }
 
-export interface Serializable {
-}
-
 export interface TTPrefix {
     iri?: string;
     prefix?: string;
     name?: string;
 }
 
-export type ListMode = "ALL" | "FIRST" | "REST";
+export const enum ListMode {
+    ALL = "ALL",
+    FIRST = "FIRST",
+    REST = "REST",
+}
 
-export type TargetUpdateMode = "REPLACE" | "APPEND" | "ADDTOLIST";
+export const enum TargetUpdateMode {
+    REPLACE = "REPLACE",
+    APPEND = "APPEND",
+    ADDTOLIST = "ADDTOLIST",
+}
 
-export type Aggregate = "SUM" | "COUNT" | "AVERAGE" | "MIN" | "MAX";
+export const enum Aggregate {
+    SUM = "SUM",
+    COUNT = "COUNT",
+    AVERAGE = "AVERAGE",
+    MIN = "MIN",
+    MAX = "MAX",
+}
 
-export type Bool = "and" | "or";
+export const enum Bool {
+    and = "and",
+    or = "or",
+}
 
-export type Comparison = "eq" | "gte" | "gt" | "lte" | "lt";
+export const enum Comparison {
+    eq = "eq",
+    gte = "gte",
+    gt = "gt",
+    lte = "lte",
+    lt = "lt",
+}
 
-export type Function = "sum" | "count" | "average";
+export const enum Function {
+    sum = "sum",
+    count = "count",
+    average = "average",
+}
 
-export type Operator = "=" | ">=" | ">" | "<=" | "<" | "startsWith" | "contains";
+export const enum Operator {
+    eq = "=",
+    gte = ">=",
+    gt = ">",
+    lte = "<=",
+    lt = "<",
+    start = "startsWith",
+    contains = "contains",
+}
 
-export type Order = "ascending" | "descending";
+export const enum Order {
+    ascending = "ascending",
+    descending = "descending",
+}
 
-export type VarType = "NODE" | "PATH" | "LITERAL";
+export const enum VarType {
+    NODE = "NODE",
+    PATH = "PATH",
+    LITERAL = "LITERAL",
+}

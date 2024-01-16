@@ -59,11 +59,12 @@ import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, DirectService, UserService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
 interface Props {
   entityIri: string;
@@ -102,21 +103,21 @@ const selected: Ref<any> = ref({});
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Open",
-    icon: "pi pi-fw pi-folder-open",
-    command: () => emit("navigateTo", (selected.value as any)["@id"])
+    icon: "fa-solid fa-folder-open",
+    command: () => emit("navigateTo", selected.value["@id"])
   },
   {
     label: "View in new tab",
-    icon: "pi pi-fw pi-external-link",
-    command: () => directService.view((selected.value as any)["@id"])
+    icon: "fa-solid fa-arrow-up-right-from-square",
+    command: () => directService.view(selected.value["@id"])
   },
   {
     separator: true
   },
   {
     label: "Favourite",
-    icon: "pi pi-fw pi-star",
-    command: () => updateFavourites((selected.value as any)["@id"])
+    icon: "fa-solid fa-star",
+    command: () => updateFavourites(selected.value["@id"])
   }
 ]);
 const totalCount = ref(0);
@@ -169,7 +170,7 @@ function isFavourite(iri: string) {
 
 function updateRClickOptions() {
   rClickOptions.value[0].label = selected.value.hasChildren ? "Open" : "Select";
-  rClickOptions.value[0].icon = selected.value.hasChildren ? "pi pi-fw pi-folder-open" : "fa-solid fa-sitemap";
+  rClickOptions.value[0].icon = selected.value.hasChildren ? "fa-solid fa-folder-open" : "fa-solid fa-sitemap";
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
 }
 

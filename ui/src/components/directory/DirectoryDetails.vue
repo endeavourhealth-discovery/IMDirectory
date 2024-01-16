@@ -15,7 +15,6 @@
         :entity="entity"
         @locateInTree="(iri: string) => $emit('locateInTree', iri)"
         :showSelectButton="showSelectButton"
-        :validationQuery="validationQuery"
         @entitySelected="(iri: string) => emit('selectedUpdated', iri)"
       />
     </div>
@@ -26,19 +25,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { onMounted, ref, Ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import { ConceptSummary } from "@im-library/interfaces";
-import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   selectedIri: string;
   showSelectButton?: boolean;
-  validationQuery?: QueryRequest;
   history: string[];
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });

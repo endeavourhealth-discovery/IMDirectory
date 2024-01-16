@@ -1,6 +1,9 @@
 <template>
   <div class="string-single-select-container">
-    <label v-if="shape.showTitle">{{ shape.name }}</label>
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
     <InputText
       class="p-inputtext-lg input-text"
       :class="invalid && showValidation && 'invalid'"
@@ -15,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType, Ref } from "vue";
+import { ref, watch, onMounted, inject, PropType, Ref, computed, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
@@ -42,6 +45,7 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
@@ -62,18 +66,24 @@ if (forceValidation) {
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
-    async () => {
-      if (updateValidity) {
-        if (props.shape.builderChild) {
-          hasData();
-        } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue))
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
         }
-        showValidation.value = true;
-      }
     }
   );
 }
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 let key = props.shape.path["@id"];
 
@@ -152,6 +162,16 @@ function hasData() {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>
 

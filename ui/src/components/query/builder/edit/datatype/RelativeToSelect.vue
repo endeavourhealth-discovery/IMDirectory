@@ -29,14 +29,16 @@ import { useQueryStore } from "@/stores/queryStore";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { Property, PropertyRef } from "@im-library/interfaces/AutoGen";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
 interface Props {
   propertyIri: string;
   property: Property;
   datatype: string;
+  propertyRef?: PropertyRef;
 }
+
 const props = defineProps<Props>();
 const queryStore = useQueryStore();
 const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
@@ -48,6 +50,8 @@ const propertyDisplay: Ref<string> = ref("");
 const variableOptions: Ref<TreeNode[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const debounce = ref(0);
+
+const emit = defineEmits({ "update:propertyRef": payload => true });
 
 onMounted(async () => {
   await initValues();
@@ -87,9 +91,9 @@ function onNodeSelect(node: any) {
 function save() {
   if (selectedNode.value) {
     delete props.property.value;
-    const propertyRef: PropertyRef = selectedNode.value.data;
-    propertyDisplay.value = getVariableSearchInputDisplay(propertyRef);
-    props.property.relativeTo = propertyRef;
+    propertyDisplay.value = getVariableSearchInputDisplay(selectedNode.value.data);
+    if (props.propertyRef) emit("update:propertyRef", selectedNode.value.data);
+    else props.property.relativeTo = selectedNode.value.data;
     showTreeSearch.value = false;
   }
 }
@@ -117,15 +121,18 @@ async function getVariableOptions(searchTerm?: string) {
 
   for (const [key, value] of variableMap.value.entries()) {
     const dataModelIri = getVariableWithType(value);
-    const treeNode = await EntityService.getPropertyOptions(dataModelIri, props.datatype, key);
-    if (isObjectHasKeys(treeNode)) options.push(treeNode);
+    if (dataModelIri) {
+      const treeNode = await EntityService.getPropertyOptions(dataModelIri, props.datatype, key);
+      if (isObjectHasKeys(treeNode)) options.push(treeNode);
+    }
   }
 
-  const option = await EntityService.getPropertyOptions(queryTypeIri.value, props.datatype, getNameFromRef({ "@id": queryTypeIri.value }));
-
-  if (isObjectHasKeys(option)) {
-    option.children = option.children?.filter(childOption => childOption.data["@id"] !== props.propertyIri);
-    if (isArrayHasLength(option.children)) options.push(option);
+  if (queryTypeIri.value) {
+    const option = await EntityService.getPropertyOptions(queryTypeIri.value, props.datatype, getNameFromRef({ "@id": queryTypeIri.value }));
+    if (isObjectHasKeys(option)) {
+      option.children = option.children?.filter(childOption => childOption.data["@id"] !== props.propertyIri);
+      if (isArrayHasLength(option.children)) options.push(option);
+    }
   }
 
   if (searchTerm && isArrayHasLength(options)) {

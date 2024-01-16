@@ -40,7 +40,7 @@ import { EntityService } from "@/services";
 import { RDF, RDFS } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {

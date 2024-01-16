@@ -3,28 +3,61 @@
     <div class="include">include if</div>
     <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
-    <EditDisplayMatch v-if="isArrayHasLength(query.match)" v-for="(match, index) of query.match" :match="match" :index="index" :parentMatchList="query.match" />
+    <EditDisplayMatch
+      v-if="isArrayHasLength(query.match)"
+      v-for="(match, index) of query.match"
+      :match="match"
+      :index="index"
+      :parentMatchList="query.match"
+      :parent-data-model-iri="queryTypeIri"
+    />
 
-    <div v-else-if="!queryTypeIri">
-      <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
+    <div v-else-if="!queryTypeIri" class="flex gap-1">
+      <Button label="Set base type" icon="fa-solid fa-diagram-project" @click="showAddBaseTypeDialog = true" severity="help" />
+      <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showAddBaseTypeByCohortDialog = true" severity="success" />
     </div>
-    <div v-if="query['typeOf']">
-      <SplitButton label="Add property" :model="addOptions" icon="pi pi-pencil" @click="showAddDialog = true"></SplitButton>
+    <div v-if="query.typeOf" class="flex gap-1">
+      <Button label="Build new feature" icon="fa-solid fa-hammer" @click="showBuildFeatureAfterDialog = true" severity="help" />
+      <Button label="Add existing feature" icon="fa-solid fa-circle-plus" @click="showAddFeatureAfterDialog = true" severity="warning" />
+      <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showDirectoryDialog = true" severity="success" />
+      <Button label="Paste copied feature" icon="fa-solid fa-paste" @click="pasteMatch" severity="info" />
     </div>
 
     <AddPropertyDialog
-      v-model:show-dialog="showAddDialog"
-      :header="'Add properties'"
+      v-model:show-dialog="showBuildFeatureAfterDialog"
+      :header="'Build new feature'"
       :show-variable-options="true"
       :match-type="queryTypeIri"
       @on-save="onPropertyAdd"
     />
-    <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
+
+    <AddFeatureDialog
+      v-model:show-dialog="showAddFeatureAfterDialog"
+      :validation-query-request="validationQueryRequest"
+      @on-feature-select="handleFeatureSelect"
+    />
+
+    <AddBaseTypeDialog
+      v-model:show-dialog="showAddBaseTypeDialog"
+      :query="query"
+      :filter-options="filterOptionsForBaseType"
+      :validation-query-request="queryRequestForBaseType"
+      :root-entities="['http://endhealth.info/im#DataModel']"
+    />
+    <AddBaseTypeDialog
+      v-model:show-dialog="showAddBaseTypeByCohortDialog"
+      :query="query"
+      :filter-options="filterOptionsForCohort"
+      :validation-query-request="queryRequestForCohort"
+      :root-entities="['http://endhealth.info/im#Q_Queries']"
+    />
+
     <DirectorySearchDialog
       v-model:show-dialog="showDirectoryDialog"
       @update:selected="onSelect"
       :searchByQuery="validationQueryRequest"
       :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
+      :filter-options="filterOptionsForCohort"
     />
   </div>
 </template>
@@ -32,7 +65,7 @@
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
-import { Match, Property, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Property, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
@@ -43,34 +76,51 @@ import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddProper
 import { describeQuery } from "@im-library/helpers/QueryDescriptor";
 import { useQueryStore } from "@/stores/queryStore";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
-import { IM } from "@im-library/vocabulary";
+import { IM, SHACL } from "@im-library/vocabulary";
+import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
+import { v4 } from "uuid";
+import AddFeatureDialog from "./edit/dialogs/AddFeatureDialog.vue";
 
 interface Props {
   queryDefinition: Query;
 }
 
 const props = defineProps<Props>();
-
 const queryStore = useQueryStore();
+const toast = useToast();
 const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const showDirectoryDialog: Ref<boolean> = ref(false);
-const { showAddDialog, showAddBaseTypeDialog, addMatchesToList } = setupQueryBuilderActions();
-
-const addOptions = [
-  {
-    label: "Add Cohort",
-    icon: "pi pi-search",
-    command: () => (showDirectoryDialog.value = true)
-  },
-  {
-    label: "Template",
-    icon: "pi pi-plus"
+const { showAddFeatureAfterDialog, showAddBaseTypeDialog, showBuildFeatureAfterDialog } = setupQueryBuilderActions();
+const showAddBaseTypeByCohortDialog = ref(false);
+const filterOptionsForCohort: FilterOptions = { types: [{ "@id": IM.COHORT_QUERY }] } as FilterOptions;
+const filterOptionsForBaseType: FilterOptions = { types: [{ "@id": SHACL.NODESHAPE }] } as FilterOptions;
+const queryRequestForBaseType: Ref<QueryRequest> = ref({
+  query: {
+    name: "Get queries and data models",
+    match: [
+      {
+        typeOf: { "@id": "http://www.w3.org/ns/shacl#NodeShape" }
+      }
+    ]
   }
-];
+});
+
+const queryRequestForCohort: Ref<QueryRequest> = ref({
+  query: {
+    name: "Get queries and data models",
+    match: [
+      {
+        typeOf: { "@id": "http://endhealth.info/im#CohortQuery" }
+      }
+    ]
+  }
+} as QueryRequest);
 
 onMounted(() => init());
 
@@ -115,7 +165,7 @@ function initVariableMap() {
   queryStore.updateVariableMap(initMap);
 }
 
-function onSelect(cs: ConceptSummary) {
+function onSelect(cs: SearchResultSummary) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match.push(newMatch);
@@ -125,6 +175,12 @@ function onSelect(cs: ConceptSummary) {
 function onPropertyAdd(direct: Match[], nested: Match[]) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match = query.value.match.concat(direct.concat(nested));
+}
+
+async function handleFeatureSelect(selectedFeatureDefinition: Match) {
+  if (!isArrayHasLength(query.value.match)) query.value.match = [];
+  query.value.match.push(selectedFeatureDefinition);
+  showAddFeatureAfterDialog.value = false;
 }
 
 function addVariableRefFromMatch(map: Map<string, any>, match: Match) {
@@ -148,6 +204,27 @@ function addVariableRefFromProperty(map: Map<string, any>, property: Property) {
   if (isArrayHasLength(property.property))
     for (const nestedProperty of property.property!) {
       addVariableRefFromProperty(map, nestedProperty);
+    }
+}
+
+async function pasteMatch() {
+  const copiedString = await navigator.clipboard.readText();
+  if (!copiedString)
+    toast.add(new ToastOptions(ToastSeverity.ERROR, "No copied value found. To copy a feature right-click on a feature and select 'Copy feature'."));
+  else
+    try {
+      const copyObject: { queryTypeIri: string; match: Match } = JSON.parse(copiedString);
+      if (isObjectHasKeys(copyObject, ["queryTypeIri"]) && isObjectHasKeys(copyObject, ["match"])) {
+        if (copyObject.queryTypeIri !== queryTypeIri.value) throw new RangeError("Copied match does not have the same return type as the current query.");
+        if (!isArrayHasLength(query.value.match)) query.value.match = [];
+        copyObject.match["@id"] = v4();
+        query.value.match.push(copyObject.match);
+        toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value was pasted."));
+      }
+    } catch (error: any) {
+      if (error.name === "SyntaxError") toast.add(new ToastOptions(ToastSeverity.ERROR, "Copied value is not a valid match object."));
+      else if (error.name === "RangeError") toast.add(new ToastOptions(ToastSeverity.ERROR, error.message));
+      else throw error;
     }
 }
 

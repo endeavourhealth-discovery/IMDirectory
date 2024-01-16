@@ -5,6 +5,8 @@
       @update:search-loading="updateSearchLoading"
       :search-loading="searchLoading"
       @update:search-results="updateSearchResults"
+      v-model:loadMore="loadMore"
+      v-model:download="download"
     />
     <TabView :lazy="true" v-model:activeIndex="activeIndex">
       <TabPanel header="NavTree">
@@ -17,10 +19,14 @@
           @selected-updated="handleSearchResultSelected"
           @open-tree-panel="openTreePanel"
           :locateInTreeFunction="locateInTree"
+          @lazy-load-requested="lazyLoadRequested"
+          :lazy-loading="true"
+          :rows="100"
+          @download-requested="downloadRequested"
         />
       </TabPanel>
       <TabPanel header="JSON viewer">
-        <VueJsonPretty class="json" :path="'res'" :data="editorEntityDisplay" @click="handleClick" />
+        <VueJsonPretty class="json" :path="'res'" :data="editorEntityDisplay" />
       </TabPanel>
     </TabView>
   </div>
@@ -32,10 +38,10 @@ import VueJsonPretty from "vue-json-pretty";
 import NavTree from "@/components/shared/NavTree.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
-import { ConceptSummary } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash";
+import { SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   editorEntity: any;
@@ -43,12 +49,14 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const searchResults: Ref<any[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const activeIndex = ref(0);
-const selectedResult: Ref<ConceptSummary | undefined> = ref();
+const selectedResult: Ref<SearchResultSummary | undefined> = ref();
 const findInTreeIri = ref("");
 const editorEntityDisplay = ref();
+const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
+const download: Ref<{ term: string; count: number } | undefined> = ref();
 
 watch(
   () => cloneDeep(props.editorEntity),
@@ -78,12 +86,12 @@ function updateSearchLoading(data: boolean) {
   searchLoading.value = data;
 }
 
-function updateSearchResults(data: any[]) {
+function updateSearchResults(data: SearchResponse) {
   searchResults.value = data;
   openSearchPanel();
 }
 
-function handleSearchResultSelected(data: ConceptSummary) {
+function handleSearchResultSelected(data: SearchResultSummary) {
   selectedResult.value = data;
   findInTreeIri.value = data.iri;
   openTreePanel();
@@ -94,9 +102,12 @@ function locateInTree(event: any, iri: string) {
   if (activeIndex.value !== 0) openTreePanel();
 }
 
-function handleClick(data: any) {
-  console.log("click");
-  console.log(data);
+function lazyLoadRequested(event: any) {
+  loadMore.value = event;
+}
+
+function downloadRequested(data: { term: string; count: number }) {
+  download.value = data;
 }
 </script>
 

@@ -36,8 +36,7 @@
 import { ref } from "vue";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { SweetAlertResult } from "sweetalert2";
-import Swal from "sweetalert2";
+import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 

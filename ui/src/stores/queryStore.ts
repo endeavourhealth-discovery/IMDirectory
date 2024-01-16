@@ -10,10 +10,9 @@ export const useQueryStore = defineStore("query", {
     returnType: "",
     validationQueryRequest: {
       query: {
-        name: "Get queries by return type",
+        name: "Get by return type",
         match: [
           {
-            typeOf: { "@id": "http://endhealth.info/im#CohortQuery" },
             property: [
               {
                 "@id": "http://endhealth.info/im#returnType",

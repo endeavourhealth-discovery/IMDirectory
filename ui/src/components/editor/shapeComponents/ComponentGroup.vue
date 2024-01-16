@@ -1,6 +1,9 @@
 <template>
   <div class="component-group-container">
-    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+      <h2 v-if="showRequired" class="required">*</h2>
+    </div>
     <div class="label-container">
       <div v-for="(property, index) in properties" class="component-container">
         <component :is="processComponentType(property.componentType)" :shape="property" :value="processEntityValue(property)" :mode="mode" />
@@ -24,7 +27,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch, onMounted, inject } from "vue";
+import { PropType, ref, Ref, watch, onMounted, inject, computed, ComputedRef } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
@@ -49,6 +52,11 @@ watch(
 );
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 let properties: Ref<PropertyShape[]> = ref([]);
 
@@ -107,5 +115,16 @@ function setProperties(shape: PropertyShape) {
   top: 0;
   font-size: 0.75rem;
   color: var(--text-color);
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

@@ -17,7 +17,7 @@ import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeC
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { EntityService, QueryService } from "@/services";
+import { EntityService, FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
@@ -40,6 +40,7 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
@@ -60,15 +61,17 @@ if (forceValidation) {
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
-    async () => {
-      selectedEntity.value = await setSelectedEntity();
-      if (updateValidity) {
-        if (props.shape.builderChild) {
-          hasData();
-        } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        selectedEntity.value = await setSelectedEntity();
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
         }
-        showValidation.value = true;
       }
     }
   );
@@ -137,7 +140,7 @@ async function setSelectedEntity() {
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape, valueVariableMap?.value);
     if (args.filter(a => isObjectHasKeys(a, ["valueVariable"])).every(a => a.valueVariable)) {
-      const result = await QueryService.runFunction(props.shape.function!["@id"], args);
+      const result = await FunctionService.runFunction(props.shape.function!["@id"], args);
       if (isArrayHasLength(result)) return result[0];
       else return result;
     } else return { "@id": "", name: "" };

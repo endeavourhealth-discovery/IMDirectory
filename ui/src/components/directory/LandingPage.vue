@@ -59,7 +59,6 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
 import ActionButtons from "../shared/ActionButtons.vue";
@@ -73,8 +72,8 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { computed, Ref, ref, watch, onMounted } from "vue";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { computed, Ref, ref, watch, onMounted, defineComponent } from "vue";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
@@ -216,6 +215,7 @@ function locateInTree(iri: string) {
 .activity-container {
   flex: 1 1 auto;
   display: flex;
+  width: 100%;
   flex-flow: column nowrap;
   overflow: auto;
   padding: 1rem;

@@ -1,4 +1,4 @@
-import { Match, OrderLimit, Property } from "@/interfaces/AutoGen";
+import { Bool, Match, Operator, Order, OrderLimit, Property } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { Query } from "@/interfaces/AutoGen";
 
@@ -16,10 +16,9 @@ export const match: {
   withOneDirectPropertyOfIs: Match;
   withMultipleDirectProperties: Match;
   withOneNestedPropertyOfIs: Match;
-  withOneNestedPropertyOfInSet: Match;
 } = {
   withType: { typeOf: { "@id": "Patient" } },
-  withSet: { inSet: [{ "@id": "CSET_EmailOnlineEncounter" }] },
+  withSet: { is: [{ "@id": "CSET_EmailOnlineEncounter" }] },
   withInstance: { instanceOf: { "@id": "http://snomed.info/sct#325841000000109" } },
   withName: {
     name: "Text message consultation",
@@ -40,7 +39,7 @@ export const match: {
     ancestorsOf: true,
     "@id": "http://endhealth.info/im#1681000252102"
   },
-  withExclude: { exclude: true, inSet: [{ "@id": "http://endhealth.info/im#Q_Hypertensives" }] },
+  withExclude: { exclude: true, is: [{ "@id": "http://endhealth.info/im#Q_Hypertensives" }] },
   withVariable: {},
   withOneDirectPropertyOfRange: {
     property: [
@@ -48,13 +47,13 @@ export const match: {
         "@id": "http://endhealth.info/im#age",
         range: {
           from: {
-            operator: ">=",
+            operator: Operator.gte,
             value: "65",
             unit: "YEARS",
             relativeTo: null
           },
           to: {
-            operator: ">",
+            operator: Operator.gt,
             value: "70",
             unit: "YEARS",
             relativeTo: null
@@ -67,7 +66,7 @@ export const match: {
     property: [
       {
         "@id": "http://endhealth.info/im#statedGender",
-        inSet: [
+        is: [
           {
             "@id": "http://endhealth.info/im#905041000252107",
             name: "Female (stated gender)",
@@ -83,13 +82,13 @@ export const match: {
         "@id": "http://endhealth.info/im#age",
         range: {
           from: {
-            operator: ">=",
+            operator: Operator.gte,
             value: "65",
             unit: "YEARS",
             relativeTo: null
           },
           to: {
-            operator: ">",
+            operator: Operator.gt,
             value: "70",
             unit: "YEARS",
             relativeTo: null
@@ -128,27 +127,6 @@ export const match: {
         }
       }
     ]
-  },
-  withOneNestedPropertyOfInSet: {
-    property: [
-      {
-        "@id": "http://endhealth.info/im#observation",
-        match: {
-          typeOf: { "@id": "Observation" },
-          property: [
-            {
-              "@id": "http://endhealth.info/im#concept",
-              inSet: [
-                {
-                  "@id": "http://snomed.info/sct#714628002"
-                }
-              ],
-              valueLabel: "Prediabetes"
-            }
-          ]
-        }
-      }
-    ]
   }
 };
 
@@ -165,18 +143,18 @@ export const where: {
   last6Months: Property;
   last6MonthsWithValueLabel: Property;
 } = {
-  withNodeRefAndComparison: { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150", nodeRef: "latestBP" },
+  withNodeRefAndComparison: { "@id": "http://endhealth.info/im#numericValue", operator: Operator.gt, value: "150", nodeRef: "latestBP" },
   withRange: {
     "@id": "http://endhealth.info/im#age",
     range: {
       from: {
-        operator: ">=",
+        operator: Operator.gte,
         value: "65",
         unit: "YEARS",
         relativeTo: null
       },
       to: {
-        operator: ">",
+        operator: Operator.gt,
         value: "70",
         unit: "YEARS",
         relativeTo: null
@@ -208,25 +186,25 @@ export const where: {
     is: [{ "@id": "http://snomed.info/sct#271649006" }, { "@id": "http://endhealth.info/emis#1994021000006104" }],
     valueLabel: "Office or home systolic blood pressure"
   },
-  withComparison: { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150" },
+  withComparison: { "@id": "http://endhealth.info/im#numericValue", operator: Operator.gt, value: "150" },
   withNull: {
-    null: true
+    isNull: true
   },
   after: {
     "@id": "http://endhealth.info/im#effectiveDate",
-    operator: ">=",
+    operator: Operator.gte,
     relativeTo: { "@id": "http://endhealth.info/im#effectiveDate", nodeRef: "latestBP" }
   },
   last6Months: {
     "@id": "http://endhealth.info/im#effectiveDate",
-    operator: ">=",
+    operator: Operator.gte,
     value: "-6",
     unit: "MONTHS",
     relativeTo: { parameter: "$referenceDate" }
   },
   last6MonthsWithValueLabel: {
     "@id": "http://endhealth.info/im#effectiveDate",
-    operator: ">=",
+    operator: Operator.gte,
     value: "-6",
     unit: "MONTHS",
     relativeTo: { parameter: "$referenceDate" },
@@ -237,9 +215,15 @@ export const where: {
 export const orderBy: {
   getLatest: OrderLimit;
   getEarliest: OrderLimit;
+  getLatest3: OrderLimit;
+  getLatestFull: OrderLimit;
+  getLatest3Full: OrderLimit;
 } = {
-  getLatest: { direction: "descending", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" },
-  getEarliest: { direction: "ascending", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" }
+  getLatest: { property: [{ direction: Order.descending, "@id": "http://endhealth.info/im#effectiveDate" }], limit: 1 },
+  getEarliest: { property: [{ direction: Order.ascending, "@id": "http://endhealth.info/im#effectiveDate" }], limit: 1 },
+  getLatest3: { property: [{ direction: Order.descending, "@id": "http://endhealth.info/im#effectiveDate" }], limit: 3 },
+  getLatestFull: { property: [{ direction: Order.descending, "@id": "http://endhealth.info/im#endDate" }], limit: 1 },
+  getLatest3Full: { property: [{ direction: Order.descending, "@id": "http://endhealth.info/im#endDate" }], limit: 3 }
 };
 
 export const fullTestQueryDefinition: Query = {
@@ -247,7 +231,7 @@ export const fullTestQueryDefinition: Query = {
   name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
   match: [
     {
-      inSet: [
+      is: [
         {
           "@id": "http://endhealth.info/im#Q_RegisteredGMS",
           name: "Registered for GMS services on reference date"
@@ -262,14 +246,14 @@ export const fullTestQueryDefinition: Query = {
               "@id": "http://endhealth.info/im#age",
               range: {
                 from: {
-                  operator: ">=",
+                  operator: Operator.gte,
                   value: "65",
                   unit: "YEARS",
                   relativeTo: null,
                   dataType: null
                 },
                 to: {
-                  operator: ">",
+                  operator: Operator.gt,
                   value: "70",
                   unit: "YEARS",
                   relativeTo: null,
@@ -280,7 +264,7 @@ export const fullTestQueryDefinition: Query = {
           ]
         },
         {
-          inSet: [
+          is: [
             {
               "@id": "http://example/queries#Q_Diabetics"
             }
@@ -311,14 +295,14 @@ export const fullTestQueryDefinition: Query = {
           ]
         }
       ],
-      bool: "or"
+      bool: Bool.or
     },
     {
       property: [
         {
           "@id": "http://endhealth.info/im#observation",
           match: {
-            bool: "and",
+            bool: Bool.and,
             property: [
               {
                 "@id": "http://endhealth.info/im#concept",
@@ -339,7 +323,7 @@ export const fullTestQueryDefinition: Query = {
               },
               {
                 "@id": "http://endhealth.info/im#effectiveDate",
-                operator: ">=",
+                operator: Operator.gte,
                 value: "-6",
                 unit: "MONTHS",
                 relativeTo: {
@@ -348,13 +332,15 @@ export const fullTestQueryDefinition: Query = {
                 valueLabel: "last 6 months"
               }
             ],
-            orderBy: [
-              {
-                direction: "descending",
-                limit: 1,
-                "@id": "http://endhealth.info/im#effectiveDate"
-              }
-            ],
+            orderBy: {
+              property: [
+                {
+                  direction: Order.descending,
+                  "@id": "http://endhealth.info/im#effectiveDate"
+                }
+              ],
+              limit: 1
+            },
             typeOf: {
               "@id": "http://endhealth.info/im#Observation"
             },
@@ -367,7 +353,7 @@ export const fullTestQueryDefinition: Query = {
       nodeRef: "latestBP",
       match: [
         {
-          bool: "and",
+          bool: Bool.and,
           property: [
             {
               "@id": "http://endhealth.info/im#concept",
@@ -382,13 +368,13 @@ export const fullTestQueryDefinition: Query = {
             },
             {
               "@id": "http://endhealth.info/im#numericValue",
-              operator: ">",
+              operator: Operator.gt,
               value: "140"
             }
           ]
         },
         {
-          bool: "and",
+          bool: Bool.and,
           property: [
             {
               "@id": "http://endhealth.info/im#concept",
@@ -403,13 +389,13 @@ export const fullTestQueryDefinition: Query = {
             },
             {
               "@id": "http://endhealth.info/im#numericValue",
-              operator: ">",
+              operator: Operator.gt,
               value: "130"
             }
           ]
         }
       ],
-      bool: "or",
+      bool: Bool.or,
       variable: "highBPReading"
     },
     {
@@ -418,11 +404,11 @@ export const fullTestQueryDefinition: Query = {
         {
           "@id": "http://endhealth.info/im#observation",
           match: {
-            bool: "and",
+            bool: Bool.and,
             property: [
               {
                 "@id": "http://endhealth.info/im#concept",
-                inSet: [
+                is: [
                   {
                     "@id": "http://endhealth.info/im#InvitedForScreening"
                   }
@@ -430,7 +416,7 @@ export const fullTestQueryDefinition: Query = {
               },
               {
                 "@id": "http://endhealth.info/im#effectiveDate",
-                operator: ">=",
+                operator: Operator.gte,
                 relativeTo: {
                   "@id": "http://endhealth.info/im#effectiveDate",
                   nodeRef: "highBPReading"
@@ -446,7 +432,7 @@ export const fullTestQueryDefinition: Query = {
     },
     {
       exclude: true,
-      inSet: [
+      is: [
         {
           "@id": "http://endhealth.info/im#Q_Hypertensives",
           name: "Hypertensives"

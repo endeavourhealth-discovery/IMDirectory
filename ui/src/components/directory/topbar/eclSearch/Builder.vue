@@ -47,14 +47,13 @@
       </div>
     </div>
     <template #footer>
-      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="closeBuilderDialog" />
-      <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
+      <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" />
+      <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
@@ -65,7 +64,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted, computed, provide, readonly } from "vue";
+import { Ref, ref, watch, onMounted, provide, readonly, defineComponent } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
@@ -87,7 +86,7 @@ const emit = defineEmits({
 
 const toast = useToast();
 
-const build: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
+const build: Ref<any> = ref({ type: "BoolGroup", operator: "OR" });
 const includeTerms = ref(true);
 const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
@@ -124,7 +123,7 @@ watch(
 watch(includeTerms, () => generateQueryString());
 
 function createDefaultBuild() {
-  build.value = { type: "BoolGroup", conjunction: "AND" };
+  build.value = { type: "BoolGroup", conjunction: "OR" };
 }
 
 async function createBuildFromEclString(ecl: string) {

@@ -1,4 +1,4 @@
-import { Match, Query, Property, Assignable, OrderLimit } from "@im-library/interfaces/AutoGen";
+import { Match, Query, Property, Assignable, OrderLimit, Bool } from "@im-library/interfaces/AutoGen";
 import { SqlQuery } from "@/model/sql/SqlQuery";
 
 function IMQtoSQL(definition: Query): string {
@@ -44,11 +44,7 @@ function convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
   convertMatch(match, qry);
 
   if (match.orderBy) {
-    if (match.orderBy.length == 1) {
-      wrapMatchPartition(qry, match.orderBy[0]);
-    } else {
-      throw new Error("MULTIPLE ORDER PARTITIONS NOT SUPPORTED\n" + JSON.stringify(match.orderBy, null, 2));
-    }
+    wrapMatchPartition(qry, match.orderBy);
   }
 
   return qry;
@@ -63,8 +59,8 @@ function createMatchQuery(match: Match, qry: SqlQuery) {
 }
 
 function convertMatch(match: Match, qry: SqlQuery) {
-  if (match.inSet) {
-    convertMatchSet(qry, match);
+  if (match.is) {
+    convertMatchIs(qry, match);
   } else if (match.bool) {
     if (match.match && match.match.length > 0) convertMatchBoolSubMatch(qry, match);
     else if (match.property && match.property.length > 0) convertMatchProperties(qry, match);
@@ -75,7 +71,7 @@ function convertMatch(match: Match, qry: SqlQuery) {
     convertMatchProperties(qry, match);
   } else if (match.match && match.match.length > 0) {
     // Assume bool match "AND"
-    match.bool = "and";
+    match.bool = Bool.and;
     convertMatchBoolSubMatch(qry, match);
   } else {
     throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
@@ -83,7 +79,7 @@ function convertMatch(match: Match, qry: SqlQuery) {
 }
 
 function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
-  if (!order["@id"]) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + JSON.stringify(order, null, 2));
+  if (!order.property || order.property.length == 0) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + JSON.stringify(order, null, 2));
 
   const inner = qry.clone(qry.alias + "_inner");
 
@@ -92,9 +88,14 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
   const partition = qry.subQuery(qry.alias + "_inner", qry.alias + "_part");
   const partField = "patient";
 
-  const dir = order.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
+  let o = [];
 
-  partition.selects.push("*", "ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + partition.getFieldName(order["@id"]) + " " + dir + ") AS rn");
+  for (const p of order.property) {
+    const dir = p.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
+    o.push(partition.getFieldName(p["@id"] as string) + " " + dir);
+  }
+
+  partition.selects.push("*", "ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + o.join(", ") + ") AS rn");
 
   qry.initialize(qry.alias + "_part", qry.alias);
   qry.withs.push(innerSql);
@@ -102,11 +103,11 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
   qry.wheres.push("rn = 1");
 }
 
-function convertMatchSet(qry: SqlQuery, match: Match) {
-  if (!match.inSet) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
+function convertMatchIs(qry: SqlQuery, match: Match) {
+  if (!match.is) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
   const rsltTbl = qry.alias + "_rslt";
   qry.joins.push("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
-  qry.wheres.push(rsltTbl + ".iri = '" + match.inSet[0]["@id"] + "'");
+  qry.wheres.push(rsltTbl + ".iri = '" + match.is[0]["@id"] + "'");
 }
 
 function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
@@ -156,7 +157,7 @@ function convertMatchProperty(qry: SqlQuery, property: Property) {
     convertMatchPropertyRange(qry, property);
   } else if (property.match) {
     convertMatchPropertySubMatch(qry, property);
-  } else if (property.inSet) {
+  } else if (property.is) {
     convertMatchPropertyInSet(qry, property);
   } else if (property.relativeTo) {
     convertMatchPropertyRelative(qry, property);
@@ -164,7 +165,7 @@ function convertMatchProperty(qry: SqlQuery, property: Property) {
     convertMatchPropertyValue(qry, property);
   } else if (property.bool) {
     convertMatchPropertyBool(qry, property);
-  } else if (property.null) {
+  } else if (property.isNull) {
     convertMatchPropertyNull(qry, property);
   } else {
     throw new Error("UNHANDLED PROPERTY PATTERN\n" + JSON.stringify(property, null, 2));
@@ -268,13 +269,13 @@ function convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
 function convertMatchPropertyInSet(qry: SqlQuery, property: Property) {
   if (!property["@id"]) throw new Error("INVALID PROPERTY\n" + JSON.stringify(property, null, 2));
 
-  if (!property.inSet) {
+  if (!property.is) {
     throw new Error("INVALID MatchPropertyIn\n" + JSON.stringify(property, null, 2));
   }
 
   const inList = [];
 
-  for (const pIn of property.inSet) {
+  for (const pIn of property.is) {
     if (pIn["@id"]) inList.push(pIn["@id"]);
     else {
       throw new Error("UNHANDLED 'IN' ENTRY\n" + JSON.stringify(pIn, null, 2));

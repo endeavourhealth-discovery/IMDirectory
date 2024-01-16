@@ -10,11 +10,11 @@
         </div>
         <div class="flex flex-row gap-2 justify-content-end">
           <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
-          <QuickQuery :query="queryDefinition">
+          <!-- <QuickQuery :query="queryDefinition">
             <template #button="{ runQuickQuery }">
-              <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" />
+              <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" />
             </template>
-          </QuickQuery>
+          </QuickQuery> -->
         </div>
       </div>
     </div>
@@ -158,7 +158,7 @@ function updateEntity() {
   height: 60vh;
   overflow-y: auto;
   border: 1px solid var(--surface-border);
-  background-color: #ffffff;
+  background-color: var(--default);
 }
 
 .validate-error {

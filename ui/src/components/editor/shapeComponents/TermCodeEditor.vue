@@ -1,6 +1,9 @@
 <template>
   <div class="term-code-editor">
-    <label v-if="shape.showTitle">{{ shape.name }}</label>
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
     <div class="term-code-editor-container" :class="invalid && showValidation && 'invalid'">
       <div class="name-container">
         <label for="term-name">Name</label>
@@ -20,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -51,11 +54,14 @@ const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
+    codeComplete.value = true;
+    validationDone.value = true;
     if (updateValidity) {
       if (props.shape.builderChild) {
         isValidTermCode();
@@ -71,14 +77,16 @@ if (forceValidation) {
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
-    async () => {
-      if (updateValidity) {
-        if (props.shape.builderChild) {
-          isValidTermCode();
-        } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, oldValue, newValue)) {
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            isValidTermCode();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
         }
-        showValidation.value = true;
       }
     }
   );
@@ -87,13 +95,32 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 const filterStore = useFilterStore();
 const statusOptions = computed(() => filterStore.filterOptions.status);
 
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
+
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(false);
 const name = ref("");
 const code = ref("");
 const status: Ref<TTIriRef | undefined> = ref();
+const codeComplete = ref(false);
+const validationDone = ref(false);
+
+watch(props, newValue => {
+  if (props.value === undefined) {
+    name.value = "";
+    status.value = undefined;
+    code.value = "";
+  }
+});
+
 watch([name, code, status], async ([newName, newCode, newStatus], [oldName, oldCode, oldStatus]) => {
+  if ((name.value.length > 0 && code.value.length > 0 && status.value) || validationDone.value) {
+    codeComplete.value = true;
+  }
   updateEntity();
   if (updateValidity) {
     if (props.shape.builderChild) {
@@ -130,27 +157,35 @@ function isValidTermCode() {
     return;
   }
   if (props.shape.minCount === 0 && !name.value && !code.value && !status.value) return;
-  if (!name.value) {
-    invalid.value = true;
-    validationErrorMessage.value += "Missing name. ";
+  if (codeComplete.value) {
+    if (!name.value) {
+      invalid.value = true;
+      validationErrorMessage.value += "Missing name. ";
+    }
+    if (!code.value) {
+      invalid.value = true;
+      validationErrorMessage.value += "Missing code. ";
+    }
+    if (statusOptions.value.findIndex(so => so["@id"] === status.value?.["@id"]) === -1) {
+      invalid.value = true;
+      validationErrorMessage.value += "Missing status. ";
+    }
+    if (validationErrorMessage.value === "") validationErrorMessage.value = undefined;
   }
-  if (!code.value) {
-    invalid.value = true;
-    validationErrorMessage.value += "Missing code. ";
-  }
-  if (statusOptions.value.findIndex(so => so["@id"] === status.value?.["@id"]) === -1) {
-    invalid.value = true;
-    validationErrorMessage.value += "Missing status. ";
-  }
-  if (validationErrorMessage.value === "") validationErrorMessage.value = undefined;
 }
 
 function updateEntity() {
   if (entityUpdate) {
     const newTermCode = {} as any;
-    newTermCode[IM.CODE] = code.value;
-    newTermCode[IM.HAS_STATUS] = [status.value];
-    newTermCode[RDFS.LABEL] = name.value;
+    if (!name.value.length && !code.value.length && !status.value && deleteEntityKey) {
+      deleteEntityKey(IM.HAS_TERM_CODE);
+      codeComplete.value = false;
+    } else {
+      newTermCode[IM.CODE] = code.value;
+      newTermCode[IM.HAS_STATUS] = [status.value];
+      newTermCode[RDFS.LABEL] = name.value;
+    }
+
     const result = {} as any;
     result[props.shape.path["@id"]] = newTermCode;
     if (!code.value && !status.value && !name.value && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(props.shape.path["@id"]);
@@ -197,5 +232,15 @@ function updateEntity() {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

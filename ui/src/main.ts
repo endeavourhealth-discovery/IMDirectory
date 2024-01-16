@@ -13,6 +13,15 @@ declare module "axios" {
   }
 }
 
+declare module "vue-router" {
+  interface RouteMeta {
+    requiresLicense?: boolean;
+    transition?: string;
+    mode?: "in-out" | "out-in" | "default" | undefined;
+    transitionDelay?: string;
+  }
+}
+
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
@@ -91,6 +100,7 @@ import TreeSelect from "primevue/treeselect";
 import Inplace from "primevue/inplace";
 import TieredMenu from "primevue/tieredmenu";
 import TabMenu from "primevue/tabmenu";
+import Ripple from "primevue/ripple";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -120,6 +130,7 @@ const app = createApp(App)
   })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
+  .directive("ripple", Ripple)
   .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
   .component("Card", Card)
   .component("ProgressSpinner", ProgressSpinner)

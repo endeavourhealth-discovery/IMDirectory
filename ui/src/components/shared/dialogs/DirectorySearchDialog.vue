@@ -13,10 +13,13 @@
         <SearchBar
           v-model:searchResults="searchResults"
           v-model:searchLoading="searchLoading"
-          :searchByQuery="searchByQuery"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
           :selected="selected"
+          :filter-options="filterOptions"
+          v-model:loadMore="loadMore"
+          :filterDefaults="filterDefaults"
+          v-model:download="download"
         />
       </div>
       <div class="vertical-divider">
@@ -31,13 +34,16 @@
             :selected="selected"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
+            @lazy-load-requested="lazyLoadRequested"
+            :lazy-loading="true"
+            :rows="100"
+            @download-requested="downloadRequested"
           />
           <DirectoryDetails
             v-if="activePage === 1"
             :selected-iri="detailsIri"
             @locateInTree="locateInTree"
             @navigateTo="navigateTo"
-            :validationQuery="searchByQuery"
             :showSelectButton="true"
             v-model:history="history"
             @selected-updated="updateSelectedFromIri"
@@ -61,7 +67,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, Ref, computed } from "vue";
-import { ConceptSummary } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
@@ -70,8 +76,8 @@ import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import _, { cloneDeep } from "lodash";
-import { EntityService, QueryService } from "@/services";
-import { QueryRequest } from "@im-library/interfaces/AutoGen";
+import { EntityService, FunctionService, QueryService } from "@/services";
+import { FunctionRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
@@ -79,13 +85,17 @@ import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 interface Props {
   showDialog: boolean;
   searchByQuery?: QueryRequest;
-  selected?: ConceptSummary;
+  searchByFunction?: FunctionRequest;
+  selected?: SearchResultSummary;
   rootEntities?: string[];
+  filterOptions?: FilterOptions;
+  filterDefaults?: FilterOptions;
 }
 const props = defineProps<Props>();
 watch(
   () => props.showDialog,
   newValue => {
+    if (newValue === true) initSelection();
     visible.value = newValue;
   }
 );
@@ -101,6 +111,8 @@ const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
+const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
+const download: Ref<{ term: string; count: number } | undefined> = ref();
 
 const visible = ref(false);
 watch(visible, newValue => {
@@ -109,7 +121,7 @@ watch(visible, newValue => {
     resetDialog();
   }
 });
-const searchResults: Ref<ConceptSummary[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
 const detailsIri = ref("");
@@ -160,9 +172,9 @@ function initSelection() {
   }
 }
 
-function updateSelected(data: ConceptSummary) {
-  emit("update:selected", data);
-  visible.value = false;
+function updateSelected(data: SearchResultSummary) {
+  navigateTo(data.iri);
+  locateInTree(data.iri);
 }
 
 async function updateSelectedFromIri(iri: string) {
@@ -186,7 +198,7 @@ function navigateTo(iri: string) {
 }
 
 function resetDialog() {
-  searchResults.value = [];
+  searchResults.value = undefined;
   searchLoading.value = false;
   treeIri.value = "";
   detailsIri.value = "";
@@ -203,12 +215,24 @@ function showQuerySearch() {
 }
 
 async function getIsSelectableEntity(): Promise<boolean> {
-  if (!props.searchByQuery) return true;
-  const queryRequest = _.cloneDeep(props.searchByQuery);
-  queryRequest.textSearch = selectedName.value;
-  const queryResults = await QueryService.queryIM(queryRequest);
-  if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
-  return queryResults.entities.some(item => item["@id"] === detailsIri.value);
+  if (!props.searchByQuery && !props.searchByFunction) return true;
+  if (props.searchByQuery) {
+    const queryRequest = _.cloneDeep(props.searchByQuery);
+    queryRequest.textSearch = selectedName.value;
+    const queryResults = await QueryService.queryIM(queryRequest);
+    if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
+    return queryResults.entities.some(item => item["@id"] === detailsIri.value);
+  } else if (props.searchByFunction) {
+    const functionRequest: FunctionRequest = _.cloneDeep(props.searchByFunction);
+    if (functionRequest.arguments && isArrayHasLength(functionRequest.arguments)) {
+      const found = functionRequest.arguments.find(arg => arg.parameter === "searchIri");
+      if (found) found.valueData = detailsIri.value;
+      else functionRequest.arguments.push({ parameter: "searchIri", valueData: detailsIri.value });
+    } else functionRequest.arguments = [{ parameter: "searchIri", valueData: detailsIri.value }];
+    if (functionRequest.functionIri) {
+      return await FunctionService.runAskFunction(functionRequest);
+    } else return false;
+  } else return false;
 }
 
 async function getHasQueryDefinition() {
@@ -220,7 +244,15 @@ async function getHasQueryDefinition() {
 }
 
 function onEnter() {
-  if (isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
+  if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
+}
+
+function lazyLoadRequested(event: any) {
+  loadMore.value = event;
+}
+
+function downloadRequested(data: { term: string; count: number }) {
+  download.value = data;
 }
 </script>
 

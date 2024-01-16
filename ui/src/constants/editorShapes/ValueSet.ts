@@ -1,8 +1,8 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY } from "@im-library/vocabulary";
 
 const ValueSetShape: FormGenerator = {
-  "@id": IM.editor.VALUE_SET_SHAPE,
+  "@id": EDITOR.VALUE_SET_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -24,7 +24,7 @@ const ValueSetShape: FormGenerator = {
       minCount: 1,
       maxCount: 1,
       componentType: {
-        "@id": IM.component.HORIZONTAL_LAYOUT
+        "@id": COMPONENT.HORIZONTAL_LAYOUT
       },
       argument: [
         {
@@ -41,17 +41,16 @@ const ValueSetShape: FormGenerator = {
             "@id": RDF.TYPE
           },
           order: 1,
-          minCount: 1,
           maxCount: 1,
           componentType: {
-            "@id": IM.component.VERTICAL_LAYOUT
+            "@id": COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
               comment: "A property that auto generates the type as  concept type",
               order: 1,
               function: {
-                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -71,7 +70,7 @@ const ValueSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.ENTITY_COMBOBOX
+                "@id": COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -85,12 +84,12 @@ const ValueSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.IRI_BUILDER
+                "@id": COMPONENT.IRI_BUILDER
               },
               function: {
-                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
-              validation: { "@id": IM.validation.IS_IRI }
+              validation: { "@id": VALIDATION.IS_IRI }
             },
             {
               comment: "name or main term of concept",
@@ -103,15 +102,25 @@ const ValueSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_INPUT
+                "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
                 "@id": XSD.STRING
               }
             },
             {
-              comment: "optional description",
+              comment: "optional peferred name for efficiency during searching",
               order: 4,
+              name: "Preferred name",
+              showTitle: true,
+              maxCount: 1,
+              path: { "@id": IM.PREFERRED_NAME },
+              minCount: 0,
+              componentType: { "@id": COMPONENT.TEXT_INPUT }
+            },
+            {
+              comment: "optional description",
+              order: 5,
               datatype: {
                 "@id": XSD.STRING
               },
@@ -123,15 +132,15 @@ const ValueSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.HTML_INPUT
+                "@id": COMPONENT.HTML_INPUT
               }
             },
             {
               name: "Status",
               order: 6,
               path: { "@id": IM.HAS_STATUS },
-              componentType: { "@id": IM.component.ARRAY_BUILDER },
-              validation: { "@id": IM.validation.IS_STATUS },
+              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              validation: { "@id": VALIDATION.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
@@ -140,7 +149,7 @@ const ValueSetShape: FormGenerator = {
                   order: 6,
                   select: [
                     {
-                      "@id": IM.query.GET_DESCENDANTS
+                      "@id": QUERY.GET_DESCENDANTS
                     }
                   ],
                   name: "Status",
@@ -163,7 +172,7 @@ const ValueSetShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": IM.component.ENTITY_DROPDOWN
+                    "@id": COMPONENT.ENTITY_DROPDOWN
                   },
                   forceIsValue: true
                 }
@@ -176,7 +185,7 @@ const ValueSetShape: FormGenerator = {
                 "@id": RDFS.SUBCLASS_OF
               },
               validation: {
-                "@id": IM.validation.HAS_PARENT
+                "@id": VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
               property: [
@@ -185,15 +194,15 @@ const ValueSetShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_ENTITIES
+                      "@id": QUERY.SEARCH_SUBCLASS
                     }
                   ],
                   argument: [
                     {
-                      parameter: "this",
                       valueIri: {
-                        "@id": IM.CONCEPT
-                      }
+                        "@id": IM.VALUE_SET
+                      },
+                      parameter: "value"
                     }
                   ],
                   builderChild: true,
@@ -203,7 +212,7 @@ const ValueSetShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ],
@@ -211,7 +220,7 @@ const ValueSetShape: FormGenerator = {
               showTitle: true,
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             },
@@ -227,15 +236,15 @@ const ValueSetShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_FOLDERS
+                      "@id": QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
                     }
                   ],
                   argument: [
                     {
-                      parameter: "this",
                       valueIri: {
-                        "@id": IM.FOLDER
-                      }
+                        "@id": IM.VALUE_SET
+                      },
+                      parameter: "value"
                     }
                   ],
                   builderChild: true,
@@ -245,7 +254,7 @@ const ValueSetShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ],
@@ -253,7 +262,7 @@ const ValueSetShape: FormGenerator = {
               showTitle: true,
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             }
@@ -262,13 +271,14 @@ const ValueSetShape: FormGenerator = {
         {
           label: "Property group - set definition builder",
           name: "Definition",
+          showTitle: true,
           order: 2,
           minCount: 1,
           componentType: {
-            "@id": IM.component.SET_DEFINITION_BUILDER
+            "@id": COMPONENT.SET_DEFINITION_BUILDER
           },
           validation: {
-            "@id": IM.validation.IS_DEFINITION
+            "@id": VALIDATION.IS_DEFINITION
           },
           validationErrorMessage: "Set definition is not valid",
           path: {

@@ -47,7 +47,7 @@ export default class GithubController {
         return await getGithubConfig(CONFIG.IMPORT_DATA_LATEST_RELEASE);
       } else throw new Error(`Invalid repo name: ${repo}`);
     } catch (e) {
-      if (e instanceof CustomError && e.errorType === ErrorType.ConfigNotFoundError) {
+      if (e instanceof CustomError && (e.errorType === ErrorType.ConfigNotFoundError || e.errorType === ErrorType.InvalidJsonError)) {
         await setGithubConfig();
         return await this.getLatestRelease(req, res, next, attempt ? attempt + 1 : 1);
       } else {
@@ -67,7 +67,7 @@ export default class GithubController {
         return await getGithubConfig(CONFIG.IMPORT_DATA_ALL_RELEASES);
       } else throw new Error(`Invalid repo name: ${repo}`);
     } catch (e) {
-      if (e instanceof CustomError && e.errorType === ErrorType.ConfigNotFoundError) {
+      if (e instanceof CustomError && (e.errorType === ErrorType.ConfigNotFoundError || e.errorType === ErrorType.InvalidJsonError)) {
         await setGithubConfig();
         return await this.getReleases(req, res, next, attempt ? attempt + 1 : 1);
       } else throw e;

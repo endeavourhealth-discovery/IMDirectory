@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show && data && isArrayObjectWithName" :id="id" :style="{ width: size }">
+  <div v-if="data && isArrayObjectWithName" :id="id" :style="{ width: size }">
     <div class="head-container">
       <strong class="label" data-testid="label">{{ label }}: </strong>
       <span data-testid="count">&nbsp;({{ data.length }})</span>
@@ -51,7 +51,6 @@ interface Props {
   data?: unknown[];
   size?: string;
   id?: string;
-  show: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {

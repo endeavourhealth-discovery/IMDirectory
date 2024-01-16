@@ -3,12 +3,12 @@
     <Toast />
     <ConfirmDialog />
     <DynamicDialog class="dynamic-dialog" />
-    <ReleaseNotes v-if="!loading && showReleaseNotes" />
+    <ReleaseNotes v-if="!viewsLoading && showReleaseNotes" />
     <CookiesConsent />
     <SnomedConsent />
     <div id="main-container">
-      <BannerBar v-if="!loading && showBanner" :latestRelease="latestRelease" />
-      <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
+      <BannerBar v-if="!viewsLoading && showBanner" :latestRelease="latestRelease" />
+      <div v-if="viewsLoading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
       <router-view v-else />
@@ -23,28 +23,28 @@ import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
 import FooterBar from "./components/app/FooterBar.vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Env, GithubService, UserService } from "@/services";
+import { GithubService, UserService } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
 import semver from "semver";
-import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import setupChangeTheme from "@/composables/setupChangeTheme";
+import { useLoadingStore } from "./stores/loadingStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
-const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const loadingStore = useLoadingStore();
 
 const { changeTheme } = setupChangeTheme();
 
@@ -53,6 +53,7 @@ const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
 const currentTheme = computed(() => userStore.currentTheme);
+const viewsLoading = computed(() => loadingStore.viewsLoading);
 
 watch(
   () => currentTheme.value,
@@ -62,10 +63,9 @@ watch(
 );
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
-const loading = ref(true);
 
 onMounted(async () => {
-  loading.value = true;
+  loadingStore.updateViewsLoading(true);
   await userStore.authenticateCurrentUser();
   await userStore.getAllFromUserDatabase();
   let theme = "saga-blue";
@@ -73,14 +73,14 @@ onMounted(async () => {
   if (currentTheme.value) theme = currentTheme.value;
   changeTheme(theme);
   await setShowBanner();
-  loading.value = false;
+  loadingStore.updateViewsLoading(false);
 });
 
 async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
   latestRelease.value = await GithubService.getLatestRelease("IMDirectory");
   let currentVersion = "v0.0.0";
-  if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
+  if (latestRelease.value?.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
     sharedStore.updateShowBanner(true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
@@ -93,10 +93,6 @@ function getLocalVersion(repoName: string): string | null {
   return localStorage.getItem(repoName + "Version");
 }
 
-function setLocalVersion(repoName: string, versionNo: string) {
-  localStorage.setItem(repoName + "Version", versionNo);
-}
-
 async function setupAxiosInterceptors(axios: any) {
   axios.interceptors.request.use(async (request: any) => {
     if (isLoggedIn.value) {
@@ -107,40 +103,20 @@ async function setupAxiosInterceptors(axios: any) {
   });
 
   axios.interceptors.response.use(
-    (response: any) => {
+    async (response: any) => {
       return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
     },
-    (error: any) => {
-      if (error?.response?.config?.raw) return Promise.reject(error);
+    async (error: any) => {
+      if (error?.response?.config?.raw) {
+        if (error?.config?.responseType === "blob" && error?.response?.data) {
+          error.response.data = JSON.parse(await error.response.data.text());
+          return Promise.reject(error);
+        } else return Promise.reject(error);
+      }
       if (error?.response?.status === 403) {
-        if (error.response.data) {
-          toast.add({
-            severity: "error",
-            summary: "Access denied",
-            detail: error.response.data.debugMessage
-          });
-        } else if (error.config.url) {
-          toast.add({
-            severity: "error",
-            summary: "Access denied",
-            detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-          });
-        } else {
-          toast.add({
-            severity: "error",
-            summary: "Access denied"
-          });
-        }
+        handle403(error);
       } else if (error?.response?.status === 401) {
-        toast.add({
-          severity: "error",
-          summary: "Access denied",
-          detail:
-            "Insufficient clearance to access " +
-            error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
-            ". Please contact an admin to change your account security clearance if you require access to this resource."
-        });
-        router.push({ name: "AccessDenied" }).then();
+        handle401(error);
       } else if (error?.response?.data?.code && error?.response?.status > 399 && error?.response?.status < 500) {
         console.error(error.response.data);
         toast.add({
@@ -157,6 +133,39 @@ async function setupAxiosInterceptors(axios: any) {
       }
     }
   );
+}
+
+function handle401(error: any) {
+  toast.add({
+    severity: "error",
+    summary: "Access denied",
+    detail:
+      "Insufficient clearance to access " +
+      error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
+      ". Please contact an admin to change your account security clearance if you require access to this resource."
+  });
+  router.push({ name: "AccessDenied" }).then();
+}
+
+function handle403(error: any) {
+  if (error.response.data) {
+    toast.add({
+      severity: "error",
+      summary: "Access denied",
+      detail: error.response.data.debugMessage
+    });
+  } else if (error.config.url) {
+    toast.add({
+      severity: "error",
+      summary: "Access denied",
+      detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+    });
+  } else {
+    toast.add({
+      severity: "error",
+      summary: "Access denied"
+    });
+  }
 }
 
 function setupExternalErrorHandler() {

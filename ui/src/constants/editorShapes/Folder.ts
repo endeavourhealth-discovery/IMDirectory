@@ -1,8 +1,8 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, VALIDATION, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
 
 const FolderShape: FormGenerator = {
-  "@id": IM.editor.FOLDER_SHAPE,
+  "@id": EDITOR.FOLDER_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -21,10 +21,9 @@ const FolderShape: FormGenerator = {
       path: {
         "@id": RDF.PROPERTY
       },
-      minCount: 1,
       maxCount: 1,
       componentType: {
-        "@id": IM.component.HORIZONTAL_LAYOUT
+        "@id": COMPONENT.HORIZONTAL_LAYOUT
       },
       argument: [
         {
@@ -38,8 +37,7 @@ const FolderShape: FormGenerator = {
           comment: "Vertical splitter",
           path: { "@id": IM.FOLDER },
           showTitle: true,
-          componentType: { "@id": IM.component.VERTICAL_LAYOUT },
-          minCount: 1,
+          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
           maxCount: 1,
           order: 1,
           property: [
@@ -47,7 +45,7 @@ const FolderShape: FormGenerator = {
               comment: "A property that auto generates the type as folder type",
               order: 1,
               function: {
-                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -67,7 +65,7 @@ const FolderShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.ENTITY_COMBOBOX
+                "@id": COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -81,13 +79,13 @@ const FolderShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.IRI_BUILDER
+                "@id": COMPONENT.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
-              validation: { "@id": IM.validation.IS_IRI }
+              validation: { "@id": VALIDATION.IS_IRI }
             },
             {
               comment: "name or main term of entity",
@@ -100,11 +98,21 @@ const FolderShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_INPUT
+                "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
                 "@id": XSD.STRING
               }
+            },
+            {
+              comment: "optional peferred name for efficiency during searching",
+              order: 4,
+              name: "Preferred name",
+              showTitle: true,
+              maxCount: 1,
+              path: { "@id": IM.PREFERRED_NAME },
+              minCount: 0,
+              componentType: { "@id": COMPONENT.TEXT_INPUT }
             },
             {
               comment: "optional description",
@@ -120,15 +128,15 @@ const FolderShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": IM.component.HTML_INPUT
+                "@id": COMPONENT.HTML_INPUT
               }
             },
             {
               name: "Status",
               order: 6,
               path: { "@id": IM.HAS_STATUS },
-              componentType: { "@id": IM.component.ARRAY_BUILDER },
-              validation: { "@id": IM.validation.IS_STATUS },
+              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              validation: { "@id": VALIDATION.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
@@ -137,7 +145,7 @@ const FolderShape: FormGenerator = {
                   order: 6,
                   select: [
                     {
-                      "@id": IM.query.GET_DESCENDANTS
+                      "@id": QUERY.GET_DESCENDANTS
                     }
                   ],
                   name: "Status",
@@ -160,57 +168,11 @@ const FolderShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": IM.component.ENTITY_DROPDOWN
+                    "@id": COMPONENT.ENTITY_DROPDOWN
                   },
                   forceIsValue: true
                 }
               ]
-            },
-            {
-              label: "Property group - Sub type array builder",
-              order: 1,
-              path: {
-                "@id": RDFS.SUBCLASS_OF
-              },
-              validation: {
-                "@id": IM.validation.HAS_PARENT
-              },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_ENTITIES
-                    }
-                  ],
-                  argument: [
-                    {
-                      parameter: "this",
-                      valueIri: {
-                        "@id": IM.CONCEPT
-                      }
-                    }
-                  ],
-                  builderChild: true,
-                  name: "Entity",
-                  path: {
-                    "@id": RDFS.SUBCLASS_OF
-                  },
-                  minCount: 0,
-                  componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
-                  }
-                }
-              ],
-              name: "Subclass of",
-              showTitle: true,
-              minCount: 0,
-              componentType: {
-                "@id": IM.component.ARRAY_BUILDER
-              },
-              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             },
             {
               label: "Property group - Contained in array builder",
@@ -224,7 +186,7 @@ const FolderShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_FOLDERS
+                      "@id": QUERY.SEARCH_FOLDERS
                     }
                   ],
                   argument: [
@@ -242,7 +204,7 @@ const FolderShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ],
@@ -250,7 +212,7 @@ const FolderShape: FormGenerator = {
               showTitle: true,
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             }
@@ -261,7 +223,7 @@ const FolderShape: FormGenerator = {
           showTitle: true,
           comment: "Vertical splitter",
           path: { "@id": IM.FOLDER },
-          componentType: { "@id": IM.component.VERTICAL_LAYOUT },
+          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
           minCount: 1,
           maxCount: 1,
           order: 1,
@@ -278,7 +240,7 @@ const FolderShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_CONTAINED_IN
+                      "@id": QUERY.SEARCH_CONTAINED_IN
                     }
                   ],
                   argument: [
@@ -296,14 +258,14 @@ const FolderShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ],
               name: "Content type",
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             }

@@ -1,7 +1,10 @@
 <template>
   <div class="property-builder">
-    <h2 class="title">Properties</h2>
-    <div class="error-message-container" :class="validationErrorMessage ? 'error-message-container-highlight' : ''">
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
+      <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
+    </div>
+    <div class="error-message-container" :class="invalid && showValidation ? 'error-message-container-highlight' : ''">
       <div class="children-container">
         <table>
           <template v-for="(row, index) in dmProperties" class="property">
@@ -15,7 +18,7 @@
                   placeholder="Select property"
                   v-model="row.path"
                   :suggestions="pathSuggestions"
-                  @complete="searchPath"
+                  @complete="debounce($event, searchPath, debouncePath)"
                   @drop="pathDrop(row, $event)"
                   @itemSelect="selectPath(row, $event)"
                   @clear="selectPath(row)"
@@ -23,7 +26,7 @@
                   @dragenter.prevent
                   :disabled="row.inherited && row.inherited.length > 0"
                 ></AutoComplete>
-                <div v-if="row.error" class="error-message-text">{{ row.error }}</div>
+                <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
               <td class="td-50">
                 <AutoComplete
@@ -34,7 +37,7 @@
                   placeholder="Select range"
                   v-model="row.range"
                   :suggestions="rangeSuggestions"
-                  @complete="searchRange"
+                  @complete="debounce($event, searchRange, debounceRange)"
                   @drop="rangeDrop(row, $event)"
                   @itemSelect="selectRange(row, $event)"
                   @clear="selectRange(row)"
@@ -51,44 +54,51 @@
                     v-model="row.required"
                     onLabel="Required"
                     offLabel="Required"
-                    onIcon="pi pi-check"
-                    offIcon="pi pi-times"
+                    onIcon="fa-solid fa-check"
+                    offIcon="fa-solid fa-xmark"
                   />
-                  <ToggleButton class="toggle-button" v-model="row.unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+                  <ToggleButton
+                    class="toggle-button"
+                    v-model="row.unique"
+                    onLabel="Unique"
+                    offLabel="Unique"
+                    onIcon="fa-solid fa-check"
+                    offIcon="fa-solid fa-xmark"
+                  />
                   <Button
-                    icon="pi pi-chevron-up"
+                    icon="fa-solid fa-chevron-up"
                     class="p-button-rounded p-button-text"
                     @click="moveUp(index)"
                     :disabled="index == 0 || dmProperties[index - 1].inherited != undefined"
                   />
                   <Button
-                    icon="pi pi-chevron-down"
+                    icon="fa-solid fa-chevron-down"
                     class="p-button-rounded p-button-text"
                     @click="moveDown(index)"
                     :disabled="index == dmProperties.length - 1"
                   />
-                  <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
+                  <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
                 </span>
               </td>
             </tr>
           </template>
         </table>
         <div class="buttonGroup">
-          <Button icon="pi pi-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
+          <Button icon="fa-solid fa-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
         </div>
       </div>
-      <span v-if="validationErrorMessage" class="error-message-text">{{ validationErrorMessage }}</span>
+      <span v-if="invalid && showValidation" class="error-message-text">{{ validationErrorMessage }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { inject, onMounted, Ref, ref, watch } from "vue";
+import { Argument, PropertyShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { AutoCompleteCompleteEvent, AutoCompleteItemSelectEvent } from "primevue/autocomplete";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { DirectService, EntityService, QueryService } from "@/services";
@@ -116,17 +126,32 @@ const toast = useToast();
 const props = defineProps<Props>();
 const directService = new DirectService();
 
+const debouncePath = ref(0);
+const debounceRange = ref(0);
+
+const showValidation = ref(false);
+
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 if (forceValidation) {
-  watch(forceValidation, () => {
-    validateEntity();
+  watch(forceValidation, async () => {
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
   });
 }
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const dmProperties: Ref<SimpleProp[]> = ref([]);
 const loading = ref(true);
@@ -206,6 +231,7 @@ function deleteProperty(index: number) {
     newData.splice(index, 1);
 
     dmProperties.value = newData;
+    update();
   }
 }
 
@@ -240,7 +266,7 @@ function moveDown(index: number) {
 async function searchPath(event: AutoCompleteCompleteEvent) {
   const ps: TTIriRef[] = [];
 
-  if (event.query) {
+  if (event.query && event.query.length > 2) {
     const request: QueryRequest = {
       textSearch: event.query,
       query: {
@@ -254,11 +280,18 @@ async function searchPath(event: AutoCompleteCompleteEvent) {
         ]
       }
     };
-    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    const results: SearchResponse = await QueryService.queryIMSearch(request);
+    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   pathSuggestions.value = ps;
+}
+
+function debounce(event: AutoCompleteCompleteEvent, searchFunction: Function, debounceTimer: number): void {
+  clearTimeout(debounceTimer);
+  debounceTimer = window.setTimeout(() => {
+    searchFunction(event);
+  }, 600);
 }
 
 async function selectPath(row: any, event?: AutoCompleteItemSelectEvent) {
@@ -321,7 +354,7 @@ async function isValidPath(iri: string): Promise<boolean> {
 async function searchRange(event: AutoCompleteCompleteEvent) {
   const ps: TTIriRef[] = [];
 
-  if (event.query) {
+  if (event.query && event.query.length > 2) {
     const request: QueryRequest = {
       textSearch: event.query,
       query: {
@@ -330,7 +363,11 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
           {
             property: [
               {
-                "@id": IM.SCHEME,
+                "@id": RDF.TYPE,
+                is: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }, { "@id": IM.CONCEPT }, { "@id": SHACL.NODESHAPE }, { "@id": RDFS.DATATYPE }]
+              },
+              {
+                "@id": IM.HAS_SCHEME,
                 is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
               }
             ]
@@ -338,8 +375,8 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
         ]
       }
     };
-    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    const results: SearchResponse = await QueryService.queryIMSearch(request);
+    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
 
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
@@ -400,7 +437,7 @@ async function isValidRange(iri: string): Promise<boolean> {
           },
           property: [
             {
-              "@id": IM.SCHEME,
+              "@id": IM.HAS_SCHEME,
               is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
             }
           ]
@@ -492,5 +529,17 @@ function updateEntity() {
 .td-nw {
   white-space: nowrap;
   vertical-align: top;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

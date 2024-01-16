@@ -3,22 +3,24 @@ import QueryService from "@/services/query.service";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { TTIriRef } from "../interfaces/AutoGen";
-import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, RDFS, SHACL, VALIDATION, QUERY } from "@im-library/vocabulary";
 import axios from "axios";
 
 export default class Validator {
   constructor() {}
+
   entityService: EntityService = new EntityService(axios);
   queryService: QueryService = new QueryService(axios);
 
   public async validate(iri: string, data: any): Promise<{ isValid: boolean; message?: string }> {
-    if (iri === IM.validation.HAS_PARENT) return this.hasValidParents(data);
-    if (iri === IM.validation.IS_DEFINITION) return this.isValidDefinition(data);
-    if (iri === IM.validation.IS_IRI) return this.isValidIri(data);
-    if (iri === IM.validation.IS_TERMCODE) return this.isValidTermcodes(data);
-    if (iri === IM.validation.IS_PROPERTY) return this.isValidProperties(data);
-    if (iri === IM.validation.IS_SCHEME) return await this.isValidScheme(data);
-    if (iri === IM.validation.IS_STATUS) return await this.isValidStatus(data);
+    if (iri === VALIDATION.HAS_PARENT) return this.hasValidParents(data);
+    if (iri === VALIDATION.IS_DEFINITION) return this.isValidDefinition(data);
+    if (iri === VALIDATION.IS_IRI) return this.isValidIri(data);
+    if (iri === VALIDATION.IS_TERMCODE) return this.isValidTermcodes(data);
+    if (iri === VALIDATION.IS_PROPERTY) return this.isValidProperties(data);
+    if (iri === VALIDATION.IS_SCHEME) return await this.isValidScheme(data);
+    if (iri === VALIDATION.IS_STATUS) return await this.isValidStatus(data);
+    if (iri === VALIDATION.IS_ROLE_GROUP) return await this.isValidRoleGroups(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -38,6 +40,10 @@ export default class Validator {
       isArrayHasLength(data[IM.IS_CONTAINED_IN]) &&
       data[IM.IS_CONTAINED_IN].every((item: any) => isTTIriRef(item))
     ) {
+      valid = true;
+      message = undefined;
+    }
+    if (isObjectHasKeys(data, [IM.IS_SUBSET_OF]) && isArrayHasLength(data[IM.IS_SUBSET_OF]) && data[IM.IS_SUBSET_OF].every((item: any) => isTTIriRef(item))) {
       valid = true;
       message = undefined;
     }
@@ -78,12 +84,15 @@ export default class Validator {
           const splits = data[IM.ID].split("#");
           if (splits.length !== 2) message = "Iri contains invalid character '#' within identifier.";
           else if (!/^http:\/\/[a-zA-Z]+\.[a-zA-Z]+\/[a-zA-Z]+#$/.test(splits[0] + "#")) message = "Iri url is invalid.";
+          else if (!splits[1]) message = "Iri must have a code.";
           else if (encodeURIComponent(splits[1]) !== splits[1]) {
             const invalidCharactersEncoded = encodeURIComponent(splits[1]).match(/%[0-9a-zA-Z]{2}/g);
             if (invalidCharactersEncoded) {
               const invalidCharactersDecoded = invalidCharactersEncoded.map(char => decodeURIComponent(char));
               message = "Iri identifier contains invalid characters: " + JSON.stringify(invalidCharactersDecoded);
             }
+          } else if (["CSET_"].includes(splits[1])) {
+            message = "Iri missing code after prefix: " + splits[1];
           } else {
             valid = true;
             message = undefined;
@@ -150,15 +159,21 @@ export default class Validator {
   }
 
   private isValidTermCode(data: any): boolean {
-    return isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL];
+    let valid = false;
+    if (isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL]) {
+      if (data[IM.HAS_STATUS] && data[IM.HAS_STATUS].length === 1) {
+        if (null !== data[IM.HAS_STATUS][0]) valid = true;
+      }
+    }
+    return valid;
   }
 
   private async isValidScheme(data: any): Promise<{ isValid: boolean; message?: string }> {
     let valid = false;
     let message: string | undefined = "Scheme is invalid";
     const schemes = await this.entityService.getEntityChildren(IM.GRAPH);
-    if (isObjectHasKeys(data, [IM.SCHEME]) && isArrayHasLength(data[IM.SCHEME]) && isTTIriRef(data[IM.SCHEME][0])) {
-      if (schemes.findIndex(s => s["@id"] === data[IM.SCHEME][0]["@id"]) !== -1) {
+    if (isObjectHasKeys(data, [IM.HAS_SCHEME]) && isArrayHasLength(data[IM.HAS_SCHEME]) && isTTIriRef(data[IM.HAS_SCHEME][0])) {
+      if (schemes.findIndex(s => s["@id"] === data[IM.HAS_SCHEME][0]["@id"]) !== -1) {
         valid = true;
         message = undefined;
       }
@@ -179,7 +194,7 @@ export default class Validator {
         }
       ],
       query: {
-        "@id": IM.query.GET_DESCENDANTS
+        "@id": QUERY.GET_DESCENDANTS
       }
     };
     const statuses = await this.queryService.queryIM(queryReq);
@@ -195,5 +210,24 @@ export default class Validator {
       }
     }
     return { isValid: valid, message: message };
+  }
+
+  private isValidRoleGroups(data: any): { isValid: boolean; message?: string } {
+    if (!isObjectHasKeys(data, [IM.ROLE_GROUP])) return { isValid: true };
+
+    for (let group in data[IM.ROLE_GROUP]) {
+      if (isObjectHasKeys(data[IM.ROLE_GROUP][group], [IM.GROUP_NUMBER])) {
+        if (Object.keys(data[IM.ROLE_GROUP][group]).length <= 1) {
+          return { isValid: false, message: "1 or more role groups are invalid." };
+        } else {
+          for (let roles in data[IM.ROLE_GROUP][group]) {
+            if (null === data[IM.ROLE_GROUP][group][roles]["@id"] || "" === data[IM.ROLE_GROUP][group][roles].name) {
+              return { isValid: false, message: "1 or more role groups are invalid." };
+            }
+          }
+        }
+      }
+    }
+    return { isValid: true };
   }
 }

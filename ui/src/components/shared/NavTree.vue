@@ -48,26 +48,27 @@ import { computed, ref, Ref, watch, onMounted, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import OverlaySummary from "./OverlaySummary.vue";
 import { useToast } from "primevue/usetoast";
-import { ConceptSummary } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 interface Props {
   allowDragAndDrop?: boolean;
   allowRightClick?: boolean;
   rootEntities?: string[];
   selectedIri?: string;
+  findInTree?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowRightClick: false, allowDragAndDrop: false });
@@ -82,6 +83,7 @@ const toast = useToast();
 const confirm = useConfirm();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
@@ -91,6 +93,7 @@ const {
   selectedKeys,
   selectedNode,
   expandedKeys,
+  expandedData,
   pageSize,
   createTreeNode,
   createLoadMoreNode,
@@ -107,7 +110,7 @@ const {
 const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 
 const loading = ref(true);
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const overlayLocation: Ref<any> = ref({});
 const items: Ref<any[]> = ref([]);
 const newFolder: Ref<null | TreeNode> = ref(null);
@@ -115,17 +118,18 @@ const newFolderName = ref("");
 
 const creating = ref(false);
 const newFolderIcon = computed(() => {
-  if (creating.value) return "pi pi-spin pi-spinner";
-  else return fontAwesomePro.value ? "fa-solid fa-check" : "pi pi-check";
+  if (creating.value) return "fa-solid fa-spinner";
+  else return "fa-solid fa-check";
 });
 
 const menu = ref();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
-  () => props.selectedIri,
+  () => props.findInTree,
   async newValue => {
-    if (newValue) await findPathToNode(newValue, loading, "hierarchy-tree-bar-container");
+    if (newValue && props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
+    directoryStore.updateFindInTreeBoolean(false);
   }
 );
 
@@ -136,6 +140,15 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (isObjectHasKeys(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
     hideOverlay(overlayLocation.value);
+  }
+});
+
+document.addEventListener("visibilitychange", function () {
+  if (!document.hidden) {
+    expandedKeys.value = {};
+    for (let newNode in expandedData.value) {
+      onNodeExpand(expandedData.value[newNode]);
+    }
   }
 });
 
@@ -177,31 +190,34 @@ async function onNodeContext(event: any, node: any) {
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
 
-  if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
-    items.value.push({
-      label: "Move selection here",
-      icon: "fa-solid fa-fw fa-file-import",
-      command: () => {
-        confirmMove(node);
-      }
-    });
-    items.value.push({
-      label: "Add selection here",
-      icon: "fa-solid fa-fw fa-copy",
-      command: () => {
-        confirmAdd(node);
-      }
-    });
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.key && node.key !== selectedNode.value.key && node.typeIcon.includes("fa-folder")) {
+    const isOwnDescendant = await EntityService.getPathBetweenNodes(node.key, selectedNode.value.key);
+    if (isOwnDescendant.findIndex(pathItem => pathItem["@id"] === selectedNode.value.key) === -1) {
+      items.value.push({
+        label: "Move selection here",
+        icon: "fa-solid fa-fw fa-file-import",
+        command: () => {
+          confirmMove(node);
+        }
+      });
+      items.value.push({
+        label: "Add selection here",
+        icon: "fa-solid fa-fw fa-copy",
+        command: () => {
+          confirmAdd(node);
+        }
+      });
+    }
   }
   if (items.value.length > 0) menu.value.show(event);
 }
 
 function confirmMove(node: TreeNode) {
-  if (selectedNode.value) {
+  if (isObjectHasKeys(selectedNode.value)) {
     confirm.require({
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         moveConcept(node);
       },
@@ -213,7 +229,7 @@ function confirmMove(node: TreeNode) {
 }
 
 async function moveConcept(target: TreeNode) {
-  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
     try {
       await FilerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
       toast.add({ severity: "success", summary: "Move", detail: 'Moved "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
@@ -227,11 +243,11 @@ async function moveConcept(target: TreeNode) {
 }
 
 function confirmAdd(node: TreeNode) {
-  if (selectedNode.value) {
+  if (isObjectHasKeys(selectedNode.value)) {
     confirm.require({
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         addConcept(node);
       },
@@ -243,7 +259,7 @@ function confirmAdd(node: TreeNode) {
 }
 
 async function addConcept(target: TreeNode) {
-  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
     try {
       await FilerService.addToFolder(selectedNode.value.key, target.key);
       toast.add({ severity: "success", summary: "Add", detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
@@ -270,6 +286,7 @@ async function createFolder() {
   } finally {
     newFolder.value = null;
     creating.value = false;
+    await onNodeExpand(selectedNode.value);
   }
 }
 

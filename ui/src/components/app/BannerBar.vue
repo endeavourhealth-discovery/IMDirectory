@@ -11,7 +11,6 @@
 
 <script setup lang="ts">
 import { GithubRelease } from "@im-library/interfaces";
-import { PropType } from "vue";
 import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {

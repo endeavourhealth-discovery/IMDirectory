@@ -1,19 +1,9 @@
 import { IM } from "@im-library/vocabulary";
-import {
-  EntityReferenceNode,
-  FiltersAsIris,
-  TTBundle,
-  TermCode,
-  Namespace,
-  ExportValueSet,
-  ConceptSummary,
-  FilterOptions,
-  PropertyDisplay
-} from "@im-library/interfaces";
-import { TTIriRef, SearchRequest } from "@im-library/interfaces/AutoGen";
+import { EntityReferenceNode, FiltersAsIris, TTBundle, TermCode, Namespace, ExportValueSet, FilterOptions, PropertyDisplay } from "@im-library/interfaces";
+import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { OrganizationChartNode } from "primevue/organizationchart";
@@ -39,14 +29,10 @@ const EntityService = {
     ownRow: boolean,
     im1id: boolean,
     format: string,
-    schemes: string[]
+    schemes: string[],
+    raw?: boolean
   ): Promise<any> {
-    const client = axios.create({
-      baseURL: api,
-      timeout: 0
-    });
-
-    return client.get("api/entity/public/setExport", {
+    return axios.get(api + "api/entity/public/setExport", {
       params: {
         iri: iri,
         definition: definition,
@@ -58,7 +44,8 @@ const EntityService = {
         format: format,
         schemes: schemes.join(",")
       },
-      responseType: "blob"
+      responseType: "blob",
+      raw: raw
     });
   },
 
@@ -125,7 +112,7 @@ const EntityService = {
     });
   },
 
-  async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<ConceptSummary[]> {
+  async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<SearchResponse> {
     return axios.post(api + "api/entity/public/search", request, {
       signal: controller?.signal
     });
@@ -261,7 +248,7 @@ const EntityService = {
     });
   },
 
-  async getEntitySummary(iri: string): Promise<ConceptSummary> {
+  async getEntitySummary(iri: string): Promise<SearchResultSummary> {
     return axios.get(api + "api/entity/public/summary", {
       params: { iri: iri }
     });
@@ -323,7 +310,7 @@ const EntityService = {
     return axios.get(api + "api/entity/public/" + listPath);
   },
 
-  async getMappingSuggestions(request: SearchRequest, controller: AbortController): Promise<ConceptSummary[]> {
+  async getMappingSuggestions(request: SearchRequest, controller: AbortController): Promise<SearchResultSummary[]> {
     return axios.post(api + "api/entity/public/search", request, {
       signal: controller.signal
     });
@@ -420,8 +407,8 @@ const EntityService = {
 
   async getSuperiorPropertiesPaged(
     conceptIri: string,
-    pageIndex: number,
-    pageSize: number,
+    pageIndex?: number,
+    pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
@@ -433,8 +420,8 @@ const EntityService = {
 
   async getSuperiorPropertiesBoolFocusPaged(
     focus: any,
-    pageIndex: number,
-    pageSize: number,
+    pageIndex?: number,
+    pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
@@ -447,8 +434,8 @@ const EntityService = {
 
   async getSuperiorPropertyValuesPaged(
     propertyIri: string,
-    pageIndex: number,
-    pageSize: number,
+    pageIndex?: number,
+    pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
@@ -458,7 +445,7 @@ const EntityService = {
     });
   },
 
-  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<ConceptSummary[]> {
+  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<SearchResultSummary[]> {
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchTerm;
     searchRequest.page = 1;
@@ -473,7 +460,9 @@ const EntityService = {
     }
 
     abortController = new AbortController();
-    return EntityService.advancedSearch(searchRequest, abortController);
+    const response = await EntityService.advancedSearch(searchRequest, abortController);
+    if (response.entities && isArrayHasLength(response.entities)) return response.entities;
+    else return [];
   },
 
   async hasPredicates(subjectIri: string, predicateIris: string[]): Promise<boolean> {

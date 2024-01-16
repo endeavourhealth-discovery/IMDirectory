@@ -2,7 +2,7 @@ import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { AllowableChildProperty, AliasEntity, QueryResponse } from "@im-library/interfaces";
 import axios from "axios";
-import { PathDocument, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { PathDocument, Query, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -34,23 +34,12 @@ const QueryService = {
     else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
   },
 
-  async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResultSummary[]> {
+  async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResponse> {
     return await axios.post(Env.API + "api/query/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
   },
 
   async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
     return axios.post(Env.VITE_NODE_API + "node_api/validation/public/validate", data, { params: { iri: validationIri } });
-  },
-
-  async runFunction(iri: string, args?: any[]): Promise<any> {
-    if (args && args.length > 0) {
-      const result: any = await axios.post(Env.API + "api/function/public/callFunction", {
-        functionIri: iri,
-        arguments: args
-      });
-      if (isArrayHasLength(args) && args.find(arg => arg.parameter === "fieldName")) return result[args.find(arg => arg.parameter === "fieldName").valueData];
-      else return result;
-    } else return await axios.post(Env.API + "api/function/public/callFunction", { functionIri: iri });
   },
 
   async entityQuery(query: QueryRequest, controller?: AbortController) {
@@ -113,6 +102,10 @@ const QueryService = {
 
   async getQueryDisplay(iri: string): Promise<Query> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri } });
+  },
+
+  async getQueryDisplayFromQuery(query: Query): Promise<Query> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplayFromQuery", query);
   },
 
   async getAllQueries(): Promise<any> {

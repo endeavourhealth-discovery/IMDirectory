@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="number-with-label-container" :style="{ width: size }" :id="id">
+  <div class="number-with-label-container" :style="{ width: size }" :id="id">
     <strong class="label">{{ label }}: </strong>
     <span class="data break-text">{{ data }}</span>
   </div>
@@ -13,7 +13,6 @@ interface Props {
   data: any;
   size?: string;
   id?: string;
-  show: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {

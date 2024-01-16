@@ -1,11 +1,11 @@
 <template>
   <div id="tree-container">
-    <TangledTree :entityIri="entityIri" :data="data" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+    <TangledTree :entityIri="entityIri" :data="data" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import TangledTree from "./TangledTree.vue";
@@ -35,14 +35,14 @@ onMounted(async () => await getDataModel(props.entityIri));
 async function getDataModel(iri: string) {
   loading.value = true;
   const name = (await EntityService.getNames([iri]))[0].name;
-  data.value.push([{ id: iri, parents: [], name: name || iri, type: "root" }]);
+  data.value.push([{ id: iri, parents: [], name: name ?? iri, type: "root" }]);
   await addPropertiesAndTypes(iri);
 }
 
 async function addPropertiesAndTypes(iri: any) {
   const result = await EntityService.getPropertiesDisplay(iri);
-  const { groups, properties, types } = getGroupsPropertiesTypes(iri, twinNode, result);
-  if (groups.length) data.value.push(groups.sort((a: TangledTreeData, b: TangledTreeData) => a.name.localeCompare(b.name)));
+  const { groups, properties } = getGroupsPropertiesTypes(iri, twinNode, result);
+  if (groups.length) data.value.push(groups.toSorted((a: TangledTreeData, b: TangledTreeData) => a.name.localeCompare(b.name)));
   else {
     data.value.push(properties);
   }
@@ -69,7 +69,7 @@ function addGroup(groups: TangledTreeData[], properties: TangledTreeData[], prop
     groupData = {
       id: property.group?.["@id"] as string,
       parents: [parent],
-      name: (property.group?.name || property.group?.["@id"]) as string,
+      name: (property.group?.name ?? property.group?.["@id"]) as string,
       type: "group"
     };
     groups.push(groupData);

@@ -1,18 +1,35 @@
 <template>
   <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter">
     <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
-      <NavTree :allow-right-click="true" :selected-iri="findInTreeIri" @row-selected="routeToSelected" />
+      <NavTree :allow-right-click="true" :selected-iri="findInTreeIri" :find-in-tree="findInTreeBoolean" @row-selected="routeToSelected" />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
         <router-view
+          v-slot="{ Component, route }"
           @selectedUpdated="routeToSelected"
           :searchResults="searchResults"
           :searchLoading="searchLoading"
           @navigateTo="navigateTo"
           @locateInTree="locateInTree"
           v-model:history="history"
-        />
+          @lazyLoadRequested="(event: any) => $emit('lazyLoadRequested', event)"
+          :lazyLoading="true"
+          @downloadRequested="(data: any) => $emit('downloadRequested', data)"
+          :rows="100"
+        >
+          <transition :name="showTransitions ? route?.meta?.transition : 'fade'" :mode="showTransitions ? route?.meta?.mode : 'in-out'">
+            <div
+              v-if="directoryLoading"
+              class="flex flex-row justify-content-center align-items-center loading-container"
+              :key="route.fullPath"
+              :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }"
+            >
+              <ProgressSpinner />
+            </div>
+            <component v-else :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
+          </transition>
+        </router-view>
       </div>
     </SplitterPanel>
   </Splitter>
@@ -22,17 +39,31 @@
 import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { DirectService } from "@/services";
-import { Ref, computed, ref } from "vue";
+import { Ref, computed, ref, onMounted } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { useRouter } from "vue-router";
+import { useLoadingStore } from "@/stores/loadingStore";
 
+const emit = defineEmits({ lazyLoadRequested: (_payload: any) => true, downloadRequested: (_payload: { term: string; count: number }) => true });
+
+const router = useRouter();
+const loadingStore = useLoadingStore();
 const directoryStore = useDirectoryStore();
 const directService = new DirectService();
 
 const searchResults = computed(() => directoryStore.searchResults);
 const searchLoading = computed(() => directoryStore.searchLoading);
 const findInTreeIri = computed(() => directoryStore.findInTreeIri);
+const findInTreeBoolean = computed(() => directoryStore.findInTreeBoolean);
+const directoryLoading = computed(() => loadingStore.directoryLoading);
 
 const history: Ref<string[]> = ref([]);
+const showTransitions = ref(false);
+
+onMounted(async () => {
+  await router.isReady;
+  showTransitions.value = true;
+});
 
 function updateSplitter(event: any) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
@@ -44,8 +75,12 @@ function routeToSelected(selected: any) {
   else if (typeof selected === "string") directService.select(selected, "Folder");
 }
 
-function navigateTo(iri: string) {
-  directService.select(iri, "Folder");
+function navigateTo(iri: any) {
+  if (iri.item?.icon.includes("fa-house")) {
+    router.push("/");
+  } else {
+    directService.select(iri, "Folder");
+  }
 }
 
 function locateInTree(iri: string) {
@@ -65,5 +100,19 @@ function locateInTree(iri: string) {
   display: flex;
   flex-flow: row nowrap;
   overflow: auto;
+}
+
+.loading-container {
+  width: 100%;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

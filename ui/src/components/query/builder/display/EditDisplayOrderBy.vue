@@ -1,32 +1,49 @@
 <template>
   <div v-if="editMode">
     <div class="property-input-container">
-      <div>
-        Get:
-        <Dropdown
-          v-model="selectedDirection"
-          optionLabel="name"
-          :options="directionOptions"
-          placeholder="Select direction"
-          class="w-full md:w-14rem property"
-        />
+      <div v-for="(property, index) of editingOrderBy.property">
+        <div class="orderBy">
+          <div class="flex-v-center">
+            <label v-if="index == 0" class="w-full md:w-4rem property">Order by </label>
+            <label v-else class="w-full md:w-4rem property">then by </label>
+          </div>
+          <div>
+            <Dropdown
+              v-model="property['@id']"
+              :options="orderProperties"
+              optionLabel="name"
+              optionValue="iri"
+              placeholder="Select property"
+              class="w-full md:w-14rem property"
+            />
+          </div>
+          <div>
+            <Dropdown
+              v-model="property.direction"
+              :options="getDirectionOptions(property)"
+              optionLabel="name"
+              optionValue="value"
+              placeholder="Select direction"
+              class="w-full md:w-14rem property"
+            />
+          </div>
+          <Button class="property" icon="fa-regular fa-trash-can" severity="danger" @click="deleteOrder(index)" />
+          <Button class="property" icon="fa-solid fa-arrow-up" severity="info" @click="moveUp(index)" :disabled="index == 0" />
+          <Button
+            class="property"
+            icon="fa-solid fa-arrow-down"
+            severity="info"
+            @click="moveDown(index)"
+            :disabled="index == editingOrderBy!.property!.length - 1"
+          />
+        </div>
       </div>
-
       <div>
-        Number:
-        <InputNumber v-model="selectedLimit" placeholder="Set limit" class="property" />
+        <Button class="property" label="Add order" severity="success" @click="addOrder" />
       </div>
-
       <div>
-        By:
-        <Dropdown
-          v-model="selectedProperty.iri"
-          :options="orderByOptions"
-          optionLabel="name"
-          optionValue="iri"
-          placeholder="Select property"
-          class="w-full md:w-14rem property"
-        />
+        Limit:
+        <InputNumber v-model="editingOrderBy.limit" placeholder="Set limit" class="w-full md:w-14rem property" />
       </div>
     </div>
     <div class="button-bar">
@@ -35,23 +52,21 @@
       <Button class="button-bar-button" label="Save" @click="save()" />
     </div>
   </div>
-  <div v-else-if="isObjectHasKeys(orderBy, ['description'])" v-html="orderBy.description" @dblclick="editMode = true"></div>
+  <div v-else-if="isObjectHasKeys(editingOrderBy, ['description'])" v-html="editingOrderBy?.description" @dblclick="editMode = true"></div>
 </template>
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { useQueryStore } from "@/stores/queryStore";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { resolveIri, getNameFromRef } from "@im-library/helpers/TTTransform";
-import { ConceptSummary, TTProperty } from "@im-library/interfaces";
-import { Match, Order, OrderLimit, Property, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM, SHACL } from "@im-library/vocabulary";
+import { resolveIri } from "@im-library/helpers/TTTransform";
+import { Match, Order, OrderDirection, OrderLimit, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { IM, SHACL, XSD } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
 interface Props {
   match: Match;
-  index: number;
   orderBy: OrderLimit;
   onAddOrderBy: boolean;
 }
@@ -61,25 +76,18 @@ const queryStore = useQueryStore();
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 
 const editMode = ref(false);
-const orderByOptions: Ref<ConceptSummary[]> = ref([]);
-const orderProperties: Ref<ConceptSummary[]> = ref([]);
-const directionOptions: Ref<{ name: string; value: Order }[]> = ref([]);
-const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue"];
-const selectedDirection: Ref<{ name: string; value: Order }> = ref({} as { name: string; value: Order });
-const selectedProperty: Ref<ConceptSummary> = ref({ iri: "" } as ConceptSummary);
-const selectedLimit: Ref<number> = ref(0);
+
+const orderProperties: Ref<SearchResultSummary[]> = ref([]);
+const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue", XSD.NAMESPACE + "number"];
+
+const editingOrderBy: Ref<OrderLimit> = ref({});
 
 onMounted(async () => await init());
 
 watch(
-  () => selectedDirection.value,
-  () => (orderByOptions.value = getOrderByOptions())
-);
-
-watch(
   () => props.onAddOrderBy,
   () => {
-    if (props.onAddOrderBy === true) editMode.value = true;
+    if (props.onAddOrderBy) editMode.value = true;
   }
 );
 
@@ -91,23 +99,16 @@ watch(
 );
 
 async function init() {
-  if (props.onAddOrderBy === true) editMode.value = true;
-  orderProperties.value = await getOrderProperties();
-  directionOptions.value = getDirectionOptions();
-  populateValues();
-}
+  if (props.orderBy) {
+    editingOrderBy.value = cloneDeep(props.orderBy);
+  }
 
-function getOrderByOptions() {
-  let orderByOptions: ConceptSummary[] = [];
-  if (selectedDirection.value.name === "earliest" || selectedDirection.value.name === "latest")
-    orderByOptions = orderProperties.value.filter(prop => prop.entityType[0]["@id"] === IM.NAMESPACE + "DateTime");
-  else if (selectedDirection.value.name === "highest" || selectedDirection.value.name === "lowest")
-    orderByOptions = orderProperties.value.filter(prop => prop.entityType[0]["@id"] === IM.NAMESPACE + "NumericValue");
-  return orderByOptions;
+  if (props.onAddOrderBy) editMode.value = true;
+  orderProperties.value = await getOrderProperties();
 }
 
 async function getOrderProperties() {
-  const orderProperties: ConceptSummary[] = [];
+  const orderProperties: SearchResultSummary[] = [];
   const dataModelIri = isObjectHasKeys(props.match?.typeOf, ["@id"]) ? resolveIri(props.match?.typeOf!["@id"]!) : resolveIri(queryTypeIri.value);
   const entity = await EntityService.getPartialEntity(dataModelIri!, [SHACL.PROPERTY]);
   if (isObjectHasKeys(entity, [SHACL.PROPERTY]))
@@ -116,86 +117,85 @@ async function getOrderProperties() {
       if (orderablePropertyTypes.includes(propType[0]["@id"])) {
         const propId = prop[SHACL.PATH][0]["@id"];
         const propName = prop[SHACL.PATH][0].name;
-        orderProperties.push({ name: propName, iri: propId, entityType: propType } as ConceptSummary);
+        orderProperties.push({ name: propName, iri: propId, entityType: propType } as SearchResultSummary);
       }
     }
 
   return orderProperties;
 }
 
-function getDirectionOptions() {
+function getDirectionOptions(property: OrderDirection) {
   const directionOptions: { name: string; value: Order }[] = [];
-  const hasDateType = orderProperties.value.some(prop => prop.entityType[0]["@id"] === IM.NAMESPACE + "DateTime");
-  const hasNumericType = orderProperties.value.some(prop => prop.entityType[0]["@id"] === IM.NAMESPACE + "NumericValue");
-
-  if (hasDateType && hasNumericType) {
-    directionOptions.push({ name: "earliest", value: "ascending" });
-    directionOptions.push({ name: "lowest", value: "ascending" });
-    directionOptions.push({ name: "latest", value: "descending" });
-    directionOptions.push({ name: "highest", value: "descending" });
-  } else if (hasDateType) {
-    directionOptions.push({ name: "earliest", value: "ascending" });
-    directionOptions.push({ name: "latest", value: "descending" });
-  } else if (hasNumericType) {
-    directionOptions.push({ name: "lowest", value: "ascending" });
-    directionOptions.push({ name: "highest", value: "descending" });
+  const prop = orderProperties.value.find(op => op.iri == property["@id"]);
+  if (prop) {
+    if (prop.entityType[0]["@id"] === IM.NAMESPACE + "DateTime") {
+      directionOptions.push({ name: "earliest", value: Order.ascending });
+      directionOptions.push({ name: "latest", value: Order.descending });
+    } else if (prop.entityType[0]["@id"] === XSD.NAMESPACE + "number") {
+      directionOptions.push({ name: "lowest", value: Order.ascending });
+      directionOptions.push({ name: "highest", value: Order.descending });
+    } else {
+      directionOptions.push({ name: "first", value: Order.ascending });
+      directionOptions.push({ name: "last", value: Order.descending });
+    }
   }
-
   return directionOptions;
 }
 
+function deleteOrder(index: number) {
+  if (editingOrderBy.value.property) editingOrderBy.value.property.splice(index, 1);
+}
+
+function moveUp(index: number) {
+  if (editingOrderBy.value?.property && index > 0 && index < editingOrderBy.value.property?.length) {
+    const t = editingOrderBy.value.property[index];
+    editingOrderBy.value.property[index] = editingOrderBy.value.property[index - 1];
+    editingOrderBy.value.property[index - 1] = t;
+  }
+}
+
+function moveDown(index: number) {
+  if (editingOrderBy.value?.property && index < editingOrderBy.value.property?.length - 1) {
+    const t = editingOrderBy.value.property[index];
+    editingOrderBy.value.property[index] = editingOrderBy.value.property[index + 1];
+    editingOrderBy.value.property[index + 1] = t;
+  }
+}
+
+function addOrder() {
+  if (editingOrderBy.value.property) editingOrderBy.value.property.push({});
+}
+
 function cancel() {
-  if (isEmpty(props.orderBy)) remove();
   editMode.value = false;
 }
 
 function save() {
-  props.match!.orderBy![props.index] = getNewOrderBy();
-  if (isEmpty(props.match!.orderBy![props.index])) remove();
+  props.match.orderBy = editingOrderBy.value;
+  if ((!props.match.orderBy.property || props.match.orderBy.property.length == 0) && !props.match.orderBy.limit) remove();
+
   editMode.value = false;
 }
 
-function populateValues() {
-  if (props.orderBy.direction) {
-    const found = directionOptions.value.find(option => option.value === props.orderBy.direction);
-    if (found) selectedDirection.value = found;
-  }
-  if (props.orderBy["@id"]) {
-    const found = orderByOptions.value.find(option => option.iri === props.orderBy["@id"]) ?? ({} as ConceptSummary);
-    if (found) selectedProperty.value = found;
-  }
-  if (props.orderBy.limit) selectedLimit.value = props.orderBy.limit;
-}
-
-function getNewOrderBy() {
-  const editOrderBy = cloneDeep(props.orderBy);
-  if (selectedProperty.value.iri) editOrderBy["@id"] = selectedProperty.value.iri;
-  if (selectedDirection.value.value) editOrderBy.direction = selectedDirection.value.value;
-  if (selectedLimit.value) editOrderBy.limit = selectedLimit.value;
-  return editOrderBy;
-}
-
-function isEmpty(orderBy: OrderLimit) {
-  if (!isObjectHasKeys(orderBy, ["@id"])) return true;
-  const hasProperties = isObjectHasKeys(orderBy);
-  const hasValues = orderBy.limit || orderBy["@id"] || orderBy.direction;
-  return !hasProperties || !hasValues;
-}
-
 function remove() {
-  props.match.orderBy?.splice(props.index, 1);
+  props.match.orderBy = undefined;
 }
 </script>
 
 <style scoped>
-.edit-mode {
-  margin-left: 1rem;
-}
-
 .property-input-container {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   margin-left: 1rem;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.orderBy {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   width: 100%;
   gap: 0.5rem;
 }
@@ -204,5 +204,19 @@ function remove() {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   display: flex;
+}
+
+.button-bar {
+  display: flex;
+  justify-content: end;
+}
+
+.button-bar-button {
+  margin: 0.2rem;
+}
+
+.flex-v-center {
+  display: flex;
+  align-items: center;
 }
 </style>

@@ -49,9 +49,70 @@ import { faCircleQuestion } from "@fortawesome/pro-solid-svg-icons/faCircleQuest
 import { faLockOpen } from "@fortawesome/pro-solid-svg-icons/faLockOpen";
 import { faShieldSlash } from "@fortawesome/pro-solid-svg-icons/faShieldSlash";
 import { faListCheck } from "@fortawesome/pro-solid-svg-icons/faListCheck";
+import { faTrash } from "@fortawesome/pro-solid-svg-icons/faTrash";
+import { faRotateLeft } from "@fortawesome/pro-solid-svg-icons/faRotateLeft";
+import { faCircleArrowLeft } from "@fortawesome/pro-solid-svg-icons/faCircleArrowLeft";
+import { faAngleDown } from "@fortawesome/pro-solid-svg-icons/faAngleDown";
+import { faHouse } from "@fortawesome/pro-solid-svg-icons/faHouse";
+import { faMobile } from "@fortawesome/pro-solid-svg-icons/faMobile";
+import { faChevronUp } from "@fortawesome/pro-solid-svg-icons/faChevronUp";
+import { faChevronDown } from "@fortawesome/pro-solid-svg-icons/faChevronDown";
+import { faTriangleExclamation } from "@fortawesome/pro-solid-svg-icons/faTriangleExclamation";
+import { faHammer } from "@fortawesome/pro-solid-svg-icons/faHammer";
+import { faPaste } from "@fortawesome/pro-solid-svg-icons/faPaste";
+import { faObjectGroup } from "@fortawesome/pro-solid-svg-icons/faObjectGroup";
+import { faSquarePlus } from "@fortawesome/pro-solid-svg-icons/faSquarePlus";
+import { faSquareMinus } from "@fortawesome/pro-solid-svg-icons/faSquareMinus";
+import { faArrowsUpDown } from "@fortawesome/pro-solid-svg-icons/faArrowsUpDown";
+import { faTag } from "@fortawesome/pro-solid-svg-icons/faTag";
+import { faArrowUpWideShort } from "@fortawesome/pro-solid-svg-icons/faArrowUpWideShort";
+import { faFlask } from "@fortawesome/pro-solid-svg-icons/faFlask";
+import { faSort } from "@fortawesome/pro-solid-svg-icons/faSort";
+import { faEye } from "@fortawesome/pro-solid-svg-icons/faEye";
+import { faFloppyDisk } from "@fortawesome/pro-solid-svg-icons/faFloppyDisk";
+import { faPenToSquare } from "@fortawesome/pro-solid-svg-icons/faPenToSquare";
+import { faObjectUngroup } from "@fortawesome/pro-solid-svg-icons/faObjectUngroup";
+import { faArrowUp } from "@fortawesome/pro-solid-svg-icons/faArrowUp";
+import { faArrowDown } from "@fortawesome/pro-solid-svg-icons/faArrowDown";
+import { faUpRightFromSquare } from "@fortawesome/pro-solid-svg-icons/faUpRightFromSquare";
+import { faSpinner } from "@fortawesome/pro-solid-svg-icons/faSpinner";
+import { faPalette } from "@fortawesome/pro-solid-svg-icons/faPalette";
+import { faArrowDownUpAcrossLine } from "@fortawesome/pro-solid-svg-icons/faArrowDownUpAcrossLine";
+import { faClipboardQuestion } from "@fortawesome/pro-solid-svg-icons/faClipboardQuestion";
+import { faFilter } from "@fortawesome/pro-solid-svg-icons/faFilter";
+import { faLayerGroup } from "@fortawesome/pro-solid-svg-icons/faLayerGroup";
 
 export default function addSolidIcons(library: Library) {
   library.add(
+    faLayerGroup,
+    faFilter,
+    faClipboardQuestion,
+    faArrowDownUpAcrossLine,
+    faPalette,
+    faSpinner,
+    faUpRightFromSquare,
+    faArrowDown,
+    faArrowUp,
+    faObjectUngroup,
+    faPenToSquare,
+    faFloppyDisk,
+    faEye,
+    faSort,
+    faFlask,
+    faArrowUpWideShort,
+    faTag,
+    faArrowsUpDown,
+    faSquareMinus,
+    faSquarePlus,
+    faObjectGroup,
+    faPaste,
+    faHammer,
+    faTriangleExclamation,
+    faChevronDown,
+    faChevronUp,
+    faMobile,
+    faHouse,
+    faAngleDown,
     faDiagramProject,
     faClipboardCheck,
     faPenToSquare,
@@ -97,7 +158,10 @@ export default function addSolidIcons(library: Library) {
     faCircleQuestion,
     faLockOpen,
     faShieldSlash,
-    faListCheck
+    faListCheck,
+    faTrash,
+    faRotateLeft,
+    faCircleArrowLeft
   );
 }
 // #v-endif

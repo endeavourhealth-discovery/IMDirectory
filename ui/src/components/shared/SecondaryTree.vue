@@ -6,7 +6,7 @@
         :key="altParent.iri"
         :label="altParent.name"
         :disabled="loading || altParent.name === ''"
-        icon="pi pi-chevron-up"
+        icon="fa-solid fa-chevron-up"
         @click="expandParents(altParent.listPosition)"
         @mouseenter="showPopup($event, altParent.iri)"
         @mouseleave="hidePopup($event)"
@@ -18,7 +18,7 @@
       <Button
         :label="currentParent?.name"
         :disabled="loading || !currentParent"
-        icon="pi pi-chevron-up"
+        icon="fa-solid fa-chevron-up"
         @click="expandParents(parentPosition)"
         @mouseenter="showPopup($event, currentParent?.iri)"
         @mouseleave="hidePopup($event)"
@@ -106,12 +106,12 @@ import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { ConceptAggregate, EntityReferenceNode, TreeParent } from "@im-library/interfaces";
+import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "primevue/treenode";
 
 interface Props {
   entityIri: string;
@@ -129,7 +129,7 @@ const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const currentParent: Ref<TreeParent | null> = ref(null);
 const alternateParents: Ref<TreeParent[]> = ref([]);
 const parentPosition = ref(0);
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const overlayLocation: Ref = ref({});
 const loading = ref(false);
 const totalCount = ref(0);

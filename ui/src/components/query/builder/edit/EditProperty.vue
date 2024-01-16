@@ -1,13 +1,13 @@
 <template>
   <div class="property-container">
     <div v-tooltip.right="tooltip" class="property-label">{{ getNameFromRef(property) }}:</div>
-    <ClassSelect v-if="isObjectHasKeys(ttproperty, [SHACL.CLASS])" :class-iri="ttproperty[SHACL.CLASS][0]['@id']" :property="ttproperty.property" />
+    <ClassSelect v-if="isObjectHasKeys(ttproperty, [SHACL.CLASS])" :class-iri="ttproperty[SHACL.CLASS]![0]['@id']" :property="ttproperty.property" />
     <DatatypeSelect
       v-else-if="isObjectHasKeys(ttproperty, [SHACL.DATATYPE])"
-      :datatype="ttproperty[SHACL.DATATYPE][0]['@id']"
+      :datatype="ttproperty[SHACL.DATATYPE]![0]['@id']"
       :property="ttproperty.property"
     />
-    <ClassSelect v-if="isObjectHasKeys(ttproperty, [SHACL.NODE])" :class-iri="ttproperty[SHACL.NODE][0]['@id']" :property="ttproperty.property" />
+    <ClassSelect v-else-if="isObjectHasKeys(ttproperty, [SHACL.NODE])" :class-iri="ttproperty[SHACL.NODE]![0]['@id']" :property="ttproperty.property" />
     <EntitySelect v-else :edit-node="ttproperty.property" />
   </div>
 
@@ -39,11 +39,11 @@ const emit = defineEmits({
 interface Props {
   property: Property;
   match?: Match;
+  dataModelIri: string;
 }
 
 const props = defineProps<Props>();
 const queryStore = useQueryStore();
-const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const ttproperty: Ref<TTProperty> = ref({} as TTProperty);
 const tooltip: Ref<string> = ref("");
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
@@ -53,7 +53,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  let dataModelIri = isObjectHasKeys(props.match?.typeOf, ["@id"]) ? resolveIri(props.match?.typeOf!["@id"]!) : resolveIri(queryTypeIri.value);
+  let dataModelIri = props.dataModelIri;
   const matchRef = getMatchNodeRef();
   if (isObjectHasKeys(props.match, ["nodeRef"]) && props.match?.nodeRef) {
     dataModelIri = variableMap.value.get(props.match.nodeRef).typeOf["@id"];

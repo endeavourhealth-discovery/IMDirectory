@@ -255,9 +255,9 @@ export function entityToAliasEntity(ttEntity: any) {
     ttEntity.status = ttEntity[IM.HAS_STATUS];
     delete ttEntity[IM.HAS_STATUS];
   }
-  if (isObjectHasKeys(ttEntity, [IM.SCHEME])) {
-    ttEntity.scheme = ttEntity[IM.SCHEME];
-    delete ttEntity[IM.SCHEME];
+  if (isObjectHasKeys(ttEntity, [IM.HAS_SCHEME])) {
+    ttEntity.scheme = ttEntity[IM.HAS_SCHEME];
+    delete ttEntity[IM.HAS_SCHEME];
   }
   if (isObjectHasKeys(ttEntity, [RDF.TYPE])) {
     ttEntity.entityType = ttEntity[RDF.TYPE];

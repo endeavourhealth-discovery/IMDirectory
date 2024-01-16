@@ -37,7 +37,7 @@
                   <li v-for="note in release.releaseNotes">{{ note }}</li>
                 </ul>
               </div>
-              <a :href="release.url">{{ release.url }}</a>
+              <a :href="sanitizeUrl(release.url)">{{ release.url }}</a>
             </div>
             <Button
               v-if="!showLegacy[key]"
@@ -68,10 +68,9 @@ import { onMounted, Ref, ref, reactive, nextTick } from "vue";
 import { GithubService } from "@/services";
 import { GithubRelease } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
+import { sanitizeUrl } from "@braintree/sanitize-url";
 
-const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
 
 const releases: Map<string, GithubRelease[]> = reactive(new Map().set("directory", []).set("importData", []));
@@ -115,11 +114,6 @@ async function getAllRepoReleaseNotes(repoName: string) {
   loadingPerApp.value[repoNameToKey(repoName)] = false;
 }
 
-async function getAdditionalFullReleaseNotes(currentAppRepo: string) {
-  if (currentAppRepo !== "IMDirectory") await getAllRepoReleaseNotes("IMDirectory");
-  await getAllRepoReleaseNotes("ImportData");
-}
-
 function close() {
   const iterator = releases.entries();
   for (let i = 0; i < releases.size; i++) {
@@ -142,17 +136,10 @@ function startExpanded(repoName: string) {
   const key = repoNameToKey(repoName);
   const button = document.getElementById(`expand-button-${key}`) as HTMLElement;
   if (button) button.click();
-  // else throw new Error("failed to find button to click: " + key);
 }
 
 function setShowLegacy(repoName: string, show: boolean) {
   showLegacy.value[repoNameToKey(repoName)] = show;
-}
-
-function resetBooleanObject(booleanObject: any) {
-  for (const [key, value] of Object.entries(booleanObject)) {
-    booleanObject[key] = false;
-  }
 }
 
 async function viewAll() {
