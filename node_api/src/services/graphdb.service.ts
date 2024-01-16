@@ -3,6 +3,8 @@
 import Graphdb from "graphdb";
 import Env from "@/services/env.service";
 import _ from "lodash";
+import { CustomError } from "@im-library/models";
+import { ErrorType } from "@im-library/enums";
 
 const { ServerClientConfig, ServerClient, RDFRepositoryClient } = Graphdb.server;
 const { RDFMimeType } = Graphdb.http;
@@ -121,7 +123,12 @@ export function sanitise(data: any) {
 }
 
 export function desanitise(data: string) {
-  const parsed = JSON.parse(data);
+  let parsed;
+  try {
+    parsed = JSON.parse(data);
+  } catch (error) {
+    throw new CustomError("Invalid JSON. Failed to desanitise due to parsing error", ErrorType.InvalidJsonError);
+  }
   if (_.isArray(parsed)) desanitiseArray(parsed);
   else if (_.isObject(parsed)) desanitiseObject(parsed);
   return parsed;
