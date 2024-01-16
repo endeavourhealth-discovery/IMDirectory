@@ -2,8 +2,7 @@
 // @ts-ignore
 import Graphdb from "graphdb";
 import Env from "@/services/env.service";
-import logger from "@/middlewares/logger.middleware";
-import { isArray, isObject } from "lodash";
+import _ from "lodash";
 
 const { ServerClientConfig, ServerClient, RDFRepositoryClient } = Graphdb.server;
 const { RDFMimeType } = Graphdb.http;
@@ -110,11 +109,11 @@ export function sanitise(data: any) {
   if (typeof data === "string") {
     if (data.startsWith("http") || data.startsWith("https")) return iri(data);
     else return "'" + sanitiseString(data) + "'";
-  } else if (isArray(data)) {
+  } else if (_.isArray(data)) {
     sanitiseArray(data);
     return "'" + JSON.stringify(data) + "'";
   }
-  if (isObject(data)) {
+  if (_.isObject(data)) {
     sanitiseObject(data);
     return "'" + JSON.stringify(data) + "'";
   }
@@ -123,17 +122,17 @@ export function sanitise(data: any) {
 
 export function desanitise(data: string) {
   const parsed = JSON.parse(data);
-  if (isArray(parsed)) desanitiseArray(parsed);
-  else if (isObject(parsed)) desanitiseObject(parsed);
+  if (_.isArray(parsed)) desanitiseArray(parsed);
+  else if (_.isObject(parsed)) desanitiseObject(parsed);
   return parsed;
 }
 
 function sanitiseObject(data: any): void {
   for (const [key, value] of Object.entries(data)) {
     if (typeof value === "string") data[key] = sanitiseString(value);
-    else if (isArray(value)) {
+    else if (_.isArray(value)) {
       sanitiseArray(value);
-    } else if (isObject(value)) sanitiseObject(value);
+    } else if (_.isObject(value)) sanitiseObject(value);
   }
 }
 
@@ -144,24 +143,24 @@ function sanitiseString(data: string): string {
 function sanitiseArray(data: any[]): void {
   for (const [i, value] of data.entries()) {
     if (typeof value === "string") data[i] = sanitiseString(value);
-    else if (isArray(value)) sanitiseArray(value);
-    else if (isObject(value)) sanitiseObject(value);
+    else if (_.isArray(value)) sanitiseArray(value);
+    else if (_.isObject(value)) sanitiseObject(value);
   }
 }
 
 function desanitiseObject(data: any) {
   for (const [key, value] of Object.entries(data)) {
     if (typeof value === "string") data[key] = desanitiseString(value);
-    else if (isArray(value)) desanitiseArray(value);
-    else if (isObject(value)) desanitiseObject(value);
+    else if (_.isArray(value)) desanitiseArray(value);
+    else if (_.isObject(value)) desanitiseObject(value);
   }
 }
 
 function desanitiseArray(data: any[]) {
   for (const [i, value] of data.entries()) {
     if (typeof value === "string") data[i] = desanitiseString(value);
-    else if (isArray(value)) desanitiseArray(value);
-    else if (isObject(value)) desanitiseObject(value);
+    else if (_.isArray(value)) desanitiseArray(value);
+    else if (_.isObject(value)) desanitiseObject(value);
   }
 }
 
