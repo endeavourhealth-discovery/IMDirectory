@@ -1,7 +1,7 @@
 <template>
-  <NLRefinedConcept :concept="refinement.property"></NLRefinedConcept>
+  <NLRefinedConcept v-if="refinement.property" :concept="refinement.property"></NLRefinedConcept>
   {{ refinement.operator }}
-  <NLRefinedConcept :concept="refinement.value"></NLRefinedConcept>
+  <NLRefinedConcept v-if="refinement.value" :concept="refinement.value"></NLRefinedConcept>
 </template>
 
 <script setup lang="ts">

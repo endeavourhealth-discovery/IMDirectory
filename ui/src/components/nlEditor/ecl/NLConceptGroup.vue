@@ -1,7 +1,7 @@
 <template>
-  <div v-if="conceptGroup">
+  <div v-if="conceptGroup && conceptGroup.concepts">
     <div v-for="(concept, idx) of conceptGroup.concepts">
-      <span v-if="concept.bool">(<NLConceptGroup :concept-group="concept" style="padding-left: 1rem"></NLConceptGroup>)</span>
+      <span v-if="(concept as any).bool">(<NLConceptGroup :concept-group="concept as ConceptGroup" style="padding-left: 1rem"></NLConceptGroup>)</span>
       <NLRefinedConcept v-else :concept="concept"></NLRefinedConcept>
       <span v-if="idx < conceptGroup.concepts.length - 1">&nbsp;{{ conceptGroup.bool }}</span>
     </div>
