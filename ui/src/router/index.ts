@@ -36,6 +36,7 @@ const AddressFileWorkflow = () => import("@/components/uprn/AddressFileWorkflow.
 const AddressFileDownload = () => import("@/components/uprn/AddressFileDownload.vue");
 const Query = () => import("@/views/Query.vue");
 const UprnAgreement = () => import("@/views/UprnAgreement.vue");
+const NLBuilder = () => import("@/views/NLBuilder.vue");
 import { EntityService, Env, UserService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
@@ -253,6 +254,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/uprn-agreement",
     name: "UPRNAgreement",
     component: UprnAgreement
+  },
+  {
+    path: "/nlbuilder",
+    name: "NLBuilder",
+    component: NLBuilder
   },
   {
     path: "/401/:requiredAccess?:accessType?",
