@@ -7,32 +7,37 @@
         </div>
       </template>
     </TopBar>
-    <div id="cookies-content-container">
-      Include if:
-      <div class="query-box">
-        <div v-for="(match, idx) of query" class="match">
-          <span v-if="idx > 0">OR</span>
-          {{ match.name }}
-          <IMFontAwesomeIcon icon="times" class="delete" @click="remove(idx)"></IMFontAwesomeIcon>
-          &nbsp;
+    <div style="display: flex">
+      <div id="cookies-content-container">
+        Include if:
+        <div class="query-box">
+          <div v-for="(match, idx) of query" class="match">
+            <span v-if="idx > 0">OR</span>
+            {{ match.name }}
+            <IMFontAwesomeIcon icon="times" class="delete" @click="remove(idx)"></IMFontAwesomeIcon>
+            &nbsp;
+            <AutoComplete
+              v-model="inputs[idx + 1]"
+              class="feature-search"
+              :suggestions="items"
+              optionLabel="name"
+              @complete="search"
+              @item-select="select($event, idx)"
+            />
+          </div>
           <AutoComplete
-            v-model="inputs[idx + 1]"
+            id="autocomplete"
+            v-model="inputs[0]"
             class="feature-search"
             :suggestions="items"
             optionLabel="name"
             @complete="search"
-            @item-select="select($event, idx)"
+            @item-select="select($event, -1)"
           />
         </div>
-        <AutoComplete
-          id="autocomplete"
-          v-model="inputs[0]"
-          class="feature-search"
-          :suggestions="items"
-          optionLabel="name"
-          @complete="search"
-          @item-select="select($event, -1)"
-        />
+      </div>
+      <div style="flex: 1">
+        <NLConceptGroup :concept-group="ecl"></NLConceptGroup>
       </div>
     </div>
   </div>
@@ -46,6 +51,8 @@ import { AutoCompleteCompleteEvent, AutoCompleteItemSelectEvent } from "primevue
 import { SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
+import { ConceptGroup } from "@/components/nlEditor/ecl/NLClasses";
+import NLConceptGroup from "@/components/nlEditor/ecl/NLConceptGroup.vue";
 
 const router = useRouter();
 
@@ -53,6 +60,8 @@ const abort: Ref<AbortController> = ref(new AbortController() as AbortController
 const items: Ref<SearchResultSummary[]> = ref([]);
 const query: Ref<SearchResultSummary[]> = ref([]);
 const inputs: Ref<string[]> = ref([""]);
+
+const ecl: Ref<ConceptGroup> = ref(new ConceptGroup());
 
 onMounted(() => {
   nextTick(() => {
@@ -63,6 +72,38 @@ onMounted(() => {
       (autocomplete.children[0] as HTMLElement).focus();
     }
   });
+
+  ecl.value = {
+    bool: "OR",
+    concepts: [
+      { concept: { iri: "195967001", term: "Asthma (disorder)" } },
+      { concept: { entailment: "<<", iri: "73211009", term: "Diabetes mellitus (disorder)" } },
+      {
+        bool: "AND",
+        concepts: [
+          { concept: { entailment: "<", iri: "38341003", term: "Hypertensive disorder, systemic arterial (disorder)" } },
+          {
+            concept: { entailment: "<<", iri: "763158003", term: "Medicinal product (product)" },
+            refinement: {
+              bool: "AND",
+              refinements: [
+                {
+                  property: { concept: { entailment: "<", iri: "127489000", term: "Has active ingredient (attribute)" } },
+                  operator: "=",
+                  value: { concept: { entailment: "<", iri: "777067000", term: "Paracetamol (product)" } }
+                },
+                {
+                  property: { concept: { entailment: "<", iri: "736476002", term: "Has basic dose form (attribute)" } },
+                  operator: "=",
+                  value: { concept: { entailment: "<", iri: "385268001", term: "Oral dose form (dose form)" } }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  } as ConceptGroup;
 });
 
 async function search(event: AutoCompleteCompleteEvent) {

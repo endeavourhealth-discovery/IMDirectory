@@ -12,13 +12,13 @@ export class Concept extends NLOBase {
 
 export class ConceptGroup extends NLOBase {
   bool: "AND" | "OR" = "OR";
-  concepts?: (Concept | ConceptGroup)[] = [];
+  concepts?: (RefinedConcept | ConceptGroup)[] = [];
 }
 
 export class Refinement extends NLOBase {
-  property?: Concept;
+  property?: RefinedConcept;
   operator: "=" | "!=" = "=";
-  value?: Concept;
+  value?: RefinedConcept;
 }
 
 export class RefinementGroup extends NLOBase {
