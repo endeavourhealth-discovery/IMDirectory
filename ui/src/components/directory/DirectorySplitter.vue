@@ -5,7 +5,11 @@
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
+        <div v-if="directoryLoading" class="flex flex-row justify-content-center align-items-center loading-container">
+          <ProgressSpinner />
+        </div>
         <router-view
+          v-else
           v-slot="{ Component, route }"
           @selectedUpdated="routeToSelected"
           :searchResults="searchResults"
@@ -19,15 +23,7 @@
           :rows="100"
         >
           <transition :name="route?.meta?.transition || 'fade'" :mode="route?.meta?.mode || 'in-out'">
-            <div
-              v-if="directoryLoading"
-              class="flex flex-row justify-content-center align-items-center loading-container"
-              :key="route.fullPath"
-              :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }"
-            >
-              <ProgressSpinner />
-            </div>
-            <component v-else :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
+            <component :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
           </transition>
         </router-view>
       </div>
