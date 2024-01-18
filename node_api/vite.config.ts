@@ -4,7 +4,7 @@ import * as path from "path";
 import { loadEnv } from "vite";
 
 export default ({ command, mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
+  const env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
   return defineConfig({
     define: { "process.env": env },
