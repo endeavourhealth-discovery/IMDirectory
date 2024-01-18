@@ -10,12 +10,14 @@ createTestingPinia();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
+const mockIsReady = vi.fn();
 const mockRoute = { name: "Concept" };
 
 vi.mock("vue-router", () => ({
   useRouter: () => ({
     push: mockPush,
-    go: mockGo
+    go: mockGo,
+    isReady: mockIsReady
   }),
   useRoute: () => mockRoute
 }));
