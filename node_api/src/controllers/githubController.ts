@@ -7,7 +7,6 @@ import AuthMiddleware from "@/middlewares/auth.middleware";
 import { CustomError } from "@im-library/models";
 import { ErrorType } from "@im-library/enums";
 import router from "express-promise-router";
-import Env from "@/services/env.service";
 
 export default class GithubController {
   public path = "/";
@@ -38,7 +37,6 @@ export default class GithubController {
   }
 
   private async getLatestRelease(req: Request, res: Response, next: NextFunction, attempt?: number): Promise<GithubRelease> {
-    console.log(Env.GIT_TOKEN);
     if (attempt && attempt > 1) throw new Error("Maximum retries reached. Failed to get latest release and set releases");
     try {
       const repo = req.query.repositoryName;
