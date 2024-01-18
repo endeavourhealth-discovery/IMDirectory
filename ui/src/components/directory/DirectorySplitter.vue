@@ -18,7 +18,7 @@
           @downloadRequested="(data: any) => $emit('downloadRequested', data)"
           :rows="100"
         >
-          <transition :name="showTransitions ? route?.meta?.transition : 'fade'" :mode="showTransitions ? route?.meta?.mode : 'in-out'">
+          <transition :name="route?.meta?.transition || 'fade'" :mode="route?.meta?.mode || 'in-out'">
             <div
               v-if="directoryLoading"
               class="flex flex-row justify-content-center align-items-center loading-container"
@@ -58,12 +58,6 @@ const findInTreeBoolean = computed(() => directoryStore.findInTreeBoolean);
 const directoryLoading = computed(() => loadingStore.directoryLoading);
 
 const history: Ref<string[]> = ref([]);
-const showTransitions = ref(false);
-
-onMounted(async () => {
-  await router.isReady();
-  showTransitions.value = true;
-});
 
 function updateSplitter(event: any) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
