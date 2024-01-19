@@ -1,4 +1,4 @@
-import { Bool, Entailment, Operator, OrderDirection, Property } from "../interfaces/AutoGen";
+import { Bool, Entailment, Operator, OrderDirection, Property, Return, ReturnProperty } from "../interfaces/AutoGen";
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
@@ -11,20 +11,52 @@ export type MatchType = "path" | "then" | "";
 // descriptors
 export function describeQuery(query: Query): Query {
   const describedQuery = { ...query };
-
-  if (isArrayHasLength(describedQuery.match))
-    for (const [index, match] of describedQuery.match!.entries()) {
-      describeMatch(match, index, Bool.and);
-    }
-  else if (isArrayHasLength(describedQuery.property)) {
-    for (const [index, prop] of describedQuery.property!.entries()) {
-      describeProperty(prop, index, Bool.and);
-    }
-  }
+  describe(describedQuery);
   return describedQuery;
 }
 
-export function describeMatch(match: Match, index: number, bool: Bool, matchType?: MatchType) {
+function describe(query: Query) {
+  if (isObjectHasKeys(query, ["name"])) {
+    query.description = query.name;
+  }
+  if (isArrayHasLength(query.match)) {
+    for (const [index, match] of query.match!.entries()) {
+      describeMatch(match, index, Bool.and);
+    }
+  }
+  if (isArrayHasLength(query.property)) {
+    for (const [index, prop] of query.property!.entries()) {
+      describeProperty(prop, index, Bool.and);
+    }
+  }
+  if (isArrayHasLength(query.query)) {
+    for (const subQuery of query.query!) {
+      describe(subQuery);
+    }
+  }
+  if (isArrayHasLength(query.return)) {
+    for (const returnItem of query.return!) {
+      describeReturn(returnItem);
+    }
+  }
+}
+
+export function describeReturn(returnItem: Return) {
+  if (isArrayHasLength(returnItem.property)) {
+    for (const [index, property] of returnItem.property!.entries()) {
+      describeReturnProperty(property, index);
+    }
+  }
+}
+
+export function describeReturnProperty(property: ReturnProperty, index: number) {
+  property.description = getNameFromRef(property);
+  if (isObjectHasKeys(property, ["return"])) {
+    describeReturn(property.return!);
+  }
+}
+
+export function describeMatch(match: Match, index: number, bool?: Bool, matchType?: MatchType) {
   let display = getDisplayFromMatch(match, matchType);
   if (match.exclude && matchType !== "then") display = getDisplayFromLogic("exclude") + " " + display;
   if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
@@ -50,7 +82,7 @@ export function describeMatch(match: Match, index: number, bool: Bool, matchType
   match.description = display;
 }
 
-export function describeProperty(property: Property, index: number, bool: Bool, matchType?: MatchType) {
+export function describeProperty(property: Property, index: number, bool?: Bool, matchType?: MatchType) {
   if (property.match) describeMatch(property.match, 0, Bool.and, "path");
   if (isObjectHasKeys(property, ["@id"])) {
     let display = getDisplayFromProperty(property, matchType);
