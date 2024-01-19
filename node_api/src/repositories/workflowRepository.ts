@@ -150,7 +150,7 @@ export default class WorkflowRepository {
 
   public async getWorkflowsByCreatedBy(userId: string) {
     const qry =
-      "SELECT ?s ?wfCreatedBy ?wfType ?wfAssignedTo ?wfState ?wfDateCreated " +
+      "SELECT ?s ?wfType ?wfAssignedTo ?wfState ?wfDateCreated " +
       "WHERE { " +
       "GRAPH ?c { " +
       "?s ?createdBy ?wfCreatedBy; " +
@@ -175,10 +175,10 @@ export default class WorkflowRepository {
         const workflow = {} as Workflow;
         workflow.id = r.s.value;
         workflow.type = r.wfType.value;
-        workflow.createdBy = r.wfCreatedBy.value;
         workflow.assignedTo = r.wfAssignedTo.value;
         workflow.state = r.wfState.value;
         workflow.dateCreated = r.wfDateCreated.value;
+        workflow.createdBy = userId;
         results.push(workflow);
       }
     }

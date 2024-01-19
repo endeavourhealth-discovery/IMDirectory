@@ -21,12 +21,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, Ref } from "vue";
 import SideBar from "@/components/workflow/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
+import WorkflowService from "@/services/WorkflowService";
+import { Workflow } from "@im-library/interfaces";
 
-let showInfo = ref(false);
-let selectedConceptIri = ref("");
+const showInfo = ref(false);
+const selectedConceptIri = ref("");
+const workflows: Ref<Workflow[]> = ref([]);
+
+onMounted(async () => {
+  workflows.value = await WorkflowService.getWorkflowByCreatedBy();
+});
 
 function updateSelected(selectedIri: string) {
   selectedConceptIri.value = selectedIri;
