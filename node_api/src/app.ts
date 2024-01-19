@@ -41,7 +41,7 @@ class App {
   }
 
   public listen() {
-    const prod: boolean = Env.NODE_ENV === "production";
+    const prod: boolean = "production" === process.env.NODE_ENV;
 
     this.app.listen(prod ? 8000 : this.port, () => {
       logger.info(`App started on port ${this.port}`);
