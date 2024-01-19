@@ -8,7 +8,7 @@
       </template>
     </TopBar>
     <div style="display: flex">
-      <div id="cookies-content-container">
+      <!--      <div id="cookies-content-container">
         Include if:
         <div class="query-box">
           <div v-for="(match, idx) of query" class="match">
@@ -35,6 +35,9 @@
             @item-select="select($event, -1)"
           />
         </div>
+      </div>-->
+      <div style="flex: 1">
+        <NLConceptGroupEdit :concept-group="ecl"></NLConceptGroupEdit>
       </div>
       <div style="flex: 1">
         <NLConceptGroup :concept-group="ecl"></NLConceptGroup>
@@ -53,6 +56,7 @@ import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { ConceptGroup } from "@/components/nlEditor/ecl/NLClasses";
 import NLConceptGroup from "@/components/nlEditor/ecl/NLConceptGroup.vue";
+import NLConceptGroupEdit from "@/components/nlEditor/ecl/NLConceptGroupEdit.vue";
 
 const router = useRouter();
 
