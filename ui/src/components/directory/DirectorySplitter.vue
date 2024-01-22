@@ -20,7 +20,7 @@
           @lazyLoadRequested="(event: any) => $emit('lazyLoadRequested', event)"
           :lazyLoading="true"
           @downloadRequested="(data: any) => $emit('downloadRequested', data)"
-          :rows="100"
+          :rows="25"
         >
           <transition :name="route?.meta?.transition || 'fade'" :mode="route?.meta?.mode || 'in-out'">
             <component :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
