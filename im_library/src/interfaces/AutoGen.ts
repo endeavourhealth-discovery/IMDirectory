@@ -1,6 +1,23 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-08 16:18:46.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-22 13:12:19.
+
+export interface DataModel {
+    iri?: string;
+    name?: string;
+    comment?: string;
+    properties?: DataModelProperty[];
+    propertyNames?: string[];
+}
+
+export interface DataModelProperty {
+    name?: string;
+    dataType?: TTIriRef;
+    comment?: string;
+    maxCount?: number;
+    minCount?: number;
+    model?: boolean;
+}
 
 export interface ArrayButtons {
     up?: boolean;
@@ -132,11 +149,11 @@ export interface Argument {
 }
 
 export interface Assignable {
-    value?: string;
-    operator?: Operator;
-    relativeTo?: PropertyRef;
-    dataType?: TTIriRef;
     unit?: string;
+    operator?: Operator;
+    dataType?: TTIriRef;
+    relativeTo?: PropertyRef;
+    value?: string;
 }
 
 export interface Case {
@@ -165,8 +182,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     descendantsOrSelfOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -504,12 +521,9 @@ export interface TTIriRef extends TTValue, Serializable {
     "@id": string;
 }
 
-export interface Serializable {
-}
-
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -536,6 +550,9 @@ export interface Exception extends Throwable {
 
 export interface TTValue extends Serializable {
     order?: number;
+}
+
+export interface Serializable {
 }
 
 export interface TTPrefix {
