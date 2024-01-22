@@ -92,7 +92,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   lazyLoading: false,
-  rows: 20
+  rows: 25
 });
 
 const emit = defineEmits({

@@ -101,7 +101,7 @@ const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
 const requiresLazy = computed(() => totalCount.value > currentRows.value);
 
-const rowsStart = 20;
+const rowsStart = 25;
 
 const queryString = ref("");
 const showDialog = ref(false);
