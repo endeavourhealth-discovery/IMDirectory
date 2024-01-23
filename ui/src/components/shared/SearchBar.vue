@@ -10,6 +10,7 @@
         @complete="debounceForSearch"
         data-testid="search-input"
         autofocus
+        v-on:keyup.enter="search()"
       />
     </span>
     <SplitButton class="search-button p-button-secondary" @click="search(false)" label="Search" :model="buttonActions" :loading="searchLoading" />
@@ -87,12 +88,12 @@ watch(
 );
 
 const emit = defineEmits({
-  "update:searchResults": payload => true,
+  "update:searchResults": _payload => true,
   "update:searchLoading": payload => typeof payload === "boolean",
   toEclSearch: () => true,
   toQuerySearch: () => true,
   "update:download": _payload => undefined,
-  "update:loadMore": _payload => undefined
+  "update:loadMore": _payload => true
 });
 
 const filterStore = useFilterStore();

@@ -41,20 +41,9 @@ class App {
   }
 
   public listen() {
-    const prod: boolean = Env.NODE_ENV === "production";
-
-    this.app.listen(prod ? 8000 : this.port, () => {
+    this.app.listen(this.port, () => {
       logger.info(`App started on port ${this.port}`);
     });
-
-    if (prod) {
-      const options = {
-        key: fs.readFileSync("/srv/www/keys/my-site-key.pem"),
-        cert: fs.readFileSync("/srv/www/keys/chain.pem")
-      };
-
-      https.createServer(options, this.app).listen(this.port);
-    }
   }
 }
 

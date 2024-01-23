@@ -21,7 +21,7 @@
           :locateInTreeFunction="locateInTree"
           @lazy-load-requested="lazyLoadRequested"
           :lazy-loading="true"
-          :rows="100"
+          :rows="25"
           @download-requested="downloadRequested"
         />
       </TabPanel>

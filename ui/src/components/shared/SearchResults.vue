@@ -53,7 +53,7 @@ const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
   searchLoading: false,
   lazyLoading: false,
-  rows: 20
+  rows: 25
 });
 
 const emit = defineEmits({
