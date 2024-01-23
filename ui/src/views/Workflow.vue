@@ -25,11 +25,11 @@ import { ref, onMounted, Ref } from "vue";
 import SideBar from "@/components/workflow/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import WorkflowService from "@/services/WorkflowService";
-import { Workflow } from "@im-library/interfaces";
+import { Task } from "@im-library/interfaces/AutoGen";
 
 const showInfo = ref(false);
 const selectedConceptIri = ref("");
-const workflows: Ref<Workflow[]> = ref([]);
+const workflows: Ref<Task[]> = ref([]);
 
 onMounted(async () => {
   workflows.value = await WorkflowService.getWorkflowByCreatedBy();

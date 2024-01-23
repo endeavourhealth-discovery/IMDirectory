@@ -11,7 +11,9 @@ export class WORKFLOW {
   public static readonly RELATED_PRODUCT = WORKFLOW.NAMESPACE + "relatedProduct";
   public static readonly RELATED_MODULE = WORKFLOW.NAMESPACE + "relatedModule";
   public static readonly OPERATING_SYSTEM = WORKFLOW.NAMESPACE + "operatingSystem";
+  public static readonly OPERATING_SYSTEM_OTHER = WORKFLOW.NAMESPACE + "operatingSystemOther";
   public static readonly BROWSER = WORKFLOW.NAMESPACE + "browser";
+  public static readonly BROWSER_OTHER = WORKFLOW.NAMESPACE + "browserOther";
   public static readonly SEVERITY = WORKFLOW.NAMESPACE + "severity";
   public static readonly ERROR = WORKFLOW.NAMESPACE + "errorDetails";
   public static readonly REPRODUCE_STEPS = WORKFLOW.NAMESPACE + "reproduceSteps";

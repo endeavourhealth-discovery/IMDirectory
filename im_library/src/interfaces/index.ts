@@ -49,8 +49,6 @@ import { TreeNode } from "./TreeNode";
 import { ContextMap } from "./ContextMap";
 import { SelectedMatch } from "./SelectedMatch";
 import { MailOptions } from "./MailOptions";
-import { Workflow } from "./Workflow";
-import { BugReport } from "./BugReport";
 import { QueryResponse } from "./QueryResponse";
 
 export {
@@ -105,7 +103,5 @@ export {
   type ContextMap,
   type SelectedMatch,
   type MailOptions,
-  type Workflow,
-  type BugReport,
   type QueryResponse
 };

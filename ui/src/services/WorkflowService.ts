@@ -1,21 +1,24 @@
-import { BugReport } from "@im-library/interfaces";
+import { BugReport, Task } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
-import { Workflow } from "@im-library/interfaces";
 
-const api = Env.VITE_NODE_API;
+const api = Env.API;
 
 const WorkflowService = {
   async createBugReport(bugReport: BugReport): Promise<any> {
-    return axios.post(api + "node_api/workflow/createBugReport", bugReport);
+    return axios.post(api + "api/workflow/createBugReport", bugReport);
   },
 
-  async getWorkflowByCreatedBy(): Promise<Workflow[]> {
-    return axios.get(api + "node_api/workflow/createdByWorkflows");
+  async getBugReport(id: string): Promise<BugReport> {
+    return axios.get(api + "api/workflow/getBugReport", { params: { id: id } });
   },
 
-  async getWorkflowByAssignedTo(): Promise<Workflow[]> {
-    return axios.get(api + "node_api/workflow/assignedToWorkflows");
+  async getWorkflowByCreatedBy(): Promise<Task[]> {
+    return axios.get(api + "api/workflow/createdByWorkflows");
+  },
+
+  async getWorkflowByAssignedTo(): Promise<Task[]> {
+    return axios.get(api + "api/workflow/assignedToWorkflows");
   }
 };
 
