@@ -1,0 +1,38 @@
+@top Lua { value }
+
+value { Keyword | Variable | String | Number | Comment | Object | Array }
+
+String { string }
+Variable { "Variable[" value "]" }
+Keyword { "and" | "break" | "do" | "else" | "elseif" | "end" | "false" | "for" | "function" | "if" | "in" | "local" | "nil" | "not" | "or" | "repeat"| "return" | "then" | "true" | "until" | "while" }
+Comment { "--" string | "--[[\n" string "\n]]--"}
+Object { "{" list? "}" }
+Array { "[" list? "]" }
+
+Property { PropertyName ":" value }
+PropertyName { string }
+
+@tokens {
+
+Number { '-'? int frac? exp? }
+int { '0' | $[1-9] @Digit* }
+frac { '.' @Digit+ }
+exp {
+[+-]? @Digit+ }
+
+string { '"' char* '"' | "'" char* "'"}
+char { $[\u{20}\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}] | "\" esc }
+esc { $["\/bfnrt] | "u" hex hex hex hex }
+hex { $[0-9a-fA-F] }
+
+whitespace { $[ \n\r\t] }
+
+"{" "}" "[" "]"
+}
+
+@Skip { whitespace }
+list { item ("," item)* }
+
+@external propSource luaHighlighting from "./lua.highlight.js"
+
+@detectDelim

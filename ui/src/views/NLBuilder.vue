@@ -36,12 +36,13 @@
           />
         </div>
       </div>-->
-      <div style="flex: 1">
+      <!--      <div style="flex: 1">
         <NLConceptGroupEdit :concept-group="ecl"></NLConceptGroupEdit>
       </div>
       <div style="flex: 1">
         <NLConceptGroup :concept-group="ecl"></NLConceptGroup>
-      </div>
+      </div>-->
+      <Codemirror v-model="code" border placeholder="test placeholder" :height="200" :options="cmOptions" @change="change" />
     </div>
   </div>
 </template>
@@ -57,6 +58,10 @@ import { IM } from "@im-library/vocabulary";
 import { ConceptGroup } from "@/components/nlEditor/ecl/NLClasses";
 import NLConceptGroup from "@/components/nlEditor/ecl/NLConceptGroup.vue";
 import NLConceptGroupEdit from "@/components/nlEditor/ecl/NLConceptGroupEdit.vue";
+import { parser } from "@/parser";
+import { foldNodeProp, foldInside, indentNodeProp, LRLanguage, LanguageSupport } from "@codemirror/language";
+import { styleTags, tags as t } from "@lezer/highlight";
+import { Editor } from "codemirror";
 
 const router = useRouter();
 
@@ -66,6 +71,42 @@ const query: Ref<SearchResultSummary[]> = ref([]);
 const inputs: Ref<string[]> = ref([""]);
 
 const ecl: Ref<ConceptGroup> = ref(new ConceptGroup());
+const code: Ref<string> = ref("");
+
+const metaParser = parser.configure({
+  props: [
+    styleTags({
+      Identifier: t.variableName,
+      Boolean: t.bool,
+      String: t.string,
+      LineComment: t.lineComment,
+      "( )": t.paren
+    }),
+    indentNodeProp.add({
+      Application: (context: any) => context.column(context.node.from) + context.unit
+    }),
+    foldNodeProp.add({
+      Application: foldInside
+    })
+  ]
+});
+
+const exampleLanguage = LRLanguage.define({
+  name: "nlecl",
+  parser: metaParser,
+  languageData: {
+    commentTokens: { line: ";" }
+  }
+});
+
+const cmOptions = {
+  mode: "nlecl", // Language mode
+  theme: "dracula" // Theme
+};
+
+function languageSupport() {
+  return new LanguageSupport(exampleLanguage);
+}
 
 onMounted(() => {
   nextTick(() => {
@@ -109,6 +150,11 @@ onMounted(() => {
     ]
   } as ConceptGroup;
 });
+
+function change(evt: any) {
+  const p = parser.parse(evt);
+  console.log(p);
+}
 
 async function search(event: AutoCompleteCompleteEvent) {
   if (abort.value) abort.value.abort();
