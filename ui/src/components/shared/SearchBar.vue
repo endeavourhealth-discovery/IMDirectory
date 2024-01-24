@@ -105,8 +105,11 @@ const { downloadFile } = setupDownloadFile(window, document);
 const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
-watch(storeSelectedFilters, newValue => {
-  if (!props.filterDefaults && !props.filterOptions) selectedFilters.value = newValue;
+watch(storeSelectedFilters, async newValue => {
+  if (!props.filterDefaults && !props.filterOptions) {
+    selectedFilters.value = newValue;
+    await search();
+  }
 });
 
 const controller: Ref<AbortController> = ref({} as AbortController);
