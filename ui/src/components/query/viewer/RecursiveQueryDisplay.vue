@@ -90,6 +90,7 @@ function getNodeRef(propertyOrMatch: Property | Match) {
 
 .return {
   color: lightseagreen;
+  padding-left: 0.5rem;
 }
 
 .output {
