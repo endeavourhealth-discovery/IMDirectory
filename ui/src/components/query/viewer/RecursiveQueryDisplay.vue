@@ -21,7 +21,7 @@
       <RecursiveQueryDisplay :match="match.then" :parent-match="match" :full-query="fullQuery" />
     </span>
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
-    <span v-if="isArrayHasLength(match.query)" class="return">return</span>
+    <span v-if="isArrayHasLength(match.query)" class="output">output</span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.query)"
       v-for="nestedQuery of match.query"
@@ -29,6 +29,7 @@
       :parent-match="match"
       :full-query="fullQuery"
     />
+    <span v-if="isArrayHasLength(match.return)" class="return">return</span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.return)"
       v-for="nestedReturn of match.return"
@@ -88,6 +89,10 @@ function getNodeRef(propertyOrMatch: Property | Match) {
 }
 
 .return {
-  color: rgb(0, 102, 255);
+  color: lightseagreen;
+}
+
+.output {
+  color: mediumslateblue;
 }
 </style>
