@@ -363,9 +363,8 @@ export function getDisplaySuffixFromEntailment(entailment: Entailment) {
 }
 
 export function getDisplayFromEntailment(entailment: Entailment) {
-  if (entailment.ancestorsOf) return "ancestors of ";
-  if (entailment.descendantsOf) return "subtypes of ";
-  if (entailment.descendantsOrSelfOf) return "of ";
+  if (entailment.ancestorsOf) return "ancestors ";
+  if (entailment.descendantsOf) return "subtypes ";
   return "";
 }
 
