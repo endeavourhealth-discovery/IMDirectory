@@ -36,23 +36,27 @@ function describe(query: Query) {
   }
   if (isArrayHasLength(query.return)) {
     for (const returnItem of query.return!) {
-      describeReturn(returnItem);
+      describeReturn(returnItem, []);
     }
   }
 }
 
-export function describeReturn(returnItem: Return) {
+export function describeReturn(returnItem: Return, pathProperties: string[]) {
   if (isArrayHasLength(returnItem.property)) {
     for (const [index, property] of returnItem.property!.entries()) {
-      describeReturnProperty(property, index);
+      describeReturnProperty(property, pathProperties);
     }
   }
 }
 
-export function describeReturnProperty(property: ReturnProperty, index: number) {
-  property.description = getNameFromRef(property);
+export function describeReturnProperty(property: ReturnProperty, pathProperties: string[]) {
   if (isObjectHasKeys(property, ["return"])) {
-    describeReturn(property.return!);
+    pathProperties.push(getNameFromRef(property));
+    describeReturn(property.return!, pathProperties);
+  } else {
+    const pathString = pathProperties.join(" ");
+    const propertyDesc = getNameFromRef(property);
+    property.description = pathString ? pathString + " -> " + propertyDesc : propertyDesc;
   }
 }
 
