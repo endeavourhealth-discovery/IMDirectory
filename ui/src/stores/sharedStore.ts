@@ -5,7 +5,6 @@ import { IM } from "@im-library/vocabulary";
 export const useSharedStore = defineStore("shared", {
   state: (): SharedState => ({
     showCookieConsent: false,
-    fontAwesomePro: false,
     showSnomedLicense: false,
     tagSeverityMatches: [
       { "@id": IM.ACTIVE, severity: "success" },
@@ -20,9 +19,6 @@ export const useSharedStore = defineStore("shared", {
   actions: {
     updateShowCookieConsent(bool: boolean) {
       this.showCookieConsent = bool;
-    },
-    updateFontAwesomePro(bool: boolean) {
-      this.fontAwesomePro = bool;
     },
     updateActiveProfile(value: any) {
       this.activeProfile = value;
