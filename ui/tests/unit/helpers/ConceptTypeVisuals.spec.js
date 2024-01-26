@@ -4,11 +4,8 @@ import { createTestingPinia } from "@pinia/testing";
 import { useSharedStore } from "@/stores/sharedStore";
 
 createTestingPinia();
-const mockState = useSharedStore();
 
 describe("ConceptTypeMethods", () => {
-  mockState.fontAwesomePro = false;
-
   const testSetType = [{ "@id": "http://endhealth.info/im#ValueSet", name: "Value set" }];
   const testDataModelType = [
     { "@id": "http://www.w3.org/2000/01/rdf-schema#Class", name: "Class" },
@@ -26,31 +23,31 @@ describe("ConceptTypeMethods", () => {
 
   describe("getFAIconFromType", () => {
     it("returns icon for nodeshape", () => {
-      expect(getFAIconFromType(testDataModelType)).toStrictEqual(["fa-solid", "fa-diagram-project"]);
+      expect(getFAIconFromType(testDataModelType)).toStrictEqual(["fa-duotone", "fa-diagram-project"]);
     });
 
     it("returns icon for property", () => {
-      expect(getFAIconFromType(testPropertyType)).toStrictEqual(["fa-solid", "fa-pen-to-square"]);
+      expect(getFAIconFromType(testPropertyType)).toStrictEqual(["fa-duotone", "fa-pen-to-square"]);
     });
 
     it("returns icon for valueset", () => {
-      expect(getFAIconFromType(testSetType)).toStrictEqual(["fa-solid", "fa-list-check"]);
+      expect(getFAIconFromType(testSetType)).toStrictEqual(["fa-duotone", "fa-list-check"]);
     });
 
     it("returns icon for folder", () => {
-      expect(getFAIconFromType(testFolder)).toStrictEqual(["fa-solid", "fa-folder"]);
+      expect(getFAIconFromType(testFolder)).toStrictEqual(["fa-duotone", "fa-folder"]);
     });
 
     it("returns icon for query", () => {
-      expect(getFAIconFromType(testQueryType)).toStrictEqual(["fa-solid", "fa-magnifying-glass"]);
+      expect(getFAIconFromType(testQueryType)).toStrictEqual(["fa-duotone", "fa-magnifying-glass"]);
     });
 
     it("returns icon for query", () => {
-      expect(getFAIconFromType(testFeatureType)).toStrictEqual(["fa-solid", "fa-filter"]);
+      expect(getFAIconFromType(testFeatureType)).toStrictEqual(["fa-duotone", "fa-filter-list"]);
     });
 
     it("returns default icon, type not found", () => {
-      expect(getFAIconFromType([])).toStrictEqual(["fa-solid", "fa-lightbulb"]);
+      expect(getFAIconFromType([])).toStrictEqual(["fa-duotone", "fa-lightbulb"]);
     });
   });
 

@@ -22,15 +22,7 @@ declare module "vue-router" {
   }
 }
 
-// Font Awesome
-import { library, dom } from "@fortawesome/fontawesome-svg-core";
-import { fab } from "@fortawesome/free-brands-svg-icons";
-
-library.add(fab);
-
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-
-dom.watch();
 
 // PrimeVue Components
 import Card from "primevue/card";
@@ -197,17 +189,6 @@ const app = createApp(App)
   .component("TabMenu", TabMenu);
 
 const sharedStore = useSharedStore();
-
-// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
-import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
-addFontAwesomeProIcons(library);
-sharedStore.updateFontAwesomePro(true);
-// #v-endif
-// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
-await import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
-await import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
-sharedStore.updateFontAwesomePro(false);
-// #v-endif
 
 const vm = app.mount("#app");
 

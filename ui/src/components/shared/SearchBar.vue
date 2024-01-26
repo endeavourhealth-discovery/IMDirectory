@@ -1,7 +1,7 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group">
-      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
+      <i v-if="loading" class="pi pi-spin pi-spinner"></i>
       <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText
         id="autocomplete-search"
@@ -13,11 +13,11 @@
         v-on:keyup.enter="search()"
       />
     </span>
-    <SplitButton class="search-button p-button-secondary" @click="search(false)" label="Search" :model="buttonActions" :loading="searchLoading" />
+    <SplitButton class="search-button p-button-secondary" @click="search(false)" label="Search" :model="buttonActions" :loading="loading" />
     <Button
       v-tooltip.bottom="'Filters'"
       id="filter-button"
-      :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'pi pi-sliders-h'"
+      icon="fa-duotone fa-sliders"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
@@ -97,13 +97,11 @@ const emit = defineEmits({
 });
 
 const filterStore = useFilterStore();
-const sharedStore = useSharedStore();
 const dynamicDialog = useDialog();
 
 const { downloadFile } = setupDownloadFile(window, document);
 
 const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 watch(storeSelectedFilters, async newValue => {
   if (!props.filterDefaults && !props.filterOptions) {
@@ -212,9 +210,9 @@ async function search(loadMore: boolean = false, downloadAll: boolean = false, d
     controller.value = new AbortController();
     const result = await EntityService.advancedSearch(searchRequest, controller.value);
     if (downloadAll) return result;
+    loading.value = false;
     if (result?.entities) results.value = result;
     else results.value = undefined;
-    loading.value = false;
   }
 }
 
