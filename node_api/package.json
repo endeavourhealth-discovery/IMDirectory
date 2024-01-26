@@ -80,7 +80,7 @@
     "rimraf": "5.0.1",
     "swagger-autogen": "2.23.6",
     "typescript": "5.2.2",
-    "vite": "4.4.12",
+    "vite": "4.5.2",
     "vite-plugin-node": "3.0.2",
     "vitest": "0.32.0"
   },
