@@ -1,22 +1,17 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-22 13:12:19.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-26 13:52:02.
 
-export interface DataModel {
-    iri?: string;
-    name?: string;
-    comment?: string;
-    properties?: DataModelProperty[];
-    propertyNames?: string[];
-}
-
-export interface DataModelProperty {
-    name?: string;
-    dataType?: TTIriRef;
-    comment?: string;
-    maxCount?: number;
-    minCount?: number;
-    model?: boolean;
+export interface DataModelProperty extends Serializable {
+    property?: TTIriRef;
+    type?: TTIriRef;
+    minInclusive?: string;
+    minExclusive?: string;
+    maxInclusive?: string;
+    maxExclusive?: string;
+    pattern?: string;
+    inheritedFrom?: TTIriRef;
+    order?: number;
 }
 
 export interface ArrayButtons {
@@ -149,11 +144,11 @@ export interface Argument {
 }
 
 export interface Assignable {
-    unit?: string;
-    operator?: Operator;
-    dataType?: TTIriRef;
-    relativeTo?: PropertyRef;
     value?: string;
+    unit?: string;
+    relativeTo?: PropertyRef;
+    dataType?: TTIriRef;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -182,8 +177,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -310,8 +305,8 @@ export interface ReturnProperty {
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -521,9 +516,12 @@ export interface TTIriRef extends TTValue, Serializable {
     "@id": string;
 }
 
+export interface Serializable {
+}
+
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -550,9 +548,6 @@ export interface Exception extends Throwable {
 
 export interface TTValue extends Serializable {
     order?: number;
-}
-
-export interface Serializable {
 }
 
 export interface TTPrefix {
