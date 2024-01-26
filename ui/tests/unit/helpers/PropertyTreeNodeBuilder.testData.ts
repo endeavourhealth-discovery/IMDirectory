@@ -27,7 +27,7 @@ export const testTreeNode = {
   iri: "http://endhealth.info/im#statedGender",
   data: testProperty,
   type: "class",
-  icon: ["fa-solid", "fa-pen-to-square"],
+  icon: ["fa-duotone", "fa-pen-to-square"],
   leaf: true,
   parent: undefined,
   children: []

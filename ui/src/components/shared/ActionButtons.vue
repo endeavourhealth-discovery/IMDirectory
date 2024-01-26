@@ -2,7 +2,7 @@
   <div class="flex">
     <Button
       v-if="show('findInTree')"
-      :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
+      icon="fa-duotone fa-list-tree"
       :severity="getSeverity()"
       :class="getClass()"
       @click="locateInTree(iri)"
@@ -11,7 +11,7 @@
     />
     <Button
       v-if="show('view')"
-      :icon="fontAwesomePro ? 'fa-duotone fa-up-right-from-square' : 'fa-solid fa-up-right-from-square'"
+      icon="fa-duotone fa-up-right-from-square"
       :severity="getSeverity()"
       :class="getClass()"
       @click="directService.view(iri)"
@@ -20,7 +20,7 @@
     />
     <Button
       v-if="show('edit')"
-      :icon="fontAwesomePro ? 'fa-duotone fa-pen-to-square' : 'fa-solid fa-pen-to-square'"
+      icon="fa-duotone fa-pen-to-square"
       :severity="getSeverity()"
       :class="getClass()"
       @click="directService.edit(iri, true)"
@@ -61,7 +61,6 @@ const directService = new DirectService();
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const editAllowed = computed(() => organisations.value.indexOf(props.iri.split("#")[0] + "#") !== -1);
 
 const organisations = computed(() => userStore.organisations);
