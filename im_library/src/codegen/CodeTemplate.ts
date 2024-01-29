@@ -6,5 +6,4 @@ export interface CodeTemplate {
   collectionWrapper: string;
   footer: string;
   datatypeMap: any;
-  defaultType: string;
 }

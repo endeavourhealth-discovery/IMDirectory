@@ -34,8 +34,7 @@ describe("CodeGen", () => {
       footer: "}",
       datatypeMap: {
         "XSD:String": "String"
-      },
-      defaultType: "String"
+      }
     });
 
     const actual = cg.generateCode(model, properties, "org.endeavourhealth.im");
@@ -56,8 +55,7 @@ describe("CodeGen", () => {
       footer: "}",
       datatypeMap: {
         "XSD:String": "String"
-      },
-      defaultType: "String"
+      }
     });
 
     const actual = cg.generateCode(model, properties, "org.endeavourhealth.im");
@@ -75,8 +73,7 @@ describe("CodeGen", () => {
       footer: "    }\n}",
       datatypeMap: {
         "XSD:String": "string"
-      },
-      defaultType: "string"
+      }
     });
 
     const actual = cg.generateCode(model, properties, "org.endeavourhealth.im");
@@ -94,8 +91,7 @@ describe("CodeGen", () => {
       footer: "    }\n}",
       datatypeMap: {
         "XSD:String": "string"
-      },
-      defaultType: "string"
+      }
     });
 
     const PROPERTY = "PROPERTY NAME";
