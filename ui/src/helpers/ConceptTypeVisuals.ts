@@ -6,19 +6,16 @@
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import palette from "google-palette";
 import { isFeature, isFolder, isProperty, isQuery, isRecordModel, isTask, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { useSharedStore } from "@/stores/sharedStore";
 
 export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
-  const faPro = useSharedStore().fontAwesomePro;
-
-  if (isRecordModel(conceptTypes)) return faPro ? ["fa-duotone", "fa-diagram-project"] : ["fa-solid", "fa-diagram-project"];
-  else if (isTask(conceptTypes)) return faPro ? ["fa-duotone", "fa-clipboard-check"] : ["fa-solid", "fa-clipboard-check"];
-  else if (isProperty(conceptTypes)) return faPro ? ["fa-duotone", "fa-pen-to-square"] : ["fa-solid", "fa-pen-to-square"];
-  else if (isValueSet(conceptTypes)) return faPro ? ["fa-duotone", "fa-list-check"] : ["fa-solid", "fa-list-check"];
-  else if (isFolder(conceptTypes)) return faPro ? ["fa-duotone", "fa-folder"] : ["fa-solid", "fa-folder"];
-  else if (isQuery(conceptTypes)) return faPro ? ["fa-duotone", "fa-magnifying-glass"] : ["fa-solid", "fa-magnifying-glass"];
-  else if (isFeature(conceptTypes)) return faPro ? ["fa-duotone", "fa-filter-list"] : ["fa-solid", "fa-filter"];
-  else return faPro ? ["fa-duotone", "fa-lightbulb"] : ["fa-solid", "fa-lightbulb"];
+  if (isRecordModel(conceptTypes)) return ["fa-duotone", "fa-diagram-project"];
+  else if (isTask(conceptTypes)) return ["fa-duotone", "fa-clipboard-check"];
+  else if (isProperty(conceptTypes)) return ["fa-duotone", "fa-pen-to-square"];
+  else if (isValueSet(conceptTypes)) return ["fa-duotone", "fa-list-check"];
+  else if (isFolder(conceptTypes)) return ["fa-duotone", "fa-folder"];
+  else if (isQuery(conceptTypes)) return ["fa-duotone", "fa-magnifying-glass"];
+  else if (isFeature(conceptTypes)) return ["fa-duotone", "fa-filter-list"];
+  else return ["fa-duotone", "fa-lightbulb"];
 }
 
 export function getColourFromType(conceptTypes: TTIriRef[]): string {

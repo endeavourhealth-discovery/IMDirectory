@@ -2,7 +2,7 @@
   <div id="mfa-delete">
     <Card class="flex flex-column justify-content-sm-around align-items-center mfa-delete-card">
       <template #header>
-        <IMFontAwesomeIcon :icon="fontAwesomePro ? 'fa-solid fa-shield-slash' : 'fa-solid fa-lock-open'" class="icon-header" />
+        <IMFontAwesomeIcon icon="fa-solid fa-shield-slash" class="icon-header" />
       </template>
       <template #title>Disable 2-factor authentication</template>
       <template #content>
@@ -36,9 +36,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const helpDialog = useDialog();
 const userStore = useUserStore();
-const sharedStore = useSharedStore();
 
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const awsUser = computed(() => userStore.awsUser);
 
 const loading = ref(false);

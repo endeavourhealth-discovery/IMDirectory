@@ -13,14 +13,9 @@
         <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
       </div>
       <div class="col-2 header-button-group p-buttonset">
+        <Button icon="fa-regular fa-angle-left" :disabled="!canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
         <Button
-          :icon="fontAwesomePro ? 'fa-regular fa-angle-left' : 'pi pi-angle-left'"
-          :disabled="!canGoBack"
-          class="go-back p-button-rounded p-button-text p-button-plain"
-          @click="goBack"
-        />
-        <Button
-          :icon="fontAwesomePro ? 'fa-regular fa-angle-right' : 'pi pi-angle-right'"
+          icon="fa-regular fa-angle-right"
           :disabled="!canGoForward"
           class="go-forward p-button-rounded p-button-text p-button-plain"
           @click="goForward"
@@ -48,9 +43,6 @@ const emit = defineEmits({
   "update:history": (_payload: string[]) => true
 });
 
-const sharedStore = useSharedStore();
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-
 const canGoBack = computed(() => props.history.length && props.history.indexOf(props.entityIri) !== 0);
 const canGoForward = computed(() => props.history.length && props.history.indexOf(props.entityIri) < props.history.length - 1);
 
@@ -64,7 +56,7 @@ const pathOptions: Ref<any[]> = ref([]);
 const folderPath: Ref<TTIriRef[]> = ref([]);
 
 const home = {
-  icon: fontAwesomePro.value ? "fa-duotone fa-house-chimney" : "fa-solid fa-house",
+  icon: "fa-duotone fa-house-chimney",
   command: (data: any) => emit("navigateTo", data)
 };
 

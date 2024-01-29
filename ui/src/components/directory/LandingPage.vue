@@ -247,10 +247,8 @@ function locateInTree(iri: string) {
 }
 
 .recent-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 1.25rem;
-  padding: 5px;
+  height: 1rem;
+  font-size: 1rem;
 }
 
 .action-buttons-container {
@@ -266,6 +264,7 @@ function locateInTree(iri: string) {
   justify-content: flex-start;
   align-items: center;
   overflow: auto;
+  gap: 0.25rem;
 }
 
 .activity-name {

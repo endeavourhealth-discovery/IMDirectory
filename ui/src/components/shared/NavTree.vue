@@ -36,7 +36,7 @@
     <Dialog header="New folder" :visible="newFolder !== null" :modal="true" :closable="false">
       <InputText type="text" v-model="newFolderName" autofocus @keyup.enter="createFolder" />
       <template #footer>
-        <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
+        <Button label="Cancel" icon="fa-regular fa-xmark" @click="newFolder = null" class="p-button-text" />
         <Button label="Create" :icon="newFolderIcon" :disabled="creating || !newFolderName" @click="createFolder" />
       </template>
     </Dialog>
@@ -56,7 +56,6 @@ import { useRouter } from "vue-router";
 import { TreeNode } from "primevue/treenode";
 import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
-import { useSharedStore } from "@/stores/sharedStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
 import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
@@ -82,11 +81,9 @@ const router = useRouter();
 const toast = useToast();
 const confirm = useConfirm();
 const userStore = useUserStore();
-const sharedStore = useSharedStore();
 const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const {
   root,

@@ -20,7 +20,6 @@ import { computed, ref } from "vue";
 import { DirectService } from "../../services";
 import OverlaySummary from "./OverlaySummary.vue";
 import setupOverlay from "@/composables/setupOverlay";
-import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
   iri: string;
@@ -38,15 +37,12 @@ const emit = defineEmits({
   navigateTo: (_payload: string) => true
 });
 
-const sharedStore = useSharedStore();
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-
 const vLinkMenu = ref();
 const items = ref([
-  { label: "Select", icon: fontAwesomePro ? "fa-duotone fa-list-tree" : "fa-solid fa-sitemap", command: () => emit("navigateTo", props.iri) },
+  { label: "Select", icon: "fa-duotone fa-list-tree", command: () => emit("navigateTo", props.iri) },
   {
     label: "View",
-    icon: fontAwesomePro ? "fa-duotone fa-up-right-from-square" : "fa-solid fa-up-right-from-square",
+    icon: "fa-duotone fa-up-right-from-square",
     command: () => directService.view(props.iri)
   }
 ]);

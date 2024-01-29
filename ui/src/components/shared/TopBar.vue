@@ -14,15 +14,7 @@
         class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
         @click="showReleaseNotes"
       />
-      <Button
-        v-tooltip.bottom="'Themes'"
-        :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'"
-        rounded
-        text
-        plain
-        class="topbar-end-button"
-        @click="openThemesMenu"
-      />
+      <Button v-tooltip.bottom="'Themes'" icon="fa-regular fa-palette" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
         <template #item="{ item }: any">
           <div class="theme-row p-link">
@@ -33,14 +25,14 @@
       </Menu>
       <Button
         v-tooltip.bottom="'Upload/Download'"
-        :icon="fontAwesomePro ? 'fa-duotone fa-arrow-down-up-across-line' : 'fa-solid fa-arrow-down-up-across-line'"
+        icon="fa-duotone fa-arrow-down-up-across-line"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
       />
       <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
-        :icon="fontAwesomePro ? 'fa-regular fa-grid-2' : 'pi pi-th-large'"
+        icon="fa-regular fa-grid-2"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
       />
@@ -58,7 +50,7 @@
       <Button
         v-tooltip.left="'Account'"
         v-if="!isLoggedIn"
-        :icon="fontAwesomePro ? 'fa-duotone fa-user' : 'fa-regular fa-user'"
+        icon="fa-duotone fa-user"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openUserMenu"
         aria-haspopup="true"
@@ -112,7 +104,6 @@ const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const currentTheme = computed(() => userStore.currentTheme);
 
 const { changeTheme } = setupChangeTheme();
@@ -223,17 +214,17 @@ function getAdminItems(): any[] {
   return [
     {
       label: "Filing Documents",
-      icon: fontAwesomePro ? "fa-duotone fa-files" : "fa-solid fa-file",
+      icon: "fa-duotone fa-files",
       items: [
         {
           label: "Download Changes",
-          icon: fontAwesomePro.value ? "fa-duotone fa-file-arrow-down" : "fa-solid fa-file-arrow-down",
+          icon: "fa-duotone fa-file-arrow-down",
           disabled: !isLoggedInWithRole("IMAdmin"),
           command: () => downloadChanges()
         },
         {
           label: "Upload Document",
-          icon: fontAwesomePro.value ? "fa-duotone fa-file-arrow-up" : "fa-solid fa-file-arrow-up",
+          icon: "fa-duotone fa-file-arrow-up",
           disabled: !(isLoggedInWithRole("create") || isLoggedInWithRole("edit")),
           command: () => directService.file()
         }
@@ -241,7 +232,7 @@ function getAdminItems(): any[] {
     },
     {
       label: "Code Downloads",
-      icon: fontAwesomePro ? "fa-duotone fa-code" : "fa-solid fa-code",
+      icon: "fa-duotone fa-code",
       items: [
         {
           label: "Download Java",

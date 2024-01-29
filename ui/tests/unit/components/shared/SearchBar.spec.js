@@ -16,8 +16,7 @@ createTestingPinia({
   initialState: {
     filter: {
       selectedFilters: testData.SELECTED_FILTERS
-    },
-    shared: { fontAwesomePro: false }
+    }
   }
 });
 const mockFilterStore = useFilterStore();

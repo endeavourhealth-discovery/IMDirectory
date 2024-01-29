@@ -1,6 +1,5 @@
 export interface SharedState {
   showCookieConsent: boolean;
-  fontAwesomePro: boolean;
   showSnomedLicense: boolean;
   tagSeverityMatches: any[];
   showReleaseNotes: boolean;

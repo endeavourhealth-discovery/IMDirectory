@@ -13,6 +13,7 @@
     />
 
     <RecursiveQueryDisplay v-if="isObjectHasKeys(property, ['match'])" :match="property.match!" :parent-match="undefined" :full-query="fullQuery" />
+    <RecursiveQueryDisplay v-if="isObjectHasKeys(property, ['return'])" :match="(property as any).return" :parent-match="parentMatch" :full-query="fullQuery" />
   </div>
 
   <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedProperty)" /> </OverlayPanel>
