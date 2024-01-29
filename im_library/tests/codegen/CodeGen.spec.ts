@@ -21,7 +21,7 @@ const properties: DataModelProperty[] = [
 ];
 
 describe("CodeGen", () => {
-  it.skip("Converts a model to JAVA pojo code", () => {
+  it("Converts a model to JAVA pojo code", () => {
     const cg: CodeGenerator = new CodeGenerator({
       fileExtension: ".java",
       header:
@@ -43,7 +43,7 @@ describe("CodeGen", () => {
     console.log(actual);
   });
 
-  it.skip("Converts a model to JAVA IM DataModel (health database)", () => {
+  it("Converts a model to JAVA IM DataModel (health database)", () => {
     const cg: CodeGenerator = new CodeGenerator({
       fileExtension: ".java",
       header:
@@ -65,7 +65,7 @@ describe("CodeGen", () => {
     console.log(actual);
   });
 
-  it.skip("Converts a model to C#.net class", () => {
+  it("Converts a model to C#.net class", () => {
     const cg: CodeGenerator = new CodeGenerator({
       fileExtension: ".cs",
       header: "namespace ${NAMESPACE};\n{\n    public class ${ModelName}\n    {",
