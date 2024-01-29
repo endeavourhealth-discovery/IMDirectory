@@ -3,19 +3,19 @@
     <div v-if="showFilters" class="filters-container">
       <div class="p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
+          <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" optionLabel="name" display="chip" />
           <label for="status">Select status:</label>
         </span>
       </div>
       <div class="p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" display="chip" />
+          <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" optionLabel="name" display="chip" />
           <label for="scheme">Select scheme:</label>
         </span>
       </div>
       <div class="p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" display="chip" />
+          <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" optionLabel="name" display="chip" />
           <label for="type">Select concept type:</label>
         </span>
       </div>
@@ -40,7 +40,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
-import { SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   showFilters?: boolean;
@@ -53,7 +53,7 @@ const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
   searchLoading: false,
   lazyLoading: false,
-  rows: 20
+  rows: 25
 });
 
 const emit = defineEmits({
@@ -66,13 +66,14 @@ const emit = defineEmits({
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
+const selectedStoreFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 
-const selectedSchemes: Ref<string[]> = ref([]);
-const selectedStatus: Ref<string[]> = ref([]);
-const selectedTypes: Ref<string[]> = ref([]);
-const schemeOptions: Ref<string[]> = ref([]);
-const statusOptions: Ref<string[]> = ref([]);
-const typeOptions: Ref<string[]> = ref([]);
+const selectedSchemes: Ref<TTIriRef[]> = ref([]);
+const selectedStatus: Ref<TTIriRef[]> = ref([]);
+const selectedTypes: Ref<TTIriRef[]> = ref([]);
+const schemeOptions: Ref<TTIriRef[]> = ref([]);
+const statusOptions: Ref<TTIriRef[]> = ref([]);
+const typeOptions: Ref<TTIriRef[]> = ref([]);
 const localSearchResults: Ref<SearchResponse | undefined> = ref();
 const loading = ref(true);
 
@@ -92,61 +93,56 @@ function init() {
   if (isArrayHasLength(localSearchResults.value)) {
     setFiltersFromSearchResults();
   } else {
-    setFilterDefaults();
+    setFiltersFromStore();
   }
   loading.value = false;
 }
 
-function setFilterDefaults() {
-  schemeOptions.value = filterOptions.value.schemes.map((scheme: any) => scheme.name);
-  typeOptions.value = filterOptions.value.types.map((type: any) => type.name);
-  statusOptions.value = filterOptions.value.status.map((item: any) => item.name);
-  selectedSchemes.value = filterOptions.value.schemes
-    .filter((option: any) => filterDefaults.value.schemes.includes(option["@id"]))
-    .map((scheme: any) => scheme.name);
-  selectedStatus.value = filterOptions.value.status
-    .filter((option: any) => filterDefaults.value.status.includes(option["@id"]))
-    .map((status: any) => status.name);
-  selectedTypes.value = filterOptions.value.types.filter((option: any) => filterDefaults.value.types.includes(option["@id"])).map((type: any) => type.name);
+function setFiltersFromStore() {
+  schemeOptions.value = [...filterOptions.value.schemes];
+  typeOptions.value = [...filterOptions.value.types];
+  statusOptions.value = [...filterOptions.value.status];
+  if (selectedStoreFilters.value.schemes.length || selectedStoreFilters.value.status.length || selectedStoreFilters.value.types.length) {
+    selectedSchemes.value = [...selectedStoreFilters.value.schemes];
+    selectedStatus.value = [...selectedStoreFilters.value.status];
+    selectedTypes.value = [...selectedStoreFilters.value.types];
+  } else {
+    selectedSchemes.value = filterOptions.value.schemes.filter((option: any) => filterDefaults.value.schemes.includes(option["@id"]));
+    selectedStatus.value = filterOptions.value.status.filter((option: any) => filterDefaults.value.status.includes(option["@id"]));
+    selectedTypes.value = filterOptions.value.types.filter((option: any) => filterDefaults.value.types.includes(option["@id"]));
+  }
 }
 
 function setFiltersFromSearchResults() {
-  const schemes = [] as string[];
-  const types = [] as string[];
-  const status = [] as string[];
-  (localSearchResults.value as SearchResultSummary[]).forEach(searchResult => {
-    if (isObjectHasKeys(searchResult.scheme, ["name"])) schemes.push(searchResult.scheme.name!);
-    searchResult.entityType.forEach((type: any) => {
-      if (filterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type.name);
+  const schemes = [] as TTIriRef[];
+  const types = [] as TTIriRef[];
+  const status = [] as TTIriRef[];
+  if (localSearchResults.value?.entities) {
+    localSearchResults.value.entities.forEach(searchResult => {
+      if (isObjectHasKeys(searchResult.scheme, ["name"])) schemes.push(searchResult.scheme);
+      searchResult.entityType.forEach(type => {
+        if (filterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type);
+      });
+      if (isObjectHasKeys(searchResult.status, ["name"])) status.push(searchResult.status);
     });
-    if (isObjectHasKeys(searchResult.status, ["name"])) status.push(searchResult.status.name!);
-  });
-  schemeOptions.value = [...new Set(schemes)];
-  typeOptions.value = [...new Set(types)];
-  statusOptions.value = [...new Set(status)];
+    schemeOptions.value = [...new Set(schemes)];
+    typeOptions.value = [...new Set(types)];
+    statusOptions.value = [...new Set(status)];
 
-  selectedSchemes.value = [...new Set(schemes)];
-  selectedTypes.value = [...new Set(types)];
-  selectedStatus.value = [...new Set(status)];
+    selectedSchemes.value = [...new Set(schemes)];
+    selectedTypes.value = [...new Set(types)];
+    selectedStatus.value = [...new Set(status)];
+  }
 }
 
 function filterResults() {
-  if (localSearchResults.value && localSearchResults.value.entities && isArrayHasLength(localSearchResults.value?.entities)) {
-    const filteredSearchResults = [] as SearchResultSummary[];
-    localSearchResults.value?.entities.forEach(searchResult => {
-      let isSelectedType = false;
-      searchResult.entityType.forEach((type: any) => {
-        if (selectedTypes.value.indexOf(type.name) != -1) {
-          isSelectedType = true;
-        }
-      });
-
-      if (selectedSchemes.value.indexOf(searchResult.scheme.name!) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name!) != -1) {
-        filteredSearchResults.push(searchResult);
-      }
-    });
-    localSearchResults.value.entities = [...filteredSearchResults];
-  }
+  filterStore.updateSelectedFilters({
+    schemes: selectedSchemes,
+    status: selectedStatus,
+    types: selectedTypes,
+    sortDirections: selectedStoreFilters.value.sortDirections,
+    sortFields: selectedStoreFilters.value.sortFields
+  });
 }
 
 function updateSelected(selected: SearchResultSummary) {

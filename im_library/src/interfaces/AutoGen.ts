@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-23 16:09:15.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-19 11:24:40.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -133,10 +133,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    relativeTo?: PropertyRef;
-    operator?: Operator;
-    dataType?: TTIriRef;
     unit?: string;
+    relativeTo?: PropertyRef;
+    dataType?: TTIriRef;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -165,8 +165,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -283,6 +283,7 @@ export interface Return {
 }
 
 export interface ReturnProperty {
+    description?: string;
     "@id"?: string;
     function?: FunctionClause;
     as?: string;
@@ -293,8 +294,8 @@ export interface ReturnProperty {
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -432,47 +433,6 @@ export interface SearchTermCode {
     status?: TTIriRef;
 }
 
-export interface BugReport extends Task {
-    product?: string;
-    version?: string;
-    module?: TaskModule;
-    os?: OperatingSystem;
-    osOther?: string;
-    browser?: Browser;
-    browserOther?: string;
-    severity?: Severity;
-    status?: Status;
-    error?: string;
-    description?: string;
-    reproduceSteps?: string;
-    expectedResult?: string;
-    actualResult?: string;
-}
-
-export interface Task {
-    id?: TTIriRef;
-    createdBy?: string;
-    type?: TaskType;
-    state?: TaskState;
-    assignedTo?: string;
-    dateCreated?: Date;
-}
-
-/**
- * Structure containing search request parameters and filters
- */
-export interface WorkflowRequest {
-    page?: number;
-    size?: number;
-    userId?: string;
-}
-
-export interface WorkflowResponse {
-    page?: number;
-    count?: number;
-    tasks?: Task[];
-}
-
 export interface COMPONENT {
 }
 
@@ -546,8 +506,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -643,59 +603,4 @@ export const enum VarType {
     NODE = "NODE",
     PATH = "PATH",
     LITERAL = "LITERAL",
-}
-
-export const enum TaskState {
-    TODO = "TODO",
-    IN_PROGRESS = "IN_PROGRESS",
-    APPROVED = "APPROVED",
-    COMPLETE = "COMPLETE",
-    REJECTED = "REJECTED",
-    CANCELLED = "CANCELLED",
-    UNDER_REVIEW = "UNDER_REVIEW",
-}
-
-export const enum TaskType {
-    BUG_REPORT = "BUG_REPORT",
-}
-
-export const enum Browser {
-    CHROME = "CHROME",
-    FIREFOX = "FIREFOX",
-    EDGE = "EDGE",
-    IE = "IE",
-    OTHER = "OTHER",
-}
-
-export const enum OperatingSystem {
-    WINDOWS = "WINDOWS",
-    MACOS = "MACOS",
-    LINUX = "LINUX",
-    OTHER = "OTHER",
-}
-
-export const enum Severity {
-    CRITICAL = "CRITICAL",
-    MAJOR = "MAJOR",
-    MINOR = "MINOR",
-    TRIVIAL = "TRIVIAL",
-    ENHANCEMENT = "ENHANCEMENT",
-}
-
-export const enum Status {
-    NEW = "NEW",
-    FIXED = "FIXED",
-    ASSIGNED = "ASSIGNED",
-    VERIFIED = "VERIFIED",
-    REOPENED = "REOPENED",
-    WONT_FIX = "WONT_FIX",
-}
-
-export const enum TaskModule {
-    DIRECTORY = "DIRECTORY",
-    QUERY = "QUERY",
-    CREATOR = "CREATOR",
-    EDITOR = "EDITOR",
-    UPRN = "UPRN",
-    AUTH = "AUTH",
 }

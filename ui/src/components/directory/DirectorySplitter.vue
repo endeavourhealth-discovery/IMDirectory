@@ -35,10 +35,18 @@
 import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { DirectService } from "@/services";
-import { Ref, computed, ref, onMounted } from "vue";
+import { Ref, computed, ref, onMounted, watch } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRouter } from "vue-router";
 import { useLoadingStore } from "@/stores/loadingStore";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
+
+interface Props {
+  searchResults: SearchResponse | undefined;
+  searchLoading: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({ lazyLoadRequested: (_payload: any) => true, downloadRequested: (_payload: { term: string; count: number }) => true });
 
@@ -47,8 +55,6 @@ const loadingStore = useLoadingStore();
 const directoryStore = useDirectoryStore();
 const directService = new DirectService();
 
-const searchResults = computed(() => directoryStore.searchResults);
-const searchLoading = computed(() => directoryStore.searchLoading);
 const findInTreeIri = computed(() => directoryStore.findInTreeIri);
 const findInTreeBoolean = computed(() => directoryStore.findInTreeBoolean);
 const directoryLoading = computed(() => loadingStore.directoryLoading);

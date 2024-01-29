@@ -12,7 +12,6 @@
       @rowContextmenu="onRowContextMenu"
       :scrollable="true"
       scrollHeight="flex"
-      :loading="loading"
       ref="searchTable"
       dataKey="iri"
       :autoLayout="true"
@@ -29,7 +28,7 @@
           <Button
             :disabled="!searchResults"
             class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
-            :icon="fontAwesomePro ? 'fa-duotone fa-fw fa-file-arrow-down' : 'fa-solid fa-fw fa-file-arrow-down'"
+            icon="fa-duotone fa-fw fa-file-arrow-down"
             @click="exportCSV()"
             v-tooltip.right="'Download results table'"
           />
@@ -75,7 +74,6 @@ import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethod
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
-import { useSharedStore } from "@/stores/sharedStore";
 import _ from "lodash";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
@@ -92,7 +90,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   lazyLoading: false,
-  rows: 20
+  rows: 25
 });
 
 const emit = defineEmits({
@@ -102,11 +100,9 @@ const emit = defineEmits({
   lazyLoadRequested: (_payload: any) => true
 });
 
-const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const dynamicDialog = useDialog();
 const favourites = computed(() => userStore.favourites);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const { downloadFile } = setupDownloadFile(window, document);
 
@@ -153,10 +149,10 @@ const contextMenu = ref();
 
 watch(
   () => _.cloneDeep(props.searchResults),
-  () => init()
+  () =>     init()
 );
 
-onMounted(() => init());
+onMounted(() =>  init());
 
 function updateFavourites(row?: any) {
   if (row) selected.value = row.data;
@@ -173,7 +169,7 @@ function init() {
 }
 
 function processSearchResults(searchResults: SearchResponse | undefined): void {
-  if (searchResults && searchResults.entities && isArrayHasLength(searchResults.entities)) {
+  if (searchResults?.entities && isArrayHasLength(searchResults.entities)) {
     processedSearchResults.value = searchResults.entities.map(result => {
       const copy: any = _.cloneDeep(result);
       copy.icon = getFAIconFromType(result.entityType);
@@ -273,10 +269,8 @@ label {
 }
 
 .recent-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 1.25rem;
-  padding: 5px;
+  height: 1rem;
+  font-size: 1rem;
 }
 
 .datatable-flex-cell {
@@ -286,6 +280,7 @@ label {
   -webkit-box-flex: 1;
   -ms-flex: 1 1 0;
   flex: 1 1 0;
+  gap: 0.25rem;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;

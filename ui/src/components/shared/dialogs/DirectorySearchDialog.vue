@@ -36,7 +36,7 @@
             @locate-in-tree="locateInTree"
             @lazy-load-requested="lazyLoadRequested"
             :lazy-loading="true"
-            :rows="100"
+            :rows="25"
             @download-requested="downloadRequested"
           />
           <DirectoryDetails
@@ -74,7 +74,6 @@ import NavTree from "@/components/shared/NavTree.vue";
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
-import { useSharedStore } from "@/stores/sharedStore";
 import _, { cloneDeep } from "lodash";
 import { EntityService, FunctionService, QueryService } from "@/services";
 import { FunctionRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
@@ -104,9 +103,6 @@ const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
   "update:selected": payload => true
 });
-
-const sharedStore = useSharedStore();
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const hasQueryDefinition: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
