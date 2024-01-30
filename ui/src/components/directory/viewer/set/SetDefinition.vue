@@ -263,9 +263,10 @@ async function download(): Promise<void> {
       return;
     } else throw error;
   }
-  const labelResult = await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]);
+  const labelResult = await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL, IM.VERSION]);
   let label = "";
-  if (isObjectHasKeys(labelResult, [RDFS.LABEL])) label = labelResult[RDFS.LABEL];
+  if (isObjectHasKeys(labelResult, [RDFS.LABEL, IM.VERSION])) label = labelResult[RDFS.LABEL] + " v" + labelResult[IM.VERSION];
+  else if (isObjectHasKeys(labelResult, [RDFS.LABEL])) label = labelResult[RDFS.LABEL];
   downloadFile(result, getFileName(label));
   downloading.value = false;
 }
