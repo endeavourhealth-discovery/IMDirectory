@@ -20,6 +20,16 @@ const EntityService = {
     });
   },
 
+  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<any[]> {
+    return axios.get(api + "api/entity/public/expandedMembers", {
+      params: {
+        iri: iri,
+        legacy: legacy,
+        includeSubsets: includeSubsets
+      }
+    });
+  },
+
   async getFullExportSet(
     iri: string,
     definition: boolean,
