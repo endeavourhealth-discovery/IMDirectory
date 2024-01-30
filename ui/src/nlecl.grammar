@@ -1,38 +1,35 @@
-@top Lua { value }
-
-value { Keyword | Variable | String | Number | Comment | Object | Array }
-
-String { string }
-Variable { "Variable[" value "]" }
-Keyword { "and" | "break" | "do" | "else" | "elseif" | "end" | "false" | "for" | "function" | "if" | "in" | "local" | "nil" | "not" | "or" | "repeat"| "return" | "then" | "true" | "until" | "while" }
-Comment { "--" string | "--[[\n" string "\n]]--"}
-Object { "{" list? "}" }
-Array { "[" list? "]" }
-
-Property { PropertyName ":" value }
-PropertyName { string }
-
 @tokens {
+  Entailment { "<" | "<<" | ">>" | ">" }
 
-Number { '-'? int frac? exp? }
-int { '0' | $[1-9] @Digit* }
-frac { '.' @Digit+ }
-exp {
-[+-]? @Digit+ }
+  Code { @digit+ }
 
-string { '"' char* '"' | "'" char* "'"}
-char { $[\u{20}\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}] | "\" esc }
-esc { $["\/bfnrt] | "u" hex hex hex hex }
-hex { $[0-9a-fA-F] }
+  Term { '"' (!["\\] | "\\" _)* '"' }
 
-whitespace { $[ \n\r\t] }
+  Comparator { "=" | "!=" }
 
-"{" "}" "[" "]"
+  Bool { "AND" | "OR" }
+
+  "(" ")"
+
+  space { @whitespace+ }
 }
 
-@Skip { whitespace }
-list { item ("," item)* }
+Concept { Entailment? Code "|" Term }
 
-@external propSource luaHighlighting from "./lua.highlight.js"
+Property { Concept }
 
-@detectDelim
+Value { Concept }
+
+SingleRefinement { Property Comparator Value }
+
+MultiRefinement { SingleRefinement (Bool SingleRefinement)+ }
+
+MultiRefinementGroup { "(" MultiRefinement ")" }
+
+RefinedConcept { Concept "WHERE " (MultiRefinement | MultiRefinementGroup) }
+
+expression { RefinedConcept }
+
+@skip { space }
+
+@top ECL { expression }

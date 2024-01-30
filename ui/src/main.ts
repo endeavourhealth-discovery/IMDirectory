@@ -4,7 +4,6 @@ import router from "./router";
 import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
-import { InstallCodemirro } from "codemirror-editor-vue3";
 import axios from "axios";
 
 declare module "axios" {
@@ -121,7 +120,6 @@ const app = createApp(App)
     autoSetContainer: true,
     appendToBody: true
   })
-  .use(InstallCodemirro)
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
   .directive("ripple", Ripple)
