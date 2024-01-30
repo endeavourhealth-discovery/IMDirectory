@@ -20,12 +20,21 @@ const EntityService = {
     });
   },
 
-  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<any[]> {
+  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<TTIriRef[]> {
     return axios.get(api + "api/entity/public/expandedMembers", {
       params: {
         iri: iri,
         legacy: legacy,
         includeSubsets: includeSubsets
+      }
+    });
+  },
+
+  async getSetComparison(iriA: string, iriB: string): Promise<TTIriRef[]> {
+    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/setDiff", {
+      params: {
+        setIriA: iriA,
+        setIriB: iriB
       }
     });
   },

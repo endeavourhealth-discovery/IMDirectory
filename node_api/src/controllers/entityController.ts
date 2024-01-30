@@ -29,6 +29,11 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
+    this.router.get("/public/setDiff", (req, res, next) =>
+      this.getSetDiff(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
     this.router.post("/public/isValidPropertyBoolFocus", (req, res, next) =>
       this.isValidPropertyBoolFocus(req)
         .then(data => res.send(data))
@@ -86,5 +91,9 @@ export default class EntityController {
 
   async getConceptContextMaps(req: Request): Promise<ContextMap[]> {
     return await this.entityService.getConceptContextMaps(req.query.iri as string);
+  }
+
+  async getSetDiff(req: Request) {
+    return await this.entityService.getSetDiff(req.query.setIriA as string, req.query.setIriB as string);
   }
 }

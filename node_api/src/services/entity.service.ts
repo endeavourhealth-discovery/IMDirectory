@@ -240,4 +240,39 @@ export default class EntityService {
   async getEntitySummary(iri: string): Promise<SearchResultSummary> {
     return (await this.axios.get(Env.API + "api/entity/public/summary", { params: { iri: iri } })).data;
   }
+
+  async getSetDiff(setIriA: string, setIriB: string) {
+    const membersA = await this.getFullyExpandedSetMembers(setIriA, false, false);
+    const membersB = await this.getFullyExpandedSetMembers(setIriB, false, false);
+    const membersMap = new Map<string, TTIriRef>();
+    const diff = { membersA: [] as TTIriRef[], sharedMembers: [] as TTIriRef[], membersB: [] as TTIriRef[] };
+
+    for (const member of membersA) {
+      membersMap.set(member["@id"], member);
+    }
+
+    for (const member of membersB) {
+      if (membersMap.has(member["@id"])) {
+        diff.sharedMembers.push(member);
+        membersMap.delete(member["@id"]);
+      } else {
+        diff.membersB.push(member);
+      }
+    }
+
+    diff.membersA = Array.from(membersMap, ([iri, member]) => member);
+    return diff;
+  }
+
+  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<TTIriRef[]> {
+    return (
+      await axios.get(Env.API + "api/entity/public/expandedMembers", {
+        params: {
+          iri: iri,
+          legacy: legacy,
+          includeSubsets: includeSubsets
+        }
+      })
+    ).data;
+  }
 }
