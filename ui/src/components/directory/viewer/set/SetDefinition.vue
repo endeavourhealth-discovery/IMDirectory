@@ -48,7 +48,7 @@
       </AccordionTab>
       <AccordionTab header="Direct Members">
         <div class="set-accordion-content" id="members-container">
-          <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @open-download-dialog="displayDialog" />
         </div>
       </AccordionTab>
     </Accordion>
