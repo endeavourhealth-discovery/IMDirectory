@@ -9,6 +9,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import EntityRepository from "@/repositories/entityRepository";
 import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import { byName } from "@im-library/helpers/Sorters";
 
 export default class EntityService {
   axios: any;
@@ -260,7 +261,9 @@ export default class EntityService {
       }
     }
 
-    diff.membersA = Array.from(membersMap, ([iri, member]) => member);
+    diff.membersA = Array.from(membersMap, ([iri, member]) => member).sort(byName);
+    diff.membersB.sort(byName);
+    diff.sharedMembers.sort(byName);
     return diff;
   }
 

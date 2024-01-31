@@ -1,7 +1,7 @@
 <template>
   <div class="compare-set-section">
-    <div class="section-header-shared" v-if="header === 'Shared members '">{{ header }} - ({{ members.length }})</div>
-    <div class="section-header" v-else>
+    <div v-if="header === 'Shared members '" class="section-header-shared">{{ header }} - ({{ members.length }})</div>
+    <div v-else class="section-header">
       <div class="section-header-title">{{ header }}</div>
       <Inplace :closable="true">
         <template #display> {{ selectedSet.name || "Click to select set" }} - ({{ members.length }}) </template>
@@ -10,7 +10,8 @@
         </template>
       </Inplace>
     </div>
-    <Listbox v-model="selected" :options="members" optionLabel="name" />
+    <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
+    <Listbox v-else v-model="selected" :options="members" optionLabel="name" />
   </div>
 </template>
 
@@ -28,6 +29,7 @@ interface Props {
   selectedSet?: SearchResultSummary;
   members: any[];
   setIri?: string;
+  loading: boolean;
 }
 const props = defineProps<Props>();
 
@@ -136,5 +138,9 @@ async function searchValueSet(event: any) {
   width: 100%;
   height: 100%;
   overflow: auto;
+}
+
+.loading-icon {
+  flex: 0 0 auto;
 }
 </style>

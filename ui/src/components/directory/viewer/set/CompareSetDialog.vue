@@ -8,9 +8,23 @@
     class="search-dialog"
   >
     <div class="compare-set-dialog-content">
-      <CompareSetSection v-model:selectedSet="selectedA" :members="membersA" :setIri="setIriA" :header="'Exclusive to '" class="comparison-section" />
-      <CompareSetSection :members="sharedMembers" :header="'Shared members '" class="comparison-section" />
-      <CompareSetSection v-model:selectedSet="selectedB" :members="membersB" :setIri="selectedB.iri" :header="'Exclusive to '" class="comparison-section" />
+      <CompareSetSection
+        v-model:selectedSet="selectedA"
+        :members="membersA"
+        :setIri="setIriA"
+        :header="'Exclusive to '"
+        class="comparison-section"
+        :loading="loading"
+      />
+      <CompareSetSection :members="sharedMembers" :header="'Shared members '" class="comparison-section" :loading="loading" />
+      <CompareSetSection
+        v-model:selectedSet="selectedB"
+        :members="membersB"
+        :setIri="selectedB.iri"
+        :header="'Exclusive to '"
+        class="comparison-section"
+        :loading="loading"
+      />
     </div>
 
     <template #footer class="compare-set-dialog-footer"> <Button label="OK" @click="visible = false" /> </template>
@@ -33,7 +47,7 @@ const membersA: Ref<any[]> = ref([]);
 const membersB: Ref<any[]> = ref([]);
 const selectedA: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const selectedB: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-
+const loading = ref(false);
 watch(
   () => props.showDialog,
   async newValue => {
@@ -51,6 +65,7 @@ watch(selectedA, async () => await getMembers());
 watch(selectedB, async () => await getMembers());
 
 async function getMembers() {
+  loading.value = true;
   if (selectedA.value.iri && selectedB.value.iri) {
     const diffObject = await EntityService.getSetComparison(selectedA.value.iri, selectedB.value.iri);
     membersA.value = diffObject.membersA;
@@ -61,6 +76,7 @@ async function getMembers() {
   } else if (selectedB.value.iri) {
     membersB.value = await EntityService.getFullyExpandedSetMembers(selectedB.value.iri, false, false);
   }
+  loading.value = false;
 }
 </script>
 <style scoped>
