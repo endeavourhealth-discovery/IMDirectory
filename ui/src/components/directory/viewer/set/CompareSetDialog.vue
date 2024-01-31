@@ -8,12 +8,9 @@
     class="search-dialog"
   >
     <div class="compare-set-dialog-content">
-      <CompareSetSection v-model:selectedSet="selectedA" :setIri="setIriA" :header="'Exclusive to '" class="comparison-section" />
-      <div class="comparison-section">
-        <div class="section-header">Shared members</div>
-        <Listbox v-model="selectedShared" :options="sharedMembers" optionLabel="name" emptyMessage="No shared members" />
-      </div>
-      <CompareSetSection v-model:selectedSet="selectedB" :header="'Exclusive to '" class="comparison-section" />
+      <CompareSetSection v-model:selectedSet="selectedA" :members="membersA" :setIri="setIriA" :header="'Exclusive to '" class="comparison-section" />
+      <CompareSetSection :members="sharedMembers" :header="'Shared members '" class="comparison-section" />
+      <CompareSetSection v-model:selectedSet="selectedB" :members="membersB" :setIri="selectedB.iri" :header="'Exclusive to '" class="comparison-section" />
     </div>
 
     <template #footer class="compare-set-dialog-footer"> <Button label="OK" @click="visible = false" /> </template>
@@ -24,7 +21,6 @@ import { Ref, ref, watch } from "vue";
 import CompareSetSection from "./CompareSetSection.vue";
 import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
-import { intersection } from "lodash";
 interface Props {
   showDialog: boolean;
   setIriA: string;
@@ -32,8 +28,9 @@ interface Props {
 const props = defineProps<Props>();
 
 const visible = ref(false);
-const selectedShared = ref();
 const sharedMembers: Ref<any[]> = ref([]);
+const membersA: Ref<any[]> = ref([]);
+const membersB: Ref<any[]> = ref([]);
 const selectedA: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const selectedB: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 
@@ -50,19 +47,19 @@ watch(visible, newValue => {
 });
 const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean" });
 
-watch(selectedA, async () => await getSharedMembers());
-watch(selectedB, async () => await getSharedMembers());
+watch(selectedA, async () => await getMembers());
+watch(selectedB, async () => await getMembers());
 
-async function getSharedMembers() {
+async function getMembers() {
   if (selectedA.value.iri && selectedB.value.iri) {
-    const membersA = (await EntityService.getFullyExpandedSetMembers(selectedA.value.iri, false, false)).map(member => member["@id"]);
-    const membersB = (await EntityService.getFullyExpandedSetMembers(selectedB.value.iri, false, false)).map(member => member["@id"]);
-    const intersected = intersection(membersA, membersB);
-    const namedIntersection = await EntityService.getNames(intersected);
-    sharedMembers.value = namedIntersection;
-
-    const diff = await EntityService.getSetComparison(selectedA.value.iri, selectedB.value.iri);
-    console.log(diff);
+    const diffObject = await EntityService.getSetComparison(selectedA.value.iri, selectedB.value.iri);
+    membersA.value = diffObject.membersA;
+    sharedMembers.value = diffObject.sharedMembers;
+    membersB.value = diffObject.membersB;
+  } else if (selectedA.value.iri) {
+    membersA.value = await EntityService.getFullyExpandedSetMembers(selectedA.value.iri, false, false);
+  } else if (selectedB.value.iri) {
+    membersB.value = await EntityService.getFullyExpandedSetMembers(selectedB.value.iri, false, false);
   }
 }
 </script>
@@ -86,12 +83,6 @@ async function getSharedMembers() {
   flex-flow: column nowrap;
   width: 100%;
   height: 100%;
-}
-
-.p-listbox {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
 }
 </style>
 <style>

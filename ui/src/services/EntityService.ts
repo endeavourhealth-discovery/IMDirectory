@@ -1,5 +1,15 @@
 import { IM } from "@im-library/vocabulary";
-import { EntityReferenceNode, FiltersAsIris, TTBundle, TermCode, Namespace, ExportValueSet, FilterOptions, PropertyDisplay } from "@im-library/interfaces";
+import {
+  EntityReferenceNode,
+  FiltersAsIris,
+  TTBundle,
+  TermCode,
+  Namespace,
+  ExportValueSet,
+  FilterOptions,
+  PropertyDisplay,
+  SetDiffObject
+} from "@im-library/interfaces";
 import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
@@ -30,7 +40,7 @@ const EntityService = {
     });
   },
 
-  async getSetComparison(iriA: string, iriB: string): Promise<TTIriRef[]> {
+  async getSetComparison(iriA: string, iriB: string): Promise<SetDiffObject> {
     return axios.get(Env.VITE_NODE_API + "node_api/entity/public/setDiff", {
       params: {
         setIriA: iriA,

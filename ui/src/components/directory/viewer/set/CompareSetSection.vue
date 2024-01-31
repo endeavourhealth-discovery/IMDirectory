@@ -1,16 +1,16 @@
 <template>
   <div class="compare-set-section">
-    <div class="section-header">
-      {{ header }}
-
+    <div class="section-header-shared" v-if="header === 'Shared members '">{{ header }} - ({{ members.length }})</div>
+    <div class="section-header" v-else>
+      <div class="section-header-title">{{ header }}</div>
       <Inplace :closable="true">
-        <template #display> {{ selectedSet.name || "Click to select set" }} ({{ setMembers.length }}) </template>
+        <template #display> {{ selectedSet.name || "Click to select set" }} - ({{ members.length }}) </template>
         <template #content>
           <AutoComplete v-model="selectedSet" optionLabel="name" :suggestions="filteredSets" @complete="searchValueSet" />
         </template>
       </Inplace>
     </div>
-    <Listbox v-model="selected" :options="setMembers" optionLabel="name" />
+    <Listbox v-model="selected" :options="members" optionLabel="name" />
   </div>
 </template>
 
@@ -25,8 +25,9 @@ import { IM, RDFS } from "@im-library/vocabulary";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 interface Props {
   header: string;
+  selectedSet?: SearchResultSummary;
+  members: any[];
   setIri?: string;
-  selectedSet: SearchResultSummary;
 }
 const props = defineProps<Props>();
 
@@ -37,17 +38,13 @@ const controller: Ref<AbortController> = ref({} as AbortController);
 
 const selectedSet: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const filteredSets: Ref<SearchResultSummary[]> = ref([]);
-const setMembers: Ref<any[]> = ref([]);
 const selected = ref();
 
 const emit = defineEmits({ "update:selectedSet": _payload => true });
 
 watch(
   () => selectedSet.value.iri,
-  async newValue => {
-    if (newValue) await getMembers(selectedSet.value.iri);
-    emit("update:selectedSet", selectedSet.value);
-  }
+  async newValue => emit("update:selectedSet", selectedSet.value)
 );
 
 onMounted(async () => {
@@ -111,18 +108,23 @@ async function searchValueSet(event: any) {
   const searchTerm: string = event.query;
   filteredSets.value = await search(searchTerm);
 }
-
-async function getMembers(iri: string) {
-  const members = await EntityService.getFullyExpandedSetMembers(iri, false, false);
-  setMembers.value = members;
-}
 </script>
 
 <style scoped>
+.section-header-title {
+  padding-bottom: 1rem;
+}
 .section-header {
   display: flex;
   justify-content: center;
   align-items: baseline;
+}
+
+.section-header-shared {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  padding-bottom: 1rem;
 }
 
 .compare-set-section {
