@@ -36,7 +36,7 @@ export default class EntityService {
     } as TreeNode;
 
     for (const property of validOptions) {
-      treeNode.children!.push({
+      treeNode.children.push({
         key: key + "/" + property[SHACL.PATH][0]["@id"],
         label: property[SHACL.PATH][0].name,
         data: {

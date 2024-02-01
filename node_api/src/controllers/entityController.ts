@@ -1,7 +1,7 @@
 import { ContextMap } from "@im-library/interfaces";
 import EntityService from "@/services/entity.service";
 import axios from "axios";
-import express, { NextFunction, Request, Response } from "express";
+import { Request } from "express";
 import router from "express-promise-router";
 
 export default class EntityController {
