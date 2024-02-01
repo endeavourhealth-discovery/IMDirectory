@@ -2,8 +2,6 @@ import express, { Application, Router } from "express";
 import swaggerUi from "swagger-ui-express";
 import * as swaggerFile from "@/../public/swagger_output.json";
 import cors from "cors";
-import * as https from "https";
-import * as fs from "fs";
 import Env from "@/services/env.service";
 import errorHandler from "./middlewares/errorHandler.middleware";
 import logger from "./middlewares/logger.middleware";

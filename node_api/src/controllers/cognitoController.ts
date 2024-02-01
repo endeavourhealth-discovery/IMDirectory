@@ -1,5 +1,5 @@
 import CognitoService from "@/services/cognito.service";
-import { Request, Response, NextFunction } from "express";
+import { Request } from "express";
 import router from "express-promise-router";
 import AuthMiddleware from "@/middlewares/auth.middleware";
 
@@ -42,7 +42,7 @@ export default class CognitoController {
   async isTokenValid(req: Request) {
     try {
       return await this.auth.checkToken(req);
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   }
