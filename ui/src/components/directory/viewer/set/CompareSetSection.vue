@@ -11,18 +11,42 @@
       </Inplace>
     </div>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Listbox v-else v-model="selected" :options="members" optionLabel="name" />
+    <Listbox v-else v-model="selected" :options="members" optionLabel="name">
+      <template #option="{ option }">
+        <div
+          class="member-name"
+          @dblclick="directService.view(option['@id'])"
+          @mouseover="showOverlay($event, option['@id'])"
+          @mouseleave="hideOverlay($event)"
+        >
+          {{ option.name }} |
+          <span
+            class="member-code"
+            v-tooltip.right="'Copy to clipboard'"
+            v-clipboard:copy="copyToClipboard(option.code)"
+            v-clipboard:success="onCopy"
+            v-clipboard:error="onCopyError"
+            >{{ option.code }}</span
+          >
+        </div>
+      </template>
+    </Listbox>
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { EntityService } from "@/services";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import setupOverlay from "@/composables/setupOverlay";
+import { DirectService, EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
-import { SortDirection } from "@im-library/enums";
+import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { FilterOptions } from "@im-library/interfaces";
 import { SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { ToastOptions } from "@im-library/models";
 import { IM, RDFS } from "@im-library/vocabulary";
+import { useToast } from "primevue/usetoast";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 interface Props {
   header: string;
@@ -33,6 +57,9 @@ interface Props {
 }
 const props = defineProps<Props>();
 
+const toast = useToast();
+const directService = new DirectService();
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 const filterStore = useFilterStore();
 const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
@@ -58,6 +85,18 @@ async function init() {
     const entity = await EntityService.getPartialEntity(props.setIri, [RDFS.LABEL]);
     selectedSet.value = { iri: entity["@id"], name: entity[RDFS.LABEL] } as SearchResultSummary;
   }
+}
+
+function copyToClipboard(code: string) {
+  return code;
+}
+
+function onCopy(): void {
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Code copied to clipboard"));
+}
+
+function onCopyError(): void {
+  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy code to clipboard"));
 }
 
 async function search(searchText: string): Promise<SearchResultSummary[]> {
