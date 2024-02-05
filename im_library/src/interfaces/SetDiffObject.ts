@@ -1,7 +1,7 @@
-import { TTIriRef } from "./AutoGen";
+import { Concept } from "./AutoGen";
 
 export interface SetDiffObject {
-  membersA: TTIriRef[];
-  sharedMembers: TTIriRef[];
-  membersB: TTIriRef[];
+  membersA: Concept[];
+  sharedMembers: Concept[];
+  membersB: Concept[];
 }

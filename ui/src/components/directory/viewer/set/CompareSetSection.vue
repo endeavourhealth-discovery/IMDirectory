@@ -4,7 +4,7 @@
     <div v-else class="section-header">
       <div class="section-header-title">{{ header }}</div>
       <Inplace :closable="true">
-        <template #display> {{ selectedSet.name || "Click to select set" }} - ({{ members.length }}) </template>
+        <template #display> {{ selectedSet?.name || "Click to select set" }} - ({{ members.length }}) </template>
         <template #content>
           <AutoComplete v-model="selectedSet" optionLabel="name" :suggestions="filteredSets" @complete="searchValueSet" />
         </template>
@@ -19,7 +19,7 @@
           @mouseover="showOverlay($event, option['@id'])"
           @mouseleave="hideOverlay($event)"
         >
-          {{ option.name }} |
+          <span>{{ option.name }} |</span>
           <span
             class="member-code"
             v-tooltip.right="'Copy to clipboard'"
@@ -43,7 +43,7 @@ import { useFilterStore } from "@/stores/filterStore";
 import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Concept, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { ToastOptions } from "@im-library/models";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
@@ -51,7 +51,7 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 interface Props {
   header: string;
   selectedSet?: SearchResultSummary;
-  members: any[];
+  members: Concept[];
   setIri?: string;
   loading: boolean;
 }
@@ -65,14 +65,14 @@ const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterSt
 const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
 const controller: Ref<AbortController> = ref({} as AbortController);
 
-const selectedSet: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
+const selectedSet: Ref<SearchResultSummary | undefined> = ref();
 const filteredSets: Ref<SearchResultSummary[]> = ref([]);
-const selected = ref();
+const selected: Ref<Concept | undefined> = ref();
 
 const emit = defineEmits({ "update:selectedSet": _payload => true });
 
 watch(
-  () => selectedSet.value.iri,
+  () => selectedSet.value?.iri,
   async newValue => emit("update:selectedSet", selectedSet.value)
 );
 
@@ -126,12 +126,12 @@ async function search(searchText: string): Promise<SearchResultSummary[]> {
 
     if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
       const sortField = selectedFilters.value.sortFields[0];
-      if (sortField["@id"] === IM.NAMESPACE + "Usage") searchRequest.sortField = "weighting";
+      if (sortField["@id"] === IM.USAGE) searchRequest.sortField = "weighting";
 
       if (isArrayHasLength(selectedFilters.value.sortDirections) && isObjectHasKeys(selectedFilters.value.sortDirections[0])) {
         const sortDirection = selectedFilters.value.sortDirections[0];
-        if (sortDirection["@id"] === IM.NAMESPACE + "Descending") searchRequest.sortDirection = SortDirection.DESC;
-        if (sortDirection["@id"] === IM.NAMESPACE + "Ascending") searchRequest.sortDirection = SortDirection.ASC;
+        if (sortDirection["@id"] === IM.DESCENDING) searchRequest.sortDirection = SortDirection.DESC;
+        if (sortDirection["@id"] === IM.ASCENDING) searchRequest.sortDirection = SortDirection.ASC;
       }
     }
 

@@ -12,16 +12,16 @@
         v-model:selectedSet="selectedA"
         :members="membersA"
         :setIri="setIriA"
-        :header="'Exclusive to '"
+        header="Exclusive to "
         class="comparison-section"
         :loading="loading"
       />
-      <CompareSetSection :members="sharedMembers" :header="'Shared members '" class="comparison-section" :loading="loading" />
+      <CompareSetSection :members="sharedMembers" header="Shared members " class="comparison-section" :loading="loading" />
       <CompareSetSection
         v-model:selectedSet="selectedB"
         :members="membersB"
-        :setIri="selectedB.iri"
-        :header="'Exclusive to '"
+        :setIri="selectedB?.iri"
+        header="Exclusive to "
         class="comparison-section"
         :loading="loading"
       />
@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
 import CompareSetSection from "./CompareSetSection.vue";
-import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Concept, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 interface Props {
   showDialog: boolean;
@@ -42,11 +42,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const visible = ref(false);
-const sharedMembers: Ref<any[]> = ref([]);
-const membersA: Ref<any[]> = ref([]);
-const membersB: Ref<any[]> = ref([]);
-const selectedA: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-const selectedB: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
+const sharedMembers: Ref<Concept[]> = ref([]);
+const membersA: Ref<Concept[]> = ref([]);
+const membersB: Ref<Concept[]> = ref([]);
+const selectedA: Ref<SearchResultSummary | undefined> = ref();
+const selectedB: Ref<SearchResultSummary | undefined> = ref();
 const loading = ref(false);
 watch(
   () => props.showDialog,
@@ -66,14 +66,14 @@ watch(selectedB, async () => await getMembers());
 
 async function getMembers() {
   loading.value = true;
-  if (selectedA.value.iri && selectedB.value.iri) {
+  if (selectedA.value?.iri && selectedB.value?.iri) {
     const diffObject = await EntityService.getSetComparison(selectedA.value.iri, selectedB.value.iri);
     membersA.value = diffObject.membersA;
     sharedMembers.value = diffObject.sharedMembers;
     membersB.value = diffObject.membersB;
-  } else if (selectedA.value.iri) {
+  } else if (selectedA.value?.iri) {
     membersA.value = await EntityService.getFullyExpandedSetMembers(selectedA.value.iri, false, false);
-  } else if (selectedB.value.iri) {
+  } else if (selectedB.value?.iri) {
     membersB.value = await EntityService.getFullyExpandedSetMembers(selectedB.value.iri, false, false);
   }
   loading.value = false;

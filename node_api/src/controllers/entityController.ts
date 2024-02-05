@@ -3,6 +3,8 @@ import EntityService from "@/services/entity.service";
 import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
 import router from "express-promise-router";
+import { CustomError } from "@im-library/models";
+import { ErrorType } from "@im-library/enums";
 
 export default class EntityController {
   public path = "/node_api/entity";
@@ -94,6 +96,9 @@ export default class EntityController {
   }
 
   async getSetDiff(req: Request) {
-    return await this.entityService.getSetDiff(req.query.setIriA as string, req.query.setIriB as string);
+    const setIriA = req.query.setIriA as string;
+    const setIriB = req.query.setIriB as string;
+    if (!setIriA || !setIriB) throw new CustomError("Both setIriA and setIriB parameters need to be populated.", ErrorType.InvalidInputError);
+    return await this.entityService.getSetDiff(setIriA, setIriB);
   }
 }

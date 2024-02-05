@@ -21,7 +21,7 @@
           <Button
             type="button"
             label="Compare"
-            @click="showDialog = true"
+            @click="showCompareSetDialog = true"
             aria-haspopup="true"
             aria-controls="overlay_menu"
             :loading="downloading"
@@ -62,7 +62,7 @@
       </AccordionTab>
     </Accordion>
   </div>
-  <CompareSetDialog v-model:show-dialog="showDialog" :set-iri-a="entityIri" />
+  <CompareSetDialog v-model:show-dialog="showCompareSetDialog" :set-iri-a="entityIri" />
   <Dialog :visible="showOptions" :modal="true" :closable="false" :close-on-escape="false" header="Please select download options">
     <div class="flex-container content-container">
       <div class="item-container">
@@ -152,7 +152,7 @@ const subclassOf = ref();
 const ttentity = ref();
 const active = ref([] as number[]);
 const emit = defineEmits({ navigateTo: (_payload: string) => true });
-const showDialog = ref(false);
+const showCompareSetDialog = ref(false);
 
 const { downloadFile } = setupDownloadFile(window, document);
 const userStore = useUserStore();
