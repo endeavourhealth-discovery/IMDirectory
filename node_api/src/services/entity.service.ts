@@ -7,7 +7,7 @@ import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
-import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary, Concept } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { byName } from "@im-library/helpers/Sorters";
 
@@ -243,19 +243,21 @@ export default class EntityService {
   }
 
   async getSetDiff(setIriA: string, setIriB: string) {
-    const membersA = await this.getFullyExpandedSetMembers(setIriA, false, false);
-    const membersB = await this.getFullyExpandedSetMembers(setIriB, false, false);
-    const membersMap = new Map<string, TTIriRef>();
-    const diff = { membersA: [] as TTIriRef[], sharedMembers: [] as TTIriRef[], membersB: [] as TTIriRef[] };
+    let membersA: Concept[] = [];
+    let membersB: Concept[] = [];
+    if (setIriA) membersA = await this.getFullyExpandedSetMembers(setIriA, false, false);
+    if (setIriB) membersB = await this.getFullyExpandedSetMembers(setIriB, false, false);
+    const membersMap = new Map<string, Concept>();
+    const diff = { membersA: [] as Concept[], sharedMembers: [] as Concept[], membersB: [] as Concept[] };
 
     for (const member of membersA) {
-      membersMap.set(member["@id"], member);
+      membersMap.set(member["@id"]!, member);
     }
 
     for (const member of membersB) {
-      if (membersMap.has(member["@id"])) {
+      if (membersMap.has(member["@id"]!)) {
         diff.sharedMembers.push(member);
-        membersMap.delete(member["@id"]);
+        membersMap.delete(member["@id"]!);
       } else {
         diff.membersB.push(member);
       }
@@ -267,7 +269,7 @@ export default class EntityService {
     return diff;
   }
 
-  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<TTIriRef[]> {
+  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<Concept[]> {
     return (
       await axios.get(Env.API + "api/entity/public/expandedMembers", {
         params: {

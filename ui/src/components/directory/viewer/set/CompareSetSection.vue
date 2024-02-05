@@ -11,23 +11,19 @@
       </Inplace>
     </div>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Listbox v-else v-model="selected" :options="members" optionLabel="name">
-      <template #option="{ option }">
+    <Listbox v-model="selected" :options="members" optionLabel="name" :virtualScrollerOptions="{ itemSize: 45, delay: 150 }" listStyle="height: 100%" filter>
+      <template #option="{ option }: { option: Concept }">
         <div
           class="member-name"
           @dblclick="directService.view(option['@id'])"
           @mouseover="showOverlay($event, option['@id'])"
           @mouseleave="hideOverlay($event)"
+          v-tooltip.right="'Copy to clipboard'"
+          v-clipboard:copy="option.code"
+          v-clipboard:success="onCopy"
+          v-clipboard:error="onCopyError"
         >
-          <span>{{ option.name }} | </span>
-          <span
-            class="member-code"
-            v-tooltip.right="'Copy to clipboard'"
-            v-clipboard:copy="option.code"
-            v-clipboard:success="onCopy"
-            v-clipboard:error="onCopyError"
-            >{{ option.code }}</span
-          >
+          {{ option.name }}
         </div>
       </template>
     </Listbox>
@@ -175,10 +171,30 @@ async function searchValueSet(event: any) {
 .p-listbox {
   width: 100%;
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .loading-icon {
   flex: 0 0 auto;
+}
+
+.member-name {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+}
+</style>
+
+<style>
+.p-listbox-list {
+  width: 1px;
+  height: 1px;
+}
+
+.p-listbox-item {
+  width: 100%;
+  height: 100%;
 }
 </style>

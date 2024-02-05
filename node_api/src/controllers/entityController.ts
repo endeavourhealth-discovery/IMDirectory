@@ -98,7 +98,7 @@ export default class EntityController {
   async getSetDiff(req: Request) {
     const setIriA = req.query.setIriA as string;
     const setIriB = req.query.setIriB as string;
-    if (!setIriA || !setIriB) throw new CustomError("Both setIriA and setIriB parameters need to be populated.", ErrorType.InvalidInputError);
+    if (!setIriA && !setIriB) throw new CustomError("At least one of setIriA and setIriB parameters needs to be populated.", ErrorType.InvalidInputError);
     return await this.entityService.getSetDiff(setIriA, setIriB);
   }
 }

@@ -40,7 +40,7 @@ const EntityService = {
     });
   },
 
-  async getSetComparison(iriA: string, iriB: string): Promise<SetDiffObject> {
+  async getSetComparison(iriA?: string, iriB?: string): Promise<SetDiffObject> {
     return axios.get(Env.VITE_NODE_API + "node_api/entity/public/setDiff", {
       params: {
         setIriA: iriA,

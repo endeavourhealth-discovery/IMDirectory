@@ -66,15 +66,11 @@ watch(selectedB, async () => await getMembers());
 
 async function getMembers() {
   loading.value = true;
-  if (selectedA.value?.iri && selectedB.value?.iri) {
-    const diffObject = await EntityService.getSetComparison(selectedA.value.iri, selectedB.value.iri);
+  if (selectedA.value?.iri || selectedB.value?.iri) {
+    const diffObject = await EntityService.getSetComparison(selectedA.value?.iri, selectedB.value?.iri);
     membersA.value = diffObject.membersA;
     sharedMembers.value = diffObject.sharedMembers;
     membersB.value = diffObject.membersB;
-  } else if (selectedA.value?.iri) {
-    membersA.value = await EntityService.getFullyExpandedSetMembers(selectedA.value.iri, false, false);
-  } else if (selectedB.value?.iri) {
-    membersB.value = await EntityService.getFullyExpandedSetMembers(selectedB.value.iri, false, false);
   }
   loading.value = false;
 }
