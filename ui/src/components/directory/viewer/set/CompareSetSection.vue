@@ -19,7 +19,7 @@
           @mouseover="showOverlay($event, option['@id'])"
           @mouseleave="hideOverlay($event)"
         >
-          <span>{{ option.name }} |</span>
+          <span>{{ option.name }} | </span>
           <span
             class="member-code"
             v-tooltip.right="'Copy to clipboard'"
