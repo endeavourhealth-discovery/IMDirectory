@@ -23,7 +23,7 @@
           <span
             class="member-code"
             v-tooltip.right="'Copy to clipboard'"
-            v-clipboard:copy="copyToClipboard(option.code)"
+            v-clipboard:copy="option.code"
             v-clipboard:success="onCopy"
             v-clipboard:error="onCopyError"
             >{{ option.code }}</span
@@ -85,10 +85,6 @@ async function init() {
     const entity = await EntityService.getPartialEntity(props.setIri, [RDFS.LABEL]);
     selectedSet.value = { iri: entity["@id"], name: entity[RDFS.LABEL] } as SearchResultSummary;
   }
-}
-
-function copyToClipboard(code: string) {
-  return code;
 }
 
 function onCopy(): void {
