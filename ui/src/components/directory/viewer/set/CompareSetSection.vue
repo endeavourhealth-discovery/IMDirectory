@@ -136,7 +136,10 @@ async function search(searchText: string): Promise<SearchResultSummary[]> {
     }
     controller.value = new AbortController();
     const result = await EntityService.advancedSearch(searchRequest, controller.value);
-    if (result?.entities) return result.entities;
+    if (result?.entities) {
+      if (result.entities.length > 100) result.entities.length = 100;
+      return result.entities;
+    }
   }
   return [];
 }
