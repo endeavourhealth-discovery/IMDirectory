@@ -2,14 +2,14 @@
 import {LRParser} from "@lezer/lr"
 export const parser = LRParser.deserialize({
   version: 14,
-  states: "$[OVQPOOO_QPO'#C_OdQPO'#C_OiQPO'#C^QOQPOOOnQPO,58yOsQPO,58yOxQPO,58xOOQO1G.e1G.eO!TQPO1G.eOOQO'#Ce'#CeO!YQPO'#CdO!_QPO'#CcOVQPO'#CiOOQO1G.d1G.dOOQO7+$P7+$POVQPO,59OOVQPO'#ClO!dQPO,58}O!oQPO,59TOOQO'#Cg'#CgOOQO1G.j1G.jOOQO,59W,59WOOQO-E6j-E6jOOQO1G.o1G.o",
-  stateData: "!t~OcOS~OSQOTPO~OdTO~OTUO~OeVO~OUWO~OdXO~OSQOTPO^]O~OU_O~OY`O~O[aO~O[aOaVa_Va~O_hO~O",
-  goto: "!`aPPbePPPpv}P!SP!VPP!YRSOQROUYV]aRd`Q^VRc]S[V]RfaVZV]aRe`R^VQb[Rgb",
-  nodeNames: "⚠ ECL RefinedConcept Concept Entailment Code Term MultiRefinement SingleRefinement Property Comparator Value Bool MultiRefinementGroup ( )",
+  states: "$UOVQPOOO_QPO'#C^OdQPO'#C^OiQPO'#CoOOQO'#Co'#CoQOQPOOOOQO,58x,58xOqQPO,58xOvQPO,58|OOQO1G.d1G.dOOQO'#Cf'#CfO!RQPO'#CeO!WQPO'#CdOVQPO'#CjOOQO1G.h1G.hOVQPO,59POVQPO'#CkO!]QPO,59OO!hQPO,59UOOQO'#Ch'#ChOOQO1G.k1G.kOOQO,59V,59VOOQO-E6i-E6iOOQO1G.p1G.p",
+  stateData: "!m~ObOS~ORQOSPO~OTUO~OSVO~OVWO`cX~OTXO~ORQOSPOd]O~OZ_O~O]`O~O]`O`WaeWa~OegO~O",
+  goto: "!fdPPePPPpPsy!QP!VP!Y!]PPP!cQROUYW]`Rc_RSOQ^WRb]S[W]Re`VZW]`Rd_R^WQa[RfaRTO",
+  nodeNames: "⚠ ECL Concept Entailment Term Code RefinedConcept Refine MultiRefinement SingleRefinement Property Comparator Value Bool MultiRefinementGroup",
   maxTerm: 21,
   skippedNodes: [0],
   repeatNodeCount: 1,
-  tokenData: "'_~RfX^!gpq!gqr#[rs#gxy%Tyz%Y!Q![%_!^!_%g!_!`#b!`!a%t!c!d%|!q!r&_!y!z&e#p#q'Y#y#z!g$f$g!g#BY#BZ!g$IS$I_!g$I|$JO!g$JT$JU!g$KV$KW!g&FU&FV!g~!lYc~X^!gpq!g#y#z!g$f$g!g#BY#BZ!g$IS$I_!g$I|$JO!g$JT$JU!g$KV$KW!g&FU&FV!g~#_P!_!`#b~#gOY~~#jVOr#grs$Ps#O#g#O#P$U#P;'S#g;'S;=`$}<%lO#g~$UOU~~$XRO;'S#g;'S;=`$b;=`O#g~$eWOr#grs$Ps#O#g#O#P$U#P;'S#g;'S;=`$};=`<%l#g<%lO#g~%QP;=`<%l#g~%YO^~~%_O_~~%dPT~!Q![%_~%lPS~!^!_%o~%tOS~~%yPS~!`!a%o~&PP!p!q&S~&VP!f!g&Y~&_O[~~&bP!t!u&Y~&hP!j!k&k~&nP!g!h&q~&tP!t!u&w~&zP!g!h&}~'QPpq'T~'YOe~~'_Od~",
+  tokenData: "+[~RlX^!ypq!yqr#nrs#yxy%gyz%l!^!_%q!_!`#t!`!a&O!c!d&W!j!k&r!k!l(S!q!r(]!y!z(f!}#O*T#T#U*i#[#]*o#]#^*u#c#d*{#k#l+R#y#z!y$f$g!y#BY#BZ!y$IS$I_!y$I|$JO!y$JT$JU!y$KV$KW!y&FU&FV!y~#OYb~X^!ypq!y#y#z!y$f$g!y#BY#BZ!y$IS$I_!y$I|$JO!y$JT$JU!y$KV$KW!y&FU&FV!y~#qP!_!`#t~#yOZ~~#|VOr#yrs$cs#O#y#O#P$h#P;'S#y;'S;=`%a<%lO#y~$hOS~~$kRO;'S#y;'S;=`$t;=`O#y~$wWOr#yrs$cs#O#y#O#P$h#P;'S#y;'S;=`%a;=`<%l#y<%lO#y~%dP;=`<%l#y~%lOd~~%qOe~~%vPR~!^!_%y~&OOR~~&TPR~!`!a%y~&ZQ!p!q&a#b#c&l~&dP!f!g&g~&lO]~~&oP#W#X&g~&uQ!c!d&{#T#U'j~'OP!x!y'R~'UP!k!l'X~'[P!p!q'_~'bP!i!j'e~'jOV~~'mP#j#k'p~'sP#]#^'v~'yP#b#c'|~(PP#Z#['e~(VQ!h!i'e#Y#Z'e~(`Q!t!u&g#f#g&g~(iS!j!k(u!k!l)X#[#])e#]#^)w~(xP!g!h({~)OP!t!u)R~)UP!g!h'e~)[P!v!w)_~)bP!j!k'e~)hP#X#Y)k~)nP#f#g)q~)tP#X#Y'e~)zP#h#i)}~*QP#[#]'e~*WP!Q![*Z~*^Q!Q![*Z#P#Q*d~*iOT~~*lP#b#c&l~*rP#T#U'j~*xP#Y#Z'e~+OP#f#g&g~+UQ#[#])e#]#^)w",
   tokenizers: [0],
   topRules: {"ECL":[0,1]},
   tokenPrec: 0

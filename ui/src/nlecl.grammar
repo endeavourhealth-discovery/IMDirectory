@@ -1,20 +1,20 @@
 @tokens {
   Entailment { "<" | "<<" | ">>" | ">" }
 
-  Code { @digit+ }
+  Code { "[" @digit+ "]" }
 
   Term { '"' (!["\\] | "\\" _)* '"' }
 
   Comparator { "=" | "!=" }
 
-  Bool { "AND" | "OR" }
+  Bool { "AND" | "And" | "and" | "OR" | "Or" | "or" }
 
-  "(" ")"
+  Refine { "Where" | "where" | "WHERE" | "Having" | "having" | "HAVING" | "With" | "with" | "WITH" | "If" | "if" | "IF" }
 
   space { @whitespace+ }
 }
 
-Concept { Entailment? Code "|" Term }
+Concept { Entailment? Term Code }
 
 Property { Concept }
 
@@ -26,9 +26,9 @@ MultiRefinement { SingleRefinement (Bool SingleRefinement)+ }
 
 MultiRefinementGroup { "(" MultiRefinement ")" }
 
-RefinedConcept { Concept "WHERE " (MultiRefinement | MultiRefinementGroup) }
+RefinedConcept { Concept Refine (MultiRefinement | MultiRefinementGroup) }
 
-expression { RefinedConcept }
+expression { Concept | RefinedConcept }
 
 @skip { space }
 

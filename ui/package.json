@@ -26,6 +26,7 @@
     "@codemirror/autocomplete": "^6.12.0",
     "@codemirror/language": "^6.10.0",
     "@codemirror/theme-one-dark": "^6.1.2",
+    "@lezer/common": "^1.2.1",
     "@lezer/highlight": "1.2.0",
     "@lezer/lr": "^1.4.0",
     "@sass-collective/strip-unit": "3.1.2",

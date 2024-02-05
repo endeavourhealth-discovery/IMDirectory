@@ -1,6 +1,5 @@
 <template>
   <div id="cookies-main-container">
-    <!--
     <TopBar>
       <template #content>
         <div class="topbar-content">
@@ -8,7 +7,6 @@
         </div>
       </template>
     </TopBar>
--->
     <div style="display: flex">
       <!--      <div id="cookies-content-container">
         Include if:
@@ -44,7 +42,16 @@
       <div style="flex: 1">
         <NLConceptGroup :concept-group="ecl"></NLConceptGroup>
       </div>-->
-      <codemirror v-model="code" border placeholder="test placeholder" :height="200" :extensions="extensions" @change="change" />
+      <div id="cookies-content-container">
+        <codemirror
+          v-model="code"
+          border
+          placeholder='Enter entailment if required, followed by a " to search by term, or [ to search by code...'
+          :height="200"
+          :extensions="extensions"
+          @change="change"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -56,17 +63,18 @@ import { nextTick, onMounted, Ref, ref } from "vue";
 import { AutoCompleteCompleteEvent, AutoCompleteItemSelectEvent } from "primevue/autocomplete";
 import { SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
-import { IM } from "@im-library/vocabulary";
+import { IM, SNOMED } from "@im-library/vocabulary";
 import { ConceptGroup } from "@/components/nlEditor/ecl/NLClasses";
 // import NLConceptGroup from "@/components/nlEditor/ecl/NLConceptGroup.vue";
 // import NLConceptGroupEdit from "@/components/nlEditor/ecl/NLConceptGroupEdit.vue";
 import { parser } from "@/nlecl-lang";
-import { LRLanguage, LanguageSupport } from "@codemirror/language";
+import { LRLanguage, LanguageSupport, bracketMatching } from "@codemirror/language";
 import { styleTags, tags } from "@lezer/highlight";
 import { Codemirror } from "vue-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { Completion, CompletionContext, CompletionResult, insertCompletionText } from "@codemirror/autocomplete";
 import { EditorView } from "codemirror";
+import { SyntaxNode, Tree } from "@lezer/common";
 
 const router = useRouter();
 
@@ -83,37 +91,15 @@ const parserWithMeta = parser.configure({
     styleTags({
       Entailment: tags.name,
       Code: tags.number,
-      Term: tags.string
+      Term: tags.string,
+      Refine: tags.keyword,
+      Comparator: tags.operator,
+      Bool: tags.bool,
+      GroupStart: tags.bracket,
+      GroupEnd: tags.bracket
     })
   ]
 });
-
-async function completion(ctx: CompletionContext): Promise<CompletionResult> {
-  const p = parser.parse(code.value);
-  const node = p.cursorAt(ctx.pos);
-  const term = code.value.substring(node.from + 1, ctx.pos);
-
-  const codeNode = p.cursorAt(ctx.pos);
-  codeNode.prevSibling();
-
-  const matches: Completion[] = (await getResults(term)).map(r => ({
-    label: r.name!,
-    detail: r.scheme?.name,
-    type: "Term",
-    info: r.code,
-    apply: (view: EditorView, completion: Completion, from: number, to: number) => {
-      console.log("APPLY!");
-      view.dispatch(insertCompletionText(view.state, completion.info + ' | "' + completion.label + '"', from, to));
-    }
-  }));
-
-  return {
-    from: codeNode.from,
-    to: node.to,
-    options: matches,
-    filter: false
-  };
-}
 
 const exampleLanguage = LRLanguage.define({
   name: "NLECL",
@@ -123,11 +109,121 @@ const exampleLanguage = LRLanguage.define({
   }
 });
 
+async function completion(ctx: CompletionContext): Promise<CompletionResult> {
+  const p: Tree = parser.parse(code.value);
+  const cursor: SyntaxNode = p.cursorAt(ctx.pos).node;
+
+  console.log("Autocomplete " + cursor.name);
+
+  if ("ECL" === cursor.name) {
+    const txt = code.value.substring(cursor.from, cursor.to);
+    console.log("ECL - [" + txt + "]");
+
+    if (txt.length > 0 && (txt.startsWith("<") || txt.startsWith(">"))) {
+      return entailmentCompletion(cursor);
+    } else {
+      console.log("DUNNO!");
+      console.log("At: " + cursor.from + ", " + cursor.to);
+      console.log("[" + code.value.substring(cursor.from, cursor.to) + "]");
+      return keywordCompletion(cursor);
+    }
+  } else if ("Term" === cursor.name) {
+    return await termCompletion(cursor, ctx);
+  } else if ("Code" === cursor.name) {
+    return await codeCompletion(cursor);
+  } else if ("Entailment" === cursor.name) {
+    return entailmentCompletion(cursor);
+  } else {
+    console.log("DEFAULT");
+    console.log(cursor);
+    return keywordCompletion(cursor);
+  }
+}
+
+function entailmentCompletion(cursor: SyntaxNode) {
+  return {
+    from: cursor.from,
+    to: cursor.to,
+    options: [
+      { label: "<<", detail: "Self and subtypes of", type: "Entailment" },
+      { label: "<", detail: "Subtypes of", type: "Entailment" },
+      { label: ">", detail: "Supertypes of", type: "Entailment" },
+      { label: ">>", detail: "Self and supertypes of", type: "Entailment" }
+    ]
+  };
+}
+
+function keywordCompletion(cursor: SyntaxNode) {
+  return {
+    from: cursor.from,
+    to: cursor.to,
+    options: [
+      { label: "Where", type: "Refine" },
+      { label: "And", type: "Bool" },
+      { label: "Or", type: "Bool" }
+    ]
+  };
+}
+
+async function termCompletion(termNode: SyntaxNode, ctx: CompletionContext) {
+  const codeNode: SyntaxNode = termNode.nextSibling ?? termNode;
+
+  const typeNode: SyntaxNode = termNode.parent?.parent ?? termNode.parent ?? termNode;
+  console.log(typeNode.name);
+
+  const term = code.value.substring(termNode.from + 1, ctx.pos);
+  console.log("Term: [" + term + "]");
+
+  const matches: Completion[] = (await getResults(term)).map(r => ({
+    label: r.name!,
+    detail: r.scheme?.name,
+    type: "Term",
+    info: r.code,
+    apply: (view: EditorView, completion: Completion, from: number, to: number) => {
+      view.dispatch(insertCompletionText(view.state, '"' + completion.label + '"[' + completion.info + "]", from, to));
+    }
+  }));
+
+  return {
+    from: termNode.from,
+    to: codeNode.to,
+    options: matches,
+    filter: false
+  };
+}
+
+async function codeCompletion(codeNode: SyntaxNode) {
+  const termNode: SyntaxNode = codeNode.prevSibling ?? codeNode;
+
+  const typeNode: SyntaxNode = codeNode.parent?.parent ?? codeNode.parent ?? codeNode;
+  console.log(typeNode.name);
+
+  const snomed = code.value.substring(codeNode.from + 1, codeNode.to - 1);
+  console.log("Snomed: [" + snomed + "]");
+
+  const matches: Completion[] = (await getResults(snomed)).map(r => ({
+    label: r.name!,
+    detail: r.scheme?.name,
+    type: "Term",
+    info: r.code,
+    apply: (view: EditorView, completion: Completion, from: number, to: number) => {
+      view.dispatch(insertCompletionText(view.state, '"' + completion.label + '"[' + completion.info + "]", from, to));
+    }
+  }));
+
+  return {
+    from: termNode.from,
+    to: codeNode.to,
+    options: matches,
+    filter: false
+  };
+}
+
 function example() {
   return new LanguageSupport(exampleLanguage);
 }
 
-const extensions = [oneDark, example()];
+const extensions = [oneDark, example(), bracketMatching()];
 
 onMounted(() => {
   nextTick(() => {
@@ -139,7 +235,7 @@ onMounted(() => {
     }
   });
 
-  code.value = '<< 12345 | "Medicinal Product" WHERE << 67890 | "Has Active Ingredient" = << 98765 | "Paracetamol"';
+  // code.value = '<< "Medicinal Product"[12345] WHERE << "Has Active Ingredient"[67890] = << "Paracetamol"[98765]';
 
   /*  code.value =
     "Asthma (disorder)  OR\n" +
@@ -229,8 +325,13 @@ async function getResults(query: string): Promise<SearchResultSummary[]> {
       return [{ name: "Refine" }] as SearchResultSummary[];
     default:
       if (query && query.length >= 4) {
+        if (abort.value) abort.value.abort();
+
         abort.value = new AbortController();
-        const results: SearchResponse = await EntityService.advancedSearch({ termFilter: query, typeFilter: [IM.CONCEPT], size: 10 }, abort.value);
+        const results: SearchResponse = await EntityService.advancedSearch(
+          { termFilter: query, typeFilter: [IM.CONCEPT], schemeFilter: [IM.NAMESPACE, SNOMED.NAMESPACE], size: 10 },
+          abort.value
+        );
 
         if (results && results?.count && results?.count > 0 && results.entities) return results.entities;
       }
@@ -276,6 +377,11 @@ function goBack() {
 }
 .title {
   font-size: 2rem;
+}
+
+.cm-scroller {
+  overflow: auto;
+  min-height: 350px;
 }
 
 .delete {
