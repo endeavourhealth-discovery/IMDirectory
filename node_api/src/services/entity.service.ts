@@ -251,10 +251,12 @@ export default class EntityService {
     const diff = { membersA: [] as Concept[], sharedMembers: [] as Concept[], membersB: [] as Concept[] };
 
     for (const member of membersA) {
+      member.name = member.name + " | " + member.code;
       membersMap.set(member["@id"]!, member);
     }
 
     for (const member of membersB) {
+      member.name = member.name + " | " + member.code;
       if (membersMap.has(member["@id"]!)) {
         diff.sharedMembers.push(member);
         membersMap.delete(member["@id"]!);
@@ -264,8 +266,8 @@ export default class EntityService {
     }
 
     diff.membersA = Array.from(membersMap, ([iri, member]) => member).sort(byName);
-    diff.membersB.sort(byName);
-    diff.sharedMembers.sort(byName);
+    diff.membersB.sort(byName).map(member => (member.name = member.name + " | " + member.code));
+    diff.sharedMembers.sort(byName).map(member => (member.name = member.name + " | " + member.code));
     return diff;
   }
 
