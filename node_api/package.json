@@ -65,8 +65,6 @@
     "@types/jwk-to-pem": "2.0.1",
     "@types/lodash": "4.14.198",
     "@types/morgan": "1.9.4",
-    "@types/mysql": "2.15.21",
-    "@types/node": "18.17.18",
     "@types/node-cron": "3.0.11",
     "@types/node-fetch": "2.6.4",
     "@types/nodemailer": "6.4.9",
@@ -74,15 +72,10 @@
     "@types/uuid": "9.0.4",
     "@vitest/coverage-v8": "0.32.0",
     "cross-env": "7.0.3",
-    "happy-dom": "12.10.3",
     "nodemon": "2.0.22",
     "primevue": "3.29.2",
-    "rimraf": "5.0.1",
     "swagger-autogen": "2.23.6",
-    "typescript": "5.2.2",
-    "vite": "4.4.12",
-    "vite-plugin-node": "3.0.2",
-    "vitest": "0.32.0"
+    "vite-plugin-node": "3.0.2"
   },
   "types": "./dist/types"
 }
