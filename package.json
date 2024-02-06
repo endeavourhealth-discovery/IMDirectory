@@ -23,8 +23,7 @@
     "install-api": "cd node_api && pnpm install",
     "install-ui": "cd ui && pnpm install",
     "test:unit": "cd im_library && pnpm vitest run && cd ../node_api && pnpm vitest run && cd ../ui && pnpm vitest run",
-    "test:coverage": "cd im_library && pnpm run test:coverage && cd ../node_api && pnpm run test:coverage && cd ../ui && pnpm run test:coverage",
-    "postinstall": "set PATH=$PATH;./node_modules/.bin"
+    "test:coverage": "cd im_library && pnpm run test:coverage && cd ../node_api && pnpm run test:coverage && cd ../ui && pnpm run test:coverage"
   },
   "dependencies": {
     "lodash": "4.17.21",
