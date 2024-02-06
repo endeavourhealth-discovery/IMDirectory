@@ -186,9 +186,8 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
 }
 
 export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchType) {
-  if (orderLimit?.property && orderLimit.property.length > 0) {
-    // TODO: Temporary fix - model to be updated later
-    const desc = getDisplayFromOrderBy(orderLimit.property[0], matchType, orderLimit.limit);
+  if (orderLimit?.property) {
+    const desc = getDisplayFromOrderBy(orderLimit.property, matchType, orderLimit.limit);
 
     orderLimit.description = "<div class='variable-line'>get " + desc + "</div>";
   }
