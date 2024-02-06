@@ -266,8 +266,8 @@ export default class EntityService {
     }
 
     diff.membersA = Array.from(membersMap, ([iri, member]) => member).sort(byName);
-    diff.membersB.sort(byName).map(member => (member.name = member.name + " | " + member.code));
-    diff.sharedMembers.sort(byName).map(member => (member.name = member.name + " | " + member.code));
+    diff.membersB.sort(byName);
+    diff.sharedMembers.sort(byName);
     return diff;
   }
 
