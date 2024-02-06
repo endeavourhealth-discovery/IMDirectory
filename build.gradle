@@ -15,4 +15,6 @@ clean.doLast {
     file('node_api/dist').deleteDir()
 }
 
+assemble.dependsOn pnpmInstall
+
 println 'Build environment = [' + env + ']'
