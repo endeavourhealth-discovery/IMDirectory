@@ -25,6 +25,10 @@ curl -s "https://img.shields.io/badge/Unit_Tests-Pending-orange.svg" > badges/un
 # Sync with S3
 aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive --acl public-read --region eu-west-2
 
+# Add node modules bin to path
+export PATH=$PATH:$PWD/node_modules/.bin
+echo $PATH
+
 # Build
 { #try
     ./gradlew build -Penv=prod &&

@@ -1,4 +1,3 @@
-import { ErrorType } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ApiError, CustomError } from "@im-library/models";
 import { NextFunction, Request, Response } from "express";

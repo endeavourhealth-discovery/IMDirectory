@@ -154,7 +154,7 @@ async function search(loadMore?: boolean): Promise<void> {
     if (!loadMore) {
       eclQuery.value = await EclService.getQueryFromECL(queryString.value);
       eclQuery.value.orderBy = {} as OrderLimit;
-      eclQuery.value.orderBy.property = [{ valueVariable: "term" }];
+      eclQuery.value.orderBy.property = { valueVariable: "term" };
     }
     const eclSearchRequest = {
       eclQuery: eclQuery.value,
@@ -201,7 +201,7 @@ async function downloadAll() {
   });
   const eclQuery = await EclService.getQueryFromECL(queryString.value);
   eclQuery.orderBy = {} as OrderLimit;
-  eclQuery.orderBy.property = [{ valueVariable: "term" }];
+  eclQuery.orderBy.property = { valueVariable: "term" };
   const eclSearchRequest = {
     eclQuery: eclQuery,
     includeLegacy: false,

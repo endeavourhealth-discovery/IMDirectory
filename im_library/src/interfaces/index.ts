@@ -52,6 +52,7 @@ import { MailOptions } from "./MailOptions";
 import { Workflow } from "./Workflow";
 import { BugReport } from "./BugReport";
 import { QueryResponse } from "./QueryResponse";
+import { SetDiffObject } from "./SetDiffObject";
 
 export {
   type Address,
@@ -107,5 +108,6 @@ export {
   type MailOptions,
   type Workflow,
   type BugReport,
-  type QueryResponse
+  type QueryResponse,
+  type SetDiffObject
 };

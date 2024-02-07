@@ -1,6 +1,6 @@
 import EclService from "@/services/ecl.service";
 import axios from "axios";
-import express, { NextFunction, Request, Response } from "express";
+import { Request } from "express";
 import router from "express-promise-router";
 
 export default class EclController {

@@ -329,7 +329,6 @@ export default class QueryService {
   }
 
   public async isFunctionProperty(propIri: string) {
-    const isTrue = '"true"^^http://www.w3.org/2001/XMLSchema#boolean';
     const query = "SELECT ?functionProperty " + "WHERE {" + "bind(exists{?propIri ?isA  ?funcProp} as ?functionProperty)" + "} ";
 
     const rs = await this.graph.execute(query, {

@@ -219,11 +219,11 @@ export const orderBy: {
   getLatestFull: OrderLimit;
   getLatest3Full: OrderLimit;
 } = {
-  getLatest: { property: [{ direction: Order.descending, "@id": "http://endhealth.info/im#effectiveDate" }], limit: 1 },
-  getEarliest: { property: [{ direction: Order.ascending, "@id": "http://endhealth.info/im#effectiveDate" }], limit: 1 },
-  getLatest3: { property: [{ direction: Order.descending, "@id": "http://endhealth.info/im#effectiveDate" }], limit: 3 },
-  getLatestFull: { property: [{ direction: Order.descending, "@id": "http://endhealth.info/im#endDate" }], limit: 1 },
-  getLatest3Full: { property: [{ direction: Order.descending, "@id": "http://endhealth.info/im#endDate" }], limit: 3 }
+  getLatest: { property: { direction: Order.descending, "@id": "http://endhealth.info/im#effectiveDate" }, limit: 1 },
+  getEarliest: { property: { direction: Order.ascending, "@id": "http://endhealth.info/im#effectiveDate" }, limit: 1 },
+  getLatest3: { property: { direction: Order.descending, "@id": "http://endhealth.info/im#effectiveDate" }, limit: 3 },
+  getLatestFull: { property: { direction: Order.descending, "@id": "http://endhealth.info/im#endDate" }, limit: 1 },
+  getLatest3Full: { property: { direction: Order.descending, "@id": "http://endhealth.info/im#endDate" }, limit: 3 }
 };
 
 export const fullTestQueryDefinition: Query = {
@@ -333,12 +333,10 @@ export const fullTestQueryDefinition: Query = {
               }
             ],
             orderBy: {
-              property: [
-                {
-                  direction: Order.descending,
-                  "@id": "http://endhealth.info/im#effectiveDate"
-                }
-              ],
+              property: {
+                direction: Order.descending,
+                "@id": "http://endhealth.info/im#effectiveDate"
+              },
               limit: 1
             },
             typeOf: {

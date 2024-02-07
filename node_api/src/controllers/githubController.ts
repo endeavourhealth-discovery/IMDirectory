@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import  { NextFunction, Request, Response } from "express";
 import GithubRelease from "@/model/github/GithubRelease";
 import setGithubConfig from "@/logic/setGithubConfig";
 import { CONFIG } from "@im-library/vocabulary";

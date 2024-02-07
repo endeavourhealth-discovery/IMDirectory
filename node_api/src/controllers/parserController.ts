@@ -1,5 +1,5 @@
 import ParserService from "@/services/parser.service";
-import express, { NextFunction, Request, Response } from "express";
+import { Request } from "express";
 import router from "express-promise-router";
 
 export default class ParserController {

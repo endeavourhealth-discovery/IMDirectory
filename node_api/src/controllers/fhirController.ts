@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import { Request } from "express";
 import FhirService from "@/services/fhir.service";
 import router from "express-promise-router";
 

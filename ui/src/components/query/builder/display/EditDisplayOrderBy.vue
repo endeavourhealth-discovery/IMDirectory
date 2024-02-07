@@ -1,15 +1,14 @@
 <template>
   <div v-if="editMode">
     <div class="property-input-container">
-      <div v-for="(property, index) of editingOrderBy.property">
+      <div v-if="editingOrderBy.property">
         <div class="orderBy">
           <div class="flex-v-center">
-            <label v-if="index == 0" class="w-full md:w-4rem property">Order by </label>
-            <label v-else class="w-full md:w-4rem property">then by </label>
+            <label class="w-full md:w-4rem property">Order by </label>
           </div>
           <div>
             <Dropdown
-              v-model="property['@id']"
+              v-model="editingOrderBy.property['@id']"
               :options="orderProperties"
               optionLabel="name"
               optionValue="iri"
@@ -19,23 +18,14 @@
           </div>
           <div>
             <Dropdown
-              v-model="property.direction"
-              :options="getDirectionOptions(property)"
+              v-model="editingOrderBy.property.direction"
+              :options="getDirectionOptions(editingOrderBy.property)"
               optionLabel="name"
               optionValue="value"
               placeholder="Select direction"
               class="w-full md:w-14rem property"
             />
           </div>
-          <Button class="property" icon="fa-regular fa-trash-can" severity="danger" @click="deleteOrder(index)" />
-          <Button class="property" icon="fa-solid fa-arrow-up" severity="info" @click="moveUp(index)" :disabled="index == 0" />
-          <Button
-            class="property"
-            icon="fa-solid fa-arrow-down"
-            severity="info"
-            @click="moveDown(index)"
-            :disabled="index == editingOrderBy!.property!.length - 1"
-          />
         </div>
       </div>
       <div>
@@ -142,28 +132,8 @@ function getDirectionOptions(property: OrderDirection) {
   return directionOptions;
 }
 
-function deleteOrder(index: number) {
-  if (editingOrderBy.value.property) editingOrderBy.value.property.splice(index, 1);
-}
-
-function moveUp(index: number) {
-  if (editingOrderBy.value?.property && index > 0 && index < editingOrderBy.value.property?.length) {
-    const t = editingOrderBy.value.property[index];
-    editingOrderBy.value.property[index] = editingOrderBy.value.property[index - 1];
-    editingOrderBy.value.property[index - 1] = t;
-  }
-}
-
-function moveDown(index: number) {
-  if (editingOrderBy.value?.property && index < editingOrderBy.value.property?.length - 1) {
-    const t = editingOrderBy.value.property[index];
-    editingOrderBy.value.property[index] = editingOrderBy.value.property[index + 1];
-    editingOrderBy.value.property[index + 1] = t;
-  }
-}
-
 function addOrder() {
-  if (editingOrderBy.value.property) editingOrderBy.value.property.push({});
+  if (editingOrderBy.value.property) editingOrderBy.value.property = {};
 }
 
 function cancel() {
@@ -172,7 +142,7 @@ function cancel() {
 
 function save() {
   props.match.orderBy = editingOrderBy.value;
-  if ((!props.match.orderBy.property || props.match.orderBy.property.length == 0) && !props.match.orderBy.limit) remove();
+  if (!props.match.orderBy.property && !props.match.orderBy.limit) remove();
 
   editMode.value = false;
 }

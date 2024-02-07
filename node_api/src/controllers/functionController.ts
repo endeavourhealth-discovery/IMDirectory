@@ -1,5 +1,4 @@
 import FunctionService from "@/services/function.service";
-import QueryService from "@/services/query.service";
 import { ErrorType } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { CustomError } from "@im-library/models";

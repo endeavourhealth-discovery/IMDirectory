@@ -6,7 +6,9 @@ export default class MailService {
   private transporter: nodemailer.Transporter | undefined;
   private static instance: MailService;
 
-  private constructor() {}
+  private constructor() {
+    // empty constructor
+  }
 
   static getInstance() {
     if (!MailService.instance) {
