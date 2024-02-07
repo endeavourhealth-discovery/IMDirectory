@@ -25,10 +25,6 @@
     "test:unit": "cd im_library && pnpm vitest run && cd ../node_api && pnpm vitest run && cd ../ui && pnpm vitest run",
     "test:coverage": "cd im_library && pnpm run test:coverage && cd ../node_api && pnpm run test:coverage && cd ../ui && pnpm run test:coverage"
   },
-  "dependencies": {
-    "lodash": "4.17.21",
-    "uuid": "9.0.1"
-  },
   "devDependencies": {
     "@types/lodash": "4.14.198",
     "@types/node": "18.17.18",
