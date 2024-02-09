@@ -94,11 +94,11 @@
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Argument, PropertyShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { AutoCompleteCompleteEvent, AutoCompleteItemSelectEvent } from "primevue/autocomplete";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { DirectService, EntityService, QueryService } from "@/services";
@@ -280,8 +280,8 @@ async function searchPath(event: AutoCompleteCompleteEvent) {
         ]
       }
     };
-    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    const results: SearchResponse = await QueryService.queryIMSearch(request);
+    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   pathSuggestions.value = ps;
@@ -375,8 +375,8 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
         ]
       }
     };
-    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    const results: SearchResponse = await QueryService.queryIMSearch(request);
+    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
 
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });

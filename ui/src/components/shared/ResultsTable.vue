@@ -12,24 +12,23 @@
       @rowContextmenu="onRowContextMenu"
       :scrollable="true"
       scrollHeight="flex"
-      :loading="loading"
       ref="searchTable"
       dataKey="iri"
       :autoLayout="true"
       @page="onPage($event)"
       :lazy="lazyLoading"
-      :total-records="totalRecords ?? searchResults.length"
+      :total-records="totalCount"
       :rows-per-page-options="[rows, rows * 2, rows * 4, rows * 8]"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
           <span>Results</span>
-          <span v-if="totalRecords"> {{ "(" + totalRecords + ")" }}</span>
+          <span v-if="totalCount"> {{ "(" + totalCount + ")" }}</span>
           <Button
-            :disabled="!searchResults?.length"
+            :disabled="!searchResults"
             class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
-            :icon="fontAwesomePro ? 'fa-duotone fa-fw fa-file-arrow-down' : 'fa-solid fa-fw fa-file-arrow-down'"
+            icon="fa-duotone fa-fw fa-file-arrow-down"
             @click="exportCSV()"
             v-tooltip.right="'Download results table'"
           />
@@ -75,45 +74,41 @@ import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethod
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
-import { useSharedStore } from "@/stores/sharedStore";
-import { ConceptSummary } from "@im-library/interfaces";
 import _ from "lodash";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
+import { SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
-  searchResults?: ConceptSummary[];
-  totalRecords?: number;
+  searchResults?: SearchResponse;
   loading: boolean;
   rows?: number;
-  lazyLoading: boolean;
+  lazyLoading?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  searchResults: () => [] as ConceptSummary[],
   lazyLoading: false,
-  rows: 20
+  rows: 25
 });
 
 const emit = defineEmits({
-  rowSelected: (_payload: ConceptSummary) => true,
+  rowSelected: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  downloadRequested: () => true,
+  downloadRequested: (_payload: { term: string; count: number }) => true,
   lazyLoadRequested: (_payload: any) => true
 });
 
-const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const dynamicDialog = useDialog();
 const favourites = computed(() => userStore.favourites);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
 
-interface ResultSummary extends ConceptSummary {
+interface ResultSummary extends SearchResultSummary {
   icon: string[];
   color: string;
   typeNames: string;
@@ -122,6 +117,8 @@ interface ResultSummary extends ConceptSummary {
 
 const selected: Ref<ResultSummary> = ref({} as ResultSummary);
 const processedSearchResults: Ref<any[]> = ref([]);
+const totalCount = ref(0);
+const page = ref(0);
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",
@@ -151,11 +148,11 @@ const { OS, showOverlay, hideOverlay } = setupOverlay();
 const contextMenu = ref();
 
 watch(
-  () => props.searchResults,
-  () => init()
+  () => _.cloneDeep(props.searchResults),
+  () =>     init()
 );
 
-onMounted(() => init());
+onMounted(() =>  init());
 
 function updateFavourites(row?: any) {
   if (row) selected.value = row.data;
@@ -168,18 +165,22 @@ function isFavourite(iri: string) {
 }
 
 function init() {
-  processedSearchResults.value = processSearchResults(props.searchResults);
+  processSearchResults(props.searchResults);
 }
 
-function processSearchResults(searchResults: ConceptSummary[]): ResultSummary[] {
-  return searchResults.map(result => {
-    const copy: any = _.cloneDeep(result);
-    copy.icon = getFAIconFromType(result.entityType);
-    copy.colour = getColourFromType(result.entityType);
-    copy.typeNames = getNamesAsStringFromTypes(result.entityType);
-    copy.favourite = isFavourite(result.iri);
-    return copy;
-  });
+function processSearchResults(searchResults: SearchResponse | undefined): void {
+  if (searchResults?.entities && isArrayHasLength(searchResults.entities)) {
+    processedSearchResults.value = searchResults.entities.map(result => {
+      const copy: any = _.cloneDeep(result);
+      copy.icon = getFAIconFromType(result.entityType);
+      copy.colour = getColourFromType(result.entityType);
+      copy.typeNames = getNamesAsStringFromTypes(result.entityType);
+      copy.favourite = isFavourite(result.iri);
+      return copy;
+    });
+    totalCount.value = searchResults.count ?? 0;
+    page.value = searchResults.page ?? 0;
+  }
 }
 
 function updateRClickOptions() {
@@ -206,32 +207,39 @@ function onRowSelect(event: any) {
   clicks.value++;
   if (clicks.value === 1) {
     timer.value = setTimeout(() => {
-      const found = props.searchResults.find(result => event.data.iri === result.iri);
+      const found = props.searchResults?.entities?.find(result => event.data.iri === result.iri);
       if (found) emit("rowSelected", found);
       clicks.value = 0;
     }, delay.value);
   } else {
     clearTimeout(timer.value);
-    const found = props.searchResults.find(result => event.data.iri === result.iri);
+    const found = props.searchResults?.entities?.find(result => event.data.iri === result.iri);
     if (found) emit("rowSelected", found);
     clicks.value = 0;
   }
 }
 
 function exportCSV(): void {
-  if (props.totalRecords && props.searchResults.length < props.totalRecords) {
-    emit("downloadRequested");
-    return;
+  if (props.searchResults) {
+    if (
+      props.searchResults.count &&
+      props.searchResults.entities &&
+      props.searchResults.entities.length < props.searchResults.count &&
+      props.searchResults.term
+    ) {
+      emit("downloadRequested", { term: props.searchResults.term, count: props.searchResults.count });
+      return;
+    }
+    const downloadDialog = dynamicDialog.open(LoadingDialog, {
+      props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+      data: { title: "Downloading", text: "Preparing your download..." }
+    });
+    const heading = ["name", "iri", "code"].join(",");
+    const body = props.searchResults.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
+    const csv = [heading, body].join("\n");
+    downloadFile(csv, "results.csv");
+    downloadDialog.close();
   }
-  const downloadDialog = dynamicDialog.open(LoadingDialog, {
-    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
-    data: { title: "Downloading", text: "Preparing your download..." }
-  });
-  const heading = ["name", "iri", "code"].join(",");
-  const body = props.searchResults?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
-  const csv = [heading, body].join("\n");
-  downloadFile(csv, "results.csv");
-  downloadDialog.close();
 }
 </script>
 
@@ -261,10 +269,8 @@ label {
 }
 
 .recent-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 1.25rem;
-  padding: 5px;
+  height: 1rem;
+  font-size: 1rem;
 }
 
 .datatable-flex-cell {
@@ -274,6 +280,7 @@ label {
   -webkit-box-flex: 1;
   -ms-flex: 1 1 0;
   flex: 1 1 0;
+  gap: 0.25rem;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;

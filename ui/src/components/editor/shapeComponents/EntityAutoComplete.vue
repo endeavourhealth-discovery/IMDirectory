@@ -80,8 +80,7 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { byName } from "@im-library/helpers/Sorters";
 import { QueryService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {
@@ -163,14 +162,14 @@ onMounted(async () => {
 });
 
 const loading = ref(false);
-const selectedResult: Ref<ConceptSummary | undefined> = ref();
+const selectedResult: Ref<SearchResultSummary | undefined> = ref();
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const associatedProperty = ref("");
 const controller: Ref<AbortController> = ref({} as AbortController);
-const autocompleteOptions: Ref<ConceptSummary[]> = ref([]);
+const autocompleteOptions: Ref<SearchResultSummary[]> = ref([]);
 const key = ref("");
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const optionsOverlayLocation: Ref<any> = ref({});
 const showValidation = ref(false);
 
@@ -266,7 +265,7 @@ async function getAutocompleteOptions() {
 
 function convertToConceptSummary(results: any[]) {
   return results.map(result => {
-    const conceptSummary = {} as ConceptSummary;
+    const conceptSummary = {} as SearchResultSummary;
     conceptSummary.iri = result["@id"];
     conceptSummary.name = result[RDFS.LABEL] ? result[RDFS.LABEL] : result["@id"];
     conceptSummary.code = result[IM.CODE];
@@ -281,13 +280,13 @@ function searchOptions(event: any) {
   if (!event.query.trim().length) {
     getAutocompleteOptions();
   } else {
-    autocompleteOptions.value = autocompleteOptions.value.filter(option =>
-      option.name.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
+    autocompleteOptions.value = autocompleteOptions.value.filter(
+      option => option.name?.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
     );
   }
 }
 
-async function itemSelected(value: ConceptSummary) {
+async function itemSelected(value: SearchResultSummary) {
   if (isObjectHasKeys(value)) {
     if (!props.shape.builderChild && key.value) {
       updateEntity(value);
@@ -306,18 +305,18 @@ async function itemSelected(value: ConceptSummary) {
   } else if (!props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
 }
 
-function updateValueVariableMap(data: ConceptSummary) {
+function updateValueVariableMap(data: SearchResultSummary) {
   if (!props.shape.valueVariable) return;
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, summaryToTTIriRef(data));
 }
 
-function summaryToTTIriRef(summary: ConceptSummary): TTIriRef {
+function summaryToTTIriRef(summary: SearchResultSummary): TTIriRef {
   return { "@id": summary.iri, name: summary.name } as TTIriRef;
 }
 
-function updateEntity(value: ConceptSummary) {
+function updateEntity(value: SearchResultSummary) {
   const result = {} as any;
   result[key.value] = summaryToTTIriRef(value);
   if (entityUpdate && !props.shape.builderChild) entityUpdate(result);

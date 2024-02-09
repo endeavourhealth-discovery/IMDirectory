@@ -26,10 +26,11 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, inject, computed } from "vue";
-import { IM, SNOMED, FUNCTION } from "@im-library/vocabulary";
+import { IM, SNOMED, IM_FUNCTION } from "@im-library/vocabulary";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest } from "@im-library/interfaces/AutoGen";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { FilterOptions } from "@im-library/interfaces";
+import { FunctionRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -72,13 +73,13 @@ const filterStore = useFilterStore();
 const filterStoreDefaults = computed(() => filterStore.filterDefaults);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 
-const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const loading = ref(false);
 const showDialog = ref(false);
 const isAny = ref(false);
+const selected: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 
 const functionRequest: FunctionRequest = {
-  functionIri: FUNCTION.IS_TYPE,
+  functionIri: IM_FUNCTION.IS_TYPE,
   arguments: [{ parameter: "type", valueIri: { "@id": IM.CONCEPT } }]
 };
 const descendantOptions = [
@@ -123,8 +124,8 @@ watch(selected, (newValue, oldValue) => {
 });
 
 watch(isAny, newValue => {
-  if (newValue) selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
-  else selected.value = {} as ConceptSummary;
+  if (newValue) selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
+  else selected.value = {} as SearchResultSummary;
 });
 
 async function init() {
@@ -137,17 +138,17 @@ async function init() {
   }
 }
 
-async function updateSelectedResult(data: ConceptSummary | { iri: string; name?: string }) {
-  if (!isObjectHasKeys(data)) selected.value = {} as ConceptSummary;
-  else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as ConceptSummary;
+async function updateSelectedResult(data: SearchResultSummary | { iri: string; name?: string }) {
+  if (!isObjectHasKeys(data)) selected.value = {} as SearchResultSummary;
+  else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as SearchResultSummary;
   else if (data.iri === "any" || data.iri === "*") {
-    selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
+    selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
     isAny.value = true;
   } else if (data.iri) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
-    selected.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
+    selected.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else {
-    selected.value = {} as ConceptSummary;
+    selected.value = {} as SearchResultSummary;
   }
 }
 

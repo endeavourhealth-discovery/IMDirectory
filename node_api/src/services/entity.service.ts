@@ -2,13 +2,14 @@ import Env from "@/services/env.service";
 import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris, ConceptSummary } from "@im-library/interfaces";
+import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary, Concept } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import { byName } from "@im-library/helpers/Sorters";
 
 export default class EntityService {
   axios: any;
@@ -36,7 +37,7 @@ export default class EntityService {
     } as TreeNode;
 
     for (const property of validOptions) {
-      treeNode.children!.push({
+      treeNode.children.push({
         key: key + "/" + property[SHACL.PATH][0]["@id"],
         label: property[SHACL.PATH][0].name,
         data: {
@@ -237,7 +238,48 @@ export default class EntityService {
     return (await this.axios.get(Env.API + "api/entity/public/asEntityReferenceNode", { params: { iri: iri } })).data;
   }
 
-  async getEntitySummary(iri: string): Promise<ConceptSummary> {
+  async getEntitySummary(iri: string): Promise<SearchResultSummary> {
     return (await this.axios.get(Env.API + "api/entity/public/summary", { params: { iri: iri } })).data;
+  }
+
+  async getSetDiff(setIriA: string, setIriB: string) {
+    let membersA: Concept[] = [];
+    let membersB: Concept[] = [];
+    if (setIriA) membersA = await this.getFullyExpandedSetMembers(setIriA, false, false);
+    if (setIriB) membersB = await this.getFullyExpandedSetMembers(setIriB, false, false);
+    const membersMap = new Map<string, Concept>();
+    const diff = { membersA: [] as Concept[], sharedMembers: [] as Concept[], membersB: [] as Concept[] };
+
+    for (const member of membersA) {
+      member.name = member.name + " | " + member.code;
+      membersMap.set(member["@id"]!, member);
+    }
+
+    for (const member of membersB) {
+      member.name = member.name + " | " + member.code;
+      if (membersMap.has(member["@id"]!)) {
+        diff.sharedMembers.push(member);
+        membersMap.delete(member["@id"]!);
+      } else {
+        diff.membersB.push(member);
+      }
+    }
+
+    diff.membersA = Array.from(membersMap, ([iri, member]) => member).sort(byName);
+    diff.membersB.sort(byName);
+    diff.sharedMembers.sort(byName);
+    return diff;
+  }
+
+  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<Concept[]> {
+    return (
+      await axios.get(Env.API + "api/entity/public/expandedMembers", {
+        params: {
+          iri: iri,
+          legacy: legacy,
+          includeSubsets: includeSubsets
+        }
+      })
+    ).data;
   }
 }

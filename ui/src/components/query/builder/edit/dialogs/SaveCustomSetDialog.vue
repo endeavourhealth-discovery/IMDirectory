@@ -69,7 +69,7 @@ import { useForm } from "vee-validate";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Node, TTIriRef, Match } from "@im-library/interfaces/AutoGen";
 import { EntityService, FilerService, FunctionService, QueryService } from "@/services";
-import { IM, RDF, RDFS, FUNCTION } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, IM_FUNCTION } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
 import * as yup from "yup";
 
@@ -146,7 +146,7 @@ async function getTypeOptions(): Promise<TTIriRef[]> {
 }
 
 async function getSchemeOptions(): Promise<TTIriRef[]> {
-  return await FunctionService.runFunction(FUNCTION.GET_USER_EDITABLE_SCHEMES);
+  return await FunctionService.runFunction(IM_FUNCTION.GET_USER_EDITABLE_SCHEMES);
 }
 
 function onNameGenIri() {

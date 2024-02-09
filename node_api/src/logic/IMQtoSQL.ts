@@ -71,8 +71,8 @@ function createMatchQuery(match: Match, qry: SqlQuery) {
 }
 
 function convertMatch(match: Match, qry: SqlQuery) {
-  if (match.inSet) {
-    convertMatchSet(qry, match);
+  if (match.is) {
+    convertMatchIs(qry, match);
   } else if (match.bool) {
     if (match.match && match.match.length > 0) convertMatchBoolSubMatch(qry, match);
     else if (match.property && match.property.length > 0) convertMatchProperties(qry, match);
@@ -91,7 +91,7 @@ function convertMatch(match: Match, qry: SqlQuery) {
 }
 
 function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
-  if (!order.property || order.property.length == 0) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + JSON.stringify(order, null, 2));
+  if (!order.property) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + JSON.stringify(order, null, 2));
 
   const inner = qry.clone(qry.alias + "_inner");
 
@@ -102,10 +102,8 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
 
   let o = [];
 
-  for (const p of order.property) {
-    const dir = p.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
-    o.push(partition.getFieldName(p["@id"] as string) + " " + dir);
-  }
+  const dir = order.property.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
+  o.push(partition.getFieldName(order.property["@id"] as string) + " " + dir);
 
   partition.selects.push("*", "ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + o.join(", ") + ") AS rn");
 
@@ -115,10 +113,15 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
   qry.wheres.push("rn = 1");
 }
 
-function convertMatchSet(qry: SqlQuery, match: Match) {
-  if (!match.inSet) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
-  const rsltTbl = includeDependentQuery(qry, match.inSet[0]["@id"] as string);
-  qry.joins.push("JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
+function convertMatchIs(qry: SqlQuery, match: Match) {
+  if (!match.is) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
+  const rsltTbl = qry.alias + "_rslt";
+  qry.joins.push("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
+  qry.wheres.push(rsltTbl + ".iri = '" + match.is[0]["@id"] + "'");
+  //
+  // if (!match.inSet) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
+  // const rsltTbl = includeDependentQuery(qry, match.inSet[0]["@id"] as string);
+  // qry.joins.push("JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
 }
 
 function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {

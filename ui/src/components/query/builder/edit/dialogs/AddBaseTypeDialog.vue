@@ -22,10 +22,10 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
@@ -44,7 +44,7 @@ const emit = defineEmits({ "update:showDialog": payload => typeof payload === "b
 
 const visible: Ref<boolean> = ref(false);
 const confirmVisible: Ref<boolean> = ref(false);
-const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const selected: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const returnType: Ref<string> = ref("");
 
 watch(
@@ -61,7 +61,7 @@ watch(visible, newValue => {
 });
 
 onMounted(() => {
-  if (isObjectHasKeys(props.query, ["typeOf"])) selected.value = { iri: props.query.typeOf!["@id"] } as ConceptSummary;
+  if (isObjectHasKeys(props.query, ["typeOf"])) selected.value = { iri: props.query.typeOf!["@id"] } as SearchResultSummary;
 });
 
 async function save() {
@@ -80,7 +80,7 @@ function confirm() {
   save();
 }
 
-async function setBaseType(cs: ConceptSummary) {
+async function setBaseType(cs: SearchResultSummary) {
   selected.value = cs;
   returnType.value = await getReturnType(selected.value);
   if (isArrayHasLength(props.query.match) && returnType.value !== props.query.typeOf!["@id"]) {
@@ -90,7 +90,7 @@ async function setBaseType(cs: ConceptSummary) {
   }
 }
 
-async function getReturnType(cs: ConceptSummary): Promise<string> {
+async function getReturnType(cs: SearchResultSummary): Promise<string> {
   if (!isQuery(cs.entityType)) return cs.iri;
   else {
     const entity = await EntityService.getPartialEntity(cs.iri, [IM.RETURN_TYPE]);

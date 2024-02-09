@@ -25,7 +25,7 @@
     <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
     <Button icon="fa-solid fa-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
     <DirectorySearchDialog
-      :selected="{ iri: editValue['@id'], name: editValue.name } as ConceptSummary"
+      :selected="{ iri: editValue['@id'], name: editValue.name } as SearchResultSummary"
       v-model:show-dialog="visible"
       @update:selected="onSelect"
     />
@@ -39,9 +39,9 @@ import EntailmentOptionsSelect from "../EntailmentOptionsSelect.vue";
 import _ from "lodash";
 import { Node, Property } from "@im-library/interfaces/AutoGen";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary } from "@im-library/interfaces";
 import { buildNodeFromCS } from "@im-library/helpers/QueryBuilder";
 import SaveCustomSetDialog from "../dialogs/SaveCustomSetDialog.vue";
+import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   property: Property;
@@ -107,7 +107,7 @@ function initEditValues() {
   }
 }
 
-function onSelect(cs: ConceptSummary) {
+function onSelect(cs: SearchResultSummary) {
   visible.value = false;
   const node = buildNodeFromCS(cs);
 

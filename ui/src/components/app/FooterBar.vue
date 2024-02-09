@@ -2,10 +2,10 @@
   <div id="footer-bar">
     <div id="footer-start">
       <IMFontAwesomeIcon
-        :icon="fontAwesomePro ? 'fa-duotone fa-cookie-bite' : 'fa-solid fa-cookie-bite'"
-        :style="fontAwesomePro && '--fa-primary-color: var(--orange-900); --fa-secondary-color: var(--yellow-500)'"
+        icon="fa-duotone fa-cookie-bite"
+        :style="'--fa-primary-color: var(--orange-900); --fa-secondary-color: var(--yellow-500)'"
         class="footer-icon"
-        v-tooltip.top="'Cookie settings'"
+        v-tooltip.right="'Cookie settings'"
         @click="showCookieSettings"
       />
     </div>
@@ -20,13 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 
-const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
-const fontAwesomePro = sharedStore.fontAwesomePro;
 
 function showCookieSettings() {
   sharedStore.updateShowCookieConsent(true);
@@ -83,8 +80,8 @@ function showCookieSettings() {
 }
 
 .footer-icon {
-  height: 2rem;
-  width: 2rem;
   cursor: pointer;
+  font-size: 2rem;
+  height: 100%;
 }
 </style>

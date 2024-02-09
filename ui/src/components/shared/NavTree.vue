@@ -36,7 +36,7 @@
     <Dialog header="New folder" :visible="newFolder !== null" :modal="true" :closable="false">
       <InputText type="text" v-model="newFolderName" autofocus @keyup.enter="createFolder" />
       <template #footer>
-        <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
+        <Button label="Cancel" icon="fa-regular fa-xmark" @click="newFolder = null" class="p-button-text" />
         <Button label="Create" :icon="newFolderIcon" :disabled="creating || !newFolderName" @click="createFolder" />
       </template>
     </Dialog>
@@ -48,7 +48,6 @@ import { computed, ref, Ref, watch, onMounted, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import OverlaySummary from "./OverlaySummary.vue";
 import { useToast } from "primevue/usetoast";
-import { ConceptSummary } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService, FilerService } from "@/services";
@@ -57,17 +56,18 @@ import { useRouter } from "vue-router";
 import { TreeNode } from "primevue/treenode";
 import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
-import { useSharedStore } from "@/stores/sharedStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 interface Props {
   allowDragAndDrop?: boolean;
   allowRightClick?: boolean;
   rootEntities?: string[];
   selectedIri?: string;
+  findInTree?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowRightClick: false, allowDragAndDrop: false });
@@ -81,16 +81,16 @@ const router = useRouter();
 const toast = useToast();
 const confirm = useConfirm();
 const userStore = useUserStore();
-const sharedStore = useSharedStore();
+const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const {
   root,
   selectedKeys,
   selectedNode,
   expandedKeys,
+  expandedData,
   pageSize,
   createTreeNode,
   createLoadMoreNode,
@@ -107,7 +107,7 @@ const {
 const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 
 const loading = ref(true);
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const overlayLocation: Ref<any> = ref({});
 const items: Ref<any[]> = ref([]);
 const newFolder: Ref<null | TreeNode> = ref(null);
@@ -123,9 +123,10 @@ const menu = ref();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
-  () => props.selectedIri,
+  () => props.findInTree,
   async newValue => {
-    if (newValue) await findPathToNode(newValue, loading, "hierarchy-tree-bar-container");
+    if (newValue && props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
+    directoryStore.updateFindInTreeBoolean(false);
   }
 );
 
@@ -136,6 +137,15 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (isObjectHasKeys(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
     hideOverlay(overlayLocation.value);
+  }
+});
+
+document.addEventListener("visibilitychange", function () {
+  if (!document.hidden) {
+    expandedKeys.value = {};
+    for (let newNode in expandedData.value) {
+      onNodeExpand(expandedData.value[newNode]);
+    }
   }
 });
 

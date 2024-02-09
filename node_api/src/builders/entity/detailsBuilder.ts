@@ -1,4 +1,3 @@
-import { randomBytes } from "node:crypto";
 import { TTBundle } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
@@ -25,17 +24,12 @@ function buildTreeDataRecursively(treeNode: any, entity: any, predicates: any, t
 }
 
 function processEntityKey(key: string, treeNode: any, entity: any, predicates: any, types?: TTIriRef[]) {
-  if (key === IM.ROLE_GROUP) {
-    addRoleGroup(treeNode, entity, predicates, key);
-  } else if (key === IM.HAS_TERM_CODE) {
-    addTermCodes(treeNode, entity, predicates, key);
-  } else if (key === SHACL.PROPERTY) {
-    addProperty(treeNode, entity, predicates, key);
-  } else if (key === SHACL.PARAMETER) {
-    addParameter(treeNode, entity, predicates, key);
-  } else if (key === IM.DEFINITION) {
-    addDefinition(treeNode, entity, predicates, key, types ?? []);
-  } else if (key === IM.HAS_MAP) {
+  if (key === IM.ROLE_GROUP) addRoleGroup(treeNode, entity, predicates, key);
+  else if (key === IM.HAS_TERM_CODE) addTermCodes(treeNode, entity, predicates, key);
+  else if (key === SHACL.PROPERTY) addProperty(treeNode, entity, predicates, key);
+  else if (key === SHACL.PARAMETER) addParameter(treeNode, entity, predicates, key);
+  else if (key === IM.DEFINITION) addDefinition(treeNode, entity, predicates, key, types ?? []);
+  else if (key === IM.HAS_MAP) {
     const defaultNode = { key: key, label: predicates[key], children: [] };
     treeNode.children.push(defaultNode);
     addDefault(defaultNode, entity, predicates);
@@ -67,7 +61,7 @@ function addParameter(treeNode: any, entity: any, predicates: any, key: string) 
   if (isArrayHasLength(entity[key])) {
     for (const parameter of entity[key]) {
       const parameterNode = {
-        key: String(randomBytes(64).readBigUInt64BE()),
+        key: createKeyFromText(parameter[RDFS.LABEL]),
         label: parameter[RDFS.LABEL],
         children: [] as any[]
       };
@@ -79,28 +73,29 @@ function addParameter(treeNode: any, entity: any, predicates: any, key: string) 
 
 function addDefault(treeNode: any, entity: any, predicates: any) {
   for (const key of Object.keys(entity)) {
-    if (isArrayHasLength(entity[key])) {
-      for (const [index, item] of [entity[key]].entries()) {
-        if (isObjectHasKeys(item[index], ["@id", "name"])) {
-          addIriLink(treeNode, item[index]);
-        } else {
-          addDefault(treeNode, item, predicates);
-        }
-      }
-    } else if (isObjectHasKeys(entity[key])) {
-      for (const objectKey of Object.keys(entity[key])) {
-        const objectNode = {
-          key: String(randomBytes(64).readBigUInt64BE()),
-          label: predicates[objectKey] ?? objectKey,
-          children: [] as any
-        };
+    if (isArrayHasLength(entity[key])) addArray(treeNode, entity, predicates, key);
+    else if (isObjectHasKeys(entity[key])) addObject(treeNode, entity, predicates, key);
+    else addValueToLabel(treeNode, " - ", entity[key]);
+  }
+}
 
-        treeNode.children.push(objectNode);
-        addDefault(objectNode, entity[key], predicates);
-      }
-    } else {
-      addValueToLabel(treeNode, " - ", entity[key]);
-    }
+function addArray(treeNode: any, entity: any, predicates: any, key: string) {
+  for (const [index, item] of [entity[key]].entries()) {
+    if (isObjectHasKeys(item[index], ["@id", "name"])) addIriLink(treeNode, item[index]);
+    else addDefault(treeNode, item, predicates);
+  }
+}
+
+function addObject(treeNode: any, entity: any, predicates: any, key: string) {
+  for (const objectKey of Object.keys(entity[key])) {
+    const objectNode = {
+      key: createKeyFromText(predicates[objectKey] ?? objectKey),
+      label: predicates[objectKey] ?? objectKey,
+      children: [] as any
+    };
+
+    treeNode.children.push(objectNode);
+    addDefault(objectNode, entity[key], predicates);
   }
 }
 
@@ -148,4 +143,8 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
 function addProperty(treeNode: any, entity: any, predicates: any, key: string) {
   const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
   treeNode.children?.push(newTreeNode);
+}
+
+function createKeyFromText(text: string) {
+  return new TextEncoder().encode(text).join("");
 }

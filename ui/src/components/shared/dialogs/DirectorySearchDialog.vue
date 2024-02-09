@@ -17,7 +17,9 @@
           @to-query-search="showQuerySearch"
           :selected="selected"
           :filter-options="filterOptions"
+          v-model:loadMore="loadMore"
           :filterDefaults="filterDefaults"
+          v-model:download="download"
         />
       </div>
       <div class="vertical-divider">
@@ -32,6 +34,10 @@
             :selected="selected"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
+            @lazy-load-requested="lazyLoadRequested"
+            :lazy-loading="true"
+            :rows="25"
+            @download-requested="downloadRequested"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -61,17 +67,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, Ref, computed } from "vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
-import { useSharedStore } from "@/stores/sharedStore";
 import _, { cloneDeep } from "lodash";
 import { EntityService, FunctionService, QueryService } from "@/services";
-import { FunctionRequest, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
@@ -80,7 +85,7 @@ interface Props {
   showDialog: boolean;
   searchByQuery?: QueryRequest;
   searchByFunction?: FunctionRequest;
-  selected?: ConceptSummary;
+  selected?: SearchResultSummary;
   rootEntities?: string[];
   filterOptions?: FilterOptions;
   filterDefaults?: FilterOptions;
@@ -99,12 +104,11 @@ const emit = defineEmits({
   "update:selected": payload => true
 });
 
-const sharedStore = useSharedStore();
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-
 const hasQueryDefinition: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
+const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
+const download: Ref<{ term: string; count: number } | undefined> = ref();
 
 const visible = ref(false);
 watch(visible, newValue => {
@@ -113,7 +117,7 @@ watch(visible, newValue => {
     resetDialog();
   }
 });
-const searchResults: Ref<ConceptSummary[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
 const detailsIri = ref("");
@@ -164,7 +168,7 @@ function initSelection() {
   }
 }
 
-function updateSelected(data: ConceptSummary) {
+function updateSelected(data: SearchResultSummary) {
   navigateTo(data.iri);
   locateInTree(data.iri);
 }
@@ -190,7 +194,7 @@ function navigateTo(iri: string) {
 }
 
 function resetDialog() {
-  searchResults.value = [];
+  searchResults.value = undefined;
   searchLoading.value = false;
   treeIri.value = "";
   detailsIri.value = "";
@@ -237,6 +241,14 @@ async function getHasQueryDefinition() {
 
 function onEnter() {
   if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
+}
+
+function lazyLoadRequested(event: any) {
+  loadMore.value = event;
+}
+
+function downloadRequested(data: { term: string; count: number }) {
+  download.value = data;
 }
 </script>
 

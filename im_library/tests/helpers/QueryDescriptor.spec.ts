@@ -57,7 +57,7 @@ describe("QueryDescriptor.ts ___", () => {
     it("can describe a concept property with DescendantsOrSelfOf", () => {
       const testProperty: Property = _.cloneDeep(match.withDescendantsOrSelfOf);
       describeProperty(testProperty, 0, Bool.and);
-      expect(testProperty.description).toEqual("Text message consultation (including descendants)");
+      expect(testProperty.description).toEqual("Text message consultation");
     });
 
     it("can describe a concept property with AncestorsOf", () => {
@@ -69,7 +69,7 @@ describe("QueryDescriptor.ts ___", () => {
     it("can describe a concept match with DescendantsOf", () => {
       const testProperty: Property = _.cloneDeep(match.withDescendantsOf);
       describeProperty(testProperty, 0, Bool.and);
-      expect(testProperty.description).toEqual("Text message consultation (descendants only)");
+      expect(testProperty.description).toEqual("Text message consultation (excluding subtypes)");
     });
 
     it("can describe a concept match with Exclude", () => {
@@ -99,12 +99,6 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can describe a match with one nested property of is", () => {
       const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfIs);
-      describeMatch(testMatch, 0, Bool.and);
-      expect(testMatch.property[0].match.property[0].description).toEqual("concept is Prediabetes");
-    });
-
-    it("can describe a match with one nested property of inSet", () => {
-      const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfInSet);
       describeMatch(testMatch, 0, Bool.and);
       expect(testMatch.property[0].match.property[0].description).toEqual("concept is Prediabetes");
     });

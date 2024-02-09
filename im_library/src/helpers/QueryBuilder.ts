@@ -1,6 +1,6 @@
 import { SHACL } from "../vocabulary";
-import { ConceptSummary, TreeNode } from "../interfaces";
-import { Match, Node, Operator, Property, Query } from "../interfaces/AutoGen";
+import { TreeNode } from "../interfaces";
+import { Match, Node, Operator, Property, Query, SearchResultSummary } from "../interfaces/AutoGen";
 import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { cloneDeep } from "lodash";
@@ -72,11 +72,11 @@ export function getLastMatchFromNestedProperty(matchOrProperty: any, found: Matc
   }
 }
 
-export function buildInSetMatchFromCS(cs: ConceptSummary) {
-  return { "@id": v4(), inSet: [buildNodeFromCS(cs)] } as Match;
+export function buildInSetMatchFromCS(cs: SearchResultSummary) {
+  return { "@id": v4(), is: [buildNodeFromCS(cs)] } as Match;
 }
 
-export function buildNodeFromCS(cs: ConceptSummary) {
+export function buildNodeFromCS(cs: SearchResultSummary) {
   return { "@id": cs.iri, name: cs.name } as Node;
 }
 

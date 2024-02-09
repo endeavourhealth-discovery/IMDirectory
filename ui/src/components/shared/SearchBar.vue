@@ -1,7 +1,7 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group">
-      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
+      <i v-if="loading" class="pi pi-spin pi-spinner"></i>
       <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText
         id="autocomplete-search"
@@ -10,13 +10,14 @@
         @complete="debounceForSearch"
         data-testid="search-input"
         autofocus
+        v-on:keyup.enter="search()"
       />
     </span>
-    <SplitButton class="search-button p-button-secondary" @click="search" label="Search" :model="buttonActions" :loading="searchLoading" />
+    <SplitButton class="search-button p-button-secondary" @click="search(false)" label="Search" :model="buttonActions" :loading="loading" />
     <Button
       v-tooltip.bottom="'Filters'"
       id="filter-button"
-      :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'pi pi-sliders-h'"
+      icon="fa-duotone fa-sliders"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
@@ -39,8 +40,8 @@
 import Filters from "@/components/shared/Filters.vue";
 
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
-import { FilterOptions, ConceptSummary } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
@@ -50,39 +51,70 @@ import { useSharedStore } from "@/stores/sharedStore";
 import EntityService from "@/services/EntityService";
 import QueryService from "@/services/QueryService";
 import _ from "lodash";
+import setupDownloadFile from "@/composables/downloadFile";
+import { useDialog } from "primevue/usedialog";
+import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 
 interface Props {
-  searchResults: ConceptSummary[];
+  searchResults: SearchResponse | undefined;
   searchLoading: boolean;
-  selected?: ConceptSummary;
+  selected?: SearchResultSummary;
   filterOptions?: FilterOptions;
+  loadMore: { page: number; rows: number } | undefined;
   filterDefaults?: FilterOptions;
+  download: { term: string; count: number } | undefined;
 }
 
 const props = defineProps<Props>();
 
+watch(
+  () => _.cloneDeep(props.loadMore),
+  async newValue => {
+    if (isObjectHasKeys(newValue)) {
+      await search(true);
+      emit("update:loadMore", undefined);
+    }
+  }
+);
+
+watch(
+  () => _.cloneDeep(props.download),
+  async newValue => {
+    if (newValue) {
+      await downloadAll(newValue);
+      emit("update:download", undefined);
+    }
+  }
+);
+
 const emit = defineEmits({
-  "update:searchResults": payload => _.isArray(payload),
+  "update:searchResults": _payload => true,
   "update:searchLoading": payload => typeof payload === "boolean",
   toEclSearch: () => true,
-  toQuerySearch: () => true
+  toQuerySearch: () => true,
+  "update:download": _payload => undefined,
+  "update:loadMore": _payload => true
 });
 
 const filterStore = useFilterStore();
-const sharedStore = useSharedStore();
+const dynamicDialog = useDialog();
+
+const { downloadFile } = setupDownloadFile(window, document);
 
 const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
-watch(storeSelectedFilters, newValue => {
-  if (!props.filterDefaults && !props.filterOptions) selectedFilters.value = newValue;
+watch(storeSelectedFilters, async newValue => {
+  if (!props.filterDefaults && !props.filterOptions) {
+    selectedFilters.value = newValue;
+    await search();
+  }
 });
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
 const searchPlaceholder = ref("Search");
 const loading = ref(false);
-const results: Ref<SearchResultSummary[]> = ref([]);
+const results: Ref<SearchResponse | undefined> = ref();
 const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
@@ -114,15 +146,25 @@ function debounceForSearch(): void {
   }, 600);
 }
 
-async function search(): Promise<void> {
+async function search(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }): Promise<void | SearchResponse> {
   searchPlaceholder.value = "Search";
+  if (downloadData) searchText.value = downloadData.term;
   if (searchText.value && searchText.value.length > 2) {
-    loading.value = true;
+    if (!downloadAll) loading.value = true;
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText.value;
     searchRequest.sortField = "weighting";
-    searchRequest.page = 1;
-    searchRequest.size = 100;
+    if (loadMore && props.loadMore) {
+      searchRequest.page = props.loadMore.page + 1;
+      searchRequest.size = props.loadMore.rows;
+    } else {
+      searchRequest.page = 1;
+      searchRequest.size = 100;
+    }
+    if (downloadAll && downloadData) {
+      searchRequest.page = 1;
+      searchRequest.size = downloadData.count;
+    }
 
     searchRequest.schemeFilter = [];
     const schemes =
@@ -167,9 +209,10 @@ async function search(): Promise<void> {
     }
     controller.value = new AbortController();
     const result = await EntityService.advancedSearch(searchRequest, controller.value);
-    if (result) results.value = result;
-    else results.value = [];
+    if (downloadAll) return result;
     loading.value = false;
+    if (result?.entities) results.value = result;
+    else results.value = undefined;
   }
 }
 
@@ -216,6 +259,19 @@ function getMatchFromSchemeFilters(): Match {
       }
     ]
   };
+}
+
+async function downloadAll(data: { term: string; count: number }) {
+  const downloadDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Downloading", text: "Preparing your download..." }
+  });
+  const results = await search(undefined, true, data);
+  const heading = ["name", "iri", "code"].join(",");
+  const body = results?.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
+  const csv = [heading, body].join("\n");
+  downloadFile(csv, "results.csv");
+  downloadDialog.close();
 }
 </script>
 

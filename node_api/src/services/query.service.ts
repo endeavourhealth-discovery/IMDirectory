@@ -334,7 +334,6 @@ export default class QueryService {
   }
 
   public async isFunctionProperty(propIri: string) {
-    const isTrue = '"true"^^http://www.w3.org/2001/XMLSchema#boolean';
     const query = "SELECT ?functionProperty " + "WHERE {" + "bind(exists{?propIri ?isA  ?funcProp} as ?functionProperty)" + "} ";
 
     const rs = await this.graph.execute(query, {
@@ -354,17 +353,7 @@ export default class QueryService {
       return {};
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
-    if (query.query) {
-      for (const a in query.query) {
-        if (!query.query[a].match) {
-          query.query[a].return = [];
-        }
-      }
-    }
-
-    const labeledQuery = await this.getLabeledQuery(query);
-    const queryWithMatchIds = generateMatchIds(labeledQuery);
-    return await this.generateQueryDescriptions(queryWithMatchIds);
+    return await this.getQueryDisplayFromQuery(query);
   }
 
   public async getQueryDisplayFromQuery(query: Query) {
@@ -380,7 +369,7 @@ export default class QueryService {
 
     const unnamedObjects = getUnnamedObjects(query);
     for (const iri of Object.keys(unnamedObjects)) {
-      sparqlBody += "<" + iri + "> ";
+      if (!iri.includes(" ")) sparqlBody += "<" + iri + "> ";
     }
     const completeQuery = sparqlStart + sparqlBody + sparqlEnd;
     const iriToNameMap = new Map<string, string>();

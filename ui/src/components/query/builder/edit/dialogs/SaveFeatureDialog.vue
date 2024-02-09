@@ -133,7 +133,7 @@ async function isValidIri() {
 }
 
 async function getSchemeOptions(): Promise<TTIriRef[]> {
-  return await FunctionService.runFunction(IM.NAMESPACE + "Function_GetUserEditableSchemes"); // TODO: add to IM FUNCTION vocab
+  return await FunctionService.runFunction(IM.NAMESPACE + "Function_GetUserEditableSchemes"); // TODO: add to IM IM_FUNCTION vocab
 }
 
 function onNameGenIri() {

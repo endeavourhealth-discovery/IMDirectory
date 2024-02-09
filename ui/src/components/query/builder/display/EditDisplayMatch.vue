@@ -42,7 +42,6 @@
     <EditDisplayOrderBy v-if="match.orderBy" :match="match" :order-by="match.orderBy" :on-add-order-by="onAddOrderBy" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     <div v-if="isObjectHasKeys(match, ['then'])">
-      {{ match.then!.exclude ? "then" : "then include if" }}
       <EditDisplayMatch :index="index" :parent-match="match" :match="match.then!" :isThenMatch="true" :parent-data-model-iri="currentDataModelIri" />
     </div>
   </div>
@@ -98,7 +97,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Bool, Match, Node, OrderDirection, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Node, OrderDirection, OrderLimit, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { PrimeIcons } from "primevue/api";
@@ -106,7 +105,7 @@ import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
 import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
-import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
+import { SelectedMatch } from "@im-library/interfaces";
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 import { useUserStore } from "@/stores/userStore";
@@ -173,7 +172,7 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 });
 
 const hasValue: ComputedRef<boolean> = computed(() => {
-  return isObjectHasKeys(props.match, ["inSet"]) || isObjectHasKeys(props.match, ["typeOf"]) || isObjectHasKeys(props.match, ["instanceOf"]);
+  return isObjectHasKeys(props.match, ["is"]) || isObjectHasKeys(props.match, ["typeOf"]) || isObjectHasKeys(props.match, ["instanceOf"]);
 });
 
 const hasProperty: ComputedRef<boolean> = computed(() => {
@@ -227,7 +226,7 @@ function getMatchType() {
   return props.parentDataModelIri ?? queryStore.returnType;
 }
 
-function onSelect(cs: ConceptSummary, before?: boolean) {
+function onSelect(cs: SearchResultSummary, before?: boolean) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
   addMatchesToList(props.parentMatchList!, [newMatch], props.index, before);
   showAddPopulationAfterDirectoryDialog.value = false;
@@ -249,14 +248,14 @@ function getClass() {
   return clazz;
 }
 
-function saveSelect(property: "typeOf" | "instanceOf" | "inSet", selectedCSs: Node[], selectedCS: ConceptSummary) {
-  if (isObjectHasKeys(props.match, ["inSet"])) delete props.match.inSet;
+function saveSelect(property: "typeOf" | "instanceOf" | "is", selectedCSs: Node[], selectedCS: SearchResultSummary) {
+  if (isObjectHasKeys(props.match, ["is"])) delete props.match.is;
   if (isObjectHasKeys(props.match, ["instanceOf"])) delete props.match.instanceOf;
   if (isObjectHasKeys(props.match, ["typeOf"])) delete props.match.typeOf;
 
   switch (property) {
-    case "inSet":
-      props.match.inSet = [...selectedCSs];
+    case "is":
+      props.match.is = [...selectedCSs];
       break;
     case "typeOf":
       props.match.typeOf = { "@id": selectedCS.iri, name: selectedCS.name };
@@ -469,8 +468,8 @@ function deleteSelected() {
 }
 
 function addOrderBy() {
-  if (!props.match.orderBy) props.match.orderBy = { property: [{}] };
-  if (!isArrayHasLength(props.match?.orderBy?.property)) props.match!.orderBy!.property = [{}];
+  if (!props.match.orderBy) props.match.orderBy = { property: {} };
+  if (!isArrayHasLength(props.match?.orderBy?.property)) props.match!.orderBy!.property = {};
   onAddOrderBy.value = true;
 }
 

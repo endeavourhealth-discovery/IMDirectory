@@ -331,10 +331,10 @@ router.beforeEach(async (to, from) => {
   if (routes.findIndex(view => view.name === to.meta.name) != -1) {
     loadingStore.updateViewsLoading(true);
   }
-  if (to.matched.some((record: any) => record.name === "Directory")) {
+  if (to.matched.some((record: any) => record.name === "Directory") && to.name !== from.name) {
     loadingStore.updateDirectoryLoading(true);
   }
-  if (to.matched.some(record => record.name === "Uprn")) {
+  if (to.matched.some(record => record.name === "Uprn") && to.name !== from.name) {
     loadingStore.updateUprnLoading(true);
   }
   const directoryStore = useDirectoryStore();

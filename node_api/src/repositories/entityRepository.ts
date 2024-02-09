@@ -3,7 +3,6 @@ import { IM, RDFS } from "@im-library/vocabulary";
 import { ContextMap } from "@im-library/interfaces";
 import { v4 } from "uuid";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 export default class EntityRepository {
   private graph: GraphdbService;

@@ -56,7 +56,7 @@ const fakerFactory = factory({
     title: faker.string.sample,
     createdDate: faker.date.recent,
     publishedDate: faker.date.past,
-    releaseNotes: faker.datatype.array,
+    releaseNotes: () => faker.helpers.multiple(faker.word.sample),
     author: faker.person.fullName,
     url: primaryKey(faker.internet.url)
   },
@@ -66,7 +66,7 @@ const fakerFactory = factory({
     valueVariable: faker.string.sample,
     valueIri: oneOf("iriRef"),
     valueIriList: manyOf("iriRef"),
-    valueDataList: faker.datatype.array
+    valueDataList: () => faker.helpers.multiple(faker.word.sample)
   },
   propertyShape: {
     label: faker.lorem.sentence,
@@ -125,9 +125,9 @@ const fakerFactory = factory({
     firstName: faker.person.firstName,
     lastName: faker.person.lastName,
     email: faker.internet.email,
-    password: faker.random.alphaNumeric,
+    password: faker.internet.password,
     avatar: faker.system.directoryPath,
-    roles: faker.datatype.array
+    roles: () => faker.helpers.multiple(faker.word.noun)
   }
 });
 
