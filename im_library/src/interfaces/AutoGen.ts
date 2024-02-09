@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-02-09 11:08:57.
+// Generated using typescript-generator version 3.2.1263 on 2024-02-09 11:24:01.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -35,7 +35,7 @@ export interface Entity {
     "@id"?: string;
     status?: TTIriRef;
     scheme?: TTIriRef;
-    isContainedIn?: TTIriRef[];
+    isContainedIn?: TTEntity[];
     entityType?: TTIriRef[];
     name?: string;
     description?: string;
@@ -48,7 +48,7 @@ export interface FormGenerator {
     comment?: string;
     targetShape?: TTIriRef;
     type?: TTIriRef[];
-    isContainedIn?: TTIriRef[];
+    isContainedIn?: TTEntity[];
     subClassOf?: TTIriRef[];
     scheme?: TTIriRef;
     iri?: string;
@@ -206,7 +206,7 @@ export interface OrderDirection extends PropertyRef {
 }
 
 export interface OrderLimit {
-    property?: OrderDirection[];
+    property?: OrderDirection;
     limit?: number;
     description?: string;
     partitionBy?: PropertyRef;
@@ -563,6 +563,20 @@ export interface TTIriRef extends TTValue, Serializable {
     "@id": string;
 }
 
+export interface TTEntity extends TTNode, Serializable {
+    context?: TTContext;
+    crud?: TTIriRef;
+    graph?: TTIriRef;
+    name?: string;
+    type?: TTArray;
+    scheme?: TTIriRef;
+    version?: number;
+    status?: TTIriRef;
+    code?: string;
+    description?: string;
+    prefixes?: TTPrefix[];
+}
+
 export interface TTContext extends Serializable {
     nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
@@ -597,10 +611,20 @@ export interface TTValue extends Serializable {
 export interface Serializable {
 }
 
+export interface TTArray extends Serializable {
+    elements?: TTValue[];
+    list?: boolean;
+}
+
 export interface TTPrefix {
     iri?: string;
     prefix?: string;
     name?: string;
+}
+
+export interface TTNode extends TTValue, Serializable {
+    predicateMap?: { [index: string]: TTArray };
+    "@id"?: string;
 }
 
 export const enum ListMode {

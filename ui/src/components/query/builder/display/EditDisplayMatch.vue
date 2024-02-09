@@ -468,8 +468,8 @@ function deleteSelected() {
 }
 
 function addOrderBy() {
-  if (!props.match.orderBy) props.match.orderBy = { property: [{}] };
-  if (!isArrayHasLength(props.match?.orderBy?.property)) props.match!.orderBy!.property = [{}];
+  if (!props.match.orderBy) props.match.orderBy = { property: {} };
+  if (!isArrayHasLength(props.match?.orderBy?.property)) props.match!.orderBy!.property = {};
   onAddOrderBy.value = true;
 }
 

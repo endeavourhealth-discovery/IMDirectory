@@ -79,7 +79,7 @@ function convertMatch(match: Match, qry: SqlQuery) {
 }
 
 function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
-  if (!order.property || order.property.length == 0) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + JSON.stringify(order, null, 2));
+  if (!order.property) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + JSON.stringify(order, null, 2));
 
   const inner = qry.clone(qry.alias + "_inner");
 
@@ -90,10 +90,8 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
 
   let o = [];
 
-  for (const p of order.property) {
-    const dir = p.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
-    o.push(partition.getFieldName(p["@id"] as string) + " " + dir);
-  }
+  const dir = order.property.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
+  o.push(partition.getFieldName(order.property["@id"] as string) + " " + dir);
 
   partition.selects.push("*", "ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + o.join(", ") + ") AS rn");
 

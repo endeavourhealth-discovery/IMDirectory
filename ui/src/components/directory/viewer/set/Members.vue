@@ -23,7 +23,7 @@
       <template #empty>
         No direct members found.
         <div v-if="hasDefintion">
-          <Button label="Download to see query defintion results" class="p-button-link" @click="toggle" />
+          <Button label="Download to see query defintion results" class="p-button-link" @click="emit('openDownloadDialog')" />
         </div>
       </template>
       <template #loading> Loading data. Please wait... </template>
@@ -51,7 +51,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
+const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true, openDownloadDialog: () => true });
 const toast = useToast();
 
 const hasDefintion: Ref<boolean> = ref(false);
@@ -102,10 +102,6 @@ async function getPage(event: any) {
   let pagedNewMembers = await EntityService.getPartialAndTotalCount(props.entityIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
   members.value = pagedNewMembers.result;
   loading.value = false;
-}
-
-function toggle(event: any) {
-  menu.value.toggle(event);
 }
 </script>
 

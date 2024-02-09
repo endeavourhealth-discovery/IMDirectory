@@ -2,12 +2,13 @@ import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { TTIriRef } from "../interfaces/AutoGen";
 import { IM, RDFS, SHACL, VALIDATION, QUERY } from "@im-library/vocabulary";
 import axios from "axios";
 
 export default class Validator {
-  constructor() {}
+  constructor() {
+    // empty constructor
+  }
 
   entityService: EntityService = new EntityService(axios);
   queryService: QueryService = new QueryService(axios);
@@ -20,7 +21,7 @@ export default class Validator {
     if (iri === VALIDATION.IS_PROPERTY) return this.isValidProperties(data);
     if (iri === VALIDATION.IS_SCHEME) return await this.isValidScheme(data);
     if (iri === VALIDATION.IS_STATUS) return await this.isValidStatus(data);
-    if (iri === VALIDATION.IS_ROLE_GROUP) return await this.isValidRoleGroups(data);
+    if (iri === VALIDATION.IS_ROLE_GROUP) return this.isValidRoleGroups(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 

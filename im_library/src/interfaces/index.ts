@@ -50,6 +50,7 @@ import { ContextMap } from "./ContextMap";
 import { SelectedMatch } from "./SelectedMatch";
 import { MailOptions } from "./MailOptions";
 import { QueryResponse } from "./QueryResponse";
+import { SetDiffObject } from "./SetDiffObject";
 
 export {
   type Address,
@@ -103,5 +104,6 @@ export {
   type ContextMap,
   type SelectedMatch,
   type MailOptions,
-  type QueryResponse
+  type QueryResponse,
+  type SetDiffObject
 };
