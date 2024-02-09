@@ -1,4 +1,4 @@
-import { BugReport, Task } from "@im-library/interfaces/AutoGen";
+import { BugReport, Task, WorkflowResponse } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 
@@ -6,6 +6,7 @@ const api = Env.API;
 
 const WorkflowService = {
   async createBugReport(bugReport: BugReport): Promise<any> {
+    bugReport.error = JSON.stringify(bugReport.error);
     return axios.post(api + "api/workflow/createBugReport", bugReport);
   },
 
@@ -13,12 +14,24 @@ const WorkflowService = {
     return axios.get(api + "api/workflow/getBugReport", { params: { id: id } });
   },
 
-  async getWorkflowByCreatedBy(): Promise<Task[]> {
-    return axios.get(api + "api/workflow/createdByWorkflows");
+  async getTasksByCreatedBy(page?: number, size?: number): Promise<WorkflowResponse> {
+    return axios.get(api + "api/workflow/getTasksByCreatedBy", { params: { page: page, size: size } });
   },
 
-  async getWorkflowByAssignedTo(): Promise<Task[]> {
-    return axios.get(api + "api/workflow/assignedToWorkflows");
+  async getTasksByAssignedTo(page?: number, size?: number): Promise<WorkflowResponse> {
+    return axios.get(api + "api/workflow/getTasksByAssignedTo", { params: { page: page, size: size } });
+  },
+
+  async getUnassignedTasks(page?: number, size?: number): Promise<WorkflowResponse> {
+    return axios.get(api + "api/workflow/getUnassignedTasks", { params: { page: page, size: size } });
+  },
+
+  async deleteTask(id: string): Promise<void> {
+    return axios.delete(api + "api/workflow/deleteTask", { params: { id: id } });
+  },
+
+  async updateTask(task: Task): Promise<void> {
+    return axios.post(api + "api/workflow/updateTask", task);
   }
 };
 

@@ -9,7 +9,7 @@ import { QueryDisplayType } from "./QueryBuilder";
 import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
 import { ErrorType } from "./ErrorType";
-import { TaskState, TaskType, TaskModule, Browser, OperatingSystem, Severity, Status } from "../interfaces/AutoGen";
+import { TaskState, TaskType, TaskModule, Browser, OperatingSystem, Severity, Status, UserRole } from "../interfaces/AutoGen";
 
 export {
   BuilderType,
@@ -29,5 +29,6 @@ export {
   Browser,
   OperatingSystem,
   Severity,
-  Status
+  Status,
+  UserRole
 };

@@ -229,13 +229,12 @@ async function onSubmit() {
     bugReport.actualResult = actualResult.value;
     bugReport.createdBy = user.value.id;
     if (error.value) bugReport.error = error.value;
-    bugReport.dateCreated = new Date();
     const latestResult = await GithubService.getLatestRelease("IMDirectory");
     if (latestResult) bugReport.version = latestResult.version;
     bugReport.type = TaskType.BUG_REPORT;
     bugReport.state = TaskState.TODO;
     await WorkflowService.createBugReport(bugReport).then(async res => {
-      if (res) {
+      if (!res) {
         await Swal.fire({
           title: "Success",
           text: "Bug report successfully submitted",
@@ -246,8 +245,6 @@ async function onSubmit() {
           loading.value = false;
           await router.push({ path: "/" });
         });
-      } else {
-        loading.value = false;
       }
     });
     loading.value = false;

@@ -20,4 +20,12 @@ export class WORKFLOW {
   public static readonly EXPECTED_RESULT = WORKFLOW.NAMESPACE + "expectedResult";
   public static readonly ACTUAL_RESULT = WORKFLOW.NAMESPACE + "actualResult";
   public static readonly RELATED_VERSION = WORKFLOW.NAMESPACE + "relatedVersion";
+  public static readonly REQUESTED_ROLE = WORKFLOW.NAMESPACE + "requestedRole";
+  public static readonly APPROVAL_TYPE = WORKFLOW.NAMESPACE + "approvalType";
+  public static readonly HISTORY = WORKFLOW.NAMESPACE + "history";
+  public static readonly HISTORY_PREDICATE = WORKFLOW.NAMESPACE + "historyPredicate";
+  public static readonly HISTORY_ORIGINAL_OBJECT = WORKFLOW.NAMESPACE + "historyOriginalObject";
+  public static readonly HISTORY_NEW_OBJECT = WORKFLOW.NAMESPACE + "historyNewObject";
+  public static readonly HISTORY_CHANGE_DATE = WORKFLOW.NAMESPACE + "historyChangeDate";
+  public static readonly MODIFIED_BY = WORKFLOW.NAMESPACE + "modifiedBy";
 }

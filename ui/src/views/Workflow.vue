@@ -25,14 +25,22 @@ import { ref, onMounted, Ref } from "vue";
 import SideBar from "@/components/workflow/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import WorkflowService from "@/services/WorkflowService";
-import { Task } from "@im-library/interfaces/AutoGen";
+import { Task, WorkflowResponse } from "@im-library/interfaces/AutoGen";
 
 const showInfo = ref(false);
 const selectedConceptIri = ref("");
-const workflows: Ref<Task[]> = ref([]);
+const myWorkflows: Ref<WorkflowResponse | undefined> = ref();
+const unassignedTasks: Ref<WorkflowResponse | undefined> = ref();
+const task: Ref<Task | undefined> = ref();
+const assignedWorkflows: Ref<Task[]> = ref([]);
 
 onMounted(async () => {
-  workflows.value = await WorkflowService.getWorkflowByCreatedBy();
+  // myWorkflows.value = await WorkflowService.getTasksByCreatedBy();
+  task.value = await WorkflowService.getBugReport("http://endhealth.info/workflow#10000000");
+  task.value.assignedTo = task.value.createdBy;
+  await WorkflowService.updateTask(task.value);
+  task.value = await WorkflowService.getBugReport("http://endhealth.info/workflow#10000000");
+  // unassignedTasks.value = await WorkflowService.getUnassignedTasks();
 });
 
 function updateSelected(selectedIri: string) {
