@@ -199,4 +199,8 @@ function getDateFromString(date: string) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.p-dropdown {
+  height: 2.3rem;
+}
+</style>

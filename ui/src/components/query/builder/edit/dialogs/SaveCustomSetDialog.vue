@@ -1,5 +1,6 @@
 <template>
-  <Button label="Save custom set" text severity="info" @click="showSaveCustomSetDialog = true" />
+  <!-- TODO convert to quick create -->
+  <Button label="Quick create set" text severity="info" @click="showSaveCustomSetDialog = true" />
   <Dialog
     v-model:visible="showSaveCustomSetDialog"
     modal

@@ -94,6 +94,8 @@ import TieredMenu from "primevue/tieredmenu";
 import TabMenu from "primevue/tabmenu";
 import Ripple from "primevue/ripple";
 import VirtualScroller from "primevue/virtualscroller";
+import InputGroup from "primevue/inputgroup";
+import InputGroupAddon from "primevue/inputgroupaddon";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -188,6 +190,8 @@ const app = createApp(App)
   .component("TieredMenu", TieredMenu)
   .component("TreeSelect", TreeSelect)
   .component("VirtualScroller", VirtualScroller)
+  .component("InputGroup", InputGroup)
+  .component("InputGroupAddon", InputGroupAddon)
   .component("TabMenu", TabMenu);
 
 const sharedStore = useSharedStore();

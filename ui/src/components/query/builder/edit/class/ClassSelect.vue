@@ -1,25 +1,29 @@
 <template>
   <div class="property-input-container">
-    <Dropdown
-      :options="[
-        { id: 'is', name: 'is' },
-        { id: 'isNot', name: 'is not' },
-        { id: 'isNull', name: 'is not recorded' },
-        { id: 'isNotNull', name: 'is recorded' }
-      ]"
-      optionValue="id"
-      optionLabel="name"
-      v-model:model-value="propertyType"
-    />
-    <InputText
-      v-if="propertyType !== 'isNull' && propertyType !== 'isNotNull'"
-      type="text"
-      placeholder="Value label"
-      v-model:model-value="props.property.valueLabel"
-    />
-    <SaveCustomSetDialog v-if="propertyType !== 'isNull' && propertyType !== 'isNotNull'" :set-members="editValues" @on-save="onCustomSetSave" />
+    <span class="property-label">{{ getNameFromRef(property) }}:</span>
+    <InputGroup>
+      <Dropdown
+        :options="[
+          { id: 'is', name: 'is' },
+          { id: 'isNot', name: 'is not' },
+          { id: 'isNull', name: 'is not recorded' },
+          { id: 'isNotNull', name: 'is recorded' }
+        ]"
+        optionValue="id"
+        optionLabel="name"
+        v-model:model-value="propertyType"
+      />
+      <InputText
+        v-if="propertyType !== 'isNull' && propertyType !== 'isNotNull'"
+        type="text"
+        placeholder="Value label"
+        v-model:model-value="props.property.valueLabel"
+        class="w-3"
+      />
+      <SaveCustomSetDialog v-if="propertyType !== 'isNull' && propertyType !== 'isNotNull'" :set-members="editValues" @on-save="onCustomSetSave" />
+    </InputGroup>
   </div>
-  <div v-if="propertyType !== 'isNull' && propertyType !== 'isNotNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
+  <!-- <div v-if="propertyType !== 'isNull' && propertyType !== 'isNotNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
     <EntailmentOptionsSelect :entailment-object="editValue" />
     <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
@@ -29,7 +33,7 @@
       v-model:show-dialog="visible"
       @update:selected="onSelect"
     />
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">
@@ -42,6 +46,7 @@ import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDi
 import { buildNodeFromCS } from "@im-library/helpers/QueryBuilder";
 import SaveCustomSetDialog from "../dialogs/SaveCustomSetDialog.vue";
 import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 interface Props {
   property: Property;
@@ -140,7 +145,20 @@ function deleteItem(index: number) {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 0.5rem;
-  width: 100%;
+  width: 50%;
   gap: 0.5rem;
+  align-items: center;
+  flex-flow: row;
+}
+
+.p-dropdown {
+  height: 2.3rem;
+}
+
+.property-label {
+  margin-left: 1rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+  display: flex;
 }
 </style>

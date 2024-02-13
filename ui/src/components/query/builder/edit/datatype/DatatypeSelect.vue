@@ -1,52 +1,53 @@
 <template>
-  <div v-if="datatype === GRAPH.XMLS + 'string'" class="property-input-container">
+  <div class="property-wrapper">
+    <div class="property-label">{{ getNameFromRef(property) }}:</div>
+    <div v-if="datatype === GRAPH.XMLS + 'string'">
+      <Dropdown
+        :options="[
+          { id: 'is', name: 'is' },
+          { id: 'startsWith', name: 'starts with' },
+          { id: 'contains', name: 'contains' },
+          { id: 'notNull', name: 'is recorded' },
+          { id: 'isNull', name: 'is not recorded' }
+        ]"
+        optionValue="id"
+        optionLabel="name"
+        v-model:model-value="propertyType"
+      />
+      <InputText v-if="['is', 'startsWith', 'contains'].includes(propertyType)" type="text" v-model:model-value="property.value" />
+    </div>
+
     <Dropdown
-      :options="[
-        { id: 'is', name: 'is' },
-        { id: 'startsWith', name: 'starts with' },
-        { id: 'contains', name: 'contains' },
-        { id: 'notNull', name: 'is recorded' },
-        { id: 'isNull', name: 'is not recorded' }
-      ]"
-      optionValue="id"
-      optionLabel="name"
-      v-model:model-value="propertyType"
+      v-else-if="datatype === GRAPH.XMLS + 'boolean'"
+      :options="booleanOptions"
+      option-label="name"
+      option-value="value"
+      v-model:model-value="property.value"
     />
-    <InputText v-if="['is', 'startsWith', 'contains'].includes(propertyType)" type="text" v-model:model-value="property.value" />
-  </div>
-  <Dropdown
-    v-else-if="datatype === GRAPH.XMLS + 'boolean'"
-    :options="booleanOptions"
-    option-label="name"
-    option-value="value"
-    v-model:model-value="property.value"
-  />
-  <div
-    v-else-if="datatype === GRAPH.XMLS + 'long' || datatype === GRAPH.XMLS + 'integer' || datatype === GRAPH.XMLS + 'number'"
-    class="property-input-container"
-  >
-    <Dropdown
-      :options="[
-        { id: 'is', name: 'is' },
-        { id: 'range', name: 'in range' },
-        { id: 'notNull', name: 'is recorded' },
-        { id: 'isNull', name: 'is not recorded' }
-      ]"
-      optionValue="id"
-      optionLabel="name"
-      v-model:model-value="propertyType"
-    />
-    <ComparisonSelect v-if="propertyType === 'is'" :property="property" :datatype="datatype" :property-iri="property['@id']!" />
-    <RangeSelect
-      v-else-if="propertyType === 'range'"
-      :property-iri="property['@id']!"
-      :from="property.range!.from"
-      :to="property.range!.to"
-      :datatype="datatype"
-    />
-  </div>
-  <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'" class="property-input-container">
-    <DateSelect :property="property" :datatype="datatype" />
+
+    <div v-else-if="datatype === GRAPH.XMLS + 'long' || datatype === GRAPH.XMLS + 'integer' || datatype === GRAPH.XMLS + 'number'" class="property-input">
+      <Dropdown
+        :options="[
+          { id: 'is', name: 'is' },
+          { id: 'range', name: 'in range' },
+          { id: 'notNull', name: 'is recorded' },
+          { id: 'isNull', name: 'is not recorded' }
+        ]"
+        optionValue="id"
+        optionLabel="name"
+        v-model:model-value="propertyType"
+      />
+      <ComparisonSelect v-if="propertyType === 'is'" :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+      <RangeSelect
+        v-else-if="propertyType === 'range'"
+        :property-iri="property['@id']!"
+        :from="property.range!.from"
+        :to="property.range!.to"
+        :datatype="datatype"
+      />
+    </div>
+
+    <DateSelect :property="property" :datatype="datatype" v-else-if="datatype === IM.NAMESPACE + 'DateTime'" />
   </div>
 </template>
 
@@ -59,6 +60,7 @@ import { IM, GRAPH } from "@im-library/vocabulary";
 import { Assignable, Range, Property, Operator } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DateSelect from "./DateSelect.vue";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 interface Props {
   property: Property;
   datatype: string;
@@ -118,10 +120,23 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.property-input-container {
+.property-wrapper {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+}
+
+.property-input {
+  display: flex;
   width: 100%;
-  gap: 0.5rem;
+  align-items: center;
+}
+
+.p-dropdown {
+  height: 2.3rem;
+}
+
+.property-label {
+  margin-left: 1rem;
+  display: flex;
 }
 </style>

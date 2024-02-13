@@ -1,9 +1,7 @@
 <template>
   <div class="property-input-container">
-    From:
-    <ComparisonSelect :property="from" :datatype="datatype" :property-iri="propertyIri" />
-    To:
-    <ComparisonSelect :property="to" :datatype="datatype" :property-iri="propertyIri" />
+    <ComparisonSelect title="from" :property="from" :datatype="datatype" :property-iri="propertyIri" />
+    <ComparisonSelect title="to" :property="to" :datatype="datatype" :property-iri="propertyIri" />
   </div>
 </template>
 
@@ -24,8 +22,11 @@ const props = defineProps<Props>();
 <style scoped>
 .property-input-container {
   display: flex;
-  flex-wrap: wrap;
-  width: 100%;
-  gap: 0.5rem;
+  flex-flow: column;
+  align-items: center;
+}
+
+.p-dropdown {
+  height: 2.3rem;
 }
 </style>

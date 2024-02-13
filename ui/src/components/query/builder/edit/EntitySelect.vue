@@ -9,8 +9,6 @@
       :root-entities="rootEntities"
     />
     <EntailmentOptionsSelect v-if="!excludeEntailment" :entailment-object="editNode" />
-    <Button label="Cancel" severity="secondary" @click="emit('onCancel')" />
-    <Button label="Save" @click="emit('onSave', selected)" />
   </div>
 </template>
 

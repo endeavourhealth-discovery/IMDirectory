@@ -33,7 +33,7 @@ function transformIris(ttEntity: any) {
   return JSON.parse(stringEntity.replace(regex, "iri"));
 }
 
-function getNameFromIri(iri: string) {
+export function getNameFromIri(iri: string) {
   if (!iri) return "undefined";
   if (iri.includes("#")) {
     const splits = iri.split("#");
@@ -77,5 +77,6 @@ export function resolveIri(iri: string) {
 export default {
   transformTT,
   getNameFromRef,
-  resolveIri
+  resolveIri,
+  getNameFromIri
 };

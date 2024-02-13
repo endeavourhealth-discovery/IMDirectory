@@ -1,15 +1,25 @@
 <template>
   <div class="property-input-container">
     <div class="property-input-container">
-      <Dropdown :options="['is', 'typeOf', 'instanceOf']" v-model:model-value="propertyType" />
-      <SaveCustomSetDialog v-if="propertyType === 'is'" :set-members="editValues" @on-save="onCustomSetSave" />
-      <div v-else>
+      <InputGroup>
+        <Dropdown
+          :options="[
+            { id: 'is', name: 'is' },
+            { id: 'typeOf', name: 'is type of' },
+            { id: 'instanceOf', name: 'is instance of' }
+          ]"
+          optionValue="id"
+          optionLabel="name"
+          v-model:model-value="propertyType"
+        />
         <InputText type="text" @click="openDialog()" placeholder="Value" v-model:model-value="selected.name" />
-        <DirectorySearchDialog v-model:selected="selected" v-model:show-dialog="showDialog" />
-        <EntailmentOptionsSelect v-if="!excludeEntailment" :entailment-object="editNode" />
-      </div>
+        <Button label="Create set" />
+        <Button icon="pi pi-plus" severity="success" text />
+      </InputGroup>
+      <DirectorySearchDialog v-model:selected="selected" v-model:show-dialog="showDialog" />
+      <!-- <SaveCustomSetDialog v-if="propertyType === 'is'" :set-members="editValues" @on-save="onCustomSetSave" /> -->
     </div>
-    <div v-if="propertyType === 'is'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
+    <!-- <div v-if="propertyType === 'is'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
       <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
       <EntailmentOptionsSelect :entailment-object="editValue" />
       <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
@@ -21,12 +31,7 @@
         :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
         :search-by-query="validationQueryRequest"
       />
-    </div>
-  </div>
-
-  <div class="button-bar">
-    <Button label="Cancel" class="button-bar-button" severity="secondary" @click="emit('onCancel')" />
-    <Button label="Save" class="button-bar-button" @click="emit('onSave', propertyType, editValues, selected)" />
+    </div> -->
   </div>
 </template>
 
@@ -139,7 +144,7 @@ function deleteItem(index: number) {
 .property-input-container {
   display: flex;
   flex-wrap: wrap;
-  width: 100%;
+  width: 50%;
   gap: 0.5rem;
   align-items: center;
 }
@@ -162,5 +167,9 @@ function deleteItem(index: number) {
 
 .button-bar-button {
   margin: 0.5rem;
+}
+
+.p-dropdown {
+  height: 2.3rem;
 }
 </style>

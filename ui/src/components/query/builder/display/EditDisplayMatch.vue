@@ -11,16 +11,12 @@
     @contextmenu="onRightClick($event)"
     :id="htmlId"
   >
-    <div v-if="editMode">
-      <MatchEntitySelect
-        :edit-node="match"
-        :exclude-entailment="true"
-        :validation-query-request="validationQueryRequest"
-        @on-cancel="editMode = false"
-        @on-save="saveSelect"
-      />
-    </div>
-    <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
+    <div
+      v-if="match.description"
+      v-html="match.description"
+      @dblclick="editMatch()"
+      v-tooltip.left="hasValue && !isDataModel ? 'Double-click to edit population' : 'Double click to edit properties'"
+    ></div>
     <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)" @dblclick="editMatch()"></div>
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
@@ -28,21 +24,20 @@
       :index="index"
       :parent-match="match"
       :match="nestedMatch"
-      :parent-data-model-iri="currentDataModelIri"
+      :data-model-iri="match.typeOf?.['@id'] || dataModelIri"
     />
 
     <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
-      v-for="(property, index) of match.property"
-      :index="index"
+      v-for="property of match.property"
       :parent-match="match"
       :property="property"
-      :data-model-iri="currentDataModelIri"
+      :data-model-iri="match.typeOf?.['@id'] || dataModelIri"
     />
     <EditDisplayOrderBy v-if="match.orderBy" :match="match" :order-by="match.orderBy" :on-add-order-by="onAddOrderBy" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     <div v-if="isObjectHasKeys(match, ['then'])">
-      <EditDisplayMatch :index="index" :parent-match="match" :match="match.then!" :isThenMatch="true" :parent-data-model-iri="currentDataModelIri" />
+      <EditDisplayMatch :index="index" :parent-match="match" :match="match.then!" :isThenMatch="true" :data-model-iri="match.typeOf?.['@id'] || dataModelIri" />
     </div>
   </div>
 
@@ -52,7 +47,7 @@
     v-model:showDialog="showUpdateDialog"
     :header="'Refine feature'"
     :show-variable-options="false"
-    :match-type="currentDataModelIri"
+    :match-type="match.typeOf?.['@id'] || dataModelIri"
     :match="match"
     @on-save="(direct: Match[], nested: Match[]) => updateProperties(match, direct, nested)"
   />
@@ -61,7 +56,7 @@
     v-model:showDialog="showAddTestFeatureDialog"
     :header="'Test feature'"
     :show-variable-options="true"
-    :match-type="currentDataModelIri"
+    :match-type="match.typeOf?.['@id'] || dataModelIri"
     @on-save="(direct: Match[], nested: Match[]) => addThenMatch(match, direct.concat(nested))"
   />
 
@@ -69,7 +64,7 @@
     v-model:showDialog="showBuildFeatureAfterDialog"
     :header="'Build new feature'"
     :show-variable-options="true"
-    :match-type="currentDataModelIri"
+    :match-type="match.typeOf?.['@id'] || dataModelIri"
     @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, false)"
   />
 
@@ -82,6 +77,13 @@
   <DirectorySearchDialog
     v-model:show-dialog="showAddPopulationAfterDirectoryDialog"
     @update:selected="onSelect"
+    :searchByQuery="validationQueryRequest"
+    :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
+  />
+
+  <DirectorySearchDialog
+    v-model:show-dialog="showEditPopulation"
+    @update:selected="saveSelect"
     :searchByQuery="validationQueryRequest"
     :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
   />
@@ -127,7 +129,7 @@ interface Props {
   match: Match;
   index: number;
   isThenMatch?: boolean;
-  parentDataModelIri: string;
+  dataModelIri: string;
 }
 
 const props = defineProps<Props>();
@@ -137,8 +139,6 @@ const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.retur
 const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
 const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
-const currentDataModelIri: Ref<string> = ref("");
-
 const {
   addThenMatch,
   updateProperties,
@@ -162,10 +162,10 @@ const {
   showAddFeatureAfterDialog,
   showAddTestFeatureDialog,
   showAddPopulationAfterDirectoryDialog,
-  showSaveFeatureDialog
+  showSaveFeatureDialog,
+  showEditPopulation
 } = setupQueryBuilderActions();
 const toast = useToast();
-const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
   const found = selectedMatches.value.find(selectedMatch => selectedMatch.selected["@id"] === props.match["@id"]);
   return !!found;
@@ -212,19 +212,7 @@ watch(
 onMounted(() => {
   htmlId.value = String(Math.random());
   getStyle();
-  currentDataModelIri.value = getMatchType();
 });
-
-function getMatchType() {
-  if (props.isThenMatch && isObjectHasKeys(props.parentMatch, ["typeOf"])) {
-    return props.parentMatch!.typeOf!["@id"];
-  }
-  if (isObjectHasKeys(props.match, ["nodeRef"])) {
-    return variableMap.value.get(props.match.nodeRef!).typeOf["@id"];
-  } else if (isObjectHasKeys(props.match.typeOf, ["@id"])) return props.match.typeOf!["@id"];
-
-  return props.parentDataModelIri ?? queryStore.returnType;
-}
 
 function onSelect(cs: SearchResultSummary, before?: boolean) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
@@ -248,27 +236,10 @@ function getClass() {
   return clazz;
 }
 
-function saveSelect(property: "typeOf" | "instanceOf" | "is", selectedCSs: Node[], selectedCS: SearchResultSummary) {
-  if (isObjectHasKeys(props.match, ["is"])) delete props.match.is;
-  if (isObjectHasKeys(props.match, ["instanceOf"])) delete props.match.instanceOf;
-  if (isObjectHasKeys(props.match, ["typeOf"])) delete props.match.typeOf;
-
-  switch (property) {
-    case "is":
-      props.match.is = [...selectedCSs];
-      break;
-    case "typeOf":
-      props.match.typeOf = { "@id": selectedCS.iri, name: selectedCS.name };
-      break;
-    case "instanceOf":
-      props.match.instanceOf = { "@id": selectedCS.iri, name: selectedCS.name };
-      break;
-
-    default:
-      break;
-  }
-
-  editMode.value = false;
+function saveSelect(selectedCS: SearchResultSummary) {
+  if (isObjectHasKeys(props.match, ["is"])) props.match.is = [selectedCS];
+  else if (isObjectHasKeys(props.match, ["instanceOf"])) props.match.typeOf = { "@id": selectedCS.iri, name: selectedCS.name };
+  else if (isObjectHasKeys(props.match, ["typeOf"])) props.match.instanceOf = { "@id": selectedCS.iri, name: selectedCS.name };
 }
 
 function toggleBoolMatch() {
@@ -447,7 +418,7 @@ function getSingleRCOptions() {
 }
 
 function editMatch() {
-  if (hasValue.value && !isDataModel.value) editMode.value = true;
+  if (hasValue.value && !isDataModel.value) showEditPopulation.value = true;
   else if (isDataModel.value || hasProperty.value) {
     showUpdateDialog.value = true;
   }

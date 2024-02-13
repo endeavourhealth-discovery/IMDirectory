@@ -9,7 +9,7 @@
       :match="match"
       :index="index"
       :parentMatchList="query.match"
-      :parent-data-model-iri="queryTypeIri"
+      :data-model-iri="queryTypeIri"
     />
 
     <div v-else-if="!queryTypeIri" class="flex gap-1">
@@ -298,5 +298,11 @@ function setValidationQueryRequest() {
   flex-flow: column;
   justify-content: center;
   align-items: center;
+}
+</style>
+
+<style>
+.p-dropdown {
+  height: 2.3rem;
 }
 </style>

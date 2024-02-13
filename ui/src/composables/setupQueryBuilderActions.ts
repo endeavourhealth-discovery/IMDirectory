@@ -16,6 +16,7 @@ function setupQueryBuilderActions() {
   const showSaveFeatureDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
+  const showEditPopulation: Ref<boolean> = ref(false);
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
@@ -234,7 +235,8 @@ function setupQueryBuilderActions() {
     showAddTestFeatureDialog,
     showAddPopulationAfterDirectoryDialog,
     showAddPopulationBeforeDirectoryDialog,
-    showSaveFeatureDialog
+    showSaveFeatureDialog,
+    showEditPopulation
   };
 }
 
