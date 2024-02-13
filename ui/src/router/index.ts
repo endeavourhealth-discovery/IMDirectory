@@ -246,8 +246,7 @@ const routes: Array<RouteRecordRaw> = [
     component: CodeGen,
     meta: {
       requiresAuth: true,
-      requiresLicense: true,
-      requiresCreateRole: true
+      requiresLicense: true
     }
   },
   {
