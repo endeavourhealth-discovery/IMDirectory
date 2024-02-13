@@ -36,7 +36,7 @@
       </div>
 
       <span id="definition-title">Definition</span>
-      <div class="save-feature-query-display"><QueryDisplay :definition="definition" :hide-sql-button="true" /></div>
+      <div class="save-feature-query-display"><QueryDisplay :definition="definition" /></div>
     </form>
 
     <template #footer>

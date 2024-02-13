@@ -210,7 +210,7 @@ function processCodeList(data: SearchResultSummary[]) {
       if (item.name) itemAsString += " | " + item.name + " | ";
       return itemAsString;
     });
-    ecl.value = arrayAsStrings.join(" AND ");
+    ecl.value = arrayAsStrings.join(" OR ");
   }
 }
 

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-29 12:15:23.
+// Generated using typescript-generator version 3.2.1263 on 2024-02-05 13:12:04.
 
 export interface DataModelProperty extends Serializable {
   property?: TTIriRef;
@@ -47,7 +47,7 @@ export interface Entity {
   "@id"?: string;
   status?: TTIriRef;
   scheme?: TTIriRef;
-  isContainedIn?: TTIriRef[];
+  isContainedIn?: TTEntity[];
   entityType?: TTIriRef[];
   name?: string;
   description?: string;
@@ -60,7 +60,7 @@ export interface FormGenerator {
   comment?: string;
   targetShape?: TTIriRef;
   type?: TTIriRef[];
-  isContainedIn?: TTIriRef[];
+  isContainedIn?: TTEntity[];
   subClassOf?: TTIriRef[];
   scheme?: TTIriRef;
   iri?: string;
@@ -146,9 +146,9 @@ export interface Argument {
 export interface Assignable {
   value?: string;
   unit?: string;
+  operator?: Operator;
   relativeTo?: PropertyRef;
   dataType?: TTIriRef;
-  operator?: Operator;
 }
 
 export interface Case {
@@ -176,8 +176,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-  descendantsOf?: boolean;
   ancestorsOf?: boolean;
+  descendantsOf?: boolean;
   descendantsOrSelfOf?: boolean;
 }
 
@@ -217,7 +217,7 @@ export interface OrderDirection extends PropertyRef {
 }
 
 export interface OrderLimit {
-  property?: OrderDirection[];
+  property?: OrderDirection;
   limit?: number;
   description?: string;
   partitionBy?: PropertyRef;
@@ -293,8 +293,8 @@ export interface Return {
 }
 
 export interface ReturnProperty {
-  description?: string;
   "@id"?: string;
+  description?: string;
   function?: FunctionClause;
   as?: string;
   nodeRef?: string;
@@ -492,6 +492,22 @@ export interface TTIriRef extends TTValue, Serializable {
   "@id": string;
 }
 
+export interface Serializable {}
+
+export interface TTEntity extends TTNode, Serializable {
+  context?: TTContext;
+  crud?: TTIriRef;
+  graph?: TTIriRef;
+  name?: string;
+  type?: TTArray;
+  scheme?: TTIriRef;
+  version?: number;
+  status?: TTIriRef;
+  description?: string;
+  code?: string;
+  prefixes?: TTPrefix[];
+}
+
 export interface TTContext extends Serializable {
   prefixes?: TTPrefix[];
   nameSpaces?: TTPrefix[];
@@ -522,12 +538,20 @@ export interface TTValue extends Serializable {
   order?: number;
 }
 
-export interface Serializable {}
+export interface TTArray extends Serializable {
+  elements?: TTValue[];
+  list?: boolean;
+}
 
 export interface TTPrefix {
   iri?: string;
   prefix?: string;
   name?: string;
+}
+
+export interface TTNode extends TTValue, Serializable {
+  predicateMap?: { [index: string]: TTArray };
+  "@id"?: string;
 }
 
 export const enum ListMode {
