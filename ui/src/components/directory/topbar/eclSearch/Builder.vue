@@ -113,12 +113,9 @@ watch(
   }
 );
 
-watch(
-  () => _.cloneDeep(build.value),
-  () => {
-    generateQueryString();
-  }
-);
+watch(build, () => {
+  generateQueryString();
+});
 
 watch(includeTerms, () => generateQueryString());
 

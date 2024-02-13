@@ -20,6 +20,8 @@
           v-model:loadMore="loadMore"
           :filterDefaults="filterDefaults"
           v-model:download="download"
+          :search-by-function="searchByFunction"
+          :search-by-query="searchByQuery"
         />
       </div>
       <div class="vertical-divider">
@@ -38,6 +40,7 @@
             :lazy-loading="true"
             :rows="25"
             @download-requested="downloadRequested"
+            :show-filters="!(searchByFunction || searchByQuery)"
           />
           <DirectoryDetails
             v-if="activePage === 1"

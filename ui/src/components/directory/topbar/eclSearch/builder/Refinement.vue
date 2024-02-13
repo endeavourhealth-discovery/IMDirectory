@@ -21,32 +21,32 @@
     </div>
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
+    <DirectorySearchDialog
+      v-if="showPropertyDialog"
+      v-model:show-dialog="showPropertyDialog"
+      v-model:selected="selectedProperty"
+      :search-by-function="propertyFunctionRequest"
+      :root-entities="propertyTreeRoots.length ? propertyTreeRoots : ['http://snomed.info/sct#138875005']"
+      :filterOptions="propertyFilterOptions"
+      :filterDefaults="propertyFilterDefaults"
+    />
+    <DirectorySearchDialog
+      v-if="showValueDialog"
+      v-model:show-dialog="showValueDialog"
+      v-model:selected="selectedValue"
+      :search-by-query="valueQueryRequest"
+      :root-entities="valueTreeRoots.length ? valueTreeRoots : ['http://snomed.info/sct#138875005']"
+      :filterOptions="valueFilterOptions"
+      :filterDefaults="valueFilterDefaults"
+    />
   </div>
-  <DirectorySearchDialog
-    v-if="showPropertyDialog"
-    v-model:show-dialog="showPropertyDialog"
-    v-model:selected="selectedProperty"
-    :search-by-function="propertyFunctionRequest"
-    :root-entities="propertyTreeRoots.length ? propertyTreeRoots : ['http://snomed.info/sct#138875005']"
-    :filterOptions="propertyFilterOptions"
-    :filterDefaults="propertyFilterDefaults"
-  />
-  <DirectorySearchDialog
-    v-if="showValueDialog"
-    v-model:show-dialog="showValueDialog"
-    v-model:selected="selectedValue"
-    :search-by-function="valueFunctionRequest"
-    :root-entities="valueTreeRoots.length ? valueTreeRoots : ['http://snomed.info/sct#138875005']"
-    :filterOptions="valueFilterOptions"
-    :filterDefaults="valueFilterDefaults"
-  />
 </template>
 
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
-import { EntityService, FunctionService } from "@/services";
+import { EntityService, FunctionService, QueryService } from "@/services";
 import { useDialog } from "primevue/usedialog";
-import { IM, RDF, SNOMED, IM_FUNCTION } from "@im-library/vocabulary";
+import { IM, RDF, SNOMED, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
@@ -55,7 +55,7 @@ import { cloneDeep } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {
@@ -131,7 +131,7 @@ const isValidPropertyValue = ref(false);
 const showPropertyDialog = ref(false);
 const showValueDialog = ref(false);
 const propertyFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES, arguments: [] });
-const valueFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM_FUNCTION.ALLOWABLE_RANGES, arguments: [] });
+const valueQueryRequest: Ref<QueryRequest> = ref({ query: { "@id": QUERY.ALLOWABLE_RANGES }, arguments: [] });
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const valueTreeRoots: Ref<string[]> = ref([]);
 
@@ -156,7 +156,7 @@ watch(selectedValue, async newValue => {
 watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concept)], async () => {
   loadingProperty.value = true;
   await getPropertyTreeRoots();
-  updateFunctionArguments();
+  updateArguments();
   await updateIsValidProperty();
   loadingProperty.value = false;
 });
@@ -164,7 +164,7 @@ watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concep
 watch([selectedProperty, () => cloneDeep(props.value.value.concept)], async () => {
   loadingValue.value = true;
   await getValueTreeRoots();
-  updateFunctionArguments();
+  updateArguments();
   await updateIsValidPropertyValue();
   loadingValue.value = false;
 });
@@ -224,20 +224,20 @@ onMounted(async () => {
   await updateIsValidProperty();
   await updateIsValidPropertyValue();
   await processProps();
-  updateFunctionArguments();
+  updateArguments();
   await getPropertyTreeRoots();
   await getValueTreeRoots();
   loadingProperty.value = false;
   loadingValue.value = false;
 });
 
-function updateFunctionArguments() {
+function updateArguments() {
   const focusArg = propertyFunctionRequest.value.arguments?.find(arg => arg.parameter === "focus");
-  const propertyArg = valueFunctionRequest.value.arguments?.find(arg => arg.parameter === "property");
+  const propertyArg = valueQueryRequest.value.argument?.find(arg => arg.parameter === "property");
   if (props.focus && !focusArg) propertyFunctionRequest.value.arguments?.push({ parameter: "focus", valueObject: props.focus });
   else if (props.focus && focusArg && focusArg.valueObject !== props.focus) focusArg.valueObject = props.focus;
   if (props.value.property.concept && !propertyArg)
-    valueFunctionRequest.value.arguments?.push({ parameter: "property", valueObject: props.value.property.concept });
+    valueQueryRequest.value.argument?.push({ parameter: "property", valueObject: props.value.property.concept });
   else if (props.value.property.concept && propertyArg && propertyArg?.valueObject !== props.value.property.concept)
     propertyArg.valueObject = props.value.property.concept;
 }
@@ -272,27 +272,25 @@ async function getValueTreeRoots() {
 async function updateIsValidProperty(): Promise<void> {
   if (props.focus?.iri === "any" || props.focus?.iri === "*") isValidProperty.value = true;
   else if (props.focus && hasProperty.value) {
-    const request = {
+    const request: FunctionRequest = {
       functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES,
       arguments: [
         { parameter: "focus", valueObject: props.focus },
         { parameter: "searchIri", valueData: props.value.property.concept.iri }
       ]
-    } as FunctionRequest;
+    };
     isValidProperty.value = await FunctionService.runAskFunction(request);
   } else isValidProperty.value = false;
 }
 
 async function updateIsValidPropertyValue(): Promise<void> {
   if (hasValue.value && hasProperty.value) {
-    const request = {
-      functionIri: IM_FUNCTION.ALLOWABLE_RANGES,
-      arguments: [
-        { parameter: "property", valueObject: props.value.property.concept },
-        { parameter: "searchIri", valueData: props.value.value.concept.iri }
-      ]
-    } as FunctionRequest;
-    isValidPropertyValue.value = await FunctionService.runAskFunction(request);
+    const request: QueryRequest = {
+      query: { "@id": QUERY.ALLOWABLE_RANGES },
+      argument: [{ parameter: "this", valueObject: props.value.property.concept.iri }],
+      textSearch: props.value.value.concept.iri
+    };
+    isValidPropertyValue.value = await QueryService.askQuery(request);
   } else isValidPropertyValue.value = false;
 }
 

@@ -15,6 +15,7 @@
     </span>
     <SplitButton class="search-button p-button-secondary" @click="search(false)" label="Search" :model="buttonActions" :loading="loading" />
     <Button
+      v-if="!searchByFunction"
       v-tooltip.bottom="'Filters'"
       id="filter-button"
       icon="fa-duotone fa-sliders"
@@ -23,7 +24,7 @@
       data-testid="filters-open-button"
     />
     <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
-      <div class="p-fluid results-filter-container">
+      <div v-if="!(searchByFunction || searchByQuery)" class="p-fluid results-filter-container">
         <Filters
           :search="search"
           data-testid="filters"
@@ -41,7 +42,7 @@ import Filters from "@/components/shared/Filters.vue";
 
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match, SearchResponse, FunctionRequest } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
@@ -54,6 +55,7 @@ import _ from "lodash";
 import setupDownloadFile from "@/composables/downloadFile";
 import { useDialog } from "primevue/usedialog";
 import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
+import { FunctionService } from "@/services";
 
 interface Props {
   searchResults: SearchResponse | undefined;
@@ -63,6 +65,8 @@ interface Props {
   loadMore: { page: number; rows: number } | undefined;
   filterDefaults?: FilterOptions;
   download: { term: string; count: number } | undefined;
+  searchByFunction?: FunctionRequest;
+  searchByQuery?: QueryRequest;
 }
 
 const props = defineProps<Props>();
@@ -147,6 +151,14 @@ function debounceForSearch(): void {
 }
 
 async function search(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }): Promise<void | SearchResponse> {
+  if (props.searchByFunction) {
+    await functionSearch(loadMore, downloadAll, downloadData);
+    return;
+  }
+  if (props.searchByQuery) {
+    await querySearch(loadMore, downloadAll, downloadData);
+    return;
+  }
   searchPlaceholder.value = "Search";
   if (downloadData) searchText.value = downloadData.term;
   if (searchText.value && searchText.value.length > 2) {
@@ -215,6 +227,10 @@ async function search(loadMore: boolean = false, downloadAll: boolean = false, d
     else results.value = undefined;
   }
 }
+
+async function functionSearch(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }) {}
+
+async function querySearch(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }) {}
 
 async function prepareQueryRequest(queryRequest: QueryRequest) {
   queryRequest.textSearch = searchText.value;
