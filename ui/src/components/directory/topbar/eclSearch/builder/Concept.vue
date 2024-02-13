@@ -1,9 +1,18 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
     <div class="focus-container">
-      <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button" />
+      <Button v-if="index && index > 0" :severity="value.exclude ? 'danger' : 'secondary'" label="NOT" @click="toggleExclude" class="builder-button" />
       <div v-if="isAliasIriRef(value.concept)" class="concept-container">
         <ConceptSelector :value="value" :parent="value" />
+        <Button
+          :severity="hover ? 'success' : 'secondary'"
+          :outlined="!hover"
+          :class="!hover && 'hover-button'"
+          label=""
+          @click="addRefinement"
+          icon="fad fa-filter"
+          class="builder-button"
+        />
       </div>
       <div v-else-if="isBoolGroup(value.concept)" class="focus-group-container">
         <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
@@ -28,39 +37,32 @@
       </div>
     </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
-    <div v-for="(item, index) in value.items" class="refinement-container">
-      <span class="left-container">
-        <div v-if="index === 0 && value.items.length > 1" class="spacer">&nbsp;</div>
-        <Button v-else-if="index === 1" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
-        <Button v-else-if="index > 1" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
-      </span>
-      <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
-      <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
-      <span class="right-container">
-        <div v-if="groupWithinConcept" class="group-checkbox">
-          <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
-          <label :for="'group' + index">Group</label>
+
+    <div class="flex flex-row">
+      <Button v-if="value.items && value.items.length > 0" class="conjunction-button p-button-sm" :label="value.conjunction" @click="toggleBool" />
+      <div class="flex flex-column flex-grow-1">
+        <div v-for="(item, index) in value.items" class="refinement-container">
+          <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
+          <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
+          <span class="right-container">
+            <div v-if="groupWithinConcept" class="group-checkbox">
+              <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+              <label :for="'group' + index">Group</label>
+            </div>
+            <Button
+              @click="deleteItem(index)"
+              :severity="hover ? 'danger' : 'secondary'"
+              :outlined="!hover"
+              :class="!hover && 'hover-button'"
+              icon="fa-solid fa-trash"
+              class="builder-button"
+            />
+          </span>
         </div>
-        <Button
-          @click="deleteItem(index)"
-          :severity="hover ? 'danger' : 'secondary'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          icon="fa-solid fa-trash"
-          class="builder-button"
-        />
-      </span>
+      </div>
     </div>
     <div class="add-group">
-      <Button
-        :severity="hover ? 'success' : 'secondary'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        label="Add Refinement"
-        @click="addRefinement"
-        class="builder-button"
-      />
-      <Button
+      <!--      <Button
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
@@ -75,16 +77,7 @@
         :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
         @click="processGroup"
         class="builder-button"
-      />
-      <Button
-        v-if="index && index > 0"
-        :severity="hover ? 'danger' : 'secondary'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        :label="value.exclude ? 'Include' : 'Exclude'"
-        @click="toggleExclude"
-        class="builder-button"
-      />
+      />-->
     </div>
   </div>
 </template>
@@ -322,12 +315,15 @@ function unGroupItems(groupedItems: any) {
 }
 
 .conjunction-button {
-  width: 4rem;
+  width: 1rem;
   margin: 0;
+  flex: 0 0 auto;
+  writing-mode: vertical-lr;
+  align-self: stretch;
+  transform: scale(-1);
 }
 
 .builder-button {
-  height: 1.5rem;
   align-self: center;
 }
 

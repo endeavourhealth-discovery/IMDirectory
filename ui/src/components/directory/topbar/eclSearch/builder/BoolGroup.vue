@@ -1,41 +1,48 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
-    <template v-for="(item, index) in value.items">
-      <div class="component-container">
-        <div class="minus-container">
-          <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button" />
-        </div>
-        <span class="left-container">
-          <div v-if="index === 0 && value.items.length > 1" class="spacer">&nbsp;</div>
-          <Button v-else-if="index === 1" class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
-          <Button v-else-if="index > 1" class="builder-button conjunction-button" severity="secondary" :label="value.conjunction" disabled />
-        </span>
-        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
-        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
-        <div class="right-container">
-          <div v-if="groupWithinBoolGroup" class="group-checkbox">
-            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
-            <label :for="'group' + index">Group</label>
+    <div class="flex flex-row">
+      <Button v-if="value.items && value.items.length > 0" class="conjunction-button p-button-sm" :label="value.conjunction" @click="toggleBool" />
+      <div class="flex flex-column flex-grow-1">
+        <template v-for="(item, index) in value.items">
+          <div class="component-container">
+            <div class="minus-container">
+              <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button" />
+            </div>
+            <!--
+            <span class="left-container">
+              <div v-if="index === 0 && value.items.length > 1" class="spacer">&nbsp;</div>
+              <Button v-else-if="index === 1" class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
+              <Button v-else-if="index > 1" class="builder-button conjunction-button" severity="secondary" :label="value.conjunction" disabled />
+            </span>
+-->
+            <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
+            <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
+            <div class="right-container">
+              <div v-if="groupWithinBoolGroup" class="group-checkbox">
+                <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+                <label :for="'group' + index">Group</label>
+              </div>
+              <Button
+                @click="deleteItem(index)"
+                class="builder-button"
+                :severity="hover ? 'danger' : 'secondary'"
+                :outlined="!hover"
+                :class="!hover && 'hover-button'"
+                icon="fa-solid fa-trash"
+              />
+            </div>
           </div>
-          <Button
-            @click="deleteItem(index)"
-            class="builder-button"
-            :severity="hover ? 'danger' : 'secondary'"
-            :outlined="!hover"
-            :class="!hover && 'hover-button'"
-            icon="fa-solid fa-trash"
-          />
-        </div>
+        </template>
       </div>
-    </template>
+    </div>
     <div class="add-group">
       <Button
         class="builder-button"
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
-        label="Add Concept"
+        label="Add"
         @click="addConcept"
       />
       <Button
@@ -45,23 +52,25 @@
         :class="!hover && 'hover-button'"
         label="Add Refinement"
         @click="addRefinement"
+        v-if="parent"
       />
       <Button
+        v-if="value.items && value.items.length > 0"
         class="builder-button"
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
-        label="Add New Group"
+        :label="'AND' === value.conjunction ? 'OR' : 'AND'"
         @click="addGroup"
       />
-      <Button
+      <!--      <Button
         class="builder-button"
         :severity="hover ? 'help' : 'secondary'"
         :outlined="!hover"
         :class="[!hover && 'hover-button', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-help']"
         :label="groupWithinBoolGroup ? 'Finish Grouping' : 'Group within'"
         @click="processGroup"
-      />
+      />-->
       <Button
         v-if="!rootBool"
         class="builder-button"
@@ -163,7 +172,12 @@ function addConcept() {
 }
 
 function addRefinement() {
-  if (!props.focus) {
+  console.log("======================================");
+  console.log(props.parent);
+  console.log("--------------------------------------");
+  console.log(props.value);
+  console.log("======================================");
+  /*  if (!props.focus) {
     const anyConcept = {
       type: "Concept",
       descendants: "<<",
@@ -172,11 +186,11 @@ function addRefinement() {
       items: [{ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } }]
     };
     add(anyConcept);
-  } else add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+  } else add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });*/
 }
 
 function addGroup() {
-  add({ type: "BoolGroup", conjunction: "AND" });
+  add({ type: "BoolGroup", conjunction: props.value.conjunction === "AND" ? "OR" : "AND" });
 }
 
 function deleteItem(index: number) {
@@ -275,8 +289,12 @@ function unGroupItems(groupedItems: any) {
 }
 
 .conjunction-button {
-  width: 4rem;
+  width: 1rem;
   margin: 0;
+  flex: 0 0 auto;
+  writing-mode: vertical-lr;
+  align-self: stretch;
+  transform: scale(-1);
 }
 
 .spacer {
