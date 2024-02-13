@@ -18,7 +18,6 @@ export class CodeGenerator {
     }
 
     result.push(this.template.footer);
-
     return result.join("\n");
   }
 
@@ -73,6 +72,7 @@ export class CodeGenerator {
   }
 
   private getDataType(iri: TTIriRef): string {
+    console.log(iri["@id"]);
     return this.template.datatypeMap[iri["@id"]] ?? iri.name ?? "!!UNKNOWN!!"; // TODO!!!
   }
 
