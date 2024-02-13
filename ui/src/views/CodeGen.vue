@@ -56,14 +56,12 @@
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-import { CodeTemplate } from "@im-library/codegen/CodeTemplate";
 import { CodeGenerator } from "@im-library/codegen/CodeGenerator";
 import { onMounted, Ref, ref, watch } from "vue";
 import entityService from "@/services/EntityService";
-import queryService from "@/services/QueryService";
 import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
-import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS, SHACL, XSD } from "@im-library/vocabulary";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { RDFS, SHACL } from "@im-library/vocabulary";
 import _ from "lodash";
 
 const codeInput = ref("");
