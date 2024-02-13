@@ -1,5 +1,5 @@
 <template>
-  <div id="code-container">
+  <div>
     <TopBar>
       <template #content>
         <div class="topbar-content">
@@ -234,25 +234,9 @@ function generateCode(
 </script>
 
 <style scoped>
-#code-container {
-  width: 100%;
-  overflow: auto;
-}
-
 #main-container {
   display: flex;
   height: 80vh;
-}
-
-.input-container {
-  width: 50%;
-  height: 100%;
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  //overflow: auto;
-  gap: 1rem;
-  padding: 1rem;
 }
 
 .code-container {
