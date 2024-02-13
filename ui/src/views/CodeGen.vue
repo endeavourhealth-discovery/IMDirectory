@@ -8,7 +8,7 @@
       </template>
     </TopBar>
     <div id="main-container">
-      <div class="code-container">
+      <div class="template-input-container">
         <div>
           <div class="title-bar">
             <span>File extension</span>
@@ -47,7 +47,7 @@
           <div class="title-bar">
             <span>Generated Code</span>
           </div>
-          <Textarea disabled class="p-inputtext-lg html-input" v-model="generatedCode" @drop.prevent />
+          <Textarea disabled class="p-inputtext-lg generated-html-input" v-model="generatedCode" @drop.prevent />
         </div>
       </div>
     </div>
@@ -60,13 +60,14 @@ import { CodeTemplate } from "@im-library/codegen/CodeTemplate";
 import { CodeGenerator } from "@im-library/codegen/CodeGenerator";
 import { onMounted, Ref, ref, watch } from "vue";
 import entityService from "@/services/EntityService";
+import queryService from "@/services/QueryService";
 import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL, XSD } from "@im-library/vocabulary";
 import _ from "lodash";
 
 const codeInput = ref("");
-const fileExtensionInput = ref(".");
+const fileExtensionInput = ref("");
 const collectionWrapperInput = ref("");
 const datatypeMapInput: Ref<any> = ref([]);
 const generatedCode = ref();
@@ -98,45 +99,44 @@ watch(
   }
 );
 
-watch(fileExtensionInput, async () => {
-  if (!fileExtensionInput.value.length) {
-    fileExtensionInput.value = ". ";
-  }
-});
-
 async function init() {
+  fileExtensionInput.value = ".java";
   codeInput.value =
-    "package org.endeavourhealth.im\n" +
-    "\n" +
-    "public class ${ModelName} {\n" +
-    "\n" +
+    "package ${NAMESPACE};\n\n" +
+    "import java.util.ArrayList;\n" +
+    "import java.util.List;\n\n" +
+    "/**\n* Represents ${MODEL NAME}\n* ${MODEL COMMENT}\n" +
+    "*/\n\n" +
+    "public class ${ModelName} {" +
     "<template #property>\n" +
-    "private ${DataType} ${PropertyName}\n" +
-    "\n" +
-    " public ${DataType} get${PropertyName}() {\n" +
-    "   return ${PropertyName}\n" +
-    " }\n" +
-    "\n" +
-    " public ${ModelName} set${PropertyName}(value) {\n" +
-    "   ${PropertyName} = value;\n" +
-    "   return this;\n" +
-    " }\n" +
-    "\n" +
+    "  private ${DataType} ${propertyName};\n\n  " +
+    "/**\n  * Gets the ${PROPERTY NAME} of this ${MODEL NAME}\n  " +
+    "* @return ${propertyName}\n  */\n  " +
+    "public ${DataType} get${PropertyName}() {\n    " +
+    "return ${propertyName};\n  }\n\n  " +
+    "/**\n  * Sets the ${PROPERTY NAME} of this ${MODEL NAME}\n  " +
+    "* @param ${propertyName} The new ${PROPERTY NAME} to set\n  " +
+    "* @return ${ModelName}\n  " +
+    "*/\n  public ${ModelName} set${PropertyName}(${DataType} value) {\n    " +
+    "${propertyName} = value;\n    " +
+    "return this;\n  }\n\n" +
     " <template #array>\n" +
-    " public ${ModelName} add${PropertyName}(${BASE DATA TYPE} ${PropertyName}) {\n" +
-    "   ${DATA TYPE} array = this.get${PropertyName}();\n" +
-    "   if (null == array) {\n" +
-    "     array = new ArrayList();\n" +
-    "     this.set${PropertyName}(array);\n" +
-    "   }\n" +
-    "   array.add(${propertyName});\n" +
-    "   return this;\n" +
-    " }\n" +
+    "  /**\n  * Adds the given ${PROPERTY NAME} to this ${MODEL NAME}\n   " +
+    "* @param ${propertyName} The ${PROPERTY NAME} to add\n   * @return ${ModelName}\n  " +
+    "*/\n  public ${ModelName} add${PropertyName}(${BASE DATA TYPE} ${propertyName}) {\n    " +
+    "${DataType} array = this.get${PropertyName}();\n  " +
+    "if (null == array) {\n     " +
+    "array = new ArrayList();\n      " +
+    "this.set${PropertyName}(array);\n    " +
+    "}\n\n    " +
+    "array.add(${propertyName});\n    " +
+    "return this;\n  " +
+    "}\n" +
     " </template #array>\n" +
     "</template #property>\n" +
     "}";
   collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
-  datatypeMapInput.value = [{ code: "", replace: "" }];
+  datatypeMapInput.value = [{ code: "http://www.w3.org/2001/XMLSchema#string", replace: "String" }];
   await convert();
 }
 async function convert() {
@@ -156,15 +156,14 @@ async function convert() {
     .replaceAll("\\n", "\n");
   let footer = getTemplate(newString, "footer", propertyTempEnd, "");
 
-  const entity = await entityService.getPartialEntity("http://endhealth.info/im#Patient", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
-
+  const entity = await entityService.getPartialEntity("http://endhealth.info/im#Organisation", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
   const iri: TTIriRef = {
     "@id": entity["@id"],
     name: entity[RDFS.LABEL],
     description: entity[RDFS.COMMENT]
   };
 
-  const newProperties = getProperties(entity);
+  const newProperties = await getProperties(entity);
 
   const newDatatypeMap = getDatatypeMap();
 
@@ -177,13 +176,12 @@ function getTemplate(code: string, templateName: string, patternStart: string, p
   else return "";
 }
 
-function getProperties(entity: any) {
+async function getProperties(entity: any) {
   const newProperties: DataModelProperty[] = [];
-
   for (let prop in entity[SHACL.PROPERTY]) {
     let datatype = entity[SHACL.PROPERTY][prop][SHACL.PATH][0];
     let maxExclusive = "";
-    if (entity[SHACL.PROPERTY][prop][SHACL.MAXCOUNT] > 1) maxExclusive = "";
+    if (entity[SHACL.PROPERTY][prop][SHACL.MAXCOUNT] === 1) maxExclusive = entity[SHACL.PROPERTY][prop][SHACL.MAXCOUNT];
     if (isArrayHasLength(entity[SHACL.PROPERTY][prop][SHACL.DATATYPE])) {
       datatype = entity[SHACL.PROPERTY][prop][SHACL.DATATYPE][0];
     }
@@ -235,13 +233,10 @@ function generateCode(
 
   generatedCode.value = cg.generateCode(iri, properties, "org.endavourhealth.im");
 }
-
-function test() {}
 </script>
 
 <style scoped>
 #code-container {
-  height: 100%;
   width: 100%;
   overflow: auto;
 }
@@ -257,7 +252,7 @@ function test() {}
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  overflow: auto;
+  //overflow: auto;
   gap: 1rem;
   padding: 1rem;
 }
@@ -268,7 +263,19 @@ function test() {}
   align-items: stretch;
   display: flex;
   flex-flow: column nowrap;
-  overflow: auto;
+  //overflow-y: auto;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.template-input-container {
+  width: 50%;
+  align-items: stretch;
+  display: flex;
+  flex-flow: column nowrap;
+  flex-grow: 1;
+  flex-basis: 0;
+  overflow-y: scroll;
   gap: 1rem;
   padding: 1rem;
 }
@@ -288,21 +295,28 @@ function test() {}
 }
 
 .input-value-container {
-  flex: 1 1 auto;
-  display: flex;
   width: 100%;
-  height: 10rem;
-  flex-flow: column nowrap;
+  height: 100%;
+}
+
+.generated-html-input {
+  width: 100%;
+  height: 95%;
+  vertical-align: top;
+  resize: none;
+  font-size: 1rem;
 }
 
 .html-input {
   width: 100%;
-  height: 100%;
+  min-height: 400px;
+  height: 95%;
+  margin-bottom: 1rem;
   vertical-align: top;
-  display: block;
   resize: none;
   font-size: 1rem;
 }
+
 .input-text {
   width: 40%;
   font-size: 1rem;
