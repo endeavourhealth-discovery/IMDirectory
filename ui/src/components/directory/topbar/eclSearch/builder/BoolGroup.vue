@@ -18,12 +18,12 @@
 -->
             <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
             <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
-            <div class="right-container">
+            <!--            <div class="right-container">
               <div v-if="groupWithinBoolGroup" class="group-checkbox">
                 <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
                 <label :for="'group' + index">Group</label>
               </div>
-              <Button
+                            <Button
                 @click="deleteItem(index)"
                 class="builder-button"
                 :severity="hover ? 'danger' : 'secondary'"
@@ -31,7 +31,7 @@
                 :class="!hover && 'hover-button'"
                 icon="fa-solid fa-trash"
               />
-            </div>
+            </div>-->
           </div>
         </template>
       </div>
@@ -45,7 +45,7 @@
         label="Add"
         @click="addConcept"
       />
-      <Button
+      <!--            <Button
         class="builder-button"
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
@@ -62,7 +62,7 @@
         :class="!hover && 'hover-button'"
         :label="'AND' === value.conjunction ? 'OR' : 'AND'"
         @click="addGroup"
-      />
+      />-->
       <!--      <Button
         class="builder-button"
         :severity="hover ? 'help' : 'secondary'"
@@ -71,7 +71,7 @@
         :label="groupWithinBoolGroup ? 'Finish Grouping' : 'Group within'"
         @click="processGroup"
       />-->
-      <Button
+      <!--      <Button
         v-if="!rootBool"
         class="builder-button"
         :severity="hover ? 'warning' : 'secondary'"
@@ -88,7 +88,7 @@
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
         class="builder-button"
-      />
+      />-->
     </div>
   </div>
 </template>

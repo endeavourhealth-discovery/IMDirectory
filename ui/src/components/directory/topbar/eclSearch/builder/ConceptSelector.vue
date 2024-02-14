@@ -9,7 +9,7 @@
     >
       <span class="selected-label">{{ selected.name ?? "Search..." }}</span>
     </div>
-    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="isAny" :binary="true" /></div>
+    <!--    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="isAny" :binary="true" /></div>-->
     <DirectorySearchDialog
       v-if="showDialog && !isAny && selected.iri !== 'any'"
       v-model:show-dialog="showDialog"

@@ -4,7 +4,9 @@
       <Button v-if="index && index > 0" :severity="value.exclude ? 'danger' : 'secondary'" label="NOT" @click="toggleExclude" class="builder-button" />
       <div v-if="isAliasIriRef(value.concept)" class="concept-container">
         <ConceptSelector :value="value" :parent="value" />
-        <Button
+        <Button type="button" icon="pi pi-ellipsis-v" @click="toggleRowMenu" aria-haspopup="true" aria-controls="overlay_menu" />
+        <Menu ref="menu" id="overlay_menu" :model="rowMenuItems" :popup="true" />
+        <!--        <Button
           :severity="hover ? 'success' : 'secondary'"
           :outlined="!hover"
           :class="!hover && 'hover-button'"
@@ -12,12 +14,12 @@
           @click="addRefinement"
           icon="fad fa-filter"
           class="builder-button"
-        />
+        />-->
       </div>
       <div v-else-if="isBoolGroup(value.concept)" class="focus-group-container">
         <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
       </div>
-      <div v-else class="add-focus-buttons-container">
+      <!--      <div v-else class="add-focus-buttons-container">
         <Button
           :severity="hover ? 'success' : 'secondary'"
           :outlined="hover ? false : true"
@@ -34,7 +36,7 @@
           @click="addGroup"
           class="builder-button"
         />
-      </div>
+      </div>-->
     </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
 
@@ -49,14 +51,14 @@
               <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
               <label :for="'group' + index">Group</label>
             </div>
-            <Button
+            <!--            <Button
               @click="deleteItem(index)"
               :severity="hover ? 'danger' : 'secondary'"
               :outlined="!hover"
               :class="!hover && 'hover-button'"
               icon="fa-solid fa-trash"
               class="builder-button"
-            />
+            />-->
           </span>
         </div>
       </div>
@@ -110,6 +112,31 @@ interface Props {
   index?: number;
 }
 const props = defineProps<Props>();
+const menu = ref();
+const rowMenuItems = ref([
+  {
+    label: "Add",
+    icon: "fas fa-plus"
+  },
+  {
+    label: "Filter",
+    icon: "fas fa-filter",
+    command: addRefinement
+  },
+  {
+    label: "Add Subgroup",
+    icon: "fas fa-object-group",
+    command: addGroup
+  },
+  {
+    label: "Delete",
+    icon: "fas fa-trash"
+  }
+]);
+
+function toggleRowMenu(event: any) {
+  menu.value.toggle(event);
+}
 
 watch(
   () => _.cloneDeep(props.value),
