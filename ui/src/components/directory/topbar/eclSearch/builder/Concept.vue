@@ -153,6 +153,7 @@ const boolOptions = [
 
 onMounted(async () => {
   await init();
+  generateEcl();
 });
 
 async function init() {
