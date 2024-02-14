@@ -7,6 +7,10 @@
           <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button" />
         </div>
         <span class="left-container">
+          <div v-if="groupWithinBoolGroup" class="group-checkbox">
+            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+            <label :for="'group' + index">Group</label>
+          </div>
           <div v-if="index === 0 && value.items.length > 1" class="spacer">&nbsp;</div>
           <Button v-else-if="index === 1" class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
           <Button v-else-if="index > 1" class="builder-button conjunction-button" severity="secondary" :label="value.conjunction" disabled />
@@ -14,10 +18,6 @@
         <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
         <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
         <div class="right-container">
-          <div v-if="groupWithinBoolGroup" class="group-checkbox">
-            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
-            <label :for="'group' + index">Group</label>
-          </div>
           <Button
             @click="deleteItem(index)"
             class="builder-button"
@@ -39,6 +39,7 @@
         @click="addConcept"
       />
       <Button
+        v-if="parent"
         class="builder-button"
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
@@ -55,6 +56,7 @@
         @click="addGroup"
       />
       <Button
+        v-if="value?.items?.length > 1"
         class="builder-button"
         :severity="hover ? 'help' : 'secondary'"
         :outlined="!hover"
