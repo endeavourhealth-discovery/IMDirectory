@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref, watch } from "vue";
+import { ref, inject, Ref, watch, onMounted } from "vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import _ from "lodash";
@@ -130,6 +130,10 @@ const boolOptions = [
     command: () => (props.value.conjunction = "OR")
   }
 ];
+
+onMounted(() => {
+  props.value.ecl = generateEcl();
+});
 
 const hover = ref();
 function mouseover(event: any) {
@@ -196,11 +200,13 @@ function generateEcl(): string {
   let ecl = "";
   if (isArrayHasLength(props.value.items)) {
     if (props.value.exclude) ecl += "MINUS ";
-    if (props.parent) ecl += "( ";
+    if (props.parent && !props.focus) ecl += "( ";
+    else if (props.parent) ecl += "{ ";
     for (const [index, item] of props.value.items.entries()) {
       ecl += generateChildEcl(index, item);
     }
-    if (props.parent) ecl += " )";
+    if (props.parent && !props.focus) ecl += " )";
+    else if (props.parent) ecl += " }";
   }
   return ecl.replace(/ {2,}/g, " ");
 }

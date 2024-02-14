@@ -235,6 +235,7 @@ onMounted(async () => {
   updateFunctionArguments();
   await getPropertyTreeRoots();
   await getValueTreeRoots();
+  props.value.ecl = generateEcl();
   loadingProperty.value = false;
   loadingValue.value = false;
 });

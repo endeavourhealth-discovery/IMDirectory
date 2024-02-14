@@ -121,6 +121,7 @@ const filterDefaults: FilterOptions = {
 
 onMounted(async () => {
   await init();
+  generateEcl();
 });
 
 watch(selected, (newValue, oldValue) => {
