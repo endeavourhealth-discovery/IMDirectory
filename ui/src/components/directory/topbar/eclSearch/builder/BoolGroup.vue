@@ -39,6 +39,7 @@
         @click="addConcept"
       />
       <Button
+        v-if="parent"
         class="builder-button"
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
