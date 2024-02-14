@@ -53,16 +53,16 @@
         @download-requested="downloadAll"
       />
     </div>
+    <Builder
+      :showDialog="showDialog"
+      :eclString="queryString"
+      @eclSubmitted="updateECL"
+      @closeDialog="showDialog = false"
+      @eclConversionError="updateError"
+      :key="builderKey"
+      :data-testid="'builder-visible-' + showDialog"
+    />
   </div>
-  <Builder
-    :showDialog="showDialog"
-    :eclString="queryString"
-    @eclSubmitted="updateECL"
-    @closeDialog="showDialog = false"
-    @eclConversionError="updateError"
-    :key="builderKey"
-    :data-testid="'builder-visible-' + showDialog"
-  />
 </template>
 
 <script setup lang="ts">
