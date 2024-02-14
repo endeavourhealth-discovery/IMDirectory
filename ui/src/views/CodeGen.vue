@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="codegen">
     <TopBar>
       <template #content>
         <div class="topbar-content">
@@ -7,8 +7,8 @@
         </div>
       </template>
     </TopBar>
-    <div id="main-container">
-      <div class="template-input-container">
+    <div class="main-container">
+      <div class="half-width">
         <div>
           <div class="title-bar">
             <span>File extension</span>
@@ -35,19 +35,19 @@
             </Column>
           </DataTable>
         </div>
-        <div class="input-value-container">
+        <div class="text-area-group">
           <div class="title-bar">
             <span>Code Template</span>
           </div>
-          <Textarea class="p-inputtext-lg html-input" v-model="codeInput" @drop.prevent />
+          <Textarea class="text-area" v-model="codeInput" @drop.prevent />
         </div>
       </div>
-      <div class="code-container">
-        <div class="input-value-container">
+      <div class="half-width">
+        <div class="text-area-group">
           <div class="title-bar">
             <span>Generated Code</span>
           </div>
-          <Textarea disabled class="p-inputtext-lg generated-html-input" v-model="generatedCode" @drop.prevent />
+          <Textarea disabled class="text-area" v-model="generatedCode" @drop.prevent />
         </div>
       </div>
     </div>
@@ -99,40 +99,57 @@ watch(
 
 async function init() {
   fileExtensionInput.value = ".java";
-  codeInput.value =
-    "package ${NAMESPACE};\n\n" +
-    "import java.util.ArrayList;\n" +
-    "import java.util.List;\n\n" +
-    "/**\n* Represents ${MODEL NAME}\n* ${MODEL COMMENT}\n" +
-    "*/\n\n" +
-    "public class ${ModelName} {" +
-    "<template #property>\n" +
-    "  private ${DataType} ${propertyName};\n\n  " +
-    "/**\n  * Gets the ${PROPERTY NAME} of this ${MODEL NAME}\n  " +
-    "* @return ${propertyName}\n  */\n  " +
-    "public ${DataType} get${PropertyName}() {\n    " +
-    "return ${propertyName};\n  }\n\n  " +
-    "/**\n  * Sets the ${PROPERTY NAME} of this ${MODEL NAME}\n  " +
-    "* @param ${propertyName} The new ${PROPERTY NAME} to set\n  " +
-    "* @return ${ModelName}\n  " +
-    "*/\n  public ${ModelName} set${PropertyName}(${DataType} value) {\n    " +
-    "${propertyName} = value;\n    " +
-    "return this;\n  }\n\n" +
-    " <template #array>\n" +
-    "  /**\n  * Adds the given ${PROPERTY NAME} to this ${MODEL NAME}\n   " +
-    "* @param ${propertyName} The ${PROPERTY NAME} to add\n   * @return ${ModelName}\n  " +
-    "*/\n  public ${ModelName} add${PropertyName}(${BASE DATA TYPE} ${propertyName}) {\n    " +
-    "${DataType} array = this.get${PropertyName}();\n  " +
-    "if (null == array) {\n     " +
-    "array = new ArrayList();\n      " +
-    "this.set${PropertyName}(array);\n    " +
-    "}\n\n    " +
-    "array.add(${propertyName});\n    " +
-    "return this;\n  " +
-    "}\n" +
-    " </template #array>\n" +
-    "</template #property>\n" +
-    "}";
+  codeInput.value = `package $\{NAMESPACE};
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+* Represents $\{MODEL NAME}
+* $\{MODEL COMMENT}
+*/
+
+public class $\{ModelName} {
+<template #property>
+  private $\{DataType} $\{propertyName};
+
+  /**
+  * Gets the $\{PROPERTY NAME} of this $\{MODEL NAME}
+  * @return $\{propertyName}
+  */
+  public $\{DataType} get$\{PropertyName}() {
+    return $\{propertyName};
+  }
+
+  /**
+  * Sets the $\{PROPERTY NAME} of this $\{MODEL NAME}
+  * @param $\{propertyName} The new $\{PROPERTY NAME} to set
+  * @return $\{ModelName}
+  */
+  public $\{ModelName} set$\{PropertyName}($\{DataType} value) {
+    $\{propertyName} = value;
+    return this;
+  }
+
+ <template #array>
+  /**
+  * Adds the given $\{PROPERTY NAME} to this $\{MODEL NAME}
+   * @param $\{propertyName} The $\{PROPERTY NAME} to add
+   * @return $\{ModelName}
+  */
+  public $\{ModelName} add$\{PropertyName}($\{BASE DATA TYPE} $\{propertyName}) {
+    $\{DataType} array = this.get$\{PropertyName}();
+  if (null == array) {
+     array = new ArrayList();
+      this.set$\{PropertyName}(array);
+    }
+
+    array.add($\{propertyName});
+    return this;
+  }
+ </template #array>
+</template #property>
+}`;
   collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
   datatypeMapInput.value = [{ code: "http://www.w3.org/2001/XMLSchema#string", replace: "String" }];
   await convert();
@@ -234,30 +251,28 @@ function generateCode(
 </script>
 
 <style scoped>
-#main-container {
+.codegen {
+  flex: 1 1 auto;
+  width: 100%;
   display: flex;
-  height: 80vh;
+  flex-flow: column nowrap;
+  overflow: auto;
 }
 
-.code-container {
+.main-container {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  overflow: auto;
+}
+
+.half-width {
   width: 50%;
   height: 100%;
   align-items: stretch;
   display: flex;
   flex-flow: column nowrap;
-  //overflow-y: auto;
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.template-input-container {
-  width: 50%;
-  align-items: stretch;
-  display: flex;
-  flex-flow: column nowrap;
-  flex-grow: 1;
-  flex-basis: 0;
-  overflow-y: scroll;
   gap: 1rem;
   padding: 1rem;
 }
@@ -271,32 +286,24 @@ function generateCode(
   align-items: center;
 }
 
+.text-area-group {
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+}
+
 .title {
   font-size: 2rem;
   white-space: nowrap;
 }
 
-.input-value-container {
+.text-area {
   width: 100%;
   height: 100%;
-}
-
-.generated-html-input {
-  width: 100%;
-  height: 95%;
   vertical-align: top;
   resize: none;
-  font-size: 1rem;
-}
-
-.html-input {
-  width: 100%;
-  min-height: 400px;
-  height: 95%;
-  margin-bottom: 1rem;
-  vertical-align: top;
-  resize: none;
-  font-size: 1rem;
+  font-size: 0.8rem;
+  font-family: monospace;
 }
 
 .input-text {
