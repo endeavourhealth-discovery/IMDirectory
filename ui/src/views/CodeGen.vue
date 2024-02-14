@@ -42,7 +42,7 @@
           <Textarea class="text-area" v-model="codeInput" @drop.prevent />
         </div>
       </div>
-      <div class="half-width">
+      <div class="half-width generated-code-container">
         <div class="text-area-group">
           <div class="title-bar">
             <span>Generated Code</span>
@@ -274,7 +274,12 @@ function generateCode(
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;
-  padding: 1rem;
+  padding: 1rem 1rem 0 1rem;
+}
+
+.generated-code-container {
+  position: sticky;
+  top: 0;
 }
 
 .topbar-content {
@@ -300,10 +305,12 @@ function generateCode(
 .text-area {
   width: 100%;
   height: 100%;
+  min-height: 20rem;
   vertical-align: top;
   resize: none;
   font-size: 0.8rem;
   font-family: monospace;
+  margin-bottom: 1rem;
 }
 
 .input-text {
