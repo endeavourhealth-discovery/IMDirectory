@@ -30,6 +30,10 @@
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
     <div v-for="(item, index) in value.items" class="refinement-container">
       <span class="left-container">
+        <div v-if="groupWithinConcept" class="group-checkbox">
+          <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+          <label :for="'group' + index">Group</label>
+        </div>
         <div v-if="index === 0 && value.items.length > 1" class="spacer">&nbsp;</div>
         <Button v-else-if="index === 1" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
         <Button v-else-if="index > 1" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
@@ -37,10 +41,6 @@
       <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
       <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
       <span class="right-container">
-        <div v-if="groupWithinConcept" class="group-checkbox">
-          <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
-          <label :for="'group' + index">Group</label>
-        </div>
         <Button
           @click="deleteItem(index)"
           :severity="hover ? 'danger' : 'secondary'"
@@ -69,6 +69,7 @@
         class="builder-button"
       />
       <Button
+        v-if="value?.items?.length > 1"
         :severity="hover ? 'help' : 'secondary'"
         :outlined="!hover"
         :class="[!hover && 'hover-button', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
