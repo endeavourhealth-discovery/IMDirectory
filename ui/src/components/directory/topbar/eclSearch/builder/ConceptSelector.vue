@@ -10,7 +10,7 @@
     >
       <span class="selected-label">{{ selected?.name ?? "Search..." }}</span>
     </div>
-    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="isAny" :binary="true" /></div>
+    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="any" :binary="true" /></div>
     <DirectorySearchDialog
       v-if="showDialog && !isAny && selected?.iri !== 'any'"
       v-model:show-dialog="showDialog"
@@ -82,7 +82,13 @@ const isAny: ComputedRef<boolean> = computed(() => selected.value?.iri === "any"
 
 const loading = ref(false);
 const showDialog = ref(false);
+const any = ref(false);
 const selected: Ref<SearchResultSummary | undefined> = ref();
+
+watch(any, newValue => {
+  if (newValue) selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
+  else selected.value = undefined;
+});
 
 const functionRequest: FunctionRequest = {
   functionIri: IM_FUNCTION.IS_TYPE,
