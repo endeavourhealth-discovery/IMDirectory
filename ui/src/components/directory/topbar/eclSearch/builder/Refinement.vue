@@ -4,9 +4,10 @@
       class="search-text"
       :class="[!isValidProperty && 'p-invalid', !loadingProperty && hasFocus && 'clickable', loadingProperty && 'inactive']"
       @click="hasFocus ? (showPropertyDialog = true) : (showPropertyDialog = false)"
-      v-tooltip="{ value: selectedProperty.name ?? '', class: 'entity-tooltip' }"
+      @mouseover="showOverlay($event, selectedProperty?.iri)"
+      @mouseleave="hideOverlay($event)"
     >
-      <span class="selected-label">{{ selectedProperty.name ?? "Search..." }}</span>
+      <span class="selected-label">{{ selectedProperty?.name ?? "Search..." }}</span>
     </div>
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
@@ -15,9 +16,10 @@
       class="search-text"
       :class="[!isValidPropertyValue && 'p-invalid', !loadingValue && hasProperty && 'clickable', loadingValue && 'inactive']"
       @click="hasProperty ? (showValueDialog = true) : (showValueDialog = false)"
-      v-tooltip="{ value: selectedValue.name ?? '', class: 'entity-tooltip' }"
+      @mouseover="showOverlay($event, selectedValue?.iri)"
+      @mouseleave="hideOverlay($event)"
     >
-      <span class="selected-label">{{ selectedValue.name ?? "Search..." }}</span>
+      <span class="selected-label">{{ selectedValue?.name ?? "Search..." }}</span>
     </div>
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
@@ -39,11 +41,13 @@
       :filterOptions="valueFilterOptions"
       :filterDefaults="valueFilterDefaults"
     />
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { EntityService, FunctionService, QueryService } from "@/services";
 import { useDialog } from "primevue/usedialog";
 import { IM, RDF, SNOMED, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
@@ -57,6 +61,8 @@ import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDi
 import { FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
+import _ from "lodash";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   value: {
@@ -74,7 +80,7 @@ const props = defineProps<Props>();
 watch(
   () => cloneDeep(props.value),
   async (newValue, oldValue) => {
-    if (newValue) {
+    if (newValue && !_.isEqual(newValue, oldValue)) {
       if (!oldValue) await processProps();
       else {
         if (newValue?.property?.concept?.iri !== oldValue?.property?.concept?.iri) await processProps();
@@ -87,8 +93,8 @@ watch(
 
 watch(
   () => cloneDeep(props.focus),
-  async newValue => {
-    if (newValue && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
+  async (newValue, oldValue) => {
+    if (newValue && !_.isEqual(newValue, oldValue) && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
       loadingProperty.value = true;
       loadingValue.value = true;
       await processProps();
@@ -97,6 +103,8 @@ watch(
     }
   }
 );
+
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 const toast = useToast();
 const filterStore = useFilterStore();
@@ -122,8 +130,8 @@ const hasProperty = computed(() => {
   else return false;
 });
 
-const selectedProperty: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-const selectedValue: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
+const selectedProperty: Ref<SearchResultSummary | undefined> = ref();
+const selectedValue: Ref<SearchResultSummary | undefined> = ref();
 const loadingProperty = ref(false);
 const loadingValue = ref(false);
 const isValidProperty = ref(false);
@@ -227,6 +235,7 @@ onMounted(async () => {
   updateArguments();
   await getPropertyTreeRoots();
   await getValueTreeRoots();
+  props.value.ecl = generateEcl();
   loadingProperty.value = false;
   loadingValue.value = false;
 });
@@ -309,7 +318,7 @@ async function processPropertyProp() {
     const propertySummary = (selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri));
     if (isObjectHasKeys(propertySummary)) selectedProperty.value = propertySummary;
     else {
-      selectedProperty.value = {} as SearchResultSummary;
+      selectedProperty.value = undefined;
       throw new Error("Property iri does not exist");
     }
   }
@@ -342,7 +351,7 @@ async function processValueProp() {
     if (isObjectHasKeys(valueSummary)) {
       selectedValue.value = valueSummary;
     } else {
-      selectedValue.value = {} as SearchResultSummary;
+      selectedValue.value = undefined;
       throw new Error("Value iri does not exist");
     }
   }

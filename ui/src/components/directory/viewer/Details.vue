@@ -43,6 +43,7 @@ import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import _ from "lodash";
 
 interface Props {
   entityIri: string;
@@ -88,7 +89,10 @@ const expandNode = (node: TreeNode) => {
 };
 
 async function getDefinition() {
-  definition.value = (await EntityService.getEntityDetailsDisplay(props.entityIri)).filter((c: any) => c.key !== IM.IS_A);
+  const result = await EntityService.getEntityDetailsDisplay(props.entityIri);
+  if (_.isArray(result)) {
+    definition.value = result.filter((c: any) => c.key !== IM.IS_A);
+  } else definition.value = undefined;
 }
 
 async function onSelect(node: TreeNode) {
