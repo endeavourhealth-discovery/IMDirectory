@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-02-15 17:13:49.
+// Generated using typescript-generator version 3.2.1263 on 2024-02-16 10:43:11.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -132,10 +132,10 @@ export interface Argument {
 }
 
 export interface Assignable {
-    operator?: Operator;
-    relativeTo?: PropertyRef;
     unit?: string;
     dataType?: TTIriRef;
+    operator?: Operator;
+    relativeTo?: PropertyRef;
     value?: string;
 }
 
@@ -293,8 +293,9 @@ export interface ReturnProperty {
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
-    return?: Return;
+    description?: string;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -508,11 +509,11 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    scheme?: TTIriRef;
     description?: string;
     version?: number;
     code?: string;
     prefixes?: TTPrefix[];
+    scheme?: TTIriRef;
     name?: string;
     type?: TTArray;
     status?: TTIriRef;
