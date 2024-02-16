@@ -18,15 +18,7 @@
             :loading="downloading"
             data-testid="downloadButton"
           />
-          <Button
-            type="button"
-            label="Compare"
-            @click="showCompareSetDialog = true"
-            aria-haspopup="true"
-            aria-controls="overlay_menu"
-            :loading="downloading"
-            data-testid="downloadButton"
-          />
+          <Button type="button" label="Compare" @click="showCompareSetDialog = true" data-testid="compareButton" outlined />
         </div>
       </div>
     </div>
