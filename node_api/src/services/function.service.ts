@@ -31,10 +31,20 @@ export default class FunctionService {
             textSearch: term?.valueData
           });
         } else {
-          return await this.queryService.getAllowablePropertySuggestions(focus.valueObject.iri, term?.valueData);
+          return await this.queryService.getAllowablePropertySuggestions(
+            focus.valueObject.iri,
+            term?.valueData,
+            request.page?.pageNumber,
+            request.page?.pageSize
+          );
         }
       } else if (isBoolGroup(focus.valueObject)) {
-        return await this.queryService.getAllowablePropertySuggestionsBoolFocus(focus.valueObject, term?.valueData);
+        return await this.queryService.getAllowablePropertySuggestionsBoolFocus(
+          focus.valueObject,
+          term?.valueData,
+          request.page?.pageNumber,
+          request.page?.pageSize
+        );
       }
     }
     throw new CustomError("missing required arguments 'focus'/'term'", ErrorType.InvalidInputError);

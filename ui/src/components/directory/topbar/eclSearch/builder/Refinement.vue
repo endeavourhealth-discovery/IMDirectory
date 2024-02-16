@@ -139,7 +139,7 @@ const isValidPropertyValue = ref(false);
 const showPropertyDialog = ref(false);
 const showValueDialog = ref(false);
 const propertyFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES, arguments: [] });
-const valueQueryRequest: Ref<QueryRequest> = ref({ query: { "@id": QUERY.ALLOWABLE_RANGES }, arguments: [] });
+const valueQueryRequest: Ref<QueryRequest> = ref({ query: { "@id": QUERY.ALLOWABLE_RANGE_SUGGESTIONS }, argument: [] });
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const valueTreeRoots: Ref<string[]> = ref([]);
 
@@ -242,13 +242,12 @@ onMounted(async () => {
 
 function updateArguments() {
   const focusArg = propertyFunctionRequest.value.arguments?.find(arg => arg.parameter === "focus");
-  const propertyArg = valueQueryRequest.value.argument?.find(arg => arg.parameter === "property");
+  const propertyArg = valueQueryRequest.value.argument?.find(arg => arg.parameter === "this");
   if (props.focus && !focusArg) propertyFunctionRequest.value.arguments?.push({ parameter: "focus", valueObject: props.focus });
   else if (props.focus && focusArg && focusArg.valueObject !== props.focus) focusArg.valueObject = props.focus;
-  if (props.value.property.concept && !propertyArg)
-    valueQueryRequest.value.argument?.push({ parameter: "property", valueObject: props.value.property.concept });
-  else if (props.value.property.concept && propertyArg && propertyArg?.valueObject !== props.value.property.concept)
-    propertyArg.valueObject = props.value.property.concept;
+  if (selectedProperty.value && !propertyArg) valueQueryRequest.value.argument?.push({ parameter: "this", valueIri: { "@id": selectedProperty.value.iri } });
+  else if (selectedProperty.value && propertyArg && propertyArg?.valueIri?.["@id"] !== selectedProperty.value.iri)
+    propertyArg.valueIri = { "@id": selectedProperty.value.iri };
 }
 
 async function getPropertyTreeRoots() {

@@ -15,7 +15,7 @@
     </span>
     <SplitButton class="search-button p-button-secondary" @click="search(false)" label="Search" :model="buttonActions" :loading="loading" />
     <Button
-      v-if="!searchByFunction"
+      v-if="!searchByFunction && !searchByQuery"
       v-tooltip.bottom="'Filters'"
       id="filter-button"
       icon="fa-duotone fa-sliders"
@@ -228,53 +228,58 @@ async function search(loadMore: boolean = false, downloadAll: boolean = false, d
   }
 }
 
-async function functionSearch(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }) {}
-
-async function querySearch(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }) {}
-
-async function prepareQueryRequest(queryRequest: QueryRequest) {
-  queryRequest.textSearch = searchText.value;
-
-  if (isObjectHasKeys(queryRequest.query, ["@id"]) && !isObjectHasKeys(queryRequest.query, ["match"])) {
-    const partialEntity = await EntityService.getPartialEntity(queryRequest.query["@id"]!, [IM.DEFINITION]);
-    if (partialEntity[IM.DEFINITION]) {
-      queryRequest.query = JSON.parse(partialEntity[IM.DEFINITION]);
-      if (!isArrayHasLength(queryRequest.query.match)) queryRequest.query.match = [];
-      queryRequest.query.match!.push(getMatchFromTypeFilters(), getMatchFromStatusFilters(), getMatchFromSchemeFilters());
+async function functionSearch(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }) {
+  if (downloadData) searchText.value = downloadData.term;
+  if (searchText.value && searchText.value.length > 2 && props.searchByFunction) {
+    if (!downloadAll) loading.value = true;
+    const functionRequest: FunctionRequest = _.cloneDeep(props.searchByFunction);
+    functionRequest.arguments?.push({ parameter: "searchIri", valueData: searchText.value });
+    if (loadMore && props.loadMore) {
+      functionRequest.page = { pageNumber: props.loadMore.page + 1, pageSize: props.loadMore.rows };
+    } else {
+      functionRequest.page = { pageNumber: 1, pageSize: 100 };
     }
+    if (downloadAll && downloadData) {
+      functionRequest.page = { pageNumber: 1, pageSize: downloadData.count };
+    }
+
+    if (!isObject(controller.value)) {
+      controller.value.abort();
+    }
+    controller.value = new AbortController();
+    const result = await FunctionService.runSearchFunction(functionRequest, controller.value);
+    if (downloadAll) return result;
+    loading.value = false;
+    if (result?.entities) results.value = result;
+    else results.value = undefined;
   }
-
-  return queryRequest;
 }
 
-function getMatchFromTypeFilters(): Match {
-  const typeMatch = { bool: "or", match: [] } as Match;
-  selectedFilters.value.types.forEach((type: TTIriRef) => {
-    typeMatch.match!.push({ typeOf: type } as Match);
-  });
-  return typeMatch;
-}
+async function querySearch(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }) {
+  if (downloadData) searchText.value = downloadData.term;
+  if (searchText.value && searchText.value.length > 2 && props.searchByQuery) {
+    if (!downloadAll) loading.value = true;
+    const queryRequest: QueryRequest = _.cloneDeep(props.searchByQuery);
+    queryRequest.textSearch = searchText.value;
+    if (loadMore && props.loadMore) {
+      queryRequest.page = { pageNumber: props.loadMore.page + 1, pageSize: props.loadMore.rows };
+    } else {
+      queryRequest.page = { pageNumber: 1, pageSize: 100 };
+    }
+    if (downloadAll && downloadData) {
+      queryRequest.page = { pageNumber: 1, pageSize: downloadData.count };
+    }
 
-function getMatchFromStatusFilters(): Match {
-  return {
-    property: [
-      {
-        "@id": IM.HAS_STATUS,
-        is: selectedFilters.value.status
-      }
-    ]
-  };
-}
-
-function getMatchFromSchemeFilters(): Match {
-  return {
-    property: [
-      {
-        "@id": IM.HAS_SCHEME,
-        is: selectedFilters.value.schemes
-      }
-    ]
-  };
+    if (!isObject(controller.value)) {
+      controller.value.abort();
+    }
+    controller.value = new AbortController();
+    const result = await QueryService.queryIMSearch(queryRequest, controller.value);
+    if (downloadAll) return result;
+    loading.value = false;
+    if (result?.entities) results.value = result;
+    else results.value = undefined;
+  }
 }
 
 async function downloadAll(data: { term: string; count: number }) {

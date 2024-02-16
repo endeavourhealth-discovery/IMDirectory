@@ -83,7 +83,7 @@ export default class QueryService {
     return this.askQueryIM(allowableRangesQuery);
   }
 
-  public async getAllowablePropertySuggestions(iri: string, searchTerm?: string): Promise<SearchResponse> {
+  public async getAllowablePropertySuggestions(iri: string, searchTerm?: string, page?: number, size?: number): Promise<SearchResponse> {
     const queryRequest: QueryRequest = {
       query: {
         "@id": QUERY.ALLOWABLE_PROPERTIES
@@ -100,6 +100,10 @@ export default class QueryService {
 
     if (searchTerm) {
       queryRequest.textSearch = searchTerm;
+    }
+
+    if (page && size) {
+      queryRequest.page = { pageNumber: page, pageSize: size };
     }
 
     return await this.queryIMSearch(queryRequest);
@@ -135,7 +139,7 @@ export default class QueryService {
     return await this.queryIMSearch(queryRequest);
   }
 
-  public async getAllowablePropertySuggestionsBoolFocus(focus: any, searchTerm?: string): Promise<SearchResponse> {
+  public async getAllowablePropertySuggestionsBoolFocus(focus: any, searchTerm?: string, page?: number, size?: number): Promise<SearchResponse> {
     let query;
     if (focus.ecl) query = eclToIMQ(focus.ecl);
     if (query) {
@@ -156,6 +160,7 @@ export default class QueryService {
           }
         ];
       queryRequest.textSearch = searchTerm;
+      if (page && size) queryRequest.page = { pageNumber: page, pageSize: size };
       return await this.queryIMSearch(queryRequest);
     }
     return {} as SearchResponse;

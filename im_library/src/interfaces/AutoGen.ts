@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-02-12 16:54:29.
+// Generated using typescript-generator version 3.2.1263 on 2024-02-16 12:13:32.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -58,7 +58,7 @@ export interface FormGenerator {
 export interface FunctionRequest {
     functionIri?: string;
     arguments?: Argument[];
-    paging?: Page;
+    page?: Page;
 }
 
 export interface MapFunction extends TTIriRef {
@@ -136,8 +136,8 @@ export interface Assignable {
     value?: string;
     unit?: string;
     operator?: Operator;
-    relativeTo?: PropertyRef;
     dataType?: TTIriRef;
+    relativeTo?: PropertyRef;
 }
 
 export interface Case {
@@ -165,9 +165,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -186,6 +186,7 @@ export interface Match extends IriLD {
     nodeRef?: string;
     description?: string;
     graph?: Element;
+    path?: Property[];
     match?: Match[];
     bool?: Bool;
     is?: Node[];
@@ -294,8 +295,8 @@ export interface ReturnProperty {
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -513,8 +514,8 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     code?: string;
+    status?: TTIriRef;
     description?: string;
     prefixes?: TTPrefix[];
 }
@@ -621,6 +622,20 @@ export const enum Operator {
 export const enum Order {
     ascending = "ascending",
     descending = "descending",
+    latest = "latest",
+    earliest = "earliest",
+    highest = "highest",
+    lowest = "lowest",
+}
+
+export const enum OrderableDate {
+    latest = "latest",
+    earliest = "earliest",
+}
+
+export const enum OrderableNumber {
+    highest = "highest",
+    lowest = "lowest",
 }
 
 export const enum VarType {
