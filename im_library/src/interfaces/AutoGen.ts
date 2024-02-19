@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-02-19 15:31:07.
+// Generated using typescript-generator version 3.2.1263 on 2024-02-19 16:50:47.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -161,13 +161,13 @@ export interface Delete {
 export interface Element extends IriLD, Entailment {
     parameter?: string;
     variable?: string;
-    ref?: string;
+    nodeRef?: string;
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -240,7 +240,6 @@ export interface Property extends PropertyRef, Assignable {
 
 export interface PropertyRef extends Element {
     inverse?: boolean;
-    nodeRef?: string;
     valueVariable?: string;
 }
 
@@ -295,8 +294,9 @@ export interface ReturnProperty {
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
-    return?: Return;
+    description?: string;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -514,8 +514,8 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     code?: string;
+    status?: TTIriRef;
     description?: string;
     prefixes?: TTPrefix[];
 }
@@ -622,10 +622,6 @@ export const enum Operator {
 export const enum Order {
     ascending = "ascending",
     descending = "descending",
-    latest = "latest",
-    earliest = "earliest",
-    highest = "highest",
-    lowest = "lowest",
 }
 
 export const enum OrderableDate {
