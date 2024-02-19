@@ -300,7 +300,9 @@ function downloadRequested(data: { term: string; count: number }) {
 
 .button-footer {
   display: flex;
+  flex: 1 0 auto;
   flex-wrap: nowrap;
+  justify-content: flex-end;
 }
 </style>
 

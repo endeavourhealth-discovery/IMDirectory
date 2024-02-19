@@ -202,7 +202,7 @@ function updateConcept(concept: any) {
 
 .search-text {
   flex: 1 1 auto;
-  min-width: 25rem;
+  min-width: 10rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

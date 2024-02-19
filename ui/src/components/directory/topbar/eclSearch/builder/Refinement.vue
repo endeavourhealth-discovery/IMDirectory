@@ -3,7 +3,7 @@
     <div
       class="search-text"
       :class="[!isValidProperty && 'p-invalid', !loadingProperty && hasFocus && 'clickable', loadingProperty && 'inactive']"
-      @click="hasFocus ? (showPropertyDialog = true) : (showPropertyDialog = false)"
+      @click="hasFocus && !loadingProperty ? (showPropertyDialog = true) : (showPropertyDialog = false)"
       @mouseover="showOverlay($event, selectedProperty?.iri)"
       @mouseleave="hideOverlay($event)"
     >
@@ -15,7 +15,7 @@
     <div
       class="search-text"
       :class="[!isValidPropertyValue && 'p-invalid', !loadingValue && hasProperty && 'clickable', loadingValue && 'inactive']"
-      @click="hasProperty ? (showValueDialog = true) : (showValueDialog = false)"
+      @click="hasProperty && !loadingValue && !loadingProperty ? (showValueDialog = true) : (showValueDialog = false)"
       @mouseover="showOverlay($event, selectedValue?.iri)"
       @mouseleave="hideOverlay($event)"
     >
@@ -139,7 +139,7 @@ const isValidPropertyValue = ref(false);
 const showPropertyDialog = ref(false);
 const showValueDialog = ref(false);
 const propertyFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES, arguments: [] });
-const valueQueryRequest: Ref<QueryRequest> = ref({ query: { "@id": QUERY.ALLOWABLE_RANGE_SUGGESTIONS }, argument: [] });
+const valueQueryRequest: Ref<QueryRequest> = ref({ query: { "@id": QUERY.GET_VALUES_FROM_PROPERTY_RANGE }, argument: [] });
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const valueTreeRoots: Ref<string[]> = ref([]);
 
@@ -294,9 +294,9 @@ async function updateIsValidProperty(): Promise<void> {
 async function updateIsValidPropertyValue(): Promise<void> {
   if (hasValue.value && hasProperty.value) {
     const request: QueryRequest = {
-      query: { "@id": QUERY.ALLOWABLE_RANGES },
+      query: { "@id": QUERY.GET_VALUES_FROM_PROPERTY_RANGE },
       argument: [{ parameter: "this", valueObject: props.value.property.concept.iri }],
-      textSearch: props.value.value.concept.iri
+      askIri: props.value.value.concept.iri
     };
     isValidPropertyValue.value = await QueryService.askQuery(request);
   } else isValidPropertyValue.value = false;
@@ -409,7 +409,7 @@ async function updateValue(value: SearchResultSummary) {
 
 .search-text {
   flex: 1 1 auto;
-  min-width: 25rem;
+  min-width: 10rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
