@@ -15,7 +15,7 @@
       v-if="showDialog && !isAny && selected?.iri !== 'any'"
       v-model:show-dialog="showDialog"
       v-model:selected="selected"
-      :search-by-function="functionRequest"
+      :search-by-query="queryRequest"
       :root-entities="['http://snomed.info/sct#138875005']"
       :filterOptions="filterOptions"
       :filterDefaults="filterDefaults"
@@ -28,12 +28,12 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, inject, computed, ComputedRef } from "vue";
-import { IM, SNOMED, IM_FUNCTION } from "@im-library/vocabulary";
+import { IM, SNOMED, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -90,9 +90,9 @@ watch(any, newValue => {
   else selected.value = undefined;
 });
 
-const functionRequest: FunctionRequest = {
-  functionIri: IM_FUNCTION.IS_TYPE,
-  arguments: [{ parameter: "type", valueIri: { "@id": IM.CONCEPT } }]
+const queryRequest: QueryRequest = {
+  query: { "@id": QUERY.SEARCH_ENTITIES },
+  argument: [{ parameter: "this", valueIri: { "@id": IM.CONCEPT } }]
 };
 const descendantOptions = [
   {
@@ -202,7 +202,7 @@ function updateConcept(concept: any) {
 
 .search-text {
   flex: 1 1 auto;
-  min-width: 25rem;
+  min-width: 10rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-02-16 10:43:11.
+// Generated using typescript-generator version 3.2.1263 on 2024-02-19 16:50:47.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -58,6 +58,7 @@ export interface FormGenerator {
 export interface FunctionRequest {
     functionIri?: string;
     arguments?: Argument[];
+    page?: Page;
 }
 
 export interface MapFunction extends TTIriRef {
@@ -132,11 +133,11 @@ export interface Argument {
 }
 
 export interface Assignable {
+    value?: string;
     unit?: string;
-    dataType?: TTIriRef;
     operator?: Operator;
     relativeTo?: PropertyRef;
-    value?: string;
+    dataType?: TTIriRef;
 }
 
 export interface Case {
@@ -164,9 +165,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -509,14 +510,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    description?: string;
-    version?: number;
-    code?: string;
-    prefixes?: TTPrefix[];
-    scheme?: TTIriRef;
     name?: string;
     type?: TTArray;
+    scheme?: TTIriRef;
+    version?: number;
+    code?: string;
     status?: TTIriRef;
+    description?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
@@ -539,8 +540,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    className?: string;
     nativeMethod?: boolean;
+    className?: string;
 }
 
 export interface Exception extends Throwable {
@@ -553,15 +554,15 @@ export interface TTValue extends Serializable {
 export interface Serializable {
 }
 
+export interface TTArray extends Serializable {
+    elements?: TTValue[];
+    list?: boolean;
+}
+
 export interface TTPrefix {
     iri?: string;
     prefix?: string;
     name?: string;
-}
-
-export interface TTArray extends Serializable {
-    elements?: TTValue[];
-    list?: boolean;
 }
 
 export interface TTNode extends TTValue, Serializable {
@@ -621,10 +622,6 @@ export const enum Operator {
 export const enum Order {
     ascending = "ascending",
     descending = "descending",
-    latest = "latest",
-    earliest = "earliest",
-    highest = "highest",
-    lowest = "lowest",
 }
 
 export const enum OrderableDate {

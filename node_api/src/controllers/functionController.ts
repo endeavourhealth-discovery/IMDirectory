@@ -6,6 +6,7 @@ import axios from "axios";
 import { Request } from "express";
 import router from "express-promise-router";
 import { IM_FUNCTION } from "@im-library/vocabulary";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 
 export default class FunctionController {
   public path = "/node_api/function";
@@ -30,14 +31,12 @@ export default class FunctionController {
     });
   }
 
-  async runSearchFunction(req: Request) {
+  async runSearchFunction(req: Request): Promise<SearchResponse> {
     const functionRequest = req.body;
     if (functionRequest && isObjectHasKeys(functionRequest, ["functionIri"])) {
       switch (functionRequest.functionIri) {
         case IM_FUNCTION.ALLOWABLE_PROPERTIES:
           return this.functionService.getAllowablePropertySuggestions(functionRequest);
-        case IM_FUNCTION.ALLOWABLE_RANGES:
-          return this.functionService.getAllowableRangeSuggestions(functionRequest);
         default:
           throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
       }
@@ -50,10 +49,6 @@ export default class FunctionController {
       switch (functionRequest.functionIri) {
         case IM_FUNCTION.ALLOWABLE_PROPERTIES:
           return this.functionService.isAllowablePropertySuggestion(functionRequest);
-        case IM_FUNCTION.ALLOWABLE_RANGES:
-          return this.functionService.isAllowableRangeSuggestion(functionRequest);
-        case IM_FUNCTION.IS_TYPE:
-          return this.functionService.isType(functionRequest);
         default:
           throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
       }
