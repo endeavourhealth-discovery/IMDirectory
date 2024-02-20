@@ -122,16 +122,17 @@ export default class FhirService {
 
     const contains: ValueSetContains[] = [];
     const evaluated = await this.eclService.evaluateEcl(data);
+    if (evaluated.entities) {
+      for (const e of evaluated.entities) {
+        const valueSetContains = new fhirR4.ValueSetContains();
 
-    for (const e of evaluated) {
-      const valueSetContains = new fhirR4.ValueSetContains();
+        valueSetContains.id = e.iri;
+        valueSetContains.display = e.name;
+        valueSetContains.code = e.code;
+        valueSetContains.system = e.scheme?.["@id"];
 
-      valueSetContains.id = e["@id"];
-      valueSetContains.display = e.name;
-      valueSetContains.code = e.code;
-      valueSetContains.system = e.scheme?.["@id"];
-
-      contains.push(valueSetContains);
+        contains.push(valueSetContains);
+      }
     }
 
     expansion.contains = contains;

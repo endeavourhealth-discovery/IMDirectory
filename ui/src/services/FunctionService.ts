@@ -1,7 +1,7 @@
 import axios from "axios";
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { FunctionRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 
 const FunctionService = {
   async runFunction(iri: string, args?: any[]): Promise<any> {
@@ -15,7 +15,7 @@ const FunctionService = {
     } else return await axios.post(Env.API + "api/function/public/callFunction", { functionIri: iri });
   },
 
-  async runSearchFunction(request: FunctionRequest, controller?: AbortController, raw?: boolean): Promise<SearchResultSummary[]> {
+  async runSearchFunction(request: FunctionRequest, controller?: AbortController, raw?: boolean): Promise<SearchResponse> {
     return await axios.post(Env.VITE_NODE_API + "node_api/function/public/callSearchFunction", request, { signal: controller?.signal, raw: raw });
   },
 
