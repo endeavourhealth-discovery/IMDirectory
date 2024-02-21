@@ -194,7 +194,7 @@ async function loadMore(event: any) {
   }
 }
 
-async function downloadAll() {
+async function downloadAll(data: { term: string; count: number }) {
   const downloadDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Downloading", text: "Preparing your download..." }
@@ -206,7 +206,9 @@ async function downloadAll() {
     eclQuery: eclQuery,
     includeLegacy: false,
     statusFilter: selectedStatus.value,
-    limit: 0
+    limit: data.count,
+    page: 1,
+    size: data.count
   } as EclSearchRequest;
   const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
   if (isObjectHasKeys(result, ["entities"])) {
