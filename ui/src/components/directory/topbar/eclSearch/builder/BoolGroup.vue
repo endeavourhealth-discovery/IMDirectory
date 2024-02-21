@@ -289,6 +289,7 @@ function toggleAdd(event: any) {
 }
 
 .add-group {
+  flex: 0 0 auto;
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
