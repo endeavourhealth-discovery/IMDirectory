@@ -45,13 +45,14 @@
       <Menu ref="addMenu" :model="addItems" :popup="true" />
       <Button
         v-if="value?.items?.length > 1"
-        class="builder-button"
-        :severity="hover ? 'help' : 'secondary'"
+        class="builder-button group-button"
+        :severity="group.length ? 'success' : 'danger'"
         :outlined="!hover"
-        :class="[!hover && 'hover-button', group.length ? 'p-button-success' : 'p-button-danger']"
+        :class="[!hover && 'hover-button', !group.length && 'strike-through']"
         label="{...}"
-        @click="group.length ? processGroup : requestUnGroupItems"
+        @click="group.length ? processGroup() : requestUnGroupItems()"
         :disabled="!group.length && !(value?.items?.length > 1)"
+        v-tooltip="!group.length ? 'Remove brackets' : 'Bracket selected items'"
       />
       <Button
         v-if="index && index > 0 && isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept'"
@@ -211,6 +212,7 @@ function generateChildEcl(index: number, item: any) {
 }
 
 function processGroup() {
+  console.log("grouping");
   if (group.value.length) {
     const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
     for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
@@ -223,6 +225,7 @@ function processGroup() {
 }
 
 function requestUnGroupItems() {
+  console.log("ungrouping");
   emit("unGroupItems", props.value);
 }
 
@@ -332,5 +335,9 @@ function toggleAdd(event: any) {
 
 .conjunction-button:deep(.p-button-label) {
   transform: rotate(-90deg);
+}
+
+.strike-through {
+  text-decoration: line-through;
 }
 </style>

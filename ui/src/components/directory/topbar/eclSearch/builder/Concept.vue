@@ -72,12 +72,13 @@
       <Button
         v-if="value?.items?.length > 1"
         class="builder-button"
-        :severity="hover ? 'help' : 'secondary'"
+        severity="success"
         :outlined="!hover"
-        :class="[!hover && 'hover-button', group.length ? 'p-button-success' : 'p-button-danger']"
+        :class="[!hover && 'hover-button']"
         label="{...}"
-        @click="group.length ? processGroup : unGroupItems"
-        :disabled="!group.length && !(value?.items?.length > 1)"
+        @click="group.length && processGroup()"
+        :disabled="!group.length"
+        v-tooltip="'Bracket selected items'"
       />
       <Button
         v-if="index && index > 0"
