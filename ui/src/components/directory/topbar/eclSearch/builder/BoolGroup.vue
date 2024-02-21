@@ -90,7 +90,7 @@
 import { ref, inject, Ref, watch, onMounted } from "vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { numberAscending } from "@im-library/helpers/Sorters";
 
@@ -202,13 +202,13 @@ function generateEcl(): string {
   let ecl = "";
   if (isArrayHasLength(props.value.items)) {
     if (props.value.exclude) ecl += "MINUS ";
-    if (props.parent && !props.focus) ecl += "( ";
-    else if (props.parent) ecl += "{ ";
+    if (props.parent && isArray(props.value.items) && props.value.items.length > 1 && props.value.items.every((i: any) => i.type === "Refinement")) ecl += "{ ";
+    else if (props.parent) ecl += "( ";
     for (const [index, item] of props.value.items.entries()) {
       ecl += generateChildEcl(index, item);
     }
-    if (props.parent && !props.focus) ecl += " )";
-    else if (props.parent) ecl += " }";
+    if (props.parent && isArray(props.value.items) && props.value.items.length > 1 && props.value.items.every((i: any) => i.type === "Refinement")) ecl += " }";
+    else if (props.parent) ecl += " )";
   }
   return ecl.replace(/ {2,}/g, " ");
 }
