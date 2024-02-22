@@ -1,4 +1,4 @@
-import { Bool, Entailment, Operator, OrderDirection, Property } from "../interfaces/AutoGen";
+import { Bool, Entailment, Operator, OrderDirection, Property, Return, ReturnProperty } from "../interfaces/AutoGen";
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
@@ -6,38 +6,78 @@ import { IM } from "../vocabulary";
 
 const propertyDisplayMap: { path: any; then: any } = { path: { concept: "is", ethnicity: "of", language: "of" }, then: { concept: "is" } };
 
-export type MatchType = "path" | "then";
+export type MatchType = "path" | "then" | "";
 
 // descriptors
 export function describeQuery(query: Query): Query {
   const describedQuery = { ...query };
-
-  if (isArrayHasLength(describedQuery.match))
-    for (const [index, match] of describedQuery.match!.entries()) {
-      describeMatch(match, index, Bool.and);
-    }
-  else if (isArrayHasLength(describedQuery.property)) {
-    for (const [index, prop] of describedQuery.property!.entries()) {
-      describeProperty(prop, index, Bool.and);
-    }
-  }
+  describe(describedQuery);
   return describedQuery;
 }
 
-export function describeMatch(match: Match, index: number, bool: Bool, matchType?: MatchType) {
+function describe(query: Query) {
+  if (isObjectHasKeys(query, ["name"])) {
+    query.description = query.name;
+  }
+  if (isArrayHasLength(query.match)) {
+    for (const [index, match] of query.match!.entries()) {
+      describeMatch(match, index, Bool.and);
+    }
+  }
+  if (isArrayHasLength(query.property)) {
+    for (const [index, prop] of query.property!.entries()) {
+      describeProperty(prop, index, Bool.and);
+    }
+  }
+  if (isArrayHasLength(query.query)) {
+    for (const subQuery of query.query!) {
+      describe(subQuery);
+    }
+  }
+  if (isArrayHasLength(query.return)) {
+    for (const returnItem of query.return!) {
+      describeReturn(returnItem, []);
+    }
+  }
+}
+
+export function describeReturn(returnItem: Return, pathProperties: string[]) {
+  if (isArrayHasLength(returnItem.property)) {
+    for (const [index, property] of returnItem.property!.entries()) {
+      describeReturnProperty(property, pathProperties);
+    }
+  }
+}
+
+export function describeReturnProperty(property: ReturnProperty, pathProperties: string[]) {
+  if (isObjectHasKeys(property, ["return"])) {
+    pathProperties.push(getNameFromRef(property));
+    describeReturn(property.return!, pathProperties);
+  } else {
+    const pathString = pathProperties.join(" ");
+    const propertyDesc = getNameFromRef(property);
+    property.description = pathString ? pathString + " -> " + propertyDesc : propertyDesc;
+  }
+}
+
+export function describeMatch(match: Match, index: number, bool?: Bool, matchType?: MatchType) {
   let display = getDisplayFromMatch(match, matchType);
-  if (match.exclude) display = getDisplayFromLogic("exclude") + " " + display;
+  if (match.exclude && matchType !== "then") display = getDisplayFromLogic("exclude") + " " + display;
   if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
 
-  if (isArrayHasLength(match.match))
+  if (isArrayHasLength(match.match)) {
+    if (matchType === "then") matchType = "";
     for (const [index, nestedMatch] of match.match!.entries()) {
       describeMatch(nestedMatch, index, match.bool!, matchType);
     }
+  }
 
-  if (isArrayHasLength(match.property))
+  if (isArrayHasLength(match.property)) {
+    if (matchType === "then") matchType = "";
     for (const [index, property] of match.property!.entries()) {
       describeProperty(property, index, property.bool!, matchType);
     }
+  }
 
   if (match.then) {
     describeMatch(match.then, 0, Bool.and, "then");
@@ -46,7 +86,7 @@ export function describeMatch(match: Match, index: number, bool: Bool, matchType
   match.description = display;
 }
 
-export function describeProperty(property: Property, index: number, bool: Bool, matchType?: MatchType) {
+export function describeProperty(property: Property, index: number, bool?: Bool, matchType?: MatchType) {
   if (property.match) describeMatch(property.match, 0, Bool.and, "path");
   if (isObjectHasKeys(property, ["@id"])) {
     let display = getDisplayFromProperty(property, matchType);
@@ -63,7 +103,11 @@ export function describeProperty(property: Property, index: number, bool: Bool, 
 // getters
 export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   let display = "";
-  if (match.inSet) display = getDisplayFromInSet(match.inSet);
+  if (matchType === "then") {
+    display = "then";
+    display += " " + getDisplayFromLogic(match.exclude ? "exclude" : "include");
+  }
+  if (match.is) display = getDisplayFromIs(match.is);
   else if (match.typeOf) {
     display = getNameFromRef(match.typeOf);
     display += getDisplaySuffixFromEntailment(match.typeOf);
@@ -76,29 +120,29 @@ export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   }
 
   if (match.orderBy) describeOrderByList(match.orderBy, matchType);
-  if ("path" == matchType) display += " with";
+  if ("path" === matchType) display += " with";
 
   return display;
 }
 
-export function getDisplayFromInSet(inSet: Node[]) {
+export function getDisplayFromIs(_is: Node[]) {
   let display = "in '";
 
-  if (inSet.length === 1) {
-    display += getDisplayFromEntailment(inSet[0]);
-    display += getNameFromRef(inSet[0]);
-  } else if (inSet.length <= 3) {
+  if (_is.length === 1) {
+    display += getDisplayFromEntailment(_is[0]);
+    display += getNameFromRef(_is[0]);
+  } else if (_is.length <= 3) {
     display += "any of [";
-    for (const [index, node] of inSet.entries()) {
+    for (const [index, node] of _is.entries()) {
       display += getDisplayFromEntailment(node);
       display += getNameFromRef(node);
-      if (index !== inSet.length - 1) display += ", ";
+      if (index !== _is.length - 1) display += ", ";
     }
     display += "]";
   } else {
     display += "any of [";
-    display += getDisplayFromEntailment(inSet[0]);
-    display += getNameFromRef(inSet[0]);
+    display += getDisplayFromEntailment(_is[0]);
+    display += getNameFromRef(_is[0]);
     display += " and " + getDisplayFromNodeRef("more...") + "]";
   }
   return display + "'";
@@ -142,9 +186,8 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
 }
 
 export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchType) {
-  if (orderLimit?.property && orderLimit.property.length > 0) {
-    // TODO: Temporary fix - model to be updated later
-    const desc = getDisplayFromOrderBy(orderLimit.property[0], matchType, orderLimit.limit);
+  if (orderLimit?.property) {
+    const desc = getDisplayFromOrderBy(orderLimit.property, matchType, orderLimit.limit);
 
     orderLimit.description = "<div class='variable-line'>get " + desc + "</div>";
   }
@@ -196,6 +239,8 @@ function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: Match
 
 export function getDisplayFromLogic(title: string) {
   switch (title) {
+    case "include":
+      return "<span style='color: green;'>include if</span> ";
     case "exclude":
       return "<span style='color: red;'>exclude if</span> ";
     case "or":
@@ -312,15 +357,13 @@ export function getDisplayFromList(include: boolean, nodes: Node[]) {
 
 export function getDisplaySuffixFromEntailment(entailment: Entailment) {
   if (entailment.ancestorsOf) return " (ancestors only)";
-  if (entailment.descendantsOf) return " (descendants only)";
-  if (entailment.descendantsOrSelfOf) return " (including descendants)";
+  if (entailment.descendantsOf) return " (excluding subtypes)";
   return "";
 }
 
 export function getDisplayFromEntailment(entailment: Entailment) {
-  if (entailment.ancestorsOf) return "ancestors of ";
-  if (entailment.descendantsOf) return "descendants of ";
-  if (entailment.descendantsOrSelfOf) return "descendants of or ";
+  if (entailment.ancestorsOf) return "ancestors ";
+  if (entailment.descendantsOf) return "subtypes ";
   return "";
 }
 
@@ -351,11 +394,11 @@ function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
   let iri = "";
   if (isObjectHasKeys(object, ["@id"])) iri = object["@id"];
   else if (isObjectHasKeys(object.typeOf, ["@id"])) iri = object["typeOf"]?.["@id"];
-  else if (isArrayHasLength(object.inSet)) {
-    if (object.inSet.length === 1) iri = object["inSet"][0]["@id"];
-    else if (object.inSet.length > 1) {
-      for (const inSetItem of object.inSet) {
-        addUnnamedObject(unnamedObjects, inSetItem);
+  else if (isArrayHasLength(object.is)) {
+    if (object.is.length === 1) iri = object["is"][0]["@id"];
+    else if (object.is.length > 1) {
+      for (const item of object.is) {
+        addUnnamedObject(unnamedObjects, item);
       }
     }
   }

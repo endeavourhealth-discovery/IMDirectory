@@ -49,11 +49,11 @@
 
 <script setup lang="ts">
 import { ref, Ref, computed, ComputedRef, watch, onMounted } from "vue";
-import { QueryRequest, Argument, TTIriRef, Query } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, Argument, TTIriRef, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import AutoComplete from "primevue/autocomplete";
 import { EntityService, QueryService } from "@/services";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptSummary, FilterOptions, QueryResponse } from "@im-library/interfaces";
+import { FilterOptions, QueryResponse } from "@im-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import setupDownloadFile from "@/composables/downloadFile";
 import { ToastOptions } from "@im-library/models";
@@ -84,7 +84,7 @@ const controller: Ref<AbortController> = ref({} as AbortController);
 const queryLoading: Ref<boolean> = ref(false);
 const debounce = ref(0);
 const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
-const suggestions: Ref<ConceptSummary[]> = ref([]);
+const suggestions: Ref<SearchResultSummary[]> = ref([]);
 const toast = useToast();
 const visible = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
@@ -153,7 +153,7 @@ function addArguments(queryRequest: QueryRequest) {
       } as Argument;
 
       if (isArrayHasLength(param.value)) {
-        argument.valueIriList = (param.value as ConceptSummary[]).map(summary => {
+        argument.valueIriList = (param.value as SearchResultSummary[]).map(summary => {
           return { "@id": summary.iri, name: summary.name } as TTIriRef;
         });
       } else {

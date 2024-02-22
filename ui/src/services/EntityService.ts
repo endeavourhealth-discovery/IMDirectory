@@ -6,11 +6,11 @@ import {
   TermCode,
   Namespace,
   ExportValueSet,
-  ConceptSummary,
   FilterOptions,
-  PropertyDisplay
+  PropertyDisplay,
+  SetDiffObject
 } from "@im-library/interfaces";
-import { TTIriRef, SearchRequest } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/treenode";
@@ -27,6 +27,25 @@ const EntityService = {
         format: format
       },
       responseType: "blob"
+    });
+  },
+
+  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<TTIriRef[]> {
+    return axios.get(api + "api/entity/public/expandedMembers", {
+      params: {
+        iri: iri,
+        legacy: legacy,
+        includeSubsets: includeSubsets
+      }
+    });
+  },
+
+  async getSetComparison(iriA?: string, iriB?: string): Promise<SetDiffObject> {
+    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/setDiff", {
+      params: {
+        setIriA: iriA,
+        setIriB: iriB
+      }
     });
   },
 
@@ -122,7 +141,7 @@ const EntityService = {
     });
   },
 
-  async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<ConceptSummary[]> {
+  async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<SearchResponse> {
     return axios.post(api + "api/entity/public/search", request, {
       signal: controller?.signal
     });
@@ -258,7 +277,7 @@ const EntityService = {
     });
   },
 
-  async getEntitySummary(iri: string): Promise<ConceptSummary> {
+  async getEntitySummary(iri: string): Promise<SearchResultSummary> {
     return axios.get(api + "api/entity/public/summary", {
       params: { iri: iri }
     });
@@ -320,7 +339,7 @@ const EntityService = {
     return axios.get(api + "api/entity/public/" + listPath);
   },
 
-  async getMappingSuggestions(request: SearchRequest, controller: AbortController): Promise<ConceptSummary[]> {
+  async getMappingSuggestions(request: SearchRequest, controller: AbortController): Promise<SearchResultSummary[]> {
     return axios.post(api + "api/entity/public/search", request, {
       signal: controller.signal
     });
@@ -455,7 +474,7 @@ const EntityService = {
     });
   },
 
-  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<ConceptSummary[]> {
+  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<SearchResultSummary[]> {
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchTerm;
     searchRequest.page = 1;
@@ -470,7 +489,9 @@ const EntityService = {
     }
 
     abortController = new AbortController();
-    return EntityService.advancedSearch(searchRequest, abortController);
+    const response = await EntityService.advancedSearch(searchRequest, abortController);
+    if (response.entities && isArrayHasLength(response.entities)) return response.entities;
+    else return [];
   },
 
   async hasPredicates(subjectIri: string, predicateIris: string[]): Promise<boolean> {

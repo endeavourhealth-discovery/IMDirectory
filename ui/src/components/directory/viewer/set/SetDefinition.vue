@@ -18,6 +18,7 @@
             :loading="downloading"
             data-testid="downloadButton"
           />
+          <Button type="button" label="Compare" @click="showCompareSetDialog = true" data-testid="compareButton" outlined />
         </div>
       </div>
     </div>
@@ -48,11 +49,12 @@
       </AccordionTab>
       <AccordionTab header="Direct Members">
         <div class="set-accordion-content" id="members-container">
-          <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @open-download-dialog="displayDialog" />
         </div>
       </AccordionTab>
     </Accordion>
   </div>
+  <CompareSetDialog v-model:show-dialog="showCompareSetDialog" :set-iri-a="entityIri" />
   <Dialog :visible="showOptions" :modal="true" :closable="false" :close-on-escape="false" header="Please select download options">
     <div class="flex-container content-container">
       <div class="item-container">
@@ -114,6 +116,7 @@
 
 <script setup lang="ts">
 import Members from "./Members.vue";
+import CompareSetDialog from "./CompareSetDialog.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import { EntityService, SetService } from "@/services";
@@ -141,6 +144,7 @@ const subclassOf = ref();
 const ttentity = ref();
 const active = ref([] as number[]);
 const emit = defineEmits({ navigateTo: (_payload: string) => true });
+const showCompareSetDialog = ref(false);
 
 const { downloadFile } = setupDownloadFile(window, document);
 const userStore = useUserStore();
@@ -263,9 +267,10 @@ async function download(): Promise<void> {
       return;
     } else throw error;
   }
-  const labelResult = await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]);
+  const labelResult = await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL, IM.VERSION]);
   let label = "";
-  if (isObjectHasKeys(labelResult, [RDFS.LABEL])) label = labelResult[RDFS.LABEL];
+  if (isObjectHasKeys(labelResult, [RDFS.LABEL, IM.VERSION])) label = labelResult[RDFS.LABEL] + " v" + labelResult[IM.VERSION];
+  else if (isObjectHasKeys(labelResult, [RDFS.LABEL])) label = labelResult[RDFS.LABEL];
   downloadFile(result, getFileName(label));
   downloading.value = false;
 }

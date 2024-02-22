@@ -2,7 +2,9 @@
 // @ts-ignore
 import Graphdb from "graphdb";
 import Env from "@/services/env.service";
-import logger from "@/middlewares/logger.middleware";
+import _ from "lodash";
+import { CustomError } from "@im-library/models";
+import { ErrorType } from "@im-library/enums";
 
 const { ServerClientConfig, ServerClient, RDFRepositoryClient } = Graphdb.server;
 const { RDFMimeType } = Graphdb.http;
@@ -108,12 +110,67 @@ function iri(url: string) {
 export function sanitise(data: any) {
   if (typeof data === "string") {
     if (data.startsWith("http") || data.startsWith("https")) return iri(data);
-    else return "'" + data + "'";
+    else return "'" + sanitiseString(data) + "'";
+  } else if (_.isArray(data)) {
+    sanitiseArray(data);
+    return "'" + JSON.stringify(data) + "'";
   }
-  if (typeof data === "object") return "'" + JSON.stringify(data).replaceAll('"', "`").replaceAll("'", '"') + "'";
+  if (_.isObject(data)) {
+    sanitiseObject(data);
+    return "'" + JSON.stringify(data) + "'";
+  }
   if (typeof data === "number") return "'" + data + "'";
 }
 
 export function desanitise(data: string) {
-  return JSON.parse(data.replaceAll('"', "'").replaceAll("`", '"'));
+  let parsed;
+  try {
+    parsed = JSON.parse(data);
+  } catch (error) {
+    throw new CustomError("Invalid JSON. Failed to desanitise due to parsing error", ErrorType.InvalidJsonError);
+  }
+  if (_.isArray(parsed)) desanitiseArray(parsed);
+  else if (_.isObject(parsed)) desanitiseObject(parsed);
+  return parsed;
+}
+
+function sanitiseObject(data: any): void {
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === "string") data[key] = sanitiseString(value);
+    else if (_.isArray(value)) {
+      sanitiseArray(value);
+    } else if (_.isObject(value)) sanitiseObject(value);
+  }
+}
+
+function sanitiseString(data: string): string {
+  return data.replaceAll("'", "%27").replaceAll('"', "%22").replaceAll("`", "%60");
+}
+
+function sanitiseArray(data: any[]): void {
+  for (const [i, value] of data.entries()) {
+    if (typeof value === "string") data[i] = sanitiseString(value);
+    else if (_.isArray(value)) sanitiseArray(value);
+    else if (_.isObject(value)) sanitiseObject(value);
+  }
+}
+
+function desanitiseObject(data: any) {
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === "string") data[key] = desanitiseString(value);
+    else if (_.isArray(value)) desanitiseArray(value);
+    else if (_.isObject(value)) desanitiseObject(value);
+  }
+}
+
+function desanitiseArray(data: any[]) {
+  for (const [i, value] of data.entries()) {
+    if (typeof value === "string") data[i] = desanitiseString(value);
+    else if (_.isArray(value)) desanitiseArray(value);
+    else if (_.isObject(value)) desanitiseObject(value);
+  }
+}
+
+function desanitiseString(data: string) {
+  return data.replaceAll("%27", "'").replaceAll("%22", '"').replaceAll("%60", "`");
 }

@@ -1,12 +1,11 @@
-import { ConceptSummary } from "@im-library/interfaces";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import axios from "axios";
 import Env from "./Env";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Query } from "@im-library/interfaces/AutoGen";
+import { Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 const EclService = {
-  async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<{ count: number; entities: ConceptSummary[]; page: number }> {
+  async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<{ count: number; entities: SearchResultSummary[]; page: number }> {
     const results = (await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclSearch", eclSearchRequest, {
       signal: controller.signal
     })) as { count: number; entities: any[]; page: number };

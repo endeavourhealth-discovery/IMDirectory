@@ -1,24 +1,47 @@
-import { IM } from "../interfaces/AutoGen";
-import { OWL } from "../interfaces/AutoGen";
-import { RDF } from "../interfaces/AutoGen";
-import { RDFS } from "../interfaces/AutoGen";
-import { SHACL } from "../interfaces/AutoGen";
-import { CONFIG } from "../interfaces/AutoGen";
-import { XSD } from "../interfaces/AutoGen";
-import { WORKFLOW } from "../interfaces/AutoGen";
-import { FHIR } from "../interfaces/AutoGen";
-import { MAP } from "../interfaces/AutoGen";
-import { ODS } from "../interfaces/AutoGen";
-import { ORG } from "../interfaces/AutoGen";
-import { PRSB } from "../interfaces/AutoGen";
-import { QR } from "../interfaces/AutoGen";
-import { COMPONENT } from "../interfaces/AutoGen";
-import { EDITOR } from "../interfaces/AutoGen";
-import { FUNCTION } from "../interfaces/AutoGen";
-import { GRAPH } from "../interfaces/AutoGen";
-import { VALIDATION } from "../interfaces/AutoGen";
-import { QUERY } from "../interfaces/AutoGen";
+import { IM } from "./IM";
+import { OWL } from "./OWL";
+import { RDF } from "./RDF";
+import { RDFS } from "./RDFS";
+import { SHACL } from "./SHACL";
+import { CONFIG } from "./CONFIG";
+import { XSD } from "./XSD";
+import { WORKFLOW } from "./WORKFLOW";
+import { FHIR } from "./FHIR";
+import { MAP } from "./MAP";
+import { ODS } from "./ODS";
+import { ORG } from "./ORG";
+import { PRSB } from "./PRSB";
+import { QR } from "./QR";
+import { COMPONENT } from "./COMPONENT";
+import { EDITOR } from "./EDITOR";
+import { IM_FUNCTION } from "./IM_FUNCTION";
+import { GRAPH } from "./GRAPH";
+import { VALIDATION } from "./VALIDATION";
+import { QUERY } from "./QUERY";
 import { SNOMED } from "./SNOMED";
 import { USER } from "./USER";
 
-export { IM, OWL, RDF, RDFS, SHACL, CONFIG, XSD, WORKFLOW, FHIR, FUNCTION, MAP, ODS, ORG, PRSB, QR, QUERY, COMPONENT, EDITOR, GRAPH, VALIDATION, SNOMED, USER };
+export {
+  IM,
+  OWL,
+  RDF,
+  RDFS,
+  SHACL,
+  CONFIG,
+  XSD,
+  WORKFLOW,
+  FHIR,
+  IM_FUNCTION,
+  MAP,
+  ODS,
+  ORG,
+  PRSB,
+  QR,
+  QUERY,
+  COMPONENT,
+  EDITOR,
+  GRAPH,
+  VALIDATION,
+  SNOMED,
+  USER
+};

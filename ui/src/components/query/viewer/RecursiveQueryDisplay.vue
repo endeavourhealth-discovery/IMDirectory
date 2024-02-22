@@ -17,11 +17,26 @@
       :full-query="fullQuery"
     />
     <span v-if="match.orderBy"> <div v-html="match.orderBy.description"></div></span>
-    <span v-if="match.then" class="feature">
-      {{ match.then.exclude ? "then" : "then include if" }}
+    <span v-if="match.then">
       <RecursiveQueryDisplay :match="match.then" :parent-match="match" :full-query="fullQuery" />
     </span>
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
+    <span v-if="isArrayHasLength(match.query)" class="output">output</span>
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(match.query)"
+      v-for="nestedQuery of match.query"
+      :match="nestedQuery"
+      :parent-match="match"
+      :full-query="fullQuery"
+    />
+    <span v-if="isArrayHasLength(match.return)" class="return">return</span>
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(match.return)"
+      v-for="nestedReturn of match.return"
+      :match="nestedReturn"
+      :parent-match="match"
+      :full-query="fullQuery"
+    />
   </div>
 
   <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedNodeRef)" /> </OverlayPanel>
@@ -32,7 +47,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, Query, Property } from "@im-library/interfaces/AutoGen";
+import { Match, Node, Query, Property, Return } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
@@ -42,7 +57,7 @@ import ListOverlay from "./ListOverlay.vue";
 interface Props {
   fullQuery: Query;
   parentMatch?: Match;
-  match: Match;
+  match: Query;
 }
 
 const props = defineProps<Props>();
@@ -69,5 +84,16 @@ function getNodeRef(propertyOrMatch: Property | Match) {
   margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+}
+
+.return {
+  color: lightseagreen;
+  padding-left: 0.5rem;
+}
+
+.output {
+  color: mediumslateblue;
 }
 </style>

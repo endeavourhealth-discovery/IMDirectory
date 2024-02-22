@@ -5,37 +5,42 @@
       type="text"
       :class="[isAny && 'inactive', !isAny && 'clickable']"
       @click="!isAny ? (showDialog = true) : (showDialog = false)"
-      v-tooltip="{ value: selected.name ?? '', class: 'entity-tooltip' }"
+      @mouseover="showOverlay($event, selected?.iri)"
+      @mouseleave="hideOverlay($event)"
     >
-      <span class="selected-label">{{ selected.name ?? "Search..." }}</span>
+      <span class="selected-label">{{ selected?.name ?? "Search..." }}</span>
     </div>
-    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="isAny" :binary="true" /></div>
+    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="any" :binary="true" /></div>
     <DirectorySearchDialog
-      v-if="showDialog && !isAny && selected.iri !== 'any'"
+      v-if="showDialog && !isAny && selected?.iri !== 'any'"
       v-model:show-dialog="showDialog"
       v-model:selected="selected"
-      :search-by-function="functionRequest"
+      :search-by-query="queryRequest"
       :root-entities="['http://snomed.info/sct#138875005']"
       :filterOptions="filterOptions"
       :filterDefaults="filterDefaults"
     />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, inject, computed } from "vue";
-import { IM, SNOMED, FUNCTION } from "@im-library/vocabulary";
+import { Ref, ref, onMounted, watch, inject, computed, ComputedRef } from "vue";
+import { IM, SNOMED, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest } from "@im-library/interfaces/AutoGen";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { FilterOptions } from "@im-library/interfaces";
+import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 import { useFilterStore } from "@/stores/filterStore";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   value: {
@@ -53,33 +58,41 @@ const props = defineProps<Props>();
 
 watch(
   () => _.cloneDeep(props.value),
-  () => {
-    props.value.ecl = generateEcl();
+  (newValue, oldValue) => {
+    if (_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
   }
 );
 
 watch(
   () => _.cloneDeep(props.value.concept),
   async (newValue, oldValue) => {
-    if (newValue !== oldValue) await init();
+    if (!_.isEqual(newValue, oldValue)) await init();
   }
 );
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
+const { OS, showOverlay, hideOverlay } = setupOverlay();
+
 const filterStore = useFilterStore();
 const filterStoreDefaults = computed(() => filterStore.filterDefaults);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
+const isAny: ComputedRef<boolean> = computed(() => selected.value?.iri === "any");
 
-const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const loading = ref(false);
 const showDialog = ref(false);
-const isAny = ref(false);
+const any = ref(false);
+const selected: Ref<SearchResultSummary | undefined> = ref();
 
-const functionRequest: FunctionRequest = {
-  functionIri: FUNCTION.IS_TYPE,
-  arguments: [{ parameter: "type", valueIri: { "@id": IM.CONCEPT } }]
+watch(any, newValue => {
+  if (newValue) selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
+  else selected.value = undefined;
+});
+
+const queryRequest: QueryRequest = {
+  query: { "@id": QUERY.SEARCH_ENTITIES },
+  argument: [{ parameter: "this", valueIri: { "@id": IM.CONCEPT } }]
 };
 const descendantOptions = [
   {
@@ -114,17 +127,13 @@ const filterDefaults: FilterOptions = {
 
 onMounted(async () => {
   await init();
+  generateEcl();
 });
 
 watch(selected, (newValue, oldValue) => {
   if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri) {
     updateConcept(newValue);
   }
-});
-
-watch(isAny, newValue => {
-  if (newValue) selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
-  else selected.value = {} as ConceptSummary;
 });
 
 async function init() {
@@ -137,17 +146,16 @@ async function init() {
   }
 }
 
-async function updateSelectedResult(data: ConceptSummary | { iri: string; name?: string }) {
-  if (!isObjectHasKeys(data)) selected.value = {} as ConceptSummary;
-  else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as ConceptSummary;
+async function updateSelectedResult(data: SearchResultSummary | { iri: string; name?: string }) {
+  if (!isObjectHasKeys(data)) selected.value = undefined;
+  else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as SearchResultSummary;
   else if (data.iri === "any" || data.iri === "*") {
-    selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
-    isAny.value = true;
+    selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
   } else if (data.iri) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
-    selected.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
+    selected.value = isObjectHasKeys(asSummary) ? asSummary : undefined;
   } else {
-    selected.value = {} as ConceptSummary;
+    selected.value = undefined;
   }
 }
 
@@ -194,7 +202,7 @@ function updateConcept(concept: any) {
 
 .search-text {
   flex: 1 1 auto;
-  min-width: 25rem;
+  min-width: 10rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

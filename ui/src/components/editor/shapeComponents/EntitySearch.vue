@@ -27,8 +27,7 @@
 import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import _ from "lodash";
-import { ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
@@ -114,7 +113,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 });
 
 const loading = ref(false);
-const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const selectedResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const key = ref("");
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -137,24 +136,24 @@ async function init() {
   if (props.value && isObjectHasKeys(props.value)) {
     updateSelectedResult(props.value);
   } else {
-    selectedResult.value = {} as ConceptSummary;
+    selectedResult.value = {} as SearchResultSummary;
   }
 }
 
-function convertToTTIriRef(data: ConceptSummary): TTIriRef | undefined {
+function convertToTTIriRef(data: SearchResultSummary): TTIriRef | undefined {
   if (data.iri && data.name) return { "@id": data.iri, name: data.name } as TTIriRef;
   else return undefined;
 }
 
-async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
+async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
   if (!isObjectHasKeys(data)) {
-    selectedResult.value = {} as ConceptSummary;
+    selectedResult.value = {} as SearchResultSummary;
   } else if (isObjectHasKeys(data, ["@id"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef)["@id"]) {
     const asSummary = await EntityService.getEntitySummary((data as TTIriRef)["@id"]);
-    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
+    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else if (isTTIriRef(data)) {
     const asSummary = await EntityService.getEntitySummary(data["@id"]);
-    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
+    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else {
     selectedResult.value = data;
   }

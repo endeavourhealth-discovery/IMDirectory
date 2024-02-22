@@ -80,7 +80,7 @@ import { EntityService, QueryService } from "@/services";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Argument, PropertyShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import _, { isArray } from "lodash";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
@@ -204,8 +204,10 @@ async function searchProperties(event: AutoCompleteCompleteEvent) {
         ]
       }
     };
-    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    propertySuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
+    const results: SearchResponse = await QueryService.queryIMSearch(request);
+    if (results && results.entities) {
+      propertySuggestions.value = results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
+    }
   }
 }
 
@@ -227,8 +229,10 @@ async function searchValues(event: AutoCompleteCompleteEvent) {
         ]
       }
     };
-    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    valueSuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
+    const results: SearchResponse = await QueryService.queryIMSearch(request);
+    if (results && results.entities) {
+      valueSuggestions.value = results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
+    }
   }
 }
 

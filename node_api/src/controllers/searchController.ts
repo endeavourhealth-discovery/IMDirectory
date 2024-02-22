@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import axios from "axios";
 import SearchService from "@/services/search.service";
 import router from "express-promise-router";

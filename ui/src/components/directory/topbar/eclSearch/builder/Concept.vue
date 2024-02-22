@@ -1,89 +1,95 @@
 <template>
-  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
+  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="concept" @mouseover="mouseover" @mouseout="mouseout">
+    <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button text-rotate" />
     <div class="focus-container">
-      <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button" />
-      <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-        <ConceptSelector :value="value" :parent="value" />
-      </div>
-      <div v-else-if="isBoolGroup(value.concept)" class="focus-group-container">
-        <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
-      </div>
-      <div v-else class="add-focus-buttons-container">
-        <Button
-          :severity="hover ? 'success' : 'secondary'"
-          :outlined="hover ? false : true"
-          :class="!hover && 'hover-button'"
-          label="Add Concept"
-          @click="addConcept"
-          class="builder-button"
-        />
-        <Button
-          :severity="hover ? 'success' : 'secondary'"
-          :outlined="hover ? false : true"
-          :class="!hover && 'hover-button'"
-          label="Add Group"
-          @click="addGroup"
-          class="builder-button"
-        />
-      </div>
-    </div>
-    <Menu ref="menuBool" :model="boolOptions" :popup="true" />
-    <div v-for="(item, index) in value.items" class="refinement-container">
-      <span class="left-container">
-        <div v-if="index === 0 && value.items.length > 1" class="spacer">&nbsp;</div>
-        <Button v-else-if="index === 1" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
-        <Button v-else-if="index > 1" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
-      </span>
-      <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
-      <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
-      <span class="right-container">
-        <div v-if="groupWithinConcept" class="group-checkbox">
-          <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
-          <label :for="'group' + index">Group</label>
+      <div class="focus">
+        <div v-if="isAliasIriRef(value.concept)" class="concept-container">
+          <ConceptSelector :value="value" :parent="value" />
         </div>
-        <Button
-          @click="deleteItem(index)"
-          :severity="hover ? 'danger' : 'secondary'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          icon="fa-solid fa-trash"
-          class="builder-button"
-        />
-      </span>
+        <div v-else-if="isBoolGroup(value.concept)" class="focus-group-container">
+          <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
+        </div>
+        <div v-else class="add-focus-buttons-container">
+          <Button
+            :severity="hover ? 'success' : 'secondary'"
+            :outlined="hover ? false : true"
+            :class="!hover && 'hover-button'"
+            label="Add Concept"
+            @click="addConcept"
+            class="builder-button"
+          />
+          <Button
+            :severity="hover ? 'success' : 'secondary'"
+            :outlined="hover ? false : true"
+            :class="!hover && 'hover-button'"
+            label="Add Group"
+            @click="addGroup"
+            class="builder-button"
+          />
+        </div>
+      </div>
+      <div class="refinement">
+        <div v-if="value?.items?.length > 1" class="conjunction">
+          <Button class="builder-button conjunction-button" :label="value.conjunction ?? 'OR'" @click="toggleBool" />
+        </div>
+        <div class="refinements">
+          <div v-for="(item, index) in value.items" class="refinement-container">
+            <span class="left-container">
+              <div class="group-checkbox">
+                <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+                <label :for="'group' + index">Select</label>
+              </div>
+            </span>
+            <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
+            <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
+            <span class="right-container">
+              <Button
+                @click="deleteItem(index)"
+                :severity="hover ? 'danger' : 'secondary'"
+                :outlined="!hover"
+                :class="!hover && 'hover-button'"
+                icon="fa-solid fa-trash"
+                class="builder-button"
+              />
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="add-group">
       <Button
+        type="button"
+        icon="fa-solid fa-plus"
+        class="builder-button"
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
-        label="Add Refinement"
-        @click="addRefinement"
-        class="builder-button"
+        @click="toggleAdd"
+        aria-haspopup="true"
+        aria-controls="add-menu"
+        v-tooltip="'Add'"
       />
+      <Menu ref="addMenu" :model="addItems" :popup="true" />
       <Button
-        :severity="hover ? 'success' : 'secondary'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        label="Add New Group"
-        @click="addGroup"
+        v-if="value?.items?.length > 1"
         class="builder-button"
-      />
-      <Button
-        :severity="hover ? 'help' : 'secondary'"
+        severity="success"
         :outlined="!hover"
-        :class="[!hover && 'hover-button', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
-        :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
-        @click="processGroup"
-        class="builder-button"
+        :class="[!hover && 'hover-button']"
+        label="{...}"
+        @click="group.length && processGroup()"
+        :disabled="!group.length"
+        v-tooltip="'Bracket selected items'"
       />
       <Button
         v-if="index && index > 0"
-        :severity="hover ? 'danger' : 'secondary'"
+        :severity="value.exclude ? 'secondary' : 'danger'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
-        class="builder-button"
+        class="builder-button exclude-button"
+        v-tooltip="value.exclude ? 'Include' : 'Exclude'"
       />
     </div>
   </div>
@@ -135,24 +141,29 @@ watch(
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
-const menuBool = ref();
+const addMenu = ref();
 const loading = ref(false);
-const groupWithinConcept = ref(false);
 const group: Ref<number[]> = ref([]);
 
-const boolOptions = [
+const addItems = ref([
   {
-    label: "AND",
-    command: () => (props.value.conjunction = "AND")
-  },
-  {
-    label: "OR",
-    command: () => (props.value.conjunction = "OR")
+    label: "Add",
+    items: [
+      {
+        label: "Refinement",
+        command: () => addRefinement()
+      },
+      {
+        label: "Group",
+        command: () => addGroup()
+      }
+    ]
   }
-];
+]);
 
 onMounted(async () => {
   await init();
+  generateEcl();
 });
 
 async function init() {
@@ -173,7 +184,7 @@ function mouseout(event: Event) {
 }
 
 function toggleBool(event: Event) {
-  menuBool.value.toggle(event);
+  props.value.conjunction = props.value.conjunction === "AND" ? "OR" : "AND";
 }
 
 function toggleExclude() {
@@ -186,6 +197,10 @@ function add(item: any) {
   } else {
     props.value.items.push(item);
   }
+}
+
+function toggleAdd(event: any) {
+  addMenu.value.toggle(event);
 }
 
 function addRefinement() {
@@ -243,7 +258,8 @@ function generateEcl(): string {
 }
 
 function processGroup() {
-  if (groupWithinConcept.value && group.value.length) {
+  console.log("here");
+  if (group.value.length) {
     const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
     for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
       const item = props.value.items.splice(index, 1)[0];
@@ -251,7 +267,6 @@ function processGroup() {
     }
     props.value.items.splice(group.value.toSorted(numberAscending)[0], 0, newGroup);
   }
-  groupWithinConcept.value = !groupWithinConcept.value;
   group.value = [];
 }
 
@@ -268,11 +283,35 @@ function unGroupItems(groupedItems: any) {
 </script>
 
 <style scoped>
-.focus-container {
+.concept {
   display: flex;
   flex-flow: row nowrap;
+  flex: 1 1 auto;
+}
+.focus-container {
+  display: flex;
+  flex-flow: column nowrap;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
+  flex: 1 1 auto;
+}
+
+.focus {
+  width: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.conjunction {
+  display: flex;
+  flex-flow: row nowrap;
+  width: fit-content;
+}
+
+.refinements {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .concept-container {
@@ -312,6 +351,11 @@ function unGroupItems(groupedItems: any) {
   border: #ff8c00 1px solid;
 }
 
+.refinement {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
 .refinement-container {
   display: flex;
 }
@@ -321,16 +365,6 @@ function unGroupItems(groupedItems: any) {
   align-items: center;
 }
 
-.conjunction-button {
-  width: 4rem;
-  margin: 0;
-}
-
-.builder-button {
-  height: 1.5rem;
-  align-self: center;
-}
-
 .loading-icon {
   flex: 0 0 auto;
   height: 1.5rem;
@@ -338,7 +372,7 @@ function unGroupItems(groupedItems: any) {
 }
 
 .add-group {
-  width: 100%;
+  flex: 0 0 auto;
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
@@ -366,5 +400,27 @@ function unGroupItems(groupedItems: any) {
 
 .spacer {
   width: 4rem;
+}
+
+.conjunction-button,
+.builder-button {
+  padding: 0;
+}
+
+.builder-button {
+  width: 2rem;
+}
+
+.conjunction-button:deep(.p-button-label) {
+  transform: rotate(-90deg);
+}
+
+.text-rotate:deep(.p-tag-value) {
+  transform: rotate(-90deg);
+}
+
+.exclude-button:deep(.p-button-label) {
+  transform: rotate(-90deg);
+  transform-origin: bottom center;
 }
 </style>

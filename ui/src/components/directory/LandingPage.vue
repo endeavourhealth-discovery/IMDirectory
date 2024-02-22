@@ -77,7 +77,7 @@ import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisua
 import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { EntityService, ConfigService, UserService } from "@/services";
+import { DirectService, EntityService, ConfigService, UserService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 import { useUserStore } from "@/stores/userStore";
@@ -86,6 +86,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { byOrder } from "@im-library/helpers/Sorters";
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
+const directService = new DirectService();
 const recentLocalActivity = computed(() => userStore.recentLocalActivity);
 const currentUser = computed(() => userStore.currentUser);
 
@@ -152,7 +153,7 @@ async function getConfigs(): Promise<void> {
 }
 
 function onRowSelect(event: any) {
-  onRowClick(event.data.iri);
+  directService.select(event.data.iri, "Folder");
 }
 
 function getActivityTooltipMessage(activity: RecentActivityItem) {
@@ -247,10 +248,8 @@ function locateInTree(iri: string) {
 }
 
 .recent-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 1.25rem;
-  padding: 5px;
+  height: 1rem;
+  font-size: 1rem;
 }
 
 .action-buttons-container {
@@ -266,6 +265,7 @@ function locateInTree(iri: string) {
   justify-content: flex-start;
   align-items: center;
   overflow: auto;
+  gap: 0.25rem;
 }
 
 .activity-name {

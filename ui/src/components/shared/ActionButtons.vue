@@ -2,7 +2,7 @@
   <div class="flex">
     <Button
       v-if="show('findInTree')"
-      :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
+      icon="fa-duotone fa-list-tree"
       :severity="getSeverity()"
       :class="getClass()"
       @click="locateInTree(iri)"
@@ -11,7 +11,7 @@
     />
     <Button
       v-if="show('view')"
-      :icon="fontAwesomePro ? 'fa-duotone fa-up-right-from-square' : 'fa-solid fa-up-right-from-square'"
+      icon="fa-duotone fa-up-right-from-square"
       :severity="getSeverity()"
       :class="getClass()"
       @click="directService.view(iri)"
@@ -20,7 +20,7 @@
     />
     <Button
       v-if="show('edit')"
-      :icon="fontAwesomePro ? 'fa-duotone fa-pen-to-square' : 'fa-solid fa-pen-to-square'"
+      icon="fa-duotone fa-pen-to-square"
       :severity="getSeverity()"
       :class="getClass()"
       @click="directService.edit(iri, true)"
@@ -51,8 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import { DirectService, UserService } from "@/services";
+import { computed } from "vue";
+import { DirectService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
@@ -61,11 +61,9 @@ const directService = new DirectService();
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-const editAllowed = ref(false);
+const editAllowed = computed(() => organisations.value.indexOf(props.iri.split("#")[0] + "#") !== -1);
 
-const isLoggedIn = computed(() => userStore.isLoggedIn);
-const currentUser = computed(() => userStore.currentUser);
+const organisations = computed(() => userStore.organisations);
 
 interface Props {
   buttons: string[];
@@ -79,17 +77,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true
-});
-
-watch(
-  () => props.iri,
-  async () => {
-    editAllowed.value = await UserService.canUserEdit(props.iri);
-  }
-);
-
-onMounted(async () => {
-  if (isLoggedIn.value && currentUser.value) editAllowed.value = await UserService.canUserEdit(props.iri);
 });
 
 function getClass() {

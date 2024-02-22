@@ -3,10 +3,11 @@
     <div
       class="search-text"
       :class="[!isValidProperty && 'p-invalid', !loadingProperty && hasFocus && 'clickable', loadingProperty && 'inactive']"
-      @click="hasFocus ? (showPropertyDialog = true) : (showPropertyDialog = false)"
-      v-tooltip="{ value: selectedProperty.name ?? '', class: 'entity-tooltip' }"
+      @click="hasFocus && !loadingProperty ? (showPropertyDialog = true) : (showPropertyDialog = false)"
+      @mouseover="showOverlay($event, selectedProperty?.iri)"
+      @mouseleave="hideOverlay($event)"
     >
-      <span class="selected-label">{{ selectedProperty.name ?? "Search..." }}</span>
+      <span class="selected-label">{{ selectedProperty?.name ?? "Search..." }}</span>
     </div>
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
@@ -14,39 +15,42 @@
     <div
       class="search-text"
       :class="[!isValidPropertyValue && 'p-invalid', !loadingValue && hasProperty && 'clickable', loadingValue && 'inactive']"
-      @click="hasProperty ? (showValueDialog = true) : (showValueDialog = false)"
-      v-tooltip="{ value: selectedValue.name ?? '', class: 'entity-tooltip' }"
+      @click="hasProperty && !loadingValue && !loadingProperty ? (showValueDialog = true) : (showValueDialog = false)"
+      @mouseover="showOverlay($event, selectedValue?.iri)"
+      @mouseleave="hideOverlay($event)"
     >
-      <span class="selected-label">{{ selectedValue.name ?? "Search..." }}</span>
+      <span class="selected-label">{{ selectedValue?.name ?? "Search..." }}</span>
     </div>
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
+    <DirectorySearchDialog
+      v-if="showPropertyDialog"
+      v-model:show-dialog="showPropertyDialog"
+      v-model:selected="selectedProperty"
+      :search-by-function="propertyFunctionRequest"
+      :root-entities="propertyTreeRoots.length ? propertyTreeRoots : ['http://snomed.info/sct#138875005']"
+      :filterOptions="propertyFilterOptions"
+      :filterDefaults="propertyFilterDefaults"
+    />
+    <DirectorySearchDialog
+      v-if="showValueDialog"
+      v-model:show-dialog="showValueDialog"
+      v-model:selected="selectedValue"
+      :search-by-query="valueQueryRequest"
+      :root-entities="valueTreeRoots.length ? valueTreeRoots : ['http://snomed.info/sct#138875005']"
+      :filterOptions="valueFilterOptions"
+      :filterDefaults="valueFilterDefaults"
+    />
+    <OverlaySummary ref="OS" />
   </div>
-  <DirectorySearchDialog
-    v-if="showPropertyDialog"
-    v-model:show-dialog="showPropertyDialog"
-    v-model:selected="selectedProperty"
-    :search-by-function="propertyFunctionRequest"
-    :root-entities="propertyTreeRoots.length ? propertyTreeRoots : ['http://snomed.info/sct#138875005']"
-    :filterOptions="propertyFilterOptions"
-    :filterDefaults="propertyFilterDefaults"
-  />
-  <DirectorySearchDialog
-    v-if="showValueDialog"
-    v-model:show-dialog="showValueDialog"
-    v-model:selected="selectedValue"
-    :search-by-function="valueFunctionRequest"
-    :root-entities="valueTreeRoots.length ? valueTreeRoots : ['http://snomed.info/sct#138875005']"
-    :filterOptions="valueFilterOptions"
-    :filterDefaults="valueFilterDefaults"
-  />
 </template>
 
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
-import { EntityService, FunctionService } from "@/services";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { EntityService, FunctionService, QueryService } from "@/services";
 import { useDialog } from "primevue/usedialog";
-import { IM, RDF, SNOMED, FUNCTION } from "@im-library/vocabulary";
+import { IM, RDF, SNOMED, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
@@ -54,16 +58,18 @@ import { ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
+import _ from "lodash";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   value: {
     type: string;
     operator: string;
-    property: { concept: { iri: string; name?: string } | ConceptSummary; descendants: string };
-    value: { concept: { iri: string; name?: string } | ConceptSummary; descendants: string };
+    property: { concept: { iri: string; name?: string } | SearchResultSummary; descendants: string };
+    value: { concept: { iri: string; name?: string } | SearchResultSummary; descendants: string };
     ecl?: string;
   };
   parent?: any;
@@ -74,7 +80,7 @@ const props = defineProps<Props>();
 watch(
   () => cloneDeep(props.value),
   async (newValue, oldValue) => {
-    if (newValue) {
+    if (newValue && !_.isEqual(newValue, oldValue)) {
       if (!oldValue) await processProps();
       else {
         if (newValue?.property?.concept?.iri !== oldValue?.property?.concept?.iri) await processProps();
@@ -87,8 +93,8 @@ watch(
 
 watch(
   () => cloneDeep(props.focus),
-  async newValue => {
-    if (newValue && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
+  async (newValue, oldValue) => {
+    if (newValue && !_.isEqual(newValue, oldValue) && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
       loadingProperty.value = true;
       loadingValue.value = true;
       await processProps();
@@ -97,6 +103,8 @@ watch(
     }
   }
 );
+
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 const toast = useToast();
 const filterStore = useFilterStore();
@@ -122,16 +130,16 @@ const hasProperty = computed(() => {
   else return false;
 });
 
-const selectedProperty: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const selectedValue: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const selectedProperty: Ref<SearchResultSummary | undefined> = ref();
+const selectedValue: Ref<SearchResultSummary | undefined> = ref();
 const loadingProperty = ref(false);
 const loadingValue = ref(false);
 const isValidProperty = ref(false);
 const isValidPropertyValue = ref(false);
 const showPropertyDialog = ref(false);
 const showValueDialog = ref(false);
-const propertyFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: FUNCTION.ALLOWABLE_PROPERTIES, arguments: [] });
-const valueFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: FUNCTION.ALLOWABLE_RANGES, arguments: [] });
+const propertyFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES, arguments: [] });
+const valueQueryRequest: Ref<QueryRequest> = ref({ query: { "@id": QUERY.GET_VALUES_FROM_PROPERTY_RANGE }, argument: [] });
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const valueTreeRoots: Ref<string[]> = ref([]);
 
@@ -156,7 +164,7 @@ watch(selectedValue, async newValue => {
 watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concept)], async () => {
   loadingProperty.value = true;
   await getPropertyTreeRoots();
-  updateFunctionArguments();
+  updateArguments();
   await updateIsValidProperty();
   loadingProperty.value = false;
 });
@@ -164,7 +172,7 @@ watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concep
 watch([selectedProperty, () => cloneDeep(props.value.value.concept)], async () => {
   loadingValue.value = true;
   await getValueTreeRoots();
-  updateFunctionArguments();
+  updateArguments();
   await updateIsValidPropertyValue();
   loadingValue.value = false;
 });
@@ -224,22 +232,22 @@ onMounted(async () => {
   await updateIsValidProperty();
   await updateIsValidPropertyValue();
   await processProps();
-  updateFunctionArguments();
+  updateArguments();
   await getPropertyTreeRoots();
   await getValueTreeRoots();
+  props.value.ecl = generateEcl();
   loadingProperty.value = false;
   loadingValue.value = false;
 });
 
-function updateFunctionArguments() {
+function updateArguments() {
   const focusArg = propertyFunctionRequest.value.arguments?.find(arg => arg.parameter === "focus");
-  const propertyArg = valueFunctionRequest.value.arguments?.find(arg => arg.parameter === "property");
+  const propertyArg = valueQueryRequest.value.argument?.find(arg => arg.parameter === "this");
   if (props.focus && !focusArg) propertyFunctionRequest.value.arguments?.push({ parameter: "focus", valueObject: props.focus });
   else if (props.focus && focusArg && focusArg.valueObject !== props.focus) focusArg.valueObject = props.focus;
-  if (props.value.property.concept && !propertyArg)
-    valueFunctionRequest.value.arguments?.push({ parameter: "property", valueObject: props.value.property.concept });
-  else if (props.value.property.concept && propertyArg && propertyArg?.valueObject !== props.value.property.concept)
-    propertyArg.valueObject = props.value.property.concept;
+  if (selectedProperty.value && !propertyArg) valueQueryRequest.value.argument?.push({ parameter: "this", valueIri: { "@id": selectedProperty.value.iri } });
+  else if (selectedProperty.value && propertyArg && propertyArg?.valueIri?.["@id"] !== selectedProperty.value.iri)
+    propertyArg.valueIri = { "@id": selectedProperty.value.iri };
 }
 
 async function getPropertyTreeRoots() {
@@ -272,27 +280,25 @@ async function getValueTreeRoots() {
 async function updateIsValidProperty(): Promise<void> {
   if (props.focus?.iri === "any" || props.focus?.iri === "*") isValidProperty.value = true;
   else if (props.focus && hasProperty.value) {
-    const request = {
-      functionIri: FUNCTION.ALLOWABLE_PROPERTIES,
+    const request: FunctionRequest = {
+      functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES,
       arguments: [
         { parameter: "focus", valueObject: props.focus },
         { parameter: "searchIri", valueData: props.value.property.concept.iri }
       ]
-    } as FunctionRequest;
+    };
     isValidProperty.value = await FunctionService.runAskFunction(request);
   } else isValidProperty.value = false;
 }
 
 async function updateIsValidPropertyValue(): Promise<void> {
   if (hasValue.value && hasProperty.value) {
-    const request = {
-      functionIri: FUNCTION.ALLOWABLE_RANGES,
-      arguments: [
-        { parameter: "property", valueObject: props.value.property.concept },
-        { parameter: "searchIri", valueData: props.value.value.concept.iri }
-      ]
-    } as FunctionRequest;
-    isValidPropertyValue.value = await FunctionService.runAskFunction(request);
+    const request: QueryRequest = {
+      query: { "@id": QUERY.GET_VALUES_FROM_PROPERTY_RANGE },
+      argument: [{ parameter: "this", valueObject: props.value.property.concept.iri }],
+      askIri: props.value.value.concept.iri
+    };
+    isValidPropertyValue.value = await QueryService.askQuery(request);
   } else isValidPropertyValue.value = false;
 }
 
@@ -306,12 +312,12 @@ async function processProps() {
 }
 
 async function processPropertyProp() {
-  if (isObjectHasKeys(props.value.property.concept, ["entityType"])) selectedProperty.value = props.value.property.concept as ConceptSummary;
+  if (isObjectHasKeys(props.value.property.concept, ["entityType"])) selectedProperty.value = props.value.property.concept as SearchResultSummary;
   else {
     const propertySummary = (selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri));
     if (isObjectHasKeys(propertySummary)) selectedProperty.value = propertySummary;
     else {
-      selectedProperty.value = {} as ConceptSummary;
+      selectedProperty.value = undefined;
       throw new Error("Property iri does not exist");
     }
   }
@@ -338,13 +344,13 @@ async function processPropertyProp() {
 }
 
 async function processValueProp() {
-  if (isObjectHasKeys(props.value.value.concept, ["entityType"])) selectedValue.value = props.value.value.concept as ConceptSummary;
+  if (isObjectHasKeys(props.value.value.concept, ["entityType"])) selectedValue.value = props.value.value.concept as SearchResultSummary;
   else {
     const valueSummary = (selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri));
     if (isObjectHasKeys(valueSummary)) {
       selectedValue.value = valueSummary;
     } else {
-      selectedValue.value = {} as ConceptSummary;
+      selectedValue.value = undefined;
       throw new Error("Value iri does not exist");
     }
   }
@@ -371,13 +377,13 @@ function generateEcl(): string {
   return ecl;
 }
 
-async function updateProperty(property: ConceptSummary) {
+async function updateProperty(property: SearchResultSummary) {
   props.value.property.concept = property;
   props.value.ecl = generateEcl();
   await getPropertyTreeRoots();
 }
 
-async function updateValue(value: ConceptSummary) {
+async function updateValue(value: SearchResultSummary) {
   props.value.value.concept = value;
   props.value.ecl = generateEcl();
   await getValueTreeRoots();
@@ -403,7 +409,7 @@ async function updateValue(value: ConceptSummary) {
 
 .search-text {
   flex: 1 1 auto;
-  min-width: 25rem;
+  min-width: 10rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

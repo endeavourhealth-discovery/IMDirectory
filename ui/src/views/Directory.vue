@@ -4,12 +4,12 @@
       <template #content>
         <div id="topbar-content-container">
           <SearchBar
-            :search-results="searchResults"
-            @update:search-results="updateSearchResults"
-            :search-loading="searchLoading"
-            @update:search-loading="updateSearchLoading"
+            v-model:search-results="searchResults"
+            v-model:search-loading="searchLoading"
             @to-ecl-search="toEclSearch"
             @to-query-search="toQuerySearch"
+            v-model:loadMore="loadMore"
+            v-model:download="download"
           />
         </div>
       </template>
@@ -18,13 +18,19 @@
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
-      <DirectorySplitter v-else />
+      <DirectorySplitter
+        v-else
+        @lazyLoadRequested="lazyLoadRequested"
+        @downloadRequested="downloadRequested"
+        :searchLoading="searchLoading"
+        :searchResults="searchResults"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, Ref, watch } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
@@ -33,7 +39,7 @@ import { useToast } from "primevue/usetoast";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { ConceptSummary } from "@im-library/interfaces";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 
 const router = useRouter();
 const toast = useToast();
@@ -43,10 +49,16 @@ const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const searchResults = computed(() => directoryStore.searchResults);
-const searchLoading = computed(() => directoryStore.searchLoading);
 
 const loading = ref(true);
+const searchLoading = ref(false);
+const searchResults: Ref<SearchResponse | undefined> = ref();
+const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
+const download: Ref<{ term: string; count: number } | undefined> = ref();
+
+watch(searchResults, newValue => {
+  if (newValue) router.push({ name: "Search" });
+});
 
 onMounted(async () => {
   loading.value = true;
@@ -55,21 +67,20 @@ onMounted(async () => {
   loading.value = false;
 });
 
-function updateSearchResults(data: ConceptSummary[]) {
-  directoryStore.updateSearchResults(data);
-  router.push({ name: "Search" });
-}
-
-function updateSearchLoading(data: boolean) {
-  directoryStore.updateSearchLoading(data);
-}
-
 function toEclSearch() {
   router.push({ name: "EclSearch" });
 }
 
 function toQuerySearch() {
   router.push({ name: "IMQuerySearch" });
+}
+
+function lazyLoadRequested(event: any) {
+  loadMore.value = event;
+}
+
+function downloadRequested(data: { term: string; count: number }) {
+  download.value = data;
 }
 </script>
 

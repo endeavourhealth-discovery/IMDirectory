@@ -149,7 +149,9 @@ function closeBuilderDialog(): void {
 }
 
 function generateQueryString() {
-  if (isObjectHasKeys(build.value, ["ecl"])) queryString.value = build.value.ecl;
+  if (isObjectHasKeys(build.value, ["ecl"])) {
+    queryString.value = build.value.ecl;
+  }
 }
 
 function copyToClipboard(): string {

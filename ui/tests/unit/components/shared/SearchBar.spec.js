@@ -16,11 +16,20 @@ createTestingPinia({
   initialState: {
     filter: {
       selectedFilters: testData.SELECTED_FILTERS
-    },
-    shared: { fontAwesomePro: false }
+    }
   }
 });
 const mockFilterStore = useFilterStore();
+
+const mockOpen = vi.fn();
+const mockClose = vi.fn();
+vi.mock("primevue/usedialog", () => ({
+  useDialog: () => ({
+    open: mockOpen,
+    close: mockClose
+  }),
+  useRoute: () => mockRoute
+}));
 
 describe("SearchBar.vue", () => {
   let component;
@@ -38,7 +47,7 @@ describe("SearchBar.vue", () => {
         stubs: { Filters: true },
         directives: { tooltip: Tooltip }
       },
-      props: { searchResults: [], searchLoading: false }
+      props: { searchResults: [], searchLoading: false, loadMore: { page: 1, count: 20 }, download: { term: "Scolio", count: 355 } }
     });
   });
 

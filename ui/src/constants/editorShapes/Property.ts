@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, FUNCTION, COMPONENT, QUERY, VALIDATION } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XSD, EDITOR, IM_FUNCTION, COMPONENT, QUERY, VALIDATION } from "@im-library/vocabulary";
 
 const PropertyShape: FormGenerator = {
   "@id": EDITOR.PROPERTY_SHAPE,
@@ -28,7 +28,7 @@ const PropertyShape: FormGenerator = {
           comment: "A property that auto generates the type as property type",
           order: 1,
           function: {
-            "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+            "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
           },
           name: "Type",
           showTitle: true,
@@ -66,7 +66,7 @@ const PropertyShape: FormGenerator = {
           },
           valueVariable: "propertyIri",
           function: {
-            "@id": FUNCTION.GET_USER_EDITABLE_SCHEMES
+            "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
           },
           validation: { "@id": VALIDATION.IS_IRI }
         },
@@ -97,7 +97,7 @@ const PropertyShape: FormGenerator = {
             "@id": XSD.STRING
           },
           function: {
-            "@id": FUNCTION.LOCAL_NAME_RETRIEVER
+            "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
           }
         },
         {

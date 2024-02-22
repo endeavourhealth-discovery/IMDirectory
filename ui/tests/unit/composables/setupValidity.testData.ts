@@ -1,4 +1,4 @@
-import { RDF, IM, XSD, RDFS, EDITOR, COMPONENT, VALIDATION, FUNCTION, QUERY } from "@im-library/vocabulary";
+import { RDF, IM, XSD, RDFS, EDITOR, COMPONENT, VALIDATION, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
 
 export default {
   testShape: {
@@ -38,7 +38,7 @@ export default {
                 comment: "A property that auto generates the type as  concept type",
                 order: 1,
                 function: {
-                  "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+                  "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
                 },
                 name: "Type",
                 showTitle: true,
@@ -76,7 +76,7 @@ export default {
                 },
                 valueVariable: "conceptIri",
                 function: {
-                  "@id": FUNCTION.GET_SET_EDITOR_IRI_SCHEMES
+                  "@id": IM_FUNCTION.GET_SET_EDITOR_IRI_SCHEMES
                 }
               },
               {
@@ -106,7 +106,7 @@ export default {
                   "@id": XSD.STRING
                 },
                 function: {
-                  "@id": FUNCTION.LOCAL_NAME_RETRIEVER
+                  "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
                 }
               },
               {

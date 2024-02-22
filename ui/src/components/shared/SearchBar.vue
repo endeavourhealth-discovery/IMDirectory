@@ -1,7 +1,7 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group">
-      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
+      <i v-if="loading" class="pi pi-spin pi-spinner"></i>
       <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText
         id="autocomplete-search"
@@ -10,19 +10,21 @@
         @complete="debounceForSearch"
         data-testid="search-input"
         autofocus
+        v-on:keyup.enter="search()"
       />
     </span>
-    <SplitButton class="search-button p-button-secondary" @click="search" label="Search" :model="buttonActions" :loading="searchLoading" />
+    <SplitButton class="search-button p-button-secondary" @click="search(false)" label="Search" :model="buttonActions" :loading="loading" />
     <Button
+      v-if="!searchByFunction && !searchByQuery"
       v-tooltip.bottom="'Filters'"
       id="filter-button"
-      :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'pi pi-sliders-h'"
+      icon="fa-duotone fa-sliders"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
     />
     <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
-      <div class="p-fluid results-filter-container">
+      <div v-if="!(searchByFunction || searchByQuery)" class="p-fluid results-filter-container">
         <Filters
           :search="search"
           data-testid="filters"
@@ -39,8 +41,8 @@
 import Filters from "@/components/shared/Filters.vue";
 
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
-import { FilterOptions, ConceptSummary } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match, SearchResponse, FunctionRequest } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
@@ -50,39 +52,73 @@ import { useSharedStore } from "@/stores/sharedStore";
 import EntityService from "@/services/EntityService";
 import QueryService from "@/services/QueryService";
 import _ from "lodash";
+import setupDownloadFile from "@/composables/downloadFile";
+import { useDialog } from "primevue/usedialog";
+import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
+import { FunctionService } from "@/services";
 
 interface Props {
-  searchResults: ConceptSummary[];
+  searchResults: SearchResponse | undefined;
   searchLoading: boolean;
-  selected?: ConceptSummary;
+  selected?: SearchResultSummary;
   filterOptions?: FilterOptions;
+  loadMore: { page: number; rows: number } | undefined;
   filterDefaults?: FilterOptions;
+  download: { term: string; count: number } | undefined;
+  searchByFunction?: FunctionRequest;
+  searchByQuery?: QueryRequest;
 }
 
 const props = defineProps<Props>();
 
+watch(
+  () => _.cloneDeep(props.loadMore),
+  async newValue => {
+    if (isObjectHasKeys(newValue)) {
+      await search(true);
+      emit("update:loadMore", undefined);
+    }
+  }
+);
+
+watch(
+  () => _.cloneDeep(props.download),
+  async newValue => {
+    if (newValue) {
+      await downloadAll(newValue);
+      emit("update:download", undefined);
+    }
+  }
+);
+
 const emit = defineEmits({
-  "update:searchResults": payload => _.isArray(payload),
+  "update:searchResults": _payload => true,
   "update:searchLoading": payload => typeof payload === "boolean",
   toEclSearch: () => true,
-  toQuerySearch: () => true
+  toQuerySearch: () => true,
+  "update:download": _payload => undefined,
+  "update:loadMore": _payload => true
 });
 
 const filterStore = useFilterStore();
-const sharedStore = useSharedStore();
+const dynamicDialog = useDialog();
+
+const { downloadFile } = setupDownloadFile(window, document);
 
 const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
-watch(storeSelectedFilters, newValue => {
-  if (!props.filterDefaults && !props.filterOptions) selectedFilters.value = newValue;
+watch(storeSelectedFilters, async newValue => {
+  if (!props.filterDefaults && !props.filterOptions) {
+    selectedFilters.value = newValue;
+    await search();
+  }
 });
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
 const searchPlaceholder = ref("Search");
 const loading = ref(false);
-const results: Ref<SearchResultSummary[]> = ref([]);
+const results: Ref<SearchResponse | undefined> = ref();
 const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
@@ -114,15 +150,33 @@ function debounceForSearch(): void {
   }, 600);
 }
 
-async function search(): Promise<void> {
+async function search(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }): Promise<void | SearchResponse> {
+  if (props.searchByFunction) {
+    await functionSearch(loadMore, downloadAll, downloadData);
+    return;
+  }
+  if (props.searchByQuery) {
+    await querySearch(loadMore, downloadAll, downloadData);
+    return;
+  }
   searchPlaceholder.value = "Search";
+  if (downloadData?.term) searchText.value = downloadData.term;
   if (searchText.value && searchText.value.length > 2) {
-    loading.value = true;
+    if (!downloadAll) loading.value = true;
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText.value;
     searchRequest.sortField = "weighting";
-    searchRequest.page = 1;
-    searchRequest.size = 100;
+    if (loadMore && props.loadMore) {
+      searchRequest.page = props.loadMore.page + 1;
+      searchRequest.size = props.loadMore.rows;
+    } else {
+      searchRequest.page = 1;
+      searchRequest.size = 100;
+    }
+    if (downloadAll && downloadData) {
+      searchRequest.page = 1;
+      searchRequest.size = downloadData.count;
+    }
 
     searchRequest.schemeFilter = [];
     const schemes =
@@ -167,55 +221,78 @@ async function search(): Promise<void> {
     }
     controller.value = new AbortController();
     const result = await EntityService.advancedSearch(searchRequest, controller.value);
-    if (result) results.value = result;
-    else results.value = [];
+    if (downloadAll) return result;
     loading.value = false;
+    if (result?.entities) results.value = result;
+    else results.value = undefined;
   }
 }
 
-async function prepareQueryRequest(queryRequest: QueryRequest) {
-  queryRequest.textSearch = searchText.value;
-
-  if (isObjectHasKeys(queryRequest.query, ["@id"]) && !isObjectHasKeys(queryRequest.query, ["match"])) {
-    const partialEntity = await EntityService.getPartialEntity(queryRequest.query["@id"]!, [IM.DEFINITION]);
-    if (partialEntity[IM.DEFINITION]) {
-      queryRequest.query = JSON.parse(partialEntity[IM.DEFINITION]);
-      if (!isArrayHasLength(queryRequest.query.match)) queryRequest.query.match = [];
-      queryRequest.query.match!.push(getMatchFromTypeFilters(), getMatchFromStatusFilters(), getMatchFromSchemeFilters());
+async function functionSearch(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }) {
+  if (downloadData) searchText.value = downloadData.term;
+  if (searchText.value && searchText.value.length > 2 && props.searchByFunction) {
+    if (!downloadAll) loading.value = true;
+    const functionRequest: FunctionRequest = _.cloneDeep(props.searchByFunction);
+    functionRequest.arguments?.push({ parameter: "searchIri", valueData: searchText.value });
+    if (loadMore && props.loadMore) {
+      functionRequest.page = { pageNumber: props.loadMore.page + 1, pageSize: props.loadMore.rows };
+    } else {
+      functionRequest.page = { pageNumber: 1, pageSize: 100 };
     }
+    if (downloadAll && downloadData) {
+      functionRequest.page = { pageNumber: 1, pageSize: downloadData.count };
+    }
+
+    if (!isObject(controller.value)) {
+      controller.value.abort();
+    }
+    controller.value = new AbortController();
+    const result = await FunctionService.runSearchFunction(functionRequest, controller.value);
+    if (downloadAll) return result;
+    loading.value = false;
+    if (result?.entities) results.value = result;
+    else results.value = undefined;
   }
-
-  return queryRequest;
 }
 
-function getMatchFromTypeFilters(): Match {
-  const typeMatch = { bool: "or", match: [] } as Match;
-  selectedFilters.value.types.forEach((type: TTIriRef) => {
-    typeMatch.match!.push({ typeOf: type } as Match);
+async function querySearch(loadMore: boolean = false, downloadAll: boolean = false, downloadData?: { term: string; count: number }) {
+  if (downloadData) searchText.value = downloadData.term;
+  if (searchText.value && searchText.value.length > 2 && props.searchByQuery) {
+    if (!downloadAll) loading.value = true;
+    const queryRequest: QueryRequest = _.cloneDeep(props.searchByQuery);
+    queryRequest.textSearch = searchText.value;
+    if (loadMore && props.loadMore) {
+      queryRequest.page = { pageNumber: props.loadMore.page + 1, pageSize: props.loadMore.rows };
+    } else {
+      queryRequest.page = { pageNumber: 1, pageSize: 100 };
+    }
+    if (downloadAll && downloadData) {
+      queryRequest.page = { pageNumber: 1, pageSize: downloadData.count };
+    }
+
+    if (!isObject(controller.value)) {
+      controller.value.abort();
+    }
+    controller.value = new AbortController();
+    const result = await QueryService.queryIMSearch(queryRequest, controller.value);
+    if (downloadAll) return result;
+    loading.value = false;
+    if (result?.entities) results.value = result;
+    else results.value = undefined;
+  }
+}
+
+async function downloadAll(data: { term: string; count: number }) {
+  const downloadDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Downloading", text: "Preparing your download..." }
   });
-  return typeMatch;
-}
-
-function getMatchFromStatusFilters(): Match {
-  return {
-    property: [
-      {
-        "@id": IM.HAS_STATUS,
-        is: selectedFilters.value.status
-      }
-    ]
-  };
-}
-
-function getMatchFromSchemeFilters(): Match {
-  return {
-    property: [
-      {
-        "@id": IM.HAS_SCHEME,
-        is: selectedFilters.value.schemes
-      }
-    ]
-  };
+  const results = await search(undefined, true, data);
+  const heading = ["name", "iri", "code"].join(",");
+  const body = results?.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
+  const csv = [heading, body].join("\n");
+  downloadFile(csv, "results.csv");
+  downloadDialog.close();
 }
 </script>
 

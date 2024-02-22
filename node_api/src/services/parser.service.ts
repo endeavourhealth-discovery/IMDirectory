@@ -1,7 +1,9 @@
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 export default class ParserService {
-  constructor() {}
+  constructor() {
+    // empty constructor
+  }
 
   getListFromText(text: string): string[] {
     const result = text.match(/\d+/g);

@@ -1,7 +1,7 @@
 <template>
   <div id="concept-main-container">
     <div v-if="entityIri === 'http://endhealth.info/im#Favourites'">
-      <Content :entityIri="entityIri" />
+      <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
     </div>
     <div v-else-if="loading" class="loading-container">
       <ProgressSpinner />

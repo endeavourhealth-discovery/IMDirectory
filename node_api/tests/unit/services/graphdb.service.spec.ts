@@ -1,62 +1,25 @@
 import { desanitise, sanitise } from "@/services/graphdb.service";
 import { describe, it, expect } from "vitest";
+import testData from "./graphdb.service.testData";
 
 describe("graphdb service", () => {
   describe("desanitise", () => {
     it("can desanitise", () => {
-      expect(
-        desanitise(
-          '{`version`:`v2.4.0`,`title`:`v2.4.0 Release`,`createdDate`:`30/2/2023 15:39:11`,`publishedDate`:`30/2/2023 16:49:7`,`releaseNotes`:[`- Numerous visual improvements`,`- Icon updates (Font Awesome Pro)`,`- Themes`,`- Search optimisations`,`- ECL builder extensions`,`- Data model viewer enhancements`,`- Java code generation`,`- Latest SNOMED`,`- Query display enhancements`,`- Improved error handling & reporting`],`author`:`VororRich`,`url`:`https://github.com/endeavourhealth-discovery/IMDirectory/releases/tag/v2.4.0`}'
-        )
-      ).toEqual({
-        version: "v2.4.0",
-        title: "v2.4.0 Release",
-        createdDate: "30/2/2023 15:39:11",
-        publishedDate: "30/2/2023 16:49:7",
-        releaseNotes: [
-          "- Numerous visual improvements",
-          "- Icon updates (Font Awesome Pro)",
-          "- Themes",
-          "- Search optimisations",
-          "- ECL builder extensions",
-          "- Data model viewer enhancements",
-          "- Java code generation",
-          "- Latest SNOMED",
-          "- Query display enhancements",
-          "- Improved error handling & reporting"
-        ],
-        author: "VororRich",
-        url: "https://github.com/endeavourhealth-discovery/IMDirectory/releases/tag/v2.4.0"
-      });
+      expect(desanitise(testData.RELEASE_STRING)).toEqual(testData.RELEASE_OBJECT);
+    });
+
+    it("can desanitise __ object with quote values", () => {
+      expect(desanitise(testData.RELEASE_QUOTES_STRING)).toEqual(testData.RELEASE_QUOTES_OBJECT);
     });
   });
 
   describe("sanitise", () => {
     it("can sanitise", () => {
-      expect(
-        sanitise({
-          version: "v2.4.0",
-          title: "v2.4.0 Release",
-          createdDate: "30/2/2023 15:39:11",
-          publishedDate: "30/2/2023 16:49:7",
-          releaseNotes: [
-            "- Numerous visual improvements",
-            "- Icon updates (Font Awesome Pro)",
-            "- Themes",
-            "- Search optimisations",
-            "- ECL builder extensions",
-            "- Data model viewer enhancements",
-            "- Java code generation",
-            "- Latest SNOMED",
-            "- Query display enhancements",
-            "- Improved error handling & reporting"
-          ],
-          author: "VororRich",
-          url: "https://github.com/endeavourhealth-discovery/IMDirectory/releases/tag/v2.4.0"
-        })
-      ).toBe(
-        "'{`version`:`v2.4.0`,`title`:`v2.4.0 Release`,`createdDate`:`30/2/2023 15:39:11`,`publishedDate`:`30/2/2023 16:49:7`,`releaseNotes`:[`- Numerous visual improvements`,`- Icon updates (Font Awesome Pro)`,`- Themes`,`- Search optimisations`,`- ECL builder extensions`,`- Data model viewer enhancements`,`- Java code generation`,`- Latest SNOMED`,`- Query display enhancements`,`- Improved error handling & reporting`],`author`:`VororRich`,`url`:`https://github.com/endeavourhealth-discovery/IMDirectory/releases/tag/v2.4.0`}'"
-      );
+      expect(sanitise(testData.RELEASE_OBJECT)).toBe(testData.RELEASE_STRING_WRAPPED);
     });
+  });
+
+  it("can sanitise ___ object with quote values", () => {
+    expect(sanitise(testData.RELEASE_QUOTES_OBJECT)).toBe(testData.RELEASE_QUOTES_STRING_WRAPPED);
   });
 });

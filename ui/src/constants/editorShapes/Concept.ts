@@ -1,5 +1,5 @@
 import { Argument, FormGenerator, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { RDF, IM, XSD, RDFS, SHACL, EDITOR, COMPONENT, FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
+import { RDF, IM, XSD, RDFS, SHACL, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
 
 const ConceptShape: FormGenerator = {
   "@id": EDITOR.CONCEPT_SHAPE,
@@ -36,7 +36,7 @@ const ConceptShape: FormGenerator = {
               comment: "A property that auto generates the type as  concept type",
               order: 1,
               function: {
-                "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
@@ -74,7 +74,7 @@ const ConceptShape: FormGenerator = {
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": FUNCTION.GET_USER_EDITABLE_SCHEMES
+                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
               validation: { "@id": VALIDATION.IS_IRI }
             },
@@ -105,7 +105,7 @@ const ConceptShape: FormGenerator = {
                 "@id": XSD.STRING
               },
               function: {
-                "@id": FUNCTION.LOCAL_NAME_RETRIEVER
+                "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
               }
             },
             {
@@ -213,7 +213,7 @@ const ConceptShape: FormGenerator = {
               comment: "optional im1scheme",
               order: 9,
               function: {
-                "@id": FUNCTION.IM1_SCHEME_OPTIONS
+                "@id": IM_FUNCTION.IM1_SCHEME_OPTIONS
               },
               name: "IM1Scheme",
               showTitle: true,

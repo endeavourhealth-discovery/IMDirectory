@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import { Request } from "express";
 import ProvService from "@/services/prov.service";
 import router from "express-promise-router";
 
