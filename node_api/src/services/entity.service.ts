@@ -210,7 +210,7 @@ export default class EntityService {
         superiors = (
           await this.axios.get(Env.API + "api/entity/public/superiorPropertiesBoolFocusPaged", {
             params: {
-              conceptIris: results.entities.map((result: any) => result["@id"]).join(","),
+              conceptIris: results.entities.map(result => result.iri).join(","),
               pageIndex: pageIndex,
               pageSize: pageSize,
               schemeFilters: filters?.join(",")

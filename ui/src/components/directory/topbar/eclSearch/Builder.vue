@@ -113,9 +113,12 @@ watch(
   }
 );
 
-watch(build, () => {
-  generateQueryString();
-});
+watch(
+  () => _.cloneDeep(build.value),
+  () => {
+    generateQueryString();
+  }
+);
 
 watch(includeTerms, () => generateQueryString());
 
@@ -146,7 +149,9 @@ function closeBuilderDialog(): void {
 }
 
 function generateQueryString() {
-  if (isObjectHasKeys(build.value, ["ecl"])) queryString.value = build.value.ecl;
+  if (isObjectHasKeys(build.value, ["ecl"])) {
+    queryString.value = build.value.ecl;
+  }
 }
 
 function copyToClipboard(): string {

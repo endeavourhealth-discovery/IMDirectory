@@ -160,7 +160,7 @@ async function search(loadMore: boolean = false, downloadAll: boolean = false, d
     return;
   }
   searchPlaceholder.value = "Search";
-  if (downloadData) searchText.value = downloadData.term;
+  if (downloadData?.term) searchText.value = downloadData.term;
   if (searchText.value && searchText.value.length > 2) {
     if (!downloadAll) loading.value = true;
     const searchRequest = {} as SearchRequest;
