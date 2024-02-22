@@ -1,5 +1,41 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
+    <div :class="hover ? 'button-overlay' : 'button-overlay-hidden'">
+      <Button
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        label="Add Refinement"
+        @click="addRefinement"
+        class="builder-button-overlay"
+      />
+      <Button
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        label="Add New Group"
+        @click="addGroup"
+        class="builder-button-overlay"
+      />
+      <Button
+        v-if="value?.items?.length > 1"
+        :severity="hover ? 'help' : 'secondary'"
+        :outlined="!hover"
+        :class="[!hover && 'hover-button', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
+        :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
+        @click="processGroup"
+        class="builder-button-overlay"
+      />
+      <Button
+        v-if="index && index > 0"
+        :severity="hover ? 'danger' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        :label="value.exclude ? 'Include' : 'Exclude'"
+        @click="toggleExclude"
+        class="builder-button-overlay"
+      />
+    </div>
     <div class="focus-container">
       <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button" />
       <div v-if="isAliasIriRef(value.concept)" class="concept-container">
@@ -51,7 +87,7 @@
         />
       </span>
     </div>
-    <div class="add-group">
+    <div :style="'display: none; opacity: 0;'" class="add-group">
       <Button
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
@@ -136,6 +172,9 @@ watch(
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
+const xPos = ref();
+const yPos = ref();
+
 const menuBool = ref();
 const loading = ref(false);
 const groupWithinConcept = ref(false);
@@ -164,7 +203,7 @@ async function init() {
 }
 
 const hover = ref();
-function mouseover(event: Event) {
+function mouseover(event: any) {
   event.stopPropagation();
   hover.value = true;
 }
@@ -368,5 +407,42 @@ function unGroupItems(groupedItems: any) {
 
 .spacer {
   width: 4rem;
+}
+
+.button-overlay {
+  animation: fadeInAnimation ease 0.15s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  display: block;
+  visibility: visible;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  padding: 1rem;
+  min-width: 100px;
+  font-size: 1rem;
+  position: absolute;
+  color: var(--text-color);
+  background: var(--surface-a);
+  border: 1px solid var(--surface-border);
+  border-radius: 3px;
+  z-index: 1;
+}
+
+.button-overlay-hidden {
+  display: none;
+  visibility: hidden;
+}
+
+.builder-button-overlay {
+  height: 2rem;
+  align-self: center;
+}
+
+@keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>

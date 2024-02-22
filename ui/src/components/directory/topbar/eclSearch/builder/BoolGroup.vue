@@ -1,5 +1,59 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
+    <div :class="hover ? 'button-overlay' : 'button-overlay-hidden'">
+      <Button
+        class="builder-button-overlay"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        label="Add Concept"
+        @click="addConcept"
+      />
+      <Button
+        v-if="parent"
+        class="builder-button-overlay"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        label="Add Refinement"
+        @click="addRefinement"
+      />
+      <Button
+        class="builder-button-overlay"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        label="Add New Group"
+        @click="addGroup"
+      />
+      <Button
+        v-if="value?.items?.length > 1"
+        class="builder-button-overlay"
+        :severity="hover ? 'help' : 'secondary'"
+        :outlined="!hover"
+        :class="[!hover && 'hover-button', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-help']"
+        :label="groupWithinBoolGroup ? 'Finish Grouping' : 'Group within'"
+        @click="processGroup"
+      />
+      <Button
+        v-if="!rootBool"
+        class="builder-button-overlay"
+        :severity="hover ? 'warning' : 'secondary'"
+        :outlined="!hover"
+        :class="[!hover && 'hover-button', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-warning']"
+        label="Ungroup"
+        @click="requestUnGroupItems"
+      />
+      <Button
+        v-if="index && index > 0 && isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept'"
+        :severity="hover ? 'danger' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        :label="value.exclude ? 'Include' : 'Exclude'"
+        @click="toggleExclude"
+        class="builder-button-overlay"
+      />
+    </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
     <template v-for="(item, index) in value.items">
       <div class="component-container">
@@ -29,7 +83,7 @@
         </div>
       </div>
     </template>
-    <div class="add-group">
+    <div class="add-group" :style="'display: none; opacity: 0;'">
       <Button
         class="builder-button"
         :severity="hover ? 'success' : 'secondary'"
@@ -115,6 +169,9 @@ const emit = defineEmits({ unGroupItems: payload => true });
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
+
+const xPos = ref();
+const yPos = ref();
 
 const selected = ref("AND");
 const groupWithinBoolGroup = ref(false);
@@ -327,5 +384,42 @@ function unGroupItems(groupedItems: any) {
 .builder-button {
   height: 1.5rem;
   align-self: center;
+}
+
+.button-overlay {
+  animation: fadeInAnimation ease 0.15s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  display: block;
+  visibility: visible;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  padding: 1rem;
+  min-width: 100px;
+  font-size: 1rem;
+  position: absolute;
+  color: var(--text-color);
+  background: var(--surface-a);
+  border: 1px solid var(--surface-border);
+  border-radius: 3px;
+  z-index: 1;
+}
+
+.button-overlay-hidden {
+  display: none;
+  visibility: hidden;
+}
+
+.builder-button-overlay {
+  height: 2rem;
+  align-self: center;
+}
+
+@keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>
