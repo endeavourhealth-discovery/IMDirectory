@@ -1,14 +1,13 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
+    <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button text-rotate" />
     <div v-if="value?.items?.length > 1" class="conjunction">
       <Button class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
     </div>
     <div class="children">
       <template v-for="(item, index) in value.items">
         <div class="component-container">
-          <div class="minus-container">
-            <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button" />
-          </div>
+          <div class="minus-container"></div>
           <span class="left-container">
             <div class="group-checkbox">
               <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
@@ -41,6 +40,7 @@
         @click="toggleAdd"
         aria-haspopup="true"
         aria-controls="add-menu"
+        v-tooltip="'Add'"
       />
       <Menu ref="addMenu" :model="addItems" :popup="true" />
       <Button
@@ -55,13 +55,14 @@
         v-tooltip="!group.length ? 'Remove brackets' : 'Bracket selected items'"
       />
       <Button
-        v-if="index && index > 0 && isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept'"
-        :severity="hover ? 'danger' : 'secondary'"
+        v-if="isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept' && !_.isEqual(parent?.value?.items[0], value)"
+        :severity="value.exclude ? 'secondary' : 'danger'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
         class="builder-button"
+        v-tooltip="value.exclude ? 'Include' : 'Exclude'"
       />
     </div>
   </div>
@@ -339,5 +340,14 @@ function toggleAdd(event: any) {
 
 .strike-through {
   text-decoration: line-through;
+}
+
+.text-rotate:deep(.p-tag-value) {
+  transform: rotate(-90deg);
+}
+
+.exclude-button:deep(.p-button-label) {
+  transform: rotate(-90deg);
+  transform-origin: bottom center;
 }
 </style>

@@ -1,8 +1,8 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="concept" @mouseover="mouseover" @mouseout="mouseout">
+    <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button text-rotate" />
     <div class="focus-container">
       <div class="focus">
-        <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button" />
         <div v-if="isAliasIriRef(value.concept)" class="concept-container">
           <ConceptSelector :value="value" :parent="value" />
         </div>
@@ -30,7 +30,7 @@
       </div>
       <div class="refinement">
         <div v-if="value?.items?.length > 1" class="conjunction">
-          <Button class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
+          <Button class="builder-button conjunction-button" :label="value.conjunction ?? 'OR'" @click="toggleBool" />
         </div>
         <div class="refinements">
           <div v-for="(item, index) in value.items" class="refinement-container">
@@ -67,6 +67,7 @@
         @click="toggleAdd"
         aria-haspopup="true"
         aria-controls="add-menu"
+        v-tooltip="'Add'"
       />
       <Menu ref="addMenu" :model="addItems" :popup="true" />
       <Button
@@ -82,12 +83,13 @@
       />
       <Button
         v-if="index && index > 0"
-        :severity="hover ? 'danger' : 'secondary'"
+        :severity="value.exclude ? 'secondary' : 'danger'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
-        class="builder-button"
+        class="builder-button exclude-button"
+        v-tooltip="value.exclude ? 'Include' : 'Exclude'"
       />
     </div>
   </div>
@@ -411,5 +413,14 @@ function unGroupItems(groupedItems: any) {
 
 .conjunction-button:deep(.p-button-label) {
   transform: rotate(-90deg);
+}
+
+.text-rotate:deep(.p-tag-value) {
+  transform: rotate(-90deg);
+}
+
+.exclude-button:deep(.p-button-label) {
+  transform: rotate(-90deg);
+  transform-origin: bottom center;
 }
 </style>
