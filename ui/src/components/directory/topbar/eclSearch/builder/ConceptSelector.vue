@@ -1,5 +1,13 @@
 <template>
   <div v-if="isAliasIriRef(value.concept)" class="concept-container">
+    <AutocompleteSearchBar
+      v-model:selected="selected"
+      :search-by-query="queryRequest"
+      :root-entities="['http://snomed.info/sct#138875005']"
+      :filterOptions="filterOptions"
+      :filterDefaults="filterDefaults"
+      :allow-any="true"
+    />
     <div
       class="search-text"
       type="text"
@@ -30,6 +38,7 @@
 import { Ref, ref, onMounted, watch, inject, computed, ComputedRef } from "vue";
 import { IM, SNOMED, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { FilterOptions } from "@im-library/interfaces";
