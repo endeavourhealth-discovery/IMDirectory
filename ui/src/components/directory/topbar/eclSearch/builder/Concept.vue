@@ -1,5 +1,14 @@
 <template>
-  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="concept" @mouseover="mouseover" @mouseout="mouseout">
+  <div
+    :class="[hover ? 'nested-div-hover' : 'nested-div']"
+    class="concept"
+    @mouseover="mouseover"
+    @mouseout="mouseout"
+    @drop="onDrop($event, 'concept', value, parent)"
+    @dragstart="onDragStart($event, 'concept', value, parent)"
+    @dragend="onDragEnd($event, 'concept', value, parent)"
+    @dragover="$event.preventDefault()"
+  >
     <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button text-rotate" />
     <div class="focus-container">
       <div class="focus">
@@ -108,6 +117,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import { numberAscending } from "@im-library/helpers/Sorters";
+import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 interface Props {
   value: {
@@ -123,6 +133,8 @@ interface Props {
   index?: number;
 }
 const props = defineProps<Props>();
+const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const { onDragEnd, onDragStart, onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
 
 watch(
   () => _.cloneDeep(props.value),

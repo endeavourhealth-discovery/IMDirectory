@@ -1,13 +1,6 @@
 <template>
   <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-    <div
-      class="search-text"
-      type="text"
-      :class="[isAny && 'inactive', !isAny && 'clickable']"
-      @click="!isAny ? (showDialog = true) : (showDialog = false)"
-      @mouseover="showOverlay($event, selected?.iri)"
-      @mouseleave="hideOverlay($event)"
-    >
+    <div class="search-text" type="text" :class="[isAny && 'inactive', !isAny && 'clickable']" @click="!isAny ? (showDialog = true) : (showDialog = false)">
       <span class="selected-label">{{ selected?.name ?? "Search..." }}</span>
     </div>
     <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="any" :binary="true" /></div>

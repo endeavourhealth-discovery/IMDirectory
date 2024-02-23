@@ -1,5 +1,12 @@
 <template>
-  <div class="refinement-content-container">
+  <div
+    class="refinement-content-container"
+    draggable="true"
+    @drop="onDrop($event, 'refinement', value, parent)"
+    @dragstart="onDragStart($event, 'refinement', value, parent)"
+    @dragend="onDragEnd($event, 'concept', value, parent)"
+    @dragover="$event.preventDefault()"
+  >
     <div
       class="search-text"
       :class="[!isValidProperty && 'p-invalid', !loadingProperty && hasFocus && 'clickable', loadingProperty && 'inactive']"
@@ -63,6 +70,7 @@ import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
 import setupOverlay from "@/composables/setupOverlay";
+import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 interface Props {
   value: {
@@ -76,6 +84,8 @@ interface Props {
   focus?: any;
 }
 const props = defineProps<Props>();
+const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const { onDragEnd, onDragStart, onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
 
 watch(
   () => cloneDeep(props.value),

@@ -92,12 +92,14 @@ const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
 const isValidEcl = ref(false);
+const wasDraggedAndDropped = ref(false);
 
 watch(queryString, async () => {
   isValidEcl.value = await EclService.isValidECL(queryString.value);
 });
 
 provide("includeTerms", readonly(includeTerms));
+provide("wasDraggedAndDropped", wasDraggedAndDropped);
 
 onMounted(async () => {
   if (props.eclString) {

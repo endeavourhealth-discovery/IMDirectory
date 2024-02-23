@@ -8,36 +8,38 @@ import { Ref, ref } from "vue";
 // @dragend="onDragEnd"
 // @dragover="$event.preventDefault()"
 
-function setupECLBuilderActions() {
+function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as any[] } as any);
   const draggedParent: Ref<any> = ref({ match: [] as any[] } as any);
 
-  function onDrop(type: string) {
-    // console.log("onDrop");
-    // const dataString = event.dataTransfer.getData("itemData");
-    // const data = JSON.parse(dataString);
-    // console.log(data);
-    // console.log(item);
-    // if (data.type === "Concept" && item.type === "Concept") {
-    //   const newBoolGroup = { type: "BoolGroup", operator: "OR", items: [] as any[] };
-    //   newBoolGroup.items.push(data);
-    //   newBoolGroup.items.push(item);
-    //   console.log(props.value.items);
-    //   props.value.items = props.value.items.filter((parentItem: any) => parentItem.ecl !== data.ecl && parentItem.ecl !== item.ecl);
-    //   props.value.items.push(newBoolGroup);
-    // }
-    console.log("onDrop", type);
+  function onDragStart(event: any, type: string, draggedItem: any, parent: any) {
+    console.log("onDragStart", type, draggedItem);
+    event.dataTransfer.setData("draggedItem", JSON.stringify(draggedItem));
   }
 
-  function onDragStart(type: string) {
-    // event.dataTransfer.setData("itemData", JSON.stringify(item));
-    // console.log(item);
-    console.log("onDragStart", type);
+  function onDrop(event: any, type: string, dropzoneItem: any, parent: any) {
+    console.log("onDrop", type, dropzoneItem);
+    const draggedItemString = event.dataTransfer.getData("draggedItem");
+    const draggedItem = JSON.parse(draggedItemString);
+    if (dropzoneItem.ecl === draggedItem.ecl) console.log("Can not drop item on itself");
+    else if (draggedItem.type === "Concept" && dropzoneItem.type === "Concept") {
+      const newBoolGroup = { type: "BoolGroup", conjunction: "OR", items: [] as any[] };
+      newBoolGroup.items.push(draggedItem);
+      newBoolGroup.items.push(dropzoneItem);
+      parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== dropzoneItem.ecl);
+      parent.items.push(newBoolGroup);
+
+      wasDraggedAndDropped.value = true;
+    }
   }
 
-  function onDragEnd(type: string) {
-    console.log("onDragEnd", type);
+  function onDragEnd(event: any, type: string, draggedItem: any, parent: any) {
+    console.log("onDragEnd", type, draggedItem);
+    if (wasDraggedAndDropped.value) {
+      parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== draggedItem.ecl);
+      wasDraggedAndDropped.value = false;
+    }
   }
 
   function dragStart(event: any, data: any) {
