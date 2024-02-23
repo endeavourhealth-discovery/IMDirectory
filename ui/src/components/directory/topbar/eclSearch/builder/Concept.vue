@@ -4,6 +4,7 @@
     class="concept"
     @mouseover="mouseover"
     @mouseout="mouseout"
+    draggable="true"
     @drop="onDrop($event, 'concept', value, parent)"
     @dragstart="onDragStart($event, 'concept', value, parent)"
     @dragend="onDragEnd($event, 'concept', value, parent)"

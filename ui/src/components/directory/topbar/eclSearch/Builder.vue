@@ -22,7 +22,7 @@
       <div id="query-builder-container">
         <div id="query-build">
           <ProgressSpinner v-if="loading" />
-          <BoolGroup v-else :value="build" :rootBool="true" />
+          <BoolGroup v-else :value="build" :rootBool="true" @drop="onDrop($event, 'refinement', build, undefined)" />
         </div>
         <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading"
           >*Move pointer over panel above to add concepts, refinements and groups.</small
@@ -57,6 +57,7 @@
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
+import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -93,13 +94,14 @@ const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error
 const loading = ref(false);
 const isValidEcl = ref(false);
 const wasDraggedAndDropped = ref(false);
+provide("wasDraggedAndDropped", wasDraggedAndDropped);
+const { onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
 
 watch(queryString, async () => {
   isValidEcl.value = await EclService.isValidECL(queryString.value);
 });
 
 provide("includeTerms", readonly(includeTerms));
-provide("wasDraggedAndDropped", wasDraggedAndDropped);
 
 onMounted(async () => {
   if (props.eclString) {

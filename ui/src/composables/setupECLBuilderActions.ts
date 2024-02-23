@@ -15,22 +15,34 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
 
   function onDragStart(event: any, type: string, draggedItem: any, parent: any) {
     console.log("onDragStart", type, draggedItem);
-    event.dataTransfer.setData("draggedItem", JSON.stringify(draggedItem));
+    event.dataTransfer.setData("draggedItem", JSON.stringify({ draggedItem: draggedItem, draggedItemParent: parent }));
   }
 
   function onDrop(event: any, type: string, dropzoneItem: any, parent: any) {
     console.log("onDrop", type, dropzoneItem);
-    const draggedItemString = event.dataTransfer.getData("draggedItem");
-    const draggedItem = JSON.parse(draggedItemString);
-    if (dropzoneItem.ecl === draggedItem.ecl) console.log("Can not drop item on itself");
+
+    const draggedItemDataString = event.dataTransfer.getData("draggedItem");
+    const { draggedItem, draggedItemParent } = JSON.parse(draggedItemDataString);
+    console.log(`dropping ${draggedItem.type} to ${dropzoneItem.type}`);
+
+    if (dropzoneItem.ecl === draggedItem.ecl) console.log("Can not drop item on itself.");
     else if (draggedItem.type === "Concept" && dropzoneItem.type === "Concept") {
+      console.log("dropping concept to concept");
       const newBoolGroup = { type: "BoolGroup", conjunction: "OR", items: [] as any[] };
       newBoolGroup.items.push(draggedItem);
       newBoolGroup.items.push(dropzoneItem);
-      parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== dropzoneItem.ecl);
-      parent.items.push(newBoolGroup);
+      if (parent) {
+        parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== dropzoneItem.ecl);
+        parent.items.push(newBoolGroup);
+      }
 
       wasDraggedAndDropped.value = true;
+    } else if (draggedItem.type === "Concept" && dropzoneItem.type === "BoolGroup") {
+      if (dropzoneItem.ecl === draggedItemParent.ecl) console.log("Item already on this group, no action needed.");
+      else {
+        dropzoneItem.items.push(draggedItem);
+        wasDraggedAndDropped.value = true;
+      }
     }
   }
 

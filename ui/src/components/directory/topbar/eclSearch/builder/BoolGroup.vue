@@ -14,7 +14,21 @@
               <label :for="'group' + index">Select</label>
             </div>
           </span>
-          <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
+          <BoolGroup
+            v-if="item.type === 'BoolGroup'"
+            :value="item"
+            :parent="props.value"
+            :focus="props.focus"
+            @unGroupItems="unGroupItems"
+            :index="index"
+            @mouseover="mouseover"
+            @mouseout="mouseout"
+            draggable="true"
+            @drop="onDrop($event, 'refinement', item, parent)"
+            @dragstart="onDragStart($event, 'refinement', item, parent)"
+            @dragend="onDragEnd($event, 'concept', item, parent)"
+            @dragover="$event.preventDefault()"
+          />
           <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
           <div class="right-container">
             <Button
@@ -75,6 +89,7 @@ import Refinement from "@/components/directory/topbar/eclSearch/builder/Refineme
 import _, { isArray } from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { numberAscending } from "@im-library/helpers/Sorters";
+import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 interface Props {
   value: any;
@@ -87,7 +102,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   rootBool: false
 });
-
+const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const { onDragEnd, onDragStart, onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
 watch(
   () => _.cloneDeep(props.value),
   () => (props.value.ecl = generateEcl())
