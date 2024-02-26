@@ -1,20 +1,18 @@
 <template>
-  <div
-    :class="[hover ? 'nested-div-hover' : 'nested-div']"
-    class="concept"
-    @mouseover="mouseover"
-    @mouseout="mouseout"
-    draggable="true"
-    @drop="onDrop($event, 'concept', value, parent)"
-    @dragstart="onDragStart($event, 'concept', value, parent)"
-    @dragend="onDragEnd($event, 'concept', value, parent)"
-    @dragover="$event.preventDefault()"
-  >
+  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="concept" @mouseover="mouseover" @mouseout="mouseout">
     <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button text-rotate" />
     <div class="focus-container">
       <div class="focus">
         <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-          <ConceptSelector :value="value" :parent="value" />
+          <ConceptSelector
+            :value="value"
+            :parent="value"
+            draggable="true"
+            @drop="onDrop($event, 'concept', value, parent)"
+            @dragstart="onDragStart($event, 'concept', value, parent)"
+            @dragend="onDragEnd($event, 'concept', value, parent)"
+            @dragover="$event.preventDefault()"
+          />
         </div>
         <div v-else-if="isBoolGroup(value.concept)" class="focus-group-container">
           <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />

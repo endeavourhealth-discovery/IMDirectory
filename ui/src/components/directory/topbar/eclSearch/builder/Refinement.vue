@@ -1,18 +1,14 @@
 <template>
-  <div
-    class="refinement-content-container"
-    draggable="true"
-    @drop="onDrop($event, 'refinement', value, parent)"
-    @dragstart="onDragStart($event, 'refinement', value, parent)"
-    @dragend="onDragEnd($event, 'concept', value, parent)"
-    @dragover="$event.preventDefault()"
-  >
+  <div class="refinement-content-container">
     <div
       class="search-text"
       :class="[!isValidProperty && 'p-invalid', !loadingProperty && hasFocus && 'clickable', loadingProperty && 'inactive']"
       @click="hasFocus && !loadingProperty ? (showPropertyDialog = true) : (showPropertyDialog = false)"
-      @mouseover="showOverlay($event, selectedProperty?.iri)"
-      @mouseleave="hideOverlay($event)"
+      draggable="true"
+      @drop="onDrop($event, 'refinement', value, parent)"
+      @dragstart="onDragStart($event, 'refinement', value, parent)"
+      @dragend="onDragEnd($event, 'concept', value, parent)"
+      @dragover="$event.preventDefault()"
     >
       <span class="selected-label">{{ selectedProperty?.name ?? "Search..." }}</span>
     </div>
@@ -436,7 +432,7 @@ async function updateValue(value: SearchResultSummary) {
     box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
-  height: 2.7rem;
+  height: 2.2rem;
   display: flex;
   flex-flow: column;
   justify-content: center;
