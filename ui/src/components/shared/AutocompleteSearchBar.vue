@@ -13,28 +13,40 @@
         v-on:keyup.enter="search()"
         v-on:focus="showResultsOverlay"
         v-on:blur="hideResultsOverlay"
+        @mouseover="showOverlay($event, selected?.iri)"
+        @mouseleave="hideOverlay($event)"
       />
     </span>
-    <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
-      <div v-if="loading">
+    <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
+      <div v-if="loading" class="loading-container">
         <ProgressSpinner />
       </div>
       <div v-else class="p-fluid results-container">
-        <span>Showing 1-{{ results?.entities?.length }} of {{ results?.count }}</span>
-        <Listbox v-if="results?.entities" v-model="selected" :options="results.entities">
+        <span
+          >Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
+          {{ results?.count ? results.count : 0 }} results</span
+        >
+        <Listbox v-if="results?.entities" v-model="selectedLocal" :options="results.entities">
           <template #option="slotProps">
-            <div class="listbox-item">
+            <div
+              class="listbox-item"
+              @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
+              @mouseleave="hideOverlay($event)"
+              @click="() => (selectedLocal = slotProps.option)"
+            >
               <span>{{ slotProps.option.name }}</span>
             </div>
           </template>
         </Listbox>
-        <Button label="Advanced search" @click="() => (showDialog = true)" />
+        <div class="advanced-search-container">
+          <Button label="Advanced search" class="advanced-search-button" @click="() => (showDialog = true)" />
+        </div>
       </div>
     </OverlayPanel>
     <DirectorySearchDialog
       v-if="showDialog && !isAny && selected?.iri !== 'any'"
       v-model:show-dialog="showDialog"
-      v-model:selected="selected"
+      v-model:selected="selectedLocal"
       :search-by-query="searchByQuery"
       :searchByFunction="searchByFunction"
       :root-entities="['http://snomed.info/sct#138875005']"
@@ -42,12 +54,14 @@
       :filterDefaults="filterDefaults"
       :searchTerm="searchText"
     />
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, ref, Ref, watch, onMounted } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match, SearchResponse, FunctionRequest } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
@@ -58,6 +72,7 @@ import EntityService from "@/services/EntityService";
 import QueryService from "@/services/QueryService";
 import _ from "lodash";
 import { FunctionService } from "@/services";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   selected?: SearchResultSummary;
@@ -92,21 +107,30 @@ const loading = ref(false);
 const results: Ref<SearchResponse | undefined> = ref();
 const selectedFilters: Ref<FilterOptions | undefined> = ref();
 const showDialog = ref(false);
-const selected: Ref<SearchResultSummary | undefined> = ref();
+const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 
-const isAny: ComputedRef<boolean> = computed(() => selected.value?.iri === "any");
+const isAny: ComputedRef<boolean> = computed(() => selectedLocal.value?.iri === "any");
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
-  () => selected.value,
+  () => _.cloneDeep(props.selected),
   newValue => {
     searchText.value = newValue?.name ?? "";
   }
 );
 
+watch(selectedLocal, newValue => {
+  emit("update:selected", newValue);
+});
+
 watch(searchText, async () => debounceForSearch());
 
 const debounce = ref(0);
+
+onMounted(() => {
+  if (props.selected?.name) searchText.value = props.selected.name;
+});
 
 function debounceForSearch(): void {
   clearTimeout(debounce.value);
@@ -170,6 +194,7 @@ async function search(): Promise<void | SearchResponse> {
 
 async function functionSearch() {
   if (searchText.value && searchText.value.length > 2 && props.searchByFunction) {
+    loading.value = true;
     const functionRequest: FunctionRequest = _.cloneDeep(props.searchByFunction);
     functionRequest.arguments?.push({ parameter: "searchIri", valueData: searchText.value });
     functionRequest.page = { pageNumber: 1, pageSize: 10 };
@@ -188,11 +213,13 @@ async function functionSearch() {
     if (props.allowAny && searchText.value.toLocaleLowerCase() === "any") {
       results.value?.entities?.unshift({ iri: "any", name: "ANY" } as SearchResultSummary);
     }
+    loading.value = false;
   }
 }
 
 async function querySearch() {
   if (searchText.value && searchText.value.length > 2 && props.searchByQuery) {
+    loading.value = true;
     const queryRequest: QueryRequest = _.cloneDeep(props.searchByQuery);
     queryRequest.textSearch = searchText.value;
     queryRequest.page = { pageNumber: 1, pageSize: 10 };
@@ -211,6 +238,7 @@ async function querySearch() {
     if (props.allowAny && searchText.value.toLocaleLowerCase() === "any") {
       results.value?.entities?.unshift({ iri: "any", name: "ANY" } as SearchResultSummary);
     }
+    loading.value = false;
   }
 }
 
@@ -265,5 +293,28 @@ function hideResultsOverlay() {
 
 .search-button {
   height: 2.25rem;
+}
+
+.results-container {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+}
+
+.advanced-search-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+}
+
+.advanced-search-button {
+  width: fit-content;
+}
+
+.loading-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
 }
 </style>
