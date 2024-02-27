@@ -26,7 +26,7 @@
           >Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
           {{ results?.count ? results.count : 0 }} results</span
         >
-        <Listbox v-if="results?.entities" v-model="selectedLocal" :options="results.entities" :virtualScrollerOptions="{ itemSize: 10 }">
+        <Listbox v-if="results?.entities" v-model="selectedLocal" :options="results.entities">
           <template #option="slotProps">
             <div
               class="listbox-item"
