@@ -2,7 +2,18 @@
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
     <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button text-rotate" />
     <div v-if="value?.items?.length > 1" class="conjunction">
-      <Button class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
+      <Button
+        class="builder-button conjunction-button"
+        :label="value.conjunction"
+        @click="toggleBool"
+        draggable="true"
+        @dragstart="onDragStart($event, value)"
+        @dragend="onDragEnd(value, parent)"
+        @drop="onDrop($event, value, parent)"
+        @dragover="$event.preventDefault()"
+        @dragenter="mouseover"
+        @dragleave="mouseout"
+      />
     </div>
     <div class="children">
       <template v-for="(item, index) in value.items">
@@ -23,13 +34,6 @@
             :index="index"
             @mouseover="mouseover"
             @mouseout="mouseout"
-            draggable="true"
-            @drop="onDrop($event, 'refinement', value, parent)"
-            @dragstart="onDragStart($event, 'refinement', value, parent)"
-            @dragend="onDragEnd($event, 'concept', value, parent)"
-            @dragenter="onDragEnter($event, 'concept', value, parent)"
-            @dragleave="onDragLeave($event, 'concept', value, parent)"
-            @dragover="$event.preventDefault()"
           />
           <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
           <div class="right-container">

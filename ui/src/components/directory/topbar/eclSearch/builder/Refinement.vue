@@ -1,16 +1,19 @@
 <template>
   <div class="refinement-content-container">
+    <Button
+      icon="drag-icon fa-solid fa-grip-vertical"
+      severity="secondary"
+      text
+      draggable="true"
+      @dragstart="onDragStart($event, value)"
+      @dragend="onDragEnd(value, parent)"
+      @drop="onDrop($event, value, parent)"
+      @dragover="$event.preventDefault()"
+    />
     <div
       class="search-text"
       :class="[!isValidProperty && 'p-invalid', !loadingProperty && hasFocus && 'clickable', loadingProperty && 'inactive']"
       @click="hasFocus && !loadingProperty ? (showPropertyDialog = true) : (showPropertyDialog = false)"
-      draggable="true"
-      @drop="onDrop($event, 'refinement', value, parent)"
-      @dragstart="onDragStart($event, 'refinement', value, parent)"
-      @dragend="onDragEnd($event, 'concept', value, parent)"
-      @dragenter="onDragEnter($event, 'concept', value, parent)"
-      @dragleave="onDragLeave($event, 'concept', value, parent)"
-      @dragover="$event.preventDefault()"
     >
       <span class="selected-label">{{ selectedProperty?.name ?? "Search..." }}</span>
     </div>

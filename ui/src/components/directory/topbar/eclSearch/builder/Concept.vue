@@ -4,13 +4,13 @@
       icon="drag-icon fa-solid fa-grip-vertical"
       severity="secondary"
       text
-      @drop="onDrop($event, 'concept', value, parent)"
-      @dragstart="onDragStart($event, 'concept', value, parent)"
-      @dragend="onDragEnd($event, 'concept', value, parent)"
-      @dragenter="onDragEnter($event, 'concept', value, parent)"
-      @dragleave="onDragLeave($event, 'concept', value, parent)"
-      @dragover="$event.preventDefault()"
       draggable="true"
+      @dragstart="onDragStart($event, value)"
+      @dragend="onDragEnd(value, parent)"
+      @drop="onDrop($event, value, parent)"
+      @dragover="$event.preventDefault()"
+      @dragenter="mouseover"
+      @dragleave="mouseout"
     />
     <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button text-rotate" />
     <div class="focus-container">
