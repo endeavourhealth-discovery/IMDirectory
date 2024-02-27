@@ -10,6 +10,7 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   }
 
   function onDrop(event: any, dropzoneItem: any, parent: any, index?: number) {
+    event.preventDefault();
     console.log("onDrop");
     const draggedItemString = event.dataTransfer.getData("draggedItem");
     const draggedItem = JSON.parse(draggedItemString);

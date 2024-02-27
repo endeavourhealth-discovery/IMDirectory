@@ -1,8 +1,26 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
     <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button text-rotate" />
-    <div v-if="value?.items?.length > 1" class="conjunction">
-      <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction" @click="toggleBool" />
+    <div
+      v-if="value?.items?.length > 1"
+      class="conjunction"
+      @drop="onDrop($event, value, parent, index)"
+      @dragover="
+        {
+          onDragOver($event);
+          mouseover($event);
+        }
+      "
+      @dragleave="mouseout"
+    >
+      <Button
+        class="builder-button conjunction-button vertical-button"
+        :label="value.conjunction"
+        @click="toggleBool"
+        draggable="true"
+        @dragstart="onDragStart($event, value)"
+        @dragend="onDragEnd(value, parent)"
+      />
     </div>
     <div class="children">
       <template v-for="(item, index) in value.items">
