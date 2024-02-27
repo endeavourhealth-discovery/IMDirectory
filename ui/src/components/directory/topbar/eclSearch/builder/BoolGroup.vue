@@ -2,18 +2,7 @@
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
     <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button text-rotate" />
     <div v-if="value?.items?.length > 1" class="conjunction">
-      <Button
-        class="builder-button conjunction-button vertical-button"
-        :label="value.conjunction"
-        @click="toggleBool"
-        draggable="true"
-        @dragstart="onDragStart($event, value)"
-        @dragend="onDragEnd(value, parent)"
-        @drop="onDrop($event, value, parent)"
-        @dragover="$event.preventDefault()"
-        @dragenter="mouseover"
-        @dragleave="mouseout"
-      />
+      <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction" @click="toggleBool" />
     </div>
     <div class="children">
       <template v-for="(item, index) in value.items">
@@ -109,7 +98,7 @@ const props = withDefaults(defineProps<Props>(), {
   rootBool: false
 });
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const { onDragEnd, onDragStart, onDrop, onDragEnter, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 watch(
   () => _.cloneDeep(props.value),
   () => (props.value.ecl = generateEcl())

@@ -6,9 +6,10 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   function onDragStart(event: any, draggedItem: any) {
     console.log("onDragStart");
     event.dataTransfer.setData("draggedItem", JSON.stringify(draggedItem));
+    event.dataTransfer.effectAllowed = "move";
   }
 
-  function onDrop(event: any, dropzoneItem: any, parent: any) {
+  function onDrop(event: any, dropzoneItem: any, parent: any, index?: number) {
     console.log("onDrop");
     const draggedItemString = event.dataTransfer.getData("draggedItem");
     const draggedItem = JSON.parse(draggedItemString);
@@ -78,31 +79,23 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     }
   }
 
-  function onDragEnter(event: any, classToAdd: string, classToRemove: string) {
+  function onDragOver(event: any) {
+    console.log("onDragOver");
     event.preventDefault();
-    console.log("onDragEnter");
-    const element: Element | null = event.srcElement;
-    if (element) {
-      element.classList.remove(classToRemove);
-      element.classList.add(classToAdd);
-    }
+    event.dataTransfer!.dropEffect = "move";
+    event.dataTransfer!.effectAllowed = "move";
   }
 
-  function onDragLeave(event: any, classToAdd: string, classToRemove: string) {
+  function onDragLeave(event: any) {
     event.preventDefault();
     console.log("onDragLeave");
-    const element: Element | null = event.srcElement;
-    if (element) {
-      element.classList.remove(classToRemove);
-      element.classList.add(classToAdd);
-    }
   }
 
   return {
     onDrop,
     onDragStart,
     onDragEnd,
-    onDragEnter,
+    onDragOver,
     onDragLeave
   };
 }

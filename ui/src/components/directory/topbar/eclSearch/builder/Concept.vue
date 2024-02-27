@@ -1,5 +1,18 @@
 <template>
-  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="concept" @mouseover="mouseover" @mouseout="mouseout">
+  <div
+    :class="[hover ? 'nested-div-hover' : 'nested-div']"
+    class="concept"
+    @mouseover="mouseover"
+    @mouseout="mouseout"
+    @drop="onDrop($event, value, parent, index)"
+    @dragover="
+      {
+        onDragOver($event);
+        mouseover($event);
+      }
+    "
+    @dragleave="mouseout"
+  >
     <Button
       icon="drag-icon fa-solid fa-grip-vertical"
       severity="secondary"
@@ -7,10 +20,6 @@
       draggable="true"
       @dragstart="onDragStart($event, value)"
       @dragend="onDragEnd(value, parent)"
-      @drop="onDrop($event, value, parent)"
-      @dragover="$event.preventDefault()"
-      @dragenter="mouseover"
-      @dragleave="mouseout"
     />
     <Tag v-if="value.exclude" value="NOT" severity="danger" class="vertical-button" />
     <div class="focus-container">
@@ -121,7 +130,6 @@ import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl"
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import { numberAscending } from "@im-library/helpers/Sorters";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 interface Props {
   value: {
@@ -138,7 +146,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const { onDragEnd, onDragStart, onDrop, onDragEnter, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 
 watch(
   () => _.cloneDeep(props.value),

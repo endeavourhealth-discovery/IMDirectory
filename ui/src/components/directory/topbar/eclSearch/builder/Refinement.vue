@@ -1,15 +1,6 @@
 <template>
   <div class="refinement-content-container">
-    <Button
-      icon="drag-icon fa-solid fa-grip-vertical"
-      severity="secondary"
-      text
-      draggable="true"
-      @dragstart="onDragStart($event, value)"
-      @dragend="onDragEnd(value, parent)"
-      @drop="onDrop($event, value, parent)"
-      @dragover="$event.preventDefault()"
-    />
+    <Button icon="drag-icon fa-solid fa-grip-vertical" severity="secondary" text />
     <AutocompleteSearchBar
       v-if="hasFocus && !loadingProperty"
       v-model:selected="selectedProperty"
@@ -66,7 +57,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const { onDragEnd, onDragStart, onDrop, onDragEnter, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 
 watch(
   () => cloneDeep(props.value),
