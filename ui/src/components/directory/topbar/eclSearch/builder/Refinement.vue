@@ -1,6 +1,13 @@
 <template>
-  <div class="refinement-content-container">
-    <Button icon="drag-icon fa-solid fa-grip-vertical" severity="secondary" text />
+  <div class="refinement-content-container" @drop="onDrop($event, value, parent)" @dragover="onDragOver($event)">
+    <Button
+      icon="drag-icon fa-solid fa-grip-vertical"
+      severity="secondary"
+      text
+      draggable="true"
+      @dragstart="onDragStart($event, value)"
+      @dragend="onDragEnd(value, parent)"
+    />
     <AutocompleteSearchBar
       v-if="hasFocus && !loadingProperty"
       v-model:selected="selectedProperty"
