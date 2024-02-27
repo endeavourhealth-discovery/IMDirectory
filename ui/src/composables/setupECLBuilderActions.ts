@@ -91,6 +91,20 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     }
   }
 
+  function onDragEnter(event: any, type: string, draggedItem: any, parent: any) {
+    event.preventDefault();
+    console.log("onDragEnter", event.srcElement);
+    const element: Element | null = event.srcElement;
+    if (element) element.classList.add("nested-div-hover");
+  }
+
+  function onDragLeave(event: any, type: string, draggedItem: any, parent: any) {
+    event.preventDefault();
+    console.log("onDragLeave", event.srcElement);
+    const element: Element | null = event.srcElement;
+    if (element) element.classList.remove("nested-div-hover");
+  }
+
   function dragStart(event: any, data: any) {
     dragged.value = data;
     event.dataTransfer.setData("matchData", JSON.stringify(data));
@@ -138,7 +152,9 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   return {
     onDrop,
     onDragStart,
-    onDragEnd
+    onDragEnd,
+    onDragEnter,
+    onDragLeave
   };
 }
 

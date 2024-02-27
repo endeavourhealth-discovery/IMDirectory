@@ -8,6 +8,8 @@
       @drop="onDrop($event, 'refinement', value, parent)"
       @dragstart="onDragStart($event, 'refinement', value, parent)"
       @dragend="onDragEnd($event, 'concept', value, parent)"
+      @dragenter="onDragEnter($event, 'concept', value, parent)"
+      @dragleave="onDragLeave($event, 'concept', value, parent)"
       @dragover="$event.preventDefault()"
     >
       <span class="selected-label">{{ selectedProperty?.name ?? "Search..." }}</span>
@@ -81,7 +83,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const { onDragEnd, onDragStart, onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragEnter, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 
 watch(
   () => cloneDeep(props.value),

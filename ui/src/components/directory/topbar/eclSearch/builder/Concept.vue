@@ -1,18 +1,22 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="concept" @mouseover="mouseover" @mouseout="mouseout">
+    <Button
+      icon="drag-icon fa-solid fa-grip-vertical"
+      severity="secondary"
+      text
+      @drop="onDrop($event, 'concept', value, parent)"
+      @dragstart="onDragStart($event, 'concept', value, parent)"
+      @dragend="onDragEnd($event, 'concept', value, parent)"
+      @dragenter="onDragEnter($event, 'concept', value, parent)"
+      @dragleave="onDragLeave($event, 'concept', value, parent)"
+      @dragover="$event.preventDefault()"
+      draggable="true"
+    />
     <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button text-rotate" />
     <div class="focus-container">
       <div class="focus">
         <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-          <ConceptSelector
-            :value="value"
-            :parent="value"
-            draggable="true"
-            @drop="onDrop($event, 'concept', value, parent)"
-            @dragstart="onDragStart($event, 'concept', value, parent)"
-            @dragend="onDragEnd($event, 'concept', value, parent)"
-            @dragover="$event.preventDefault()"
-          />
+          <ConceptSelector :value="value" :parent="value" />
         </div>
         <div v-else-if="isBoolGroup(value.concept)" class="focus-group-container">
           <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
@@ -117,6 +121,7 @@ import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl"
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import { numberAscending } from "@im-library/helpers/Sorters";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 interface Props {
   value: {
@@ -133,7 +138,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const { onDragEnd, onDragStart, onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragEnter, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 
 watch(
   () => _.cloneDeep(props.value),
@@ -370,6 +375,12 @@ function unGroupItems(groupedItems: any) {
 .refinement-container {
   display: flex;
 }
+
+/* .drag-icon {
+  display: flex;
+  cursor: pointer;
+  padding: 0.5rem;
+} */
 
 .left-container {
   display: flex;
