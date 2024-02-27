@@ -3,7 +3,7 @@
     <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button text-rotate" />
     <div v-if="value?.items?.length > 1" class="conjunction">
       <Button
-        class="builder-button conjunction-button"
+        class="builder-button conjunction-button vertical-button"
         :label="value.conjunction"
         @click="toggleBool"
         draggable="true"
@@ -53,7 +53,7 @@
       <Button
         type="button"
         icon="fa-solid fa-plus"
-        class="builder-button"
+        class="builder-button vertical-button"
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
@@ -65,7 +65,7 @@
       <Menu ref="addMenu" :model="addItems" :popup="true" />
       <Button
         v-if="value?.items?.length > 1"
-        class="builder-button group-button"
+        class="builder-button group-button vertical-button"
         :severity="group.length ? 'success' : 'danger'"
         :outlined="!hover"
         :class="[!hover && 'hover-button', !group.length && 'strike-through']"
@@ -81,7 +81,7 @@
         :class="!hover && 'hover-button'"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
-        class="builder-button"
+        class="builder-button vertical-button"
         v-tooltip="value.exclude ? 'Include' : 'Exclude'"
       />
     </div>
@@ -347,29 +347,16 @@ function toggleAdd(event: any) {
   flex-flow: row nowrap;
 }
 
-.conjunction-button,
-.builder-button {
-  padding: 0;
-}
-
 .builder-button {
   width: 2rem;
-}
-
-.conjunction-button:deep(.p-button-label) {
-  transform: rotate(-90deg);
 }
 
 .strike-through {
   text-decoration: line-through;
 }
 
-.text-rotate:deep(.p-tag-value) {
-  transform: rotate(-90deg);
-}
-
-.exclude-button:deep(.p-button-label) {
-  transform: rotate(-90deg);
-  transform-origin: bottom center;
+.vertical-button {
+  writing-mode: vertical-lr;
+  transform: scale(-1);
 }
 </style>

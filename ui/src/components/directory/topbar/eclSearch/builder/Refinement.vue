@@ -10,54 +10,36 @@
       @drop="onDrop($event, value, parent)"
       @dragover="$event.preventDefault()"
     />
-    <div
-      class="search-text"
-      :class="[!isValidProperty && 'p-invalid', !loadingProperty && hasFocus && 'clickable', loadingProperty && 'inactive']"
-      @click="hasFocus && !loadingProperty ? (showPropertyDialog = true) : (showPropertyDialog = false)"
-    >
-      <span class="selected-label">{{ selectedProperty?.name ?? "Search..." }}</span>
-    </div>
+    <AutocompleteSearchBar
+      v-if="hasFocus && !loadingProperty"
+      v-model:selected="selectedProperty"
+      :search-by-function="propertyFunctionRequest"
+      :root-entities="['http://snomed.info/sct#138875005']"
+      :filterOptions="propertyFilterOptions"
+      :filterDefaults="propertyFilterDefaults"
+      :allow-any="true"
+    />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
-    <div
-      class="search-text"
-      :class="[!isValidPropertyValue && 'p-invalid', !loadingValue && hasProperty && 'clickable', loadingValue && 'inactive']"
-      @click="hasProperty && !loadingValue && !loadingProperty ? (showValueDialog = true) : (showValueDialog = false)"
-      @mouseover="showOverlay($event, selectedValue?.iri)"
-      @mouseleave="hideOverlay($event)"
-    >
-      <span class="selected-label">{{ selectedValue?.name ?? "Search..." }}</span>
-    </div>
-    <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
-    <DirectorySearchDialog
-      v-if="showPropertyDialog"
-      v-model:show-dialog="showPropertyDialog"
-      v-model:selected="selectedProperty"
-      :search-by-function="propertyFunctionRequest"
-      :root-entities="propertyTreeRoots.length ? propertyTreeRoots : ['http://snomed.info/sct#138875005']"
-      :filterOptions="propertyFilterOptions"
-      :filterDefaults="propertyFilterDefaults"
-    />
-    <DirectorySearchDialog
-      v-if="showValueDialog"
-      v-model:show-dialog="showValueDialog"
+    <AutocompleteSearchBar
+      v-if="hasProperty && !loadingValue && !loadingProperty"
       v-model:selected="selectedValue"
       :search-by-query="valueQueryRequest"
       :root-entities="valueTreeRoots.length ? valueTreeRoots : ['http://snomed.info/sct#138875005']"
       :filterOptions="valueFilterOptions"
       :filterDefaults="valueFilterDefaults"
+      :allow-any="true"
     />
-    <OverlaySummary ref="OS" />
+    <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
+    <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { EntityService, FunctionService, QueryService } from "@/services";
-import { useDialog } from "primevue/usedialog";
 import { IM, RDF, SNOMED, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
@@ -65,12 +47,10 @@ import { useToast } from "primevue/usetoast";
 import { ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
-import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
-import setupOverlay from "@/composables/setupOverlay";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 interface Props {
@@ -114,8 +94,6 @@ watch(
     }
   }
 );
-
-const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 const toast = useToast();
 const filterStore = useFilterStore();

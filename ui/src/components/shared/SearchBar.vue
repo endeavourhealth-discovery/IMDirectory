@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import Filters from "@/components/shared/Filters.vue";
 
-import { computed, ComputedRef, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, ref, Ref, watch, onMounted } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match, SearchResponse, FunctionRequest } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
@@ -67,6 +67,7 @@ interface Props {
   download: { term: string; count: number } | undefined;
   searchByFunction?: FunctionRequest;
   searchByQuery?: QueryRequest;
+  searchTerm?: string;
 }
 
 const props = defineProps<Props>();
@@ -132,6 +133,10 @@ watch(results, newValue => emit("update:searchResults", newValue));
 watch(loading, newValue => emit("update:searchLoading", newValue));
 
 const filtersOP = ref();
+
+onMounted(() => {
+  if (props.searchTerm) searchText.value = props.searchTerm;
+});
 
 function handleSelectedFiltersUpdated(updatedSelectedFilters: FilterOptions) {
   selectedFilters.value = updatedSelectedFilters;

@@ -22,6 +22,7 @@
           v-model:download="download"
           :search-by-function="searchByFunction"
           :search-by-query="searchByQuery"
+          :searchTerm="searchTerm"
         />
       </div>
       <div class="vertical-divider">
@@ -92,6 +93,7 @@ interface Props {
   rootEntities?: string[];
   filterOptions?: FilterOptions;
   filterDefaults?: FilterOptions;
+  searchTerm?: string;
 }
 const props = defineProps<Props>();
 watch(

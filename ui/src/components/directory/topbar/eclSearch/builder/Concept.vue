@@ -12,7 +12,7 @@
       @dragenter="mouseover"
       @dragleave="mouseout"
     />
-    <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button text-rotate" />
+    <Tag v-if="value.exclude" value="NOT" severity="danger" class="vertical-button" />
     <div class="focus-container">
       <div class="focus">
         <div v-if="isAliasIriRef(value.concept)" class="concept-container">
@@ -72,7 +72,7 @@
       <Button
         type="button"
         icon="fa-solid fa-plus"
-        class="builder-button"
+        class="builder-button vertical-button"
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
@@ -84,7 +84,7 @@
       <Menu ref="addMenu" :model="addItems" :popup="true" />
       <Button
         v-if="value?.items?.length > 1"
-        class="builder-button"
+        class="builder-button vertical-button"
         severity="success"
         :outlined="!hover"
         :class="[!hover && 'hover-button']"
@@ -100,7 +100,7 @@
         :class="!hover && 'hover-button'"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
-        class="builder-button exclude-button"
+        class="builder-button exclude-button vertical-button"
         v-tooltip="value.exclude ? 'Include' : 'Exclude'"
       />
     </div>
@@ -328,6 +328,7 @@ function unGroupItems(groupedItems: any) {
 .refinements {
   display: flex;
   flex-flow: column nowrap;
+  width: 100%;
 }
 
 .concept-container {
@@ -370,6 +371,7 @@ function unGroupItems(groupedItems: any) {
 .refinement {
   display: flex;
   flex-flow: row nowrap;
+  width: 100%;
 }
 
 .refinement-container {
@@ -424,25 +426,12 @@ function unGroupItems(groupedItems: any) {
   width: 4rem;
 }
 
-.conjunction-button,
-.builder-button {
-  padding: 0;
-}
-
 .builder-button {
   width: 2rem;
 }
 
-.conjunction-button:deep(.p-button-label) {
-  transform: rotate(-90deg);
-}
-
-.text-rotate:deep(.p-tag-value) {
-  transform: rotate(-90deg);
-}
-
-.exclude-button:deep(.p-button-label) {
-  transform: rotate(-90deg);
-  transform-origin: bottom center;
+.vertical-button {
+  writing-mode: vertical-lr;
+  transform: scale(-1);
 }
 </style>

@@ -1,17 +1,12 @@
 <template>
   <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-    <div class="search-text" type="text" :class="[isAny && 'inactive', !isAny && 'clickable']" @click="!isAny ? (showDialog = true) : (showDialog = false)">
-      <span class="selected-label">{{ selected?.name ?? "Search..." }}</span>
-    </div>
-    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="any" :binary="true" /></div>
-    <DirectorySearchDialog
-      v-if="showDialog && !isAny && selected?.iri !== 'any'"
-      v-model:show-dialog="showDialog"
+    <AutocompleteSearchBar
       v-model:selected="selected"
       :search-by-query="queryRequest"
       :root-entities="['http://snomed.info/sct#138875005']"
       :filterOptions="filterOptions"
       :filterDefaults="filterDefaults"
+      :allow-any="true"
     />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
@@ -22,9 +17,8 @@
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, inject, computed, ComputedRef } from "vue";
 import { IM, SNOMED, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
-import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
@@ -33,7 +27,6 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 import { useFilterStore } from "@/stores/filterStore";
-import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   value: {
@@ -66,22 +59,12 @@ watch(
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
-const { OS, showOverlay, hideOverlay } = setupOverlay();
-
 const filterStore = useFilterStore();
 const filterStoreDefaults = computed(() => filterStore.filterDefaults);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
-const isAny: ComputedRef<boolean> = computed(() => selected.value?.iri === "any");
 
 const loading = ref(false);
-const showDialog = ref(false);
-const any = ref(false);
 const selected: Ref<SearchResultSummary | undefined> = ref();
-
-watch(any, newValue => {
-  if (newValue) selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
-  else selected.value = undefined;
-});
 
 const queryRequest: QueryRequest = {
   query: { "@id": QUERY.SEARCH_ENTITIES },
