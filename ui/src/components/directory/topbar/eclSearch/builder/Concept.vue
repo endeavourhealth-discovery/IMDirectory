@@ -30,7 +30,7 @@
       </div>
       <div class="refinement">
         <div v-if="value?.items?.length > 1" class="conjunction">
-          <Button class="builder-button conjunction-button" :label="value.conjunction ?? 'OR'" @click="toggleBool" />
+          <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction ?? 'OR'" @click="toggleBool" />
         </div>
         <div class="refinements">
           <div v-for="(item, index) in value.items" class="refinement-container">

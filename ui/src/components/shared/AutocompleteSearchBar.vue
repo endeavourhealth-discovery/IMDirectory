@@ -7,7 +7,6 @@
         id="autocomplete-search"
         v-model="searchText"
         :placeholder="searchPlaceholder"
-        @complete="debounceForSearch"
         data-testid="search-input"
         autofocus
         v-on:keyup.enter="search()"
@@ -15,6 +14,7 @@
         v-on:blur="hideResultsOverlay"
         @mouseover="showOverlay($event, selected?.iri)"
         @mouseleave="hideOverlay($event)"
+        :disabled="disabled"
       />
     </span>
     <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
@@ -26,7 +26,7 @@
           >Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
           {{ results?.count ? results.count : 0 }} results</span
         >
-        <Listbox v-if="results?.entities" v-model="selectedLocal" :options="results.entities" :virtualScrollerOptions="{ itemSize: 10 }">
+        <Listbox v-if="results?.entities" v-model="selectedLocal" :options="results.entities">
           <template #option="slotProps">
             <div
               class="listbox-item"
@@ -39,7 +39,7 @@
           </template>
         </Listbox>
         <div class="advanced-search-container">
-          <Button label="Advanced search" class="advanced-search-button" @click="() => (showDialog = true)" />
+          <Button :disabled="advancedSearchLoading" label="Advanced search" class="advanced-search-button" @click="showAdvancedSearch" />
         </div>
       </div>
     </OverlayPanel>
@@ -79,9 +79,10 @@ interface Props {
   searchByFunction?: FunctionRequest;
   searchByQuery?: QueryRequest;
   allowAny?: boolean;
-  rootEntities?: string[];
+  getRootEntities?: Function;
   filterOptions?: FilterOptions;
   filterDefaults?: FilterOptions;
+  disabled?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -108,6 +109,7 @@ const results: Ref<SearchResponse | undefined> = ref();
 const selectedFilters: Ref<FilterOptions | undefined> = ref();
 const showDialog = ref(false);
 const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
+const advancedSearchLoading = ref(false);
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 
 const isAny: ComputedRef<boolean> = computed(() => selectedLocal.value?.iri === "any");
@@ -116,20 +118,41 @@ const { OS, showOverlay, hideOverlay } = setupOverlay();
 watch(
   () => _.cloneDeep(props.selected),
   newValue => {
-    searchText.value = newValue?.name ?? "";
+    loading.value = true;
+    if (newValue && newValue.name && newValue.name != searchText.value) {
+      searchText.value = newValue.name;
+      selectedLocal.value = newValue;
+    } else if (!newValue) {
+      searchText.value = "";
+      selectedLocal.value = undefined;
+    }
+    loading.value = false;
   }
 );
 
-watch(selectedLocal, newValue => {
-  emit("update:selected", newValue);
-});
+watch(
+  selectedLocal,
+  newValue => {
+    emit("update:selected", newValue);
+  },
+  { deep: true }
+);
 
-watch(searchText, async () => debounceForSearch());
+watch(searchText, newValue => {
+  if (!newValue) {
+    selectedLocal.value = undefined;
+  } else if (!loading.value && newValue != props.selected?.name) debounceForSearch();
+});
 
 const debounce = ref(0);
 
 onMounted(() => {
-  if (props.selected?.name) searchText.value = props.selected.name;
+  loading.value = true;
+  if (props.selected?.name) {
+    searchText.value = props.selected.name;
+    selectedLocal.value = props.selected;
+  }
+  loading.value = false;
 });
 
 function debounceForSearch(): void {
@@ -248,6 +271,13 @@ function showResultsOverlay(event: any) {
 
 function hideResultsOverlay() {
   resultsOP.value.hide();
+}
+
+async function showAdvancedSearch() {
+  advancedSearchLoading.value = true;
+  if (props.getRootEntities) await props.getRootEntities();
+  showDialog.value = true;
+  advancedSearchLoading.value = false;
 }
 </script>
 

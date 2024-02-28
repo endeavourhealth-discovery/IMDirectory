@@ -27,6 +27,7 @@
         <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading"
           >*Move pointer over panel above to add concepts, refinements and groups.</small
         >
+        <Button label="Validate" @click="() => (validate = true)" />
       </div>
       <div id="build-string-container">
         <h3>Output:</h3>
@@ -88,6 +89,7 @@ const toast = useToast();
 
 const build: Ref<any> = ref({ type: "BoolGroup", operator: "OR" });
 const includeTerms = ref(true);
+const validate = ref(false);
 const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
@@ -98,6 +100,7 @@ watch(queryString, async () => {
 });
 
 provide("includeTerms", readonly(includeTerms));
+provide("validate", readonly(validate));
 
 onMounted(async () => {
   if (props.eclString) {
