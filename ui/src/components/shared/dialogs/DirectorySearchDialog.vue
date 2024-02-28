@@ -27,7 +27,13 @@
       </div>
       <div class="vertical-divider">
         <div class="left-container">
-          <NavTree :selectedIri="treeIri" :root-entities="rootEntities" @row-selected="showDetails" />
+          <NavTree
+            :selectedIri="treeIri"
+            :root-entities="rootEntities"
+            @row-selected="showDetails"
+            :find-in-tree="findInDialogTree"
+            @found-in-tree="findInDialogTree = false"
+          />
         </div>
         <div class="right-container">
           <SearchResults
@@ -114,7 +120,7 @@ const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
 const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
 const download: Ref<{ term: string; count: number } | undefined> = ref();
-
+const findInDialogTree = ref(false);
 const visible = ref(false);
 watch(visible, newValue => {
   if (!newValue) {
@@ -125,6 +131,13 @@ watch(visible, newValue => {
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
+
+watch(
+  () => treeIri.value,
+  () => {
+    findInDialogTree.value = true;
+  }
+);
 const detailsIri = ref("");
 
 watch(

@@ -1,7 +1,13 @@
 <template>
   <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter">
     <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
-      <NavTree :allow-right-click="true" :selected-iri="findInTreeIri" :find-in-tree="findInTreeBoolean" @row-selected="routeToSelected" />
+      <NavTree
+        :allow-right-click="true"
+        :selected-iri="findInTreeIri"
+        :find-in-tree="findInTreeBoolean"
+        @row-selected="routeToSelected"
+        @found-in-tree="directoryStore.updateFindInTreeBoolean(false)"
+      />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
