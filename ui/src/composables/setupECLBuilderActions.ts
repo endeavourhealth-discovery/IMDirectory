@@ -1,24 +1,22 @@
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Ref } from "vue";
 import Swal from "sweetalert2";
 
 function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   function onDragStart(event: any, draggedItem: any) {
-    console.log("onDragStart");
     event.dataTransfer.setData("draggedItem", JSON.stringify(draggedItem));
     event.dataTransfer.effectAllowed = "move";
   }
 
   function onDrop(event: any, dropzoneItem: any, parent: any, index?: number) {
     event.preventDefault();
-    console.log("onDrop");
     const draggedItemString = event.dataTransfer.getData("draggedItem");
     const draggedItem = JSON.parse(draggedItemString);
     console.log(`dropping ${draggedItem.type} to ${dropzoneItem.type}`);
 
-    if (dropzoneItem.ecl === draggedItem.ecl) console.log("Can not drop item on itself.");
+    if (dropzoneItem.ecl === draggedItem.ecl) console.warn("Can not drop item on itself.");
     else if ((draggedItem.type === "Concept" && dropzoneItem.type === "Concept") || (draggedItem.type === "Refinement" && dropzoneItem.type === "Refinement")) {
-      group(draggedItem, dropzoneItem, parent);
+      group(draggedItem, dropzoneItem, parent, index);
     } else if (
       (draggedItem.type === "Concept" && dropzoneItem.type === "BoolGroup") ||
       (draggedItem.type === "Refinement" && dropzoneItem.type === "BoolGroup") ||
@@ -35,11 +33,13 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
         denyButtonColor: "Green"
       }).then(result => {
         if (result.isConfirmed) {
-          parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== draggedItem.ecl);
           insert(draggedItem, dropzoneItem);
+          if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
+            parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== draggedItem.ecl);
         } else if (result.isDenied) {
-          parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== draggedItem.ecl);
           merge(draggedItem, dropzoneItem, parent);
+          if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
+            parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== draggedItem.ecl);
         }
       });
     }
@@ -51,45 +51,43 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     wasDraggedAndDropped.value = true;
   }
 
-  function merge(draggedItem: any, dropzoneItem: any, parent: any) {
+  function merge(draggedItem: any, dropzoneItem: any, parent: any, index?: number) {
     const newBoolGroup = { type: "BoolGroup", conjunction: "OR", items: [] as any[] };
     newBoolGroup.items = draggedItem.items.concat(dropzoneItem.items);
-    if (parent) {
+    if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items)) {
       parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== dropzoneItem.ecl);
       parent.items.push(newBoolGroup);
+      wasDraggedAndDropped.value = true;
     }
-    wasDraggedAndDropped.value = true;
   }
 
-  function group(draggedItem: any, dropzoneItem: any, parent: any) {
+  function group(draggedItem: any, dropzoneItem: any, parent: any, index?: number) {
     const newBoolGroup = { type: "BoolGroup", conjunction: "OR", items: [] as any[] };
     newBoolGroup.items.push(draggedItem);
     newBoolGroup.items.push(dropzoneItem);
-    if (parent) {
+    if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items)) {
       parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== dropzoneItem.ecl);
-      parent.items.push(newBoolGroup);
+      if (index) parent.items.splice(index, 0, newBoolGroup);
+      else parent.items.push(newBoolGroup);
+      wasDraggedAndDropped.value = true;
     }
-    wasDraggedAndDropped.value = true;
   }
 
   function onDragEnd(draggedItem: any, parent: any) {
-    console.log("onDragEnd", draggedItem);
-    if (wasDraggedAndDropped.value) {
+    if (wasDraggedAndDropped.value && isObjectHasKeys(parent, ["items"])) {
       parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== draggedItem.ecl);
-      wasDraggedAndDropped.value = false;
     }
+    wasDraggedAndDropped.value = false;
   }
 
   function onDragOver(event: any) {
-    console.log("onDragOver");
     event.preventDefault();
-    event.dataTransfer!.dropEffect = "move";
-    event.dataTransfer!.effectAllowed = "move";
+    event.dataTransfer.dropEffect = "move";
+    event.dataTransfer.effectAllowed = "move";
   }
 
   function onDragLeave(event: any) {
     event.preventDefault();
-    console.log("onDragLeave");
   }
 
   return {
