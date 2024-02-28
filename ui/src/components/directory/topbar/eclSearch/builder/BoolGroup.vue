@@ -18,7 +18,7 @@
         :label="value.conjunction"
         @click="toggleBool"
         draggable="true"
-        @dragstart="onDragStart($event, value)"
+        @dragstart="onDragStart($event, value, parent)"
         @dragend="onDragEnd(value, parent)"
       />
     </div>

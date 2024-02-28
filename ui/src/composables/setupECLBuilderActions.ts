@@ -1,20 +1,36 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Ref } from "vue";
 import Swal from "sweetalert2";
+import { useToast } from "primevue/usetoast";
 
 function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
-  function onDragStart(event: any, draggedItem: any) {
-    event.dataTransfer.setData("draggedItem", JSON.stringify(draggedItem));
+  const toast = useToast();
+
+  function onDragStart(event: any, draggedItem: any, parent: any) {
+    event.dataTransfer.setData("draggedItem", JSON.stringify({ draggedItem: draggedItem, draggedItemParent: parent }));
     event.dataTransfer.effectAllowed = "move";
   }
 
   function onDrop(event: any, dropzoneItem: any, parent: any, index?: number) {
     event.preventDefault();
-    const draggedItemString = event.dataTransfer.getData("draggedItem");
-    const draggedItem = JSON.parse(draggedItemString);
+    const draggedItemDataString = event.dataTransfer.getData("draggedItem");
+    const { draggedItem, draggedItemParent } = JSON.parse(draggedItemDataString);
     console.log(`dropping ${draggedItem.type} to ${dropzoneItem.type}`);
 
-    if (dropzoneItem.ecl === draggedItem.ecl) console.warn("Can not drop item on itself.");
+    if (dropzoneItem.ecl === draggedItem.ecl)
+      toast.add({
+        severity: "warn",
+        summary: "Unable to drop",
+        detail: "Can not drop item on itself.",
+        life: 3000
+      });
+    else if (dropzoneItem.ecl === draggedItemParent.ecl)
+      toast.add({
+        severity: "warn",
+        summary: "Unable to drop",
+        detail: "Item is already part of that group.",
+        life: 3000
+      });
     else if ((draggedItem.type === "Concept" && dropzoneItem.type === "Concept") || (draggedItem.type === "Refinement" && dropzoneItem.type === "Refinement")) {
       group(draggedItem, dropzoneItem, parent, index);
     } else if (
@@ -41,6 +57,13 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
           if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
             parent.items = parent.items.filter((parentItem: any) => parentItem.ecl !== draggedItem.ecl);
         }
+      });
+    } else {
+      toast.add({
+        severity: "warn",
+        summary: "Unable to drop",
+        detail: "Invalid dropzone. Valid dropzones are highlighted blocks and AND/OR buttons",
+        life: 3000
       });
     }
   }

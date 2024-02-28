@@ -18,7 +18,7 @@
       severity="secondary"
       text
       draggable="true"
-      @dragstart="onDragStart($event, value)"
+      @dragstart="onDragStart($event, value, parent)"
       @dragend="onDragEnd(value, parent)"
     />
     <Tag v-if="value.exclude" value="NOT" severity="danger" class="vertical-button" />

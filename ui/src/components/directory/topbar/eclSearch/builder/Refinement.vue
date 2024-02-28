@@ -5,7 +5,7 @@
       severity="secondary"
       text
       draggable="true"
-      @dragstart="onDragStart($event, value)"
+      @dragstart="onDragStart($event, value, parent)"
       @dragend="onDragEnd(value, parent)"
     />
     <AutocompleteSearchBar
