@@ -310,10 +310,11 @@ async function processPropertyProp() {
       });
     else if (isBoolGroup(props.focus))
       toast.add({
-        severity: ToastSeverity.ERROR,
+        severity: ToastSeverity.WARN,
         summary: "Invalid property",
-        detail: `Property "${selectedProperty.value.name ? selectedProperty.value.name : props.value.property.concept.iri}" is not valid for focus "${props
-          .focus?.ecl}"`,
+        detail: `Property "${selectedProperty.value.name ? selectedProperty.value.name : props.value.property.concept.iri}" is not valid for focus "${
+          props.focus?.ecl
+        }"`,
         life: 3000
       });
   }
@@ -333,7 +334,7 @@ async function processValueProp() {
   await updateIsValidPropertyValue();
   if (!isValidPropertyValue.value) {
     toast.add({
-      severity: ToastSeverity.ERROR,
+      severity: ToastSeverity.WARN,
       summary: "Invalid property value",
       detail: `Value "${props.value.value.concept.name ? props.value.value.concept.name : props.value.value.concept.iri}" is not valid for property "${
         props.value.property.concept.name ? props.value.property.concept.name : props.value.property.concept.iri
@@ -395,11 +396,7 @@ async function updateValue(value: SearchResultSummary) {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   height: 2.7rem;
