@@ -69,10 +69,6 @@ const clickedNodeRef: Ref<Property | Match> = ref({} as Property);
 const list: Ref<Node[]> = ref([]);
 const op1: Ref<any> = ref();
 
-onMounted(() => {
-  console.log(props.match);
-});
-
 function onNodeRefClick(propertyOrMatch: Property | Match, event: any) {
   clickedNodeRef.value = propertyOrMatch;
   op.value.toggle(event);
