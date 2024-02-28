@@ -1,5 +1,13 @@
 <template>
-  <div class="refinement-content-container">
+  <div class="refinement-content-container" @drop="onDrop($event, value, parent)" @dragover="onDragOver($event)">
+    <Button
+      icon="drag-icon fa-solid fa-grip-vertical"
+      severity="secondary"
+      text
+      draggable="true"
+      @dragstart="onDragStart($event, value, parent)"
+      @dragend="onDragEnd(value, parent)"
+    />
     <AutocompleteSearchBar
       :disabled="!hasFocus || loadingProperty"
       v-model:selected="selectedProperty"
@@ -41,6 +49,7 @@ import { FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
+import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 interface Props {
   value: {
@@ -55,6 +64,8 @@ interface Props {
   focus?: any;
 }
 const props = defineProps<Props>();
+const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 
 watch(
   () => cloneDeep(props.value),
@@ -400,7 +411,7 @@ async function updateValue(value: SearchResultSummary | undefined) {
     box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
-  height: 2.7rem;
+  height: 2.2rem;
   display: flex;
   flex-flow: column;
   justify-content: center;

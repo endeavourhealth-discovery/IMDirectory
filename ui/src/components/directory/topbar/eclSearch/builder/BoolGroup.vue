@@ -1,8 +1,26 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
     <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button text-rotate" />
-    <div v-if="value?.items?.length > 1" class="conjunction">
-      <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction" @click="toggleBool" />
+    <div
+      v-if="value?.items?.length > 1"
+      class="conjunction"
+      @drop="onDrop($event, value, parent, index)"
+      @dragover="
+        {
+          onDragOver($event);
+          mouseover($event);
+        }
+      "
+      @dragleave="mouseout"
+    >
+      <Button
+        class="builder-button conjunction-button vertical-button"
+        :label="value.conjunction"
+        @click="toggleBool"
+        draggable="true"
+        @dragstart="onDragStart($event, value, parent)"
+        @dragend="onDragEnd(value, parent)"
+      />
     </div>
     <div class="children">
       <template v-for="(item, index) in value.items">
@@ -14,7 +32,16 @@
               <label :for="'group' + index">Select</label>
             </div>
           </span>
-          <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
+          <BoolGroup
+            v-if="item.type === 'BoolGroup'"
+            :value="item"
+            :parent="props.value"
+            :focus="props.focus"
+            @unGroupItems="unGroupItems"
+            :index="index"
+            @mouseover="mouseover"
+            @mouseout="mouseout"
+          />
           <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
           <div class="right-container">
             <Button
@@ -75,6 +102,7 @@ import Refinement from "@/components/directory/topbar/eclSearch/builder/Refineme
 import _, { isArray } from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { numberAscending } from "@im-library/helpers/Sorters";
+import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 interface Props {
   value: any;
@@ -87,7 +115,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   rootBool: false
 });
-
+const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 watch(
   () => _.cloneDeep(props.value),
   () => (props.value.ecl = generateEcl())

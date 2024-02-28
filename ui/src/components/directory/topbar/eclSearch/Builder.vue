@@ -16,7 +16,11 @@
     :auto-z-index="false"
   >
     <template #header>
-      <h3>ECL Builder:</h3>
+      <div class="ecl-builder-dialog-header">
+        <h3>ECL Builder:</h3>
+        <Button icon="fa-regular fa-circle-question" text rounded @mouseover="toggle" @mouseout="toggle" />
+        <OverlayPanel ref="op">Select or drag and drop for grouping</OverlayPanel>
+      </div>
     </template>
     <div id="builder-string-container">
       <div id="query-builder-container">
@@ -62,6 +66,7 @@ import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue"
 import { useDialog } from "primevue/usedialog";
 import { deferred } from "@im-library/helpers";
 import Swal from "sweetalert2";
+import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -100,6 +105,15 @@ const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error
 const loading = ref(false);
 const isValidEcl = ref(false);
 const isValid = ref(false);
+
+
+const wasDraggedAndDropped = ref(false);
+provide("wasDraggedAndDropped", wasDraggedAndDropped);
+const { onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
+const op = ref();
+function toggle(event: any) {
+  op.value.toggle(event);
+}
 
 watch(queryString, async () => {
   isValidEcl.value = await EclService.isValidECL(queryString.value);
@@ -300,5 +314,12 @@ function flattenBuild(build: any, flattenedBuild: any[]) {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+}
+
+.ecl-builder-dialog-header {
+  display: flex;
+  flex-flow: row;
+  align-items: baseline;
+  justify-content: space-between;
 }
 </style>

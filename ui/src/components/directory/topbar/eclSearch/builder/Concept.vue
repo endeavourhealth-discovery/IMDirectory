@@ -1,5 +1,26 @@
 <template>
-  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="concept" @mouseover="mouseover" @mouseout="mouseout">
+  <div
+    :class="[hover ? 'nested-div-hover' : 'nested-div']"
+    class="concept"
+    @mouseover="mouseover"
+    @mouseout="mouseout"
+    @drop="onDrop($event, value, parent, index)"
+    @dragover="
+      {
+        onDragOver($event);
+        mouseover($event);
+      }
+    "
+    @dragleave="mouseout"
+  >
+    <Button
+      icon="drag-icon fa-solid fa-grip-vertical"
+      severity="secondary"
+      text
+      draggable="true"
+      @dragstart="onDragStart($event, value, parent)"
+      @dragend="onDragEnd(value, parent)"
+    />
     <Tag v-if="value.exclude" value="NOT" severity="danger" class="vertical-button" />
     <div class="focus-container">
       <div class="focus">
@@ -108,6 +129,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import { numberAscending } from "@im-library/helpers/Sorters";
+import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 interface Props {
   value: {
@@ -123,6 +145,8 @@ interface Props {
   index?: number;
 }
 const props = defineProps<Props>();
+const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 
 watch(
   () => _.cloneDeep(props.value),
@@ -361,6 +385,12 @@ function unGroupItems(groupedItems: any) {
 .refinement-container {
   display: flex;
 }
+
+/* .drag-icon {
+  display: flex;
+  cursor: pointer;
+  padding: 0.5rem;
+} */
 
 .left-container {
   display: flex;
