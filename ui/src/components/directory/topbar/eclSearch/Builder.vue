@@ -27,7 +27,6 @@
         <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading"
           >*Move pointer over panel above to add concepts, refinements and groups.</small
         >
-        <Button label="Validate" @click="() => (validate = true)" />
       </div>
       <div id="build-string-container">
         <h3>Output:</h3>
@@ -49,6 +48,7 @@
     </div>
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" />
+      <Button label="Validate" severity="success" @click="validateBuild" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>
@@ -58,6 +58,10 @@
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { useDialog } from "primevue/usedialog";
+import { deferred } from "@im-library/helpers";
+import Swal from "sweetalert2";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -71,7 +75,7 @@ import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import EclService from "@/services/EclService";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   showDialog?: boolean;
@@ -86,21 +90,23 @@ const emit = defineEmits({
 });
 
 const toast = useToast();
+const dynamicDialog = useDialog();
 
 const build: Ref<any> = ref({ type: "BoolGroup", operator: "OR" });
 const includeTerms = ref(true);
-const validate = ref(false);
+const forceValidation = ref(false);
 const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
 const isValidEcl = ref(false);
+const isValid = ref(false);
 
 watch(queryString, async () => {
   isValidEcl.value = await EclService.isValidECL(queryString.value);
 });
 
 provide("includeTerms", readonly(includeTerms));
-provide("validate", readonly(validate));
+provide("forceValidation", readonly(forceValidation));
 
 onMounted(async () => {
   if (props.eclString) {
@@ -167,6 +173,71 @@ function onCopy(): void {
 
 function onCopyError(): void {
   toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipbard"));
+}
+
+async function validateBuild() {
+  const verificationDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Validating", text: "Running validation checks..." }
+  });
+  const validationBuild = generateValidation();
+  forceValidation.value = true;
+  const promises = validationBuild.map(v => v.validation.deferred.promise);
+  const result = await Promise.allSettled(promises)
+    .then(result => {
+      return result.every(r => r.status === "fulfilled");
+    })
+    .catch(err => {
+      verificationDialog.close();
+      throw err;
+    });
+  if (result) {
+    isValid.value = validationBuild.every(v => v.validation.valid);
+    if (isValid.value) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "All entities are valid.",
+        confirmButtonText: "Close",
+        confirmButtonColor: "##2196F3"
+      });
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "Invalid values found. Please review your entries.",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
+    }
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "Timeout",
+      text: "Validation timed out. Please contact an admin for support.",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
+    });
+  }
+  forceValidation.value = false;
+  verificationDialog.close();
+}
+
+function generateValidation(): any[] {
+  const flattenedBuild: any[] = [];
+  flattenBuild(build.value, flattenedBuild);
+  return flattenedBuild;
+}
+
+function flattenBuild(build: any, flattenedBuild: any[]) {
+  if (isArrayHasLength(build.items))
+    build.items.forEach((item: any) => {
+      if (item.type === "Refinement") {
+        item.validation = { deferred: deferred(6000), valid: false };
+        flattenedBuild.push(item);
+      }
+      flattenBuild(item, flattenedBuild);
+    });
 }
 </script>
 

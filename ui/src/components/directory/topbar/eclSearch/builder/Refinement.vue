@@ -49,6 +49,7 @@ interface Props {
     property: { concept?: { iri: string; name?: string } | SearchResultSummary; descendants: string };
     value: { concept?: { iri: string; name?: string } | SearchResultSummary; descendants: string };
     ecl?: string;
+    validation?: { deferred: { promise: Promise<any>; reject: Function; resolve: Function }; valid: boolean };
   };
   parent?: any;
   focus?: any;
@@ -90,11 +91,15 @@ const filterStoreDefaults = computed(() => filterStore.filterDefaults);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
-const validate = inject("validate") as Ref<boolean>;
-
-watch(validate, async () => {
+const forceValidation = inject("forceValidation") as Ref<boolean>;
+watch(forceValidation, async () => {
   await updateIsValidProperty();
   await updateIsValidPropertyValue();
+  if (props.value.validation) {
+    if (isValidProperty && isValidPropertyValue) props.value.validation.valid = true;
+    else props.value.validation.valid = false;
+    props.value.validation.deferred.resolve("resolved");
+  }
 });
 
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
