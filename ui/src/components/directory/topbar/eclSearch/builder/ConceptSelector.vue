@@ -10,7 +10,6 @@
     />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
-    <OverlaySummary ref="OS" />
   </div>
 </template>
 
@@ -18,7 +17,6 @@
 import { Ref, ref, onMounted, watch, inject, computed, ComputedRef } from "vue";
 import { IM, SNOMED, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
@@ -137,7 +135,7 @@ async function updateSelectedResult(data: SearchResultSummary | { iri: string; n
 
 function generateEcl(): string {
   let ecl = "";
-  ecl += builderConceptToEcl(props.value, includeTerms.value);
+  ecl += builderConceptToEcl(props.value, props.parent, includeTerms.value);
   if (isArrayHasLength(props.value.items)) {
     ecl += " : \n";
     for (const [index, item] of props.value.items.entries()) {
