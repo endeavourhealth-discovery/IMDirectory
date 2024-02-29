@@ -37,6 +37,8 @@ export default class FunctionController {
       switch (functionRequest.functionIri) {
         case IM_FUNCTION.ALLOWABLE_PROPERTIES:
           return this.functionService.getAllowablePropertySuggestions(functionRequest);
+        case IM_FUNCTION.ALLOWABLE_PROPERTY_VALUES:
+          return this.functionService.getAllowablePropertyValueSuggestions(functionRequest);
         default:
           throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
       }
@@ -49,6 +51,8 @@ export default class FunctionController {
       switch (functionRequest.functionIri) {
         case IM_FUNCTION.ALLOWABLE_PROPERTIES:
           return this.functionService.isAllowablePropertySuggestion(functionRequest);
+        case IM_FUNCTION.ALLOWABLE_PROPERTY_VALUES:
+          return this.functionService.isAllowablePropertyValueSuggestion(functionRequest);
         default:
           throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
       }
