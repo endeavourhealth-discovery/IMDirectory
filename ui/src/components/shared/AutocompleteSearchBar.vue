@@ -12,7 +12,7 @@
         v-on:keyup.enter="search()"
         v-on:focus="showResultsOverlay"
         v-on:blur="hideResultsOverlay"
-        @mouseover="showOverlay($event, selected?.iri)"
+        @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
         @mouseleave="hideOverlay($event)"
         :disabled="disabled"
       />

@@ -1,6 +1,7 @@
-export function builderConceptToEcl(builderConcept: any, includeTerms: boolean) {
+export function builderConceptToEcl(builderConcept: any, builderParent: any, includeTerms: boolean) {
   let ecl = "";
   if (builderConcept.exclude) ecl += "MINUS ";
+  if (builderConcept.type === "Concept" && builderParent.type === "BoolGroup" && builderParent.items?.length > 1 && builderConcept.items?.length) ecl += "( ";
   if (builderConcept.descendants) ecl += builderConcept.descendants + " ";
   if (builderConcept.concept && builderConcept.concept.code) {
     if (builderConcept.concept.code === "any") {

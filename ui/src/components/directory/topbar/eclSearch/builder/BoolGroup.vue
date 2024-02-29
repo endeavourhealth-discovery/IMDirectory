@@ -1,96 +1,97 @@
 <template>
-  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
-    <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button text-rotate" />
-    <div
-      v-if="value?.items?.length > 1"
-      class="conjunction"
-      @drop="onDrop($event, value, parent, index)"
-      @dragover="
-        {
-          onDragOver($event);
-          mouseover($event);
-        }
-      "
-      @dragleave="mouseout"
-    >
-      <Button
-        class="builder-button conjunction-button vertical-button"
-        :label="value.conjunction"
-        @click="toggleBool"
-        draggable="true"
-        @dragstart="onDragStart($event, value, parent)"
-        @dragend="onDragEnd(value, parent)"
-      />
-    </div>
-    <div class="children">
-      <template v-for="(item, index) in value.items">
-        <div class="component-container">
-          <div class="minus-container"></div>
-          <span class="left-container">
-            <div class="group-checkbox">
-              <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
-              <label :for="'group' + index">Select</label>
-            </div>
-          </span>
-          <BoolGroup
-            v-if="item.type === 'BoolGroup'"
-            :value="item"
-            :parent="props.value"
-            :focus="props.focus"
-            @unGroupItems="unGroupItems"
-            :index="index"
-            @mouseover="mouseover"
-            @mouseout="mouseout"
-          />
-          <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
-          <div class="right-container">
-            <Button
-              @click="deleteItem(index)"
-              class="builder-button"
-              :severity="hover ? 'danger' : 'secondary'"
-              :outlined="!hover"
-              :class="!hover && 'hover-button'"
-              icon="fa-solid fa-trash"
-            />
-          </div>
-        </div>
-      </template>
-    </div>
-    <div class="add-group">
-      <Button
-        type="button"
-        icon="fa-solid fa-plus"
-        class="builder-button vertical-button"
-        :severity="hover ? 'success' : 'secondary'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        @click="toggleAdd"
-        aria-haspopup="true"
-        aria-controls="add-menu"
-        v-tooltip="'Add'"
-      />
-      <Menu ref="addMenu" :model="addItems" :popup="true" />
-      <Button
+  <div class="not-bool-container">
+    <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button vertical-button" />
+    <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
+      <div
         v-if="value?.items?.length > 1"
-        class="builder-button group-button vertical-button"
-        :severity="group.length ? 'success' : 'danger'"
-        :outlined="!hover"
-        :class="[!hover && 'hover-button', !group.length && 'strike-through']"
-        label="{...}"
-        @click="group.length ? processGroup() : requestUnGroupItems()"
-        :disabled="!group.length && !(value?.items?.length > 1)"
-        v-tooltip="!group.length ? 'Remove brackets' : 'Bracket selected items'"
-      />
-      <Button
-        v-if="isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept' && !_.isEqual(parent?.value?.items[0], value)"
-        :severity="value.exclude ? 'secondary' : 'danger'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        :label="value.exclude ? 'Include' : 'Exclude'"
-        @click="toggleExclude"
-        class="builder-button vertical-button"
-        v-tooltip="value.exclude ? 'Include' : 'Exclude'"
-      />
+        class="conjunction"
+        @drop="onDrop($event, value, parent, index)"
+        @dragover="
+          {
+            onDragOver($event);
+            mouseover($event);
+          }
+        "
+        @dragleave="mouseout"
+      >
+        <Button
+          class="builder-button conjunction-button vertical-button"
+          :label="value.conjunction"
+          @click="toggleBool"
+          draggable="true"
+          @dragstart="onDragStart($event, value, parent)"
+          @dragend="onDragEnd(value, parent)"
+        />
+      </div>
+      <div class="children">
+        <template v-for="(item, index) in value.items">
+          <div class="component-container">
+            <span class="left-container">
+              <div class="group-checkbox">
+                <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+                <label :for="'group' + index">Select</label>
+              </div>
+            </span>
+            <BoolGroup
+              v-if="item.type === 'BoolGroup'"
+              :value="item"
+              :parent="props.value"
+              :focus="props.focus"
+              @unGroupItems="unGroupItems"
+              :index="index"
+              @mouseover="mouseover"
+              @mouseout="mouseout"
+            />
+            <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
+            <div class="right-container">
+              <Button
+                @click="deleteItem(index)"
+                class="builder-button"
+                :severity="hover ? 'danger' : 'secondary'"
+                :outlined="!hover"
+                :class="!hover && 'hover-button'"
+                icon="fa-solid fa-trash"
+              />
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="add-group">
+        <Button
+          type="button"
+          icon="fa-solid fa-plus"
+          class="builder-button vertical-button"
+          :severity="hover ? 'success' : 'secondary'"
+          :outlined="!hover"
+          :class="!hover && 'hover-button'"
+          @click="toggleAdd"
+          aria-haspopup="true"
+          aria-controls="add-menu"
+          v-tooltip="'Add'"
+        />
+        <Menu ref="addMenu" :model="addItems" :popup="true" />
+        <Button
+          v-if="value?.items?.length > 1"
+          class="builder-button group-button vertical-button"
+          :severity="group.length ? 'success' : 'danger'"
+          :outlined="!hover"
+          :class="[!hover && 'hover-button', !group.length && 'strike-through']"
+          label="{...}"
+          @click="group.length ? processGroup() : requestUnGroupItems()"
+          :disabled="!group.length && !(value?.items?.length > 1)"
+          v-tooltip="!group.length ? 'Remove brackets' : 'Bracket selected items'"
+        />
+        <Button
+          v-if="isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept' && index && index > 0"
+          :severity="value.exclude ? 'secondary' : 'danger'"
+          :outlined="!hover"
+          :class="!hover && 'hover-button'"
+          :label="value.exclude ? 'Include' : 'Exclude'"
+          @click="toggleExclude"
+          class="builder-button vertical-button"
+          v-tooltip="value.exclude ? 'Include' : 'Exclude'"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -119,7 +120,16 @@ const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 watch(
   () => _.cloneDeep(props.value),
-  () => (props.value.ecl = generateEcl())
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
+  }
+);
+
+watch(
+  () => _.cloneDeep(props.parent),
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
+  }
 );
 
 const emit = defineEmits({ unGroupItems: payload => true });
@@ -276,6 +286,12 @@ function toggleAdd(event: any) {
 </script>
 
 <style scoped>
+.not-bool-container {
+  display: flex;
+  flex: 1 1 auto;
+  flex-flow: row nowrap;
+  overflow: auto;
+}
 .bool-group-content {
   display: flex;
   flex: 1 1 auto;

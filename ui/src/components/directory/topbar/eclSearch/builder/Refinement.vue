@@ -139,18 +139,22 @@ const valueFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM_FUNCTIO
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const valueTreeRoots: Ref<string[]> = ref([]);
 
-watch(selectedProperty, async newValue => {
-  loadingProperty.value = true;
-  loadingValue.value = true;
-  await updateProperty(newValue);
-  loadingProperty.value = false;
-  loadingValue.value = false;
+watch(selectedProperty, async (newValue, oldValue) => {
+  if (!_.isEqual(newValue, oldValue)) {
+    loadingProperty.value = true;
+    loadingValue.value = true;
+    await updateProperty(newValue);
+    loadingProperty.value = false;
+    loadingValue.value = false;
+  }
 });
 
-watch(selectedValue, async newValue => {
-  loadingValue.value = true;
-  await updateValue(newValue);
-  loadingValue.value = false;
+watch(selectedValue, async (newValue, oldValue) => {
+  if (!_.isEqual(newValue, oldValue)) {
+    loadingValue.value = true;
+    await updateValue(newValue);
+    loadingValue.value = false;
+  }
 });
 
 watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concept)], async () => {
@@ -354,10 +358,10 @@ async function processValueProp() {
 
 function generateEcl(): string {
   let ecl = "";
-  if (hasProperty.value) ecl += builderConceptToEcl(props.value.property, includeTerms.value);
+  if (hasProperty.value) ecl += builderConceptToEcl(props.value.property, props.parent, includeTerms.value);
   else ecl += "[ UNKNOWN PROPERTY ]";
   if (props.value.operator) ecl += " " + props.value.operator + " ";
-  if (hasValue.value) ecl += builderConceptToEcl(props.value.value, includeTerms.value);
+  if (hasValue.value) ecl += builderConceptToEcl(props.value.value, props.parent, includeTerms.value);
   else ecl += "[ UNKNOWN VALUE ]";
   return ecl;
 }
