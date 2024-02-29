@@ -52,6 +52,7 @@ export class IM {
   public static readonly HAS_CHILDREN = IM.NAMESPACE + "hasChildren";
   public static readonly IS_A = IM.NAMESPACE + "isA";
   public static readonly IS_CHILD_OF = IM.NAMESPACE + "isChildOf";
+  public static readonly PREVIOUS_ENTITY_OF = IM.NAMESPACE + "previousEntityOf";
   public static readonly SUBSUMED_BY = IM.NAMESPACE + "subsumedBy";
   public static readonly USUALLY_SUBSUMED_BY = IM.NAMESPACE + "usuallySubsumedBy";
   public static readonly APPROXIMATE_SUBSUMED_BY = IM.NAMESPACE + "approximateSubsumedBy";

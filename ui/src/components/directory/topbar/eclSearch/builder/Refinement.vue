@@ -14,7 +14,6 @@
       :search-by-function="propertyFunctionRequest"
       :filterOptions="propertyFilterOptions"
       :filterDefaults="propertyFilterDefaults"
-      :allow-any="true"
       :get-root-entities="getPropertyTreeRoots"
     />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
@@ -23,10 +22,9 @@
     <AutocompleteSearchBar
       :disabled="!hasProperty || loadingValue || loadingProperty"
       v-model:selected="selectedValue"
-      :search-by-query="valueQueryRequest"
+      :search-by-function="valueFunctionRequest"
       :filterOptions="valueFilterOptions"
       :filterDefaults="valueFilterDefaults"
-      :allow-any="true"
       :get-root-entities="getValueTreeRoots"
     />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
@@ -137,7 +135,7 @@ const loadingValue = ref(true);
 const isValidProperty = ref(false);
 const isValidPropertyValue = ref(false);
 const propertyFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES, arguments: [] });
-const valueQueryRequest: Ref<QueryRequest> = ref({ query: { "@id": QUERY.GET_VALUES_FROM_PROPERTY_RANGE }, argument: [] });
+const valueFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM_FUNCTION.ALLOWABLE_PROPERTY_VALUES, arguments: [] });
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const valueTreeRoots: Ref<string[]> = ref([]);
 
@@ -228,10 +226,11 @@ onMounted(async () => {
 
 function updateArguments() {
   const focusArg = propertyFunctionRequest.value.arguments?.find(arg => arg.parameter === "focus");
-  const propertyArg = valueQueryRequest.value.argument?.find(arg => arg.parameter === "this");
+  const propertyArg = valueFunctionRequest.value.arguments?.find(arg => arg.parameter === "propertyIri");
   if (props.focus && !focusArg) propertyFunctionRequest.value.arguments?.push({ parameter: "focus", valueObject: props.focus });
   else if (props.focus && focusArg && focusArg.valueObject !== props.focus) focusArg.valueObject = props.focus;
-  if (selectedProperty.value && !propertyArg) valueQueryRequest.value.argument?.push({ parameter: "this", valueIri: { "@id": selectedProperty.value.iri } });
+  if (selectedProperty.value && !propertyArg)
+    valueFunctionRequest.value.arguments?.push({ parameter: "propertyIri", valueIri: { "@id": selectedProperty.value.iri } });
   else if (selectedProperty.value && propertyArg && propertyArg?.valueIri?.["@id"] !== selectedProperty.value.iri)
     propertyArg.valueIri = { "@id": selectedProperty.value.iri };
 }
