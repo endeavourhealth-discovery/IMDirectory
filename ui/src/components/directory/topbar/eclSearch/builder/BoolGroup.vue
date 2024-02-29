@@ -280,12 +280,14 @@ function toggleAdd(event: any) {
   display: flex;
   flex: 1 1 auto;
   flex-flow: row nowrap;
+  overflow: auto;
 }
 
 .children {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
+  overflow: auto;
 }
 .nested-div {
   padding: 0.5rem;
