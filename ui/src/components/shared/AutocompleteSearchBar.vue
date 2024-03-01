@@ -271,8 +271,9 @@ async function querySearch() {
   }
 }
 
-function showResultsOverlay(event: any) {
+async function showResultsOverlay(event: any) {
   if (resultsOP.value) resultsOP.value.show(event);
+  if (props.selected && !results.value) await search();
 }
 
 function hideResultsOverlay() {
