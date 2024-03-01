@@ -1,5 +1,17 @@
 <template>
   <div v-if="isAliasIriRef(value.concept)" class="concept-container">
+    <Dropdown style="width: 12rem; min-height: 2.5rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value">
+      <template #value="slotProps">
+        <div v-if="slotProps.value" class="flex align-items-center">
+          <div>{{ value.descendants }}</div>
+        </div>
+      </template>
+      <template #option="slotProps">
+        <div class="flex align-items-center" style="min-height: 1rem">
+          <div>{{ slotProps.option.label }}</div>
+        </div>
+      </template>
+    </Dropdown>
     <AutocompleteSearchBar
       v-model:selected="selected"
       :search-by-query="queryRequest"
@@ -9,7 +21,6 @@
       :allow-any="true"
     />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
@@ -70,15 +81,15 @@ const queryRequest: QueryRequest = {
 };
 const descendantOptions = [
   {
-    label: "only",
+    label: " ",
     value: ""
   },
   {
-    label: "plus descendants",
+    label: "<<",
     value: "<<"
   },
   {
-    label: "descendants only",
+    label: "<",
     value: "<"
   }
 ];
@@ -186,11 +197,7 @@ function updateConcept(concept: any) {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   height: 2.7rem;

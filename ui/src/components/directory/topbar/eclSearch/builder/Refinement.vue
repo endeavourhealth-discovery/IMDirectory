@@ -8,6 +8,24 @@
       @dragstart="onDragStart($event, value, parent)"
       @dragend="onDragEnd(value, parent)"
     />
+    <Dropdown
+      style="width: 12rem; min-height: 2.5rem"
+      v-model="value.property.descendants"
+      :options="descendantOptions"
+      option-label="label"
+      option-value="value"
+    >
+      <template #value="slotProps">
+        <div v-if="slotProps.value" class="flex align-items-center">
+          <div>{{ value.property.descendants }}</div>
+        </div>
+      </template>
+      <template #option="slotProps">
+        <div class="flex align-items-center" style="min-height: 1rem">
+          <div>{{ slotProps.option.label }}</div>
+        </div>
+      </template>
+    </Dropdown>
     <AutocompleteSearchBar
       :disabled="!hasFocus || loadingProperty"
       v-model:selected="selectedProperty"
@@ -17,8 +35,19 @@
       :get-root-entities="getPropertyTreeRoots"
     />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
+    <Dropdown style="width: 12rem; min-height: 2.5rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value">
+      <template #value="slotProps">
+        <div v-if="slotProps.value" class="flex align-items-center">
+          <div>{{ value.value.descendants }}</div>
+        </div>
+      </template>
+      <template #option="slotProps">
+        <div class="flex align-items-center" style="min-height: 1rem">
+          <div>{{ slotProps.option.label }}</div>
+        </div>
+      </template>
+    </Dropdown>
     <AutocompleteSearchBar
       :disabled="!hasProperty || loadingValue || loadingProperty"
       v-model:selected="selectedValue"
@@ -28,7 +57,6 @@
       :get-root-entities="getValueTreeRoots"
     />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
@@ -171,15 +199,15 @@ watch([selectedProperty, () => cloneDeep(props.value.value.concept)], async () =
 
 const descendantOptions = [
   {
-    label: "only",
+    label: " ",
     value: ""
   },
   {
-    label: "plus descendants",
+    label: "<<",
     value: "<<"
   },
   {
-    label: "descendants only",
+    label: "<",
     value: "<"
   }
 ];
@@ -291,8 +319,9 @@ async function updateIsValidProperty(): Promise<void> {
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property",
-          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : props.value.property.concept?.iri}" is not valid for focus "${props
-            .focus?.ecl}"`,
+          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : props.value.property.concept?.iri}" is not valid for focus "${
+            props.focus?.ecl
+          }"`,
           life: 3000
         });
     }
@@ -407,11 +436,7 @@ async function updateValue(value: SearchResultSummary | undefined) {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   height: 2.2rem;
