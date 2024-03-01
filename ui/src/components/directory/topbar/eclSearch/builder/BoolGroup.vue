@@ -254,7 +254,8 @@ function generateChildEcl(index: number, item: any) {
 function processGroup() {
   console.log("grouping");
   if (group.value.length) {
-    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
+    const conjunction = props.parent?.conjunction === "OR" ? "AND" : "OR";
+    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: conjunction, items: [] };
     for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
       const item = props.value.items.splice(index, 1)[0];
       newGroup.items.push(item);
@@ -265,7 +266,6 @@ function processGroup() {
 }
 
 function requestUnGroupItems() {
-  console.log("ungrouping");
   emit("unGroupItems", props.value);
 }
 
@@ -291,6 +291,7 @@ function toggleAdd(event: any) {
   flex: 1 1 auto;
   flex-flow: row nowrap;
   overflow: auto;
+  width: 100%;
 }
 .bool-group-content {
   display: flex;

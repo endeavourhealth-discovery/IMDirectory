@@ -85,7 +85,8 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   }
 
   function group(draggedItem: any, dropzoneItem: any, parent: any, index?: number) {
-    const newBoolGroup = { type: "BoolGroup", conjunction: "OR", items: [] as any[] };
+    const conjunction = parent.conjunction === "OR" ? "AND" : "OR";
+    const newBoolGroup = { type: "BoolGroup", conjunction: conjunction, items: [] as any[] };
     newBoolGroup.items.push(draggedItem);
     newBoolGroup.items.push(dropzoneItem);
     if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items)) {

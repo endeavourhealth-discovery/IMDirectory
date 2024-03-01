@@ -296,9 +296,9 @@ function generateEcl(): string {
 }
 
 function processGroup() {
-  console.log("here");
   if (group.value.length) {
-    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
+    const conjunction = props.parent?.conjunction === "OR" ? "AND" : "OR";
+    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: conjunction, items: [] };
     for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
       const item = props.value.items.splice(index, 1)[0];
       newGroup.items.push(item);

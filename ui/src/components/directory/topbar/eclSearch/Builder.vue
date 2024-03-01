@@ -106,7 +106,6 @@ const loading = ref(false);
 const isValidEcl = ref(false);
 const isValid = ref(false);
 
-
 const wasDraggedAndDropped = ref(false);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 const { onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
