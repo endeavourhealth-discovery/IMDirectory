@@ -71,7 +71,7 @@
         />
         <Menu ref="addMenu" :model="addItems" :popup="true" />
         <Button
-          v-if="value?.items?.length > 1"
+          v-if="parent && value?.items?.length > 1"
           class="builder-button group-button vertical-button"
           :severity="group.length ? 'success' : 'danger'"
           :outlined="!hover"
