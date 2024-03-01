@@ -81,17 +81,16 @@
       <div class="add-group">
         <Button
           type="button"
-          icon="fa-solid fa-plus"
-          class="builder-button vertical-button"
+          icon="fa-solid fa-filter"
+          class="builder-button"
           :severity="hover ? 'success' : 'secondary'"
           :outlined="!hover"
           :class="!hover && 'hover-button'"
-          @click="toggleAdd"
+          @click="addRefinement"
           aria-haspopup="true"
-          aria-controls="add-menu"
-          v-tooltip="'Add'"
+          aria-controls="add-filter"
+          v-tooltip="'Add filter'"
         />
-        <Menu ref="addMenu" :model="addItems" :popup="true" />
         <Button
           v-if="value?.items?.length > 1"
           class="builder-button vertical-button"
@@ -423,7 +422,6 @@ function unGroupItems(groupedItems: any) {
 }
 
 .add-group {
-  flex: 0 0 auto;
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
