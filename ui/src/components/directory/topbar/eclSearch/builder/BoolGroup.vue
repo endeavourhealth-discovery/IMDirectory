@@ -71,7 +71,18 @@
         />
         <Menu ref="addMenu" :model="addItems" :popup="true" />
         <Button
-          v-if="parent && value?.items?.length > 1"
+          v-if="!parent"
+          class="builder-button group-button vertical-button"
+          :severity="'success'"
+          :outlined="!hover"
+          :class="[!hover && 'hover-button', !group.length && 'strike-through']"
+          label="{...}"
+          @click="processGroup()"
+          :disabled="!group.length && !(value?.items?.length > 1)"
+          v-tooltip="'Bracket selected items'"
+        />
+        <Button
+          v-else-if="value?.items?.length > 1"
           class="builder-button group-button vertical-button"
           :severity="group.length ? 'success' : 'danger'"
           :outlined="!hover"
