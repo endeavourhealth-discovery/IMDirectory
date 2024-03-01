@@ -136,23 +136,23 @@ export default class ECLLexer extends antlr4.Lexer {
     static grammarFileName = "ECL.g4";
     static channelNames = [ "DEFAULT_TOKEN_CHANNEL", "HIDDEN" ];
 	static modeNames = [ "DEFAULT_MODE" ];
-	static literalNames = [ null, null, "'\\t'", "'\\n'", "'\\r'", "' '", "'!'", 
-                         "'\"'", "'#'", "'$'", "'%'", "'&'", "'''", "'('", 
-                         "')'", "'*'", "'+'", "','", "'-'", "'.'", "'/'", 
-                         "'0'", "'1'", "'2'", "'3'", "'4'", "'5'", "'6'", 
-                         "'7'", "'8'", "'9'", "':'", "';'", "'<'", "'='", 
-                         "'>'", "'?'", "'@'", "'A'", "'B'", "'C'", "'D'", 
-                         "'E'", "'F'", "'G'", "'H'", "'I'", "'J'", "'K'", 
-                         "'L'", "'M'", "'N'", "'O'", "'P'", "'Q'", "'R'", 
-                         "'S'", "'T'", "'U'", "'V'", "'W'", "'X'", "'Y'", 
-                         "'Z'", "'['", "'\\'", "']'", "'^'", "'_'", "'`'", 
-                         "'a'", "'b'", "'c'", "'d'", "'e'", "'f'", "'g'", 
-                         "'h'", "'i'", "'j'", "'k'", "'l'", "'m'", "'n'", 
-                         "'o'", "'p'", "'q'", "'r'", "'s'", "'t'", "'u'", 
-                         "'v'", "'w'", "'x'", "'y'", "'z'", "'{'", "'|'", 
-                         "'}'", "'~'" ];
+	static literalNames = [ null, null, "'\\u0009'", "'\\u000A'", "'\\u000D'", 
+                         "' '", "'!'", "'\"'", "'#'", "'$'", "'%'", "'&'", 
+                         "'''", "'('", "')'", "'*'", "'+'", "','", "'-'", 
+                         "'.'", "'/'", "'0'", "'1'", "'2'", "'3'", "'4'", 
+                         "'5'", "'6'", "'7'", "'8'", "'9'", "':'", "';'", 
+                         "'<'", "'='", "'>'", "'?'", "'@'", "'A'", "'B'", 
+                         "'C'", "'D'", "'E'", "'F'", "'G'", "'H'", "'I'", 
+                         "'J'", "'K'", "'L'", "'M'", "'N'", "'O'", "'P'", 
+                         "'Q'", "'R'", "'S'", "'T'", "'U'", "'V'", "'W'", 
+                         "'X'", "'Y'", "'Z'", "'['", "'\\'", "']'", "'^'", 
+                         "'_'", "'`'", "'a'", "'b'", "'c'", "'d'", "'e'", 
+                         "'f'", "'g'", "'h'", "'i'", "'j'", "'k'", "'l'", 
+                         "'m'", "'n'", "'o'", "'p'", "'q'", "'r'", "'s'", 
+                         "'t'", "'u'", "'v'", "'w'", "'x'", "'y'", "'z'", 
+                         "'{'", "'|'", "'}'", "'~'" ];
 	static symbolicNames = [ null, "UTF8_LETTER", "TAB", "LF", "CR", "SPACE", 
-                          "EXCLAMATION", "QUOTE", "POUND", "DOLLAR", "PERCENT", 
+                          "EXCLAMATION", "QUOTE", "HASH", "DOLLAR", "PERCENT", 
                           "AMPERSAND", "APOSTROPHE", "LEFT_PAREN", "RIGHT_PAREN", 
                           "ASTERISK", "PLUS", "COMMA", "DASH", "PERIOD", 
                           "SLASH", "ZERO", "ONE", "TWO", "THREE", "FOUR", 
@@ -169,7 +169,7 @@ export default class ECLLexer extends antlr4.Lexer {
                           "S", "T", "U", "V", "W", "X", "Y", "Z", "LEFT_CURLY_BRACE", 
                           "PIPE", "RIGHT_CURLY_BRACE", "TILDE" ];
 	static ruleNames = [ "UTF8_LETTER", "TAB", "LF", "CR", "SPACE", "EXCLAMATION", 
-                      "QUOTE", "POUND", "DOLLAR", "PERCENT", "AMPERSAND", 
+                      "QUOTE", "HASH", "DOLLAR", "PERCENT", "AMPERSAND", 
                       "APOSTROPHE", "LEFT_PAREN", "RIGHT_PAREN", "ASTERISK", 
                       "PLUS", "COMMA", "DASH", "PERIOD", "SLASH", "ZERO", 
                       "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", 
@@ -204,7 +204,7 @@ ECLLexer.CR = 4;
 ECLLexer.SPACE = 5;
 ECLLexer.EXCLAMATION = 6;
 ECLLexer.QUOTE = 7;
-ECLLexer.POUND = 8;
+ECLLexer.HASH = 8;
 ECLLexer.DOLLAR = 9;
 ECLLexer.PERCENT = 10;
 ECLLexer.AMPERSAND = 11;

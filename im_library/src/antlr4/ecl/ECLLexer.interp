@@ -1,9 +1,9 @@
 token literal names:
 null
 null
-'\t'
-'\n'
-'\r'
+'\u0009'
+'\u000A'
+'\u000D'
 ' '
 '!'
 '"'
@@ -109,7 +109,7 @@ CR
 SPACE
 EXCLAMATION
 QUOTE
-POUND
+HASH
 DOLLAR
 PERCENT
 AMPERSAND
@@ -210,7 +210,7 @@ CR
 SPACE
 EXCLAMATION
 QUOTE
-POUND
+HASH
 DOLLAR
 PERCENT
 AMPERSAND

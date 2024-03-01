@@ -5,15 +5,6 @@ import antlr4 from 'antlr4';
 // This class defines a complete listener for a parse tree produced by ECLParser.
 export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
-	// Enter a parse tree produced by ECLParser#ecl.
-	enterEcl(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#ecl.
-	exitEcl(ctx) {
-	}
-
-
 	// Enter a parse tree produced by ECLParser#expressionconstraint.
 	enterExpressionconstraint(ctx) {
 	}
@@ -65,15 +56,6 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#exclusionexpressionconstraint.
 	exitExclusionexpressionconstraint(ctx) {
-	}
-
-
-	// Enter a parse tree produced by ECLParser#bracketcompoundexpressionconstraint.
-	enterBracketcompoundexpressionconstraint(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#bracketcompoundexpressionconstraint.
-	exitBracketcompoundexpressionconstraint(ctx) {
 	}
 
 
@@ -131,12 +113,39 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
+	// Enter a parse tree produced by ECLParser#refsetfieldnameset.
+	enterRefsetfieldnameset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#refsetfieldnameset.
+	exitRefsetfieldnameset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#refsetfieldname.
+	enterRefsetfieldname(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#refsetfieldname.
+	exitRefsetfieldname(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ECLParser#eclconceptreference.
 	enterEclconceptreference(ctx) {
 	}
 
 	// Exit a parse tree produced by ECLParser#eclconceptreference.
 	exitEclconceptreference(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#eclconceptreferenceset.
+	enterEclconceptreferenceset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#eclconceptreferenceset.
+	exitEclconceptreferenceset(ctx) {
 	}
 
 
@@ -155,6 +164,42 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#term.
 	exitTerm(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#altidentifier.
+	enterAltidentifier(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#altidentifier.
+	exitAltidentifier(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#altidentifierschemealias.
+	enterAltidentifierschemealias(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#altidentifierschemealias.
+	exitAltidentifierschemealias(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#altidentifiercodewithinquotes.
+	enterAltidentifiercodewithinquotes(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#altidentifiercodewithinquotes.
+	exitAltidentifiercodewithinquotes(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#altidentifiercodewithoutquotes.
+	enterAltidentifiercodewithoutquotes(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#altidentifiercodewithoutquotes.
+	exitAltidentifiercodewithoutquotes(ctx) {
 	}
 
 
@@ -203,6 +248,15 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
+	// Enter a parse tree produced by ECLParser#childorselfof.
+	enterChildorselfof(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#childorselfof.
+	exitChildorselfof(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ECLParser#ancestorof.
 	enterAncestorof(ctx) {
 	}
@@ -227,6 +281,33 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#parentof.
 	exitParentof(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#parentorselfof.
+	enterParentorselfof(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#parentorselfof.
+	exitParentorselfof(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#top.
+	enterTop(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#top.
+	exitTop(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#bottom.
+	enterBottom(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#bottom.
+	exitBottom(ctx) {
 	}
 
 
@@ -266,15 +347,6 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by ECLParser#compoundrefinementset.
-	enterCompoundrefinementset(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#compoundrefinementset.
-	exitCompoundrefinementset(ctx) {
-	}
-
-
 	// Enter a parse tree produced by ECLParser#conjunctionrefinementset.
 	enterConjunctionrefinementset(ctx) {
 	}
@@ -293,15 +365,6 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by ECLParser#bracketcompoundrefinementset.
-	enterBracketcompoundrefinementset(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#bracketcompoundrefinementset.
-	exitBracketcompoundrefinementset(ctx) {
-	}
-
-
 	// Enter a parse tree produced by ECLParser#subrefinement.
 	enterSubrefinement(ctx) {
 	}
@@ -311,21 +374,12 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by ECLParser#bracketsubrefinement.
-	enterBracketsubrefinement(ctx) {
+	// Enter a parse tree produced by ECLParser#eclattributeset.
+	enterEclattributeset(ctx) {
 	}
 
-	// Exit a parse tree produced by ECLParser#bracketsubrefinement.
-	exitBracketsubrefinement(ctx) {
-	}
-
-
-	// Enter a parse tree produced by ECLParser#compoundattributeset.
-	enterCompoundattributeset(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#compoundattributeset.
-	exitCompoundattributeset(ctx) {
+	// Exit a parse tree produced by ECLParser#eclattributeset.
+	exitEclattributeset(ctx) {
 	}
 
 
@@ -344,15 +398,6 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#disjunctionattributeset.
 	exitDisjunctionattributeset(ctx) {
-	}
-
-
-	// Enter a parse tree produced by ECLParser#bracketattributeset.
-	enterBracketattributeset(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#bracketattributeset.
-	exitBracketattributeset(ctx) {
 	}
 
 
@@ -380,33 +425,6 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#eclattribute.
 	exitEclattribute(ctx) {
-	}
-
-
-	// Enter a parse tree produced by ECLParser#eclattributestringvalue.
-	enterEclattributestringvalue(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#eclattributestringvalue.
-	exitEclattributestringvalue(ctx) {
-	}
-
-
-	// Enter a parse tree produced by ECLParser#eclattributenumbervalue.
-	enterEclattributenumbervalue(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#eclattributenumbervalue.
-	exitEclattributenumbervalue(ctx) {
-	}
-
-
-	// Enter a parse tree produced by ECLParser#eclattributeexpressionvalue.
-	enterEclattributeexpressionvalue(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#eclattributeexpressionvalue.
-	exitEclattributeexpressionvalue(ctx) {
 	}
 
 
@@ -464,6 +482,15 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
+	// Enter a parse tree produced by ECLParser#eclattributename.
+	enterEclattributename(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#eclattributename.
+	exitEclattributename(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ECLParser#expressioncomparisonoperator.
 	enterExpressioncomparisonoperator(ctx) {
 	}
@@ -482,12 +509,750 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
+	// Enter a parse tree produced by ECLParser#timecomparisonoperator.
+	enterTimecomparisonoperator(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#timecomparisonoperator.
+	exitTimecomparisonoperator(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ECLParser#stringcomparisonoperator.
 	enterStringcomparisonoperator(ctx) {
 	}
 
 	// Exit a parse tree produced by ECLParser#stringcomparisonoperator.
 	exitStringcomparisonoperator(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#booleancomparisonoperator.
+	enterBooleancomparisonoperator(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#booleancomparisonoperator.
+	exitBooleancomparisonoperator(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#idcomparisonoperator.
+	enterIdcomparisonoperator(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#idcomparisonoperator.
+	exitIdcomparisonoperator(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#descriptionfilterconstraint.
+	enterDescriptionfilterconstraint(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#descriptionfilterconstraint.
+	exitDescriptionfilterconstraint(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#descriptionfilter.
+	enterDescriptionfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#descriptionfilter.
+	exitDescriptionfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#descriptionidfilter.
+	enterDescriptionidfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#descriptionidfilter.
+	exitDescriptionidfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#descriptionidkeyword.
+	enterDescriptionidkeyword(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#descriptionidkeyword.
+	exitDescriptionidkeyword(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#descriptionid.
+	enterDescriptionid(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#descriptionid.
+	exitDescriptionid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#descriptionidset.
+	enterDescriptionidset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#descriptionidset.
+	exitDescriptionidset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#termfilter.
+	enterTermfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#termfilter.
+	exitTermfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#termkeyword.
+	enterTermkeyword(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#termkeyword.
+	exitTermkeyword(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#typedsearchterm.
+	enterTypedsearchterm(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#typedsearchterm.
+	exitTypedsearchterm(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#typedsearchtermset.
+	enterTypedsearchtermset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#typedsearchtermset.
+	exitTypedsearchtermset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#wild.
+	enterWild(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#wild.
+	exitWild(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#matchkeyword.
+	enterMatchkeyword(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#matchkeyword.
+	exitMatchkeyword(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#matchsearchterm.
+	enterMatchsearchterm(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#matchsearchterm.
+	exitMatchsearchterm(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#matchsearchtermset.
+	enterMatchsearchtermset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#matchsearchtermset.
+	exitMatchsearchtermset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#wildsearchterm.
+	enterWildsearchterm(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#wildsearchterm.
+	exitWildsearchterm(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#wildsearchtermset.
+	enterWildsearchtermset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#wildsearchtermset.
+	exitWildsearchtermset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#languagefilter.
+	enterLanguagefilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#languagefilter.
+	exitLanguagefilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#language.
+	enterLanguage(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#language.
+	exitLanguage(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#languagecode.
+	enterLanguagecode(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#languagecode.
+	exitLanguagecode(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#languagecodeset.
+	enterLanguagecodeset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#languagecodeset.
+	exitLanguagecodeset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#typefilter.
+	enterTypefilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#typefilter.
+	exitTypefilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#typeidfilter.
+	enterTypeidfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#typeidfilter.
+	exitTypeidfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#typeid.
+	enterTypeid(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#typeid.
+	exitTypeid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#typetokenfilter.
+	enterTypetokenfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#typetokenfilter.
+	exitTypetokenfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#type.
+	enterType(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#type.
+	exitType(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#typetoken.
+	enterTypetoken(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#typetoken.
+	exitTypetoken(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#typetokenset.
+	enterTypetokenset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#typetokenset.
+	exitTypetokenset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#synonym.
+	enterSynonym(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#synonym.
+	exitSynonym(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#fullyspecifiedname.
+	enterFullyspecifiedname(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#fullyspecifiedname.
+	exitFullyspecifiedname(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#definition.
+	enterDefinition(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#definition.
+	exitDefinition(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#dialectfilter.
+	enterDialectfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#dialectfilter.
+	exitDialectfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#dialectidfilter.
+	enterDialectidfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#dialectidfilter.
+	exitDialectidfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#dialectid.
+	enterDialectid(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#dialectid.
+	exitDialectid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#dialectaliasfilter.
+	enterDialectaliasfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#dialectaliasfilter.
+	exitDialectaliasfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#dialect.
+	enterDialect(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#dialect.
+	exitDialect(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#dialectalias.
+	enterDialectalias(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#dialectalias.
+	exitDialectalias(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#dialectaliasset.
+	enterDialectaliasset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#dialectaliasset.
+	exitDialectaliasset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#dialectidset.
+	enterDialectidset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#dialectidset.
+	exitDialectidset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#acceptabilityset.
+	enterAcceptabilityset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#acceptabilityset.
+	exitAcceptabilityset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#acceptabilityconceptreferenceset.
+	enterAcceptabilityconceptreferenceset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#acceptabilityconceptreferenceset.
+	exitAcceptabilityconceptreferenceset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#acceptabilitytokenset.
+	enterAcceptabilitytokenset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#acceptabilitytokenset.
+	exitAcceptabilitytokenset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#acceptabilitytoken.
+	enterAcceptabilitytoken(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#acceptabilitytoken.
+	exitAcceptabilitytoken(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#acceptable.
+	enterAcceptable(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#acceptable.
+	exitAcceptable(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#preferred.
+	enterPreferred(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#preferred.
+	exitPreferred(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#conceptfilterconstraint.
+	enterConceptfilterconstraint(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#conceptfilterconstraint.
+	exitConceptfilterconstraint(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#conceptfilter.
+	enterConceptfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#conceptfilter.
+	exitConceptfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#definitionstatusfilter.
+	enterDefinitionstatusfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#definitionstatusfilter.
+	exitDefinitionstatusfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#definitionstatusidfilter.
+	enterDefinitionstatusidfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#definitionstatusidfilter.
+	exitDefinitionstatusidfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#definitionstatusidkeyword.
+	enterDefinitionstatusidkeyword(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#definitionstatusidkeyword.
+	exitDefinitionstatusidkeyword(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#definitionstatustokenfilter.
+	enterDefinitionstatustokenfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#definitionstatustokenfilter.
+	exitDefinitionstatustokenfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#definitionstatuskeyword.
+	enterDefinitionstatuskeyword(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#definitionstatuskeyword.
+	exitDefinitionstatuskeyword(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#definitionstatustoken.
+	enterDefinitionstatustoken(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#definitionstatustoken.
+	exitDefinitionstatustoken(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#definitionstatustokenset.
+	enterDefinitionstatustokenset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#definitionstatustokenset.
+	exitDefinitionstatustokenset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#primitivetoken.
+	enterPrimitivetoken(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#primitivetoken.
+	exitPrimitivetoken(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#definedtoken.
+	enterDefinedtoken(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#definedtoken.
+	exitDefinedtoken(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#modulefilter.
+	enterModulefilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#modulefilter.
+	exitModulefilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#moduleidkeyword.
+	enterModuleidkeyword(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#moduleidkeyword.
+	exitModuleidkeyword(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#effectivetimefilter.
+	enterEffectivetimefilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#effectivetimefilter.
+	exitEffectivetimefilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#effectivetimekeyword.
+	enterEffectivetimekeyword(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#effectivetimekeyword.
+	exitEffectivetimekeyword(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#timevalue.
+	enterTimevalue(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#timevalue.
+	exitTimevalue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#timevalueset.
+	enterTimevalueset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#timevalueset.
+	exitTimevalueset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#year.
+	enterYear(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#year.
+	exitYear(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#month.
+	enterMonth(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#month.
+	exitMonth(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#day.
+	enterDay(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#day.
+	exitDay(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#activefilter.
+	enterActivefilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#activefilter.
+	exitActivefilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#activekeyword.
+	enterActivekeyword(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#activekeyword.
+	exitActivekeyword(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#activevalue.
+	enterActivevalue(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#activevalue.
+	exitActivevalue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#activetruevalue.
+	enterActivetruevalue(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#activetruevalue.
+	exitActivetruevalue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#activefalsevalue.
+	enterActivefalsevalue(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#activefalsevalue.
+	exitActivefalsevalue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#memberfilterconstraint.
+	enterMemberfilterconstraint(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#memberfilterconstraint.
+	exitMemberfilterconstraint(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#memberfilter.
+	enterMemberfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#memberfilter.
+	exitMemberfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#memberfieldfilter.
+	enterMemberfieldfilter(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#memberfieldfilter.
+	exitMemberfieldfilter(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#historysupplement.
+	enterHistorysupplement(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#historysupplement.
+	exitHistorysupplement(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#historykeyword.
+	enterHistorykeyword(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#historykeyword.
+	exitHistorykeyword(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#historyprofilesuffix.
+	enterHistoryprofilesuffix(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#historyprofilesuffix.
+	exitHistoryprofilesuffix(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#historyminimumsuffix.
+	enterHistoryminimumsuffix(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#historyminimumsuffix.
+	exitHistoryminimumsuffix(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#historymoderatesuffix.
+	enterHistorymoderatesuffix(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#historymoderatesuffix.
+	exitHistorymoderatesuffix(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#historymaximumsuffix.
+	enterHistorymaximumsuffix(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#historymaximumsuffix.
+	exitHistorymaximumsuffix(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#historysubset.
+	enterHistorysubset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#historysubset.
+	exitHistorysubset(ctx) {
 	}
 
 
@@ -524,6 +1289,33 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#decimalvalue.
 	exitDecimalvalue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#booleanvalue.
+	enterBooleanvalue(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#booleanvalue.
+	exitBooleanvalue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#true_1.
+	enterTrue_1(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#true_1.
+	exitTrue_1(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#false_1.
+	enterFalse_1(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#false_1.
+	exitFalse_1(ctx) {
 	}
 
 
@@ -578,15 +1370,6 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#nonstarchar.
 	exitNonstarchar(ctx) {
-	}
-
-
-	// Enter a parse tree produced by ECLParser#nonspacechar.
-	enterNonspacechar(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#nonspacechar.
-	exitNonspacechar(ctx) {
 	}
 
 
@@ -662,6 +1445,15 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
+	// Enter a parse tree produced by ECLParser#star.
+	enterStar(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#star.
+	exitStar(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ECLParser#digit.
 	enterDigit(ctx) {
 	}
@@ -713,6 +1505,42 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#escapedchar.
 	exitEscapedchar(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#escapedwildchar.
+	enterEscapedwildchar(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#escapedwildchar.
+	exitEscapedwildchar(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#nonwsnonescapedchar.
+	enterNonwsnonescapedchar(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#nonwsnonescapedchar.
+	exitNonwsnonescapedchar(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#alpha.
+	enterAlpha(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#alpha.
+	exitAlpha(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#dash.
+	enterDash(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#dash.
+	exitDash(ctx) {
 	}
 
 

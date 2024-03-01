@@ -11,7 +11,7 @@ export default function setupTree(ecl: string) {
   parser.buildParseTrees = true;
   parser.removeErrorListeners();
   parser.addErrorListener(new EclParseErrorListener());
-  const tree = parser.ecl();
+  const tree = parser.expressionconstraint();
   return tree;
 }
 
