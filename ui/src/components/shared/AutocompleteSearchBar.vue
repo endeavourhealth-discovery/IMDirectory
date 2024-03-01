@@ -266,11 +266,11 @@ async function querySearch() {
 }
 
 function showResultsOverlay(event: any) {
-  resultsOP.value.show(event);
+  if (resultsOP.value) resultsOP.value.show(event);
 }
 
 function hideResultsOverlay() {
-  resultsOP.value.hide();
+  if (resultsOP.value) resultsOP.value.hide();
 }
 
 async function showAdvancedSearch() {
