@@ -31,6 +31,14 @@
                 <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
                 <label :for="'group' + index">Select</label>
               </div>
+              <Button
+                v-if="group.includes(index)"
+                icon="fa-solid fa-brackets-curly"
+                severity="help"
+                @click="processGroup()"
+                :disabled="!group.length"
+                v-tooltip="'Bracket selected items'"
+              />
             </span>
             <BoolGroup
               v-if="item.type === 'BoolGroup'"
@@ -59,7 +67,7 @@
       <div class="add-group">
         <Button
           type="button"
-          icon="fa-solid fa-plus"
+          label="Add"
           class="builder-button vertical-button"
           :severity="hover ? 'success' : 'secondary'"
           :outlined="!hover"
@@ -71,24 +79,13 @@
         />
         <Menu ref="addMenu" :model="addItems" :popup="true" />
         <Button
-          v-if="!parent"
-          class="builder-button group-button vertical-button"
-          :severity="'success'"
+          v-if="parent && !group.length && value?.items?.length > 1"
+          class="builder-button group-button"
+          severity="warning"
+          icon="fa-solid fa-brackets-curly"
           :outlined="!hover"
-          :class="[!hover && 'hover-button', !group.length && 'strike-through']"
-          label="{...}"
-          @click="processGroup()"
-          :disabled="!group.length && !(value?.items?.length > 1)"
-          v-tooltip="'Bracket selected items'"
-        />
-        <Button
-          v-else-if="value?.items?.length > 1"
-          class="builder-button group-button vertical-button"
-          :severity="group.length ? 'success' : 'danger'"
-          :outlined="!hover"
-          :class="[!hover && 'hover-button', !group.length && 'strike-through']"
-          label="{...}"
-          @click="group.length ? processGroup() : requestUnGroupItems()"
+          :class="[!hover && 'hover-button', 'strike-through']"
+          @click="requestUnGroupItems()"
           :disabled="!group.length && !(value?.items?.length > 1)"
           v-tooltip="!group.length ? 'Remove brackets' : 'Bracket selected items'"
         />
