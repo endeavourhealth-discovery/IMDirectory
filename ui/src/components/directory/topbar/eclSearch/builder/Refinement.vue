@@ -33,6 +33,7 @@
       :filterOptions="propertyFilterOptions"
       :filterDefaults="propertyFilterDefaults"
       :get-root-entities="getPropertyTreeRoots"
+      :root-entities="propertyTreeRoots"
     />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
@@ -55,6 +56,7 @@
       :filterOptions="valueFilterOptions"
       :filterDefaults="valueFilterDefaults"
       :get-root-entities="getValueTreeRoots"
+      :root-entities="valueTreeRoots"
     />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
   </div>
@@ -267,31 +269,29 @@ function updateArguments() {
     propertyArg.valueIri = { "@id": selectedProperty.value.iri };
 }
 
-async function getPropertyTreeRoots(): Promise<string[]> {
+async function getPropertyTreeRoots(): Promise<void> {
   if (props.focus) {
     if (isAliasIriRef(props.focus)) {
       if (props.focus.iri === "any") {
-        return ["http://snomed.info/sct#410662002"];
+        propertyTreeRoots.value = ["http://snomed.info/sct#410662002"];
       }
       const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
-      if (results) return results.result.map(item => item["@id"]);
+      if (results) propertyTreeRoots.value = results.result.map(item => item["@id"]);
     } else if (isBoolGroup(props.focus)) {
       const results = await EntityService.getSuperiorPropertiesBoolFocusPaged(props.focus);
-      if (results) return results.result.map(item => item["@id"]);
+      if (results) propertyTreeRoots.value = results.result.map(item => item["@id"]);
     }
-  }
-  return ["http://snomed.info/sct#138875005"];
+  } else propertyTreeRoots.value = ["http://snomed.info/sct#410662002"];
 }
 
-async function getValueTreeRoots(): Promise<string[]> {
+async function getValueTreeRoots(): Promise<void> {
   if (props.value?.property?.concept?.iri) {
     if (props.value.property.concept.iri === "any") {
-      return [];
+      valueTreeRoots.value = ["http://snomed.info/sct#138875005"];
     }
     const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
-    if (results) return results.result.map(item => item["@id"]);
-  }
-  return ["http://snomed.info/sct#138875005"];
+    if (results) valueTreeRoots.value = results.result.map(item => item["@id"]);
+  } else valueTreeRoots.value = ["http://snomed.info/sct#138875005"];
 }
 
 async function updateIsValidProperty(): Promise<void> {
