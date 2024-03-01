@@ -11,7 +11,6 @@
         autofocus
         v-on:keyup.enter="search()"
         v-on:focus="showResultsOverlay"
-        v-on:blur="hideResultsOverlay"
         @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
         @mouseleave="hideOverlay($event)"
         :disabled="disabled"
@@ -39,7 +38,13 @@
           </template>
         </Listbox>
         <div class="advanced-search-container">
-          <Button :disabled="advancedSearchLoading" label="Advanced search" class="advanced-search-button" @click="showAdvancedSearch" />
+          <Button
+            :disabled="advancedSearchLoading"
+            :loading="advancedSearchLoading"
+            label="Advanced search"
+            class="advanced-search-button"
+            @click="showAdvancedSearch"
+          />
         </div>
       </div>
     </OverlayPanel>
@@ -49,7 +54,7 @@
       v-model:selected="selectedLocal"
       :search-by-query="searchByQuery"
       :searchByFunction="searchByFunction"
-      :root-entities="['http://snomed.info/sct#138875005']"
+      :root-entities="rootEntities"
       :filterOptions="filterOptions"
       :filterDefaults="filterDefaults"
       :searchTerm="searchText"
@@ -83,9 +88,10 @@ interface Props {
   filterOptions?: FilterOptions;
   filterDefaults?: FilterOptions;
   disabled?: boolean;
+  rootEntities?: string[];
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[] });
 
 const emit = defineEmits({
   "update:selected": _payload => true
