@@ -67,17 +67,16 @@
       <div class="add-group">
         <Button
           type="button"
-          label="Add"
+          icon="fa-solid fa-plus"
           class="builder-button vertical-button"
           :severity="hover ? 'success' : 'secondary'"
           :outlined="!hover"
           :class="!hover && 'hover-button'"
-          @click="toggleAdd"
+          @click="addConcept()"
           aria-haspopup="true"
           aria-controls="add-menu"
           v-tooltip="'Add'"
         />
-        <Menu ref="addMenu" :model="addItems" :popup="true" />
         <Button
           v-if="parent && !group.length && value?.items?.length > 1"
           class="builder-button group-button"
@@ -145,31 +144,7 @@ const emit = defineEmits({ unGroupItems: payload => true });
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
-const selected = ref("AND");
 const group: Ref<number[]> = ref([]);
-
-const menuBool = ref();
-const addMenu = ref();
-
-const addItems = ref([
-  {
-    label: "Add",
-    items: [
-      {
-        label: "Concept",
-        command: () => addConcept()
-      },
-      {
-        label: "Refinement",
-        command: () => addRefinement()
-      },
-      {
-        label: "Group",
-        command: () => addGroup()
-      }
-    ]
-  }
-]);
 
 onMounted(() => {
   props.value.ecl = generateEcl();
@@ -204,23 +179,6 @@ function add(item: any) {
 
 function addConcept() {
   add({ type: "Concept", descendants: "<<", conjunction: "AND", concept: { iri: "" } });
-}
-
-function addRefinement() {
-  if (!props.focus) {
-    const anyConcept = {
-      type: "Concept",
-      descendants: "<<",
-      concept: { iri: "any", name: "ANY", code: "any" },
-      conjunction: "AND",
-      items: [{ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } }]
-    };
-    add(anyConcept);
-  } else add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
-}
-
-function addGroup() {
-  add({ type: "BoolGroup", conjunction: "AND" });
 }
 
 function deleteItem(index: number) {
@@ -286,10 +244,6 @@ function unGroupItems(groupedItems: any) {
       props.value.items.splice(foundItemIndex, 0, groupedItem);
     }
   }
-}
-
-function toggleAdd(event: any) {
-  addMenu.value.toggle(event);
 }
 </script>
 

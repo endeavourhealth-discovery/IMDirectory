@@ -1,6 +1,6 @@
 <template>
   <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-    <Dropdown style="width: 12rem; min-height: 2.5rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value">
+    <Dropdown style="width: 4.5rem; min-height: 2.3rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value">
       <template #value="slotProps">
         <div v-if="slotProps.value" class="flex align-items-center">
           <div>{{ value.descendants }}</div>
