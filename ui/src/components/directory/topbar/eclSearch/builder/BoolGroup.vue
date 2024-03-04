@@ -86,7 +86,7 @@
           :class="[!hover && 'hover-button', 'strike-through']"
           @click="requestUnGroupItems()"
           :disabled="!group.length && !(value?.items?.length > 1)"
-          v-tooltip="!group.length ? 'Remove brackets' : 'Bracket selected items'"
+          v-tooltip="'Remove brackets'"
         />
         <Button
           v-if="isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept' && index && index > 0"

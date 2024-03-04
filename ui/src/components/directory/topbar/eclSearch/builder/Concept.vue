@@ -61,6 +61,14 @@
                   <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
                   <label :for="'group' + index">Select</label>
                 </div>
+                <Button
+                  v-if="group.includes(index)"
+                  icon="fa-solid fa-brackets-curly"
+                  severity="help"
+                  @click="processGroup()"
+                  :disabled="!group.length"
+                  v-tooltip="'Bracket selected items'"
+                />
               </span>
               <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
               <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
@@ -90,17 +98,6 @@
           aria-haspopup="true"
           aria-controls="add-filter"
           v-tooltip="'Add filter'"
-        />
-        <Button
-          v-if="value?.items?.length > 1"
-          class="builder-button vertical-button"
-          severity="success"
-          :outlined="!hover"
-          :class="[!hover && 'hover-button']"
-          label="{...}"
-          @click="group.length && processGroup()"
-          :disabled="!group.length"
-          v-tooltip="'Bracket selected items'"
         />
         <Button
           v-if="index && index > 0"
