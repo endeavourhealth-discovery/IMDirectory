@@ -26,7 +26,7 @@ const entityJSON = ref({ entity: {}, predicates: {} });
 const loading = ref(false);
 onMounted(async () => {
   loading.value = true;
-  const response = await EntityService.getBundleByPredicateExclusions(props.entityIri, []);
+  const response = await EntityService.getBundleByPredicateExclusions(props.entityIri, [IM.HAS_MEMBER]);
   if (isObjectHasKeys(response, ["entity"])) {
     if (isObjectHasKeys(response.entity, [IM.DEFINITION])) response.entity[IM.DEFINITION] = JSON.parse(response.entity[IM.DEFINITION]);
     entityJSON.value = Object.freeze(response);

@@ -90,7 +90,11 @@ export function describeProperty(property: Property, index: number, bool?: Bool,
   if (property.match) describeMatch(property.match, 0, Bool.and, "path");
   if (isObjectHasKeys(property, ["@id"])) {
     let display = getDisplayFromProperty(property, matchType);
-    if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
+    if (index && bool) {
+      display = getDisplayFromLogic(bool) + " " + display;
+    } else if (!index && bool) {
+      display = getDisplayFromLogic(Bool.and) + " " + display;
+    }
     property.description = display;
   }
 

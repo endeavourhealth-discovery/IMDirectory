@@ -149,10 +149,10 @@ const contextMenu = ref();
 
 watch(
   () => _.cloneDeep(props.searchResults),
-  () =>     init()
+  () => init()
 );
 
-onMounted(() =>  init());
+onMounted(() => init());
 
 function updateFavourites(row?: any) {
   if (row) selected.value = row.data;
@@ -221,13 +221,8 @@ function onRowSelect(event: any) {
 
 function exportCSV(): void {
   if (props.searchResults) {
-    if (
-      props.searchResults.count &&
-      props.searchResults.entities &&
-      props.searchResults.entities.length < props.searchResults.count &&
-      props.searchResults.term
-    ) {
-      emit("downloadRequested", { term: props.searchResults.term, count: props.searchResults.count });
+    if (props.searchResults.count && props.searchResults.entities && props.searchResults.entities.length < props.searchResults.count) {
+      emit("downloadRequested", { term: props.searchResults.term ?? "", count: props.searchResults.count });
       return;
     }
     const downloadDialog = dynamicDialog.open(LoadingDialog, {

@@ -1,33 +1,25 @@
 <template>
   <div class="compare-set-section">
-    <div v-if="header === 'Shared members '" class="section-header-shared">{{ header }} - ({{ members.length }})</div>
-    <div v-else class="section-header">
-      <div class="section-header-title">{{ header }}</div>
-      <Inplace :closable="true">
-        <template #display> {{ selectedSet?.name || "Click to select set" }} - ({{ members.length }}) </template>
-        <template #content>
-          <AutoComplete v-model="selectedSet" optionLabel="name" :suggestions="filteredSets" @complete="searchValueSet" />
-        </template>
-      </Inplace>
+    <div class="section-header">
+      <div>{{ header }}</div>
+      <AutoComplete v-if="header !== 'Shared members '" v-model="selectedSet" optionLabel="name" :suggestions="filteredSets" @complete="searchValueSet" />
+      <div v-if="isArrayHasLength(members)">({{ members.length }})</div>
     </div>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Listbox v-model="selected" :options="members" optionLabel="name" :virtualScrollerOptions="{ itemSize: 45, delay: 150 }" listStyle="height: 100%" filter>
+    <Listbox v-model="selected" :options="members" optionLabel="name" :virtualScrollerOptions="{ itemSize: 45, delay: 150 }" listStyle="height: 97%" filter>
       <template #option="{ option }: { option: Concept }">
         <div
           class="member-name"
-          @dblclick="directService.view(option['@id'])"
           @mouseover="showOverlay($event, option['@id'])"
           @mouseleave="hideOverlay($event)"
-          v-tooltip.right="'Copy to clipboard'"
-          v-clipboard:copy="option.code"
-          v-clipboard:success="onCopy"
-          v-clipboard:error="onCopyError"
+          @contextmenu="onMemberRightClick($event, option)"
         >
           {{ option.name }}
         </div>
       </template>
     </Listbox>
     <OverlaySummary ref="OS" />
+    <ContextMenu ref="menu" :model="rClickItems" />
   </div>
 </template>
 
@@ -60,10 +52,34 @@ const filterStore = useFilterStore();
 const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
 const controller: Ref<AbortController> = ref({} as AbortController);
+const menu = ref();
 
 const selectedSet: Ref<SearchResultSummary | undefined> = ref();
 const filteredSets: Ref<SearchResultSummary[]> = ref([]);
 const selected: Ref<Concept | undefined> = ref();
+
+const rClickItems = ref([
+  {
+    label: "Copy code",
+    icon: "fa-solid fa-copy",
+    command: async () => {
+      if (selected.value?.code) {
+        await navigator.clipboard.writeText(selected.value?.code);
+        toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Code copied to clipboard"));
+      } else {
+        toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy code to clipboard"));
+      }
+    }
+  },
+  {
+    separator: true
+  },
+  {
+    label: "View",
+    icon: "fa-duotone fa-up-right-from-square",
+    command: () => directService.view(selected.value?.["@id"])
+  }
+]);
 
 const emit = defineEmits({ "update:selectedSet": _payload => true });
 
@@ -81,14 +97,6 @@ async function init() {
     const entity = await EntityService.getPartialEntity(props.setIri, [RDFS.LABEL]);
     selectedSet.value = { iri: entity["@id"], name: entity[RDFS.LABEL] } as SearchResultSummary;
   }
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Code copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy code to clipboard"));
 }
 
 async function search(searchText: string): Promise<SearchResultSummary[]> {
@@ -144,28 +152,19 @@ async function searchValueSet(event: any) {
   const searchTerm: string = event.query;
   filteredSets.value = await search(searchTerm);
 }
+
+function onMemberRightClick(event: any, option: Concept) {
+  selected.value = option;
+  menu.value.show(event);
+}
 </script>
 
 <style scoped>
-.section-header-title {
-  padding-bottom: 1rem;
-}
 .section-header {
   display: flex;
   justify-content: center;
   align-items: baseline;
-}
-
-.section-header-shared {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  padding-bottom: 1rem;
-}
-
-.compare-set-section {
-  height: 100%;
-  width: 100%;
+  height: 5%;
 }
 
 .p-listbox {
@@ -183,16 +182,10 @@ async function searchValueSet(event: any) {
   width: 100%;
   height: 100%;
   flex-wrap: wrap;
-  align-items: center;
 }
 </style>
 
 <style>
-.p-listbox-list {
-  width: 1px;
-  height: 1px;
-}
-
 .p-listbox-item {
   width: 100%;
   height: 100%;
