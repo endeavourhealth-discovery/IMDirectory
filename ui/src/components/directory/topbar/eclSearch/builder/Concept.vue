@@ -422,7 +422,7 @@ function unGroupItems(groupedItems: any) {
   flex-flow: row wrap;
   justify-content: flex-start;
   gap: 4px;
-  padding-left: 0.5rem;
+  padding: 4px 0 0 4px;
 }
 
 .group-checkbox {
@@ -457,6 +457,6 @@ function unGroupItems(groupedItems: any) {
   transform: scale(-1);
 }
 .not-button {
-  margin-left: 0.35rem;
+  margin: 4px 0 0 4px;
 }
 </style>

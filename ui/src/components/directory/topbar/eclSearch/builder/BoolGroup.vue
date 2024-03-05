@@ -326,7 +326,7 @@ function unGroupItems(groupedItems: any) {
 }
 
 .add-group {
-  padding-left: 0.5rem;
+  padding: 4px 0 0 4px;
   flex: 0 0 auto;
   display: flex;
   flex-flow: row wrap;
@@ -378,6 +378,6 @@ function unGroupItems(groupedItems: any) {
 }
 
 .not-button {
-  margin-left: 0.35rem;
+  margin: 4px 0 0 4px;
 }
 </style>
