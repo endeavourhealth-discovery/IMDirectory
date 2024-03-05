@@ -378,6 +378,6 @@ function unGroupItems(groupedItems: any) {
 }
 
 .not-button {
-  margin: 4px 0 0 4px;
+  margin: 4px 0 0 6px;
 }
 </style>
