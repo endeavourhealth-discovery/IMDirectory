@@ -1,6 +1,16 @@
 <template>
   <div class="not-bool-container">
-    <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button vertical-button" />
+    <Button
+      v-if="isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept' && index && index > 0"
+      :severity="value.exclude ? 'danger' : 'secondary'"
+      :outlined="!value.exclude"
+      label="NOT"
+      @click="toggleExclude"
+      class="builder-button exclude-button vertical-button not-button"
+      :class="!value.exclude && 'hover-button'"
+      v-tooltip="'Exclude'"
+      size="small"
+    />
     <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
       <div
         v-if="value?.items?.length > 1"
@@ -51,7 +61,7 @@
               @mouseout="mouseout"
             />
             <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
-            <div class="right-container">
+            <div class="add-group">
               <Button
                 @click="deleteItem(index)"
                 class="builder-button"
@@ -63,20 +73,30 @@
             </div>
           </div>
         </template>
-      </div>
-      <div class="add-group">
         <Button
+          v-if="props.focus"
+          type="button"
+          icon="fa-solid fa-filter"
+          label="Add refinement"
+          class="add-button"
+          :severity="hover ? 'success' : 'secondary'"
+          :outlined="!hover"
+          :class="!hover && 'hover-button'"
+          @click="addRefinement()"
+        />
+        <Button
+          v-else
           type="button"
           icon="fa-solid fa-plus"
-          class="builder-button vertical-button"
+          label="Add concept"
+          class="add-button"
           :severity="hover ? 'success' : 'secondary'"
           :outlined="!hover"
           :class="!hover && 'hover-button'"
           @click="addConcept()"
-          aria-haspopup="true"
-          aria-controls="add-menu"
-          v-tooltip="'Add'"
         />
+      </div>
+      <div class="add-group">
         <Button
           v-if="parent && !group.length && value?.items?.length > 1"
           class="builder-button group-button"
@@ -87,16 +107,6 @@
           @click="requestUnGroupItems()"
           :disabled="!group.length && !(value?.items?.length > 1)"
           v-tooltip="'Remove brackets'"
-        />
-        <Button
-          v-if="isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept' && index && index > 0"
-          :severity="value.exclude ? 'secondary' : 'danger'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          :label="value.exclude ? 'Include' : 'Exclude'"
-          @click="toggleExclude"
-          class="builder-button vertical-button"
-          v-tooltip="value.exclude ? 'Include' : 'Exclude'"
         />
       </div>
     </div>
@@ -231,6 +241,19 @@ function processGroup() {
   group.value = [];
 }
 
+function addRefinement() {
+  if (!props.focus) {
+    const anyConcept = {
+      type: "Concept",
+      descendants: "<<",
+      concept: { iri: "any", name: "ANY", code: "any" },
+      conjunction: "AND",
+      items: [{ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } }]
+    };
+    add(anyConcept);
+  } else add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+}
+
 function requestUnGroupItems() {
   emit("unGroupItems", props.value);
 }
@@ -303,6 +326,7 @@ function unGroupItems(groupedItems: any) {
 }
 
 .add-group {
+  padding-left: 0.5rem;
   flex: 0 0 auto;
   display: flex;
   flex-flow: row wrap;
@@ -346,5 +370,14 @@ function unGroupItems(groupedItems: any) {
 .vertical-button {
   writing-mode: vertical-lr;
   transform: scale(-1);
+}
+
+.add-button {
+  margin-left: 2.5rem;
+  width: 12rem;
+}
+
+.not-button {
+  margin-left: 0.35rem;
 }
 </style>

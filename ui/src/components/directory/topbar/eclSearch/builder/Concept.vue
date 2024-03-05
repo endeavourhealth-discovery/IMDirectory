@@ -1,6 +1,16 @@
 <template>
   <div class="tag-concept-container">
-    <Tag v-if="value.exclude" value="NOT" severity="danger" class="vertical-button" />
+    <Button
+      v-if="index && index > 0"
+      :severity="value.exclude ? 'danger' : 'secondary'"
+      :outlined="!value.exclude"
+      label="NOT"
+      @click="toggleExclude"
+      class="builder-button exclude-button vertical-button not-button"
+      :class="!value.exclude && 'hover-button'"
+      v-tooltip="'Exclude'"
+      size="small"
+    />
     <div
       :class="[hover ? 'nested-div-hover' : 'nested-div']"
       class="concept"
@@ -49,7 +59,20 @@
               class="builder-button"
             />
           </div>
+          <Button
+            type="button"
+            icon="fa-solid fa-filter"
+            class="builder-button"
+            :severity="hover ? 'success' : 'secondary'"
+            :outlined="!hover"
+            :class="!hover && 'hover-button'"
+            @click="addRefinement"
+            aria-haspopup="true"
+            aria-controls="add-filter"
+            v-tooltip="'Add filter'"
+          />
         </div>
+
         <div class="refinement">
           <div v-if="value?.items?.length > 1" class="conjunction">
             <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction ?? 'OR'" @click="toggleBool" />
@@ -72,7 +95,7 @@
               </span>
               <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
               <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
-              <span class="right-container">
+              <span class="add-group">
                 <Button
                   @click="deleteItem(index)"
                   :severity="hover ? 'danger' : 'secondary'"
@@ -85,30 +108,6 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="add-group">
-        <Button
-          type="button"
-          icon="fa-solid fa-filter"
-          class="builder-button"
-          :severity="hover ? 'success' : 'secondary'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          @click="addRefinement"
-          aria-haspopup="true"
-          aria-controls="add-filter"
-          v-tooltip="'Add filter'"
-        />
-        <Button
-          v-if="index && index > 0"
-          :severity="value.exclude ? 'secondary' : 'danger'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          :label="value.exclude ? 'Include' : 'Exclude'"
-          @click="toggleExclude"
-          class="builder-button exclude-button vertical-button"
-          v-tooltip="value.exclude ? 'Include' : 'Exclude'"
-        />
       </div>
     </div>
   </div>
@@ -423,6 +422,7 @@ function unGroupItems(groupedItems: any) {
   flex-flow: row wrap;
   justify-content: flex-start;
   gap: 4px;
+  padding-left: 0.5rem;
 }
 
 .group-checkbox {
@@ -455,5 +455,8 @@ function unGroupItems(groupedItems: any) {
 .vertical-button {
   writing-mode: vertical-lr;
   transform: scale(-1);
+}
+.not-button {
+  margin-left: 0.35rem;
 }
 </style>
