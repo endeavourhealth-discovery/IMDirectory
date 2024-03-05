@@ -9,8 +9,8 @@
         :placeholder="searchPlaceholder"
         data-testid="search-input"
         autofocus
-        v-on:keyup.enter="search()"
-        v-on:focus="showResultsOverlay"
+        v-on:keyup.enter="onEnter"
+        v-on:keyup="select"
         @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
         @mouseleave="hideOverlay($event)"
         :disabled="disabled"
@@ -21,10 +21,6 @@
         <ProgressSpinner />
       </div>
       <div v-else class="p-fluid results-container">
-        <span
-          >Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
-          {{ results?.count ? results.count : 0 }} results</span
-        >
         <Listbox v-if="results?.entities" v-model="selectedLocal" :options="results.entities">
           <template #option="slotProps">
             <div
@@ -37,6 +33,7 @@
             </div>
           </template>
         </Listbox>
+
         <div class="advanced-search-container">
           <Button
             :disabled="advancedSearchLoading"
@@ -45,6 +42,10 @@
             class="advanced-search-button"
             @click="showAdvancedSearch"
           />
+          <small>
+            Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
+            {{ results?.count ? results.count : 0 }} results
+          </small>
         </div>
       </div>
     </OverlayPanel>
@@ -109,7 +110,7 @@ const resultsOP = ref();
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
-const searchPlaceholder = ref("Search");
+const searchPlaceholder = ref("Search or press Enter to show options");
 const loading = ref(false);
 const results: Ref<SearchResponse | undefined> = ref();
 const selectedFilters: Ref<FilterOptions | undefined> = ref();
@@ -117,6 +118,7 @@ const showDialog = ref(false);
 const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
 const advancedSearchLoading = ref(false);
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
+const selectedIndex: Ref<number> = ref(-1);
 
 const isAny: ComputedRef<boolean> = computed(() => selectedLocal.value?.iri === "any");
 const { OS, showOverlay, hideOverlay } = setupOverlay();
@@ -166,6 +168,28 @@ function debounceForSearch(): void {
   debounce.value = window.setTimeout(() => {
     search();
   }, 600);
+  showResultsOverlay(event);
+}
+
+function select(event: KeyboardEvent) {
+  if (isArrayHasLength(results.value?.entities))
+    if (event.key === "ArrowDown") {
+      if (selectedIndex.value < results.value!.entities!.length - 1) selectedLocal.value = results.value?.entities?.[++selectedIndex.value];
+      else {
+        selectedIndex.value = 0;
+        selectedLocal.value = results.value?.entities?.[selectedIndex.value];
+      }
+    } else if (event.key === "ArrowUp") {
+      if (selectedIndex.value > 0) selectedLocal.value = results.value?.entities?.[--selectedIndex.value];
+      else {
+        selectedIndex.value = results.value!.entities!.length - 1;
+        selectedLocal.value = results.value?.entities?.[selectedIndex.value];
+      }
+    }
+}
+
+async function onEnter(event: any) {
+  if (resultsOP.value) resultsOP.value.toggle(event);
 }
 
 async function search(): Promise<void | SearchResponse> {
@@ -342,6 +366,8 @@ async function showAdvancedSearch() {
   display: flex;
   flex-flow: row;
   justify-content: center;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
 .advanced-search-button {

@@ -28,9 +28,9 @@
           <ProgressSpinner v-if="loading" />
           <BoolGroup v-else :value="build" :rootBool="true" />
         </div>
-        <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading"
-          >*Move pointer over panel above to add concepts, refinements and groups.</small
-        >
+        <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading">
+          *Move pointer over panel above to add concepts, refinements and groups.
+        </small>
       </div>
       <div id="build-string-container">
         <h3>Output:</h3>
