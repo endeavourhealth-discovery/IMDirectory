@@ -17,7 +17,7 @@
   >
     <template #header>
       <div class="ecl-builder-dialog-header">
-        <h3>ECL Builder:</h3>
+        <strong>ECL Builder:</strong>
         <Button icon="fa-regular fa-circle-question" text rounded @mouseover="toggle" @mouseout="toggle" />
         <OverlayPanel ref="op">Select or drag and drop for grouping</OverlayPanel>
       </div>
@@ -33,21 +33,22 @@
         </small>
       </div>
       <div id="build-string-container">
-        <h3>Output:</h3>
-        <div class="field-checkbox">
-          <Checkbox inputId="includeTerms" v-model="includeTerms" :binary="true" />
-          <label for="includeTerms">Include terms</label>
-        </div>
-        <div class="string-copy-container">
-          <pre class="output-string">{{ queryString }}</pre>
-          <Button
-            icon="fa-solid fa-copy"
-            v-tooltip.left="'Copy to clipboard'"
-            v-clipboard:copy="copyToClipboard()"
-            v-clipboard:success="onCopy"
-            v-clipboard:error="onCopyError"
-          />
-        </div>
+        <Panel header="Output" toggleable collapsed>
+          <div class="field-checkbox">
+            <Checkbox inputId="includeTerms" v-model="includeTerms" :binary="true" />
+            <label for="includeTerms">Include terms</label>
+          </div>
+          <div class="string-copy-container">
+            <pre class="output-string">{{ queryString }}</pre>
+            <Button
+              icon="fa-solid fa-copy"
+              v-tooltip.left="'Copy to clipboard'"
+              v-clipboard:copy="copyToClipboard()"
+              v-clipboard:success="onCopy"
+              v-clipboard:error="onCopyError"
+            />
+          </div>
+        </Panel>
       </div>
     </div>
     <template #footer>
@@ -320,5 +321,6 @@ function flattenBuild(build: any, flattenedBuild: any[]) {
   flex-flow: row;
   align-items: baseline;
   justify-content: space-between;
+  font-size: larger;
 }
 </style>
