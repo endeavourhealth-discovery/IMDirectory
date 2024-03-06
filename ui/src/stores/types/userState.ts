@@ -4,6 +4,7 @@ export interface UserState {
   cookiesEssentialAccepted: boolean;
   cookiesOptionalAccepted: boolean;
   currentTheme: string;
+  currentScale: string;
   currentUser: User;
   awsUser: any;
   favourites: string[];

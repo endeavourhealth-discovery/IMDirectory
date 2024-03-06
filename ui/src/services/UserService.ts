@@ -6,6 +6,9 @@ const UserService = {
   async getUserTheme(): Promise<string> {
     return await axios.get(Env.API + "api/user/theme");
   },
+  async getUserScale(): Promise<string> {
+    return await axios.get(Env.API + "api/user/scale");
+  },
   async getUserMRU(): Promise<any> {
     return await axios.get(Env.API + "api/user/MRU");
   },
@@ -18,6 +21,11 @@ const UserService = {
   async updateUserTheme(theme: string): Promise<string> {
     return await axios.post(Env.API + "api/user/theme", {
       themeValue: theme
+    });
+  },
+  async updateUserScale(scale: string): Promise<string> {
+    return await axios.post(Env.API + "api/user/scale", {
+      scaleValue: scale
     });
   },
   async updateUserMRU(mru: any[]): Promise<any> {
