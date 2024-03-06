@@ -23,6 +23,16 @@
           </div>
         </template>
       </Menu>
+      <Button v-tooltip.bottom="'Scale'" icon="fa-duotone fa-text-size" rounded text plain class="topbar-end-button" @click="openScaleMenu" />
+      <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
+        <template #item="{ item }: any">
+          <div class="scale-row p-link">
+            <span class="theme-icon p-menuitem-icon" :class="item.icon" />
+            <span class="p-menuitem-text">{{ item.label }}</span>
+            <span v-if="item.key === currentScale" class="theme-icon p-menuitem-icon fa-regular fa-check" />
+          </div>
+        </template>
+      </Menu>
       <Button
         v-tooltip.bottom="'Upload/Download'"
         icon="fa-duotone fa-arrow-down-up-across-line"
@@ -96,6 +106,7 @@ import { useSharedStore } from "@/stores/sharedStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import setupChangeTheme from "@/composables/setupChangeTheme";
+import setupChangeScale from "@/composables/setupChangeScale";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -105,8 +116,10 @@ const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentTheme = computed(() => userStore.currentTheme);
+const currentScale = computed(() => userStore.currentScale);
 
 const { changeTheme } = setupChangeTheme();
+const { changeScale } = setupChangeScale();
 
 const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
@@ -117,6 +130,7 @@ const currentVersion: Ref<undefined | string> = ref();
 const toast = useToast();
 const adminMenu = ref();
 const themesMenu = ref();
+const scaleMenu = ref();
 const userMenu = ref();
 const appsOP = ref();
 const directService = new DirectService();
@@ -204,6 +218,10 @@ function openAdminMenu(event: any): void {
 
 function openThemesMenu(event: any): void {
   themesMenu.value.toggle(event);
+}
+
+function openScaleMenu(event: any): void {
+  scaleMenu.value.toggle(event);
 }
 
 function isLoggedInWithRole(role: string): boolean {
@@ -554,6 +572,34 @@ function getThemes() {
   ];
 }
 
+function getScales(): MenuItem[] {
+  return [
+    {
+      label: "UI Scale",
+      items: [
+        {
+          key: "12px",
+          label: "Small",
+          icon: "fa-regular fa-a fa-xs",
+          command: () => changeScale("12px")
+        },
+        {
+          key: "14px",
+          label: "Medium",
+          icon: "fa-regular fa-a fa-sm",
+          command: () => changeScale("14px")
+        },
+        {
+          key: "16px",
+          label: "Large",
+          icon: "fa-regular fa-a",
+          command: () => changeScale("16px")
+        }
+      ]
+    }
+  ];
+}
+
 async function downloadChanges() {
   toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
   let blob = await FilerService.downloadDeltas();
@@ -640,6 +686,19 @@ function showReleaseNotes() {
   gap: 0.5rem;
 }
 
+.scale-row {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 30px;
+}
+
+.selected {
+  background-colour: red;
+}
+
 .theme-icon {
   margin-left: 1rem;
   display: flex;
@@ -667,9 +726,7 @@ function showReleaseNotes() {
 .p-tooltip {
   z-index: 999;
 }
-</style>
 
-<style>
 #themes-menu {
   overflow: auto;
   height: 35vh;
