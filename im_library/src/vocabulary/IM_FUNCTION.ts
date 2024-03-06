@@ -15,4 +15,5 @@ export class IM_FUNCTION {
   public static readonly IS_TYPE = IM_FUNCTION.NAMESPACE + "IsType";
   public static readonly ALLOWABLE_PROPERTIES = IM_FUNCTION.NAMESPACE + "AllowableProperties";
   public static readonly ALLOWABLE_RANGES = IM_FUNCTION.NAMESPACE + "AllowableRanges";
+  public static readonly ALLOWABLE_PROPERTY_VALUES = IM_FUNCTION.NAMESPACE + "AllowablePropertyValues";
 }

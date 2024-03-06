@@ -47,7 +47,7 @@ export default class FunctionService {
         );
       }
     }
-    throw new CustomError("missing required arguments 'focus'/'term'", ErrorType.InvalidInputError);
+    throw new CustomError("missing required arguments 'focus'/'searchIri'", ErrorType.InvalidInputError);
   }
 
   public async isAllowablePropertySuggestion(request: FunctionRequest): Promise<boolean> {
@@ -63,5 +63,60 @@ export default class FunctionService {
         return await this.queryService.isAllowablePropertySuggestionBoolFocus(focus.valueObject, term.valueData);
       } else throw new CustomError("focus argument is of incorrect type", ErrorType.InvalidInputError);
     } else throw new CustomError("missing required arguments 'focus'/'searchIri'", ErrorType.InvalidInputError);
+  }
+
+  public async getAllowablePropertyValueSuggestions(request: FunctionRequest): Promise<SearchResponse> {
+    const propertyIri = request.arguments?.find(arg => arg.parameter === "propertyIri");
+    const term = request.arguments?.find(arg => arg.parameter === "searchIri");
+    if (propertyIri?.valueIri && term?.valueData) {
+      const ranges = await this.queryService.queryIMSearch({
+        query: { "@id": QUERY.ALLOWABLE_RANGES },
+        argument: [{ parameter: "this", valueIri: { "@id": propertyIri.valueIri["@id"] } }],
+        page: { pageNumber: 1, pageSize: 1000 }
+      });
+      if (ranges.entities?.length) {
+        return this.queryService.queryIMSearch({
+          query: { "@id": QUERY.GET_ISAS },
+          argument: [
+            {
+              parameter: "this",
+              valueIriList: ranges.entities.map(r => {
+                return { "@id": r.iri };
+              })
+            }
+          ],
+          textSearch: term.valueData,
+          page: request.page ?? undefined
+        });
+      } else return {} as SearchResponse;
+    }
+    throw new CustomError("missing required arguments 'propertyIri'/'searchIri'", ErrorType.InvalidInputError);
+  }
+
+  public async isAllowablePropertyValueSuggestion(request: FunctionRequest): Promise<boolean> {
+    const propertyIri = request.arguments?.find(arg => arg.parameter === "propertyIri");
+    const term = request.arguments?.find(arg => arg.parameter === "searchIri");
+    if (propertyIri && term) {
+      const ranges = await this.queryService.queryIMSearch({
+        query: { "@id": QUERY.ALLOWABLE_RANGE_SUGGESTIONS },
+        argument: [{ parameter: "this", valueIri: { "@id": "http://snomed.info/sct#410662002" } }],
+        textSearch: term?.valueData,
+        page: { pageNumber: 1, pageSize: 1000 }
+      });
+      if (ranges.entities?.length) {
+        return this.queryService.askQueryIM({
+          query: { "@id": QUERY.GET_ISAS },
+          argument: [
+            {
+              parameter: "this",
+              valueIriList: ranges.entities.map(r => {
+                return { "@id": r.iri };
+              })
+            }
+          ]
+        });
+      } else return false;
+    }
+    throw new CustomError("missing required arguments 'propertyIri'/'searchIri'", ErrorType.InvalidInputError);
   }
 }
