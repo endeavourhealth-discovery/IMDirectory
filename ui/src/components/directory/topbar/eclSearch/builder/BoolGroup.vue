@@ -77,7 +77,7 @@
           v-if="props.focus"
           type="button"
           icon="fa-solid fa-filter"
-          label="Add refinement"
+          label="Add filter"
           class="add-button"
           :severity="hover ? 'success' : 'secondary'"
           :outlined="!hover"
@@ -149,7 +149,7 @@ watch(
   }
 );
 
-const emit = defineEmits({ unGroupItems: payload => true });
+const emit = defineEmits({ unGroupItems: _payload => true });
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
@@ -373,11 +373,11 @@ function unGroupItems(groupedItems: any) {
 }
 
 .add-button {
-  margin-left: 2.5rem;
+  margin-left: 0.1rem;
   width: 12rem;
 }
 
 .not-button {
-  margin: 4px 0 0 6px;
+  margin: 6px 0 6px 6px;
 }
 </style>

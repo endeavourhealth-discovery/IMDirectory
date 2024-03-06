@@ -106,6 +106,17 @@
                 />
               </span>
             </div>
+            <Button
+              v-if="value?.items?.length > 0"
+              type="button"
+              icon="fa-solid fa-filter"
+              label="Add filter"
+              class="add-filter-button"
+              :severity="hover ? 'success' : 'secondary'"
+              :outlined="!hover"
+              :class="!hover && 'hover-button'"
+              @click="addRefinement()"
+            />
           </div>
         </div>
       </div>
@@ -457,6 +468,12 @@ function unGroupItems(groupedItems: any) {
   transform: scale(-1);
 }
 .not-button {
-  margin: 4px 0 0 6px;
+  margin: 6px 0 6px 6px;
+}
+
+.add-filter-button {
+  display: flex;
+  width: 12rem;
+  margin-left: 0.1rem;
 }
 </style>

@@ -53,7 +53,7 @@
     </div>
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" />
-      <Button label="Validate" severity="success" @click="validateBuild" />
+      <Button label="Validate" severity="help" @click="validateBuild" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>
@@ -67,7 +67,6 @@ import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue"
 import { useDialog } from "primevue/usedialog";
 import { deferred } from "@im-library/helpers";
 import Swal from "sweetalert2";
-import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -109,7 +108,6 @@ const isValid = ref(false);
 
 const wasDraggedAndDropped = ref(false);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
-const { onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
 const op = ref();
 function toggle(event: any) {
   op.value.toggle(event);
