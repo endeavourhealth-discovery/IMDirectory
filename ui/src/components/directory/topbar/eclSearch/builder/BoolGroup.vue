@@ -228,7 +228,6 @@ function generateChildEcl(index: number, item: any) {
 }
 
 function processGroup() {
-  console.log("grouping");
   if (group.value.length) {
     const conjunction = props.parent?.conjunction === "OR" ? "AND" : "OR";
     const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: conjunction, items: [] };

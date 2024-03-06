@@ -103,7 +103,6 @@ export default class FunctionService {
         textSearch: term?.valueData,
         page: { pageNumber: 1, pageSize: 1000 }
       });
-      console.log(ranges);
       if (ranges.entities?.length) {
         return this.queryService.askQueryIM({
           query: { "@id": QUERY.GET_ISAS },
