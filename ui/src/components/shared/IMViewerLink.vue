@@ -60,17 +60,7 @@ function onNodeContext(event: any) {
 }
 
 async function click() {
-  switch (props.action) {
-    case "select":
-      emit("navigateTo", props.iri);
-      break;
-    case "view":
-      directService.view(props.iri);
-      break;
-    default:
-      directService.view(props.iri);
-      break;
-  }
+  emit("navigateTo", props.iri);
 }
 </script>
 

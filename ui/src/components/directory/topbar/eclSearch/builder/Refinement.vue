@@ -441,11 +441,7 @@ async function updateValue(value: SearchResultSummary | undefined) {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   height: 2.2rem;
