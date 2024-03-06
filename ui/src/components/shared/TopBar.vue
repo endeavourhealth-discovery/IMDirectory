@@ -20,6 +20,7 @@
           <div class="theme-row p-link">
             <Image class="theme-icon p-menuitem-icon" v-if="item.image" :src="item.image" alt="icon" width="30" />
             <span class="p-menuitem-text">{{ item.label }}</span>
+            <span v-if="item.key === currentTheme" class="theme-icon p-menuitem-icon fa-regular fa-check" />
           </div>
         </template>
       </Menu>
@@ -268,27 +269,27 @@ function getThemes() {
       label: "Arya",
       items: [
         {
+          key: "arya-blue",
           label: "Blue",
           image: new URL(`../../assets/themes/arya-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "arya-blue",
           command: () => changeTheme("arya-blue")
         },
         {
+          key: "arya-green",
           label: "Green",
           image: new URL(`../../assets/themes/arya-green.png`, import.meta.url),
-          disabled: currentTheme.value === "arya-green",
           command: () => changeTheme("arya-green")
         },
         {
+          key: "arya-orange",
           label: "Orange",
           image: new URL(`../../assets/themes/arya-orange.png`, import.meta.url),
-          disabled: currentTheme.value === "arya-orange",
           command: () => changeTheme("arya-orange")
         },
         {
+          key: "arya-purple",
           label: "Purple",
           image: new URL(`../../assets/themes/arya-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "arya-purple",
           command: () => changeTheme("arya-purple")
         }
       ]
@@ -297,27 +298,27 @@ function getThemes() {
       label: "Bootstrap",
       items: [
         {
+          key: "bootstrap4-light-blue",
           label: "Blue",
           image: new URL(`../../assets/themes/bootstrap4-light-blue.svg`, import.meta.url),
-          disabled: currentTheme.value === "bootstrap4-light-blue",
           command: () => changeTheme("bootstrap4-light-blue")
         },
         {
           label: "Purple",
           image: new URL(`../../assets/themes/bootstrap4-light-purple.svg`, import.meta.url),
-          disabled: currentTheme.value === "bootstrap4-light-purple",
+          key: "bootstrap4-light-purple",
           command: () => changeTheme("bootstrap4-light-purple")
         },
         {
+          key: "bootstrap4-dark-blue",
           label: "Blue",
           image: new URL(`../../assets/themes/bootstrap4-dark-blue.svg`, import.meta.url),
-          disabled: currentTheme.value === "bootstrap4-dark-blue",
           command: () => changeTheme("bootstrap4-dark-blue")
         },
         {
+          key: "bootstrap4-dark-purple",
           label: "Purple",
           image: new URL(`../../assets/themes/bootstrap4-dark-purple.svg`, import.meta.url),
-          disabled: currentTheme.value === "bootstrap4-dark-purple",
           command: () => changeTheme("bootstrap4-dark-purple")
         }
       ]
@@ -326,9 +327,9 @@ function getThemes() {
       label: "Fluent UI",
       items: [
         {
+          key: "fluent-light",
           label: "Blue",
           image: new URL(`../../assets/themes/fluent-light.png`, import.meta.url),
-          disabled: currentTheme.value === "fluent-light",
           command: () => changeTheme("fluent-light")
         }
       ]
@@ -337,51 +338,51 @@ function getThemes() {
       label: "Lara",
       items: [
         {
+          key: "lara-light-indigo",
           label: "Indigo",
           image: new URL(`../../assets/themes/lara-light-indigo.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-light-indigo",
           command: () => changeTheme("lara-light-indigo")
         },
         {
+          key: "lara-light-blue",
           label: "Blue",
           image: new URL(`../../assets/themes/lara-light-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-light-blue",
           command: () => changeTheme("lara-light-blue")
         },
         {
+          key: "lara-light-purple",
           label: "Purple",
           image: new URL(`../../assets/themes/lara-light-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-light-purple",
           command: () => changeTheme("lara-light-purple")
         },
         {
+          key: "lara-light-teal",
           label: "Teal",
           image: new URL(`../../assets/themes/lara-light-teal.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-light-teal",
           command: () => changeTheme("lara-light-teal")
         },
         {
+          key: "lara-dark-indigo",
           label: "Indigo",
           image: new URL(`../../assets/themes/lara-dark-indigo.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-dark-indigo",
           command: () => changeTheme("lara-dark-indigo")
         },
         {
+          key: "lara-dark-blue",
           label: "Blue",
           image: new URL(`../../assets/themes/lara-dark-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-dark-blue",
           command: () => changeTheme("lara-dark-blue")
         },
         {
+          key: "lara-dark-purple",
           label: "Purple",
           image: new URL(`../../assets/themes/lara-dark-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-dark-purple",
           command: () => changeTheme("lara-dark-purple")
         },
         {
+          key: "lara-dark-teal",
           label: "Teal",
           image: new URL(`../../assets/themes/lara-dark-teal.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-dark-teal",
           command: () => changeTheme("lara-dark-teal")
         }
       ]
@@ -390,27 +391,27 @@ function getThemes() {
       label: "Material Design",
       items: [
         {
+          key: "md-light-indigo",
           label: "Indigo",
           image: new URL(`../../assets/themes/md-light-indigo.svg`, import.meta.url),
-          disabled: currentTheme.value === "md-light-indigo",
           command: () => changeTheme("md-light-indigo")
         },
         {
+          key: "md-light-deeppurple",
           label: "Deep Purple",
           image: new URL(`../../assets/themes/md-light-deeppurple.svg`, import.meta.url),
-          disabled: currentTheme.value === "md-light-deeppurple",
           command: () => changeTheme("md-light-deeppurple")
         },
         {
+          key: "md-dark-indigo",
           label: "Indigo",
           image: new URL(`../../assets/themes/md-dark-indigo.svg`, import.meta.url),
-          disabled: currentTheme.value === "md-dark-indigo",
           command: () => changeTheme("md-dark-indigo")
         },
         {
+          key: "md-dark-deeppurple",
           label: "Deep Purple",
           image: new URL(`../../assets/themes/md-dark-deeppurple.svg`, import.meta.url),
-          disabled: currentTheme.value === "md-dark-deeppurple",
           command: () => changeTheme("md-dark-deeppurple")
         }
       ]
@@ -419,27 +420,27 @@ function getThemes() {
       label: "Material Design Compact",
       items: [
         {
+          key: "mdc-light-indigo",
           label: "Indigo",
           image: new URL(`../../assets/themes/mdc-light-indigo.svg`, import.meta.url),
-          disabled: currentTheme.value === "mdc-light-indigo",
           command: () => changeTheme("mdc-light-indigo")
         },
         {
+          key: "mdc-light-deeppurple",
           label: "Deep Purple",
           image: new URL(`../../assets/themes/mdc-light-deeppurple.svg`, import.meta.url),
-          disabled: currentTheme.value === "mdc-light-deeppurple",
           command: () => changeTheme("mdc-light-deeppurple")
         },
         {
+          key: "mdc-dark-indigo",
           label: "Indigo",
           image: new URL(`../../assets/themes/mdc-dark-indigo.svg`, import.meta.url),
-          disabled: currentTheme.value === "mdc-dark-indigo",
           command: () => changeTheme("mdc-dark-indigo")
         },
         {
+          key: "mdc-dark-deeppurple",
           label: "Deep Purple",
           image: new URL(`../../assets/themes/mdc-dark-deeppurple.svg`, import.meta.url),
-          disabled: currentTheme.value === "mdc-dark-deeppurple",
           command: () => changeTheme("mdc-dark-deeppurple")
         }
       ]
@@ -448,9 +449,9 @@ function getThemes() {
       label: "Mira",
       items: [
         {
+          key: "mira",
           label: "Mira",
           image: new URL(`../../assets/themes/mira.jpg`, import.meta.url),
-          disabled: currentTheme.value === "mira",
           command: () => changeTheme("mira")
         }
       ]
@@ -459,9 +460,9 @@ function getThemes() {
       label: "Nano",
       items: [
         {
+          key: "nano",
           label: "Nano",
           image: new URL(`../../assets/themes/nano.jpg`, import.meta.url),
-          disabled: currentTheme.value === "nano",
           command: () => changeTheme("nano")
         }
       ]
@@ -470,27 +471,27 @@ function getThemes() {
       label: "Saga",
       items: [
         {
+          key: "saga-blue",
           label: "Blue",
           image: new URL(`../../assets/themes/saga-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "saga-blue",
           command: () => changeTheme("saga-blue")
         },
         {
+          key: "saga-green",
           label: "Green",
           image: new URL(`../../assets/themes/saga-green.png`, import.meta.url),
-          disabled: currentTheme.value === "saga-green",
           command: () => changeTheme("saga-green")
         },
         {
+          key: "saga-orange",
           label: "Orange",
           image: new URL(`../../assets/themes/saga-orange.png`, import.meta.url),
-          disabled: currentTheme.value === "saga-orange",
           command: () => changeTheme("saga-orange")
         },
         {
+          key: "saga-purple",
           label: "Purple",
           image: new URL(`../../assets/themes/saga-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "saga-purple",
           command: () => changeTheme("saga-purple")
         }
       ]
@@ -499,15 +500,15 @@ function getThemes() {
       label: "Soho",
       items: [
         {
+          key: "soho-light",
           label: "Light",
           image: new URL(`../../assets/themes/soho-light.png`, import.meta.url),
-          disabled: currentTheme.value === "soho-light",
           command: () => changeTheme("soho-light")
         },
         {
+          key: "soho-dark",
           label: "Dark",
           image: new URL(`../../assets/themes/soho-dark.png`, import.meta.url),
-          disabled: currentTheme.value === "soho-dark",
           command: () => changeTheme("soho-dark")
         }
       ]
@@ -516,9 +517,9 @@ function getThemes() {
       label: "Tailwind",
       items: [
         {
+          key: "tailwind-light",
           label: "Tailwind Light",
           image: new URL(`../../assets/themes/tailwind-light.png`, import.meta.url),
-          disabled: currentTheme.value === "tailwind-light",
           command: () => changeTheme("tailwind-light")
         }
       ]
@@ -527,27 +528,27 @@ function getThemes() {
       label: "Vela",
       items: [
         {
+          key: "vela-blue",
           label: "Blue",
           image: new URL(`../../assets/themes/vela-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "vela-blue",
           command: () => changeTheme("vela-blue")
         },
         {
+          key: "vela-green",
           label: "Green",
           image: new URL(`../../assets/themes/vela-green.png`, import.meta.url),
-          disabled: currentTheme.value === "vela-green",
           command: () => changeTheme("vela-green")
         },
         {
+          key: "vela-orange",
           label: "Orange",
           image: new URL(`../../assets/themes/vela-orange.png`, import.meta.url),
-          disabled: currentTheme.value === "vela-orange",
           command: () => changeTheme("vela-orange")
         },
         {
+          key: "vela-purple",
           label: "Purple",
           image: new URL(`../../assets/themes/vela-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "vela-purple",
           command: () => changeTheme("vela-purple")
         }
       ]
@@ -556,15 +557,15 @@ function getThemes() {
       label: "Viva",
       items: [
         {
+          key: "viva-light",
           label: "Light",
           image: new URL(`../../assets/themes/viva-light.svg`, import.meta.url),
-          disabled: currentTheme.value === "viva-light",
           command: () => changeTheme("viva-light")
         },
         {
+          key: "viva-dark",
           label: "Dark",
           image: new URL(`../../assets/themes/viva-dark.svg`, import.meta.url),
-          disabled: currentTheme.value === "viva-dark",
           command: () => changeTheme("viva-dark")
         }
       ]
