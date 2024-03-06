@@ -41,6 +41,16 @@ vi.mock("@/composables/setupChangeTheme.ts", () => {
   };
 });
 
+let changeScaleMock = vi.fn();
+
+vi.mock("@/composables/setupChangeScale.ts", () => {
+  return {
+    default: () => ({
+      changeScale: () => changeScaleMock
+    })
+  };
+});
+
 describe("router", () => {
   afterEach(() => {
     vi.resetAllMocks();
@@ -58,6 +68,7 @@ describe("router", () => {
       userStore.updateSnomedLicenseAccepted(true);
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       UserService.getUserTheme = async () => "";
+      UserService.getUserScale = async () => "";
       await router.push("/");
       await router.isReady();
 
@@ -102,6 +113,7 @@ describe("router", () => {
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       authenticateCurrentUserSpy = vi.spyOn(userStore, "authenticateCurrentUser").mockResolvedValue({ authenticated: false });
       UserService.getUserTheme = async () => "";
+      UserService.getUserScale = async () => "";
       await router.push("/");
       await router.isReady();
 
@@ -155,6 +167,7 @@ describe("router", () => {
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       authenticateCurrentUserSpy = vi.spyOn(userStore, "authenticateCurrentUser").mockResolvedValue({ authenticated: true });
       UserService.getUserTheme = async () => "";
+      UserService.getUserScale = async () => "";
       await router.push("/");
       await router.isReady();
 
