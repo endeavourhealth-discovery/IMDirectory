@@ -69,7 +69,7 @@
             @click="addRefinement"
             aria-haspopup="true"
             aria-controls="add-filter"
-            v-tooltip="'Add filter'"
+            v-tooltip="'Add refinement'"
           />
         </div>
 
@@ -110,7 +110,7 @@
               v-if="value?.items?.length > 0"
               type="button"
               icon="fa-solid fa-filter"
-              label="Add filter"
+              label="Add refinement"
               class="add-filter-button"
               :severity="hover ? 'success' : 'secondary'"
               :outlined="!hover"
