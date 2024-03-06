@@ -77,7 +77,7 @@
           v-if="props.focus"
           type="button"
           icon="fa-solid fa-filter"
-          label="Add filter"
+          label="Add refinement"
           class="add-button"
           :severity="hover ? 'success' : 'secondary'"
           :outlined="!hover"
