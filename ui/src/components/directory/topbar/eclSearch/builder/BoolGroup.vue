@@ -292,9 +292,9 @@ function unGroupItems(groupedItems: any) {
 }
 .nested-div {
   padding: 0.5rem;
-  border: #ff8c0030 1px solid;
+  border: #488bc230 1px solid;
   border-radius: 5px;
-  background-color: #ff8c0010;
+  background-color: #488bc210;
   margin: 0.5rem;
 }
 
@@ -306,9 +306,9 @@ function unGroupItems(groupedItems: any) {
 .nested-div-hover {
   padding: 0.5rem;
   border-radius: 5px;
-  background-color: #ff8c0010;
+  background-color: #488bc210;
   margin: 0.5rem;
-  border: #ff8c00 1px solid;
+  border: #488bc2 1px solid;
 }
 .left-container {
   display: flex;
