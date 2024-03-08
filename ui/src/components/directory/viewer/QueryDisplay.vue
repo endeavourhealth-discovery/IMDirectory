@@ -95,7 +95,7 @@ async function copy() {
 }
 
 .query-display {
-  height: 100vh;
+  max-height: 100vh;
   overflow-y: auto;
   border: 1px solid var(--surface-border);
 }

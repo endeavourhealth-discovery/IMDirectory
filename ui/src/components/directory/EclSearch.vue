@@ -9,6 +9,8 @@
         placeholder="Enter expression here or use the ECL builder to generate your search..."
         :class="eclError ? 'p-invalid' : ''"
         data-testid="query-string"
+        @keydown="onKeyDown"
+        @keyup="onKeyUp"
       />
       <Button
         :disabled="!queryString.length"
@@ -117,6 +119,7 @@ const builderKey = ref(0);
 const currentPage = ref(0);
 const currentRows = ref(rowsStart);
 const eclQuery: Ref<Query | undefined> = ref();
+let keysPressed = {} as any;
 
 watch(queryString, () => {
   eclError.value = false;
@@ -131,6 +134,15 @@ onMounted(() => {
   setFilterDefaults();
   if (savedEcl.value) queryString.value = savedEcl.value;
 });
+
+function onKeyDown(event: any) {
+  keysPressed[event.key] = true;
+  if (keysPressed["Control"] && keysPressed["Enter"] && queryString.value.length && !eclError.value) search();
+}
+
+function onKeyUp(event: any) {
+  delete keysPressed[event.key];
+}
 
 function updateECL(data: string): void {
   queryString.value = data;

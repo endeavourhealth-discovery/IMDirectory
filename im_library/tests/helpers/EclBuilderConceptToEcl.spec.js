@@ -22,14 +22,14 @@ describe("builderConceptToEcl", () => {
   });
 
   it("handles includeTerms", () => {
-    expect(builderConceptToEcl({ concept: { code: "12345678", name: "test iri" } }, true)).toEqual("12345678 | test iri | ");
+    expect(builderConceptToEcl({ concept: { code: "12345678", name: "test iri" } }, undefined, true)).toEqual("12345678 | test iri | ");
   });
 
   it("handles includeTerms ___ any", () => {
-    expect(builderConceptToEcl({ concept: { code: "any", name: "test iri" } }, true)).toEqual("* | ANY | ");
+    expect(builderConceptToEcl({ concept: { code: "any", name: "test iri" } }, undefined, true)).toEqual("* | ANY | ");
   });
 
   it("handles includeTerms ___ missing name", () => {
-    expect(builderConceptToEcl({ concept: { code: "12345678" } }, true)).toEqual("12345678");
+    expect(builderConceptToEcl({ concept: { code: "12345678" } }, undefined, true)).toEqual("12345678");
   });
 });

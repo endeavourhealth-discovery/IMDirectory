@@ -1,12 +1,13 @@
 <template>
-  <div :class="property.description ? 'feature' : ''">
+  <div :class="propertyIndex && property.description ? 'feature-indent' : !propertyIndex && property.description ? 'feature' : ''">
     <span v-if="hasNodeRef(property)" v-html="property.description" @click="onNodeRefClick(property, $event)"></span>
     <span v-else-if="hasBigList(property)" v-html="property.description" @click="onPropertyInClick(property, $event)"></span>
     <span v-else v-html="property.description"></span>
     <RecursivePropertyDisplay
       v-if="isArrayHasLength(property.property)"
-      v-for="nestedProperty of property.property"
+      v-for="(nestedProperty, index) of property.property"
       :property="nestedProperty"
+      :property-index="index"
       :parent-match="parentMatch"
       :parent-property="property"
       :full-query="fullQuery"
@@ -37,6 +38,7 @@ interface Props {
   parentMatch?: Match;
   parentProperty?: Property;
   property: Property;
+  propertyIndex?: any;
 }
 
 const props = defineProps<Props>();
@@ -83,6 +85,14 @@ function getNodeRef(property: Property) {
   display: flex;
   flex-flow: column;
   margin-left: 1rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+}
+
+.feature-indent {
+  display: flex;
+  flex-flow: column;
+  margin-left: 2rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
 }

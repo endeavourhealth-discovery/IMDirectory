@@ -1,37 +1,33 @@
 <template>
   <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-    <div
-      class="search-text"
-      type="text"
-      :class="[isAny && 'inactive', !isAny && 'clickable']"
-      @click="!isAny ? (showDialog = true) : (showDialog = false)"
-      @mouseover="showOverlay($event, selected?.iri)"
-      @mouseleave="hideOverlay($event)"
-    >
-      <span class="selected-label">{{ selected?.name ?? "Search..." }}</span>
-    </div>
-    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="any" :binary="true" /></div>
-    <DirectorySearchDialog
-      v-if="showDialog && !isAny && selected?.iri !== 'any'"
-      v-model:show-dialog="showDialog"
+    <Dropdown style="width: 4.5rem; min-height: 2.3rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value">
+      <template #value="slotProps">
+        <div v-if="slotProps.value" class="flex align-items-center">
+          <div>{{ value.descendants }}</div>
+        </div>
+      </template>
+      <template #option="slotProps">
+        <div class="flex align-items-center" style="min-height: 1rem">
+          <div>{{ slotProps.option.label }}</div>
+        </div>
+      </template>
+    </Dropdown>
+    <AutocompleteSearchBar
       v-model:selected="selected"
       :search-by-query="queryRequest"
       :root-entities="['http://snomed.info/sct#138875005']"
       :filterOptions="filterOptions"
       :filterDefaults="filterDefaults"
+      :allow-any="true"
     />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
-    <OverlaySummary ref="OS" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, inject, computed, ComputedRef } from "vue";
 import { IM, SNOMED, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
-import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
@@ -40,7 +36,6 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 import { useFilterStore } from "@/stores/filterStore";
-import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   value: {
@@ -73,22 +68,12 @@ watch(
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
-const { OS, showOverlay, hideOverlay } = setupOverlay();
-
 const filterStore = useFilterStore();
 const filterStoreDefaults = computed(() => filterStore.filterDefaults);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
-const isAny: ComputedRef<boolean> = computed(() => selected.value?.iri === "any");
 
 const loading = ref(false);
-const showDialog = ref(false);
-const any = ref(false);
 const selected: Ref<SearchResultSummary | undefined> = ref();
-
-watch(any, newValue => {
-  if (newValue) selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
-  else selected.value = undefined;
-});
 
 const queryRequest: QueryRequest = {
   query: { "@id": QUERY.SEARCH_ENTITIES },
@@ -96,15 +81,15 @@ const queryRequest: QueryRequest = {
 };
 const descendantOptions = [
   {
-    label: "only",
+    label: " ",
     value: ""
   },
   {
-    label: "plus descendants",
+    label: "<<",
     value: "<<"
   },
   {
-    label: "descendants only",
+    label: "<",
     value: "<"
   }
 ];
@@ -161,7 +146,7 @@ async function updateSelectedResult(data: SearchResultSummary | { iri: string; n
 
 function generateEcl(): string {
   let ecl = "";
-  ecl += builderConceptToEcl(props.value, includeTerms.value);
+  ecl += builderConceptToEcl(props.value, props.parent, includeTerms.value);
   if (isArrayHasLength(props.value.items)) {
     ecl += " : \n";
     for (const [index, item] of props.value.items.entries()) {
@@ -212,11 +197,7 @@ function updateConcept(concept: any) {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   height: 2.7rem;

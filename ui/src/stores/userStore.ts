@@ -10,6 +10,7 @@ export const useUserStore = defineStore("user", {
     cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
     cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
     currentTheme: "" as string,
+    currentScale: "16px" as string,
     currentUser: {} as User,
     awsUser: {} as any,
     favourites: [] as string[],
@@ -65,6 +66,8 @@ export const useUserStore = defineStore("user", {
       if (this.currentUser) {
         const themeResult = await UserService.getUserTheme();
         if (themeResult) this.currentTheme = themeResult;
+        const scaleResult = await UserService.getUserScale();
+        if (scaleResult) this.currentScale = scaleResult;
         await this.initFavourites();
         const recentActivityResult = await UserService.getUserMRU();
         if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
@@ -117,6 +120,10 @@ export const useUserStore = defineStore("user", {
     async updateCurrentTheme(theme: string) {
       if (this.currentUser) await UserService.updateUserTheme(theme);
       this.currentTheme = theme;
+    },
+    async updateCurrentScale(scale: string) {
+      if (this.currentUser) await UserService.updateUserScale(scale);
+      this.currentScale = scale;
     },
     updateCurrentUser(user: any) {
       this.currentUser = user;
