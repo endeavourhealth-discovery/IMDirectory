@@ -10,8 +10,8 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <CohortEditor v-else v-model:queryDefinition="queryDefinition" />
-
+    <!-- <CohortEditor v-else v-model:queryDefinition="queryDefinition" /> -->
+    <IMQueryEditor />
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" />
@@ -31,6 +31,7 @@ import { useRoute } from "vue-router";
 import { useFilterStore } from "@/stores/filterStore";
 import { resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
+import IMQueryEditor from "@/components/imquery/IMQueryEditor.vue";
 
 const filterStore = useFilterStore();
 const route = useRoute();

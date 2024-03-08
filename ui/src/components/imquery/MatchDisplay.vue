@@ -1,0 +1,30 @@
+<template>
+  <div class="match-description-container">
+    <div class="match-description" v-html="match?.description"></div>
+    <MatchDisplay v-if="match?.match" v-for="nestedMatch in match.match" :match="nestedMatch" />
+    <PropertyDisplay v-if="match?.property" v-for="nestedProperty in match.property" :property="nestedProperty" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { Match } from "@im-library/interfaces/AutoGen";
+import PropertyDisplay from "./PropertyDisplay.vue";
+interface Props {
+  match: Match;
+}
+const props = defineProps<Props>();
+</script>
+
+<style scoped>
+.match-description-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+.match-description {
+  width: 100%;
+  height: 100%;
+  margin-left: 0.1rem;
+}
+</style>

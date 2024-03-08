@@ -1,0 +1,140 @@
+<template>
+  <div class="im-query-container">
+    <div class="base-type-container">
+      <div class="base-type-title">Base type:</div>
+      <AutocompleteSearchBar
+        class="base-type-autocomplete"
+        v-model:selected="selectedBaseType"
+        :search-by-query="queryRequestForBaseType"
+        :root-entities="['http://endhealth.info/im#DataModel']"
+      />
+    </div>
+    <div class="feature-container">
+      <div class="feature-title">Features:</div>
+      <div class="feature-list-container">
+        <div v-for="(feature, index) in queryDefinition.match" class="feature">
+          <div
+            :class="[hover === index ? 'feature-description-card-hover' : 'feature-description-card']"
+            class="clickable"
+            @mouseover="mouseover($event, index)"
+            @mouseout="mouseout($event, index)"
+          >
+            <MatchDisplay class="feature-description" :match="feature" />
+          </div>
+          <Button @click="deleteFeature(index)" severity="danger" icon="fa-solid fa-trash" class="builder-button" />
+        </div>
+        <Button label="Add feature" @click="queryDefinition.match?.push({} as Match)" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { Ref, onMounted, ref } from "vue";
+import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
+import { Match, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { QueryService } from "@/services";
+import MatchDisplay from "./MatchDisplay.vue";
+
+const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
+const queryDefinition: Ref<Query> = ref({});
+const hover: Ref<number> = ref(-1);
+const queryRequestForBaseType: QueryRequest = {
+  query: {
+    name: "Get queries and data models",
+    match: [
+      {
+        typeOf: { "@id": "http://www.w3.org/ns/shacl#NodeShape" }
+      }
+    ]
+  }
+};
+
+onMounted(async () => {
+  queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
+});
+
+function mouseover(event: Event, index: number) {
+  event.stopPropagation();
+  hover.value = index;
+}
+
+function mouseout(event: Event, index: number) {
+  event.stopPropagation();
+  hover.value = -1;
+}
+
+function deleteFeature(index: number) {
+  queryDefinition.value.match?.splice(index, 1);
+}
+</script>
+
+<style scoped>
+.im-query-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  padding: 1rem;
+  flex-flow: column;
+}
+
+.base-type-container {
+  display: flex;
+  align-items: baseline;
+}
+
+.feature-container {
+  display: flex;
+  align-items: baseline;
+}
+
+.feature-list-container {
+  display: flex;
+  flex-flow: column;
+  padding: 1rem;
+}
+
+.feature {
+  display: flex;
+  flex-flow: row;
+}
+
+.feature-description {
+  width: calc(94vw - 2rem);
+}
+
+.add-feature-button {
+  width: 20rem;
+  margin-top: 0.5rem;
+  margin-left: 1.2rem;
+}
+
+.feature-description-card {
+  width: calc(94vw - 2rem);
+  padding: 0.5rem;
+  border: #6bb28c30 1px solid;
+  border-radius: 5px;
+  background-color: #6bb28c10;
+  margin: 0.2rem;
+  flex: 1;
+}
+
+.feature-description-card-hover {
+  width: calc(94vw - 2rem);
+  padding: 0.5rem;
+  border-radius: 5px;
+  background-color: #6bb28c10;
+  margin: 0.2rem;
+  flex: 1;
+  border: #6bb28c 1px solid;
+}
+
+.base-type-autocomplete {
+  margin-left: 1.5rem;
+  margin-right: 1rem;
+}
+
+.clickable {
+  cursor: pointer;
+}
+</style>
