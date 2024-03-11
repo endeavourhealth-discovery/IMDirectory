@@ -15,8 +15,7 @@ function processAwsUser(cognitoUser: any) {
     password: "",
     avatar: cognitoUser.attributes["custom:avatar"],
     roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] ?? [],
-    mfaStatus: cognitoUser.preferredMFA ? [cognitoUser.preferredMFA] : [],
-    emailVerified: cognitoUser.attributes["email_verified"] ?? false
+    mfaStatus: cognitoUser.preferredMFA ? [cognitoUser.preferredMFA] : []
   } as User;
 }
 
