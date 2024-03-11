@@ -138,6 +138,14 @@ function handle403(res: CustomAlert) {
   } else if (res.message === "SOFTWARE_TOKEN_MFA") {
     userStore.updateAwsUser(res.userRaw);
     router.push({ name: "MFALogin" });
+  } else {
+    console.error(res.error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Authentication error",
+      confirmButtonText: "Close"
+    });
   }
 }
 
