@@ -15,7 +15,8 @@ function processAwsUser(cognitoUser: any) {
     password: "",
     avatar: cognitoUser.attributes["custom:avatar"],
     roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] ?? [],
-    mfaStatus: cognitoUser.preferredMFA ? [cognitoUser.preferredMFA] : []
+    mfaStatus: cognitoUser.preferredMFA ? [cognitoUser.preferredMFA] : [],
+    emailVerified: cognitoUser.attributes["email_verified"] ?? false
   } as User;
 }
 
@@ -76,7 +77,7 @@ const AuthService = {
       await Auth.resendSignUp(username);
       return { status: 200, message: "Code resent successfully" } as CustomAlert;
     } catch (err: any) {
-      return { status: 400, message: "Error resending code", error: err } as CustomAlert;
+      return { status: 400, message: err.message, error: err } as CustomAlert;
     }
   },
 
@@ -183,8 +184,11 @@ const AuthService = {
     try {
       const authorizedUser = await Auth.confirmSignIn(user, mfaCode, "SOFTWARE_TOKEN_MFA");
       const signedInUser = processAwsUser(authorizedUser);
-      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
+      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: authorizedUser } as CustomAlert;
     } catch (err: any) {
+      if (err.code === "UserNotConfirmedException") {
+        return { status: 401, message: err.message, error: err } as CustomAlert; //message: "User is not confirmed."
+      }
       return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
     }
   },
