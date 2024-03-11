@@ -86,6 +86,7 @@ function deleteFeature(index: number) {
 .feature-container {
   display: flex;
   align-items: baseline;
+  overflow: hidden;
 }
 
 .feature-list-container {
@@ -110,7 +111,7 @@ function deleteFeature(index: number) {
 }
 
 .feature-description-card {
-  width: calc(94vw - 2rem);
+  width: calc(94vw - 7rem);
   padding: 0.5rem;
   border: #6bb28c30 1px solid;
   border-radius: 5px;
@@ -120,7 +121,7 @@ function deleteFeature(index: number) {
 }
 
 .feature-description-card-hover {
-  width: calc(94vw - 2rem);
+  width: calc(94vw - 7rem);
   padding: 0.5rem;
   border-radius: 5px;
   background-color: #6bb28c10;
