@@ -5,6 +5,7 @@ import axios from "axios";
 import Env from "./Env";
 
 function processAwsUser(cognitoUser: any) {
+  if (!isObjectHasKeys(cognitoUser, ["attributes", "username"])) throw new Error("Unable to process aws user");
   return {
     id: cognitoUser.attributes.sub,
     username: cognitoUser.username,
