@@ -374,6 +374,8 @@ function unGroupItems(groupedItems: any) {
 .add-button {
   margin-left: 0.1rem;
   width: 12rem;
+  max-height: 1rem;
+  padding: 1rem;
 }
 
 .not-button {
