@@ -18,4 +18,9 @@ export default class CognitoService {
     const results = await this.cognitoIdentity.listUsers(params);
     return results.Users?.length !== 0;
   }
+
+  public async updateEmailVerified(username: string, emailVerified: boolean): Promise<void> {
+    const params = { UserPoolId: this.config.userPoolId, UserAttributes: [{ Name: "email_verified", Value: emailVerified.toString() }], Username: username };
+    await this.cognitoIdentity.adminUpdateUserAttributes(params);
+  }
 }

@@ -58,6 +58,18 @@ class AuthMiddleware {
     return (req: Request, res: Response, nxt: any) => this.verifyToken(req, res, nxt, role);
   }
 
+  public async getUsernameFromToken(req: Request): Promise<string> {
+    const token = req.headers?.authorization?.substring(7);
+    if (!token) throw new Error("Missing authorisation token from request");
+    let decodedJwt: any = jwt.decode(token, { complete: true });
+    if (decodedJwt === null) {
+      throw new Error("Failed to decode token");
+    }
+    const username = decodedJwt.payload["cognito:username"];
+    if (username) return username;
+    else throw new Error("Failed to get username from token");
+  }
+
   private async setUp() {
     const URL = `https://cognito-idp.${this.poolRegion}.amazonaws.com/${this.userPoolId}/.well-known/jwks.json`;
 
