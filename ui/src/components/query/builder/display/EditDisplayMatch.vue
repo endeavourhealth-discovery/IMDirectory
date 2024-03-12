@@ -32,8 +32,8 @@
     />
 
     <EditDisplayProperty
-      v-if="isArrayHasLength(match.property)"
-      v-for="(property, index) of match.property"
+      v-if="isArrayHasLength(match.where)"
+      v-for="(property, index) of match.where"
       :index="index"
       :parent-match="match"
       :property="property"
@@ -203,7 +203,7 @@ watch(
 watch(
   () => cloneDeep(props.match),
   () => {
-    if (!isArrayHasLength(props.match.property) && !isArrayHasLength(props.match.match) && !hasValue.value) {
+    if (!isArrayHasLength(props.match.where) && !isArrayHasLength(props.match.match) && !hasValue.value) {
       remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
     }
   }

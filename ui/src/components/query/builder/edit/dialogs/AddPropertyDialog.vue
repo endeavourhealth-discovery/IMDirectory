@@ -57,12 +57,12 @@ watch(visible, newValue => {
 watch(
   () => cloneDeep(props.match),
   newValue => {
-    if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.property)) editMatch.value.property = cloneDeep(props.match!.property);
+    if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
   }
 );
 
 onMounted(() => {
-  if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.property)) editMatch.value.property = cloneDeep(props.match!.property);
+  if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
 });
 
 function onSelectedUpdate(selected: TreeNode[]) {
@@ -70,7 +70,7 @@ function onSelectedUpdate(selected: TreeNode[]) {
 }
 
 async function save() {
-  editMatch.value.property = [];
+  editMatch.value.where = [];
   const { direct, nested } = buildMatchesFromProperties(selectedProperties.value as any);
   emit("onSave", direct, nested);
   visible.value = false;

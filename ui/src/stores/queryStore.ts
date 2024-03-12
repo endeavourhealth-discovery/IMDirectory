@@ -13,7 +13,7 @@ export const useQueryStore = defineStore("query", {
         name: "Get by return type",
         match: [
           {
-            property: [
+            where: [
               {
                 "@id": "http://endhealth.info/im#returnType",
                 is: [
