@@ -100,6 +100,15 @@ function handle401(res: CustomAlert) {
     confirmButtonText: "Confirm Account"
   }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
+      if (res.user) {
+        const loggedInUser = res.user;
+        const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
+        if (!result) {
+          loggedInUser.avatar = Avatars[0];
+        }
+        userStore.updateCurrentUser(loggedInUser);
+        userStore.updateAwsUser(res.userRaw);
+      }
       authStore.updateRegisteredUsername(username.value);
       router.push({ name: "ConfirmCode" });
     }
