@@ -13,11 +13,17 @@
           </div>
           <div class="field">
             <label for="passwordOld">Current password</label>
-            <InputText data-testid="password-edit-password-old" id="passwordOld" type="password" v-model="passwordOld" />
+            <div class="input-with-button">
+              <InputText data-testid="password-edit-password-old" id="passwordOld" :type="showPasswordOld ? 'text' : 'password'" v-model="passwordOld" />
+              <Button :icon="showPasswordOld ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPasswordOld" text />
+            </div>
           </div>
           <div class="field">
             <label for="passwordNew1">New password</label>
-            <InputText data-testid="password-edit-password-new1" id="passwordNew1" type="password" v-model="passwordNew1" />
+            <div class="input-with-button">
+              <InputText data-testid="password-edit-password-new1" id="passwordNew1" :type="showPasswordNew1 ? 'text' : 'password'" v-model="passwordNew1" />
+              <Button :icon="showPasswordNew1 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPasswordNew1" text />
+            </div>
             <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
@@ -29,14 +35,17 @@
           </div>
           <div class="field">
             <label for="passwordNew2">Confirm new password</label>
-            <InputText
-              data-testid="password-edit-password-new2"
-              id="passwordNew2"
-              type="password"
-              v-model="passwordNew2"
-              @blur="setShowPassword2Message"
-              @keyup="checkKey"
-            />
+            <div class="input-with-button">
+              <InputText
+                data-testid="password-edit-password-new2"
+                id="passwordNew2"
+                :type="showPasswordNew2 ? 'text' : 'password'"
+                v-model="passwordNew2"
+                @blur="setShowPassword2Message"
+                @keyup="checkKey"
+              />
+              <Button :icon="showPasswordNew2 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPasswordNew2" text />
+            </div>
             <InlineMessage v-if="showPassword2Message" severity="error"> New passwords do not match! </InlineMessage>
           </div>
           <div class="flex flex-row justify-content-center">
@@ -74,15 +83,30 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const authReturnPath = computed(() => authStore.authReturnPath);
 
-let passwordOld = ref("");
-let passwordNew1 = ref("");
-let passwordNew2 = ref("");
-let showPassword2Message = ref(false);
+const passwordOld = ref("");
+const passwordNew1 = ref("");
+const passwordNew2 = ref("");
+const showPassword2Message = ref(false);
+const showPasswordOld = ref(false);
+const showPasswordNew1 = ref(false);
+const showPasswordNew2 = ref(false);
 
 const passwordsMatch = computed(() => verifyPasswordsMatch(passwordNew1.value, passwordNew2.value));
 const passwordStrength: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordNew1.value));
 const passwordStrengthOld: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordOld.value));
 const passwordDifferentFromOriginal = computed(() => passwordOld.value !== passwordNew1.value);
+
+function toggleShowPasswordOld() {
+  showPasswordOld.value = !showPasswordOld.value;
+}
+
+function toggleShowPasswordNew1() {
+  showPasswordNew1.value = !showPasswordNew1.value;
+}
+
+function toggleShowPasswordNew2() {
+  showPasswordNew2.value = !showPasswordNew2.value;
+}
 
 function setShowPassword2Message(): void {
   showPassword2Message.value = !passwordsMatch.value;
@@ -165,5 +189,10 @@ function setButtonDisabled(): boolean {
   width: 10rem;
   border: 1px solid lightgray;
   border-radius: 50%;
+}
+
+.input-with-button {
+  display: flex;
+  flex-flow: row nowrap;
 }
 </style>
