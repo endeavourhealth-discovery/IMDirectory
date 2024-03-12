@@ -62,6 +62,9 @@ const AuthService = {
         return { status: 403, message: user.challengeName, error: undefined, user: user, userRaw: user };
       }
       const signedInUser = processAwsUser(user);
+      if (user.attributes?.email_verified === false) {
+        return { status: 401, message: "EMAIL_UNVERIFIED", error: undefined, user: user, userRaw: user };
+      }
       return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
     } catch (err: any) {
       if (err.code === "UserNotConfirmedException") {
@@ -183,6 +186,9 @@ const AuthService = {
     try {
       const authorizedUser = await Auth.confirmSignIn(user, mfaCode, "SOFTWARE_TOKEN_MFA");
       const signedInUser = processAwsUser(authorizedUser);
+      if (user.attributes?.email_verified === false) {
+        return { status: 401, message: "EMAIL_UNVERIFIED", error: undefined, user: user, userRaw: user };
+      }
       return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: authorizedUser } as CustomAlert;
     } catch (err: any) {
       if (err.code === "UserNotConfirmedException") {
