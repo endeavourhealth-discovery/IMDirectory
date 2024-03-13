@@ -128,6 +128,14 @@ function handle403(res: CustomAlert) {
         router.push({ name: "ForgotPassword" });
       }
     });
+  } else if (res.message) {
+    console.error(res.error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: res.message,
+      confirmButtonText: "Close"
+    });
   } else {
     console.error(res.error);
     Swal.fire({
