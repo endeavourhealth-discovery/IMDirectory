@@ -36,8 +36,11 @@
           </DataTable>
         </div>
         <div class="text-area-group">
-          <div class="title-bar">
+          <div class="title-bar button-group">
             <span>Code Template</span>
+            <Dropdown class="dropdown" v-model="selectedDropdownOption" :options="templateDropdownList" />
+            <InputText placeholder="Template name" v-model="nameInput"></InputText>
+            <Button :disabled="!nameInput.length" class="save-button" label="Save template" @click="saveTemplate" />
           </div>
           <Textarea class="text-area" v-model="codeInput" @drop.prevent />
         </div>
@@ -63,11 +66,16 @@ import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { RDFS, SHACL } from "@im-library/vocabulary";
 import _ from "lodash";
+import CodeGenService from "@/services/CodeGenService";
+import codeGenService from "@/services/CodeGenService";
 
+const nameInput = ref("");
 const codeInput = ref("");
 const fileExtensionInput = ref("");
 const collectionWrapperInput = ref("");
 const datatypeMapInput: Ref<any> = ref([]);
+const templateDropdownList: Ref<any> = ref([]);
+const selectedDropdownOption = ref("");
 const generatedCode = ref();
 
 interface DatatypeMap {
@@ -78,8 +86,13 @@ onMounted(async () => {
   await init();
 });
 
-watch([codeInput, collectionWrapperInput], () => {
+watch([codeInput, collectionWrapperInput, nameInput], () => {
   convert();
+});
+watch([selectedDropdownOption], () => {
+  if (selectedDropdownOption.value) {
+    loadTemplate(selectedDropdownOption.value);
+  }
 });
 
 watch(
@@ -98,61 +111,8 @@ watch(
 );
 
 async function init() {
-  fileExtensionInput.value = ".java";
-  codeInput.value = `package $\{NAMESPACE};
-
-import java.util.ArrayList;
-import java.util.List;
-
-/**
-* Represents $\{MODEL NAME}
-* $\{MODEL COMMENT}
-*/
-
-public class $\{ModelName} {
-<template #property>
-  private $\{DataType} $\{propertyName};
-
-  /**
-  * Gets the $\{PROPERTY NAME} of this $\{MODEL NAME}
-  * @return $\{propertyName}
-  */
-  public $\{DataType} get$\{PropertyName}() {
-    return $\{propertyName};
-  }
-
-  /**
-  * Sets the $\{PROPERTY NAME} of this $\{MODEL NAME}
-  * @param $\{propertyName} The new $\{PROPERTY NAME} to set
-  * @return $\{ModelName}
-  */
-  public $\{ModelName} set$\{PropertyName}($\{DataType} value) {
-    $\{propertyName} = value;
-    return this;
-  }
-
- <template #array>
-  /**
-  * Adds the given $\{PROPERTY NAME} to this $\{MODEL NAME}
-   * @param $\{propertyName} The $\{PROPERTY NAME} to add
-   * @return $\{ModelName}
-  */
-  public $\{ModelName} add$\{PropertyName}($\{BASE DATA TYPE} $\{propertyName}) {
-    $\{DataType} array = this.get$\{PropertyName}();
-  if (null == array) {
-     array = new ArrayList();
-      this.set$\{PropertyName}(array);
-    }
-
-    array.add($\{propertyName});
-    return this;
-  }
- </template #array>
-</template #property>
-}`;
-  collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
-  datatypeMapInput.value = [{ code: "http://www.w3.org/2001/XMLSchema#string", replace: "String" }];
-  await convert();
+  templateDropdownList.value = await codeGenService.getCodeTemplateList();
+  datatypeMapInput.value = [{ code: "", replace: "" }];
 }
 async function convert() {
   const newString = codeInput.value.replaceAll("\n", "\\n").replaceAll("\\n<", "<").replaceAll(">\\n", ">");
@@ -183,6 +143,30 @@ async function convert() {
   const newDatatypeMap = getDatatypeMap();
 
   generateCode(header, property, array, footer, iri, newProperties, newDatatypeMap);
+}
+
+async function saveTemplate() {
+  const template = {
+    name: nameInput.value,
+    extension: fileExtensionInput.value,
+    collectionWrapper: collectionWrapperInput.value,
+    datatypeMap: JSON.stringify(datatypeMapInput.value),
+    template: codeInput.value
+  };
+  await CodeGenService.saveCodeTemplate(template);
+  templateDropdownList.value = await codeGenService.getCodeTemplateList();
+}
+
+async function loadTemplate(name: string) {
+  let newTemplate;
+  if (name) {
+    newTemplate = await codeGenService.getCodeTemplate(selectedDropdownOption.value);
+    nameInput.value = newTemplate.name ? newTemplate.name : "";
+    codeInput.value = newTemplate.template ? newTemplate.template : "";
+    fileExtensionInput.value = newTemplate.extension ? newTemplate.extension : "";
+    collectionWrapperInput.value = newTemplate.collectionWrapper ? newTemplate.collectionWrapper : "";
+    datatypeMapInput.value = newTemplate.datatypeMap ? JSON.parse(newTemplate.datatypeMap) : [{ code: "", replace: "" }];
+  }
 }
 
 function getTemplate(code: string, templateName: string, patternStart: string, patternEnd: string) {
@@ -243,7 +227,7 @@ function generateCode(
     collectionProperty: array,
     collectionWrapper: collectionWrapperInput.value,
     footer: footer,
-    datatypeMap: dataTypeMap
+    datatypeMap: datatypeMapInput.value
   });
 
   generatedCode.value = cg.generateCode(iri, properties, "org.endavourhealth.im");
@@ -274,7 +258,7 @@ function generateCode(
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;
-  padding: 1rem 1rem 0 1rem;
+  padding: 1rem;
 }
 
 .generated-code-container {
@@ -310,14 +294,30 @@ function generateCode(
   resize: none;
   font-size: 0.8rem;
   font-family: monospace;
-  margin-bottom: 1rem;
 }
 
 .input-text {
   width: 40%;
   font-size: 1rem;
 }
+
 .input-text-table {
   width: 100%;
+}
+
+.dropdown {
+  width: 20%;
+  margin-left: 1rem;
+}
+
+.button-group {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.save-button {
+  text-align: right;
 }
 </style>
