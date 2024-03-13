@@ -14,7 +14,7 @@
     </Dropdown>
     <AutocompleteSearchBar
       v-model:selected="selected"
-      :search-by-query="queryRequest"
+      :-o-s-query="osQueryForConceptSearch"
       :root-entities="['http://snomed.info/sct#138875005']"
       :filterOptions="filterOptions"
       :filterDefaults="filterDefaults"
@@ -29,13 +29,14 @@ import { Ref, ref, onMounted, watch, inject, computed, ComputedRef } from "vue";
 import { IM, SNOMED, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 import { useFilterStore } from "@/stores/filterStore";
+import { SortDirection } from "@im-library/enums";
 
 interface Props {
   value: {
@@ -69,16 +70,11 @@ const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const filterStore = useFilterStore();
-const filterStoreDefaults = computed(() => filterStore.filterDefaults);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 
 const loading = ref(false);
 const selected: Ref<SearchResultSummary | undefined> = ref();
 
-const queryRequest: QueryRequest = {
-  query: { "@id": QUERY.SEARCH_ENTITIES },
-  argument: [{ parameter: "this", valueIri: { "@id": IM.CONCEPT } }]
-};
 const descendantOptions = [
   {
     label: " ",
@@ -109,6 +105,16 @@ const filterDefaults: FilterOptions = {
   sortDirections: [...filterStoreOptions.value.sortDirections],
   sortFields: [...filterStoreOptions.value.sortFields]
 };
+
+const osQueryForConceptSearch: Ref<SearchRequest> = ref({
+  page: 1,
+  size: 10,
+  schemeFilter: filterDefaults.schemes.map(s => s["@id"]),
+  statusFilter: filterDefaults.status.map(s => s["@id"]),
+  typeFilter: filterDefaults.types.map(s => s["@id"]),
+  sortDirection: filterDefaults.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
+  sortField: filterDefaults.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterDefaults.sortFields[0]?.["@id"]
+} as SearchRequest);
 
 onMounted(async () => {
   await init();
@@ -197,7 +203,11 @@ function updateConcept(concept: any) {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   height: 2.7rem;
