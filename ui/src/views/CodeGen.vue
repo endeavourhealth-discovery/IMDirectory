@@ -111,8 +111,60 @@ watch(
 );
 
 async function init() {
+  await setDefaultTemplate();
   templateDropdownList.value = await codeGenService.getCodeTemplateList();
-  datatypeMapInput.value = [{ code: "", replace: "" }];
+}
+
+async function setDefaultTemplate() {
+  fileExtensionInput.value = ".java";
+  codeInput.value = `package $\{NAMESPACE};
+import java.util.ArrayList;
+import java.util.List;
+/**
+* Represents $\{MODEL NAME}
+* $\{MODEL COMMENT}
+*/
+public class $\{ModelName} {
+<template #property>
+  private $\{DataType} $\{propertyName};
+  /**
+  * Gets the $\{PROPERTY NAME} of this $\{MODEL NAME}
+  * @return $\{propertyName}
+  */
+  public $\{DataType} get$\{PropertyName}() {
+    return $\{propertyName};
+  }
+  /**
+  * Sets the $\{PROPERTY NAME} of this $\{MODEL NAME}
+  * @param $\{propertyName} The new $\{PROPERTY NAME} to set
+  * @return $\{ModelName}
+  */
+  public $\{ModelName} set$\{PropertyName}($\{DataType} value) {
+    $\{propertyName} = value;
+    return this;
+  }
+ <template #array>
+  /**
+  * Adds the given $\{PROPERTY NAME} to this $\{MODEL NAME}
+   * @param $\{propertyName} The $\{PROPERTY NAME} to add
+   * @return $\{ModelName}
+  */
+  public $\{ModelName} add$\{PropertyName}($\{BASE DATA TYPE} $\{propertyName}) {
+    $\{DataType} array = this.get$\{PropertyName}();
+  if (null == array) {
+     array = new ArrayList();
+      this.set$\{PropertyName}(array);
+    }
+    array.add($\{propertyName});
+    return this;
+  }
+ </template #array>
+</template #property>
+}`;
+  collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
+  datatypeMapInput.value = [{ code: "http://www.w3.org/2001/XMLSchema#string", replace: "String" }];
+  nameInput.value = "java";
+  await convert();
 }
 async function convert() {
   const newString = codeInput.value.replaceAll("\n", "\\n").replaceAll("\\n<", "<").replaceAll(">\\n", ">");
@@ -155,6 +207,7 @@ async function saveTemplate() {
   };
   await CodeGenService.updateCodeTemplate(template);
   templateDropdownList.value = await codeGenService.getCodeTemplateList();
+  selectedDropdownOption.value = nameInput.value;
 }
 
 async function loadTemplate(name: string) {
