@@ -70,6 +70,9 @@ const AuthService = {
       if (err.code === "UserNotConfirmedException") {
         return { status: 401, message: err.message, error: err } as CustomAlert; //message: "User is not confirmed."
       }
+      if (err.message === "Temporary password has expired and must be reset by an administrator.") {
+        return { status: 403, message: err.message, error: err } as CustomAlert;
+      }
       return { status: 403, message: "Login failed. Check username and password are correct", error: err } as CustomAlert;
     }
   },
