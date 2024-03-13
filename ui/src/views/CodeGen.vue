@@ -153,7 +153,7 @@ async function saveTemplate() {
     datatypeMap: JSON.stringify(datatypeMapInput.value),
     template: codeInput.value
   };
-  await CodeGenService.saveCodeTemplate(template);
+  await CodeGenService.updateCodeTemplate(template);
   templateDropdownList.value = await codeGenService.getCodeTemplateList();
 }
 

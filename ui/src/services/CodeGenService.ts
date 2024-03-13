@@ -12,7 +12,7 @@ const CodeGenService = {
       }
     });
   },
-  async saveCodeTemplate(template: any): Promise<string> {
+  async updateCodeTemplate(template: any): Promise<string> {
     return await axios.post(Env.API + "api/codeGen/codeTemplate", template);
   }
 };
