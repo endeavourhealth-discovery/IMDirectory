@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { AuthService } from "@/services";
+import { AuthService, UserService } from "@/services";
 import { computed, onMounted, ref } from "vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
@@ -128,13 +128,25 @@ function requestCode() {
   if (!usernameInvalid.value) {
     showDialog.value = false;
     AuthService.resendConfirmationCode(username.value)
-      .then(res => {
+      .then(async res => {
         if (res.status === 200) {
           Swal.fire({
             icon: "success",
             title: "Success",
             text: "Code has been resent to email for: " + username.value
           });
+        } else if (res.message === "User is already confirmed.") {
+          await UserService.updateEmailVerified(true).then(() =>
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: "Account has successfully been verified",
+              confirmButtonText: "Login"
+            }).then(() => {
+              authStore.updateRegisteredUsername(username.value);
+              router.push({ name: "Login" });
+            })
+          );
         } else {
           Swal.fire({
             icon: "error",
