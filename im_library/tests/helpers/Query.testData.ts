@@ -1,5 +1,4 @@
-import { Bool, Match, Operator, Order, OrderLimit, Property } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
+import { Bool, Match, Operator, Order, OrderLimit, Where } from "@/interfaces/AutoGen";
 import { Query } from "@/interfaces/AutoGen";
 
 export const match: {
@@ -7,9 +6,9 @@ export const match: {
   withSet: Match;
   withInstance: Match;
   withName: Match;
-  withDescendantsOrSelfOf: Property;
-  withDescendantsOf: Property;
-  withAncestorsOf: Property;
+  withDescendantsOrSelfOf: Where;
+  withDescendantsOf: Where;
+  withAncestorsOf: Where;
   withExclude: Match;
   withVariable: Match;
   withOneDirectPropertyOfRange: Match;
@@ -42,7 +41,7 @@ export const match: {
   withExclude: { exclude: true, is: [{ "@id": "http://endhealth.info/im#Q_Hypertensives" }] },
   withVariable: {},
   withOneDirectPropertyOfRange: {
-    property: [
+    where: [
       {
         "@id": "http://endhealth.info/im#age",
         range: {
@@ -63,7 +62,7 @@ export const match: {
     ]
   },
   withOneDirectPropertyOfIs: {
-    property: [
+    where: [
       {
         "@id": "http://endhealth.info/im#statedGender",
         is: [
@@ -77,7 +76,7 @@ export const match: {
     ]
   },
   withMultipleDirectProperties: {
-    property: [
+    where: [
       {
         "@id": "http://endhealth.info/im#age",
         range: {
@@ -107,12 +106,12 @@ export const match: {
     ]
   },
   withOneNestedPropertyOfIs: {
-    property: [
+    where: [
       {
         "@id": "http://endhealth.info/im#observation",
         match: {
           typeOf: { "@id": "Observation" },
-          property: [
+          where: [
             {
               "@id": "http://endhealth.info/im#concept",
               is: [
@@ -131,17 +130,17 @@ export const match: {
 };
 
 export const where: {
-  withNodeRefAndComparison: Property;
-  withRange: Property;
-  withIs: Property;
-  withIsAndValueLabel: Property;
-  withNotIsAndName: Property;
-  withValueLabelIs: Property;
-  withComparison: Property;
-  withNull: Property;
-  after: Property;
-  last6Months: Property;
-  last6MonthsWithValueLabel: Property;
+  withNodeRefAndComparison: Where;
+  withRange: Where;
+  withIs: Where;
+  withIsAndValueLabel: Where;
+  withNotIsAndName: Where;
+  withValueLabelIs: Where;
+  withComparison: Where;
+  withNull: Where;
+  after: Where;
+  last6Months: Where;
+  last6MonthsWithValueLabel: Where;
 } = {
   withNodeRefAndComparison: { "@id": "http://endhealth.info/im#numericValue", operator: Operator.gt, value: "150", nodeRef: "latestBP" },
   withRange: {
@@ -241,7 +240,7 @@ export const fullTestQueryDefinition: Query = {
     {
       match: [
         {
-          property: [
+          where: [
             {
               "@id": "http://endhealth.info/im#age",
               range: {
@@ -271,11 +270,11 @@ export const fullTestQueryDefinition: Query = {
           ]
         },
         {
-          property: [
+          where: [
             {
               "@id": "http://endhealth.info/im#observation",
               match: {
-                property: [
+                where: [
                   {
                     "@id": "http://endhealth.info/im#concept",
                     is: [
@@ -298,12 +297,12 @@ export const fullTestQueryDefinition: Query = {
       bool: Bool.or
     },
     {
-      property: [
+      where: [
         {
           "@id": "http://endhealth.info/im#observation",
           match: {
             bool: Bool.and,
-            property: [
+            where: [
               {
                 "@id": "http://endhealth.info/im#concept",
                 name: "concept",
@@ -352,7 +351,7 @@ export const fullTestQueryDefinition: Query = {
       match: [
         {
           bool: Bool.and,
-          property: [
+          where: [
             {
               "@id": "http://endhealth.info/im#concept",
               is: [
@@ -373,7 +372,7 @@ export const fullTestQueryDefinition: Query = {
         },
         {
           bool: Bool.and,
-          property: [
+          where: [
             {
               "@id": "http://endhealth.info/im#concept",
               is: [
@@ -398,12 +397,12 @@ export const fullTestQueryDefinition: Query = {
     },
     {
       exclude: true,
-      property: [
+      where: [
         {
           "@id": "http://endhealth.info/im#observation",
           match: {
             bool: Bool.and,
-            property: [
+            where: [
               {
                 "@id": "http://endhealth.info/im#concept",
                 is: [

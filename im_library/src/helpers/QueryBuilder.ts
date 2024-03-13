@@ -1,6 +1,6 @@
 import { SHACL } from "../vocabulary";
 import { TreeNode } from "../interfaces";
-import { Match, Node, Operator, Property, Query, SearchResultSummary } from "../interfaces/AutoGen";
+import { Match, Node, Operator, Where, Query, SearchResultSummary } from "../interfaces/AutoGen";
 import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { cloneDeep } from "lodash";
@@ -23,14 +23,14 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
     // map properties to matches
     for (const [parentHierarchy, treeNodeProperties] of parentHierarchyMap.entries()) {
       const isNested = isNestedProperty(treeNodeProperties[0]);
-      let matchProperties: Property[] = [];
+      let matchProperties: Where[] = [];
       if (!isNested) matchProperties = treeNodeProperties.map(treeNodeProperty => buildProperty(treeNodeProperty));
       else matchProperties = buildNestedProperties(treeNodeProperties);
       const match = { "@id": v4(), property: matchProperties } as Match;
 
       const hasVariableTreeNode = treeNodeProperties.find(treeNodeProperty => getHasVariable(treeNodeProperty));
       if (hasVariableTreeNode) {
-        match.property = matchProperties[0].property;
+        match.where = matchProperties[0].where;
         match.nodeRef = getHasVariable(hasVariableTreeNode);
       }
 
@@ -42,7 +42,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
 }
 
 export function buildNestedProperties(treeNodeProperties: TreeNode[]) {
-  const matchProperties: Property[] = [];
+  const matchProperties: Where[] = [];
   const treeNodePropertiesCopy = [...treeNodeProperties];
   const firstTreeNode = treeNodePropertiesCopy.shift();
   const matchProperty = buildProperty(firstTreeNode!);
@@ -50,11 +50,11 @@ export function buildNestedProperties(treeNodeProperties: TreeNode[]) {
   if (isArrayHasLength(treeNodePropertiesCopy)) {
     const found: Match[] = [];
     getLastMatchFromNestedProperty(matchProperty, found);
-    if (isArrayHasLength(found) && isArrayHasLength(found[0].property))
+    if (isArrayHasLength(found) && isArrayHasLength(found[0].where))
       for (const treeNodeProperty of treeNodePropertiesCopy) {
         delete treeNodeProperty.parent;
         const additionalMatchProperty = buildPropertyFromTreeNode(treeNodeProperty);
-        found[0]!.property!.push(additionalMatchProperty);
+        found[0]!.where!.push(additionalMatchProperty);
       }
   }
 
@@ -110,7 +110,7 @@ export function buildProperty(treeNode: TreeNode) {
     }
   }
 
-  return currentMatchOrProperty as Property;
+  return currentMatchOrProperty as Where;
 }
 
 function populateFlatListOfNodesRecursively(flatList: TreeNode[], treeNode: TreeNode) {
@@ -121,7 +121,7 @@ function populateFlatListOfNodesRecursively(flatList: TreeNode[], treeNode: Tree
 
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
   if (treeNode.property) return treeNode.property;
-  const property = { "@id": treeNode.data } as Property;
+  const property = { "@id": treeNode.data } as Where;
   // string - is ""
   // boolean - is true
   // long - is true
@@ -134,7 +134,7 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
     property.is = [{ "@id": "http://endhealth.info/im#Example", name: "Example concept" }];
   }
   (property as any).key = treeNode.key;
-  return property as Property;
+  return property as Where;
 }
 
 export function isNestedProperty(treeNode: TreeNode) {
@@ -169,8 +169,8 @@ export function generateMatchIdsRecursively(match: Match) {
 
   if (isObjectHasKeys(match, ["then"]) && isObjectHasKeys(match.then)) generateMatchIdsRecursively(match.then!);
 
-  if (isArrayHasLength(match.property))
-    for (const property of match.property!) {
+  if (isArrayHasLength(match.where))
+    for (const property of match.where!) {
       if (isObjectHasKeys(property, ["match"])) generateMatchIdsRecursively(property.match!);
     }
 }

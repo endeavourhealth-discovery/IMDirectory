@@ -58,7 +58,7 @@
     <AutocompleteSearchBar
       :disabled="!hasProperty || loadingValue || loadingProperty"
       v-model:selected="selectedValue"
-      :search-by-function="valueFunctionRequest"
+      :search-by-method="searchValues"
       :filterOptions="valueFilterOptions"
       :filterDefaults="valueFilterDefaults"
       :get-root-entities="getValueTreeRoots"
@@ -73,14 +73,14 @@ import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { EntityService, FunctionService, QueryService } from "@/services";
 import { IM, RDF, SNOMED, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
-import { ToastSeverity } from "@im-library/enums";
+import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import { FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
@@ -134,6 +134,7 @@ const toast = useToast();
 const filterStore = useFilterStore();
 const filterStoreDefaults = computed(() => filterStore.filterDefaults);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
+const propertyRanges: Ref<Set<string>> = ref(new Set<string>());
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 const forceValidation = inject("forceValidation") as Ref<boolean>;
@@ -201,6 +202,7 @@ watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concep
 
 watch([selectedProperty, () => cloneDeep(props.value.value.concept)], async () => {
   loadingValue.value = true;
+  updateRanges();
   updateArguments();
   loadingValue.value = false;
 });
@@ -263,6 +265,21 @@ onMounted(async () => {
   loadingProperty.value = false;
   loadingValue.value = false;
 });
+
+async function updateRanges() {
+  if (selectedProperty.value?.iri) {
+    const rangesQueryRequest: QueryRequest = {
+      query: { "@id": QUERY.ALLOWABLE_RANGES },
+      argument: [{ parameter: "this", valueIri: { "@id": selectedProperty.value?.iri } }]
+    } as QueryRequest;
+
+    const response = await QueryService.queryIM(rangesQueryRequest);
+    if (isArrayHasLength(response.entities))
+      for (const range of response.entities) {
+        propertyRanges.value.add(range["@id"]);
+      }
+  }
+}
 
 function updateArguments() {
   const focusArg = propertyFunctionRequest.value.arguments?.find(arg => arg.parameter === "focus");
@@ -409,6 +426,40 @@ async function updateValue(value: SearchResultSummary | undefined) {
   props.value.value.concept = value;
   props.value.ecl = generateEcl();
 }
+
+async function searchValues(searchTerm: string, controller: AbortController) {
+  const searchRequest = {} as SearchRequest;
+  searchRequest.termFilter = searchTerm;
+  searchRequest.sortField = "weighting";
+  searchRequest.page = 1;
+  searchRequest.size = 10;
+  valueFilterOptions;
+  if (searchTerm.toLocaleLowerCase() === "any") {
+    searchRequest.size = 9;
+  }
+  if (valueFilterDefaults) {
+    if (propertyRanges.value.size) {
+      searchRequest.isA = Array.from(propertyRanges.value);
+    }
+    if (valueFilterDefaults.schemes) {
+      searchRequest.schemeFilter = valueFilterDefaults.schemes.map(s => s["@id"]);
+    }
+    if (valueFilterDefaults.status) {
+      searchRequest.statusFilter = valueFilterDefaults.status.map(s => s["@id"]);
+    }
+    if (valueFilterDefaults.types) {
+      searchRequest.typeFilter = valueFilterDefaults.types.map(s => s["@id"]);
+    }
+    if (valueFilterDefaults.sortDirections) {
+      searchRequest.sortDirection = valueFilterDefaults.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC;
+    }
+    if (valueFilterDefaults.sortFields) {
+      if (valueFilterDefaults.sortFields[0]?.["@id"] === IM.USAGE) searchRequest.sortField = "weighting";
+      else searchRequest.sortField = valueFilterDefaults.sortFields[0]?.["@id"];
+    }
+  }
+  return await EntityService.advancedSearch(searchRequest, controller);
+}
 </script>
 
 <style scoped>
@@ -441,7 +492,11 @@ async function updateValue(value: SearchResultSummary | undefined) {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   height: 2.2rem;

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-02-29 11:48:40.
+// Generated using typescript-generator version 3.2.1263 on 2024-03-12 13:03:22.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -135,9 +135,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: string;
-    operator?: Operator;
-    relativeTo?: PropertyRef;
     dataType?: TTIriRef;
+    relativeTo?: PropertyRef;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -150,7 +150,7 @@ export interface ContextMap {
 }
 
 export interface Delete {
-    where?: Property;
+    property?: Where;
     subject?: Element;
     inverse?: boolean;
     predicate?: Element;
@@ -165,8 +165,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    descendantsOf?: boolean;
     ancestorsOf?: boolean;
 }
 
@@ -186,11 +186,11 @@ export interface Match extends IriLD {
     nodeRef?: string;
     description?: string;
     graph?: Element;
-    path?: Property[];
+    path?: IriLD[];
     match?: Match[];
+    where?: Where[];
     bool?: Bool;
     is?: Node[];
-    property?: Property[];
     orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
@@ -222,20 +222,6 @@ export interface PathQuery extends TTIriRef {
     source?: TTIriRef;
     target?: TTIriRef;
     depth?: number;
-}
-
-export interface Property extends PropertyRef, Assignable {
-    description?: string;
-    bool?: Bool;
-    match?: Match;
-    property?: Property[];
-    range?: Range;
-    isNull?: boolean;
-    isNot?: Node[];
-    anyRoleGroup?: boolean;
-    is?: Node[];
-    valueLabel?: string;
-    isNotNull?: boolean;
 }
 
 export interface PropertyRef extends Element {
@@ -281,6 +267,7 @@ export interface Return {
     property?: ReturnProperty[];
     as?: string;
     valueRef?: string[];
+    path?: IriLD[];
 }
 
 export interface ReturnProperty {
@@ -308,8 +295,22 @@ export interface Value extends Assignable {
 }
 
 export interface When {
-    property?: Property;
+    property?: Where;
     then?: ReturnProperty;
+}
+
+export interface Where extends PropertyRef, Assignable {
+    description?: string;
+    bool?: Bool;
+    match?: Match;
+    range?: Range;
+    isNull?: boolean;
+    isNot?: Node[];
+    anyRoleGroup?: boolean;
+    is?: Node[];
+    where?: Where[];
+    valueLabel?: string;
+    isNotNull?: boolean;
 }
 
 export interface EntityDocument {
@@ -409,8 +410,9 @@ export interface SearchRequest {
 export interface SearchResponse {
     page?: number;
     count?: number;
-    entities?: SearchResultSummary[];
+    totalCount?: number;
     term?: string;
+    entities?: SearchResultSummary[];
 }
 
 export interface SearchResultSummary {
@@ -515,9 +517,9 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
+    description?: string;
     status?: TTIriRef;
     code?: string;
-    description?: string;
     prefixes?: TTPrefix[];
 }
 
@@ -541,8 +543,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    nativeMethod?: boolean;
     className?: string;
+    nativeMethod?: boolean;
 }
 
 export interface Exception extends Throwable {

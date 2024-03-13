@@ -11,8 +11,8 @@
       :full-query="fullQuery"
     />
     <RecursivePropertyDisplay
-      v-if="isArrayHasLength(match.property)"
-      v-for="property of match.property"
+      v-if="isArrayHasLength(match.where)"
+      v-for="property of match.where"
       :property="property"
       :parent-match="match"
       :full-query="fullQuery"
@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, Query, Property, Return } from "@im-library/interfaces/AutoGen";
+import { Match, Node, Query, Where, Return } from "@im-library/interfaces/AutoGen";
 import { onMounted, Ref, ref } from "vue";
 import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
@@ -65,17 +65,17 @@ interface Props {
 const props = defineProps<Props>();
 
 const op: Ref<any> = ref();
-const clickedNodeRef: Ref<Property | Match> = ref({} as Property);
+const clickedNodeRef: Ref<Where | Match> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
 const op1: Ref<any> = ref();
 
-function onNodeRefClick(propertyOrMatch: Property | Match, event: any) {
+function onNodeRefClick(propertyOrMatch: Where | Match, event: any) {
   clickedNodeRef.value = propertyOrMatch;
   op.value.toggle(event);
 }
 
-function getNodeRef(propertyOrMatch: Property | Match) {
-  return (propertyOrMatch.nodeRef ?? (propertyOrMatch as Property)?.relativeTo?.nodeRef) as string;
+function getNodeRef(propertyOrMatch: Where | Match) {
+  return (propertyOrMatch.nodeRef ?? (propertyOrMatch as Where)?.relativeTo?.nodeRef) as string;
 }
 </script>
 

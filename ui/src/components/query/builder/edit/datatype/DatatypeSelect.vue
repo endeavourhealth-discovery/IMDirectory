@@ -56,11 +56,11 @@ import { Ref, onMounted, ref, watch } from "vue";
 import ComparisonSelect from "./ComparisonSelect.vue";
 import RangeSelect from "./RangeSelect.vue";
 import { IM, GRAPH } from "@im-library/vocabulary";
-import { Assignable, Range, Property, Operator } from "@im-library/interfaces/AutoGen";
+import { Assignable, Range, Where, Operator } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DateSelect from "./DateSelect.vue";
 interface Props {
-  property: Property;
+  property: Where;
   datatype: string;
 }
 
