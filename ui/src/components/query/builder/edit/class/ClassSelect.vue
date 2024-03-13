@@ -37,14 +37,14 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { onMounted, Ref, ref, watch } from "vue";
 import EntailmentOptionsSelect from "../EntailmentOptionsSelect.vue";
 import _ from "lodash";
-import { Node, Property } from "@im-library/interfaces/AutoGen";
+import { Node, Where } from "@im-library/interfaces/AutoGen";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildNodeFromCS } from "@im-library/helpers/QueryBuilder";
 import SaveCustomSetDialog from "../dialogs/SaveCustomSetDialog.vue";
 import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
-  property: Property;
+  property: Where;
   classIri: string;
 }
 

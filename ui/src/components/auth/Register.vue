@@ -98,15 +98,18 @@
         </div>
         <div class="field">
           <label for="fieldPassword1">Password</label>
-          <InputText
-            data-testid="register-password1"
-            id="fieldPassword1"
-            type="password"
-            maxlength="50"
-            aria-describedby="password-help"
-            v-model="password1"
-            :class="passwordStrength === 'fail' && password1 && !focused.get('password1') && 'p-invalid'"
-          />
+          <div class="input-with-button">
+            <InputText
+              data-testid="register-password1"
+              id="fieldPassword1"
+              :type="showPassword1 ? 'text' : 'password'"
+              maxlength="50"
+              aria-describedby="password-help"
+              v-model="password1"
+              :class="passwordStrength === 'fail' && password1 && !focused.get('password1') && 'p-invalid'"
+            />
+            <Button :icon="showPassword1 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword1" text />
+          </div>
           <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
@@ -118,17 +121,20 @@
         </div>
         <div class="field">
           <label for="fieldPassword2">Confirm password</label>
-          <InputText
-            id="fieldPassword2"
-            data-testid="register-password2"
-            type="password"
-            maxlength="50"
-            v-model="password2"
-            @keyup="checkKey"
-            @focus="updateFocused('password2', true)"
-            @blur="updateFocused('password2', false)"
-            :class="!passwordsMatch && password2 && !focused.get('password2') && 'p-invalid'"
-          />
+          <div class="input-with-button">
+            <InputText
+              id="fieldPassword2"
+              data-testid="register-password2"
+              :type="showPassword2 ? 'text' : 'password'"
+              maxlength="50"
+              v-model="password2"
+              @keyup="checkKey"
+              @focus="updateFocused('password2', true)"
+              @blur="updateFocused('password2', false)"
+              :class="!passwordsMatch && password2 && !focused.get('password2') && 'p-invalid'"
+            />
+            <Button :icon="showPassword2 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword2" text />
+          </div>
           <InlineMessage v-if="!passwordsMatch && password2 && !focused.get('password2')" severity="error"> Passwords do not match! </InlineMessage>
         </div>
         <div class="privacy-container">
@@ -196,6 +202,8 @@ const selectedAvatar = ref(Avatars[0]);
 const focused: Ref<Map<string, boolean>> = ref(new Map());
 const emailIsNotRegistered = ref(true);
 const privacyPolicyAccepted = ref(false);
+const showPassword1 = ref(false);
+const showPassword2 = ref(false);
 
 const usernameVerified = computed(() => verifyIsUsername(username.value));
 const email1Verified = computed(() => verifyIsEmail(email1.value));
@@ -223,6 +231,14 @@ watch(email1, async newValue => {
 
 function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);
+}
+
+function toggleShowPassword1() {
+  showPassword1.value = !showPassword1.value;
+}
+
+function toggleShowPassword2() {
+  showPassword2.value = !showPassword2.value;
 }
 
 async function handleSubmit(): Promise<void> {
@@ -343,5 +359,10 @@ async function verifyEmailIsNotRegistered(email: string): Promise<void> {
 
 .privacy-container {
   padding-bottom: 0.5rem;
+}
+
+.input-with-button {
+  display: flex;
+  flex-flow: row nowrap;
 }
 </style>

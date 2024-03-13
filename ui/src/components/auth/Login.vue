@@ -13,7 +13,10 @@
           </div>
           <div class="field">
             <label for="fieldPassword">Password</label>
-            <InputText data-testid="login-password" id="fieldPassword" type="password" v-model="password" @keyup="checkKey" />
+            <div class="text-with-button">
+              <InputText data-testid="login-password" id="fieldPassword" :type="showPassword ? 'text' : 'password'" v-model="password" @keyup="checkKey" />
+              <Button :icon="showPassword ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword" text />
+            </div>
           </div>
           <div class="flex flex-row justify-content-center">
             <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="handleSubmit" :loading="loading" />
@@ -55,12 +58,17 @@ const authReturnPath = computed(() => authStore.authReturnPath);
 const username = ref("");
 const password = ref("");
 const loading = ref(false);
+const showPassword = ref(false);
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
     username.value = registeredUsername.value;
   }
 });
+
+function toggleShowPassword() {
+  showPassword.value = !showPassword.value;
+}
 
 async function handle200(res: CustomAlert) {
   const loggedInUser = res.user;
@@ -100,6 +108,15 @@ function handle401(res: CustomAlert) {
     confirmButtonText: "Confirm Account"
   }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
+      if (res.user) {
+        const loggedInUser = res.user;
+        const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
+        if (!result) {
+          loggedInUser.avatar = Avatars[0];
+        }
+        userStore.updateCurrentUser(loggedInUser);
+        userStore.updateAwsUser(res.userRaw);
+      }
       authStore.updateRegisteredUsername(username.value);
       router.push({ name: "ConfirmCode" });
     }
@@ -138,6 +155,22 @@ function handle403(res: CustomAlert) {
   } else if (res.message === "SOFTWARE_TOKEN_MFA") {
     userStore.updateAwsUser(res.userRaw);
     router.push({ name: "MFALogin" });
+  } else if (res.message) {
+    console.error(res.error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: res.message,
+      confirmButtonText: "Close"
+    });
+  } else {
+    console.error(res.error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Authentication error",
+      confirmButtonText: "Close"
+    });
   }
 }
 
@@ -199,5 +232,10 @@ function checkKey(event: any): void {
 .icon-header {
   font-size: 5rem;
   margin-top: 1em;
+}
+
+.text-with-button {
+  display: flex;
+  flex-flow: row nowrap;
 }
 </style>

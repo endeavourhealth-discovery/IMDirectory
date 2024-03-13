@@ -58,11 +58,13 @@ describe("App.vue", () => {
   let getLatestReleaseSpy;
   let testLatestRelease = fakerFactory.githubRelease.create();
   let getUserThemeSpy;
+  let getUserScaleSpy;
 
   beforeEach(async () => {
     vi.resetAllMocks();
     getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
     getUserThemeSpy = vi.spyOn(UserService, "getUserTheme").mockResolvedValue("saga-orange");
+    getUserScaleSpy = vi.spyOn(UserService, "getUserScale").mockResolvedValue("16px");
     component = render(App, {
       global: {
         components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu, DynamicDialog },

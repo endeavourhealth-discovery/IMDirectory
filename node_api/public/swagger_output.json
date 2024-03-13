@@ -1,20 +1,16 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.1",
   "info": {
     "version": "1.0.0",
     "title": "FHIR Value set API",
     "description": "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource<br><br>Definition file: <a href=\"./swagger.json\">swagger.json</a>"
   },
-  "basePath": "/node_api/fhir/r4",
-  "schemes": [
-    "http"
-  ],
-  "produces": [
-    "application/fhir+json"
-  ],
   "paths": {
     "/ValueSet": {
       "get": {
+        "tags": [
+          "Value sets"
+        ],
         "summary": "Retrieves the specified value set",
         "description": "",
         "parameters": [
@@ -22,7 +18,9 @@
             "name": "url",
             "in": "query",
             "description": "url/iri of the value set",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -37,6 +35,9 @@
     },
     "/ValueSet/$expand": {
       "get": {
+        "tags": [
+          "Value sets"
+        ],
         "summary": "Retrieves the specified value set and expands any subsets & members",
         "description": "",
         "parameters": [
@@ -44,7 +45,9 @@
             "name": "url",
             "in": "query",
             "description": "url/iri of the value set",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -59,11 +62,11 @@
     },
     "/ValueSet/ECL": {
       "post": {
+        "tags": [
+          "Value sets"
+        ],
         "summary": "Evaluates an ECL expression and returns the result as a FHIR r4 value set",
         "description": "",
-        "consumes": [
-          "text/plain"
-        ],
         "parameters": [
           {
             "name": "body",
@@ -84,5 +87,19 @@
         }
       }
     }
-  }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "name": "X-Gravitee-Api-Key",
+        "type": "apiKey",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
 }

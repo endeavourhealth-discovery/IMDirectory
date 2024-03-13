@@ -1,69 +1,114 @@
 <template>
-  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
-    <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button text-rotate" />
-    <div v-if="value?.items?.length > 1" class="conjunction">
-      <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction" @click="toggleBool" />
-    </div>
-    <div class="children">
-      <template v-for="(item, index) in value.items">
-        <div class="component-container">
-          <div class="minus-container"></div>
-          <span class="left-container">
-            <div class="group-checkbox">
-              <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
-              <label :for="'group' + index">Select</label>
-            </div>
-          </span>
-          <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
-          <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
-          <div class="right-container">
-            <Button
-              @click="deleteItem(index)"
-              class="builder-button"
-              :severity="hover ? 'danger' : 'secondary'"
-              :outlined="!hover"
-              :class="!hover && 'hover-button'"
-              icon="fa-solid fa-trash"
-            />
-          </div>
-        </div>
-      </template>
-    </div>
-    <div class="add-group">
-      <Button
-        type="button"
-        icon="fa-solid fa-plus"
-        class="builder-button vertical-button"
-        :severity="hover ? 'success' : 'secondary'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        @click="toggleAdd"
-        aria-haspopup="true"
-        aria-controls="add-menu"
-        v-tooltip="'Add'"
-      />
-      <Menu ref="addMenu" :model="addItems" :popup="true" />
-      <Button
+  <div class="not-bool-container">
+    <Button
+      v-if="isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept' && index && index > 0"
+      :severity="value.exclude ? 'danger' : 'secondary'"
+      :outlined="!value.exclude"
+      label="NOT"
+      @click="toggleExclude"
+      class="builder-button exclude-button vertical-button not-button"
+      :class="!value.exclude && 'hover-button'"
+      v-tooltip="'Exclude'"
+      size="small"
+    />
+    <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
+      <div
         v-if="value?.items?.length > 1"
-        class="builder-button group-button vertical-button"
-        :severity="group.length ? 'success' : 'danger'"
-        :outlined="!hover"
-        :class="[!hover && 'hover-button', !group.length && 'strike-through']"
-        label="{...}"
-        @click="group.length ? processGroup() : requestUnGroupItems()"
-        :disabled="!group.length && !(value?.items?.length > 1)"
-        v-tooltip="!group.length ? 'Remove brackets' : 'Bracket selected items'"
-      />
-      <Button
-        v-if="isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept' && !_.isEqual(parent?.value?.items[0], value)"
-        :severity="value.exclude ? 'secondary' : 'danger'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        :label="value.exclude ? 'Include' : 'Exclude'"
-        @click="toggleExclude"
-        class="builder-button vertical-button"
-        v-tooltip="value.exclude ? 'Include' : 'Exclude'"
-      />
+        class="conjunction"
+        @drop="onDrop($event, value, parent, index)"
+        @dragover="
+          {
+            onDragOver($event);
+            mouseover($event);
+          }
+        "
+        @dragleave="mouseout"
+      >
+        <Button
+          class="builder-button conjunction-button vertical-button"
+          :label="value.conjunction"
+          @click="toggleBool"
+          draggable="true"
+          @dragstart="onDragStart($event, value, parent)"
+          @dragend="onDragEnd(value, parent)"
+        />
+      </div>
+      <div class="children">
+        <template v-for="(item, index) in value.items">
+          <div class="component-container">
+            <span class="left-container">
+              <div class="group-checkbox">
+                <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+                <label :for="'group' + index">Select</label>
+              </div>
+              <Button
+                v-if="group.includes(index)"
+                icon="fa-solid fa-brackets-curly"
+                severity="help"
+                @click="processGroup()"
+                :disabled="!group.length"
+                v-tooltip="'Bracket selected items'"
+              />
+            </span>
+            <BoolGroup
+              v-if="item.type === 'BoolGroup'"
+              :value="item"
+              :parent="props.value"
+              :focus="props.focus"
+              @unGroupItems="unGroupItems"
+              :index="index"
+              @mouseover="mouseover"
+              @mouseout="mouseout"
+            />
+            <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
+            <div class="add-group">
+              <Button
+                @click="deleteItem(index)"
+                class="builder-button"
+                :severity="hover ? 'danger' : 'secondary'"
+                :outlined="!hover"
+                :class="!hover && 'hover-button'"
+                icon="fa-solid fa-trash"
+              />
+            </div>
+          </div>
+        </template>
+        <Button
+          v-if="props.focus"
+          type="button"
+          icon="fa-solid fa-filter"
+          label="Add refinement"
+          class="add-button"
+          :severity="hover ? 'success' : 'secondary'"
+          :outlined="!hover"
+          :class="!hover && 'hover-button'"
+          @click="addRefinement()"
+        />
+        <Button
+          v-else
+          type="button"
+          icon="fa-solid fa-plus"
+          label="Add concept"
+          class="add-button"
+          :severity="hover ? 'success' : 'secondary'"
+          :outlined="!hover"
+          :class="!hover && 'hover-button'"
+          @click="addConcept()"
+        />
+      </div>
+      <div class="add-group">
+        <Button
+          v-if="parent && !group.length && value?.items?.length > 1"
+          class="builder-button group-button"
+          severity="warning"
+          icon="fa-solid fa-brackets-curly"
+          :outlined="!hover"
+          :class="[!hover && 'hover-button', 'strike-through']"
+          @click="requestUnGroupItems()"
+          :disabled="!group.length && !(value?.items?.length > 1)"
+          v-tooltip="'Remove brackets'"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -75,6 +120,7 @@ import Refinement from "@/components/directory/topbar/eclSearch/builder/Refineme
 import _, { isArray } from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { numberAscending } from "@im-library/helpers/Sorters";
+import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
 interface Props {
   value: any;
@@ -87,42 +133,28 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   rootBool: false
 });
-
+const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 watch(
   () => _.cloneDeep(props.value),
-  () => (props.value.ecl = generateEcl())
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
+  }
 );
 
-const emit = defineEmits({ unGroupItems: payload => true });
+watch(
+  () => _.cloneDeep(props.parent),
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
+  }
+);
+
+const emit = defineEmits({ unGroupItems: _payload => true });
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
-const selected = ref("AND");
 const group: Ref<number[]> = ref([]);
-
-const menuBool = ref();
-const addMenu = ref();
-
-const addItems = ref([
-  {
-    label: "Add",
-    items: [
-      {
-        label: "Concept",
-        command: () => addConcept()
-      },
-      {
-        label: "Refinement",
-        command: () => addRefinement()
-      },
-      {
-        label: "Group",
-        command: () => addGroup()
-      }
-    ]
-  }
-]);
 
 onMounted(() => {
   props.value.ecl = generateEcl();
@@ -157,23 +189,6 @@ function add(item: any) {
 
 function addConcept() {
   add({ type: "Concept", descendants: "<<", conjunction: "AND", concept: { iri: "" } });
-}
-
-function addRefinement() {
-  if (!props.focus) {
-    const anyConcept = {
-      type: "Concept",
-      descendants: "<<",
-      concept: { iri: "any", name: "ANY", code: "any" },
-      conjunction: "AND",
-      items: [{ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } }]
-    };
-    add(anyConcept);
-  } else add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
-}
-
-function addGroup() {
-  add({ type: "BoolGroup", conjunction: "AND" });
 }
 
 function deleteItem(index: number) {
@@ -213,9 +228,9 @@ function generateChildEcl(index: number, item: any) {
 }
 
 function processGroup() {
-  console.log("grouping");
   if (group.value.length) {
-    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
+    const conjunction = props.parent?.conjunction === "OR" ? "AND" : "OR";
+    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: conjunction, items: [] };
     for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
       const item = props.value.items.splice(index, 1)[0];
       newGroup.items.push(item);
@@ -225,8 +240,20 @@ function processGroup() {
   group.value = [];
 }
 
+function addRefinement() {
+  if (!props.focus) {
+    const anyConcept = {
+      type: "Concept",
+      descendants: "<<",
+      concept: { iri: "any", name: "ANY", code: "any" },
+      conjunction: "AND",
+      items: [{ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } }]
+    };
+    add(anyConcept);
+  } else add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+}
+
 function requestUnGroupItems() {
-  console.log("ungrouping");
   emit("unGroupItems", props.value);
 }
 
@@ -240,29 +267,34 @@ function unGroupItems(groupedItems: any) {
     }
   }
 }
-
-function toggleAdd(event: any) {
-  addMenu.value.toggle(event);
-}
 </script>
 
 <style scoped>
+.not-bool-container {
+  display: flex;
+  flex: 1 1 auto;
+  flex-flow: row nowrap;
+  overflow: auto;
+  width: 100%;
+}
 .bool-group-content {
   display: flex;
   flex: 1 1 auto;
   flex-flow: row nowrap;
+  overflow: auto;
 }
 
 .children {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
+  overflow: auto;
 }
 .nested-div {
   padding: 0.5rem;
-  border: #ff8c0030 1px solid;
+  border: #488bc230 1px solid;
   border-radius: 5px;
-  background-color: #ff8c0010;
+  background-color: #488bc210;
   margin: 0.5rem;
 }
 
@@ -274,9 +306,9 @@ function toggleAdd(event: any) {
 .nested-div-hover {
   padding: 0.5rem;
   border-radius: 5px;
-  background-color: #ff8c0010;
+  background-color: #488bc210;
   margin: 0.5rem;
-  border: #ff8c00 1px solid;
+  border: #488bc2 1px solid;
 }
 .left-container {
   display: flex;
@@ -293,6 +325,7 @@ function toggleAdd(event: any) {
 }
 
 .add-group {
+  padding: 4px 0 0 4px;
   flex: 0 0 auto;
   display: flex;
   flex-flow: row wrap;
@@ -336,5 +369,16 @@ function toggleAdd(event: any) {
 .vertical-button {
   writing-mode: vertical-lr;
   transform: scale(-1);
+}
+
+.add-button {
+  margin-left: 0.1rem;
+  width: 12rem;
+  max-height: 1rem;
+  padding: 1rem;
+}
+
+.not-button {
+  margin: 6px 0 6px 6px;
 }
 </style>
