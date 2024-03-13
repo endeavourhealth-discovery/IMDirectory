@@ -84,6 +84,7 @@ interface Props {
   selected?: SearchResultSummary;
   searchByFunction?: FunctionRequest;
   searchByQuery?: QueryRequest;
+  searchByMethod?: Function;
   allowAny?: boolean;
   getRootEntities?: Function;
   filterOptions?: FilterOptions;
@@ -201,6 +202,10 @@ async function search(): Promise<void | SearchResponse> {
     await querySearch();
     return;
   }
+  if (props.searchByMethod) {
+    await methodSearch();
+    return;
+  }
   searchPlaceholder.value = "Search";
   if (searchText.value && searchText.value.length > 2) {
     loading.value = true;
@@ -242,6 +247,21 @@ async function search(): Promise<void | SearchResponse> {
     if (props.allowAny && searchText.value.toLocaleLowerCase() === "any") {
       results.value?.entities?.unshift({ iri: "any", name: "ANY" } as SearchResultSummary);
     }
+  }
+}
+
+async function methodSearch() {
+  searchPlaceholder.value = "Search";
+  if (searchText.value && searchText.value.length > 2) {
+    loading.value = true;
+
+    if (!isObject(controller.value)) {
+      controller.value.abort();
+    }
+    controller.value = new AbortController();
+    loading.value = false;
+    const result = await props.searchByMethod!(searchText.value, controller.value);
+    results.value = result?.entities ? result : undefined;
   }
 }
 
