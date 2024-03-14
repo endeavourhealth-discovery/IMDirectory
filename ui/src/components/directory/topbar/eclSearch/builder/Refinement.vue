@@ -73,7 +73,6 @@ import { useToast } from "primevue/usetoast";
 import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
-import { FilterOptions } from "@im-library/interfaces";
 import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
@@ -214,6 +213,7 @@ watch(selectedValue, async (newValue, oldValue) => {
 watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concept)], async () => {
   loadingProperty.value = true;
   updateQueryForPropertySearch();
+  propertyTreeRoots.value = await getPropertyTreeRoots();
   loadingProperty.value = false;
 });
 
@@ -256,6 +256,30 @@ async function updateRanges() {
         propertyRanges.value.add(range["@id"]);
       }
   }
+  valueTreeRoots.value = await getValueTreeRoots();
+}
+
+async function getPropertyTreeRoots(): Promise<string[]> {
+  let roots = ["http://snomed.info/sct#410662002"];
+  if (props.focus) {
+    if (isAliasIriRef(props.focus) && props.focus.iri !== "any") {
+      const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
+      if (results) roots = results.result.map(item => item["@id"]);
+    } else if (isBoolGroup(props.focus)) {
+      const results = await EntityService.getSuperiorPropertiesBoolFocusPaged(props.focus);
+      if (results) roots = results.result.map(item => item["@id"]);
+    }
+  }
+  return roots;
+}
+
+async function getValueTreeRoots(): Promise<string[]> {
+  let roots = ["http://snomed.info/sct#138875005"];
+  if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== "any") {
+    const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
+    if (results) roots = results.result.map(item => item["@id"]);
+  }
+  return roots;
 }
 
 async function updateIsValidProperty(): Promise<void> {
