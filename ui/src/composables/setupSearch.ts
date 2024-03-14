@@ -23,25 +23,33 @@ function setupSearch(searchPlaceholderValue?: string) {
         controller.value.abort();
       }
       controller.value = new AbortController();
-      if (imQuery) {
-        imQuery.textSearch = searchTerm;
-        if (page) imQuery.page = page;
-        response = await QueryService.queryIMSearch(imQuery, controller.value);
-      } else if (osQuery) {
-        osQuery.termFilter = searchTerm;
-        if (page) {
-          osQuery.page = page.pageNumber;
-          osQuery.size = page.pageSize;
-        }
-        response = await EntityService.advancedSearch(osQuery, controller.value);
-      } else {
-        const osQuery = prepareOSQueryRequest(searchTerm, selectedFilters ?? filterStoreDefaults.value);
-        response = await EntityService.advancedSearch(osQuery, controller.value);
-      }
+      if (imQuery) response = await searchByIMQuery(searchTerm, imQuery, page);
+      else if (osQuery) response = await searchByOSQuery(searchTerm, osQuery, page);
+      else response = await searchByDefaultOSQuery(searchTerm, selectedFilters ?? filterStoreDefaults.value, page);
       searchLoading.value = false;
     }
 
     return response?.entities ? response : undefined;
+  }
+
+  async function searchByIMQuery(searchTerm: string, imQuery: QueryRequest, page?: Page) {
+    imQuery.textSearch = searchTerm;
+    if (page) imQuery.page = page;
+    return await QueryService.queryIMSearch(imQuery, controller.value);
+  }
+
+  async function searchByOSQuery(searchTerm: string, osQuery: SearchRequest, page?: Page) {
+    osQuery.termFilter = searchTerm;
+    if (page) {
+      osQuery.page = page.pageNumber;
+      osQuery.size = page.pageSize;
+    }
+    return await EntityService.advancedSearch(osQuery, controller.value);
+  }
+
+  async function searchByDefaultOSQuery(searchTerm: string, filters: FilterOptions, page?: Page) {
+    const osQuery = prepareOSQueryRequest(searchTerm, filters, page);
+    return await EntityService.advancedSearch(osQuery, controller.value);
   }
 
   function prepareOSQueryRequest(searchTerm: string, filterOptions: FilterOptions, page?: Page) {
