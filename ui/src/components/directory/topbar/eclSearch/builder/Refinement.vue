@@ -30,9 +30,6 @@
       :disabled="!hasFocus || loadingProperty"
       v-model:selected="selectedProperty"
       :-i-m-query="imQueryForPropertySearch"
-      :filterOptions="propertyFilterOptions"
-      :filterDefaults="propertyFilterDefaults"
-      :get-root-entities="getPropertyTreeRoots"
       :root-entities="propertyTreeRoots"
     />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
@@ -59,9 +56,6 @@
       :disabled="!hasProperty || loadingValue || loadingProperty"
       v-model:selected="selectedValue"
       :-o-s-query="osQueryForValueSearch"
-      :filterOptions="valueFilterOptions"
-      :filterDefaults="valueFilterDefaults"
-      :get-root-entities="getValueTreeRoots"
       :root-entities="valueTreeRoots"
     />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
@@ -72,7 +66,7 @@
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { EntityService, FunctionService, QueryService } from "@/services";
-import { IM, RDF, SNOMED, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
+import { IM, SNOMED, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
@@ -121,44 +115,16 @@ const descendantOptions = [
   { label: "<<", value: "<<" },
   { label: "<", value: "<" }
 ];
-const propertyFilterOptions: FilterOptions = {
-  status: [...filterStoreOptions.value.status],
-  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
-  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === RDF.PROPERTY)],
-  sortDirections: [...filterStoreOptions.value.sortDirections],
-  sortFields: [...filterStoreOptions.value.sortFields]
-};
-const propertyFilterDefaults: FilterOptions = {
-  status: [...filterStoreOptions.value.status.filter(s => s["@id"] === IM.ACTIVE)],
-  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
-  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === RDF.PROPERTY)],
-  sortDirections: [...filterStoreOptions.value.sortDirections],
-  sortFields: [...filterStoreOptions.value.sortFields]
-};
-const valueFilterOptions: FilterOptions = {
-  status: [...filterStoreOptions.value.status],
-  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
-  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
-  sortDirections: [...filterStoreOptions.value.sortDirections],
-  sortFields: [...filterStoreOptions.value.sortFields]
-};
-const valueFilterDefaults: FilterOptions = {
-  status: [...filterStoreOptions.value.status.filter(s => s["@id"] === IM.ACTIVE)],
-  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
-  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
-  sortDirections: [...filterStoreOptions.value.sortDirections],
-  sortFields: [...filterStoreOptions.value.sortFields]
-};
+
 const osQueryForValueSearch: Ref<SearchRequest> = ref({
-  page: 1,
-  size: 10,
   isA: Array.from(propertyRanges.value),
-  schemeFilter: valueFilterOptions.schemes.map(s => s["@id"]),
-  statusFilter: valueFilterOptions.status.map(s => s["@id"]),
-  typeFilter: valueFilterOptions.types.map(s => s["@id"]),
-  sortDirection: valueFilterOptions.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: valueFilterOptions.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : valueFilterOptions.sortFields[0]?.["@id"]
+  statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
+  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
+  typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
+  sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
+  sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
 } as SearchRequest);
+
 const imQueryForPropertySearch: Ref<QueryRequest> = ref({
   query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
   argument: [
@@ -247,14 +213,14 @@ watch(selectedValue, async (newValue, oldValue) => {
 
 watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concept)], async () => {
   loadingProperty.value = true;
-  updateIMQuery();
+  updateQueryForPropertySearch();
   loadingProperty.value = false;
 });
 
 watch([selectedProperty, () => cloneDeep(props.value.value.concept)], async () => {
   loadingValue.value = true;
   await updateRanges();
-  updateOSQuery();
+  updateQueryForValueSearch();
   loadingValue.value = false;
 });
 
@@ -262,18 +228,18 @@ onMounted(async () => {
   loadingProperty.value = true;
   loadingValue.value = true;
   await processProps();
-  updateIMQuery();
-  updateOSQuery();
+  updateQueryForValueSearch();
+  updateQueryForPropertySearch();
   props.value.ecl = generateEcl();
   loadingProperty.value = false;
   loadingValue.value = false;
 });
 
-async function updateOSQuery() {
+async function updateQueryForValueSearch() {
   osQueryForValueSearch.value.isA = Array.from(propertyRanges.value);
 }
 
-async function updateIMQuery() {
+async function updateQueryForPropertySearch() {
   imQueryForPropertySearch.value.argument![0].valueIri = props.focus.iri;
 }
 
@@ -290,31 +256,6 @@ async function updateRanges() {
         propertyRanges.value.add(range["@id"]);
       }
   }
-}
-
-async function getPropertyTreeRoots(): Promise<void> {
-  if (props.focus) {
-    if (isAliasIriRef(props.focus)) {
-      if (props.focus.iri === "any") {
-        propertyTreeRoots.value = ["http://snomed.info/sct#410662002"];
-      }
-      const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
-      if (results) propertyTreeRoots.value = results.result.map(item => item["@id"]);
-    } else if (isBoolGroup(props.focus)) {
-      const results = await EntityService.getSuperiorPropertiesBoolFocusPaged(props.focus);
-      if (results) propertyTreeRoots.value = results.result.map(item => item["@id"]);
-    }
-  } else propertyTreeRoots.value = ["http://snomed.info/sct#410662002"];
-}
-
-async function getValueTreeRoots(): Promise<void> {
-  if (props.value?.property?.concept?.iri) {
-    if (props.value.property.concept.iri === "any") {
-      valueTreeRoots.value = ["http://snomed.info/sct#138875005"];
-    }
-    const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
-    if (results) valueTreeRoots.value = results.result.map(item => item["@id"]);
-  } else valueTreeRoots.value = ["http://snomed.info/sct#138875005"];
 }
 
 async function updateIsValidProperty(): Promise<void> {
@@ -424,7 +365,6 @@ async function updateProperty(property: SearchResultSummary | undefined) {
 
 async function updateValue(value: SearchResultSummary | undefined) {
   props.value.value.concept = value;
-
   props.value.ecl = generateEcl();
 }
 </script>

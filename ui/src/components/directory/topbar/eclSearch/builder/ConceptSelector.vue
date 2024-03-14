@@ -12,24 +12,16 @@
         </div>
       </template>
     </Dropdown>
-    <AutocompleteSearchBar
-      v-model:selected="selected"
-      :-o-s-query="osQueryForConceptSearch"
-      :root-entities="['http://snomed.info/sct#138875005']"
-      :filterOptions="filterOptions"
-      :filterDefaults="filterDefaults"
-      :allow-any="true"
-    />
+    <AutocompleteSearchBar v-model:selected="selected" :-o-s-query="osQueryForConceptSearch" :root-entities="['http://snomed.info/sct#138875005']" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, inject, computed, ComputedRef } from "vue";
-import { IM, SNOMED, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
+import { Ref, ref, onMounted, watch, inject, computed } from "vue";
+import { IM, SNOMED } from "@im-library/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -90,30 +82,12 @@ const descendantOptions = [
   }
 ];
 
-const filterOptions: FilterOptions = {
-  status: [...filterStoreOptions.value.status],
-  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
-  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
-  sortDirections: [...filterStoreOptions.value.sortDirections],
-  sortFields: [...filterStoreOptions.value.sortFields]
-};
-
-const filterDefaults: FilterOptions = {
-  status: [...filterStoreOptions.value.status.filter(s => s["@id"] === IM.ACTIVE)],
-  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
-  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
-  sortDirections: [...filterStoreOptions.value.sortDirections],
-  sortFields: [...filterStoreOptions.value.sortFields]
-};
-
 const osQueryForConceptSearch: Ref<SearchRequest> = ref({
-  page: 1,
-  size: 10,
-  schemeFilter: filterDefaults.schemes.map(s => s["@id"]),
-  statusFilter: filterDefaults.status.map(s => s["@id"]),
-  typeFilter: filterDefaults.types.map(s => s["@id"]),
-  sortDirection: filterDefaults.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: filterDefaults.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterDefaults.sortFields[0]?.["@id"]
+  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
+  statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
+  typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
+  sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
+  sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
 } as SearchRequest);
 
 onMounted(async () => {
