@@ -23,6 +23,7 @@ export default class FhirController {
         #swagger.responses[404] = {
           description: 'Valuset not specified or not found'
         }
+        #swagger.tags = ['Value sets']
       */
       this.getValueSet(req, false)
         .then(data => {
@@ -42,6 +43,7 @@ export default class FhirController {
         #swagger.responses[404] = {
           description: 'Valuset not specified or not found'
         }
+        #swagger.tags = ['Value sets']
       */
       this.getValueSet(req, true)
         .then(data => {
@@ -62,6 +64,7 @@ export default class FhirController {
         #swagger.responses[404] = {
           description: 'ECL not specified or invalid'
         }
+        #swagger.tags = ['Value sets']
       */
       this.eclToFhir(req)
         .then(data => {

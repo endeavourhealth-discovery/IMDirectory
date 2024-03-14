@@ -5,6 +5,7 @@ import axios from "axios";
 import Env from "./Env";
 
 function processAwsUser(cognitoUser: any) {
+  if (!isObjectHasKeys(cognitoUser, ["attributes", "username"])) throw new Error("Unable to process aws user");
   return {
     id: cognitoUser.attributes.sub,
     username: cognitoUser.username,
@@ -61,10 +62,16 @@ const AuthService = {
         return { status: 403, message: user.challengeName, error: undefined, user: user, userRaw: user };
       }
       const signedInUser = processAwsUser(user);
+      if (user.attributes?.email_verified === false) {
+        return { status: 401, message: "EMAIL_UNVERIFIED", error: undefined, user: user, userRaw: user };
+      }
       return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
     } catch (err: any) {
       if (err.code === "UserNotConfirmedException") {
         return { status: 401, message: err.message, error: err } as CustomAlert; //message: "User is not confirmed."
+      }
+      if (err.message === "Temporary password has expired and must be reset by an administrator.") {
+        return { status: 403, message: err.message, error: err } as CustomAlert;
       }
       return { status: 403, message: "Login failed. Check username and password are correct", error: err } as CustomAlert;
     }
@@ -75,7 +82,7 @@ const AuthService = {
       await Auth.resendSignUp(username);
       return { status: 200, message: "Code resent successfully" } as CustomAlert;
     } catch (err: any) {
-      return { status: 400, message: "Error resending code", error: err } as CustomAlert;
+      return { status: 400, message: err.message, error: err } as CustomAlert;
     }
   },
 
@@ -182,8 +189,14 @@ const AuthService = {
     try {
       const authorizedUser = await Auth.confirmSignIn(user, mfaCode, "SOFTWARE_TOKEN_MFA");
       const signedInUser = processAwsUser(authorizedUser);
-      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
+      if (user.attributes?.email_verified === false) {
+        return { status: 401, message: "EMAIL_UNVERIFIED", error: undefined, user: user, userRaw: user };
+      }
+      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: authorizedUser } as CustomAlert;
     } catch (err: any) {
+      if (err.code === "UserNotConfirmedException") {
+        return { status: 401, message: err.message, error: err } as CustomAlert; //message: "User is not confirmed."
+      }
       return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
     }
   },

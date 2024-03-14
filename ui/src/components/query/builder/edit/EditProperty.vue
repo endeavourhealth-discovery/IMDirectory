@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Property } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref, ComputedRef, computed } from "vue";
 import ClassSelect from "./class/ClassSelect.vue";
 import DatatypeSelect from "./datatype/DatatypeSelect.vue";
@@ -37,7 +37,7 @@ const emit = defineEmits({
 });
 
 interface Props {
-  property: Property;
+  property: Where;
   match?: Match;
   dataModelIri: string;
 }

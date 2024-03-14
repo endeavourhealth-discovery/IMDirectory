@@ -130,7 +130,7 @@ export class IM {
   public static readonly HAS_CONTEXT = IM.NAMESPACE + "hasContext";
   public static readonly DISPLAY_ORDER = IM.NAMESPACE + "displayOrder";
   public static readonly USAGE_TOTAL = IM.NAMESPACE + "usageTotal";
-  public static readonly USAGE = IM.NAMESPACE + "Usage";
+  public static readonly USAGE = IM.NAMESPACE + "SortFieldUsage";
   public static readonly DESCENDING = IM.NAMESPACE + "Descending";
   public static readonly ASCENDING = IM.NAMESPACE + "Ascending";
   public static readonly PLABEL = IM.NAMESPACE + "pLabel";

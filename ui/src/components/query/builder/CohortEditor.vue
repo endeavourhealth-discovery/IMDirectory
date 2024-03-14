@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
-import { Match, Property, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, Where, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
@@ -190,19 +190,19 @@ function addVariableRefFromMatch(map: Map<string, any>, match: Match) {
       addVariableRefFromMatch(map, nestedMatch);
     }
 
-  if (isArrayHasLength(match.property))
-    for (const property of match.property!) {
+  if (isArrayHasLength(match.where))
+    for (const property of match.where!) {
       addVariableRefFromProperty(map, property);
     }
 }
 
-function addVariableRefFromProperty(map: Map<string, any>, property: Property) {
+function addVariableRefFromProperty(map: Map<string, any>, property: Where) {
   if (property.variable) map.set(property.variable, property);
 
   if (isObjectHasKeys(property, ["match"])) addVariableRefFromMatch(map, property.match!);
 
-  if (isArrayHasLength(property.property))
-    for (const nestedProperty of property.property!) {
+  if (isArrayHasLength(property.where))
+    for (const nestedProperty of property.where!) {
       addVariableRefFromProperty(map, nestedProperty);
     }
 }

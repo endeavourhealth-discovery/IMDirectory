@@ -5,8 +5,8 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Query, Property } from "@im-library/interfaces/AutoGen";
-import { PropType, Ref, onMounted, ref, watch } from "vue";
+import { Query } from "@im-library/interfaces/AutoGen";
+import { Ref, onMounted, ref } from "vue";
 import RecursiveQueryDisplay from "./RecursiveQueryDisplay.vue";
 import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
 interface Props {
