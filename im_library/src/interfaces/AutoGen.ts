@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-03-12 13:03:22.
+// Generated using typescript-generator version 3.2.1263 on 2024-03-14 09:23:59.
 
 export interface ArrayButtons {
     up?: boolean;
@@ -134,10 +134,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
-    dataType?: TTIriRef;
     relativeTo?: PropertyRef;
     operator?: Operator;
+    dataType?: TTIriRef;
+    unit?: string;
 }
 
 export interface Case {
@@ -165,8 +165,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
 }
 
@@ -518,8 +518,8 @@ export interface TTEntity extends TTNode, Serializable {
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    status?: TTIriRef;
     code?: string;
+    status?: TTIriRef;
     prefixes?: TTPrefix[];
 }
 
@@ -543,8 +543,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    className?: string;
     nativeMethod?: boolean;
+    className?: string;
 }
 
 export interface Exception extends Throwable {

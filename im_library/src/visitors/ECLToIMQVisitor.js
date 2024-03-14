@@ -81,8 +81,8 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         }
         if (isObjectHasKeys(result, ["eclRefinement"])) {
           const eclRefinement = result.eclRefinement;
-          query.refinedExpressionConstraint.property = [];
-          query.refinedExpressionConstraint.property.push(eclRefinement);
+          query.refinedExpressionConstraint.where = [];
+          query.refinedExpressionConstraint.where.push(eclRefinement);
         }
       }
     }
@@ -314,17 +314,17 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitConjunctionrefinementset(ctx) {
     logItem("found conjunction refinement set", ctx.getText());
-    let query = { conjunctionRefinementSet: { property: [] } };
+    let query = { conjunctionRefinementSet: { where: [] } };
     const results = this.visitChildren(ctx);
     if (results) {
       for (const result of results) {
         if (isObjectHasKeys(result, ["subRefinement"])) {
           const subRefinement = result.subRefinement;
-          query.conjunctionRefinementSet.property.push(subRefinement);
+          query.conjunctionRefinementSet.where.push(subRefinement);
         }
         if (isObjectHasKeys(result, ["bracketCompoundRefinementSet"])) {
           const bracketCompoundRefinementSet = result.bracketCompoundRefinementSet;
-          query.conjunctionRefinementSet.property.push(bracketCompoundRefinementSet.property);
+          query.conjunctionRefinementSet.where.push(bracketCompoundRefinementSet.where);
         }
         if (isObjectHasKeys(result, ["conjunction"])) {
           const conjunction = result.conjunction;
@@ -337,17 +337,17 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitDisjunctionrefinementset(ctx) {
     logItem("found disjunction refinement set", ctx.getText());
-    let query = { disjunctionRefinementSet: { property: [] } };
+    let query = { disjunctionRefinementSet: { where: [] } };
     const results = this.visitChildren(ctx);
     if (results) {
       for (const result of results) {
         if (isObjectHasKeys(result, ["subRefinement"])) {
           const subRefinement = result.subRefinement;
-          query.disjunctionRefinementSet.property.push(subRefinement);
+          query.disjunctionRefinementSet.where.push(subRefinement);
         }
         if (isObjectHasKeys(result, ["bracketCompoundRefinementSet"])) {
           const bracketCompoundRefinementSet = result.bracketCompoundRefinementSet;
-          query.disjunctionRefinementSet.property.push(bracketCompoundRefinementSet.property);
+          query.disjunctionRefinementSet.where.push(bracketCompoundRefinementSet.where);
         }
         if (isObjectHasKeys(result, ["disjunction"])) {
           const disjunction = result.disjunction;
@@ -410,11 +410,11 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["compoundAttributeSet"])) {
-            result.compoundAttributeSet.property.forEach(item => delete item.anyRoleGroup);
+            result.compoundAttributeSet.where.forEach(item => delete item.anyRoleGroup);
             query.eclAttributeGroup.match = result.compoundAttributeSet;
             query.eclAttributeGroup["@id"] = IM.ROLE_GROUP;
           }
-          if (isObjectHasKeys(result, ["eclAttribute"])) query.eclAttributeGroup = { "@id": IM.ROLE_GROUP, match: { property: [result.eclAttribute] } };
+          if (isObjectHasKeys(result, ["eclAttribute"])) query.eclAttributeGroup = { "@id": IM.ROLE_GROUP, match: { where: [result.eclAttribute] } };
         }
       }
     }
@@ -425,15 +425,15 @@ export default class ECLBuilderVisitor extends ECLVisitor {
     logItem("found compound attribute set", ctx.getText());
     const result = this.visitChildren(ctx)[0];
     if (isObjectHasKeys(result, ["conjunctionAttributeSet"])) {
-      if (result.conjunctionAttributeSet.property)
-        result.conjunctionAttributeSet.property.forEach(item => {
+      if (result.conjunctionAttributeSet.where)
+        result.conjunctionAttributeSet.where.forEach(item => {
           if (!item.bool) item.anyRoleGroup = true;
         });
       return { compoundAttributeSet: result.conjunctionAttributeSet };
     }
     if (isObjectHasKeys(result, ["disjunctionAttributeSet"])) {
-      if (result.disjunctionAttributeSet.property)
-        result.disjunctionAttributeSet.property.forEach(item => {
+      if (result.disjunctionAttributeSet.where)
+        result.disjunctionAttributeSet.where.forEach(item => {
           if (!item.bool) item.anyRoleGroup = true;
         });
       return { compoundAttributeSet: result.disjunctionAttributeSet };
@@ -442,18 +442,18 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitConjunctionattributeset(ctx) {
     logItem("found conjunction attribute set", ctx.getText());
-    let query = { conjunctionAttributeSet: { property: [] } };
+    let query = { conjunctionAttributeSet: { where: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["subAttributeSet"])) {
             const subAttributeSet = result.subAttributeSet;
-            query.conjunctionAttributeSet.property.push(subAttributeSet);
+            query.conjunctionAttributeSet.where.push(subAttributeSet);
           }
           if (isObjectHasKeys(result, ["bracketAttributeSet"])) {
             const bracketAttributeSet = result.bracketAttributeSet;
-            query.conjunctionAttributeSet.property.push(bracketAttributeSet.property);
+            query.conjunctionAttributeSet.where.push(bracketAttributeSet.where);
           }
           if (isObjectHasKeys(result, ["conjunction"])) {
             const conjunction = result.conjunction;
@@ -467,18 +467,18 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitDisjunctionattributeset(ctx) {
     logItem("found disjunction attribute set", ctx.getText());
-    let query = { disjunctionAttributeSet: { property: [] } };
+    let query = { disjunctionAttributeSet: { where: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["subAttributeSet"])) {
             const subAttributeSet = result.subAttributeSet;
-            query.disjunctionAttributeSet.property.push(subAttributeSet);
+            query.disjunctionAttributeSet.where.push(subAttributeSet);
           }
           if (isObjectHasKeys(result, ["bracketAttributeSet"])) {
             const bracketAttributeSet = result.bracketAttributeSet;
-            query.disjunctionAttributeSet.property.push(bracketAttributeSet.property);
+            query.disjunctionAttributeSet.where.push(bracketAttributeSet.where);
           }
           if (isObjectHasKeys(result, ["disjunction"])) {
             const disjunction = result.disjunction;
