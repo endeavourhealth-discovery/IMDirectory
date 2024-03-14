@@ -214,5 +214,4 @@ export class IM {
   public static readonly PROVENANCE_SOURCE_ENTITY = IM.NAMESPACE + "ProvenanceSourceEntity";
   public static readonly DERIVATION_TYPE = IM.NAMESPACE + "derivationType";
   public static readonly ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
-  public static readonly CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
 }
