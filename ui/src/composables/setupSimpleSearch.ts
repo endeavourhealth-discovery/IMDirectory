@@ -18,7 +18,8 @@ function setupSimpleSearch() {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    suggestions.value = await EntityService.simpleSearch(searchTerm, filters ?? filterDefaults.value, controller.value);
+    const response = await EntityService.simpleSearch(searchTerm, filters ?? filterDefaults.value, controller.value);
+    suggestions.value = response.entities ? response.entities : [];
   }
 
   async function debounceSimpleSearch(searchTerm: any, filters?: FilterOptions): Promise<void> {

@@ -49,17 +49,17 @@
         </div>
       </div>
     </OverlayPanel>
-    <!-- <DirectorySearchDialog
+    <DirectorySearchDialog
       v-if="showDialog && !isAny && selected?.iri !== 'any'"
       v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
-      :search-by-query="searchByQuery"
-      :searchByFunction="searchByFunction"
+      :-i-m-query="IMQuery"
+      :-o-s-query="OSQuery"
       :root-entities="rootEntities"
       :filterOptions="filterOptions"
       :filterDefaults="filterDefaults"
       :searchTerm="searchText"
-    /> -->
+    />
     <OverlaySummary ref="OS" />
   </div>
 </template>
@@ -69,16 +69,14 @@ import { computed, ComputedRef, ref, Ref, watch, onMounted } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match, SearchResponse, FunctionRequest } from "@im-library/interfaces/AutoGen";
-import { SortDirection } from "@im-library/enums";
-import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
-import { IM } from "@im-library/vocabulary";
+import { SearchRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import EntityService from "@/services/EntityService";
 import QueryService from "@/services/QueryService";
 import _ from "lodash";
-import { FunctionService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
+import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {
   selected?: SearchResultSummary;
@@ -101,27 +99,34 @@ const emit = defineEmits({
 watch(
   () => _.cloneDeep(props.filterDefaults),
   async newValue => {
-    selectedFilters.value = newValue;
+    if (newValue) selectedFilters.value = newValue;
     await search();
   }
 );
 
 const resultsOP = ref();
-
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
 const searchPlaceholder = ref("Search or press Enter to show options");
 const loading = ref(false);
 const results: Ref<SearchResponse | undefined> = ref();
-const selectedFilters: Ref<FilterOptions | undefined> = ref();
 const showDialog = ref(false);
 const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
 const advancedSearchLoading = ref(false);
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const selectedIndex: Ref<number> = ref(-1);
-
 const isAny: ComputedRef<boolean> = computed(() => selectedLocal.value?.iri === "any");
 const { OS, showOverlay, hideOverlay } = setupOverlay();
+const filterStore = useFilterStore();
+const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
+const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
+
+watch(storeSelectedFilters, async newValue => {
+  if (!props.filterDefaults && !props.filterOptions) {
+    selectedFilters.value = newValue;
+    await search();
+  }
+});
 
 watch(
   () => _.cloneDeep(props.selected),
@@ -206,7 +211,8 @@ async function search(): Promise<void | SearchResponse> {
     } else if (props.OSQuery) {
       results.value = await searchByOSQuery(controller.value);
     } else {
-      results.value = undefined;
+      const response = (await EntityService.simpleSearch(searchText.value, selectedFilters.value, controller.value)) ?? undefined;
+      results.value = response?.entities ? response : undefined;
     }
     loading.value = false;
   }

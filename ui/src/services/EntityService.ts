@@ -474,11 +474,13 @@ const EntityService = {
     });
   },
 
-  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<SearchResultSummary[]> {
+  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController, paged = true): Promise<SearchResponse> {
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchTerm;
-    searchRequest.page = 1;
-    searchRequest.size = 100;
+    if (paged) {
+      searchRequest.page = 1;
+      searchRequest.size = 10;
+    }
     searchRequest.sortDirection = SortDirection.DESC;
     searchRequest.sortField = "weighting";
     searchRequest.schemeFilter = filterOptions.schemes.map(scheme => scheme["@id"]);
@@ -489,9 +491,7 @@ const EntityService = {
     }
 
     abortController = new AbortController();
-    const response = await EntityService.advancedSearch(searchRequest, abortController);
-    if (response.entities && isArrayHasLength(response.entities)) return response.entities;
-    else return [];
+    return await EntityService.advancedSearch(searchRequest, abortController);
   },
 
   async hasPredicates(subjectIri: string, predicateIris: string[]): Promise<boolean> {

@@ -20,8 +20,8 @@
           v-model:loadMore="loadMore"
           :filterDefaults="filterDefaults"
           v-model:download="download"
-          :search-by-function="searchByFunction"
-          :search-by-query="searchByQuery"
+          :-i-m-query="IMQuery"
+          :-o-s-query="OSQuery"
           :searchTerm="searchTerm"
         />
       </div>
@@ -47,7 +47,7 @@
             :lazy-loading="true"
             :rows="25"
             @download-requested="downloadRequested"
-            :show-filters="!(searchByFunction || searchByQuery)"
+            :show-filters="!(IMQuery || OSQuery)"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -86,15 +86,15 @@ import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import _, { cloneDeep } from "lodash";
 import { EntityService, FunctionService, QueryService } from "@/services";
-import { FunctionRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchResultSummary, SearchResponse, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 
 interface Props {
   showDialog: boolean;
-  searchByQuery?: QueryRequest;
-  searchByFunction?: FunctionRequest;
+  IMQuery?: QueryRequest;
+  OSQuery?: SearchRequest;
   selected?: SearchResultSummary;
   rootEntities?: string[];
   filterOptions?: FilterOptions;
@@ -229,24 +229,20 @@ function showQuerySearch() {
 }
 
 async function getIsSelectableEntity(): Promise<boolean> {
-  if (!props.searchByQuery && !props.searchByFunction) return true;
-  if (props.searchByQuery) {
-    const queryRequest = _.cloneDeep(props.searchByQuery);
-    queryRequest.textSearch = selectedName.value;
-    const queryResults = await QueryService.queryIM(queryRequest);
-    if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
-    return queryResults.entities.some(item => item["@id"] === detailsIri.value);
-  } else if (props.searchByFunction) {
-    const functionRequest: FunctionRequest = _.cloneDeep(props.searchByFunction);
-    if (functionRequest.arguments && isArrayHasLength(functionRequest.arguments)) {
-      const found = functionRequest.arguments.find(arg => arg.parameter === "searchIri");
-      if (found) found.valueData = detailsIri.value;
-      else functionRequest.arguments.push({ parameter: "searchIri", valueData: detailsIri.value });
-    } else functionRequest.arguments = [{ parameter: "searchIri", valueData: detailsIri.value }];
-    if (functionRequest.functionIri) {
-      return await FunctionService.runAskFunction(functionRequest);
-    } else return false;
-  } else return false;
+  if (props.IMQuery) {
+    const imQuery = _.cloneDeep(props.IMQuery);
+    imQuery.textSearch = selectedName.value;
+    const imQueryResponse = await QueryService.queryIM(imQuery);
+    if (!isObjectHasKeys(imQueryResponse, ["entities"]) || !isArrayHasLength(imQueryResponse.entities)) return false;
+    return imQueryResponse.entities.some(item => item["@id"] === detailsIri.value);
+  } else if (props.OSQuery) {
+    const osQuery = _.cloneDeep(props.OSQuery);
+    osQuery.termFilter = selectedName.value;
+    const osQueryResposne = await EntityService.advancedSearch(osQuery);
+    if (!isObjectHasKeys(osQueryResposne, ["entities"]) || !isArrayHasLength(osQueryResposne.entities)) return false;
+    return osQueryResposne.entities!.some(item => item.iri === detailsIri.value);
+  }
+  return true;
 }
 
 async function getHasQueryDefinition() {
