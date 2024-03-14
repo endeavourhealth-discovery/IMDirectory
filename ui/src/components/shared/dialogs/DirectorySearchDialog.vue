@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref, computed } from "vue";
+import { ref, onMounted, watch, Ref } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
@@ -85,8 +85,8 @@ import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import _, { cloneDeep } from "lodash";
-import { EntityService, FunctionService, QueryService } from "@/services";
-import { FunctionRequest, QueryRequest, SearchResultSummary, SearchResponse, SearchRequest } from "@im-library/interfaces/AutoGen";
+import { EntityService, QueryService } from "@/services";
+import { QueryRequest, SearchResultSummary, SearchResponse, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
