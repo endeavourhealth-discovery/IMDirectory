@@ -1,28 +1,30 @@
 <template>
-  <div v-if="!isObjectHasKeys(query)">No definition found.</div>
-  <div v-else class="query-display-container flex flex-column gap-3">
-    <div class="flex flex-row gap-2">
-      <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
-      <!-- <QuickQuery :query-iri="entityIri" v-if="canTestQuery">
+  <div id="query-display">
+    <div v-if="!isObjectHasKeys(query)">No definition found.</div>
+    <div v-else class="query-display-container flex flex-column gap-3">
+      <div class="flex flex-row gap-2">
+        <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
+        <!-- <QuickQuery :query-iri="entityIri" v-if="canTestQuery">
         <template #button="{ runQuickQuery }">
           <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
         </template>
       </QuickQuery> -->
-    </div>
-    <div class="query-display">
-      <div class="rec-query-display">
-        <div class="include-title" style="color: green">include if</div>
-        <RecursiveQueryDisplay v-if="query" :match="query" :parent-match="undefined" :full-query="query" />
+      </div>
+      <div class="query-display">
+        <div class="rec-query-display">
+          <div class="include-title" style="color: green">include if</div>
+          <RecursiveQueryDisplay v-if="query" :match="query" :parent-match="undefined" :full-query="query" />
+        </div>
       </div>
     </div>
+    <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
+      <pre>{{ sql }}</pre>
+      <template #footer>
+        <Button label="Copy to Clipboard" @click="copy" data-testid="copy-button" />
+        <Button label="Close" @click="showSql = false" data-testid="close-button" />
+      </template>
+    </Dialog>
   </div>
-  <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
-    <pre>{{ sql }}</pre>
-    <template #footer>
-      <Button label="Copy to Clipboard" @click="copy" data-testid="copy-button" />
-      <Button label="Close" @click="showSql = false" data-testid="close-button" />
-    </template>
-  </Dialog>
 </template>
 
 <script setup lang="ts">
