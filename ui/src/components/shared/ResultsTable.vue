@@ -189,7 +189,6 @@ function processSearchResults(searchResponse: SearchResponse | undefined): void 
       return copy;
     });
     totalCount.value = searchResponse.count ?? 0;
-    page.value = searchResponse.page ?? 0;
   }
 }
 

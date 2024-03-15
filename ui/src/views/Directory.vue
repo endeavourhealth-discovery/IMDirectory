@@ -48,13 +48,7 @@ const loading = ref(true);
 const searchLoading = ref(false);
 const directorySearchTerm: Ref<string> = ref("");
 const updateSearch: Ref<boolean> = ref(false);
-// const storeDefaultFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.defaultFilterOptions);
-// const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const storeSelectedFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
-
-watch(updateSearch, () => {
-  if (directorySearchTerm.value) router.push({ name: "Search" });
-});
 
 onMounted(async () => {
   loading.value = true;
@@ -65,11 +59,12 @@ onMounted(async () => {
 
 function onSelectedFiltersUpdated(filters: FilterOptions) {
   filterStore.updateSelectedFilterOptions(filters);
-  if (directorySearchTerm.value) toSearch();
+  if (directorySearchTerm.value && directorySearchTerm.value.length > 2) toSearch();
 }
 
 function toSearch() {
   updateSearch.value = !updateSearch.value;
+  router.push({ name: "Search" });
 }
 
 function toEclSearch() {

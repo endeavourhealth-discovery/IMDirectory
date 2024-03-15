@@ -54,11 +54,6 @@ const props = withDefaults(defineProps<Props>(), {
   rows: 25
 });
 
-watch(
-  () => props.updateSearch,
-  () => console.log("SearchResults caught search event")
-);
-
 const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
