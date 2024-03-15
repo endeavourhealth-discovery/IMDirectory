@@ -4,12 +4,14 @@
       <template #content>
         <div id="topbar-content-container">
           <SearchBar
-            v-model:search-results="searchResults"
             v-model:search-loading="searchLoading"
             v-model:search-term="directorySearchTerm"
+            :selected-filter-options="storeSelectedFilterOptions"
+            :show-filters="true"
             @to-ecl-search="toEclSearch"
             @to-query-search="toQuerySearch"
-            @search="onSearch"
+            @to-search="toSearch"
+            @selected-filters-updated="onSelectedFiltersUpdated"
           />
         </div>
       </template>
@@ -18,32 +20,40 @@
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
-      <DirectorySplitter v-else :searchTerm="directorySearchTerm" :searchLoading="searchLoading" :searchResults="searchResults" :updateSearch="updateSearch" />
+      <DirectorySplitter
+        v-else
+        :searchTerm="directorySearchTerm"
+        :updateSearch="updateSearch"
+        :selected-filter-options="storeSelectedFilterOptions"
+        @selected-filters-updated="onSelectedFiltersUpdated"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import { useRouter } from "vue-router";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
-import { SearchResponse } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
 
 const router = useRouter();
 const filterStore = useFilterStore();
 const userStore = useUserStore();
 const loading = ref(true);
 const searchLoading = ref(false);
-const searchResults: Ref<SearchResponse | undefined> = ref();
 const directorySearchTerm: Ref<string> = ref("");
 const updateSearch: Ref<boolean> = ref(false);
+// const storeDefaultFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.defaultFilterOptions);
+// const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const storeSelectedFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 
-watch(searchResults, newValue => {
-  if (newValue) router.push({ name: "Search" });
+watch(updateSearch, () => {
+  if (directorySearchTerm.value) router.push({ name: "Search" });
 });
 
 onMounted(async () => {
@@ -53,7 +63,12 @@ onMounted(async () => {
   loading.value = false;
 });
 
-function onSearch() {
+function onSelectedFiltersUpdated(filters: FilterOptions) {
+  filterStore.updateSelectedFilterOptions(filters);
+  if (directorySearchTerm.value) toSearch();
+}
+
+function toSearch() {
   updateSearch.value = !updateSearch.value;
 }
 

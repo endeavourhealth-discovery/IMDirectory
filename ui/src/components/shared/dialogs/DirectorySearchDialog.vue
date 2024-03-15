@@ -11,11 +11,9 @@
     <div class="directory-search-dialog-content">
       <div class="search-bar">
         <SearchBar
-          v-model:searchLoading="searchLoading"
           v-model:searchTerm="searchTerm"
           :selected="selected"
-          :filter-options="filterOptions"
-          :filterDefaults="filterDefaults"
+          :show-filters="false"
           :imQuery="imQuery"
           :osQuery="osQuery"
           @to-ecl-search="showEclSearch"

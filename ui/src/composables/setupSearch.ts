@@ -1,18 +1,15 @@
 import { EntityService, QueryService } from "@/services";
-import { useFilterStore } from "@/stores/filterStore";
 import { SortDirection } from "@im-library/enums";
 import { isObject } from "@im-library/helpers/DataTypeCheckers";
 import { FilterOptions } from "@im-library/interfaces";
 import { Page, QueryRequest, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
-import { computed, ComputedRef, ref, Ref } from "vue";
+import { ref, Ref } from "vue";
 
 function setupSearch(searchPlaceholderValue?: string) {
   const searchLoading: Ref<boolean> = ref(false);
   const searchPlaceholder: Ref<string> = ref(searchPlaceholderValue ?? "Search");
   const controller: Ref<AbortController> = ref({} as AbortController);
-  const filterStore = useFilterStore();
-  const filterStoreDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
 
   async function search(searchTerm: string, selectedFilters?: FilterOptions, page?: Page, osQuery?: SearchRequest, imQuery?: QueryRequest) {
     let response = undefined;
@@ -24,7 +21,7 @@ function setupSearch(searchPlaceholderValue?: string) {
       controller.value = new AbortController();
       if (imQuery) response = await searchByIMQuery(searchTerm, imQuery, page);
       else if (osQuery) response = await searchByOSQuery(searchTerm, osQuery, page);
-      else response = await searchByDefaultOSQuery(searchTerm, selectedFilters ?? filterStoreDefaults.value, page);
+      else if (selectedFilters) response = await searchByDefaultOSQuery(searchTerm, selectedFilters, page);
       searchLoading.value = false;
     }
 

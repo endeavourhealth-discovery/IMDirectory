@@ -24,13 +24,12 @@
       data-testid="filters-open-button"
     />
     <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
-      <div v-if="!(osQuery || imQuery)" class="p-fluid results-filter-container">
+      <div v-if="showFilters" class="p-fluid results-filter-container">
         <Filters
           :search="onSearch"
           data-testid="filters"
-          :filterOptions="filterOptions"
-          :filterDefaults="filterDefaults"
-          @selectedFiltersUpdated="handleSelectedFiltersUpdated"
+          :selected-filter-options="selectedFilterOptions"
+          @selectedFiltersUpdated="emit('selectedFiltersUpdated', $event)"
         />
       </div>
     </OverlayPanel>
@@ -39,70 +38,50 @@
 
 <script setup lang="ts">
 import Filters from "@/components/shared/Filters.vue";
-import { computed, ComputedRef, ref, Ref, watch, onMounted } from "vue";
+import { ref, Ref, watch, onMounted } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { SearchRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import setupSpeechToText from "@/composables/setupSpeechToText";
-import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
 import setupSearch from "@/composables/setupSearch";
 
 interface Props {
-  searchResults: SearchResponse | undefined;
-  searchLoading: boolean;
   searchTerm: string;
+  showFilters: boolean;
+  selectedFilterOptions?: FilterOptions;
   selected?: SearchResultSummary;
-  filterOptions?: FilterOptions;
-  filterDefaults?: FilterOptions;
   imQuery?: QueryRequest;
   osQuery?: SearchRequest;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits({
-  "update:searchResults": _payload => true,
-  "update:searchLoading": payload => typeof payload === "boolean",
   "update:searchTerm": _payload => true,
-  search: () => true,
+  selectedFiltersUpdated: (_payload: FilterOptions) => true,
+  toSearch: () => true,
   toEclSearch: () => true,
   toQuerySearch: () => true
 });
 
-const filterStore = useFilterStore();
-const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const searchText = ref("");
 const results: Ref<SearchResponse | undefined> = ref();
 const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
 ]);
-const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
 const { searchPlaceholder, searchLoading, search } = setupSearch();
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const filtersOP = ref();
 const debounce = ref(0);
 
-watch(storeSelectedFilters, async newValue => {
-  if (!props.filterDefaults && !props.filterOptions) {
-    selectedFilters.value = newValue;
-    await onSearch();
-  }
-});
-
 watch(searchText, async () => {
   emit("update:searchTerm", searchText.value);
   debounceForSearch();
 });
-watch(results, newValue => emit("update:searchResults", newValue));
-watch(searchLoading, newValue => emit("update:searchLoading", newValue));
 
 onMounted(() => {
   if (props.searchTerm) searchText.value = props.searchTerm;
 });
-
-function handleSelectedFiltersUpdated(updatedSelectedFilters: FilterOptions) {
-  selectedFilters.value = updatedSelectedFilters;
-}
 
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
@@ -116,7 +95,7 @@ function debounceForSearch(): void {
 }
 
 async function onSearch() {
-  emit("search");
+  emit("toSearch");
 }
 </script>
 

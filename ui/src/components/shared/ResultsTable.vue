@@ -87,7 +87,7 @@ import { FilterOptions } from "@im-library/interfaces";
 interface Props {
   searchTerm: string;
   updateSearch: boolean;
-  selectedFilters: FilterOptions;
+  selectedFilterOptions?: FilterOptions;
   imQuery?: QueryRequest;
   osQuery?: SearchRequest;
   pageSize?: number;
@@ -158,7 +158,13 @@ watch(
 );
 
 async function onSearch() {
-  const response = await search(props.searchTerm, props.selectedFilters, { pageNumber: page.value + 1, pageSize: rows.value }, props.osQuery, props.imQuery);
+  const response = await search(
+    props.searchTerm,
+    props.selectedFilterOptions,
+    { pageNumber: page.value + 1, pageSize: rows.value },
+    props.osQuery,
+    props.imQuery
+  );
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
 }
 
@@ -231,7 +237,7 @@ async function exportCSV(): Promise<void> {
       props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
       data: { title: "Downloading", text: "Preparing your download..." }
     });
-    const response = await search(props.searchTerm, props.selectedFilters, { pageNumber: 1, pageSize: totalCount.value }, props.osQuery, props.imQuery);
+    const response = await search(props.searchTerm, props.selectedFilterOptions, { pageNumber: 1, pageSize: totalCount.value }, props.osQuery, props.imQuery);
     if (response && isArrayHasLength(response.entities)) {
       const heading = ["name", "iri", "code"].join(",");
       const body = response?.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
