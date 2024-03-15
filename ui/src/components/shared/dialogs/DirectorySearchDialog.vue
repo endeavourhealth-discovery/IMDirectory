@@ -13,12 +13,12 @@
         <SearchBar
           v-model:searchTerm="searchTerm"
           :selected="selected"
-          :show-filters="false"
           :imQuery="imQuery"
           :osQuery="osQuery"
+          :show-filters="false"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
-          @search="onSearch"
+          @to-search="onSearch"
         />
       </div>
       <div class="vertical-divider">
@@ -38,6 +38,7 @@
             :show-filters="false"
             :updateSearch="updateSearch"
             :search-term="searchTerm"
+            :selected-filter-options="selectedFilterOptions"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
           />
@@ -69,7 +70,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, Ref } from "vue";
-import { FilterOptions } from "@im-library/interfaces";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
@@ -82,6 +82,7 @@ import { QueryRequest, SearchResultSummary, SearchResponse, SearchRequest } from
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { FilterOptions } from "@im-library/interfaces";
 
 interface Props {
   showDialog: boolean;
@@ -89,10 +90,10 @@ interface Props {
   osQuery?: SearchRequest;
   selected?: SearchResultSummary;
   rootEntities?: string[];
-  filterOptions?: FilterOptions;
-  filterDefaults?: FilterOptions;
   searchTerm?: string;
+  selectedFilterOptions?: FilterOptions;
 }
+
 const props = defineProps<Props>();
 watch(
   () => props.showDialog,

@@ -4,7 +4,6 @@
       <template #content>
         <div id="topbar-content-container">
           <SearchBar
-            v-model:search-loading="searchLoading"
             v-model:search-term="directorySearchTerm"
             :selected-filter-options="storeSelectedFilterOptions"
             :show-filters="true"

@@ -50,7 +50,7 @@
       :imQuery="imQuery"
       :osQuery="osQuery"
       :root-entities="rootEntities"
-      :filterOptions="filterOptions"
+      :selected-filter-options="filterOptions"
       :searchTerm="searchText"
     />
     <OverlaySummary ref="OS" />
