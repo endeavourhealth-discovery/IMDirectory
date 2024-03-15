@@ -47,8 +47,8 @@
       v-if="showDialog && !isAny && selected?.iri !== 'any'"
       v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
-      :-i-m-query="IMQuery"
-      :-o-s-query="OSQuery"
+      :imQuery="imQuery"
+      :osQuery="osQuery"
       :root-entities="rootEntities"
       :filterOptions="filterOptions"
       :searchTerm="searchText"
@@ -71,8 +71,8 @@ import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   selected?: SearchResultSummary;
-  IMQuery?: QueryRequest;
-  OSQuery?: SearchRequest;
+  imQuery?: QueryRequest;
+  osQuery?: SearchRequest;
   filterOptions?: FilterOptions;
   disabled?: boolean;
   rootEntities?: string[];
@@ -138,7 +138,7 @@ onMounted(() => {
 function debounceForSearch(): void {
   clearTimeout(debounce.value);
   debounce.value = window.setTimeout(async () => {
-    results.value = await search(searchText.value, undefined, { pageNumber: 1, pageSize: 10 }, props.OSQuery, props.IMQuery);
+    results.value = await search(searchText.value, undefined, { pageNumber: 1, pageSize: 10 }, props.osQuery, props.imQuery);
   }, 600);
   showResultsOverlay(event);
 }

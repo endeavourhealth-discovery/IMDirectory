@@ -16,7 +16,6 @@ function setupSearch(searchPlaceholderValue?: string) {
 
   async function search(searchTerm: string, selectedFilters?: FilterOptions, page?: Page, osQuery?: SearchRequest, imQuery?: QueryRequest) {
     let response = undefined;
-
     if (searchTerm && searchTerm.length > 2) {
       searchLoading.value = true;
       if (!isObject(controller.value)) {
@@ -33,12 +32,14 @@ function setupSearch(searchPlaceholderValue?: string) {
   }
 
   async function searchByIMQuery(searchTerm: string, imQuery: QueryRequest, page?: Page) {
+    console.log("searchByIMQuery");
     imQuery.textSearch = searchTerm;
     if (page) imQuery.page = page;
     return await QueryService.queryIMSearch(imQuery, controller.value);
   }
 
   async function searchByOSQuery(searchTerm: string, osQuery: SearchRequest, page?: Page) {
+    console.log("searchByOSQuery");
     osQuery.termFilter = searchTerm;
     if (page) {
       osQuery.page = page.pageNumber;
@@ -48,6 +49,7 @@ function setupSearch(searchPlaceholderValue?: string) {
   }
 
   async function searchByDefaultOSQuery(searchTerm: string, filters: FilterOptions, page?: Page) {
+    console.log("searchByDefaultOSQuery");
     const osQuery = prepareOSQueryRequest(searchTerm, filters, page);
     return await EntityService.advancedSearch(osQuery, controller.value);
   }

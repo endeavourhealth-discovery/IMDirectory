@@ -27,6 +27,8 @@
           :lazyLoading="true"
           @downloadRequested="(data: any) => $emit('downloadRequested', data)"
           :rows="100"
+          :searchTerm="searchTerm"
+          :updateSearch="updateSearch"
         >
           <transition :name="route?.meta?.transition || 'fade'" :mode="route?.meta?.mode || 'in-out'">
             <component :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
@@ -50,6 +52,8 @@ import { SearchResponse } from "@im-library/interfaces/AutoGen";
 interface Props {
   searchResults: SearchResponse | undefined;
   searchLoading: boolean;
+  searchTerm: string;
+  updateSearch: boolean;
 }
 
 const props = defineProps<Props>();

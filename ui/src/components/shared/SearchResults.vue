@@ -21,14 +21,13 @@
       </div>
     </div>
     <ResultsTable
+      :search-term="searchTerm"
+      :selected-filters="selectedFilters"
       :searchResults="localSearchResults"
-      :loading="isLoading"
-      :lazyLoading="lazyLoading"
       :rows="rows"
+      :updateSearch="updateSearch"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
-      @lazyLoadRequested="(data: any) => $emit('lazyLoadRequested', data)"
-      @downloadRequested="(data: any) => $emit('downloadRequested', data)"
     />
   </div>
 </template>
@@ -40,34 +39,38 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
-import { SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 
 interface Props {
-  showFilters?: boolean;
   searchResults: SearchResponse | undefined;
-  searchLoading?: boolean;
+  searchTerm: string;
+  selectedFilters: FilterOptions;
+  updateSearch: boolean;
+
+  osQuery?: SearchRequest;
+  imQuery?: QueryRequest;
   rows?: number;
-  lazyLoading?: boolean;
+  showFilters?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
-  searchLoading: false,
-  lazyLoading: false,
   rows: 25
 });
 
+watch(
+  () => props.updateSearch,
+  () => console.log("SearchResults caught search event")
+);
+
 const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
-  locateInTree: (_payload: string) => true,
-  lazyLoadRequested: (_payload: any) => true,
-  downloadRequested: (_payload: { term: string; count: number }) => true
+  locateInTree: (_payload: string) => true
 });
 
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
 const selectedStoreFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
-
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const selectedTypes: Ref<TTIriRef[]> = ref([]);
@@ -84,18 +87,12 @@ watch(
 
 onMounted(() => init());
 
-const isLoading = computed(() => loading.value || props.searchLoading);
-
 function init() {
-  loading.value = true;
-  localSearchResults.value = _.cloneDeep(props.searchResults);
-
   if (isArrayHasLength(localSearchResults.value)) {
     setFiltersFromSearchResults();
   } else {
     setFiltersFromStore();
   }
-  loading.value = false;
 }
 
 function setFiltersFromStore() {

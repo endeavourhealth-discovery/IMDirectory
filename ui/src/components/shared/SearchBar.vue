@@ -15,7 +15,7 @@
     </span>
     <SplitButton class="search-button p-button-secondary" @click="onSearch" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
-      v-if="!OSQuery && !IMQuery"
+      v-if="!osQuery && !imQuery"
       v-tooltip.bottom="'Filters'"
       id="filter-button"
       icon="fa-duotone fa-sliders"
@@ -24,7 +24,7 @@
       data-testid="filters-open-button"
     />
     <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
-      <div v-if="!(OSQuery || IMQuery)" class="p-fluid results-filter-container">
+      <div v-if="!(osQuery || imQuery)" class="p-fluid results-filter-container">
         <Filters
           :search="onSearch"
           data-testid="filters"
@@ -42,42 +42,33 @@ import Filters from "@/components/shared/Filters.vue";
 import { computed, ComputedRef, ref, Ref, watch, onMounted } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { SearchRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
-import setupDownloadFile from "@/composables/downloadFile";
-import { useDialog } from "primevue/usedialog";
-import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 import setupSearch from "@/composables/setupSearch";
 
 interface Props {
   searchResults: SearchResponse | undefined;
   searchLoading: boolean;
+  searchTerm: string;
   selected?: SearchResultSummary;
   filterOptions?: FilterOptions;
-  loadMore: { page: number; rows: number } | undefined;
   filterDefaults?: FilterOptions;
-  download: { term: string; count: number } | undefined;
-  IMQuery?: QueryRequest;
-  OSQuery?: SearchRequest;
-  searchTerm?: string;
+  imQuery?: QueryRequest;
+  osQuery?: SearchRequest;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits({
   "update:searchResults": _payload => true,
   "update:searchLoading": payload => typeof payload === "boolean",
+  "update:searchTerm": _payload => true,
+  search: () => true,
   toEclSearch: () => true,
-  toQuerySearch: () => true,
-  "update:download": _payload => undefined,
-  "update:loadMore": _payload => true
+  toQuerySearch: () => true
 });
 
-const pageNumber = 1;
 const filterStore = useFilterStore();
-const dynamicDialog = useDialog();
-const { downloadFile } = setupDownloadFile(window, document);
 const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const searchText = ref("");
 const results: Ref<SearchResponse | undefined> = ref();
@@ -91,26 +82,6 @@ const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText,
 const filtersOP = ref();
 const debounce = ref(0);
 
-watch(
-  () => _.cloneDeep(props.loadMore),
-  async newValue => {
-    if (isObjectHasKeys(newValue)) {
-      await onSearch();
-      emit("update:loadMore", undefined);
-    }
-  }
-);
-
-watch(
-  () => _.cloneDeep(props.download),
-  async newValue => {
-    if (newValue) {
-      await downloadAll();
-      emit("update:download", undefined);
-    }
-  }
-);
-
 watch(storeSelectedFilters, async newValue => {
   if (!props.filterDefaults && !props.filterOptions) {
     selectedFilters.value = newValue;
@@ -118,7 +89,10 @@ watch(storeSelectedFilters, async newValue => {
   }
 });
 
-watch(searchText, async () => debounceForSearch());
+watch(searchText, async () => {
+  emit("update:searchTerm", searchText.value);
+  debounceForSearch();
+});
 watch(results, newValue => emit("update:searchResults", newValue));
 watch(searchLoading, newValue => emit("update:searchLoading", newValue));
 
@@ -142,20 +116,7 @@ function debounceForSearch(): void {
 }
 
 async function onSearch() {
-  results.value = await search(searchText.value, selectedFilters.value, { pageNumber: pageNumber, pageSize: 10 }, props.OSQuery, props.IMQuery);
-}
-
-async function downloadAll() {
-  const downloadDialog = dynamicDialog.open(LoadingDialog, {
-    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
-    data: { title: "Downloading", text: "Preparing your download..." }
-  });
-  results.value = await search(searchText.value, selectedFilters.value, undefined, props.OSQuery, props.IMQuery);
-  const heading = ["name", "iri", "code"].join(",");
-  const body = results.value?.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
-  const csv = [heading, body].join("\n");
-  downloadFile(csv, "results.csv");
-  downloadDialog.close();
+  emit("search");
 }
 </script>
 

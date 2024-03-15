@@ -11,18 +11,16 @@
     <div class="directory-search-dialog-content">
       <div class="search-bar">
         <SearchBar
-          v-model:searchResults="searchResults"
           v-model:searchLoading="searchLoading"
-          @to-ecl-search="showEclSearch"
-          @to-query-search="showQuerySearch"
+          v-model:searchTerm="searchTerm"
           :selected="selected"
           :filter-options="filterOptions"
-          v-model:loadMore="loadMore"
           :filterDefaults="filterDefaults"
-          v-model:download="download"
-          :-i-m-query="IMQuery"
-          :-o-s-query="OSQuery"
-          :searchTerm="searchTerm"
+          :imQuery="imQuery"
+          :osQuery="osQuery"
+          @to-ecl-search="showEclSearch"
+          @to-query-search="showQuerySearch"
+          @search="onSearch"
         />
       </div>
       <div class="vertical-divider">
@@ -30,24 +28,20 @@
           <NavTree
             :selectedIri="treeIri"
             :root-entities="rootEntities"
-            @row-selected="showDetails"
             :find-in-tree="findInDialogTree"
             @found-in-tree="findInDialogTree = false"
+            @row-selected="showDetails"
           />
         </div>
         <div class="right-container">
           <SearchResults
             v-if="activePage === 0"
-            :searchResults="searchResults"
-            :searchLoading="searchLoading"
             :selected="selected"
+            :show-filters="false"
+            :updateSearch="updateSearch"
+            :search-term="searchTerm"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
-            @lazy-load-requested="lazyLoadRequested"
-            :lazy-loading="true"
-            :rows="25"
-            @download-requested="downloadRequested"
-            :show-filters="!(IMQuery || OSQuery)"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -93,8 +87,8 @@ import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 
 interface Props {
   showDialog: boolean;
-  IMQuery?: QueryRequest;
-  OSQuery?: SearchRequest;
+  imQuery?: QueryRequest;
+  osQuery?: SearchRequest;
   selected?: SearchResultSummary;
   rootEntities?: string[];
   filterOptions?: FilterOptions;
@@ -115,11 +109,10 @@ const emit = defineEmits({
   "update:selected": payload => true
 });
 
+const updateSearch: Ref<boolean> = ref(false);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
-const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
-const download: Ref<{ term: string; count: number } | undefined> = ref();
 const findInDialogTree = ref(false);
 const visible = ref(false);
 watch(visible, newValue => {
@@ -131,6 +124,7 @@ watch(visible, newValue => {
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
+const searchTerm = ref("");
 
 watch(
   () => treeIri.value,
@@ -169,8 +163,16 @@ watch(
 
 onMounted(() => {
   visible.value = props.showDialog;
+  searchTerm.value = props.searchTerm ?? "";
   initSelection();
 });
+
+function onSearch() {
+  if (searchTerm.value) {
+    activePage.value = 0;
+    updateSearch.value = !updateSearch.value;
+  }
+}
 
 async function setSelectedName() {
   if (detailsIri.value) {
@@ -229,14 +231,14 @@ function showQuerySearch() {
 }
 
 async function getIsSelectableEntity(): Promise<boolean> {
-  if (props.IMQuery) {
-    const imQuery = _.cloneDeep(props.IMQuery);
+  if (props.imQuery) {
+    const imQuery = _.cloneDeep(props.imQuery);
     imQuery.textSearch = selectedName.value;
     const imQueryResponse = await QueryService.queryIM(imQuery);
     if (!isObjectHasKeys(imQueryResponse, ["entities"]) || !isArrayHasLength(imQueryResponse.entities)) return false;
     return imQueryResponse.entities.some(item => item["@id"] === detailsIri.value);
-  } else if (props.OSQuery) {
-    const osQuery = _.cloneDeep(props.OSQuery);
+  } else if (props.osQuery) {
+    const osQuery = _.cloneDeep(props.osQuery);
     osQuery.termFilter = selectedName.value;
     const osQueryResposne = await EntityService.advancedSearch(osQuery);
     if (!isObjectHasKeys(osQueryResposne, ["entities"]) || !isArrayHasLength(osQueryResposne.entities)) return false;
@@ -255,14 +257,6 @@ async function getHasQueryDefinition() {
 
 function onEnter() {
   if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
-}
-
-function lazyLoadRequested(event: any) {
-  loadMore.value = event;
-}
-
-function downloadRequested(data: { term: string; count: number }) {
-  download.value = data;
 }
 </script>
 

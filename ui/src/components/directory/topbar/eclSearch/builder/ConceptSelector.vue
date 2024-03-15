@@ -12,7 +12,7 @@
         </div>
       </template>
     </Dropdown>
-    <AutocompleteSearchBar v-model:selected="selected" :-o-s-query="osQueryForConceptSearch" :root-entities="['http://snomed.info/sct#138875005']" />
+    <AutocompleteSearchBar v-model:selected="selected" :osQuery="osQueryForConceptSearch" :root-entities="['http://snomed.info/sct#138875005']" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
 </template>

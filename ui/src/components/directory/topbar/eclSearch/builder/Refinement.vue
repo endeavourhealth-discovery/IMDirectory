@@ -29,7 +29,7 @@
     <AutocompleteSearchBar
       :disabled="!hasFocus || loadingProperty"
       v-model:selected="selectedProperty"
-      :-i-m-query="imQueryForPropertySearch"
+      :imQuery="imQueryForPropertySearch"
       :root-entities="propertyTreeRoots"
     />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
@@ -55,7 +55,7 @@
     <AutocompleteSearchBar
       :disabled="!hasProperty || loadingValue || loadingProperty"
       v-model:selected="selectedValue"
-      :-o-s-query="osQueryForValueSearch"
+      :osQuery="osQueryForValueSearch"
       :root-entities="valueTreeRoots"
     />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
