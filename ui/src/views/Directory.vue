@@ -62,8 +62,8 @@ function onSelectedFiltersUpdated(filters: FilterOptions) {
 }
 
 function toSearch() {
-  updateSearch.value = !updateSearch.value;
   router.push({ name: "Search" });
+  updateSearch.value = !updateSearch.value;
 }
 
 function toEclSearch() {

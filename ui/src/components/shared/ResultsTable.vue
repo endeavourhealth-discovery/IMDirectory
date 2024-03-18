@@ -100,8 +100,9 @@ const emit = defineEmits({
   locateInTree: (_payload: string) => true
 });
 
-onMounted(() => {
+onMounted(async () => {
   if (props.pageSize) rows.value = props.pageSize;
+  if (props.searchTerm) await onSearch();
 });
 
 const userStore = useUserStore();
