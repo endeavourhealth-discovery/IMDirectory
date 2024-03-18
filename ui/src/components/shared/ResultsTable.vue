@@ -82,22 +82,32 @@ import { useDialog } from "primevue/usedialog";
 import { SearchResultSummary, SearchResponse, QueryRequest, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSearch from "@/composables/setupSearch";
-import { FilterOptions } from "@im-library/interfaces";
+import { EclSearchRequest, FilterOptions } from "@im-library/interfaces";
+
+interface ResultSummary extends SearchResultSummary {
+  icon: string[];
+  color: string;
+  typeNames: string;
+  favourite: boolean;
+}
 
 interface Props {
-  searchTerm: string;
-  updateSearch: boolean;
+  searchTerm?: string;
+  updateSearch?: boolean;
   selectedFilterOptions?: FilterOptions;
   imQuery?: QueryRequest;
   osQuery?: SearchRequest;
+  eclQuery?: EclSearchRequest;
   pageSize?: number;
+  loading?: boolean;
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits({
   rowSelected: (_payload: SearchResultSummary) => true,
-  locateInTree: (_payload: string) => true
+  locateInTree: (_payload: string) => true,
+  "update:loading": _payload => true
 });
 
 onMounted(async () => {
@@ -112,13 +122,6 @@ const { searchLoading, search } = setupSearch();
 const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
-
-interface ResultSummary extends SearchResultSummary {
-  icon: string[];
-  color: string;
-  typeNames: string;
-  favourite: boolean;
-}
 
 const selected: Ref<ResultSummary> = ref({} as ResultSummary);
 const searchResults: Ref<any[]> = ref([]);
@@ -158,13 +161,19 @@ watch(
   async () => await onSearch()
 );
 
+watch(
+  () => searchLoading.value,
+  () => emit("update:loading", searchLoading.value)
+);
+
 async function onSearch() {
   const response = await search(
     props.searchTerm,
     props.selectedFilterOptions,
     { pageNumber: page.value + 1, pageSize: rows.value },
     props.osQuery,
-    props.imQuery
+    props.imQuery,
+    props.eclQuery
   );
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
 }

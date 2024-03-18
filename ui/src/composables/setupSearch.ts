@@ -1,8 +1,8 @@
-import { EntityService, QueryService } from "@/services";
+import { EclService, EntityService, QueryService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 import { SortDirection } from "@im-library/enums";
 import { isObject } from "@im-library/helpers/DataTypeCheckers";
-import { FilterOptions } from "@im-library/interfaces";
+import { EclSearchRequest, FilterOptions } from "@im-library/interfaces";
 import { Page, QueryRequest, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { computed, ComputedRef, ref, Ref } from "vue";
@@ -14,26 +14,39 @@ function setupSearch(searchPlaceholderValue?: string) {
   const filterStore = useFilterStore();
   const filterStoreDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.defaultFilterOptions);
 
-  async function search(searchTerm: string, selectedFilters?: FilterOptions, page?: Page, osQuery?: SearchRequest, imQuery?: QueryRequest) {
+  async function search(
+    searchTerm?: string,
+    selectedFilters?: FilterOptions,
+    page?: Page,
+    osQuery?: SearchRequest,
+    imQuery?: QueryRequest,
+    eclQuery?: EclSearchRequest
+  ) {
     let response = undefined;
     if (searchTerm && searchTerm.length > 2) {
       searchLoading.value = true;
-      if (!isObject(controller.value)) {
-        controller.value.abort();
-      }
+      if (!isObject(controller.value)) controller.value.abort();
       controller.value = new AbortController();
-      if (imQuery) response = await searchByIMQuery(searchTerm, imQuery, page);
+      if (imQuery) response = await searchByIMQuery(imQuery, searchTerm, page);
       else if (osQuery) response = await searchByOSQuery(searchTerm, osQuery, page);
       else response = await searchByDefaultOSQuery(searchTerm, selectedFilters ?? filterStoreDefaults.value, page);
+      searchLoading.value = false;
+    } else if (imQuery) {
+      searchLoading.value = true;
+      response = await searchByIMQuery(imQuery, searchTerm, page);
+      searchLoading.value = false;
+    } else if (eclQuery) {
+      searchLoading.value = true;
+      response = await searchByECLQuery(eclQuery, page);
       searchLoading.value = false;
     }
 
     return response?.entities ? response : undefined;
   }
 
-  async function searchByIMQuery(searchTerm: string, imQuery: QueryRequest, page?: Page) {
+  async function searchByIMQuery(imQuery: QueryRequest, searchTerm?: string, page?: Page) {
     console.log("searchByIMQuery");
-    imQuery.textSearch = searchTerm;
+    if (searchTerm) imQuery.textSearch = searchTerm;
     if (page) imQuery.page = page;
     return await QueryService.queryIMSearch(imQuery, controller.value);
   }
@@ -46,6 +59,14 @@ function setupSearch(searchPlaceholderValue?: string) {
       osQuery.size = page.pageSize;
     }
     return await EntityService.advancedSearch(osQuery, controller.value);
+  }
+
+  async function searchByECLQuery(eclQuery: EclSearchRequest, page?: Page) {
+    if (page) {
+      eclQuery.page = page.pageNumber;
+      eclQuery.size = page.pageSize;
+    }
+    return await EclService.ECLSearch(eclQuery, controller.value);
   }
 
   async function searchByDefaultOSQuery(searchTerm: string, filters: FilterOptions, page?: Page) {

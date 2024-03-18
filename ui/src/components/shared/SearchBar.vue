@@ -64,7 +64,6 @@ const emit = defineEmits({
 });
 
 const searchText = ref("");
-const results: Ref<SearchResponse | undefined> = ref();
 const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }

@@ -49,7 +49,7 @@ const toast = useToast();
 const directService = new DirectService();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const filterStore = useFilterStore();
-const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
+const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
 const controller: Ref<AbortController> = ref({} as AbortController);
 const menu = ref();

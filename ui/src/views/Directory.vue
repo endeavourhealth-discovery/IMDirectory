@@ -44,7 +44,6 @@ const router = useRouter();
 const filterStore = useFilterStore();
 const userStore = useUserStore();
 const loading = ref(true);
-const searchLoading = ref(false);
 const directorySearchTerm: Ref<string> = ref("");
 const updateSearch: Ref<boolean> = ref(false);
 const storeSelectedFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
