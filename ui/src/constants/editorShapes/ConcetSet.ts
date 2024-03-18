@@ -204,7 +204,7 @@ const ConceptSetShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   path: {
                     "@id": IM.IS_SUBSET_OF
@@ -250,7 +250,7 @@ const ConceptSetShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   select: [
                     {

@@ -6,21 +6,27 @@
           <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
           <h2 v-if="showRequired" class="required">*</h2>
         </div>
-        <div id="defintion-panel-container">
-          <TabView>
-            <TabPanel header="ECL">
-              <Textarea
-                v-model="ecl"
-                id="ecl-string-container"
-                :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
-                :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
-                data-testid="ecl-string"
-                :disabled="loading"
-                @dragenter.prevent
-                @dragover.prevent
-                @drop="dropReceived($event)"
-              />
-              <div class="show-names-container"><label for="">Show names</label><Checkbox v-model="showNames" :binary="true" /></div>
+        <div id="definition-panel-container">
+          <SubsetBuilder :subsets="subsets" />
+          <TabView class="ecl-tabview">
+            <TabPanel class="tabview-panel" header="ECL">
+              <div class="ecl-panel">
+                <Textarea
+                  v-model="ecl"
+                  id="ecl-string-container"
+                  :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
+                  :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
+                  data-testid="ecl-string"
+                  :disabled="loading"
+                  @dragenter.prevent
+                  @dragover.prevent
+                  @drop="dropReceived($event)"
+                />
+                <div class="show-names-container">
+                  <label for="">Show names</label>
+                  <Checkbox v-model="showNames" :binary="true" />
+                </div>
+              </div>
             </TabPanel>
             <TabPanel header="Display">
               <QueryDisplay :definition="value" />
@@ -44,24 +50,30 @@
     </div>
     <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
     <span class="error-message" v-if="validationErrorMessage">{{ validationErrorMessage }}</span>
+    <Builder :showDialog="showDialog" :eclString="ecl" @eclSubmitted="updateECL" @closeDialog="() => (showDialog = false)" @eclConversionError="updateError" />
+    <AddByCodeList
+      :showAddByFile="showAddByFileDialog"
+      :showAddByList="showAddByCodeListDialog"
+      @closeDialog="closeAddByDialog"
+      @addCodeList="processCodeList"
+    />
   </div>
-  <Builder :showDialog="showDialog" :eclString="ecl" @eclSubmitted="updateECL" @closeDialog="() => (showDialog = false)" @eclConversionError="updateError" />
-  <AddByCodeList :showAddByFile="showAddByFileDialog" :showAddByList="showAddByCodeListDialog" @closeDialog="closeAddByDialog" @addCodeList="processCodeList" />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, watch, Ref, PropType, inject, ComputedRef, computed } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
+import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
 import { EditorMode } from "@im-library/enums";
 import { EclService } from "@/services";
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, PropertyShape, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 
 interface Props {
@@ -78,7 +90,8 @@ const importMenu = ref();
 
 const ecl: Ref<string> = ref("");
 // const eclNoNames = ref("");
-const eclAsQuery: Ref<Query | undefined> = ref();
+const eclAsQuery: Ref<Match[] | Match | undefined> = ref();
+const subsets: Ref<Match[] | undefined> = ref();
 const showDialog = ref(false);
 const showAddByCodeListDialog = ref(false);
 const showAddByFileDialog = ref(false);
@@ -137,7 +150,7 @@ watch(
   () => props.value,
   async (newValue, oldValue) => {
     loading.value = true;
-    if (newValue && newValue !== oldValue) ecl.value = await EclService.getECLFromQuery(JSON.parse(newValue), showNames.value);
+    if (newValue && newValue !== oldValue) await processProps();
     loading.value = false;
   }
 );
@@ -155,7 +168,7 @@ watch(ecl, async newValue => {
 watch(showNames, async newValue => {
   if (props.value) {
     loading.value = true;
-    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), newValue);
+    await processProps();
     loading.value = false;
   }
 });
@@ -172,12 +185,31 @@ watch(
 );
 
 onMounted(async () => {
-  if (props.value) {
-    loading.value = true;
-    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
-    loading.value = false;
-  }
+  loading.value = true;
+  await processProps();
+  loading.value = false;
 });
+
+async function processProps() {
+  if (props.value) {
+    const definitionAsIMQ: Query = JSON.parse(props.value);
+    if (definitionAsIMQ.match && isArrayHasLength(definitionAsIMQ.match)) {
+      if (definitionAsIMQ.match.length === 1) {
+        ecl.value = await EclService.getECLFromQuery(definitionAsIMQ, showNames.value);
+      } else if (definitionAsIMQ.match.length === 2) {
+        for (const match of definitionAsIMQ.match) {
+          if (isArray(match) && match.some(m => isObjectHasKeys(m, ["is"]))) {
+            subsets.value = match;
+          } else {
+            ecl.value = await EclService.getECLFromQuery(match, showNames.value);
+          }
+        }
+      } else {
+        throw new Error("Definition contains >2 matches at top level");
+      }
+    }
+  }
+}
 
 function toggleMenuOptions(event: any) {
   importMenu.value.toggle(event);
@@ -277,9 +309,8 @@ async function dropReceived(event: any) {
 
 #ecl-string-container {
   width: 100%;
-  height: 17rem;
+  flex: 1 1 auto;
   overflow: auto;
-  flex-grow: 100;
 }
 
 .text-copy-container {
@@ -292,7 +323,6 @@ async function dropReceived(event: any) {
 }
 
 Textarea {
-  max-width: 90%;
   resize: none;
 }
 
@@ -315,27 +345,47 @@ Textarea {
   color: var(--red-500);
 }
 
-#defintion-panel-container:deep(.p-tabview-panels) {
+#definition-panel-container:deep(.p-tabview-panels) {
   flex: 1 1 auto;
-  overflow: auto;
-}
-
-#defintion-panel-container:deep(.p-tabview-panel) {
-  height: 100%;
   overflow: auto;
   display: flex;
   flex-flow: column nowrap;
 }
 
-#defintion-panel-container {
+#definition-panel-container:deep(.p-tabview-panel) {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#definition-panel-container {
   height: 100%;
   width: 100%;
   overflow: auto;
-}
-
-#defintion-panel-container:deep(.p-tabview) {
-  height: 100%;
   display: flex;
   flex-flow: column nowrap;
+  gap: 1rem;
+}
+
+#definition-panel-container:deep(.p-tabview) {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.subsets-panel:deep(.p-panel-header) {
+  background: var(--surface-a);
+}
+
+.ecl-tabview {
+  border: 1px solid var(--surface-border);
+}
+
+.ecl-panel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
 }
 </style>

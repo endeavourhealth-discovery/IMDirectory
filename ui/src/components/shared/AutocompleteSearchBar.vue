@@ -191,6 +191,7 @@ function select(event: KeyboardEvent) {
 
 async function onEnter(event: any) {
   if (resultsOP.value) resultsOP.value.toggle(event);
+  await search();
 }
 
 async function search(): Promise<void | SearchResponse> {
