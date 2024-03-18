@@ -246,7 +246,14 @@ async function exportCSV(): Promise<void> {
       props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
       data: { title: "Downloading", text: "Preparing your download..." }
     });
-    const response = await search(props.searchTerm, props.selectedFilterOptions, { pageNumber: 1, pageSize: totalCount.value }, props.osQuery, props.imQuery);
+    const response = await search(
+      props.searchTerm,
+      props.selectedFilterOptions,
+      { pageNumber: 1, pageSize: totalCount.value },
+      props.osQuery,
+      props.imQuery,
+      props.eclQuery
+    );
     if (response && isArrayHasLength(response.entities)) {
       const heading = ["name", "iri", "code"].join(",");
       const body = response?.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
