@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-03-18 15:52:30.
+// Generated using typescript-generator version 3.2.1263 on 2024-03-14 13:15:40.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -146,10 +146,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
-    relativeTo?: PropertyRef;
-    dataType?: TTIriRef;
     unit?: string;
+    relativeTo?: PropertyRef;
+    operator?: Operator;
+    dataType?: TTIriRef;
 }
 
 export interface Case {
@@ -178,8 +178,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -294,8 +294,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -528,13 +528,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
-    code?: string;
     description?: string;
+    code?: string;
     prefixes?: TTPrefix[];
 }
 
