@@ -3,18 +3,7 @@
     <div class="quick-filters-container">
       <div class="quick-filter-container">
         <label>Include legacy:</label>
-        <InputSwitch
-          v-model="includeLegacy"
-          @change="
-            emit('selectedFiltersUpdated', {
-              schemes: selectedSchemes,
-              status: selectedStatus,
-              types: selectedTypes,
-              sortDirections: [selectedSortDirection],
-              sortFields: [selectedSortField]
-            })
-          "
-        />
+        <InputSwitch v-model="includeLegacy" @change="emitFilterUpdate()" />
       </div>
     </div>
 
@@ -27,15 +16,7 @@
             display="chip"
             v-model="selectedStatus"
             :options="storeFilterOptions.status"
-            @change="
-              emit('selectedFiltersUpdated', {
-                schemes: selectedSchemes,
-                status: selectedStatus,
-                types: selectedTypes,
-                sortDirections: [selectedSortDirection],
-                sortFields: [selectedSortField]
-              })
-            "
+            @change="emitFilterUpdate()"
           />
           <label for="status">Select status:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetStatus" v-tooltip="'Reset status filters'" />
@@ -52,15 +33,7 @@
             display="chip"
             v-model="selectedSchemes"
             :options="storeFilterOptions.schemes"
-            @change="
-              emit('selectedFiltersUpdated', {
-                schemes: selectedSchemes,
-                status: selectedStatus,
-                types: selectedTypes,
-                sortDirections: [selectedSortDirection],
-                sortFields: [selectedSortField]
-              })
-            "
+            @change="emitFilterUpdate()"
           />
           <label for="scheme">Select scheme:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetSchemes" v-tooltip="'Reset scheme filters'" />
@@ -77,15 +50,7 @@
             display="chip"
             v-model="selectedTypes"
             :options="storeFilterOptions.types"
-            @change="
-              emit('selectedFiltersUpdated', {
-                schemes: selectedSchemes,
-                status: selectedStatus,
-                types: selectedTypes,
-                sortDirections: [selectedSortDirection],
-                sortFields: [selectedSortField]
-              })
-            "
+            @change="emitFilterUpdate()"
           />
           <label for="conceptType">Select concept type:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetTypes" v-tooltip="'Reset type filters'" />
@@ -96,21 +61,7 @@
     <div class="p-field">
       <div class="p-inputgroup">
         <span class="p-float-label">
-          <Dropdown
-            id="sortField"
-            optionLabel="name"
-            v-model="selectedSortField"
-            :options="storeFilterOptions.sortFields"
-            @change="
-              emit('selectedFiltersUpdated', {
-                schemes: selectedSchemes,
-                status: selectedStatus,
-                types: selectedTypes,
-                sortDirections: [selectedSortDirection],
-                sortFields: [selectedSortField]
-              })
-            "
-          />
+          <Dropdown id="sortField" optionLabel="name" v-model="selectedSortField" :options="storeFilterOptions.sortFields" @change="emitFilterUpdate()" />
           <label for="sortField">Select sort field:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetSortField" v-tooltip="'Reset sort field filters'" />
         </span>
@@ -125,15 +76,7 @@
             optionLabel="name"
             v-model="selectedSortDirection"
             :options="storeFilterOptions.sortDirections"
-            @change="
-              emit('selectedFiltersUpdated', {
-                schemes: selectedSchemes,
-                status: selectedStatus,
-                types: selectedTypes,
-                sortDirections: [selectedSortDirection],
-                sortFields: [selectedSortField]
-              })
-            "
+            @change="emitFilterUpdate()"
           />
           <label for="sortDirection">Select sort direction:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetSortDirection" v-tooltip="'Reset sort direction filters'" />
@@ -180,15 +123,27 @@ function init() {
   if (storeFilterOptions.value) setSelectedOptions();
 }
 
+function emitFilterUpdate() {
+  emit("selectedFiltersUpdated", {
+    schemes: selectedSchemes.value,
+    status: selectedStatus.value,
+    types: selectedTypes.value,
+    sortDirections: [selectedSortDirection.value],
+    sortFields: [selectedSortField.value]
+  });
+}
+
 function resetSortField() {
   if (storeDefaultFilterOptions.value) {
     selectedSortField.value = storeDefaultFilterOptions.value.sortFields?.[0];
     selectedSortDirection.value = storeDefaultFilterOptions.value.sortDirections?.[0];
   }
+  emitFilterUpdate();
 }
 
 function resetSortDirection() {
   if (storeDefaultFilterOptions.value) selectedSortDirection.value = storeDefaultFilterOptions.value.sortDirections?.[0];
+  emitFilterUpdate();
 }
 
 function resetStatus() {
@@ -197,6 +152,7 @@ function resetStatus() {
       item => storeDefaultFilterOptions.value?.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
   }
+  emitFilterUpdate();
 }
 
 function resetSchemes() {
@@ -205,6 +161,7 @@ function resetSchemes() {
       item => storeDefaultFilterOptions.value?.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
   }
+  emitFilterUpdate();
 }
 
 function resetTypes() {
@@ -213,6 +170,7 @@ function resetTypes() {
       item => storeDefaultFilterOptions.value?.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
   }
+  emitFilterUpdate();
 }
 
 function setSelectedOptions(): void {
