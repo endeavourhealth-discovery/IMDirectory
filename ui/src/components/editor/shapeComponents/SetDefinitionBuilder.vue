@@ -212,8 +212,7 @@ async function processProps() {
       if (definitionAsIMQ.match.length <= 2) {
         for (const match of definitionAsIMQ.match) {
           if (isArray(match) && match.some(m => isObjectHasKeys(m, ["is"]))) {
-            // subsets.value = match;
-            console.log(match);
+            subsets.value = match;
           } else {
             ecl.value = await EclService.getECLFromQuery(match, showNames.value);
           }
