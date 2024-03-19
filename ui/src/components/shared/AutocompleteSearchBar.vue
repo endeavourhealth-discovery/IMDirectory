@@ -27,12 +27,14 @@
               class="listbox-item"
               @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
               @mouseleave="hideOverlay($event)"
-              @click="() => (selectedLocal = slotProps.option)"
             >
               <span>{{ slotProps.option.name }}</span>
             </div>
           </template>
         </Listbox>
+        <div v-else class="loading-container">
+          <ProgressSpinner />
+        </div>
 
         <div class="advanced-search-container">
           <Button
@@ -126,23 +128,25 @@ const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
   () => _.cloneDeep(props.selected),
-  newValue => {
-    loading.value = true;
-    if (newValue && newValue.name && newValue.name != searchText.value) {
-      searchText.value = newValue.name;
-      selectedLocal.value = newValue;
-    } else if (!newValue) {
-      searchText.value = "";
-      selectedLocal.value = undefined;
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) {
+      loading.value = true;
+      if (newValue && newValue.name && newValue.name != searchText.value) {
+        searchText.value = newValue.name;
+        selectedLocal.value = newValue;
+      } else if (!newValue) {
+        searchText.value = "";
+        selectedLocal.value = undefined;
+      }
+      loading.value = false;
     }
-    loading.value = false;
   }
 );
 
 watch(
   selectedLocal,
-  newValue => {
-    emit("update:selected", newValue);
+  (newValue,oldValue) => {
+    if (!_.isEqual(newValue,oldValue)) emit("update:selected", newValue);
   },
   { deep: true }
 );

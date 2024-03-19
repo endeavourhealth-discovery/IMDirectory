@@ -7,7 +7,7 @@
           <h2 v-if="showRequired" class="required">*</h2>
         </div>
         <div id="definition-panel-container">
-          <SubsetBuilder :subsets="subsets" />
+          <SubsetBuilder :subsets="subsets" :mode="mode" :shape="shape" @update-clicked="updateSubsets" />
           <TabView class="ecl-tabview">
             <TabPanel class="tabview-panel" header="ECL">
               <div class="ecl-panel">
@@ -150,7 +150,7 @@ watch(
   () => props.value,
   async (newValue, oldValue) => {
     loading.value = true;
-    if (newValue && newValue !== oldValue) await processProps();
+    if (newValue && !_.isEqual(newValue, oldValue)) await processProps();
     loading.value = false;
   }
 );
@@ -175,11 +175,26 @@ watch(showNames, async newValue => {
 
 watch(
   () => _.cloneDeep(eclAsQuery.value),
-  async () => {
-    updateEntity();
-    if (updateValidity && valueVariableMap) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      showValidation.value = true;
+  async (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) {
+      updateEntity();
+      if (updateValidity && valueVariableMap) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
+    }
+  }
+);
+
+watch(
+  () => _.cloneDeep(subsets.value),
+  async (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) {
+      updateEntity();
+      if (updateValidity && valueVariableMap) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
     }
   }
 );
@@ -194,12 +209,11 @@ async function processProps() {
   if (props.value) {
     const definitionAsIMQ: Query = JSON.parse(props.value);
     if (definitionAsIMQ.match && isArrayHasLength(definitionAsIMQ.match)) {
-      if (definitionAsIMQ.match.length === 1) {
-        ecl.value = await EclService.getECLFromQuery(definitionAsIMQ, showNames.value);
-      } else if (definitionAsIMQ.match.length === 2) {
+      if (definitionAsIMQ.match.length <= 2) {
         for (const match of definitionAsIMQ.match) {
           if (isArray(match) && match.some(m => isObjectHasKeys(m, ["is"]))) {
-            subsets.value = match;
+            // subsets.value = match;
+            console.log(match);
           } else {
             ecl.value = await EclService.getECLFromQuery(match, showNames.value);
           }
@@ -249,8 +263,17 @@ function processCodeList(data: SearchResultSummary[]) {
 function updateEntity() {
   if (entityUpdate) {
     const result = {} as any;
-    result[key] = JSON.stringify(eclAsQuery.value);
-    if (!eclAsQuery.value && deleteEntityKey) deleteEntityKey(key);
+    result[key] = [];
+    if (eclAsQuery.value) {
+      result[key] = _.cloneDeep(eclAsQuery.value);
+      if (isArrayHasLength(subsets.value)) {
+        result[key].match.unshift(subsets.value);
+      }
+    } else if (isArrayHasLength(subsets.value)) {
+      result[key] = { match: subsets.value };
+    }
+    result[key] = JSON.stringify(result[key]);
+    if (!eclAsQuery.value && !isArrayHasLength(subsets.value) && deleteEntityKey) deleteEntityKey(key);
     else entityUpdate(result);
   }
 }
@@ -283,6 +306,10 @@ async function dropReceived(event: any) {
   if (data) {
     ecl.value = JSON.parse(data);
   }
+}
+
+function updateSubsets(data: Match[]) {
+  subsets.value = data;
 }
 </script>
 
