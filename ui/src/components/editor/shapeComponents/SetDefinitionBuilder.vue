@@ -266,7 +266,7 @@ function updateEntity() {
     if (eclAsQuery.value) {
       result[key] = _.cloneDeep(eclAsQuery.value);
       if (isArrayHasLength(subsets.value)) {
-        result[key].match.unshift(subsets.value);
+        result[key].match.unshift({ match: subsets.value });
       }
     } else if (isArrayHasLength(subsets.value)) {
       result[key] = { match: subsets.value };
