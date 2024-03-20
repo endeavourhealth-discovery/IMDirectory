@@ -38,21 +38,23 @@
 
 <script setup lang="ts">
 import Filters from "@/components/shared/Filters.vue";
-import { ref, Ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import _ from "lodash";
 import setupSearch from "@/composables/setupSearch";
 
 interface Props {
   searchTerm: string;
-  showFilters: boolean;
+  showFilters?: boolean;
   selectedFilterOptions?: FilterOptions;
   selected?: SearchResultSummary;
 }
+const props = withDefaults(defineProps<Props>(), {
+  showFilters: false
+});
 
-const props = defineProps<Props>();
 const emit = defineEmits({
   "update:searchTerm": _payload => true,
   selectedFiltersUpdated: (_payload: FilterOptions) => true,

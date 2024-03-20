@@ -109,8 +109,8 @@ const includeLegacy = ref(false);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
 const selectedTypes: Ref<TTIriRef[]> = ref([]);
-const selectedSortField: Ref<TTIriRef> = ref({} as TTIriRef);
-const selectedSortDirection: Ref<TTIriRef> = ref({} as TTIriRef);
+const selectedSortField: Ref<TTIriRef | undefined> = ref({} as TTIriRef);
+const selectedSortDirection: Ref<TTIriRef | undefined> = ref({} as TTIriRef);
 
 watch(
   () => includeLegacy.value,
@@ -124,13 +124,10 @@ function init() {
 }
 
 function emitFilterUpdate() {
-  emit("selectedFiltersUpdated", {
-    schemes: selectedSchemes.value,
-    status: selectedStatus.value,
-    types: selectedTypes.value,
-    sortDirections: [selectedSortDirection.value],
-    sortFields: [selectedSortField.value]
-  });
+  const filterOptions = { schemes: selectedSchemes.value, status: selectedStatus.value, types: selectedTypes.value } as FilterOptions;
+  if (selectedSortDirection.value) filterOptions.sortDirections = [selectedSortDirection.value];
+  if (selectedSortField.value) filterOptions.sortFields = [selectedSortField.value];
+  emit("selectedFiltersUpdated", filterOptions);
 }
 
 function resetSortField() {
@@ -179,15 +176,14 @@ function setSelectedOptions(): void {
     if (isArrayHasLength(props.selectedFilterOptions.schemes)) selectedSchemes.value = props.selectedFilterOptions.schemes;
     if (isArrayHasLength(props.selectedFilterOptions.types)) selectedTypes.value = props.selectedFilterOptions.types;
     if (isArrayHasLength(props.selectedFilterOptions.sortFields))
-      selectedSortField.value =
-        storeFilterOptions.value.sortFields.find(
-          item => props.selectedFilterOptions?.sortFields.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-        ) || ({} as TTIriRef);
+      selectedSortField.value = storeFilterOptions.value.sortFields.find(
+        item => props.selectedFilterOptions?.sortFields.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+      );
+
     if (isArrayHasLength(props.selectedFilterOptions.sortDirections))
-      selectedSortDirection.value =
-        storeFilterOptions.value.sortDirections.find(
-          item => props.selectedFilterOptions?.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-        ) || ({} as TTIriRef);
+      selectedSortDirection.value = storeFilterOptions.value.sortDirections.find(
+        item => props.selectedFilterOptions?.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+      );
   } else {
     setDefaults();
   }

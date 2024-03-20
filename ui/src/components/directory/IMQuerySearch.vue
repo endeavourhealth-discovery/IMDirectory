@@ -47,7 +47,7 @@ const emit = defineEmits({
 
 const toast = useToast();
 const imQueryString = ref("");
-const imQuery: Ref<QueryRequest> = ref({} as QueryRequest);
+const imQuery: Ref<QueryRequest | undefined> = ref();
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
 
