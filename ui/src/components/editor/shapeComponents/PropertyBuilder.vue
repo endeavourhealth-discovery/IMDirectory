@@ -5,11 +5,11 @@
       <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
     </div>
     <div class="error-message-container" :class="invalid && showValidation ? 'error-message-container-highlight' : ''">
-      <div class="children-container">
+      <div :class="[hover ? 'children-container-hover' : 'children-container']" @mouseover="mouseover($event, true)" @mouseout="mouseout">
         <table>
           <template v-for="(row, index) in dmProperties" class="property">
-            <tr>
-              <td class="td-50">
+            <tr @mouseover="mouseover($event, row)" @mouseout="mouseout">
+              <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
                 <AutoComplete
                   class="propertyPath"
                   :dropdown="true"
@@ -24,11 +24,10 @@
                   @clear="selectPath(row)"
                   @dragover.prevent
                   @dragenter.prevent
-                  :disabled="row.inherited && row.inherited.length > 0"
                 ></AutoComplete>
                 <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
-              <td class="td-50">
+              <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
                 <AutoComplete
                   class="propertyPath"
                   :dropdown="true"
@@ -43,12 +42,10 @@
                   @clear="selectRange(row)"
                   @dragover.prevent
                   @dragenter.prevent
-                  :disabled="row.inherited && row.inherited.length > 0"
                 ></AutoComplete>
               </td>
-              <td class="td-nw">
-                <tag v-if="row.inherited && row.inherited.length > 0" severity="warning">(Inherited)</tag>
-                <span v-else>
+              <td class="td-nw" :class="[hover === row ? 'table-row-hover' : 'table-row']">
+                <span>
                   <ToggleButton
                     class="toggle-button"
                     v-model="row.required"
@@ -82,10 +79,62 @@
               </td>
             </tr>
           </template>
+          <tr class="buttonGroup">
+            <Button
+              icon="fa-solid fa-plus"
+              label="Add property"
+              :severity="hover ? 'success' : 'secondary'"
+              :outlined="!hover"
+              :class="!hover && 'hover-button'"
+              class="builder-button"
+              @click="addProperty"
+            />
+          </tr>
+          <template v-for="(row, index) in dmPropertiesInherited" class="property">
+            <tr class="children-container" @mouseover="mouseover($event, row)" @mouseout="mouseout">
+              <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
+                <AutoComplete
+                  class="propertyPath"
+                  :dropdown="true"
+                  dropdownMode="current"
+                  optionLabel="name"
+                  placeholder="Select property"
+                  v-model="row.path"
+                  :suggestions="pathSuggestions"
+                  @complete="debounce($event, searchPath, debouncePath)"
+                  @drop="pathDrop(row, $event)"
+                  @itemSelect="selectPath(row, $event)"
+                  @clear="selectPath(row)"
+                  @dragover.prevent
+                  @dragenter.prevent
+                  :disabled="true"
+                ></AutoComplete>
+                <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
+              </td>
+              <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
+                <AutoComplete
+                  class="propertyPath"
+                  :dropdown="true"
+                  dropdownMode="current"
+                  optionLabel="name"
+                  placeholder="Select range"
+                  v-model="row.range"
+                  :suggestions="rangeSuggestions"
+                  @complete="debounce($event, searchRange, debounceRange)"
+                  @drop="rangeDrop(row, $event)"
+                  @itemSelect="selectRange(row, $event)"
+                  @clear="selectRange(row)"
+                  @dragover.prevent
+                  @dragenter.prevent
+                  :disabled="true"
+                ></AutoComplete>
+              </td>
+              <td :class="[hover === row ? 'table-row-hover' : 'table-row']">
+                <tag v-if="row.inherited && row.inherited.length > 0" severity="info">(Inherited)</tag>
+              </td>
+            </tr>
+          </template>
         </table>
-        <div class="buttonGroup">
-          <Button icon="fa-solid fa-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
-        </div>
       </div>
       <span v-if="invalid && showValidation" class="error-message-text">{{ validationErrorMessage }}</span>
     </div>
@@ -104,6 +153,7 @@ import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -154,6 +204,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 });
 
 const dmProperties: Ref<SimpleProp[]> = ref([]);
+const dmPropertiesInherited: Ref<SimpleProp[]> = ref([]);
 const loading = ref(true);
 const pathSuggestions: Ref<TTIriRef[]> = ref([]);
 const rangeSuggestions: Ref<TTIriRef[]> = ref([]);
@@ -175,18 +226,31 @@ onMounted(async () => {
   loading.value = false;
 });
 
+const hover = ref();
+function mouseover(event: Event, row: any) {
+  event.stopPropagation();
+  hover.value = row;
+}
+
+function mouseout(event: Event) {
+  event.stopPropagation();
+  hover.value = false;
+}
+
 function processProps() {
   const newData: any[] = [];
+  const newInheritedData: any[] = [];
   if (props.value && isArrayHasLength(props.value)) {
     for (const p of props.value) {
-      processProperty(newData, p);
+      processProperty(newData, newInheritedData, p);
     }
   }
 
   dmProperties.value = newData;
+  dmPropertiesInherited.value = newInheritedData;
 }
 
-function processProperty(newData: any[], property: any) {
+function processProperty(newData: any[], newInheritedData: any[], property: any) {
   let rangeType;
 
   if (property[SHACL.DATATYPE]) {
@@ -214,8 +278,8 @@ function processProperty(newData: any[], property: any) {
   } else if (!row?.range?.["@id"]) {
     row.error = "Property must have a range";
   }
-
-  newData.push(row);
+  if (property[IM.INHERITED_FROM]) newInheritedData.push(row);
+  else newData.push(row);
 }
 
 function addProperty() {
@@ -281,7 +345,7 @@ async function searchPath(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
   }
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   pathSuggestions.value = ps;
@@ -376,7 +440,7 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
   }
 
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
@@ -465,8 +529,9 @@ async function validateEntity() {
 function updateEntity() {
   if (entityUpdate) {
     const deltas: any[] = [];
-
-    dmProperties.value.forEach((value, index) => {
+    let dmAllProperties = dmProperties.value;
+    for (let p in dmPropertiesInherited.value) dmAllProperties.push(dmPropertiesInherited.value[p]);
+    dmAllProperties.forEach((value, index) => {
       const p: any = {};
       p[IM.ORDER] = index;
       p[SHACL.PATH] = [value.path];
@@ -541,5 +606,58 @@ function updateEntity() {
 
 .required {
   color: var(--red-500);
+}
+
+.children-container {
+  background-color: #781c8110;
+  border: #781c8130 1px solid;
+  border-radius: 5px;
+  padding: 0 0.5rem;
+}
+
+.children-container-hover {
+  background-color: #781c8110;
+  border: #781c81 1px solid;
+  border-radius: 5px;
+  padding: 0 0.5rem;
+}
+
+.hover-button {
+  color: #00000030 !important;
+  border-style: dashed !important;
+}
+
+.table-row {
+  background-color: #781c8110;
+  border: #781c8130 1px;
+  border-style: solid none solid none;
+  padding: 0.5rem;
+}
+
+.table-row-hover {
+  background-color: #781c8110;
+  border: #781c81 1px;
+  border-style: solid none solid none;
+  padding: 0.5rem;
+}
+
+table {
+  border-collapse: inherit;
+  border-spacing: 0px 0.5rem;
+}
+td {
+  border: #781c8130 1px;
+  border-style: solid none solid none;
+  padding: 0.5rem;
+  margin: 0.5rem;
+}
+td:last-child {
+  border-radius: 0 5px 5px 0;
+  border-style: solid solid solid none;
+}
+
+td:first-child {
+  border-radius: 5px 0 0 5px;
+  border-style: solid none solid solid;
 }
 </style>
