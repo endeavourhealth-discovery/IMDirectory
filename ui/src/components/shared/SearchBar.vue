@@ -15,7 +15,7 @@
     </span>
     <SplitButton class="search-button p-button-secondary" @click="onSearch" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
-      v-if="!osQuery && !imQuery"
+      v-if="showFilters"
       v-tooltip.bottom="'Filters'"
       id="filter-button"
       icon="fa-duotone fa-sliders"
@@ -50,8 +50,6 @@ interface Props {
   showFilters: boolean;
   selectedFilterOptions?: FilterOptions;
   selected?: SearchResultSummary;
-  imQuery?: QueryRequest;
-  osQuery?: SearchRequest;
 }
 
 const props = defineProps<Props>();

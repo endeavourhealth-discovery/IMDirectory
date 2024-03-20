@@ -44,7 +44,7 @@
       </div>
     </OverlayPanel>
     <DirectorySearchDialog
-      v-if="showDialog && !isAny && selected?.iri !== 'any'"
+      v-if="showDialog"
       v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
       :imQuery="imQuery"
@@ -93,7 +93,6 @@ const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
 const { searchLoading, searchPlaceholder, search } = setupSearch(props.searchPlaceholder);
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const selectedIndex: Ref<number> = ref(-1);
-const isAny: ComputedRef<boolean> = computed(() => selectedLocal.value?.iri === "any");
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const debounce = ref(0);
 
