@@ -1,7 +1,13 @@
 <template>
   <Panel class="subsets-panel" header="Subsets" toggleable :collapsed="!hasSubSets">
     <div class="subsets-content">
+      <div class="title">
+        <span class="title">Inclusions</span>
+      </div>
       <ArrayBuilder :mode="mode" :shape="inclusionsShape" :value="inclusions" @updateClicked="updateInclusions" />
+      <div class="title">
+        <span>Exclusions</span>
+      </div>
       <ArrayBuilder :mode="mode" :shape="exclusionsShape" :value="exclusions" @updateClicked="updateExclusions" />
     </div>
   </Panel>
@@ -33,7 +39,6 @@ const inclusions: Ref<TTIriRef[]> = ref([]);
 const exclusions: Ref<TTIriRef[]> = ref([]);
 const inclusionsShape: Ref<PropertyShape> = ref({
   name: "Inclusions",
-  showTitle: true,
   minCount: 0,
   builderChild: true,
   componentType: { "@id": COMPONENT.ARRAY_BUILDER },
@@ -55,7 +60,6 @@ const inclusionsShape: Ref<PropertyShape> = ref({
 });
 const exclusionsShape: Ref<PropertyShape> = ref({
   name: "Exclusions",
-  showTitle: true,
   minCount: 0,
   builderChild: true,
   componentType: { "@id": COMPONENT.ARRAY_BUILDER },
@@ -145,7 +149,41 @@ function buildSubsets() {
 </script>
 
 <style scoped>
+.subsets-panel {
+  flex: 0 1 auto;
+  max-height: 50%;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.subsets-panel:deep(.p-toggleable-content) {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.subsets-panel:deep(.p-panel-content) {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.subsets-content {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
 .subsets-content:deep(#autocomplete-search) {
   border: 1px solid var(--surface-border);
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  padding-top: 0.5rem;
 }
 </style>
