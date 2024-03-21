@@ -59,7 +59,6 @@
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-import { CodeGenerator } from "@im-library/codegen/CodeGenerator";
 import { onMounted, Ref, ref, watch } from "vue";
 import entityService from "@/services/EntityService";
 import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
@@ -68,6 +67,7 @@ import { RDFS, SHACL } from "@im-library/vocabulary";
 import _ from "lodash";
 import CodeGenService from "@/services/CodeGenService";
 import codeGenService from "@/services/CodeGenService";
+import { generateCode } from "@im-library/helpers";
 
 const nameInput = ref("");
 const codeInput = ref("");
@@ -77,6 +77,7 @@ const datatypeMapInput: Ref<any> = ref([]);
 const templateDropdownList: Ref<any> = ref([]);
 const selectedDropdownOption = ref("");
 const generatedCode = ref();
+let modelData: any = null;
 
 interface DatatypeMap {
   [key: string]: string;
@@ -174,27 +175,26 @@ async function convert() {
   const arrayTemp = "<template #array>";
   const arrayTempEnd = "</template #array>";
 
-  let header = getTemplate(newString, "header", "", propertyTemp);
-  let array = getTemplate(newString, "array", arrayTemp, arrayTempEnd);
-  let property = getTemplate(newString, "property", propertyTemp, propertyTempEnd)
+  let header = getTemplate(newString, "", propertyTemp);
+  let array = getTemplate(newString, arrayTemp, arrayTempEnd);
+  let property = getTemplate(newString, propertyTemp, propertyTempEnd)
     .replaceAll(arrayTemp, "")
     .replaceAll(arrayTempEnd, "")
     .replaceAll(array, "")
     .replaceAll("\\n", "\n");
-  let footer = getTemplate(newString, "footer", propertyTempEnd, "");
+  let footer = getTemplate(newString, propertyTempEnd, "");
 
-  const entity = await entityService.getPartialEntity("http://endhealth.info/im#Organisation", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
+  if (modelData == null) modelData = await entityService.getPartialEntity("http://endhealth.info/im#Organisation", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
+
   const iri: TTIriRef = {
-    "@id": entity["@id"],
-    name: entity[RDFS.LABEL],
-    description: entity[RDFS.COMMENT]
+    "@id": modelData["@id"],
+    name: modelData[RDFS.LABEL],
+    description: modelData[RDFS.COMMENT]
   };
 
-  const newProperties = await getProperties(entity);
+  const newProperties = await getProperties(modelData);
 
-  const newDatatypeMap = getDatatypeMap();
-
-  generateCode(header, property, array, footer, iri, newProperties, newDatatypeMap);
+  generateCodeWithTemplate(header, property, array, footer, iri, newProperties);
 }
 
 async function saveTemplate() {
@@ -222,7 +222,7 @@ async function loadTemplate(name: string) {
   }
 }
 
-function getTemplate(code: string, templateName: string, patternStart: string, patternEnd: string) {
+function getTemplate(code: string, patternStart: string, patternEnd: string) {
   const search = RegExp(new RegExp(patternStart + "(.*)" + patternEnd)).exec(code);
   if (search && search.length > 1) return search[1].replaceAll("\\n", "\n");
   else return "";
@@ -264,16 +264,8 @@ function getDatatypeMap() {
   return newDatatypeMap;
 }
 
-function generateCode(
-  header: string,
-  property: string,
-  array: string,
-  footer: string,
-  iri: TTIriRef,
-  properties: DataModelProperty[],
-  dataTypeMap: DatatypeMap
-) {
-  const cg: CodeGenerator = new CodeGenerator({
+function generateCodeWithTemplate(header: string, property: string, array: string, footer: string, iri: TTIriRef, properties: DataModelProperty[]) {
+  const template = {
     fileExtension: fileExtensionInput.value,
     header: header,
     property: property,
@@ -281,9 +273,9 @@ function generateCode(
     collectionWrapper: collectionWrapperInput.value,
     footer: footer,
     datatypeMap: datatypeMapInput.value
-  });
+  };
 
-  generatedCode.value = cg.generateCode(iri, properties, "org.endavourhealth.im");
+  generatedCode.value = generateCode(template, iri, properties, "org.endavourhealth.im");
 }
 </script>
 

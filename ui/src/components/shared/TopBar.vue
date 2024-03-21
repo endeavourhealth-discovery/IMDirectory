@@ -40,7 +40,7 @@
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
       />
-      <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
+      <Menu ref="adminMenu" :model="adminItems" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
         icon="fa-regular fa-grid-2"
@@ -98,7 +98,7 @@
 <script setup lang="ts">
 import { computed, ref, Ref, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
+import { DirectService, Env, FilerService, GithubService, UserService, CodeGenService } from "@/services";
 import { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -125,6 +125,7 @@ const { changeScale } = setupChangeScale();
 const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
+const adminItems: Ref<MenuItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 
@@ -139,6 +140,7 @@ const directService = new DirectService();
 onMounted(async () => {
   setUserMenuItems();
   setAppMenuItems();
+  await setAdminMenuItems();
   await getCurrentVersion();
 });
 
@@ -229,8 +231,8 @@ function isLoggedInWithRole(role: string): boolean {
   return isLoggedIn.value && currentUser.value && currentUser.value.roles.includes(role);
 }
 
-function getAdminItems(): any[] {
-  return [
+async function setAdminMenuItems(): Promise<void> {
+  const menu = [
     {
       label: "Filing Documents",
       icon: "fa-duotone fa-files",
@@ -248,19 +250,30 @@ function getAdminItems(): any[] {
           command: () => directService.file()
         }
       ]
-    },
-    {
-      label: "Code Downloads",
-      icon: "fa-duotone fa-code",
-      items: [
-        {
-          label: "Download Java",
-          icon: "fa-brands fa-java",
-          command: () => downloadJava()
-        }
-      ]
     }
   ];
+
+  const templates = await CodeGenService.getCodeTemplateList();
+
+  if (templates && templates.length > 0) {
+    const codeDownload = {
+      label: "Code Downloads",
+      icon: "fa-duotone fa-code",
+      items: [] as any[]
+    };
+
+    for (const t of templates) {
+      codeDownload.items.push({
+        label: "Download " + t,
+        icon: "fa-brands fa-java",
+        command: () => downloadCode(t)
+      });
+    }
+
+    menu.push(codeDownload);
+  }
+
+  adminItems.value = menu;
 }
 
 function getThemes() {
@@ -611,9 +624,9 @@ async function downloadChanges() {
   link.click();
 }
 
-async function downloadJava() {
-  toast.add({ severity: "info", summary: "Preparing download", detail: "Generating Java files for download...", life: 3000 });
-  let blob = await DataModelService.generateJava();
+async function downloadCode(template: string) {
+  toast.add({ severity: "info", summary: "Preparing download", detail: "Generating files for download...", life: 3000 });
+  let blob = await CodeGenService.generateCode(template);
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;

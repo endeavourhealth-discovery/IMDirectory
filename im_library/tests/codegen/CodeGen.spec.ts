@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { CodeGenerator } from "@/codegen/CodeGenerator";
 import { TTIriRef, DataModelProperty } from "@/interfaces/AutoGen";
+import { generateCode } from "@/helpers";
+import { replaceVariants } from "@/helpers/CodeGenerator";
 
 const model: TTIriRef = {
   "@id": "im:GeneralPractitioner",
@@ -22,7 +23,7 @@ const properties: DataModelProperty[] = [
 
 describe("CodeGen", () => {
   it("Converts a model to JAVA pojo code", () => {
-    const cg: CodeGenerator = new CodeGenerator({
+    const template = {
       fileExtension: ".java",
       header:
         "package ${NAMESPACE};\n\nimport java.util.ArrayList;\nimport java.util.List;\n\n/**\n* Represents ${MODEL NAME}\n* ${MODEL COMMENT}\n*/\n\npublic class ${ModelName} {",
@@ -35,15 +36,15 @@ describe("CodeGen", () => {
       datatypeMap: {
         "XSD:String": "String"
       }
-    });
+    };
 
-    const actual = cg.generateCode(model, properties, "org.endeavourhealth.im");
+    const actual = generateCode(template, model, properties, "org.endeavourhealth.im");
 
     console.log(actual);
   });
 
   it("Converts a model to JAVA IM DataModel (health database)", () => {
-    const cg: CodeGenerator = new CodeGenerator({
+    const template = {
       fileExtension: ".java",
       header:
         'package ${NAMESPACE};\n\nimport java.util.ArrayList;\nimport java.util.List;\nimport java.util.UUID;\n\n/**\n* Represents ${MODEL NAME}\n* ${MODEL COMMENT}\n*/\n\npublic class ${ModelName} extends IMDMBase<${ModelName}> {\n    /**\n    * ${MODEL NAME} constructor with identifier\n    */\n    public ${ModelName}(UUID id) {\n        super("${ModelName}", id);\n    }\n    ',
@@ -56,15 +57,15 @@ describe("CodeGen", () => {
       datatypeMap: {
         "XSD:String": "String"
       }
-    });
+    };
 
-    const actual = cg.generateCode(model, properties, "org.endeavourhealth.im");
+    const actual = generateCode(template, model, properties, "org.endeavourhealth.im");
 
     console.log(actual);
   });
 
   it("Converts a model to C#.net class", () => {
-    const cg: CodeGenerator = new CodeGenerator({
+    const template = {
       fileExtension: ".cs",
       header: "namespace ${NAMESPACE};\n{\n    public class ${ModelName}\n    {",
       property: "          public ${DATA TYPE} ${propertyName} { get; set; }\n",
@@ -74,51 +75,39 @@ describe("CodeGen", () => {
       datatypeMap: {
         "XSD:String": "string"
       }
-    });
+    };
 
-    const actual = cg.generateCode(model, properties, "org.endeavourhealth.im");
+    const actual = generateCode(template, model, properties, "org.endeavourhealth.im");
 
     console.log(actual);
   });
 
   it("Tests variants", () => {
-    const cg: CodeGenerator = new CodeGenerator({
-      fileExtension: ".cs",
-      header: "namespace ${NAMESPACE};\n{\n    public class ${ModelName}\n    {",
-      property: "          public ${DATA TYPE} ${propertyName} { get; set; }\n",
-      collectionProperty: "",
-      collectionWrapper: "List<${BASE DATA TYPE}>",
-      footer: "    }\n}",
-      datatypeMap: {
-        "XSD:String": "string"
-      }
-    });
-
     const PROPERTY = "PROPERTY NAME";
     const VALUE = "Medication Statement";
 
-    let actual = cg.replaceVariants("${PROPERTY NAME}", PROPERTY, VALUE);
+    let actual = replaceVariants("${PROPERTY NAME}", PROPERTY, VALUE);
     expect(actual).toEqual("Medication Statement");
 
-    actual = cg.replaceVariants("${PROPERTYNAME}", PROPERTY, VALUE);
+    actual = replaceVariants("${PROPERTYNAME}", PROPERTY, VALUE);
     expect(actual).toEqual("MedicationStatement");
 
-    actual = cg.replaceVariants("${property name}", PROPERTY, VALUE);
+    actual = replaceVariants("${property name}", PROPERTY, VALUE);
     expect(actual).toEqual("medication statement");
 
-    actual = cg.replaceVariants("${propertyname}", PROPERTY, VALUE);
+    actual = replaceVariants("${propertyname}", PROPERTY, VALUE);
     expect(actual).toEqual("medicationstatement");
 
-    actual = cg.replaceVariants("${property Name}", PROPERTY, VALUE);
+    actual = replaceVariants("${property Name}", PROPERTY, VALUE);
     expect(actual).toEqual("medication Statement");
 
-    actual = cg.replaceVariants("${propertyName}", PROPERTY, VALUE);
+    actual = replaceVariants("${propertyName}", PROPERTY, VALUE);
     expect(actual).toEqual("medicationStatement");
 
-    actual = cg.replaceVariants("${Property Name}", PROPERTY, VALUE);
+    actual = replaceVariants("${Property Name}", PROPERTY, VALUE);
     expect(actual).toEqual("Medication Statement");
 
-    actual = cg.replaceVariants("${PropertyName}", PROPERTY, VALUE);
+    actual = replaceVariants("${PropertyName}", PROPERTY, VALUE);
     expect(actual).toEqual("MedicationStatement");
   });
 });

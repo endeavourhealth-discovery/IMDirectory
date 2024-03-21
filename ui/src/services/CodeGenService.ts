@@ -3,17 +3,25 @@ import axios from "axios";
 
 const CodeGenService = {
   async getCodeTemplateList(): Promise<any[]> {
-    return await axios.get(Env.API + "api/codeGen/codeTemplates");
+    return await axios.get(Env.API + "api/codeGen/public/codeTemplates");
   },
   async getCodeTemplate(name: string): Promise<any> {
-    return await axios.get(Env.API + "api/codeGen/codeTemplate", {
+    return await axios.get(Env.API + "api/codeGen/public/codeTemplate", {
       params: {
         templateName: name
       }
     });
   },
   async updateCodeTemplate(template: any): Promise<string> {
-    return await axios.post(Env.API + "api/codeGen/codeTemplate", template);
+    return await axios.post(Env.API + "api/codeGen/public/codeTemplate", template);
+  },
+  async generateCode(template: string): Promise<any> {
+    return axios.get(Env.VITE_NODE_API + "node_api/codeGen/public/generateCode", {
+      params: {
+        template
+      },
+      responseType: "blob"
+    });
   }
 };
 
