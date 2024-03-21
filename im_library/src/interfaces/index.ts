@@ -53,6 +53,7 @@ import { Workflow } from "./Workflow";
 import { BugReport } from "./BugReport";
 import { QueryResponse } from "./QueryResponse";
 import { SetDiffObject } from "./SetDiffObject";
+import { CodeTemplate } from "./CodeTemplate";
 
 export {
   type Address,
@@ -109,5 +110,6 @@ export {
   type Workflow,
   type BugReport,
   type QueryResponse,
-  type SetDiffObject
+  type SetDiffObject,
+  type CodeTemplate
 };

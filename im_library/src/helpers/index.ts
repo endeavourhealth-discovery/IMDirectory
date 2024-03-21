@@ -23,6 +23,7 @@ import { timeNow } from "./Datetime/TimeNow";
 import { timeNow12Hr } from "./Datetime/TimeNow12Hr";
 import { getKey, getParentNode } from "./TreeHelper";
 import { deferred } from "./Deferred";
+import { generateCode } from "./CodeGenerator";
 
 export {
   ChartRescale,
@@ -50,5 +51,6 @@ export {
   timeNow12Hr,
   getKey,
   getParentNode,
-  deferred
+  deferred,
+  generateCode,
 };
