@@ -44,6 +44,7 @@ export class IM {
   public static readonly MAP_GRAPH = IM.NAMESPACE + "GraphMap";
   public static readonly MAP_ENTITY = IM.NAMESPACE + "EntityMap";
   public static readonly SET = IM.NAMESPACE + "Set";
+  public static readonly ANY = IM.NAMESPACE + "Any";
   public static readonly IS_CONTAINED_IN = IM.NAMESPACE + "isContainedIn";
   public static readonly ONE_OF = IM.NAMESPACE + "oneOf";
   public static readonly COMBINATION_OF = IM.NAMESPACE + "combinationOf";

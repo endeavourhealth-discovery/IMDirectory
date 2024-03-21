@@ -262,7 +262,7 @@ async function updateRanges() {
 async function getPropertyTreeRoots(): Promise<string[]> {
   let roots = ["http://snomed.info/sct#410662002"];
   if (props.focus) {
-    if (isAliasIriRef(props.focus) && props.focus.iri !== "any") {
+    if (isAliasIriRef(props.focus) && props.focus.iri !== IM.ANY) {
       const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
       if (results) roots = results.result.map(item => item["@id"]);
     } else if (isBoolGroup(props.focus)) {
@@ -275,7 +275,7 @@ async function getPropertyTreeRoots(): Promise<string[]> {
 
 async function getValueTreeRoots(): Promise<string[]> {
   let roots = ["http://snomed.info/sct#138875005"];
-  if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== "any") {
+  if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== IM.ANY) {
     const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
     if (results) roots = results.result.map(item => item["@id"]);
   }
@@ -283,7 +283,7 @@ async function getValueTreeRoots(): Promise<string[]> {
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus?.iri === "any" || props.focus?.iri === "*") isValidProperty.value = true;
+  if (props.focus?.iri === IM.ANY) isValidProperty.value = true;
   else if (props.focus && hasProperty.value) {
     const request: FunctionRequest = {
       functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES,
