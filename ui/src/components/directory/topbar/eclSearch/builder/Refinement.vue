@@ -31,6 +31,7 @@
       v-model:selected="selectedProperty"
       :imQuery="imQueryForPropertySearch"
       :root-entities="propertyTreeRoots"
+      @open-dialog="updatePropertyTreeRoots"
     />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
@@ -57,6 +58,7 @@
       v-model:selected="selectedValue"
       :osQuery="osQueryForValueSearch"
       :root-entities="valueTreeRoots"
+      @open-dialog="updateValueTreeRoots"
     />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
   </div>
@@ -106,8 +108,8 @@ const loadingProperty = ref(true);
 const loadingValue = ref(true);
 const isValidProperty = ref(false);
 const isValidPropertyValue = ref(false);
-const propertyTreeRoots: Ref<string[]> = ref([]);
-const valueTreeRoots: Ref<string[]> = ref([]);
+const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"]);
+const valueTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#138875005"]);
 const operatorOptions = ["=", "!="];
 const descendantOptions = [
   { label: " ", value: "" },
@@ -213,7 +215,6 @@ watch(selectedValue, async (newValue, oldValue) => {
 watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concept)], async () => {
   loadingProperty.value = true;
   updateQueryForPropertySearch();
-  propertyTreeRoots.value = await getPropertyTreeRoots();
   loadingProperty.value = false;
 });
 
@@ -266,30 +267,29 @@ async function updateRanges() {
         propertyRanges.value.add(range["@id"]);
       }
   }
-  valueTreeRoots.value = await getValueTreeRoots();
 }
 
-async function getPropertyTreeRoots(): Promise<string[]> {
+async function updatePropertyTreeRoots(): Promise<void> {
   let roots = ["http://snomed.info/sct#410662002"];
-  // if (props.focus) {
-  //   if (isAliasIriRef(props.focus) && props.focus.iri !== IM.ANY) {
-  //     const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
-  //     if (results) roots = results.result.map(item => item["@id"]);
-  //   } else if (isBoolGroup(props.focus)) {
-  //     const results = await EntityService.getSuperiorPropertiesBoolFocusPaged(props.focus);
-  //     if (results) roots = results.result.map(item => item["@id"]);
-  //   }
-  // }
-  return roots;
+  if (props.focus) {
+    if (isAliasIriRef(props.focus) && props.focus.iri !== IM.ANY) {
+      const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
+      if (results) roots = results.result.map(item => item["@id"]);
+    } else if (isBoolGroup(props.focus)) {
+      const results = await EntityService.getSuperiorPropertiesBoolFocusPaged(props.focus);
+      if (results) roots = results.result.map(item => item["@id"]);
+    }
+  }
+  propertyTreeRoots.value = roots;
 }
 
-async function getValueTreeRoots(): Promise<string[]> {
+async function updateValueTreeRoots(): Promise<void> {
   let roots = ["http://snomed.info/sct#138875005"];
-  // if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== IM.ANY) {
-  //   const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
-  //   if (results) roots = results.result.map(item => item["@id"]);
-  // }
-  return roots;
+  if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== IM.ANY) {
+    const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
+    if (results) roots = results.result.map(item => item["@id"]);
+  }
+  valueTreeRoots.value = roots;
 }
 
 async function updateIsValidProperty(): Promise<void> {

@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, ref, Ref, watch, onMounted } from "vue";
+import { ref, Ref, watch, onMounted } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@im-library/interfaces";
@@ -82,7 +82,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[] });
 
 const emit = defineEmits({
-  "update:selected": _payload => true
+  "update:selected": _payload => true,
+  openDialog: () => true
 });
 
 const resultsOP = ref();
@@ -95,6 +96,10 @@ const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText,
 const selectedIndex: Ref<number> = ref(-1);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const debounce = ref(0);
+
+watch(showDialog, () => {
+  if (showDialog.value) emit("openDialog");
+});
 
 watch(
   () => _.cloneDeep(props.selected),
