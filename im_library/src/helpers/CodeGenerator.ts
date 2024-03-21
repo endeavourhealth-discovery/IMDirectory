@@ -2,29 +2,61 @@ import { CodeTemplate } from "../interfaces/CodeTemplate";
 import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
 
 export function generateCode(template: CodeTemplate, model: TTIriRef, properties: DataModelProperty[], namespace: string): string {
-
-
   const result: string[] = [];
 
-  result.push(replaceClassTokens(template, namespace, model));
+  const split = splitTemplate(template.template);
+
+  result.push(replaceClassTokens(template, split.header, namespace, model));
 
   for (const prop of properties) {
-    result.push(replacePropertyTokens(template, namespace, model, prop));
+    result.push(replacePropertyTokens(template, split.property, split.collectionProperty, namespace, model, prop));
   }
 
-  result.push(template.footer);
+  result.push(split.footer);
   return result.join("");
 }
 
-function replaceClassTokens(template: CodeTemplate, namespace: string, model: TTIriRef): string {
-  return replaceTokens(template, template.header, namespace, model);
+function splitTemplate(template: string) {
+  // Get marker positions
+  const propertyTemp = "<template #property>";
+  const propertyTempEnd = "</template #property>";
+  const arrayTemp = "<template #array>";
+  const arrayTempEnd = "</template #array>";
+
+  const ps = { s: template.indexOf(propertyTemp), l: propertyTemp.length };
+  const pe = { s: template.indexOf(propertyTempEnd), l: propertyTempEnd.length };
+  const as = { s: template.indexOf(arrayTemp), l: arrayTemp.length };
+  const ae = { s: template.indexOf(arrayTempEnd), l: arrayTempEnd.length };
+
+  const header = template.substring(0, ps.s);
+  const footer = template.substring(pe.s + pe.l);
+  const property = template.substring(ps.s + ps.l, as.s > 0 ? as.s : pe.s);
+  const array = as.s > 0 ? template.substring(as.s + as.l, ae.s) : "";
+
+  return {
+    header: header,
+    footer: footer,
+    property: property,
+    collectionProperty: array
+  };
 }
 
-function replacePropertyTokens(template: CodeTemplate, namespace: string, model: TTIriRef, prop: DataModelProperty): string {
+function replaceClassTokens(template: CodeTemplate, header: string, namespace: string, model: TTIriRef): string {
+  return replaceTokens(template, header, namespace, model);
+}
+
+function replacePropertyTokens(
+  template: CodeTemplate,
+  property: string,
+  collectionProperty: string,
+  namespace: string,
+  model: TTIriRef,
+  prop: DataModelProperty
+): string {
   const isArray = !prop.maxExclusive;
 
-  let t = template.property;
-  if (isArray) t += template.collectionProperty;
+  let t = property;
+  if (isArray) t += collectionProperty;
 
   return replaceTokens(template, t, namespace, model, prop);
 }
@@ -40,12 +72,22 @@ function replaceTokens(template: CodeTemplate, subTemplate: string, namespace: s
 
   if (prop && prop.property && prop.property.name && prop.type && prop.type) {
     const isArray = !prop.maxExclusive;
-    const basePropertyType = getDataType(template.datatypeMap, prop.type);
-    const propertyType =
-      isArray && template.collectionWrapper ? replaceVariants(template.collectionWrapper, "BASE DATA TYPE", basePropertyType) : basePropertyType;
 
-    result = replaceVariants(result, "BASE DATA TYPE", basePropertyType);
-    result = replaceVariants(result, "DATA TYPE", propertyType);
+    if (!template.datatypeMap[prop.type["@id"]] && prop.type.name) {
+      const basePropertyType = prop.type.name;
+      const propertyType =
+        isArray && template.collectionWrapper ? replaceVariants(template.collectionWrapper, "BASE DATA TYPE", basePropertyType) : basePropertyType;
+
+      result = replaceVariants(result, "BASE DATA TYPE", basePropertyType);
+      result = replaceVariants(result, "DATA TYPE", propertyType);
+    } else {
+      const basePropertyType = template.datatypeMap[prop.type["@id"]] ?? "!!UNKNOWN!!";
+      const propertyType =
+        isArray && template.collectionWrapper ? replaceAll(template.collectionWrapper, "BASE DATA TYPE", basePropertyType) : basePropertyType;
+
+      result = replaceAll(result, "BASE DATA TYPE", basePropertyType);
+      result = replaceAll(result, "DATA TYPE", propertyType);
+    }
     result = replaceVariants(result, "PROPERTY NAME", prop.property.name);
   }
 
@@ -64,8 +106,16 @@ export function replaceVariants(template: string, name: string, value: string) {
     .replaceAll("${" + codify(toTitleCase(name)) + "}", codify(toTitleCase(value)));
 }
 
-function getDataType(datatypeMap: any, iri: TTIriRef): string {
-  return datatypeMap[iri["@id"]] ?? iri.name ?? "!!UNKNOWN!!"; // TODO!!!
+export function replaceAll(template: string, name: string, value: string) {
+  return template
+    .replaceAll("${" + name + "}", value)
+    .replaceAll("${" + codify(name) + "}", value)
+    .replaceAll("${" + name.toLowerCase() + "}", value)
+    .replaceAll("${" + codify(name.toLowerCase()) + "}", value)
+    .replaceAll("${" + toCamelCase(name) + "}", value)
+    .replaceAll("${" + codify(toCamelCase(name)) + "}", value)
+    .replaceAll("${" + toTitleCase(name) + "}", value)
+    .replaceAll("${" + codify(toTitleCase(name)) + "}", value);
 }
 
 export function codify(name: string): string {

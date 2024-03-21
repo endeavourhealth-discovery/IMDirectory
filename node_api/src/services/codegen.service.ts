@@ -16,7 +16,7 @@ export default class CodeGenService {
     this.entityService = new EntityService(axios);
   }
 
-  public async generateCode(template: string) {
+  public async generateCode(template: string, namespace: string) {
     const models: TTIriRef[] = [];
 
     const templateData = await this.loadTemplate(template);
@@ -27,7 +27,7 @@ export default class CodeGenService {
 
     for (const model of models) {
       const properties = await this.entityService.getDataModelProperties(model["@id"]);
-      const code = generateCode(templateData, model, properties, "");
+      const code = generateCode(templateData, model, properties, namespace);
       zip.addFile(codify(model.name!) + templateData.fileExtension, Buffer.from(code));
     }
 
@@ -44,44 +44,23 @@ export default class CodeGenService {
 
     for (const child of children) {
       if (!models.some(m => m["@id"] == child["@id"])) {
-        // models.push(child);
         await this.getChildrenRecursive(models, child["@id"]);
       }
     }
   }
 
   public async loadTemplate(template: string): Promise<CodeTemplate> {
-    const templateData: { name: string; extension: string; collectionWrapper: string; datatypeMap: any; template: string } = (
+    const templateData: any = (
       await this.axios.get(Env.API + "api/codeGen/public/codeTemplate", {
         params: { templateName: template }
       })
     ).data;
 
-    // Get marker positions
-    const propertyTemp = "<template #property>";
-    const propertyTempEnd = "</template #property>";
-    const arrayTemp = "<template #array>";
-    const arrayTempEnd = "</template #array>";
-
-    const t = templateData.template;
-    const ps = { s: t.indexOf(propertyTemp), l: propertyTemp.length };
-    const pe = { s: t.indexOf(propertyTempEnd), l: propertyTempEnd.length };
-    const as = { s: t.indexOf(arrayTemp), l: arrayTemp.length };
-    const ae = { s: t.indexOf(arrayTempEnd), l: arrayTempEnd.length };
-
-    const header = t.substring(0, ps.s);
-    const footer = t.substring(pe.s + pe.l);
-    const property = t.substring(ps.s + ps.l, as.s > 0 ? as.s : pe.s);
-    const array = as.s > 0 ? t.substring(as.s + as.l, ae.s) : "";
-
     return {
+      template: templateData.template,
       fileExtension: templateData.extension,
       collectionWrapper: templateData.collectionWrapper,
-      datatypeMap: templateData.datatypeMap,
-      header: header,
-      footer: footer,
-      property: property,
-      collectionProperty: array
-    } as CodeTemplate;
+      datatypeMap: templateData.datatypeMap
+    };
   }
 }

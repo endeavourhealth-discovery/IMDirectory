@@ -92,6 +92,20 @@
         </template>
       </Menu>
     </div>
+    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false">
+      <div class="flex flex-column gap-2">
+        <label for="template">Template</label>
+        <Dropdown id="template" v-model="template" :options="templates" />
+      </div>
+      <div class="flex flex-column gap-2">
+        <label for="namespace">Namespace/Package</label>
+        <InputText id="namespace" type="text" v-model="namespace" autofocus />
+      </div>
+      <template #footer>
+        <Button label="Cancel" icon="fa-regular fa-xmark" @click="showCodeDownload = false" class="p-button-text" />
+        <Button label="Download" icon="fa-duotone fa-display-code" :disabled="!template" @click="generateAndDownload" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -122,6 +136,10 @@ const currentScale = computed(() => userStore.currentScale);
 const { changeTheme } = setupChangeTheme();
 const { changeScale } = setupChangeScale();
 
+const showCodeDownload = ref(false);
+const namespace = ref();
+const templates: Ref<string[]> = ref([]);
+const template = ref();
 const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
@@ -232,7 +250,7 @@ function isLoggedInWithRole(role: string): boolean {
 }
 
 async function setAdminMenuItems(): Promise<void> {
-  const menu = [
+  adminItems.value = [
     {
       label: "Filing Documents",
       icon: "fa-duotone fa-files",
@@ -248,32 +266,15 @@ async function setAdminMenuItems(): Promise<void> {
           icon: "fa-duotone fa-file-arrow-up",
           disabled: !(isLoggedInWithRole("create") || isLoggedInWithRole("edit")),
           command: () => directService.file()
+        },
+        {
+          label: "Download Code",
+          icon: "fa-duotone fa-display-code",
+          command: () => downloadCode()
         }
       ]
     }
   ];
-
-  const templates = await CodeGenService.getCodeTemplateList();
-
-  if (templates && templates.length > 0) {
-    const codeDownload = {
-      label: "Code Downloads",
-      icon: "fa-duotone fa-code",
-      items: [] as any[]
-    };
-
-    for (const t of templates) {
-      codeDownload.items.push({
-        label: "Download " + t,
-        icon: "fa-brands fa-java",
-        command: () => downloadCode(t)
-      });
-    }
-
-    menu.push(codeDownload);
-  }
-
-  adminItems.value = menu;
 }
 
 function getThemes() {
@@ -624,9 +625,15 @@ async function downloadChanges() {
   link.click();
 }
 
-async function downloadCode(template: string) {
+async function downloadCode() {
+  templates.value = await CodeGenService.getCodeTemplateList();
+  showCodeDownload.value = true;
+}
+
+async function generateAndDownload() {
+  showCodeDownload.value = false;
   toast.add({ severity: "info", summary: "Preparing download", detail: "Generating files for download...", life: 3000 });
-  let blob = await CodeGenService.generateCode(template);
+  let blob = await CodeGenService.generateCode(namespace.value, template.value);
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;

@@ -22,8 +22,8 @@ export default class CodeGenController {
   }
 
   async generateCode(req: Request) {
-    if (!req.query.template) throw new Error("Both template iri and root model/folder iri required to generate code");
+    if (!req.query.template) throw new Error("A template is required to generate code");
 
-    return await this.codeGenService.generateCode(req.query.template as string);
+    return await this.codeGenService.generateCode(req.query.template as string, req.query.namespace as string);
   }
 }

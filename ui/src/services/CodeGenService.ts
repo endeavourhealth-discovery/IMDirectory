@@ -15,10 +15,11 @@ const CodeGenService = {
   async updateCodeTemplate(template: any): Promise<string> {
     return await axios.post(Env.API + "api/codeGen/public/codeTemplate", template);
   },
-  async generateCode(template: string): Promise<any> {
+  async generateCode(namespace: string, template: string): Promise<any> {
     return axios.get(Env.VITE_NODE_API + "node_api/codeGen/public/generateCode", {
       params: {
-        template
+        template,
+        namespace
       },
       responseType: "blob"
     });

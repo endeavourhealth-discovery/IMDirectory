@@ -9,6 +9,17 @@
     </TopBar>
     <div class="main-container">
       <div class="half-width">
+        <div class="title-bar">
+          <span>Template</span>
+          <div class="button-group">
+            <div>
+              <InputText placeholder="Template name" v-model="nameInput"></InputText>
+              <Button type="button" icon="fa-solid fa-chevron-down" @click="toggleLoad" aria-haspopup="true" aria-controls="overlay_menu" />
+            </div>
+            <Menu ref="templateMenu" id="overlay_menu" :model="templateDropdownList" :popup="true" />
+            <Button :disabled="!nameInput.length" class="save-button" label="Save template" @click="saveTemplate" />
+          </div>
+        </div>
         <div>
           <div class="title-bar">
             <span>File extension</span>
@@ -36,11 +47,8 @@
           </DataTable>
         </div>
         <div class="text-area-group">
-          <div class="title-bar button-group">
-            <span>Code Template</span>
-            <Dropdown class="dropdown" v-model="selectedDropdownOption" :options="templateDropdownList" />
-            <InputText placeholder="Template name" v-model="nameInput"></InputText>
-            <Button :disabled="!nameInput.length" class="save-button" label="Save template" @click="saveTemplate" />
+          <div class="title-bar">
+            <span>Code template</span>
           </div>
           <Textarea class="text-area" v-model="codeInput" @drop.prevent />
         </div>
@@ -50,7 +58,7 @@
           <div class="title-bar">
             <span>Generated Code</span>
           </div>
-          <Textarea disabled class="text-area" v-model="generatedCode" @drop.prevent />
+          <Textarea disabled class="text-area" v-model="generatedCode" @drop.prevent spellcheck="false" />
         </div>
       </div>
     </div>
@@ -66,8 +74,11 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { RDFS, SHACL } from "@im-library/vocabulary";
 import _ from "lodash";
 import CodeGenService from "@/services/CodeGenService";
-import codeGenService from "@/services/CodeGenService";
 import { generateCode } from "@im-library/helpers";
+import { CodeTemplate } from "@im-library/interfaces";
+import { useToast } from "primevue/usetoast";
+
+const toast = useToast();
 
 const nameInput = ref("");
 const codeInput = ref("");
@@ -75,13 +86,9 @@ const fileExtensionInput = ref("");
 const collectionWrapperInput = ref("");
 const datatypeMapInput: Ref<any> = ref([]);
 const templateDropdownList: Ref<any> = ref([]);
-const selectedDropdownOption = ref("");
 const generatedCode = ref();
+const templateMenu = ref();
 let modelData: any = null;
-
-interface DatatypeMap {
-  [key: string]: string;
-}
 
 onMounted(async () => {
   await init();
@@ -89,11 +96,6 @@ onMounted(async () => {
 
 watch([codeInput, collectionWrapperInput, nameInput], () => {
   convert();
-});
-watch([selectedDropdownOption], () => {
-  if (selectedDropdownOption.value) {
-    loadTemplate(selectedDropdownOption.value);
-  }
 });
 
 watch(
@@ -112,13 +114,25 @@ watch(
 );
 
 async function init() {
+  await getTemplateList();
   await setDefaultTemplate();
-  templateDropdownList.value = await codeGenService.getCodeTemplateList();
+}
+
+async function getTemplateList() {
+  templateDropdownList.value = (await CodeGenService.getCodeTemplateList()).map(i => {
+    return {
+      label: i,
+      command: () => loadTemplate(i)
+    };
+  });
 }
 
 async function setDefaultTemplate() {
-  fileExtensionInput.value = ".java";
-  codeInput.value = `package $\{NAMESPACE};
+  if (templateDropdownList.value.length > 0) {
+    await loadTemplate(templateDropdownList.value[0].label);
+  } else {
+    fileExtensionInput.value = ".java";
+    codeInput.value = `package $\{NAMESPACE};
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -162,28 +176,13 @@ public class $\{ModelName} {
  </template #array>
 </template #property>
 }`;
-  collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
-  datatypeMapInput.value = [{ code: "http://www.w3.org/2001/XMLSchema#string", replace: "String" }];
-  nameInput.value = "java";
+    collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
+    datatypeMapInput.value = [{ code: "http://www.w3.org/2001/XMLSchema#string", replace: "String" }];
+    nameInput.value = "java";
+  }
   await convert();
 }
 async function convert() {
-  const newString = codeInput.value.replaceAll("\n", "\\n").replaceAll("\\n<", "<").replaceAll(">\\n", ">");
-
-  const propertyTemp = "<template #property>";
-  const propertyTempEnd = "</template #property>";
-  const arrayTemp = "<template #array>";
-  const arrayTempEnd = "</template #array>";
-
-  let header = getTemplate(newString, "", propertyTemp);
-  let array = getTemplate(newString, arrayTemp, arrayTempEnd);
-  let property = getTemplate(newString, propertyTemp, propertyTempEnd)
-    .replaceAll(arrayTemp, "")
-    .replaceAll(arrayTempEnd, "")
-    .replaceAll(array, "")
-    .replaceAll("\\n", "\n");
-  let footer = getTemplate(newString, propertyTempEnd, "");
-
   if (modelData == null) modelData = await entityService.getPartialEntity("http://endhealth.info/im#Organisation", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
 
   const iri: TTIriRef = {
@@ -194,7 +193,7 @@ async function convert() {
 
   const newProperties = await getProperties(modelData);
 
-  generateCodeWithTemplate(header, property, array, footer, iri, newProperties);
+  generateCodeWithTemplate(codeInput.value, iri, newProperties);
 }
 
 async function saveTemplate() {
@@ -206,26 +205,29 @@ async function saveTemplate() {
     template: codeInput.value
   };
   await CodeGenService.updateCodeTemplate(template);
-  templateDropdownList.value = await codeGenService.getCodeTemplateList();
-  selectedDropdownOption.value = nameInput.value;
+  toast.add({
+    severity: "success",
+    summary: "Template saved",
+    detail: "Successfully saved template " + template.name,
+    life: 3000
+  });
+  await getTemplateList();
+}
+
+function toggleLoad(event: any) {
+  templateMenu.value.toggle(event);
 }
 
 async function loadTemplate(name: string) {
   let newTemplate;
   if (name) {
-    newTemplate = await codeGenService.getCodeTemplate(selectedDropdownOption.value);
+    newTemplate = await CodeGenService.getCodeTemplate(name);
     nameInput.value = newTemplate.name ? newTemplate.name : "";
     codeInput.value = newTemplate.template ? newTemplate.template : "";
     fileExtensionInput.value = newTemplate.extension ? newTemplate.extension : "";
     collectionWrapperInput.value = newTemplate.collectionWrapper ? newTemplate.collectionWrapper : "";
     datatypeMapInput.value = newTemplate.datatypeMap ? JSON.parse(newTemplate.datatypeMap) : [{ code: "", replace: "" }];
   }
-}
-
-function getTemplate(code: string, patternStart: string, patternEnd: string) {
-  const search = RegExp(new RegExp(patternStart + "(.*)" + patternEnd)).exec(code);
-  if (search && search.length > 1) return search[1].replaceAll("\\n", "\n");
-  else return "";
 }
 
 async function getProperties(entity: any) {
@@ -251,31 +253,18 @@ async function getProperties(entity: any) {
   return newProperties;
 }
 
-function getDatatypeMap() {
-  let newDatatypeMap: DatatypeMap = {};
-  for (let datatype in datatypeMapInput.value) {
-    if (datatypeMapInput.value[datatype].code !== "" && datatypeMapInput.value[datatype].replace !== "") {
-      let index = datatypeMapInput.value[datatype].code;
-      newDatatypeMap[index] = datatypeMapInput.value[datatype].replace;
-    } else if (datatypeMapInput.value[datatype].code !== "" || datatypeMapInput.value[datatype].replace !== "") {
-      delete newDatatypeMap[datatype];
-    }
-  }
-  return newDatatypeMap;
-}
+function generateCodeWithTemplate(template: string, iri: TTIriRef, properties: DataModelProperty[]) {
+  const map: any = {};
+  datatypeMapInput.value.forEach((m: any) => (map[m.code] = m.replace));
 
-function generateCodeWithTemplate(header: string, property: string, array: string, footer: string, iri: TTIriRef, properties: DataModelProperty[]) {
-  const template = {
+  const codeTemplate: CodeTemplate = {
     fileExtension: fileExtensionInput.value,
-    header: header,
-    property: property,
-    collectionProperty: array,
     collectionWrapper: collectionWrapperInput.value,
-    footer: footer,
-    datatypeMap: datatypeMapInput.value
+    template: template,
+    datatypeMap: map
   };
 
-  generatedCode.value = generateCode(template, iri, properties, "org.endavourhealth.im");
+  generatedCode.value = generateCode(codeTemplate, iri, properties, "org.endavourhealth.im");
 }
 </script>
 
@@ -348,11 +337,6 @@ function generateCodeWithTemplate(header: string, property: string, array: strin
 
 .input-text-table {
   width: 100%;
-}
-
-.dropdown {
-  width: 20%;
-  margin-left: 1rem;
 }
 
 .button-group {
