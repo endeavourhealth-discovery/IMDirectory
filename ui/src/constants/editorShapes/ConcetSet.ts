@@ -179,53 +179,6 @@ const ConceptSetShape: FormGenerator = {
               ]
             },
             {
-              label: "Subset of array builder",
-              name: "Subset of",
-              showTitle: true,
-              order: 7,
-              minCount: 0,
-              componentType: {
-                "@id": COMPONENT.ARRAY_BUILDER
-              },
-              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
-              validation: {
-                "@id": VALIDATION.HAS_PARENT
-              },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubsetOf' or 'isContainedIn'.",
-              path: {
-                "@id": IM.IS_SUBSET_OF
-              },
-              valueVariable: "subsetOf",
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  name: "Entity",
-                  order: 1,
-                  minCount: 0,
-                  builderChild: true,
-                  componentType: {
-                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
-                  },
-                  path: {
-                    "@id": IM.IS_SUBSET_OF
-                  },
-                  select: [
-                    {
-                      "@id": QUERY.SEARCH_SUBCLASS
-                    }
-                  ],
-                  argument: [
-                    {
-                      valueIri: {
-                        "@id": IM.CONCEPT_SET
-                      },
-                      parameter: "value"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
               label: "Contained in array builder",
               name: "Contained in",
               showTitle: true,
@@ -250,7 +203,7 @@ const ConceptSetShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                    "@id": COMPONENT.ENTITY_SEARCH
                   },
                   select: [
                     {

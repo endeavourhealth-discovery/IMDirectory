@@ -177,8 +177,9 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
 function updateEntity() {
   const result = {} as any;
   result[key.value] = convertToTTIriRef(selectedResult.value);
-  if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
-  else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
+  if (!result[key.value] && deleteEntityKey) {
+    deleteEntityKey(key.value);
+  } else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }
 
 function updateValueVariableMap(data: TTIriRef | undefined) {

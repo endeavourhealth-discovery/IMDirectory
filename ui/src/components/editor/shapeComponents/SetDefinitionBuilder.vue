@@ -69,12 +69,13 @@ import { EditorMode } from "@im-library/enums";
 import { EclService } from "@/services";
 import _, { isArray } from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { Match, PropertyShape, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, PropertyShape, Query, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
+import { IM } from "@im-library/vocabulary";
 
 interface Props {
   shape: PropertyShape;
@@ -91,7 +92,7 @@ const importMenu = ref();
 const ecl: Ref<string> = ref("");
 // const eclNoNames = ref("");
 const eclAsQuery: Ref<Match[] | Match | undefined> = ref();
-const subsets: Ref<Match[] | undefined> = ref();
+const subsets: Ref<TTIriRef[] | undefined> = ref();
 const showDialog = ref(false);
 const showAddByCodeListDialog = ref(false);
 const showAddByFileDialog = ref(false);
@@ -155,6 +156,15 @@ watch(
   }
 );
 
+watch(
+  () => editorEntity?.value,
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) {
+      processSubsets();
+    }
+  }
+);
+
 const debounceTimer = ref(0);
 watch(ecl, async newValue => {
   clearTimeout(debounceTimer.value);
@@ -169,6 +179,7 @@ watch(showNames, async newValue => {
   if (props.value) {
     loading.value = true;
     await processProps();
+    processSubsets();
     loading.value = false;
   }
 });
@@ -207,20 +218,13 @@ onMounted(async () => {
 
 async function processProps() {
   if (props.value) {
-    const definitionAsIMQ: Query = JSON.parse(props.value);
-    if (definitionAsIMQ.match && isArrayHasLength(definitionAsIMQ.match)) {
-      if (definitionAsIMQ.match.length <= 2) {
-        for (const match of definitionAsIMQ.match) {
-          if (isArray(match) && match.some(m => isObjectHasKeys(m, ["is"]))) {
-            subsets.value = match;
-          } else {
-            ecl.value = await EclService.getECLFromQuery(match, showNames.value);
-          }
-        }
-      } else {
-        throw new Error("Definition contains >2 matches at top level");
-      }
-    }
+    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
+  }
+}
+
+function processSubsets() {
+  if (editorEntity?.value[IM.IS_SUBSET_OF]) {
+    subsets.value = _.cloneDeep(editorEntity.value[IM.IS_SUBSET_OF]);
   }
 }
 
@@ -262,18 +266,15 @@ function processCodeList(data: SearchResultSummary[]) {
 function updateEntity() {
   if (entityUpdate) {
     const result = {} as any;
-    result[key] = [];
     if (eclAsQuery.value) {
-      result[key] = _.cloneDeep(eclAsQuery.value);
-      if (isArrayHasLength(subsets.value)) {
-        result[key].match.unshift({ match: subsets.value });
-      }
-    } else if (isArrayHasLength(subsets.value)) {
-      result[key] = { match: subsets.value };
+      result[key] = JSON.stringify(eclAsQuery.value);
     }
-    result[key] = JSON.stringify(result[key]);
-    if (!eclAsQuery.value && !isArrayHasLength(subsets.value) && deleteEntityKey) deleteEntityKey(key);
-    else entityUpdate(result);
+    if (isArrayHasLength(subsets.value)) {
+      result[IM.IS_SUBSET_OF] = _.cloneDeep(subsets.value);
+    }
+    if (!eclAsQuery.value && deleteEntityKey) deleteEntityKey(key);
+    if (deleteEntityKey && !isArrayHasLength(subsets.value)) deleteEntityKey(IM.IS_SUBSET_OF);
+    if (isObjectHasKeys(result)) entityUpdate(result);
   }
 }
 
@@ -307,7 +308,7 @@ async function dropReceived(event: any) {
   }
 }
 
-function updateSubsets(data: Match[]) {
+function updateSubsets(data: TTIriRef[]) {
   subsets.value = data;
 }
 </script>
