@@ -240,7 +240,17 @@ async function updateQueryForValueSearch() {
 }
 
 async function updateQueryForPropertySearch() {
-  imQueryForPropertySearch.value.argument![0].valueIri = props.focus.iri;
+  if (props.focus.type === "BoolGroup" && isArrayHasLength(props.focus.items)) {
+    const iris = [];
+    for (const item of props.focus.items) {
+      if (item.type === "Concept") iris.push(item.concept.iri);
+    }
+    delete imQueryForPropertySearch.value.argument![0].valueIri;
+    imQueryForPropertySearch.value.argument![0].valueIriList = iris;
+  } else {
+    delete imQueryForPropertySearch.value.argument![0].valueIriList;
+    imQueryForPropertySearch.value.argument![0].valueIri = props.focus.iri;
+  }
 }
 
 async function updateRanges() {
@@ -261,24 +271,24 @@ async function updateRanges() {
 
 async function getPropertyTreeRoots(): Promise<string[]> {
   let roots = ["http://snomed.info/sct#410662002"];
-  if (props.focus) {
-    if (isAliasIriRef(props.focus) && props.focus.iri !== IM.ANY) {
-      const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
-      if (results) roots = results.result.map(item => item["@id"]);
-    } else if (isBoolGroup(props.focus)) {
-      const results = await EntityService.getSuperiorPropertiesBoolFocusPaged(props.focus);
-      if (results) roots = results.result.map(item => item["@id"]);
-    }
-  }
+  // if (props.focus) {
+  //   if (isAliasIriRef(props.focus) && props.focus.iri !== IM.ANY) {
+  //     const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
+  //     if (results) roots = results.result.map(item => item["@id"]);
+  //   } else if (isBoolGroup(props.focus)) {
+  //     const results = await EntityService.getSuperiorPropertiesBoolFocusPaged(props.focus);
+  //     if (results) roots = results.result.map(item => item["@id"]);
+  //   }
+  // }
   return roots;
 }
 
 async function getValueTreeRoots(): Promise<string[]> {
   let roots = ["http://snomed.info/sct#138875005"];
-  if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== IM.ANY) {
-    const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
-    if (results) roots = results.result.map(item => item["@id"]);
-  }
+  // if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== IM.ANY) {
+  //   const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
+  //   if (results) roots = results.result.map(item => item["@id"]);
+  // }
   return roots;
 }
 
