@@ -18,9 +18,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { EclService } from "@/services";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   definition: string;
@@ -29,8 +27,9 @@ interface Props {
 const props = defineProps<Props>();
 
 const eclString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(eclString);
+
 const loading = ref(true);
-const toast = useToast();
 onMounted(async () => await init());
 
 async function init() {
@@ -39,18 +38,6 @@ async function init() {
   if (!result) eclString.value = "Error";
   else eclString.value = result;
   loading.value = false;
-}
-
-function copyToClipboard(): string {
-  return eclString.value;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
 }
 </script>
 

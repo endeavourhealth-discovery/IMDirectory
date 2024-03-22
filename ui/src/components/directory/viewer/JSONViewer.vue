@@ -2,7 +2,7 @@
   <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
     <ProgressSpinner />
   </div>
-  <VueJsonPretty v-else class="json" :path="'res'" :data="entityJSON.entity" @nodeClick="copy" />
+  <VueJsonPretty v-else class="json" :path="'res'" :data="entityJSON.entity" @nodeClick="onClick" />
 </template>
 
 <script setup lang="ts">
@@ -12,9 +12,8 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
 import { IM } from "@im-library/vocabulary";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   entityIri: string;
@@ -23,6 +22,7 @@ const props = defineProps<Props>();
 
 const toast = useToast();
 const entityJSON = ref({ entity: {}, predicates: {} });
+const { copyObjectToClipboard } = setupCopyToClipboard();
 const loading = ref(false);
 onMounted(async () => {
   loading.value = true;
@@ -34,9 +34,8 @@ onMounted(async () => {
   loading.value = false;
 });
 
-async function copy() {
-  await navigator.clipboard.writeText(JSON.stringify(entityJSON.value.entity));
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "JSON value copied to clipboard"));
+async function onClick() {
+  copyObjectToClipboard(navigator, entityJSON.value.entity);
 }
 </script>
 

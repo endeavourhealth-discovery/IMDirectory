@@ -77,8 +77,6 @@ import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers"
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
 import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
 import { byName } from "@im-library/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
@@ -86,6 +84,7 @@ import { useFilterStore } from "@/stores/filterStore";
 import setupDownloadFile from "@/composables/downloadFile";
 import LoadingDialog from "../shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
@@ -106,6 +105,7 @@ const requiresLazy = computed(() => totalCount.value > currentRows.value);
 const rowsStart = 25;
 
 const queryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
 const showDialog = ref(false);
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const totalCount = ref(0);
@@ -235,18 +235,6 @@ async function downloadAll(data: { term: string; count: number }) {
 
 function setFilterDefaults() {
   selectedStatus.value = statusOptions.value.filter((option: any) => option["@id"] === IM.ACTIVE);
-}
-
-function copyToClipboard(): string {
-  return queryString.value;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
 }
 </script>
 
