@@ -7,7 +7,7 @@ import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
-import { TTIriRef, SearchResultSummary, Concept } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary, Concept, DataModelProperty } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { byName } from "@im-library/helpers/Sorters";
 
@@ -278,6 +278,16 @@ export default class EntityService {
           iri: iri,
           legacy: legacy,
           includeSubsets: includeSubsets
+        }
+      })
+    ).data;
+  }
+
+  async getDataModelProperties(iri: string): Promise<DataModelProperty[]> {
+    return (
+      await axios.get(Env.API + "api/entity/public/dataModelProperties", {
+        params: {
+          iri: iri
         }
       })
     ).data;

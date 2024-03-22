@@ -71,6 +71,7 @@ import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import { IM } from "@im-library/vocabulary";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   shape: PropertyShape;
@@ -80,11 +81,11 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const toast = useToast();
-
 const importMenu = ref();
 
 const ecl: Ref<string> = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ecl);
+
 // const eclNoNames = ref("");
 const eclAsQuery: Ref<Match[] | Match | undefined> = ref();
 const showDialog = ref(false);
@@ -243,18 +244,6 @@ async function updateECL(data: string): Promise<void> {
   const isValid = await EclService.isValidECL(data);
   if (isValid) ecl.value = data;
   showDialog.value = false;
-}
-
-function copyToClipboard(): string {
-  return ecl.value;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Value copied to clipboard"));
 }
 
 function updateError(errorUpdate: { error: boolean; message: string }): void {
