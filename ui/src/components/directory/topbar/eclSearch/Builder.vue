@@ -67,6 +67,7 @@ import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue"
 import { useDialog } from "primevue/usedialog";
 import { deferred } from "@im-library/helpers";
 import Swal from "sweetalert2";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -77,8 +78,6 @@ export default defineComponent({
 import { Ref, ref, watch, onMounted, provide, readonly, defineComponent } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
 import EclService from "@/services/EclService";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
@@ -94,13 +93,14 @@ const emit = defineEmits({
   closeDialog: () => true
 });
 
-const toast = useToast();
 const dynamicDialog = useDialog();
 
 const build: Ref<any> = ref({ type: "BoolGroup", operator: "OR" });
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
+
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
 const isValidEcl = ref(false);
@@ -173,18 +173,6 @@ function generateQueryString() {
   if (isObjectHasKeys(build.value, ["ecl"])) {
     queryString.value = build.value.ecl;
   }
-}
-
-function copyToClipboard(): string {
-  return queryString.value;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipbard"));
 }
 
 async function validateBuild() {

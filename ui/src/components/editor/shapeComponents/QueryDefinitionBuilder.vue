@@ -19,7 +19,14 @@
     <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
       <pre>{{ sql }}</pre>
       <template #footer>
-        <Button label="Copy to Clipboard" @click="copy" data-testid="copy-button" />
+        <Button
+          label="Copy to Clipboard"
+          v-tooltip.left="'Copy to clipboard'"
+          v-clipboard:copy="copyToClipboard()"
+          v-clipboard:success="onCopy"
+          v-clipboard:error="onCopyError"
+          data-testid="copy-button"
+        />
         <Button label="Close" @click="showSql = false" data-testid="close-button" />
       </template>
     </Dialog>
@@ -37,9 +44,8 @@ import { Ref, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { cloneDeep } from "lodash";
 import { QueryService } from "@/services";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   shape: PropertyShape;
@@ -65,7 +71,6 @@ if (forceValidation) {
     }
   });
 }
-const toast = useToast();
 const route = useRoute();
 const loading = ref(true);
 const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
@@ -74,6 +79,7 @@ const invalid = ref(false);
 const showValidation = ref(false);
 const showSql: Ref<boolean> = ref(false);
 const sql: Ref<string> = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
 const key = props.shape.path["@id"];
 
@@ -105,11 +111,6 @@ async function init() {
 async function generateSQL() {
   sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
   showSql.value = true;
-}
-
-async function copy() {
-  await navigator.clipboard.writeText(sql.value);
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "SQL copied to clipboard"));
 }
 
 function generateDefaultQuery() {

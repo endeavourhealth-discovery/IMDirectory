@@ -70,25 +70,23 @@ import { EclSearchRequest } from "@im-library/interfaces";
 import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
 import { byName } from "@im-library/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
   selectedUpdated: (_payload: SearchResultSummary) => true
 });
 
-const toast = useToast();
 const filterStore = useFilterStore();
 const editorStore = useEditorStore();
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
 const eclQueryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(eclQueryString);
 const showDialog = ref(false);
 const eclError = ref(false);
 const eclErrorMessage = ref("");
@@ -151,18 +149,6 @@ async function onSearch(): Promise<void> {
 
 function setFilterDefaults() {
   selectedStatus.value = statusOptions.value.filter((option: any) => option["@id"] === IM.ACTIVE);
-}
-
-function copyToClipboard(): string {
-  return eclQueryString.value;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
 }
 </script>
 

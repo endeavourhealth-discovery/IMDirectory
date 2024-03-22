@@ -38,6 +38,7 @@ import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import ResultsTable from "../shared/ResultsTable.vue";
 
 const emit = defineEmits({
@@ -47,6 +48,7 @@ const emit = defineEmits({
 
 const toast = useToast();
 const imQueryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(imQueryString);
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
@@ -76,18 +78,6 @@ function parseQuery() {
 async function format() {
   const parsed = parseQuery();
   if (parsed) imQueryString.value = JSON.stringify(parsed, null, 2);
-}
-
-function copyToClipboard(): string {
-  return imQueryString.value;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
 }
 </script>
 

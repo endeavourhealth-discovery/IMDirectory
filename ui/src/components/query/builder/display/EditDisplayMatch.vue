@@ -100,7 +100,6 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { Bool, Match, Node, OrderDirection, OrderLimit, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
-import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
@@ -115,11 +114,10 @@ import MatchEntitySelect from "../edit/MatchEntitySelect.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import { IM } from "@im-library/vocabulary";
-import { ToastSeverity } from "@im-library/enums";
-import { ToastOptions } from "@im-library/models";
 import { useToast } from "primevue/usetoast";
 import AddFeatureDialog from "../edit/dialogs/AddFeatureDialog.vue";
 import SaveFeatureDialog from "../edit/dialogs/SaveFeatureDialog.vue";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   parentMatch?: Match;
@@ -138,6 +136,7 @@ const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => querySt
 const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 const currentDataModelIri: Ref<string> = ref("");
+const { copyObjectToClipboard } = setupCopyToClipboard();
 
 const {
   addThenMatch,
@@ -401,7 +400,7 @@ function getSingleRCOptions() {
       label: "Copy feature",
       icon: "fa-solid fa-copy",
       command: () => {
-        copyMatchToClipboard();
+        copyObjectToClipboard(navigator, { queryTypeIri: queryTypeIri.value, match: props.match });
       }
     },
     {
@@ -480,12 +479,6 @@ function getStyle() {
     highlightColor = highlightColor + opacity;
   }
   document.documentElement.style.setProperty("--highlight-bg-computed", highlightColor);
-}
-
-function copyMatchToClipboard() {
-  const copyObject = { queryTypeIri: queryTypeIri.value, match: props.match };
-  navigator.clipboard.writeText(JSON.stringify(copyObject));
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Feature was copied."));
 }
 </script>
 
