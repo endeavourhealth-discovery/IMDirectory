@@ -2,12 +2,7 @@
   <div class="set-definition-container">
     <div class="ecl-container">
       <div class="text-copy-container">
-        <div class="title-bar">
-          <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
-          <h2 v-if="showRequired" class="required">*</h2>
-        </div>
         <div id="definition-panel-container">
-          <SubsetBuilder :subsets="subsets" :mode="mode" :shape="shape" @update-clicked="updateSubsets" />
           <TabView class="ecl-tabview">
             <TabPanel class="tabview-panel" header="ECL">
               <div class="ecl-panel">
@@ -92,7 +87,6 @@ const importMenu = ref();
 const ecl: Ref<string> = ref("");
 // const eclNoNames = ref("");
 const eclAsQuery: Ref<Match[] | Match | undefined> = ref();
-const subsets: Ref<TTIriRef[] | undefined> = ref();
 const showDialog = ref(false);
 const showAddByCodeListDialog = ref(false);
 const showAddByFileDialog = ref(false);
@@ -156,15 +150,6 @@ watch(
   }
 );
 
-watch(
-  () => editorEntity?.value,
-  (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
-      processSubsets();
-    }
-  }
-);
-
 const debounceTimer = ref(0);
 watch(ecl, async newValue => {
   clearTimeout(debounceTimer.value);
@@ -179,26 +164,12 @@ watch(showNames, async newValue => {
   if (props.value) {
     loading.value = true;
     await processProps();
-    processSubsets();
     loading.value = false;
   }
 });
 
 watch(
   () => _.cloneDeep(eclAsQuery.value),
-  async (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
-      updateEntity();
-      if (updateValidity && valueVariableMap) {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-        showValidation.value = true;
-      }
-    }
-  }
-);
-
-watch(
-  () => _.cloneDeep(subsets.value),
   async (newValue, oldValue) => {
     if (!_.isEqual(newValue, oldValue)) {
       updateEntity();
@@ -219,12 +190,6 @@ onMounted(async () => {
 async function processProps() {
   if (props.value) {
     ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
-  }
-}
-
-function processSubsets() {
-  if (editorEntity?.value[IM.IS_SUBSET_OF]) {
-    subsets.value = _.cloneDeep(editorEntity.value[IM.IS_SUBSET_OF]);
   }
 }
 
@@ -269,11 +234,7 @@ function updateEntity() {
     if (eclAsQuery.value) {
       result[key] = JSON.stringify(eclAsQuery.value);
     }
-    if (isArrayHasLength(subsets.value)) {
-      result[IM.IS_SUBSET_OF] = _.cloneDeep(subsets.value);
-    }
     if (!eclAsQuery.value && deleteEntityKey) deleteEntityKey(key);
-    if (deleteEntityKey && !isArrayHasLength(subsets.value)) deleteEntityKey(IM.IS_SUBSET_OF);
     if (isObjectHasKeys(result)) entityUpdate(result);
   }
 }
@@ -307,10 +268,6 @@ async function dropReceived(event: any) {
     ecl.value = JSON.parse(data);
   }
 }
-
-function updateSubsets(data: TTIriRef[]) {
-  subsets.value = data;
-}
 </script>
 
 <style scoped>
@@ -322,7 +279,6 @@ function updateSubsets(data: TTIriRef[]) {
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: center;
-  padding: 1rem;
 }
 
 .ecl-container {
@@ -411,6 +367,7 @@ Textarea {
 
 .ecl-panel {
   flex: 1 1 auto;
+  min-height: 30rem;
   display: flex;
   flex-flow: column nowrap;
   gap: 0.5rem;

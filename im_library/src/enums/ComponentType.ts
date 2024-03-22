@@ -32,5 +32,6 @@ export enum ComponentType {
   TEXT_DROPDOWN = "TextDropdown",
   ENTITY_DISPLAY = "EntityDisplay",
   IRI_BUILDER = "IriBuilder",
-  AUTOCOMPLETE_SEARCH_BAR_WRAPPER = "AutocompleteSearchBarWrapper"
+  AUTOCOMPLETE_SEARCH_BAR_WRAPPER = "AutocompleteSearchBarWrapper",
+  SUBSET_BUILDER = "SubsetBuilder"
 }
