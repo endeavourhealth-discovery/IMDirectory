@@ -58,11 +58,9 @@ import { EclService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   shape: PropertyShape;
@@ -72,11 +70,11 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const toast = useToast();
-
 const importMenu = ref();
 
 const ecl: Ref<string> = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ecl);
+
 // const eclNoNames = ref("");
 const eclAsQuery: Ref<Query | undefined> = ref();
 const showDialog = ref(false);
@@ -227,18 +225,6 @@ async function updateECL(data: string): Promise<void> {
   const isValid = await EclService.isValidECL(data);
   if (isValid) ecl.value = data;
   showDialog.value = false;
-}
-
-function copyToClipboard(): string {
-  return ecl.value;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Value copied to clipboard"));
 }
 
 function updateError(errorUpdate: { error: boolean; message: string }): void {

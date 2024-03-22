@@ -43,6 +43,7 @@ import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
@@ -51,6 +52,7 @@ const emit = defineEmits({
 
 const toast = useToast();
 const queryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const controller: Ref<AbortController> = ref({} as AbortController);
 const loading = ref(false);
@@ -117,18 +119,6 @@ function addDefaultQuerySelect(query: Query) {
 async function format() {
   const parsed = parseQuery();
   if (parsed) queryString.value = JSON.stringify(parsed, null, 2);
-}
-
-function copyToClipboard(): string {
-  return queryString.value;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
 }
 </script>
 
