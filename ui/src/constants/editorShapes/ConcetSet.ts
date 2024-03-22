@@ -255,6 +255,10 @@ const ConceptSetShape: FormGenerator = {
               minCount: 0,
               componentType: { "@id": COMPONENT.SUBSET_BUILDER },
               path: { "@id": IM.IS_SUBSET_OF },
+              validation: {
+                "@id": VALIDATION.IS_DEFINITION
+              },
+              validationErrorMessage: "Set definition is not valid",
               property: [
                 {
                   name: "Inclusions",
