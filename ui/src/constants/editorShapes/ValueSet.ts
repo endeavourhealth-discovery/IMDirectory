@@ -179,52 +179,6 @@ const ValueSetShape: FormGenerator = {
               ]
             },
             {
-              label: "Property group - Sub type array builder",
-              order: 1,
-              path: {
-                "@id": RDFS.SUBCLASS_OF
-              },
-              validation: {
-                "@id": VALIDATION.HAS_PARENT
-              },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  order: 1,
-                  select: [
-                    {
-                      "@id": QUERY.SEARCH_SUBCLASS
-                    }
-                  ],
-                  argument: [
-                    {
-                      valueIri: {
-                        "@id": IM.VALUE_SET
-                      },
-                      parameter: "value"
-                    }
-                  ],
-                  builderChild: true,
-                  name: "Entity",
-                  path: {
-                    "@id": RDFS.SUBCLASS_OF
-                  },
-                  minCount: 0,
-                  componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
-                  }
-                }
-              ],
-              name: "Subclass of",
-              showTitle: true,
-              minCount: 0,
-              componentType: {
-                "@id": COMPONENT.ARRAY_BUILDER
-              },
-              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
-            },
-            {
               label: "Property group - Contained in array builder",
               order: 1,
               path: {
@@ -254,7 +208,7 @@ const ValueSetShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   }
                 }
               ],
@@ -269,21 +223,79 @@ const ValueSetShape: FormGenerator = {
           ]
         },
         {
-          label: "Property group - set definition builder",
+          comment: "summary vertical row layout",
           name: "Definition",
           showTitle: true,
-          order: 2,
-          minCount: 1,
-          componentType: {
-            "@id": COMPONENT.SET_DEFINITION_BUILDER
-          },
-          validation: {
-            "@id": VALIDATION.IS_DEFINITION
-          },
-          validationErrorMessage: "Set definition is not valid",
           path: {
             "@id": IM.DEFINITION
-          }
+          },
+          order: 1,
+          maxCount: 1,
+          componentType: {
+            "@id": COMPONENT.VERTICAL_LAYOUT
+          },
+          argument: [
+            {
+              parameter: "style",
+              valueObject: [
+                { index: 0, style: { maxHeight: "50%" } },
+                { index: 1, style: { flex: "1 1 auto" } }
+              ]
+            }
+          ],
+          property: [
+            {
+              label: "Subset builder",
+              name: "Subsets",
+              order: 1,
+              minCount: 0,
+              componentType: { "@id": COMPONENT.SUBSET_BUILDER },
+              path: { "@id": IM.IS_SUBSET_OF },
+              validation: {
+                "@id": VALIDATION.IS_DEFINITION
+              },
+              validationErrorMessage: "Set definition is not valid",
+              property: [
+                {
+                  name: "Inclusions",
+                  minCount: 0,
+                  builderChild: true,
+                  componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+                  arrayButtons: { addOnlyIfLast: true, down: false, minus: true, plus: true, up: false },
+                  path: { "@id": IM.IS_SUBSET_OF },
+                  property: [
+                    {
+                      argument: [{ parameter: "this", valueIriList: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUESET }] }],
+                      select: [{ "@id": QUERY.SEARCH_ENTITIES }],
+                      builderChild: true,
+                      componentType: { "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER },
+                      minCount: 0,
+                      name: "Inclusion",
+                      order: 1,
+                      path: { "@id": IM.IS_SUBSET_OF }
+                    }
+                  ],
+                  order: 1
+                }
+              ]
+            },
+            {
+              label: "Property group - set definition builder",
+              name: "Definition builder",
+              order: 2,
+              minCount: 1,
+              componentType: {
+                "@id": COMPONENT.SET_DEFINITION_BUILDER
+              },
+              validation: {
+                "@id": VALIDATION.IS_DEFINITION
+              },
+              validationErrorMessage: "Set definition is not valid",
+              path: {
+                "@id": IM.DEFINITION
+              }
+            }
+          ]
         }
       ]
     }

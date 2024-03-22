@@ -54,7 +54,7 @@ const props = defineProps<Props>();
 watch(
   () => _.cloneDeep(props.value),
   (newValue, oldValue) => {
-    if (_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
+    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
   }
 );
 
@@ -197,7 +197,11 @@ function updateConcept(concept: any) {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   height: 2.7rem;
