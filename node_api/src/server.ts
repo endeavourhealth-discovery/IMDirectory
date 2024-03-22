@@ -20,6 +20,7 @@ import logger from "./middlewares/logger.middleware";
 import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/morgan.middleware";
 import WorkflowController from "./controllers/workflowController";
 import FunctionController from "./controllers/functionController";
+import CodeGenController from "@/controllers/codeGenController";
 
 dotenv.config();
 
@@ -41,7 +42,8 @@ const app = new App({
     new ConfigController(),
     new ProvController(),
     new WorkflowController(),
-    new FunctionController()
+    new FunctionController(),
+    new CodeGenController()
   ],
   middleWares: [
     bodyParser.json({ type: "application/json" }),
