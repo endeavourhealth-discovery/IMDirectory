@@ -114,9 +114,7 @@ async function init() {
 async function updateSelectedResult(data: SearchResultSummary | { iri: string; name?: string }) {
   if (!isObjectHasKeys(data)) selected.value = undefined;
   else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as SearchResultSummary;
-  else if (data.iri === "any" || data.iri === "*") {
-    selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
-  } else if (data.iri) {
+  else if (data.iri) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
     selected.value = isObjectHasKeys(asSummary) ? asSummary : undefined;
   } else {

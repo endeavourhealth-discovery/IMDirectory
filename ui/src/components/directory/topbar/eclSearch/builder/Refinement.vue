@@ -30,6 +30,7 @@
       :disabled="!hasFocus || loadingProperty"
       v-model:selected="selectedProperty"
       :imQuery="imQueryForPropertySearch"
+      :os-query="osQueryForPropertySearch"
       :root-entities="propertyTreeRoots"
       @open-dialog="updatePropertyTreeRoots"
     />
@@ -68,14 +69,14 @@
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { EntityService, FunctionService, QueryService } from "@/services";
-import { IM, SNOMED, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
+import { IM, SNOMED, QUERY, IM_FUNCTION, RDF } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
 import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
-import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
@@ -126,17 +127,8 @@ const osQueryForValueSearch: Ref<SearchRequest> = ref({
   sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
 } as SearchRequest);
 
-const imQueryForPropertySearch: Ref<QueryRequest> = ref({
-  query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
-  argument: [
-    {
-      parameter: "this",
-      valueIri: {
-        "@id": props.focus?.iri ?? undefined
-      }
-    }
-  ]
-} as QueryRequest);
+const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
+const osQueryForPropertySearch: Ref<SearchRequest | undefined> = ref(undefined);
 
 const hasValue = computed(() => {
   if (isObjectHasKeys(props.value.value, ["concept", "descendants"]) && isObjectHasKeys(props.value.value.concept, ["iri"])) return true;
@@ -236,21 +228,47 @@ onMounted(async () => {
   loadingValue.value = false;
 });
 
-async function updateQueryForValueSearch() {
+function updateQueryForValueSearch() {
   osQueryForValueSearch.value.isA = Array.from(propertyRanges.value);
 }
 
-async function updateQueryForPropertySearch() {
+function updateQueryForPropertySearch() {
   if (props.focus.type === "BoolGroup" && isArrayHasLength(props.focus.items)) {
-    const iris = [];
+    const iris: TTIriRef[] = [];
     for (const item of props.focus.items) {
-      if (item.type === "Concept") iris.push(item.concept.iri);
+      if (item.type === "Concept") iris.push({ "@id": item.concept.iri });
     }
-    delete imQueryForPropertySearch.value.argument![0].valueIri;
-    imQueryForPropertySearch.value.argument![0].valueIriList = iris;
+    imQueryForPropertySearch.value = {
+      query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
+      argument: [
+        {
+          parameter: "this",
+          valueIriList: iris
+        }
+      ]
+    } as QueryRequest;
+    osQueryForPropertySearch.value = undefined;
+  } else if (props.focus.iri === SNOMED.ANY) {
+    osQueryForPropertySearch.value = {
+      isA: ["http://snomed.info/sct#410662002"],
+      statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
+      schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
+      typeFilter: [RDF.PROPERTY],
+      sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
+      sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
+    } as SearchRequest;
+    imQueryForPropertySearch.value = undefined;
   } else {
-    delete imQueryForPropertySearch.value.argument![0].valueIriList;
-    imQueryForPropertySearch.value.argument![0].valueIri = props.focus.iri;
+    imQueryForPropertySearch.value = {
+      query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
+      argument: [
+        {
+          parameter: "this",
+          valueIri: { "@id": props.focus.iri }
+        }
+      ]
+    } as QueryRequest;
+    osQueryForPropertySearch.value = undefined;
   }
 }
 
@@ -272,7 +290,7 @@ async function updateRanges() {
 async function updatePropertyTreeRoots(): Promise<void> {
   let roots = ["http://snomed.info/sct#410662002"];
   if (props.focus) {
-    if (isAliasIriRef(props.focus) && props.focus.iri !== IM.ANY) {
+    if (isAliasIriRef(props.focus) && props.focus.iri !== SNOMED.ANY) {
       const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
       if (results) roots = results.result.map(item => item["@id"]);
     } else if (isBoolGroup(props.focus)) {
@@ -285,7 +303,7 @@ async function updatePropertyTreeRoots(): Promise<void> {
 
 async function updateValueTreeRoots(): Promise<void> {
   let roots = ["http://snomed.info/sct#138875005"];
-  if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== IM.ANY) {
+  if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== SNOMED.ANY) {
     const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
     if (results) roots = results.result.map(item => item["@id"]);
   }
@@ -293,7 +311,7 @@ async function updateValueTreeRoots(): Promise<void> {
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus?.iri === IM.ANY) isValidProperty.value = true;
+  if (props.focus?.iri === SNOMED.ANY) isValidProperty.value = true;
   else if (props.focus && hasProperty.value) {
     const request: FunctionRequest = {
       functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES,
