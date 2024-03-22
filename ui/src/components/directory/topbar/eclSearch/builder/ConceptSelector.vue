@@ -47,7 +47,7 @@ const props = defineProps<Props>();
 watch(
   () => _.cloneDeep(props.value),
   (newValue, oldValue) => {
-    if (_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
+    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
   }
 );
 

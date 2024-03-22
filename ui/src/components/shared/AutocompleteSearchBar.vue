@@ -33,6 +33,9 @@
             </div>
           </template>
         </Listbox>
+        <div v-else class="loading-container">
+          <ProgressSpinner />
+        </div>
 
         <div class="advanced-search-container">
           <Button label="Advanced search" class="advanced-search-button" @click="showDialog = true" />
@@ -103,23 +106,25 @@ watch(showDialog, () => {
 
 watch(
   () => _.cloneDeep(props.selected),
-  newValue => {
-    searchLoading.value = true;
-    if (newValue && newValue.name && newValue.name != searchText.value) {
-      searchText.value = newValue.name;
-      selectedLocal.value = newValue;
-    } else if (!newValue) {
-      searchText.value = "";
-      selectedLocal.value = undefined;
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) {
+      searchLoading.value = true;
+      if (newValue && newValue.name && newValue.name != searchText.value) {
+        searchText.value = newValue.name;
+        selectedLocal.value = newValue;
+      } else if (!newValue) {
+        searchText.value = "";
+        selectedLocal.value = undefined;
+      }
+      searchLoading.value = true;
     }
-    searchLoading.value = false;
   }
 );
 
 watch(
   selectedLocal,
-  newValue => {
-    emit("update:selected", newValue);
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) emit("update:selected", newValue);
   },
   { deep: true }
 );

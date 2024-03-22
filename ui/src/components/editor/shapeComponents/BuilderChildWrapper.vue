@@ -41,10 +41,11 @@ import PropertyBuilder from "./PropertyBuilder.vue";
 import TermCodeEditor from "./TermCodeEditor.vue";
 import EntityDropdown from "./EntityDropdown.vue";
 import EntityDisplay from "./EntityDisplay.vue";
+import AutocompleteSearchBarWrapper from "./AutocompleteSearchBarWrapper.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  components: { EntitySearch, EntityAutoComplete, ComponentGroup, PropertyBuilder, TermCodeEditor, EntityDropdown, EntityDisplay }
+  components: { EntitySearch, EntityAutoComplete, ComponentGroup, PropertyBuilder, TermCodeEditor, EntityDropdown, EntityDisplay, AutocompleteSearchBarWrapper }
 });
 </script>
 
