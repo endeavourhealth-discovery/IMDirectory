@@ -46,8 +46,8 @@ import _ from "lodash";
 import setupSearch from "@/composables/setupSearch";
 
 interface Props {
-  searchTerm: string;
-  showFilters?: boolean;
+  searchTerm?: string;
+  showFilters: boolean;
   selectedFilterOptions?: FilterOptions;
   selected?: SearchResultSummary;
 }

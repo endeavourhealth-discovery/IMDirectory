@@ -104,6 +104,7 @@ const emit = defineEmits({
 const filterStore = useFilterStore();
 const storeDefaultFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.defaultFilterOptions);
 const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 
 const includeLegacy = ref(false);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
@@ -184,26 +185,34 @@ function setSelectedOptions(): void {
       selectedSortDirection.value = storeFilterOptions.value.sortDirections.find(
         item => props.selectedFilterOptions?.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
       );
+  } else if (
+    isArrayHasLength(storeSelectedFilters.value.schemes) ||
+    isArrayHasLength(storeSelectedFilters.value.status) ||
+    isArrayHasLength(storeSelectedFilters.value.types)
+  ) {
+    setSelectedFromStore();
   } else {
     setDefaults();
   }
 }
 
+function setSelectedFromStore() {
+  if (isArrayHasLength(storeSelectedFilters.value.status)) selectedStatus.value = [...storeSelectedFilters.value.status];
+
+  if (isArrayHasLength(storeSelectedFilters.value.schemes)) selectedSchemes.value = [...storeSelectedFilters.value.schemes];
+
+  if (isArrayHasLength(storeSelectedFilters.value.types)) selectedTypes.value = [...storeSelectedFilters.value.types];
+
+  if (isArrayHasLength(storeSelectedFilters.value.sortFields)) selectedSortField.value = storeSelectedFilters.value.sortFields?.[0];
+  if (isArrayHasLength(storeSelectedFilters.value.sortDirections)) selectedSortDirection.value = storeSelectedFilters.value.sortDirections?.[0];
+}
+
 function setDefaults() {
-  if (isArrayHasLength(storeFilterOptions.value.status))
-    selectedStatus.value = storeFilterOptions.value.status.filter(
-      item => storeDefaultFilterOptions.value?.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-    );
+  if (isArrayHasLength(storeDefaultFilterOptions.value.status)) selectedStatus.value = [...storeDefaultFilterOptions.value.status];
 
-  if (isArrayHasLength(storeFilterOptions.value.schemes))
-    selectedSchemes.value = storeFilterOptions.value.schemes.filter(
-      item => storeDefaultFilterOptions.value?.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-    );
+  if (isArrayHasLength(storeFilterOptions.value.schemes)) selectedSchemes.value = [...storeDefaultFilterOptions.value.schemes];
 
-  if (isArrayHasLength(storeFilterOptions.value.types))
-    selectedTypes.value = storeFilterOptions.value.types.filter(
-      item => storeDefaultFilterOptions.value?.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-    );
+  if (isArrayHasLength(storeFilterOptions.value.types)) selectedTypes.value = [...storeDefaultFilterOptions.value.types];
 
   if (isArrayHasLength(storeFilterOptions.value.sortFields)) selectedSortField.value = storeDefaultFilterOptions.value.sortFields?.[0];
   if (isArrayHasLength(storeFilterOptions.value.sortDirections)) selectedSortDirection.value = storeDefaultFilterOptions.value.sortDirections?.[0];

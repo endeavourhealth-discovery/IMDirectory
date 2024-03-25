@@ -69,53 +69,30 @@ const selectedTypes: Ref<TTIriRef[]> = ref([]);
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const statusOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
-const localSearchResults: Ref<SearchResponse | undefined> = ref();
 
 onMounted(() => init());
 
 function init() {
-  if (isArrayHasLength(localSearchResults.value)) {
-    setFiltersFromSearchResults();
-  } else {
-    setFiltersFromStore();
-  }
+  setFiltersFromStore();
 }
 
 function setFiltersFromStore() {
   schemeOptions.value = [...storeFilterOptions.value.schemes];
   typeOptions.value = [...storeFilterOptions.value.types];
   statusOptions.value = [...storeFilterOptions.value.status];
-  if (props.selectedFilterOptions)
-    if (props.selectedFilterOptions.schemes.length || props.selectedFilterOptions.status.length || props.selectedFilterOptions.types.length) {
-      selectedSchemes.value = [...props.selectedFilterOptions.schemes];
-      selectedStatus.value = [...props.selectedFilterOptions.status];
-      selectedTypes.value = [...props.selectedFilterOptions.types];
-    } else {
-      selectedSchemes.value = storeFilterOptions.value.schemes.filter((option: any) => storeFilterDefaults.value.schemes.includes(option["@id"]));
-      selectedStatus.value = storeFilterOptions.value.status.filter((option: any) => storeFilterDefaults.value.status.includes(option["@id"]));
-      selectedTypes.value = storeFilterOptions.value.types.filter((option: any) => storeFilterDefaults.value.types.includes(option["@id"]));
-    }
-}
-
-function setFiltersFromSearchResults() {
-  const schemes = [] as TTIriRef[];
-  const types = [] as TTIriRef[];
-  const status = [] as TTIriRef[];
-  if (localSearchResults.value?.entities) {
-    localSearchResults.value.entities.forEach(searchResult => {
-      if (isObjectHasKeys(searchResult.scheme, ["name"])) schemes.push(searchResult.scheme);
-      searchResult.entityType.forEach(type => {
-        if (storeFilterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type);
-      });
-      if (isObjectHasKeys(searchResult.status, ["name"])) status.push(searchResult.status);
-    });
-    schemeOptions.value = [...new Set(schemes)];
-    typeOptions.value = [...new Set(types)];
-    statusOptions.value = [...new Set(status)];
-
-    selectedSchemes.value = [...new Set(schemes)];
-    selectedTypes.value = [...new Set(types)];
-    selectedStatus.value = [...new Set(status)];
+  if (
+    props.selectedFilterOptions &&
+    (props.selectedFilterOptions.schemes.length || props.selectedFilterOptions.status.length || props.selectedFilterOptions.types.length)
+  ) {
+    selectedSchemes.value = [...props.selectedFilterOptions.schemes];
+    selectedStatus.value = [...props.selectedFilterOptions.status];
+    selectedTypes.value = [...props.selectedFilterOptions.types];
+  } else {
+    selectedSchemes.value = storeFilterOptions.value.schemes.filter(
+      option => storeFilterDefaults.value.schemes.findIndex(s => s["@id"] === option["@id"]) != -1
+    );
+    selectedStatus.value = storeFilterOptions.value.status.filter(option => storeFilterDefaults.value.status.findIndex(s => s["@id"] === option["@id"]) != -1);
+    selectedTypes.value = storeFilterOptions.value.types.filter(option => storeFilterDefaults.value.types.findIndex(t => t["@id"] === option["@id"]) != -1);
   }
 }
 

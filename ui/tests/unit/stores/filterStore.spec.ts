@@ -16,7 +16,7 @@ describe("state", () => {
   it("filter sharedStore should start with the correct values", () => {
     const filterStore = useFilterStore();
     expect(Object.keys(filterStore)).toEqual(
-      expect.arrayContaining(["filterOptions", "filterDefaults", "selectedFilterOptions", "quickFiltersStatus", "hierarchyselectedFilterOptions"])
+      expect.arrayContaining(["filterOptions", "defaultFilterOptions", "selectedFilterOptions", "hierarchySelectedFilters"])
     );
     expect(filterStore.selectedFilterOptions).toEqual({});
     expect(filterStore.filterOptions).toStrictEqual({});
