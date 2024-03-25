@@ -83,6 +83,9 @@ dependencies:
   npm-run-all:
     specifier: 4.1.5
     version: 4.1.5
+  postgresql-client:
+    specifier: 2.9.1
+    version: 2.9.1
   semver:
     specifier: 7.5.4
     version: 7.5.4
@@ -2454,6 +2457,11 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
+  /doublylinked@2.5.4:
+    resolution: {integrity: sha512-jBCKDnFkEHJRjQvYEl5N9VngRV8ypHgw6a52OK4VN57eV2r2rYvgOx9uABdY78INNoW7S6auULp+KBVm/jfYqw==}
+    engines: {node: '>= 10.0'}
+    dev: false
+
   /ecdsa-sig-formatter@1.0.11:
     resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
     dependencies:
@@ -3742,6 +3750,13 @@ packages:
       type-check: 0.4.0
     dev: false
 
+  /lightning-pool@4.2.2:
+    resolution: {integrity: sha512-KW0Df0IbjNLxy5wAsdErTKYtHGwefLRQseHNksEctyaL7gtRwJT0nqLa2uiRdNYDwKSnZtqOjSjUNtfxmfH1qw==}
+    dependencies:
+      doublylinked: 2.5.4
+      putil-promisify: 1.10.1
+    dev: false
+
   /load-json-file@4.0.0:
     resolution: {integrity: sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw==}
     engines: {node: '>=4'}
@@ -4165,6 +4180,10 @@ packages:
       object-keys: 1.1.1
     dev: false
 
+  /obuf@1.1.2:
+    resolution: {integrity: sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==}
+    dev: false
+
   /on-finished@2.3.0:
     resolution: {integrity: sha512-ikqdkGAAyf/X/gPhXGvfgAytDZtDbr+bkNUJ0N9h5MI/dmdgCs3l6hoHrcUv41sRKew3jIwrp4qQDXiK99Utww==}
     engines: {node: '>= 0.8'}
@@ -4379,6 +4398,34 @@ packages:
       source-map-js: 1.0.2
     dev: true
 
+  /postgres-bytea@3.0.0:
+    resolution: {integrity: sha512-CNd4jim9RFPkObHSjVHlVrxoVQXz7quwNFpz7RY1okNNme49+sVyiTvTRobiLV548Hx/hb1BG+iE7h9493WzFw==}
+    engines: {node: '>= 6'}
+    dependencies:
+      obuf: 1.1.2
+    dev: false
+
+  /postgresql-client@2.9.1:
+    resolution: {integrity: sha512-jDQww0Fkm7emvXWNI0iLC4vF15liKBiWDX1UIfyIwAIHAhyfqjMq5DiQXGaRWmnb8lJuO1egh73cCt4eCEJcHQ==}
+    engines: {node: '>=16.0', npm: '>=7.0.0'}
+    dependencies:
+      doublylinked: 2.5.4
+      lightning-pool: 4.2.2
+      postgres-bytea: 3.0.0
+      power-tasks: 1.7.3
+      putil-merge: 3.12.1
+      putil-promisify: 1.10.1
+      putil-varhelpers: 1.6.5
+    dev: false
+
+  /power-tasks@1.7.3:
+    resolution: {integrity: sha512-EnkjLfaX4PxFYHbUWyWzlE4I8SgctaW9jx4qQXrVRoELlqBXrxIMtuhHzRwsHv2qs1tO7efOcZa6/wDCdCjRfA==}
+    engines: {node: '>=16.0'}
+    dependencies:
+      doublylinked: 2.5.4
+      strict-typed-events: 2.3.3
+    dev: false
+
   /prelude-ls@1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
     engines: {node: '>= 0.8.0'}
@@ -4428,6 +4475,21 @@ packages:
   /punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+    dev: false
+
+  /putil-merge@3.12.1:
+    resolution: {integrity: sha512-4clPyRkJPrd5zl98AP7I3JamyXbx0ixe2CnfvGwoTyWSr7Kslcv8weoKjfU4BMBifkWIRL54l4OrNe97pYcDwQ==}
+    engines: {node: '>= 10.0'}
+    dev: false
+
+  /putil-promisify@1.10.1:
+    resolution: {integrity: sha512-1jm0egJNrj5eBDRj15Cg08RNHDV91OVEHeeYjAFRcs663PXxFokndxcJAGbaO6CSErCTp8eTgC8vuOF+fvXIAA==}
+    engines: {node: '>= 14.0'}
+    dev: false
+
+  /putil-varhelpers@1.6.5:
+    resolution: {integrity: sha512-kyu+lE5xkc65ScgaIi6rNONLXeS7jGBxl1I0rzHVsFGAAQ45D/VkuEev+t09PFB943F+CqdWFLczH6ePk5TPAA==}
+    engines: {node: '>= 6.0'}
     dev: false
 
   /qs@6.11.0:
@@ -4905,6 +4967,14 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
+  /strict-typed-events@2.3.3:
+    resolution: {integrity: sha512-Vc8/N5giCVpO2n5BCskqDD9ns7RkdEq0pFd4yQk1ROULusJDbjORNvbtyEPxxK7Xqn9/NdW8XHLxv/PvUTgFsA==}
+    engines: {node: '>=16.0'}
+    dependencies:
+      putil-promisify: 1.10.1
+      ts-gems: 3.2.1
+    dev: false
+
   /string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
     engines: {node: '>=8'}
@@ -5082,6 +5152,10 @@ packages:
   /triple-beam@1.4.1:
     resolution: {integrity: sha512-aZbgViZrg1QNcG+LULa7nhZpJTZSLm/mXnHXnbAbjmN5aSa0y7V+wvv6+4WaBtpISJzThKy+PIPxc1Nq1EJ9mg==}
     engines: {node: '>= 14.0.0'}
+    dev: false
+
+  /ts-gems@3.2.1:
+    resolution: {integrity: sha512-nAs9PugnuYpuvsvb8m4BAWzinmIKGdBecDaxs3PEI5m1fzijSVIVmP+TyGVD5yRpxsadpbBdPBI4RYgsF+inzw==}
     dev: false
 
   /tslib@1.14.1:

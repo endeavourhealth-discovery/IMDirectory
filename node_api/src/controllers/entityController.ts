@@ -56,6 +56,11 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
+    this.router.get("/public/dataModelProperties", (req, res, next) =>
+      this.getDataModelProperties(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
   }
 
   async getPropertyOptions(req: Request) {
@@ -100,5 +105,9 @@ export default class EntityController {
     const setIriB = req.query.setIriB as string;
     if (!setIriA && !setIriB) throw new CustomError("At least one of setIriA and setIriB parameters needs to be populated.", ErrorType.InvalidInputError);
     return await this.entityService.getSetDiff(setIriA, setIriB);
+  }
+
+  async getDataModelProperties(req: Request) {
+    return await this.entityService.getDataModelProperties(req.query.iri as string);
   }
 }

@@ -16,7 +16,7 @@
       <pre>{{ sql }}</pre>
       <template #footer>
         <Button label="Test" @click="test" data-testid="test-button" />
-      <Button
+        <Button
           label="Copy to Clipboard"
           v-tooltip.left="'Copy to clipboard'"
           v-clipboard:copy="copyToClipboard()"
@@ -38,6 +38,9 @@ import { Query } from "@im-library/interfaces/AutoGen";
 import { onMounted, watch, Ref, ref, computed } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 
 interface Props {
   entityIri?: string;
@@ -46,6 +49,7 @@ interface Props {
 }
 
 const userStore = useUserStore();
+const toast = useToast();
 const directService = new DirectService();
 
 const props = defineProps<Props>();

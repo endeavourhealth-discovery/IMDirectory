@@ -115,6 +115,5 @@ export {
   type SetDiffObject,
   type CodeTemplate,
   type QueryQueueItem,
-  type IMQSQL,
-  type SetDiffObject
+  type IMQSQL
 };

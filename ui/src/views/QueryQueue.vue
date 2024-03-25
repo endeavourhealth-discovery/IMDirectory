@@ -136,7 +136,7 @@ import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { DataModelService, QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { Ref } from "vue/dist/vue";
 import { QueryQueueItem } from "@im-library/interfaces";
 import Swal from "sweetalert2";
@@ -265,7 +265,7 @@ async function viewResults(id: string) {
 
 async function graphResults(id: string, modelIri: string) {
   if (modelProps.value.length == 0) {
-    modelProps.value = (await DataModelService.getDataModelProperties(modelIri)).map(p => p.property!);
+    modelProps.value = (await EntityService.getDataModelProperties(modelIri)).map(p => p.property!);
   }
 
   queueId.value = { id: id };

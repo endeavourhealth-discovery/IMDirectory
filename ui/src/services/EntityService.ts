@@ -10,7 +10,7 @@ import {
   PropertyDisplay,
   SetDiffObject
 } from "@im-library/interfaces";
-import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary, DataModelProperty } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/treenode";
@@ -504,6 +504,12 @@ const EntityService = {
   async getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
     return axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyOptions", {
       params: { dataModelIri: dataModelIri, dataTypeIri: dataTypeIri, key: key }
+    });
+  },
+
+  async getDataModelProperties(iri: string): Promise<DataModelProperty[]> {
+    return axios.get(Env.API + "api/entity/public/dataModelProperties", {
+      params: { iri: iri }
     });
   }
 };
