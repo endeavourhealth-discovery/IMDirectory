@@ -9,13 +9,13 @@
         type="text"
         @click="showDialog = true"
         class="search-text"
-        v-tooltip="{ value: selectedResult?.name ?? '', class: 'entity-tooltip' }"
+        v-tooltip="{ value: selectedResult.name ?? '', class: 'entity-tooltip' }"
         @dragenter.prevent
         @dragover.prevent
         @drop="dropReceived"
         :class="invalid && showValidation && 'invalid'"
       >
-        <div class="selected-label">{{ selectedResult?.name ?? "Search..." }}</div>
+        <div class="selected-label">{{ selectedResult.name ?? "Search..." }}</div>
       </div>
       <DirectorySearchDialog v-model:show-dialog="showDialog" v-model:selected="selectedResult" :search-by-query="queryRequest" />
     </div>
@@ -113,7 +113,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 });
 
 const loading = ref(false);
-const selectedResult: Ref<SearchResultSummary | undefined> = ref();
+const selectedResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const key = ref("");
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -174,12 +174,10 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
 }
 
 function updateEntity() {
-  if (selectedResult.value) {
-    const result = {} as any;
-    result[key.value] = convertToTTIriRef(selectedResult.value);
-    if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
-    else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
-  }
+  const result = {} as any;
+  result[key.value] = convertToTTIriRef(selectedResult.value);
+  if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
+  else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }
 
 function updateValueVariableMap(data: TTIriRef | undefined) {

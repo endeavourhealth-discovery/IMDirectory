@@ -4,13 +4,12 @@
       <template #content>
         <div id="topbar-content-container">
           <SearchBar
-            v-model:search-term="directorySearchTerm"
-            :selected-filter-options="storeSelectedFilterOptions"
-            :show-filters="true"
+            v-model:search-results="searchResults"
+            v-model:search-loading="searchLoading"
             @to-ecl-search="toEclSearch"
             @to-query-search="toQuerySearch"
-            @to-search="toSearch"
-            @selected-filters-updated="onSelectedFiltersUpdated"
+            v-model:loadMore="loadMore"
+            v-model:download="download"
           />
         </div>
       </template>
@@ -21,32 +20,45 @@
       </div>
       <DirectorySplitter
         v-else
-        :searchTerm="directorySearchTerm"
-        :updateSearch="updateSearch"
-        :selected-filter-options="storeSelectedFilterOptions"
-        @selected-filters-updated="onSelectedFiltersUpdated"
+        @lazyLoadRequested="lazyLoadRequested"
+        @downloadRequested="downloadRequested"
+        :searchLoading="searchLoading"
+        :searchResults="searchResults"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
+import { computed, onMounted, ref, Ref, watch } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import { useRouter } from "vue-router";
+import { useToast } from "primevue/usetoast";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
-import { FilterOptions } from "@im-library/interfaces";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 
 const router = useRouter();
+const toast = useToast();
 const filterStore = useFilterStore();
 const userStore = useUserStore();
+const directoryStore = useDirectoryStore();
+
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+
 const loading = ref(true);
-const directorySearchTerm: Ref<string> = ref("");
-const updateSearch: Ref<boolean> = ref(false);
-const storeSelectedFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
+const searchLoading = ref(false);
+const searchResults: Ref<SearchResponse | undefined> = ref();
+const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
+const download: Ref<{ term: string; count: number } | undefined> = ref();
+
+watch(searchResults, newValue => {
+  if (newValue) router.push({ name: "Search" });
+});
 
 onMounted(async () => {
   loading.value = true;
@@ -55,22 +67,20 @@ onMounted(async () => {
   loading.value = false;
 });
 
-function onSelectedFiltersUpdated(filters: FilterOptions) {
-  filterStore.updateSelectedFilterOptions(filters);
-  if (directorySearchTerm.value && directorySearchTerm.value.length > 2) toSearch();
-}
-
-function toSearch() {
-  router.push({ name: "Search" });
-  updateSearch.value = !updateSearch.value;
-}
-
 function toEclSearch() {
   router.push({ name: "EclSearch" });
 }
 
 function toQuerySearch() {
   router.push({ name: "IMQuerySearch" });
+}
+
+function lazyLoadRequested(event: any) {
+  loadMore.value = event;
+}
+
+function downloadRequested(data: { term: string; count: number }) {
+  download.value = data;
 }
 </script>
 
