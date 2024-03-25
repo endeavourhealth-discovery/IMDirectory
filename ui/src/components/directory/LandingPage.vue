@@ -22,7 +22,7 @@
               <template #body="{ data }: any">
                 <div class="activity-name-icon-container">
                   <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
-                  <span class="activity-name">{{ data.name }}</span>
+                  <span class="activity-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
                 </div>
               </template>
             </Column>
@@ -39,6 +39,7 @@
               </template>
             </Column>
           </DataTable>
+          <OverlaySummary ref="OS" />
         </div>
       </div>
       <div id="dashboard-container">
@@ -84,6 +85,8 @@ import { useUserStore } from "@/stores/userStore";
 
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byOrder } from "@im-library/helpers/Sorters";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import setupOverlay from "@/composables/setupOverlay";
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
 const directService = new DirectService();
@@ -96,6 +99,7 @@ const loading: Ref<boolean> = ref(false);
 const configs: Ref<DashboardLayout[]> = ref([]);
 const cardsData: Ref<{ name: string; description: string; inputData: IriCount; component: string }[]> = ref([]);
 const { onRowClick }: { onRowClick: Function } = rowClick();
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
