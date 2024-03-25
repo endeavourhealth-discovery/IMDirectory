@@ -10,11 +10,6 @@
         </div>
         <div class="flex flex-row gap-2 justify-content-end">
           <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
-          <!-- <QuickQuery :query="queryDefinition">
-            <template #button="{ runQuickQuery }">
-              <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" />
-            </template>
-          </QuickQuery> -->
         </div>
       </div>
     </div>
@@ -39,7 +34,6 @@
 </template>
 
 <script setup lang="ts">
-import QuickQuery from "@/components/query/QuickQuery.vue";
 import CohortEditor from "@/components/query/builder/CohortEditor.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode, ToastSeverity } from "@im-library/enums";

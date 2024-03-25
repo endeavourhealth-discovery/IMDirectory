@@ -3,9 +3,9 @@
     <h3 class="title">IM language search</h3>
     <h5 class="info">IMQuery definition:</h5>
     <div class="text-copy-container">
-      <Textarea v-model="queryString" id="query-string-container" placeholder="Enter query definition here" data-testid="query-string" />
+      <Textarea v-model="imQueryString" id="query-string-container" placeholder="Enter query definition here" data-testid="query-string" />
       <Button
-        :disabled="!queryString.length"
+        :disabled="!imQueryString.length"
         icon="fa-solid fa-copy"
         v-tooltip.left="'Copy to clipboard'"
         v-clipboard:copy="copyToClipboard()"
@@ -15,16 +15,16 @@
       />
     </div>
     <div class="button-container">
-      <Button label="Format" @click="format" severity="help" :disabled="!queryString.length" data-testid="search-button" />
-      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
+      <Button label="Format" @click="format" severity="help" :disabled="!imQueryString.length" data-testid="search-button" />
+      <Button label="Search" @click="onSearch" class="p-button-primary" :disabled="!imQueryString.length" data-testid="search-button" />
     </div>
     <div class="results-container">
-      <SearchResults
-        :show-filters="false"
-        :search-results="searchResults"
-        :search-loading="loading"
-        @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
-        @selected-updated="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
+      <ResultsTable
+        v-model:loading="searchLoading"
+        :update-search="updateSearch"
+        :im-query="imQuery"
+        @rowSelected="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
+        @locateInTree="(iri: string) => $emit('locateInTree', iri)"
       />
     </div>
   </div>
@@ -32,18 +32,14 @@
 
 <script setup lang="ts">
 import { Ref, ref } from "vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { Query, QueryRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
-import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
-import { QueryService } from "@/services";
+import { QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import SearchResults from "@/components/shared/SearchResults.vue";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import ResultsTable from "../shared/ResultsTable.vue";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
@@ -51,39 +47,27 @@ const emit = defineEmits({
 });
 
 const toast = useToast();
-const queryString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
-const searchResults: Ref<SearchResponse | undefined> = ref();
-const controller: Ref<AbortController> = ref({} as AbortController);
-const loading = ref(false);
+const imQueryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(imQueryString);
+const imQuery: Ref<QueryRequest | undefined> = ref();
+const updateSearch: Ref<boolean> = ref(false);
+const searchLoading: Ref<boolean> = ref(false);
 
-async function search(): Promise<void> {
-  if (queryString.value) {
-    loading.value = true;
-    if (!isObject(controller.value)) {
-      controller.value.abort();
-    }
-    controller.value = new AbortController();
-    const queryRequest = {} as QueryRequest;
-
+async function onSearch(): Promise<void> {
+  if (imQueryString.value) {
     try {
-      queryRequest.query = parseQuery();
-      addDefaultQuerySelect(queryRequest.query);
-      const result = await QueryService.queryIM(queryRequest);
-      const queryResults = convertResultsToConceptSummaryList(result.entities);
-      searchResults.value = { entities: queryResults, page: 1, count: queryResults.length };
+      imQuery.value = parseQuery();
+      updateSearch.value = !updateSearch.value;
     } catch (error) {
       if (!(error instanceof SyntaxError) && !(error instanceof TypeError))
         toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));
     }
-
-    loading.value = false;
   }
 }
 
 function parseQuery() {
   try {
-    return JSON.parse(queryString.value);
+    return JSON.parse(imQueryString.value);
   } catch (error) {
     if (error instanceof SyntaxError) {
       toast.add(new ToastOptions(ToastSeverity.WARN, "JSON is invalid: " + error.message));
@@ -91,34 +75,9 @@ function parseQuery() {
   }
 }
 
-function convertResultsToConceptSummaryList(entities: any[]): SearchResultSummary[] {
-  if (!isArrayHasLength(entities)) return [];
-  return entities.map(entity => {
-    return {
-      iri: entity["@id"],
-      name: entity[RDFS.LABEL],
-      match: entity[RDFS.LABEL],
-      entityType: entity[RDF.TYPE],
-      code: entity[IM.CODE]
-    } as SearchResultSummary;
-  });
-}
-
-function addDefaultQuerySelect(query: Query) {
-  // TODO add return when ready
-  // if (!isArrayHasLength(query.select)) query.select = [];
-  // const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
-  // for (const property of defaultProperties) {
-  //   const select = {
-  //     "@id": property
-  //   } as Select;
-  //   query.select.push(select);
-  // }
-}
-
 async function format() {
   const parsed = parseQuery();
-  if (parsed) queryString.value = JSON.stringify(parsed, null, 2);
+  if (parsed) imQueryString.value = JSON.stringify(parsed, null, 2);
 }
 </script>
 

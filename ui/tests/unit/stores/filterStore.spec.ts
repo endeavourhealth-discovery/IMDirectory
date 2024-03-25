@@ -18,31 +18,22 @@ describe("state", () => {
     expect(Object.keys(filterStore)).toEqual(
       expect.arrayContaining(["filterOptions", "defaultFilterOptions", "selectedFilterOptions", "hierarchySelectedFilters"])
     );
-    expect(filterStore.selectedFilters).toEqual({});
+    expect(filterStore.selectedFilterOptions).toEqual({});
     expect(filterStore.filterOptions).toStrictEqual({});
-    expect(filterStore.quickFiltersStatus).toEqual(new Map());
     expect(filterStore.hierarchySelectedFilters).toStrictEqual([]);
   });
 });
 
 describe("mutations", () => {
-  it("can updateSelectedFilters", () => {
+  it("can updateselectedFilterOptions", () => {
     const filterStore = useFilterStore();
     const testFilter = {
       selectedStatus: ["testActive", "testDraft"],
       selectedSchemes: [{ iri: "http://endhealth.info/im#test" }],
       selectedTypes: ["testClass", "testProperty"]
     };
-    filterStore.updateSelectedFilters(testFilter);
-    expect(filterStore.selectedFilters).toEqual(testFilter);
-  });
-
-  it("can updateQuickFiltersStatus", () => {
-    const filterStore = useFilterStore();
-    const testfilters = new Map();
-    testfilters.set("legacy", true);
-    filterStore.updateQuickFiltersStatus({ key: "legacy", value: true });
-    expect(filterStore.quickFiltersStatus).toEqual(testfilters);
+    filterStore.updateSelectedFilterOptions(testFilter);
+    expect(filterStore.selectedFilterOptions).toEqual(testFilter);
   });
 
   it("can updateFilterOptions", () => {
@@ -55,14 +46,14 @@ describe("mutations", () => {
     filterStore.updateFilterOptions(testFilter);
     expect(filterStore.filterOptions).toEqual(testFilter);
   });
-  it("can update hierarchySelectedFilters", () => {
+  it("can update hierarchyselectedFilterOptions", () => {
     const filterStore = useFilterStore();
     filterStore.updateHierarchySelectedFilters(["testIri"]);
     expect(filterStore.hierarchySelectedFilters).toStrictEqual(["testIri"]);
   });
   it("can updateFilterDefaults", () => {
     const filterStore = useFilterStore();
-    filterStore.updateFilterDefaults({ schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
-    expect(filterStore.filterDefaults).toStrictEqual({ schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
+    filterStore.updateDefaultFilterOptions({ schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
+    expect(filterStore.defaultFilterOptions).toStrictEqual({ schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
   });
 });
