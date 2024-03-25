@@ -12,23 +12,30 @@
         </div>
       </template>
     </Dropdown>
-    <AutocompleteSearchBar v-model:selected="selected" :osQuery="osQueryForConceptSearch" :root-entities="['http://snomed.info/sct#138875005']" />
+    <AutocompleteSearchBar
+      v-model:selected="selected"
+      :search-by-query="queryRequest"
+      :root-entities="['http://snomed.info/sct#138875005']"
+      :filterOptions="filterOptions"
+      :filterDefaults="filterDefaults"
+      :allow-any="true"
+    />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, inject, computed } from "vue";
-import { IM, SNOMED } from "@im-library/vocabulary";
+import { Ref, ref, onMounted, watch, inject, computed, ComputedRef } from "vue";
+import { IM, SNOMED, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 import { useFilterStore } from "@/stores/filterStore";
-import { SortDirection } from "@im-library/enums";
 
 interface Props {
   value: {
@@ -62,11 +69,16 @@ const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const filterStore = useFilterStore();
+const filterStoreDefaults = computed(() => filterStore.filterDefaults);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 
 const loading = ref(false);
 const selected: Ref<SearchResultSummary | undefined> = ref();
 
+const queryRequest: QueryRequest = {
+  query: { "@id": QUERY.SEARCH_ENTITIES },
+  argument: [{ parameter: "this", valueIri: { "@id": IM.CONCEPT } }]
+};
 const descendantOptions = [
   {
     label: " ",
@@ -82,13 +94,21 @@ const descendantOptions = [
   }
 ];
 
-const osQueryForConceptSearch: Ref<SearchRequest> = ref({
-  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
-  statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-  typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
-  sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
-} as SearchRequest);
+const filterOptions: FilterOptions = {
+  status: [...filterStoreOptions.value.status],
+  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
+  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
+  sortDirections: [...filterStoreOptions.value.sortDirections],
+  sortFields: [...filterStoreOptions.value.sortFields]
+};
+
+const filterDefaults: FilterOptions = {
+  status: [...filterStoreOptions.value.status.filter(s => s["@id"] === IM.ACTIVE)],
+  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
+  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
+  sortDirections: [...filterStoreOptions.value.sortDirections],
+  sortFields: [...filterStoreOptions.value.sortFields]
+};
 
 onMounted(async () => {
   await init();
@@ -114,7 +134,9 @@ async function init() {
 async function updateSelectedResult(data: SearchResultSummary | { iri: string; name?: string }) {
   if (!isObjectHasKeys(data)) selected.value = undefined;
   else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as SearchResultSummary;
-  else if (data.iri) {
+  else if (data.iri === "any" || data.iri === "*") {
+    selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
+  } else if (data.iri) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
     selected.value = isObjectHasKeys(asSummary) ? asSummary : undefined;
   } else {

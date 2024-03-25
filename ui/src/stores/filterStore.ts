@@ -7,8 +7,9 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 export const useFilterStore = defineStore("filter", {
   state: (): FilterState => ({
     filterOptions: {} as FilterOptions,
-    defaultFilterOptions: {} as FilterOptions,
-    selectedFilterOptions: {} as FilterOptions,
+    filterDefaults: {} as FilterOptions,
+    selectedFilters: {} as FilterOptions,
+    quickFiltersStatus: new Map<string, boolean>(),
     hierarchySelectedFilters: [] as Namespace[]
   }),
   actions: {
@@ -19,7 +20,7 @@ export const useFilterStore = defineStore("filter", {
         isObjectHasKeys(filterOptions, ["status", "schemes", "types", "sortFields", "sortDirections"]) &&
         isObjectHasKeys(filterDefaults, ["status", "schemes", "types", "sortFields", "sortDirections"])
       ) {
-        this.updateDefaultFilterOptions(filterDefaults);
+        this.updateFilterDefaults(filterDefaults);
         this.updateFilterOptions(filterOptions);
         const selectedStatus = this.filterOptions.status.filter(item => filterDefaults.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"]));
         const selectedSchemes = this.filterOptions.schemes.filter(item =>
@@ -33,13 +34,12 @@ export const useFilterStore = defineStore("filter", {
           filterDefaults.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
         );
 
-        this.updateSelectedFilterOptions({
+        this.updateSelectedFilters({
           status: selectedStatus,
           schemes: selectedSchemes,
           types: selectedTypes,
           sortFields: selectedField,
-          sortDirections: selectedDirection,
-          includeLegacy: false
+          sortDirections: selectedDirection
         } as FilterOptions);
         this.updateHierarchySelectedFilters(selectedSchemes);
       }
@@ -47,17 +47,17 @@ export const useFilterStore = defineStore("filter", {
     updateFilterOptions(filters: any) {
       this.filterOptions = filters;
     },
-
-    updateDefaultFilterOptions(filters: any) {
-      this.defaultFilterOptions = filters;
+    updateSelectedFilters(filters: any) {
+      this.selectedFilters = filters;
     },
-
-    updateSelectedFilterOptions(filters: any) {
-      this.selectedFilterOptions = filters;
+    updateQuickFiltersStatus(status: any) {
+      this.quickFiltersStatus.set(status.key, status.value);
     },
-
     updateHierarchySelectedFilters(filters: any) {
       this.hierarchySelectedFilters = filters;
+    },
+    updateFilterDefaults(defaults: any) {
+      this.filterDefaults = defaults;
     }
   }
 });
