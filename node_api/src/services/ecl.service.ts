@@ -2,6 +2,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { eclToIMQ, eclToBuild, validateEcl } from "@im-library/helpers";
 import { EclSearchRequest } from "@im-library/interfaces";
 import Env from "./env.service";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 
 export default class EclService {
   axios: any;
@@ -30,7 +31,7 @@ export default class EclService {
     return await this.eclSearch(esr);
   }
 
-  public async eclSearch(eclSearchRequest: EclSearchRequest) {
+  public async eclSearch(eclSearchRequest: EclSearchRequest): Promise<SearchResponse> {
     if (isObjectHasKeys(eclSearchRequest, ["eclString"]) && eclSearchRequest.eclString) {
       eclSearchRequest.eclQuery = eclToIMQ(eclSearchRequest.eclString);
       delete eclSearchRequest.eclString;

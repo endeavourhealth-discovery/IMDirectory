@@ -55,6 +55,7 @@ import { QueryResponse } from "./QueryResponse";
 import { SetDiffObject } from "./SetDiffObject";
 import { QueryQueueItem } from "./QueryQueueItem";
 import { IMQSQL } from "./IMQSQL";
+import { CodeTemplate } from "./CodeTemplate";
 
 export {
   type Address,
@@ -111,6 +112,8 @@ export {
   type Workflow,
   type BugReport,
   type QueryResponse,
+  type SetDiffObject,
+  type CodeTemplate,
   type QueryQueueItem,
   type IMQSQL,
   type SetDiffObject

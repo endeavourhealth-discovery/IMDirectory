@@ -7,7 +7,7 @@ import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
-import { TTIriRef, SearchResultSummary, Concept } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary, Concept, DataModelProperty } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { byName } from "@im-library/helpers/Sorters";
 
@@ -188,9 +188,9 @@ export default class EntityService {
     const results = await this.eclService.eclSearch(eclSearchRequest);
     let found = false;
     let counter = 0;
-    if (isArrayHasLength(results)) {
-      while (!found && counter < results.length) {
-        const conceptIri = results[counter]["@id"];
+    if (results.entities && isArrayHasLength(results.entities)) {
+      while (!found && counter < results.entities.length) {
+        const conceptIri = results.entities[counter].iri;
         const result = (await axios.get(Env.API + "api/entity/public/isValidProperty", { params: { entity: conceptIri, property: propertyIri } })).data;
         if (result) found = result;
         counter++;
@@ -206,11 +206,11 @@ export default class EntityService {
     if (query) {
       const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
       const results = await this.eclService.eclSearch(eclSearchRequest);
-      if (isArrayHasLength(results)) {
+      if (results.entities && isArrayHasLength(results.entities)) {
         superiors = (
           await this.axios.get(Env.API + "api/entity/public/superiorPropertiesBoolFocusPaged", {
             params: {
-              conceptIris: results.map((result: any) => result["@id"]).join(","),
+              conceptIris: results.entities.map(result => result.iri).join(","),
               pageIndex: pageIndex,
               pageSize: pageSize,
               schemeFilters: filters?.join(",")
@@ -278,6 +278,16 @@ export default class EntityService {
           iri: iri,
           legacy: legacy,
           includeSubsets: includeSubsets
+        }
+      })
+    ).data;
+  }
+
+  async getDataModelProperties(iri: string): Promise<DataModelProperty[]> {
+    return (
+      await axios.get(Env.API + "api/entity/public/dataModelProperties", {
+        params: {
+          iri: iri
         }
       })
     ).data;

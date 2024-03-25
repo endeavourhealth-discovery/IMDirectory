@@ -1,4 +1,4 @@
-import { Bool, Entailment, Operator, OrderDirection, Property, Return, ReturnProperty } from "../interfaces/AutoGen";
+import { Bool, Entailment, Operator, OrderDirection, Where, Return, ReturnProperty } from "../interfaces/AutoGen";
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
@@ -24,8 +24,8 @@ function describe(query: Query) {
       describeMatch(match, index, Bool.and);
     }
   }
-  if (isArrayHasLength(query.property)) {
-    for (const [index, prop] of query.property!.entries()) {
+  if (isArrayHasLength(query.where)) {
+    for (const [index, prop] of query.where!.entries()) {
       describeProperty(prop, index, Bool.and);
     }
   }
@@ -72,9 +72,9 @@ export function describeMatch(match: Match, index: number, bool?: Bool, matchTyp
     }
   }
 
-  if (isArrayHasLength(match.property)) {
+  if (isArrayHasLength(match.where)) {
     if (matchType === "then") matchType = "";
-    for (const [index, property] of match.property!.entries()) {
+    for (const [index, property] of match.where!.entries()) {
       describeProperty(property, index, property.bool!, matchType);
     }
   }
@@ -86,16 +86,20 @@ export function describeMatch(match: Match, index: number, bool?: Bool, matchTyp
   match.description = display;
 }
 
-export function describeProperty(property: Property, index: number, bool?: Bool, matchType?: MatchType) {
+export function describeProperty(property: Where, index: number, bool?: Bool, matchType?: MatchType) {
   if (property.match) describeMatch(property.match, 0, Bool.and, "path");
   if (isObjectHasKeys(property, ["@id"])) {
     let display = getDisplayFromProperty(property, matchType);
-    if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
+    if (index && bool) {
+      display = getDisplayFromLogic(bool) + " " + display;
+    } else if (!index && bool) {
+      display = getDisplayFromLogic(Bool.and) + " " + display;
+    }
     property.description = display;
   }
 
-  if (isArrayHasLength(property.property))
-    for (const [index, nestedProperty] of property.property!.entries()) {
+  if (isArrayHasLength(property.where))
+    for (const [index, nestedProperty] of property.where!.entries()) {
       describeProperty(nestedProperty, index, property.bool!, matchType);
     }
 }
@@ -114,7 +118,7 @@ export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   } else if (match.instanceOf) {
     display = "is instance of " + getNameFromRef(match.instanceOf);
     display += getDisplaySuffixFromEntailment(match.instanceOf);
-  } else if (!match.property && match["@id"] && match.name) {
+  } else if (!match.where && match["@id"] && match.name) {
     display = match.name;
     display += getDisplaySuffixFromEntailment(match as any);
   }
@@ -148,7 +152,7 @@ export function getDisplayFromIs(_is: Node[]) {
   return display + "'";
 }
 
-export function getDisplayFromPropertyList(matchDisplay: string, propertyList: Property[], matchType: MatchType) {
+export function getDisplayFromPropertyList(matchDisplay: string, propertyList: Where[], matchType: MatchType) {
   const propertyDisplays = [];
   for (const propertyItem of propertyList) {
     if (matchDisplay && matchDisplay.slice(-1) !== ".") matchDisplay += ".";
@@ -158,7 +162,7 @@ export function getDisplayFromPropertyList(matchDisplay: string, propertyList: P
   return propertyDisplays;
 }
 
-export function getDisplayFromProperty(property: Property, matchType?: MatchType) {
+export function getDisplayFromProperty(property: Where, matchType?: MatchType) {
   let display = "";
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
   if (!property.match) display += propertyName;
@@ -193,11 +197,11 @@ export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchTyp
   }
 }
 
-function isPropertyValueList(property: Property) {
+function isPropertyValueList(property: Where) {
   return isArrayHasLength(property.is) || isArrayHasLength(property.isNot);
 }
 
-export function getNumberOfListItems(property: Property) {
+export function getNumberOfListItems(property: Where) {
   let totalNumberOfNodes = 0;
   if (isArrayHasLength(property.is)) totalNumberOfNodes += property.is!.length;
   if (isArrayHasLength(property.isNot)) totalNumberOfNodes += property.isNot!.length;
@@ -252,7 +256,7 @@ export function getDisplayFromLogic(title: string) {
   }
 }
 
-export function getDisplayFromRange(propertyName: string, property: Property) {
+export function getDisplayFromRange(propertyName: string, property: Where) {
   const propertyDisplay = propertyName;
   let display = propertyDisplay + " between ";
   display += property.range?.from.value + " and " + property.range?.to.value;
@@ -260,7 +264,7 @@ export function getDisplayFromRange(propertyName: string, property: Property) {
   return display;
 }
 
-export function getDisplayFromOperator(propertyDisplay: string, property: Property) {
+export function getDisplayFromOperator(propertyDisplay: string, property: Where) {
   let display = "";
 
   if (propertyDisplay.toLowerCase().includes("date")) {
@@ -284,7 +288,7 @@ export function getDisplayFromOperator(propertyDisplay: string, property: Proper
   return display;
 }
 
-export function getDisplayFromDateComparison(property: Property) {
+export function getDisplayFromDateComparison(property: Where) {
   let display = "";
   if (property.value) {
     if (property.value.includes("-") && property.operator === ">=") display += "within the last ";
@@ -310,7 +314,7 @@ export function getDisplayFromVariable(nodeRef: string | undefined) {
   return "<span class='variable-line'> label as <span class='variable'>" + nodeRef + "</span></span> ";
 }
 
-export function getDisplayFromValueAndUnitForDate(property: Property) {
+export function getDisplayFromValueAndUnitForDate(property: Where) {
   let display = "";
   if (property.value) display += property.value.replace("-", "") + " ";
   if (property.unit) display += property.unit;

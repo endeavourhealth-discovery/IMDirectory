@@ -74,7 +74,8 @@ const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as str
 
 const emit = defineEmits({
   rowSelected: payload => true,
-  rowDblClicked: payload => true
+  rowDblClicked: payload => true,
+  foundInTree: () => true
 });
 
 const router = useRouter();
@@ -126,9 +127,11 @@ watch(
   () => props.findInTree,
   async newValue => {
     if (newValue && props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
-    directoryStore.updateFindInTreeBoolean(false);
+    emit("foundInTree");
   }
 );
+
+watch(props.rootEntities, async () => await addRootEntitiesToTree());
 
 onMounted(async () => {
   await init();

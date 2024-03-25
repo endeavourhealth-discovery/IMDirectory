@@ -36,6 +36,8 @@ const AddressFileWorkflow = () => import("@/components/uprn/AddressFileWorkflow.
 const AddressFileDownload = () => import("@/components/uprn/AddressFileDownload.vue");
 const Query = () => import("@/views/Query.vue");
 const UprnAgreement = () => import("@/views/UprnAgreement.vue");
+
+const CodeGen = () => import("@/views/CodeGen.vue");
 const QueryQueue = () => import("@/views/QueryQueue.vue");
 
 import { EntityService, Env, UserService } from "@/services";
@@ -248,6 +250,15 @@ const routes: Array<RouteRecordRaw> = [
       requiresAuth: true,
       requiresLicense: true,
       requiresCreateRole: true
+    }
+  },
+  {
+    path: "/codeGenerator",
+    name: "CodeGenerator",
+    component: CodeGen,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true
     }
   },
   {

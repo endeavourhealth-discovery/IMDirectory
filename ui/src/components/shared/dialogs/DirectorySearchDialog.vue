@@ -11,33 +11,36 @@
     <div class="directory-search-dialog-content">
       <div class="search-bar">
         <SearchBar
-          v-model:searchResults="searchResults"
-          v-model:searchLoading="searchLoading"
+          v-model:searchTerm="searchTerm"
+          :selected="selected"
+          :imQuery="imQuery"
+          :osQuery="osQuery"
+          :show-filters="false"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
-          :selected="selected"
-          :filter-options="filterOptions"
-          v-model:loadMore="loadMore"
-          :filterDefaults="filterDefaults"
-          v-model:download="download"
+          @to-search="onSearch"
         />
       </div>
       <div class="vertical-divider">
         <div class="left-container">
-          <NavTree :selectedIri="treeIri" :root-entities="rootEntities" @row-selected="showDetails" />
+          <NavTree
+            :selectedIri="treeIri"
+            :root-entities="rootEntities"
+            :find-in-tree="findInDialogTree"
+            @found-in-tree="findInDialogTree = false"
+            @row-selected="showDetails"
+          />
         </div>
         <div class="right-container">
           <SearchResults
             v-if="activePage === 0"
-            :searchResults="searchResults"
-            :searchLoading="searchLoading"
             :selected="selected"
+            :show-filters="false"
+            :updateSearch="updateSearch"
+            :search-term="searchTerm"
+            :selected-filter-options="selectedFilterOptions"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
-            @lazy-load-requested="lazyLoadRequested"
-            :lazy-loading="true"
-            :rows="25"
-            @download-requested="downloadRequested"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -66,8 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref, computed } from "vue";
-import { FilterOptions } from "@im-library/interfaces";
+import { ref, onMounted, watch, Ref } from "vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
@@ -75,21 +77,23 @@ import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import _, { cloneDeep } from "lodash";
-import { EntityService, FunctionService, QueryService } from "@/services";
-import { FunctionRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { EntityService, QueryService } from "@/services";
+import { QueryRequest, SearchResultSummary, SearchResponse, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { FilterOptions } from "@im-library/interfaces";
 
 interface Props {
   showDialog: boolean;
-  searchByQuery?: QueryRequest;
-  searchByFunction?: FunctionRequest;
+  imQuery?: QueryRequest;
+  osQuery?: SearchRequest;
   selected?: SearchResultSummary;
   rootEntities?: string[];
-  filterOptions?: FilterOptions;
-  filterDefaults?: FilterOptions;
+  searchTerm?: string;
+  selectedFilterOptions?: FilterOptions;
 }
+
 const props = defineProps<Props>();
 watch(
   () => props.showDialog,
@@ -104,12 +108,11 @@ const emit = defineEmits({
   "update:selected": payload => true
 });
 
+const updateSearch: Ref<boolean> = ref(false);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
-const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
-const download: Ref<{ term: string; count: number } | undefined> = ref();
-
+const findInDialogTree = ref(false);
 const visible = ref(false);
 watch(visible, newValue => {
   if (!newValue) {
@@ -120,6 +123,14 @@ watch(visible, newValue => {
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
+const searchTerm = ref("");
+
+watch(
+  () => treeIri.value,
+  () => {
+    findInDialogTree.value = true;
+  }
+);
 const detailsIri = ref("");
 
 watch(
@@ -151,8 +162,16 @@ watch(
 
 onMounted(() => {
   visible.value = props.showDialog;
+  searchTerm.value = props.searchTerm ?? "";
   initSelection();
 });
+
+function onSearch() {
+  if (searchTerm.value) {
+    activePage.value = 0;
+    updateSearch.value = !updateSearch.value;
+  }
+}
 
 async function setSelectedName() {
   if (detailsIri.value) {
@@ -211,24 +230,20 @@ function showQuerySearch() {
 }
 
 async function getIsSelectableEntity(): Promise<boolean> {
-  if (!props.searchByQuery && !props.searchByFunction) return true;
-  if (props.searchByQuery) {
-    const queryRequest = _.cloneDeep(props.searchByQuery);
-    queryRequest.textSearch = selectedName.value;
-    const queryResults = await QueryService.queryIM(queryRequest);
-    if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
-    return queryResults.entities.some(item => item["@id"] === detailsIri.value);
-  } else if (props.searchByFunction) {
-    const functionRequest: FunctionRequest = _.cloneDeep(props.searchByFunction);
-    if (functionRequest.arguments && isArrayHasLength(functionRequest.arguments)) {
-      const found = functionRequest.arguments.find(arg => arg.parameter === "searchIri");
-      if (found) found.valueData = detailsIri.value;
-      else functionRequest.arguments.push({ parameter: "searchIri", valueData: detailsIri.value });
-    } else functionRequest.arguments = [{ parameter: "searchIri", valueData: detailsIri.value }];
-    if (functionRequest.functionIri) {
-      return await FunctionService.runAskFunction(functionRequest);
-    } else return false;
-  } else return false;
+  if (props.imQuery) {
+    const imQuery = _.cloneDeep(props.imQuery);
+    imQuery.textSearch = selectedName.value;
+    const imQueryResponse = await QueryService.queryIM(imQuery);
+    if (!isObjectHasKeys(imQueryResponse, ["entities"]) || !isArrayHasLength(imQueryResponse.entities)) return false;
+    return imQueryResponse.entities.some(item => item["@id"] === detailsIri.value);
+  } else if (props.osQuery) {
+    const osQuery = _.cloneDeep(props.osQuery);
+    osQuery.termFilter = selectedName.value;
+    const osQueryResposne = await EntityService.advancedSearch(osQuery);
+    if (!isObjectHasKeys(osQueryResposne, ["entities"]) || !isArrayHasLength(osQueryResposne.entities)) return false;
+    return osQueryResposne.entities!.some(item => item.iri === detailsIri.value);
+  }
+  return true;
 }
 
 async function getHasQueryDefinition() {
@@ -241,14 +256,6 @@ async function getHasQueryDefinition() {
 
 function onEnter() {
   if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
-}
-
-function lazyLoadRequested(event: any) {
-  loadMore.value = event;
-}
-
-function downloadRequested(data: { term: string; count: number }) {
-  download.value = data;
 }
 </script>
 
@@ -297,7 +304,9 @@ function downloadRequested(data: { term: string; count: number }) {
 
 .button-footer {
   display: flex;
+  flex: 1 0 auto;
   flex-wrap: nowrap;
+  justify-content: flex-end;
 }
 </style>
 

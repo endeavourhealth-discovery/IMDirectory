@@ -18,15 +18,7 @@
             :loading="downloading"
             data-testid="downloadButton"
           />
-          <Button
-            type="button"
-            label="Compare"
-            @click="showCompareSetDialog = true"
-            aria-haspopup="true"
-            aria-controls="overlay_menu"
-            :loading="downloading"
-            data-testid="downloadButton"
-          />
+          <Button type="button" label="Compare" @click="showCompareSetDialog = true" data-testid="compareButton" outlined />
         </div>
       </div>
     </div>
@@ -139,6 +131,7 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   entityIri: string;
@@ -193,6 +186,7 @@ const checkedLegacy = ref(false);
 const checked = ref(true);
 const displayLegacyOptions = ref(false);
 const coreSelected = ref(false);
+const { copyObjectToClipboard } = setupCopyToClipboard();
 
 watch(selectedContents, () => {
   if (contents.value.length !== 0 && selectedFormat.value !== "IMv1") {
@@ -237,8 +231,8 @@ async function onCopy(event: any) {
   event.stopPropagation();
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   if (isObjectHasKeys(entity, [IM.DEFINITION])) {
-    await navigator.clipboard.writeText(entity[IM.DEFINITION]);
-    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Definition copied to clipboard"));
+    const definition = JSON.parse(entity[IM.DEFINITION]);
+    copyObjectToClipboard(navigator, definition);
   }
 }
 

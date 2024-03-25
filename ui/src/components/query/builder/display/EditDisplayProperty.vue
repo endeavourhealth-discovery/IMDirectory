@@ -4,8 +4,8 @@
     <div v-tooltip="'Double click to edit'" v-html="property.description" @dblclick="editMode = true"></div>
   </div>
   <EditDisplayProperty
-    v-if="isArrayHasLength(property.property)"
-    v-for="(nestedProperty, index) of property.property"
+    v-if="isArrayHasLength(property.where)"
+    v-for="(nestedProperty, index) of property.where"
     :index="index"
     :parent-match="parentMatch"
     :parent-property="property"
@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Property, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Where, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import EditProperty from "../edit/EditProperty.vue";
 import _, { cloneDeep } from "lodash";
@@ -33,9 +33,9 @@ import { useQueryStore } from "@/stores/queryStore";
 
 interface Props {
   parentMatch?: Match;
-  parentProperty?: Property;
+  parentProperty?: Where;
   index: number;
-  property: Property;
+  property: Where;
   dataModelIri: string;
 }
 
@@ -43,7 +43,7 @@ const props = defineProps<Props>();
 const queryStore = useQueryStore();
 
 const editMode: Ref<boolean> = ref(false);
-const editProperty: Ref<Property> = ref({} as Property);
+const editProperty: Ref<Where> = ref({} as Where);
 
 onMounted(() => {
   editProperty.value = _.cloneDeep(props.property);

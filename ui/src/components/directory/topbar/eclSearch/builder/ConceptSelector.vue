@@ -1,42 +1,34 @@
 <template>
   <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-    <div
-      class="search-text"
-      type="text"
-      :class="[isAny && 'inactive', !isAny && 'clickable']"
-      @click="!isAny ? (showDialog = true) : (showDialog = false)"
-      v-tooltip="{ value: selected.name ?? '', class: 'entity-tooltip' }"
-    >
-      <span class="selected-label">{{ selected.name ?? "Search..." }}</span>
-    </div>
-    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="isAny" :binary="true" /></div>
-    <DirectorySearchDialog
-      v-if="showDialog && !isAny && selected.iri !== 'any'"
-      v-model:show-dialog="showDialog"
-      v-model:selected="selected"
-      :search-by-function="functionRequest"
-      :root-entities="['http://snomed.info/sct#138875005']"
-      :filterOptions="filterOptions"
-      :filterDefaults="filterDefaults"
-    />
+    <Dropdown style="width: 4.5rem; min-height: 2.3rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value">
+      <template #value="slotProps">
+        <div v-if="slotProps.value" class="flex align-items-center">
+          <div>{{ value.descendants }}</div>
+        </div>
+      </template>
+      <template #option="slotProps">
+        <div class="flex align-items-center" style="min-height: 1rem">
+          <div>{{ slotProps.option.label }}</div>
+        </div>
+      </template>
+    </Dropdown>
+    <AutocompleteSearchBar v-model:selected="selected" :osQuery="osQueryForConceptSearch" :root-entities="['http://snomed.info/sct#138875005']" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, inject, computed } from "vue";
-import { IM, SNOMED, IM_FUNCTION } from "@im-library/vocabulary";
-import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { FilterOptions } from "@im-library/interfaces";
-import { FunctionRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { IM, SNOMED } from "@im-library/vocabulary";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 import { useFilterStore } from "@/stores/filterStore";
+import { SortDirection } from "@im-library/enums";
 
 interface Props {
   value: {
@@ -54,15 +46,15 @@ const props = defineProps<Props>();
 
 watch(
   () => _.cloneDeep(props.value),
-  () => {
-    props.value.ecl = generateEcl();
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
   }
 );
 
 watch(
   () => _.cloneDeep(props.value.concept),
   async (newValue, oldValue) => {
-    if (newValue !== oldValue) await init();
+    if (!_.isEqual(newValue, oldValue)) await init();
   }
 );
 
@@ -70,62 +62,43 @@ const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const filterStore = useFilterStore();
-const filterStoreDefaults = computed(() => filterStore.filterDefaults);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 
 const loading = ref(false);
-const showDialog = ref(false);
-const isAny = ref(false);
-const selected: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
+const selected: Ref<SearchResultSummary | undefined> = ref();
 
-const functionRequest: FunctionRequest = {
-  functionIri: IM_FUNCTION.IS_TYPE,
-  arguments: [{ parameter: "type", valueIri: { "@id": IM.CONCEPT } }]
-};
 const descendantOptions = [
   {
-    label: "only",
+    label: " ",
     value: ""
   },
   {
-    label: "plus descendants",
+    label: "<<",
     value: "<<"
   },
   {
-    label: "descendants only",
+    label: "<",
     value: "<"
   }
 ];
 
-const filterOptions: FilterOptions = {
-  status: [...filterStoreOptions.value.status],
-  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
-  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
-  sortDirections: [...filterStoreOptions.value.sortDirections],
-  sortFields: [...filterStoreOptions.value.sortFields]
-};
-
-const filterDefaults: FilterOptions = {
-  status: [...filterStoreOptions.value.status.filter(s => s["@id"] === IM.ACTIVE)],
-  schemes: [...filterStoreOptions.value.schemes.filter(s => s["@id"] === SNOMED.NAMESPACE)],
-  types: [...filterStoreOptions.value.types.filter(t => t["@id"] === IM.CONCEPT)],
-  sortDirections: [...filterStoreOptions.value.sortDirections],
-  sortFields: [...filterStoreOptions.value.sortFields]
-};
+const osQueryForConceptSearch: Ref<SearchRequest> = ref({
+  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
+  statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
+  typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
+  sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
+  sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
+} as SearchRequest);
 
 onMounted(async () => {
   await init();
+  generateEcl();
 });
 
 watch(selected, (newValue, oldValue) => {
   if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri) {
     updateConcept(newValue);
   }
-});
-
-watch(isAny, newValue => {
-  if (newValue) selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
-  else selected.value = {} as SearchResultSummary;
 });
 
 async function init() {
@@ -139,22 +112,19 @@ async function init() {
 }
 
 async function updateSelectedResult(data: SearchResultSummary | { iri: string; name?: string }) {
-  if (!isObjectHasKeys(data)) selected.value = {} as SearchResultSummary;
+  if (!isObjectHasKeys(data)) selected.value = undefined;
   else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as SearchResultSummary;
-  else if (data.iri === "any" || data.iri === "*") {
-    selected.value = { iri: "any", name: "ANY", code: "any" } as SearchResultSummary;
-    isAny.value = true;
-  } else if (data.iri) {
+  else if (data.iri) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
-    selected.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
+    selected.value = isObjectHasKeys(asSummary) ? asSummary : undefined;
   } else {
-    selected.value = {} as SearchResultSummary;
+    selected.value = undefined;
   }
 }
 
 function generateEcl(): string {
   let ecl = "";
-  ecl += builderConceptToEcl(props.value, includeTerms.value);
+  ecl += builderConceptToEcl(props.value, props.parent, includeTerms.value);
   if (isArrayHasLength(props.value.items)) {
     ecl += " : \n";
     for (const [index, item] of props.value.items.entries()) {
@@ -195,7 +165,7 @@ function updateConcept(concept: any) {
 
 .search-text {
   flex: 1 1 auto;
-  min-width: 25rem;
+  min-width: 10rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

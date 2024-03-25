@@ -1,17 +1,18 @@
 <template>
-  <div :class="match.description || match.nodeRef ? 'feature' : ''">
+  <div :class="matchIndex && (match.description || match.nodeRef) ? 'feature-indent' : !matchIndex && (match.description || match.nodeRef) ? 'feature' : ''">
     <span v-if="match.description" v-html="match.description"> </span>
     <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.match)"
-      v-for="nestedMatch of match.match"
+      v-for="(nestedMatch, index) of match.match"
       :match="nestedMatch"
+      :match-index="index"
       :parent-match="match"
       :full-query="fullQuery"
     />
     <RecursivePropertyDisplay
-      v-if="isArrayHasLength(match.property)"
-      v-for="property of match.property"
+      v-if="isArrayHasLength(match.where)"
+      v-for="property of match.where"
       :property="property"
       :parent-match="match"
       :full-query="fullQuery"
@@ -47,8 +48,8 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, Query, Property, Return } from "@im-library/interfaces/AutoGen";
-import { Ref, ref } from "vue";
+import { Match, Node, Query, Where, Return } from "@im-library/interfaces/AutoGen";
+import { onMounted, Ref, ref } from "vue";
 import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import QueryOverlay from "./QueryOverlay.vue";
@@ -58,22 +59,23 @@ interface Props {
   fullQuery: Query;
   parentMatch?: Match;
   match: Query;
+  matchIndex?: number;
 }
 
 const props = defineProps<Props>();
 
 const op: Ref<any> = ref();
-const clickedNodeRef: Ref<Property | Match> = ref({} as Property);
+const clickedNodeRef: Ref<Where | Match> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
 const op1: Ref<any> = ref();
 
-function onNodeRefClick(propertyOrMatch: Property | Match, event: any) {
+function onNodeRefClick(propertyOrMatch: Where | Match, event: any) {
   clickedNodeRef.value = propertyOrMatch;
   op.value.toggle(event);
 }
 
-function getNodeRef(propertyOrMatch: Property | Match) {
-  return (propertyOrMatch.nodeRef ?? (propertyOrMatch as Property)?.relativeTo?.nodeRef) as string;
+function getNodeRef(propertyOrMatch: Where | Match) {
+  return (propertyOrMatch.nodeRef ?? (propertyOrMatch as Where)?.relativeTo?.nodeRef) as string;
 }
 </script>
 
@@ -82,6 +84,16 @@ function getNodeRef(propertyOrMatch: Property | Match) {
   display: flex;
   flex-flow: column;
   margin-left: 1rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+}
+
+.feature-indent {
+  display: flex;
+  flex-flow: column;
+  margin-left: 2rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
   margin-top: 0.1rem;

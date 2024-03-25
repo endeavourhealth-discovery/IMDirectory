@@ -57,7 +57,7 @@ export default class FhirRepository {
       return "";
     }
     const query = JSON.parse(def[0]);
-    return (await axios.post<string>(Env.API + "api/set/public/query/ecl", query)).data;
+    return (await axios.post<string>(Env.API + "api/ecl/public/eclFromQuery", query)).data;
   }
 
   async getMetaData(url: string) {

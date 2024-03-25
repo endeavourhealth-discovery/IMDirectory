@@ -3,13 +3,11 @@ import jwkToPem from "jwk-to-pem";
 import jwt, { Jwt } from "jsonwebtoken";
 import fetch from "node-fetch";
 import logger from "./logger.middleware";
+import Env from "@/services/env.service";
 
 let pems: { [key: string]: any } = {};
 
 class AuthMiddleware {
-  private poolRegion: string = "eu-west-2";
-  private userPoolId: string = "eu-west-2_Vt5ScFwss";
-
   public async verifyToken(req: Request, res: Response, next: NextFunction, role?: string) {
     if (await this.checkToken(req, role)) next();
     else res.status(401).end();
@@ -78,8 +76,20 @@ class AuthMiddleware {
     return (req: Request, res: Response, nxt: any) => this.verifyToken(req, res, nxt, role);
   }
 
+  public async getUsernameFromToken(req: Request): Promise<string> {
+    const token = req.headers?.authorization?.substring(7);
+    if (!token) throw new Error("Missing authorisation token from request");
+    let decodedJwt: any = jwt.decode(token, { complete: true });
+    if (decodedJwt === null) {
+      throw new Error("Failed to decode token");
+    }
+    const username = decodedJwt.payload["cognito:username"];
+    if (username) return username;
+    else throw new Error("Failed to get username from token");
+  }
+
   private async setUp() {
-    const URL = `https://cognito-idp.${this.poolRegion}.amazonaws.com/${this.userPoolId}/.well-known/jwks.json`;
+    const URL = `https://cognito-idp.${Env.COGNITO_REGION}.amazonaws.com/${Env.COGNITO_USER_POOL}/.well-known/jwks.json`;
 
     try {
       const response = await fetch(URL);

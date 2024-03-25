@@ -78,17 +78,23 @@
           </div>
           <div v-if="showPasswordEdit" class="field">
             <label for="passwordOld">Current password</label>
-            <InputText data-testid="user-edit-password-old" id="passwordOld" type="password" v-model="passwordOld" />
+            <div class="input-with-button">
+              <InputText data-testid="user-edit-password-old" id="passwordOld" :type="showPasswordOld ? 'text' : 'password'" v-model="passwordOld" />
+              <Button :icon="showPasswordOld ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPasswordOld" text />
+            </div>
           </div>
           <div v-if="showPasswordEdit" class="field">
             <label for="passwordNew1">New password</label>
-            <InputText
-              data-testid="user-edit-password-new1"
-              id="passwordNew1"
-              type="password"
-              v-model="passwordNew1"
-              :class="passwordStrength === 'fail' && !focused.get('passwordNew1') && 'p-invalid'"
-            />
+            <div class="input-with-button">
+              <InputText
+                data-testid="user-edit-password-new1"
+                id="passwordNew1"
+                :type="showPasswordNew1 ? 'text' : 'password'"
+                v-model="passwordNew1"
+                :class="passwordStrength === 'fail' && !focused.get('passwordNew1') && 'p-invalid'"
+              />
+              <Button :icon="showPasswordNew1 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPasswordNew1" text />
+            </div>
             <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
@@ -100,15 +106,18 @@
           </div>
           <div v-if="showPasswordEdit" class="field">
             <label for="passwordNew2">Confirm new password</label>
-            <InputText
-              data-testid="user-edit-password-new2"
-              id="passwordNew2"
-              type="password"
-              v-model="passwordNew2"
-              @focus="updateFocused('password2', true)"
-              @blur="updateFocused('password2', false)"
-              :class="!passwordsMatch && passwordNew2 && !focused.get('passwordNew2') && 'p-invalid'"
-            />
+            <div class="input-with-button">
+              <InputText
+                data-testid="user-edit-password-new2"
+                id="passwordNew2"
+                :type="showPasswordNew2 ? 'text' : 'password'"
+                v-model="passwordNew2"
+                @focus="updateFocused('password2', true)"
+                @blur="updateFocused('password2', false)"
+                :class="!passwordsMatch && passwordNew2 && !focused.get('passwordNew2') && 'p-invalid'"
+              />
+              <Button :icon="showPasswordNew2 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPasswordNew2" text />
+            </div>
             <InlineMessage v-if="!passwordsMatch && focused.get('password2') === false" severity="error"> New passwords do not match </InlineMessage>
           </div>
           <div class="flex flex-row justify-content-between align-items-center">
@@ -196,6 +205,9 @@ const showPasswordEdit = ref(false);
 const focused: Ref<Map<string, boolean>> = ref(new Map());
 const loading = ref(false);
 const activeItem = ref(0);
+const showPasswordOld = ref(false);
+const showPasswordNew1 = ref(false);
+const showPasswordNew2 = ref(false);
 const menuItems = ref([
   {
     label: "Personal details",
@@ -236,6 +248,18 @@ onMounted(() => {
     setFromCurrentUser();
   }
 });
+
+function toggleShowPasswordOld() {
+  showPasswordOld.value = !showPasswordOld.value;
+}
+
+function toggleShowPasswordNew1() {
+  showPasswordNew1.value = !showPasswordNew1.value;
+}
+
+function toggleShowPasswordNew2() {
+  showPasswordNew2.value = !showPasswordNew2.value;
+}
 
 function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);
@@ -457,5 +481,10 @@ function checkForChanges(): boolean {
 .email-times {
   color: var(--red-500);
   font-size: 2em;
+}
+
+.input-with-button {
+  display: flex;
+  flex-flow: row nowrap;
 }
 </style>

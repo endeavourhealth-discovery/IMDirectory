@@ -4,14 +4,16 @@
     <h5 class="info">ECL expression:</h5>
     <div class="text-copy-container">
       <Textarea
-        v-model="queryString"
+        v-model="eclQueryString"
         id="query-string-container"
         placeholder="Enter expression here or use the ECL builder to generate your search..."
         :class="eclError ? 'p-invalid' : ''"
         data-testid="query-string"
+        @keydown="onKeyDown"
+        @keyup="onKeyUp"
       />
       <Button
-        :disabled="!queryString.length"
+        :disabled="!eclQueryString.length"
         icon="fa-solid fa-copy"
         v-tooltip.left="'Copy to clipboard'"
         v-clipboard:copy="copyToClipboard()"
@@ -25,102 +27,79 @@
       <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" />
       <Button
         label="Search"
-        :loading="loading"
-        @click="search()"
+        :loading="searchLoading"
+        @click="onSearch()"
         class="p-button-primary"
-        :disabled="!queryString.length || eclError"
+        :disabled="!eclQueryString.length || eclError"
         data-testid="search-button"
       />
     </div>
     <div class="filters-container">
       <div class="status-filter p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="search()" :options="statusOptions" display="chip" />
+          <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="onSearch()" :options="statusOptions" display="chip" />
           <label for="status">Select status:</label>
         </span>
       </div>
     </div>
     <div class="results-container">
       <ResultsTable
-        :searchResults="searchResults"
-        :loading="loading"
-        :rows="rowsStart"
-        :lazy-loading="requiresLazy"
-        :total-records="totalCount"
-        @locate-in-tree="(iri: string) => $emit('locateInTree', iri)"
-        @row-selected="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
-        @lazy-load-requested="loadMore"
-        @download-requested="downloadAll"
+        v-model:loading="searchLoading"
+        :update-search="updateSearch"
+        :ecl-query="eclQuery"
+        @rowSelected="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
+        @locateInTree="(iri: string) => $emit('locateInTree', iri)"
       />
     </div>
+    <Builder
+      :showDialog="showDialog"
+      :eclString="eclQueryString"
+      @eclSubmitted="updateECL"
+      @closeDialog="showDialog = false"
+      @eclConversionError="updateError"
+      :key="builderKey"
+      :data-testid="'builder-visible-' + showDialog"
+    />
   </div>
-  <Builder
-    :showDialog="showDialog"
-    :eclString="queryString"
-    @eclSubmitted="updateECL"
-    @closeDialog="showDialog = false"
-    @eclConversionError="updateError"
-    :key="builderKey"
-    :data-testid="'builder-visible-' + showDialog"
-  />
 </template>
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { EclSearchRequest } from "@im-library/interfaces";
-import { OrderLimit, Query, TTIriRef, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
-import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
 import { byName } from "@im-library/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import setupDownloadFile from "@/composables/downloadFile";
-import LoadingDialog from "../shared/dynamicDialogs/LoadingDialog.vue";
-import { useDialog } from "primevue/usedialog";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
   selectedUpdated: (_payload: SearchResultSummary) => true
 });
 
-const toast = useToast();
 const filterStore = useFilterStore();
 const editorStore = useEditorStore();
-const dynamicDialog = useDialog();
-
-const { downloadFile } = setupDownloadFile(window, document);
-
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
-const requiresLazy = computed(() => totalCount.value > currentRows.value);
-
-const rowsStart = 25;
-
-const queryString = ref("");
+const eclQueryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(eclQueryString);
 const showDialog = ref(false);
-const searchResults: Ref<SearchResponse | undefined> = ref();
-const totalCount = ref(0);
 const eclError = ref(false);
 const eclErrorMessage = ref("");
-const loading = ref(false);
-const controller: Ref<AbortController> = ref({} as AbortController);
-const controllerTotal: Ref<AbortController> = ref({} as AbortController);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
-const currentPage = ref(0);
-const currentRows = ref(rowsStart);
-const eclQuery: Ref<Query | undefined> = ref();
+const eclQuery: Ref<EclSearchRequest | undefined> = ref();
+const keysPressed = {} as any;
+const updateSearch: Ref<boolean> = ref(false);
+const searchLoading: Ref<boolean> = ref(false);
 
-watch(queryString, () => {
+watch(eclQueryString, () => {
   eclError.value = false;
-  editorStore.updateEclEditorSavedString(queryString.value);
+  editorStore.updateEclEditorSavedString(eclQueryString.value);
 });
 
 watch(selectedStatus, async () => {
@@ -129,11 +108,20 @@ watch(selectedStatus, async () => {
 
 onMounted(() => {
   setFilterDefaults();
-  if (savedEcl.value) queryString.value = savedEcl.value;
+  if (savedEcl.value) eclQueryString.value = savedEcl.value;
 });
 
+async function onKeyDown(event: any) {
+  keysPressed[event.key] = true;
+  if (keysPressed["Control"] && keysPressed["Enter"] && eclQueryString.value.length && !eclError.value) await onSearch();
+}
+
+function onKeyUp(event: any) {
+  delete keysPressed[event.key];
+}
+
 function updateECL(data: string): void {
-  queryString.value = data;
+  eclQueryString.value = data;
   showDialog.value = false;
 }
 
@@ -147,92 +135,20 @@ function updateError(errorUpdate: { error: boolean; message: string }): void {
   eclErrorMessage.value = errorUpdate.message;
 }
 
-async function search(loadMore?: boolean): Promise<void> {
-  if (queryString.value) {
-    loading.value = true;
-    abortPreviousRequests();
-    if (!loadMore) {
-      eclQuery.value = await EclService.getQueryFromECL(queryString.value);
-      eclQuery.value.orderBy = {} as OrderLimit;
-      eclQuery.value.orderBy.property = { valueVariable: "term" };
-    }
-    const eclSearchRequest = {
-      eclQuery: eclQuery.value,
+async function onSearch(): Promise<void> {
+  if (eclQueryString.value) {
+    const imQuery = await EclService.getQueryFromECL(eclQueryString.value);
+    eclQuery.value = {
+      eclQuery: imQuery,
       includeLegacy: false,
       statusFilter: selectedStatus.value
     } as EclSearchRequest;
-    eclSearchRequest.page = currentPage.value;
-    eclSearchRequest.size = currentRows.value;
-    const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
-    if (isObjectHasKeys(result, ["entities"])) {
-      searchResults.value = result;
-      totalCount.value = result.count;
-    }
-    loading.value = false;
+    updateSearch.value = !updateSearch.value;
   }
-}
-
-function abortPreviousRequests() {
-  if (!isObject(controller.value)) {
-    controller.value.abort();
-  }
-  if (!isObject(controllerTotal.value)) {
-    controllerTotal.value.abort();
-  }
-  controller.value = new AbortController();
-  controllerTotal.value = new AbortController();
-}
-
-async function loadMore(event: any) {
-  if (event.rows !== rowsStart) {
-    currentRows.value = event.rows;
-    await search(true);
-  }
-  if (event.page !== currentPage.value) {
-    currentPage.value = event.page;
-    await search(true);
-  }
-}
-
-async function downloadAll() {
-  const downloadDialog = dynamicDialog.open(LoadingDialog, {
-    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
-    data: { title: "Downloading", text: "Preparing your download..." }
-  });
-  const eclQuery = await EclService.getQueryFromECL(queryString.value);
-  eclQuery.orderBy = {} as OrderLimit;
-  eclQuery.orderBy.property = { valueVariable: "term" };
-  const eclSearchRequest = {
-    eclQuery: eclQuery,
-    includeLegacy: false,
-    statusFilter: selectedStatus.value,
-    limit: 0
-  } as EclSearchRequest;
-  const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
-  if (isObjectHasKeys(result, ["entities"])) {
-    const entities = result.entities;
-    const heading = ["name", "iri", "code"].join(",");
-    const body = entities.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
-    const csv = [heading, body].join("\n");
-    downloadFile(csv, "results.csv");
-  }
-  downloadDialog.close();
 }
 
 function setFilterDefaults() {
   selectedStatus.value = statusOptions.value.filter((option: any) => option["@id"] === IM.ACTIVE);
-}
-
-function copyToClipboard(): string {
-  return queryString.value;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
 }
 </script>
 

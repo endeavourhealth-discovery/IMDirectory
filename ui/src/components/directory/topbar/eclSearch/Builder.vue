@@ -16,7 +16,11 @@
     :auto-z-index="false"
   >
     <template #header>
-      <h3>ECL Builder:</h3>
+      <div class="ecl-builder-dialog-header">
+        <strong>ECL Builder:</strong>
+        <Button icon="fa-regular fa-circle-question" text rounded @mouseover="toggle" @mouseout="toggle" />
+        <OverlayPanel ref="op">Select or drag and drop for grouping</OverlayPanel>
+      </div>
     </template>
     <div id="builder-string-container">
       <div id="query-builder-container">
@@ -24,30 +28,32 @@
           <ProgressSpinner v-if="loading" />
           <BoolGroup v-else :value="build" :rootBool="true" />
         </div>
-        <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading"
-          >*Move pointer over panel above to add concepts, refinements and groups.</small
-        >
+        <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading">
+          *Move pointer over panel above to add concepts, refinements and groups.
+        </small>
       </div>
       <div id="build-string-container">
-        <h3>Output:</h3>
-        <div class="field-checkbox">
-          <Checkbox inputId="includeTerms" v-model="includeTerms" :binary="true" />
-          <label for="includeTerms">Include terms</label>
-        </div>
-        <div class="string-copy-container">
-          <pre class="output-string">{{ queryString }}</pre>
-          <Button
-            icon="fa-solid fa-copy"
-            v-tooltip.left="'Copy to clipboard'"
-            v-clipboard:copy="copyToClipboard()"
-            v-clipboard:success="onCopy"
-            v-clipboard:error="onCopyError"
-          />
-        </div>
+        <Panel header="Output" toggleable collapsed>
+          <div class="field-checkbox">
+            <Checkbox inputId="includeTerms" v-model="includeTerms" :binary="true" />
+            <label for="includeTerms">Include terms</label>
+          </div>
+          <div class="string-copy-container">
+            <pre class="output-string">{{ queryString }}</pre>
+            <Button
+              icon="fa-solid fa-copy"
+              v-tooltip.left="'Copy to clipboard'"
+              v-clipboard:copy="copyToClipboard()"
+              v-clipboard:success="onCopy"
+              v-clipboard:error="onCopyError"
+            />
+          </div>
+        </Panel>
       </div>
     </div>
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" />
+      <Button label="Validate" severity="help" @click="validateBuild" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>
@@ -57,6 +63,11 @@
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { useDialog } from "primevue/usedialog";
+import { deferred } from "@im-library/helpers";
+import Swal from "sweetalert2";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -67,10 +78,8 @@ export default defineComponent({
 import { Ref, ref, watch, onMounted, provide, readonly, defineComponent } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
 import EclService from "@/services/EclService";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   showDialog?: boolean;
@@ -84,20 +93,32 @@ const emit = defineEmits({
   closeDialog: () => true
 });
 
-const toast = useToast();
+const dynamicDialog = useDialog();
 
 const build: Ref<any> = ref({ type: "BoolGroup", operator: "OR" });
 const includeTerms = ref(true);
+const forceValidation = ref(false);
 const queryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
+
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
 const isValidEcl = ref(false);
+const isValid = ref(false);
+
+const wasDraggedAndDropped = ref(false);
+provide("wasDraggedAndDropped", wasDraggedAndDropped);
+const op = ref();
+function toggle(event: any) {
+  op.value.toggle(event);
+}
 
 watch(queryString, async () => {
   isValidEcl.value = await EclService.isValidECL(queryString.value);
 });
 
 provide("includeTerms", readonly(includeTerms));
+provide("forceValidation", readonly(forceValidation));
 
 onMounted(async () => {
   if (props.eclString) {
@@ -149,19 +170,74 @@ function closeBuilderDialog(): void {
 }
 
 function generateQueryString() {
-  if (isObjectHasKeys(build.value, ["ecl"])) queryString.value = build.value.ecl;
+  if (isObjectHasKeys(build.value, ["ecl"])) {
+    queryString.value = build.value.ecl;
+  }
 }
 
-function copyToClipboard(): string {
-  return queryString.value;
+async function validateBuild() {
+  const verificationDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Validating", text: "Running validation checks..." }
+  });
+  const validationBuild = generateValidation();
+  forceValidation.value = true;
+  const promises = validationBuild.map(v => v.validation.deferred.promise);
+  const result = await Promise.allSettled(promises)
+    .then(result => {
+      return result.every(r => r.status === "fulfilled");
+    })
+    .catch(err => {
+      verificationDialog.close();
+      throw err;
+    });
+  if (result) {
+    isValid.value = validationBuild.every(v => v.validation.valid);
+    if (isValid.value) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "All entities are valid.",
+        confirmButtonText: "Close",
+        confirmButtonColor: "##2196F3"
+      });
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "Invalid values found. Please review your entries.",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
+    }
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "Timeout",
+      text: "Validation timed out. Please contact an admin for support.",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
+    });
+  }
+  forceValidation.value = false;
+  verificationDialog.close();
 }
 
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
+function generateValidation(): any[] {
+  const flattenedBuild: any[] = [];
+  flattenBuild(build.value, flattenedBuild);
+  return flattenedBuild;
 }
 
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipbard"));
+function flattenBuild(build: any, flattenedBuild: any[]) {
+  if (isArrayHasLength(build.items))
+    build.items.forEach((item: any) => {
+      if (item.type === "Refinement") {
+        item.validation = { deferred: deferred(6000), valid: false };
+        flattenedBuild.push(item);
+      }
+      flattenBuild(item, flattenedBuild);
+    });
 }
 </script>
 
@@ -224,5 +300,13 @@ function onCopyError(): void {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+}
+
+.ecl-builder-dialog-header {
+  display: flex;
+  flex-flow: row;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: larger;
 }
 </style>

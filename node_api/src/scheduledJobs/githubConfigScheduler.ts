@@ -3,7 +3,7 @@ import setGithubConfig from "../logic/setGithubConfig";
 import logger from "@/middlewares/logger.middleware";
 
 const githubConfigJob = cron.schedule(
-  "* * 0 * * *",
+  "0 0 0 * * *",
   async () => {
     logger.info("Running githubConfig task");
     await setGithubConfig();

@@ -11,7 +11,7 @@
           <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
           <div class="code-input">
             <label for="mfa-code">Code</label>
-            <InputText id="mfa-code" v-model="code" v-on:keyup.enter="handleSubmitMFA" />
+            <InputText id="mfa-code" v-model="code" v-on:keyup.enter="handleSubmitMFA" autofocus />
             <small id="mfa-code-help">Enter the code from your authenticator app</small>
             <small v-if="!isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
           </div>
@@ -27,12 +27,13 @@ import { onMounted, ref, h, computed } from "vue";
 import { useDialog } from "primevue/usedialog";
 import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
-import Swal from "sweetalert2";
+import Swal, { SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
 import { useUserStore } from "@/stores/userStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import { Avatars } from "@im-library/constants";
+import { CustomAlert } from "@im-library/interfaces";
 
 const router = useRouter();
 const helpDialog = useDialog();
@@ -70,33 +71,99 @@ function showHelpDialog() {
   });
 }
 
+async function handle200(res: CustomAlert) {
+  const loggedInUser = res.user;
+  if (loggedInUser) {
+    // check if avatar exists and replace lagacy images with default avatar on signin
+    const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
+    if (!result) {
+      loggedInUser.avatar = Avatars[0];
+    }
+    userStore.updateCurrentUser(loggedInUser);
+    userStore.updateAwsUser(res.userRaw);
+    await userStore.getAllFromUserDatabase();
+    authStore.updateRegisteredUsername("");
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "Login successful"
+    }).then(() => {
+      userStore.clearOptionalCookies();
+      if (authReturnPath.value) {
+        router.push({ path: authReturnPath.value });
+      } else {
+        router.push({ name: "LandingPage" });
+      }
+    });
+  }
+}
+
+function handle401(res: CustomAlert) {
+  Swal.fire({
+    icon: "warning",
+    title: "User Unconfirmed",
+    text: "Account has not been confirmed. Please confirm account to continue.",
+    showCloseButton: true,
+    showCancelButton: true,
+    confirmButtonText: "Confirm Account"
+  }).then((result: SweetAlertResult) => {
+    if (result.isConfirmed) {
+      if (res.user?.username) authStore.updateRegisteredUsername(res.user?.username);
+      router.push({ name: "ConfirmCode" });
+    }
+  });
+}
+
+function handle403(res: CustomAlert) {
+  if (res.message === "NEW_PASSWORD_REQUIRED") {
+    Swal.fire({
+      icon: "warning",
+      title: "New password required",
+      text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+      showCloseButton: false,
+      showCancelButton: false,
+      confirmButtonText: "Reset password"
+    }).then((result: SweetAlertResult) => {
+      if (result.isConfirmed) {
+        router.push({ name: "ForgotPassword" });
+      }
+    });
+  } else if (res.message) {
+    console.error(res.error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: res.message,
+      confirmButtonText: "Close"
+    });
+  } else {
+    console.error(res.error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Authentication error",
+      confirmButtonText: "Close"
+    });
+  }
+}
+
 async function handleSubmitMFA() {
   if (isValidCode.value) {
     loading.value = true;
     await AuthService.mfaSignIn(awsUser.value, code.value)
       .then(async res => {
-        if (res.status === 200 && res.user) {
-          const loggedInUser = res.user;
-          // check if avatar exists and replace lagacy images with default avatar on signin
-          const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-          if (!result) {
-            loggedInUser.avatar = Avatars[0];
-          }
-          userStore.updateCurrentUser(loggedInUser);
-          userStore.updateAwsUser(res.userRaw);
-          await userStore.getAllFromUserDatabase();
-          authStore.updateRegisteredUsername("");
+        if (res.status === 200) {
+          await handle200(res);
+        } else if (res.status === 401) {
+          handle401(res);
+        } else if (res.status === 403) {
+          handle403(res);
+        } else {
           Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Login successful"
-          }).then(() => {
-            userStore.clearOptionalCookies();
-            if (authReturnPath.value) {
-              router.push({ path: authReturnPath.value });
-            } else {
-              router.push({ name: "LandingPage" });
-            }
+            icon: "error",
+            title: "Error",
+            text: res.message,
+            confirmButtonText: "Close"
           });
         }
       })

@@ -1,7 +1,13 @@
 <template>
   <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter">
     <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
-      <NavTree :allow-right-click="true" :selected-iri="findInTreeIri" :find-in-tree="findInTreeBoolean" @row-selected="routeToSelected" />
+      <NavTree
+        :allow-right-click="true"
+        :selected-iri="findInTreeIri"
+        :find-in-tree="findInTreeBoolean"
+        @row-selected="routeToSelected"
+        @found-in-tree="directoryStore.updateFindInTreeBoolean(false)"
+      />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
@@ -11,16 +17,15 @@
         <router-view
           v-else
           v-slot="{ Component, route }"
+          v-model:history="history"
+          :searchTerm="searchTerm"
+          :updateSearch="updateSearch"
+          :selected-filter-options="selectedFilterOptions"
+          :rows="100"
           @selectedUpdated="routeToSelected"
-          :searchResults="searchResults"
-          :searchLoading="searchLoading"
           @navigateTo="navigateTo"
           @locateInTree="locateInTree"
-          v-model:history="history"
-          @lazyLoadRequested="(event: any) => $emit('lazyLoadRequested', event)"
-          :lazyLoading="true"
-          @downloadRequested="(data: any) => $emit('downloadRequested', data)"
-          :rows="100"
+          @selected-filters-updated="emit('selectedFiltersUpdated', $event)"
         >
           <transition :name="route?.meta?.transition || 'fade'" :mode="route?.meta?.mode || 'in-out'">
             <component :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
@@ -39,16 +44,17 @@ import { Ref, computed, ref, onMounted, watch } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRouter } from "vue-router";
 import { useLoadingStore } from "@/stores/loadingStore";
-import { SearchResponse } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
 
 interface Props {
-  searchResults: SearchResponse | undefined;
-  searchLoading: boolean;
+  searchTerm: string;
+  updateSearch: boolean;
+  selectedFilterOptions: FilterOptions;
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({ lazyLoadRequested: (_payload: any) => true, downloadRequested: (_payload: { term: string; count: number }) => true });
+const emit = defineEmits({ selectedFiltersUpdated: (_payload: FilterOptions) => true });
 
 const router = useRouter();
 const loadingStore = useLoadingStore();

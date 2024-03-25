@@ -35,6 +35,7 @@ import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import setupChangeTheme from "@/composables/setupChangeTheme";
+import setupChangeScale from "@/composables/setupChangeScale";
 import { useLoadingStore } from "./stores/loadingStore";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
@@ -51,12 +52,14 @@ const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 
 const { changeTheme } = setupChangeTheme();
+const { changeScale } = setupChangeScale();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
 const currentTheme = computed(() => userStore.currentTheme);
+const currentScale = computed(() => userStore.currentScale);
 const viewsLoading = computed(() => loadingStore.viewsLoading);
 
 use([CanvasRenderer, PieChart, BarChart, LineChart, GridComponent, TitleComponent, TooltipComponent, LegendComponent]);
@@ -74,10 +77,17 @@ onMounted(async () => {
   loadingStore.updateViewsLoading(true);
   await userStore.authenticateCurrentUser();
   await userStore.getAllFromUserDatabase();
+
   let theme = "saga-blue";
   if (currentUser.value) await UserService.getUserTheme();
   if (currentTheme.value) theme = currentTheme.value;
   changeTheme(theme);
+
+  let scale = "16px";
+  if (currentUser.value) await UserService.getUserScale();
+  if (currentScale.value) scale = currentScale.value;
+  changeScale(scale);
+
   await setShowBanner();
   loadingStore.updateViewsLoading(false);
 });
