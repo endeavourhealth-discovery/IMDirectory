@@ -3,7 +3,7 @@
     <DataTable
       :paginator="true"
       :rows="rows"
-      :value="searchResults"
+      :value="processedSearchResults"
       class="p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
@@ -16,16 +16,15 @@
       dataKey="iri"
       :autoLayout="true"
       @page="onPage($event)"
-      :lazy="true"
+      :lazy="lazyLoading"
       :total-records="totalCount"
       :rows-per-page-options="[rows, rows * 2, rows * 4, rows * 8]"
-      :loading="searchLoading"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
           <span>Results</span>
-          <span v-if="totalCount"> {{ " (" + totalCount + ")" }}</span>
+          <span v-if="totalCount"> {{ "(" + totalCount + ")" }}</span>
           <Button
             :disabled="!searchResults"
             class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
@@ -66,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
 import { DirectService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
@@ -79,10 +78,35 @@ import _ from "lodash";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { SearchResultSummary, SearchResponse, QueryRequest, SearchRequest } from "@im-library/interfaces/AutoGen";
+import { SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import setupSearch from "@/composables/setupSearch";
-import { EclSearchRequest, FilterOptions } from "@im-library/interfaces";
+
+interface Props {
+  searchResults?: SearchResponse;
+  loading: boolean;
+  rows?: number;
+  lazyLoading?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  lazyLoading: false,
+  rows: 25
+});
+
+const emit = defineEmits({
+  rowSelected: (_payload: SearchResultSummary) => true,
+  locateInTree: (_payload: string) => true,
+  downloadRequested: (_payload: { term: string; count: number }) => true,
+  lazyLoadRequested: (_payload: any) => true
+});
+
+const userStore = useUserStore();
+const dynamicDialog = useDialog();
+const favourites = computed(() => userStore.favourites);
+
+const { downloadFile } = setupDownloadFile(window, document);
+
+const directService = new DirectService();
 
 interface ResultSummary extends SearchResultSummary {
   icon: string[];
@@ -91,43 +115,10 @@ interface ResultSummary extends SearchResultSummary {
   favourite: boolean;
 }
 
-interface Props {
-  searchTerm?: string;
-  updateSearch?: boolean;
-  selectedFilterOptions?: FilterOptions;
-  imQuery?: QueryRequest;
-  osQuery?: SearchRequest;
-  eclQuery?: EclSearchRequest;
-  pageSize?: number;
-  loading?: boolean;
-}
-
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  rowSelected: (_payload: SearchResultSummary) => true,
-  locateInTree: (_payload: string) => true,
-  "update:loading": _payload => true
-});
-
-onMounted(async () => {
-  if (props.pageSize) rows.value = props.pageSize;
-  if (props.searchTerm) await onSearch();
-});
-
-const userStore = useUserStore();
-const dynamicDialog = useDialog();
-const favourites = computed(() => userStore.favourites);
-const { searchLoading, search } = setupSearch();
-const { downloadFile } = setupDownloadFile(window, document);
-
-const directService = new DirectService();
-
 const selected: Ref<ResultSummary> = ref({} as ResultSummary);
-const searchResults: Ref<any[]> = ref([]);
+const processedSearchResults: Ref<any[]> = ref([]);
 const totalCount = ref(0);
 const page = ref(0);
-const rows = ref(25);
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",
@@ -157,26 +148,11 @@ const { OS, showOverlay, hideOverlay } = setupOverlay();
 const contextMenu = ref();
 
 watch(
-  () => props.updateSearch,
-  async () => await onSearch()
+  () => _.cloneDeep(props.searchResults),
+  () => init()
 );
 
-watch(
-  () => searchLoading.value,
-  () => emit("update:loading", searchLoading.value)
-);
-
-async function onSearch() {
-  const response = await search(
-    props.searchTerm,
-    props.selectedFilterOptions,
-    { pageNumber: page.value + 1, pageSize: rows.value },
-    props.osQuery,
-    props.imQuery,
-    props.eclQuery
-  );
-  if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
-}
+onMounted(() => init());
 
 function updateFavourites(row?: any) {
   if (row) selected.value = row.data;
@@ -188,9 +164,13 @@ function isFavourite(iri: string) {
   return favourites.value.includes(iri);
 }
 
-function processSearchResults(searchResponse: SearchResponse | undefined): void {
-  if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
-    searchResults.value = searchResponse.entities.map(result => {
+function init() {
+  processSearchResults(props.searchResults);
+}
+
+function processSearchResults(searchResults: SearchResponse | undefined): void {
+  if (searchResults?.entities && isArrayHasLength(searchResults.entities)) {
+    processedSearchResults.value = searchResults.entities.map(result => {
       const copy: any = _.cloneDeep(result);
       copy.icon = getFAIconFromType(result.entityType);
       copy.colour = getColourFromType(result.entityType);
@@ -198,7 +178,8 @@ function processSearchResults(searchResponse: SearchResponse | undefined): void 
       copy.favourite = isFavourite(result.iri);
       return copy;
     });
-    totalCount.value = searchResponse.count ?? 0;
+    totalCount.value = searchResults.count ?? 0;
+    page.value = searchResults.page ?? 0;
   }
 }
 
@@ -206,10 +187,8 @@ function updateRClickOptions() {
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
 }
 
-async function onPage(event: any) {
-  page.value = event.page;
-  rows.value = event.rows;
-  await onSearch();
+function onPage(event: any) {
+  if (props.lazyLoading) emit("lazyLoadRequested", event);
   scrollToTop();
 }
 
@@ -228,38 +207,32 @@ function onRowSelect(event: any) {
   clicks.value++;
   if (clicks.value === 1) {
     timer.value = setTimeout(() => {
-      const found = searchResults.value.find(result => event.data.iri === result.iri);
+      const found = props.searchResults?.entities?.find(result => event.data.iri === result.iri);
       if (found) emit("rowSelected", found);
       clicks.value = 0;
     }, delay.value);
   } else {
     clearTimeout(timer.value);
-    const found = searchResults.value.find(result => event.data.iri === result.iri);
+    const found = props.searchResults?.entities?.find(result => event.data.iri === result.iri);
     if (found) emit("rowSelected", found);
     clicks.value = 0;
   }
 }
 
-async function exportCSV(): Promise<void> {
-  if (isArrayHasLength(searchResults.value)) {
+function exportCSV(): void {
+  if (props.searchResults) {
+    if (props.searchResults.count && props.searchResults.entities && props.searchResults.entities.length < props.searchResults.count) {
+      emit("downloadRequested", { term: props.searchResults.term ?? "", count: props.searchResults.count });
+      return;
+    }
     const downloadDialog = dynamicDialog.open(LoadingDialog, {
       props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
       data: { title: "Downloading", text: "Preparing your download..." }
     });
-    const response = await search(
-      props.searchTerm,
-      props.selectedFilterOptions,
-      { pageNumber: 1, pageSize: totalCount.value },
-      props.osQuery,
-      props.imQuery,
-      props.eclQuery
-    );
-    if (response && isArrayHasLength(response.entities)) {
-      const heading = ["name", "iri", "code"].join(",");
-      const body = response?.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
-      const csv = [heading, body].join("\n");
-      downloadFile(csv, "results.csv");
-    }
+    const heading = ["name", "iri", "code"].join(",");
+    const body = props.searchResults.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
+    const csv = [heading, body].join("\n");
+    downloadFile(csv, "results.csv");
     downloadDialog.close();
   }
 }

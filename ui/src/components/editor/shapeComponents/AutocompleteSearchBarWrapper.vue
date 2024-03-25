@@ -6,7 +6,7 @@
     </div>
     <AutocompleteSearchBar
       v-model:selected="selectedResult"
-      :im-query="queryRequest"
+      :searchByQuery="queryRequest"
       :root-entities="rootEntities"
       @dragenter.prevent
       @dragover.prevent

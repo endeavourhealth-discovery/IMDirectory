@@ -1,23 +1,16 @@
 <template>
-  <div v-if="storeFilterOptions" class="filters">
+  <div v-if="filterOptions" class="filters">
     <div class="quick-filters-container">
       <div class="quick-filter-container">
         <label>Include legacy:</label>
-        <InputSwitch v-model="includeLegacy" @change="emitFilterUpdate()" />
+        <InputSwitch v-model="includeLegacy" />
       </div>
     </div>
 
     <div class="p-field">
       <div class="p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect
-            id="status"
-            optionLabel="name"
-            display="chip"
-            v-model="selectedStatus"
-            :options="storeFilterOptions.status"
-            @change="emitFilterUpdate()"
-          />
+          <MultiSelect id="status" v-model="selectedStatus" @change="checkForSearch" :options="filterOptions.status" optionLabel="name" display="chip" />
           <label for="status">Select status:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetStatus" v-tooltip="'Reset status filters'" />
         </span>
@@ -27,14 +20,7 @@
     <div class="p-field">
       <div class="p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect
-            id="scheme"
-            optionLabel="name"
-            display="chip"
-            v-model="selectedSchemes"
-            :options="storeFilterOptions.schemes"
-            @change="emitFilterUpdate()"
-          />
+          <MultiSelect id="scheme" v-model="selectedSchemes" @change="checkForSearch" :options="filterOptions.schemes" optionLabel="name" display="chip" />
           <label for="scheme">Select scheme:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetSchemes" v-tooltip="'Reset scheme filters'" />
         </span>
@@ -44,14 +30,7 @@
     <div class="p-field">
       <div class="p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect
-            id="conceptType"
-            optionLabel="name"
-            display="chip"
-            v-model="selectedTypes"
-            :options="storeFilterOptions.types"
-            @change="emitFilterUpdate()"
-          />
+          <MultiSelect id="conceptType" v-model="selectedTypes" @change="checkForSearch" :options="filterOptions.types" optionLabel="name" display="chip" />
           <label for="conceptType">Select concept type:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetTypes" v-tooltip="'Reset type filters'" />
         </span>
@@ -61,7 +40,7 @@
     <div class="p-field">
       <div class="p-inputgroup">
         <span class="p-float-label">
-          <Dropdown id="sortField" optionLabel="name" v-model="selectedSortField" :options="storeFilterOptions.sortFields" @change="emitFilterUpdate()" />
+          <Dropdown id="sortField" v-model="selectedSortField" @change="checkForSearch" :options="filterOptions.sortFields" optionLabel="name" />
           <label for="sortField">Select sort field:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetSortField" v-tooltip="'Reset sort field filters'" />
         </span>
@@ -71,13 +50,7 @@
     <div class="p-field">
       <div class="p-inputgroup">
         <span class="p-float-label">
-          <Dropdown
-            id="sortDirection"
-            optionLabel="name"
-            v-model="selectedSortDirection"
-            :options="storeFilterOptions.sortDirections"
-            @change="emitFilterUpdate()"
-          />
+          <Dropdown id="sortDirection" v-model="selectedSortDirection" @change="checkForSearch" :options="filterOptions.sortDirections" optionLabel="name" />
           <label for="sortDirection">Select sort direction:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetSortDirection" v-tooltip="'Reset sort direction filters'" />
         </span>
@@ -90,85 +63,86 @@
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { GRAPH } from "@im-library/vocabulary";
+import { IM, GRAPH } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
 interface Props {
-  selectedFilterOptions?: FilterOptions;
+  search: Function;
+  filterOptions?: FilterOptions;
+  filterDefaults?: FilterOptions;
 }
 const props = defineProps<Props>();
 
 const emit = defineEmits({
   selectedFiltersUpdated: (_payload: FilterOptions) => true
 });
+
 const filterStore = useFilterStore();
 const storeDefaultFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.defaultFilterOptions);
 const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 
-const includeLegacy = ref(false);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
 const selectedTypes: Ref<TTIriRef[]> = ref([]);
-const selectedSortField: Ref<TTIriRef | undefined> = ref({} as TTIriRef);
-const selectedSortDirection: Ref<TTIriRef | undefined> = ref({} as TTIriRef);
+const selectedSortField: Ref<TTIriRef> = ref({} as TTIriRef);
+const selectedSortDirection: Ref<TTIriRef> = ref({} as TTIriRef);
+const includeLegacy = ref(false);
+const filterOptions: Ref<FilterOptions> = ref({ ...filterStoreOptions.value });
+const filterDefaults: Ref<FilterOptions> = ref({ ...filterStoreDefaults.value });
+const selectedFilters: Ref<FilterOptions> = ref({ ...selectedStoreFilters.value });
+const loading = ref(false);
 
-watch(
-  () => includeLegacy.value,
-  newValue => setLegacy(newValue)
-);
+watch(includeLegacy, newValue => setLegacy(newValue));
+
+watch([selectedStatus, selectedSchemes, selectedTypes, selectedSortField, selectedSortDirection], () => {
+  if (!loading.value) updateStoreSelectedFilters();
+});
 
 onMounted(() => init());
 
 function init() {
-  if (storeFilterOptions.value) setSelectedOptions();
-}
-
-function emitFilterUpdate() {
-  const filterOptions = { schemes: selectedSchemes.value, status: selectedStatus.value, types: selectedTypes.value } as FilterOptions;
-  if (selectedSortDirection.value) filterOptions.sortDirections = [selectedSortDirection.value];
-  if (selectedSortField.value) filterOptions.sortFields = [selectedSortField.value];
-  emit("selectedFiltersUpdated", filterOptions);
+  loading.value = true;
+  setDefaults();
+  loading.value = false;
 }
 
 function resetSortField() {
-  if (storeDefaultFilterOptions.value) {
-    selectedSortField.value = storeDefaultFilterOptions.value.sortFields?.[0];
-    selectedSortDirection.value = storeDefaultFilterOptions.value.sortDirections?.[0];
+  if (filterDefaults.value) {
+    selectedSortField.value = filterDefaults.value.sortFields?.[0];
+    selectedSortDirection.value = filterDefaults.value.sortDirections?.[0];
   }
-  emitFilterUpdate();
 }
 
 function resetSortDirection() {
-  if (storeDefaultFilterOptions.value) selectedSortDirection.value = storeDefaultFilterOptions.value.sortDirections?.[0];
-  emitFilterUpdate();
+  if (filterDefaults.value) selectedSortDirection.value = filterDefaults.value.sortDirections?.[0];
 }
 
 function resetStatus() {
-  if (storeFilterOptions.value && storeDefaultFilterOptions.value) {
-    selectedStatus.value = storeFilterOptions.value.status.filter(
-      item => storeDefaultFilterOptions.value?.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+  if (filterOptions.value && filterDefaults.value) {
+    selectedStatus.value = filterOptions.value.status.filter(
+      item => filterDefaults.value?.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
   }
-  emitFilterUpdate();
+  checkForSearch();
 }
 
 function resetSchemes() {
-  if (storeFilterOptions.value && storeDefaultFilterOptions.value) {
-    selectedSchemes.value = storeFilterOptions.value.schemes.filter(
-      item => storeDefaultFilterOptions.value?.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+  if (filterOptions.value && filterDefaults.value) {
+    selectedSchemes.value = filterOptions.value.schemes.filter(
+      item => filterDefaults.value?.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
   }
-  emitFilterUpdate();
+  checkForSearch();
 }
 
 function resetTypes() {
-  if (storeFilterOptions.value && storeDefaultFilterOptions.value) {
-    selectedTypes.value = storeFilterOptions.value.types.filter(
-      item => storeDefaultFilterOptions.value?.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+  if (filterOptions.value && filterDefaults.value) {
+    selectedTypes.value = filterOptions.value.types.filter(
+      item => filterDefaults.value?.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
   }
-  emitFilterUpdate();
+  checkForSearch();
 }
 
 function setSelectedOptions(): void {
@@ -214,15 +188,31 @@ function setDefaults() {
 
   if (isArrayHasLength(storeFilterOptions.value.types)) selectedTypes.value = [...storeDefaultFilterOptions.value.types];
 
-  if (isArrayHasLength(storeFilterOptions.value.sortFields)) selectedSortField.value = storeDefaultFilterOptions.value.sortFields?.[0];
-  if (isArrayHasLength(storeFilterOptions.value.sortDirections)) selectedSortDirection.value = storeDefaultFilterOptions.value.sortDirections?.[0];
+    selectedSortField.value = filterDefaults.value.sortFields?.[0];
+    selectedSortDirection.value = filterDefaults.value.sortDirections?.[0];
+    updateStoreSelectedFilters();
+  } else {
+    selectedStatus.value = selectedFilters.value.status;
+    selectedSchemes.value = selectedFilters.value.schemes;
+    selectedTypes.value = selectedFilters.value.types;
+    selectedSortField.value =
+      filterOptions.value.sortFields.find(item => filterDefaults.value?.sortFields.map(defaultOption => defaultOption["@id"]).includes(item["@id"])) ||
+      ({} as TTIriRef);
+    selectedSortDirection.value =
+      filterOptions.value.sortDirections.find(item => filterDefaults.value?.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])) ||
+      ({} as TTIriRef);
+  }
+
+  if (quickFiltersStatus.value.includeLegacy) {
+    includeLegacy.value = quickFiltersStatus.value.includeLegacy;
+  }
 }
 
 function setLegacy(include: boolean): void {
   const emisScheme = selectedSchemes.value.findIndex(scheme => scheme["@id"] === GRAPH.EMIS);
   if (include) {
     if (emisScheme === -1) {
-      const found = storeFilterOptions.value?.schemes.find(scheme => scheme["@id"] === GRAPH.EMIS);
+      const found = filterOptions.value?.schemes.find(scheme => scheme["@id"] === GRAPH.EMIS);
       if (found) selectedSchemes.value.push(found);
     }
   } else {
@@ -230,6 +220,10 @@ function setLegacy(include: boolean): void {
       selectedSchemes.value.splice(emisScheme, 1);
     }
   }
+  filterStore.updateQuickFiltersStatus({
+    key: "includeLegacy",
+    value: include
+  });
 }
 </script>
 

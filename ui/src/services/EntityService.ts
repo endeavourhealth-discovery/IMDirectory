@@ -14,7 +14,8 @@ import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary } from "@i
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/treenode";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { SortDirection } from "@im-library/enums";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { OrganizationChartNode } from "primevue/organizationchart";
 const api = Env.API;
 
@@ -471,6 +472,26 @@ const EntityService = {
       params: { propertyIri: propertyIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
+  },
+
+  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<SearchResultSummary[]> {
+    const searchRequest = {} as SearchRequest;
+    searchRequest.termFilter = searchTerm;
+    searchRequest.page = 1;
+    searchRequest.size = 100;
+    searchRequest.sortDirection = SortDirection.DESC;
+    searchRequest.sortField = "weighting";
+    searchRequest.schemeFilter = filterOptions.schemes.map(scheme => scheme["@id"]);
+    searchRequest.typeFilter = filterOptions.types.map(type => type["@id"]);
+    searchRequest.statusFilter = filterOptions.status.map(status => status["@id"]);
+    if (!isObject(abortController)) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController();
+    const response = await EntityService.advancedSearch(searchRequest, abortController);
+    if (response.entities && isArrayHasLength(response.entities)) return response.entities;
+    else return [];
   },
 
   async hasPredicates(subjectIri: string, predicateIris: string[]): Promise<boolean> {

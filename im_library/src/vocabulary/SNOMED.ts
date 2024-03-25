@@ -5,5 +5,4 @@ export class SNOMED {
   public static readonly NAMESPACE = SNOMED.DOMAIN + "sct#";
   public static readonly PREFIX = "sn";
   public static readonly ATTRIBUTE = SNOMED.DOMAIN + "246061005";
-  public static readonly ANY = SNOMED.NAMESPACE + "*";
 }
