@@ -78,10 +78,9 @@ const emit = defineEmits({
 });
 
 const filterStore = useFilterStore();
-const filterStoreOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
-const filterStoreDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
-const selectedStoreFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
-const quickFiltersStatus = computed(() => filterStore.quickFiltersStatus);
+const storeDefaultFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.defaultFilterOptions);
+const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
@@ -146,47 +145,48 @@ function resetTypes() {
   checkForSearch();
 }
 
-function checkForSearch(): void {
-  if (!loading.value) {
-    updateStoreSelectedFilters();
-    props.search();
+function setSelectedOptions(): void {
+  if (props.selectedFilterOptions) {
+    if (isArrayHasLength(props.selectedFilterOptions.status)) selectedStatus.value = props.selectedFilterOptions.status;
+    if (isArrayHasLength(props.selectedFilterOptions.schemes)) selectedSchemes.value = props.selectedFilterOptions.schemes;
+    if (isArrayHasLength(props.selectedFilterOptions.types)) selectedTypes.value = props.selectedFilterOptions.types;
+    if (isArrayHasLength(props.selectedFilterOptions.sortFields))
+      selectedSortField.value = storeFilterOptions.value.sortFields.find(
+        item => props.selectedFilterOptions?.sortFields.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+      );
+
+    if (isArrayHasLength(props.selectedFilterOptions.sortDirections))
+      selectedSortDirection.value = storeFilterOptions.value.sortDirections.find(
+        item => props.selectedFilterOptions?.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+      );
+  } else if (
+    isArrayHasLength(storeSelectedFilters.value.schemes) ||
+    isArrayHasLength(storeSelectedFilters.value.status) ||
+    isArrayHasLength(storeSelectedFilters.value.types)
+  ) {
+    setSelectedFromStore();
+  } else {
+    setDefaults();
   }
 }
 
-function updateStoreSelectedFilters(): void {
-  const selected: FilterOptions = {
-    status: selectedStatus.value,
-    schemes: selectedSchemes.value,
-    types: selectedTypes.value,
-    sortFields: [selectedSortField.value],
-    sortDirections: [selectedSortDirection.value]
-  };
-  if (!props.filterDefaults && !props.filterOptions) {
-    filterStore.updateSelectedFilters(selected);
-  } else emit("selectedFiltersUpdated", selected);
+function setSelectedFromStore() {
+  if (isArrayHasLength(storeSelectedFilters.value.status)) selectedStatus.value = [...storeSelectedFilters.value.status];
+
+  if (isArrayHasLength(storeSelectedFilters.value.schemes)) selectedSchemes.value = [...storeSelectedFilters.value.schemes];
+
+  if (isArrayHasLength(storeSelectedFilters.value.types)) selectedTypes.value = [...storeSelectedFilters.value.types];
+
+  if (isArrayHasLength(storeSelectedFilters.value.sortFields)) selectedSortField.value = storeSelectedFilters.value.sortFields?.[0];
+  if (isArrayHasLength(storeSelectedFilters.value.sortDirections)) selectedSortDirection.value = storeSelectedFilters.value.sortDirections?.[0];
 }
 
-function setDefaults(): void {
-  if (props.filterOptions) {
-    filterOptions.value = props.filterOptions;
-    filterDefaults.value = { schemes: [], status: [], types: [], sortDirections: [], sortFields: [] };
-    selectedFilters.value = { schemes: [], status: [], types: [], sortDirections: [], sortFields: [] };
-  }
-  if (props.filterDefaults) {
-    filterDefaults.value = props.filterDefaults;
-  }
-  if (!isArrayHasLength(selectedFilters.value.status) && !isArrayHasLength(selectedFilters.value.schemes) && !isArrayHasLength(selectedFilters.value.types)) {
-    selectedStatus.value = filterOptions.value.status.filter(
-      item => filterDefaults.value?.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-    );
+function setDefaults() {
+  if (isArrayHasLength(storeDefaultFilterOptions.value.status)) selectedStatus.value = [...storeDefaultFilterOptions.value.status];
 
-    selectedSchemes.value = filterOptions.value.schemes.filter(
-      item => filterDefaults.value?.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-    );
+  if (isArrayHasLength(storeFilterOptions.value.schemes)) selectedSchemes.value = [...storeDefaultFilterOptions.value.schemes];
 
-    selectedTypes.value = filterOptions.value.types.filter(
-      item => filterDefaults.value?.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-    );
+  if (isArrayHasLength(storeFilterOptions.value.types)) selectedTypes.value = [...storeDefaultFilterOptions.value.types];
 
     selectedSortField.value = filterDefaults.value.sortFields?.[0];
     selectedSortDirection.value = filterDefaults.value.sortDirections?.[0];

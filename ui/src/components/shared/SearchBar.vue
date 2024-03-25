@@ -58,8 +58,9 @@ import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 import { FunctionService } from "@/services";
 
 interface Props {
-  searchResults: SearchResponse | undefined;
-  searchLoading: boolean;
+  searchTerm?: string;
+  showFilters: boolean;
+  selectedFilterOptions?: FilterOptions;
   selected?: SearchResultSummary;
   filterOptions?: FilterOptions;
   loadMore: { page: number; rows: number } | undefined;
