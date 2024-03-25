@@ -116,7 +116,7 @@ watch(
         searchText.value = "";
         selectedLocal.value = undefined;
       }
-      searchLoading.value = true;
+      searchLoading.value = false;
     }
   }
 );
