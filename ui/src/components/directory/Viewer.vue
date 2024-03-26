@@ -46,7 +46,7 @@
           </TabPanel>
           <TabPanel v-if="isQuery(types) || isFeature(types)" header="Query">
             <div class="concept-panel-content" id="query-container">
-              <QueryDisplay :entityIri="entityIri" />
+              <QueryDisplay :entityIri="entityIri" :showSqlButton="true" />
             </div>
           </TabPanel>
           <TabPanel header="Contents">

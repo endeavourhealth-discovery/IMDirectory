@@ -8,12 +8,15 @@
       </template>
     </TopBar>
     <div class="container">
+      <div class="flex align-items-center gap-2">
+        <Button label="Refresh" icon="fa-solid fa-arrows-rotate" @click="refresh" size="small" />
+        <Checkbox inputId="AutoRefresh" v-model="autoRefresh" :binary="true" @change="toggleAutoRefresh" />
+        <label for="AutoRefresh">Auto ({{ autoRefresh ? refreshTime + "s" : "off" }})</label>
+      </div>
       <div v-if="loading" class="loading-container">
         <ProgressSpinner />
       </div>
       <div v-else>
-        <Button label="Refresh" icon="fa-solid fa-arrows-rotate" @click="refresh" size="small" />
-
         <DataTable :value="queueData" tableStyle="font-size: 0.8rem" dataKey="id" class="p-datatable-sm" v-model:selection="queueId" selectionMode="single">
           <!--      <Column field="id" header="Id"></Column>-->
           <Column field="name" header="Query"></Column>
@@ -134,7 +137,7 @@
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
-import { onMounted, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { EntityService, QueryService } from "@/services";
 import { Ref } from "vue/dist/vue";
@@ -160,11 +163,21 @@ const selectedCalcField: Ref<string | undefined> = ref();
 const selectedStyle: Ref<any> = ref("pie");
 const styleOptions: string[] = ["pie", "bar", "line"];
 const graphData = ref();
+const autoRefresh = ref(false);
+const refreshTime = ref(10);
+let timer: NodeJS.Timer | undefined = undefined;
 
 const graphOptions: Ref<EChartsOption> = ref({});
 
 onMounted(async () => {
   await refresh();
+});
+
+onBeforeUnmount(() => {
+  if (timer) {
+    clearInterval(timer);
+    timer = undefined;
+  }
 });
 
 watch(
@@ -188,6 +201,25 @@ async function refresh() {
   queueData.value = await QueryService.listQueue();
 
   loading.value = false;
+}
+
+function toggleAutoRefresh() {
+  if (timer) {
+    clearInterval(timer);
+    timer = undefined;
+  }
+  if (autoRefresh) {
+    refreshTime.value = 10;
+    timer = setInterval(refreshTimerPoll, 1000);
+  }
+}
+
+function refreshTimerPoll() {
+  refreshTime.value = refreshTime.value - 1;
+  if (refreshTime.value == 0) {
+    refresh();
+    refreshTime.value = 10;
+  }
 }
 
 function getStatus(data: QueryQueueItem) {

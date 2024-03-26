@@ -464,7 +464,7 @@ export default class QueryService {
     return queueId;
   }
 
-  private async initialiseQueue(queueId: string, queryIri: string, modelIri: string, name: string, user: string, pid: Maybe<number>) {
+  private async initialiseQueue(queueId: string, queryIri: string, name: string, modelIri: string, user: string, pid: Maybe<number>) {
     const conn = await this.dbPool.acquire();
 
     try {

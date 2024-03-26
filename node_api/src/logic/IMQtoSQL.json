@@ -30,6 +30,21 @@
         "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
       }
     },
+    "http://endhealth.info/im#GPRegistrationEpisode": {
+      "table": "event",
+      "condition": "(({alias}.json ->> '_type')::VARCHAR) = 'EpisodeOfCare'",
+      "fields": {
+        "http://endhealth.info/im#concept": { "field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri" },
+        "http://endhealth.info/im#gpPatientType": { "field": "(({alias}.json ->> 'patientType')::VARCHAR)", "type": "iri" },
+        "http://endhealth.info/im#gpRegisteredStatus": { "field": "(({alias}.json ->> 'status')::VARCHAR)", "type": "iri" },
+        "http://endhealth.info/im#gpGMSRegistrationDate": { "field": "(jdt({alias}.json -> 'effectiveDate' ->> 'dateTime'))", "type": "date" },
+        "http://endhealth.info/im#effectiveDate": { "field": "(jdt({alias}.json -> 'effectiveDate' ->> 'dateTime'))", "type": "date" },
+        "http://endhealth.info/im#endDate": { "field": "(({alias}.json ->> 'endDate')::DATE)", "type": "date" }
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
+      }
+    },
     "http://endhealth.info/im#Observation": {
       "table": "event",
       "condition": "(({alias}.json ->> '_type')::VARCHAR) = 'Observation'",

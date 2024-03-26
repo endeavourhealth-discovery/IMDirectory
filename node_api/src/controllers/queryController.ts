@@ -200,7 +200,7 @@ export default class QueryController {
     const iri = req.query.queryIri as string;
     const meta = (await this.entityService.getPartialEntity(iri, [RDFS.LABEL, IM.RETURN_TYPE])).data;
 
-    return await this.queryService.queueQuery(iri, meta[RDFS.LABEL], meta[IM.RETURN_TYPE], user!);
+    return await this.queryService.queueQuery(iri, meta[RDFS.LABEL], meta[IM.RETURN_TYPE][0]["@id"], user!);
   }
 
   async listQueries(req: Request) {
