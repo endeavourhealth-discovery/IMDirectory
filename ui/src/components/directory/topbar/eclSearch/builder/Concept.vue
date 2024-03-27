@@ -291,11 +291,13 @@ function generateEcl(): string {
   }
   if (isArrayHasLength(props.value.items)) {
     ecl += " : \n";
+    if (props.value.items.length > 1 && props.value.items.some(i => i.type === "BoolGroup")) ecl += "( ";
     for (const [index, item] of props.value.items.entries()) {
       if (item.ecl) ecl += item.ecl;
       else ecl += "[ INVALID REFINEMENT ]";
       if (index + 1 !== props.value.items.length) ecl += " \n" + props.value.conjunction + " ";
     }
+    if (props.value.items.length > 1 && props.value.items.some(i => i.type === "BoolGroup")) ecl += " )";
   }
   if (props.parent?.type === "BoolGroup" && props.parent.items?.length > 1 && props.value.items?.length) ecl += " )";
   return ecl;

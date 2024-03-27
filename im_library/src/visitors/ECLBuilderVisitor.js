@@ -395,7 +395,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       if (isObjectHasKeys(result, ["compoundAttributeSet"])) return { subRefinement: result.compoundAttributeSet };
       if (isObjectHasKeys(result, ["eclAttributeGroup"])) return { subRefinement: result.eclAttributeGroup };
       if (isObjectHasKeys(result, ["bracketSubRefinement"])) return { subRefinement: result.bracketSubRefinement };
-      if (isObjectHasKeys(result, ["eclAttribute"])) return { subRefinement: result.eclAttribute };
+      if (isObjectHasKeys(result, ["eclAttribute"])) {
+        if (!result.eclAttribute.conjunction) result.eclAttribute.roleGroup = true;
+        return { subRefinement: result.eclAttribute };
+      }
     }
   }
 
@@ -421,8 +424,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["compoundAttributeSet"]))
+          if (isObjectHasKeys(result, ["compoundAttributeSet"])) {
+            result.compoundAttributeSet.items.forEach(item => (item.roleGroup = false));
             build.eclAttributeGroup = { type: "BoolGroup", items: result.compoundAttributeSet.items, conjunction: result.compoundAttributeSet.conjunction };
+          }
           if (isObjectHasKeys(result, ["eclAttribute"])) build.eclAttributeGroup = { type: "BoolGroup", items: [result.eclAttribute], conjunction: "AND" };
         }
       }
@@ -433,8 +438,24 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitCompoundattributeset(ctx) {
     logItem("found compound attribute set", ctx.getText());
     const result = this.visitChildren(ctx)[0];
-    if (isObjectHasKeys(result, ["conjunctionAttributeSet"])) return { compoundAttributeSet: result.conjunctionAttributeSet };
-    if (isObjectHasKeys(result, ["disjunctionAttributeSet"])) return { compoundAttributeSet: result.disjunctionAttributeSet };
+    if (isObjectHasKeys(result, ["conjunctionAttributeSet"])) {
+      if (result.conjunctionAttributeSet.items) {
+        result.conjunctionAttributeSet.items.forEach(item => {
+          if (!item.conjunction) item.roleGroup = true;
+          else item.roleGroup = false;
+        });
+      }
+      return { compoundAttributeSet: result.conjunctionAttributeSet };
+    }
+    if (isObjectHasKeys(result, ["disjunctionAttributeSet"])) {
+      if (result.disjunctionAttributeSet.items) {
+        result.disjunctionAttributeSet.items.forEach(item => {
+          if (!item.conjunction) item.roleGroup = true;
+          else item.roleGroup = false;
+        });
+      }
+      return { compoundAttributeSet: result.disjunctionAttributeSet };
+    }
   }
 
   visitConjunctionattributeset(ctx) {
