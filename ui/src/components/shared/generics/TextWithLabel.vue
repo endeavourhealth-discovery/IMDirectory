@@ -1,24 +1,14 @@
 <template>
   <div class="text-with-label-container" :id="id" :style="{ width: size }">
     <strong class="label">{{ label }}: </strong>
-    <span
-      class="data break-text"
-      v-tooltip="'Copy to clipboard'"
-      v-clipboard:copy="copyToClipboard()"
-      v-clipboard:success="onCopy"
-      v-clipboard:error="onCopyError"
-    >
+    <span class="data break-text" v-tooltip="'Copy to clipboard'" v-clipboard:copy="props.data" v-clipboard:success="onCopy" v-clipboard:error="onCopyError">
       {{ data ? data : "None" }}
     </span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ToastSeverity } from "@im-library/enums";
-import { ToastOptions } from "@im-library/models";
-import { useToast } from "primevue/usetoast";
-
-const toast = useToast();
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   label: string;
@@ -32,17 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   id: "text-with-label"
 });
 
-function copyToClipboard(): string {
-  return props.data!;
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, props.label + " copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, props.label + " copied to clipboard"));
-}
+const { onCopy, onCopyError } = setupCopyToClipboard(undefined, props.label + " copied to clipboard", props.label + " failed to copy to clipboard");
 </script>
 
 <style scoped>

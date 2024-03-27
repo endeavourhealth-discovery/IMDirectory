@@ -1,7 +1,7 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group">
-      <i v-if="loading" class="pi pi-spin pi-spinner"></i>
+      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
       <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText
         id="autocomplete-search"
@@ -17,7 +17,7 @@
       />
     </span>
     <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
-      <div v-if="loading" class="loading-container">
+      <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
       </div>
       <div v-else class="p-fluid results-container">
@@ -27,21 +27,18 @@
               class="listbox-item"
               @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
               @mouseleave="hideOverlay($event)"
-              @click="() => (selectedLocal = slotProps.option)"
+              @click="onListboxOptionClick($event, slotProps.option)"
             >
               <span>{{ slotProps.option.name }}</span>
             </div>
           </template>
         </Listbox>
+        <div v-else class="loading-container">
+          <ProgressSpinner />
+        </div>
 
         <div class="advanced-search-container">
-          <Button
-            :disabled="advancedSearchLoading"
-            :loading="advancedSearchLoading"
-            label="Advanced search"
-            class="advanced-search-button"
-            @click="showAdvancedSearch"
-          />
+          <Button label="Advanced search" class="advanced-search-button" @click="showDialog = true" />
           <small>
             Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
             {{ results?.count ? results.count : 0 }} results
@@ -50,14 +47,13 @@
       </div>
     </OverlayPanel>
     <DirectorySearchDialog
-      v-if="showDialog && !isAny && selected?.iri !== 'any'"
+      v-if="showDialog"
       v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
-      :search-by-query="searchByQuery"
-      :searchByFunction="searchByFunction"
+      :imQuery="imQuery"
+      :osQuery="osQuery"
       :root-entities="rootEntities"
-      :filterOptions="filterOptions"
-      :filterDefaults="filterDefaults"
+      :selected-filter-options="filterOptions"
       :searchTerm="searchText"
     />
     <OverlaySummary ref="OS" />
@@ -65,84 +61,70 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, ref, Ref, watch, onMounted } from "vue";
+import { ref, Ref, watch, onMounted } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match, SearchResponse, FunctionRequest } from "@im-library/interfaces/AutoGen";
-import { SortDirection } from "@im-library/enums";
-import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
-import { IM } from "@im-library/vocabulary";
+import { SearchRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
-import EntityService from "@/services/EntityService";
-import QueryService from "@/services/QueryService";
+import setupSearch from "@/composables/setupSearch";
 import _ from "lodash";
-import { FunctionService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   selected?: SearchResultSummary;
-  searchByFunction?: FunctionRequest;
-  searchByQuery?: QueryRequest;
-  searchByMethod?: Function;
-  allowAny?: boolean;
-  getRootEntities?: Function;
+  imQuery?: QueryRequest;
+  osQuery?: SearchRequest;
   filterOptions?: FilterOptions;
-  filterDefaults?: FilterOptions;
   disabled?: boolean;
   rootEntities?: string[];
+  searchPlaceholder?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[] });
 
 const emit = defineEmits({
-  "update:selected": _payload => true
+  "update:selected": _payload => true,
+  openDialog: () => true
+});
+
+const resultsOP = ref();
+const searchText = ref("");
+const results: Ref<SearchResponse | undefined> = ref();
+const showDialog = ref(false);
+const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
+const { searchLoading, searchPlaceholder, search } = setupSearch(props.searchPlaceholder);
+const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
+const selectedIndex: Ref<number> = ref(-1);
+const { OS, showOverlay, hideOverlay } = setupOverlay();
+const debounce = ref(0);
+
+watch(showDialog, () => {
+  if (showDialog.value) emit("openDialog");
 });
 
 watch(
-  () => _.cloneDeep(props.filterDefaults),
-  async newValue => {
-    selectedFilters.value = newValue;
-    await search();
-  }
-);
-
-const resultsOP = ref();
-
-const controller: Ref<AbortController> = ref({} as AbortController);
-const searchText = ref("");
-const searchPlaceholder = ref("Search or press Enter to show options");
-const loading = ref(false);
-const results: Ref<SearchResponse | undefined> = ref();
-const selectedFilters: Ref<FilterOptions | undefined> = ref();
-const showDialog = ref(false);
-const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
-const advancedSearchLoading = ref(false);
-const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
-const selectedIndex: Ref<number> = ref(-1);
-
-const isAny: ComputedRef<boolean> = computed(() => selectedLocal.value?.iri === "any");
-const { OS, showOverlay, hideOverlay } = setupOverlay();
-
-watch(
   () => _.cloneDeep(props.selected),
-  newValue => {
-    loading.value = true;
-    if (newValue && newValue.name && newValue.name != searchText.value) {
-      searchText.value = newValue.name;
-      selectedLocal.value = newValue;
-    } else if (!newValue) {
-      searchText.value = "";
-      selectedLocal.value = undefined;
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) {
+      searchLoading.value = true;
+      if (newValue && newValue.name && newValue.name != searchText.value) {
+        searchText.value = newValue.name;
+        selectedLocal.value = newValue;
+      } else if (!newValue) {
+        searchText.value = "";
+        selectedLocal.value = undefined;
+      }
+      searchLoading.value = false;
     }
-    loading.value = false;
   }
 );
 
 watch(
   selectedLocal,
-  newValue => {
-    emit("update:selected", newValue);
+  (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) emit("update:selected", newValue);
   },
   { deep: true }
 );
@@ -150,24 +132,22 @@ watch(
 watch(searchText, newValue => {
   if (!newValue) {
     selectedLocal.value = undefined;
-  } else if (!loading.value && newValue != props.selected?.name) debounceForSearch();
+  } else if (!searchLoading.value && newValue != props.selected?.name) debounceForSearch();
 });
 
-const debounce = ref(0);
-
 onMounted(() => {
-  loading.value = true;
+  searchLoading.value = true;
   if (props.selected?.name) {
     searchText.value = props.selected.name;
     selectedLocal.value = props.selected;
   }
-  loading.value = false;
+  searchLoading.value = false;
 });
 
 function debounceForSearch(): void {
   clearTimeout(debounce.value);
-  debounce.value = window.setTimeout(() => {
-    search();
+  debounce.value = window.setTimeout(async () => {
+    results.value = await search(searchText.value, undefined, { pageNumber: 1, pageSize: 10 }, props.osQuery, props.imQuery);
   }, 600);
   showResultsOverlay(event);
 }
@@ -193,142 +173,18 @@ async function onEnter(event: any) {
   if (resultsOP.value) resultsOP.value.toggle(event);
 }
 
-async function search(): Promise<void | SearchResponse> {
-  if (props.searchByFunction) {
-    await functionSearch();
-    return;
-  }
-  if (props.searchByQuery) {
-    await querySearch();
-    return;
-  }
-  if (props.searchByMethod) {
-    await methodSearch();
-    return;
-  }
-  searchPlaceholder.value = "Search";
-  if (searchText.value && searchText.value.length > 2) {
-    loading.value = true;
-    const searchRequest = {} as SearchRequest;
-    searchRequest.termFilter = searchText.value;
-    searchRequest.sortField = "weighting";
-    searchRequest.page = 1;
-    searchRequest.size = 10;
-    if (props.allowAny && searchText.value.toLocaleLowerCase() === "any") {
-      searchRequest.size = 9;
-    }
-    if (props.filterDefaults) {
-      if (props.filterDefaults.schemes) {
-        searchRequest.schemeFilter = props.filterDefaults.schemes.map(s => s["@id"]);
-      }
-      if (props.filterDefaults.status) {
-        searchRequest.statusFilter = props.filterDefaults.status.map(s => s["@id"]);
-      }
-      if (props.filterDefaults.types) {
-        searchRequest.typeFilter = props.filterDefaults.types.map(s => s["@id"]);
-      }
-      if (props.filterDefaults.sortDirections) {
-        searchRequest.sortDirection = props.filterDefaults.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC;
-      }
-      if (props.filterDefaults.sortFields) {
-        if (props.filterDefaults.sortFields[0]?.["@id"] === IM.USAGE) searchRequest.sortField = "weighting";
-        else searchRequest.sortField = props.filterDefaults.sortFields[0]?.["@id"];
-      }
-    }
-
-    if (!isObject(controller.value)) {
-      controller.value.abort();
-    }
-    controller.value = new AbortController();
-    const result = await EntityService.advancedSearch(searchRequest, controller.value);
-    loading.value = false;
-    if (result?.entities) results.value = result;
-    else results.value = undefined;
-    if (props.allowAny && searchText.value.toLocaleLowerCase() === "any") {
-      results.value?.entities?.unshift({ iri: "any", name: "ANY" } as SearchResultSummary);
-    }
-  }
-}
-
-async function methodSearch() {
-  searchPlaceholder.value = "Search";
-  if (searchText.value && searchText.value.length > 2) {
-    loading.value = true;
-
-    if (!isObject(controller.value)) {
-      controller.value.abort();
-    }
-    controller.value = new AbortController();
-    loading.value = false;
-    const result = await props.searchByMethod!(searchText.value, controller.value);
-    results.value = result?.entities ? result : undefined;
-  }
-}
-
-async function functionSearch() {
-  if (searchText.value && searchText.value.length > 2 && props.searchByFunction) {
-    loading.value = true;
-    const functionRequest: FunctionRequest = _.cloneDeep(props.searchByFunction);
-    functionRequest.arguments?.push({ parameter: "searchIri", valueData: searchText.value });
-    functionRequest.page = { pageNumber: 1, pageSize: 10 };
-    if (props.allowAny && searchText.value.toLocaleLowerCase() === "any") {
-      functionRequest.page.pageSize = 9;
-    }
-
-    if (!isObject(controller.value)) {
-      controller.value.abort();
-    }
-    controller.value = new AbortController();
-    const result = await FunctionService.runSearchFunction(functionRequest, controller.value);
-    loading.value = false;
-    if (result?.entities) results.value = result;
-    else results.value = undefined;
-    if (props.allowAny && searchText.value.toLocaleLowerCase() === "any") {
-      results.value?.entities?.unshift({ iri: "any", name: "ANY" } as SearchResultSummary);
-    }
-    loading.value = false;
-  }
-}
-
-async function querySearch() {
-  if (searchText.value && searchText.value.length > 2 && props.searchByQuery) {
-    loading.value = true;
-    const queryRequest: QueryRequest = _.cloneDeep(props.searchByQuery);
-    queryRequest.textSearch = searchText.value;
-    queryRequest.page = { pageNumber: 1, pageSize: 10 };
-    if (props.allowAny && searchText.value.toLocaleLowerCase() === "any") {
-      queryRequest.page.pageSize = 9;
-    }
-
-    if (!isObject(controller.value)) {
-      controller.value.abort();
-    }
-    controller.value = new AbortController();
-    const result = await QueryService.queryIMSearch(queryRequest, controller.value);
-    loading.value = false;
-    if (result?.entities) results.value = result;
-    else results.value = undefined;
-    if (props.allowAny && searchText.value.toLocaleLowerCase() === "any") {
-      results.value?.entities?.unshift({ iri: "any", name: "ANY" } as SearchResultSummary);
-    }
-    loading.value = false;
-  }
-}
-
 async function showResultsOverlay(event: any) {
   if (resultsOP.value) resultsOP.value.show(event);
-  if (props.selected && !results.value) await search();
 }
 
 function hideResultsOverlay() {
   if (resultsOP.value) resultsOP.value.hide();
 }
 
-async function showAdvancedSearch() {
-  advancedSearchLoading.value = true;
-  if (props.getRootEntities) await props.getRootEntities();
-  showDialog.value = true;
-  advancedSearchLoading.value = false;
+function onListboxOptionClick(event: any, selected: SearchResultSummary) {
+  selectedLocal.value = selected;
+  hideOverlay(event);
+  hideResultsOverlay();
 }
 </script>
 

@@ -21,14 +21,12 @@
       </div>
     </div>
     <ResultsTable
-      :searchResults="localSearchResults"
-      :loading="isLoading"
-      :lazyLoading="lazyLoading"
+      :search-term="searchTerm"
+      :updateSearch="updateSearch"
+      :selected-filter-options="selectedFilterOptions"
       :rows="rows"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
-      @lazyLoadRequested="(data: any) => $emit('lazyLoadRequested', data)"
-      @downloadRequested="(data: any) => $emit('downloadRequested', data)"
     />
   </div>
 </template>
@@ -40,109 +38,71 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
-import { SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 
 interface Props {
-  showFilters?: boolean;
-  searchResults: SearchResponse | undefined;
-  searchLoading?: boolean;
+  searchTerm: string;
+  updateSearch: boolean;
+  selectedFilterOptions?: FilterOptions;
   rows?: number;
-  lazyLoading?: boolean;
+  showFilters?: boolean;
+  osQuery?: SearchRequest;
+  imQuery?: QueryRequest;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
-  searchLoading: false,
-  lazyLoading: false,
   rows: 25
 });
 
 const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  lazyLoadRequested: (_payload: any) => true,
-  downloadRequested: (_payload: { term: string; count: number }) => true
+  selectedFiltersUpdated: (_payload: FilterOptions) => true
 });
 
 const filterStore = useFilterStore();
-const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
-const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
-const selectedStoreFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
-
+const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const storeFilterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.defaultFilterOptions);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const selectedTypes: Ref<TTIriRef[]> = ref([]);
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const statusOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
-const localSearchResults: Ref<SearchResponse | undefined> = ref();
-const loading = ref(true);
-
-watch(
-  () => _.cloneDeep(props.searchResults),
-  () => init()
-);
 
 onMounted(() => init());
 
-const isLoading = computed(() => loading.value || props.searchLoading);
-
 function init() {
-  loading.value = true;
-  localSearchResults.value = _.cloneDeep(props.searchResults);
-
-  if (isArrayHasLength(localSearchResults.value)) {
-    setFiltersFromSearchResults();
-  } else {
-    setFiltersFromStore();
-  }
-  loading.value = false;
+  setFiltersFromStore();
 }
 
 function setFiltersFromStore() {
-  schemeOptions.value = [...filterOptions.value.schemes];
-  typeOptions.value = [...filterOptions.value.types];
-  statusOptions.value = [...filterOptions.value.status];
-  if (selectedStoreFilters.value.schemes.length || selectedStoreFilters.value.status.length || selectedStoreFilters.value.types.length) {
-    selectedSchemes.value = [...selectedStoreFilters.value.schemes];
-    selectedStatus.value = [...selectedStoreFilters.value.status];
-    selectedTypes.value = [...selectedStoreFilters.value.types];
+  schemeOptions.value = [...storeFilterOptions.value.schemes];
+  typeOptions.value = [...storeFilterOptions.value.types];
+  statusOptions.value = [...storeFilterOptions.value.status];
+  if (
+    props.selectedFilterOptions &&
+    (props.selectedFilterOptions.schemes.length || props.selectedFilterOptions.status.length || props.selectedFilterOptions.types.length)
+  ) {
+    selectedSchemes.value = [...props.selectedFilterOptions.schemes];
+    selectedStatus.value = [...props.selectedFilterOptions.status];
+    selectedTypes.value = [...props.selectedFilterOptions.types];
   } else {
-    selectedSchemes.value = filterOptions.value.schemes.filter((option: any) => filterDefaults.value.schemes.includes(option["@id"]));
-    selectedStatus.value = filterOptions.value.status.filter((option: any) => filterDefaults.value.status.includes(option["@id"]));
-    selectedTypes.value = filterOptions.value.types.filter((option: any) => filterDefaults.value.types.includes(option["@id"]));
-  }
-}
-
-function setFiltersFromSearchResults() {
-  const schemes = [] as TTIriRef[];
-  const types = [] as TTIriRef[];
-  const status = [] as TTIriRef[];
-  if (localSearchResults.value?.entities) {
-    localSearchResults.value.entities.forEach(searchResult => {
-      if (isObjectHasKeys(searchResult.scheme, ["name"])) schemes.push(searchResult.scheme);
-      searchResult.entityType.forEach(type => {
-        if (filterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type);
-      });
-      if (isObjectHasKeys(searchResult.status, ["name"])) status.push(searchResult.status);
-    });
-    schemeOptions.value = [...new Set(schemes)];
-    typeOptions.value = [...new Set(types)];
-    statusOptions.value = [...new Set(status)];
-
-    selectedSchemes.value = [...new Set(schemes)];
-    selectedTypes.value = [...new Set(types)];
-    selectedStatus.value = [...new Set(status)];
+    selectedSchemes.value = storeFilterOptions.value.schemes.filter(
+      option => storeFilterDefaults.value.schemes.findIndex(s => s["@id"] === option["@id"]) != -1
+    );
+    selectedStatus.value = storeFilterOptions.value.status.filter(option => storeFilterDefaults.value.status.findIndex(s => s["@id"] === option["@id"]) != -1);
+    selectedTypes.value = storeFilterOptions.value.types.filter(option => storeFilterDefaults.value.types.findIndex(t => t["@id"] === option["@id"]) != -1);
   }
 }
 
 function filterResults() {
-  filterStore.updateSelectedFilters({
-    schemes: selectedSchemes,
-    status: selectedStatus,
-    types: selectedTypes,
-    sortDirections: selectedStoreFilters.value.sortDirections,
-    sortFields: selectedStoreFilters.value.sortFields
-  });
+  const selectedFilters = {
+    schemes: selectedSchemes.value,
+    status: selectedStatus.value,
+    types: selectedTypes.value
+  } as FilterOptions;
+  emit("selectedFiltersUpdated", selectedFilters);
 }
 
 function updateSelected(selected: SearchResultSummary) {

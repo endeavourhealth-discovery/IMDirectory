@@ -47,7 +47,7 @@ describe("SearchBar.vue", () => {
         stubs: { Filters: true },
         directives: { tooltip: Tooltip }
       },
-      props: { searchResults: [], searchLoading: false, loadMore: { page: 1, count: 20 }, download: { term: "Scolio", count: 355 } }
+      props: { searchResults: [], searchLoading: false, loadMore: { page: 1, count: 20 }, download: { term: "Scolio", count: 355 }, showFilters: true }
     });
   });
 
@@ -55,7 +55,7 @@ describe("SearchBar.vue", () => {
     const input = component.getByTestId("search-input");
     await fireEvent.update(input, "Scoliosis");
     await new Promise(resolve => setTimeout(resolve, 1000));
-    expect(advancedSearchSpy).toHaveBeenCalledTimes(1);
+    expect(component.emitted()).toHaveProperty("toSearch");
   });
 
   it("opens filters", async () => {

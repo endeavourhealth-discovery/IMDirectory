@@ -66,7 +66,6 @@ import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
-import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
   components: {
