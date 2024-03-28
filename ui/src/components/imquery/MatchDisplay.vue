@@ -2,13 +2,14 @@
   <div class="match-description-container">
     <div class="match-description" v-html="match?.description"></div>
     <MatchDisplay v-if="match?.match" v-for="nestedMatch in match.match" :match="nestedMatch" />
-    <PropertyDisplay v-if="match?.where" v-for="nestedWhere in match.where" :where="nestedWhere" />
+    <WhereDisplay v-if="match?.where" v-for="nestedWhere in match.where" :where="nestedWhere" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Match } from "@im-library/interfaces/AutoGen";
-import PropertyDisplay from "./PropertyDisplay.vue";
+import WhereDisplay from "./WhereDisplay.vue";
+
 interface Props {
   match: Match;
 }

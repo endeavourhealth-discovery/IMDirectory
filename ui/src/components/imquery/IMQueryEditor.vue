@@ -18,11 +18,15 @@
             class="clickable"
             @mouseover="mouseover($event, index)"
             @mouseout="mouseout($event, index)"
+            @click="editMatch"
           >
             <MatchDisplay class="feature-description" :match="feature" />
           </div>
+
           <Button @click="deleteFeature(index)" severity="danger" icon="fa-solid fa-trash" class="builder-button" />
         </div>
+        <EditMatch v-model:show-dialog="showDialog" />
+
         <Button label="Add feature" @click="queryDefinition.match?.push({} as Match)" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
       </div>
     </div>
@@ -35,10 +39,12 @@ import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import { Match, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
+import EditMatch from "./EditMatch.vue";
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const queryDefinition: Ref<Query> = ref({});
 const hover: Ref<number> = ref(-1);
+const showDialog = ref(false);
 const queryRequestForBaseType: QueryRequest = {
   query: {
     name: "Get queries and data models",
@@ -66,6 +72,10 @@ function mouseout(event: Event, index: number) {
 
 function deleteFeature(index: number) {
   queryDefinition.value.match?.splice(index, 1);
+}
+
+function editMatch() {
+  showDialog.value = true;
 }
 </script>
 
