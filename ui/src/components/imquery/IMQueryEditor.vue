@@ -25,7 +25,7 @@
 
           <Button @click="deleteFeature(index)" severity="danger" icon="fa-solid fa-trash" class="builder-button" />
         </div>
-        <EditMatch v-model:show-dialog="showDialog" />
+        <EditMatchDialog v-model:show-dialog="showDialog" />
 
         <Button label="Add feature" @click="queryDefinition.match?.push({} as Match)" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
       </div>
@@ -39,7 +39,7 @@ import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import { Match, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
-import EditMatch from "./EditMatch.vue";
+import EditMatchDialog from "./EditMatchDialog.vue";
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const queryDefinition: Ref<Query> = ref({});

@@ -1,6 +1,11 @@
 <template>
   <div>
-    <Dialog v-model:visible="visible" header="Edit match" :style="{ width: '25rem' }">
+    <Dialog
+      v-model:visible="visible"
+      header="Edit feature"
+      :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
+    >
+      <!-- TODO: <EditMatch /> -->
       <template #footer>
         <div class="button-footer">
           <Button label="Cancel" text @click="visible = false" />
