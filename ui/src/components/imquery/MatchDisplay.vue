@@ -1,7 +1,10 @@
 <template>
   <div class="match-description-container">
     <div class="match-description" v-html="match?.description"></div>
-    <MatchDisplay v-if="match?.match" v-for="nestedMatch in match.match" :match="nestedMatch" />
+    <div v-if="match?.match" class="feature-group">
+      <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase()" disabled />
+      <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" /></div>
+    </div>
     <WhereDisplay v-if="match?.where" v-for="nestedWhere in match.where" :where="nestedWhere" />
   </div>
 </template>
@@ -27,5 +30,15 @@ const props = defineProps<Props>();
   width: 100%;
   height: 100%;
   margin-left: 0.1rem;
+}
+
+.feature-group {
+  display: flex;
+  flex-flow: row;
+}
+
+.feature-list {
+  display: flex;
+  flex-flow: column;
 }
 </style>
