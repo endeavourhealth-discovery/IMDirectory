@@ -1,6 +1,18 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-03-14 09:23:59.
+// Generated using typescript-generator version 3.2.1263 on 2024-03-21 16:07:43.
+
+export interface DataModelProperty extends Serializable {
+    property?: TTIriRef;
+    type?: TTIriRef;
+    minInclusive?: string;
+    minExclusive?: string;
+    maxInclusive?: string;
+    maxExclusive?: string;
+    pattern?: string;
+    inheritedFrom?: TTIriRef;
+    order?: number;
+}
 
 export interface ArrayButtons {
     up?: boolean;
@@ -134,8 +146,8 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    relativeTo?: PropertyRef;
     operator?: Operator;
+    relativeTo?: PropertyRef;
     dataType?: TTIriRef;
     unit?: string;
 }
@@ -282,8 +294,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -437,6 +449,9 @@ export interface SearchTermCode {
     status?: TTIriRef;
 }
 
+export interface CODE_TEMPLATE {
+}
+
 export interface COMPONENT {
 }
 
@@ -509,6 +524,9 @@ export interface TTIriRef extends TTValue, Serializable {
     "@id": string;
 }
 
+export interface Serializable {
+}
+
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
@@ -552,9 +570,6 @@ export interface Exception extends Throwable {
 
 export interface TTValue extends Serializable {
     order?: number;
-}
-
-export interface Serializable {
 }
 
 export interface TTArray extends Serializable {

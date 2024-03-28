@@ -4,21 +4,16 @@
       <span v-if="shape.showTitle">{{ shape.name }}</span>
       <span v-if="showRequired" class="required">*</span>
     </div>
-    <div class="label-container">
-      <div
-        type="text"
-        @click="showDialog = true"
-        class="search-text"
-        v-tooltip="{ value: selectedResult?.name ?? '', class: 'entity-tooltip' }"
-        @dragenter.prevent
-        @dragover.prevent
-        @drop="dropReceived"
-        :class="invalid && showValidation && 'invalid'"
-      >
-        <div class="selected-label">{{ selectedResult?.name ?? "Search..." }}</div>
-      </div>
-      <DirectorySearchDialog v-model:show-dialog="showDialog" v-model:selected="selectedResult" :search-by-query="queryRequest" />
-    </div>
+    <AutocompleteSearchBar
+      v-model:selected="selectedResult"
+      :im-query="queryRequest"
+      :root-entities="rootEntities"
+      @dragenter.prevent
+      @dragover.prevent
+      @drop="dropReceived"
+      :class="invalid && showValidation && 'invalid'"
+      :style="{ width: '100%' }"
+    />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
@@ -26,6 +21,7 @@
 <script setup lang="ts">
 import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import _ from "lodash";
 import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
@@ -113,13 +109,13 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 });
 
 const loading = ref(false);
-const selectedResult: Ref<SearchResultSummary | undefined> = ref();
+const selectedResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const key = ref("");
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(false);
-const showDialog = ref(false);
 const queryRequest: Ref<QueryRequest | undefined> = ref(undefined);
+const rootEntities: Ref<string[]> = ref([]);
 
 watch(selectedResult, (newValue, oldValue) => {
   if (newValue && !_.isEqual(newValue, oldValue)) updateSelectedResult(newValue);
@@ -131,6 +127,11 @@ async function init() {
     queryRequest.value = { query: { "@id": props.shape.select[0]["@id"] } };
   } else queryRequest.value = undefined;
   if (isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
+    queryRequest.value.argument = [];
+    for (const arg of props.shape.argument) {
+      if (arg.parameter === "rootEntities" && arg.valueIriList) rootEntities.value = arg.valueIriList.map(i => i["@id"]);
+      else queryRequest.value.argument.push(arg);
+    }
     queryRequest.value.argument = props.shape.argument;
   }
   if (props.value && isObjectHasKeys(props.value)) {
@@ -174,12 +175,11 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
 }
 
 function updateEntity() {
-  if (selectedResult.value) {
-    const result = {} as any;
-    result[key.value] = convertToTTIriRef(selectedResult.value);
-    if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
-    else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
-  }
+  const result = {} as any;
+  result[key.value] = convertToTTIriRef(selectedResult.value);
+  if (!result[key.value] && deleteEntityKey) {
+    deleteEntityKey(key.value);
+  } else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }
 
 function updateValueVariableMap(data: TTIriRef | undefined) {

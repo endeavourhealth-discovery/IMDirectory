@@ -131,6 +131,8 @@ watch(
   }
 );
 
+watch(props.rootEntities, async () => await addRootEntitiesToTree());
+
 onMounted(async () => {
   await init();
 });
