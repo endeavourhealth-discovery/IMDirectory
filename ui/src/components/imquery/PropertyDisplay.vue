@@ -1,16 +1,16 @@
 <template>
   <div class="property-description-container">
-    <div class="property-description" v-html="property?.description"></div>
-    <MatchDisplay v-if="property?.match" :match="property.match" />
-    <PropertyDisplay v-if="property?.property" v-for="nestedProperty in property.property" :property="nestedProperty" />
+    <div class="property-description" v-html="where?.description"></div>
+    <MatchDisplay v-if="where?.match" :match="where.match" />
+    <PropertyDisplay v-if="where?.where" v-for="nestedWhere in where.where" :where="nestedWhere" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Property } from "@im-library/interfaces/AutoGen";
+import { Where } from "@im-library/interfaces/AutoGen";
 import MatchDisplay from "./MatchDisplay.vue";
 interface Props {
-  property: Property;
+  where: Where;
 }
 const props = defineProps<Props>();
 </script>

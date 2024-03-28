@@ -2,7 +2,7 @@
   <div class="match-description-container">
     <div class="match-description" v-html="match?.description"></div>
     <MatchDisplay v-if="match?.match" v-for="nestedMatch in match.match" :match="nestedMatch" />
-    <PropertyDisplay v-if="match?.property" v-for="nestedProperty in match.property" :property="nestedProperty" />
+    <PropertyDisplay v-if="match?.where" v-for="nestedWhere in match.where" :where="nestedWhere" />
   </div>
 </template>
 
