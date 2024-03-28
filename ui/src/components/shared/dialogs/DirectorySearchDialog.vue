@@ -38,6 +38,8 @@
             :show-filters="false"
             :updateSearch="updateSearch"
             :search-term="searchTerm"
+            :im-query="imQuery"
+            :os-query="osQuery"
             :selected-filter-options="selectedFilterOptions"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
