@@ -395,7 +395,9 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       if (isObjectHasKeys(result, ["compoundAttributeSet"])) return { subRefinement: result.compoundAttributeSet };
       if (isObjectHasKeys(result, ["eclAttributeGroup"])) return { subRefinement: result.eclAttributeGroup };
       if (isObjectHasKeys(result, ["bracketSubRefinement"])) return { subRefinement: result.bracketSubRefinement };
-      if (isObjectHasKeys(result, ["eclAttribute"])) return { subRefinement: result.eclAttribute };
+      if (isObjectHasKeys(result, ["eclAttribute"])) {
+        return { subRefinement: result.eclAttribute };
+      }
     }
   }
 
@@ -421,9 +423,16 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["compoundAttributeSet"]))
-            build.eclAttributeGroup = { type: "BoolGroup", items: result.compoundAttributeSet.items, conjunction: result.compoundAttributeSet.conjunction };
-          if (isObjectHasKeys(result, ["eclAttribute"])) build.eclAttributeGroup = { type: "BoolGroup", items: [result.eclAttribute], conjunction: "AND" };
+          if (isObjectHasKeys(result, ["compoundAttributeSet"])) {
+            build.eclAttributeGroup = {
+              type: "BoolGroup",
+              items: result.compoundAttributeSet.items,
+              conjunction: result.compoundAttributeSet.conjunction,
+              attributeGroup: true
+            };
+          }
+          if (isObjectHasKeys(result, ["eclAttribute"]))
+            build.eclAttributeGroup = { type: "BoolGroup", items: [result.eclAttribute], conjunction: "AND", attributeGroup: true };
         }
       }
     }
@@ -433,8 +442,12 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitCompoundattributeset(ctx) {
     logItem("found compound attribute set", ctx.getText());
     const result = this.visitChildren(ctx)[0];
-    if (isObjectHasKeys(result, ["conjunctionAttributeSet"])) return { compoundAttributeSet: result.conjunctionAttributeSet };
-    if (isObjectHasKeys(result, ["disjunctionAttributeSet"])) return { compoundAttributeSet: result.disjunctionAttributeSet };
+    if (isObjectHasKeys(result, ["conjunctionAttributeSet"])) {
+      return { compoundAttributeSet: result.conjunctionAttributeSet };
+    }
+    if (isObjectHasKeys(result, ["disjunctionAttributeSet"])) {
+      return { compoundAttributeSet: result.disjunctionAttributeSet };
+    }
   }
 
   visitConjunctionattributeset(ctx) {
@@ -651,11 +664,14 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitBracketsubrefinement(ctx) {
     logItem("found bracket sub refinement", ctx.getText());
-    const build = { bracketSubRefinement: {} };
+    const build = { bracketSubRefinement: { type: "BoolGroup", items: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       for (const result of results) {
-        if (isObjectHasKeys(result, ["eclRefinement"])) build.bracketSubRefinement = result.eclRefinement;
+        if (isObjectHasKeys(result, ["eclRefinement"])) {
+          if (result.eclRefinement.items) build.bracketSubRefinement.items = result.eclRefinement.items;
+          if (result.eclRefinement.conjunction) build.bracketSubRefinement.conjunction = result.eclRefinement.conjunction;
+        }
       }
     }
     return build;
