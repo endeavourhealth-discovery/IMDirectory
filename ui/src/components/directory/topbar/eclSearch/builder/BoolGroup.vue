@@ -145,7 +145,7 @@ watch(
   () => _.cloneDeep(props.value),
   (newValue, oldValue) => {
     if (!_.isEqual(newValue, oldValue)) {
-      if (props.value.roleGroup) attributeGroup.value = true;
+      if (props.value.attributeGroup) attributeGroup.value = true;
       props.value.ecl = generateEcl();
     }
   }
@@ -175,7 +175,7 @@ watch(attributeGroup, () => {
 });
 
 onMounted(() => {
-  if (props.value.roleGroup) attributeGroup.value = true;
+  if (props.value.attributeGroup) attributeGroup.value = true;
   props.value.ecl = generateEcl();
 });
 

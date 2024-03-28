@@ -396,7 +396,6 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       if (isObjectHasKeys(result, ["eclAttributeGroup"])) return { subRefinement: result.eclAttributeGroup };
       if (isObjectHasKeys(result, ["bracketSubRefinement"])) return { subRefinement: result.bracketSubRefinement };
       if (isObjectHasKeys(result, ["eclAttribute"])) {
-        if (!result.eclAttribute.conjunction) result.eclAttribute.roleGroup = true;
         return { subRefinement: result.eclAttribute };
       }
     }
@@ -425,10 +424,15 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["compoundAttributeSet"])) {
-            result.compoundAttributeSet.items.forEach(item => (item.roleGroup = false));
-            build.eclAttributeGroup = { type: "BoolGroup", items: result.compoundAttributeSet.items, conjunction: result.compoundAttributeSet.conjunction };
+            build.eclAttributeGroup = {
+              type: "BoolGroup",
+              items: result.compoundAttributeSet.items,
+              conjunction: result.compoundAttributeSet.conjunction,
+              attributeGroup: true
+            };
           }
-          if (isObjectHasKeys(result, ["eclAttribute"])) build.eclAttributeGroup = { type: "BoolGroup", items: [result.eclAttribute], conjunction: "AND" };
+          if (isObjectHasKeys(result, ["eclAttribute"]))
+            build.eclAttributeGroup = { type: "BoolGroup", items: [result.eclAttribute], conjunction: "AND", attributeGroup: true };
         }
       }
     }
@@ -439,21 +443,9 @@ export default class ECLBuilderVisitor extends ECLVisitor {
     logItem("found compound attribute set", ctx.getText());
     const result = this.visitChildren(ctx)[0];
     if (isObjectHasKeys(result, ["conjunctionAttributeSet"])) {
-      if (result.conjunctionAttributeSet.items) {
-        result.conjunctionAttributeSet.items.forEach(item => {
-          if (!item.conjunction) item.roleGroup = true;
-          else item.roleGroup = false;
-        });
-      }
       return { compoundAttributeSet: result.conjunctionAttributeSet };
     }
     if (isObjectHasKeys(result, ["disjunctionAttributeSet"])) {
-      if (result.disjunctionAttributeSet.items) {
-        result.disjunctionAttributeSet.items.forEach(item => {
-          if (!item.conjunction) item.roleGroup = true;
-          else item.roleGroup = false;
-        });
-      }
       return { compoundAttributeSet: result.disjunctionAttributeSet };
     }
   }
@@ -672,11 +664,14 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitBracketsubrefinement(ctx) {
     logItem("found bracket sub refinement", ctx.getText());
-    const build = { bracketSubRefinement: {} };
+    const build = { bracketSubRefinement: { type: "BoolGroup", items: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       for (const result of results) {
-        if (isObjectHasKeys(result, ["eclRefinement"])) build.bracketSubRefinement = result.eclRefinement;
+        if (isObjectHasKeys(result, ["eclRefinement"])) {
+          if (result.eclRefinement.items) build.bracketSubRefinement.items = result.eclRefinement.items;
+          if (result.eclRefinement.conjunction) build.bracketSubRefinement.conjunction = result.eclRefinement.conjunction;
+        }
       }
     }
     return build;

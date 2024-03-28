@@ -538,6 +538,7 @@ describe("eclToBuild", () => {
             {
               type: "BoolGroup",
               conjunction: "AND",
+              attributeGroup: true,
               items: [
                 {
                   type: "Refinement",
@@ -556,6 +557,7 @@ describe("eclToBuild", () => {
             {
               type: "BoolGroup",
               conjunction: "AND",
+              attributeGroup: true,
               items: [
                 {
                   type: "Refinement",
@@ -593,6 +595,7 @@ describe("eclToBuild", () => {
             {
               type: "BoolGroup",
               conjunction: "OR",
+              attributeGroup: true,
               items: [
                 {
                   type: "Refinement",
@@ -611,6 +614,7 @@ describe("eclToBuild", () => {
             {
               type: "BoolGroup",
               conjunction: "OR",
+              attributeGroup: true,
               items: [
                 {
                   type: "Refinement",
@@ -660,5 +664,13 @@ describe("eclToBuild", () => {
 
   it("only allows numerical codes ___ url", () => {
     expect(() => eclToBuild("<< http://endhealth.info/im#Ontology")).toThrow("Invalid ecl");
+  });
+
+  it("works", () => {
+    expect(
+      eclToBuild(
+        "(<< 10363801000001108 OR << 10363901000001102 ): ((<< 127489000  = << 116601002 OR << 10363001000001101  = << 116601002 ) , {<< 411116001  = << 385268001 OR << 13088501000001100  = << 21000001106 OR << 13088401000001104  = << 26643006 OR << 10362901000001105  = << 385268001 })"
+      )
+    ).toEqual(buildTestData.works);
   });
 });

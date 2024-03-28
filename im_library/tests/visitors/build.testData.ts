@@ -57,6 +57,7 @@ export default {
             items: [
               {
                 conjunction: "AND",
+                attributeGroup: true,
                 items: [
                   {
                     operator: "=",
@@ -153,6 +154,7 @@ export default {
             items: [
               {
                 type: "BoolGroup",
+                attributeGroup: true,
                 conjunction: "AND",
                 items: [
                   {
@@ -203,6 +205,7 @@ export default {
             items: [
               {
                 type: "BoolGroup",
+                attributeGroup: true,
                 conjunction: "AND",
                 items: [
                   {
@@ -248,6 +251,7 @@ export default {
         items: [
           {
             conjunction: "AND",
+            attributeGroup: true,
             items: [
               {
                 operator: "=",
@@ -316,6 +320,7 @@ export default {
         items: [
           {
             conjunction: "AND",
+            attributeGroup: true,
             items: [
               {
                 operator: "=",
@@ -386,6 +391,7 @@ export default {
             items: [
               {
                 conjunction: "AND",
+                attributeGroup: true,
                 items: [
                   {
                     operator: "=",
@@ -446,6 +452,7 @@ export default {
             items: [
               {
                 type: "BoolGroup",
+                attributeGroup: true,
                 items: [
                   {
                     type: "Refinement",
@@ -483,6 +490,7 @@ export default {
             items: [
               {
                 type: "BoolGroup",
+                attributeGroup: true,
                 items: [
                   {
                     type: "Refinement",
@@ -673,6 +681,7 @@ export default {
         items: [
           {
             type: "BoolGroup",
+            attributeGroup: true,
             items: [
               {
                 type: "Refinement",
@@ -695,6 +704,7 @@ export default {
           },
           {
             type: "BoolGroup",
+            attributeGroup: true,
             items: [
               {
                 type: "Refinement",
@@ -1128,5 +1138,153 @@ export default {
       }
     ],
     conjunction: "OR"
+  },
+  works: {
+    type: "BoolGroup",
+    conjunction: "AND",
+    items: [
+      {
+        concept: {
+          type: "BoolGroup",
+          items: [
+            {
+              type: "Concept",
+              descendants: "<<",
+              concept: {
+                iri: "http://snomed.info/sct#10363801000001108"
+              }
+            },
+            {
+              type: "Concept",
+              descendants: "<<",
+              concept: {
+                iri: "http://snomed.info/sct#10363901000001102"
+              }
+            }
+          ],
+          conjunction: "OR"
+        },
+        descendants: "",
+        conjunction: "AND",
+        type: "Concept",
+        items: [
+          {
+            type: "BoolGroup",
+            items: [
+              {
+                type: "BoolGroup",
+                items: [
+                  {
+                    type: "Refinement",
+                    property: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#127489000"
+                      }
+                    },
+                    value: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#116601002"
+                      }
+                    },
+                    operator: "="
+                  },
+                  {
+                    type: "Refinement",
+                    property: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#10363001000001101"
+                      }
+                    },
+                    value: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#116601002"
+                      }
+                    },
+                    operator: "="
+                  }
+                ],
+                conjunction: "OR"
+              },
+              {
+                type: "BoolGroup",
+                items: [
+                  {
+                    type: "Refinement",
+                    property: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#411116001"
+                      }
+                    },
+                    value: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#385268001"
+                      }
+                    },
+                    operator: "="
+                  },
+                  {
+                    type: "Refinement",
+                    property: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#13088501000001100"
+                      }
+                    },
+                    value: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#21000001106"
+                      }
+                    },
+                    operator: "="
+                  },
+                  {
+                    type: "Refinement",
+                    property: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#13088401000001104"
+                      }
+                    },
+                    value: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#26643006"
+                      }
+                    },
+                    operator: "="
+                  },
+                  {
+                    type: "Refinement",
+                    property: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#10362901000001105"
+                      }
+                    },
+                    value: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#385268001"
+                      }
+                    },
+                    operator: "="
+                  }
+                ],
+                conjunction: "OR",
+                attributeGroup: true
+              }
+            ],
+            conjunction: "AND"
+          }
+        ]
+      }
+    ]
   }
 };
