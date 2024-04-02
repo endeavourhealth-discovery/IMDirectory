@@ -4,7 +4,7 @@ import router from "express-promise-router";
 import axios from "axios";
 
 export default class TransformController {
-  public path = "/node_api/transform";
+  public path = "/transform";
   public router = router();
   private transformService: TransformService;
 

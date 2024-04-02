@@ -15,6 +15,7 @@ import EclController from "@/controllers/eclController";
 import ConfigController from "@/controllers/configController";
 import ProvController from "@/controllers/provController";
 import StatusController from "./controllers/statusController";
+import TransformController from "./controllers/transformController";
 import gracefulShutdown from "http-graceful-shutdown";
 import logger from "./middlewares/logger.middleware";
 import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/morgan.middleware";
@@ -42,6 +43,7 @@ const app = new App({
     new ConfigController(),
     new ProvController(),
     new WorkflowController(),
+    new TransformController(),
     new FunctionController(),
     new CodeGenController()
   ],
