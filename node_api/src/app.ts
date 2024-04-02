@@ -34,6 +34,8 @@ class App {
     appInit.controllers.forEach(c => this.app.use(c.path, c.router));
 
     this.app.use(errorHandler);
+    
+    this.app.use(express.json({ limit: "50mb" }));
 
     initScheduledJobs();
   }

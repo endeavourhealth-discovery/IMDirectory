@@ -54,6 +54,7 @@ import { BugReport } from "./BugReport";
 import { QueryResponse } from "./QueryResponse";
 import { SetDiffObject } from "./SetDiffObject";
 import { CodeTemplate } from "./CodeTemplate";
+import { JoinData, JoinInstruction, JpathData, PathOption, TransformInputUpload, TransformInstruction, TransfromType } from "./TransformInterfaces";
 
 export {
   type Address,
@@ -111,5 +112,12 @@ export {
   type BugReport,
   type QueryResponse,
   type SetDiffObject,
-  type CodeTemplate
+  type CodeTemplate,
+  type JoinData,
+  type JoinInstruction,
+  type JpathData,
+  type PathOption,
+  type TransformInputUpload,
+  type TransformInstruction,
+  TransfromType
 };
