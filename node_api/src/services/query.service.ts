@@ -46,6 +46,15 @@ export default class QueryService {
     return response.data;
   }
 
+  public async getAllByType(iri: string): Promise<TTIriRef[]> {
+    const response = await this.axios.get(Env.API + "api/query/public/allByType", {
+      params: {
+        iri: iri
+      }
+    });
+    return response.data;
+  }
+
   public async getQuery(query: QueryRequest): Promise<Query> {
     return await this.axios.post(Env.API + "api/query/public/getQuery", query);
   }

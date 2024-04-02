@@ -132,8 +132,8 @@ export class SqlQuery {
     if (map.fields[field]) return map.fields[field];
 
     const fieldName = field.substring(field.indexOf("#") + 1);
-    console.log("UNKNOWN FIELD [" + field + "], defaulting to [" + "(({alias}.json ->> '" + fieldName + "')::VARCHAR)]");
-    // console.log(JSON.stringify(map, null, 2));
+
+    console.log("UNKNOWN FIELD [" + field + "] on table [" + map.table + "], defaulting to [" + "(({alias}.json ->> '" + fieldName + "')::VARCHAR)]");
 
     // Default to string field in JSON blob
     return {

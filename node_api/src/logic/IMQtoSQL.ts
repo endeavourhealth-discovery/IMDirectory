@@ -342,7 +342,7 @@ function convertMatchPropertyRelative(qry: SqlQuery, property: Where) {
 
 function convertMatchPropertyRelativeTo(qry: SqlQuery, property: Where, field: string) {
   const fieldType = qry.getFieldType(property["@id"] as string);
-  if ("date" == fieldType)
+  if ("date" == fieldType || "$referenceDate" == field)
     if (property.value) return "(" + field + " + INTERVAL '" + property.value + " " + property.unit + "')";
     else return field;
   else {

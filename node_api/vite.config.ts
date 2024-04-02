@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 import { VitePluginNode } from "vite-plugin-node";
 import * as path from "path";
+import { config } from "dotenv";
 
 export default defineConfig({
   server: {
@@ -23,6 +24,9 @@ export default defineConfig({
     }
   },
   test: {
+    env: {
+      ...config({ path: ".env" }).parsed
+    },
     globals: true,
     environment: "happy-dom",
     coverage: {
