@@ -73,28 +73,34 @@
             </div>
           </div>
         </template>
-        <Button
-          v-if="props.focus"
-          type="button"
-          icon="fa-solid fa-filter"
-          label="Add refinement"
-          class="add-button"
-          :severity="hover ? 'success' : 'secondary'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          @click="addRefinement()"
-        />
-        <Button
-          v-else
-          type="button"
-          icon="fa-solid fa-plus"
-          label="Add concept"
-          class="add-button"
-          :severity="hover ? 'success' : 'secondary'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          @click="addConcept()"
-        />
+        <div class="add-attribute-container">
+          <Button
+            v-if="props.focus"
+            type="button"
+            icon="fa-solid fa-filter"
+            label="Add refinement"
+            class="add-button"
+            :severity="hover ? 'success' : 'secondary'"
+            :outlined="!hover"
+            :class="!hover && 'hover-button'"
+            @click="addRefinement()"
+          />
+          <Button
+            v-else
+            type="button"
+            icon="fa-solid fa-plus"
+            label="Add concept"
+            class="add-button"
+            :severity="hover ? 'success' : 'secondary'"
+            :outlined="!hover"
+            :class="!hover && 'hover-button'"
+            @click="addConcept()"
+          />
+          <div v-if="canBeAttributeGroup" class="attribute-group-checkbox">
+            <Checkbox v-model="attributeGroup" :binary="true" />
+            <label>Attribute group</label>
+          </div>
+        </div>
       </div>
       <div class="add-group">
         <Button
@@ -114,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref, watch, onMounted } from "vue";
+import { ref, inject, Ref, watch, onMounted, computed, ComputedRef } from "vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import _, { isArray } from "lodash";
@@ -138,7 +144,10 @@ const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuil
 watch(
   () => _.cloneDeep(props.value),
   (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
+    if (!_.isEqual(newValue, oldValue)) {
+      if (props.value.attributeGroup) attributeGroup.value = true;
+      props.value.ecl = generateEcl();
+    }
   }
 );
 
@@ -154,9 +163,19 @@ const emit = defineEmits({ unGroupItems: _payload => true });
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
+const canBeAttributeGroup: ComputedRef<boolean> = computed(
+  () => props.parent && isArray(props.value.items) && props.value.items.length > 1 && props.value.items.every((i: any) => i.type === "Refinement")
+);
+
 const group: Ref<number[]> = ref([]);
+const attributeGroup = ref(false);
+
+watch(attributeGroup, () => {
+  props.value.ecl = generateEcl();
+});
 
 onMounted(() => {
+  if (props.value.attributeGroup) attributeGroup.value = true;
   props.value.ecl = generateEcl();
 });
 
@@ -208,12 +227,12 @@ function generateEcl(): string {
   let ecl = "";
   if (isArrayHasLength(props.value.items)) {
     if (props.value.exclude) ecl += "MINUS ";
-    if (props.parent && isArray(props.value.items) && props.value.items.length > 1 && props.value.items.every((i: any) => i.type === "Refinement")) ecl += "{ ";
+    if (attributeGroup.value) ecl += "{ ";
     else if (props.parent) ecl += "( ";
     for (const [index, item] of props.value.items.entries()) {
       ecl += generateChildEcl(index, item);
     }
-    if (props.parent && isArray(props.value.items) && props.value.items.length > 1 && props.value.items.every((i: any) => i.type === "Refinement")) ecl += " }";
+    if (attributeGroup.value) ecl += " }";
     else if (props.parent) ecl += " )";
   }
   return ecl.replace(/ {2,}/g, " ");
@@ -331,6 +350,20 @@ function unGroupItems(groupedItems: any) {
   flex-flow: row wrap;
   justify-content: flex-start;
   gap: 4px;
+}
+
+.attribute-group-checkbox {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.add-attribute-container {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .minus-container {
