@@ -12,8 +12,6 @@
     <div class="feature-container">
       <div class="feature-title">Features:</div>
       <div class="feature-list">
-        <Button class="builder-button bool-button vertical-button" label="AND" disabled />
-
         <div class="feature-list-container">
           <div v-for="(feature, index) in queryDefinition.match" class="feature">
             <Button
@@ -41,10 +39,9 @@
           </div>
         </div>
         <EditMatchDialog v-model:show-dialog="showDialog" :match="selectedMatch" />
-
-        <Button label="Add feature" @click="queryDefinition.match?.push({} as Match)" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
       </div>
     </div>
+    <Button label="Add feature" @click="queryDefinition.match?.push({} as Match)" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
   </div>
 </template>
 

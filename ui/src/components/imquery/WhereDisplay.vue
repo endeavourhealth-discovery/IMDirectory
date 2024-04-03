@@ -1,8 +1,11 @@
 <template>
   <div class="property-description-container">
-    <div class="property-description" v-html="where?.description"></div>
     <MatchDisplay v-if="where?.match" :match="where.match" />
-    <PropertyDisplay v-if="where?.where" v-for="nestedWhere in where.where" :where="nestedWhere" />
+    <div v-if="where?.where" class="where-group">
+      <Button v-if="where.where.length > 1" class="builder-button conjunction-button vertical-button" :label="where.bool?.toUpperCase() ?? 'AND'" disabled />
+      <div class="where-list"><WhereDisplay v-for="nestedWhere in where.where" :where="nestedWhere" /></div>
+    </div>
+    <div class="property-description" v-html="where?.description"></div>
   </div>
 </template>
 

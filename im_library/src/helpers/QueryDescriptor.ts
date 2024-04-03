@@ -62,8 +62,6 @@ export function describeReturnProperty(property: ReturnProperty, pathProperties:
 
 export function describeMatch(match: Match, index: number, bool?: Bool, matchType?: MatchType) {
   let display = getDisplayFromMatch(match, matchType);
-  if (match.exclude && matchType !== "then") display = getDisplayFromLogic("exclude") + " " + display;
-  if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
 
   if (isArrayHasLength(match.match)) {
     if (matchType === "then") matchType = "";
@@ -90,11 +88,7 @@ export function describeProperty(property: Where, index: number, bool?: Bool, ma
   if (property.match) describeMatch(property.match, 0, Bool.and, "path");
   if (isObjectHasKeys(property, ["@id"])) {
     let display = getDisplayFromProperty(property, matchType);
-    if (index && bool) {
-      display = getDisplayFromLogic(bool) + " " + display;
-    } else if (!index && bool) {
-      display = getDisplayFromLogic(Bool.and) + " " + display;
-    }
+
     property.description = display;
   }
 
@@ -107,10 +101,6 @@ export function describeProperty(property: Where, index: number, bool?: Bool, ma
 // getters
 export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   let display = "";
-  if (matchType === "then") {
-    display = "then";
-    display += " " + getDisplayFromLogic(match.exclude ? "exclude" : "include");
-  }
   if (match.is) display = getDisplayFromIs(match.is);
   else if (match.typeOf) {
     display = getNameFromRef(match.typeOf);
@@ -239,21 +229,6 @@ function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: Match
   }
 
   return display.trim();
-}
-
-export function getDisplayFromLogic(title: string) {
-  switch (title) {
-    case "include":
-      return "<span style='color: green;'>include if</span> ";
-    case "exclude":
-      return "<span style='color: red;'>exclude if</span> ";
-    case "or":
-      return "<span style='color: blue;'>or</span> ";
-    case "and":
-      return "<span style='color: orange;'>and</span> ";
-    default:
-      return "<span style='color: orange;'>and</span> ";
-  }
 }
 
 export function getDisplayFromRange(propertyName: string, property: Where) {

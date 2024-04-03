@@ -5,7 +5,14 @@
       <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase()" disabled />
       <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" /></div>
     </div>
-    <WhereDisplay v-if="match?.where" v-for="nestedWhere in match.where" :where="nestedWhere" />
+    <div v-if="match?.where" class="where-group">
+      <Button v-if="match.where.length > 1" class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" disabled />
+      <div class="where-list"><WhereDisplay v-for="nestedWhere in match.where" :where="nestedWhere" /></div>
+    </div>
+    <div v-if="match.then">
+      <div class="then-title">Then</div>
+      <MatchDisplay :match="match.then" />
+    </div>
   </div>
 </template>
 
@@ -22,7 +29,7 @@ const props = defineProps<Props>();
 <style scoped>
 .match-description-container {
   width: 100%;
-  height: 100%;
+  height: 50%;
   display: flex;
   flex-flow: column;
 }
@@ -32,13 +39,20 @@ const props = defineProps<Props>();
   margin-left: 0.1rem;
 }
 
-.feature-group {
+.feature-group,
+.where-group {
   display: flex;
   flex-flow: row;
 }
 
-.feature-list {
+.feature-list,
+.where-list {
   display: flex;
   flex-flow: column;
+}
+
+.then-title {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 </style>
