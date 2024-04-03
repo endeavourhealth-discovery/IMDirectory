@@ -7,8 +7,8 @@
     >
       <div id="imquery-builder-string-container">
         <div id="imquery-builder-container">
-          <div id="imquery-build">
-            <!-- <EditMatch /> -->
+          <div id="imquery-build" v-if="editMatch">
+            <EditMatch :edit-match="editMatch" />
           </div>
         </div>
 
@@ -60,6 +60,7 @@ import { cloneDeep } from "lodash";
 import { Ref, onMounted, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
+import EditMatch from "./EditMatch.vue";
 
 interface Props {
   showDialog: boolean;

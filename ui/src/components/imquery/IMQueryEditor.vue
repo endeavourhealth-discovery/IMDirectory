@@ -71,6 +71,8 @@ const queryRequestForBaseType: QueryRequest = {
 
 onMounted(async () => {
   queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
+  if (queryDefinition.value.typeOf)
+    selectedBaseType.value = { iri: queryDefinition.value.typeOf?.["@id"], name: queryDefinition.value.typeOf?.name } as SearchResultSummary;
 });
 
 function mouseover(event: Event, index: number) {
