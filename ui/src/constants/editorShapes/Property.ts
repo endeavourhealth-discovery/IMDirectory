@@ -203,7 +203,7 @@ const PropertyShape: FormGenerator = {
               order: 1,
               select: [
                 {
-                  "@id": QUERY.SEARCH_SUBCLASS
+                  "@id": QUERY.SEARCH_ALLOWABLE_SUBCLASS
                 }
               ],
               argument: [
