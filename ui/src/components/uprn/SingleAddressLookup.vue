@@ -18,10 +18,10 @@
     </div>
     <small v-if="showInvalid" :class="!validAddress && 'invalid'">{{ invalidErrorMessage }}</small>
 
-    <div class="commercial-container">
+    <!-- <div class="commercial-container">
       <label for="commercial">Commercial: </label>
       <Checkbox id="commercial" v-model="isCommercial" :binary="true" />
-    </div>
+    </div> -->
 
     <div v-if="!loading" class="data-table-container">
       <table v-if="searchResults" class="data-table">
@@ -100,7 +100,7 @@ async function submitAddress() {
   }
   loading.value = true;
   let ncommercial = "0";
-  if (isCommercial.value == true) ncommercial = "1";
+  //if (isCommercial.value == true) ncommercial = "1";
 
   const result = await uprnService.search(searchAddress.value, ncommercial);
   if (result && result.Matched) {
@@ -142,7 +142,8 @@ const keyToDescription = {
 };
 
 function getDefinition(key: string, parentKey?: string) {
-  if (!parentKey) {
+  //if (!parentKey) {
+  if (parentKey == "BestMatch") {
     switch (key) {
       case "UPRN":
         return "ABP unique property reference number";

@@ -33,9 +33,7 @@
             </div>
           </template>
         </Listbox>
-        <div v-else class="loading-container">
-          <ProgressSpinner />
-        </div>
+        <div v-else>No results</div>
 
         <div class="advanced-search-container">
           <Button label="Advanced search" class="advanced-search-button" @click="showDialog = true" />

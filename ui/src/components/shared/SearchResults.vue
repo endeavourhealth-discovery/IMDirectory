@@ -25,6 +25,8 @@
       :updateSearch="updateSearch"
       :selected-filter-options="selectedFilterOptions"
       :rows="rows"
+      :im-query="imQuery"
+      :os-query="osQuery"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
     />
@@ -34,7 +36,6 @@
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";

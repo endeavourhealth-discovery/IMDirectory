@@ -155,122 +155,11 @@ describe("eclToBuild", () => {
   });
 
   it("converts startGroupedConceptWithRefinement", () => {
-    expect(eclToBuild(eclTestData.startGroupedConceptWithRefinement)).toEqual({
-      type: "BoolGroup",
-      conjunction: "AND",
-      items: [
-        {
-          concept: {
-            type: "BoolGroup",
-            items: [
-              {
-                type: "Concept",
-                descendants: "<<",
-                concept: {
-                  iri: "http://snomed.info/sct#763158003"
-                }
-              }
-            ],
-            conjunction: "AND"
-          },
-          descendants: "",
-          conjunction: "AND",
-          type: "Concept",
-          items: [
-            {
-              type: "Refinement",
-              property: {
-                descendants: "<<",
-                concept: {
-                  iri: "http://snomed.info/sct#127489000"
-                }
-              },
-              value: {
-                descendants: "<<",
-                concept: {
-                  iri: "http://snomed.info/sct#387207008"
-                }
-              },
-              operator: "="
-            }
-          ]
-        }
-      ]
-    });
+    expect(eclToBuild(eclTestData.startGroupedConceptWithRefinement)).toEqual(buildTestData.startGroupedConceptWithRefinement);
   });
 
   it("converts refinementConjunctionWithGroup", () => {
-    expect(eclToBuild(eclTestData.refinementConjunctionWithGroup)).toEqual({
-      type: "BoolGroup",
-      conjunction: "AND",
-      items: [
-        {
-          type: "Concept",
-          descendants: "<<",
-          concept: {
-            iri: "http://snomed.info/sct#763158003"
-          },
-          conjunction: "AND",
-          items: [
-            {
-              type: "Refinement",
-              property: {
-                descendants: "<<",
-                concept: {
-                  iri: "http://snomed.info/sct#127489000"
-                }
-              },
-              value: {
-                descendants: "<<",
-                concept: {
-                  iri: "http://snomed.info/sct#387207008"
-                }
-              },
-              operator: "="
-            },
-
-            {
-              conjunction: "OR",
-              items: [
-                {
-                  type: "Refinement",
-                  property: {
-                    descendants: "<<",
-                    concept: {
-                      iri: "http://snomed.info/sct#411116001"
-                    }
-                  },
-                  value: {
-                    descendants: "<<",
-                    concept: {
-                      iri: "http://snomed.info/sct#763820000"
-                    }
-                  },
-                  operator: "="
-                },
-                {
-                  type: "Refinement",
-                  property: {
-                    descendants: "<<",
-                    concept: {
-                      iri: "http://snomed.info/sct#411116001"
-                    }
-                  },
-                  value: {
-                    descendants: "<<",
-                    concept: {
-                      iri: "http://snomed.info/sct#421701006"
-                    }
-                  },
-                  operator: "="
-                }
-              ],
-              type: "BoolGroup"
-            }
-          ]
-        }
-      ]
-    });
+    expect(eclToBuild(eclTestData.refinementConjunctionWithGroup)).toEqual(buildTestData.refinementConjunctionWithGroup);
   });
 
   it("handles simple concept", () => {
@@ -538,6 +427,7 @@ describe("eclToBuild", () => {
             {
               type: "BoolGroup",
               conjunction: "AND",
+              attributeGroup: true,
               items: [
                 {
                   type: "Refinement",
@@ -556,6 +446,7 @@ describe("eclToBuild", () => {
             {
               type: "BoolGroup",
               conjunction: "AND",
+              attributeGroup: true,
               items: [
                 {
                   type: "Refinement",
@@ -593,6 +484,7 @@ describe("eclToBuild", () => {
             {
               type: "BoolGroup",
               conjunction: "OR",
+              attributeGroup: true,
               items: [
                 {
                   type: "Refinement",
@@ -611,6 +503,7 @@ describe("eclToBuild", () => {
             {
               type: "BoolGroup",
               conjunction: "OR",
+              attributeGroup: true,
               items: [
                 {
                   type: "Refinement",
@@ -644,10 +537,10 @@ describe("eclToBuild", () => {
           concept: {
             iri: "http://snomed.info/sct#12345678"
           },
-          conjunction: "AND",
           descendants: "<<",
-          items: [],
-          type: "Concept"
+          type: "Concept",
+          conjunction: "AND",
+          items: []
         }
       ],
       type: "BoolGroup"
@@ -660,5 +553,13 @@ describe("eclToBuild", () => {
 
   it("only allows numerical codes ___ url", () => {
     expect(() => eclToBuild("<< http://endhealth.info/im#Ontology")).toThrow("Invalid ecl");
+  });
+
+  it("converts nested attribute group", () => {
+    expect(
+      eclToBuild(
+        "(<< 10363801000001108 OR << 10363901000001102 ): ((<< 127489000  = << 116601002 OR << 10363001000001101  = << 116601002 ) , {<< 411116001  = << 385268001 OR << 13088501000001100  = << 21000001106 OR << 13088401000001104  = << 26643006 OR << 10362901000001105  = << 385268001 })"
+      )
+    ).toEqual(buildTestData.nestedAttributeGroup);
   });
 });
