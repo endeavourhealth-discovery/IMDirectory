@@ -2,11 +2,30 @@
   <div class="match-description-container">
     <div class="match-description" v-html="match?.description"></div>
     <div v-if="match?.match" class="feature-group">
-      <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase()" disabled />
+      <Button
+        class="builder-button conjunction-button vertical-button"
+        :label="match.bool?.toUpperCase()"
+        @click="
+          e => {
+            e.stopPropagation();
+            toggleBool(match);
+          }
+        "
+      />
       <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" /></div>
     </div>
     <div v-if="match?.where" class="where-group">
-      <Button v-if="match.where.length > 1" class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" disabled />
+      <Button
+        v-if="match.where.length > 1"
+        class="builder-button conjunction-button vertical-button"
+        :label="match.bool?.toUpperCase() ?? 'AND'"
+        @click="
+          e => {
+            e.stopPropagation();
+            toggleBool(match);
+          }
+        "
+      />
       <div class="where-list"><WhereDisplay v-for="nestedWhere in match.where" :where="nestedWhere" /></div>
     </div>
     <div v-if="match.then">
@@ -19,11 +38,14 @@
 <script setup lang="ts">
 import { Match } from "@im-library/interfaces/AutoGen";
 import WhereDisplay from "./WhereDisplay.vue";
+import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 
 interface Props {
   match: Match;
 }
 const props = defineProps<Props>();
+
+const { toggleBool } = setupIMQueryBuilderActions();
 </script>
 
 <style scoped>
