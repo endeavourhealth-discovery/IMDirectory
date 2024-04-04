@@ -165,7 +165,7 @@ There is an additional "#array" template available to allow special cases for ar
 List<\${BASE DATA TYPE}> : List<String>
 \${BASE DATA TYPE}[]     : String[]
 
-To aid in the correct development of a template, he right-hand side live-preview shows the template applied to the "\${MODEL NAME}" data model.
+To aid in the correct development of a template, the right-hand side live-preview shows the template applied to the "\${MODEL NAME}" data model.
 
 Here is a more complete example of the variables in use...
 
@@ -177,12 +177,11 @@ MODEL COMMENT: \${MODEL COMMENT}
 
 PROPERTIES:
 <template #property>
-  PROPERTY NAME: \${PropertyName}
+  PROPERTY NAME: \${propertyName}
   PROPERTY TYPE: \${DataType}
   <template #array>    ** THIS IS AN ARRAY **
   </template #array>
-</template #property>
-`;
+</template #property>`;
     collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
     datatypeMapInput.value = [{ code: "http://www.w3.org/2001/XMLSchema#string", replace: "String" }];
     nameInput.value = "Documentation";
