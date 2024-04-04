@@ -513,6 +513,10 @@ const EntityService = {
     return axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyOptions", {
       params: { dataModelIri: dataModelIri, dataTypeIri: dataTypeIri, key: key }
     });
+  },
+
+  async updateSubsetsFromSuper(entity: any) {
+    return axios.post(Env.API + "api/entity/updateSubsetsFromSuper", entity);
   }
 };
 
