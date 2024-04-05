@@ -138,8 +138,8 @@ onMounted(async () => {
 
 watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], ([newPropsValue, newPropsShape], [oldPropsValue, oldPropsShape]) => {
   // updateBuildLength();
-  if (JSON.stringify(newPropsValue) !== JSON.stringify(oldPropsValue) && build.value.length) updateBuildPropsValue();
-  if (JSON.stringify(newPropsShape.path["@id"]) !== JSON.stringify(oldPropsShape.path["@id"])) init();
+  if (!_.isEqual(newPropsValue, oldPropsValue) && build.value.length) updateBuildPropsValue();
+  if (!_.isEqual(newPropsShape.path["@id"], oldPropsShape.path["@id"])) init();
 });
 
 watch(
@@ -169,9 +169,16 @@ function updateBuildPropsValue() {
     });
 }
 
-const finishedChildLoading = computed(
-  () => !build.value.some(c => (isObjectHasKeys(c.value) && !isObjectHasKeys(c.json)) || (isArrayHasLength(c.value) && !isObjectHasKeys(c.json)))
-);
+const finishedChildLoading = computed(() => {
+  if (!props.value) return true;
+  else if (
+    props.value &&
+    build.value.length >= props.value?.length &&
+    build.value.every(c => (isObjectHasKeys(c.value) && isObjectHasKeys(c.json)) || (isArrayHasLength(c.value) && isObjectHasKeys(c.json)))
+  )
+    return true;
+  else return false;
+});
 
 function init() {
   key = props.shape.path["@id"];
@@ -278,6 +285,7 @@ function updateEntity() {
   result[key] = value;
   if (props.shape.builderChild) {
     emit("updateClicked", result);
+    return;
   } else if (!value.length && deleteEntityKey) deleteEntityKey(key);
   else if (entityUpdate) entityUpdate(result);
 }

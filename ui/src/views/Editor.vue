@@ -256,6 +256,10 @@ function submit(): void {
             allowOutsideClick: () => !Swal.isLoading(),
             backdrop: true,
             preConfirm: async () => {
+              if (isObjectHasKeys(editorEntity.value, ["http://endhealth.info/im#subsetsEdit"])) {
+                await EntityService.updateSubsetsFromSuper(editorEntity.value);
+                delete editorEntity.value["http://endhealth.info/im#subsetsEdit"];
+              }
               const res = await EntityService.updateEntity(editorEntity.value);
               if (res) {
                 editorStore.updateEditorSavedEntity(undefined);

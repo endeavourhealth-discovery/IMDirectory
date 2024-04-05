@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-03-21 16:07:43.
+// Generated using typescript-generator version 3.2.1263 on 2024-04-03 15:38:45.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -146,10 +146,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
-    relativeTo?: PropertyRef;
-    dataType?: TTIriRef;
     unit?: string;
+    operator?: Operator;
+    dataType?: TTIriRef;
+    relativeTo?: PropertyRef;
 }
 
 export interface Case {
@@ -173,6 +173,12 @@ export interface Delete {
 export interface Element extends IriLD, Entailment {
     parameter?: string;
     variable?: string;
+    ancestorsOrSelfOf?: boolean;
+    childOrSelfOf?: boolean;
+    childOf?: boolean;
+    parentOrSelfOf?: boolean;
+    parentOf?: boolean;
+    memberOf?: boolean;
     nodeRef?: string;
 }
 
@@ -236,7 +242,7 @@ export interface PathQuery extends TTIriRef {
     depth?: number;
 }
 
-export interface PropertyRef extends Element {
+export interface PropertyRef extends Node {
     inverse?: boolean;
     valueVariable?: string;
 }
@@ -294,8 +300,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -535,9 +541,9 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
-    code?: string;
     status?: TTIriRef;
+    code?: string;
+    description?: string;
     prefixes?: TTPrefix[];
 }
 

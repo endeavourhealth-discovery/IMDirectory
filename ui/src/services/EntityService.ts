@@ -39,6 +39,14 @@ const EntityService = {
     });
   },
 
+  async getSubsets(iri: string): Promise<TTIriRef[]> {
+    return axios.get(api + "api/entity/public/subsets", {
+      params: {
+        iri: iri
+      }
+    });
+  },
+
   async getSetComparison(iriA?: string, iriB?: string): Promise<SetDiffObject> {
     return axios.get(Env.VITE_NODE_API + "node_api/entity/public/setDiff", {
       params: {
@@ -505,6 +513,10 @@ const EntityService = {
     return axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyOptions", {
       params: { dataModelIri: dataModelIri, dataTypeIri: dataTypeIri, key: key }
     });
+  },
+
+  async updateSubsetsFromSuper(entity: any) {
+    return axios.post(Env.API + "api/entity/updateSubsetsFromSuper", entity);
   }
 };
 

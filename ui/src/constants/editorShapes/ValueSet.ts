@@ -179,6 +179,52 @@ const ValueSetShape: FormGenerator = {
               ]
             },
             {
+              label: "Property group - Sub type array builder",
+              order: 1,
+              path: {
+                "@id": RDFS.SUBCLASS_OF
+              },
+              validation: {
+                "@id": VALIDATION.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  order: 1,
+                  select: [
+                    {
+                      "@id": QUERY.SEARCH_ALLOWABLE_SUBCLASS
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.VALUE_SET
+                      },
+                      parameter: "value"
+                    }
+                  ],
+                  builderChild: true,
+                  name: "Entity",
+                  path: {
+                    "@id": RDFS.SUBCLASS_OF
+                  },
+                  minCount: 0,
+                  componentType: {
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                  }
+                }
+              ],
+              name: "Subclass of",
+              showTitle: true,
+              minCount: 0,
+              componentType: {
+                "@id": COMPONENT.ARRAY_BUILDER
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
+            },
+            {
               label: "Property group - Contained in array builder",
               order: 1,
               path: {
@@ -250,11 +296,7 @@ const ValueSetShape: FormGenerator = {
               order: 1,
               minCount: 0,
               componentType: { "@id": COMPONENT.SUBSET_BUILDER },
-              path: { "@id": IM.IS_SUBSET_OF },
-              validation: {
-                "@id": VALIDATION.IS_DEFINITION
-              },
-              validationErrorMessage: "Set definition is not valid",
+              path: { "@id": "http://endhealth.info/im#subsetsEdit" },
               property: [
                 {
                   name: "Inclusions",
@@ -262,7 +304,7 @@ const ValueSetShape: FormGenerator = {
                   builderChild: true,
                   componentType: { "@id": COMPONENT.ARRAY_BUILDER },
                   arrayButtons: { addOnlyIfLast: true, down: false, minus: true, plus: true, up: false },
-                  path: { "@id": IM.IS_SUBSET_OF },
+                  path: { "@id": "http://endhealth.info/im#subsetsEdit" },
                   property: [
                     {
                       argument: [{ parameter: "this", valueIriList: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUESET }] }],
@@ -272,7 +314,7 @@ const ValueSetShape: FormGenerator = {
                       minCount: 0,
                       name: "Inclusion",
                       order: 1,
-                      path: { "@id": IM.IS_SUBSET_OF }
+                      path: { "@id": "http://endhealth.info/im#subsetsEdit" }
                     }
                   ],
                   order: 1
@@ -283,7 +325,7 @@ const ValueSetShape: FormGenerator = {
               label: "Property group - set definition builder",
               name: "Definition builder",
               order: 2,
-              minCount: 1,
+              minCount: 0,
               componentType: {
                 "@id": COMPONENT.SET_DEFINITION_BUILDER
               },
