@@ -26,21 +26,24 @@ import TopBar from "@/components/shared/TopBar.vue";
 import _ from "lodash";
 import CohortEditor from "@/components/query/builder/CohortEditor.vue";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
-import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, onBeforeMount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useFilterStore } from "@/stores/filterStore";
 import { resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
 import IMQueryEditor from "@/components/imquery/IMQueryEditor.vue";
+import { useFilterStore } from "@/stores/filterStore";
 
-const filterStore = useFilterStore();
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const loading = ref(true);
+const filterStore = useFilterStore();
+
+onBeforeMount(async () => {
+  await filterStore.fetchFilterSettings();
+});
 
 onMounted(async () => {
-  await filterStore.fetchFilterSettings();
   await init();
 });
 

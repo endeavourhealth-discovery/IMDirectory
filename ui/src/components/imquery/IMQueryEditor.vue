@@ -5,8 +5,8 @@
       <AutocompleteSearchBar
         class="base-type-autocomplete"
         v-model:selected="selectedBaseType"
-        :search-by-query="queryRequestForBaseType"
-        :root-entities="['http://endhealth.info/im#DataModel']"
+        :os-query="osQueryForBaseType"
+        :root-entities="['http://endhealth.info/im#DataModelClasses']"
       />
     </div>
     <div class="feature-container">
@@ -46,33 +46,33 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, ref } from "vue";
+import { Ref, computed, onBeforeMount, onMounted, ref } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { Match, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, Query, QueryRequest, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
+import { IM, SHACL } from "@im-library/vocabulary";
+import { SortDirection } from "@im-library/enums";
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const queryDefinition: Ref<Query> = ref({});
 const hover: Ref<number> = ref(-1);
 const showDialog = ref(false);
 const selectedMatch: Ref<Match | undefined> = ref();
-const queryRequestForBaseType: QueryRequest = {
-  query: {
-    name: "Get queries and data models",
-    match: [
-      {
-        typeOf: { "@id": "http://www.w3.org/ns/shacl#NodeShape" }
-      }
-    ]
-  }
-};
+const osQueryForBaseType: Ref<SearchRequest | undefined> = ref();
 
 onMounted(async () => {
   queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
   if (queryDefinition.value.typeOf)
     selectedBaseType.value = { iri: queryDefinition.value.typeOf?.["@id"], name: queryDefinition.value.typeOf?.name } as SearchResultSummary;
+
+  osQueryForBaseType.value = {
+    statusFilter: [IM.ACTIVE, IM.DRAFT],
+    typeFilter: [SHACL.NODESHAPE],
+    sortDirection: SortDirection.DESC,
+    sortField: "weighting"
+  } as SearchRequest;
 });
 
 function mouseover(event: Event, index: number) {
