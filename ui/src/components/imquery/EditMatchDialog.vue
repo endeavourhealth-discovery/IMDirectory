@@ -2,13 +2,20 @@
   <div>
     <Dialog
       v-model:visible="visible"
-      header="Edit feature"
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
     >
+      <template #header>
+        <Breadcrumb :model="pathItems">
+          <template #item="{ item }">
+            <div @click="updateDialogFocus(item.key!)">{{ item.label }}</div>
+          </template>
+          <template #separator> / </template>
+        </Breadcrumb>
+      </template>
       <div id="imquery-builder-string-container">
         <div id="imquery-builder-container">
           <div id="imquery-build" v-if="editMatch">
-            <EditMatch :edit-match="editMatch" />
+            <EditMatch :edit-match="editMatch" @on-update-dialog-focus="updateDialogFocus" />
           </div>
         </div>
 
@@ -61,10 +68,12 @@ import { Ref, onMounted, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
+import { MenuItem } from "primevue/menuitem";
 
 interface Props {
   showDialog: boolean;
   match: Match | undefined;
+  index: number;
 }
 
 const props = defineProps<Props>();
@@ -77,6 +86,13 @@ const editMatch: Ref<Match | undefined> = ref();
 const editMatchString: Ref<string> = ref("");
 const visible = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
+const pathItems: Ref<MenuItem[]> = ref([
+  { label: "Electronics" },
+  { label: "Computer" },
+  { label: "Accessories" },
+  { label: "Keyboard" },
+  { label: "Wireless" }
+]);
 
 watch(
   () => cloneDeep(editMatch.value),
@@ -103,13 +119,63 @@ watch(
   () => setEditMatch()
 );
 
+watch(
+  () => props.index,
+  () => setPathItems()
+);
+
 onMounted(() => {
   setEditMatch();
   editMatchString.value = JSON.stringify(editMatch.value);
+  setPathItems();
 });
+
+function setPathItems() {
+  pathItems.value = [{ label: "Feature " + props.index }];
+}
 
 function setEditMatch() {
   if (isObjectHasKeys(props.match)) editMatch.value = cloneDeep(props.match);
+}
+
+function updateDialogFocus(editMatchId: string) {
+  console.log(editMatchId);
+  if (editMatch.value?.["@id"] === editMatchId) return;
+  const { items, editMatchFocus } = buildPath(editMatchId);
+  pathItems.value = items;
+  editMatch.value = editMatchFocus;
+}
+
+function buildPath(toMatchId: string): { items: MenuItem[]; editMatchFocus: Match } {
+  const items: MenuItem[] = [];
+  let matchHierarchy: Match[] = [];
+  matchHierarchy = getParentHierarchy(props.match!, toMatchId, matchHierarchy);
+  return { items: items, editMatchFocus: matchHierarchy[0] };
+}
+
+function getParentHierarchy(currentMatch: Match, toMatchId: string, matchHierarchy: Match[], index?: number): Match[] {
+  // if (currentMatch?.["@id"] === toMatchId) {
+  //   return matchHierarchy.concat(currentMatch);
+  // }
+
+  // return [];
+
+  // if (currentMatch["@id"] === toMatchId) {
+  //   toMatchFound.push(currentMatch);
+  //   items.push({ label: currentMatch.typeOf?.name ?? "Feature " + (index ? index + 1 : 1), key: currentMatch["@id"] });
+  // } else if (currentMatch.match) {
+  //   for (const [index, nestedMatch] of currentMatch.match.entries()) {
+  //     buildPathRecursively(nestedMatch, toMatchId, toMatchFound, items, index);
+  //   }
+  // } else if (currentMatch.where) {
+  //   for (const where of currentMatch.where) {
+  //     if (where.match) buildPathRecursively(where.match, toMatchId, toMatchFound, items, index);
+  //   }
+  // } else if (currentMatch.then) {
+  //   buildPathRecursively(currentMatch.then, toMatchId, toMatchFound, items, index);
+  // }
+
+  return [];
 }
 </script>
 

@@ -38,7 +38,7 @@
             <Button @click="deleteFeature(index)" severity="danger" icon="fa-solid fa-trash" class="builder-button" />
           </div>
         </div>
-        <EditMatchDialog v-model:show-dialog="showDialog" :match="selectedMatch" />
+        <EditMatchDialog v-model:show-dialog="showDialog" :match="selectedMatch" :index="selectedIndex" />
       </div>
     </div>
     <Button label="Add feature" @click="queryDefinition.match?.push({} as Match)" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
@@ -60,6 +60,7 @@ const queryDefinition: Ref<Query> = ref({});
 const hover: Ref<number> = ref(-1);
 const showDialog = ref(false);
 const selectedMatch: Ref<Match | undefined> = ref();
+const selectedIndex: Ref<number> = ref(-1);
 const osQueryForBaseType: Ref<SearchRequest | undefined> = ref();
 
 onMounted(async () => {
@@ -91,6 +92,7 @@ function deleteFeature(index: number) {
 
 function editMatch(index: number) {
   selectedMatch.value = queryDefinition.value.match?.[index];
+  selectedIndex.value = index;
   showDialog.value = true;
 }
 </script>

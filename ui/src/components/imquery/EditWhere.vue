@@ -2,10 +2,11 @@
   <div class="property-description-container">
     <div class="property-description" v-html="editWhere?.description"></div>
     <div v-if="editWhere?.where" class="where-group">
-      <Button v-if="editWhere.where.length > 1" class="builder-button conjunction-button vertical-button" :label="editWhere.bool?.toUpperCase() ?? 'AND'" />
-      <div class="where-list"><EditWhere v-for="nestedWhere in editWhere.where" :editWhere="nestedWhere" /></div>
+      <div class="where-list">
+        <EditWhere v-for="nestedWhere in editWhere.where" :editWhere="nestedWhere" @on-update-dialog-focus="(id: string) => $emit('onUpdateDialogFocus', id)" />
+      </div>
     </div>
-    <EditMatch v-if="editWhere?.match" :edit-match="editWhere.match" />
+    <EditMatch v-if="editWhere?.match" :edit-match="editWhere.match" @on-update-dialog-focus="(id: string) => $emit('onUpdateDialogFocus', id)" />
   </div>
 </template>
 
@@ -16,6 +17,7 @@ interface Props {
   editWhere: Where;
 }
 const props = defineProps<Props>();
+const emit = defineEmits({ onUpdateDialogFocus: (payload: string) => payload });
 </script>
 
 <style scoped>
