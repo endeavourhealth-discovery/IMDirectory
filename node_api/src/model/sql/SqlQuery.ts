@@ -133,13 +133,21 @@ export class SqlQuery {
 
     const fieldName = field.substring(field.indexOf("#") + 1);
 
-    console.log("UNKNOWN FIELD [" + field + "] on table [" + map.table + "], defaulting to [" + "(({alias}.json ->> '" + fieldName + "')::VARCHAR)]");
-
     // Default to string field in JSON blob
-    return {
-      field: "(({alias}.json ->> '" + fieldName + "')::VARCHAR)",
-      type: "string"
-    } as Field;
+    // TODO: Proper mapping
+    if (fieldName.toLowerCase().includes("date")) {
+      console.log("UNKNOWN FIELD [" + field + "] on table [" + map.table + "], defaulting to [" + "(({alias}.json ->> '" + fieldName + "')::TIMESTAMP)]");
+      return {
+        field: "(({alias}.json ->> '" + fieldName + "')::TIMESTAMP)",
+        type: "date"
+      } as Field;
+    } else {
+      console.log("UNKNOWN FIELD [" + field + "] on table [" + map.table + "], defaulting to [" + "(({alias}.json ->> '" + fieldName + "')::VARCHAR)]");
+      return {
+        field: "(({alias}.json ->> '" + fieldName + "')::VARCHAR)",
+        type: "string"
+      } as Field;
+    }
   }
 
   public getRelationshipTo(targetModel: string): Relationship {

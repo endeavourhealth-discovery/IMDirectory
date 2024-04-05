@@ -16,22 +16,7 @@ function IMQtoSQL(definition: Query, baseId = ""): IMQSQL {
   const qry = SqlQuery.create(definition.typeOf["@id"]!, baseId);
 
   for (const match of definition.match) {
-    const subQry = convertMatchToQuery(qry, match);
-    qry.withs.push(...subQry.withs);
-    subQry.withs = [];
-    qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)");
-
-    const joiner = match.exclude ? "LEFT JOIN " : "JOIN ";
-    if (match.exclude) qry.wheres.push(subQry.alias + ".id IS NULL");
-
-    if (qry.model == subQry.model) {
-      qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id");
-    } else {
-      const rel = subQry.getRelationshipTo(qry.model);
-      const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQry.alias) : subQry.alias + "." + rel.fromField;
-      const relTo = rel.toField.includes("{alias}") ? rel.toField.replaceAll("{alias}", qry.alias) : qry.alias + "." + rel.toField;
-      qry.joins.push(joiner + subQry.alias + " ON " + relFrom + " = " + relTo);
-    }
+    convertMatchToQueryAndMerge(qry, match, match.exclude ? "OR" : "AND");
   }
 
   const result: IMQSQL = { sql: qry.toSql(), sets: qry.dependentSets, queries: new Map<string, { iri: string; alias: string; sql: string }>() };
@@ -44,22 +29,49 @@ function IMQtoSQL(definition: Query, baseId = ""): IMQSQL {
   // }
 }
 
+function convertMatchToQueryAndMerge(qry: SqlQuery, subMatch: Match, bool = "AND") {
+  const subQry = convertMatchToQuery(qry, subMatch);
+  qry.withs.push(...subQry.withs);
+  subQry.withs = [];
+  qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)");
+
+  const joiner = "OR" == bool ? "LEFT JOIN " : "JOIN ";
+  if ("OR" == qry.whereBool) qry.wheres.push(subQry.alias + ".id IS NOT NULL");
+
+  if (subQry.model == qry.model) {
+    qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id");
+  } else {
+    const rel = subQry.getRelationshipTo(qry.model);
+    const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQry.alias) : subQry.alias + "." + rel.fromField;
+    const relTo = rel.toField.includes("{alias}") ? rel.toField.replaceAll("{alias}", qry.alias) : qry.alias + "." + rel.toField;
+
+    qry.joins.push(joiner + subQry.alias + " ON " + relFrom + " = " + relTo);
+  }
+}
+
 function convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
   const qry = createMatchQuery(match, parent);
 
   convertMatch(match, qry);
 
-  if (match.orderBy) {
-    wrapMatchPartition(qry, match.orderBy);
-  }
+  if (!match.then) {
+    if (match.orderBy) wrapMatchPartition(qry, match.orderBy);
 
-  if (match.then) {
+    return qry;
+  } else {
     const thenQuery = convertMatchToQuery(qry, match.then);
-    if (isArrayHasLength(thenQuery.withs)) qry.withs.push(thenQuery.alias + " AS ( WITH " + thenQuery.toSql(2) + " )\n");
-    else qry.withs.push(thenQuery.alias + " AS ( " + thenQuery.toSql(2) + " )\n");
-  }
 
-  return qry;
+    if (match.orderBy) wrapMatchPartition(qry, match.orderBy);
+
+    if (isArrayHasLength(qry.withs)) {
+      const tmp = qry.withs;
+      qry.withs = [];
+      thenQuery.withs.push(...tmp);
+      thenQuery.withs.push(qry.alias + " AS /* cmtq 1 */ ( " + qry.toSql(2) + "\n)\n");
+    } else thenQuery.withs.push(qry.alias + " AS /* cmtg 2 */ ( " + qry.toSql(2) + "\n)\n");
+
+    return thenQuery;
+  }
 }
 
 function createMatchQuery(match: Match, qry: SqlQuery) {
@@ -85,6 +97,9 @@ function convertMatch(match: Match, qry: SqlQuery) {
     // Assume bool match "AND"
     match.bool = Bool.and;
     convertMatchBoolSubMatch(qry, match);
+  } else if (match.variable && Object.keys(match).length == 1) {
+    // TODO: Data fix
+    console.error("VARIABLE-ONLY MATCH!!");
   } else {
     throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
   }
@@ -132,26 +147,10 @@ function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
   qry.whereBool = match.bool ? match.bool.toUpperCase() : "AND";
 
   // TODO: Boolean "OR" should be a union (more performant)
-  const joiner = "OR" == match.bool.toUpperCase() ? "LEFT JOIN " : "JOIN ";
+  // const joiner = "OR" == match.bool.toUpperCase() ? "LEFT JOIN " : "JOIN ";
 
   for (const subMatch of match.match) {
-    const subQuery = convertMatchToQuery(qry, subMatch);
-
-    qry.withs.push(...subQuery.withs);
-
-    subQuery.withs = [];
-    qry.withs.push(subQuery.alias + " AS (" + subQuery.toSql(2) + "\n)");
-
-    if (subQuery.model == qry.model) qry.joins.push(joiner + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id");
-    else {
-      const rel = subQuery.getRelationshipTo(qry.model);
-      const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQuery.alias) : subQuery.alias + "." + rel.fromField;
-      const relTo = rel.toField.includes("{alias}") ? rel.toField.replaceAll("{alias}", qry.alias) : qry.alias + "." + rel.toField;
-
-      qry.joins.push(joiner + subQuery.alias + " ON " + relFrom + " = " + relTo);
-    }
-
-    if ("OR" == qry.whereBool) qry.wheres.push(subQuery.alias + ".id IS NOT NULL");
+    convertMatchToQueryAndMerge(qry, subMatch, match.bool?.toUpperCase());
   }
 }
 
@@ -260,7 +259,8 @@ function convertMatchPropertyNumberRangeNode(fieldName: string, range: Assignabl
 }
 
 function convertMatchPropertyDateRangeNode(fieldName: string, range: Assignable): string {
-  return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + getOperator(range.operator, fieldName);
+  if ("DATE" == range.unit) return "'" + range.value + "' " + getOperator(range.operator, fieldName);
+  else return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + getOperator(range.operator, fieldName);
 }
 
 function convertMatchPropertySubMatch(qry: SqlQuery, property: Where) {
@@ -270,23 +270,7 @@ function convertMatchPropertySubMatch(qry: SqlQuery, property: Where) {
 
   if (!property.match.variable) property.match.variable = qry.getAlias(qry.alias + "_sub");
 
-  const subQuery = convertMatchToQuery(qry, property.match);
-
-  qry.withs.push(...subQuery.withs);
-  subQuery.withs = [];
-  qry.withs.push(subQuery.alias + " AS (" + subQuery.toSql(2) + "\n)");
-
-  if (qry.model == subQuery.model) qry.joins.push("JOIN " + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id");
-  else {
-    const rel = subQuery.getRelationshipTo(qry.model);
-    const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQuery.alias) : subQuery.alias + "." + rel.fromField;
-    const relTo = rel.toField.includes("{alias}") ? rel.toField.replaceAll("{alias}", qry.alias) : qry.alias + "." + rel.toField;
-
-    qry.joins.push("JOIN " + subQuery.alias + " ON " + relFrom + " = " + relTo);
-  }
-
-  // subQuery.dependentSets.forEach(ds => qry.addDependentSet(ds));
-  // subQuery.dependentQueries.forEach(dq => qry.dependentQuery(dq.iri, dq.alias));
+  convertMatchToQueryAndMerge(qry, property.match);
 }
 
 function convertMatchPropertyInSet(qry: SqlQuery, property: Where) {
@@ -380,6 +364,9 @@ function convertMatchPropertyBool(qry: SqlQuery, property: Where) {
     for (const p of property.where) {
       convertMatchProperty(subQuery, p);
     }
+
+    qry.withs.push(...subQuery.withs);
+    qry.joins.push(...subQuery.joins);
     qry.wheres.push("(" + subQuery.wheres.join(" " + property.bool.toUpperCase() + " ") + ")");
   } else {
     throw new Error("Property BOOL should only contain property conditions");
