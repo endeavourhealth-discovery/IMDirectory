@@ -1,11 +1,11 @@
 <template>
   <div class="property-description-container">
-    <EditMatch v-if="editWhere?.match" :edit-match="editWhere.match" />
+    <div class="property-description" v-html="editWhere?.description"></div>
     <div v-if="editWhere?.where" class="where-group">
       <Button v-if="editWhere.where.length > 1" class="builder-button conjunction-button vertical-button" :label="editWhere.bool?.toUpperCase() ?? 'AND'" />
       <div class="where-list"><EditWhere v-for="nestedWhere in editWhere.where" :editWhere="nestedWhere" /></div>
     </div>
-    <div class="property-description" v-html="editWhere?.description"></div>
+    <EditMatch v-if="editWhere?.match" :edit-match="editWhere.match" />
   </div>
 </template>
 
@@ -29,5 +29,15 @@ const props = defineProps<Props>();
   width: 100%;
   height: 100%;
   margin-left: 1rem;
+}
+
+.where-list {
+  display: flex;
+  width: 100%;
+}
+
+.where-group {
+  display: flex;
+  width: 100%;
 }
 </style>

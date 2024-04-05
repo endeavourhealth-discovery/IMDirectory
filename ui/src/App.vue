@@ -243,6 +243,13 @@ function setupExternalErrorHandler() {
 :root {
   --hyperlink-blue: #2196f3;
 }
+
+:root {
+  --imquery-editor-background-color: #6bb28c10;
+  --imquery-editor-border-color: #6bb28c30;
+  --imquery-editor-hover-border-color: #6bb28c;
+}
+
 .p-dialog-mask {
   z-index: 1;
 }

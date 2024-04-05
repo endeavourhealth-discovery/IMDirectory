@@ -1,24 +1,11 @@
 <template>
-  <div class="edit-match-container">
-    <!-- {{ editMatch }} -->
-    <!-- Match -->
-    <Button
-      :severity="editMatch.exclude ? 'danger' : 'secondary'"
-      :outlined="!editMatch.exclude"
-      label="NOT"
-      @click="editMatch.exclude = !editMatch.exclude"
-      class="builder-button exclude-button vertical-button not-button"
-      :class="!editMatch.exclude && 'hover-button'"
-      v-tooltip="'Exclude'"
-      size="small"
-    />
-    <MatchSelector :editMatch="editMatch" />
+  <div :class="[hover ? 'hover-edit-match-container' : 'edit-match-container']" class="" @mouseover="mouseover" @mouseout="mouseout">
+    <MatchSelector :editMatch="editMatch" v-if="!isPathMatch(editMatch)" />
+    <div v-else v-html="editMatch?.description" />
     <div v-if="editMatch?.match" class="feature-group">
-      <Button class="builder-button conjunction-button vertical-button" :label="editMatch.bool?.toUpperCase()" />
       <div class="feature-list"><EditMatch v-for="nestedMatch in editMatch.match" :editMatch="nestedMatch" /></div>
     </div>
     <div v-if="editMatch?.where" class="where-group">
-      <Button v-if="editMatch.where.length > 1" class="builder-button conjunction-button vertical-button" :label="editMatch.bool?.toUpperCase() ?? 'AND'" />
       <div class="where-list"><EditWhere v-for="nestedWhere in editMatch.where" :edit-where="nestedWhere" /></div>
     </div>
     <div v-if="editMatch.then">
@@ -32,20 +19,45 @@
 import { Match } from "@im-library/interfaces/AutoGen";
 import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
+import setupHover from "@/composables/setupHover";
+import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 
 interface Props {
   editMatch: Match;
 }
 const props = defineProps<Props>();
+
+const { hover, mouseout, mouseover } = setupHover();
+const { isPathMatch } = setupIMQueryBuilderActions();
 </script>
 
 <style scoped>
 .edit-match-container {
-  width: 100%;
-  /* height: 10%; */
-  display: flex;
-  flex-flow: row;
+  width: 99%;
+  padding: 0.5rem;
+  border: var(--imquery-editor-border-color) 1px solid;
+  border-radius: 5px;
+  background-color: var(--imquery-editor-background-color);
+  margin: 0.5rem;
+  flex: 1;
+  cursor: pointer;
 }
+
+.edit-match-container:deep(.hover-button) {
+  color: #00000030 !important;
+  border-style: dashed !important;
+}
+
+.hover-edit-match-container {
+  width: 99%;
+  padding: 0.5rem;
+  border-radius: 5px;
+  background-color: #6bb28c10;
+  margin: 0.5rem;
+  flex: 1;
+  border: var(--imquery-editor-hover-border-color) 1px solid;
+}
+
 .match-description {
   width: 100%;
   height: 100%;
@@ -54,18 +66,19 @@ const props = defineProps<Props>();
 
 .feature-group,
 .where-group {
+  width: 100%;
   display: flex;
   flex-flow: row;
 }
 
 .feature-list,
 .where-list {
+  width: 100%;
   display: flex;
   flex-flow: column;
 }
 
 .then-title {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: 0.5rem;
 }
 </style>

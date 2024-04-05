@@ -144,9 +144,9 @@ function editMatch(index: number) {
 .feature-description-card {
   width: calc(94vw - 7rem);
   padding: 0.5rem;
-  border: #6bb28c30 1px solid;
+  border: var(--imquery-editor-border-color) 1px solid;
   border-radius: 5px;
-  background-color: #6bb28c10;
+  background-color: var(--imquery-editor-background-color);
   margin: 0.2rem;
   flex: 1;
 }
@@ -155,10 +155,10 @@ function editMatch(index: number) {
   width: calc(94vw - 7rem);
   padding: 0.5rem;
   border-radius: 5px;
-  background-color: #6bb28c10;
+  background-color: var(--imquery-editor-background-color);
   margin: 0.2rem;
   flex: 1;
-  border: #6bb28c 1px solid;
+  border: var(--imquery-editor-hover-border-color) 1px solid;
 }
 
 .base-type-autocomplete {
