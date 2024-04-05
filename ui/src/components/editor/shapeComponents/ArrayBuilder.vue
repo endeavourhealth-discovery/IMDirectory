@@ -169,16 +169,9 @@ function updateBuildPropsValue() {
     });
 }
 
-const finishedChildLoading = computed(() => {
-  if (!props.value) return true;
-  else if (
-    props.value &&
-    build.value.length >= props.value?.length &&
-    build.value.every(c => (isObjectHasKeys(c.value) && isObjectHasKeys(c.json)) || (isArrayHasLength(c.value) && isObjectHasKeys(c.json)))
-  )
-    return true;
-  else return false;
-});
+const finishedChildLoading = computed(
+  () => !build.value.some(c => (isObjectHasKeys(c.value) && !isObjectHasKeys(c.json)) || (isArrayHasLength(c.value) && !isObjectHasKeys(c.json)))
+);
 
 function init() {
   key = props.shape.path["@id"];
