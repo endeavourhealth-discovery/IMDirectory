@@ -1,4 +1,5 @@
 import { Bool, Match, Where } from "@im-library/interfaces/AutoGen";
+import { MenuItem } from "primevue/menuitem";
 
 function setupIMQueryBuilderActions() {
   function isPathMatch(match: Match): boolean {
@@ -11,7 +12,11 @@ function setupIMQueryBuilderActions() {
     else object.bool = Bool.or;
   }
 
-  return { toggleBool, isPathMatch };
+  function getMenuItemFromMatch(match: Match): MenuItem {
+    return { label: match.typeOf?.name ?? "Feature", key: match["@id"], editMatch: match };
+  }
+
+  return { toggleBool, isPathMatch, getMenuItemFromMatch };
 }
 
 export default setupIMQueryBuilderActions;

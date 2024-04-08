@@ -4,21 +4,17 @@
     <div v-else v-html="editMatch?.description" />
     <div v-if="editMatch?.match" class="feature-group">
       <div class="feature-list">
-        <EditMatch v-for="nestedMatch in editMatch.match" :editMatch="nestedMatch" @on-update-dialog-focus="(id: string) => $emit('onUpdateDialogFocus', id)" />
+        <EditMatch v-for="nestedMatch in editMatch.match" :editMatch="nestedMatch" @on-update-dialog-focus="onNestedUpdateDialogFocus" />
       </div>
     </div>
     <div v-if="editMatch?.where" class="where-group">
       <div class="where-list">
-        <EditWhere
-          v-for="nestedWhere in editMatch.where"
-          :edit-where="nestedWhere"
-          @on-update-dialog-focus="(id: string) => $emit('onUpdateDialogFocus', id)"
-        />
+        <EditWhere v-for="nestedWhere in editMatch.where" :edit-where="nestedWhere" @on-update-dialog-focus="onNestedUpdateDialogFocus" />
       </div>
     </div>
     <div v-if="editMatch.then">
       <div class="then-title">Then</div>
-      <EditMatch :editMatch="editMatch.then" @on-update-dialog-focus="(id: string) => $emit('onUpdateDialogFocus', id)" />
+      <EditMatch :editMatch="editMatch.then" @on-update-dialog-focus="onNestedUpdateDialogFocus" />
     </div>
   </div>
 </template>
@@ -29,20 +25,25 @@ import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupHover from "@/composables/setupHover";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
+import { MenuItem } from "primevue/menuitem";
 
 interface Props {
   editMatch: Match;
 }
 const props = defineProps<Props>();
-const emit = defineEmits({ onUpdateDialogFocus: (payload: string) => payload });
+const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload });
 
 const { hover, mouseout, mouseover } = setupHover();
-const { isPathMatch } = setupIMQueryBuilderActions();
+const { isPathMatch, getMenuItemFromMatch } = setupIMQueryBuilderActions();
 
 function updateDialogFocus(event: Event) {
   event.stopPropagation();
-  console.log(props.editMatch["@id"]);
-  emit("onUpdateDialogFocus", props.editMatch["@id"]!);
+  emit("onUpdateDialogFocus", [getMenuItemFromMatch(props.editMatch)]);
+}
+
+function onNestedUpdateDialogFocus(menuItems: MenuItem[]) {
+  menuItems.unshift(getMenuItemFromMatch(props.editMatch));
+  emit("onUpdateDialogFocus", menuItems);
 }
 </script>
 

@@ -7,7 +7,7 @@
       <template #header>
         <Breadcrumb :model="pathItems">
           <template #item="{ item }">
-            <div @click="updateDialogFocus(item.key!)">{{ item.label }}</div>
+            <div @click="updateDialogFocusFromBreadcrumb(item.key!)">{{ item.label }}</div>
           </template>
           <template #separator> / </template>
         </Breadcrumb>
@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash";
 import { Ref, onMounted, ref, watch } from "vue";
@@ -138,44 +138,26 @@ function setEditMatch() {
   if (isObjectHasKeys(props.match)) editMatch.value = cloneDeep(props.match);
 }
 
-function updateDialogFocus(editMatchId: string) {
-  console.log(editMatchId);
-  if (editMatch.value?.["@id"] === editMatchId) return;
-  const { items, editMatchFocus } = buildPath(editMatchId);
+function updateDialogFocus(items: MenuItem[]) {
+  if (!isArrayHasLength(items) || items[items.length - 1].editMatch?.["@id"] === editMatch.value?.["@id"]) return;
   pathItems.value = items;
-  editMatch.value = editMatchFocus;
+  editMatch.value = items[items.length - 1].editMatch;
 }
 
-function buildPath(toMatchId: string): { items: MenuItem[]; editMatchFocus: Match } {
-  const items: MenuItem[] = [];
-  let matchHierarchy: Match[] = [];
-  matchHierarchy = getParentHierarchy(props.match!, toMatchId, matchHierarchy);
-  return { items: items, editMatchFocus: matchHierarchy[0] };
-}
-
-function getParentHierarchy(currentMatch: Match, toMatchId: string, matchHierarchy: Match[], index?: number): Match[] {
-  // if (currentMatch?.["@id"] === toMatchId) {
-  //   return matchHierarchy.concat(currentMatch);
-  // }
-
-  // return [];
-
-  // if (currentMatch["@id"] === toMatchId) {
-  //   toMatchFound.push(currentMatch);
-  //   items.push({ label: currentMatch.typeOf?.name ?? "Feature " + (index ? index + 1 : 1), key: currentMatch["@id"] });
-  // } else if (currentMatch.match) {
-  //   for (const [index, nestedMatch] of currentMatch.match.entries()) {
-  //     buildPathRecursively(nestedMatch, toMatchId, toMatchFound, items, index);
-  //   }
-  // } else if (currentMatch.where) {
-  //   for (const where of currentMatch.where) {
-  //     if (where.match) buildPathRecursively(where.match, toMatchId, toMatchFound, items, index);
-  //   }
-  // } else if (currentMatch.then) {
-  //   buildPathRecursively(currentMatch.then, toMatchId, toMatchFound, items, index);
-  // }
-
-  return [];
+function updateDialogFocusFromBreadcrumb(id: string) {
+  if (id === editMatch.value?.["@id"]) return;
+  let index = pathItems.value.length - 1;
+  let found = false;
+  while (!found && index > -1) {
+    console.log(id, index);
+    if (id === pathItems.value[index].key) {
+      found = true;
+      editMatch.value = pathItems.value[index].editMatch;
+    } else {
+      pathItems.value.pop();
+      --index;
+    }
+  }
 }
 </script>
 

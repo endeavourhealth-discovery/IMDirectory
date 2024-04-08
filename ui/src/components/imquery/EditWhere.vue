@@ -3,21 +3,26 @@
     <div class="property-description" v-html="editWhere?.description"></div>
     <div v-if="editWhere?.where" class="where-group">
       <div class="where-list">
-        <EditWhere v-for="nestedWhere in editWhere.where" :editWhere="nestedWhere" @on-update-dialog-focus="(id: string) => $emit('onUpdateDialogFocus', id)" />
+        <EditWhere
+          v-for="nestedWhere in editWhere.where"
+          :editWhere="nestedWhere"
+          @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
+        />
       </div>
     </div>
-    <EditMatch v-if="editWhere?.match" :edit-match="editWhere.match" @on-update-dialog-focus="(id: string) => $emit('onUpdateDialogFocus', id)" />
+    <EditMatch v-if="editWhere?.match" :edit-match="editWhere.match" @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Where } from "@im-library/interfaces/AutoGen";
 import EditMatch from "./EditMatch.vue";
+import { MenuItem } from "primevue/menuitem";
 interface Props {
   editWhere: Where;
 }
 const props = defineProps<Props>();
-const emit = defineEmits({ onUpdateDialogFocus: (payload: string) => payload });
+const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload });
 </script>
 
 <style scoped>
