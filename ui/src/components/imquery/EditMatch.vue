@@ -7,13 +7,15 @@
       @mouseout="mouseout"
       @click="updateDialogFocus"
     >
-      <MatchSelector v-if="isFlatMatch(editMatch)" :editMatch="editMatch" />
+      <MatchSelector v-if="focusedId === editMatch['@id'] && isFlatMatch(editMatch)" :editMatch="editMatch" />
       <div v-else v-html="editMatch?.description" />
       <div v-if="editMatch?.match" class="feature-group">
         <div class="feature-list">
           <EditMatch
             v-for="nestedMatch in editMatch.match"
             :editMatch="nestedMatch"
+            :focused-id="focusedId"
+            :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-match="onDeleteMatch"
           />
@@ -21,12 +23,25 @@
       </div>
       <div v-if="editMatch?.where" class="where-group">
         <div class="where-list">
-          <EditWhere v-for="nestedWhere in editMatch.where" :edit-where="nestedWhere" @on-update-dialog-focus="onNestedUpdateDialogFocus" />
+          <EditWhere
+            v-for="nestedWhere in editMatch.where"
+            :edit-where="nestedWhere"
+            :focused="editMatch['@id'] === focusedId"
+            :focused-id="focusedId"
+            :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
+            @on-update-dialog-focus="onNestedUpdateDialogFocus"
+          />
         </div>
       </div>
       <div v-if="editMatch.then">
         <div class="then-title">Then</div>
-        <EditMatch :editMatch="editMatch.then" @on-update-dialog-focus="onNestedUpdateDialogFocus" @delete-match="onDeleteMatch" />
+        <EditMatch
+          :editMatch="editMatch.then"
+          :focused-id="focusedId"
+          :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
+          @on-update-dialog-focus="onNestedUpdateDialogFocus"
+          @delete-match="onDeleteMatch"
+        />
       </div>
     </div>
     <Button v-if="!isRootFeature" severity="danger" icon="fa-solid fa-trash" class="builder-button" @click="onParentDelete" />
@@ -44,6 +59,8 @@ import { MenuItem } from "primevue/menuitem";
 interface Props {
   isRootFeature?: boolean;
   editMatch: Match;
+  matchTypeOfIri: string;
+  focusedId: string | undefined;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteMatch: (payload: string) => payload });

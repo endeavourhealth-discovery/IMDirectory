@@ -1,10 +1,16 @@
 <template>
   <div class="property-description-container">
-    <div class="property-description" v-html="editWhere?.description"></div>
+    <!-- EditProperty -->
+    <div v-if="focused">{{ matchTypeOfIri }} - {{ editWhere["@id"] }}</div>
+    <div v-else class="property-description" v-html="editWhere?.description"></div>
+
     <div v-if="editWhere?.where" class="where-group">
       <div class="where-list">
         <EditWhere
           v-for="nestedWhere in editWhere.where"
+          :focused="focused"
+          :focused-id="focusedId"
+          :match-type-of-iri="matchTypeOfIri"
           :editWhere="nestedWhere"
           @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
         />
@@ -13,6 +19,8 @@
     <EditMatch
       v-if="editWhere?.match"
       :edit-match="editWhere.match"
+      :match-type-of-iri="matchTypeOfIri"
+      :focused-id="focusedId"
       @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
       @delete-match="onDeleteMatch"
     />
@@ -24,7 +32,10 @@ import { Where } from "@im-library/interfaces/AutoGen";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 interface Props {
+  matchTypeOfIri: string;
   editWhere: Where;
+  focused: boolean;
+  focusedId: string | undefined;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload });

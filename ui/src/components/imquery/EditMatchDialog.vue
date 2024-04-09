@@ -2,6 +2,7 @@
   <div>
     <Dialog
       v-model:visible="visible"
+      maximizable
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
     >
       <template #header>
@@ -9,7 +10,7 @@
 
         <Breadcrumb :model="pathItems">
           <template #item="{ item }">
-            <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key!)">{{ item.label }}</div>
+            <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
           </template>
           <template #separator> / </template>
         </Breadcrumb>
@@ -17,7 +18,13 @@
       <div id="imquery-builder-string-container">
         <div id="imquery-builder-container">
           <div id="imquery-build" v-if="focusedEditMatch">
-            <EditMatch :edit-match="focusedEditMatch" :is-root-feature="true" @on-update-dialog-focus="updateDialogFocus" />
+            <EditMatch
+              :edit-match="focusedEditMatch"
+              :is-root-feature="true"
+              :focused-id="focusedEditMatch['@id']"
+              :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
+              @on-update-dialog-focus="updateDialogFocus"
+            />
           </div>
         </div>
 
@@ -76,6 +83,7 @@ interface Props {
   showDialog: boolean;
   match: Match | undefined;
   index: number;
+  queryBaseTypeIri: string;
 }
 
 const props = defineProps<Props>();
@@ -152,7 +160,8 @@ function goBack() {
   focusedEditMatch.value = pathItems.value[pathItems.value.length - 1].editMatch;
 }
 
-function updateDialogFocusFromBreadcrumb(id: string) {
+function updateDialogFocusFromBreadcrumb(id: string | undefined) {
+  if (!id) return;
   if (id === focusedEditMatch.value?.["@id"]) return;
   let index = pathItems.value.length - 1;
   let found = false;

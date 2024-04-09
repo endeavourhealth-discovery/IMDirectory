@@ -42,6 +42,7 @@
           v-model:show-dialog="showDialog"
           :match="selectedMatch"
           :index="selectedIndex"
+          :query-base-type-iri="selectedBaseType?.iri!"
           @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch, selectedMatch!['@id']!, selectedIndex)"
         />
       </div>
