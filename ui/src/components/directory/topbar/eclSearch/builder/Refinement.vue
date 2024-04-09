@@ -34,7 +34,7 @@
         :os-query="osQueryForPropertySearch"
         :root-entities="propertyTreeRoots"
         @open-dialog="updatePropertyTreeRoots"
-        :class="!isValidProperty && 'invalid'"
+        :class="!isValidProperty && showValidation && 'invalid'"
       />
       <small v-if="!isValidProperty && showValidation" class="validate-error">Property is invalid for selected expression constraint.</small>
     </div>
@@ -65,7 +65,7 @@
         :osQuery="osQueryForValueSearch"
         :root-entities="valueTreeRoots"
         @open-dialog="updateValueTreeRoots"
-        :class="!isValidPropertyValue && 'invalid'"
+        :class="!isValidPropertyValue && showValidation && 'invalid'"
       />
       <small v-if="!isValidPropertyValue && showValidation" class="validate-error">Item is invalid for selected property.</small>
     </div>
@@ -321,33 +321,15 @@ async function updateValueTreeRoots(): Promise<void> {
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus?.iri === SNOMED.ANY) isValidProperty.value = true;
-  else if (props.focus && hasProperty.value) {
-    const queryRequest: QueryRequest = {
-      query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
-      askIri: selectedProperty.value?.iri
-    } as QueryRequest;
-    if (props.focus.type === "BoolGroup" && isArrayHasLength(props.focus.items)) {
-      const iris: TTIriRef[] = [];
-      for (const item of props.focus.items) {
-        if (item.type === "Concept") iris.push({ "@id": item.concept.iri });
-      }
-      queryRequest.argument = [
-        {
-          parameter: "this",
-          valueIriList: iris
-        }
-      ];
-    } else {
-      queryRequest.argument = [
-        {
-          parameter: "this",
-          valueIri: { "@id": props.focus.iri }
-        }
-      ];
-      osQueryForPropertySearch.value = undefined;
-    }
-    isValidProperty.value = await QueryService.askQuery(queryRequest);
+  if (props.focus && hasProperty.value && props.focus.iri === SNOMED.ANY && osQueryForPropertySearch.value) {
+    const osQuery = _.cloneDeep(osQueryForPropertySearch.value);
+    osQuery.termFilter = selectedProperty.value?.iri;
+    const results = await EntityService.advancedSearch(osQuery);
+    isValidProperty.value = results.entities?.findIndex(r => r.iri === selectedProperty.value?.iri) != -1 ? true : false;
+  } else if (props.focus && hasProperty.value && imQueryForPropertySearch.value) {
+    const imQuery = _.cloneDeep(imQueryForPropertySearch.value);
+    imQuery.askIri = props.value.property.concept?.iri;
+    isValidProperty.value = await QueryService.askQuery(imQuery);
     if (!isValidProperty.value) {
       if (isAliasIriRef(props.focus))
         toast.add({
@@ -371,13 +353,12 @@ async function updateIsValidProperty(): Promise<void> {
 }
 
 async function updateIsValidPropertyValue(): Promise<void> {
-  if (hasValue.value && hasProperty.value) {
-    const request: SearchRequest = _.cloneDeep(osQueryForValueSearch.value);
-    request.termFilter = selectedValue.value?.iri;
-    const result = await EntityService.advancedSearch(request);
+  if (selectedValue.value && selectedProperty.value) {
+    const osQuery = _.cloneDeep(osQueryForValueSearch.value);
+    osQuery.termFilter = selectedValue.value?.iri;
+    const result = await EntityService.advancedSearch(osQuery);
     isValidPropertyValue.value = result.entities?.findIndex(r => r.iri === selectedValue.value?.iri) != -1 ? true : false;
     if (!isValidPropertyValue.value) {
-      console.log(props.value.value.concept?.name);
       toast.add({
         severity: ToastSeverity.ERROR,
         summary: "Invalid property value",

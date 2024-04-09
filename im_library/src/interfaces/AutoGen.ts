@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-03 15:38:45.
+// Generated using typescript-generator version 3.2.1263 on 2024-04-09 13:41:06.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -147,9 +147,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: string;
-    operator?: Operator;
     dataType?: TTIriRef;
     relativeTo?: PropertyRef;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -300,8 +300,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -455,6 +455,18 @@ export interface SearchTermCode {
     status?: TTIriRef;
 }
 
+export interface EclSearchRequest {
+    eclQuery?: Query;
+    includeLegacy?: boolean;
+    limit?: number;
+    statusFilter?: TTIriRef[];
+    page?: number;
+    size?: number;
+    sortField?: string;
+    sortDirection?: string;
+    select?: string[];
+}
+
 export interface CODE_TEMPLATE {
 }
 
@@ -541,9 +553,9 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
+    description?: string;
     status?: TTIriRef;
     code?: string;
-    description?: string;
     prefixes?: TTPrefix[];
 }
 
