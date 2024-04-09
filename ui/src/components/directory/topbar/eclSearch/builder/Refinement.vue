@@ -26,14 +26,18 @@
         </div>
       </template>
     </Dropdown>
-    <AutocompleteSearchBar
-      :disabled="!hasFocus || loadingProperty"
-      v-model:selected="selectedProperty"
-      :imQuery="imQueryForPropertySearch"
-      :os-query="osQueryForPropertySearch"
-      :root-entities="propertyTreeRoots"
-      @open-dialog="updatePropertyTreeRoots"
-    />
+    <div class="property-container">
+      <AutocompleteSearchBar
+        :disabled="!hasFocus || loadingProperty"
+        v-model:selected="selectedProperty"
+        :imQuery="imQueryForPropertySearch"
+        :os-query="osQueryForPropertySearch"
+        :root-entities="propertyTreeRoots"
+        @open-dialog="updatePropertyTreeRoots"
+        :class="!isValidProperty && showValidation && 'invalid'"
+      />
+      <small v-if="!isValidProperty && showValidation" class="validate-error">Property is invalid for selected expression constraint.</small>
+    </div>
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <Dropdown
@@ -54,13 +58,17 @@
         </div>
       </template>
     </Dropdown>
-    <AutocompleteSearchBar
-      :disabled="!hasProperty || loadingValue || loadingProperty"
-      v-model:selected="selectedValue"
-      :osQuery="osQueryForValueSearch"
-      :root-entities="valueTreeRoots"
-      @open-dialog="updateValueTreeRoots"
-    />
+    <div class="value-container">
+      <AutocompleteSearchBar
+        :disabled="!hasProperty || loadingValue || loadingProperty"
+        v-model:selected="selectedValue"
+        :osQuery="osQueryForValueSearch"
+        :root-entities="valueTreeRoots"
+        @open-dialog="updateValueTreeRoots"
+        :class="!isValidPropertyValue && showValidation && 'invalid'"
+      />
+      <small v-if="!isValidPropertyValue && showValidation" class="validate-error">Item is invalid for selected property.</small>
+    </div>
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
   </div>
 </template>
@@ -111,6 +119,7 @@ const isValidProperty = ref(false);
 const isValidPropertyValue = ref(false);
 const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"]);
 const valueTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#138875005"]);
+const showValidation = ref(false);
 const operatorOptions = ["=", "!="];
 const descendantOptions = [
   { label: " ", value: "" },
@@ -177,8 +186,9 @@ watch(
 watch(forceValidation, async () => {
   await updateIsValidProperty();
   await updateIsValidPropertyValue();
+  showValidation.value = true;
   if (props.value.validation) {
-    if (isValidProperty && isValidPropertyValue) props.value.validation.valid = true;
+    if (isValidProperty.value && isValidPropertyValue.value) props.value.validation.valid = true;
     else props.value.validation.valid = false;
     props.value.validation.deferred.resolve("resolved");
   }
@@ -311,16 +321,15 @@ async function updateValueTreeRoots(): Promise<void> {
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus?.iri === SNOMED.ANY) isValidProperty.value = true;
-  else if (props.focus && hasProperty.value) {
-    const request: FunctionRequest = {
-      functionIri: IM_FUNCTION.ALLOWABLE_PROPERTIES,
-      arguments: [
-        { parameter: "focus", valueObject: props.focus },
-        { parameter: "searchIri", valueData: props.value.property.concept?.iri }
-      ]
-    };
-    isValidProperty.value = await FunctionService.runAskFunction(request);
+  if (props.focus && hasProperty.value && props.focus.iri === SNOMED.ANY && osQueryForPropertySearch.value) {
+    const osQuery = _.cloneDeep(osQueryForPropertySearch.value);
+    osQuery.termFilter = selectedProperty.value?.iri;
+    const results = await EntityService.advancedSearch(osQuery);
+    isValidProperty.value = results.entities?.findIndex(r => r.iri === selectedProperty.value?.iri) != -1 ? true : false;
+  } else if (props.focus && hasProperty.value && imQueryForPropertySearch.value) {
+    const imQuery = _.cloneDeep(imQueryForPropertySearch.value);
+    imQuery.askIri = props.value.property.concept?.iri;
+    isValidProperty.value = await QueryService.askQuery(imQuery);
     if (!isValidProperty.value) {
       if (isAliasIriRef(props.focus))
         toast.add({
@@ -344,13 +353,11 @@ async function updateIsValidProperty(): Promise<void> {
 }
 
 async function updateIsValidPropertyValue(): Promise<void> {
-  if (hasValue.value && hasProperty.value) {
-    const request: QueryRequest = {
-      query: { "@id": QUERY.GET_VALUES_FROM_PROPERTY_RANGE },
-      argument: [{ parameter: "this", valueObject: props.value.property.concept?.iri }],
-      askIri: props.value.value.concept?.iri
-    };
-    isValidPropertyValue.value = await QueryService.askQuery(request);
+  if (selectedValue.value && selectedProperty.value) {
+    const osQuery = _.cloneDeep(osQueryForValueSearch.value);
+    osQuery.termFilter = selectedValue.value?.iri;
+    const result = await EntityService.advancedSearch(osQuery);
+    isValidPropertyValue.value = result.entities?.findIndex(r => r.iri === selectedValue.value?.iri) != -1 ? true : false;
     if (!isValidPropertyValue.value) {
       toast.add({
         severity: ToastSeverity.ERROR,
@@ -439,6 +446,14 @@ async function updateValue(value: SearchResultSummary | undefined) {
   width: 1.5rem;
 }
 
+.property-container,
+.value-container {
+  flex: 1 0 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
+}
+
 .search-text {
   flex: 1 1 auto;
   min-width: 10rem;
@@ -478,5 +493,18 @@ async function updateValue(value: SearchResultSummary | undefined) {
 
 .p-invalid {
   border: 1px solid var(--red-500);
+}
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+  overflow: auto;
+  width: 100%;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
+  border-radius: 3px;
 }
 </style>
