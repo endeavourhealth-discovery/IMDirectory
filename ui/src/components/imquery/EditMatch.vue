@@ -1,6 +1,6 @@
 <template>
   <div :class="[hover ? 'hover-edit-match-container' : 'edit-match-container']" class="" @mouseover="mouseover" @mouseout="mouseout" @click="updateDialogFocus">
-    <MatchSelector :editMatch="editMatch" v-if="!isPathMatch(editMatch)" />
+    <MatchSelector v-if="isFlatMatch(editMatch)" :editMatch="editMatch" />
     <div v-else v-html="editMatch?.description" />
     <div v-if="editMatch?.match" class="feature-group">
       <div class="feature-list">
@@ -16,6 +16,7 @@
       <div class="then-title">Then</div>
       <EditMatch :editMatch="editMatch.then" @on-update-dialog-focus="onNestedUpdateDialogFocus" />
     </div>
+    <!-- <Button severity="danger" icon="fa-solid fa-trash" class="builder-button" /> -->
   </div>
 </template>
 
@@ -34,7 +35,7 @@ const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload });
 
 const { hover, mouseout, mouseover } = setupHover();
-const { isPathMatch, getMenuItemFromMatch } = setupIMQueryBuilderActions();
+const { getMenuItemFromMatch, isFlatMatch } = setupIMQueryBuilderActions();
 
 function updateDialogFocus(event: Event) {
   event.stopPropagation();

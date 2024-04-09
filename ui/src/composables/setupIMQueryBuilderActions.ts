@@ -6,6 +6,11 @@ function setupIMQueryBuilderActions() {
     return (match.typeOf && match.where && !match.match) as boolean;
   }
 
+  function isFlatMatch(match: Match): boolean {
+    const nestedWhereHasMatch = match.where ? match.where.some(nestedWhere => nestedWhere.match) : false;
+    return (!nestedWhereHasMatch && !match.match && !match.then && !match.where) as boolean;
+  }
+
   function toggleBool(object: Match | Where) {
     if (object.bool === Bool.and) object.bool = Bool.or;
     else if (object.bool === Bool.or) object.bool = Bool.and;
@@ -13,10 +18,10 @@ function setupIMQueryBuilderActions() {
   }
 
   function getMenuItemFromMatch(match: Match): MenuItem {
-    return { label: match.typeOf?.name ?? "Feature", key: match["@id"], editMatch: match };
+    return { label: match.typeOf?.name || match.description || "Feature", key: match["@id"], editMatch: match };
   }
 
-  return { toggleBool, isPathMatch, getMenuItemFromMatch };
+  return { toggleBool, isPathMatch, getMenuItemFromMatch, isFlatMatch };
 }
 
 export default setupIMQueryBuilderActions;

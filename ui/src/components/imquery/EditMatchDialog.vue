@@ -5,9 +5,11 @@
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
     >
       <template #header>
+        <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
+
         <Breadcrumb :model="pathItems">
           <template #item="{ item }">
-            <div @click="updateDialogFocusFromBreadcrumb(item.key!)">{{ item.label }}</div>
+            <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key!)">{{ item.label }}</div>
           </template>
           <template #separator> / </template>
         </Breadcrumb>
@@ -86,13 +88,7 @@ const editMatch: Ref<Match | undefined> = ref();
 const editMatchString: Ref<string> = ref("");
 const visible = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
-const pathItems: Ref<MenuItem[]> = ref([
-  { label: "Electronics" },
-  { label: "Computer" },
-  { label: "Accessories" },
-  { label: "Keyboard" },
-  { label: "Wireless" }
-]);
+const pathItems: Ref<MenuItem[]> = ref([]);
 
 watch(
   () => cloneDeep(editMatch.value),
@@ -144,12 +140,16 @@ function updateDialogFocus(items: MenuItem[]) {
   editMatch.value = items[items.length - 1].editMatch;
 }
 
+function goBack() {
+  pathItems.value.pop();
+  editMatch.value = pathItems.value[pathItems.value.length - 1].editMatch;
+}
+
 function updateDialogFocusFromBreadcrumb(id: string) {
   if (id === editMatch.value?.["@id"]) return;
   let index = pathItems.value.length - 1;
   let found = false;
   while (!found && index > -1) {
-    console.log(id, index);
     if (id === pathItems.value[index].key) {
       found = true;
       editMatch.value = pathItems.value[index].editMatch;
@@ -232,5 +232,9 @@ function updateDialogFocusFromBreadcrumb(id: string) {
   flex-grow: 100;
   overflow-y: auto;
   tab-size: 4;
+}
+
+.path-item {
+  cursor: pointer;
 }
 </style>
