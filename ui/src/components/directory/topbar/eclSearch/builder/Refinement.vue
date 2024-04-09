@@ -242,12 +242,17 @@ function updateQueryForValueSearch() {
   osQueryForValueSearch.value.isA = Array.from(propertyRanges.value);
 }
 
+function addIfConcept(focus: any[], iris: TTIriRef[]) {
+  for (const item of focus) {
+    if (item.type === "Concept") iris.push({ "@id": item.concept.iri });
+    if (item.type === "BoolGroup") addIfConcept(item.items, iris);
+  }
+}
+
 function updateQueryForPropertySearch() {
   if (props.focus.type === "BoolGroup" && isArrayHasLength(props.focus.items)) {
     const iris: TTIriRef[] = [];
-    for (const item of props.focus.items) {
-      if (item.type === "Concept") iris.push({ "@id": item.concept.iri });
-    }
+    addIfConcept(props.focus.items, iris);
     imQueryForPropertySearch.value = {
       query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
       argument: [
