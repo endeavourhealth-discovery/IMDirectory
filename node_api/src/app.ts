@@ -39,11 +39,9 @@ class App {
   }
 
   public listen() {
-    this.app
-      .listen(this.port, () => {
-        logger.info(`App started on port ${this.port}`);
-      })
-      .setTimeout(Env.NODE_TIMEOUT);
+    this.app.listen(this.port, () => {
+      logger.info(`App started on port ${this.port}`);
+    });
   }
 }
 
