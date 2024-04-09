@@ -16,8 +16,8 @@
       </template>
       <div id="imquery-builder-string-container">
         <div id="imquery-builder-container">
-          <div id="imquery-build" v-if="editMatch">
-            <EditMatch :edit-match="editMatch" @on-update-dialog-focus="updateDialogFocus" />
+          <div id="imquery-build" v-if="focusedEditMatch">
+            <EditMatch :edit-match="focusedEditMatch" :is-root-feature="true" @on-update-dialog-focus="updateDialogFocus" />
           </div>
         </div>
 
@@ -26,7 +26,7 @@
             <TabView>
               <TabPanel header="Query JSON">
                 <div class="imquery-string-container">
-                  <pre :value="editMatchString" class="imquery-output-string">{{ editMatch }}</pre>
+                  <pre class="imquery-output-string">{{ focusedEditMatch }}</pre>
                   <Button
                     icon="fa-solid fa-copy"
                     v-tooltip.left="'Copy to clipboard'"
@@ -54,8 +54,8 @@
       </div>
       <template #footer>
         <div class="button-footer">
-          <Button label="Cancel" text @click="visible = false" />
-          <Button label="Save" autofocus @click="visible = false" />
+          <Button label="Cancel" text @click="onCancel" />
+          <Button label="Save" autofocus @click="onSave" />
         </div>
       </template>
     </Dialog>
@@ -81,19 +81,21 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  "update:showDialog": payload => typeof payload === "boolean"
+  "update:showDialog": payload => typeof payload === "boolean",
+  saveChanges: (payload: Match | undefined) => payload
 });
 
 const editMatch: Ref<Match | undefined> = ref();
-const editMatchString: Ref<string> = ref("");
+const focusedEditMatch: Ref<Match | undefined> = ref();
+const focusedEditMatchString: Ref<string> = ref("");
 const visible = ref(false);
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEditMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
 
 watch(
-  () => cloneDeep(editMatch.value),
+  () => cloneDeep(focusedEditMatch.value),
   newValue => {
-    editMatchString.value = JSON.stringify(newValue);
+    focusedEditMatchString.value = JSON.stringify(newValue);
   }
 );
 
@@ -121,10 +123,14 @@ watch(
 );
 
 onMounted(() => {
-  setEditMatch();
-  editMatchString.value = JSON.stringify(editMatch.value);
-  setPathItems();
+  init();
 });
+
+function init() {
+  setEditMatch();
+  focusedEditMatchString.value = JSON.stringify(focusedEditMatch.value);
+  setPathItems();
+}
 
 function setPathItems() {
   pathItems.value = [{ label: "Feature " + props.index }];
@@ -132,32 +138,43 @@ function setPathItems() {
 
 function setEditMatch() {
   if (isObjectHasKeys(props.match)) editMatch.value = cloneDeep(props.match);
+  focusedEditMatch.value = editMatch.value;
 }
 
 function updateDialogFocus(items: MenuItem[]) {
-  if (!isArrayHasLength(items) || items[items.length - 1].editMatch?.["@id"] === editMatch.value?.["@id"]) return;
+  if (!isArrayHasLength(items) || items[items.length - 1].editMatch?.["@id"] === focusedEditMatch.value?.["@id"]) return;
   pathItems.value = items;
-  editMatch.value = items[items.length - 1].editMatch;
+  focusedEditMatch.value = items[items.length - 1].editMatch;
 }
 
 function goBack() {
   pathItems.value.pop();
-  editMatch.value = pathItems.value[pathItems.value.length - 1].editMatch;
+  focusedEditMatch.value = pathItems.value[pathItems.value.length - 1].editMatch;
 }
 
 function updateDialogFocusFromBreadcrumb(id: string) {
-  if (id === editMatch.value?.["@id"]) return;
+  if (id === focusedEditMatch.value?.["@id"]) return;
   let index = pathItems.value.length - 1;
   let found = false;
   while (!found && index > -1) {
     if (id === pathItems.value[index].key) {
       found = true;
-      editMatch.value = pathItems.value[index].editMatch;
+      focusedEditMatch.value = pathItems.value[index].editMatch;
     } else {
       pathItems.value.pop();
       --index;
     }
   }
+}
+
+function onSave() {
+  emit("saveChanges", cloneDeep(editMatch.value));
+  visible.value = false;
+}
+
+function onCancel() {
+  init();
+  visible.value = false;
 }
 </script>
 

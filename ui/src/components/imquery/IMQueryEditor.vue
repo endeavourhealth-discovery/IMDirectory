@@ -38,7 +38,12 @@
             <Button @click="deleteFeature(index)" severity="danger" icon="fa-solid fa-trash" class="builder-button" />
           </div>
         </div>
-        <EditMatchDialog v-model:show-dialog="showDialog" :match="selectedMatch" :index="selectedIndex" />
+        <EditMatchDialog
+          v-model:show-dialog="showDialog"
+          :match="selectedMatch"
+          :index="selectedIndex"
+          @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch, selectedMatch!['@id']!, selectedIndex)"
+        />
       </div>
     </div>
     <Button label="Add feature" @click="queryDefinition.match?.push({} as Match)" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
@@ -46,14 +51,15 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, onBeforeMount, onMounted, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { Match, Query, QueryRequest, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, Query, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { SortDirection } from "@im-library/enums";
+import { cloneDeep } from "lodash";
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const queryDefinition: Ref<Query> = ref({});
@@ -94,6 +100,13 @@ function editMatch(index: number) {
   selectedMatch.value = queryDefinition.value.match?.[index];
   selectedIndex.value = index;
   showDialog.value = true;
+}
+
+function onSaveChanges(editMatch: Match | undefined, id: string, index: number) {
+  if (!editMatch) queryDefinition.value.match = queryDefinition.value.match?.filter(rootMatch => rootMatch["@id"] !== id);
+  else {
+    queryDefinition.value.match![index] = cloneDeep(editMatch);
+  }
 }
 </script>
 

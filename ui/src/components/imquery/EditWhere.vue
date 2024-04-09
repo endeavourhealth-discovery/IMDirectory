@@ -10,7 +10,12 @@
         />
       </div>
     </div>
-    <EditMatch v-if="editWhere?.match" :edit-match="editWhere.match" @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)" />
+    <EditMatch
+      v-if="editWhere?.match"
+      :edit-match="editWhere.match"
+      @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
+      @delete-match="onDeleteMatch"
+    />
   </div>
 </template>
 
@@ -23,6 +28,10 @@ interface Props {
 }
 const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload });
+
+function onDeleteMatch(matchId: string) {
+  if (props.editWhere.match && props.editWhere.match["@id"] === matchId) delete props.editWhere.match;
+}
 </script>
 
 <style scoped>
