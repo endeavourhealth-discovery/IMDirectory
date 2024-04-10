@@ -66,7 +66,7 @@ export default class Validator {
   private isValidDefinition(data: any): { isValid: boolean; message?: string } {
     let valid = false;
     let message: string | undefined = "Definition is invalid.";
-    if (isObjectHasKeys(data, [IM.DEFINITION]) || isObjectHasKeys(data, [IM.IS_SUBSET_OF])) {
+    if (isObjectHasKeys(data, [IM.DEFINITION]) || isObjectHasKeys(data, [IM.IS_SUBSET_OF]) || isObjectHasKeys(data, [IM.HAS_SUBSET])) {
       valid = true;
       message = undefined;
     }

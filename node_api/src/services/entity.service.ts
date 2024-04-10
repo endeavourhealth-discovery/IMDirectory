@@ -283,6 +283,16 @@ export default class EntityService {
     ).data;
   }
 
+  async getSubsets(iri: string): Promise<TTIriRef[]> {
+    return (
+      await axios.get(Env.API + "api/entity/public/subsets", {
+        params: {
+          iri: iri
+        }
+      })
+    ).data;
+  }
+
   async getDataModelProperties(iri: string): Promise<DataModelProperty[]> {
     return (
       await axios.get(Env.API + "api/entity/public/dataModelProperties", {

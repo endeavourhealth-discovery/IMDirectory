@@ -138,8 +138,8 @@ onMounted(async () => {
 
 watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], ([newPropsValue, newPropsShape], [oldPropsValue, oldPropsShape]) => {
   // updateBuildLength();
-  if (JSON.stringify(newPropsValue) !== JSON.stringify(oldPropsValue) && build.value.length) updateBuildPropsValue();
-  if (JSON.stringify(newPropsShape.path["@id"]) !== JSON.stringify(oldPropsShape.path["@id"])) init();
+  if (!_.isEqual(newPropsValue, oldPropsValue) && build.value.length) updateBuildPropsValue();
+  if (!_.isEqual(newPropsShape.path["@id"], oldPropsShape.path["@id"])) init();
 });
 
 watch(
@@ -278,6 +278,7 @@ function updateEntity() {
   result[key] = value;
   if (props.shape.builderChild) {
     emit("updateClicked", result);
+    return;
   } else if (!value.length && deleteEntityKey) deleteEntityKey(key);
   else if (entityUpdate) entityUpdate(result);
 }

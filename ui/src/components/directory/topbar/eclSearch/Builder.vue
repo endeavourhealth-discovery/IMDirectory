@@ -53,7 +53,7 @@
     </div>
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" />
-      <Button label="Validate" severity="help" @click="validateBuild" />
+      <Button label="Validate" severity="help" @click="validateBuild" :disabled="!isValidEcl" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>

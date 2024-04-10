@@ -233,7 +233,7 @@ const DataModelShape: FormGenerator = {
                   },
                   select: [
                     {
-                      "@id": QUERY.SEARCH_SUBCLASS
+                      "@id": QUERY.SEARCH_ALLOWABLE_SUBCLASS
                     }
                   ],
                   argument: [

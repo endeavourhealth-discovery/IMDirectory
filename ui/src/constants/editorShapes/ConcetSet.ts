@@ -89,7 +89,8 @@ const ConceptSetShape: FormGenerator = {
               function: {
                 "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
-              validation: { "@id": VALIDATION.IS_IRI }
+              validation: { "@id": VALIDATION.IS_IRI },
+              valueVariable: "entityIri"
             },
             {
               comment: "name or main term of concept",
@@ -179,6 +180,53 @@ const ConceptSetShape: FormGenerator = {
               ]
             },
             {
+              label: "Subset of array builder",
+              name: "Subset of",
+              showTitle: true,
+              order: 7,
+              minCount: 0,
+              componentType: {
+                "@id": COMPONENT.ARRAY_BUILDER
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              validation: {
+                "@id": VALIDATION.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubsetOf' or 'isContainedIn'.",
+              path: {
+                "@id": IM.IS_SUBSET_OF
+              },
+              valueVariable: "subsetOf",
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 0,
+                  builderChild: true,
+                  componentType: {
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                  },
+                  path: {
+                    "@id": IM.IS_SUBSET_OF
+                  },
+                  select: [
+                    {
+                      "@id": QUERY.SEARCH_ALLOWABLE_SUBCLASS
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.CONCEPT_SET
+                      },
+                      parameter: "value"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
               label: "Contained in array builder",
               name: "Contained in",
               showTitle: true,
@@ -254,11 +302,8 @@ const ConceptSetShape: FormGenerator = {
               order: 1,
               minCount: 0,
               componentType: { "@id": COMPONENT.SUBSET_BUILDER },
-              path: { "@id": IM.IS_SUBSET_OF },
-              validation: {
-                "@id": VALIDATION.IS_DEFINITION
-              },
-              validationErrorMessage: "Set definition is not valid",
+              path: { "@id": IM.HAS_SUBSET },
+              argument: [{ parameter: "entityIri", valueVariable: "entityIri" }],
               property: [
                 {
                   name: "Inclusions",
@@ -266,7 +311,7 @@ const ConceptSetShape: FormGenerator = {
                   builderChild: true,
                   componentType: { "@id": COMPONENT.ARRAY_BUILDER },
                   arrayButtons: { addOnlyIfLast: true, down: false, minus: true, plus: true, up: false },
-                  path: { "@id": IM.IS_SUBSET_OF },
+                  path: { "@id": IM.HAS_SUBSET },
                   property: [
                     {
                       argument: [{ parameter: "this", valueIriList: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUESET }] }],
@@ -276,7 +321,7 @@ const ConceptSetShape: FormGenerator = {
                       minCount: 0,
                       name: "Inclusion",
                       order: 1,
-                      path: { "@id": IM.IS_SUBSET_OF }
+                      path: { "@id": IM.HAS_SUBSET }
                     }
                   ],
                   order: 1
@@ -287,7 +332,7 @@ const ConceptSetShape: FormGenerator = {
               label: "Property group - set definition builder",
               name: "Definition builder",
               order: 2,
-              minCount: 1,
+              minCount: 0,
               componentType: {
                 "@id": COMPONENT.SET_DEFINITION_BUILDER
               },
