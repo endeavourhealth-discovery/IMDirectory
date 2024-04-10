@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-03 15:38:45.
+// Generated using typescript-generator version 3.2.1263 on 2024-04-08 14:22:19.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -145,11 +145,11 @@ export interface Argument {
 }
 
 export interface Assignable {
-    value?: string;
-    unit?: string;
     operator?: Operator;
-    dataType?: TTIriRef;
     relativeTo?: PropertyRef;
+    unit?: string;
+    dataType?: TTIriRef;
+    value?: string;
 }
 
 export interface Case {
@@ -178,11 +178,11 @@ export interface Element extends IriLD, Entailment {
     childOf?: boolean;
     parentOrSelfOf?: boolean;
     parentOf?: boolean;
-    memberOf?: boolean;
     nodeRef?: string;
 }
 
 export interface Entailment {
+    memberOf?: boolean;
     descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
@@ -202,6 +202,8 @@ export interface IriLD {
 export interface Match extends IriLD {
     exclude?: boolean;
     nodeRef?: string;
+    boolMatch?: Bool;
+    boolWhere?: Bool;
     description?: string;
     graph?: Element;
     path?: IriLD[];
@@ -242,6 +244,11 @@ export interface PathQuery extends TTIriRef {
     depth?: number;
 }
 
+export interface Prefix {
+    prefix?: string;
+    namespace?: string;
+}
+
 export interface PropertyRef extends Node {
     inverse?: boolean;
     valueVariable?: string;
@@ -252,6 +259,7 @@ export interface Query extends Match {
     return?: Return[];
     query?: Query[];
     groupBy?: PropertyRef[];
+    prefixes?: Prefix[];
 }
 
 export interface QueryEntity extends Entity {
@@ -326,9 +334,12 @@ export interface Where extends PropertyRef, Assignable {
     isNot?: Node[];
     anyRoleGroup?: boolean;
     is?: Node[];
+    boolWhere?: Bool;
     where?: Where[];
     valueLabel?: string;
     isNotNull?: boolean;
+    notNull?: boolean;
+    null?: boolean;
 }
 
 export interface EntityDocument {
@@ -537,19 +548,19 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
+    scheme?: TTIriRef;
+    prefixes?: TTPrefix[];
+    description?: string;
+    version?: number;
+    code?: string;
     name?: string;
     type?: TTArray;
-    scheme?: TTIriRef;
-    version?: number;
     status?: TTIriRef;
-    code?: string;
-    description?: string;
-    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -567,8 +578,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    nativeMethod?: boolean;
     className?: string;
+    nativeMethod?: boolean;
 }
 
 export interface Exception extends Throwable {
@@ -578,15 +589,15 @@ export interface TTValue extends Serializable {
     order?: number;
 }
 
-export interface TTArray extends Serializable {
-    elements?: TTValue[];
-    list?: boolean;
-}
-
 export interface TTPrefix {
     iri?: string;
     prefix?: string;
     name?: string;
+}
+
+export interface TTArray extends Serializable {
+    elements?: TTValue[];
+    list?: boolean;
 }
 
 export interface TTNode extends TTValue, Serializable {

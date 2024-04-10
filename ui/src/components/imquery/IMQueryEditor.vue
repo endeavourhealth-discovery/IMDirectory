@@ -195,6 +195,7 @@ function onSaveChanges(editMatch: Match | undefined, id: string, index: number) 
 <style>
 .builder-button {
   width: 2rem;
+  margin: 0.1rem;
 }
 
 .vertical-button {

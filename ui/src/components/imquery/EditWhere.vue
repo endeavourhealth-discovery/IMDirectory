@@ -1,6 +1,6 @@
 <template>
   <div class="property-description-container">
-    <!-- EditProperty -->
+    <EditProperty v-if="focused" :property="editWhere" :data-model-iri="matchTypeOfIri" />
     <div v-if="focused">{{ matchTypeOfIri }} - {{ editWhere["@id"] }}</div>
     <div v-else class="property-description" v-html="editWhere?.description"></div>
 
@@ -31,6 +31,7 @@
 import { Where } from "@im-library/interfaces/AutoGen";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
+import EditProperty from "./EditProperty.vue";
 interface Props {
   matchTypeOfIri: string;
   editWhere: Where;

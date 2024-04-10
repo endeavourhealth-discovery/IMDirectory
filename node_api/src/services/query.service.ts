@@ -2,7 +2,7 @@ import Env from "@/services/env.service";
 import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, EclSearchRequest, QueryResponse } from "@im-library/interfaces";
+import { AliasEntity, EclSearchRequest, TTProperty, UIProperty } from "@im-library/interfaces";
 import { Query, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, QUERY } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
@@ -340,7 +340,7 @@ export default class QueryService {
     return describeQuery(query);
   }
 
-  public async getDataModelProperty(dataModelIri: string, propertyIri: string) {
+  public async getDataModelProperty(dataModelIri: string, propertyIri: string): Promise<UIProperty | undefined> {
     const queryRequest = {
       query: { "@id": QUERY.DM_PROPERTY },
       argument: [
@@ -359,9 +359,26 @@ export default class QueryService {
       ]
     } as any as QueryRequest;
     const results = await this.queryIM(queryRequest);
-    if (isObjectHasKeys(results, ["entities"]) && results.entities.length !== 0) {
-      return results.entities;
-    } else return [];
+    if (isObjectHasKeys(results, ["entities"]) && isArrayHasLength(results.entities)) {
+      const ttproperty: TTProperty = results.entities[0];
+      const uiProperty = {} as UIProperty;
+      if (ttproperty["http://www.w3.org/ns/shacl#maxCount"]) uiProperty.maxCount = ttproperty["http://www.w3.org/ns/shacl#maxCount"];
+      if (ttproperty["http://www.w3.org/ns/shacl#minCount"]) uiProperty.minCount = ttproperty["http://www.w3.org/ns/shacl#minCount"];
+      if (isArrayHasLength(ttproperty["http://www.w3.org/ns/shacl#class"])) {
+        uiProperty.propertyType = "class";
+        uiProperty.valueType = ttproperty["http://www.w3.org/ns/shacl#class"]![0]["@id"];
+      }
+      if (isArrayHasLength(ttproperty["http://www.w3.org/ns/shacl#datatype"])) {
+        uiProperty.propertyType = "datatype";
+        uiProperty.valueType = ttproperty["http://www.w3.org/ns/shacl#datatype"]![0]["@id"];
+      }
+      if (isArrayHasLength(ttproperty["http://www.w3.org/ns/shacl#node"])) {
+        uiProperty.propertyType = "node";
+        uiProperty.valueType = ttproperty["http://www.w3.org/ns/shacl#node"]![0]["@id"];
+      }
+      uiProperty.propertyName = getNameFromRef({ "@id": propertyIri });
+      return uiProperty;
+    } else return undefined;
   }
 
   public async generateQuerySQL(queryIri: string) {
