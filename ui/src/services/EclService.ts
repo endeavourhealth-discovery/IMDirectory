@@ -2,26 +2,26 @@ import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import axios from "axios";
 import Env from "./Env";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Query, SearchResultSummary, EclSearchRequest } from "@im-library/interfaces/AutoGen";
 
 const EclService = {
-  async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<{ count: number; entities: SearchResultSummary[]; page: number }> {
+  async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<{ count: number; entities: SearchResultSummary[]; page: number }> {
     const results = (await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclSearch", eclSearchRequest, {
-      signal: controller.signal
+      signal: controller?.signal
     })) as { count: number; entities: any[]; page: number };
     if (isObjectHasKeys(results, ["entities"])) results.entities.forEach((result: any) => entityToAliasEntity(result));
     return results;
   },
 
-  async eclSearchTotalCount(eclSearchRequest: any, controller: AbortController): Promise<number> {
-    return axios.post(Env.API + "api/ecl/public/eclSearchTotalCount", eclSearchRequest, { signal: controller.signal });
+  async eclSearchTotalCount(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<number> {
+    return axios.post(Env.API + "api/ecl/public/eclSearchTotalCount", eclSearchRequest, { signal: controller?.signal });
   },
 
   async getEcl(query: any): Promise<string> {
     return await axios.post(Env.API + "api/ecl/public/ecl", query);
   },
 
-  async evaluateEclQuery(eclSearchRequest: any): Promise<any> {
+  async evaluateEclQuery(eclSearchRequest: EclSearchRequest): Promise<any> {
     return axios.post(Env.API + "api/ecl/public/evaluateEcl", eclSearchRequest, { headers: { "Content-Type": "application/json" } });
   },
 

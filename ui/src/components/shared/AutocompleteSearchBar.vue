@@ -168,7 +168,10 @@ function select(event: KeyboardEvent) {
 }
 
 async function onEnter(event: any) {
-  if (resultsOP.value) resultsOP.value.toggle(event);
+  if (resultsOP.value) resultsOP.value.show(event);
+  if (searchText.value) {
+    results.value = await search(searchText.value, undefined, { pageNumber: 1, pageSize: 10 }, props.osQuery, props.imQuery);
+  }
 }
 
 async function showResultsOverlay(event: any) {

@@ -302,7 +302,7 @@ const ConceptSetShape: FormGenerator = {
               order: 1,
               minCount: 0,
               componentType: { "@id": COMPONENT.SUBSET_BUILDER },
-              path: { "@id": "http://endhealth.info/im#subsetsEdit" },
+              path: { "@id": IM.HAS_SUBSET },
               argument: [{ parameter: "entityIri", valueVariable: "entityIri" }],
               property: [
                 {
@@ -311,7 +311,7 @@ const ConceptSetShape: FormGenerator = {
                   builderChild: true,
                   componentType: { "@id": COMPONENT.ARRAY_BUILDER },
                   arrayButtons: { addOnlyIfLast: true, down: false, minus: true, plus: true, up: false },
-                  path: { "@id": "http://endhealth.info/im#subsetsEdit" },
+                  path: { "@id": IM.HAS_SUBSET },
                   property: [
                     {
                       argument: [{ parameter: "this", valueIriList: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUESET }] }],
@@ -321,7 +321,7 @@ const ConceptSetShape: FormGenerator = {
                       minCount: 0,
                       name: "Inclusion",
                       order: 1,
-                      path: { "@id": "http://endhealth.info/im#subsetsEdit" }
+                      path: { "@id": IM.HAS_SUBSET }
                     }
                   ],
                   order: 1
