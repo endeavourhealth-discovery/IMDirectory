@@ -1,6 +1,6 @@
 <template>
   <div class="match-container" v-if="propertyType">
-    <Dropdown :options="['is', 'typeOf', 'instanceOf']" v-model:model-value="propertyType" />
+    <Dropdown :options="['typeOf', 'instanceOf']" v-model:model-value="propertyType" />
     <div v-if="propertyType === 'is' && editMatch.is" class="multi-select">
       <SingleEntitySelector v-for="is in editMatch.is" :edit-node="is" />
     </div>

@@ -1,7 +1,6 @@
 <template>
   <div class="property-description-container">
     <EditProperty v-if="focused" :property="editWhere" :data-model-iri="matchTypeOfIri" />
-    <div v-if="focused">{{ matchTypeOfIri }} - {{ editWhere["@id"] }}</div>
     <div v-else class="property-description" v-html="editWhere?.description"></div>
 
     <div v-if="editWhere?.where" class="where-group">

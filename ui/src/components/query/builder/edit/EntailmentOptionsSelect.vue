@@ -16,6 +16,7 @@ const props = defineProps<Props>();
 const editOptions: Ref<string> = ref("descendantsOrSelfOf");
 
 const options = [
+  { id: "memberOf", name: "member of" },
   { id: "ancestorsOf", name: "ancestors of" },
   { id: "descendantsOrSelfOf", name: "descendants or self of" },
   { id: "descendantsOf", name: "descendants of" }

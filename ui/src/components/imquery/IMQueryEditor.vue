@@ -103,10 +103,11 @@ function editMatch(index: number) {
   showDialog.value = true;
 }
 
-function onSaveChanges(editMatch: Match | undefined, id: string, index: number) {
+async function onSaveChanges(editMatch: Match | undefined, id: string, index: number) {
   if (!editMatch) queryDefinition.value.match = queryDefinition.value.match?.filter(rootMatch => rootMatch["@id"] !== id);
   else {
     queryDefinition.value.match![index] = cloneDeep(editMatch);
+    queryDefinition.value = await QueryService.getQueryDisplayFromQuery(queryDefinition.value);
   }
 }
 </script>
