@@ -1,17 +1,18 @@
 <template>
   <div class="property-description-container">
-    <EditProperty v-if="focused" :property="editWhere" :data-model-iri="matchTypeOfIri" />
+    <EditProperty v-if="focused" :property="editWhere" :data-model-iri="matchTypeOfIri" @delete-property="$emit('deleteProperty')" />
     <div v-else class="property-description" v-html="editWhere?.description"></div>
 
     <div v-if="editWhere?.where" class="where-group">
       <div class="where-list">
         <EditWhere
-          v-for="nestedWhere in editWhere.where"
+          v-for="[index, nestedWhere] in editWhere.where.entries()"
           :focused="focused"
           :focused-id="focusedId"
           :match-type-of-iri="matchTypeOfIri"
           :editWhere="nestedWhere"
           @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
+          @delete-property="editWhere.where?.splice(index, 1)"
         />
       </div>
     </div>
@@ -38,7 +39,7 @@ interface Props {
   focusedId: string | undefined;
 }
 const props = defineProps<Props>();
-const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload });
+const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteProperty: () => true });
 
 function onDeleteMatch(matchId: string) {
   if (props.editWhere.match && props.editWhere.match["@id"] === matchId) delete props.editWhere.match;

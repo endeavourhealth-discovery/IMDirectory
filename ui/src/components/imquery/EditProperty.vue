@@ -1,41 +1,38 @@
 <template>
   <div class="property-container">
-    <div class="property">
-      <div class="property-title"><InputText :value="uiProperty?.propertyName" disabled /></div>
-      <div v-if="uiProperty?.propertyType === 'class' || uiProperty?.propertyType === 'node'" class="property-input">
-        <div class="value-field">
-          <Dropdown
-            :options="[
-              { id: 'is', name: 'is' },
-              { id: 'isNot', name: 'is not' },
-              { id: 'isNull', name: 'is not recorded' },
-              { id: 'isNotNull', name: 'is recorded' }
-            ]"
-            optionValue="id"
-            optionLabel="name"
-            v-model:model-value="valueField"
-          />
-        </div>
-        <div class="value-list-container" v-if="valueField === 'is' || valueField === 'isNot'">
-          <div class="value-list" v-if="isArrayHasLength(values)">
-            <div class="value-list-item" v-for="[index, value] of values.entries()">
-              <EntailmentOptionsSelect :entailment-object="value as any" />
-              <AutocompleteSearchBar
-                :selected="value"
-                :root-entities="[uiProperty.valueType]"
-                @update:selected="selected => updateSelectedValue(selected, index)"
-              />
-              <Button v-if="!index" severity="success" icon="fa-solid fa-plus" class="add-feature-button" @click="values.push({} as SearchResultSummary)" />
-              <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-trash-can" class="add-feature-button" @click="values.splice(index, 1)" />
-            </div>
+    <div class="property-title"><InputText :value="uiProperty?.propertyName" disabled /></div>
+    <div v-if="uiProperty?.propertyType === 'class' || uiProperty?.propertyType === 'node'" class="property-input">
+      <div class="value-field">
+        <Dropdown
+          :options="[
+            { id: 'is', name: 'is' },
+            { id: 'isNot', name: 'is not' },
+            { id: 'isNull', name: 'is not recorded' },
+            { id: 'isNotNull', name: 'is recorded' }
+          ]"
+          optionValue="id"
+          optionLabel="name"
+          v-model:model-value="valueField"
+        />
+      </div>
+      <div class="value-list-container" v-if="valueField === 'is' || valueField === 'isNot'">
+        <div class="value-list" v-if="isArrayHasLength(values)">
+          <div class="value-list-item" v-for="[index, value] of values.entries()">
+            <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-minus" class="add-feature-button" @click="values.splice(index, 1)" />
+            <EntailmentOptionsSelect :entailment-object="value as any" />
+            <AutocompleteSearchBar
+              :selected="value"
+              :root-entities="[uiProperty.valueType]"
+              @update:selected="selected => updateSelectedValue(selected, index)"
+            />
+            <Button v-if="!index" severity="success" icon="fa-solid fa-plus" class="add-feature-button" @click="values.push({} as SearchResultSummary)" />
           </div>
         </div>
-        <SaveCustomSetDialog v-if="valueField === 'is' || valueField === 'isNot'" :set-members="values" @on-save="onCustomSetSave" />
       </div>
-      <DatatypeSelect v-else-if="uiProperty?.propertyType === 'datatype'" :datatype="uiProperty.valueType" :property="property" />
+      <SaveCustomSetDialog v-if="valueField === 'is' || valueField === 'isNot'" :set-members="values" @on-save="onCustomSetSave" />
     </div>
-
-    <Button label="Add property" @click="" severity="success" icon="fa-solid fa-plus" class="add-property-button" />
+    <DatatypeSelect v-else-if="uiProperty?.propertyType === 'datatype'" :datatype="uiProperty.valueType" :property="property" />
+    <Button @click="$emit('deleteProperty')" severity="danger" icon="fa-solid fa-trash" />
   </div>
 </template>
 
@@ -60,6 +57,7 @@ const props = defineProps<Props>();
 const uiProperty: Ref<UIProperty | undefined> = ref();
 const valueField: Ref<"is" | "isNot" | "isNull" | "isNotNull" | undefined> = ref();
 const values: Ref<SearchResultSummary[]> = ref([]);
+const emit = defineEmits({ deleteProperty: () => true });
 
 onMounted(async () => {
   await init();
@@ -152,9 +150,8 @@ function getNodes(searchResultSummaries: SearchResultSummary[]): Node[] {
 <style scoped>
 .property-container {
   display: flex;
-  flex-flow: column;
+  flex-flow: row;
   margin-left: 1rem;
-  align-items: baseline;
 }
 .property-input-container {
   margin-left: 0 !important;
@@ -195,11 +192,5 @@ function getNodes(searchResultSummaries: SearchResultSummary[]): Node[] {
 
 .property {
   display: flex;
-}
-
-.add-property-button {
-  width: 10rem;
-  margin-top: 0.5rem;
-  margin-left: 1.2rem;
 }
 </style>

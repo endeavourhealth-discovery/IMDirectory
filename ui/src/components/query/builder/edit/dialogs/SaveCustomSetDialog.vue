@@ -1,5 +1,5 @@
 <template>
-  <Button label="Save custom set" text severity="info" @click="showSaveCustomSetDialog = true" />
+  <Button v-tooltip="'Save custom set'" icon="fa-solid fa-floppy-disk" severity="info" @click="showSaveCustomSetDialog = true" />
   <Dialog
     v-model:visible="showSaveCustomSetDialog"
     modal

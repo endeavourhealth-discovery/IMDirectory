@@ -19,18 +19,21 @@
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-match="onDeleteMatch"
           />
+          <Button v-if="editMatch['@id'] === focusedId" label="Add feature" @click="" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
         </div>
       </div>
       <div v-if="editMatch?.where" class="where-group">
         <div class="where-list">
           <EditWhere
-            v-for="nestedWhere in editMatch.where"
+            v-for="[index, nestedWhere] in editMatch.where.entries()"
             :edit-where="nestedWhere"
             :focused="editMatch['@id'] === focusedId"
             :focused-id="focusedId"
             :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
+            @delete-property="editMatch.where?.splice(index, 1)"
           />
+          <Button v-if="editMatch['@id'] === focusedId" label="Add property" @click="" severity="success" icon="fa-solid fa-plus" class="add-property-button" />
         </div>
       </div>
       <div v-if="editMatch.then">
@@ -139,9 +142,22 @@ function onParentDelete(event: Event) {
 .then-title {
   padding-top: 0.5rem;
 }
+
 .edit-match-wrapper {
   display: flex;
   width: 100%;
   padding: 0.1rem;
+}
+
+.add-property-button {
+  width: 10rem;
+  margin-top: 0.5rem;
+  margin-left: 1rem;
+}
+
+.add-feature-button {
+  width: 10rem;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
 }
 </style>
