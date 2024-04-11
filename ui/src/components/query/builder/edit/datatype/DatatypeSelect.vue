@@ -34,7 +34,13 @@
       optionLabel="name"
       v-model:model-value="propertyType"
     />
-    <ComparisonSelect v-if="propertyType === 'is'" :property="property" :datatype="datatype" :property-iri="property['@id']!" class="property-input" />
+    <div v-if="propertyType === 'is'" class="property-input">
+      <InputText :value="'From'" disabled class="property-input-title" />
+      <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
+      <InputText type="text" placeholder="value" v-model="property.value" />
+      <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" />
+      <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+    </div>
     <div v-else-if="propertyType === 'range'" class="property-input">
       <InputText :value="'From'" disabled class="property-input-title" />
       <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range!.from.operator" />
@@ -57,8 +63,6 @@
 <script setup lang="ts">
 import Dropdown from "primevue/dropdown";
 import { Ref, onMounted, ref, watch } from "vue";
-import ComparisonSelect from "./ComparisonSelect.vue";
-import RangeSelect from "./RangeSelect.vue";
 import { IM, GRAPH } from "@im-library/vocabulary";
 import { Assignable, Range, Where, Operator } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -138,6 +142,6 @@ onMounted(() => {
 }
 
 .property-input-title {
-  width: 5%;
+  width: 4rem;
 }
 </style>
