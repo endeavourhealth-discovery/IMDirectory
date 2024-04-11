@@ -153,9 +153,8 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 }
 
 .add-feature-button {
-  width: 20rem;
-  margin-top: 0.5rem;
-  margin-left: 1.2rem;
+  width: 10rem;
+  margin-left: 5.8rem;
 }
 
 .feature-description-card {

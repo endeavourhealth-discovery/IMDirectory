@@ -1,47 +1,46 @@
 <template>
   <div class="property-container">
-    <InputText :value="uiProperty?.propertyName" disabled />
-    <div v-if="uiProperty?.propertyType === 'class' || uiProperty?.propertyType === 'node'" class="property-input">
-      <div class="value-field">
-        <Dropdown
-          :options="[
-            { id: 'is', name: 'is' },
-            { id: 'isNot', name: 'is not' },
-            { id: 'isNull', name: 'is not recorded' },
-            { id: 'isNotNull', name: 'is recorded' }
-          ]"
-          optionValue="id"
-          optionLabel="name"
-          v-model:model-value="valueField"
-        />
-      </div>
-      <div class="value-list-container" v-if="valueField === 'is' || valueField === 'isNot'">
-        <div class="value-list" v-if="isArrayHasLength(values)">
-          <div class="value-list-item" v-for="[index, value] of values.entries()">
-            <EntailmentOptionsSelect :entailment-object="value as any" />
-            <AutocompleteSearchBar
-              :selected="value"
-              :root-entities="[uiProperty.valueType]"
-              @update:selected="selected => updateSelectedValue(selected, index)"
-            />
-            <Button v-if="!index" severity="success" icon="fa-solid fa-plus" class="add-feature-button" @click="values.push({} as SearchResultSummary)" />
-            <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-trash-can" class="add-feature-button" @click="values.splice(index, 1)" />
+    <div class="property">
+      <div class="property-title"><InputText :value="uiProperty?.propertyName" disabled /></div>
+      <div v-if="uiProperty?.propertyType === 'class' || uiProperty?.propertyType === 'node'" class="property-input">
+        <div class="value-field">
+          <Dropdown
+            :options="[
+              { id: 'is', name: 'is' },
+              { id: 'isNot', name: 'is not' },
+              { id: 'isNull', name: 'is not recorded' },
+              { id: 'isNotNull', name: 'is recorded' }
+            ]"
+            optionValue="id"
+            optionLabel="name"
+            v-model:model-value="valueField"
+          />
+        </div>
+        <div class="value-list-container" v-if="valueField === 'is' || valueField === 'isNot'">
+          <div class="value-list" v-if="isArrayHasLength(values)">
+            <div class="value-list-item" v-for="[index, value] of values.entries()">
+              <EntailmentOptionsSelect :entailment-object="value as any" />
+              <AutocompleteSearchBar
+                :selected="value"
+                :root-entities="[uiProperty.valueType]"
+                @update:selected="selected => updateSelectedValue(selected, index)"
+              />
+              <Button v-if="!index" severity="success" icon="fa-solid fa-plus" class="add-feature-button" @click="values.push({} as SearchResultSummary)" />
+              <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-trash-can" class="add-feature-button" @click="values.splice(index, 1)" />
+            </div>
           </div>
         </div>
+        <SaveCustomSetDialog v-if="valueField === 'is' || valueField === 'isNot'" :set-members="values" @on-save="onCustomSetSave" />
       </div>
-
-      <SaveCustomSetDialog v-if="valueField === 'is' || valueField === 'isNot'" :set-members="values" @on-save="onCustomSetSave" />
+      <DatatypeSelect v-else-if="uiProperty?.propertyType === 'datatype'" :datatype="uiProperty.valueType" :property="property" />
     </div>
 
-    <!-- <ClassSelect v-if="uiProperty?.propertyType === 'class' || uiProperty?.propertyType === 'node'" :class-iri="uiProperty.valueType" :property="property" /> -->
-    <DatatypeSelect v-else-if="uiProperty?.propertyType === 'datatype'" :datatype="uiProperty.valueType" :property="property" />
-    <!-- <EntitySelect v-else :edit-node="ttproperty.property" /> -->
+    <Button label="Add property" @click="" severity="success" icon="fa-solid fa-plus" class="add-property-button" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Entailment, Node, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
-import ClassSelect from "../query/builder/edit/class/ClassSelect.vue";
 import { UIProperty } from "@im-library/interfaces";
 import { Ref, onMounted, ref, watch } from "vue";
 import { QueryService } from "@/services";
@@ -153,7 +152,7 @@ function getNodes(searchResultSummaries: SearchResultSummary[]): Node[] {
 <style scoped>
 .property-container {
   display: flex;
-  flex-flow: row;
+  flex-flow: column;
   margin-left: 1rem;
   align-items: baseline;
 }
@@ -192,5 +191,15 @@ function getNodes(searchResultSummaries: SearchResultSummary[]): Node[] {
 
 .value-list-item {
   display: flex;
+}
+
+.property {
+  display: flex;
+}
+
+.add-property-button {
+  width: 10rem;
+  margin-top: 0.5rem;
+  margin-left: 1.2rem;
 }
 </style>

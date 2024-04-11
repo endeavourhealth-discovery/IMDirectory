@@ -14,13 +14,11 @@
     />
     <InputText v-if="['is', 'startsWith', 'contains'].includes(propertyType)" type="text" v-model:model-value="property.value" />
   </div>
-  <Dropdown
-    v-else-if="datatype === GRAPH.XMLS + 'boolean'"
-    :options="booleanOptions"
-    option-label="name"
-    option-value="value"
-    v-model:model-value="property.value"
-  />
+
+  <div v-else-if="datatype === GRAPH.XMLS + 'boolean'" class="property-input-container">
+    <Dropdown :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
+  </div>
+
   <div
     v-else-if="datatype === GRAPH.XMLS + 'long' || datatype === GRAPH.XMLS + 'integer' || datatype === GRAPH.XMLS + 'number'"
     class="property-input-container"
@@ -36,14 +34,20 @@
       optionLabel="name"
       v-model:model-value="propertyType"
     />
-    <ComparisonSelect v-if="propertyType === 'is'" :property="property" :datatype="datatype" :property-iri="property['@id']!" />
-    <RangeSelect
-      v-else-if="propertyType === 'range'"
-      :property-iri="property['@id']!"
-      :from="property.range!.from"
-      :to="property.range!.to"
-      :datatype="datatype"
-    />
+    <ComparisonSelect v-if="propertyType === 'is'" :property="property" :datatype="datatype" :property-iri="property['@id']!" class="property-input" />
+    <div v-else-if="propertyType === 'range'" class="property-input">
+      <InputText :value="'From'" disabled class="property-input-title" />
+      <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range!.from.operator" />
+      <InputText type="text" placeholder="value" v-model="property.range!.from.value" />
+      <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range!.from.unit" />
+      <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+
+      <InputText :value="'To'" disabled class="property-input-title" />
+      <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range!.to.operator" />
+      <InputText type="text" placeholder="value" v-model="property.range!.to.value" />
+      <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range!.to.unit" />
+      <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+    </div>
   </div>
   <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'" class="property-input-container">
     <DateSelect :property="property" :datatype="datatype" />
@@ -59,6 +63,7 @@ import { IM, GRAPH } from "@im-library/vocabulary";
 import { Assignable, Range, Where, Operator } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DateSelect from "./DateSelect.vue";
+import RelativeToSelect from "./RelativeToSelect.vue";
 interface Props {
   property: Where;
   datatype: string;
@@ -70,6 +75,8 @@ const booleanOptions = [
   { name: "true", value: true },
   { name: "false", value: false }
 ];
+const operatorOptions = ["=", ">=", ">", "<=", "<"];
+const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 
 watch(
   () => propertyType.value,
@@ -120,8 +127,17 @@ onMounted(() => {
 <style scoped>
 .property-input-container {
   display: flex;
-  flex-wrap: wrap;
-  width: 100%;
-  gap: 0.5rem;
+  flex-flow: row;
+  align-items: baseline;
+}
+
+.property-input {
+  display: flex;
+  flex-flow: row;
+  align-items: baseline;
+}
+
+.property-input-title {
+  width: 5%;
 }
 </style>
