@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-09 13:41:06.
+// Generated using typescript-generator version 3.2.1263 on 2024-04-15 13:35:25.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -127,6 +127,16 @@ export interface PropertyShape {
     arrayButtons?: ArrayButtons;
 }
 
+export interface SetContent {
+    name?: string;
+    description?: string;
+    status?: string;
+    version?: number;
+    setDefinition?: string;
+    subsets?: string[];
+    concepts?: Concept[];
+}
+
 export interface TransformRequest {
     transformMap?: TTIriRef;
     sourceFormat?: string;
@@ -147,9 +157,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: string;
+    operator?: Operator;
     dataType?: TTIriRef;
     relativeTo?: PropertyRef;
-    operator?: Operator;
 }
 
 export interface Case {
@@ -178,14 +188,14 @@ export interface Element extends IriLD, Entailment {
     childOf?: boolean;
     parentOrSelfOf?: boolean;
     parentOf?: boolean;
-    memberOf?: boolean;
     nodeRef?: string;
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -202,6 +212,8 @@ export interface IriLD {
 export interface Match extends IriLD {
     exclude?: boolean;
     nodeRef?: string;
+    boolMatch?: Bool;
+    boolWhere?: Bool;
     description?: string;
     graph?: Element;
     path?: IriLD[];
@@ -242,6 +254,11 @@ export interface PathQuery extends TTIriRef {
     depth?: number;
 }
 
+export interface Prefix {
+    prefix?: string;
+    namespace?: string;
+}
+
 export interface PropertyRef extends Node {
     inverse?: boolean;
     valueVariable?: string;
@@ -252,6 +269,7 @@ export interface Query extends Match {
     return?: Return[];
     query?: Query[];
     groupBy?: PropertyRef[];
+    prefixes?: Prefix[];
 }
 
 export interface QueryEntity extends Entity {
@@ -300,8 +318,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -326,9 +344,12 @@ export interface Where extends PropertyRef, Assignable {
     isNot?: Node[];
     anyRoleGroup?: boolean;
     is?: Node[];
+    boolWhere?: Bool;
     where?: Where[];
     valueLabel?: string;
     isNotNull?: boolean;
+    null?: boolean;
+    notNull?: boolean;
 }
 
 export interface EntityDocument {
@@ -560,8 +581,8 @@ export interface TTEntity extends TTNode, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
