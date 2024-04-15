@@ -48,7 +48,7 @@
 
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" @save="onSaveJson" />
-  <AddPropertyDialog
+  <!-- <AddPropertyDialog
     v-model:showDialog="showUpdateDialog"
     :header="'Refine feature'"
     :show-variable-options="false"
@@ -71,7 +71,7 @@
     :show-variable-options="true"
     :match-type="currentDataModelIri"
     @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, false)"
-  />
+  /> -->
 
   <AddFeatureDialog
     v-model:show-dialog="showAddFeatureAfterDialog"

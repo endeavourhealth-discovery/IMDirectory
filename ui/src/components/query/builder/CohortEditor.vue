@@ -23,13 +23,13 @@
       <Button label="Paste copied feature" icon="fa-solid fa-paste" @click="pasteMatch" severity="info" />
     </div>
 
-    <AddPropertyDialog
+    <!-- <AddPropertyDialog
       v-model:show-dialog="showBuildFeatureAfterDialog"
       :header="'Build new feature'"
       :show-variable-options="true"
       :match-type="queryTypeIri"
       @on-save="onPropertyAdd"
-    />
+    /> -->
 
     <AddFeatureDialog
       v-model:show-dialog="showAddFeatureAfterDialog"

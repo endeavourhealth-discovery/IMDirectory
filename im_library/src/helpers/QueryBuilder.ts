@@ -26,7 +26,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
       let matchProperties: Where[] = [];
       if (!isNested) matchProperties = treeNodeProperties.map(treeNodeProperty => buildProperty(treeNodeProperty));
       else matchProperties = buildNestedProperties(treeNodeProperties);
-      const match = { "@id": v4(), property: matchProperties } as Match;
+      const match = { "@id": v4(), where: matchProperties } as Match;
 
       const hasVariableTreeNode = treeNodeProperties.find(treeNodeProperty => getHasVariable(treeNodeProperty));
       if (hasVariableTreeNode) {
@@ -101,7 +101,7 @@ export function buildProperty(treeNode: TreeNode) {
       if (isObjectHasKeys(currentMatchOrProperty)) parentProperty.match = cloneDeep(currentMatchOrProperty);
       currentMatchOrProperty = parentProperty;
     } else if (isRecordModel(treeNode.conceptTypes)) {
-      const parentMatch = { "@id": v4(), typeOf: { "@id": treeNode.data }, property: [cloneDeep(currentMatchOrProperty)] };
+      const parentMatch = { "@id": v4(), typeOf: { "@id": treeNode.data }, where: [cloneDeep(currentMatchOrProperty)] };
       currentMatchOrProperty = parentMatch;
     } else if (isProperty(treeNode.conceptTypes)) {
       const parentProperty: any = { "@id": treeNode.data };

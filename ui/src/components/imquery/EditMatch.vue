@@ -33,7 +33,14 @@
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
-          <Button v-if="editMatch['@id'] === focusedId" label="Add property" @click="" severity="success" icon="fa-solid fa-plus" class="add-property-button" />
+          <Button
+            v-if="editMatch['@id'] === focusedId"
+            label="Add property"
+            severity="success"
+            icon="fa-solid fa-plus"
+            class="add-property-button"
+            @click="showAddPropertyDialog = true"
+          />
         </div>
       </div>
       <div v-if="editMatch.then">
@@ -48,6 +55,13 @@
       </div>
     </div>
     <Button v-if="!isRootFeature" severity="danger" icon="fa-solid fa-trash" class="builder-button" @click="onParentDelete" />
+    <AddPropertyDialog
+      v-model:show-dialog="showAddPropertyDialog"
+      :dataModelIri="matchTypeOfIri"
+      :header="'Add property'"
+      :show-variable-options="false"
+      @on-property-add="(direct: Match[], nested: Match[]) => onPropertyAdd(direct, nested)"
+    />
   </div>
 </template>
 
@@ -58,6 +72,9 @@ import EditWhere from "./EditWhere.vue";
 import setupHover from "@/composables/setupHover";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { MenuItem } from "primevue/menuitem";
+import AddPropertyDialog from "../query/builder/edit/dialogs/AddPropertyDialog.vue";
+import { Ref, ref } from "vue";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   isRootFeature?: boolean;
@@ -67,7 +84,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteMatch: (payload: string) => payload });
-
+const showAddPropertyDialog: Ref<boolean> = ref(false);
 const { hover, mouseout, mouseover } = setupHover();
 const { getMenuItemFromMatch, isFlatMatch } = setupIMQueryBuilderActions();
 
@@ -89,6 +106,30 @@ function onDeleteMatch(matchId: string) {
 function onParentDelete(event: Event) {
   event.stopPropagation();
   emit("deleteMatch", props.editMatch["@id"]!);
+}
+
+function onPropertyAdd(direct: Match[], nested: Match[]) {
+  console.log(direct, nested);
+  if (isArrayHasLength(direct)) {
+    for (const match of direct) {
+      if (match.where) {
+        for (const property of match.where) {
+          const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
+          if (!hasProperty) props.editMatch.where?.push(property);
+        }
+      }
+    }
+  } else if (isArrayHasLength(nested)) {
+    console.log(nested);
+    if (!isArrayHasLength(props.editMatch.match)) props.editMatch.match = [];
+    for (const nestedMatch of nested) {
+      if (nestedMatch.where)
+        for (const property of nestedMatch.where) {
+          const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
+          if (!hasProperty) props.editMatch.where?.push(property);
+        }
+    }
+  }
 }
 </script>
 

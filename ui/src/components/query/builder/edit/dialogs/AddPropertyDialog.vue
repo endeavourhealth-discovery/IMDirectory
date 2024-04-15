@@ -3,13 +3,13 @@
     <QueryNavTree
       :editMatch="editMatch"
       :selected-properties="selectedProperties"
-      :dm-iri="matchType"
+      :dm-iri="dataModelIri"
       :show-variable-options="showVariableOptions"
       @on-selected-update="onSelectedUpdate"
     />
     <template #footer>
-      <Button label="Discard" severity="secondary" @click="visible = false" text />
-      <Button label="Save" @click="save" text />
+      <Button label="Cancel" severity="secondary" @click="visible = false" text />
+      <Button label="Save" @click="save" />
     </template>
   </Dialog>
 </template>
@@ -27,14 +27,14 @@ interface Props {
   showDialog: boolean;
   match?: Match;
   header: string;
-  matchType: string;
+  dataModelIri: string;
   showVariableOptions: boolean;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits({
   onClose: () => true,
-  onSave: (_direct: Match[], _nested: Match[]) => true,
+  onPropertyAdd: (_direct: Match[], _nested: Match[]) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
@@ -72,7 +72,7 @@ function onSelectedUpdate(selected: TreeNode[]) {
 async function save() {
   editMatch.value.where = [];
   const { direct, nested } = buildMatchesFromProperties(selectedProperties.value as any);
-  emit("onSave", direct, nested);
+  emit("onPropertyAdd", direct, nested);
   visible.value = false;
 }
 </script>

@@ -35,7 +35,6 @@
       v-model:model-value="propertyType"
     />
     <div v-if="propertyType === 'is'" class="property-input">
-      <InputText :value="'From'" disabled class="property-input-title" />
       <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
       <InputText type="text" placeholder="value" v-model="property.value" />
       <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" />
