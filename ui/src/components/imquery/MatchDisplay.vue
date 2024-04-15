@@ -12,7 +12,7 @@
           }
         "
       />
-      <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" /></div>
+      <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display"/></div>
     </div>
     <div v-if="match?.where" class="where-group">
       <Button
@@ -76,5 +76,10 @@ const { toggleBool } = setupIMQueryBuilderActions();
 .then-title {
   padding-top: 1rem;
   padding-bottom: 1rem;
+}
+
+.match-display{
+  width: 100%;
+  height: 100%;
 }
 </style>

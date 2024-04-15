@@ -1,61 +1,66 @@
 <template>
-  <div v-if="datatype === GRAPH.XMLS + 'string'" class="property-input-container">
-    <Dropdown
-      :options="[
-        { id: 'is', name: 'is' },
-        { id: 'startsWith', name: 'starts with' },
-        { id: 'contains', name: 'contains' },
-        { id: 'notNull', name: 'is recorded' },
-        { id: 'isNull', name: 'is not recorded' }
-      ]"
-      optionValue="id"
-      optionLabel="name"
-      v-model:model-value="propertyType"
-    />
-    <InputText v-if="['is', 'startsWith', 'contains'].includes(propertyType)" type="text" v-model:model-value="property.value" />
-  </div>
-
-  <div v-else-if="datatype === GRAPH.XMLS + 'boolean'" class="property-input-container">
-    <Dropdown :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
-  </div>
-
-  <div
-    v-else-if="datatype === GRAPH.XMLS + 'long' || datatype === GRAPH.XMLS + 'integer' || datatype === GRAPH.XMLS + 'number'"
-    class="property-input-container"
-  >
-    <Dropdown
-      :options="[
-        { id: 'is', name: 'is' },
-        { id: 'range', name: 'in range' },
-        { id: 'notNull', name: 'is recorded' },
-        { id: 'isNull', name: 'is not recorded' }
-      ]"
-      optionValue="id"
-      optionLabel="name"
-      v-model:model-value="propertyType"
-    />
-    <div v-if="propertyType === 'is'" class="property-input">
-      <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
-      <InputText type="text" placeholder="value" v-model="property.value" />
-      <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" />
-      <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+  <div class="datatype-select">
+    <div v-if="datatype === GRAPH.XMLS + 'string'" class="property-input-container">
+      <Dropdown
+        :options="[
+          { id: 'is', name: 'is' },
+          { id: 'startsWith', name: 'starts with' },
+          { id: 'contains', name: 'contains' },
+          { id: 'notNull', name: 'is recorded' },
+          { id: 'isNull', name: 'is not recorded' }
+        ]"
+        optionValue="id"
+        optionLabel="name"
+        v-model:model-value="propertyType"
+      />
+      <InputText v-if="['is', 'startsWith', 'contains'].includes(propertyType)" type="text" v-model:model-value="property.value" />
     </div>
-    <div v-else-if="propertyType === 'range'" class="property-input">
-      <InputText :value="'From'" disabled class="property-input-title" />
-      <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range!.from.operator" />
-      <InputText type="text" placeholder="value" v-model="property.range!.from.value" />
-      <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range!.from.unit" />
-      <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
 
-      <InputText :value="'To'" disabled class="property-input-title" />
-      <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range!.to.operator" />
-      <InputText type="text" placeholder="value" v-model="property.range!.to.value" />
-      <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range!.to.unit" />
-      <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+    <div v-else-if="datatype === GRAPH.XMLS + 'boolean'" class="property-input-container">
+      <Dropdown :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
     </div>
-  </div>
-  <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'" class="property-input-container">
-    <DateSelect :property="property" :datatype="datatype" />
+
+    <div
+      v-else-if="datatype === GRAPH.XMLS + 'long' || datatype === GRAPH.XMLS + 'integer' || datatype === GRAPH.XMLS + 'number'"
+      class="property-input-container"
+    >
+      <Dropdown
+        :options="[
+          { id: 'is', name: 'is' },
+          { id: 'range', name: 'in range' },
+          { id: 'notNull', name: 'is recorded' },
+          { id: 'isNull', name: 'is not recorded' }
+        ]"
+        optionValue="id"
+        optionLabel="name"
+        v-model:model-value="propertyType"
+      />
+      <div v-if="propertyType === 'is'" class="property-input">
+        <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
+        <InputText type="text" placeholder="value" v-model="property.value" />
+        <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" />
+        <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+      </div>
+      <div v-else-if="propertyType === 'range'" class="property-input">
+        <div class="property-range">
+          <InputText :value="'From'" disabled class="property-input-title" />
+          <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range!.from.operator" />
+          <InputText type="text" placeholder="value" v-model="property.range!.from.value" />
+          <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range!.from.unit" />
+          <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+        </div>
+        <div class="property-range">
+          <InputText :value="'To'" disabled class="property-input-title" />
+          <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range!.to.operator" />
+          <InputText type="text" placeholder="value" v-model="property.range!.to.value" />
+          <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range!.to.unit" />
+          <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+        </div>
+      </div>
+    </div>
+    <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'" class="property-input-container">
+      <DateSelect :property="property" :datatype="datatype" />
+    </div>
   </div>
 </template>
 
@@ -138,9 +143,15 @@ onMounted(() => {
   display: flex;
   flex-flow: row;
   align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .property-input-title {
   width: 4rem;
+}
+
+.property-range {
+  display: flex;
+  flex-flow: row;
 }
 </style>
