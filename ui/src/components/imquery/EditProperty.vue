@@ -46,7 +46,7 @@ import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import SaveCustomSetDialog from "../query/builder/edit/dialogs/SaveCustomSetDialog.vue";
 import EntailmentOptionsSelect from "../query/builder/edit/EntailmentOptionsSelect.vue";
-import { isEqual } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 
 interface Props {
   property: Where;
@@ -62,6 +62,11 @@ const emit = defineEmits({ deleteProperty: () => true });
 onMounted(async () => {
   await init();
 });
+
+watch(
+  () => cloneDeep(props.property),
+  async () => await init()
+);
 
 watch(
   () => valueField.value,

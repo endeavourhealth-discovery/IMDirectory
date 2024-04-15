@@ -60,13 +60,13 @@
       :dataModelIri="matchTypeOfIri"
       :header="'Add property'"
       :show-variable-options="false"
-      @on-property-add="(direct: Match[], nested: Match[]) => onPropertyAdd(direct, nested)"
+      @on-property-add="(properties: Where[]) => onPropertyAdd(properties)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupHover from "@/composables/setupHover";
@@ -108,26 +108,11 @@ function onParentDelete(event: Event) {
   emit("deleteMatch", props.editMatch["@id"]!);
 }
 
-function onPropertyAdd(direct: Match[], nested: Match[]) {
-  console.log(direct, nested);
-  if (isArrayHasLength(direct)) {
-    for (const match of direct) {
-      if (match.where) {
-        for (const property of match.where) {
-          const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
-          if (!hasProperty) props.editMatch.where?.push(property);
-        }
-      }
-    }
-  } else if (isArrayHasLength(nested)) {
-    console.log(nested);
-    if (!isArrayHasLength(props.editMatch.match)) props.editMatch.match = [];
-    for (const nestedMatch of nested) {
-      if (nestedMatch.where)
-        for (const property of nestedMatch.where) {
-          const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
-          if (!hasProperty) props.editMatch.where?.push(property);
-        }
+function onPropertyAdd(properties: Where[]) {
+  if (isArrayHasLength(properties)) {
+    for (const property of properties) {
+      const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
+      if (!hasProperty) props.editMatch.where?.push(property);
     }
   }
 }

@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash";
 import { TreeNode } from "primevue/treenode";
 import { buildMatchesFromProperties } from "@im-library/helpers/QueryBuilder";
@@ -34,7 +34,7 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits({
   onClose: () => true,
-  onPropertyAdd: (_direct: Match[], _nested: Match[]) => true,
+  onPropertyAdd: (_properties: Where[]) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
@@ -71,8 +71,8 @@ function onSelectedUpdate(selected: TreeNode[]) {
 
 async function save() {
   editMatch.value.where = [];
-  const { direct, nested } = buildMatchesFromProperties(selectedProperties.value as any);
-  emit("onPropertyAdd", direct, nested);
+  const properties = buildMatchesFromProperties(selectedProperties.value as any);
+  emit("onPropertyAdd", properties);
   visible.value = false;
 }
 </script>

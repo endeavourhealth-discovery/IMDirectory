@@ -42,18 +42,18 @@
         <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
       </div>
       <div v-else-if="propertyType === 'range'" class="property-input">
-        <div class="property-range">
+        <div class="property-range" v-if="property && property.range && property.range.from">
           <InputText :value="'From'" disabled class="property-input-title" />
-          <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range!.from.operator" />
-          <InputText type="text" placeholder="value" v-model="property.range!.from.value" />
-          <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range!.from.unit" />
+          <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.from.operator" />
+          <InputText type="text" placeholder="value" v-model="property.range.from.value" />
+          <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range.from.unit" />
           <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
         </div>
-        <div class="property-range">
+        <div class="property-range" v-if="property && property.range && property.range.to">
           <InputText :value="'To'" disabled class="property-input-title" />
-          <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range!.to.operator" />
-          <InputText type="text" placeholder="value" v-model="property.range!.to.value" />
-          <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range!.to.unit" />
+          <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.to.operator" />
+          <InputText type="text" placeholder="value" v-model="property.range.to.value" />
+          <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range.to.unit" />
           <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
         </div>
       </div>

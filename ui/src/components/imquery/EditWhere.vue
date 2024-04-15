@@ -1,6 +1,6 @@
 <template>
   <div class="property-description-container">
-    <EditProperty v-if="focused" :property="editWhere" :data-model-iri="matchTypeOfIri" @delete-property="$emit('deleteProperty')" />
+    <EditProperty v-if="focused && !editWhere?.match" :property="editWhere" :data-model-iri="matchTypeOfIri" @delete-property="$emit('deleteProperty')" />
     <div v-else class="property-description" v-html="editWhere?.description"></div>
 
     <div v-if="editWhere?.where" class="where-group">
