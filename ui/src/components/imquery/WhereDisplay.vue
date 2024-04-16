@@ -9,7 +9,7 @@
         @click="
           e => {
             e.stopPropagation();
-            toggleBool(where);
+            toggleWhereBool(where);
           }
         "
       />
@@ -27,7 +27,7 @@ interface Props {
   where: Where;
 }
 const props = defineProps<Props>();
-const { toggleBool } = setupIMQueryBuilderActions();
+const { toggleWhereBool } = setupIMQueryBuilderActions();
 </script>
 
 <style scoped>

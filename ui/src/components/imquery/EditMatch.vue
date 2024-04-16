@@ -1,5 +1,15 @@
 <template>
   <div class="edit-match-wrapper">
+    <Button
+      :severity="editMatch.exclude ? 'danger' : 'secondary'"
+      :outlined="!editMatch.exclude"
+      label="NOT"
+      @click="editMatch!.exclude = !editMatch!.exclude"
+      class="builder-button exclude-button vertical-button not-button"
+      :class="!editMatch.exclude && 'hover-button'"
+      v-tooltip="'Exclude'"
+      size="small"
+    />
     <div
       :class="[hover ? 'hover-edit-match-container' : 'edit-match-container']"
       class=""
@@ -11,6 +21,16 @@
       <div v-else v-html="editMatch?.description" />
 
       <div v-if="editMatch?.match" class="feature-group">
+        <Button
+          class="builder-button conjunction-button vertical-button"
+          :label="editMatch.bool?.toUpperCase()"
+          @click="
+            e => {
+              e.stopPropagation();
+              toggleMatchBool(editMatch);
+            }
+          "
+        />
         <div class="feature-list">
           <EditMatch
             v-for="nestedMatch in editMatch.match"
@@ -86,7 +106,7 @@ const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteMatch: (payload: string) => payload });
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 const { hover, mouseout, mouseover } = setupHover();
-const { getMenuItemFromMatch, isFlatMatch } = setupIMQueryBuilderActions();
+const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 
 function updateDialogFocus(event: Event) {
   event.stopPropagation();

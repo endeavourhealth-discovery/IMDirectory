@@ -11,7 +11,13 @@ function setupIMQueryBuilderActions() {
     return (!nestedWhereHasMatch && !match.match && !match.then && !match.where) as boolean;
   }
 
-  function toggleBool(object: Match | Where) {
+  function toggleMatchBool(object: Match) {
+    if (object.bool === Bool.and) object.bool = Bool.or;
+    else if (object.bool === Bool.or) object.bool = Bool.and;
+    else object.bool = Bool.or;
+  }
+
+  function toggleWhereBool(object: Match | Where) {
     if (object.bool === Bool.and) object.bool = Bool.or;
     else if (object.bool === Bool.or) object.bool = Bool.and;
     else object.bool = Bool.or;
@@ -21,7 +27,7 @@ function setupIMQueryBuilderActions() {
     return { label: match.typeOf?.name || match.description || "Feature", key: match["@id"], editMatch: match };
   }
 
-  return { toggleBool, isPathMatch, getMenuItemFromMatch, isFlatMatch };
+  return { toggleWhereBool, toggleMatchBool, isPathMatch, getMenuItemFromMatch, isFlatMatch };
 }
 
 export default setupIMQueryBuilderActions;

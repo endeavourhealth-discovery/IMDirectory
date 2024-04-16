@@ -5,6 +5,16 @@
 
     <div v-if="editWhere?.where" class="where-group">
       <div class="where-list">
+        <Button
+          class="builder-button conjunction-button vertical-button"
+          :label="editWhere.bool?.toUpperCase()"
+          @click="
+            e => {
+              e.stopPropagation();
+              toggleWhereBool(editWhere);
+            }
+          "
+        />
         <EditWhere
           v-for="[index, nestedWhere] in editWhere.where.entries()"
           :focused="focused"
@@ -32,6 +42,7 @@ import { Where } from "@im-library/interfaces/AutoGen";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 import EditProperty from "./EditProperty.vue";
+import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 interface Props {
   matchTypeOfIri: string;
   editWhere: Where;
@@ -40,6 +51,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteProperty: () => true });
+const { toggleWhereBool } = setupIMQueryBuilderActions();
 
 function onDeleteMatch(matchId: string) {
   if (props.editWhere.match && props.editWhere.match["@id"] === matchId) delete props.editWhere.match;

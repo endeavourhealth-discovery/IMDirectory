@@ -8,11 +8,11 @@
         @click="
           e => {
             e.stopPropagation();
-            toggleBool(match);
+            toggleMatchBool(match);
           }
         "
       />
-      <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display"/></div>
+      <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display" /></div>
     </div>
     <div v-if="match?.where" class="where-group">
       <Button
@@ -22,7 +22,7 @@
         @click="
           e => {
             e.stopPropagation();
-            toggleBool(match);
+            toggleMatchBool(match);
           }
         "
       />
@@ -45,7 +45,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const { toggleBool } = setupIMQueryBuilderActions();
+const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 </script>
 
 <style scoped>
@@ -78,7 +78,7 @@ const { toggleBool } = setupIMQueryBuilderActions();
   padding-bottom: 1rem;
 }
 
-.match-display{
+.match-display {
   width: 100%;
   height: 100%;
 }
