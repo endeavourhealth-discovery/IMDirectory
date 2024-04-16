@@ -8,41 +8,14 @@
       <div :class="[hover ? 'children-container-hover' : 'children-container']" @mouseover="mouseover($event, true)" @mouseout="mouseout">
         <table>
           <template v-for="(row, index) in dmProperties" class="property">
+            {{ row }}
             <tr @mouseover="mouseover($event, row)" @mouseout="mouseout">
               <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
-                <AutoComplete
-                  class="propertyPath"
-                  :dropdown="true"
-                  dropdownMode="current"
-                  optionLabel="name"
-                  placeholder="Select property"
-                  v-model="row.path"
-                  :suggestions="pathSuggestions"
-                  @complete="debounce($event, searchPath, debouncePath)"
-                  @drop="pathDrop(row, $event)"
-                  @itemSelect="selectPath(row, $event)"
-                  @clear="selectPath(row)"
-                  @dragover.prevent
-                  @dragenter.prevent
-                ></AutoComplete>
+                <AutocompleteSearchBar v-model:selected="row.path" :imQuery="pSuggestions" :root-entities="['http://endhealth.info/im#Properties']" />
                 <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
               <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
-                <AutoComplete
-                  class="propertyPath"
-                  :dropdown="true"
-                  dropdownMode="current"
-                  optionLabel="name"
-                  placeholder="Select range"
-                  v-model="row.range"
-                  :suggestions="rangeSuggestions"
-                  @complete="debounce($event, searchRange, debounceRange)"
-                  @drop="rangeDrop(row, $event)"
-                  @itemSelect="selectRange(row, $event)"
-                  @clear="selectRange(row)"
-                  @dragover.prevent
-                  @dragenter.prevent
-                ></AutoComplete>
+                <AutocompleteSearchBar v-model:selected="row.range" :osQuery="rSuggestions" />
               </td>
               <td class="td-nw" :class="[hover === row ? 'table-row-hover' : 'table-row']">
                 <span>
@@ -93,41 +66,16 @@
           <template v-for="(row, index) in dmPropertiesInherited" class="property">
             <tr class="children-container" @mouseover="mouseover($event, row)" @mouseout="mouseout">
               <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
-                <AutoComplete
-                  class="propertyPath"
-                  :dropdown="true"
-                  dropdownMode="current"
-                  optionLabel="name"
-                  placeholder="Select property"
-                  v-model="row.path"
-                  :suggestions="pathSuggestions"
-                  @complete="debounce($event, searchPath, debouncePath)"
-                  @drop="pathDrop(row, $event)"
-                  @itemSelect="selectPath(row, $event)"
-                  @clear="selectPath(row)"
-                  @dragover.prevent
-                  @dragenter.prevent
+                <AutocompleteSearchBar
                   :disabled="true"
-                ></AutoComplete>
+                  v-model:selected="row.path"
+                  :imQuery="pSuggestions"
+                  :root-entities="['http://endhealth.info/im#Properties']"
+                />
                 <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
               <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
-                <AutoComplete
-                  class="propertyPath"
-                  :dropdown="true"
-                  dropdownMode="current"
-                  optionLabel="name"
-                  placeholder="Select range"
-                  v-model="row.range"
-                  :suggestions="rangeSuggestions"
-                  @complete="debounce($event, searchRange, debounceRange)"
-                  @drop="rangeDrop(row, $event)"
-                  @itemSelect="selectRange(row, $event)"
-                  @clear="selectRange(row)"
-                  @dragover.prevent
-                  @dragenter.prevent
-                  :disabled="true"
-                ></AutoComplete>
+                <AutocompleteSearchBar :disabled="true" v-model:selected="row.range" />
               </td>
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']">
                 <tag v-if="row.inherited && row.inherited.length > 0" severity="info">(Inherited)</tag>
@@ -143,7 +91,7 @@
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { Argument, PropertyShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Argument, PropertyShape, QueryRequest, SearchResponse, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
@@ -154,6 +102,7 @@ import { DirectService, EntityService, QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { SortDirection } from "aws-amplify";
 
 interface Props {
   shape: PropertyShape;
@@ -163,8 +112,8 @@ interface Props {
 }
 
 interface SimpleProp {
-  path: TTIriRef;
-  range: TTIriRef;
+  path: SearchResultSummary;
+  range: SearchResultSummary;
   rangeType: string;
   required: boolean;
   unique: boolean;
@@ -203,10 +152,48 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   else return false;
 });
 
+const dmPropertiesSearch = ref([{}]);
 const dmProperties: Ref<SimpleProp[]> = ref([]);
 const dmPropertiesInherited: Ref<SimpleProp[]> = ref([]);
 const loading = ref(true);
 const pathSuggestions: Ref<TTIriRef[]> = ref([]);
+const pSuggestions: Ref<QueryRequest | undefined> = ref({
+  query: {
+    activeOnly: true,
+    match: [
+      {
+        instanceOf: {
+          "@id": RDF.PROPERTY
+        }
+      }
+    ]
+  }
+});
+const tSuggestions: Ref<SearchRequest | undefined> = ref({
+  schemeFilter: [SNOMED.NAMESPACE, IM.NAMESPACE],
+  typeFilter: [IM.CONCEPT_SET, IM.VALUE_SET, IM.CONCEPT, SHACL.NODESHAPE, RDFS.DATATYPE],
+  sortDirection: SortDirection.DESCENDING,
+  sortField: "weighting"
+} as SearchRequest);
+const rSuggestions: Ref<QueryRequest | undefined> = ref({
+  query: {
+    activeOnly: true,
+    match: [
+      {
+        where: [
+          {
+            "@id": RDF.TYPE,
+            is: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }, { "@id": IM.CONCEPT }, { "@id": SHACL.NODESHAPE }, { "@id": RDFS.DATATYPE }]
+          },
+          {
+            "@id": IM.HAS_SCHEME,
+            is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
+          }
+        ]
+      }
+    ]
+  }
+});
 const rangeSuggestions: Ref<TTIriRef[]> = ref([]);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
@@ -217,6 +204,14 @@ watch(
   () => _.cloneDeep(props.value),
   (newValue, oldValue) => {
     if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) processProps();
+  }
+);
+
+watch(
+  () => _.cloneDeep(dmProperties.value),
+  (newValue, oldValue) => {
+    console.log(newValue);
+    if (JSON.stringify(newValue) !== JSON.stringify(oldValue) && JSON.stringify(loading.value) === "false") updateEntity();
   }
 );
 
@@ -240,19 +235,18 @@ function mouseout(event: Event) {
 function processProps() {
   const newData: any[] = [];
   const newInheritedData: any[] = [];
+  const newSearchData: any[] = [];
   if (props.value && isArrayHasLength(props.value)) {
     for (const p of props.value) {
       processProperty(newData, newInheritedData, p);
     }
   }
-
   dmProperties.value = newData;
   dmPropertiesInherited.value = newInheritedData;
 }
 
 function processProperty(newData: any[], newInheritedData: any[], property: any) {
   let rangeType;
-
   if (property[SHACL.DATATYPE]) {
     rangeType = SHACL.DATATYPE;
   } else if (property[SHACL.CLASS]) {
@@ -263,9 +257,37 @@ function processProperty(newData: any[], newInheritedData: any[], property: any)
     rangeType = "UNKNOWN";
   }
 
+  let pathIri = undefined;
+  let pathName = undefined;
+  let rangeIri = undefined;
+  let rangeName = undefined;
+  if (property[SHACL.PATH]?.[0]) {
+    pathIri = property[SHACL.PATH]?.[0]["@id"];
+  }
+  if (property[SHACL.PATH]?.[0]) {
+    pathName = property[SHACL.PATH]?.[0].name;
+  }
+  if (property[rangeType]?.[0]) {
+    rangeIri = property[rangeType]?.[0]["@id"];
+  }
+  if (property[rangeType]?.[0]) {
+    rangeName = property[rangeType]?.[0].name;
+  }
   const row: SimpleProp = {
-    path: property[SHACL.PATH]?.[0],
-    range: property[rangeType]?.[0],
+    path: {
+      iri: pathIri,
+      name: pathName,
+      scheme: { "@id": "", name: "" },
+      status: { "@id": "", name: "" },
+      entityType: []
+    },
+    range: {
+      iri: rangeIri,
+      name: rangeName,
+      scheme: { "@id": "", name: "" },
+      status: { "@id": "", name: "" },
+      entityType: []
+    },
     rangeType: rangeType,
     required: property[SHACL.MINCOUNT] != 0,
     unique: property[SHACL.MAXCOUNT] != 0,
@@ -273,13 +295,21 @@ function processProperty(newData: any[], newInheritedData: any[], property: any)
     error: undefined
   };
 
-  if (!row?.path?.["@id"]) {
-    row.error = "Property must have a path";
-  } else if (!row?.range?.["@id"]) {
-    row.error = "Property must have a range";
+  row.error = propertyError(row);
+
+  if (property[IM.INHERITED_FROM]) {
+    newInheritedData.push(row);
+  } else newData.push(row);
+}
+
+function propertyError(row: any) {
+  if (!row?.path?.iri) {
+    return "Property must have a path";
+  } else if (!row?.range?.iri) {
+    return "Property must have a range";
+  } else {
+    return "";
   }
-  if (property[IM.INHERITED_FROM]) newInheritedData.push(row);
-  else newData.push(row);
 }
 
 function addProperty() {
@@ -529,20 +559,22 @@ async function validateEntity() {
 function updateEntity() {
   if (entityUpdate) {
     const deltas: any[] = [];
-    let dmAllProperties = dmProperties.value;
-    for (let p in dmPropertiesInherited.value) dmAllProperties.push(dmPropertiesInherited.value[p]);
+    let dmAllProperties = dmProperties.value.concat(dmPropertiesInherited.value);
     dmAllProperties.forEach((value, index) => {
       const p: any = {};
+      let fullPath = {} as TTIriRef;
+      let fullRange = {} as TTIriRef;
+      if (value.path) fullPath = { "@id": value.path.iri, name: value.path.name } as TTIriRef;
+      if (value.range) fullRange = { "@id": value.range.iri, name: value.range.name } as TTIriRef;
+
       p[IM.ORDER] = index;
-      p[SHACL.PATH] = [value.path];
-      p[value.rangeType] = [value.range];
+      p[SHACL.PATH] = [fullPath];
+      p[value.rangeType] = [fullRange];
       p[SHACL.MINCOUNT] = value.required ? 1 : 0;
       p[SHACL.MAXCOUNT] = value.unique ? 1 : 0;
       p[IM.INHERITED_FROM] = value.inherited;
-
       deltas.push(p);
     });
-
     const update: any = {};
     update[key] = deltas;
 
