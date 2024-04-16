@@ -24,20 +24,19 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref } from "vue";
 import { EntityService } from "@/services";
-import { IM } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   entityIri: string;
 }
 
 const props = defineProps<Props>();
-const subsets: Ref<{ "@id": string; name: string }[]> = ref([]);
+const subsets: Ref<TTIriRef[]> = ref([]);
 
 const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
 
 onMounted(async () => {
-  const entity = await EntityService.getPartialEntity(props.entityIri, [IM.HAS_SUBSET]);
-  if (entity[IM.HAS_SUBSET]) subsets.value = entity[IM.HAS_SUBSET].filter((subset: any) => subset["@id"] !== props.entityIri);
+  subsets.value = await EntityService.getSubsets(props.entityIri);
 });
 </script>

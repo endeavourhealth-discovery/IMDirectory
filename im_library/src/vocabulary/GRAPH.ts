@@ -2,6 +2,7 @@
 
 export class GRAPH {
   public static readonly DISCOVERY = "http://endhealth.info/im#";
+  public static readonly BNF = "http://endhealth.info/bnf#";
   public static readonly ICD10 = "http://endhealth.info/icd10#";
   public static readonly EMIS = "http://endhealth.info/emis#";
   public static readonly CPRD_MED = "http://endhealth.info/cprdm#";

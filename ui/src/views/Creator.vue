@@ -66,7 +66,6 @@ import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
-import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
   components: {
@@ -354,6 +353,10 @@ function submit(): void {
           showLoaderOnConfirm: true,
           allowOutsideClick: () => !Swal.isLoading(),
           preConfirm: async () => {
+            if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
+              await EntityService.updateSubsetsFromSuper(editorEntity.value);
+              delete editorEntity.value[IM.HAS_SUBSET];
+            }
             const res = await EntityService.createEntity(editorEntity.value);
             if (res) {
               creatorStore.updateCreatorSavedEntity(undefined);

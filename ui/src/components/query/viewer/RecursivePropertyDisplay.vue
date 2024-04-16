@@ -4,8 +4,8 @@
     <span v-else-if="hasBigList(property)" v-html="property.description" @click="onPropertyInClick(property, $event)"></span>
     <span v-else v-html="property.description"></span>
     <RecursivePropertyDisplay
-      v-if="isArrayHasLength(property.property)"
-      v-for="(nestedProperty, index) of property.property"
+      v-if="isArrayHasLength(property.where)"
+      v-for="(nestedProperty, index) of property.where"
       :property="nestedProperty"
       :property-index="index"
       :parent-match="parentMatch"
@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, Query, Property } from "@im-library/interfaces/AutoGen";
+import { Match, Node, Query, Where } from "@im-library/interfaces/AutoGen";
 import { Ref } from "vue";
 import { ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
@@ -36,8 +36,8 @@ import { getNumberOfListItems } from "@im-library/helpers/QueryDescriptor";
 interface Props {
   fullQuery: Query;
   parentMatch?: Match;
-  parentProperty?: Property;
-  property: Property;
+  parentProperty?: Where;
+  property: Where;
   propertyIndex?: any;
 }
 
@@ -46,36 +46,36 @@ const props = defineProps<Props>();
 const op: Ref<any> = ref();
 const op1: Ref<any> = ref();
 
-const clickedProperty: Ref<Property> = ref({} as Property);
+const clickedProperty: Ref<Where> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
 
-function hasBigList(property: Property) {
+function hasBigList(property: Where) {
   const numberOfItems = getNumberOfListItems(property);
   return numberOfItems > 1;
 }
 
-function onNodeRefClick(property: Property, event: any) {
+function onNodeRefClick(property: Where, event: any) {
   clickedProperty.value = property;
   op.value.toggle(event);
 }
 
-function onPropertyInClick(property: Property, event: any) {
+function onPropertyInClick(property: Where, event: any) {
   list.value = getFullList(property);
   op1.value.toggle(event);
 }
 
-function getFullList(property: Property) {
+function getFullList(property: Where) {
   let fullList: Node[] = [];
   if (isArrayHasLength(property.is)) fullList = fullList.concat(property.is!);
   if (isArrayHasLength(property.isNot)) fullList = fullList.concat(property.isNot!);
   return fullList;
 }
 
-function hasNodeRef(property: Property) {
+function hasNodeRef(property: Where) {
   return isObjectHasKeys(property, ["nodeRef"]) || isObjectHasKeys(property.relativeTo, ["nodeRef"]);
 }
 
-function getNodeRef(property: Property) {
+function getNodeRef(property: Where) {
   return (property.nodeRef ?? property.relativeTo?.nodeRef) as string;
 }
 </script>

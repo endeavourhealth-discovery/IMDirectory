@@ -14,8 +14,7 @@ import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary } from "@i
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/treenode";
-import { SortDirection } from "@im-library/enums";
-import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { OrganizationChartNode } from "primevue/organizationchart";
 const api = Env.API;
 
@@ -36,6 +35,14 @@ const EntityService = {
         iri: iri,
         legacy: legacy,
         includeSubsets: includeSubsets
+      }
+    });
+  },
+
+  async getSubsets(iri: string): Promise<TTIriRef[]> {
+    return axios.get(api + "api/entity/public/subsets", {
+      params: {
+        iri: iri
       }
     });
   },
@@ -474,26 +481,6 @@ const EntityService = {
     });
   },
 
-  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<SearchResultSummary[]> {
-    const searchRequest = {} as SearchRequest;
-    searchRequest.termFilter = searchTerm;
-    searchRequest.page = 1;
-    searchRequest.size = 100;
-    searchRequest.sortDirection = SortDirection.DESC;
-    searchRequest.sortField = "weighting";
-    searchRequest.schemeFilter = filterOptions.schemes.map(scheme => scheme["@id"]);
-    searchRequest.typeFilter = filterOptions.types.map(type => type["@id"]);
-    searchRequest.statusFilter = filterOptions.status.map(status => status["@id"]);
-    if (!isObject(abortController)) {
-      abortController.abort();
-    }
-
-    abortController = new AbortController();
-    const response = await EntityService.advancedSearch(searchRequest, abortController);
-    if (response.entities && isArrayHasLength(response.entities)) return response.entities;
-    else return [];
-  },
-
   async hasPredicates(subjectIri: string, predicateIris: string[]): Promise<boolean> {
     return axios.get(api + "api/entity/public/hasPredicates", {
       params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
@@ -526,6 +513,10 @@ const EntityService = {
     return axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyOptions", {
       params: { dataModelIri: dataModelIri, dataTypeIri: dataTypeIri, key: key }
     });
+  },
+
+  async updateSubsetsFromSuper(entity: any) {
+    return axios.post(Env.API + "api/entity/updateSubsetsFromSuper", entity);
   }
 };
 

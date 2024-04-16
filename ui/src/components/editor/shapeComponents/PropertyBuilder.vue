@@ -333,7 +333,7 @@ async function isValidPath(iri: string): Promise<boolean> {
           instanceOf: {
             parameter: "subject"
           },
-          property: [
+          where: [
             {
               "@id": IM.IS_A,
               is: [{ "@id": RDF.PROPERTY }]
@@ -361,7 +361,7 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
         activeOnly: true,
         match: [
           {
-            property: [
+            where: [
               {
                 "@id": RDF.TYPE,
                 is: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }, { "@id": IM.CONCEPT }, { "@id": SHACL.NODESHAPE }, { "@id": RDFS.DATATYPE }]
@@ -435,7 +435,7 @@ async function isValidRange(iri: string): Promise<boolean> {
           instanceOf: {
             parameter: "subject"
           },
-          property: [
+          where: [
             {
               "@id": IM.HAS_SCHEME,
               is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]

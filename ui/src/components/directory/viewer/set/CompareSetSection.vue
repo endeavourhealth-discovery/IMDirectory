@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import setupOverlay from "@/composables/setupOverlay";
 import { DirectService, EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
@@ -32,7 +33,6 @@ import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { FilterOptions } from "@im-library/interfaces";
 import { Concept, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { ToastOptions } from "@im-library/models";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
@@ -49,7 +49,7 @@ const toast = useToast();
 const directService = new DirectService();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const filterStore = useFilterStore();
-const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
+const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
 const controller: Ref<AbortController> = ref({} as AbortController);
 const menu = ref();
@@ -57,18 +57,14 @@ const menu = ref();
 const selectedSet: Ref<SearchResultSummary | undefined> = ref();
 const filteredSets: Ref<SearchResultSummary[]> = ref([]);
 const selected: Ref<Concept | undefined> = ref();
+const { copyObjectToClipboard } = setupCopyToClipboard();
 
 const rClickItems = ref([
   {
     label: "Copy code",
     icon: "fa-solid fa-copy",
     command: async () => {
-      if (selected.value?.code) {
-        await navigator.clipboard.writeText(selected.value?.code);
-        toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Code copied to clipboard"));
-      } else {
-        toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy code to clipboard"));
-      }
+      if (selected.value?.code) copyObjectToClipboard(navigator, selected.value?.code);
     }
   },
   {

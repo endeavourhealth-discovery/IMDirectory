@@ -130,7 +130,7 @@ export class IM {
   public static readonly HAS_CONTEXT = IM.NAMESPACE + "hasContext";
   public static readonly DISPLAY_ORDER = IM.NAMESPACE + "displayOrder";
   public static readonly USAGE_TOTAL = IM.NAMESPACE + "usageTotal";
-  public static readonly USAGE = IM.NAMESPACE + "Usage";
+  public static readonly USAGE = IM.NAMESPACE + "SortFieldUsage";
   public static readonly DESCENDING = IM.NAMESPACE + "Descending";
   public static readonly ASCENDING = IM.NAMESPACE + "Ascending";
   public static readonly PLABEL = IM.NAMESPACE + "pLabel";
@@ -214,4 +214,6 @@ export class IM {
   public static readonly PROVENANCE_SOURCE_ENTITY = IM.NAMESPACE + "ProvenanceSourceEntity";
   public static readonly DERIVATION_TYPE = IM.NAMESPACE + "derivationType";
   public static readonly ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
+  public static readonly CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
+  public static readonly DATAMODEL_CLASSES = IM.NAMESPACE + "DataModelClasses";
 }

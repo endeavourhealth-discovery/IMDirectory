@@ -31,7 +31,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { isFolder, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
-import { Match, Property } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 import { useQueryStore } from "@/stores/queryStore";
 
@@ -55,7 +55,7 @@ const { removeOverlay, OS, displayOverlay, hideOverlay, createTreeNode, select, 
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  if (isArrayHasLength(props.editMatch.property)) await populateCheckBoxes(props.editMatch);
+  if (isArrayHasLength(props.editMatch.where)) await populateCheckBoxes(props.editMatch);
   loading.value = false;
 });
 
@@ -70,14 +70,14 @@ async function onCheckInput(check: boolean, node: TreeNode) {
 }
 
 async function populateCheckBoxes(match: Match) {
-  if (isArrayHasLength(match.property)) {
-    for (const property of match.property!) {
+  if (isArrayHasLength(match.where)) {
+    for (const property of match.where!) {
       selectByIri(property, property["@id"]!, root.value);
     }
   }
 }
 
-async function selectByIri(property: Property, iri: string, nodes: TreeNode[]) {
+async function selectByIri(property: Where, iri: string, nodes: TreeNode[]) {
   let found = nodes.find(node => node.data === iri);
   if (found) {
     found.property = property;
@@ -230,8 +230,8 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
       getVariableTypesFromMatch(nestedMatch, types);
     }
 
-  if (isArrayHasLength(match.property))
-    for (const property of match.property!) {
+  if (isArrayHasLength(match.where))
+    for (const property of match.where!) {
       getVariableTypesFromProperty(property, types);
     }
 
@@ -241,11 +241,11 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
   }
 }
 
-function getVariableTypesFromProperty(property: Property, types: string[]) {
+function getVariableTypesFromProperty(property: Where, types: string[]) {
   if (isObjectHasKeys(property, ["match"])) getVariableTypesFromMatch(property.match!, types);
 
-  if (isArrayHasLength(property.property))
-    for (const nestedProperty of property.property!) {
+  if (isArrayHasLength(property.where))
+    for (const nestedProperty of property.where!) {
       getVariableTypesFromProperty(nestedProperty, types);
     }
 }

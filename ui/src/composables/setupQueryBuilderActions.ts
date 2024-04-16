@@ -48,10 +48,10 @@ function setupQueryBuilderActions() {
   }
 
   function updateProperties(parentMatch: Match, direct: Match[], nested: Match[]) {
-    if (!isArrayHasLength(parentMatch.property) || !isArrayHasLength(direct)) parentMatch.property = [];
+    if (!isArrayHasLength(parentMatch.where) || !isArrayHasLength(direct)) parentMatch.where = [];
 
     if (isArrayHasLength(direct)) {
-      parentMatch.property = direct[0].property;
+      parentMatch.where = direct[0].where;
     }
 
     if (isArrayHasLength(nested)) {
@@ -90,8 +90,8 @@ function setupQueryBuilderActions() {
   function remove(matchIndex: number, matches: Match[], parent: Match) {
     if (isArrayHasLength(matches)) {
       matches.splice(matchIndex, 1);
-    } else if (isArrayHasLength(parent.property) && parent.property?.length === 1) {
-      parent.property.splice(0, 1);
+    } else if (isArrayHasLength(parent.where) && parent.where?.length === 1) {
+      parent.where.splice(0, 1);
     }
   }
 

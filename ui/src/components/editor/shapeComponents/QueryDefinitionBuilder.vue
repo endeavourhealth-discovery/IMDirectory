@@ -10,11 +10,6 @@
         </div>
         <div class="flex flex-row gap-2 justify-content-end">
           <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
-          <!-- <QuickQuery :query="queryDefinition">
-            <template #button="{ runQuickQuery }">
-              <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" />
-            </template>
-          </QuickQuery> -->
         </div>
       </div>
     </div>
@@ -24,7 +19,14 @@
     <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
       <pre>{{ sql }}</pre>
       <template #footer>
-        <Button label="Copy to Clipboard" @click="copy" data-testid="copy-button" />
+        <Button
+          label="Copy to Clipboard"
+          v-tooltip.left="'Copy to clipboard'"
+          v-clipboard:copy="copyToClipboard()"
+          v-clipboard:success="onCopy"
+          v-clipboard:error="onCopyError"
+          data-testid="copy-button"
+        />
         <Button label="Close" @click="showSql = false" data-testid="close-button" />
       </template>
     </Dialog>
@@ -32,7 +34,6 @@
 </template>
 
 <script setup lang="ts">
-import QuickQuery from "@/components/query/QuickQuery.vue";
 import CohortEditor from "@/components/query/builder/CohortEditor.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
@@ -43,9 +44,8 @@ import { Ref, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { cloneDeep } from "lodash";
 import { QueryService } from "@/services";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   shape: PropertyShape;
@@ -71,7 +71,6 @@ if (forceValidation) {
     }
   });
 }
-const toast = useToast();
 const route = useRoute();
 const loading = ref(true);
 const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
@@ -80,6 +79,7 @@ const invalid = ref(false);
 const showValidation = ref(false);
 const showSql: Ref<boolean> = ref(false);
 const sql: Ref<string> = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
 const key = props.shape.path["@id"];
 
@@ -111,11 +111,6 @@ async function init() {
 async function generateSQL() {
   sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
   showSql.value = true;
-}
-
-async function copy() {
-  await navigator.clipboard.writeText(sql.value);
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "SQL copied to clipboard"));
 }
 
 function generateDefaultQuery() {

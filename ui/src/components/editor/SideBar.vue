@@ -1,43 +1,12 @@
 <template>
   <div class="sidebar">
-    <SearchBar
-      :search-results="searchResults"
-      @update:search-loading="updateSearchLoading"
-      :search-loading="searchLoading"
-      @update:search-results="updateSearchResults"
-      v-model:loadMore="loadMore"
-      v-model:download="download"
-    />
-    <TabView :lazy="true" v-model:activeIndex="activeIndex">
-      <TabPanel header="NavTree">
-        <NavTree :selected-iri="findInTreeIri" :allow-drag-and-drop="true" />
-      </TabPanel>
-      <TabPanel header="Search results">
-        <SearchResults
-          :search-loading="searchLoading"
-          :search-results="searchResults"
-          @selected-updated="handleSearchResultSelected"
-          @open-tree-panel="openTreePanel"
-          :locateInTreeFunction="locateInTree"
-          @lazy-load-requested="lazyLoadRequested"
-          :lazy-loading="true"
-          :rows="25"
-          @download-requested="downloadRequested"
-        />
-      </TabPanel>
-      <TabPanel header="JSON viewer">
-        <VueJsonPretty class="json" :path="'res'" :data="editorEntityDisplay" />
-      </TabPanel>
-    </TabView>
+    <VueJsonPretty class="json" :path="'res'" :data="editorEntityDisplay" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
 import VueJsonPretty from "vue-json-pretty";
-import NavTree from "@/components/shared/NavTree.vue";
-import SearchBar from "@/components/shared/SearchBar.vue";
-import SearchResults from "@/components/shared/SearchResults.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash";

@@ -8,7 +8,6 @@ import Env from "@/services/env.service";
 let pems: { [key: string]: any } = {};
 
 class AuthMiddleware {
-
   public async verifyToken(req: Request, res: Response, next: NextFunction, role?: string) {
     if (await this.checkToken(req, role)) next();
     else res.status(401).end();

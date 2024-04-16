@@ -219,7 +219,7 @@ async function searchValues(event: AutoCompleteCompleteEvent) {
         activeOnly: true,
         match: [
           {
-            property: [
+            where: [
               {
                 "@id": IM.HAS_SCHEME,
                 is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
@@ -264,7 +264,7 @@ async function isValidProperty(iri: string): Promise<boolean> {
           instanceOf: {
             parameter: "subject"
           },
-          property: [
+          where: [
             {
               "@id": IM.IS_A,
               is: [{ "@id": SNOMED.ATTRIBUTE }]
@@ -308,7 +308,7 @@ async function isValidValue(iri: string): Promise<boolean> {
           instanceOf: {
             parameter: "subject"
           },
-          property: [
+          where: [
             {
               "@id": IM.HAS_SCHEME,
               is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]

@@ -4,7 +4,7 @@
     <TopBar>
       <template #content>
         <div class="topbar-content">
-          <span class="title"><strong>UPRN</strong></span>
+          <span class="title"><strong>ASSIGN-UPRN</strong></span>
         </div>
       </template>
     </TopBar>
