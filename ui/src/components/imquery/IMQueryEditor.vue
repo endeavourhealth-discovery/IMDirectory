@@ -47,38 +47,19 @@
         />
       </div>
     </div>
-    <DirectorySearchDialog
-      v-model:show-dialog="showAddPopulationDialog"
-      :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
-      :os-query="osQueryForPopulation"
-      @update:selected="onPopulationSelect"
-    />
-
-    <DirectorySearchDialog
-      v-model:show-dialog="showAddFeatureDialog"
-      :root-entities="[IM.MODULE_FEATURES]"
-      :os-query="osQueryForFeature"
-      @update:selected="onFeatureSelect"
-    />
-
-    <AddPropertyDialog
-      v-model:show-dialog="showBuildFeatureDialog"
-      :dataModelIri="selectedBaseType?.iri ?? ''"
-      :header="'Build feature'"
-      :show-variable-options="false"
-      @on-property-add="(properties: Where[]) => onFeatureBuild(properties)"
+    <AddMatch
+      v-model:show-add-feature="showAddFeature"
+      v-model:show-add-population="showAddPopulation"
+      v-model:show-build-feature="showBuildFeature"
+      v-model:show-build-then-feature="showBuildThenFeature"
+      :edit-match="queryDefinition"
+      :match-type-of-iri="selectedBaseType?.iri!"
     />
 
     <div class="add-buttons">
-      <Button label="Add population" @click="showAddPopulationDialog = true" severity="help" icon="fa-solid fa-plus" class="add-feature-button" />
-      <Button label="Add existing feature" @click="showAddFeatureDialog = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
-      <Button
-        label="Build feature"
-        @click="showBuildFeatureDialog = true"
-        severity="warning"
-        icon="fa-solid fa-screwdriver-wrench"
-        class="add-feature-button"
-      />
+      <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-plus" class="add-feature-button" />
+      <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+      <Button label="Build feature" @click="showBuildFeature = true" severity="warning" icon="fa-solid fa-screwdriver-wrench" class="add-feature-button" />
     </div>
   </div>
 </template>
@@ -86,17 +67,14 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { Match, Query, SearchRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
-import { EntityService, QueryService } from "@/services";
+import { Match, Query, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { SortDirection } from "@im-library/enums";
 import { cloneDeep } from "lodash";
-import AddPropertyDialog from "../query/builder/edit/dialogs/AddPropertyDialog.vue";
-import { v4 } from "uuid";
-import DirectorySearchDialog from "../shared/dialogs/DirectorySearchDialog.vue";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+import AddMatch from "./AddMatch.vue";
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const queryDefinition: Ref<Query> = ref({});
@@ -105,11 +83,10 @@ const showDialog = ref(false);
 const selectedMatch: Ref<Match | undefined> = ref();
 const selectedIndex: Ref<number> = ref(-1);
 const osQueryForBaseType: Ref<SearchRequest | undefined> = ref();
-const showBuildFeatureDialog: Ref<boolean> = ref(false);
-const showAddPopulationDialog: Ref<boolean> = ref(false);
-const showAddFeatureDialog: Ref<boolean> = ref(false);
-const osQueryForPopulation: Ref<SearchRequest> = ref({ typeFilter: [IM.COHORT_QUERY] });
-const osQueryForFeature: Ref<SearchRequest> = ref({ typeFilter: [IM.MATCH_CLAUSE] });
+const showAddPopulation: Ref<boolean> = ref(false);
+const showBuildFeature: Ref<boolean> = ref(false);
+const showBuildThenFeature: Ref<boolean> = ref(false);
+const showAddFeature: Ref<boolean> = ref(false);
 
 onMounted(async () => {
   queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
@@ -123,28 +100,6 @@ onMounted(async () => {
     sortField: "weighting"
   } as SearchRequest;
 });
-
-function onPopulationSelect(selected: SearchResultSummary) {
-  const match: Match = { "@id": v4(), instanceOf: { "@id": selected.iri, name: selected.name, memberOf: true } };
-  describeMatch(match, 0);
-  if (!queryDefinition.value.match) queryDefinition.value.match = [];
-  queryDefinition.value.match.push(match);
-}
-
-async function onFeatureSelect(selected: SearchResultSummary) {
-  const featureEntity = await EntityService.getPartialEntity(selected.iri, [IM.DEFINITION]);
-  if (!featureEntity || !featureEntity[IM.DEFINITION]) return;
-  const featureDefinition: Query = JSON.parse(featureEntity[IM.DEFINITION]);
-  describeMatch(featureDefinition, 0);
-  if (!queryDefinition.value.match) queryDefinition.value.match = [];
-  queryDefinition.value.match.push(featureDefinition);
-}
-
-function onFeatureBuild(properties: Where[]) {
-  const match: Match = { "@id": v4(), where: properties };
-  if (!queryDefinition.value.match) queryDefinition.value.match = [];
-  queryDefinition.value.match.push(match);
-}
 
 function mouseover(event: Event, index: number) {
   event.stopPropagation();

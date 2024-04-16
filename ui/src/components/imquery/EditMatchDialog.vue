@@ -25,6 +25,14 @@
               :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
               @on-update-dialog-focus="updateDialogFocus"
             />
+            <AddMatch
+              v-model:show-add-feature="showAddFeature"
+              v-model:show-add-population="showAddPopulation"
+              v-model:show-build-feature="showBuildFeature"
+              v-model:show-build-then-feature="showBuildThenFeature"
+              :edit-match="focusedEditMatch"
+              :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
+            />
           </div>
         </div>
 
@@ -62,6 +70,17 @@
       <template #footer>
         <div class="button-footer">
           <Button label="Cancel" text @click="onCancel" />
+          <Button
+            v-if="!focusedEditMatch?.then"
+            label="Add test"
+            @click="showBuildThenFeature = true"
+            severity="success"
+            icon="fa-solid fa-plus"
+            class="add-feature-button"
+          />
+          <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-plus" class="add-feature-button" />
+          <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+          <Button label="Build feature" @click="showBuildFeature = true" severity="warning" icon="fa-solid fa-screwdriver-wrench" class="add-feature-button" />
           <Button label="Save" autofocus @click="onSave" />
         </div>
       </template>
@@ -78,6 +97,7 @@ import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
+import AddMatch from "./AddMatch.vue";
 
 interface Props {
   showDialog: boolean;
@@ -92,6 +112,11 @@ const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
   saveChanges: (payload: Match | undefined) => payload
 });
+
+const showAddPopulation: Ref<boolean> = ref(false);
+const showBuildFeature: Ref<boolean> = ref(false);
+const showBuildThenFeature: Ref<boolean> = ref(false);
+const showAddFeature: Ref<boolean> = ref(false);
 
 const editMatch: Ref<Match | undefined> = ref();
 const focusedEditMatch: Ref<Match | undefined> = ref();

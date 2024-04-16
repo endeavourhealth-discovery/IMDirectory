@@ -9,6 +9,7 @@
     >
       <MatchSelector v-if="focusedId === editMatch['@id'] && isFlatMatch(editMatch)" :editMatch="editMatch" />
       <div v-else v-html="editMatch?.description" />
+
       <div v-if="editMatch?.match" class="feature-group">
         <div class="feature-list">
           <EditMatch
@@ -19,7 +20,6 @@
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-match="onDeleteMatch"
           />
-          <Button v-if="editMatch['@id'] === focusedId" label="Add feature" @click="" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
         </div>
       </div>
       <div v-if="editMatch?.where" class="where-group">
@@ -32,6 +32,13 @@
             :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
+          />
+          <AddPropertyDialog
+            v-model:show-dialog="showAddPropertyDialog"
+            :dataModelIri="matchTypeOfIri"
+            :header="'Add property'"
+            :show-variable-options="false"
+            @on-property-add="(properties: Where[]) => onPropertyAdd(properties)"
           />
           <Button
             v-if="editMatch['@id'] === focusedId"
@@ -55,13 +62,6 @@
       </div>
     </div>
     <Button v-if="!isRootFeature" severity="danger" icon="fa-solid fa-trash" class="builder-button" @click="onParentDelete" />
-    <AddPropertyDialog
-      v-model:show-dialog="showAddPropertyDialog"
-      :dataModelIri="matchTypeOfIri"
-      :header="'Add property'"
-      :show-variable-options="false"
-      @on-property-add="(properties: Where[]) => onPropertyAdd(properties)"
-    />
   </div>
 </template>
 
