@@ -47,20 +47,40 @@
         />
       </div>
     </div>
-    <Button label="Add feature" @click="queryDefinition.match?.push({} as Match)" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+
+    <AddPropertyDialog
+      v-model:show-dialog="showBuildFeatureDialog"
+      :dataModelIri="selectedBaseType?.iri ?? ''"
+      :header="'Build feature'"
+      :show-variable-options="false"
+      @on-property-add="(properties: Where[]) => onFeatureBuild(properties)"
+    />
+    <div class="add-buttons">
+      <Button label="Add population" @click="addPopulation" severity="help" icon="fa-solid fa-plus" class="add-feature-button" />
+      <Button label="Add existing feature" @click="addExistingFeature" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+      <Button
+        label="Build feature"
+        @click="showBuildFeatureDialog = true"
+        severity="warning"
+        icon="fa-solid fa-screwdriver-wrench"
+        class="add-feature-button"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { Match, Query, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, Query, SearchRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { SortDirection } from "@im-library/enums";
 import { cloneDeep } from "lodash";
+import AddPropertyDialog from "../query/builder/edit/dialogs/AddPropertyDialog.vue";
+import { v4 } from "uuid";
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const queryDefinition: Ref<Query> = ref({});
@@ -69,6 +89,7 @@ const showDialog = ref(false);
 const selectedMatch: Ref<Match | undefined> = ref();
 const selectedIndex: Ref<number> = ref(-1);
 const osQueryForBaseType: Ref<SearchRequest | undefined> = ref();
+const showBuildFeatureDialog: Ref<boolean> = ref(false);
 
 onMounted(async () => {
   queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
@@ -82,6 +103,16 @@ onMounted(async () => {
     sortField: "weighting"
   } as SearchRequest;
 });
+
+function addPopulation() {}
+
+function addExistingFeature() {}
+
+function onFeatureBuild(properties: Where[]) {
+  const match: Match = { "@id": v4(), where: properties };
+  if (!queryDefinition.value.match) queryDefinition.value.match = [];
+  queryDefinition.value.match.push(match);
+}
 
 function mouseover(event: Event, index: number) {
   event.stopPropagation();
@@ -153,8 +184,7 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 }
 
 .add-feature-button {
-  width: 10rem;
-  margin-left: 5.8rem;
+  margin: 0.1rem;
 }
 
 .feature-description-card {
@@ -189,6 +219,12 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 .feature-title {
   display: flex;
   align-self: center;
+}
+
+.add-buttons {
+  margin-left: 5.8rem;
+  display: flex;
+  flex-flow: row;
 }
 </style>
 
