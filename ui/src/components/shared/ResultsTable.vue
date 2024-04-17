@@ -176,6 +176,10 @@ async function onSearch() {
     props.eclQuery
   );
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
+  else {
+    searchResults.value = [];
+    totalCount.value = 0;
+  }
 }
 
 function updateFavourites(row?: any) {
