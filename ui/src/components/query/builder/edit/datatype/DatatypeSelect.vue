@@ -89,7 +89,7 @@ const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 watch(
   () => propertyType.value,
   () => {
-    if (propertyType.value === "range" && !isObjectHasKeys(props.property, ["range"])) {
+    if (propertyType.value === "range") {
       props.property.operator = undefined;
       props.property.isNull = undefined;
       props.property.isNotNull = undefined;

@@ -18,17 +18,17 @@
       <div class="value-list-container" v-if="valueField === 'is' || valueField === 'isNot'">
         <div class="value-list" v-if="isArrayHasLength(values)">
           <div class="value-list-item" v-for="[index, value] of values.entries()">
-            <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-minus" class="add-feature-button" @click="values.splice(index, 1)" />
             <EntailmentOptionsSelect :entailment-object="value as any" />
             <AutocompleteSearchBar
               :selected="value"
               :root-entities="[uiProperty.valueType]"
               @update:selected="selected => updateSelectedValue(selected, index)"
             />
-            <Button v-if="!index" severity="success" icon="fa-solid fa-plus" class="add-feature-button" @click="values.push({} as SearchResultSummary)" />
+            <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-minus" class="add-feature-button" @click="values.splice(index, 1)" />
           </div>
         </div>
       </div>
+      <Button severity="success" icon="fa-solid fa-plus" class="add-feature-button" @click="values.push({} as SearchResultSummary)" />
       <SaveCustomSetDialog v-if="valueField === 'is' || valueField === 'isNot'" :set-members="values" @on-save="onCustomSetSave" />
     </div>
     <DatatypeSelect v-else-if="uiProperty?.propertyType === 'datatype'" :datatype="uiProperty.valueType" :property="property" />
@@ -112,6 +112,7 @@ async function init() {
 }
 
 function setValues() {
+  values.value = [];
   if (props.property.is) {
     valueField.value = "is";
     for (const value of props.property.is) {

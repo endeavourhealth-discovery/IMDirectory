@@ -74,7 +74,7 @@
             v-if="!focusedEditMatch?.then"
             label="Add test"
             @click="showBuildThenFeature = true"
-            severity="success"
+            severity="secondary"
             icon="fa-solid fa-plus"
             class="add-feature-button"
           />
