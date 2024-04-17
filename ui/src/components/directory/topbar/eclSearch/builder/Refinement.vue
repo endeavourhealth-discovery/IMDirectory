@@ -10,14 +10,14 @@
     />
     <Dropdown
       style="width: 4.5rem; min-height: 2.3rem"
-      v-model="value.property.descendants"
-      :options="descendantOptions"
+      v-model="value.property.constraintOperator"
+      :options="constraintOperatorOptions"
       option-label="label"
       option-value="value"
     >
       <template #value="slotProps">
         <div v-if="slotProps.value" class="flex align-items-center">
-          <div>{{ value.property.descendants }}</div>
+          <div>{{ value.property.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
@@ -42,14 +42,14 @@
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <Dropdown
       style="width: 4.5rem; min-height: 2.3rem"
-      v-model="value.value.descendants"
-      :options="descendantOptions"
+      v-model="value.value.constraintOperator"
+      :options="constraintOperatorOptions"
       option-label="label"
       option-value="value"
     >
       <template #value="slotProps">
         <div v-if="slotProps.value" class="flex align-items-center">
-          <div>{{ value.value.descendants }}</div>
+          <div>{{ value.value.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
@@ -93,8 +93,8 @@ interface Props {
   value: {
     type: string;
     operator: string;
-    property: { concept?: { iri: string; name?: string } | SearchResultSummary; descendants: string };
-    value: { concept?: { iri: string; name?: string } | SearchResultSummary; descendants: string };
+    property: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
+    value: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
     ecl?: string;
     validation?: { deferred: { promise: Promise<any>; reject: Function; resolve: Function }; valid: boolean };
   };
@@ -121,7 +121,7 @@ const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"
 const valueTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#138875005"]);
 const showValidation = ref(false);
 const operatorOptions = ["=", "!="];
-const descendantOptions = [
+const constraintOperatorOptions = [
   { label: " ", value: "" },
   { label: "<<", value: "<<" },
   { label: "<", value: "<" }
@@ -140,7 +140,7 @@ const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
 const osQueryForPropertySearch: Ref<SearchRequest | undefined> = ref(undefined);
 
 const hasValue = computed(() => {
-  if (isObjectHasKeys(props.value.value, ["concept", "descendants"]) && isObjectHasKeys(props.value.value.concept, ["iri"])) return true;
+  if (isObjectHasKeys(props.value.value, ["concept", "constraintOperator"]) && isObjectHasKeys(props.value.value.concept, ["iri"])) return true;
   else return false;
 });
 
@@ -150,7 +150,7 @@ const hasFocus = computed(() => {
 });
 
 const hasProperty = computed(() => {
-  if (isObjectHasKeys(props.value.property, ["concept", "descendants"]) && isObjectHasKeys(props.value.property.concept, ["iri"])) return true;
+  if (isObjectHasKeys(props.value.property, ["concept", "constraintOperator"]) && isObjectHasKeys(props.value.property.concept, ["iri"])) return true;
   else return false;
 });
 
@@ -244,7 +244,7 @@ function updateQueryForValueSearch() {
 
 function addIfConcept(focus: any[], iris: TTIriRef[]) {
   for (const item of focus) {
-    if (item.type === "Concept") iris.push({ "@id": item.concept.iri });
+    if (item.type === "Concept") iris.push({ "@id": item.conceptSingle.iri });
     if (item.type === "BoolGroup") addIfConcept(item.items, iris);
   }
 }

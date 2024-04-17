@@ -1,9 +1,15 @@
 <template>
-  <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-    <Dropdown style="width: 4.5rem; min-height: 2.3rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value">
+  <div v-if="value.conceptSingle" class="concept-container">
+    <Dropdown
+      style="width: 4.5rem; min-height: 2.3rem"
+      v-model="value.constraintOperator"
+      :options="constraintOperatorOptions"
+      option-label="label"
+      option-value="value"
+    >
       <template #value="slotProps">
         <div v-if="slotProps.value" class="flex align-items-center">
-          <div>{{ value.descendants }}</div>
+          <div>{{ value.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
@@ -33,10 +39,11 @@ import { SortDirection } from "@im-library/enums";
 interface Props {
   value: {
     type: string;
-    descendants: string;
+    constraintOperator: string;
     conjunction: string;
-    items: any[];
-    concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
+    refinementItems: any[];
+    conceptSingle: { iri: string; name?: string } | undefined;
+    conceptBool: { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
     ecl?: string;
     exclude?: boolean;
   };
@@ -52,7 +59,7 @@ watch(
 );
 
 watch(
-  () => _.cloneDeep(props.value.concept),
+  () => _.cloneDeep(props.value.conceptSingle),
   async (newValue, oldValue) => {
     if (!_.isEqual(newValue, oldValue)) await init();
   }
@@ -67,7 +74,7 @@ const filterStoreOptions = computed(() => filterStore.filterOptions);
 const loading = ref(false);
 const selected: Ref<SearchResultSummary | undefined> = ref();
 
-const descendantOptions = [
+const constraintOperatorOptions = [
   {
     label: " ",
     value: ""
@@ -79,6 +86,10 @@ const descendantOptions = [
   {
     label: "<",
     value: "<"
+  },
+  {
+    label: "^",
+    value: "^"
   }
 ];
 
@@ -102,12 +113,10 @@ watch(selected, (newValue, oldValue) => {
 });
 
 async function init() {
-  if (props.value?.concept) {
-    if (isAliasIriRef(props.value.concept)) {
-      loading.value = true;
-      await updateSelectedResult(props.value.concept);
-      loading.value = false;
-    }
+  if (props.value?.conceptSingle) {
+    loading.value = true;
+    await updateSelectedResult(props.value.conceptSingle);
+    loading.value = false;
   }
 }
 
@@ -125,19 +134,19 @@ async function updateSelectedResult(data: SearchResultSummary | { iri: string; n
 function generateEcl(): string {
   let ecl = "";
   ecl += builderConceptToEcl(props.value, props.parent, includeTerms.value);
-  if (isArrayHasLength(props.value.items)) {
+  if (isArrayHasLength(props.value.refinementItems)) {
     ecl += " : \n";
-    for (const [index, item] of props.value.items.entries()) {
+    for (const [index, item] of props.value.refinementItems.entries()) {
       if (item.ecl) ecl += item.ecl;
       else ecl += "[ INVALID REFINEMENT ]";
-      if (index + 1 !== props.value.items.length) ecl += " \n" + props.value.conjunction + " ";
+      if (index + 1 !== props.value.refinementItems.length) ecl += " \n" + props.value.conjunction + " ";
     }
   }
   return ecl;
 }
 
 function updateConcept(concept: any) {
-  props.value.concept = concept;
+  props.value.conceptSingle = concept;
   props.value.ecl = generateEcl();
 }
 </script>

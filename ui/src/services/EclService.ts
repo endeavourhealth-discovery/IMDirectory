@@ -2,7 +2,7 @@ import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import axios from "axios";
 import Env from "./Env";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Query, SearchResultSummary, EclSearchRequest } from "@im-library/interfaces/AutoGen";
+import { Query, SearchResultSummary, EclSearchRequest, BoolGroup } from "@im-library/interfaces/AutoGen";
 
 const EclService = {
   async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<{ count: number; entities: SearchResultSummary[]; page: number }> {
@@ -47,6 +47,10 @@ const EclService = {
 
   async getBuildFromEcl(ecl: string, raw: boolean = false): Promise<any> {
     return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclToBuilder", ecl, { raw: raw, headers: { "Content-Type": "text/plain" } });
+  },
+
+  async getEclBuilderFromQuery(query: Query, raw: boolean = false): Promise<BoolGroup> {
+    return axios.post(Env.API + "api/ecl/public/eclBuilderFromQuery", query, { raw: raw });
   }
 };
 
