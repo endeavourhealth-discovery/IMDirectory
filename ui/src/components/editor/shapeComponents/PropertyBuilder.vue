@@ -8,14 +8,25 @@
       <div :class="[hover ? 'children-container-hover' : 'children-container']" @mouseover="mouseover($event, true)" @mouseout="mouseout">
         <table>
           <template v-for="(row, index) in dmProperties" class="property">
-            {{ row }}
             <tr @mouseover="mouseover($event, row)" @mouseout="mouseout">
               <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
-                <AutocompleteSearchBar v-model:selected="row.path" :imQuery="pSuggestions" :root-entities="['http://endhealth.info/im#Properties']" />
+                <AutocompleteSearchBar
+                  class="search-bar"
+                  :class="row.error === 'Property must have a path' && invalid && showValidation ? 'error-message-container-highlight' : ''"
+                  v-model:selected="row.path"
+                  :im-query="pSuggestions"
+                  :root-entities="['http://endhealth.info/im#Properties']"
+                  :search-placeholder="'Select property'"
+                />
                 <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
               <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
-                <AutocompleteSearchBar v-model:selected="row.range" :osQuery="rSuggestions" />
+                <AutocompleteSearchBar
+                  :class="row.error === 'Property must have a range' && invalid && showValidation ? 'error-message-container-highlight' : ''"
+                  v-model:selected="row.range"
+                  :im-query="rSuggestions"
+                  :search-placeholder="'Select range'"
+                />
               </td>
               <td class="td-nw" :class="[hover === row ? 'table-row-hover' : 'table-row']">
                 <span>
@@ -47,12 +58,12 @@
                     @click="moveDown(index)"
                     :disabled="index == dmProperties.length - 1"
                   />
-                  <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
+                  <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index, row)" />
                 </span>
               </td>
             </tr>
           </template>
-          <tr class="buttonGroup">
+          <tr class="button-group">
             <Button
               icon="fa-solid fa-plus"
               label="Add property"
@@ -61,6 +72,15 @@
               :class="!hover && 'hover-button'"
               class="builder-button"
               @click="addProperty"
+            />
+            <Button
+              icon="fa-solid fa-pencil"
+              label="Create new"
+              :severity="hover ? 'primary' : 'secondary'"
+              :outlined="!hover"
+              :class="!hover && 'hover-button'"
+              class="builder-button"
+              @click="directService.create()"
             />
           </tr>
           <template v-for="(row, index) in dmPropertiesInherited" class="property">
@@ -91,18 +111,17 @@
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { Argument, PropertyShape, QueryRequest, SearchResponse, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { AutoCompleteCompleteEvent, AutoCompleteItemSelectEvent } from "primevue/autocomplete";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { SortDirection } from "aws-amplify";
 
 interface Props {
   shape: PropertyShape;
@@ -113,7 +132,7 @@ interface Props {
 
 interface SimpleProp {
   path: SearchResultSummary;
-  range: SearchResultSummary;
+  range: SearchResultSummary | undefined;
   rangeType: string;
   required: boolean;
   unique: boolean;
@@ -124,9 +143,6 @@ interface SimpleProp {
 const toast = useToast();
 const props = defineProps<Props>();
 const directService = new DirectService();
-
-const debouncePath = ref(0);
-const debounceRange = ref(0);
 
 const showValidation = ref(false);
 
@@ -148,15 +164,12 @@ if (forceValidation) {
 }
 
 const showRequired: ComputedRef<boolean> = computed(() => {
-  if (props.shape.minCount && props.shape.minCount > 0) return true;
-  else return false;
+  return !!(props.shape.minCount && props.shape.minCount > 0);
 });
 
-const dmPropertiesSearch = ref([{}]);
 const dmProperties: Ref<SimpleProp[]> = ref([]);
 const dmPropertiesInherited: Ref<SimpleProp[]> = ref([]);
 const loading = ref(true);
-const pathSuggestions: Ref<TTIriRef[]> = ref([]);
 const pSuggestions: Ref<QueryRequest | undefined> = ref({
   query: {
     activeOnly: true,
@@ -169,12 +182,6 @@ const pSuggestions: Ref<QueryRequest | undefined> = ref({
     ]
   }
 });
-const tSuggestions: Ref<SearchRequest | undefined> = ref({
-  schemeFilter: [SNOMED.NAMESPACE, IM.NAMESPACE],
-  typeFilter: [IM.CONCEPT_SET, IM.VALUE_SET, IM.CONCEPT, SHACL.NODESHAPE, RDFS.DATATYPE],
-  sortDirection: SortDirection.DESCENDING,
-  sortField: "weighting"
-} as SearchRequest);
 const rSuggestions: Ref<QueryRequest | undefined> = ref({
   query: {
     activeOnly: true,
@@ -194,7 +201,6 @@ const rSuggestions: Ref<QueryRequest | undefined> = ref({
     ]
   }
 });
-const rangeSuggestions: Ref<TTIriRef[]> = ref([]);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 
@@ -209,9 +215,21 @@ watch(
 
 watch(
   () => _.cloneDeep(dmProperties.value),
-  (newValue, oldValue) => {
-    console.log(newValue);
-    if (JSON.stringify(newValue) !== JSON.stringify(oldValue) && JSON.stringify(loading.value) === "false") updateEntity();
+  async (newValue, oldValue) => {
+    if (JSON.stringify(newValue) !== JSON.stringify(oldValue) && JSON.stringify(loading.value) === "false") {
+      for (let v in newValue) {
+        if (
+          oldValue.length <= newValue.length &&
+          oldValue[v] &&
+          newValue[v].range !== undefined &&
+          JSON.stringify(newValue[v].range?.iri) !== JSON.stringify(oldValue[v].range?.iri)
+        ) {
+          const newRangeType = await getRangeType(newValue[v].range!.iri!.toString());
+          dmProperties.value[v].rangeType = newRangeType!.toString();
+        }
+      }
+      await update();
+    }
   }
 );
 
@@ -313,17 +331,37 @@ function propertyError(row: any) {
 }
 
 function addProperty() {
-  dmProperties.value.push({} as SimpleProp);
+  let a = {
+    path: {
+      iri: "",
+      name: "",
+      scheme: { "@id": "", name: "" },
+      status: { "@id": "", name: "" },
+      entityType: []
+    },
+    range: {
+      iri: "",
+      name: "",
+      scheme: { "@id": "", name: "" },
+      status: { "@id": "", name: "" },
+      entityType: []
+    },
+    rangeType: "UNKNOWN",
+    required: false,
+    unique: false,
+    inherited: undefined,
+    error: undefined
+  } as SimpleProp;
+  dmProperties.value.push(a);
   update();
 }
 
-function deleteProperty(index: number) {
+function deleteProperty(index: number, row: any) {
   if (index >= 0 && index < dmProperties.value.length) {
     const newData = [];
     newData.push(...dmProperties.value);
 
     newData.splice(index, 1);
-
     dmProperties.value = newData;
     update();
   }
@@ -356,47 +394,6 @@ function moveDown(index: number) {
 }
 
 // Path functions
-
-async function searchPath(event: AutoCompleteCompleteEvent) {
-  const ps: TTIriRef[] = [];
-
-  if (event.query && event.query.length > 2) {
-    const request: QueryRequest = {
-      textSearch: event.query,
-      query: {
-        activeOnly: true,
-        match: [
-          {
-            instanceOf: {
-              "@id": RDF.PROPERTY
-            }
-          }
-        ]
-      }
-    };
-    const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
-  }
-  ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
-  pathSuggestions.value = ps;
-}
-
-function debounce(event: AutoCompleteCompleteEvent, searchFunction: Function, debounceTimer: number): void {
-  clearTimeout(debounceTimer);
-  debounceTimer = window.setTimeout(() => {
-    searchFunction(event);
-  }, 600);
-}
-
-async function selectPath(row: any, event?: AutoCompleteItemSelectEvent) {
-  if (!event) {
-    row.path = { "@id": "", name: "" };
-  } else if ("<CREATE>" == event?.value?.["@id"]) {
-    row.path = { "@id": "", name: "" };
-    directService.create(RDF.PROPERTY);
-  }
-  await update();
-}
 
 async function pathDrop(object: any, event: DragEvent) {
   if (event.dataTransfer) {
@@ -445,50 +442,6 @@ async function isValidPath(iri: string): Promise<boolean> {
 
 // Range functions
 
-async function searchRange(event: AutoCompleteCompleteEvent) {
-  const ps: TTIriRef[] = [];
-
-  if (event.query && event.query.length > 2) {
-    const request: QueryRequest = {
-      textSearch: event.query,
-      query: {
-        activeOnly: true,
-        match: [
-          {
-            where: [
-              {
-                "@id": RDF.TYPE,
-                is: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }, { "@id": IM.CONCEPT }, { "@id": SHACL.NODESHAPE }, { "@id": RDFS.DATATYPE }]
-              },
-              {
-                "@id": IM.HAS_SCHEME,
-                is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
-              }
-            ]
-          }
-        ]
-      }
-    };
-    const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results?.entities && isArrayHasLength(results.entities)) ps.push(...results.entities.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
-  }
-
-  ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
-  rangeSuggestions.value = ps;
-}
-
-async function selectRange(row: any, event?: AutoCompleteItemSelectEvent) {
-  if (!event) {
-    row.range = { "@id": "", name: "" };
-  } else if ("<CREATE>" == event?.value?.["@id"]) {
-    row.range = { "@id": "", name: "" };
-    directService.create();
-  } else {
-    row.rangeType = await getRangeType(event.value["@id"]);
-  }
-  await update();
-}
-
 async function rangeDrop(object: any, event: DragEvent) {
   if (event.dataTransfer) {
     const data = event.dataTransfer.getData("conceptIri");
@@ -513,11 +466,12 @@ async function rangeDrop(object: any, event: DragEvent) {
 async function getRangeType(iri: string) {
   const partial = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
   const types: TTIriRef[] = partial?.[RDF.TYPE];
-
-  if (types.some(t => t["@id"] == IM.CONCEPT)) return SHACL.CLASS;
-  else if (types.some(t => t["@id"] == IM.CONCEPT_SET)) return SHACL.CLASS;
-  else if (types.some(t => t["@id"] == RDFS.DATATYPE)) return SHACL.DATATYPE;
-  else return SHACL.NODE;
+  if (isArrayHasLength(types)) {
+    if (types.some(t => t["@id"] == IM.CONCEPT)) return SHACL.CLASS;
+    else if (types.some(t => t["@id"] == IM.CONCEPT_SET)) return SHACL.CLASS;
+    else if (types.some(t => t["@id"] == RDFS.DATATYPE)) return SHACL.DATATYPE;
+    else return SHACL.NODE;
+  }
 }
 
 async function isValidRange(iri: string): Promise<boolean> {
@@ -564,6 +518,7 @@ function updateEntity() {
       const p: any = {};
       let fullPath = {} as TTIriRef;
       let fullRange = {} as TTIriRef;
+
       if (value.path) fullPath = { "@id": value.path.iri, name: value.path.name } as TTIriRef;
       if (value.range) fullRange = { "@id": value.range.iri, name: value.range.name } as TTIriRef;
 
@@ -619,8 +574,8 @@ function updateEntity() {
 }
 
 .td-50 {
-  width: 50%;
-  vertical-align: top;
+  max-width: 50%;
+  vertical-align: center;
 }
 
 .td-nw {
@@ -654,11 +609,6 @@ function updateEntity() {
   padding: 0 0.5rem;
 }
 
-.hover-button {
-  color: #00000030 !important;
-  border-style: dashed !important;
-}
-
 .table-row {
   background-color: #781c8110;
   border: #781c8130 1px;
@@ -676,6 +626,7 @@ function updateEntity() {
 table {
   border-collapse: inherit;
   border-spacing: 0px 0.5rem;
+  width: 100%;
 }
 td {
   border: #781c8130 1px;
@@ -683,6 +634,7 @@ td {
   padding: 0.5rem;
   margin: 0.5rem;
 }
+
 td:last-child {
   border-radius: 0 5px 5px 0;
   border-style: solid solid solid none;
@@ -691,5 +643,17 @@ td:last-child {
 td:first-child {
   border-radius: 5px 0 0 5px;
   border-style: solid none solid solid;
+}
+
+.hover-button {
+  color: #00000030 !important;
+  border-style: dashed !important;
+  background-color: transparent;
+}
+
+.button-group {
+  min-width: 70%;
+  display: flex;
+  gap: 0.5rem;
 }
 </style>
