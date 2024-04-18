@@ -14,6 +14,15 @@
           </template>
           <template #separator> / </template>
         </Breadcrumb>
+        <div v-if="!keepAsEdit" class="variable-display">
+          <div v-if="focusedEditMatch?.variable" style="padding-left: 1rem">as</div>
+          <div v-if="focusedEditMatch?.variable" class="variable" @click="keepAsEdit = true">{{ focusedEditMatch?.variable }}</div>
+          <Button v-else icon="fa-solid fa-tag" label="Label as a variable" text @click="keepAsEdit = true" />
+        </div>
+        <div class="variable-edit" v-else>
+          <InputText type="text" placeholder="value" v-model="focusedEditMatch!.variable" />
+          <Button icon="fa-solid fa-check" @click="keepAsEdit = false" />
+        </div>
       </template>
       <div id="imquery-builder-string-container">
         <div id="imquery-builder-container">
@@ -117,7 +126,7 @@ const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
-
+const keepAsEdit: Ref<boolean> = ref(false);
 const editMatch: Ref<Match | undefined> = ref();
 const focusedEditMatch: Ref<Match | undefined> = ref();
 const focusedEditMatchString: Ref<string> = ref("");
@@ -287,5 +296,19 @@ function onCancel() {
 
 .path-item {
   cursor: pointer;
+}
+
+.variable-edit {
+  padding-left: 1rem;
+}
+
+.variable {
+  padding-left: 1rem;
+  cursor: pointer;
+}
+
+.variable-display {
+  align-items: baseline;
+  display: flex;
 }
 </style>
