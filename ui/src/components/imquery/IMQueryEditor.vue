@@ -2,12 +2,14 @@
   <div class="im-query-container">
     <div class="base-type-container">
       <div class="base-type-title">Base type:</div>
-      <AutocompleteSearchBar
-        class="base-type-autocomplete"
-        v-model:selected="selectedBaseType"
-        :os-query="osQueryForBaseType"
-        :root-entities="['http://endhealth.info/im#DataModelClasses']"
-      />
+      <div class="base-type-value">
+        <AutocompleteSearchBar
+          class="base-type-autocomplete"
+          v-model:selected="selectedBaseType"
+          :os-query="osQueryForBaseType"
+          :root-entities="['http://endhealth.info/im#DataModelClasses']"
+        />
+      </div>
     </div>
     <div class="feature-container">
       <div class="feature-title">Features:</div>
