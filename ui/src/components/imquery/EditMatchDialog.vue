@@ -90,6 +90,14 @@
           <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-plus" class="add-feature-button" />
           <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
           <Button label="Build feature" @click="showBuildFeature = true" severity="warning" icon="fa-solid fa-screwdriver-wrench" class="add-feature-button" />
+          <Button
+            v-if="!focusedEditMatch?.orderBy"
+            label="Add order by"
+            @click="focusedEditMatch!.orderBy = { description: '', limit: 0, partitionBy: {}, property: {} }"
+            severity="help"
+            icon="fa-solid fa-arrow-down-z-a"
+            class="add-feature-button"
+          />
           <Button label="Save" autofocus @click="onSave" />
         </div>
       </template>

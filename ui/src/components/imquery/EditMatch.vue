@@ -80,6 +80,13 @@
           @delete-match="onDeleteMatch"
         />
       </div>
+      <EditOrderBy
+        v-if="focusedId === editMatch['@id'] && editMatch.orderBy"
+        :editMatch="editMatch"
+        :order-by="editMatch.orderBy"
+        :dm-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
+      />
+      <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
     </div>
     <Button v-if="!isRootFeature" severity="danger" icon="fa-solid fa-trash" class="builder-button" @click="onParentDelete" />
   </div>
@@ -95,6 +102,7 @@ import { MenuItem } from "primevue/menuitem";
 import AddPropertyDialog from "../query/builder/edit/dialogs/AddPropertyDialog.vue";
 import { Ref, ref } from "vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import EditOrderBy from "./EditOrderBy.vue";
 
 interface Props {
   isRootFeature?: boolean;
