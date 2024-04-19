@@ -10,7 +10,8 @@
       placeholder="Select direction"
     />
     <InputText value="Limit" disabled class="w-full md:w-5rem" />
-    <InputNumber v-model="orderBy.limit" placeholder="Set limit" class="w-full md:w-5rem"/>
+    <InputNumber v-model="orderBy.limit" placeholder="Set limit" class="limit" />
+    <Button severity="danger" icon="fa-solid fa-trash" @click="deleteOrderBy" />
   </div>
 </template>
 
@@ -66,6 +67,9 @@ function getDirectionOptions(property: OrderDirection) {
     }
   }
   return directionOptions;
+}
+function deleteOrderBy() {
+  delete props.editMatch.orderBy;
 }
 </script>
 
