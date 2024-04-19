@@ -43,6 +43,17 @@
         </div>
       </div>
       <div v-if="editMatch?.where" class="where-group">
+        <Button
+          v-if="editMatch.where.length > 1"
+          class="builder-button conjunction-button vertical-button"
+          :label="editMatch.bool?.toUpperCase()"
+          @click="
+            e => {
+              e.stopPropagation();
+              toggleWhereBool(editMatch);
+            }
+          "
+        />
         <div class="where-list">
           <EditWhere
             v-for="[index, nestedWhere] in editMatch.where.entries()"
