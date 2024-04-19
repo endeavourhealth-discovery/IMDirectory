@@ -91,7 +91,7 @@ const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
 
 onMounted(async () => {
-  queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
+  queryDefinition.value = await QueryService.getQueryDisplay("urn:uuid:40a4a1f1-b768-4db8-a8a6-6df744935d97");
   if (queryDefinition.value.typeOf)
     selectedBaseType.value = { iri: queryDefinition.value.typeOf?.["@id"], name: queryDefinition.value.typeOf?.name } as SearchResultSummary;
 
@@ -149,7 +149,6 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 .feature-container {
   display: flex;
   align-items: baseline;
-  overflow: hidden;
 }
 
 .feature-list {
@@ -166,6 +165,7 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 .feature {
   display: flex;
   flex-flow: row;
+  align-items: center;
 }
 
 .feature-description {

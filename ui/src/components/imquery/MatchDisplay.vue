@@ -56,7 +56,6 @@ const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 <style scoped>
 .match-description-container {
   width: 100%;
-  height: 50%;
   display: flex;
   flex-flow: column;
 }

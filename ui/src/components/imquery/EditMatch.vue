@@ -4,7 +4,12 @@
       :severity="editMatch.exclude ? 'danger' : 'secondary'"
       :outlined="!editMatch.exclude"
       label="NOT"
-      @click="editMatch!.exclude = !editMatch!.exclude"
+      @click="
+        e => {
+          e.stopPropagation();
+          editMatch!.exclude = !editMatch!.exclude;
+        }
+      "
       class="builder-button exclude-button vertical-button not-button"
       :class="!editMatch.exclude && 'hover-button'"
       v-tooltip="'Exclude'"

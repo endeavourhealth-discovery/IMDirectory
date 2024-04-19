@@ -22,6 +22,16 @@
         <div class="variable-edit" v-else>
           <InputText type="text" placeholder="value" v-model="focusedEditMatch!.variable" />
           <Button icon="fa-solid fa-check" @click="keepAsEdit = false" />
+          <Button
+            icon="fa-solid fa-trash-can"
+            severity="danger"
+            @click="
+              {
+                delete focusedEditMatch!.variable;
+                keepAsEdit = false;
+              }
+            "
+          />
         </div>
       </template>
       <div id="imquery-builder-string-container">
