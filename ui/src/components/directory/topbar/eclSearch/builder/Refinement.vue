@@ -95,7 +95,6 @@ interface Props {
     operator: string;
     property: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
     value: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
-    ecl?: string;
     validation?: { deferred: { promise: Promise<any>; reject: Function; resolve: Function }; valid: boolean };
   };
   parent?: any;
@@ -124,7 +123,8 @@ const operatorOptions = ["=", "!="];
 const constraintOperatorOptions = [
   { label: " ", value: "" },
   { label: "<<", value: "<<" },
-  { label: "<", value: "<" }
+  { label: "<", value: "<" },
+  { label: "^", value: "^" }
 ];
 
 const osQueryForValueSearch: Ref<SearchRequest> = ref({
@@ -164,7 +164,6 @@ watch(
         else if (!newValue.property.concept) selectedProperty.value = undefined;
         if (newValue?.value?.concept?.iri !== oldValue?.value?.concept?.iri) await processProps();
         else if (!newValue.value.concept) selectedValue.value = undefined;
-        props.value.ecl = generateEcl();
       }
     }
   }
@@ -193,8 +192,6 @@ watch(forceValidation, async () => {
     props.value.validation.deferred.resolve("resolved");
   }
 });
-
-watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 watch(selectedProperty, async (newValue, oldValue) => {
   if (!_.isEqual(newValue, oldValue)) {
@@ -233,7 +230,6 @@ onMounted(async () => {
   await processProps();
   updateQueryForValueSearch();
   updateQueryForPropertySearch();
-  props.value.ecl = generateEcl();
   loadingProperty.value = false;
   loadingValue.value = false;
 });
@@ -412,24 +408,14 @@ async function processValueProp() {
   }
 }
 
-function generateEcl(): string {
-  let ecl = "";
-  if (hasProperty.value) ecl += builderConceptToEcl(props.value.property, props.parent, includeTerms.value);
-  else ecl += "[ UNKNOWN PROPERTY ]";
-  if (props.value.operator) ecl += " " + props.value.operator + " ";
-  if (hasValue.value) ecl += builderConceptToEcl(props.value.value, props.parent, includeTerms.value);
-  else ecl += "[ UNKNOWN VALUE ]";
-  return ecl;
-}
-
 async function updateProperty(property: SearchResultSummary | undefined) {
-  props.value.property.concept = property;
-  props.value.ecl = generateEcl();
+  if (!property) props.value.property.concept = undefined;
+  else props.value.property.concept = { iri: property.iri };
 }
 
 async function updateValue(value: SearchResultSummary | undefined) {
-  props.value.value.concept = value;
-  props.value.ecl = generateEcl();
+  if (!value) props.value.value.concept = undefined;
+  else props.value.value.concept = { iri: value.iri };
 }
 </script>
 

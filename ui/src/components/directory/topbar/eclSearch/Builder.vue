@@ -61,7 +61,7 @@
 
 <script lang="ts">
 import BoolGroup from "./builder/BoolGroup.vue";
-import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
+import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
@@ -70,7 +70,7 @@ import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 export default defineComponent({
-  components: { BoolGroup, Concept, Refinement }
+  components: { BoolGroup, ExpressionConstraint, Refinement }
 });
 </script>
 
@@ -94,7 +94,7 @@ const emit = defineEmits({
 
 const dynamicDialog = useDialog();
 
-const build: Ref<any> = ref({ type: "BoolGroup", operator: "OR" });
+const build: Ref<any> = ref({ type: "BoolGroup", operator: "or" });
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
@@ -143,7 +143,7 @@ watch(
 watch(includeTerms, () => generateQueryString());
 
 function createDefaultBuild() {
-  build.value = { type: "BoolGroup", conjunction: "OR" };
+  build.value = { type: "BoolGroup", conjunction: "or" };
 }
 
 async function createBuildFromEclString(ecl: string) {
@@ -169,9 +169,12 @@ function closeBuilderDialog(): void {
   emit("closeDialog");
 }
 
-function generateQueryString() {
-  if (isObjectHasKeys(build.value, ["ecl"])) {
-    queryString.value = build.value.ecl;
+async function generateQueryString() {
+  try {
+    const query = await EclService.getQueryFromEclBuilder(build.value, true);
+    queryString.value = await EclService.getECLFromQuery(query, includeTerms.value);
+  } catch (err: any) {
+    console.log("Errored");
   }
 }
 

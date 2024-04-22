@@ -75,7 +75,7 @@
 
         <div class="refinement">
           <div v-if="value?.refinementItems?.length > 1" class="conjunction">
-            <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction ?? 'OR'" @click="toggleBool" />
+            <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction ?? 'or'" @click="toggleBool" />
           </div>
           <div class="refinements">
             <div v-for="(item, index) in value.refinementItems" class="refinement-container">
@@ -160,7 +160,6 @@ interface Props {
     refinementItems: any[];
     conceptSingle: { iri: string; name?: string } | undefined;
     conceptBool: { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
-    ecl?: string;
     exclude?: boolean;
   };
   parent?: any;
@@ -169,41 +168,6 @@ interface Props {
 const props = defineProps<Props>();
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
-
-watch(
-  () => _.cloneDeep(props.value),
-  (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
-      props.value.ecl = generateEcl();
-    }
-  }
-);
-
-watch(
-  () => _.cloneDeep(props.parent),
-  (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
-      props.value.ecl = generateEcl();
-    }
-  }
-);
-
-watch(
-  () => _.cloneDeep(props.value.conceptSingle),
-  async (newValue, oldValue) => {
-    if (newValue !== oldValue) await init();
-  }
-);
-
-watch(
-  () => _.cloneDeep(props.value.conceptBool),
-  async (newValue, oldValue) => {
-    if (newValue !== oldValue) await init();
-  }
-);
-
-const includeTerms = inject("includeTerms") as Ref<boolean>;
-watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const addMenu = ref();
 const loading = ref(false);
@@ -225,17 +189,6 @@ const addItems = ref([
   }
 ]);
 
-onMounted(async () => {
-  await init();
-  generateEcl();
-});
-
-async function init() {
-  if (props.value?.conceptSingle || props.value?.conceptBool) {
-    props.value.ecl = generateEcl();
-  }
-}
-
 const hover = ref();
 function mouseover(event: Event) {
   event.stopPropagation();
@@ -248,7 +201,7 @@ function mouseout(event: Event) {
 }
 
 function toggleBool(event: Event) {
-  props.value.conjunction = props.value.conjunction === "AND" ? "OR" : "AND";
+  props.value.conjunction = props.value.conjunction === "and" ? "or" : "and";
 }
 
 function toggleExclude() {
@@ -272,7 +225,7 @@ function addRefinement() {
 }
 
 function addGroup() {
-  add({ type: "BoolGroup", conjunction: "AND" });
+  add({ type: "BoolGroup", conjunction: "and" });
 }
 
 function addConcept() {
@@ -290,7 +243,7 @@ function getComponent(componentName: string) {
       return BoolGroup;
     case "Refinement":
       return Refinement;
-    case "Concept":
+    case "ExpressionConstraint":
       return ConceptSelector;
   }
 }
@@ -304,30 +257,9 @@ function getSkeletonComponent(componentName: string) {
   }
 }
 
-function generateEcl(): string {
-  let ecl = "";
-  if (props.value.conceptSingle) ecl += builderConceptToEcl(props.value, props.parent, includeTerms.value);
-  else if (props.value.conceptBool) {
-    if (props.value.conceptBool.ecl) ecl += props.value.conceptBool.ecl;
-    else ecl += "[ UNKNOWN CONCEPT ]";
-  }
-  if (isArrayHasLength(props.value.refinementItems)) {
-    ecl += " : \n";
-    if (props.value.refinementItems.length > 1 && props.value.refinementItems.some(i => i.type === "BoolGroup")) ecl += "( ";
-    for (const [index, item] of props.value.refinementItems.entries()) {
-      if (item.ecl) ecl += item.ecl;
-      else ecl += "[ INVALID REFINEMENT ]";
-      if (index + 1 !== props.value.refinementItems.length) ecl += " \n" + props.value.conjunction + " ";
-    }
-    if (props.value.refinementItems.length > 1 && props.value.refinementItems.some(i => i.type === "BoolGroup")) ecl += " )";
-  }
-  if (props.parent?.type === "BoolGroup" && props.parent.items?.length > 1 && props.value.refinementItems?.length) ecl += " )";
-  return ecl;
-}
-
 function processGroup() {
   if (group.value.length) {
-    const conjunction = props.parent?.conjunction === "OR" ? "AND" : "OR";
+    const conjunction = props.parent?.conjunction === "or" ? "and" : "or";
     const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: conjunction, items: [] };
     for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
       const item = props.value.refinementItems.splice(index, 1)[0];

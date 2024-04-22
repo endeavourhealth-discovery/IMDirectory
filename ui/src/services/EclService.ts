@@ -51,6 +51,10 @@ const EclService = {
 
   async getEclBuilderFromQuery(query: Query, raw: boolean = false): Promise<BoolGroup> {
     return axios.post(Env.API + "api/ecl/public/eclBuilderFromQuery", query, { raw: raw });
+  },
+
+  async getQueryFromEclBuilder(boolGroup: BoolGroup, raw: boolean = false): Promise<Query> {
+    return axios.post(Env.API + "api/ecl/public/queryFromEclBuilder", boolGroup, { raw: raw });
   }
 };
 

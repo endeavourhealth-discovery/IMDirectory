@@ -52,21 +52,11 @@ interface Props {
 const props = defineProps<Props>();
 
 watch(
-  () => _.cloneDeep(props.value),
-  (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
-  }
-);
-
-watch(
   () => _.cloneDeep(props.value.conceptSingle),
   async (newValue, oldValue) => {
     if (!_.isEqual(newValue, oldValue)) await init();
   }
 );
-
-const includeTerms = inject("includeTerms") as Ref<boolean>;
-watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const filterStore = useFilterStore();
 const filterStoreOptions = computed(() => filterStore.filterOptions);
@@ -103,7 +93,6 @@ const osQueryForConceptSearch: Ref<SearchRequest> = ref({
 
 onMounted(async () => {
   await init();
-  generateEcl();
 });
 
 watch(selected, (newValue, oldValue) => {
@@ -131,23 +120,9 @@ async function updateSelectedResult(data: SearchResultSummary | { iri: string; n
   }
 }
 
-function generateEcl(): string {
-  let ecl = "";
-  ecl += builderConceptToEcl(props.value, props.parent, includeTerms.value);
-  if (isArrayHasLength(props.value.refinementItems)) {
-    ecl += " : \n";
-    for (const [index, item] of props.value.refinementItems.entries()) {
-      if (item.ecl) ecl += item.ecl;
-      else ecl += "[ INVALID REFINEMENT ]";
-      if (index + 1 !== props.value.refinementItems.length) ecl += " \n" + props.value.conjunction + " ";
-    }
-  }
-  return ecl;
-}
-
-function updateConcept(concept: any) {
-  props.value.conceptSingle = concept;
-  props.value.ecl = generateEcl();
+function updateConcept(concept: SearchResultSummary | undefined) {
+  if (!concept) props.value.conceptSingle = undefined;
+  else props.value.conceptSingle = { iri: concept.iri };
 }
 </script>
 
