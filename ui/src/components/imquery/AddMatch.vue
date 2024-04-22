@@ -52,10 +52,10 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  "update:showAddPopulationDialog": payload => typeof payload === "boolean",
-  "update:showBuildFeatureDialog": payload => typeof payload === "boolean",
-  "update:showBuildThenFeatureDialog": payload => typeof payload === "boolean",
-  "update:showAddFeatureDialog": payload => typeof payload === "boolean"
+  "update:showAddPopulation": payload => typeof payload === "boolean",
+  "update:showBuildFeature": payload => typeof payload === "boolean",
+  "update:showBuildThenFeature": payload => typeof payload === "boolean",
+  "update:showAddFeature": payload => typeof payload === "boolean"
 });
 
 const showAddPopulationDialog: Ref<boolean> = ref(false);
@@ -73,7 +73,7 @@ watch(
 );
 watch(showAddPopulationDialog, newValue => {
   if (!newValue) {
-    emit("update:showAddPopulationDialog", newValue);
+    emit("update:showAddPopulation", newValue);
   }
 });
 
@@ -85,7 +85,7 @@ watch(
 );
 watch(showAddFeatureDialog, newValue => {
   if (!newValue) {
-    emit("update:showAddFeatureDialog", newValue);
+    emit("update:showAddFeature", newValue);
   }
 });
 
@@ -97,7 +97,7 @@ watch(
 );
 watch(showBuildThenFeatureDialog, newValue => {
   if (!newValue) {
-    emit("update:showBuildThenFeatureDialog", newValue);
+    emit("update:showBuildThenFeature", newValue);
   }
 });
 
@@ -109,7 +109,7 @@ watch(
 );
 watch(showBuildFeatureDialog, newValue => {
   if (!newValue) {
-    emit("update:showBuildFeatureDialog", newValue);
+    emit("update:showBuildFeature", newValue);
   }
 });
 

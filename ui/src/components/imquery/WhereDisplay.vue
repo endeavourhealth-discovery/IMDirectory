@@ -4,14 +4,11 @@
     <div v-if="where?.where" class="where-group">
       <Button
         v-if="where.where.length > 1"
+        text
         class="builder-button conjunction-button vertical-button"
         :label="where.bool?.toUpperCase() ?? 'AND'"
-        @click="
-          e => {
-            e.stopPropagation();
-            toggleWhereBool(where);
-          }
-        "
+        severity="secondary"
+        disabled
       />
       <div class="where-list"><WhereDisplay v-for="nestedWhere in where.where" :where="nestedWhere" /></div>
     </div>

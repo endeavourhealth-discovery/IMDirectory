@@ -16,17 +16,6 @@
       <div class="feature-list">
         <div class="feature-list-container">
           <div v-for="(feature, index) in queryDefinition.match" class="feature">
-            <Button
-              v-if="index && index > 0"
-              :severity="feature.exclude ? 'danger' : 'secondary'"
-              :outlined="!feature.exclude"
-              label="NOT"
-              @click="feature.exclude = !feature.exclude"
-              class="builder-button exclude-button vertical-button not-button"
-              :class="!feature.exclude && 'hover-button'"
-              v-tooltip="'Exclude'"
-              size="small"
-            />
             <div
               :class="[hover === index ? 'feature-description-card-hover' : 'feature-description-card']"
               class="clickable"
@@ -91,7 +80,7 @@ const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
 
 onMounted(async () => {
-  queryDefinition.value = await QueryService.getQueryDisplay("urn:uuid:40a4a1f1-b768-4db8-a8a6-6df744935d97");
+  queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
   if (queryDefinition.value.typeOf)
     selectedBaseType.value = { iri: queryDefinition.value.typeOf?.["@id"], name: queryDefinition.value.typeOf?.name } as SearchResultSummary;
 
@@ -149,17 +138,20 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 .feature-container {
   display: flex;
   align-items: baseline;
+  height: 100%;
 }
 
 .feature-list {
   display: flex;
   flex-flow: row;
   padding: 1rem;
+  height: 100%;
 }
 
 .feature-list-container {
   display: flex;
   flex-flow: column;
+  height: 100%;
 }
 
 .feature {

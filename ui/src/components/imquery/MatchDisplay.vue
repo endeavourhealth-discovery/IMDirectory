@@ -2,29 +2,19 @@
   <div class="match-description-container">
     <div class="match-description" v-html="match?.description"></div>
     <div v-if="match?.match" class="feature-group">
-      <Button
-        class="builder-button conjunction-button vertical-button"
-        :label="match.bool?.toUpperCase()"
-        @click="
-          e => {
-            e.stopPropagation();
-            toggleMatchBool(match);
-          }
-        "
-      />
+      <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled text />
       <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display" /></div>
     </div>
     <div v-if="match?.where" class="where-group">
+      <div class="bool-display vertical-button">{{ match.bool?.toUpperCase() }}</div>
+
       <Button
         v-if="match.where.length > 1"
         class="builder-button conjunction-button vertical-button"
         :label="match.bool?.toUpperCase() ?? 'AND'"
-        @click="
-          e => {
-            e.stopPropagation();
-            toggleMatchBool(match);
-          }
-        "
+        severity="secondary"
+        disabled
+        text
       />
       <div class="where-list"><WhereDisplay v-for="nestedWhere in match.where" :where="nestedWhere" /></div>
     </div>
@@ -94,5 +84,9 @@ const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 
 .saved-as {
   padding-right: 0.5rem;
+}
+
+.bool-display {
+  align-items: center;
 }
 </style>
