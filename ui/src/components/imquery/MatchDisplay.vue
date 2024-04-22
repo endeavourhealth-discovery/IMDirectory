@@ -1,31 +1,43 @@
 <template>
-  <div class="match-description-container">
-    <div class="match-description" v-html="match?.description"></div>
-    <div v-if="match?.match" class="feature-group">
-      <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled text />
-      <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display" /></div>
-    </div>
-    <div v-if="match?.where" class="where-group">
-      <div class="bool-display vertical-button">{{ match.bool?.toUpperCase() }}</div>
+  <div class="match-description-wrapper">
+    <Button
+      v-if="match.exclude"
+      :severity="'danger'"
+      label="NOT"
+      text
+      disabled
+      class="builder-button exclude-button vertical-button not-button"
+      v-tooltip="'Exclude'"
+      size="small"
+    />
+    <div class="match-description-container">
+      <div class="match-description" v-html="match?.description"></div>
+      <div v-if="match?.match" class="feature-group">
+        <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled text />
+        <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display" /></div>
+      </div>
+      <div v-if="match?.where" class="where-group">
+        <div class="bool-display vertical-button">{{ match.bool?.toUpperCase() }}</div>
 
-      <Button
-        v-if="match.where.length > 1"
-        class="builder-button conjunction-button vertical-button"
-        :label="match.bool?.toUpperCase() ?? 'AND'"
-        severity="secondary"
-        disabled
-        text
-      />
-      <div class="where-list"><WhereDisplay v-for="nestedWhere in match.where" :where="nestedWhere" /></div>
-    </div>
-    <div v-if="match.then">
-      <div class="then-title">Then</div>
-      <MatchDisplay :match="match.then" />
-    </div>
-    <div v-if="match.orderBy" v-html="match.orderBy.description" />
-    <div v-if="match.variable" class="variable-display">
-      <div class="saved-as">saved as</div>
-      <div class="variable">{{ match.variable }}</div>
+        <Button
+          v-if="match.where.length > 1"
+          class="builder-button conjunction-button vertical-button"
+          :label="match.bool?.toUpperCase() ?? 'AND'"
+          severity="secondary"
+          disabled
+          text
+        />
+        <div class="where-list"><WhereDisplay v-for="nestedWhere in match.where" :where="nestedWhere" /></div>
+      </div>
+      <div v-if="match.then">
+        <div class="then-title">Then</div>
+        <MatchDisplay :match="match.then" />
+      </div>
+      <div v-if="match.orderBy" v-html="match.orderBy.description" />
+      <div v-if="match.variable" class="variable-display">
+        <div class="saved-as">saved as</div>
+        <div class="variable">{{ match.variable }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -49,6 +61,14 @@ const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
   display: flex;
   flex-flow: column;
 }
+
+.match-description-wrapper {
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
 .match-description {
   width: 100%;
   height: 100%;
@@ -59,6 +79,7 @@ const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 .where-group {
   display: flex;
   flex-flow: row;
+  align-items: center;
 }
 
 .feature-list,

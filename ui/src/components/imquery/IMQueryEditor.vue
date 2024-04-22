@@ -26,7 +26,7 @@
               <MatchDisplay class="feature-description" :match="feature" />
             </div>
 
-            <Button @click="deleteFeature(index)" severity="danger" icon="fa-solid fa-trash" class="builder-button" />
+            <Button @click="deleteFeature(index)" severity="danger" icon="fa-solid fa-trash" class="builder-button expanding-button" />
           </div>
         </div>
         <EditMatchDialog
@@ -138,7 +138,8 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 .feature-container {
   display: flex;
   align-items: baseline;
-  height: 100%;
+
+  width: 100%;
 }
 
 .feature-list {
@@ -158,6 +159,8 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
   display: flex;
   flex-flow: row;
   align-items: center;
+  justify-content: center;
+  /* background-color: red; */
 }
 
 .feature-description {
@@ -206,6 +209,10 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
   margin-left: 5.8rem;
   display: flex;
   flex-flow: row;
+}
+
+.expanding-button {
+  align-self: stretch;
 }
 </style>
 

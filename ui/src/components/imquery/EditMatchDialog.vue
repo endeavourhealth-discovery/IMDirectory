@@ -52,6 +52,32 @@
               :edit-match="focusedEditMatch"
               :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
             />
+            <div class="add-button-bar">
+              <Button
+                v-if="!focusedEditMatch?.then"
+                label="Add test"
+                @click="showBuildThenFeature = true"
+                severity="secondary"
+                icon="fa-solid fa-plus"
+                class="add-feature-button"
+              />
+              <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-plus" class="add-feature-button" />
+              <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+              <Button
+                label="Build feature"
+                @click="showBuildFeature = true"
+                severity="warning"
+                icon="fa-solid fa-screwdriver-wrench"
+                class="add-feature-button"
+              />
+              <Button
+                v-if="!focusedEditMatch?.orderBy"
+                label="Add order by"
+                @click="focusedEditMatch!.orderBy = { description: '', limit: 0, partitionBy: {}, property: {} }"
+                icon="fa-solid fa-arrow-down-z-a"
+                class="add-feature-button"
+              />
+            </div>
           </div>
         </div>
 
@@ -89,25 +115,6 @@
       <template #footer>
         <div class="button-footer">
           <Button label="Cancel" text @click="onCancel" />
-          <Button
-            v-if="!focusedEditMatch?.then"
-            label="Add test"
-            @click="showBuildThenFeature = true"
-            severity="secondary"
-            icon="fa-solid fa-plus"
-            class="add-feature-button"
-          />
-          <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-plus" class="add-feature-button" />
-          <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
-          <Button label="Build feature" @click="showBuildFeature = true" severity="warning" icon="fa-solid fa-screwdriver-wrench" class="add-feature-button" />
-          <Button
-            v-if="!focusedEditMatch?.orderBy"
-            label="Add order by"
-            @click="focusedEditMatch!.orderBy = { description: '', limit: 0, partitionBy: {}, property: {} }"
-            severity="help"
-            icon="fa-solid fa-arrow-down-z-a"
-            class="add-feature-button"
-          />
           <Button label="Save" autofocus @click="onSave" />
         </div>
       </template>
@@ -328,5 +335,10 @@ function onCancel() {
 .variable-display {
   align-items: baseline;
   display: flex;
+}
+
+.add-button-bar {
+  display: flex;
+  column-gap: 1rem;
 }
 </style>

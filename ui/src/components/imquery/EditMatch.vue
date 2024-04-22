@@ -27,7 +27,7 @@
 
       <div v-if="editMatch?.match" class="feature-group">
         <Button
-          class="builder-button conjunction-button vertical-button"
+          class="expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.bool?.toUpperCase() ?? 'AND'"
           @click="
             e => {
@@ -50,7 +50,7 @@
       <div v-if="editMatch?.where" class="where-group">
         <Button
           v-if="editMatch.where.length > 1"
-          class="builder-button conjunction-button vertical-button"
+          class="expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.bool?.toUpperCase() ?? 'AND'"
           @click="
             e => {
@@ -200,11 +200,13 @@ function onPropertyAdd(properties: Where[]) {
   width: 100%;
   display: flex;
   flex-flow: row;
+  align-items: center;
 }
 
 .feature-list,
 .where-list {
   width: 100%;
+  height: 100%;
   display: flex;
   flex-flow: column;
 }
@@ -229,6 +231,9 @@ function onPropertyAdd(properties: Where[]) {
   width: 10rem;
   margin-top: 0.5rem;
   margin-left: 0.5rem;
+}
+.expanding-button {
+  align-self: stretch;
 }
 </style>
 
