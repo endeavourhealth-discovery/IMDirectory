@@ -339,6 +339,6 @@ function onCancel() {
 
 .add-button-bar {
   display: flex;
-  column-gap: 1rem;
+  column-gap: 0.2rem;
 }
 </style>
