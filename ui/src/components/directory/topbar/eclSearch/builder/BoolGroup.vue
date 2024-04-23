@@ -149,6 +149,7 @@ watch(
     }
   }
 );
+const childLoadingState = inject("childLoadingState") as Ref<any>;
 
 const emit = defineEmits({ unGroupItems: _payload => true });
 
@@ -161,6 +162,7 @@ const attributeGroup = ref(false);
 
 onMounted(() => {
   if (props.value.attributeGroup) attributeGroup.value = true;
+  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
 });
 
 const hover = ref();

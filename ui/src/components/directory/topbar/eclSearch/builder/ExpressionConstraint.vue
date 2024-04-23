@@ -161,6 +161,7 @@ interface Props {
     conceptSingle: { iri: string; name?: string } | undefined;
     conceptBool: { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
     exclude?: boolean;
+    id?: string;
   };
   parent?: any;
   index?: number;
@@ -168,6 +169,7 @@ interface Props {
 const props = defineProps<Props>();
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
+const childLoadingState = inject("childLoadingState") as Ref<any>;
 
 const addMenu = ref();
 const loading = ref(false);
@@ -188,6 +190,10 @@ const addItems = ref([
     ]
   }
 ]);
+
+onMounted(() => {
+  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
+});
 
 const hover = ref();
 function mouseover(event: Event) {

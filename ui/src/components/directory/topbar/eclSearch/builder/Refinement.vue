@@ -96,6 +96,7 @@ interface Props {
     property: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
     value: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
     validation?: { deferred: { promise: Promise<any>; reject: Function; resolve: Function }; valid: boolean };
+    id?: string;
   };
   parent?: any;
   focus?: any;
@@ -109,6 +110,7 @@ const propertyRanges: Ref<Set<string>> = ref(new Set<string>());
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const childLoadingState = inject("childLoadingState") as Ref<any>;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 const selectedProperty: Ref<SearchResultSummary | undefined> = ref();
 const selectedValue: Ref<SearchResultSummary | undefined> = ref();
@@ -232,6 +234,7 @@ onMounted(async () => {
   updateQueryForPropertySearch();
   loadingProperty.value = false;
   loadingValue.value = false;
+  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
 });
 
 function updateQueryForValueSearch() {

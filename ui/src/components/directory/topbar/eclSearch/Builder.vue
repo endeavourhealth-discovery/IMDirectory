@@ -39,13 +39,22 @@
             <label for="includeTerms">Include terms</label>
           </div>
           <div class="string-copy-container">
-            <pre class="output-string">{{ queryString }}</pre>
+            <div v-if="eclConversionError.error" class="output-string" style="color: red">Error generating ecl text. Please check your inputs are correct.</div>
+            <div
+              v-else-if="isObjectHasKeys(childLoadingState) && !Object.values(childLoadingState).every(item => item === true)"
+              class="output-string"
+              style="color: red"
+            >
+              <ProgressSpinner />
+            </div>
+            <pre v-else class="output-string">{{ queryString }}</pre>
             <Button
               icon="fa-solid fa-copy"
               v-tooltip.left="'Copy to clipboard'"
               v-clipboard:copy="copyToClipboard()"
               v-clipboard:success="onCopy"
               v-clipboard:error="onCopyError"
+              :disabled="eclConversionError.error"
             />
           </div>
         </Panel>
@@ -104,6 +113,13 @@ const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error
 const loading = ref(false);
 const isValidEcl = ref(false);
 const isValid = ref(false);
+const childLoadingState: Ref<any> = ref({});
+watch(
+  () => _.cloneDeep(childLoadingState.value),
+  newValue => {
+    if (Object.values(newValue).every(item => item === true)) generateQueryString();
+  }
+);
 
 const wasDraggedAndDropped = ref(false);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
@@ -118,6 +134,7 @@ watch(queryString, async () => {
 
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
+provide("childLoadingState", childLoadingState);
 
 onMounted(async () => {
   if (props.eclString) {
@@ -127,20 +144,20 @@ onMounted(async () => {
 
 watch(
   () => props.eclString,
-  newValue => {
-    if (newValue) createBuildFromEclString(newValue);
+  async newValue => {
+    if (newValue) await createBuildFromEclString(newValue);
     else createDefaultBuild();
   }
 );
 
 watch(
   () => _.cloneDeep(build.value),
-  () => {
-    generateQueryString();
+  async () => {
+    if (!loading.value) await generateQueryString();
   }
 );
 
-watch(includeTerms, () => generateQueryString());
+watch(includeTerms, async () => await generateQueryString());
 
 function createDefaultBuild() {
   build.value = { type: "BoolGroup", conjunction: "or" };
@@ -152,6 +169,7 @@ async function createBuildFromEclString(ecl: string) {
     const query = await EclService.getQueryFromECL(ecl);
     build.value = await EclService.getEclBuilderFromQuery(query, true);
     eclConversionError.value = { error: false, message: "" };
+    createInitialLoadingState(build.value, 0, 0);
   } catch (err: any) {
     createDefaultBuild();
     if (err?.response?.data) eclConversionError.value = { error: true, message: err.response.data.debugMessage };
@@ -159,6 +177,7 @@ async function createBuildFromEclString(ecl: string) {
   }
   emit("eclConversionError", eclConversionError.value);
   loading.value = false;
+  await generateQueryString();
 }
 
 function submit(): void {
@@ -170,11 +189,15 @@ function closeBuilderDialog(): void {
 }
 
 async function generateQueryString() {
-  try {
-    const query = await EclService.getQueryFromEclBuilder(build.value, true);
-    queryString.value = await EclService.getECLFromQuery(query, includeTerms.value);
-  } catch (err: any) {
-    console.log("Errored");
+  if (!isObjectHasKeys(childLoadingState.value) || Object.values(childLoadingState.value).every(item => item === true)) {
+    try {
+      const buildClone = _.cloneDeep(build.value);
+      stripIds(buildClone);
+      const query = await EclService.getQueryFromEclBuilder(buildClone, true);
+      queryString.value = await EclService.getECLFromQuery(query, includeTerms.value);
+    } catch (err: any) {
+      eclConversionError.value = { error: true, message: err.message };
+    }
   }
 }
 
@@ -241,6 +264,48 @@ function flattenBuild(build: any, flattenedBuild: any[]) {
       }
       flattenBuild(item, flattenedBuild);
     });
+}
+
+function createInitialLoadingState(initialBuild: any, depth: number, position: number) {
+  if (initialBuild) {
+    const id = depth + "-" + position;
+    initialBuild.id = id;
+    childLoadingState.value[id] = false;
+    if (initialBuild.items?.length) {
+      for (const [index, item] of initialBuild.items.entries()) {
+        createInitialLoadingState(item, depth + 1, index);
+      }
+    } else if (initialBuild.type === "ExpressionConstraint") {
+      if (initialBuild.conceptBool) {
+        createInitialLoadingState(initialBuild.conceptBool, depth + 1, 1);
+      }
+      if (initialBuild.refinementItems) {
+        for (const [index, item] of initialBuild.refinementItems.entries()) {
+          createInitialLoadingState(item, depth + 1, index);
+        }
+      }
+    }
+  }
+}
+
+function stripIds(idBuild: any) {
+  if (idBuild) {
+    delete idBuild.id;
+    if (idBuild.items?.length) {
+      for (const [index, item] of idBuild.items.entries()) {
+        stripIds(item);
+      }
+    } else if (idBuild.type === "ExpressionConstraint") {
+      if (idBuild.conceptBool) {
+        stripIds(idBuild.conceptBool);
+      }
+      if (idBuild.refinementItems) {
+        for (const [index, item] of idBuild.refinementItems.entries()) {
+          stripIds(item);
+        }
+      }
+    }
+  }
 }
 </script>
 
