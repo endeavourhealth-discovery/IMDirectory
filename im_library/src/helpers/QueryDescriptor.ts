@@ -106,7 +106,7 @@ export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
     display = getNameFromRef(match.typeOf);
     display += getDisplaySuffixFromEntailment(match.typeOf);
   } else if (match.instanceOf) {
-    display = "is instance of " + getNameFromRef(match.instanceOf);
+    display = (match.instanceOf.memberOf ? "is member of " : "is instance of ") + getNameFromRef(match.instanceOf);
     display += getDisplaySuffixFromEntailment(match.instanceOf);
   } else if (!match.where && match["@id"] && match.name) {
     display += getDisplaySuffixFromEntailment(match as any);
