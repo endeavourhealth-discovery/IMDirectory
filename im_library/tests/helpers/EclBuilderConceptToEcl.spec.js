@@ -10,7 +10,7 @@ describe("builderConceptToEcl", () => {
   });
 
   it("handles descendants", () => {
-    expect(builderConceptToEcl({ concept: { code: "12345678" }, descendants: ">>" })).toEqual(">> 12345678");
+    expect(builderConceptToEcl({ concept: { code: "12345678" }, constraintOperator: ">>" })).toEqual(">> 12345678");
   });
 
   it("handles any", () => {

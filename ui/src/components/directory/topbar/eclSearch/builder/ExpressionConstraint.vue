@@ -35,11 +35,11 @@
       />
       <div class="focus-container">
         <div class="focus">
-          <div v-if="isAliasIriRef(value.concept)" class="concept-container">
+          <div v-if="value.conceptSingle" class="concept-container">
             <ConceptSelector :value="value" :parent="value" />
           </div>
-          <div v-else-if="isBoolGroup(value.concept)" class="focus-group-container">
-            <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
+          <div v-else-if="value.conceptBool" class="focus-group-container">
+            <component :is="getComponent(value.conceptBool.type)" :value="value.conceptBool" :parent="value" @unGroupItems="unGroupItems" />
           </div>
           <div v-else class="add-focus-buttons-container">
             <Button
@@ -74,11 +74,11 @@
         </div>
 
         <div class="refinement">
-          <div v-if="value?.items?.length > 1" class="conjunction">
-            <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction ?? 'OR'" @click="toggleBool" />
+          <div v-if="value?.refinementItems?.length > 1" class="conjunction">
+            <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction ?? 'or'" @click="toggleBool" />
           </div>
           <div class="refinements">
-            <div v-for="(item, index) in value.items" class="refinement-container">
+            <div v-for="(item, index) in value.refinementItems" class="refinement-container">
               <span class="left-container">
                 <div class="group-checkbox">
                   <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
@@ -93,8 +93,21 @@
                   v-tooltip="'Bracket selected items'"
                 />
               </span>
-              <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
-              <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
+              <component
+                v-if="!loading"
+                :is="getComponent(item.type)"
+                :value="item"
+                :parent="value"
+                :focus="value.conceptSingle ? value.conceptSingle : value.conceptBool"
+                @unGroupItems="unGroupItems"
+              />
+              <component
+                v-else
+                :is="getSkeletonComponent(item.type)"
+                :value="item"
+                :parent="value"
+                :focus="value.conceptSingle ? value.conceptSingle : value.conceptBool"
+              />
               <span class="add-group">
                 <Button
                   @click="deleteItem(index)"
@@ -107,7 +120,7 @@
               </span>
             </div>
             <Button
-              v-if="value?.items?.length > 0"
+              v-if="value?.refinementItems?.length > 0"
               type="button"
               icon="fa-solid fa-filter"
               label="Add refinement"
@@ -142,12 +155,13 @@ import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 interface Props {
   value: {
     type: string;
-    descendants: string;
+    constraintOperator: string;
     conjunction: string;
-    items: any[];
-    concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
-    ecl?: string;
+    refinementItems: any[];
+    conceptSingle: { iri: string; name?: string } | undefined;
+    conceptBool: { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
     exclude?: boolean;
+    id?: string;
   };
   parent?: any;
   index?: number;
@@ -155,34 +169,7 @@ interface Props {
 const props = defineProps<Props>();
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
-
-watch(
-  () => _.cloneDeep(props.value),
-  (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
-      props.value.ecl = generateEcl();
-    }
-  }
-);
-
-watch(
-  () => _.cloneDeep(props.parent),
-  (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
-      props.value.ecl = generateEcl();
-    }
-  }
-);
-
-watch(
-  () => _.cloneDeep(props.value.concept),
-  async (newValue, oldValue) => {
-    if (newValue !== oldValue) await init();
-  }
-);
-
-const includeTerms = inject("includeTerms") as Ref<boolean>;
-watch(includeTerms, () => (props.value.ecl = generateEcl()));
+const childLoadingState = inject("childLoadingState") as Ref<any>;
 
 const addMenu = ref();
 const loading = ref(false);
@@ -204,16 +191,9 @@ const addItems = ref([
   }
 ]);
 
-onMounted(async () => {
-  await init();
-  generateEcl();
+onMounted(() => {
+  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
 });
-
-async function init() {
-  if (props.value?.concept) {
-    props.value.ecl = generateEcl();
-  }
-}
 
 const hover = ref();
 function mouseover(event: Event) {
@@ -227,7 +207,7 @@ function mouseout(event: Event) {
 }
 
 function toggleBool(event: Event) {
-  props.value.conjunction = props.value.conjunction === "AND" ? "OR" : "AND";
+  props.value.conjunction = props.value.conjunction === "and" ? "or" : "and";
 }
 
 function toggleExclude() {
@@ -235,10 +215,10 @@ function toggleExclude() {
 }
 
 function add(item: any) {
-  if (!props.value.items) {
-    props.value.items = [item];
+  if (!props.value.refinementItems) {
+    props.value.refinementItems = [item];
   } else {
-    props.value.items.push(item);
+    props.value.refinementItems.push(item);
   }
 }
 
@@ -247,19 +227,20 @@ function toggleAdd(event: any) {
 }
 
 function addRefinement() {
-  add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+  add({ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } });
 }
 
 function addGroup() {
-  add({ type: "BoolGroup", conjunction: "AND" });
+  add({ type: "BoolGroup", conjunction: "and" });
 }
 
 function addConcept() {
-  props.value.concept = { iri: "" };
+  props.value.conceptBool = undefined;
+  props.value.conceptSingle = { iri: "" };
 }
 
 function deleteItem(index: number) {
-  props.value.items.splice(index, 1);
+  props.value.refinementItems.splice(index, 1);
 }
 
 function getComponent(componentName: string) {
@@ -268,7 +249,7 @@ function getComponent(componentName: string) {
       return BoolGroup;
     case "Refinement":
       return Refinement;
-    case "Concept":
+    case "ExpressionConstraint":
       return ConceptSelector;
   }
 }
@@ -282,47 +263,26 @@ function getSkeletonComponent(componentName: string) {
   }
 }
 
-function generateEcl(): string {
-  let ecl = "";
-  if (isAliasIriRef(props.value.concept)) ecl += builderConceptToEcl(props.value, props.parent, includeTerms.value);
-  else if (isBoolGroup(props.value.concept)) {
-    if (props.value.concept.ecl) ecl += props.value.concept.ecl;
-    else ecl += "[ UNKNOWN CONCEPT ]";
-  }
-  if (isArrayHasLength(props.value.items)) {
-    ecl += " : \n";
-    if (props.value.items.length > 1 && props.value.items.some(i => i.type === "BoolGroup")) ecl += "( ";
-    for (const [index, item] of props.value.items.entries()) {
-      if (item.ecl) ecl += item.ecl;
-      else ecl += "[ INVALID REFINEMENT ]";
-      if (index + 1 !== props.value.items.length) ecl += " \n" + props.value.conjunction + " ";
-    }
-    if (props.value.items.length > 1 && props.value.items.some(i => i.type === "BoolGroup")) ecl += " )";
-  }
-  if (props.parent?.type === "BoolGroup" && props.parent.items?.length > 1 && props.value.items?.length) ecl += " )";
-  return ecl;
-}
-
 function processGroup() {
   if (group.value.length) {
-    const conjunction = props.parent?.conjunction === "OR" ? "AND" : "OR";
+    const conjunction = props.parent?.conjunction === "or" ? "and" : "or";
     const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: conjunction, items: [] };
     for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
-      const item = props.value.items.splice(index, 1)[0];
+      const item = props.value.refinementItems.splice(index, 1)[0];
       newGroup.items.push(item);
     }
-    props.value.items.splice(group.value.toSorted(numberAscending)[0], 0, newGroup);
+    props.value.refinementItems.splice(group.value.toSorted(numberAscending)[0], 0, newGroup);
   }
   group.value = [];
 }
 
 function unGroupItems(groupedItems: any) {
-  const foundItem = props.value.items.find(item => _.isEqual(item, groupedItems));
-  const foundItemIndex = props.value.items.findIndex(item => _.isEqual(item, groupedItems));
+  const foundItem = props.value.refinementItems.find(item => _.isEqual(item, groupedItems));
+  const foundItemIndex = props.value.refinementItems.findIndex(item => _.isEqual(item, groupedItems));
   if (foundItem) {
-    props.value.items.splice(foundItemIndex, 1);
+    props.value.refinementItems.splice(foundItemIndex, 1);
     for (const groupedItem of groupedItems.items) {
-      props.value.items.splice(foundItemIndex, 0, groupedItem);
+      props.value.refinementItems.splice(foundItemIndex, 0, groupedItem);
     }
   }
 }

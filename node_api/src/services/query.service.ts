@@ -1,5 +1,4 @@
 import Env from "@/services/env.service";
-import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest, QueryResponse } from "@im-library/interfaces";
@@ -141,7 +140,7 @@ export default class QueryService {
 
   public async getAllowablePropertySuggestionsBoolFocus(focus: any, searchTerm?: string, page?: number, size?: number): Promise<SearchResponse> {
     let query;
-    if (focus.ecl) query = eclToIMQ(focus.ecl);
+    if (focus.ecl) query = (await this.axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
     if (query) {
       const queryRequest: QueryRequest = {
         query: {
@@ -168,7 +167,7 @@ export default class QueryService {
 
   public async isAllowablePropertySuggestionBoolFocus(focus: any, propertyIri: string) {
     let query;
-    if (focus.ecl) query = eclToIMQ(focus.ecl);
+    if (focus.ecl) query = (await this.axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
     if (query) {
       const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
       const results = await this.eclService.eclSearch(eclSearchRequest);
