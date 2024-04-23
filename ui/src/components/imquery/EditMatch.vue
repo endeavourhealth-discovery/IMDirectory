@@ -37,14 +37,44 @@
           "
         />
         <div class="feature-list">
-          <EditMatch
-            v-for="nestedMatch in editMatch.match"
-            :editMatch="nestedMatch"
-            :focused-id="focusedId"
-            :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
-            @on-update-dialog-focus="onNestedUpdateDialogFocus"
-            @delete-match="onDeleteMatch"
-          />
+          <div class="nested-match" v-for="[index, nestedMatch] in editMatch.match.entries()">
+            <span class="left-container">
+              <div class="group-checkbox">
+                <Checkbox
+                  :inputId="'group' + index"
+                  name="Group"
+                  :value="index"
+                  v-model="group"
+                  @click="
+                    e => {
+                      e.stopPropagation();
+                    }
+                  "
+                />
+                <label :for="'group' + index">Select</label>
+              </div>
+              <Button
+                v-if="group.includes(index)"
+                icon="fa-solid fa-brackets-curly"
+                severity="help"
+                @click="
+                  e => {
+                    e.stopPropagation();
+                    bracketItems();
+                  }
+                "
+                :disabled="!group.length"
+                v-tooltip="'Bracket selected items'"
+              />
+            </span>
+            <EditMatch
+              :editMatch="nestedMatch"
+              :focused-id="focusedId"
+              :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
+              @on-update-dialog-focus="onNestedUpdateDialogFocus"
+              @delete-match="onDeleteMatch"
+            />
+          </div>
         </div>
       </div>
       <div v-if="editMatch?.where" class="where-group">
@@ -109,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Where } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Where } from "@im-library/interfaces/AutoGen";
 import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupHover from "@/composables/setupHover";
@@ -131,6 +161,7 @@ const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 const { hover, mouseout, mouseover } = setupHover();
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
+const group: Ref<number[]> = ref([]);
 
 function updateDialogFocus(event: Event) {
   event.stopPropagation();
@@ -159,6 +190,20 @@ function onPropertyAdd(properties: Where[]) {
       if (!hasProperty) props.editMatch.where?.push(property);
     }
   }
+}
+
+function bracketItems() {
+  if (group.value.length) {
+    const newMatch: Match = { boolMatch: Bool.and, match: [] };
+    for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
+      if (props.editMatch.match) {
+        const nestedMatch = props.editMatch.match.splice(index, 1)[0];
+        newMatch.match?.push(nestedMatch);
+      }
+    }
+    props.editMatch.match?.push(newMatch);
+  }
+  group.value = [];
 }
 </script>
 
@@ -234,6 +279,20 @@ function onPropertyAdd(properties: Where[]) {
 }
 .expanding-button {
   align-self: stretch;
+}
+.left-container {
+  display: flex;
+  align-items: center;
+}
+.group-checkbox {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.nested-match {
+  display: flex;
 }
 </style>
 

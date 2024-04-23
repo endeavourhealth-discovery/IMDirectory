@@ -101,6 +101,7 @@ const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 .variable-display {
   display: flex;
   padding-top: 1rem;
+  padding-left: 1rem;
 }
 
 .saved-as {
