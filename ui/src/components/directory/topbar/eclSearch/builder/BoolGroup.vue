@@ -193,7 +193,7 @@ function add(item: any) {
 }
 
 function addConcept() {
-  add({ type: "ExpressionConstraint", descendants: "<<", conjunction: "and", concept: { iri: "" } });
+  add({ type: "ExpressionConstraint", expressionConstraint: "<<", conjunction: "and", concept: { iri: "" } });
 }
 
 function deleteItem(index: number) {
@@ -226,13 +226,13 @@ function addRefinement() {
   if (!props.focus) {
     const anyConcept = {
       type: "ExpressionConstraint",
-      descendants: "<<",
-      concept: { iri: "any", name: "ANY", code: "any" },
+      constraintOperator: "<<",
+      conceptSingle: { iri: "any", name: "ANY", code: "any" },
       conjunction: "and",
-      items: [{ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } }]
+      items: [{ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } }]
     };
     add(anyConcept);
-  } else add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+  } else add({ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } });
 }
 
 function requestUnGroupItems() {

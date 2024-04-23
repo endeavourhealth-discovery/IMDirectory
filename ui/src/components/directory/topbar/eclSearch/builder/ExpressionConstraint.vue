@@ -227,7 +227,7 @@ function toggleAdd(event: any) {
 }
 
 function addRefinement() {
-  add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+  add({ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } });
 }
 
 function addGroup() {

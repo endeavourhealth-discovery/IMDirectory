@@ -39,7 +39,7 @@
             <label for="includeTerms">Include terms</label>
           </div>
           <div class="string-copy-container">
-            <div v-if="eclConversionError.error" class="output-string" style="color: red">Error generating ecl text. Please check your inputs are correct.</div>
+            <div v-if="eclStringError.error" class="output-string" style="color: red">Error generating ecl text. Please check your inputs are correct.</div>
             <div
               v-else-if="isObjectHasKeys(childLoadingState) && !Object.values(childLoadingState).every(item => item === true)"
               class="output-string"
@@ -110,6 +110,7 @@ const queryString = ref("");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
 
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
+const eclStringError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
 const isValidEcl = ref(false);
 const isValid = ref(false);
@@ -195,8 +196,10 @@ async function generateQueryString() {
       stripIds(buildClone);
       const query = await EclService.getQueryFromEclBuilder(buildClone, true);
       queryString.value = await EclService.getECLFromQuery(query, includeTerms.value);
+      eclStringError.value = { error: false, message: "" };
     } catch (err: any) {
-      eclConversionError.value = { error: true, message: err.message };
+      console.log("here");
+      eclStringError.value = { error: true, message: err.message };
     }
   }
 }
