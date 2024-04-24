@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-10 07:53:16.
+// Generated using typescript-generator version 3.2.1263 on 2024-04-17 14:38:25.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -12,6 +12,43 @@ export interface DataModelProperty extends Serializable {
     pattern?: string;
     inheritedFrom?: TTIriRef;
     order?: number;
+}
+
+export interface BoolGroup extends BuilderComponent {
+    conjunction?: Bool;
+    items?: BuilderComponent[];
+    attributeGroup?: boolean;
+    exclude?: boolean;
+}
+
+export interface BuilderComponent extends BuilderValue {
+    type?: string;
+}
+
+export interface BuilderValue {
+}
+
+export interface EclBuilderException extends Exception {
+}
+
+export interface ExpressionConstraint extends BuilderComponent {
+    constraintOperator?: string;
+    conjunction?: Bool;
+    conceptSingle?: TTIriRef;
+    conceptBool?: BoolGroup;
+    refinementItems?: BuilderComponent[];
+}
+
+export interface Refinement extends BuilderComponent {
+    operator?: string;
+    property?: SubExpressionConstraint;
+    value?: SubExpressionConstraint;
+}
+
+export interface SubExpressionConstraint {
+    concept?: TTIriRef;
+    constraintOperator?: string;
+    memberOf?: boolean;
 }
 
 export interface ArrayButtons {
@@ -127,6 +164,16 @@ export interface PropertyShape {
     arrayButtons?: ArrayButtons;
 }
 
+export interface SetContent {
+    name?: string;
+    description?: string;
+    status?: string;
+    version?: number;
+    setDefinition?: string;
+    subsets?: string[];
+    concepts?: Concept[];
+}
+
 export interface TransformRequest {
     transformMap?: TTIriRef;
     sourceFormat?: string;
@@ -145,11 +192,11 @@ export interface Argument {
 }
 
 export interface Assignable {
-    operator?: Operator;
-    relativeTo?: PropertyRef;
-    dataType?: TTIriRef;
-    unit?: string;
     value?: string;
+    unit?: string;
+    operator?: Operator;
+    dataType?: TTIriRef;
+    relativeTo?: PropertyRef;
 }
 
 export interface Case {
@@ -182,10 +229,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
     descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -338,8 +385,8 @@ export interface Where extends PropertyRef, Assignable {
     where?: Where[];
     valueLabel?: string;
     isNotNull?: boolean;
-    notNull?: boolean;
     null?: boolean;
+    notNull?: boolean;
 }
 
 export interface EntityDocument {
@@ -556,25 +603,6 @@ export interface TTIriRef extends TTValue, Serializable {
 export interface Serializable {
 }
 
-export interface TTEntity extends TTNode, Serializable {
-    context?: TTContext;
-    crud?: TTIriRef;
-    graph?: TTIriRef;
-    scheme?: TTIriRef;
-    prefixes?: TTPrefix[];
-    description?: string;
-    version?: number;
-    code?: string;
-    name?: string;
-    type?: TTArray;
-    status?: TTIriRef;
-}
-
-export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
-    nameSpaces?: TTPrefix[];
-}
-
 export interface Throwable extends Serializable {
     cause?: Throwable;
     stackTrace?: StackTraceElement[];
@@ -597,6 +625,25 @@ export interface StackTraceElement extends Serializable {
 export interface Exception extends Throwable {
 }
 
+export interface TTEntity extends TTNode, Serializable {
+    context?: TTContext;
+    crud?: TTIriRef;
+    graph?: TTIriRef;
+    name?: string;
+    type?: TTArray;
+    scheme?: TTIriRef;
+    version?: number;
+    code?: string;
+    status?: TTIriRef;
+    description?: string;
+    prefixes?: TTPrefix[];
+}
+
+export interface TTContext extends Serializable {
+    nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
+}
+
 export interface TTValue extends Serializable {
     order?: number;
 }
@@ -615,6 +662,25 @@ export interface TTArray extends Serializable {
 export interface TTNode extends TTValue, Serializable {
     predicateMap?: { [index: string]: TTArray };
     "@id"?: string;
+}
+
+export const enum BoolGroupType {
+    EXPRESSION_CONSTRAINT_GROUP = "EXPRESSION_CONSTRAINT_GROUP",
+    CONCEPT_REFERENCE_SET = "CONCEPT_REFERENCE_SET",
+}
+
+export const enum ComponentType {
+    BOOL_GROUP = "BOOL_GROUP",
+    CONCEPT = "CONCEPT",
+    REFINEMENT = "REFINEMENT",
+}
+
+export const enum EclType {
+    exclusion = "exclusion",
+    refined = "refined",
+    compound = "compound",
+    compoundRefined = "compoundRefined",
+    simple = "simple",
 }
 
 export const enum ListMode {

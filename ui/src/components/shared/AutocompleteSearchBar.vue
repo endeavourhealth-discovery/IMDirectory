@@ -110,7 +110,7 @@ watch(
       if (newValue && newValue.name && newValue.name != searchText.value) {
         searchText.value = newValue.name;
         selectedLocal.value = newValue;
-      } else if (!newValue) {
+      } else if (!newValue || !newValue.name) {
         searchText.value = "";
         selectedLocal.value = undefined;
       }
