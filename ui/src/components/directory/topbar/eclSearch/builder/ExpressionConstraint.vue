@@ -48,7 +48,6 @@
               :class="!hover && 'hover-button'"
               label="Add Concept"
               @click="addConcept"
-              class="builder-button"
             />
             <Button
               :severity="hover ? 'success' : 'secondary'"
@@ -56,7 +55,6 @@
               :class="!hover && 'hover-button'"
               label="Add Group"
               @click="addGroup"
-              class="builder-button"
             />
           </div>
           <Button
