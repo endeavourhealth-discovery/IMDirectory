@@ -36,45 +36,63 @@
             }
           "
         />
-        <div class="feature-list">
-          <div class="nested-match" v-for="[index, nestedMatch] in editMatch.match.entries()">
-            <span class="left-container">
-              <div class="group-checkbox">
-                <Checkbox
-                  :inputId="'group' + index"
-                  name="Group"
-                  :value="index"
-                  v-model="group"
+        <div class="feature-bracket-group">
+          <div class="feature-list">
+            <div class="nested-match" v-for="[index, nestedMatch] in editMatch.match.entries()">
+              <span class="left-container">
+                <div class="group-checkbox">
+                  <Checkbox
+                    :inputId="'group' + index"
+                    name="Group"
+                    :value="index"
+                    v-model="group"
+                    @click="
+                      e => {
+                        e.stopPropagation();
+                      }
+                    "
+                  />
+                  <label :for="'group' + index">Select</label>
+                </div>
+                <Button
+                  v-if="group.includes(index)"
+                  icon="fa-solid fa-brackets-curly"
+                  severity="help"
                   @click="
                     e => {
                       e.stopPropagation();
+                      bracketItems();
                     }
                   "
+                  :disabled="!group.length"
+                  v-tooltip="'Bracket selected items'"
                 />
-                <label :for="'group' + index">Select</label>
-              </div>
-              <Button
-                v-if="group.includes(index)"
-                icon="fa-solid fa-brackets-curly"
-                severity="help"
-                @click="
-                  e => {
-                    e.stopPropagation();
-                    bracketItems();
-                  }
-                "
-                :disabled="!group.length"
-                v-tooltip="'Bracket selected items'"
+              </span>
+              <EditMatch
+                :editMatch="nestedMatch"
+                :focused-id="focusedId"
+                :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
+                @on-update-dialog-focus="onNestedUpdateDialogFocus"
+                @delete-match="onDeleteMatch"
+                @ungroup-matches="ungroupMatches"
               />
-            </span>
-            <EditMatch
-              :editMatch="nestedMatch"
-              :focused-id="focusedId"
-              :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
-              @on-update-dialog-focus="onNestedUpdateDialogFocus"
-              @delete-match="onDeleteMatch"
-            />
+            </div>
           </div>
+          <Button
+            v-if="!isRootFeature && editMatch?.match?.length > 1"
+            class="builder-button group-button"
+            severity="warning"
+            icon="fa-solid fa-brackets-curly"
+            :outlined="!hover"
+            :class="[!hover && 'hover-button', 'strike-through']"
+            @click="
+              e => {
+                e.stopPropagation();
+                emit('ungroupMatches', editMatch);
+              }
+            "
+            v-tooltip="'Remove brackets'"
+          />
         </div>
       </div>
       <div v-if="editMatch?.where" class="where-group">
@@ -157,7 +175,11 @@ interface Props {
   focusedId: string | undefined;
 }
 const props = defineProps<Props>();
-const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteMatch: (payload: string) => payload });
+const emit = defineEmits({
+  onUpdateDialogFocus: (payload: MenuItem[]) => payload,
+  deleteMatch: (payload: string) => payload,
+  ungroupMatches: (payload: Match) => payload
+});
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 const { hover, mouseout, mouseover } = setupHover();
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
@@ -204,6 +226,17 @@ function bracketItems() {
     props.editMatch.match?.push(newMatch);
   }
   group.value = [];
+}
+
+function ungroupMatches(nestedMatch: Match) {
+  if (nestedMatch.match) {
+    for (const match of nestedMatch.match) {
+      props.editMatch.match?.push(match);
+    }
+
+    const index = props.editMatch.match?.findIndex(match => nestedMatch["@id"] === match["@id"]);
+    if (index !== -1) props.editMatch.match?.splice(index!, 1);
+  }
 }
 </script>
 
@@ -256,6 +289,13 @@ function bracketItems() {
   flex-flow: column;
 }
 
+.feature-bracket-group {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: row;
+}
+
 .then-title {
   padding-top: 0.5rem;
 }
@@ -293,6 +333,10 @@ function bracketItems() {
 
 .nested-match {
   display: flex;
+}
+
+.strike-through {
+  text-decoration: line-through;
 }
 </style>
 
