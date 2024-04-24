@@ -193,7 +193,7 @@ function add(item: any) {
 }
 
 function addConcept() {
-  add({ type: "ExpressionConstraint", expressionConstraint: "<<", conjunction: "and", concept: { iri: "" } });
+  add({ type: "ExpressionConstraint", expressionConstraint: "<<", conjunction: "and", conceptSingle: { iri: "" } });
 }
 
 function deleteItem(index: number) {

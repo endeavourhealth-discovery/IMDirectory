@@ -198,7 +198,6 @@ async function generateQueryString() {
       queryString.value = await EclService.getECLFromQuery(query, includeTerms.value);
       eclStringError.value = { error: false, message: "" };
     } catch (err: any) {
-      console.log("here");
       eclStringError.value = { error: true, message: err.message };
     }
   }
