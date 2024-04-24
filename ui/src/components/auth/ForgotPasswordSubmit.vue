@@ -49,35 +49,28 @@
           </div>
           <div class="field">
             <label for="fieldPassword1">New Password</label>
-            <InputText
-              data-testid="forgot-password-submit-password1"
-              id="fieldPassword1"
-              type="password"
-              aria-describedby="password-help"
-              v-model="newPassword1"
-              @focus="updateFocused('password1', true)"
-              @blur="updateFocused('password1', false)"
-              :class="passwordStrength === 'fail' && newPassword1 && !focused.get('password1') && 'p-invalid'"
-            />
-            <InlineMessage v-if="passwordStrength === 'strong'" severity="success">Password Strength: Strong</InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'medium'" severity="success">Password Strength: Medium</InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'weak'" severity="warn">Password Strength: Weak</InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'fail' && newPassword1 !== ''" severity="error">Invalid Password</InlineMessage>
-            <small id="password-help">
-              Password min length 8 characters. Improve password strength with a mixture of UPPERCASE, lowercase, numbers and special characters [!@#$%^&*].
-            </small>
+            <Password v-model="newPassword1" toggleMask data-testid="forgot-password-submit-password1" id="fieldPassword1">
+              <template #header>
+                <h6>Pick a password</h6>
+              </template>
+              <template #footer>
+                <hr />
+                <p class="mt-2">Password <span :style="'font-weight: bold;'"> must </span>contain:</p>
+                <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+                  <li>At least one lowercase</li>
+                  <li>At least one uppercase</li>
+                  <li>At least one numeric</li>
+                  <li>Minimum 8 characters</li>
+                </ul>
+              </template>
+            </Password>
+            <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
+            <InlineMessage v-if="passwordStrength === 'medium'" severity="warn"> Password strength: Medium </InlineMessage>
+            <InlineMessage v-if="passwordStrength === 'fail' && newPassword1 !== ''" severity="error"> Password strength: Weak </InlineMessage>
           </div>
           <div class="field">
             <label for="fieldPassword2">Confirm New Password</label>
-            <InputText
-              data-testid="forgot-password-submit-password2"
-              id="fieldPassword2"
-              type="password"
-              v-model="newPassword2"
-              @focus="updateFocused('password2', true)"
-              @blur="updateFocused('password2', false)"
-              :class="!passwordsMatch && newPassword2 && !focused.get('password2') && 'p-invalid'"
-            />
+            <Password v-model="newPassword2" toggleMask :feedback="false" data-testid="forgot-password-submit-password2" id="fieldPassword2" />
             <InlineMessage v-if="!passwordsMatch && newPassword2 && !focused.get('password2') && 'p-invalid'" severity="error"
               >Passwords do not match!</InlineMessage
             >
@@ -113,6 +106,7 @@ import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
+import Password from "primevue/password";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -127,7 +121,7 @@ let focused: Ref<Map<string, boolean>> = ref(new Map());
 
 const codeVerified = computed(() => verifyCode(code.value));
 const passwordsMatch = computed(() => verifyPasswordsMatch(newPassword1.value, newPassword2.value));
-const allVerified = computed(() => codeVerified.value && passwordStrength.value !== PasswordStrength.fail && passwordsMatch.value && username.value !== "");
+const allVerified = computed(() => codeVerified.value && passwordStrength.value === PasswordStrength.strong && passwordsMatch.value && username.value !== "");
 
 watch(newPassword1, newValue => {
   passwordStrength.value = checkPasswordStrength(newValue);

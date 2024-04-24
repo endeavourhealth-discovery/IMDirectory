@@ -14,39 +14,59 @@
           <div class="field">
             <label for="passwordOld">Current password</label>
             <div class="input-with-button">
-              <InputText data-testid="password-edit-password-old" id="passwordOld" :type="showPasswordOld ? 'text' : 'password'" v-model="passwordOld" />
-              <Button :icon="showPasswordOld ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPasswordOld" text />
+              <Password
+                v-model="passwordOld"
+                :feedback="false"
+                toggleMask
+                :input-props="{ 'data-testid': 'password-edit-password-old' }"
+                data-testid="password-edit-password-old-container"
+                id="passwordOld"
+              />
             </div>
           </div>
           <div class="field">
             <label for="passwordNew1">New password</label>
             <div class="input-with-button">
-              <InputText data-testid="password-edit-password-new1" id="passwordNew1" :type="showPasswordNew1 ? 'text' : 'password'" v-model="passwordNew1" />
-              <Button :icon="showPasswordNew1 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPasswordNew1" text />
+              <Password
+                v-model="passwordNew1"
+                toggleMask
+                :input-props="{ 'data-testid': 'password-edit-password-new1' }"
+                data-testid="password-edit-password-new1-container"
+                id="passwordNew1"
+                :overlayVisible="true"
+              >
+                <template #header>
+                  <h6>Pick a password</h6>
+                </template>
+                <template #footer>
+                  <hr />
+                  <p class="mt-2">Password <span :style="'font-weight: bold;'"> must </span>contain:</p>
+                  <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+                    <li>At least one lowercase</li>
+                    <li>At least one uppercase</li>
+                    <li>At least one numeric</li>
+                    <li>Minimum 8 characters</li>
+                  </ul>
+                </template>
+              </Password>
             </div>
             <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'fail' && passwordNew1 !== ''" severity="error"> Invalid password </InlineMessage>
-            <small id="password-help">
-              Password must be a minimum length of 8 characters. Improve password strength with a mixture of UPPERCASE, lowercase, numbers and special
-              characters [!@#$%^&*].
-            </small>
+            <InlineMessage v-if="passwordStrength === 'medium'" severity="warn"> Password strength: Medium </InlineMessage>
+            <InlineMessage v-if="passwordStrength === 'fail' && passwordNew1 !== ''" severity="error"> Password strength: Weak </InlineMessage>
           </div>
           <div class="field">
             <label for="passwordNew2">Confirm new password</label>
             <div class="input-with-button">
-              <InputText
-                data-testid="password-edit-password-new2"
-                id="passwordNew2"
-                :type="showPasswordNew2 ? 'text' : 'password'"
+              <Password
                 v-model="passwordNew2"
-                @blur="setShowPassword2Message"
-                @keyup="checkKey"
+                toggleMask
+                :feedback="false"
+                :input-props="{ 'data-testid': 'password-edit-password-new2' }"
+                data-testid="password-edit-password-new2-container"
+                id="passwordNew2"
               />
-              <Button :icon="showPasswordNew2 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPasswordNew2" text />
             </div>
-            <InlineMessage v-if="showPassword2Message" severity="error"> New passwords do not match! </InlineMessage>
+            <InlineMessage v-if="!passwordsMatch && passwordNew2 !== ''" severity="error"> New passwords do not match! </InlineMessage>
           </div>
           <div class="flex flex-row justify-content-center">
             <Button
@@ -75,6 +95,7 @@ import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
+import Password from "primevue/password";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -115,7 +136,7 @@ function setShowPassword2Message(): void {
 function handleEditSubmit(): void {
   if (
     passwordsMatch.value &&
-    passwordStrength.value !== PasswordStrength.fail &&
+    passwordStrength.value === PasswordStrength.strong &&
     passwordStrengthOld.value !== PasswordStrength.fail &&
     passwordDifferentFromOriginal.value
   ) {
@@ -167,7 +188,7 @@ function checkKey(event: any): void {
 }
 
 function setButtonDisabled(): boolean {
-  return !(passwordStrength.value !== PasswordStrength.fail && passwordsMatch.value && passwordOld.value !== "");
+  return !(passwordStrength.value === PasswordStrength.strong && passwordsMatch.value && passwordOld.value !== "");
 }
 </script>
 

@@ -110,14 +110,14 @@ describe("PasswordEdit.vue with registeredUser", () => {
 
   it("opens swal if auth success", async () => {
     const passwordInputOld = component.getByTestId("password-edit-password-old");
-    await fireEvent.update(passwordInputOld, "12345678");
+    await fireEvent.update(passwordInputOld, "12345678Aa");
 
     const passwordInput1 = component.getByTestId("password-edit-password-new1");
-    await fireEvent.update(passwordInput1, "87654321");
+    await fireEvent.update(passwordInput1, "87654321aA");
 
     const passwordInput2 = component.getByTestId("password-edit-password-new2");
-    await fireEvent.update(passwordInput2, "87654321");
-    await fireEvent.blur(passwordInput2);
+    await fireEvent.update(passwordInput2, "87654321aA");
+    //await fireEvent.blur(passwordInput2);
 
     const submit = component.getByTestId("password-edit-submit");
 
@@ -131,13 +131,13 @@ describe("PasswordEdit.vue with registeredUser", () => {
     AuthService.changePassword = vi.fn().mockResolvedValue({ status: 403, message: "Password change error" });
 
     const passwordInputOld = component.getByTestId("password-edit-password-old");
-    await fireEvent.update(passwordInputOld, "12345678");
+    await fireEvent.update(passwordInputOld, "12345678Aa");
 
     const passwordInput1 = component.getByTestId("password-edit-password-new1");
-    await fireEvent.update(passwordInput1, "87654321");
+    await fireEvent.update(passwordInput1, "87654321aA");
 
     const passwordInput2 = component.getByTestId("password-edit-password-new2");
-    await fireEvent.update(passwordInput2, "87654321");
+    await fireEvent.update(passwordInput2, "87654321aA");
     await fireEvent.blur(passwordInput2);
 
     const submit = component.getByTestId("password-edit-submit");
@@ -150,13 +150,13 @@ describe("PasswordEdit.vue with registeredUser", () => {
 
   it("opens swal if password same as original", async () => {
     const passwordInputOld = component.getByTestId("password-edit-password-old");
-    await fireEvent.update(passwordInputOld, "87654321");
+    await fireEvent.update(passwordInputOld, "87654321aA");
 
     const passwordInput1 = component.getByTestId("password-edit-password-new1");
-    await fireEvent.update(passwordInput1, "87654321");
+    await fireEvent.update(passwordInput1, "87654321aA");
 
     const passwordInput2 = component.getByTestId("password-edit-password-new2");
-    await fireEvent.update(passwordInput2, "87654321");
+    await fireEvent.update(passwordInput2, "87654321aA");
     await fireEvent.blur(passwordInput2);
 
     const submit = component.getByTestId("password-edit-submit");
@@ -190,10 +190,10 @@ describe("PasswordEdit.vue with registeredUser", () => {
     await fireEvent.update(passwordInputOld, "12345678");
 
     const passwordInput1 = component.getByTestId("password-edit-password-new1");
-    await fireEvent.update(passwordInput1, "87654321");
+    await fireEvent.update(passwordInput1, "87654321aA");
 
     const passwordInput2 = component.getByTestId("password-edit-password-new2");
-    await fireEvent.update(passwordInput2, "87654321");
+    await fireEvent.update(passwordInput2, "87654321aA");
     await fireEvent.blur(passwordInput2);
 
     expect(component.queryByTestId("password-edit-submit-disabled")).to.not.exist;

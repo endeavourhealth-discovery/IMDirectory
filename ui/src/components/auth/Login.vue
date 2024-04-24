@@ -14,8 +14,7 @@
           <div class="field">
             <label for="fieldPassword">Password</label>
             <div class="text-with-button">
-              <InputText data-testid="login-password" id="fieldPassword" :type="showPassword ? 'text' : 'password'" v-model="password" @keyup="checkKey" />
-              <Button :icon="showPassword ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword" text />
+              <Password v-model="password" :feedback="false" toggleMask data-testid="login-password" id="fieldPassword" />
             </div>
           </div>
           <div class="flex flex-row justify-content-center">
@@ -48,6 +47,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
 import { CustomAlert } from "@im-library/interfaces";
+import Password from "primevue/password";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -59,6 +59,7 @@ const username = ref("");
 const password = ref("");
 const loading = ref(false);
 const showPassword = ref(false);
+const passwordValue = ref(null);
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
