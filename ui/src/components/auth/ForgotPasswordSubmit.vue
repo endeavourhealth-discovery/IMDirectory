@@ -55,7 +55,7 @@
               </template>
               <template #footer>
                 <hr />
-                <p class="mt-2">Password <span :style="'font-weight: bold;'"> must </span>contain:</p>
+                <p class="mt-2">Password should contain:</p>
                 <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
                   <li>At least one lowercase</li>
                   <li>At least one uppercase</li>
@@ -121,7 +121,13 @@ let focused: Ref<Map<string, boolean>> = ref(new Map());
 
 const codeVerified = computed(() => verifyCode(code.value));
 const passwordsMatch = computed(() => verifyPasswordsMatch(newPassword1.value, newPassword2.value));
-const allVerified = computed(() => codeVerified.value && passwordStrength.value === PasswordStrength.strong && passwordsMatch.value && username.value !== "");
+const allVerified = computed(
+  () =>
+    codeVerified.value &&
+    (passwordStrength.value === PasswordStrength.medium || passwordStrength.value === PasswordStrength.strong) &&
+    passwordsMatch.value &&
+    username.value !== ""
+);
 
 watch(newPassword1, newValue => {
   passwordStrength.value = checkPasswordStrength(newValue);

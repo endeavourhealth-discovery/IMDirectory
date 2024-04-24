@@ -40,7 +40,7 @@
                 </template>
                 <template #footer>
                   <hr />
-                  <p class="mt-2">Password <span :style="'font-weight: bold;'"> must </span>contain:</p>
+                  <p class="mt-2">Password should contain:</p>
                   <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
                     <li>At least one lowercase</li>
                     <li>At least one uppercase</li>
@@ -117,26 +117,10 @@ const passwordStrength: Ref<PasswordStrength> = computed(() => checkPasswordStre
 const passwordStrengthOld: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordOld.value));
 const passwordDifferentFromOriginal = computed(() => passwordOld.value !== passwordNew1.value);
 
-function toggleShowPasswordOld() {
-  showPasswordOld.value = !showPasswordOld.value;
-}
-
-function toggleShowPasswordNew1() {
-  showPasswordNew1.value = !showPasswordNew1.value;
-}
-
-function toggleShowPasswordNew2() {
-  showPasswordNew2.value = !showPasswordNew2.value;
-}
-
-function setShowPassword2Message(): void {
-  showPassword2Message.value = !passwordsMatch.value;
-}
-
 function handleEditSubmit(): void {
   if (
     passwordsMatch.value &&
-    passwordStrength.value === PasswordStrength.strong &&
+    (passwordStrength.value === PasswordStrength.medium || passwordStrength.value === PasswordStrength.strong) &&
     passwordStrengthOld.value !== PasswordStrength.fail &&
     passwordDifferentFromOriginal.value
   ) {
@@ -188,7 +172,11 @@ function checkKey(event: any): void {
 }
 
 function setButtonDisabled(): boolean {
-  return !(passwordStrength.value === PasswordStrength.strong && passwordsMatch.value && passwordOld.value !== "");
+  return !(
+    (passwordStrength.value === PasswordStrength.medium || passwordStrength.value === PasswordStrength.strong) &&
+    passwordsMatch.value &&
+    passwordOld.value !== ""
+  );
 }
 </script>
 

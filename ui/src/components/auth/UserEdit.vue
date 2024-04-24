@@ -91,7 +91,7 @@
                 </template>
                 <template #footer>
                   <hr />
-                  <p class="mt-2">Password <span :style="'font-weight: bold;'"> must </span>contain:</p>
+                  <p class="mt-2">Password should contain:</p>
                   <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
                     <li>At least one lowercase</li>
                     <li>At least one uppercase</li>
@@ -383,7 +383,7 @@ function passwordFieldsVerified(): boolean {
   if (
     showPasswordEdit.value &&
     passwordsMatch.value &&
-    passwordStrength.value === PasswordStrength.strong &&
+    (passwordStrength.value === PasswordStrength.medium || passwordStrength.value === PasswordStrength.strong) &&
     passwordStrengthOld.value !== PasswordStrength.fail &&
     passwordDifferentFromOriginal()
   ) {
