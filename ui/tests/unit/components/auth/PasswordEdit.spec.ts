@@ -113,7 +113,7 @@ describe("PasswordEdit.vue with registeredUser", () => {
     component.getByText("Password successfully updated");
   });*/
 
-  /*  it("opens swal if auth fail ___ not 200", async () => {
+  /*it("opens swal if auth fail ___ not 200", async () => {
     AuthService.changePassword = vi.fn().mockResolvedValue({ status: 403, message: "Password change error" });
 
     const passwordInputOld = component.getByTestId("password-edit-password-old");

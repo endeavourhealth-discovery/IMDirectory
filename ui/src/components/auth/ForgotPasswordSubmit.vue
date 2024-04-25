@@ -60,6 +60,7 @@
                   <li>At least one lowercase</li>
                   <li>At least one uppercase</li>
                   <li>At least one numeric</li>
+                  <li>Special characters such as !@#$%^&*</li>
                   <li>Minimum 8 characters</li>
                 </ul>
               </template>

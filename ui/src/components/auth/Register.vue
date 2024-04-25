@@ -99,7 +99,7 @@
         <div class="field">
           <label for="fieldPassword1">Password</label>
           <div class="input-with-button">
-            <InputText
+            <Password
               data-testid="register-password1"
               id="fieldPassword1"
               :type="showPassword1 ? 'text' : 'password'"
@@ -107,33 +107,33 @@
               aria-describedby="password-help"
               v-model="password1"
               :class="passwordStrength === 'fail' && password1 && !focused.get('password1') && 'p-invalid'"
-            />
-            <Button :icon="showPassword1 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword1" text />
+              toggleMask
+            >
+              <template #header>
+                <h6>Pick a password</h6>
+              </template>
+              <template #footer>
+                <hr />
+                <p class="mt-2">Password should contain:</p>
+                <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+                  <li>At least one lowercase</li>
+                  <li>At least one uppercase</li>
+                  <li>At least one numeric</li>
+                  <li>Special characters such as !@#$%^&*</li>
+                  <li>Minimum 8 characters</li>
+                </ul>
+              </template>
+            </Password>
           </div>
           <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'fail' && password1 !== ''" severity="error"> Invalid password </InlineMessage>
-          <small id="password-help">
-            Password must be a minimum length of 8 characters. Improve password strength with a mixture of UPPERCASE, lowercase, numbers and special characters
-            [!@#$%^&*].
-          </small>
         </div>
         <div class="field">
           <label for="fieldPassword2">Confirm password</label>
           <div class="input-with-button">
-            <InputText
-              id="fieldPassword2"
-              data-testid="register-password2"
-              :type="showPassword2 ? 'text' : 'password'"
-              maxlength="50"
-              v-model="password2"
-              @keyup="checkKey"
-              @focus="updateFocused('password2', true)"
-              @blur="updateFocused('password2', false)"
-              :class="!passwordsMatch && password2 && !focused.get('password2') && 'p-invalid'"
-            />
-            <Button :icon="showPassword2 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword2" text />
+            <Password id="fieldPassword2" data-testid="register-password2" maxlength="50" v-model="password2" toggleMask :feedback="false" />
           </div>
           <InlineMessage v-if="!passwordsMatch && password2 && !focused.get('password2')" severity="error"> Passwords do not match! </InlineMessage>
         </div>
@@ -183,6 +183,7 @@ import { Avatars } from "@im-library/constants";
 import { useRouter } from "vue-router";
 import { User } from "@im-library/interfaces";
 import { useAuthStore } from "@/stores/authStore";
+import Password from "primevue/password";
 
 const emit = defineEmits({
   userCreated: (payload: User) => true
