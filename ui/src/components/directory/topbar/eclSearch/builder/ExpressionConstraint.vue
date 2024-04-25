@@ -48,7 +48,6 @@
               :class="!hover && 'hover-button'"
               label="Add Concept"
               @click="addConcept"
-              class="builder-button"
             />
             <Button
               :severity="hover ? 'success' : 'secondary'"
@@ -56,7 +55,6 @@
               :class="!hover && 'hover-button'"
               label="Add Group"
               @click="addGroup"
-              class="builder-button"
             />
           </div>
           <Button
@@ -146,9 +144,6 @@ import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
 import _ from "lodash";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
-import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import { numberAscending } from "@im-library/helpers/Sorters";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 

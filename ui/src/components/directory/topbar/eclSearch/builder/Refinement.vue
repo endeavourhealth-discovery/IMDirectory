@@ -79,7 +79,6 @@ import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue
 import { EntityService, FunctionService, QueryService } from "@/services";
 import { IM, SNOMED, QUERY, IM_FUNCTION, RDF } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
 import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";
@@ -132,7 +131,7 @@ const constraintOperatorOptions = [
 const osQueryForValueSearch: Ref<SearchRequest> = ref({
   isA: Array.from(propertyRanges.value),
   statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
+  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
   typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
   sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
   sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
@@ -243,8 +242,16 @@ function updateQueryForValueSearch() {
 
 function addIfConcept(focus: any[], iris: TTIriRef[]) {
   for (const item of focus) {
-    if (item.type === "Concept") iris.push({ "@id": item.conceptSingle.iri });
-    if (item.type === "BoolGroup") addIfConcept(item.items, iris);
+    if (item.type === "ExpressionConstraint") {
+      if (item.conceptSingle) {
+        iris.push({ "@id": item.conceptSingle.iri });
+      } else if (item.conceptBool) {
+        addIfConcept(item.conceptBoolItem.items, iris);
+      }
+    }
+    if (item.type === "BoolGroup") {
+      addIfConcept(item.items, iris);
+    }
   }
 }
 
@@ -266,7 +273,7 @@ function updateQueryForPropertySearch() {
     osQueryForPropertySearch.value = {
       isA: ["http://snomed.info/sct#410662002"],
       statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-      schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
+      schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
       typeFilter: [RDF.PROPERTY],
       sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
       sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
