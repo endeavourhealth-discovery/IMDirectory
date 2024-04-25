@@ -79,7 +79,6 @@ import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue
 import { EntityService, FunctionService, QueryService } from "@/services";
 import { IM, SNOMED, QUERY, IM_FUNCTION, RDF } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
 import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";

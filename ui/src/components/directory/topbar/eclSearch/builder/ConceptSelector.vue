@@ -30,9 +30,7 @@ import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue
 import { SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
-import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
 import { SortDirection } from "@im-library/enums";
 
