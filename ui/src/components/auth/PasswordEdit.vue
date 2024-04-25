@@ -104,11 +104,6 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const authReturnPath = computed(() => authStore.authReturnPath);
 
-const passwordsMatch = computed(() => verifyPasswordsMatch(passwordNew1.value.modelValue, passwordNew2.value.modelValue));
-const passwordStrength: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordNew1.value.modelValue));
-const passwordStrengthOld: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordOld.value.modelValue));
-const passwordDifferentFromOriginal = computed(() => passwordOld.value.modelValue !== passwordNew1.value);
-
 const schema = yup.object({
   passwordOld: yup.string().required(),
   passwordNew1: yup
@@ -174,18 +169,13 @@ function getUrl(item: string): string {
 
 function isValidPassword() {
   let isValid = false;
-  if (!isPasswordMedium() || !isPasswordStrong()) {
+  if (
+    checkPasswordStrength(passwordNew1.value.modelValue) === PasswordStrength.medium ||
+    checkPasswordStrength(passwordNew1.value.modelValue) === PasswordStrength.strong
+  ) {
     isValid = true;
   }
   return isValid;
-}
-
-function isPasswordMedium(): boolean {
-  return !(checkPasswordStrength(passwordNew1.value.modelValue) === PasswordStrength.medium);
-}
-
-function isPasswordStrong(): boolean {
-  return !(checkPasswordStrength(passwordNew1.value.modelValue) === PasswordStrength.strong);
 }
 
 function isMatchingPassword(): boolean {
