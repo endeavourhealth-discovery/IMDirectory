@@ -167,6 +167,10 @@ function getUrl(item: string): string {
   return url.href;
 }
 
+function hasCurrentPassword() {
+  return !!passwordOld.value.modelValue;
+}
+
 function isValidPassword() {
   let isValid = false;
   if (
