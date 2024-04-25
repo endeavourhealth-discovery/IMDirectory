@@ -84,7 +84,7 @@ const constraintOperatorOptions = [
 ];
 
 const osQueryForConceptSearch: Ref<SearchRequest> = ref({
-  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
+  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
   statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
   typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
   sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
