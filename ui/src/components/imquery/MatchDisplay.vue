@@ -13,16 +13,20 @@
     <div class="match-description-container">
       <div class="match-description" v-html="match?.description"></div>
       <div v-if="match?.match" class="feature-group">
-        <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled outlined />
+        <Button
+          class="builder-button conjunction-button vertical-button"
+          :label="match.boolMatch?.toUpperCase() ?? 'AND'"
+          severity="secondary"
+          disabled
+          outlined
+        />
         <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display" /></div>
       </div>
       <div v-if="match?.where" class="where-group">
-        <div class="bool-display vertical-button">{{ match.bool?.toUpperCase() }}</div>
-
         <Button
           v-if="match.where.length > 1"
           class="builder-button conjunction-button vertical-button"
-          :label="match.bool?.toUpperCase() ?? 'AND'"
+          :label="match.boolWhere?.toUpperCase() ?? 'AND'"
           severity="secondary"
           disabled
           outlined

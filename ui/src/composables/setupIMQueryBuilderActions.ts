@@ -12,15 +12,15 @@ function setupIMQueryBuilderActions() {
   }
 
   function toggleMatchBool(object: Match) {
-    if (object.bool === Bool.and) object.bool = Bool.or;
-    else if (object.bool === Bool.or) object.bool = Bool.and;
-    else object.bool = Bool.or;
+    if (object.boolMatch === Bool.and) object.boolMatch = Bool.or;
+    else if (object.boolMatch === Bool.or) object.boolMatch = Bool.and;
+    else object.boolMatch = Bool.or;
   }
 
   function toggleWhereBool(object: Match | Where) {
-    if (object.bool === Bool.and) object.bool = Bool.or;
-    else if (object.bool === Bool.or) object.bool = Bool.and;
-    else object.bool = Bool.or;
+    if (object.boolWhere === Bool.and) object.boolWhere = Bool.or;
+    else if (object.boolWhere === Bool.or) object.boolWhere = Bool.and;
+    else object.boolWhere = Bool.or;
   }
 
   function getMenuItemFromMatch(match: Match): MenuItem {

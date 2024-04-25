@@ -66,14 +66,14 @@ export function describeMatch(match: Match, index: number, bool?: Bool, matchTyp
   if (isArrayHasLength(match.match)) {
     if (matchType === "then") matchType = "";
     for (const [index, nestedMatch] of match.match!.entries()) {
-      describeMatch(nestedMatch, index, match.bool!, matchType);
+      describeMatch(nestedMatch, index, match.boolMatch!, matchType);
     }
   }
 
   if (isArrayHasLength(match.where)) {
     if (matchType === "then") matchType = "";
     for (const [index, property] of match.where!.entries()) {
-      describeProperty(property, index, property.bool!, matchType);
+      describeProperty(property, index, property.boolWhere!, matchType);
     }
   }
 
@@ -94,7 +94,7 @@ export function describeProperty(property: Where, index: number, bool?: Bool, ma
 
   if (isArrayHasLength(property.where))
     for (const [index, nestedProperty] of property.where!.entries()) {
-      describeProperty(nestedProperty, index, property.bool!, matchType);
+      describeProperty(nestedProperty, index, property.boolWhere!, matchType);
     }
 }
 

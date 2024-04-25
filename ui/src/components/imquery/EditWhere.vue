@@ -7,7 +7,7 @@
       <div class="where-list">
         <Button
           class="builder-button conjunction-button vertical-button"
-          :label="editWhere.bool?.toUpperCase() ?? 'AND'"
+          :label="editWhere.boolWhere?.toUpperCase() ?? 'AND'"
           @click="
             e => {
               e.stopPropagation();

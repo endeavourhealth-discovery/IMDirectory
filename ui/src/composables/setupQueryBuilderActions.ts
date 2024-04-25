@@ -56,7 +56,7 @@ function setupQueryBuilderActions() {
 
     if (isArrayHasLength(nested)) {
       if (!isArrayHasLength(parentMatch.match)) {
-        parentMatch.bool = Bool.and;
+        parentMatch.boolMatch = Bool.and;
         parentMatch.match = nested;
       } else
         for (const newMatch of nested) {

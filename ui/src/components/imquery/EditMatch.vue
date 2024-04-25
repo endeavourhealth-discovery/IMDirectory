@@ -28,7 +28,7 @@
       <div v-if="editMatch?.match" class="feature-group">
         <Button
           class="expanding-button builder-button conjunction-button vertical-button"
-          :label="editMatch.bool?.toUpperCase() ?? 'AND'"
+          :label="editMatch.boolMatch?.toUpperCase() ?? 'AND'"
           @click="
             e => {
               e.stopPropagation();
@@ -99,7 +99,7 @@
         <Button
           v-if="editMatch.where.length > 1"
           class="expanding-button builder-button conjunction-button vertical-button"
-          :label="editMatch.bool?.toUpperCase() ?? 'AND'"
+          :label="editMatch.boolWhere?.toUpperCase() ?? 'AND'"
           @click="
             e => {
               e.stopPropagation();

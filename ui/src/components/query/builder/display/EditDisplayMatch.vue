@@ -270,11 +270,6 @@ function saveSelect(property: "typeOf" | "instanceOf" | "is", selectedCSs: Node[
   editMode.value = false;
 }
 
-function toggleBoolMatch() {
-  if (props.match.bool === "and") props.match.bool = Bool.or;
-  else if (props.match.bool === "or") props.match.bool = Bool.and;
-}
-
 function toggleExclude() {
   props.match.exclude = !props.match.exclude;
 }
@@ -334,13 +329,6 @@ function getSingleRCOptions() {
       icon: props.match.exclude ? "fa-solid fa-square-plus" : "fa-solid fa-square-minus",
       command: () => {
         toggleExclude();
-      }
-    },
-    {
-      label: "Change bool logic",
-      icon: "fa-solid fa-arrows-up-down",
-      command: () => {
-        toggleBoolMatch();
       }
     },
     {

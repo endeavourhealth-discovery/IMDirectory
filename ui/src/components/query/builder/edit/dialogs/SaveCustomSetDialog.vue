@@ -205,7 +205,7 @@ function getDefinition() {
     match: [
       {
         match: matches,
-        bool: "or"
+        boolMatch: "or"
       }
     ] as Match[]
   };

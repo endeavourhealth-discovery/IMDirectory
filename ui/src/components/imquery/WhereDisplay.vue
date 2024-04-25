@@ -6,7 +6,7 @@
         v-if="where.where.length > 1"
         text
         class="builder-button conjunction-button vertical-button"
-        :label="where.bool?.toUpperCase() ?? 'AND'"
+        :label="where.boolWhere?.toUpperCase() ?? 'AND'"
         severity="secondary"
         disabled
       />
