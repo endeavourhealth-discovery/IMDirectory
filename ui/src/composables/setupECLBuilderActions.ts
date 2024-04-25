@@ -31,12 +31,15 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
         detail: "Item is already part of that group.",
         life: 3000
       });
-    else if ((draggedItem.type === "Concept" && dropzoneItem.type === "Concept") || (draggedItem.type === "Refinement" && dropzoneItem.type === "Refinement")) {
+    else if (
+      (draggedItem.type === "ExpressionConstraint" && dropzoneItem.type === "ExpressionConstraint") ||
+      (draggedItem.type === "Refinement" && dropzoneItem.type === "Refinement")
+    ) {
       group(draggedItem, dropzoneItem, parent, index);
     } else if (
-      (draggedItem.type === "Concept" && dropzoneItem.type === "BoolGroup") ||
+      (draggedItem.type === "ExpressionConstraint" && dropzoneItem.type === "BoolGroup") ||
       (draggedItem.type === "Refinement" && dropzoneItem.type === "BoolGroup") ||
-      (draggedItem.type === "Refinement" && dropzoneItem.type === "Concept")
+      (draggedItem.type === "Refinement" && dropzoneItem.type === "ExpressionConstraint")
     ) {
       insert(draggedItem, dropzoneItem);
     } else if (draggedItem.type === "BoolGroup" && dropzoneItem.type === "BoolGroup") {
