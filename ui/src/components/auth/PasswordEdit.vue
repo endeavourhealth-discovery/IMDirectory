@@ -6,7 +6,7 @@
       </template>
       <template #title> Change password </template>
       <template #content>
-        <div class="p-fluid flex flex-column justify-content-start password-edit-form">
+        <form @submit="onSubmit" class="p-fluid flex flex-column justify-content-start password-edit-form">
           <div v-if="currentUser.username" class="field">
             <label for="userName">Username</label>
             <InputText data-testid="password-edit-username" class="p-text-capitalize" id="username" type="text" :value="currentUser.username" disabled />
@@ -15,10 +15,10 @@
             <label for="passwordOld">Current password</label>
             <div class="input-with-button">
               <Password
-                v-model="passwordOld"
+                v-bind="passwordOld"
                 :feedback="false"
                 toggleMask
-                :input-props="{ 'data-testid': 'password-edit-password-old' }"
+                :input-props="{ 'data-testid': 'password-edit-password-old', autofocus: true }"
                 data-testid="password-edit-password-old-container"
                 id="passwordOld"
               />
@@ -28,7 +28,7 @@
             <label for="passwordNew1">New password</label>
             <div class="input-with-button">
               <Password
-                v-model="passwordNew1"
+                v-bind="passwordNew1"
                 toggleMask
                 :input-props="{ 'data-testid': 'password-edit-password-new1' }"
                 data-testid="password-edit-password-new1-container"
@@ -50,15 +50,13 @@
                 </template>
               </Password>
             </div>
-            <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'medium'" severity="warn"> Password strength: Medium </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'fail' && passwordNew1 !== ''" severity="error"> Password strength: Weak </InlineMessage>
+            <InlineMessage v-if="errors.passwordNew1 && passwordNew1.modelValue !== ''" severity="info"> {{ errors.passwordNew1 }} </InlineMessage>
           </div>
           <div class="field">
             <label for="passwordNew2">Confirm new password</label>
             <div class="input-with-button">
               <Password
-                v-model="passwordNew2"
+                v-bind="passwordNew2"
                 toggleMask
                 :feedback="false"
                 :input-props="{ 'data-testid': 'password-edit-password-new2' }"
@@ -66,7 +64,7 @@
                 id="passwordNew2"
               />
             </div>
-            <InlineMessage v-if="!passwordsMatch && passwordNew2 !== ''" severity="error"> New passwords do not match! </InlineMessage>
+            <InlineMessage v-if="!isMatchingPassword() && passwordNew2.modelValue" severity="error"> {{ errors.passwordNew2 }}</InlineMessage>
           </div>
           <div class="flex flex-row justify-content-center">
             <Button
@@ -76,26 +74,28 @@
               type="submit"
               label="Change password"
               disabled
-              @click="handleEditSubmit"
+              @click="onSubmit"
             />
-            <Button v-else class="user-edit" data-testid="password-edit-submit" type="submit" label="Change password" @click="handleEditSubmit" />
+            <Button v-else class="user-edit" data-testid="password-edit-submit" type="submit" label="Change password" @click="onSubmit" />
           </div>
-        </div>
+        </form>
       </template>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, ref } from "vue";
+import { computed, Ref, watch } from "vue";
 import { AuthService } from "@/services";
 import { PasswordStrength } from "@im-library/enums";
-import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
+import { checkPasswordStrength, verifyPasswordsMatch } from "@im-library/helpers/UserMethods";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
 import Password from "primevue/password";
+import * as yup from "yup";
+import { useForm } from "vee-validate";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -104,27 +104,34 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const authReturnPath = computed(() => authStore.authReturnPath);
 
-const passwordOld = ref("");
-const passwordNew1 = ref("");
-const passwordNew2 = ref("");
-const showPassword2Message = ref(false);
-const showPasswordOld = ref(false);
-const showPasswordNew1 = ref(false);
-const showPasswordNew2 = ref(false);
+const passwordsMatch = computed(() => verifyPasswordsMatch(passwordNew1.value.modelValue, passwordNew2.value.modelValue));
+const passwordStrength: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordNew1.value.modelValue));
+const passwordStrengthOld: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordOld.value.modelValue));
+const passwordDifferentFromOriginal = computed(() => passwordOld.value.modelValue !== passwordNew1.value);
 
-const passwordsMatch = computed(() => verifyPasswordsMatch(passwordNew1.value, passwordNew2.value));
-const passwordStrength: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordNew1.value));
-const passwordStrengthOld: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordOld.value));
-const passwordDifferentFromOriginal = computed(() => passwordOld.value !== passwordNew1.value);
+const schema = yup.object({
+  passwordOld: yup.string().required(),
+  passwordNew1: yup
+    .string()
+    .required()
+    .test("isValidPassword", "Password too weak", async () => isValidPassword()),
+  passwordNew2: yup
+    .string()
+    .required()
+    .test("isMatchingPassword", "Passwords do not match", async () => isMatchingPassword())
+});
 
-function handleEditSubmit(): void {
-  if (
-    passwordsMatch.value &&
-    (passwordStrength.value === PasswordStrength.medium || passwordStrength.value === PasswordStrength.strong) &&
-    passwordStrengthOld.value !== PasswordStrength.fail &&
-    passwordDifferentFromOriginal.value
-  ) {
-    AuthService.changePassword(passwordOld.value, passwordNew1.value).then(res => {
+const { defineComponentBinds, handleSubmit, resetForm, errors, setFieldValue } = useForm({
+  validationSchema: schema
+});
+
+const passwordOld = defineComponentBinds("passwordOld");
+const passwordNew1 = defineComponentBinds("passwordNew1");
+const passwordNew2 = defineComponentBinds("passwordNew2");
+
+const onSubmit = handleSubmit(async () => {
+  if (isMatchingPassword() && isValidPassword() && passwordOld.value.modelValue !== passwordNew1.value.modelValue) {
+    AuthService.changePassword(passwordOld.value.modelValue, passwordNew1.value.modelValue).then(res => {
       if (res.status === 200) {
         Swal.fire({
           icon: "success",
@@ -145,7 +152,7 @@ function handleEditSubmit(): void {
         });
       }
     });
-  } else if (!passwordDifferentFromOriginal.value) {
+  } else if (passwordOld.value.modelValue === passwordNew1.value.modelValue) {
     Swal.fire({
       icon: "error",
       title: "Error",
@@ -158,25 +165,39 @@ function handleEditSubmit(): void {
       text: "Error updating password. Authentication error or new passwords do not match."
     });
   }
-}
+});
 
 function getUrl(item: string): string {
   const url = new URL(`../../assets/avatars/${item}`, import.meta.url);
   return url.href;
 }
 
-function checkKey(event: any): void {
-  if (event.keyCode === 13) {
-    handleEditSubmit();
+function isValidPassword() {
+  let isValid = false;
+  if (!isPasswordMedium() || !isPasswordStrong()) {
+    isValid = true;
   }
+  return isValid;
+}
+
+function isPasswordMedium(): boolean {
+  return !(checkPasswordStrength(passwordNew1.value.modelValue) === PasswordStrength.medium);
+}
+
+function isPasswordStrong(): boolean {
+  return !(checkPasswordStrength(passwordNew1.value.modelValue) === PasswordStrength.strong);
+}
+
+function isMatchingPassword(): boolean {
+  let isValid = false;
+  if (verifyPasswordsMatch(passwordNew1.value.modelValue, passwordNew2.value.modelValue)) {
+    isValid = true;
+  }
+  return isValid;
 }
 
 function setButtonDisabled(): boolean {
-  return !(
-    (passwordStrength.value === PasswordStrength.medium || passwordStrength.value === PasswordStrength.strong) &&
-    passwordsMatch.value &&
-    passwordOld.value !== ""
-  );
+  return !(isValidPassword() && isMatchingPassword() && !errors.value.passwordOld);
 }
 </script>
 
