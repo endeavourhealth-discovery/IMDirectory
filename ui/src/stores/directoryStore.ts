@@ -1,10 +1,10 @@
 import { defineStore } from "pinia";
 import { DirectoryState } from "@/stores/types/directoryState";
 
-import { IM } from "@im-library/vocabulary";
+import { IM, RDFS } from "@im-library/vocabulary";
 import { SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export const useDirectoryStore = defineStore("directory", {
   state: (): DirectoryState => ({
@@ -22,6 +22,13 @@ export const useDirectoryStore = defineStore("directory", {
   actions: {
     updateConceptIri(conceptIri: string) {
       this.conceptIri = conceptIri;
+    },
+    async getConceptName(): Promise<string> {
+      if (this.conceptIri) {
+        const result = await EntityService.getPartialEntity(this.conceptIri, [RDFS.LABEL]);
+        if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+      }
+      return "";
     },
     async fetchSearchResults(data: { searchRequest: SearchRequest; controller: AbortController }) {
       const result = await EntityService.advancedSearch(data.searchRequest, data.controller);
