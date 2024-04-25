@@ -506,9 +506,9 @@ router.afterEach(async to => {
   if (routes.findIndex(view => view.name === to.meta.name) != -1) {
     loadingStore.updateViewsLoading(false);
   }
-  if (to.matched.some((record: any) => record.name === "Directory") && !to.meta.title) {
+  if (to.matched.some((record: any) => record.name === "Directory")) {
     loadingStore.updateDirectoryLoading(false);
-    title += await directoryStore.getConceptName();
+    if (!to.meta.title) title += await directoryStore.getConceptName();
   }
   if (to.matched.some((record: any) => record.name === "Editor")) {
     title += "Editor: " + (await editorStore.getConceptName());
