@@ -49,7 +49,14 @@
           </div>
           <div class="field">
             <label for="fieldPassword1">New Password</label>
-            <Password v-model="newPassword1" toggleMask data-testid="forgot-password-submit-password1" id="fieldPassword1">
+            <Password
+              v-model="newPassword1"
+              toggleMask
+              data-testid="forgot-password-submit-password1"
+              id="fieldPassword1"
+              strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
+              medium-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
+            >
               <template #header>
                 <h6>Pick a password</h6>
               </template>

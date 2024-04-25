@@ -108,6 +108,8 @@
               v-model="password1"
               :class="passwordStrength === 'fail' && password1 && !focused.get('password1') && 'p-invalid'"
               toggleMask
+              strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
+              medium-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
             >
               <template #header>
                 <h6>Pick a password</h6>

@@ -85,7 +85,14 @@
           <div v-if="showPasswordEdit" class="field">
             <label for="passwordNew1">New password</label>
             <div class="input-with-button">
-              <Password v-model="passwordNew1" toggleMask data-testid="user-edit-password-new1" id="passwordNew1">
+              <Password
+                v-model="passwordNew1"
+                toggleMask
+                data-testid="user-edit-password-new1"
+                id="passwordNew1"
+                strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
+                medium-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
+              >
                 <template #header>
                   <h6>Pick a password</h6>
                 </template>

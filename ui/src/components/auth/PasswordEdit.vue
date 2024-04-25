@@ -34,6 +34,8 @@
                 data-testid="password-edit-password-new1-container"
                 id="passwordNew1"
                 :overlayVisible="true"
+                strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
+                medium-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
               >
                 <template #header>
                   <h6>Pick a password</h6>
