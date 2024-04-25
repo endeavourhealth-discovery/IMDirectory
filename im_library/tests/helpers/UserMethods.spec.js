@@ -190,14 +190,14 @@ describe("checkPasswordStrength", () => {
     expect(checkPasswordStrength(password)).toBe(PasswordStrength.fail);
   });
 
-  it("should return weak for a password of only 1 type (8 chars lower/upper/number/symbol)", () => {
+  it("should return fail for a password of only 1 type (8 chars lower/upper/number/symbol)", () => {
     const password = "12345678";
-    expect(checkPasswordStrength(password)).toBe(PasswordStrength.weak);
+    expect(checkPasswordStrength(password)).toBe(PasswordStrength.fail);
   });
 
-  it("should return medium for a password of 2 types", () => {
+  it("should return fail for a password of 2 types", () => {
     const password = "1234acbd";
-    expect(checkPasswordStrength(password)).toBe(PasswordStrength.medium);
+    expect(checkPasswordStrength(password)).toBe(PasswordStrength.fail);
   });
 
   it("should return medium for a password of 3 types", () => {
