@@ -256,6 +256,12 @@ async function addBaseEntityToRoot(iri: string) {
   expandedKeys.value[parent.key!] = true;
   await onNodeExpand(parent);
   root.value.push(parent);
+  const linkedDMs = await EntityService.getLinkedDataModels(iri);
+  for (const linkedDM of linkedDMs) {
+    const dmName = getNameFromRef({ "@id": linkedDM });
+    const dmNode = createTreeNode(dmName, linkedDM, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
+    root.value.push(dmNode);
+  }
 }
 </script>
 

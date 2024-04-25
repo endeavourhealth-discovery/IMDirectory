@@ -22,6 +22,7 @@ import { TreeNode } from "primevue/treenode";
 import { buildMatchesFromProperties } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "../QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 interface Props {
   showDialog: boolean;
@@ -35,6 +36,7 @@ const props = defineProps<Props>();
 const emit = defineEmits({
   onClose: () => true,
   onPropertyAdd: (_properties: Where[]) => true,
+  onMatchAdd: (_matches: Match[]) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
@@ -72,7 +74,17 @@ function onSelectedUpdate(selected: TreeNode[]) {
 async function save() {
   editMatch.value.where = [];
   const properties = buildMatchesFromProperties(selectedProperties.value as any);
-  emit("onPropertyAdd", properties);
+  if (isArrayHasLength(properties)) {
+    const parts = properties[0].description?.split("-");
+    if (parts && parts.length === 5) {
+      for (const match of properties as Match[]) {
+        match.description = getNameFromRef(match.typeOf);
+      }
+      emit("onMatchAdd", properties as Match[]);
+    } else {
+      emit("onPropertyAdd", properties);
+    }
+  }
   visible.value = false;
 }
 </script>

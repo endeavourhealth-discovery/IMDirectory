@@ -20,6 +20,7 @@
       :header="'Build feature'"
       :show-variable-options="false"
       @on-property-add="(properties: Where[]) => onFeatureBuild(properties)"
+      @on-match-add="(matches: Match[]) => onFeatureAdd(matches)"
     />
 
     <AddPropertyDialog
@@ -28,6 +29,7 @@
       :header="'Build feature'"
       :show-variable-options="false"
       @on-property-add="(properties: Where[]) => onThenFeatureBuild(properties)"
+      @on-match-add="(matches: Match[]) => onThenFeatureAdd(matches)"
     />
   </div>
 </template>
@@ -135,9 +137,20 @@ function onFeatureBuild(properties: Where[]) {
   props.editMatch.match.push(match);
 }
 
+function onFeatureAdd(matches: Match[]) {
+  if (!props.editMatch.match) props.editMatch.match = [];
+  for (const match of matches) {
+    props.editMatch.match.push(match);
+  }
+}
+
 function onThenFeatureBuild(properties: Where[]) {
   const match: Match = { "@id": v4(), where: properties };
   props.editMatch.then = match;
+}
+
+function onThenFeatureAdd(matches: Match[]) {
+  props.editMatch.then = matches[0];
 }
 </script>
 
