@@ -4,7 +4,7 @@
       v-if="match.exclude"
       :severity="'danger'"
       label="NOT"
-      text
+      outlined
       disabled
       class="builder-button exclude-button vertical-button not-button"
       v-tooltip="'Exclude'"
@@ -13,7 +13,7 @@
     <div class="match-description-container">
       <div class="match-description" v-html="match?.description"></div>
       <div v-if="match?.match" class="feature-group">
-        <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled text />
+        <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled outlined />
         <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display" /></div>
       </div>
       <div v-if="match?.where" class="where-group">
@@ -25,7 +25,7 @@
           :label="match.bool?.toUpperCase() ?? 'AND'"
           severity="secondary"
           disabled
-          text
+          outlined
         />
         <div class="where-list"><WhereDisplay v-for="nestedWhere in match.where" :where="nestedWhere" /></div>
       </div>
