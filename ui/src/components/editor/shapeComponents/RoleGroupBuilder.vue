@@ -80,7 +80,7 @@ import { EntityService, QueryService } from "@/services";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { Argument, PropertyShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Argument, PropertyShape, QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import _, { isArray } from "lodash";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
@@ -256,28 +256,17 @@ async function propertyDrop(event: any, object: any) {
 }
 
 async function isValidProperty(iri: string): Promise<boolean> {
-  const request: QueryRequest = {
-    argument: [{ parameter: "subject", valueIri: { "@id": iri } } as Argument],
-    query: {
-      match: [
-        {
-          instanceOf: {
-            parameter: "subject"
-          },
-          where: [
-            {
-              "@id": IM.IS_A,
-              is: [{ "@id": SNOMED.ATTRIBUTE }]
-            }
-          ]
-        }
-      ]
-    }
+  const osRequest: SearchRequest = {
+    isA: [SNOMED.ATTRIBUTE],
+    termFilter: iri,
+    schemeFilter: [IM.NAMESPACE, SNOMED.NAMESPACE],
+    page: 1,
+    size: 1
   };
 
-  const results: any = await QueryService.queryIM(request);
-
-  return results?.entities && results.entities.length > 0;
+  const results = await EntityService.advancedSearch(osRequest);
+  if (results.entities) return results.entities.length > 0;
+  return false;
 }
 
 async function valueDrop(event: any, object: any) {
@@ -300,28 +289,16 @@ async function valueDrop(event: any, object: any) {
 }
 
 async function isValidValue(iri: string): Promise<boolean> {
-  const request: QueryRequest = {
-    argument: [{ parameter: "subject", valueIri: { "@id": iri } } as Argument],
-    query: {
-      match: [
-        {
-          instanceOf: {
-            parameter: "subject"
-          },
-          where: [
-            {
-              "@id": IM.HAS_SCHEME,
-              is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
-            }
-          ]
-        }
-      ]
-    }
+  const osRequest: SearchRequest = {
+    schemeFilter: [SNOMED.NAMESPACE, IM.NAMESPACE],
+    termFilter: iri,
+    page: 1,
+    size: 1
   };
 
-  const results: any = await QueryService.queryIM(request);
-
-  return results?.entities && results.entities.length > 0;
+  const results = await EntityService.advancedSearch(osRequest);
+  if (results.entities) return results.entities.length > 0;
+  return false;
 }
 
 async function update() {

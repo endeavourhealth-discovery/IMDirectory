@@ -111,7 +111,7 @@
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Argument, PropertyShape, QueryRequest, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
@@ -416,28 +416,17 @@ async function pathDrop(object: any, event: DragEvent) {
 }
 
 async function isValidPath(iri: string): Promise<boolean> {
-  const request: QueryRequest = {
-    argument: [{ parameter: "subject", valueIri: { "@id": iri } } as Argument],
-    query: {
-      match: [
-        {
-          instanceOf: {
-            parameter: "subject"
-          },
-          where: [
-            {
-              "@id": IM.IS_A,
-              is: [{ "@id": RDF.PROPERTY }]
-            }
-          ]
-        }
-      ]
-    }
+  const osRequest: SearchRequest = {
+    termFilter: iri,
+    isA: [RDF.PROPERTY],
+    page: 1,
+    size: 1
   };
 
-  const results: any = await QueryService.queryIM(request);
+  const results = await EntityService.advancedSearch(osRequest);
 
-  return results?.entities && results.entities.length > 0;
+  if (results.entities) return results.entities.length > 0;
+  return false;
 }
 
 // Range functions
@@ -475,28 +464,17 @@ async function getRangeType(iri: string) {
 }
 
 async function isValidRange(iri: string): Promise<boolean> {
-  const request: QueryRequest = {
-    argument: [{ parameter: "subject", valueIri: { "@id": iri } } as Argument],
-    query: {
-      match: [
-        {
-          instanceOf: {
-            parameter: "subject"
-          },
-          where: [
-            {
-              "@id": IM.HAS_SCHEME,
-              is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
-            }
-          ]
-        }
-      ]
-    }
+  const osQuery: SearchRequest = {
+    termFilter: iri,
+    schemeFilter: [SNOMED.NAMESPACE, IM.NAMESPACE],
+    page: 1,
+    size: 1
   };
 
-  const results: any = await QueryService.queryIM(request);
+  const results = await EntityService.advancedSearch(osQuery);
 
-  return results?.entities && results.entities.length > 0;
+  if (results.entities) return results.entities.length > 0;
+  return false;
 }
 
 // Update/validation
