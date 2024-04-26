@@ -52,7 +52,7 @@
             <Password
               v-model="newPassword1"
               toggleMask
-              data-testid="forgot-password-submit-password1"
+              :input-props="{ 'data-testid': 'forgot-password-submit-password1' }"
               id="fieldPassword1"
               strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
               medium-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
@@ -72,13 +72,20 @@
                 </ul>
               </template>
             </Password>
+            aaaaa
             <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'medium'" severity="warn"> Password strength: Medium </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'fail' && newPassword1 !== ''" severity="error"> Password strength: Weak </InlineMessage>
           </div>
           <div class="field">
             <label for="fieldPassword2">Confirm New Password</label>
-            <Password v-model="newPassword2" toggleMask :feedback="false" data-testid="forgot-password-submit-password2" id="fieldPassword2" />
+            <Password
+              v-model="newPassword2"
+              toggleMask
+              :feedback="false"
+              :input-props="{ 'data-testid': 'forgot-password-submit-password2' }"
+              id="fieldPassword2"
+            />
             <InlineMessage v-if="!passwordsMatch && newPassword2 && !focused.get('password2') && 'p-invalid'" severity="error"
               >Passwords do not match!</InlineMessage
             >

@@ -100,7 +100,7 @@
           <label for="fieldPassword1">Password</label>
           <div class="input-with-button">
             <Password
-              data-testid="register-password1"
+              :input-props="{ 'data-testid': 'register-password1' }"
               id="fieldPassword1"
               :type="showPassword1 ? 'text' : 'password'"
               maxlength="50"
@@ -129,13 +129,19 @@
           </div>
           <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
-          <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'fail' && password1 !== ''" severity="error"> Invalid password </InlineMessage>
         </div>
         <div class="field">
           <label for="fieldPassword2">Confirm password</label>
           <div class="input-with-button">
-            <Password id="fieldPassword2" data-testid="register-password2" maxlength="50" v-model="password2" toggleMask :feedback="false" />
+            <Password
+              id="fieldPassword2"
+              :input-props="{ 'data-testid': 'register-password2' }"
+              maxlength="50"
+              v-model="password2"
+              toggleMask
+              :feedback="false"
+            />
           </div>
           <InlineMessage v-if="!passwordsMatch && password2 && !focused.get('password2')" severity="error"> Passwords do not match! </InlineMessage>
         </div>

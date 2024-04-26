@@ -88,21 +88,21 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
     const passwordInput = component.getByTestId("forgot-password-submit-password1");
     await fireEvent.update(passwordInput, "12345678");
     component.getByDisplayValue("12345678");
-    component.getByText("Password Strength: Weak");
+    component.getByText("Password strength: Weak");
   });
 
   it("should check password strength __ medium", async () => {
     const passwordInput = component.getByTestId("forgot-password-submit-password1");
-    await fireEvent.update(passwordInput, "1234abcd");
-    component.getByDisplayValue("1234abcd");
-    component.getByText("Password Strength: Medium");
+    await fireEvent.update(passwordInput, "1234abcD");
+    component.getByDisplayValue("1234abcD");
+    component.getByText("Password strength: Medium");
   });
 
   it("should check password strength __ strong", async () => {
     const passwordInput = component.getByTestId("forgot-password-submit-password1");
-    await fireEvent.update(passwordInput, "1234ABc%");
-    component.getByDisplayValue("1234ABc%");
-    component.getByText("Password Strength: Strong");
+    await fireEvent.update(passwordInput, "1234ABcd!!");
+    component.getByDisplayValue("1234ABcd!!");
+    component.getByText("Password strength: Strong");
   });
 
   it("should check passwords match __ fail", async () => {
@@ -170,13 +170,12 @@ describe("ForgotPasswordSubmit.vue 403 response", () => {
     const codeInput = component.getByTestId("forgot-password-submit-code");
     const resetButton = component.getByTestId("forgot-password-submit-reset");
 
-    await fireEvent.update(passwordInput1, "12345678");
-    await fireEvent.update(passwordInput2, "12345678");
+    await fireEvent.update(passwordInput1, "12345678aA!");
+    await fireEvent.update(passwordInput2, "12345678aA!");
     await fireEvent.update(codeInput, "123456");
     await fireEvent.click(resetButton);
 
     await flushPromises();
-
     component.getByText("Code Expired");
     component.getByText("Password reset code has expired. Please request a new code");
   });
