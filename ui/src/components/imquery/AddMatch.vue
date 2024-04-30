@@ -38,11 +38,12 @@
 import { Ref, ref, watch } from "vue";
 import AddPropertyDialog from "../query/builder/edit/dialogs/AddPropertyDialog.vue";
 import DirectorySearchDialog from "../shared/dialogs/DirectorySearchDialog.vue";
-import { Match, Query, SearchRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Query, SearchRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { v4 } from "uuid";
 import { EntityService } from "@/services";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 interface Props {
   editMatch: Match;
   matchTypeOfIri: string;
@@ -146,11 +147,17 @@ function onFeatureAdd(matches: Match[]) {
 
 function onThenFeatureBuild(properties: Where[]) {
   const match: Match = { "@id": v4(), where: properties };
-  props.editMatch.then = match;
+  if (props.editMatch.then) {
+    if (isArrayHasLength(props.editMatch.then.match)) props.editMatch.then.match?.push(match);
+    else props.editMatch.then = { boolMatch: Bool.and, match: [props.editMatch.then, match] };
+  } else props.editMatch.then = match;
 }
 
 function onThenFeatureAdd(matches: Match[]) {
-  props.editMatch.then = matches[0];
+  if (props.editMatch.then) {
+    if (isArrayHasLength(props.editMatch.then.match)) props.editMatch.then.match?.push(matches[0]);
+    else props.editMatch.then = { boolMatch: Bool.and, match: [props.editMatch.then, matches[0]] };
+  } else props.editMatch.then = matches[0];
 }
 </script>
 

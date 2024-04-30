@@ -48,9 +48,23 @@
     />
 
     <div class="add-buttons">
-      <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-plus" class="add-feature-button" />
+      <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
       <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
-      <Button label="Build feature" @click="showBuildFeature = true" severity="warning" icon="fa-solid fa-screwdriver-wrench" class="add-feature-button" />
+      <Button
+        label="Build feature"
+        v-if="selectedBaseType?.iri"
+        @click="showBuildFeature = true"
+        severity="warning"
+        icon="fa-solid fa-screwdriver-wrench"
+        class="add-feature-button"
+      />
+      <Button
+        label="Add feature group"
+        @click="queryDefinition.match?.push({ boolMatch: Bool.and })"
+        severity="primary"
+        icon="fa-solid fa-layer-group"
+        class="add-feature-button"
+      />
     </div>
   </div>
 </template>
@@ -58,7 +72,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { Match, Query, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, Query, SearchRequest, SearchResultSummary, Bool } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
@@ -80,7 +94,7 @@ const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
 
 onMounted(async () => {
-  queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
+  // queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
   if (queryDefinition.value.typeOf)
     selectedBaseType.value = { iri: queryDefinition.value.typeOf?.["@id"], name: queryDefinition.value.typeOf?.name } as SearchResultSummary;
 

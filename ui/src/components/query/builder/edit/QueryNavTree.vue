@@ -34,6 +34,7 @@ import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 import { useQueryStore } from "@/stores/queryStore";
+import { stringAscending } from "@im-library/helpers/Sorters";
 
 interface Props {
   editMatch: Match;
@@ -256,7 +257,8 @@ async function addBaseEntityToRoot(iri: string) {
   expandedKeys.value[parent.key!] = true;
   await onNodeExpand(parent);
   root.value.push(parent);
-  const linkedDMs = await EntityService.getLinkedDataModels(iri);
+  let linkedDMs = await EntityService.getLinkedDataModels(iri);
+  linkedDMs = linkedDMs.sort(stringAscending);
   for (const linkedDM of linkedDMs) {
     const dmName = getNameFromRef({ "@id": linkedDM });
     const dmNode = createTreeNode(dmName, linkedDM, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });

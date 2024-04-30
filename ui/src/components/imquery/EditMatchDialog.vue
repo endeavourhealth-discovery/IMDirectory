@@ -53,15 +53,8 @@
               :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
             />
             <div class="add-button-bar">
-              <Button
-                v-if="!focusedEditMatch?.then"
-                label="Add test"
-                @click="showBuildThenFeature = true"
-                severity="secondary"
-                icon="fa-solid fa-plus"
-                class="add-feature-button"
-              />
-              <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-plus" class="add-feature-button" />
+              <Button label="Add test" @click="showBuildThenFeature = true" severity="secondary" icon="fa-solid fa-plus" class="add-feature-button" />
+              <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
               <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
               <Button
                 label="Build feature"
@@ -75,6 +68,13 @@
                 label="Add order by"
                 @click="focusedEditMatch!.orderBy = { description: '', limit: 0, partitionBy: {}, property: {} }"
                 icon="fa-solid fa-arrow-down-z-a"
+                class="add-feature-button"
+              />
+              <Button
+                label="Add feature group"
+                @click="focusedEditMatch!.match?.push({ boolMatch: Bool.and })"
+                severity="primary"
+                icon="fa-solid fa-layer-group"
                 class="add-feature-button"
               />
             </div>
@@ -124,7 +124,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Match, Bool } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash";
 import { Ref, onMounted, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
