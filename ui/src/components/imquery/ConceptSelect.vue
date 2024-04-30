@@ -40,7 +40,7 @@ import SaveCustomSetDialog from "../query/builder/edit/dialogs/SaveCustomSetDial
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import EntailmentOptionsSelect from "../query/builder/edit/EntailmentOptionsSelect.vue";
 import { Entailment, Node, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
-import { isEqual } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 interface Props {
   datatype: string;
@@ -57,6 +57,15 @@ onMounted(() => {
 
 watch(
   () => valueField.value,
+  (newValue, oldValue) => {
+    if (!isEqual(newValue, oldValue)) {
+      handlePropertyTypeChange();
+    }
+  }
+);
+
+watch(
+  () => cloneDeep(values.value),
   (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       handlePropertyTypeChange();
