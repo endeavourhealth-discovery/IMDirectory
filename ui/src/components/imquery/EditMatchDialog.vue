@@ -41,7 +41,6 @@
               :edit-match="focusedEditMatch"
               :is-root-feature="true"
               :focused-id="focusedEditMatch['@id']"
-              :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
               @on-update-dialog-focus="updateDialogFocus"
             />
             <AddMatch
@@ -126,7 +125,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Bool } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash";
-import { Ref, onMounted, ref, watch } from "vue";
+import { Ref, onMounted, provide, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
@@ -158,6 +157,7 @@ const focusedEditMatchString: Ref<string> = ref("");
 const visible = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEditMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
+provide("fullMatch", editMatch);
 
 watch(
   () => cloneDeep(focusedEditMatch.value),

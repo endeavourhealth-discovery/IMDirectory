@@ -40,6 +40,11 @@ watch(
   async () => await init()
 );
 
+watch(
+  () => props.dataModelIri,
+  async () => await init()
+);
+
 async function init() {
   if (props.dataModelIri && props.property["@id"]) {
     uiProperty.value = await QueryService.getDataModelProperty(props.dataModelIri, props.property["@id"]);

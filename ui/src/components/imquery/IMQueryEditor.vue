@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, ref } from "vue";
+import { Ref, onMounted, provide, ref } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import { Match, Query, SearchRequest, SearchResultSummary, Bool } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
@@ -92,6 +92,7 @@ const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
+provide("selectedBaseType", selectedBaseType);
 
 onMounted(async () => {
   // queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");

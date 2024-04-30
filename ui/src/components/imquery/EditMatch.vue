@@ -71,7 +71,6 @@
               <EditMatch
                 :editMatch="nestedMatch"
                 :focused-id="focusedId"
-                :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
                 @on-update-dialog-focus="onNestedUpdateDialogFocus"
                 @delete-match="onDeleteMatch"
                 @ungroup-matches="ungroupMatches"
@@ -113,13 +112,13 @@
             :edit-where="nestedWhere"
             :focused="editMatch['@id'] === focusedId"
             :focused-id="focusedId"
-            :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
+            :match-type-of-iri="typeOf"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
           <AddPropertyDialog
             v-model:show-dialog="showAddPropertyDialog"
-            :dataModelIri="matchTypeOfIri"
+            :dataModelIri="typeOf"
             :header="'Add property'"
             :show-variable-options="false"
             @on-property-add="(properties: Where[]) => onPropertyAdd(properties)"
@@ -136,20 +135,9 @@
       </div>
       <div v-if="editMatch.then">
         <div class="then-title">Then</div>
-        <EditMatch
-          :editMatch="editMatch.then"
-          :focused-id="focusedId"
-          :match-type-of-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
-          @on-update-dialog-focus="onNestedUpdateDialogFocus"
-          @delete-match="onDeleteMatch"
-        />
+        <EditMatch :editMatch="editMatch.then" :focused-id="focusedId" @on-update-dialog-focus="onNestedUpdateDialogFocus" @delete-match="onDeleteMatch" />
       </div>
-      <EditOrderBy
-        v-if="focusedId === editMatch['@id'] && editMatch.orderBy"
-        :editMatch="editMatch"
-        :order-by="editMatch.orderBy"
-        :dm-iri="editMatch.typeOf?.['@id'] ?? matchTypeOfIri"
-      />
+      <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
     </div>
     <Button v-if="!isRootFeature" severity="danger" icon="fa-solid fa-trash" class="builder-button" @click="onParentDelete" />
@@ -157,21 +145,21 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, Match, Where } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupHover from "@/composables/setupHover";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { MenuItem } from "primevue/menuitem";
 import AddPropertyDialog from "../query/builder/edit/dialogs/AddPropertyDialog.vue";
-import { Ref, ref } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import EditOrderBy from "./EditOrderBy.vue";
+import { cloneDeep } from "lodash";
 
 interface Props {
   isRootFeature?: boolean;
   editMatch: Match;
-  matchTypeOfIri: string;
   focusedId: string | undefined;
 }
 const props = defineProps<Props>();
@@ -182,8 +170,21 @@ const emit = defineEmits({
 });
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 const { hover, mouseout, mouseover } = setupHover();
-const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
+const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, getTypeOfMatch } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
+const typeOf: Ref<string> = ref("");
+const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
+const fullMatch = inject("fullMatch") as Ref<Match | undefined>;
+onMounted(() => {
+  if (fullMatch.value) typeOf.value = getTypeOfMatch(fullMatch.value, props.editMatch["@id"]!) ?? selectedBaseType.value?.iri;
+});
+
+watch(
+  () => cloneDeep(props.editMatch),
+  () => {
+    if (fullMatch.value) typeOf.value = getTypeOfMatch(fullMatch.value, props.editMatch["@id"]!);
+  }
+);
 
 function updateDialogFocus(event: Event) {
   event.stopPropagation();
@@ -213,7 +214,6 @@ function onPropertyAdd(properties: Where[]) {
     }
   }
 }
-
 function bracketItems() {
   if (group.value.length) {
     const newMatch: Match = { boolMatch: Bool.and, match: [] };

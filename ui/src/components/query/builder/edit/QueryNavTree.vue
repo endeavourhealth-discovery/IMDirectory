@@ -19,7 +19,7 @@
 </template>
 
 <script async setup lang="ts">
-import { ComputedRef, computed, onMounted, onUnmounted, ref } from "vue";
+import { ComputedRef, computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
@@ -53,16 +53,23 @@ const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
 const { removeOverlay, OS, displayOverlay, hideOverlay, createTreeNode, select, unselect, selectedNodes } = setupQueryTree();
 
-onMounted(async () => {
-  loading.value = true;
-  await addParentFoldersToRoot();
-  if (isArrayHasLength(props.editMatch.where)) await populateCheckBoxes(props.editMatch);
-  loading.value = false;
-});
+watch(
+  () => props.dmIri,
+  async () => await init()
+);
+
+onMounted(async () => await init());
 
 onUnmounted(() => {
   removeOverlay();
 });
+
+async function init() {
+  loading.value = true;
+  await addParentFoldersToRoot();
+  if (isArrayHasLength(props.editMatch.where)) await populateCheckBoxes(props.editMatch);
+  loading.value = false;
+}
 
 async function onCheckInput(check: boolean, node: TreeNode) {
   if (check) onSelect(node);

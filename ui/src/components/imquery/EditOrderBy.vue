@@ -20,7 +20,7 @@ import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Order, OrderDirection, OrderLimit, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { IM, SHACL, XSD } from "@im-library/vocabulary";
-import { Ref, onMounted, ref } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 interface Props {
   editMatch: Match;
   orderBy: OrderLimit;
@@ -31,8 +31,13 @@ const orderProperties: Ref<SearchResultSummary[]> = ref([]);
 const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue", XSD.NAMESPACE + "number"];
 onMounted(async () => await init());
 
+watch(
+  () => props.dmIri,
+  async () => await init()
+);
+
 async function init() {
-  orderProperties.value = await getOrderProperties();
+  if (props.dmIri) orderProperties.value = await getOrderProperties();
 }
 
 async function getOrderProperties() {
