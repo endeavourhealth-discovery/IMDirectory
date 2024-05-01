@@ -92,7 +92,9 @@ const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
+const variableMap: Ref<Map<string, any>> = ref(new Map());
 provide("selectedBaseType", selectedBaseType);
+provide("variableMap", variableMap);
 
 onMounted(async () => {
   // queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");

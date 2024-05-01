@@ -30,7 +30,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { Where, PropertyRef } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/treenode";
-import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 interface Props {
   propertyIri: string;
@@ -43,13 +43,13 @@ const props = defineProps<Props>();
 const queryStore = useQueryStore();
 const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
-const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 const showTreeSearch: Ref<boolean> = ref(false);
 const searchTerm: Ref<string> = ref("");
 const propertyDisplay: Ref<string> = ref("");
 const variableOptions: Ref<TreeNode[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const debounce = ref(0);
+const variableMap = inject("variableMap") as Ref<Map<string, any>>;
 
 const emit = defineEmits({ "update:propertyRef": payload => true });
 

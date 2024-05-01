@@ -19,7 +19,7 @@
 </template>
 
 <script async setup lang="ts">
-import { ComputedRef, computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { Ref, inject, onMounted, onUnmounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
@@ -33,7 +33,6 @@ import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
-import { useQueryStore } from "@/stores/queryStore";
 import { stringAscending } from "@im-library/helpers/Sorters";
 
 interface Props {
@@ -42,8 +41,7 @@ interface Props {
   dmIri: string;
 }
 const props = defineProps<Props>();
-const queryStore = useQueryStore();
-const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
+const variableMap = inject("variableMap") as Ref<Map<string, any>>;
 
 const emit = defineEmits({
   onSelectedUpdate: (_payload: TreeNode[]) => true

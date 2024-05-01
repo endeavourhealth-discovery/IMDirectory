@@ -15,23 +15,13 @@
           <template #separator> / </template>
         </Breadcrumb>
         <div v-if="!keepAsEdit" class="variable-display">
-          <div v-if="focusedEditMatch?.variable" style="padding-left: 1rem">as</div>
-          <div v-if="focusedEditMatch?.variable" class="variable" @click="keepAsEdit = true">{{ focusedEditMatch?.variable }}</div>
+          <div v-if="focusedEditMatch?.variable" class="variable" @click="keepAsEdit = true">as {{ focusedEditMatch?.variable }}</div>
           <Button v-else icon="fa-solid fa-tag" label="Label as a variable" text @click="keepAsEdit = true" />
         </div>
         <div class="variable-edit" v-else>
-          <InputText type="text" placeholder="value" v-model="focusedEditMatch!.variable" />
-          <Button icon="fa-solid fa-check" @click="keepAsEdit = false" />
-          <Button
-            icon="fa-solid fa-trash-can"
-            severity="danger"
-            @click="
-              {
-                delete focusedEditMatch!.variable;
-                keepAsEdit = false;
-              }
-            "
-          />
+          <InputText type="text" placeholder="value" v-model="keepAsVariable" />
+          <Button icon="fa-solid fa-check" @click="saveVariable" />
+          <Button icon="fa-solid fa-trash-can" severity="danger" @click="deleteVariable" />
         </div>
       </template>
       <div id="imquery-builder-string-container">
@@ -125,7 +115,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Bool } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash";
-import { Ref, onMounted, provide, ref, watch } from "vue";
+import { Ref, inject, onMounted, provide, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
@@ -145,7 +135,7 @@ const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
   saveChanges: (payload: Match | undefined) => payload
 });
-
+const keepAsVariable: Ref<string> = ref("");
 const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
@@ -158,6 +148,7 @@ const visible = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEditMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
 provide("fullMatch", editMatch);
+const variableMap = inject("variableMap") as Ref<Map<string, any>>;
 
 watch(
   () => cloneDeep(focusedEditMatch.value),
@@ -197,6 +188,7 @@ function init() {
   setEditMatch();
   focusedEditMatchString.value = JSON.stringify(focusedEditMatch.value);
   setPathItems();
+  if (focusedEditMatch.value?.variable) keepAsVariable.value = focusedEditMatch.value?.variable;
 }
 
 function setPathItems() {
@@ -243,6 +235,26 @@ function onSave() {
 function onCancel() {
   init();
   visible.value = false;
+}
+
+function saveVariable() {
+  udpateVariableMap();
+  if (focusedEditMatch.value) focusedEditMatch.value.variable = keepAsVariable.value;
+  keepAsEdit.value = false;
+}
+
+function deleteVariable() {
+  if (focusedEditMatch.value?.variable) {
+    variableMap.value.delete(focusedEditMatch.value.variable);
+    delete focusedEditMatch.value.variable;
+  }
+  keepAsVariable.value = "";
+  keepAsEdit.value = false;
+}
+
+function udpateVariableMap() {
+  if (focusedEditMatch.value?.variable) variableMap.value.delete(focusedEditMatch.value.variable);
+  variableMap.value.set(keepAsVariable.value, focusedEditMatch.value);
 }
 </script>
 
