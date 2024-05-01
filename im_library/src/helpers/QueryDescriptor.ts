@@ -9,29 +9,29 @@ const propertyDisplayMap: { path: any; then: any } = { path: { concept: "is", et
 export type MatchType = "path" | "then" | "";
 
 // descriptors
-export function describeQuery(query: Query): Query {
+export function describeQuery(query: Query, includeLogicDesc: boolean): Query {
   const describedQuery = { ...query };
-  describe(describedQuery);
+  describe(describedQuery, includeLogicDesc);
   return describedQuery;
 }
 
-function describe(query: Query) {
+function describe(query: Query, includeLogicDesc: boolean) {
   if (isObjectHasKeys(query, ["name"])) {
     query.description = query.name;
   }
   if (isArrayHasLength(query.match)) {
     for (const [index, match] of query.match!.entries()) {
-      describeMatch(match, index, Bool.and);
+      describeMatch(match, index, includeLogicDesc, Bool.and);
     }
   }
   if (isArrayHasLength(query.where)) {
     for (const [index, prop] of query.where!.entries()) {
-      describeProperty(prop, index, Bool.and);
+      describeProperty(prop, index, includeLogicDesc, Bool.and);
     }
   }
   if (isArrayHasLength(query.query)) {
     for (const subQuery of query.query!) {
-      describe(subQuery);
+      describe(subQuery, includeLogicDesc);
     }
   }
   if (isArrayHasLength(query.return)) {
@@ -60,47 +60,63 @@ export function describeReturnProperty(property: ReturnProperty, pathProperties:
   }
 }
 
-export function describeMatch(match: Match, index: number, bool?: Bool, matchType?: MatchType) {
-  let display = getDisplayFromMatch(match, matchType);
+export function describeMatch(match: Match, index: number, includeLogicDesc: boolean, bool?: Bool, matchType?: MatchType) {
+  let display = getDisplayFromMatch(match, includeLogicDesc, matchType);
+
+  if (includeLogicDesc && match.exclude && matchType !== "then") display = getDisplayFromLogic("exclude") + " " + display;
+  if (includeLogicDesc && index && bool) display = getDisplayFromLogic(bool) + " " + display;
 
   if (isArrayHasLength(match.match)) {
     if (matchType === "then") matchType = "";
     for (const [index, nestedMatch] of match.match!.entries()) {
-      describeMatch(nestedMatch, index, match.boolMatch!, matchType);
+      describeMatch(nestedMatch, index, includeLogicDesc, match.boolMatch!, matchType);
     }
   }
 
   if (isArrayHasLength(match.where)) {
     if (matchType === "then") matchType = "";
     for (const [index, property] of match.where!.entries()) {
-      describeProperty(property, index, property.boolWhere!, matchType);
+      describeProperty(property, index, includeLogicDesc, property.boolWhere!, matchType);
     }
   }
 
   if (match.then) {
-    describeMatch(match.then, 0, Bool.and, "then");
+    describeMatch(match.then, 0, includeLogicDesc, Bool.and, "then");
   }
 
   match.description = display;
 }
 
-export function describeProperty(property: Where, index: number, bool?: Bool, matchType?: MatchType) {
-  if (property.match) describeMatch(property.match, 0, Bool.and, "path");
+export function describeProperty(property: Where, index: number, includeLogicDesc: boolean, bool?: Bool, matchType?: MatchType) {
+  if (property.match) describeMatch(property.match, 0, includeLogicDesc, Bool.and, "path");
   if (isObjectHasKeys(property, ["@id"])) {
     let display = getDisplayFromProperty(property, matchType);
-
+    if (includeLogicDesc) {
+      if (index && bool) {
+        display = getDisplayFromLogic(bool) + " " + display;
+      } else if (!index && bool) {
+        display = getDisplayFromLogic(Bool.and) + " " + display;
+      }
+    }
     property.description = display;
   }
 
   if (isArrayHasLength(property.where))
     for (const [index, nestedProperty] of property.where!.entries()) {
-      describeProperty(nestedProperty, index, property.boolWhere!, matchType);
+      describeProperty(nestedProperty, index, includeLogicDesc, property.boolWhere!, matchType);
     }
 }
 
 // getters
-export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
+export function getDisplayFromMatch(match: Match, includeLogicDesc: boolean, matchType?: MatchType) {
   let display = "";
+  if (includeLogicDesc) {
+    if (matchType === "then") {
+      display = "then";
+      display += " " + getDisplayFromLogic(match.exclude ? "exclude" : "include");
+    }
+  }
+
   if (match.is) display = getDisplayFromIs(match.is);
   else if (match.typeOf) {
     display = getNameFromRef(match.typeOf);
@@ -228,6 +244,21 @@ function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: Match
   }
 
   return display.trim();
+}
+
+export function getDisplayFromLogic(title: string) {
+  switch (title) {
+    case "include":
+      return "<span style='color: green;'>include if</span> ";
+    case "exclude":
+      return "<span style='color: red;'>exclude if</span> ";
+    case "or":
+      return "<span style='color: blue;'>or</span> ";
+    case "and":
+      return "<span style='color: orange;'>and</span> ";
+    default:
+      return "<span style='color: orange;'>and</span> ";
+  }
 }
 
 export function getDisplayFromRange(propertyName: string, property: Where) {

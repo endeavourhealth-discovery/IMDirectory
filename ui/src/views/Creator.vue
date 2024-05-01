@@ -215,7 +215,7 @@ onMounted(async () => {
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
       if (propertyIri === IM.DEFINITION) {
-        const newValue = await QueryService.getQueryDisplay(valueIri as string);
+        const newValue = await QueryService.getQueryDisplay(valueIri as string, false);
         editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
         editorEntity.value[IM.DEFINITION] = JSON.stringify({
           match: [

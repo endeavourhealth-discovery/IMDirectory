@@ -123,11 +123,11 @@ export default class QueryController {
   }
 
   async getQueryDisplay(req: Request) {
-    return await this.queryService.getQueryDisplay(req.query.queryIri as string);
+    return await this.queryService.getQueryDisplay(req.query.queryIri as string, (req.query.includeLogicDesc as string) === "true");
   }
 
   async getQueryDisplayFromQuery(req: Request) {
-    return await this.queryService.getQueryDisplayFromQuery(req.body as Query);
+    return await this.queryService.getQueryDisplayFromQuery(req.body as Query, (req.query.includeLogicDesc as string) === "true");
   }
 
   async getLabeledQuery(req: Request) {

@@ -118,7 +118,7 @@ watch(showBuildFeatureDialog, newValue => {
 
 function onPopulationSelect(selected: SearchResultSummary) {
   const match: Match = { "@id": v4(), instanceOf: { "@id": selected.iri, name: selected.name, memberOf: true } };
-  describeMatch(match, 0);
+  describeMatch(match, 0, false);
   if (!props.editMatch.match) props.editMatch.match = [];
   props.editMatch.match.push(match);
 }
@@ -127,7 +127,7 @@ async function onFeatureSelect(selected: SearchResultSummary) {
   const featureEntity = await EntityService.getPartialEntity(selected.iri, [IM.DEFINITION]);
   if (!featureEntity || !featureEntity[IM.DEFINITION]) return;
   const featureDefinition: Query = JSON.parse(featureEntity[IM.DEFINITION]);
-  describeMatch(featureDefinition, 0);
+  describeMatch(featureDefinition, 0, false);
   if (!props.editMatch.match) props.editMatch.match = [];
   props.editMatch.match.push(featureDefinition);
 }

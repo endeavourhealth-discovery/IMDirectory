@@ -74,7 +74,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  if (props.entityIri) query.value = await QueryService.getQueryDisplay(props.entityIri);
+  if (props.entityIri) query.value = await QueryService.getQueryDisplay(props.entityIri, true);
   else if (props.definition) query.value = await QueryService.getQueryDisplayFromQuery(JSON.parse(props.definition));
 }
 

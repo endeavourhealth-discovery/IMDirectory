@@ -97,7 +97,7 @@ provide("selectedBaseType", selectedBaseType);
 provide("variableMap", variableMap);
 
 onMounted(async () => {
-  // queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery");
+  queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery", false);
   if (queryDefinition.value.typeOf)
     selectedBaseType.value = { iri: queryDefinition.value.typeOf?.["@id"], name: queryDefinition.value.typeOf?.name } as SearchResultSummary;
 

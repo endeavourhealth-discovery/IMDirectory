@@ -103,8 +103,8 @@ const QueryService = {
     return axios.post(Env.VITE_NODE_API + "node_api/query/public/labeledQuery", query);
   },
 
-  async getQueryDisplay(iri: string): Promise<Query> {
-    return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri } });
+  async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
   },
 
   async getQueryDisplayFromQuery(query: Query): Promise<Query> {

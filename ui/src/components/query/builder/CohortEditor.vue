@@ -131,7 +131,7 @@ watch(
 
 watch(
   () => _.cloneDeep(query.value),
-  () => describeQuery(query.value)
+  () => describeQuery(query.value, false)
 );
 
 watch(

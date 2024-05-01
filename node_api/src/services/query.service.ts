@@ -290,19 +290,19 @@ export default class QueryService {
     }
   }
 
-  public async getQueryDisplay(queryIri: string) {
+  public async getQueryDisplay(queryIri: string, includeLogicDesc: boolean) {
     const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
     if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION])) {
       return {};
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
-    return await this.getQueryDisplayFromQuery(query);
+    return await this.getQueryDisplayFromQuery(query, includeLogicDesc);
   }
 
-  public async getQueryDisplayFromQuery(query: Query) {
+  public async getQueryDisplayFromQuery(query: Query, includeLogicDesc: boolean) {
     const labeledQuery = await this.getLabeledQuery(query);
     const queryWithMatchIds = generateMatchIds(labeledQuery);
-    return await this.generateQueryDescriptions(queryWithMatchIds);
+    return await this.generateQueryDescriptions(queryWithMatchIds, includeLogicDesc);
   }
 
   public async getLabeledQuery(query: Query) {
@@ -335,8 +335,8 @@ export default class QueryService {
     return query;
   }
 
-  public async generateQueryDescriptions(query: Query): Promise<Query> {
-    return describeQuery(query);
+  public async generateQueryDescriptions(query: Query, includeLogicDesc: boolean): Promise<Query> {
+    return describeQuery(query, includeLogicDesc);
   }
 
   public async getDataModelProperty(dataModelIri: string, propertyIri: string): Promise<UIProperty | undefined> {

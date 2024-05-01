@@ -29,7 +29,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): Wher
 
       properties = properties.concat(matchProperties);
       const match = { "@id": v4(), where: properties } as Match;
-      describeMatch(match, 0);
+      describeMatch(match, 0, false);
       properties = match.where!;
     }
   }

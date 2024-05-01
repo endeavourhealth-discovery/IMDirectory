@@ -101,7 +101,6 @@ onMounted(async () => {
 });
 
 async function init() {
-  QueryService.getQueryDisplay;
   if (props.value) {
     const definition = JSON.parse(props.value);
     const labeledQuery = await QueryService.getLabeledQuery(definition);

@@ -59,7 +59,7 @@ async function init() {
 
 async function setQuery() {
   const resolvedIri = resolveIri(queryIri.value);
-  if (resolvedIri) queryDefinition.value = await QueryService.getQueryDisplay(resolvedIri);
+  if (resolvedIri) queryDefinition.value = await QueryService.getQueryDisplay(resolvedIri, false);
 }
 </script>
 
