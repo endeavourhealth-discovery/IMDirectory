@@ -165,11 +165,13 @@ describe("ForgotPasswordSubmit.vue 403 response", () => {
   });
 
   it("calls swal on auth 403", async () => {
+    const usernameInput = component.getByTestId("forgot-password-submit-username");
     const passwordInput1 = component.getByTestId("forgot-password-submit-password1");
     const passwordInput2 = component.getByTestId("forgot-password-submit-password2");
     const codeInput = component.getByTestId("forgot-password-submit-code");
     const resetButton = component.getByTestId("forgot-password-submit-reset");
 
+    await fireEvent.update(usernameInput, "testusername");
     await fireEvent.update(passwordInput1, "12345678aA!");
     await fireEvent.update(passwordInput2, "12345678aA!");
     await fireEvent.update(codeInput, "123456");
