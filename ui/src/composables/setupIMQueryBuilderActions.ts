@@ -30,7 +30,7 @@ function setupIMQueryBuilderActions() {
   function getTypeOfMatch(query: Query, id: string): string {
     const typeOf: string[] = [];
     searchForTypeOfRecursively(query, id, undefined, typeOf, query);
-    return typeOf[0] ?? "";
+    return typeOf[0] ?? undefined;
   }
 
   function searchForTypeOfRecursively(match: Match, id: string, parent: Match | undefined, typeOf: string[], fullQuery: Query) {

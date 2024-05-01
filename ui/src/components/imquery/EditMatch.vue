@@ -112,13 +112,13 @@
             :edit-where="nestedWhere"
             :focused="editMatch['@id'] === focusedId"
             :focused-id="focusedId"
-            :match-type-of-iri="typeOf"
+            :match-type-of-iri="typeOf ?? selectedBaseType?.iri"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
           <AddPropertyDialog
             v-model:show-dialog="showAddPropertyDialog"
-            :dataModelIri="typeOf"
+            :dataModelIri="typeOf ?? selectedBaseType?.iri"
             :header="'Add property'"
             :show-variable-options="false"
             @on-property-add="(properties: Where[]) => onPropertyAdd(properties)"
@@ -176,7 +176,7 @@ const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
 const fullMatch = inject("fullMatch") as Ref<Match | undefined>;
 onMounted(() => {
-  if (fullMatch.value) typeOf.value = getTypeOfMatch(fullMatch.value, props.editMatch["@id"]!) ?? selectedBaseType.value?.iri;
+  if (fullMatch.value) typeOf.value = getTypeOfMatch(fullMatch.value, props.editMatch["@id"]!) ?? (selectedBaseType.value?.iri as string);
 });
 
 watch(

@@ -51,7 +51,7 @@
       <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
       <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
       <Button
-        label="Build feature"
+        label="Add new feature"
         v-if="selectedBaseType?.iri"
         @click="showBuildFeature = true"
         severity="warning"

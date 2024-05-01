@@ -17,7 +17,7 @@
     <AddPropertyDialog
       v-model:show-dialog="showBuildFeatureDialog"
       :dataModelIri="matchTypeOfIri"
-      :header="'Build feature'"
+      :header="'Add new feature'"
       :show-variable-options="false"
       @on-property-add="(properties: Where[]) => onFeatureBuild(properties)"
       @on-match-add="(matches: Match[]) => onFeatureAdd(matches)"
@@ -26,7 +26,7 @@
     <AddPropertyDialog
       v-model:show-dialog="showBuildThenFeatureDialog"
       :dataModelIri="matchTypeOfIri"
-      :header="'Build feature'"
+      :header="'Add new feature'"
       :show-variable-options="false"
       @on-property-add="(properties: Where[]) => onThenFeatureBuild(properties)"
       @on-match-add="(matches: Match[]) => onThenFeatureAdd(matches)"

@@ -46,7 +46,7 @@
               <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
               <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
               <Button
-                label="Build feature"
+                label="Add new feature"
                 @click="showBuildFeature = true"
                 severity="warning"
                 icon="fa-solid fa-screwdriver-wrench"
@@ -113,7 +113,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Bool } from "@im-library/interfaces/AutoGen";
+import { Match, Bool, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash";
 import { Ref, inject, onMounted, provide, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
