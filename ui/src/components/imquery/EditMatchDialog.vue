@@ -147,8 +147,7 @@ const focusedEditMatchString: Ref<string> = ref("");
 const visible = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEditMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
-provide("fullMatch", editMatch);
-const variableMap = inject("variableMap") as Ref<Map<string, any>>;
+const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 
 watch(
   () => cloneDeep(focusedEditMatch.value),
@@ -245,7 +244,7 @@ function saveVariable() {
 
 function deleteVariable() {
   if (focusedEditMatch.value?.variable) {
-    variableMap.value.delete(focusedEditMatch.value.variable);
+    delete variableMap.value[focusedEditMatch.value.variable];
     delete focusedEditMatch.value.variable;
   }
   keepAsVariable.value = "";
@@ -253,8 +252,8 @@ function deleteVariable() {
 }
 
 function udpateVariableMap() {
-  if (focusedEditMatch.value?.variable) variableMap.value.delete(focusedEditMatch.value.variable);
-  variableMap.value.set(keepAsVariable.value, focusedEditMatch.value);
+  if (focusedEditMatch.value?.variable) delete variableMap.value[focusedEditMatch.value.variable];
+  variableMap.value[keepAsVariable.value] = focusedEditMatch.value;
 }
 </script>
 

@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, provide, ref } from "vue";
+import { Ref, onMounted, provide, ref, watch } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import { Match, Query, SearchRequest, SearchResultSummary, Bool } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
@@ -80,6 +80,7 @@ import { IM, SHACL } from "@im-library/vocabulary";
 import { SortDirection } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import AddMatch from "./AddMatch.vue";
+import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const queryDefinition: Ref<Query> = ref({});
@@ -92,9 +93,16 @@ const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
-const variableMap: Ref<Map<string, any>> = ref(new Map());
+const variableMap: Ref<{ [key: string]: any }> = ref({});
 provide("selectedBaseType", selectedBaseType);
 provide("variableMap", variableMap);
+provide("fullQuery", queryDefinition);
+const { populateVariableMap } = setupIMQueryBuilderActions();
+
+watch(
+  () => cloneDeep(queryDefinition.value),
+  () => populateVariableMap(variableMap.value, queryDefinition.value)
+);
 
 onMounted(async () => {
   queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery", false);
@@ -107,6 +115,8 @@ onMounted(async () => {
     sortDirection: SortDirection.DESC,
     sortField: "weighting"
   } as SearchRequest;
+
+  populateVariableMap(variableMap.value, queryDefinition.value);
 });
 
 function mouseover(event: Event, index: number) {

@@ -174,15 +174,15 @@ const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, get
 const group: Ref<number[]> = ref([]);
 const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
-const fullMatch = inject("fullMatch") as Ref<Match | undefined>;
+const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
 onMounted(() => {
-  if (fullMatch.value) typeOf.value = getTypeOfMatch(fullMatch.value, props.editMatch["@id"]!) ?? (selectedBaseType.value?.iri as string);
+  if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!) ?? (selectedBaseType.value?.iri as string);
 });
 
 watch(
   () => cloneDeep(props.editMatch),
   () => {
-    if (fullMatch.value) typeOf.value = getTypeOfMatch(fullMatch.value, props.editMatch["@id"]!);
+    if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!);
   }
 );
 

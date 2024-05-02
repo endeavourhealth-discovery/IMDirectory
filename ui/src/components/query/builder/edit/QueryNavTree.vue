@@ -41,7 +41,7 @@ interface Props {
   dmIri: string;
 }
 const props = defineProps<Props>();
-const variableMap = inject("variableMap") as Ref<Map<string, any>>;
+const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 
 const emit = defineEmits({
   onSelectedUpdate: (_payload: TreeNode[]) => true
@@ -216,9 +216,9 @@ async function addParentFoldersToRoot() {
 }
 
 function addVariableNodes() {
-  for (const [key, object] of variableMap.value.entries()) {
+  for (const key of Object.keys(variableMap.value)) {
     const types: string[] = [];
-    getVariableTypesFromMatch(object, types);
+    getVariableTypesFromMatch(variableMap.value[key], types);
     for (const typeIri of types) {
       const name = key + " (" + getNameFromRef({ "@id": typeIri }) + ")";
       const treeNode = createTreeNode(name, typeIri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] }, key);
@@ -241,8 +241,8 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
       getVariableTypesFromProperty(property, types);
     }
 
-  if (match.nodeRef && variableMap.value.has(match.nodeRef)) {
-    const nodeRefMatch = variableMap.value.get(match.nodeRef);
+  if (match.nodeRef && variableMap.value[match.nodeRef]) {
+    const nodeRefMatch = variableMap.value[match.nodeRef];
     getVariableTypesFromMatch(nodeRefMatch, types);
   }
 }

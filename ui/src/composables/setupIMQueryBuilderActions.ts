@@ -1,3 +1,4 @@
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Bool, Match, Query, Where } from "@im-library/interfaces/AutoGen";
 import { MenuItem } from "primevue/menuitem";
 
@@ -47,7 +48,40 @@ function setupIMQueryBuilderActions() {
     }
   }
 
-  return { toggleWhereBool, toggleMatchBool, isPathMatch, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch };
+  function populateVariableMap(map: { [key: string]: any }, query: Query) {
+    if (query.match)
+      for (const match of query.match) {
+        addVariableRefFromMatch(map, match);
+      }
+  }
+
+  function addVariableRefFromMatch(map: { [key: string]: any }, match: Match) {
+    if (match.variable) map[match.variable] = match;
+    if (isArrayHasLength(match.match))
+      for (const nestedMatch of match.match!) {
+        addVariableRefFromMatch(map, nestedMatch);
+      }
+
+    if (isArrayHasLength(match.where))
+      for (const property of match.where!) {
+        addVariableRefFromProperty(map, property);
+      }
+
+    if (match.then) addVariableRefFromMatch(map, match.then);
+  }
+
+  function addVariableRefFromProperty(map: { [key: string]: any }, property: Where) {
+    if (property.variable) map[property.variable] = property;
+
+    if (isObjectHasKeys(property, ["match"])) addVariableRefFromMatch(map, property.match!);
+
+    if (isArrayHasLength(property.where))
+      for (const nestedProperty of property.where!) {
+        addVariableRefFromProperty(map, nestedProperty);
+      }
+  }
+
+  return { toggleWhereBool, toggleMatchBool, isPathMatch, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap };
 }
 
 export default setupIMQueryBuilderActions;

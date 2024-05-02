@@ -23,12 +23,13 @@
 </template>
 
 <script setup lang="ts">
+import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import setupTree from "@/composables/setupTree";
 import { EntityService } from "@/services";
 import { useQueryStore } from "@/stores/queryStore";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
-import { Where, PropertyRef } from "@im-library/interfaces/AutoGen";
+import { Where, PropertyRef, Match, Query } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/treenode";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
@@ -49,7 +50,9 @@ const propertyDisplay: Ref<string> = ref("");
 const variableOptions: Ref<TreeNode[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const debounce = ref(0);
-const variableMap = inject("variableMap") as Ref<Map<string, any>>;
+const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
+const fullQuery = inject("fullQuery") as Ref<Query>;
+const { getTypeOfMatch } = setupIMQueryBuilderActions();
 
 const emit = defineEmits({ "update:propertyRef": payload => true });
 
@@ -119,8 +122,8 @@ async function getVariableOptions(searchTerm?: string) {
   loading.value = true;
   const options: TreeNode[] = [];
 
-  for (const [key, value] of variableMap.value.entries()) {
-    const dataModelIri = getVariableWithType(value);
+  for (const key of Object.keys(variableMap.value)) {
+    const dataModelIri = getVariableWithType(variableMap.value[key]);
     if (dataModelIri) {
       const treeNode = await EntityService.getPropertyOptions(dataModelIri, props.datatype, key);
       if (isObjectHasKeys(treeNode)) options.push(treeNode);
@@ -169,9 +172,10 @@ function filterBySearchTerm(options: TreeNode[], searchTerm: string) {
 
 function getVariableWithType(value: any) {
   if (isObjectHasKeys(value, ["typeOf"])) return value.typeOf["@id"];
-  else if (isObjectHasKeys(value, ["nodeRef"])) {
-    const objectWithTypeOf = variableMap.value.get(value.nodeRef);
+  else if (isObjectHasKeys(value, ["variable"])) {
+    const objectWithTypeOf = variableMap.value[value.variable];
     if (isObjectHasKeys(objectWithTypeOf, ["typeOf"])) return objectWithTypeOf.typeOf["@id"];
+    if (fullQuery.value && isObjectHasKeys(objectWithTypeOf, ["@id"])) return getTypeOfMatch(fullQuery.value, objectWithTypeOf["@id"]);
   }
 }
 
