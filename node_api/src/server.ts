@@ -21,6 +21,8 @@ import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/mor
 import WorkflowController from "./controllers/workflowController";
 import FunctionController from "./controllers/functionController";
 import CodeGenController from "@/controllers/codeGenController";
+import MetricsController from "@/controllers/metricsController";
+import metrics from "@/middlewares/metrics.middleware";
 
 dotenv.config();
 
@@ -29,6 +31,7 @@ dns.setDefaultResultOrder("ipv4first");
 const app = new App({
   port: 3000,
   controllers: [
+    new MetricsController(),
     new StatusController(),
     new QueryController(),
     new ValidationController(),
@@ -46,6 +49,7 @@ const app = new App({
     new CodeGenController()
   ],
   middleWares: [
+    metrics.promTimer,
     bodyParser.json({ type: "application/json" }),
     bodyParser.text({ type: "text/plain" }),
     bodyParser.urlencoded({ extended: true }),
