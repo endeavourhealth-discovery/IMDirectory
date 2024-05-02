@@ -93,7 +93,7 @@ watch(
       props.property.operator = undefined;
       props.property.isNull = undefined;
       props.property.isNotNull = undefined;
-      props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
+      if (!props.property.range) props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
     } else if (propertyType.value === "startsWith") {
       delete props.property.range;
       props.property.isNull = undefined;

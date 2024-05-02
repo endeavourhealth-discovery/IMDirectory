@@ -29,7 +29,6 @@
     <EditMatch
       v-if="editWhere?.match"
       :edit-match="editWhere.match"
-      :match-type-of-iri="matchTypeOfIri"
       :focused-id="focusedId"
       @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
       @delete-match="onDeleteMatch"
