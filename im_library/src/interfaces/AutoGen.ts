@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-17 14:38:25.
+// Generated using typescript-generator version 3.2.1263 on 2024-05-02 13:59:09.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -28,13 +28,18 @@ export interface BuilderComponent extends BuilderValue {
 export interface BuilderValue {
 }
 
+export interface ConceptReference {
+    iri?: string;
+    name?: string;
+}
+
 export interface EclBuilderException extends Exception {
 }
 
 export interface ExpressionConstraint extends BuilderComponent {
     constraintOperator?: string;
     conjunction?: Bool;
-    conceptSingle?: TTIriRef;
+    conceptSingle?: ConceptReference;
     conceptBool?: BoolGroup;
     refinementItems?: BuilderComponent[];
 }
@@ -46,9 +51,8 @@ export interface Refinement extends BuilderComponent {
 }
 
 export interface SubExpressionConstraint {
-    concept?: TTIriRef;
+    concept?: ConceptReference;
     constraintOperator?: string;
-    memberOf?: boolean;
 }
 
 export interface ArrayButtons {
@@ -194,9 +198,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: string;
-    operator?: Operator;
     dataType?: TTIriRef;
     relativeTo?: PropertyRef;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -229,9 +233,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     memberOf?: boolean;
 }
 
@@ -256,7 +260,6 @@ export interface Match extends IriLD {
     path?: IriLD[];
     match?: Match[];
     where?: Where[];
-    bool?: Bool;
     is?: Node[];
     orderBy?: OrderLimit;
     optional?: boolean;
@@ -355,8 +358,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -374,7 +377,6 @@ export interface When {
 
 export interface Where extends PropertyRef, Assignable {
     description?: string;
-    bool?: Bool;
     match?: Match;
     range?: Range;
     isNull?: boolean;
@@ -633,8 +635,8 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    code?: string;
     status?: TTIriRef;
+    code?: string;
     description?: string;
     prefixes?: TTPrefix[];
 }
@@ -662,11 +664,6 @@ export interface TTPrefix {
 export interface TTNode extends TTValue, Serializable {
     predicateMap?: { [index: string]: TTArray };
     "@id"?: string;
-}
-
-export const enum BoolGroupType {
-    EXPRESSION_CONSTRAINT_GROUP = "EXPRESSION_CONSTRAINT_GROUP",
-    CONCEPT_REFERENCE_SET = "CONCEPT_REFERENCE_SET",
 }
 
 export const enum ComponentType {
