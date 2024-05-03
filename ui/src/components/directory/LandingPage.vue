@@ -4,6 +4,21 @@
       <ProgressSpinner />
     </div>
     <div id="landing-content" v-else>
+      <div id="shortcuts-container">
+        <h2>Quick links</h2>
+        <div class="shortcuts">
+          <template v-for="shortcut of shortcuts">
+            <Shortcut
+              :icon="shortcut.icon"
+              :label="shortcut.label"
+              :command="shortcut.command"
+              :url="shortcut.url"
+              :color="shortcut.color"
+              :size="shortcut.size"
+            />
+          </template>
+        </div>
+      </div>
       <div class="activity-container">
         <span class="title"> Suggested </span>
         <div class="datatable-container">
@@ -42,35 +57,9 @@
           <OverlaySummary ref="OS" />
         </div>
       </div>
-      <div id="dashboard-container">
-        <template v-for="(cardData, index) in cardsData" :key="index">
-          <component
-            :is="cardData.component"
-            :inputData="cardData.inputData"
-            :name="cardData.name"
-            :description="cardData.description"
-            :id="'dashCard-' + index"
-            labelKey="http://www.w3.org/2000/01/rdf-schema#label"
-            dataKey="http://endhealth.info/im#hasValue"
-          />
-        </template>
-      </div>
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
-import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
-import ActionButtons from "../shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { useDirectoryStore } from "@/stores/directoryStore";
-import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
-
-export default defineComponent({
-  components: { ReportTable, PieChartDashCard, ActionButtons, IMFontAwesomeIcon }
-});
-</script>
 
 <script setup lang="ts">
 import { computed, Ref, ref, watch, onMounted, defineComponent } from "vue";
@@ -79,14 +68,20 @@ import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { DirectService, EntityService, ConfigService, UserService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 import { useUserStore } from "@/stores/userStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
 
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byOrder } from "@im-library/helpers/Sorters";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import setupOverlay from "@/composables/setupOverlay";
+import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
+import ActionButtons from "../shared/ActionButtons.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
 const directService = new DirectService();
@@ -96,10 +91,66 @@ const currentUser = computed(() => userStore.currentUser);
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
 const loading: Ref<boolean> = ref(false);
-const configs: Ref<DashboardLayout[]> = ref([]);
-const cardsData: Ref<{ name: string; description: string; inputData: IriCount; component: string }[]> = ref([]);
 const { onRowClick }: { onRowClick: Function } = rowClick();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
+const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: Function; color: string; size: number }[]> = ref([
+  {
+    label: "Ontology",
+    icon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
+    command: () => directService.select(IM.NAMESPACE + "HealthModelOntology", "Folder"),
+    color: getColourFromType([{ "@id": IM.CONCEPT }]),
+    size: 4
+  },
+  {
+    label: "Sets",
+    icon: getFAIconFromType([{ "@id": IM.SET }]),
+    command: () => directService.select(IM.MODULE_SETS, "Folder"),
+    color: getColourFromType([{ "@id": IM.SET }]),
+    size: 4
+  },
+  {
+    label: "Models",
+    icon: getFAIconFromType([{ "@id": SHACL.NODESHAPE }]),
+    command: () => directService.select(IM.NAMESPACE + "DataModels", "Folder"),
+    color: getColourFromType([{ "@id": SHACL.NODESHAPE }]),
+    size: 4
+  },
+  {
+    label: "Queries",
+    icon: getFAIconFromType([{ "@id": IM.QUERY }]),
+    command: () => directService.select(IM.MODULE_QUERIES, "Folder"),
+    color: getColourFromType([{ "@id": IM.QUERY }]),
+    size: 4
+  },
+  {
+    label: "Creator",
+    icon: "fa-duotone fa-circle-plus",
+    command: () => directService.create(),
+    color: "var(--orange-500)",
+    size: 4
+  },
+  {
+    label: "Code templates",
+    icon: "fa-duotone fa-code",
+    command: () => directService.codeGenerator(),
+    color: "var(--teal-500)",
+    size: 4
+  },
+  {
+    label: "UPRN",
+    icon: "fa-duotone fa-address-book",
+    command: () => directService.uprn(),
+    color: "var(--red-500)",
+    size: 4
+  },
+  {
+    label: "Wiki",
+    icon: "/src/assets/ship-small.png",
+    url: "https://wiki.endeavourhealth.org/index.php?title=Welcome_to_the_Endeavour_Health_knowledge_base",
+    color: "var(--blue-500)",
+    size: 4
+  }
+]);
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
@@ -110,8 +161,6 @@ onMounted(async () => init());
 
 async function init(): Promise<void> {
   loading.value = true;
-  await getConfigs();
-  await getCardsData();
   await getRecentActivityDetails();
   loading.value = false;
 }
@@ -148,14 +197,6 @@ async function getRecentActivityDetails() {
   activities.value = temp;
 }
 
-async function getConfigs(): Promise<void> {
-  const result = await ConfigService.getDashboardLayout("conceptDashboard");
-  if (result && isArray(result)) configs.value = result;
-  if (isArrayHasLength(configs.value)) {
-    configs.value.sort(byOrder);
-  }
-}
-
 function onRowSelect(event: any) {
   directService.select(event.data.iri, "Folder");
 }
@@ -168,23 +209,6 @@ function getActivityTooltipMessage(activity: RecentActivityItem) {
 function getActivityMessage(activity: RecentActivityItem) {
   const dateTime = new Date(activity.dateTime);
   return activity.action + " " + getDisplayFromDate(new Date(), dateTime);
-}
-
-async function getCardsData(): Promise<void> {
-  const cards = [] as { name: string; description: string; inputData: IriCount; component: string }[];
-  for (const config of configs.value) {
-    const result = await EntityService.getPartialEntity(config.iri, [RDFS.LABEL, RDFS.COMMENT, IM.STATS_REPORT_ENTRY]);
-    if (!isObjectHasKeys(result)) return;
-    result[IM.STATS_REPORT_ENTRY].forEach((stat: any) => (stat[IM.HAS_VALUE] = Number(stat[IM.HAS_VALUE])));
-    const cardData = {
-      name: result[RDFS.LABEL],
-      description: result[RDFS.COMMENT] ? result[RDFS.COMMENT] : "",
-      inputData: result[IM.STATS_REPORT_ENTRY],
-      component: config.type
-    };
-    cards.push(cardData);
-  }
-  cardsData.value = cards;
 }
 
 function locateInTree(iri: string) {
@@ -241,14 +265,21 @@ function locateInTree(iri: string) {
   box-shadow: none;
 }
 
-#dashboard-container {
+#shortcuts-container {
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: column wrap;
   width: 100%;
-  flex: 0 0 50%;
+  flex: 0 1 auto;
   overflow: auto;
   padding: 1rem;
   gap: 1rem;
+}
+
+.shortcuts {
+  display: flex;
+  flex-flow: row wrap;
+  padding: 0.5rem;
+  gap: 2rem;
 }
 
 .recent-icon {

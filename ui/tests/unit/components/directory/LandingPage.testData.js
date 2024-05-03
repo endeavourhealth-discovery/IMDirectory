@@ -98,17 +98,5 @@ export default {
       }
     ],
     "http://www.w3.org/2000/01/rdf-schema#label": "Deformity (morphologic abnormality)"
-  },
-  DASHBOARD_LAYOUT: [
-    {
-      type: "ReportTable",
-      order: 100,
-      iri: "http://endhealth.info/im#ontologyOverview"
-    },
-    {
-      type: "PieChartDashCard",
-      order: 200,
-      iri: "http://endhealth.info/im#ontologyConceptTypes"
-    }
-  ]
+  }
 };
