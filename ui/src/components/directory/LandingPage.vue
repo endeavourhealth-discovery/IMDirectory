@@ -8,7 +8,14 @@
         <h2>Quick links</h2>
         <div class="shortcuts">
           <template v-for="shortcut of shortcuts">
-            <Shortcut :icon="shortcut.icon" :label="shortcut.label" :url="shortcut.url" :color="shortcut.color" />
+            <Shortcut
+              :icon="shortcut.icon"
+              :label="shortcut.label"
+              :command="shortcut.command"
+              :url="shortcut.url"
+              :color="shortcut.color"
+              :size="shortcut.size"
+            />
           </template>
         </div>
       </div>
@@ -86,54 +93,62 @@ const selected: Ref<any> = ref({});
 const loading: Ref<boolean> = ref(false);
 const { onRowClick }: { onRowClick: Function } = rowClick();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
-const shortcuts: Ref<{ label: string; icon: string | string[]; url: string; color: string }[]> = ref([
+const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: Function; color: string; size: number }[]> = ref([
   {
     label: "Ontology",
     icon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
-    url: "/#/directory/folder/http:%2F%2Fendhealth.info%2Fim%23HealthModelOntology",
-    color: getColourFromType([{ "@id": IM.CONCEPT }])
+    command: () => directService.select(IM.NAMESPACE + "HealthModelOntology", "Folder"),
+    color: getColourFromType([{ "@id": IM.CONCEPT }]),
+    size: 4
   },
   {
     label: "Sets",
     icon: getFAIconFromType([{ "@id": IM.SET }]),
-    url: "/#/directory/folder/http:%2F%2Fendhealth.info%2Fim%23Sets",
-    color: getColourFromType([{ "@id": IM.SET }])
+    command: () => directService.select(IM.MODULE_SETS, "Folder"),
+    color: getColourFromType([{ "@id": IM.SET }]),
+    size: 4
   },
   {
     label: "Models",
     icon: getFAIconFromType([{ "@id": SHACL.NODESHAPE }]),
-    url: "/#/directory/folder/http:%2F%2Fendhealth.info%2Fim%23DataModels",
-    color: getColourFromType([{ "@id": SHACL.NODESHAPE }])
+    command: () => directService.select(IM.NAMESPACE + "DataModels", "Folder"),
+    color: getColourFromType([{ "@id": SHACL.NODESHAPE }]),
+    size: 4
   },
   {
     label: "Queries",
     icon: getFAIconFromType([{ "@id": IM.QUERY }]),
-    url: "/#/directory/folder/http:%2F%2Fendhealth.info%2Fim%23Q_Queries",
-    color: getColourFromType([{ "@id": IM.QUERY }])
+    command: () => directService.select(IM.MODULE_QUERIES, "Folder"),
+    color: getColourFromType([{ "@id": IM.QUERY }]),
+    size: 4
   },
   {
     label: "Creator",
     icon: "fa-duotone fa-circle-plus",
-    url: "/#/creator",
-    color: "var(--orange-500)"
+    command: () => directService.create(),
+    color: "var(--orange-500)",
+    size: 4
   },
   {
     label: "Code templates",
     icon: "fa-duotone fa-code",
-    url: "/#/codeGenerator",
-    color: "var(--teal-500)"
+    command: () => directService.codeGenerator(),
+    color: "var(--teal-500)",
+    size: 4
   },
   {
     label: "UPRN",
     icon: "fa-duotone fa-address-book",
-    url: "/#/uprn",
-    color: "var(--red-500)"
+    command: () => directService.uprn(),
+    color: "var(--red-500)",
+    size: 4
   },
   {
     label: "Wiki",
     icon: "/src/assets/ship-small.png",
-    url: "https://wiki.endeavourhealth.org/index.php?title=Welcome_to_the_Endeavour_Health_knowledge_base&action=edit",
-    color: "var(--blue-500)"
+    url: "https://wiki.endeavourhealth.org/index.php?title=Welcome_to_the_Endeavour_Health_knowledge_base",
+    color: "var(--blue-500)",
+    size: 4
   }
 ]);
 

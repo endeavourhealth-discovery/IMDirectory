@@ -1,10 +1,15 @@
 <template>
   <div class="shortcut">
-    <a :href="url" class="shortcut-container">
-      <IMFontAwesomeIcon v-if="isArray(icon) || icon.startsWith('fa-')" class="shortcut-icon" :icon="icon" size="4x" :style="'color:' + color" />
-      <img v-else :src="icon" alt="link-image" class="shortcut-image" />
+    <a v-if="url" :href="url" class="shortcut-container">
+      <IMFontAwesomeIcon v-if="isArray(icon) || icon.startsWith('fa-')" class="shortcut-icon" :icon="icon" :size="size + 'x'" :style="'color:' + color" />
+      <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem'" />
       <p class="label">{{ label }}</p>
     </a>
+    <div v-if="command" class="shortcut-container command-shortcut" @click="command()">
+      <IMFontAwesomeIcon v-if="isArray(icon) || icon.startsWith('fa-')" class="shortcut-icon" :icon="icon" :size="size + 'x'" :style="'color:' + color" />
+      <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem'" />
+      <p class="label">{{ label }}</p>
+    </div>
   </div>
 </template>
 
@@ -13,8 +18,10 @@ import { isArray } from "lodash";
 interface Props {
   icon: string | string[];
   label: string;
-  url: string;
+  url?: string;
+  command?: Function;
   color: string;
+  size: number;
 }
 const props = defineProps<Props>();
 </script>
@@ -26,7 +33,9 @@ const props = defineProps<Props>();
   align-items: center;
 }
 
-.shortcut-image {
-  height: 4rem;
+.command-shortcut {
+  text-decoration: none;
+  color: #2196f3;
+  cursor: pointer;
 }
 </style>
