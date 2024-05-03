@@ -714,7 +714,7 @@ function showReleaseNotes() {
 }
 
 .selected {
-  background-colour: red;
+  background-color: red;
 }
 
 .theme-icon {
