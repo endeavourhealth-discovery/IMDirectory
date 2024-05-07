@@ -6,7 +6,7 @@
     <div v-else class="content-container" :class="showValidation && invalid && 'invalid'">
       <div class="query-editor-container flex flex-column gap-3">
         <div class="query-editor flex flex-column p-2">
-          <CohortEditor v-model:queryDefinition="queryDefinition" />
+          <IMQueryEditor v-model:queryDefinition="queryDefinition" />
         </div>
         <div class="flex flex-row gap-2 justify-content-end">
           <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
@@ -46,6 +46,7 @@ import { cloneDeep } from "lodash";
 import { QueryService } from "@/services";
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import IMQueryEditor from "@/components/imquery/IMQueryEditor.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -73,7 +74,7 @@ if (forceValidation) {
 }
 const route = useRoute();
 const loading = ref(true);
-const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
+const queryDefinition: Ref<Query | undefined> = ref();
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 const showValidation = ref(false);
@@ -88,7 +89,7 @@ watch(
   async newValue => {
     updateEntity();
     if (updateValidity && valueVariableMap) {
-      if (isArrayHasLength(newValue.match)) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (newValue && isArrayHasLength(newValue.match)) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
       showValidation.value = true;
     }
   }
@@ -108,8 +109,10 @@ async function init() {
   } else queryDefinition.value = generateDefaultQuery();
 }
 async function generateSQL() {
-  sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
-  showSql.value = true;
+  if (queryDefinition.value) {
+    sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
+    showSql.value = true;
+  }
 }
 
 function generateDefaultQuery() {
@@ -117,7 +120,7 @@ function generateDefaultQuery() {
 }
 
 function updateEntity() {
-  if (!isArrayHasLength(queryDefinition.value.match) && deleteEntityKey) deleteEntityKey(key);
+  if (queryDefinition.value && !isArrayHasLength(queryDefinition.value.match) && deleteEntityKey) deleteEntityKey(key);
   else {
     const imDefinition: any = {};
     imDefinition[IM.DEFINITION] = JSON.stringify(cloneDeep(queryDefinition.value));

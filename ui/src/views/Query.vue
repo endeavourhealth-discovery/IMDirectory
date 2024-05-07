@@ -10,8 +10,7 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <!-- <CohortEditor v-else v-model:queryDefinition="queryDefinition" /> -->
-    <IMQueryEditor />
+    <IMQueryEditor v-else v-model:queryDefinition="queryDefinition" />
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" />

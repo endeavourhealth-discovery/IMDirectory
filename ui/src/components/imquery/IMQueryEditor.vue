@@ -15,7 +15,7 @@
       <div class="feature-title">Features:</div>
       <div class="feature-list">
         <div class="feature-list-container">
-          <div v-for="(feature, index) in queryDefinition.match" class="feature">
+          <div v-for="(feature, index) in editQueryDefinition.match" class="feature">
             <div
               :class="[hover === index ? 'feature-description-card-hover' : 'feature-description-card']"
               class="clickable"
@@ -43,7 +43,7 @@
       v-model:show-add-population="showAddPopulation"
       v-model:show-build-feature="showBuildFeature"
       v-model:show-build-then-feature="showBuildThenFeature"
-      :edit-match="queryDefinition"
+      :edit-match="editQueryDefinition"
       :match-type-of-iri="selectedBaseType?.iri!"
     />
 
@@ -60,7 +60,7 @@
       />
       <Button
         label="Add feature group"
-        @click="queryDefinition.match?.push({ boolMatch: Bool.and })"
+        @click="editQueryDefinition.match?.push({ boolMatch: Bool.and })"
         severity="primary"
         icon="fa-solid fa-layer-group"
         class="add-feature-button"
@@ -82,8 +82,14 @@ import { cloneDeep } from "lodash";
 import AddMatch from "./AddMatch.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 
+interface Props {
+  queryDefinition?: Query;
+}
+
+const props = defineProps<Props>();
+
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
-const queryDefinition: Ref<Query> = ref({});
+const editQueryDefinition: Ref<Query> = ref({});
 const hover: Ref<number> = ref(-1);
 const showDialog = ref(false);
 const selectedMatch: Ref<Match | undefined> = ref();
@@ -96,27 +102,30 @@ const showAddFeature: Ref<boolean> = ref(false);
 const variableMap: Ref<{ [key: string]: any }> = ref({});
 provide("selectedBaseType", selectedBaseType);
 provide("variableMap", variableMap);
-provide("fullQuery", queryDefinition);
+provide("fullQuery", editQueryDefinition);
 const { populateVariableMap } = setupIMQueryBuilderActions();
 
 watch(
-  () => cloneDeep(queryDefinition.value),
-  () => populateVariableMap(variableMap.value, queryDefinition.value)
+  () => cloneDeep(editQueryDefinition.value),
+  () => populateVariableMap(variableMap.value, editQueryDefinition.value)
 );
 
 onMounted(async () => {
-  queryDefinition.value = await QueryService.getQueryDisplay("http://endhealth.info/im#Q_TestQuery", false);
-  if (queryDefinition.value.typeOf)
-    selectedBaseType.value = { iri: queryDefinition.value.typeOf?.["@id"], name: queryDefinition.value.typeOf?.name } as SearchResultSummary;
+  if (props.queryDefinition) {
+    editQueryDefinition.value = cloneDeep(props.queryDefinition);
+    editQueryDefinition.value = await QueryService.getQueryDisplayFromQuery(editQueryDefinition.value, false);
+    if (editQueryDefinition.value.typeOf)
+      selectedBaseType.value = { iri: editQueryDefinition.value.typeOf?.["@id"], name: editQueryDefinition.value.typeOf?.name } as SearchResultSummary;
 
-  osQueryForBaseType.value = {
-    statusFilter: [IM.ACTIVE, IM.DRAFT],
-    typeFilter: [SHACL.NODESHAPE],
-    sortDirection: SortDirection.DESC,
-    sortField: "weighting"
-  } as SearchRequest;
+    osQueryForBaseType.value = {
+      statusFilter: [IM.ACTIVE, IM.DRAFT],
+      typeFilter: [SHACL.NODESHAPE],
+      sortDirection: SortDirection.DESC,
+      sortField: "weighting"
+    } as SearchRequest;
 
-  populateVariableMap(variableMap.value, queryDefinition.value);
+    populateVariableMap(variableMap.value, editQueryDefinition.value);
+  }
 });
 
 function mouseover(event: Event, index: number) {
@@ -130,20 +139,20 @@ function mouseout(event: Event, index: number) {
 }
 
 function deleteFeature(index: number) {
-  queryDefinition.value.match?.splice(index, 1);
+  editQueryDefinition.value.match?.splice(index, 1);
 }
 
 function editMatch(index: number) {
-  selectedMatch.value = queryDefinition.value.match?.[index];
+  selectedMatch.value = editQueryDefinition.value.match?.[index];
   selectedIndex.value = index;
   showDialog.value = true;
 }
 
 async function onSaveChanges(editMatch: Match | undefined, id: string, index: number) {
-  if (!editMatch) queryDefinition.value.match = queryDefinition.value.match?.filter(rootMatch => rootMatch["@id"] !== id);
+  if (!editMatch) editQueryDefinition.value.match = editQueryDefinition.value.match?.filter(rootMatch => rootMatch["@id"] !== id);
   else {
-    queryDefinition.value.match![index] = cloneDeep(editMatch);
-    queryDefinition.value = await QueryService.getQueryDisplayFromQuery(queryDefinition.value);
+    editQueryDefinition.value.match![index] = cloneDeep(editMatch);
+    editQueryDefinition.value = await QueryService.getQueryDisplayFromQuery(editQueryDefinition.value, false);
   }
 }
 </script>
@@ -153,7 +162,7 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
   display: flex;
   height: 100%;
   width: 100%;
-  padding: 1rem;
+  padding: 0.5rem;
   flex-flow: column;
 }
 
@@ -165,7 +174,6 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 .feature-container {
   display: flex;
   align-items: baseline;
-
   width: 100%;
 }
 
@@ -174,12 +182,14 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
   flex-flow: row;
   padding: 1rem;
   height: 100%;
+  width: 100%;
 }
 
 .feature-list-container {
   display: flex;
   flex-flow: column;
   height: 100%;
+  width: 100%;
 }
 
 .feature {
@@ -187,11 +197,10 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
   flex-flow: row;
   align-items: center;
   justify-content: center;
-  /* background-color: red; */
 }
 
 .feature-description {
-  width: calc(94vw - 2rem);
+  width: 100%;
 }
 
 .add-feature-button {
@@ -199,7 +208,6 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 }
 
 .feature-description-card {
-  width: calc(94vw - 7rem);
   padding: 0.5rem;
   border: var(--imquery-editor-border-color) 1px solid;
   border-radius: 5px;
@@ -209,7 +217,7 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 }
 
 .feature-description-card-hover {
-  width: calc(94vw - 7rem);
+  width: 100%;
   padding: 0.5rem;
   border-radius: 5px;
   background-color: var(--imquery-editor-background-color);
