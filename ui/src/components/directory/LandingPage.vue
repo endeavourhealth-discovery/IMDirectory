@@ -145,7 +145,7 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
   },
   {
     label: "Wiki",
-    icon: "/src/assets/ship-small.png",
+    icon: "/logos/ship-small.png",
     url: "https://wiki.endeavourhealth.org/index.php?title=Welcome_to_the_Endeavour_Health_knowledge_base",
     color: "var(--blue-500)",
     size: 4

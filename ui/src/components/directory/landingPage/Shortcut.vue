@@ -1,13 +1,25 @@
 <template>
   <div class="shortcut">
     <a v-if="url" :href="url" class="shortcut-container">
-      <IMFontAwesomeIcon v-if="isArray(icon) || icon.startsWith('fa-')" class="shortcut-icon" :icon="icon" :size="size + 'x'" :style="'color:' + color" />
-      <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem'" />
+      <IMFontAwesomeIcon
+        v-if="isArray(icon) || icon.startsWith('fa-')"
+        class="shortcut-icon"
+        :icon="icon"
+        :size="size + 'x'"
+        :style="'color:' + color + ';width: ' + (size + 1) + 'rem'"
+      />
+      <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;width:' + (size + 1) + 'rem'" />
       <p class="label">{{ label }}</p>
     </a>
     <div v-if="command" class="shortcut-container command-shortcut" @click="command()">
-      <IMFontAwesomeIcon v-if="isArray(icon) || icon.startsWith('fa-')" class="shortcut-icon" :icon="icon" :size="size + 'x'" :style="'color:' + color" />
-      <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem'" />
+      <IMFontAwesomeIcon
+        v-if="isArray(icon) || icon.startsWith('fa-')"
+        class="shortcut-icon"
+        :icon="icon"
+        :size="size + 'x'"
+        :style="'color:' + color + ';width:' + (size + 1) + 'rem'"
+      />
+      <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;' + 'width:' + (size + 1) + 'rem'" />
       <p class="label">{{ label }}</p>
     </div>
   </div>
@@ -37,5 +49,12 @@ const props = defineProps<Props>();
   text-decoration: none;
   color: #2196f3;
   cursor: pointer;
+}
+
+.shortcut-icon {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
 }
 </style>
