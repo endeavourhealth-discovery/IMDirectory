@@ -154,8 +154,8 @@ function setValues() {
 .property-input {
   display: flex;
   flex-flow: column;
-  /* width: 100%; */
 }
+
 .value-field-options {
   width: 100%;
 }

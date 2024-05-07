@@ -153,5 +153,6 @@ onMounted(() => {
 .property-range {
   display: flex;
   flex-flow: row;
+  align-items: baseline;
 }
 </style>

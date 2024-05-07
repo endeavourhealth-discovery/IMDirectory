@@ -261,4 +261,8 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
   writing-mode: vertical-lr;
   transform: scale(-1);
 }
+
+.p-dropdown {
+  height: 2.2rem !important;
+}
 </style>

@@ -58,6 +58,7 @@ async function init() {
   flex-flow: row;
   margin-left: 1rem;
   margin-top: 1rem;
+  align-items: baseline;
 }
 
 .property-label {
