@@ -34,7 +34,6 @@
 </template>
 
 <script setup lang="ts">
-import CohortEditor from "@/components/query/builder/CohortEditor.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";

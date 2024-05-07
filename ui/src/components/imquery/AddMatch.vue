@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
-import AddPropertyDialog from "../query/builder/edit/dialogs/AddPropertyDialog.vue";
+import AddPropertyDialog from "./AddPropertyDialog.vue";
 import DirectorySearchDialog from "../shared/dialogs/DirectorySearchDialog.vue";
 import { Bool, Match, Query, SearchRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";

@@ -151,7 +151,7 @@ import EditWhere from "./EditWhere.vue";
 import setupHover from "@/composables/setupHover";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { MenuItem } from "primevue/menuitem";
-import AddPropertyDialog from "../query/builder/edit/dialogs/AddPropertyDialog.vue";
+import AddPropertyDialog from "./AddPropertyDialog.vue";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import EditOrderBy from "./EditOrderBy.vue";

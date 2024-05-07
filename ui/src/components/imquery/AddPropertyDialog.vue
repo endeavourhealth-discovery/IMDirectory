@@ -20,7 +20,7 @@ import { Match, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash";
 import { TreeNode } from "primevue/treenode";
 import { buildMatchesFromProperties } from "@im-library/helpers/QueryBuilder";
-import QueryNavTree from "../QueryNavTree.vue";
+import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 

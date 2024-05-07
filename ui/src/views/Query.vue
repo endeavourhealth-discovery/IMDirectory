@@ -23,7 +23,6 @@
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import _ from "lodash";
-import CohortEditor from "@/components/query/builder/CohortEditor.vue";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, onBeforeMount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";

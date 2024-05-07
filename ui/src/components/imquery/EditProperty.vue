@@ -17,7 +17,7 @@ import { Where } from "@im-library/interfaces/AutoGen";
 import { UIProperty } from "@im-library/interfaces";
 import { Ref, onMounted, ref, watch } from "vue";
 import { QueryService } from "@/services";
-import DatatypeSelect from "../query/builder/edit/datatype/DatatypeSelect.vue";
+import DatatypeSelect from "./DatatypeSelect.vue";
 import { cloneDeep } from "lodash";
 import ConceptSelect from "./ConceptSelect.vue";
 

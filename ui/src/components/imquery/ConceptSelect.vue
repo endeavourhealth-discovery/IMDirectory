@@ -36,9 +36,9 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import SaveCustomSetDialog from "../query/builder/edit/dialogs/SaveCustomSetDialog.vue";
+import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import EntailmentOptionsSelect from "../query/builder/edit/EntailmentOptionsSelect.vue";
+import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 import { Entailment, Node, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import { cloneDeep, isEqual } from "lodash";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
