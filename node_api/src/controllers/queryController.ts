@@ -1,5 +1,6 @@
 import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import axios from "axios";
 import { Request } from "express";
@@ -127,6 +128,8 @@ export default class QueryController {
   }
 
   async getQueryDisplayFromQuery(req: Request) {
+    const query: Query = req.body;
+    if (!isObjectHasKeys(query)) return undefined;
     return await this.queryService.getQueryDisplayFromQuery(req.body as Query, (req.query.includeLogicDesc as string) === "true");
   }
 
