@@ -51,7 +51,7 @@ import { useQueryStore } from "@/stores/queryStore";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { resolveIri } from "@im-library/helpers/TTTransform";
 import { Match, Order, OrderDirection, OrderLimit, SearchResultSummary } from "@im-library/interfaces/AutoGen";
-import { IM, SHACL, XSD } from "@im-library/vocabulary";
+import { IM, SHACL, XS } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
@@ -68,7 +68,7 @@ const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.retur
 const editMode = ref(false);
 
 const orderProperties: Ref<SearchResultSummary[]> = ref([]);
-const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue", XSD.NAMESPACE + "number"];
+const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue", XS.INTEGER];
 
 const editingOrderBy: Ref<OrderLimit> = ref({});
 
@@ -121,7 +121,7 @@ function getDirectionOptions(property: OrderDirection) {
     if (prop.entityType[0]["@id"] === IM.NAMESPACE + "DateTime") {
       directionOptions.push({ name: "earliest", value: Order.ascending });
       directionOptions.push({ name: "latest", value: Order.descending });
-    } else if (prop.entityType[0]["@id"] === XSD.NAMESPACE + "number") {
+    } else if (prop.entityType[0]["@id"] === XS.INTEGER) {
       directionOptions.push({ name: "lowest", value: Order.ascending });
       directionOptions.push({ name: "highest", value: Order.descending });
     } else {

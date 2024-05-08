@@ -1,5 +1,5 @@
 import { Argument, FormGenerator, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { RDF, IM, XSD, RDFS, SHACL, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
+import { RDF, IM, XS, RDFS, SHACL, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
 
 const ConceptShape: FormGenerator = {
   "@id": EDITOR.CONCEPT_SHAPE,
@@ -102,7 +102,7 @@ const ConceptShape: FormGenerator = {
                 "@id": COMPONENT.TEXT_DISPLAY
               },
               datatype: {
-                "@id": XSD.STRING
+                "@id": XS.STRING
               },
               function: {
                 "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
@@ -122,7 +122,7 @@ const ConceptShape: FormGenerator = {
                 "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
-                "@id": XSD.STRING
+                "@id": XS.STRING
               }
             },
             {
@@ -139,7 +139,7 @@ const ConceptShape: FormGenerator = {
               comment: "optional description",
               order: 6,
               datatype: {
-                "@id": XSD.STRING
+                "@id": XS.STRING
               },
               name: "Concept description",
               showTitle: true,

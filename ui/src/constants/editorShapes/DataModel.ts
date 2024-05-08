@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, SHACL, XSD, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL, XS, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION } from "@im-library/vocabulary";
 
 const DataModelShape: FormGenerator = {
   "@id": EDITOR.DATA_MODEL_SHAPE,
@@ -115,7 +115,7 @@ const DataModelShape: FormGenerator = {
                 "@id": COMPONENT.TEXT_DISPLAY
               },
               datatype: {
-                "@id": XSD.STRING
+                "@id": XS.STRING
               },
               function: {
                 "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
@@ -135,7 +135,7 @@ const DataModelShape: FormGenerator = {
                 "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
-                "@id": XSD.STRING
+                "@id": XS.STRING
               }
             },
             {
@@ -152,7 +152,7 @@ const DataModelShape: FormGenerator = {
               comment: "optional description",
               order: 6,
               datatype: {
-                "@id": XSD.STRING
+                "@id": XS.STRING
               },
               name: "Description",
               showTitle: true,

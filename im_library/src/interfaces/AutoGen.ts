@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-17 14:38:25.
+// Generated using typescript-generator version 3.2.1263 on 2024-05-08 14:41:51.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -28,13 +28,18 @@ export interface BuilderComponent extends BuilderValue {
 export interface BuilderValue {
 }
 
+export interface ConceptReference {
+    iri?: string;
+    name?: string;
+}
+
 export interface EclBuilderException extends Exception {
 }
 
 export interface ExpressionConstraint extends BuilderComponent {
     constraintOperator?: string;
     conjunction?: Bool;
-    conceptSingle?: TTIriRef;
+    conceptSingle?: ConceptReference;
     conceptBool?: BoolGroup;
     refinementItems?: BuilderComponent[];
 }
@@ -46,9 +51,8 @@ export interface Refinement extends BuilderComponent {
 }
 
 export interface SubExpressionConstraint {
-    concept?: TTIriRef;
+    concept?: ConceptReference;
     constraintOperator?: string;
-    memberOf?: boolean;
 }
 
 export interface ArrayButtons {
@@ -193,10 +197,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
     operator?: Operator;
     dataType?: TTIriRef;
     relativeTo?: PropertyRef;
+    unit?: string;
 }
 
 export interface Case {
@@ -256,7 +260,6 @@ export interface Match extends IriLD {
     path?: IriLD[];
     match?: Match[];
     where?: Where[];
-    bool?: Bool;
     is?: Node[];
     orderBy?: OrderLimit;
     optional?: boolean;
@@ -374,7 +377,6 @@ export interface When {
 
 export interface Where extends PropertyRef, Assignable {
     description?: string;
-    bool?: Bool;
     match?: Match;
     range?: Range;
     isNull?: boolean;
@@ -387,28 +389,6 @@ export interface Where extends PropertyRef, Assignable {
     isNotNull?: boolean;
     null?: boolean;
     notNull?: boolean;
-}
-
-export interface EntityDocument {
-    id?: number;
-    iri?: string;
-    name?: string;
-    length?: number;
-    preferredName?: string;
-    code?: string;
-    alternativeCode?: string;
-    matchTerm?: string[];
-    key?: string[];
-    scheme?: TTIriRef;
-    entityType?: TTIriRef[];
-    status?: TTIriRef;
-    termCode?: SearchTermCode[];
-    weighting?: number;
-    match?: string;
-    isA?: TTIriRef[];
-    memberOf?: TTIriRef[];
-    subsumptionCount?: number;
-    isDescendentOf?: TTIriRef[];
 }
 
 export interface Filter {
@@ -498,7 +478,7 @@ export interface SearchResultSummary {
     status: TTIriRef;
     scheme: TTIriRef;
     entityType: TTIriRef[];
-    weighting?: number;
+    usageTotal?: number;
     match?: string;
     preferredName?: string;
     key?: string[];
@@ -591,7 +571,7 @@ export interface VALIDATION {
 export interface WORKFLOW {
 }
 
-export interface XSD {
+export interface XS {
 }
 
 export interface TTIriRef extends TTValue, Serializable {
@@ -633,9 +613,9 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
+    description?: string;
     code?: string;
     status?: TTIriRef;
-    description?: string;
     prefixes?: TTPrefix[];
 }
 
@@ -662,11 +642,6 @@ export interface TTPrefix {
 export interface TTNode extends TTValue, Serializable {
     predicateMap?: { [index: string]: TTArray };
     "@id"?: string;
-}
-
-export const enum BoolGroupType {
-    EXPRESSION_CONSTRAINT_GROUP = "EXPRESSION_CONSTRAINT_GROUP",
-    CONCEPT_REFERENCE_SET = "CONCEPT_REFERENCE_SET",
 }
 
 export const enum ComponentType {
