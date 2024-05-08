@@ -48,14 +48,10 @@
         @click="openAppsOverlay"
       />
       <OverlayPanel ref="appsOP" class="app-overlay-panel">
-        <div class="flex flex-row flex-wrap gap-1 justify-content-start">
-          <Button
-            v-for="item in appItems"
-            v-tooltip.bottom="item.label"
-            :icon="item.icon"
-            class="p-button-rounded p-button-text p-button-plain"
-            @click="open(item)"
-          />
+        <div class="flex flex-row flex-wrap gap-2 justify-content-start">
+          <template v-for="item in appItems">
+            <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
+          </template>
         </div>
       </OverlayPanel>
       <Button
@@ -111,6 +107,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, onMounted } from "vue";
+import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, GithubService, UserService, CodeGenService } from "@/services";
 import { MenuItem } from "primevue/menuitem";
@@ -144,7 +141,7 @@ const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
 const adminItems: Ref<MenuItem[]> = ref([]);
-const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
+const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 
 const toast = useToast();
@@ -184,7 +181,7 @@ function getItems(): MenuItem[] {
 }
 
 function openUserMenu(event: any): void {
-  (userMenu.value as any).toggle(event);
+  userMenu.value.toggle(event);
 }
 
 function getUrl(item: string): string {
@@ -193,7 +190,7 @@ function getUrl(item: string): string {
 }
 
 function openAppsOverlay(event: any) {
-  (appsOP.value as any).toggle(event);
+  appsOP.value.toggle(event);
 }
 
 function setUserMenuItems(): void {
@@ -643,9 +640,9 @@ async function generateAndDownload() {
 
 function setAppMenuItems() {
   appItems.value = [
-    { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
-    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() },
-    { label: "UPRN", icon: "fa-regular fa-address-book", command: () => directService.uprn() }
+    { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => directService.view(), color: "var(--blue-500)", size: 2 },
+    { label: "Creator", icon: "fa-duotone fa-circle-plus", command: () => directService.create(), color: "var(--orange-500)", size: 2 },
+    { label: "UPRN", icon: "fa-duotone fa-address-book", command: () => directService.uprn(), color: "var(--red-500)", size: 2 }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }
@@ -717,7 +714,7 @@ function showReleaseNotes() {
 }
 
 .selected {
-  background-colour: red;
+  background-color: red;
 }
 
 .theme-icon {
