@@ -1,50 +1,50 @@
 import { NextFunction, Request, Response } from "express";
-import promClient from "prom-client";
+import graphite from "graphite";
+import * as os from "os";
+import ConfigService from "@/services/config.service";
+import { CONFIG } from "@im-library/vocabulary";
 
-const metrics = new promClient.Registry();
+const metrics: any = {};
+let client: any;
 
-metrics.setDefaultLabels({
-  app: "nodeapi"
-});
+async function metricsInterceptor(req: Request, res: Response, next: NextFunction) {
+  if (!client) {
+    try {
+      const json = await new ConfigService().getConfig(CONFIG.MONITORING);
+      const monitoringCfg = JSON.parse(json);
+      if (monitoringCfg.graphite) client = graphite.createClient("plaintext://" + monitoringCfg.graphite.address + ":" + monitoringCfg.graphite.port + "/");
+      else if (monitoringCfg.console) client = new consoleClient();
+    } catch (e) {
+      console.error("Metrics config not found");
+      client = { write: () => {} };
+    }
+  }
 
-promClient.collectDefaultMetrics({ register: metrics, prefix: "nodeapi_" });
+  let key = new URL(req.url, req.url.startsWith("http") ? "" : "http://localhost/").pathname.substring(1).replaceAll("/", ".");
+  key = os.hostname() + "." + key;
 
-const metric_label_enum = {
-  PATH: "path",
-  METHOD: "method",
-  STATUS_CODE: "status_code"
-};
+  let data: any = metrics[key];
+  if (!data) {
+    data = { count: 0, m1_rate: 0, start: Date.now() };
+    metrics[key] = data;
+  }
 
-// * The http_response rate histogram for measuring the response rates for each http request
-const http_response_rate_histogram = new promClient.Histogram({
-  name: "node_http_duration",
-  labelNames: [metric_label_enum.PATH, metric_label_enum.METHOD, metric_label_enum.STATUS_CODE],
-  help: "The duration of HTTP requests in seconds",
-  buckets: [0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 10]
-});
-
-metrics.registerMetric(http_response_rate_histogram);
-
-function promTimer(req: Request, res: Response, next: NextFunction) {
-  // Get's the Req URL object
-  const req_url = new URL(req.url, `http://${req.headers.host}`);
-  // Start's the prom-client histogram timer for the request
-  const endTimer = http_response_rate_histogram.startTimer();
-
-  // Copies the original res.send function to a variable
-  const original_res_send_function = res.send;
-
-  // Creates a new send function with the functionality of ending the timer whenever the response.send function is called
-  const res_send_interceptor: any = function (body: any) {
-    // Ends the histogram timer for the request
-    endTimer({ method: req.method, path: req_url.pathname, status_code: res.statusCode });
-    // Calls the original response.send function
-    original_res_send_function.call(res, body);
-  };
-
-  // Overrides the existing response.send object/property with the function defined above
-  res.send = res_send_interceptor;
+  const s = Date.now();
+  data.count++;
+  data.m1_rate = data.count / ((s - data.start) / 60000);
   next();
+  const e = Date.now();
+  data.duration = e - s;
+
+  client.write(data, (err: any) => {
+    if (err) console.error(err);
+  });
 }
 
-export default { metrics, promTimer };
+class consoleClient {
+  write(metrics: any, callback?: (err: any) => void) {
+    console.log(metrics);
+  }
+}
+
+export default metricsInterceptor;

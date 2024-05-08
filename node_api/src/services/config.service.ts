@@ -5,7 +5,7 @@ export default class ConfigService {
   constructor() {
     this.repo = new ConfigRepository();
   }
-  public async getConfig(iri: string): Promise<any[]> {
+  public async getConfig(iri: string): Promise<any> {
     return this.repo.getConfig(iri);
   }
   public async setConfig(subjectUrl: string, name: string, description: string, data: any): Promise<void> {

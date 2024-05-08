@@ -17,6 +17,9 @@ importers:
       '@smile-cdr/fhirts':
         specifier: 2.0.7
         version: 2.0.7
+      '@types/graphite':
+        specifier: ^0.1.2
+        version: 0.1.2
       adm-zip:
         specifier: 0.5.12
         version: 0.5.12
@@ -50,6 +53,9 @@ importers:
       graphdb:
         specifier: 3.0.0
         version: 3.0.0(eslint@9.0.0)
+      graphite:
+        specifier: 0.1.5
+        version: 0.1.5
       http-graceful-shutdown:
         specifier: 3.1.13
         version: 3.1.13
@@ -83,9 +89,6 @@ importers:
       npm-run-all:
         specifier: 4.1.5
         version: 4.1.5
-      prom-client:
-        specifier: ^15.1.2
-        version: 15.1.2
       semver:
         specifier: 7.5.4
         version: 7.5.4
@@ -750,10 +753,6 @@ packages:
   '@octokit/types@9.3.2':
     resolution: {integrity: sha512-D4iHGTdAnEEVsB8fl95m1hiz7D5YiRdQ9b/OEb3BYRVwbLsGHcRVPz+u+BgRLNk0Q0/4iZCBqDN96j2XNxfXrA==}
 
-  '@opentelemetry/api@1.8.0':
-    resolution: {integrity: sha512-I/s6F7yKUDdtMsoBWXJe8Qz40Tui5vsuKCWJEWVL+5q9sSWRzzx6v2KeNsOBEwd94j0eWkpWCH4yB6rZg9Mf0w==}
-    engines: {node: '>=8.0.0'}
-
   '@rdfjs/types@1.1.0':
     resolution: {integrity: sha512-5zm8bN2/CC634dTcn/0AhTRLaQRjXDZs3QfcAsQKNturHT7XVWcKy/8p3P5gXl+YkZTAmy7T5M/LyiT/jbkENw==}
 
@@ -792,6 +791,9 @@ packages:
 
   '@types/express@4.17.17':
     resolution: {integrity: sha512-Q4FmmuLGBG58btUnfS1c1r/NQdlp3DMfGDGig8WhfpA2YRUtEkxAjkZb0yvplJGYdF1fsQ81iMDcH24sSCNC/Q==}
+
+  '@types/graphite@0.1.2':
+    resolution: {integrity: sha512-k+esqcUwtDaAZbTXf6J06Z82ZNbndJohxh9/PqvtWwYtqJZxSzpD7HBR7oN5ADXGE67MbqDCs1+1/TpJxIz2zQ==}
 
   '@types/http-errors@2.0.4':
     resolution: {integrity: sha512-D0CFMMtydbJAegzOyHjtiKPLlvnm3iTZyZRSZoLq2mRhDdmLfIWOCYPfQJ4cu2erKghU++QvjcUjp/5h7hESpA==}
@@ -1022,9 +1024,6 @@ packages:
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
-
-  bintrees@1.0.2:
-    resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
 
   bn.js@4.12.0:
     resolution: {integrity: sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==}
@@ -1623,6 +1622,10 @@ packages:
 
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
+
+  graphite@0.1.5:
+    resolution: {integrity: sha512-g9VXbvn2X8sk1TRehz30wy3LM62UoMw7njY8coA7kdf91wneNpZJqrE5LfLv4VUIcknrcjOP5WC105Wa8UVNcQ==}
+    engines: {node: '>=4'}
 
   has-bigints@1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}
@@ -2306,10 +2309,6 @@ packages:
     resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
     engines: {node: '>= 0.6.0'}
 
-  prom-client@15.1.2:
-    resolution: {integrity: sha512-on3h1iXb04QFLLThrmVYg1SChBQ9N1c+nKAjebBjokBqipddH3uxmOUcEkTnzmJ8Jh/5TSUnUqS40i2QB2dJHQ==}
-    engines: {node: ^16 || ^18 || >=20}
-
   proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
     engines: {node: '>= 0.10'}
@@ -2639,9 +2638,6 @@ packages:
   table@6.8.2:
     resolution: {integrity: sha512-w2sfv80nrAh2VCbqR5AK27wswXhqcck2AhfnNW76beQXskGZ1V12GwS//yYVa3d3fcvAip2OUnbDAjW2k3v9fA==}
     engines: {node: '>=10.0.0'}
-
-  tdigest@0.1.2:
-    resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
 
   test-exclude@6.0.0:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==}
@@ -3794,8 +3790,6 @@ snapshots:
     dependencies:
       '@octokit/openapi-types': 18.1.1
 
-  '@opentelemetry/api@1.8.0': {}
-
   '@rdfjs/types@1.1.0':
     dependencies:
       '@types/node': 20.12.7
@@ -3854,6 +3848,8 @@ snapshots:
       '@types/express-serve-static-core': 4.19.0
       '@types/qs': 6.9.15
       '@types/serve-static': 1.15.7
+
+  '@types/graphite@0.1.2': {}
 
   '@types/http-errors@2.0.4': {}
 
@@ -4122,8 +4118,6 @@ snapshots:
       table: 6.8.2
 
   binary-extensions@2.3.0: {}
-
-  bintrees@1.0.2: {}
 
   bn.js@4.12.0: {}
 
@@ -4874,6 +4868,8 @@ snapshots:
 
   graphemer@1.4.0: {}
 
+  graphite@0.1.5: {}
+
   has-bigints@1.0.2: {}
 
   has-flag@3.0.0: {}
@@ -5572,11 +5568,6 @@ snapshots:
 
   process@0.11.10: {}
 
-  prom-client@15.1.2:
-    dependencies:
-      '@opentelemetry/api': 1.8.0
-      tdigest: 0.1.2
-
   proxy-addr@2.0.7:
     dependencies:
       forwarded: 0.2.0
@@ -5955,10 +5946,6 @@ snapshots:
       slice-ansi: 4.0.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
-
-  tdigest@0.1.2:
-    dependencies:
-      bintrees: 1.0.2
 
   test-exclude@6.0.0:
     dependencies:
