@@ -28,7 +28,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): Wher
       else matchProperties = buildNestedProperties(treeNodeProperties);
 
       properties = properties.concat(matchProperties);
-      const match = { "@id": v4(), where: properties } as Match;
+      const match: Match = { "@id": v4(), where: properties };
       describeMatch(match, 0, false);
       properties = match.where!;
     }

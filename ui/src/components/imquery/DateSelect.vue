@@ -13,7 +13,7 @@
   />
   <div v-if="propertyType === 'between'">
     <Calendar v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
-    <InputText :value="'and'" disabled class="property-input-title-and" />
+    <InputText value="and" disabled class="property-input-title-and" />
     <Calendar v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
   </div>
   <div v-else-if="propertyType === 'is'" class="flex">
@@ -29,7 +29,7 @@
     />
   </div>
   <div v-else-if="propertyType === 'within'">
-    <InputText :value="'the last'" disabled class="property-input-title" />
+    <InputText value="the last" disabled class="property-input-title" />
     <InputNumber v-model:model-value="numberValue" />
     <!-- TODO: model Date options and get from API -->
     <Dropdown

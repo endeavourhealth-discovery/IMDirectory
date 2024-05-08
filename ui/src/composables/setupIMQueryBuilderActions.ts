@@ -9,7 +9,7 @@ function setupIMQueryBuilderActions() {
 
   function isFlatMatch(match: Match): boolean {
     const nestedWhereHasMatch = match.where ? match.where.some(nestedWhere => nestedWhere.match) : false;
-    return (!nestedWhereHasMatch && !match.match && !match.then && !match.where) as boolean;
+    return !nestedWhereHasMatch && !match.match && !match.then && !match.where;
   }
 
   function toggleMatchBool(object: Match) {

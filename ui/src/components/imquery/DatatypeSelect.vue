@@ -42,14 +42,14 @@
         <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
       </div>
       <div v-else-if="propertyType === 'range'" class="property-input">
-        <div class="property-range" v-if="property && property.range && property.range.from">
+        <div class="property-range" v-if="property?.range?.from">
           <InputText :value="'From'" disabled class="property-input-title" />
           <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.from.operator" />
           <InputText type="text" placeholder="value" v-model="property.range.from.value" />
           <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range.from.unit" />
           <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
         </div>
-        <div class="property-range" v-if="property && property.range && property.range.to">
+        <div class="property-range" v-if="property?.range?.to">
           <InputText :value="'To'" disabled class="property-input-title" />
           <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.to.operator" />
           <InputText type="text" placeholder="value" v-model="property.range.to.value" />
@@ -89,36 +89,45 @@ const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 watch(
   () => propertyType.value,
   () => {
-    if (propertyType.value === "range") {
-      props.property.operator = undefined;
-      props.property.isNull = undefined;
-      props.property.isNotNull = undefined;
-      if (!props.property.range) props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
-    } else if (propertyType.value === "startsWith") {
-      delete props.property.range;
-      props.property.isNull = undefined;
-      props.property.isNotNull = undefined;
-      props.property.operator = Operator.start;
-    } else if (propertyType.value === "contains") {
-      delete props.property.range;
-      props.property.isNull = undefined;
-      props.property.isNotNull = undefined;
-      props.property.operator = Operator.contains;
-    } else if (propertyType.value === "is") {
-      delete props.property.range;
-      props.property.isNull = undefined;
-      props.property.isNotNull = undefined;
-      props.property.operator = Operator.eq;
-    } else if (propertyType.value === "notNull") {
-      delete props.property.range;
-      props.property.operator = undefined;
-      props.property.isNull = undefined;
-      props.property.isNotNull = true;
-    } else if (propertyType.value === "isNull") {
-      delete props.property.range;
-      props.property.operator = undefined;
-      props.property.isNull = true;
-      props.property.isNotNull = undefined;
+    switch (propertyType.value) {
+      case "range":
+        props.property.operator = undefined;
+        props.property.isNull = undefined;
+        props.property.isNotNull = undefined;
+        if (!props.property.range) props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
+        break;
+      case "startsWith":
+        delete props.property.range;
+        props.property.isNull = undefined;
+        props.property.isNotNull = undefined;
+        props.property.operator = Operator.start;
+        break;
+      case "contains":
+        delete props.property.range;
+        props.property.isNull = undefined;
+        props.property.isNotNull = undefined;
+        props.property.operator = Operator.contains;
+        break;
+      case "is":
+        delete props.property.range;
+        props.property.isNull = undefined;
+        props.property.isNotNull = undefined;
+        props.property.operator = Operator.eq;
+        break;
+      case "notNull":
+        delete props.property.range;
+        props.property.operator = undefined;
+        props.property.isNull = undefined;
+        props.property.isNotNull = true;
+        break;
+      case "isNull":
+        delete props.property.range;
+        props.property.operator = undefined;
+        props.property.isNull = true;
+        props.property.isNotNull = undefined;
+        break;
+      default:
+        break;
     }
   }
 );

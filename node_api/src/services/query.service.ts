@@ -3,7 +3,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest, TTProperty, UIProperty } from "@im-library/interfaces";
 import { Query, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM, QUERY } from "@im-library/vocabulary";
+import { IM, QUERY, SHACL } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
@@ -359,21 +359,21 @@ export default class QueryService {
     } as any as QueryRequest;
     const results = await this.queryIM(queryRequest);
     if (isObjectHasKeys(results, ["entities"]) && isArrayHasLength(results.entities)) {
-      const ttproperty: TTProperty = results.entities[0];
+      const ttproperty: any = results.entities[0];
       const uiProperty = {} as UIProperty;
-      if (ttproperty["http://www.w3.org/ns/shacl#maxCount"]) uiProperty.maxCount = ttproperty["http://www.w3.org/ns/shacl#maxCount"];
-      if (ttproperty["http://www.w3.org/ns/shacl#minCount"]) uiProperty.minCount = ttproperty["http://www.w3.org/ns/shacl#minCount"];
-      if (isArrayHasLength(ttproperty["http://www.w3.org/ns/shacl#class"])) {
+      if (ttproperty[SHACL.MAXCOUNT]) uiProperty.maxCount = ttproperty[SHACL.MAXCOUNT];
+      if (ttproperty[SHACL.MINCOUNT]) uiProperty.minCount = ttproperty[SHACL.MINCOUNT];
+      if (isArrayHasLength(ttproperty[SHACL.CLASS])) {
         uiProperty.propertyType = "class";
-        uiProperty.valueType = ttproperty["http://www.w3.org/ns/shacl#class"]![0]["@id"];
+        uiProperty.valueType = ttproperty[SHACL.CLASS]![0]["@id"];
       }
-      if (isArrayHasLength(ttproperty["http://www.w3.org/ns/shacl#datatype"])) {
+      if (isArrayHasLength(ttproperty[SHACL.DATATYPE])) {
         uiProperty.propertyType = "datatype";
-        uiProperty.valueType = ttproperty["http://www.w3.org/ns/shacl#datatype"]![0]["@id"];
+        uiProperty.valueType = ttproperty[SHACL.DATATYPE]![0]["@id"];
       }
-      if (isArrayHasLength(ttproperty["http://www.w3.org/ns/shacl#node"])) {
+      if (isArrayHasLength(ttproperty[SHACL.NODE])) {
         uiProperty.propertyType = "node";
-        uiProperty.valueType = ttproperty["http://www.w3.org/ns/shacl#node"]![0]["@id"];
+        uiProperty.valueType = ttproperty[SHACL.NODE]![0]["@id"];
       }
       uiProperty.propertyName = getNameFromRef({ "@id": propertyIri });
       return uiProperty;
