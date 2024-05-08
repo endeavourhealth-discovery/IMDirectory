@@ -37,7 +37,7 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
-import { Entailment, Node, SearchResultSummary, TTIriRef, Where, Element } from "@im-library/interfaces/AutoGen";
+import { Node, SearchResultSummary, Where, Element } from "@im-library/interfaces/AutoGen";
 import { cloneDeep, isEqual } from "lodash";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 interface Props {
@@ -96,16 +96,19 @@ function handlePropertyTypeChange() {
       delete props.property.isNot;
       delete props.property.isNull;
       delete props.property.isNotNull;
+      break;
     case "isNull":
       props.property.isNull = true;
       delete props.property.is;
       delete props.property.isNotNull;
       delete props.property.isNot;
+      break;
     case "isNotNull":
       props.property.isNotNull = true;
       delete props.property.is;
       delete props.property.isNull;
       delete props.property.isNot;
+      break;
     default:
       break;
   }
