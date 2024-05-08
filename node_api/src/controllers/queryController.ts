@@ -124,13 +124,16 @@ export default class QueryController {
   }
 
   async getQueryDisplay(req: Request) {
-    return await this.queryService.getQueryDisplay(req.query.queryIri as string, (req.query.includeLogicDesc as string) === "true");
+    const queryIri: string = req.query.queryIri as string;
+    const includeLogicDesc: boolean = req.query.includeLogicDesc === "true";
+    return await this.queryService.getQueryDisplay(queryIri, includeLogicDesc);
   }
 
   async getQueryDisplayFromQuery(req: Request) {
     const query: Query = req.body;
+    const includeLogicDesc: boolean = req.query.includeLogicDesc === "true";
     if (!isObjectHasKeys(query)) return undefined;
-    return await this.queryService.getQueryDisplayFromQuery(req.body as Query, (req.query.includeLogicDesc as string) === "true");
+    return await this.queryService.getQueryDisplayFromQuery(query, includeLogicDesc);
   }
 
   async getLabeledQuery(req: Request) {
