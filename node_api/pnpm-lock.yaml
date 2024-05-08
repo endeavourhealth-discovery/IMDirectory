@@ -17,6 +17,9 @@ importers:
       '@smile-cdr/fhirts':
         specifier: 2.0.7
         version: 2.0.7
+      '@types/graphite':
+        specifier: ^0.1.2
+        version: 0.1.2
       adm-zip:
         specifier: 0.5.12
         version: 0.5.12
@@ -50,6 +53,9 @@ importers:
       graphdb:
         specifier: 3.0.0
         version: 3.0.0(eslint@9.0.0)
+      graphite:
+        specifier: 0.1.5
+        version: 0.1.5
       http-graceful-shutdown:
         specifier: 3.1.13
         version: 3.1.13
@@ -785,6 +791,9 @@ packages:
 
   '@types/express@4.17.17':
     resolution: {integrity: sha512-Q4FmmuLGBG58btUnfS1c1r/NQdlp3DMfGDGig8WhfpA2YRUtEkxAjkZb0yvplJGYdF1fsQ81iMDcH24sSCNC/Q==}
+
+  '@types/graphite@0.1.2':
+    resolution: {integrity: sha512-k+esqcUwtDaAZbTXf6J06Z82ZNbndJohxh9/PqvtWwYtqJZxSzpD7HBR7oN5ADXGE67MbqDCs1+1/TpJxIz2zQ==}
 
   '@types/http-errors@2.0.4':
     resolution: {integrity: sha512-D0CFMMtydbJAegzOyHjtiKPLlvnm3iTZyZRSZoLq2mRhDdmLfIWOCYPfQJ4cu2erKghU++QvjcUjp/5h7hESpA==}
@@ -1613,6 +1622,10 @@ packages:
 
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
+
+  graphite@0.1.5:
+    resolution: {integrity: sha512-g9VXbvn2X8sk1TRehz30wy3LM62UoMw7njY8coA7kdf91wneNpZJqrE5LfLv4VUIcknrcjOP5WC105Wa8UVNcQ==}
+    engines: {node: '>=4'}
 
   has-bigints@1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}
@@ -3836,6 +3849,8 @@ snapshots:
       '@types/qs': 6.9.15
       '@types/serve-static': 1.15.7
 
+  '@types/graphite@0.1.2': {}
+
   '@types/http-errors@2.0.4': {}
 
   '@types/http-link-header@1.0.5':
@@ -4852,6 +4867,8 @@ snapshots:
       - supports-color
 
   graphemer@1.4.0: {}
+
+  graphite@0.1.5: {}
 
   has-bigints@1.0.2: {}
 
