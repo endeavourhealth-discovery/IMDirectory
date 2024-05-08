@@ -18,7 +18,7 @@
     <div class="value-list-container" v-if="isValueList">
       <div class="value-list" v-if="isArrayHasLength(values)">
         <div class="value-list-item" v-for="[index, value] of values.entries()">
-          <EntailmentOptionsSelect :entailment-object="value as any" />
+          <EntailmentOptionsSelect :entailment-object="value" />
           <AutocompleteSearchBar
             :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"
             :root-entities="[datatype]"

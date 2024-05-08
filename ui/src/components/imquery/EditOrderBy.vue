@@ -18,16 +18,21 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Order, OrderDirection, OrderLimit, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, Order, OrderDirection, OrderLimit, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, SHACL, XSD } from "@im-library/vocabulary";
 import { Ref, onMounted, ref, watch } from "vue";
+interface OrderProperty {
+  name: string;
+  iri: string;
+  entityType: TTIriRef[];
+}
 interface Props {
   editMatch: Match;
   orderBy: OrderLimit;
   dmIri: string;
 }
 const props = defineProps<Props>();
-const orderProperties: Ref<SearchResultSummary[]> = ref([]);
+const orderProperties: Ref<OrderProperty[]> = ref([]);
 const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue", XSD.NAMESPACE + "number"];
 onMounted(async () => await init());
 
@@ -41,7 +46,7 @@ async function init() {
 }
 
 async function getOrderProperties() {
-  const orderProperties: SearchResultSummary[] = [];
+  const orderProperties: OrderProperty[] = [];
   const entity = await EntityService.getPartialEntity(props.dmIri, [SHACL.PROPERTY]);
   if (isObjectHasKeys(entity, [SHACL.PROPERTY]))
     for (const prop of entity[SHACL.PROPERTY]) {
@@ -49,7 +54,7 @@ async function getOrderProperties() {
       if (orderablePropertyTypes.includes(propType[0]["@id"])) {
         const propId = prop[SHACL.PATH][0]["@id"];
         const propName = prop[SHACL.PATH][0].name;
-        orderProperties.push({ name: propName, iri: propId, entityType: propType } as SearchResultSummary);
+        orderProperties.push({ name: propName, iri: propId, entityType: propType });
       }
     }
 
