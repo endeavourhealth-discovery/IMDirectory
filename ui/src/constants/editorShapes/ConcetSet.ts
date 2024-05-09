@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XS, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY } from "@im-library/vocabulary";
 
 const ConceptSetShape: FormGenerator = {
   "@id": EDITOR.CONCEPT_SET_SHAPE,
@@ -106,7 +106,7 @@ const ConceptSetShape: FormGenerator = {
                 "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
-                "@id": XSD.STRING
+                "@id": XS.STRING
               }
             },
             {
@@ -123,7 +123,7 @@ const ConceptSetShape: FormGenerator = {
               comment: "optional description",
               order: 5,
               datatype: {
-                "@id": XSD.STRING
+                "@id": XS.STRING
               },
               name: "Description",
               showTitle: true,

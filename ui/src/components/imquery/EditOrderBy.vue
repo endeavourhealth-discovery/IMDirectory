@@ -19,7 +19,7 @@
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Order, OrderDirection, OrderLimit, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM, SHACL, XSD } from "@im-library/vocabulary";
+import { IM, SHACL, XS } from "@im-library/vocabulary";
 import { Ref, onMounted, ref, watch } from "vue";
 interface OrderProperty {
   name: string;
@@ -33,7 +33,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const orderProperties: Ref<OrderProperty[]> = ref([]);
-const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue", XSD.NAMESPACE + "number"];
+const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue", XS.INTEGER];
 onMounted(async () => await init());
 
 watch(
@@ -68,7 +68,7 @@ function getDirectionOptions(property: OrderDirection) {
     if (prop.entityType[0]["@id"] === IM.NAMESPACE + "DateTime") {
       directionOptions.push({ name: "earliest", value: Order.ascending });
       directionOptions.push({ name: "latest", value: Order.descending });
-    } else if (prop.entityType[0]["@id"] === XSD.NAMESPACE + "number") {
+    } else if (prop.entityType[0]["@id"] === XS.INTEGER) {
       directionOptions.push({ name: "lowest", value: Order.ascending });
       directionOptions.push({ name: "highest", value: Order.descending });
     } else {

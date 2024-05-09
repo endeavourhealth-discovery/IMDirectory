@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-25 09:58:37.
+// Generated using typescript-generator version 3.2.1263 on 2024-05-09 11:36:22.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -196,11 +196,11 @@ export interface Argument {
 }
 
 export interface Assignable {
+    value?: string;
     operator?: Operator;
+    dataType?: TTIriRef;
     relativeTo?: PropertyRef;
     unit?: string;
-    dataType?: TTIriRef;
-    value?: string;
 }
 
 export interface Case {
@@ -358,8 +358,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -387,8 +387,8 @@ export interface Where extends PropertyRef, Assignable {
     where?: Where[];
     valueLabel?: string;
     isNotNull?: boolean;
-    notNull?: boolean;
     null?: boolean;
+    notNull?: boolean;
 }
 
 export interface EntityDocument {
@@ -405,11 +405,12 @@ export interface EntityDocument {
     entityType?: TTIriRef[];
     status?: TTIriRef;
     termCode?: SearchTermCode[];
-    weighting?: number;
+    usageTotal?: number;
     match?: string;
     isA?: TTIriRef[];
     memberOf?: TTIriRef[];
     subsumptionCount?: number;
+    binding?: any[];
     isDescendentOf?: TTIriRef[];
 }
 
@@ -500,7 +501,7 @@ export interface SearchResultSummary {
     status: TTIriRef;
     scheme: TTIriRef;
     entityType: TTIriRef[];
-    weighting?: number;
+    usageTotal?: number;
     match?: string;
     preferredName?: string;
     key?: string[];
@@ -593,7 +594,7 @@ export interface VALIDATION {
 export interface WORKFLOW {
 }
 
-export interface XSD {
+export interface XS {
 }
 
 export interface TTIriRef extends TTValue, Serializable {
@@ -631,14 +632,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    scheme?: TTIriRef;
-    prefixes?: TTPrefix[];
-    description?: string;
-    version?: number;
-    code?: string;
     name?: string;
     type?: TTArray;
+    scheme?: TTIriRef;
+    version?: number;
+    description?: string;
+    code?: string;
     status?: TTIriRef;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
@@ -650,15 +651,15 @@ export interface TTValue extends Serializable {
     order?: number;
 }
 
+export interface TTArray extends Serializable {
+    elements?: TTValue[];
+    list?: boolean;
+}
+
 export interface TTPrefix {
     iri?: string;
     prefix?: string;
     name?: string;
-}
-
-export interface TTArray extends Serializable {
-    elements?: TTValue[];
-    list?: boolean;
 }
 
 export interface TTNode extends TTValue, Serializable {

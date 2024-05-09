@@ -1,4 +1,4 @@
-import { RDF, IM, XSD, RDFS, EDITOR, COMPONENT, VALIDATION, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
+import { RDF, IM, XS, RDFS, EDITOR, COMPONENT, VALIDATION, IM_FUNCTION, QUERY } from "@im-library/vocabulary";
 
 export default {
   testShape: {
@@ -103,7 +103,7 @@ export default {
                   "@id": COMPONENT.TEXT_DISPLAY
                 },
                 datatype: {
-                  "@id": XSD.STRING
+                  "@id": XS.STRING
                 },
                 function: {
                   "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
@@ -123,14 +123,14 @@ export default {
                   "@id": COMPONENT.TEXT_INPUT
                 },
                 datatype: {
-                  "@id": XSD.STRING
+                  "@id": XS.STRING
                 }
               },
               {
                 comment: "optional description",
                 order: 5,
                 datatype: {
-                  "@id": XSD.STRING
+                  "@id": XS.STRING
                 },
                 name: "Concept description",
                 showTitle: true,

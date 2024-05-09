@@ -9,7 +9,7 @@
         :style="'color:' + color + ';width: ' + (size + 1) + 'rem'"
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;width:' + (size + 1) + 'rem'" />
-      <p class="label">{{ label }}</p>
+      <p class="label" :style="'width:' + (size + 1) + 'rem'">{{ label }}</p>
     </a>
     <div v-if="command" class="shortcut-container command-shortcut" @click="command()">
       <IMFontAwesomeIcon
@@ -20,7 +20,7 @@
         :style="'color:' + color + ';width:' + (size + 1) + 'rem'"
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;' + 'width:' + (size + 1) + 'rem'" />
-      <p class="label">{{ label }}</p>
+      <p class="label" :style="'width:' + (size + 1) + 'rem'">{{ label }}</p>
     </div>
   </div>
 </template>
@@ -56,5 +56,10 @@ const props = defineProps<Props>();
   flex-flow: row nowrap;
   align-items: center;
   justify-content: center;
+}
+
+.label {
+  word-wrap: break-word;
+  text-align: center;
 }
 </style>
