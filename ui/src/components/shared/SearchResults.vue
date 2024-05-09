@@ -20,6 +20,17 @@
         </span>
       </div>
     </div>
+    <h2 class="heading">Quick type filters</h2>
+    <div v-if="showQuickTypeFilters" class="quick-type-filters">
+      <div class="radio-label-container">
+        <RadioButton v-model="quickTypeFilter" inputId="allQuickFilter" name="quickTypeFilter" :value="undefined" variant="filled" />
+        <label for="allQuickFilter">All</label>
+      </div>
+      <div v-for="typeOption in typeOptions" class="radio-label-container">
+        <RadioButton v-model="quickTypeFilter" :inputId="typeOption.name + 'QuickFilter'" name="quickTypeFilter" :value="typeOption" variant="filled" />
+        <label :for="typeOption.name + 'QuickFilter'">{{ typeOption.name }}</label>
+      </div>
+    </div>
     <ResultsTable
       :search-term="searchTerm"
       :updateSearch="updateSearch"
@@ -27,6 +38,7 @@
       :rows="rows"
       :im-query="imQuery"
       :os-query="osQuery"
+      :showQuickTypeFilters="showQuickTypeFilters"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
     />
@@ -47,11 +59,13 @@ interface Props {
   selectedFilterOptions?: FilterOptions;
   rows?: number;
   showFilters?: boolean;
+  showQuickTypeFilters?: boolean;
   osQuery?: SearchRequest;
   imQuery?: QueryRequest;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
+  showQuickTypeFilters: true,
   rows: 25
 });
 
@@ -70,6 +84,14 @@ const selectedTypes: Ref<TTIriRef[]> = ref([]);
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const statusOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
+const quickTypeFilter: Ref<TTIriRef | undefined> = ref();
+
+watch(quickTypeFilter, newValue => {
+  if (newValue) {
+    selectedTypes.value = [newValue];
+  } else selectedTypes.value = _.cloneDeep(storeFilterDefaults.value.types);
+  filterResults();
+});
 
 onMounted(() => init());
 
@@ -78,16 +100,17 @@ function init() {
 }
 
 function setFiltersFromStore() {
-  schemeOptions.value = [...storeFilterOptions.value.schemes];
-  typeOptions.value = [...storeFilterOptions.value.types];
-  statusOptions.value = [...storeFilterOptions.value.status];
+  console.log("here");
+  schemeOptions.value = _.cloneDeep(storeFilterOptions.value.schemes);
+  typeOptions.value = _.cloneDeep(storeFilterOptions.value.types);
+  statusOptions.value = _.cloneDeep(storeFilterOptions.value.status);
   if (
     props.selectedFilterOptions &&
     (props.selectedFilterOptions.schemes.length || props.selectedFilterOptions.status.length || props.selectedFilterOptions.types.length)
   ) {
-    selectedSchemes.value = [...props.selectedFilterOptions.schemes];
-    selectedStatus.value = [...props.selectedFilterOptions.status];
-    selectedTypes.value = [...props.selectedFilterOptions.types];
+    selectedSchemes.value = _.cloneDeep(props.selectedFilterOptions.schemes);
+    selectedStatus.value = _.cloneDeep(props.selectedFilterOptions.status);
+    selectedTypes.value = _.cloneDeep(props.selectedFilterOptions.types);
   } else {
     selectedSchemes.value = storeFilterOptions.value.schemes.filter(
       option => storeFilterDefaults.value.schemes.findIndex(s => s["@id"] === option["@id"]) != -1
@@ -135,5 +158,26 @@ label {
 .p-inputgroup {
   width: 33.3%;
   padding: 0.5rem;
+}
+.quick-type-filters {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+.radio-label-container {
+  display: flex;
+  flex-flow: row nowrap;
+  flex: 0 0 calc(25% - 0.5rem);
+  gap: 0.25rem;
+}
+
+.radio-label-container label {
+  text-transform: capitalize;
+}
+
+.heading {
+  padding-left: 0.5rem;
+  margin: 0;
 }
 </style>
