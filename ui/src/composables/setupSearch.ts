@@ -23,8 +23,6 @@ function setupSearch(searchPlaceholderValue?: string) {
     eclQuery?: EclSearchRequest
   ) {
     let response = undefined;
-    if (selectedFilters) selectedFilters.sortFields = [];
-    else filterStoreDefaults.value.sortFields = [];
     if (searchTerm && searchTerm.length > 2) {
       searchLoading.value = true;
       if (!isObject(controller.value)) controller.value.abort();
@@ -84,7 +82,7 @@ function setupSearch(searchPlaceholderValue?: string) {
     if (filterOptions.types) osQuery.typeFilter = filterOptions.types.map(filterOption => filterOption["@id"]);
     if (filterOptions.status) osQuery.statusFilter = filterOptions.status.map(filterOption => filterOption["@id"]);
     if (filterOptions.schemes) osQuery.schemeFilter = filterOptions.schemes.map(filterOption => filterOption["@id"]);
-    if (isArrayHasLength(filterOptions.sortFields)) osQuery.sortField = filterOptions.sortFields?.[0]?.["@id"] ?? undefined;
+    if (filterOptions.sortFields) osQuery.sortField = filterOptions.sortFields[0]?.["@id"] ?? undefined;
     if (filterOptions.sortDirections)
       osQuery.sortDirection = filterOptions.sortDirections?.[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC;
     return osQuery;
