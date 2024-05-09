@@ -100,7 +100,6 @@ function init() {
 }
 
 function setFiltersFromStore() {
-  console.log("here");
   schemeOptions.value = _.cloneDeep(storeFilterOptions.value.schemes);
   typeOptions.value = _.cloneDeep(storeFilterOptions.value.types);
   statusOptions.value = _.cloneDeep(storeFilterOptions.value.status);
