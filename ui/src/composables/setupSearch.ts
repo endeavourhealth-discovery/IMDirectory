@@ -82,7 +82,7 @@ function setupSearch(searchPlaceholderValue?: string) {
     if (filterOptions.types) osQuery.typeFilter = filterOptions.types.map(filterOption => filterOption["@id"]);
     if (filterOptions.status) osQuery.statusFilter = filterOptions.status.map(filterOption => filterOption["@id"]);
     if (filterOptions.schemes) osQuery.schemeFilter = filterOptions.schemes.map(filterOption => filterOption["@id"]);
-    if (filterOptions.sortFields) osQuery.sortField = filterOptions.sortFields[0]["@id"] === IM.USAGE ? "weighting" : filterOptions.sortFields[0]["@id"];
+    if (filterOptions.sortFields) osQuery.sortField = filterOptions.sortFields[0]["@id"];
     if (filterOptions.sortDirections) osQuery.sortDirection = filterOptions.sortDirections[0]["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC;
     return osQuery;
   }

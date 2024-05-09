@@ -121,7 +121,7 @@ onMounted(async () => {
       statusFilter: [IM.ACTIVE, IM.DRAFT],
       typeFilter: [SHACL.NODESHAPE],
       sortDirection: SortDirection.DESC,
-      sortField: "weighting"
+      sortField: IM.USAGE_TOTAL
     } as SearchRequest;
 
     populateVariableMap(variableMap.value, editQueryDefinition.value);

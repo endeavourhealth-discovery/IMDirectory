@@ -34,7 +34,7 @@ const osQueryForConceptSearch: Ref<SearchRequest> = ref({
   statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
   typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
   sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
+  sortField: filterStoreOptions.value.sortFields[0]?.["@id"]
 } as SearchRequest);
 
 onMounted(async () => {
