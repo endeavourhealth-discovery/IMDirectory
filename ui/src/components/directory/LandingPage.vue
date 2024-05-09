@@ -137,8 +137,8 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
     size: 4
   },
   {
-    label: "UPRN",
-    icon: "fa-duotone fa-address-book",
+    label: "ASSIGN UPRN",
+    icon: "fa-duotone fa-map-location-dot",
     command: () => directService.uprn(),
     color: "var(--red-500)",
     size: 4
@@ -279,7 +279,7 @@ function locateInTree(iri: string) {
   display: flex;
   flex-flow: row wrap;
   padding: 0.5rem;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .recent-icon {
