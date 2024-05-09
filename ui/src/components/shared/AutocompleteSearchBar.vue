@@ -83,7 +83,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[] });
 
 const emit = defineEmits({
-  "update:selected": _payload => true,
+  "update:selected": (_payload: SearchResultSummary | undefined) => true,
   openDialog: () => true
 });
 

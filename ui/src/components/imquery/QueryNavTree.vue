@@ -19,7 +19,7 @@
 </template>
 
 <script async setup lang="ts">
-import { ComputedRef, computed, onMounted, onUnmounted, ref } from "vue";
+import { Ref, inject, onMounted, onUnmounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
@@ -33,7 +33,7 @@ import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
-import { useQueryStore } from "@/stores/queryStore";
+import { stringAscending } from "@im-library/helpers/Sorters";
 
 interface Props {
   editMatch: Match;
@@ -41,8 +41,7 @@ interface Props {
   dmIri: string;
 }
 const props = defineProps<Props>();
-const queryStore = useQueryStore();
-const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
+const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 
 const emit = defineEmits({
   onSelectedUpdate: (_payload: TreeNode[]) => true
@@ -52,16 +51,23 @@ const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
 const { removeOverlay, OS, displayOverlay, hideOverlay, createTreeNode, select, unselect, selectedNodes } = setupQueryTree();
 
-onMounted(async () => {
-  loading.value = true;
-  await addParentFoldersToRoot();
-  if (isArrayHasLength(props.editMatch.where)) await populateCheckBoxes(props.editMatch);
-  loading.value = false;
-});
+watch(
+  () => props.dmIri,
+  async () => await init()
+);
+
+onMounted(async () => await init());
 
 onUnmounted(() => {
   removeOverlay();
 });
+
+async function init() {
+  loading.value = true;
+  await addParentFoldersToRoot();
+  if (isArrayHasLength(props.editMatch.where)) await populateCheckBoxes(props.editMatch);
+  loading.value = false;
+}
 
 async function onCheckInput(check: boolean, node: TreeNode) {
   if (check) onSelect(node);
@@ -210,9 +216,9 @@ async function addParentFoldersToRoot() {
 }
 
 function addVariableNodes() {
-  for (const [key, object] of variableMap.value.entries()) {
+  for (const key of Object.keys(variableMap.value)) {
     const types: string[] = [];
-    getVariableTypesFromMatch(object, types);
+    getVariableTypesFromMatch(variableMap.value[key], types);
     for (const typeIri of types) {
       const name = key + " (" + getNameFromRef({ "@id": typeIri }) + ")";
       const treeNode = createTreeNode(name, typeIri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] }, key);
@@ -235,8 +241,8 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
       getVariableTypesFromProperty(property, types);
     }
 
-  if (match.nodeRef && variableMap.value.has(match.nodeRef)) {
-    const nodeRefMatch = variableMap.value.get(match.nodeRef);
+  if (match.nodeRef && variableMap.value[match.nodeRef]) {
+    const nodeRefMatch = variableMap.value[match.nodeRef];
     getVariableTypesFromMatch(nodeRefMatch, types);
   }
 }
@@ -256,6 +262,13 @@ async function addBaseEntityToRoot(iri: string) {
   expandedKeys.value[parent.key!] = true;
   await onNodeExpand(parent);
   root.value.push(parent);
+  let linkedDMs = await EntityService.getLinkedDataModels(iri);
+  linkedDMs = linkedDMs.sort(stringAscending);
+  for (const linkedDM of linkedDMs) {
+    const dmName = getNameFromRef({ "@id": linkedDM });
+    const dmNode = createTreeNode(dmName, linkedDM, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
+    root.value.push(dmNode);
+  }
 }
 </script>
 

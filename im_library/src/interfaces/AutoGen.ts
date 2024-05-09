@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-17 14:38:25.
+// Generated using typescript-generator version 3.2.1263 on 2024-04-25 09:58:37.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -28,13 +28,18 @@ export interface BuilderComponent extends BuilderValue {
 export interface BuilderValue {
 }
 
+export interface ConceptReference {
+    iri?: string;
+    name?: string;
+}
+
 export interface EclBuilderException extends Exception {
 }
 
 export interface ExpressionConstraint extends BuilderComponent {
     constraintOperator?: string;
     conjunction?: Bool;
-    conceptSingle?: TTIriRef;
+    conceptSingle?: ConceptReference;
     conceptBool?: BoolGroup;
     refinementItems?: BuilderComponent[];
 }
@@ -46,9 +51,8 @@ export interface Refinement extends BuilderComponent {
 }
 
 export interface SubExpressionConstraint {
-    concept?: TTIriRef;
+    concept?: ConceptReference;
     constraintOperator?: string;
-    memberOf?: boolean;
 }
 
 export interface ArrayButtons {
@@ -192,11 +196,11 @@ export interface Argument {
 }
 
 export interface Assignable {
-    value?: string;
-    unit?: string;
     operator?: Operator;
-    dataType?: TTIriRef;
     relativeTo?: PropertyRef;
+    unit?: string;
+    dataType?: TTIriRef;
+    value?: string;
 }
 
 export interface Case {
@@ -229,10 +233,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    memberOf?: boolean;
     descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
-    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -256,7 +260,6 @@ export interface Match extends IriLD {
     path?: IriLD[];
     match?: Match[];
     where?: Where[];
-    bool?: Bool;
     is?: Node[];
     orderBy?: OrderLimit;
     optional?: boolean;
@@ -355,8 +358,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -374,7 +377,6 @@ export interface When {
 
 export interface Where extends PropertyRef, Assignable {
     description?: string;
-    bool?: Bool;
     match?: Match;
     range?: Range;
     isNull?: boolean;
@@ -385,8 +387,8 @@ export interface Where extends PropertyRef, Assignable {
     where?: Where[];
     valueLabel?: string;
     isNotNull?: boolean;
-    null?: boolean;
     notNull?: boolean;
+    null?: boolean;
 }
 
 export interface EntityDocument {
@@ -618,8 +620,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    nativeMethod?: boolean;
     className?: string;
+    nativeMethod?: boolean;
 }
 
 export interface Exception extends Throwable {
@@ -629,14 +631,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    name?: string;
-    type?: TTArray;
     scheme?: TTIriRef;
+    prefixes?: TTPrefix[];
+    description?: string;
     version?: number;
     code?: string;
+    name?: string;
+    type?: TTArray;
     status?: TTIriRef;
-    description?: string;
-    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
@@ -648,25 +650,20 @@ export interface TTValue extends Serializable {
     order?: number;
 }
 
-export interface TTArray extends Serializable {
-    elements?: TTValue[];
-    list?: boolean;
-}
-
 export interface TTPrefix {
     iri?: string;
     prefix?: string;
     name?: string;
 }
 
+export interface TTArray extends Serializable {
+    elements?: TTValue[];
+    list?: boolean;
+}
+
 export interface TTNode extends TTValue, Serializable {
     predicateMap?: { [index: string]: TTArray };
     "@id"?: string;
-}
-
-export const enum BoolGroupType {
-    EXPRESSION_CONSTRAINT_GROUP = "EXPRESSION_CONSTRAINT_GROUP",
-    CONCEPT_REFERENCE_SET = "CONCEPT_REFERENCE_SET",
 }
 
 export const enum ComponentType {

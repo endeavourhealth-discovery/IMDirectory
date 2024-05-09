@@ -5,10 +5,10 @@ import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { cloneDeep } from "lodash";
 import { v4 } from "uuid";
+import { describeMatch } from "./QueryDescriptor";
 
-export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { direct: Match[]; nested: Match[] } {
-  const directMatches: Match[] = [];
-  const nestedMatches: Match[] = [];
+export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): Where[] {
+  let properties: Where[] = [];
 
   if (isArrayHasLength(treeNodeProperties)) {
     const parentHierarchyMap = new Map<string, TreeNode[]>();
@@ -26,19 +26,14 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
       let matchProperties: Where[] = [];
       if (!isNested) matchProperties = treeNodeProperties.map(treeNodeProperty => buildProperty(treeNodeProperty));
       else matchProperties = buildNestedProperties(treeNodeProperties);
-      const match = { "@id": v4(), property: matchProperties } as Match;
 
-      const hasVariableTreeNode = treeNodeProperties.find(treeNodeProperty => getHasVariable(treeNodeProperty));
-      if (hasVariableTreeNode) {
-        match.where = matchProperties[0].where;
-        match.nodeRef = getHasVariable(hasVariableTreeNode);
-      }
-
-      if (isNested) nestedMatches.push(match);
-      else directMatches.push(match);
+      properties = properties.concat(matchProperties);
+      const match: Match = { "@id": v4(), where: properties };
+      describeMatch(match, 0, false);
+      properties = match.where!;
     }
   }
-  return { direct: directMatches, nested: nestedMatches };
+  return properties;
 }
 
 export function buildNestedProperties(treeNodeProperties: TreeNode[]) {
@@ -101,7 +96,7 @@ export function buildProperty(treeNode: TreeNode) {
       if (isObjectHasKeys(currentMatchOrProperty)) parentProperty.match = cloneDeep(currentMatchOrProperty);
       currentMatchOrProperty = parentProperty;
     } else if (isRecordModel(treeNode.conceptTypes)) {
-      const parentMatch = { "@id": v4(), typeOf: { "@id": treeNode.data }, property: [cloneDeep(currentMatchOrProperty)] };
+      const parentMatch = { "@id": v4(), typeOf: { "@id": treeNode.data }, where: [cloneDeep(currentMatchOrProperty)] };
       currentMatchOrProperty = parentMatch;
     } else if (isProperty(treeNode.conceptTypes)) {
       const parentProperty: any = { "@id": treeNode.data };

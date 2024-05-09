@@ -294,14 +294,14 @@ export const fullTestQueryDefinition: Query = {
           ]
         }
       ],
-      bool: Bool.or
+      boolMatch: Bool.or
     },
     {
       where: [
         {
           "@id": "http://endhealth.info/im#observation",
           match: {
-            bool: Bool.and,
+            boolWhere: Bool.and,
             where: [
               {
                 "@id": "http://endhealth.info/im#concept",
@@ -350,7 +350,7 @@ export const fullTestQueryDefinition: Query = {
       nodeRef: "latestBP",
       match: [
         {
-          bool: Bool.and,
+          boolWhere: Bool.and,
           where: [
             {
               "@id": "http://endhealth.info/im#concept",
@@ -371,7 +371,7 @@ export const fullTestQueryDefinition: Query = {
           ]
         },
         {
-          bool: Bool.and,
+          boolWhere: Bool.and,
           where: [
             {
               "@id": "http://endhealth.info/im#concept",
@@ -392,7 +392,7 @@ export const fullTestQueryDefinition: Query = {
           ]
         }
       ],
-      bool: Bool.or,
+      boolMatch: Bool.or,
       variable: "highBPReading"
     },
     {
@@ -401,7 +401,7 @@ export const fullTestQueryDefinition: Query = {
         {
           "@id": "http://endhealth.info/im#observation",
           match: {
-            bool: Bool.and,
+            boolWhere: Bool.and,
             where: [
               {
                 "@id": "http://endhealth.info/im#concept",

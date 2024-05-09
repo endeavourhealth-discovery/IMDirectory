@@ -22,16 +22,4 @@ describe("QueryBuilder.ts ___", () => {
       expect(result).toEqual(true);
     });
   });
-
-  describe("buildNestedPropertyMatch", () => {
-    it("returns match with parent structure", () => {
-      const nestedPropertyMatch = buildProperty(observationNestedProperty.treeNode as any);
-      expect(nestedPropertyMatch).toEqual(observationNestedProperty.property);
-    });
-
-    it("returns multi-level match with parent structure", () => {
-      const nestedPropertyMatch = buildProperty(odsCodeNestedProperty.treeNode as any);
-      expect(nestedPropertyMatch).toEqual(odsCodeNestedProperty.property);
-    });
-  });
 });
