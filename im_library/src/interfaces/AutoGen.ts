@@ -198,7 +198,6 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     operator?: Operator;
-    dataType?: TTIriRef;
     relativeTo?: PropertyRef;
     unit?: string;
 }
@@ -233,10 +232,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    memberOf?: boolean;
     descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
-    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -358,8 +357,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -387,7 +386,6 @@ export interface Where extends PropertyRef, Assignable {
     where?: Where[];
     valueLabel?: string;
     isNotNull?: boolean;
-    null?: boolean;
     notNull?: boolean;
 }
 
@@ -598,8 +596,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    nativeMethod?: boolean;
     className?: string;
+    nativeMethod?: boolean;
 }
 
 export interface Exception extends Throwable {
@@ -609,12 +607,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    name?: string;
-    type?: TTArray;
     scheme?: TTIriRef;
+    prefixes?: TTPrefix[];
+    description?: string;
     version?: number;
     description?: string;
     code?: string;
+    name?: string;
+    type?: TTArray;
     status?: TTIriRef;
     prefixes?: TTPrefix[];
 }
@@ -628,15 +628,15 @@ export interface TTValue extends Serializable {
     order?: number;
 }
 
-export interface TTArray extends Serializable {
-    elements?: TTValue[];
-    list?: boolean;
-}
-
 export interface TTPrefix {
     iri?: string;
     prefix?: string;
     name?: string;
+}
+
+export interface TTArray extends Serializable {
+    elements?: TTValue[];
+    list?: boolean;
 }
 
 export interface TTNode extends TTValue, Serializable {

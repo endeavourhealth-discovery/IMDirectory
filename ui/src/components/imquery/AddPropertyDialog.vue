@@ -3,38 +3,40 @@
     <QueryNavTree
       :editMatch="editMatch"
       :selected-properties="selectedProperties"
-      :dm-iri="matchType"
+      :dm-iri="dataModelIri"
       :show-variable-options="showVariableOptions"
       @on-selected-update="onSelectedUpdate"
     />
     <template #footer>
-      <Button label="Discard" severity="secondary" @click="visible = false" text />
-      <Button label="Save" @click="save" text />
+      <Button label="Cancel" severity="secondary" @click="visible = false" text />
+      <Button label="Save" @click="save" />
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash";
 import { TreeNode } from "primevue/treenode";
 import { buildMatchesFromProperties } from "@im-library/helpers/QueryBuilder";
-import QueryNavTree from "../QueryNavTree.vue";
+import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 interface Props {
   showDialog: boolean;
   match?: Match;
   header: string;
-  matchType: string;
+  dataModelIri: string;
   showVariableOptions: boolean;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits({
   onClose: () => true,
-  onSave: (_direct: Match[], _nested: Match[]) => true,
+  onPropertyAdd: (_properties: Where[]) => true,
+  onMatchAdd: (_matches: Match[]) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
@@ -71,8 +73,18 @@ function onSelectedUpdate(selected: TreeNode[]) {
 
 async function save() {
   editMatch.value.where = [];
-  const { direct, nested } = buildMatchesFromProperties(selectedProperties.value as any);
-  emit("onSave", direct, nested);
+  const properties = buildMatchesFromProperties(selectedProperties.value as any);
+  if (isArrayHasLength(properties)) {
+    const parts = properties[0].description?.split("-");
+    if (parts && parts.length === 5) {
+      for (const match of properties as Match[]) {
+        match.description = getNameFromRef(match.typeOf);
+      }
+      emit("onMatchAdd", properties as Match[]);
+    } else {
+      emit("onPropertyAdd", properties);
+    }
+  }
   visible.value = false;
 }
 </script>
