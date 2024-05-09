@@ -1,6 +1,6 @@
 <template>
   <div class="datatype-select">
-    <div v-if="datatype === GRAPH.XMLS + 'string'" class="property-input-container">
+    <div v-if="datatype === XS.STRING" class="property-input-container">
       <Dropdown
         :options="[
           { id: 'is', name: 'is' },
@@ -16,14 +16,11 @@
       <InputText v-if="['is', 'startsWith', 'contains'].includes(propertyType)" type="text" v-model:model-value="property.value" />
     </div>
 
-    <div v-else-if="datatype === GRAPH.XMLS + 'boolean'" class="property-input-container">
+    <div v-else-if="datatype === XS.BOOLEAN" class="property-input-container">
       <Dropdown :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
     </div>
 
-    <div
-      v-else-if="datatype === GRAPH.XMLS + 'long' || datatype === GRAPH.XMLS + 'integer' || datatype === GRAPH.XMLS + 'number'"
-      class="property-input-container"
-    >
+    <div v-else-if="datatype === XS.LONG || datatype === XS.INTEGER" class="property-input-container">
       <Dropdown
         :options="[
           { id: 'is', name: 'is' },
@@ -67,7 +64,7 @@
 <script setup lang="ts">
 import Dropdown from "primevue/dropdown";
 import { Ref, onMounted, ref, watch } from "vue";
-import { IM, GRAPH } from "@im-library/vocabulary";
+import { IM, XS } from "@im-library/vocabulary";
 import { Assignable, Range, Where, Operator } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DateSelect from "./DateSelect.vue";

@@ -248,15 +248,13 @@ export const fullTestQueryDefinition: Query = {
                   operator: Operator.gte,
                   value: "65",
                   unit: "YEARS",
-                  relativeTo: null,
-                  dataType: null
+                  relativeTo: null
                 },
                 to: {
                   operator: Operator.gt,
                   value: "70",
                   unit: "YEARS",
-                  relativeTo: null,
-                  dataType: null
+                  relativeTo: null
                 }
               }
             }

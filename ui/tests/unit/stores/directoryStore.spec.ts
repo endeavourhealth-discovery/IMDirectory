@@ -59,7 +59,6 @@ describe("mutations", () => {
           code: "testCode",
           entityType: [{ "@id": "testType", name: "testType" }],
           match: "testMatch",
-          weighting: 0,
           status: { "@id": "testStatus", name: "testStatus" }
         }
       ]
