@@ -21,12 +21,12 @@
       </div>
     </div>
     <h2 class="heading">Quick type filters</h2>
-    <div v-if="showQuickTypeFilters" class="quick-type-filters">
+    <div v-if="showQuickTypeFilters && quickTypeFiltersAllowed" class="quick-type-filters">
       <div class="radio-label-container">
         <RadioButton v-model="quickTypeFilter" inputId="allQuickFilter" name="quickTypeFilter" :value="undefined" variant="filled" />
         <label for="allQuickFilter">All</label>
       </div>
-      <div v-for="typeOption in typeOptions" class="radio-label-container">
+      <div v-for="typeOption in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t['@id']))" class="radio-label-container">
         <RadioButton v-model="quickTypeFilter" :inputId="typeOption.name + 'QuickFilter'" name="quickTypeFilter" :value="typeOption" variant="filled" />
         <label :for="typeOption.name + 'QuickFilter'">{{ typeOption.name }}</label>
       </div>
@@ -46,12 +46,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, ref, Ref, watch, PropType } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
 import { QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { IM } from "@im-library/vocabulary";
 
 interface Props {
   searchTerm: string;
@@ -60,12 +61,14 @@ interface Props {
   rows?: number;
   showFilters?: boolean;
   showQuickTypeFilters?: boolean;
+  quickTypeFiltersAllowed?: string[];
   osQuery?: SearchRequest;
   imQuery?: QueryRequest;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
   showQuickTypeFilters: true,
+  quickTypeFiltersAllowed: () => [IM.CONCEPT, IM.VALUESET],
   rows: 25
 });
 
@@ -167,7 +170,7 @@ label {
 .radio-label-container {
   display: flex;
   flex-flow: row nowrap;
-  flex: 0 0 calc(25% - 0.5rem);
+  /* flex: 0 0 calc(25% - 0.5rem); */
   gap: 0.25rem;
 }
 
