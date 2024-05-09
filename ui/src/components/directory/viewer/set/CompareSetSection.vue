@@ -99,7 +99,7 @@ async function search(searchText: string): Promise<SearchResultSummary[]> {
   if (searchText && searchText.length > 2) {
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText;
-    searchRequest.sortField = "weighting";
+    searchRequest.sortField = IM.USAGE_TOTAL;
     searchRequest.page = 1;
     searchRequest.size = 100;
     searchRequest.schemeFilter = [];
@@ -122,7 +122,7 @@ async function search(searchText: string): Promise<SearchResultSummary[]> {
 
     if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
       const sortField = selectedFilters.value.sortFields[0];
-      if (sortField["@id"] === IM.USAGE) searchRequest.sortField = "weighting";
+      if (sortField["@id"]) searchRequest.sortField = sortField["@id"];
 
       if (isArrayHasLength(selectedFilters.value.sortDirections) && isObjectHasKeys(selectedFilters.value.sortDirections[0])) {
         const sortDirection = selectedFilters.value.sortDirections[0];
