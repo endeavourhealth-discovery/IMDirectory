@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, IM_FUNCTION, COMPONENT, QUERY, VALIDATION } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XS, EDITOR, IM_FUNCTION, COMPONENT, QUERY, VALIDATION } from "@im-library/vocabulary";
 
 const PropertyShape: FormGenerator = {
   "@id": EDITOR.PROPERTY_SHAPE,
@@ -94,7 +94,7 @@ const PropertyShape: FormGenerator = {
             "@id": COMPONENT.TEXT_DISPLAY
           },
           datatype: {
-            "@id": XSD.STRING
+            "@id": XS.STRING
           },
           function: {
             "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
@@ -114,7 +114,7 @@ const PropertyShape: FormGenerator = {
             "@id": COMPONENT.TEXT_INPUT
           },
           datatype: {
-            "@id": XSD.STRING
+            "@id": XS.STRING
           }
         },
         {
@@ -131,7 +131,7 @@ const PropertyShape: FormGenerator = {
           comment: "optional description",
           order: 6,
           datatype: {
-            "@id": XSD.STRING
+            "@id": XS.STRING
           },
           name: "Description",
           showTitle: true,

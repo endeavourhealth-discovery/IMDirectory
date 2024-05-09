@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-25 09:58:37.
+// Generated using typescript-generator version 3.2.1263 on 2024-05-08 14:41:51.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -196,11 +196,10 @@ export interface Argument {
 }
 
 export interface Assignable {
+    value?: string;
     operator?: Operator;
     relativeTo?: PropertyRef;
     unit?: string;
-    dataType?: TTIriRef;
-    value?: string;
 }
 
 export interface Case {
@@ -388,29 +387,6 @@ export interface Where extends PropertyRef, Assignable {
     valueLabel?: string;
     isNotNull?: boolean;
     notNull?: boolean;
-    null?: boolean;
-}
-
-export interface EntityDocument {
-    id?: number;
-    iri?: string;
-    name?: string;
-    length?: number;
-    preferredName?: string;
-    code?: string;
-    alternativeCode?: string;
-    matchTerm?: string[];
-    key?: string[];
-    scheme?: TTIriRef;
-    entityType?: TTIriRef[];
-    status?: TTIriRef;
-    termCode?: SearchTermCode[];
-    weighting?: number;
-    match?: string;
-    isA?: TTIriRef[];
-    memberOf?: TTIriRef[];
-    subsumptionCount?: number;
-    isDescendentOf?: TTIriRef[];
 }
 
 export interface Filter {
@@ -500,7 +476,7 @@ export interface SearchResultSummary {
     status: TTIriRef;
     scheme: TTIriRef;
     entityType: TTIriRef[];
-    weighting?: number;
+    usageTotal?: number;
     match?: string;
     preferredName?: string;
     key?: string[];
@@ -593,7 +569,7 @@ export interface VALIDATION {
 export interface WORKFLOW {
 }
 
-export interface XSD {
+export interface XS {
 }
 
 export interface TTIriRef extends TTValue, Serializable {
@@ -635,10 +611,12 @@ export interface TTEntity extends TTNode, Serializable {
     prefixes?: TTPrefix[];
     description?: string;
     version?: number;
+    description?: string;
     code?: string;
     name?: string;
     type?: TTArray;
     status?: TTIriRef;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
