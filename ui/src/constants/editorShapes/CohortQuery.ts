@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XS, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY, XSD } from "@im-library/vocabulary";
 
 const CohortQueryShape: FormGenerator = {
   "@id": EDITOR.COHORT_QUERY_SHAPE,
@@ -97,7 +97,7 @@ const CohortQueryShape: FormGenerator = {
                 "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
-                "@id": XS.STRING
+                "@id": XSD.STRING
               }
             },
             {
@@ -114,7 +114,7 @@ const CohortQueryShape: FormGenerator = {
               comment: "optional description",
               order: 5,
               datatype: {
-                "@id": XS.STRING
+                "@id": XSD.STRING
               },
               name: "Description",
               showTitle: true,
