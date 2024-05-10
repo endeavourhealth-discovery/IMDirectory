@@ -13,7 +13,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const editOptions: Ref<string> = ref("descendantsOrSelfOf");
+const editOptions: Ref<string> = ref("memberOf");
 
 const options = [
   { id: "memberOf", name: "member of" },
@@ -24,10 +24,10 @@ const options = [
 
 onMounted(() => {
   if (isObjectHasKeys(props.entailmentObject)) {
-    editOptions.value = "descendantsOrSelfOf";
     if (props.entailmentObject.ancestorsOf) editOptions.value = "ancestorsOf";
     else if (props.entailmentObject.descendantsOrSelfOf) editOptions.value = "descendantsOrSelfOf";
     else if (props.entailmentObject.descendantsOf) editOptions.value = "descendantsOf";
+    else if (props.entailmentObject.memberOf) editOptions.value = "memberOf";
   }
 });
 
