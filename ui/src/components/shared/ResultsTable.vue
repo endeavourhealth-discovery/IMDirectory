@@ -43,9 +43,9 @@
           </div>
         </template>
       </Column>
-      <Column field="weighting" header="Usage">
+      <Column field="usageTotal" header="Usage">
         <template #body="{ data }: any">
-          <span>{{ data.weighting || data.usage }}</span>
+          <span>{{ data.usageTotal }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
@@ -186,6 +186,7 @@ async function onSearch() {
     props.imQuery,
     props.eclQuery
   );
+  console.log(response);
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
   else {
     searchResults.value = [];

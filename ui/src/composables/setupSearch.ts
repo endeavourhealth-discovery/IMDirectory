@@ -84,7 +84,7 @@ function setupSearch(searchPlaceholderValue?: string) {
     if (filterOptions.status) osQuery.statusFilter = filterOptions.status.map(filterOption => filterOption["@id"]);
     if (filterOptions.schemes) osQuery.schemeFilter = filterOptions.schemes.map(filterOption => filterOption["@id"]);
     if (filterOptions.sortFields) osQuery.sortField = getNameFromIri(filterOptions.sortFields?.[0]["@id"]);
-    if (filterOptions.sortDirections) osQuery.sortDirection = filterOptions.sortDirections?.[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC;
+    if (filterOptions.sortDirections) osQuery.sortDirection = filterOptions.sortDirections?.[0]?.["@id"] === IM.ASCENDING ? SortDirection.ASC : SortDirection.DESC;
     return osQuery;
   }
 
