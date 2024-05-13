@@ -71,7 +71,7 @@ import { onMounted, Ref, ref, watch } from "vue";
 import entityService from "@/services/EntityService";
 import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { RDFS, SHACL } from "@im-library/vocabulary";
+import { RDFS, SHACL, XSD } from "@im-library/vocabulary";
 import _ from "lodash";
 import CodeGenService from "@/services/CodeGenService";
 import { generateCode } from "@im-library/helpers";
@@ -183,7 +183,7 @@ PROPERTIES:
   </template #array>
 </template #property>`;
     collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
-    datatypeMapInput.value = [{ code: "http://www.w3.org/2001/XMLSchema#string", replace: "String" }];
+    datatypeMapInput.value = [{ code: XSD.STRING, replace: "String" }];
     nameInput.value = "Documentation";
   }
   await convert();

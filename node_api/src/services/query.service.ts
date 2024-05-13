@@ -1,9 +1,9 @@
 import Env from "@/services/env.service";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, EclSearchRequest, QueryResponse } from "@im-library/interfaces";
+import { AliasEntity, EclSearchRequest, TTProperty, UIProperty } from "@im-library/interfaces";
 import { Query, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM, QUERY } from "@im-library/vocabulary";
+import { IM, QUERY, SHACL } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
@@ -290,19 +290,19 @@ export default class QueryService {
     }
   }
 
-  public async getQueryDisplay(queryIri: string) {
+  public async getQueryDisplay(queryIri: string, includeLogicDesc: boolean) {
     const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
     if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION])) {
       return {};
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
-    return await this.getQueryDisplayFromQuery(query);
+    return await this.getQueryDisplayFromQuery(query, includeLogicDesc);
   }
 
-  public async getQueryDisplayFromQuery(query: Query) {
+  public async getQueryDisplayFromQuery(query: Query, includeLogicDesc: boolean) {
     const labeledQuery = await this.getLabeledQuery(query);
     const queryWithMatchIds = generateMatchIds(labeledQuery);
-    return await this.generateQueryDescriptions(queryWithMatchIds);
+    return await this.generateQueryDescriptions(queryWithMatchIds, includeLogicDesc);
   }
 
   public async getLabeledQuery(query: Query) {
@@ -335,11 +335,11 @@ export default class QueryService {
     return query;
   }
 
-  public async generateQueryDescriptions(query: Query): Promise<Query> {
-    return describeQuery(query);
+  public async generateQueryDescriptions(query: Query, includeLogicDesc: boolean): Promise<Query> {
+    return describeQuery(query, includeLogicDesc);
   }
 
-  public async getDataModelProperty(dataModelIri: string, propertyIri: string) {
+  public async getDataModelProperty(dataModelIri: string, propertyIri: string): Promise<UIProperty | undefined> {
     const queryRequest = {
       query: { "@id": QUERY.DM_PROPERTY },
       argument: [
@@ -358,9 +358,26 @@ export default class QueryService {
       ]
     } as any as QueryRequest;
     const results = await this.queryIM(queryRequest);
-    if (isObjectHasKeys(results, ["entities"]) && results.entities.length !== 0) {
-      return results.entities;
-    } else return [];
+    if (isObjectHasKeys(results, ["entities"]) && isArrayHasLength(results.entities)) {
+      const ttproperty: any = results.entities[0];
+      const uiProperty = {} as UIProperty;
+      if (ttproperty[SHACL.MAXCOUNT]) uiProperty.maxCount = ttproperty[SHACL.MAXCOUNT];
+      if (ttproperty[SHACL.MINCOUNT]) uiProperty.minCount = ttproperty[SHACL.MINCOUNT];
+      if (isArrayHasLength(ttproperty[SHACL.CLASS])) {
+        uiProperty.propertyType = "class";
+        uiProperty.valueType = ttproperty[SHACL.CLASS]![0]["@id"];
+      }
+      if (isArrayHasLength(ttproperty[SHACL.DATATYPE])) {
+        uiProperty.propertyType = "datatype";
+        uiProperty.valueType = ttproperty[SHACL.DATATYPE]![0]["@id"];
+      }
+      if (isArrayHasLength(ttproperty[SHACL.NODE])) {
+        uiProperty.propertyType = "node";
+        uiProperty.valueType = ttproperty[SHACL.NODE]![0]["@id"];
+      }
+      uiProperty.propertyName = getNameFromRef({ "@id": propertyIri });
+      return uiProperty;
+    } else return undefined;
   }
 
   public async generateQuerySQL(queryIri: string) {

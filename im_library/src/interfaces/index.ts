@@ -44,7 +44,7 @@ import { PropertyDisplay } from "./PropertyDisplay";
 import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
-import { TTProperty } from "./TTProperty";
+import { TTProperty, UIProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
 import { ContextMap } from "./ContextMap";
 import { SelectedMatch } from "./SelectedMatch";
@@ -103,6 +103,7 @@ export {
   type AliasEntity,
   type PropertyDisplay,
   type TTProperty,
+  type UIProperty,
   type TreeNode,
   type ContextMap,
   type SelectedMatch,

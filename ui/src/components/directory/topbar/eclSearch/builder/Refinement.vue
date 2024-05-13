@@ -87,6 +87,7 @@ import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary, TTIr
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
+import { getNameFromIri } from "@im-library/helpers/TTTransform";
 
 interface Props {
   value: {
@@ -134,7 +135,7 @@ const osQueryForValueSearch: Ref<SearchRequest> = ref({
   schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
   typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
   sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
+  sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
 } as SearchRequest);
 
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
@@ -276,7 +277,7 @@ function updateQueryForPropertySearch() {
       schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
       typeFilter: [RDF.PROPERTY],
       sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-      sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
+      sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
     } as SearchRequest;
     imQueryForPropertySearch.value = undefined;
   } else {

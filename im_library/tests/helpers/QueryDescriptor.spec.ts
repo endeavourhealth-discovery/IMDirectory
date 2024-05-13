@@ -38,49 +38,49 @@ describe("QueryDescriptor.ts ___", () => {
   describe("describeMatch", () => {
     it("can describe a type of match", () => {
       const testMatch: Match = _.cloneDeep(match.withType);
-      describeMatch(testMatch, 0, Bool.and);
+      describeMatch(testMatch, 0, true, Bool.and);
       expect(testMatch.description).toEqual("Patient");
     });
 
     it("can describe an instance match", () => {
       const testMatch: Match = _.cloneDeep(match.withInstance);
-      describeMatch(testMatch, 0, Bool.and);
+      describeMatch(testMatch, 0, true, Bool.and);
       expect(testMatch.description).toEqual("is instance of 325841000000109");
     });
 
     it("can describe a set match", () => {
       const testMatch: Match = _.cloneDeep(match.withSet);
-      describeMatch(testMatch, 0, Bool.and);
+      describeMatch(testMatch, 0, true, Bool.and);
       expect(testMatch.description).toEqual("in 'CSET_EmailOnlineEncounter'");
     });
 
     it("can describe a concept property with DescendantsOrSelfOf", () => {
       const testProperty: Where = _.cloneDeep(match.withDescendantsOrSelfOf);
-      describeProperty(testProperty, 0, Bool.and);
+      describeProperty(testProperty, 0, true, Bool.and);
       expect(testProperty.description).toEqual("<span style='color: orange;'>and</span>  Text message consultation");
     });
 
     it("can describe a concept property with AncestorsOf", () => {
       const testProperty: Where = _.cloneDeep(match.withAncestorsOf);
-      describeProperty(testProperty, 0, Bool.and);
+      describeProperty(testProperty, 0, true, Bool.and);
       expect(testProperty.description).toEqual("<span style='color: orange;'>and</span>  Text message consultation (ancestors only)");
     });
 
     it("can describe a concept match with DescendantsOf", () => {
       const testProperty: Where = _.cloneDeep(match.withDescendantsOf);
-      describeProperty(testProperty, 0, Bool.and);
+      describeProperty(testProperty, 0, true, Bool.and);
       expect(testProperty.description).toEqual("<span style='color: orange;'>and</span>  Text message consultation (excluding subtypes)");
     });
 
     it("can describe a concept match with Exclude", () => {
       const testMatch: Match = _.cloneDeep(match.withExclude);
-      describeMatch(testMatch, 0, Bool.and);
+      describeMatch(testMatch, 0, true, Bool.and);
       expect(testMatch.description).toEqual("<span style='color: red;'>exclude if</span>  in 'Q_Hypertensives'");
     });
 
     it("can describe a match with one direct property of range", () => {
       const testMatch: Match = _.cloneDeep(match.withOneDirectPropertyOfRange as Match);
-      describeMatch(testMatch, 0, Bool.and);
+      describeMatch(testMatch, 0, true, Bool.and);
       expect(testMatch.where[0].description).toEqual("age between 65 and 70 YEARS");
     });
 
@@ -99,13 +99,13 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can describe a match with one nested property of is", () => {
       const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfIs);
-      describeMatch(testMatch, 0, Bool.and);
+      describeMatch(testMatch, 0, true, Bool.and);
       expect(testMatch.where[0].match.where[0].description).toEqual("concept is Prediabetes");
     });
 
     it("can describe a match with one nested property of is", () => {
       const testMatch: Match = _.cloneDeep(fullTestQueryDefinition);
-      describeMatch(testMatch, 0, Bool.and);
+      describeMatch(testMatch, 0, true, Bool.and);
       expect(testMatch.match[2].where[0].match.where[0].description).toEqual(
         "concept is <span class='node-ref'>Office or home systolic blood pressure</span> "
       );

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-05-02 13:59:09.
+// Generated using typescript-generator version 3.2.1263 on 2024-05-09 11:36:22.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -197,10 +197,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
+    operator?: Operator;
     dataType?: TTIriRef;
     relativeTo?: PropertyRef;
-    operator?: Operator;
+    unit?: string;
 }
 
 export interface Case {
@@ -233,10 +233,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    memberOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
-    descendantsOf?: boolean;
-    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -358,8 +358,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -405,11 +405,12 @@ export interface EntityDocument {
     entityType?: TTIriRef[];
     status?: TTIriRef;
     termCode?: SearchTermCode[];
-    weighting?: number;
+    usageTotal?: number;
     match?: string;
     isA?: TTIriRef[];
     memberOf?: TTIriRef[];
     subsumptionCount?: number;
+    binding?: any[];
     isDescendentOf?: TTIriRef[];
 }
 
@@ -500,7 +501,7 @@ export interface SearchResultSummary {
     status: TTIriRef;
     scheme: TTIriRef;
     entityType: TTIriRef[];
-    weighting?: number;
+    usageTotal?: number;
     match?: string;
     preferredName?: string;
     key?: string[];
@@ -593,7 +594,7 @@ export interface VALIDATION {
 export interface WORKFLOW {
 }
 
-export interface XSD {
+export interface XS {
 }
 
 export interface TTIriRef extends TTValue, Serializable {
@@ -620,8 +621,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    nativeMethod?: boolean;
     className?: string;
+    nativeMethod?: boolean;
 }
 
 export interface Exception extends Throwable {
@@ -635,9 +636,9 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
-    code?: string;
     description?: string;
+    code?: string;
+    status?: TTIriRef;
     prefixes?: TTPrefix[];
 }
 

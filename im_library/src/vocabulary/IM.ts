@@ -11,6 +11,7 @@ export class IM {
   public static readonly CODE = IM.NAMESPACE + "code";
   public static readonly PREFERRED_NAME = IM.NAMESPACE + "preferredName";
   public static readonly HAS_SCHEME = IM.NAMESPACE + "scheme";
+  public static readonly BINDING = IM.NAMESPACE+"binding";
   public static readonly HAS_STATUS = IM.NAMESPACE + "status";
   public static readonly STATUS = IM.NAMESPACE + "Status";
   public static readonly CONTENT_TYPE = IM.NAMESPACE + "contentType";
@@ -130,14 +131,12 @@ export class IM {
   public static readonly HAS_CONTEXT = IM.NAMESPACE + "hasContext";
   public static readonly DISPLAY_ORDER = IM.NAMESPACE + "displayOrder";
   public static readonly USAGE_TOTAL = IM.NAMESPACE + "usageTotal";
-  public static readonly USAGE = IM.NAMESPACE + "SortFieldUsage";
   public static readonly DESCENDING = IM.NAMESPACE + "Descending";
   public static readonly ASCENDING = IM.NAMESPACE + "Ascending";
   public static readonly PLABEL = IM.NAMESPACE + "pLabel";
   public static readonly OLABEL = IM.NAMESPACE + "oLabel";
   public static readonly EXAMPLE = IM.NAMESPACE + "example";
   public static readonly IM1ID = IM.NAMESPACE + "im1Id";
-  public static readonly WEIGHTING = IM.NAMESPACE + "weighting";
   public static readonly PRIVACY_LEVEL = IM.NAMESPACE + "privacyLevel";
   public static readonly IM1SCHEME = IM.NAMESPACE + "im1Scheme";
   public static readonly VALUE_SELECT = IM.NAMESPACE + "valueSelect";

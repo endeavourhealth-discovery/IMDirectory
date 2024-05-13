@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY, XSD } from "@im-library/vocabulary";
 
 const ConceptSetShape: FormGenerator = {
   "@id": EDITOR.CONCEPT_SET_SHAPE,

@@ -1,5 +1,5 @@
 <template>
-  <Button label="Save custom set" text severity="info" @click="showSaveCustomSetDialog = true" />
+  <Button v-tooltip="'Save custom set'" icon="fa-solid fa-floppy-disk" severity="info" @click="showSaveCustomSetDialog = true" />
   <Dialog
     v-model:visible="showSaveCustomSetDialog"
     modal
@@ -57,8 +57,8 @@
     </form>
 
     <template #footer>
-      <Button label="Discard" severity="secondary" @click="onDiscard" text />
-      <Button type="submit" text label="Submit" @click="onSubmit" :loading="loading" />
+      <Button label="Cancel" severity="secondary" @click="onDiscard" text />
+      <Button label="Save" type="submit" text @click="onSubmit" :loading="loading" />
     </template>
   </Dialog>
 </template>
@@ -205,7 +205,7 @@ function getDefinition() {
     match: [
       {
         match: matches,
-        bool: "or"
+        boolMatch: "or"
       }
     ] as Match[]
   };
