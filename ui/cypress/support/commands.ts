@@ -17,6 +17,11 @@ Cypress.Commands.add("acceptLicenseAndCookies", () => {
   cy.get("[data-testid='agree-button']").click();
   cy.get("[data-testid='license-dialog']").should("not.exist");
 });
+
+Cypress.Commands.add("openReleaseNotes", () => {
+  cy.get(".release-notes-link").click();
+  cy.get(".p-dialog-header").should("have.text", "What's new");
+});
 //
 //
 // -- This is a parent command --
@@ -35,6 +40,7 @@ declare global {
   namespace Cypress {
     interface Chainable {
       acceptLicenseAndCookies(): Chainable<void>;
+      openReleaseNotes(): Chainable<void>;
     }
   }
 }
