@@ -1,4 +1,4 @@
-import { XS } from "@/vocabulary/XS";
+import { XSD } from "@/vocabulary";
 
 export const OntologiesFolderTTEntity = {
   "@id": "http://endhealth.info/im#HealthModelOntology",
@@ -60,7 +60,7 @@ export const EventTTEntity = {
   "http://www.w3.org/ns/shacl#property": [
     {
       "http://www.w3.org/2000/01/rdf-schema#comment": "The preferred full name of the entity",
-      "http://www.w3.org/ns/shacl#datatype": [{ "@id": XS.STRING, name: "string" }],
+      "http://www.w3.org/ns/shacl#datatype": [{ "@id": XSD.STRING, name: "string" }],
       "http://www.w3.org/ns/shacl#order": 1,
       "http://www.w3.org/ns/shacl#path": [{ "@id": "http://www.w3.org/2000/01/rdf-schema#label", name: "label" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
@@ -69,7 +69,7 @@ export const EventTTEntity = {
     },
     {
       "http://www.w3.org/2000/01/rdf-schema#comment": "The description of the entity",
-      "http://www.w3.org/ns/shacl#datatype": [{ "@id": XS.STRING, name: "string" }],
+      "http://www.w3.org/ns/shacl#datatype": [{ "@id": XSD.STRING, name: "string" }],
       "http://www.w3.org/ns/shacl#order": 2,
       "http://www.w3.org/ns/shacl#path": [{ "@id": "http://www.w3.org/2000/01/rdf-schema#comment", name: "comment" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
@@ -163,7 +163,7 @@ export const EventTTEntityTransformed = {
   property: [
     {
       comment: "The preferred full name of the entity",
-      datatype: [{ iri: XS.STRING, name: "string" }],
+      datatype: [{ iri: XSD.STRING, name: "string" }],
       order: 1,
       path: [{ iri: "http://www.w3.org/2000/01/rdf-schema#label", name: "label" }],
       maxCount: 1,
@@ -172,7 +172,7 @@ export const EventTTEntityTransformed = {
     },
     {
       comment: "The description of the entity",
-      datatype: [{ iri: XS.STRING, name: "string" }],
+      datatype: [{ iri: XSD.STRING, name: "string" }],
       order: 2,
       path: [{ iri: "http://www.w3.org/2000/01/rdf-schema#comment", name: "comment" }],
       maxCount: 1,
