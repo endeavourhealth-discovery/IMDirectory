@@ -57,8 +57,8 @@ dependencies:
     specifier: 6.0.1
     version: 6.0.1
   primevue:
-    specifier: 3.44.0
-    version: 3.44.0(vue@3.3.4)
+    specifier: 3.52.0
+    version: 3.52.0(vue@3.3.4)
   qr-code-styling:
     specifier: 1.6.0-rc.1
     version: 1.6.0-rc.1
@@ -9419,8 +9419,8 @@ packages:
     resolution: {integrity: sha512-KDeO94CbWI4pKsPnYpA1FPjo79EsY9I+M8ywoPBSf9XMXoe/0crjbUK7jcQEDHuc0ZMRIZsxH3TYLv4TUtHmAA==}
     dev: false
 
-  /primevue@3.44.0(vue@3.3.4):
-    resolution: {integrity: sha512-BqSg6rKP0vq7WRHhLlVt4BD4rQZbVVXjgSfOAcebv3mO4wJZcJbgC04mxAI9fl26PhmPy1jLOuCtNOBWo7IekA==}
+  /primevue@3.52.0(vue@3.3.4):
+    resolution: {integrity: sha512-HLOVP5YI0ArFKUhIyfZsWmTNMaBYNCBWC/3DYvdd/Po4LY5/WXf7yIYvArE2q/3OuwSXJXvjlR8UNQeJYRSQog==}
     peerDependencies:
       vue: ^3.0.0
     dependencies:
