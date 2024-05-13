@@ -4,7 +4,7 @@ import { RDF } from "./RDF";
 import { RDFS } from "./RDFS";
 import { SHACL } from "./SHACL";
 import { CONFIG } from "./CONFIG";
-import { XS } from "./XS";
+import { XSD } from "./XSD";
 import { WORKFLOW } from "./WORKFLOW";
 import { FHIR } from "./FHIR";
 import { MAP } from "./MAP";
@@ -28,7 +28,7 @@ export {
   RDFS,
   SHACL,
   CONFIG,
-  XS,
+  XSD,
   WORKFLOW,
   FHIR,
   IM_FUNCTION,

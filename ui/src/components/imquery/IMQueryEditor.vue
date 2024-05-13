@@ -81,6 +81,7 @@ import { SortDirection } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import AddMatch from "./AddMatch.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
+import { getNameFromIri } from "@im-library/helpers/TTTransform";
 
 interface Props {
   queryDefinition?: Query;
@@ -121,7 +122,7 @@ onMounted(async () => {
       statusFilter: [IM.ACTIVE, IM.DRAFT],
       typeFilter: [SHACL.NODESHAPE],
       sortDirection: SortDirection.DESC,
-      sortField: IM.USAGE_TOTAL
+      sortField: getNameFromIri(IM.USAGE_TOTAL)
     } as SearchRequest;
 
     populateVariableMap(variableMap.value, editQueryDefinition.value);

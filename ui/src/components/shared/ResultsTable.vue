@@ -43,9 +43,9 @@
           </div>
         </template>
       </Column>
-      <Column field="weighting" header="Usage">
+      <Column field="usageTotal" header="Usage">
         <template #body="{ data }: any">
-          <span>{{ data.weighting || data.usage }}</span>
+          <span>{{ data.usageTotal }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { DirectService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
@@ -79,10 +79,11 @@ import _ from "lodash";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { SearchResultSummary, SearchResponse, QueryRequest, SearchRequest } from "@im-library/interfaces/AutoGen";
+import { SearchResultSummary, SearchResponse, QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSearch from "@/composables/setupSearch";
 import { EclSearchRequest, FilterOptions } from "@im-library/interfaces";
+import { useFilterStore } from "@/stores/filterStore";
 
 interface ResultSummary extends SearchResultSummary {
   icon: string[];
@@ -100,6 +101,7 @@ interface Props {
   eclQuery?: EclSearchRequest;
   pageSize?: number;
   loading?: boolean;
+  showQuickTypeFilters?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -110,6 +112,12 @@ const emit = defineEmits({
   "update:loading": _payload => true
 });
 
+interface ExtendedSearchResultSummary extends SearchResultSummary {
+  colour: string;
+  favourite: boolean;
+  icon: string[];
+}
+
 onMounted(async () => {
   if (props.pageSize) rows.value = props.pageSize;
   if (props.searchTerm) await onSearch();
@@ -118,13 +126,16 @@ onMounted(async () => {
 const userStore = useUserStore();
 const dynamicDialog = useDialog();
 const favourites = computed(() => userStore.favourites);
+const filterStore = useFilterStore();
+const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const typeOptions = _.cloneDeep(storeFilterOptions.value.types);
 const { searchLoading, search } = setupSearch();
 const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
 
 const selected: Ref<ResultSummary> = ref({} as ResultSummary);
-const searchResults: Ref<any[]> = ref([]);
+const searchResults: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const totalCount = ref(0);
 const page = ref(0);
 const rows = ref(25);
@@ -175,6 +186,7 @@ async function onSearch() {
     props.imQuery,
     props.eclQuery
   );
+  console.log(response);
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
   else {
     searchResults.value = [];

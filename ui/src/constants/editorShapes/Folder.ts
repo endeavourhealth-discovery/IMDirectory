@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XS, EDITOR, COMPONENT, VALIDATION, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, VALIDATION, QUERY, IM_FUNCTION } from "@im-library/vocabulary";
 
 const FolderShape: FormGenerator = {
   "@id": EDITOR.FOLDER_SHAPE,
@@ -101,7 +101,7 @@ const FolderShape: FormGenerator = {
                 "@id": COMPONENT.TEXT_INPUT
               },
               datatype: {
-                "@id": XS.STRING
+                "@id": XSD.STRING
               }
             },
             {
@@ -118,7 +118,7 @@ const FolderShape: FormGenerator = {
               comment: "optional description",
               order: 5,
               datatype: {
-                "@id": XS.STRING
+                "@id": XSD.STRING
               },
               name: "Description",
               showTitle: true,
