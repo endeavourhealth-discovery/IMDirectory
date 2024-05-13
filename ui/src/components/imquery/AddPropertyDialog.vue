@@ -1,16 +1,33 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
-    <QueryNavTree
-      :editMatch="editMatch"
-      :selected-properties="selectedProperties"
-      :dm-iri="dataModelIri"
-      :show-variable-options="showVariableOptions"
-      @on-selected-update="onSelectedUpdate"
-    />
-    <template #footer>
-      <Button label="Cancel" severity="secondary" @click="visible = false" text />
-      <Button label="Save" @click="save" />
-    </template>
+    <Stepper :style="{ minWidth: '50vw' }">
+      <StepperPanel header="Select property">
+        <template #content="{ nextCallback }">
+          <div class="flex flex-column">
+            <div class="flex-auto flex align-items-center font-medium">
+              <QueryNavTree
+                :editMatch="editMatch"
+                v-model:selected-property="selectedProperty"
+                :dm-iri="dataModelIri"
+                :show-variable-options="showVariableOptions"
+              />
+            </div>
+          </div>
+          <div class="flex pt-4 justify-content-end">
+            <Button :disabled="!isObjectHasKeys(selectedProperty)" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="nextCallback" />
+          </div>
+        </template>
+      </StepperPanel>
+      <StepperPanel header="Populate value">
+        <template #content="{ prevCallback, nextCallback }">
+          <EditProperty :property="editWhere" :data-model-iri="selectedProperty?.parent?.data" :show-delete="false" />
+          <div class="flex pt-4 justify-content-between">
+            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="prevCallback" />
+            <Button label="Save" iconPos="right" @click="save" />
+          </div>
+        </template>
+      </StepperPanel>
+    </Stepper>
   </Dialog>
 </template>
 
@@ -19,10 +36,10 @@ import { Ref, onMounted, ref, watch } from "vue";
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash";
 import { TreeNode } from "primevue/treenode";
-import { buildMatchesFromProperties } from "@im-library/helpers/QueryBuilder";
+import { buildProperty } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import EditProperty from "./EditProperty.vue";
 
 interface Props {
   showDialog: boolean;
@@ -35,13 +52,14 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits({
   onClose: () => true,
-  onPropertyAdd: (_properties: Where[]) => true,
-  onMatchAdd: (_matches: Match[]) => true,
+  onPropertyAdd: (_property: Where) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
-const selectedProperties: Ref<TreeNode[]> = ref([]);
+const selectedProperty: Ref<TreeNode> = ref({});
 const visible: Ref<boolean> = ref(false);
+const editWhere: Ref<Where> = ref({});
+const dmIri: Ref<string> = ref("");
 
 watch(
   () => props.showDialog,
@@ -63,28 +81,19 @@ watch(
   }
 );
 
+watch(
+  () => cloneDeep(selectedProperty.value),
+  newValue => {
+    if (isObjectHasKeys(selectedProperty.value)) editWhere.value = buildProperty(selectedProperty.value as any);
+  }
+);
+
 onMounted(() => {
   if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
 });
 
-function onSelectedUpdate(selected: TreeNode[]) {
-  selectedProperties.value = selected;
-}
-
 async function save() {
-  editMatch.value.where = [];
-  const properties = buildMatchesFromProperties(selectedProperties.value as any);
-  if (isArrayHasLength(properties)) {
-    const parts = properties[0].description?.split("-");
-    if (parts && parts.length === 5) {
-      for (const match of properties as Match[]) {
-        match.description = getNameFromRef(match.typeOf);
-      }
-      emit("onMatchAdd", properties as Match[]);
-    } else {
-      emit("onPropertyAdd", properties);
-    }
-  }
+  emit("onPropertyAdd", buildProperty(selectedProperty.value as any));
   visible.value = false;
 }
 </script>
@@ -105,5 +114,12 @@ async function save() {
 
 .query-nav-tree {
   height: 70vh;
+}
+
+.edit-property {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
 }
 </style>

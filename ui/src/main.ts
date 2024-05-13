@@ -95,6 +95,8 @@ import TabMenu from "primevue/tabmenu";
 import Ripple from "primevue/ripple";
 import VirtualScroller from "primevue/virtualscroller";
 import Fieldset from "primevue/fieldset";
+import Stepper from "primevue/stepper";
+import StepperPanel from "primevue/stepperpanel";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -190,6 +192,8 @@ const app = createApp(App)
   .component("TreeSelect", TreeSelect)
   .component("VirtualScroller", VirtualScroller)
   .component("TabMenu", TabMenu)
+  .component("Stepper", Stepper)
+  .component("StepperPanel", StepperPanel)
   .component("Fieldset", Fieldset);
 
 const sharedStore = useSharedStore();

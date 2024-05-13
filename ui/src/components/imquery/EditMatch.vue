@@ -86,7 +86,7 @@
             :dataModelIri="typeOf ?? selectedBaseType?.iri"
             :header="'Add property'"
             :show-variable-options="false"
-            @on-property-add="(properties: Where[]) => onPropertyAdd(properties)"
+            @on-property-add="onPropertyAdd"
           />
           <Button
             v-if="editMatch['@id'] === focusedId"
@@ -123,7 +123,6 @@ import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions
 import { MenuItem } from "primevue/menuitem";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
 import { Ref, inject, onMounted, ref, watch } from "vue";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash";
 
@@ -166,13 +165,9 @@ function onDeleteMatch(matchId: string) {
   if (props.editMatch.then && props.editMatch.then["@id"] === matchId) delete props.editMatch.then;
 }
 
-function onPropertyAdd(properties: Where[]) {
-  if (isArrayHasLength(properties)) {
-    for (const property of properties) {
-      const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
-      if (!hasProperty) props.editMatch.where?.push(property);
-    }
-  }
+function onPropertyAdd(property: Where) {
+  const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
+  if (!hasProperty) props.editMatch.where?.push(property);
 }
 function bracketItems() {
   if (group.value.length) {

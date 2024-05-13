@@ -5,56 +5,6 @@ import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { cloneDeep } from "lodash";
 import { v4 } from "uuid";
-import { describeMatch } from "./QueryDescriptor";
-
-export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): Where[] {
-  let properties: Where[] = [];
-
-  if (isArrayHasLength(treeNodeProperties)) {
-    const parentHierarchyMap = new Map<string, TreeNode[]>();
-
-    // build properties from tree nodes
-    for (const treeNodeProperty of treeNodeProperties) {
-      const parentHierarchy = JSON.stringify(treeNodeProperty.parent);
-      if (!parentHierarchyMap.has(parentHierarchy)) parentHierarchyMap.set(parentHierarchy, []);
-      parentHierarchyMap.get(parentHierarchy)!.push(treeNodeProperty);
-    }
-
-    // map properties to matches
-    for (const [parentHierarchy, treeNodeProperties] of parentHierarchyMap.entries()) {
-      const isNested = isNestedProperty(treeNodeProperties[0]);
-      let matchProperties: Where[] = [];
-      if (!isNested) matchProperties = treeNodeProperties.map(treeNodeProperty => buildProperty(treeNodeProperty));
-      else matchProperties = buildNestedProperties(treeNodeProperties);
-
-      properties = properties.concat(matchProperties);
-      const match: Match = { "@id": v4(), where: properties };
-      describeMatch(match, 0, false);
-      properties = match.where!;
-    }
-  }
-  return properties;
-}
-
-export function buildNestedProperties(treeNodeProperties: TreeNode[]) {
-  const matchProperties: Where[] = [];
-  const treeNodePropertiesCopy = [...treeNodeProperties];
-  const firstTreeNode = treeNodePropertiesCopy.shift();
-  const matchProperty = buildProperty(firstTreeNode!);
-  matchProperties.push(matchProperty);
-  if (isArrayHasLength(treeNodePropertiesCopy)) {
-    const found: Match[] = [];
-    getLastMatchFromNestedProperty(matchProperty, found);
-    if (isArrayHasLength(found) && isArrayHasLength(found[0].where))
-      for (const treeNodeProperty of treeNodePropertiesCopy) {
-        delete treeNodeProperty.parent;
-        const additionalMatchProperty = buildPropertyFromTreeNode(treeNodeProperty);
-        found[0]!.where!.push(additionalMatchProperty);
-      }
-  }
-
-  return matchProperties;
-}
 
 export function getLastMatchFromNestedProperty(matchOrProperty: any, found: Match[]) {
   if (isObjectHasKeys(matchOrProperty, ["match"])) getLastMatchFromNestedProperty(matchOrProperty.match, found);

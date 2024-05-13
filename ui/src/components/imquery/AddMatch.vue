@@ -19,8 +19,7 @@
       :dataModelIri="matchTypeOfIri"
       :header="'Add new feature'"
       :show-variable-options="false"
-      @on-property-add="(properties: Where[]) => onFeatureBuild(properties)"
-      @on-match-add="(matches: Match[]) => onFeatureAdd(matches)"
+      @on-property-add="onFeatureBuild"
     />
 
     <AddPropertyDialog
@@ -28,8 +27,7 @@
       :dataModelIri="matchTypeOfIri"
       :header="'Add new feature'"
       :show-variable-options="false"
-      @on-property-add="(properties: Where[]) => onThenFeatureBuild(properties)"
-      @on-match-add="(matches: Match[]) => onThenFeatureAdd(matches)"
+      @on-property-add="onThenFeatureBuild"
     />
   </div>
 </template>
@@ -132,32 +130,20 @@ async function onFeatureSelect(selected: SearchResultSummary) {
   props.editMatch.match.push(featureDefinition);
 }
 
-function onFeatureBuild(properties: Where[]) {
-  const match: Match = { "@id": v4(), where: properties };
+function onFeatureBuild(property: Where) {
+  const match: Match = { "@id": v4(), where: [property] };
+  describeMatch(match, 0, false);
   if (!props.editMatch.match) props.editMatch.match = [];
   props.editMatch.match.push(match);
 }
 
-function onFeatureAdd(matches: Match[]) {
-  if (!props.editMatch.match) props.editMatch.match = [];
-  for (const match of matches) {
-    props.editMatch.match.push(match);
-  }
-}
-
-function onThenFeatureBuild(properties: Where[]) {
-  const match: Match = { "@id": v4(), where: properties };
+function onThenFeatureBuild(property: Where) {
+  const match: Match = { "@id": v4(), where: [property] };
+  describeMatch(match, 0, false);
   if (props.editMatch.then) {
     if (isArrayHasLength(props.editMatch.then.match)) props.editMatch.then.match?.push(match);
     else props.editMatch.then = { boolMatch: Bool.and, match: [props.editMatch.then, match] };
   } else props.editMatch.then = match;
-}
-
-function onThenFeatureAdd(matches: Match[]) {
-  if (props.editMatch.then) {
-    if (isArrayHasLength(props.editMatch.then.match)) props.editMatch.then.match?.push(matches[0]);
-    else props.editMatch.then = { boolMatch: Bool.and, match: [props.editMatch.then, matches[0]] };
-  } else props.editMatch.then = matches[0];
 }
 </script>
 
