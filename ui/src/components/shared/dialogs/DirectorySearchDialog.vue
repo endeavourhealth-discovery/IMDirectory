@@ -35,7 +35,9 @@
           <SearchResults
             v-if="activePage === 0"
             :selected="selected"
-            :show-filters="false"
+            :show-filters="showFilters"
+            :show-quick-type-filters="showQuickTypeFilters"
+            :quick-type-filters-allowed="quickTypeFiltersAllowed"
             :updateSearch="updateSearch"
             :search-term="searchTerm"
             :im-query="imQuery"
@@ -94,9 +96,14 @@ interface Props {
   rootEntities?: string[];
   searchTerm?: string;
   selectedFilterOptions?: FilterOptions;
+  showQuickTypeFilters?: boolean;
+  quickTypeFiltersAllowed?: string[];
+  showFilters?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  showFilters: false
+});
 watch(
   () => props.showDialog,
   newValue => {
