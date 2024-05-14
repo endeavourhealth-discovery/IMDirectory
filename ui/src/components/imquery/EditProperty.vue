@@ -24,7 +24,7 @@ import ConceptSelect from "./ConceptSelect.vue";
 interface Props {
   property: Where;
   dataModelIri: string;
-  showDelete: boolean;
+  showDelete?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), { showDelete: true });

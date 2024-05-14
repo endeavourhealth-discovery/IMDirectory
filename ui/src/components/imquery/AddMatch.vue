@@ -19,7 +19,8 @@
       :dataModelIri="matchTypeOfIri"
       :header="'Add new feature'"
       :show-variable-options="false"
-      @on-property-add="onFeatureBuild"
+      @on-match-add="onMatchAdd"
+      @on-property-add="onPropertyAdd"
     />
 
     <AddPropertyDialog
@@ -27,7 +28,8 @@
       :dataModelIri="matchTypeOfIri"
       :header="'Add new feature'"
       :show-variable-options="false"
-      @on-property-add="onThenFeatureBuild"
+      @on-match-add="onThenMatchAdd"
+      @on-property-add="onThenPropertyAdd"
     />
   </div>
 </template>
@@ -130,15 +132,29 @@ async function onFeatureSelect(selected: SearchResultSummary) {
   props.editMatch.match.push(featureDefinition);
 }
 
-function onFeatureBuild(property: Where) {
+function onPropertyAdd(property: Where) {
   const match: Match = { "@id": v4(), where: [property] };
   describeMatch(match, 0, false);
   if (!props.editMatch.match) props.editMatch.match = [];
   props.editMatch.match.push(match);
 }
 
-function onThenFeatureBuild(property: Where) {
+function onMatchAdd(match: Match) {
+  describeMatch(match, 0, false);
+  if (!props.editMatch.match) props.editMatch.match = [];
+  props.editMatch.match.push(match);
+}
+
+function onThenPropertyAdd(property: Where) {
   const match: Match = { "@id": v4(), where: [property] };
+  describeMatch(match, 0, false);
+  if (props.editMatch.then) {
+    if (isArrayHasLength(props.editMatch.then.match)) props.editMatch.then.match?.push(match);
+    else props.editMatch.then = { boolMatch: Bool.and, match: [props.editMatch.then, match] };
+  } else props.editMatch.then = match;
+}
+
+function onThenMatchAdd(match: Match) {
   describeMatch(match, 0, false);
   if (props.editMatch.then) {
     if (isArrayHasLength(props.editMatch.then.match)) props.editMatch.then.match?.push(match);

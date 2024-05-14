@@ -86,6 +86,7 @@
             :dataModelIri="typeOf ?? selectedBaseType?.iri"
             :header="'Add property'"
             :show-variable-options="false"
+            @on-match-add="onMatchAdd"
             @on-property-add="onPropertyAdd"
           />
           <Button
@@ -125,6 +126,8 @@ import AddPropertyDialog from "./AddPropertyDialog.vue";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash";
+import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   isRootFeature?: boolean;
@@ -167,8 +170,17 @@ function onDeleteMatch(matchId: string) {
 
 function onPropertyAdd(property: Where) {
   const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
-  if (!hasProperty) props.editMatch.where?.push(property);
+  if (!hasProperty) {
+    props.editMatch.where?.push(property);
+    describeMatch(props.editMatch, 0, false);
+  }
 }
+
+function onMatchAdd(match: Match) {
+  if (!isArrayHasLength(props.editMatch.match)) props.editMatch.match = [];
+  props.editMatch.match?.push(match);
+}
+
 function bracketItems() {
   if (group.value.length) {
     const newMatch: Match = { boolMatch: Bool.and, match: [] };

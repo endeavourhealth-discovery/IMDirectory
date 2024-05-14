@@ -36,7 +36,7 @@ function getHasVariableRecursively(treeNode: TreeNode, hasVariable: string[]) {
   if (isObjectHasKeys(treeNode, ["parent"])) getHasVariableRecursively(treeNode.parent!, hasVariable);
 }
 
-export function buildProperty(treeNode: TreeNode) {
+export function buildProperty(treeNode: TreeNode): Where | Match {
   const flatList: TreeNode[] = [];
   populateFlatListOfNodesRecursively(flatList, treeNode);
   let currentMatchOrProperty = {};
@@ -76,7 +76,7 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
     property.operator = Operator.eq;
     property.value = "";
   } else if (isObjectHasKeys(treeNode.ttproperty, [SHACL.CLASS])) {
-    property.is = [{ "@id": "http://endhealth.info/im#Example", name: "Example concept" }];
+    property.is = [];
   }
   (property as any).key = treeNode.key;
   return property as Where;
