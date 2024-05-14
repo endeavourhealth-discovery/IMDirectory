@@ -1,6 +1,7 @@
 describe("footer bar", () => {
   beforeEach(() => {
     cy.acceptLicenseAndCookies();
+    cy.get("#footer-bar", { timeout: 60000 });
   });
 
   it("can show privacy policy", () => {

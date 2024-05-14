@@ -26,6 +26,16 @@ Cypress.Commands.add("openReleaseNotes", () => {
 Cypress.Commands.add("getByTestId", id => {
   cy.get(`[data-testid=${id}]`);
 });
+
+Cypress.Commands.add("preventNewTab", () => {
+  cy.on("window:before:load", win => {
+    cy.stub(win, "open")
+      .as("windowOpen")
+      .callsFake(url => {
+        cy.visit(url);
+      });
+  });
+});
 //
 //
 // -- This is a parent command --
@@ -46,6 +56,7 @@ declare global {
       acceptLicenseAndCookies(): Chainable<void>;
       openReleaseNotes(): Chainable<void>;
       getByTestId(id: string): Chainable<void>;
+      preventNewTab(): Chainable<void>;
     }
   }
 }

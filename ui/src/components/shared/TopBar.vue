@@ -66,8 +66,9 @@
         icon="fa-regular fa-grid-2"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
+        data-testid="apps-button"
       />
-      <OverlayPanel ref="appsOP" class="app-overlay-panel">
+      <OverlayPanel ref="appsOP" class="app-overlay-panel" id="apps-menu">
         <div class="flex flex-row flex-wrap gap-2 justify-content-start">
           <template v-for="item in appItems">
             <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
@@ -82,6 +83,7 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu"
       />
       <Button
         v-tooltip.left="'Account'"
@@ -90,10 +92,11 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu-logged-in"
       >
         <img class="avatar-icon" alt="avatar icon" :src="getUrl(currentUser.avatar)" style="min-width: 1.75rem" />
       </Button>
-      <Menu ref="userMenu" :model="getItems()" :popup="true">
+      <Menu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
             <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--text-color)">

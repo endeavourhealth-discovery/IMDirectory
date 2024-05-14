@@ -1,6 +1,8 @@
 describe("top bar", () => {
   beforeEach(() => {
+    cy.preventNewTab();
     cy.acceptLicenseAndCookies();
+    cy.get("#topbar", { timeout: 60000 });
   });
 
   describe("banner bar", () => {
@@ -73,11 +75,51 @@ describe("top bar", () => {
     });
   });
 
-  describe.only("upload/download", () => {
+  describe("upload/download", () => {
     it("can open code generator", () => {
       cy.getByTestId("upload-download-button").click();
       cy.get("#admin-menu").find("span").contains("Download Code").click();
       cy.get("#code-download-dialog").find(".p-dialog-title").contains("Set namespace/package");
+    });
+  });
+
+  describe.only("apps", () => {
+    it("can open the apps menu", () => {
+      cy.getByTestId("apps-button").click();
+      cy.get("#apps-menu").find(".shortcut").should("have.length.above", 1);
+    });
+
+    it("can route to directory", () => {
+      cy.visit("/#/directory/search");
+      cy.getByTestId("apps-button").click();
+      cy.get("#apps-menu").find(".shortcut").contains("Directory").click();
+      cy.url().should("equal", "http://localhost:8082/#/");
+    });
+
+    it("can route to creator", () => {
+      cy.getByTestId("apps-button").click();
+      cy.get("#apps-menu").find(".shortcut").contains("Creator").click();
+      cy.url().should("equal", "http://localhost:8082/#/creator");
+    });
+
+    it("can route to uprn", () => {
+      cy.getByTestId("apps-button").click();
+      cy.get("#apps-menu").find(".shortcut").contains("ASSIGN UPRN").click();
+      cy.url().should("equal", "http://localhost:8082/#/uprn");
+    });
+  });
+
+  describe("account", () => {
+    it("can route to login", () => {
+      cy.getByTestId("account-menu").click();
+      cy.get("#account-menu").find("span").contains("Login").click();
+      cy.url().should("include", "/user/login");
+    });
+
+    it("can route to register", () => {
+      cy.getByTestId("account-menu").click();
+      cy.get("#account-menu").find("span").contains("Register").click();
+      cy.url().should("include", "/user/register");
     });
   });
 });
