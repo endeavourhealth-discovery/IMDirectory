@@ -26,7 +26,8 @@
     "test:coverage": "cd im_library && pnpm run test:coverage && cd ../node_api && pnpm run test:coverage && cd ../ui && pnpm run test:coverage",
     "test:unit:ui": "cd ui && pnpm run test:unit",
     "test:unit:imlibrary": "cd im_library && pnpm run test:unit",
-    "test:unit:nodeapi": "cd node_api && pnpm run test:unit"
+    "test:unit:nodeapi": "cd node_api && pnpm run test:unit",
+    "test:e2e": "cd ui && pnpm test:e2e"
   },
   "devDependencies": {
     "@types/lodash": "4.14.198",
