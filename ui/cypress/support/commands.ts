@@ -22,6 +22,10 @@ Cypress.Commands.add("openReleaseNotes", () => {
   cy.get(".release-notes-link").click();
   cy.get(".p-dialog-header").should("have.text", "What's new");
 });
+
+Cypress.Commands.add("getByTestId", id => {
+  cy.get(`[data-testid=${id}]`);
+});
 //
 //
 // -- This is a parent command --
@@ -41,6 +45,7 @@ declare global {
     interface Chainable {
       acceptLicenseAndCookies(): Chainable<void>;
       openReleaseNotes(): Chainable<void>;
+      getByTestId(id: string): Chainable<void>;
     }
   }
 }

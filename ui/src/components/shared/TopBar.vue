@@ -13,8 +13,18 @@
         :label="currentVersion"
         class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
         @click="showReleaseNotes"
+        data-testid="releases-button"
       />
-      <Button v-tooltip.bottom="'Themes'" icon="fa-regular fa-palette" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
+      <Button
+        v-tooltip.bottom="'Themes'"
+        icon="fa-regular fa-palette"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openThemesMenu"
+        data-testid="change-theme-button"
+      />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
         <template #item="{ item }: any">
           <div class="theme-row p-link">
@@ -24,7 +34,16 @@
           </div>
         </template>
       </Menu>
-      <Button v-tooltip.bottom="'Scale'" icon="fa-duotone fa-text-size" rounded text plain class="topbar-end-button" @click="openScaleMenu" />
+      <Button
+        v-tooltip.bottom="'Scale'"
+        icon="fa-duotone fa-text-size"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openScaleMenu"
+        data-testid="font-size-button"
+      />
       <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
         <template #item="{ item }: any">
           <div class="scale-row p-link">
@@ -39,8 +58,9 @@
         icon="fa-duotone fa-arrow-down-up-across-line"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
+        data-testid="upload-download-button"
       />
-      <Menu ref="adminMenu" :model="adminItems" :popup="true" />
+      <Menu ref="adminMenu" id="admin-menu" :model="adminItems" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
         icon="fa-regular fa-grid-2"
@@ -88,7 +108,7 @@
         </template>
       </Menu>
     </div>
-    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false">
+    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
       <div class="flex flex-column gap-2">
         <label for="template">Template</label>
         <Dropdown id="template" v-model="template" :options="templates" />

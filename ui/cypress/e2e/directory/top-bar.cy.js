@@ -14,6 +14,13 @@ describe("top bar", () => {
     });
   });
 
+  describe("release notes button", () => {
+    it("shows release notes", () => {
+      cy.get("[data-testid='releases-button']").click();
+      cy.get("#banner > .banner-text-container > .banner-text").should("include.text", "Release");
+    });
+  });
+
   describe("release notes", () => {
     beforeEach(() => {
       cy.openReleaseNotes();
@@ -43,8 +50,34 @@ describe("top bar", () => {
       });
     });
     it("can close", () => {
-      cy.get("[data-testid='close-button']").click();
+      cy.getByTestId("close-button").click();
       cy.get(".tgl-directory").should("not.exist");
+    });
+  });
+
+  describe("themes", () => {
+    it("can change theme", () => {
+      cy.get("#banner").should("have.css", "background-color", "rgb(33, 150, 243)");
+      cy.getByTestId("change-theme-button").click();
+      cy.get('[src="http://localhost:8082/src/assets/themes/arya-purple.png"').click();
+      cy.get("#banner").should("have.css", "background-color", "rgb(186, 104, 200)");
+    });
+  });
+
+  describe("font size", () => {
+    it("can change font size", () => {
+      cy.get(".p-button-label").first().should("have.css", "font-size", "16px");
+      cy.getByTestId("font-size-button").click();
+      cy.get("#scale-menu").find(".p-menuitem").first().should("have.text", "Small").click();
+      cy.get(".p-button-label").first().should("not.have.css", "font-size", "16px");
+    });
+  });
+
+  describe.only("upload/download", () => {
+    it("can open code generator", () => {
+      cy.getByTestId("upload-download-button").click();
+      cy.get("#admin-menu").find("span").contains("Download Code").click();
+      cy.get("#code-download-dialog").find(".p-dialog-title").contains("Set namespace/package");
     });
   });
 });
