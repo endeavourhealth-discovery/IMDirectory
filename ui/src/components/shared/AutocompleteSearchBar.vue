@@ -1,8 +1,8 @@
 <template>
   <div class="search-container">
-    <span class="p-input-icon-right search-group">
-      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
-      <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
+    <IconField iconPosition="right">
+      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
+      <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
       <InputText
         id="autocomplete-search"
         v-model="searchText"
@@ -15,7 +15,7 @@
         @mouseleave="hideOverlay($event)"
         :disabled="disabled"
       />
-    </span>
+    </IconField>
     <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
@@ -53,6 +53,9 @@
       :root-entities="rootEntities"
       :selected-filter-options="filterOptions"
       :searchTerm="searchText"
+      :quick-type-filters-allowed="quickTypeFiltersAllowed"
+      :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
+      @update-selected-filters="(filters: FilterOptions) => $emit('updateSelectedFilters', filters)"
     />
     <OverlaySummary ref="OS" />
   </div>
@@ -78,13 +81,15 @@ interface Props {
   disabled?: boolean;
   rootEntities?: string[];
   searchPlaceholder?: string;
+  quickTypeFiltersAllowed?: string[];
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[] });
 
 const emit = defineEmits({
   "update:selected": (_payload: SearchResultSummary | undefined) => true,
-  openDialog: () => true
+  openDialog: () => true,
+  updateSelectedFilters: (payload: FilterOptions) => true
 });
 
 const resultsOP = ref();

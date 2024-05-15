@@ -20,6 +20,9 @@
         <div class="value-list-item" v-for="[index, value] of values.entries()">
           <EntailmentOptionsSelect :entailment-object="value" />
           <AutocompleteSearchBar
+            :quick-type-filters-allowed="[IM.CONCEPT, IM.VALUESET]"
+            :filter-options="filterOptions"
+            @update-selected-filters="onUpdateSelectedFilters"
             :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"
             :root-entities="[datatype]"
             @update:selected="selected => updateSelectedValue(selected, index)"
@@ -40,6 +43,8 @@ import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 import { Node, SearchResultSummary, Where, Element } from "@im-library/interfaces/AutoGen";
 import { cloneDeep, isEqual } from "lodash";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { IM } from "@im-library/vocabulary";
+import { FilterOptions } from "@im-library/interfaces";
 interface Props {
   datatype: string;
   property: Where;
@@ -49,6 +54,7 @@ const props = defineProps<Props>();
 const valueField: Ref<"is" | "isNot" | "isNull" | "isNotNull" | undefined> = ref();
 const values: Ref<Element[]> = ref([]);
 const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is" || valueField.value === "isNot");
+const filterOptions: Ref<FilterOptions | undefined> = ref();
 
 onMounted(() => {
   setValues();
@@ -130,6 +136,10 @@ function setValues() {
     if (!values.value.length) values.value.push({});
   } else if (isObjectHasKeys(props.property, ["isNull"])) valueField.value = "isNull";
   else if (isObjectHasKeys(props.property, ["isNotNull"])) valueField.value = "isNotNull";
+}
+
+function onUpdateSelectedFilters(selectedFilters: FilterOptions) {
+  filterOptions.value = selectedFilters;
 }
 </script>
 

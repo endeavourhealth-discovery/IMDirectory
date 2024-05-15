@@ -97,6 +97,8 @@ import VirtualScroller from "primevue/virtualscroller";
 import Fieldset from "primevue/fieldset";
 import Stepper from "primevue/stepper";
 import StepperPanel from "primevue/stepperpanel";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -194,6 +196,8 @@ const app = createApp(App)
   .component("TabMenu", TabMenu)
   .component("Stepper", Stepper)
   .component("StepperPanel", StepperPanel)
+  .component("IconField", IconField)
+  .component("InputIcon", InputIcon)
   .component("Fieldset", Fieldset);
 
 const sharedStore = useSharedStore();

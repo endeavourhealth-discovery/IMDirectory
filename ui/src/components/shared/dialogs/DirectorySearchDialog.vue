@@ -45,6 +45,7 @@
             :selected-filter-options="selectedFilterOptions"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
+            @selected-filters-updated="onSelectedFiltersUpdate"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -114,7 +115,8 @@ watch(
 
 const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
-  "update:selected": payload => true
+  "update:selected": payload => true,
+  updateSelectedFilters: (payload: FilterOptions) => true
 });
 
 const updateSearch: Ref<boolean> = ref(false);
@@ -265,6 +267,19 @@ async function getHasQueryDefinition() {
 
 function onEnter() {
   if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
+}
+
+function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
+  if (props.osQuery) {
+    for (const key of Object.keys(selectedFilters)) {
+      (props.osQuery as any)[key] = (selectedFilters as any)[key];
+    }
+  } else if (props.imQuery) {
+    // TODO: add filter options to imquery
+  } else {
+    emit("updateSelectedFilters", selectedFilters);
+  }
+  updateSearch.value = !updateSearch.value;
 }
 </script>
 
