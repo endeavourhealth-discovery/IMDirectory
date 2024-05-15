@@ -25,8 +25,8 @@ const EclService = {
     return axios.post(Env.API + "api/ecl/public/evaluateEcl", eclSearchRequest, { headers: { "Content-Type": "application/json" } });
   },
 
-  async getQueryFromECL(ecl: string): Promise<Query> {
-    return axios.post(Env.API + "api/ecl/public/queryFromEcl", ecl, { headers: { "Content-Type": "text/plain" } });
+  async getQueryFromECL(ecl: string, raw: boolean = false): Promise<Query> {
+    return axios.post(Env.API + "api/ecl/public/queryFromEcl", ecl, { headers: { "Content-Type": "text/plain" }, raw: raw });
   },
 
   async isValidECL(ecl: string): Promise<boolean> {

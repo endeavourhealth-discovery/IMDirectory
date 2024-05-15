@@ -13,8 +13,18 @@
         :label="currentVersion"
         class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
         @click="showReleaseNotes"
+        data-testid="releases-button"
       />
-      <Button v-tooltip.bottom="'Themes'" icon="fa-regular fa-palette" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
+      <Button
+        v-tooltip.bottom="'Themes'"
+        icon="fa-regular fa-palette"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openThemesMenu"
+        data-testid="change-theme-button"
+      />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
         <template #item="{ item }: any">
           <div class="theme-row p-link">
@@ -24,7 +34,16 @@
           </div>
         </template>
       </Menu>
-      <Button v-tooltip.bottom="'Scale'" icon="fa-duotone fa-text-size" rounded text plain class="topbar-end-button" @click="openScaleMenu" />
+      <Button
+        v-tooltip.bottom="'Scale'"
+        icon="fa-duotone fa-text-size"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openScaleMenu"
+        data-testid="font-size-button"
+      />
       <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
         <template #item="{ item }: any">
           <div class="scale-row p-link">
@@ -39,15 +58,17 @@
         icon="fa-duotone fa-arrow-down-up-across-line"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
+        data-testid="upload-download-button"
       />
-      <Menu ref="adminMenu" :model="adminItems" :popup="true" />
+      <Menu ref="adminMenu" id="admin-menu" :model="adminItems" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
         icon="fa-regular fa-grid-2"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
+        data-testid="apps-button"
       />
-      <OverlayPanel ref="appsOP" class="app-overlay-panel">
+      <OverlayPanel ref="appsOP" class="app-overlay-panel" id="apps-menu">
         <div class="flex flex-row flex-wrap gap-2 justify-content-start">
           <template v-for="item in appItems">
             <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
@@ -62,6 +83,7 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu"
       />
       <Button
         v-tooltip.left="'Account'"
@@ -70,10 +92,11 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu-logged-in"
       >
         <img class="avatar-icon" alt="avatar icon" :src="getUrl(currentUser.avatar)" style="min-width: 1.75rem" />
       </Button>
-      <Menu ref="userMenu" :model="getItems()" :popup="true">
+      <Menu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
             <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--text-color)">
@@ -88,7 +111,7 @@
         </template>
       </Menu>
     </div>
-    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false">
+    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
       <div class="flex flex-column gap-2">
         <label for="template">Template</label>
         <Dropdown id="template" v-model="template" :options="templates" />

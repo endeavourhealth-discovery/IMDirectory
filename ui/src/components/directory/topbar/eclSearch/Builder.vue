@@ -167,7 +167,7 @@ function createDefaultBuild() {
 async function createBuildFromEclString(ecl: string) {
   try {
     loading.value = true;
-    const query = await EclService.getQueryFromECL(ecl);
+    const query = await EclService.getQueryFromECL(ecl, true);
     build.value = await EclService.getEclBuilderFromQuery(query, true);
     eclConversionError.value = { error: false, message: "" };
     createInitialLoadingState(build.value, 0, 0);

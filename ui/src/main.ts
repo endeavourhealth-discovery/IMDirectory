@@ -198,6 +198,10 @@ const app = createApp(App)
 
 const sharedStore = useSharedStore();
 
+if (window.Cypress) {
+  window.__app__ = app;
+}
+
 const vm = app.mount("#app");
 
 // Vue application exceptions
