@@ -54,6 +54,7 @@ import { BugReport } from "./BugReport";
 import { QueryResponse } from "./QueryResponse";
 import { SetDiffObject } from "./SetDiffObject";
 import { CodeTemplate } from "./CodeTemplate";
+import { ExtendedSearchResultSummary } from "./ExtendedSearchResultSummary";
 
 export {
   type Address,
@@ -112,5 +113,6 @@ export {
   type BugReport,
   type QueryResponse,
   type SetDiffObject,
-  type CodeTemplate
+  type CodeTemplate,
+  type ExtendedSearchResultSummary
 };

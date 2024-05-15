@@ -80,17 +80,11 @@ import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
 import { SearchResultSummary, SearchResponse, QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { ExtendedSearchResultSummary } from "@im-library/interfaces";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSearch from "@/composables/setupSearch";
 import { EclSearchRequest, FilterOptions } from "@im-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
-
-interface ResultSummary extends SearchResultSummary {
-  icon: string[];
-  color: string;
-  typeNames: string;
-  favourite: boolean;
-}
 
 interface Props {
   searchTerm?: string;
@@ -112,12 +106,6 @@ const emit = defineEmits({
   "update:loading": _payload => true
 });
 
-interface ExtendedSearchResultSummary extends SearchResultSummary {
-  colour: string;
-  favourite: boolean;
-  icon: string[];
-}
-
 onMounted(async () => {
   if (props.pageSize) rows.value = props.pageSize;
   if (props.searchTerm) await onSearch();
@@ -134,7 +122,7 @@ const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
 
-const selected: Ref<ResultSummary> = ref({} as ResultSummary);
+const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
 const searchResults: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const totalCount = ref(0);
 const page = ref(0);
