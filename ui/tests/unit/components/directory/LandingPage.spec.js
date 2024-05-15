@@ -48,7 +48,8 @@ describe("LandingPage.vue", async () => {
         directives: { Tooltip: Tooltip },
         plugins: [PrimeVue],
         stubs: {
-          ActionButtons: true
+          ActionButtons: true,
+          Favourites: true
         }
       }
     });
