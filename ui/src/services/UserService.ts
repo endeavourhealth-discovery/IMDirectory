@@ -1,6 +1,7 @@
 import { Auth } from "aws-amplify";
 import Env from "./Env";
 import axios from "axios";
+import { RecentActivityItem } from "@im-library/interfaces";
 
 const UserService = {
   async getUserTheme(): Promise<string> {
@@ -9,10 +10,10 @@ const UserService = {
   async getUserScale(): Promise<string> {
     return await axios.get(Env.API + "api/user/scale");
   },
-  async getUserMRU(): Promise<any> {
+  async getUserMRU(): Promise<RecentActivityItem[]> {
     return await axios.get(Env.API + "api/user/MRU");
   },
-  async getUserFavourites(): Promise<any> {
+  async getUserFavourites(): Promise<string[]> {
     return await axios.get(Env.API + "api/user/favourites");
   },
   async getUserOrganisations(): Promise<string[]> {
@@ -28,10 +29,10 @@ const UserService = {
       scaleValue: scale
     });
   },
-  async updateUserMRU(mru: any[]): Promise<any> {
+  async updateUserMRU(mru: RecentActivityItem[]): Promise<void> {
     return await axios.post(Env.API + "api/user/MRU", mru);
   },
-  async updateUserFavourites(favourites: any[]): Promise<any> {
+  async updateUserFavourites(favourites: string[]): Promise<void> {
     return await axios.post(Env.API + "api/user/favourites", favourites);
   },
   async updateUserOrganisations(organisations: string[]): Promise<string[]> {
