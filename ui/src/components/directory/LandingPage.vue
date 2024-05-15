@@ -17,6 +17,7 @@
         </div>
       </div>
       <RecentActivity />
+      <Favourites />
     </div>
   </div>
 </template>
@@ -29,6 +30,7 @@ import { DirectService } from "@/services";
 import { IM, SHACL } from "@im-library/vocabulary";
 import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
 import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";
+import Favourites from "@/components/directory/landingPage/Favourites.vue";
 
 const directService = new DirectService();
 

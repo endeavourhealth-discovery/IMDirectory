@@ -2,37 +2,39 @@
   <div class="flex flex-row justify-content-center align-items-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
-  <div v-else class="activity-container">
-    <span class="title"> Suggested </span>
+  <div v-else class="favourites-container">
+    <span class="title"> Favourites </span>
     <div class="datatable-container">
       <DataTable
-        :value="activities"
+        :value="favourites"
         v-model:selection="selected"
         selectionMode="single"
         @rowSelect="onRowSelect"
         dataKey="dateTime"
         :scrollable="true"
         scrollHeight="flex"
-        class="p-datatable-sm activity-datatable"
+        class="p-datatable-sm favourites-datatable"
       >
-        <template #empty> No recent activity </template>
+        <template #empty> No favourites </template>
         <Column field="name" header="Name">
           <template #body="{ data }: any">
-            <div class="activity-name-icon-container">
+            <div class="favourite-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
-              <span class="activity-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+              <span class="favourite-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
             </div>
           </template>
         </Column>
-        <Column field="latestActivity" header="Latest activity">
+        <Column field="type" header="Type">
           <template #body="{ data }: any">
-            <span class="activity-message" v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</span>
+            <div class="favourite-type-container">
+              <span class="favourite-type" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">{{ data.entityType }}</span>
+            </div>
           </template>
         </Column>
         <Column :exportable="false">
           <template #body="{ data }: any">
             <div class="action-buttons-container">
-              <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" @locate-in-tree="locateInTree" />
+              <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" @locate-in-tree="locateInTree" />
             </div>
           </template>
         </Column>
@@ -45,7 +47,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useUserStore } from "@/stores/userStore";
-import { RecentActivityItem } from "@im-library/interfaces";
+import { RecentActivityItem, ExtendedSearchResultSummary } from "@im-library/interfaces";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
@@ -68,22 +70,22 @@ const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
-const recentLocalActivity = computed(() => userStore.recentLocalActivity);
+const userFavourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
 const selected: Ref<any> = ref({});
-const activities: Ref<RecentActivityItem[]> = ref([]);
+const favourites: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 
 watch(
-  () => _.cloneDeep(recentLocalActivity.value),
-  async () => await getRecentActivityDetails()
+  () => _.cloneDeep(userFavourites.value),
+  async () => await getFavouritesDetails()
 );
 
 onMounted(async () => init());
 
 async function init(): Promise<void> {
   loading.value = true;
-  await getRecentActivityDetails();
+  await getFavouritesDetails();
   loading.value = false;
 }
 
@@ -91,50 +93,34 @@ function onRowSelect(event: any) {
   directService.select(event.data.iri, "Folder");
 }
 
-function getActivityTooltipMessage(activity: RecentActivityItem) {
-  const dateTime = new Date(activity.dateTime);
-  return ["on", dateTime.toDateString(), "at", dateTime.toTimeString().substring(0, 9)].join(" ");
-}
-
-function getActivityMessage(activity: RecentActivityItem) {
-  const dateTime = new Date(activity.dateTime);
-  return activity.action + " " + getDisplayFromDate(new Date(), dateTime);
-}
-
 function locateInTree(iri: string) {
   directoryStore.updateFindInTreeIri(iri);
 }
 
-async function getRecentActivityDetails() {
-  let localActivity: RecentActivityItem[] = [];
-  if (isArrayHasLength(recentLocalActivity.value)) localActivity = recentLocalActivity.value;
+async function getFavouritesDetails() {
+  let localFavourites: string[] = [];
   if (currentUser.value) {
-    const results = await UserService.getUserMRU();
-    if (isArrayHasLength(results)) localActivity = results;
+    const results = await UserService.getUserFavourites();
+    if (isArrayHasLength(results)) localFavourites = results;
   }
-  const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
-  const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
-
-  const temp: RecentActivityItem[] = [];
-
-  for (const rla of localActivity) {
-    const clone = { ...rla };
-
-    let result = null;
-    if (results && isArray(results)) result = results.find((r: any) => r["@id"] === rla.iri);
-
-    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
+  const results = await EntityService.getPartialEntities(localFavourites, [RDFS.LABEL, RDF.TYPE]);
+  if (!results.length) {
+    favourites.value = [];
+    return;
+  }
+  const temp: any[] = [];
+  for (const result of results) {
+    let clone: ExtendedSearchResultSummary = {} as ExtendedSearchResultSummary;
+    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "@id"])) {
+      clone.iri = result["@id"];
       clone.name = result[RDFS.LABEL];
-      clone.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+      clone.entityType = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
       clone.icon = getFAIconFromType(result[RDF.TYPE]);
       clone.color = "color:" + getColourFromType(result[RDF.TYPE]);
     }
-
     temp.push(clone);
   }
-
-  temp.reverse();
-  activities.value = temp;
+  favourites.value = temp;
 }
 </script>
 
@@ -143,12 +129,12 @@ async function getRecentActivityDetails() {
   width: 100%;
 }
 
-.activity-datatable {
+.favourites-datatable {
   width: 100%;
 }
 
-.activity-container {
-  flex: 0 0 auto;
+.favourites-container {
+  flex: 1 1 auto;
   display: flex;
   width: 100%;
   flex-flow: column nowrap;
@@ -179,7 +165,7 @@ async function getRecentActivityDetails() {
   align-items: center;
 }
 
-.activity-name-icon-container {
+.favourite-name-icon-container {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
@@ -188,7 +174,7 @@ async function getRecentActivityDetails() {
   gap: 0.25rem;
 }
 
-.activity-name {
+.favourite-name {
   flex: 0 1 auto;
 }
 </style>
