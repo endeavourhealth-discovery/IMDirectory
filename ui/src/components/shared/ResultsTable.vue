@@ -101,7 +101,6 @@ interface Props {
   eclQuery?: EclSearchRequest;
   pageSize?: number;
   loading?: boolean;
-  showQuickTypeFilters?: boolean;
 }
 
 const props = defineProps<Props>();

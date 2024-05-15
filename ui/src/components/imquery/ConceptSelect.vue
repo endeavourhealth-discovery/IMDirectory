@@ -20,7 +20,8 @@
         <div class="value-list-item" v-for="[index, value] of values.entries()">
           <EntailmentOptionsSelect :entailment-object="value" />
           <AutocompleteSearchBar
-            :quick-type-filters-allowed="[IM.CONCEPT, IM.VALUESET]"
+            :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET]"
+            :default-quick-type-filter="isObjectHasKeys(value, ['memberOf']) ? IM.CONCEPT_SET : IM.CONCEPT"
             :filter-options="filterOptions"
             @update-selected-filters="onUpdateSelectedFilters"
             :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"

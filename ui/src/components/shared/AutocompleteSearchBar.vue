@@ -55,6 +55,7 @@
       :searchTerm="searchText"
       :quick-type-filters-allowed="quickTypeFiltersAllowed"
       :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
+      :defaultQuickTypeFilter="defaultQuickTypeFilter"
       @update-selected-filters="(filters: FilterOptions) => $emit('updateSelectedFilters', filters)"
     />
     <OverlaySummary ref="OS" />
@@ -82,6 +83,7 @@ interface Props {
   rootEntities?: string[];
   searchPlaceholder?: string;
   quickTypeFiltersAllowed?: string[];
+  defaultQuickTypeFilter?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[] });

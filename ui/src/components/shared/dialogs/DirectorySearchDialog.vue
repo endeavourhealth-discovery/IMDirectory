@@ -38,6 +38,7 @@
             :show-filters="showFilters"
             :show-quick-type-filters="showQuickTypeFilters"
             :quick-type-filters-allowed="quickTypeFiltersAllowed"
+            :default-quick-type-filter="defaultQuickTypeFilter"
             :updateSearch="updateSearch"
             :search-term="searchTerm"
             :im-query="imQuery"
@@ -99,6 +100,7 @@ interface Props {
   selectedFilterOptions?: FilterOptions;
   showQuickTypeFilters?: boolean;
   quickTypeFiltersAllowed?: string[];
+  defaultQuickTypeFilter?: string;
   showFilters?: boolean;
 }
 
