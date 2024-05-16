@@ -15,7 +15,7 @@
             <label for="fieldPassword">Password</label>
             <div class="text-with-button">
               <InputText data-testid="login-password" id="fieldPassword" :type="showPassword ? 'text' : 'password'" v-model="password" @keyup="checkKey" />
-              <Button :icon="showPassword ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword" text />
+              <Button :icon="showPassword ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword" text id="reveal-password-button" />
             </div>
           </div>
           <div class="flex flex-row justify-content-center">

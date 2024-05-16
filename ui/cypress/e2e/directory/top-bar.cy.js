@@ -83,7 +83,7 @@ describe("top bar", () => {
     });
   });
 
-  describe.only("apps", () => {
+  describe("apps", () => {
     it("can open the apps menu", () => {
       cy.getByTestId("apps-button").click();
       cy.get("#apps-menu").find(".shortcut").should("have.length.above", 1);
