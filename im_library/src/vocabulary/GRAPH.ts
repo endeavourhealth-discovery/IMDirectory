@@ -2,6 +2,7 @@
 
 export class GRAPH {
   public static readonly DISCOVERY = "http://endhealth.info/im#";
+  public static readonly BNF = "http://endhealth.info/bnf#";
   public static readonly ICD10 = "http://endhealth.info/icd10#";
   public static readonly EMIS = "http://endhealth.info/emis#";
   public static readonly CPRD_MED = "http://endhealth.info/cprdm#";
@@ -28,5 +29,5 @@ export class GRAPH {
   public static readonly CEG16 = "http://endhealth.info/ceg16#";
   public static readonly REPORTS = "http://endhealth.info/reports#";
   public static readonly OPS_ROLES = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#";
-  public static readonly XMLS = "http://www.w3.org/2001/XMLSchema#";
+  public static readonly XS = "http://www.w3.org/2001/XMLSchema#";
 }

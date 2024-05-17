@@ -20,129 +20,115 @@
         </span>
       </div>
     </div>
+    <h2 class="heading">Quick type filters</h2>
+    <div v-if="showQuickTypeFilters && quickTypeFiltersAllowed" class="quick-type-filters">
+      <div class="radio-label-container">
+        <RadioButton v-model="quickTypeFilter" inputId="allQuickFilter" name="quickTypeFilter" :value="undefined" variant="filled" />
+        <label for="allQuickFilter">All</label>
+      </div>
+      <div v-for="typeOption in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t['@id']))" class="radio-label-container">
+        <RadioButton v-model="quickTypeFilter" :inputId="typeOption.name + 'QuickFilter'" name="quickTypeFilter" :value="typeOption" variant="filled" />
+        <label :for="typeOption.name + 'QuickFilter'">{{ typeOption.name }}</label>
+      </div>
+    </div>
     <ResultsTable
-      :searchResults="localSearchResults"
-      :loading="isLoading"
-      :lazyLoading="lazyLoading"
+      :search-term="searchTerm"
+      :updateSearch="updateSearch"
+      :selected-filter-options="selectedFilterOptions"
       :rows="rows"
+      :im-query="imQuery"
+      :os-query="osQuery"
+      :showQuickTypeFilters="showQuickTypeFilters"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
-      @lazyLoadRequested="(data: any) => $emit('lazyLoadRequested', data)"
-      @downloadRequested="(data: any) => $emit('downloadRequested', data)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, ref, Ref, watch, PropType } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
-import { SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { IM } from "@im-library/vocabulary";
 
 interface Props {
-  showFilters?: boolean;
-  searchResults: SearchResponse | undefined;
-  searchLoading?: boolean;
+  searchTerm: string;
+  updateSearch: boolean;
+  selectedFilterOptions?: FilterOptions;
   rows?: number;
-  lazyLoading?: boolean;
+  showFilters?: boolean;
+  showQuickTypeFilters?: boolean;
+  quickTypeFiltersAllowed?: string[];
+  osQuery?: SearchRequest;
+  imQuery?: QueryRequest;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
-  searchLoading: false,
-  lazyLoading: false,
+  showQuickTypeFilters: true,
+  quickTypeFiltersAllowed: () => [IM.CONCEPT, IM.VALUESET],
   rows: 25
 });
 
 const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  lazyLoadRequested: (_payload: any) => true,
-  downloadRequested: (_payload: { term: string; count: number }) => true
+  selectedFiltersUpdated: (_payload: FilterOptions) => true
 });
 
 const filterStore = useFilterStore();
-const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
-const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
-const selectedStoreFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
-
+const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const storeFilterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.defaultFilterOptions);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const selectedTypes: Ref<TTIriRef[]> = ref([]);
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const statusOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
-const localSearchResults: Ref<SearchResponse | undefined> = ref();
-const loading = ref(true);
+const quickTypeFilter: Ref<TTIriRef | undefined> = ref();
 
-watch(
-  () => _.cloneDeep(props.searchResults),
-  () => init()
-);
+watch(quickTypeFilter, newValue => {
+  if (newValue) {
+    selectedTypes.value = [newValue];
+  } else selectedTypes.value = _.cloneDeep(storeFilterDefaults.value.types);
+  filterResults();
+});
 
 onMounted(() => init());
 
-const isLoading = computed(() => loading.value || props.searchLoading);
-
 function init() {
-  loading.value = true;
-  localSearchResults.value = _.cloneDeep(props.searchResults);
-
-  if (isArrayHasLength(localSearchResults.value)) {
-    setFiltersFromSearchResults();
-  } else {
-    setFiltersFromStore();
-  }
-  loading.value = false;
+  setFiltersFromStore();
 }
 
 function setFiltersFromStore() {
-  schemeOptions.value = [...filterOptions.value.schemes];
-  typeOptions.value = [...filterOptions.value.types];
-  statusOptions.value = [...filterOptions.value.status];
-  if (selectedStoreFilters.value.schemes.length || selectedStoreFilters.value.status.length || selectedStoreFilters.value.types.length) {
-    selectedSchemes.value = [...selectedStoreFilters.value.schemes];
-    selectedStatus.value = [...selectedStoreFilters.value.status];
-    selectedTypes.value = [...selectedStoreFilters.value.types];
+  schemeOptions.value = _.cloneDeep(storeFilterOptions.value.schemes);
+  typeOptions.value = _.cloneDeep(storeFilterOptions.value.types);
+  statusOptions.value = _.cloneDeep(storeFilterOptions.value.status);
+  if (
+    props.selectedFilterOptions &&
+    (props.selectedFilterOptions.schemes.length || props.selectedFilterOptions.status.length || props.selectedFilterOptions.types.length)
+  ) {
+    selectedSchemes.value = _.cloneDeep(props.selectedFilterOptions.schemes);
+    selectedStatus.value = _.cloneDeep(props.selectedFilterOptions.status);
+    selectedTypes.value = _.cloneDeep(props.selectedFilterOptions.types);
   } else {
-    selectedSchemes.value = filterOptions.value.schemes.filter((option: any) => filterDefaults.value.schemes.includes(option["@id"]));
-    selectedStatus.value = filterOptions.value.status.filter((option: any) => filterDefaults.value.status.includes(option["@id"]));
-    selectedTypes.value = filterOptions.value.types.filter((option: any) => filterDefaults.value.types.includes(option["@id"]));
-  }
-}
-
-function setFiltersFromSearchResults() {
-  const schemes = [] as TTIriRef[];
-  const types = [] as TTIriRef[];
-  const status = [] as TTIriRef[];
-  if (localSearchResults.value?.entities) {
-    localSearchResults.value.entities.forEach(searchResult => {
-      if (isObjectHasKeys(searchResult.scheme, ["name"])) schemes.push(searchResult.scheme);
-      searchResult.entityType.forEach(type => {
-        if (filterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type);
-      });
-      if (isObjectHasKeys(searchResult.status, ["name"])) status.push(searchResult.status);
-    });
-    schemeOptions.value = [...new Set(schemes)];
-    typeOptions.value = [...new Set(types)];
-    statusOptions.value = [...new Set(status)];
-
-    selectedSchemes.value = [...new Set(schemes)];
-    selectedTypes.value = [...new Set(types)];
-    selectedStatus.value = [...new Set(status)];
+    selectedSchemes.value = storeFilterOptions.value.schemes.filter(
+      option => storeFilterDefaults.value.schemes.findIndex(s => s["@id"] === option["@id"]) != -1
+    );
+    selectedStatus.value = storeFilterOptions.value.status.filter(option => storeFilterDefaults.value.status.findIndex(s => s["@id"] === option["@id"]) != -1);
+    selectedTypes.value = storeFilterOptions.value.types.filter(option => storeFilterDefaults.value.types.findIndex(t => t["@id"] === option["@id"]) != -1);
   }
 }
 
 function filterResults() {
-  filterStore.updateSelectedFilters({
-    schemes: selectedSchemes,
-    status: selectedStatus,
-    types: selectedTypes,
-    sortDirections: selectedStoreFilters.value.sortDirections,
-    sortFields: selectedStoreFilters.value.sortFields
-  });
+  const selectedFilters = {
+    schemes: selectedSchemes.value,
+    status: selectedStatus.value,
+    types: selectedTypes.value
+  } as FilterOptions;
+  emit("selectedFiltersUpdated", selectedFilters);
 }
 
 function updateSelected(selected: SearchResultSummary) {
@@ -174,5 +160,26 @@ label {
 .p-inputgroup {
   width: 33.3%;
   padding: 0.5rem;
+}
+.quick-type-filters {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+.radio-label-container {
+  display: flex;
+  flex-flow: row nowrap;
+  /* flex: 0 0 calc(25% - 0.5rem); */
+  gap: 0.25rem;
+}
+
+.radio-label-container label {
+  text-transform: capitalize;
+}
+
+.heading {
+  padding-left: 0.5rem;
+  margin: 0;
 }
 </style>

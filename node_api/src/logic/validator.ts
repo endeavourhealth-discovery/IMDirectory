@@ -66,7 +66,7 @@ export default class Validator {
   private isValidDefinition(data: any): { isValid: boolean; message?: string } {
     let valid = false;
     let message: string | undefined = "Definition is invalid.";
-    if (isObjectHasKeys(data, [IM.DEFINITION]) || isObjectHasKeys(data, [IM.IS_SUBSET_OF])) {
+    if (isObjectHasKeys(data, [IM.DEFINITION]) || isObjectHasKeys(data, [IM.IS_SUBSET_OF]) || isObjectHasKeys(data, [IM.HAS_SUBSET])) {
       valid = true;
       message = undefined;
     }
@@ -185,28 +185,13 @@ export default class Validator {
   private async isValidStatus(data: any): Promise<{ isValid: boolean; message?: string }> {
     let valid = false;
     let message: string | undefined = "Status is invalid";
-    const queryReq = {
-      argument: [
-        {
-          valueIri: {
-            "@id": IM.STATUS
-          },
-          parameter: "this"
-        }
-      ],
-      query: {
-        "@id": QUERY.GET_DESCENDANTS
-      }
-    };
-    const statuses = await this.queryService.queryIM(queryReq);
+    const statuses = await this.entityService.getEntityChildren(IM.STATUS);
 
     if (isObjectHasKeys(data, [IM.HAS_STATUS]) && isArrayHasLength(data[IM.HAS_STATUS])) {
       if (data[IM.HAS_STATUS][0]["@id"] && data[IM.HAS_STATUS][0].name) {
-        for (let s in statuses.entities) {
-          if (data[IM.HAS_STATUS][0]["@id"] === statuses.entities[s]["@id"] && data[IM.HAS_STATUS][0].name === statuses.entities[s][RDFS.LABEL]) {
-            valid = true;
-            message = undefined;
-          }
+        if (statuses.findIndex(s => s["@id"] === data[IM.HAS_STATUS][0]["@id"]) != -1) {
+          valid = true;
+          message = undefined;
         }
       }
     }

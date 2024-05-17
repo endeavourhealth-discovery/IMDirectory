@@ -71,7 +71,7 @@ import { onMounted, Ref, ref, watch } from "vue";
 import entityService from "@/services/EntityService";
 import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { RDFS, SHACL } from "@im-library/vocabulary";
+import { RDFS, SHACL, XSD } from "@im-library/vocabulary";
 import _ from "lodash";
 import CodeGenService from "@/services/CodeGenService";
 import { generateCode } from "@im-library/helpers";
@@ -131,59 +131,66 @@ async function setDefaultTemplate() {
   if (templateDropdownList.value.length > 0) {
     await loadTemplate(templateDropdownList.value[0].label);
   } else {
-    fileExtensionInput.value = ".java";
-    codeInput.value = `package $\{NAMESPACE};
-import java.util.ArrayList;
-import java.util.List;
-/**
-* Represents $\{MODEL NAME}
-* $\{MODEL COMMENT}
-*/
-public class $\{ModelName} {
+    fileExtensionInput.value = ".txt";
+    codeInput.value = `WELCOME TO THE CODE GENERATOR!
+
+This application allows you to create a simple text-based template and apply it to the Data Models within IM. It's initial aim was to generate Classes/Structures for use in various programming languages, but may also be used to generate documentation or data definitions such as JSON or XML.
+
+The templates work via the use of placeholder variables, contained within "\${}".  There are model based variables...
+
+  * NAMESPACE
+  * MODEL NAME
+  * MODEL COMMENT
+
+...and property based variables...
+
+  * PROPERTY NAME
+  * DATA TYPE
+
+The variable name casing can also be used to automatically apply various formatting functions, for example...
+
+MODEL NAME - Original (unaltered) name : \${MODEL NAME}
+Model Name - Title-case name           : \${Model Name}
+model Name - Camel-case name           : \${model Name}
+model name - Lower-case name           : \${model name}
+MODELNAME  - Codify name               : \${MODELNAME}
+ModelName  - Title-case codified name  : \${ModelName}
+modelName  - Camel-case codified name  : \${modelName}
+modelname  - Lower-case codified name  : \${modelname}
+
+The property variables should be contained inside a "<template>...</template>", with the "#property" keyword, as shown below.
+
+There is an additional "#array" template available to allow special cases for array (collection) properties.  Also note the "Collection wrapper" setting above which allows you to set the language specific array/collection format based on the base data type, for example...
+
+List<\${BASE DATA TYPE}> : List<String>
+\${BASE DATA TYPE}[]     : String[]
+
+To aid in the correct development of a template, the right-hand side live-preview shows the template applied to the "\${MODEL NAME}" data model.
+
+Here is a more complete example of the variables in use...
+
+--------------------------------------------------------
+
+NAMESPACE    : \${NAMESPACE}
+MODEL NAME   : \${MODEL NAME}
+MODEL COMMENT: \${MODEL COMMENT}
+
+PROPERTIES:
 <template #property>
-  private $\{DataType} $\{propertyName};
-  /**
-  * Gets the $\{PROPERTY NAME} of this $\{MODEL NAME}
-  * @return $\{propertyName}
-  */
-  public $\{DataType} get$\{PropertyName}() {
-    return $\{propertyName};
-  }
-  /**
-  * Sets the $\{PROPERTY NAME} of this $\{MODEL NAME}
-  * @param $\{propertyName} The new $\{PROPERTY NAME} to set
-  * @return $\{ModelName}
-  */
-  public $\{ModelName} set$\{PropertyName}($\{DataType} value) {
-    $\{propertyName} = value;
-    return this;
-  }
- <template #array>
-  /**
-  * Adds the given $\{PROPERTY NAME} to this $\{MODEL NAME}
-   * @param $\{propertyName} The $\{PROPERTY NAME} to add
-   * @return $\{ModelName}
-  */
-  public $\{ModelName} add$\{PropertyName}($\{BASE DATA TYPE} $\{propertyName}) {
-    $\{DataType} array = this.get$\{PropertyName}();
-  if (null == array) {
-     array = new ArrayList();
-      this.set$\{PropertyName}(array);
-    }
-    array.add($\{propertyName});
-    return this;
-  }
- </template #array>
-</template #property>
-}`;
+  PROPERTY NAME: \${propertyName}
+  PROPERTY TYPE: \${DataType}
+  <template #array>    ** THIS IS AN ARRAY **
+  </template #array>
+</template #property>`;
     collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
-    datatypeMapInput.value = [{ code: "http://www.w3.org/2001/XMLSchema#string", replace: "String" }];
-    nameInput.value = "java";
+    datatypeMapInput.value = [{ code: XSD.STRING, replace: "String" }];
+    nameInput.value = "Documentation";
   }
   await convert();
 }
 async function convert() {
-  if (modelData == null) modelData = await entityService.getPartialEntity("http://endhealth.info/im#Organisation", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
+  if (modelData == null)
+    modelData = await entityService.getPartialEntity("http://endhealth.info/im#GPRegistrationEpisode", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
 
   const iri: TTIriRef = {
     "@id": modelData["@id"],

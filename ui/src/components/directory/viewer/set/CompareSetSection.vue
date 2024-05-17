@@ -29,8 +29,9 @@ import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import setupOverlay from "@/composables/setupOverlay";
 import { DirectService, EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
-import { SortDirection, ToastSeverity } from "@im-library/enums";
+import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { FilterOptions } from "@im-library/interfaces";
 import { Concept, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS } from "@im-library/vocabulary";
@@ -49,7 +50,7 @@ const toast = useToast();
 const directService = new DirectService();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const filterStore = useFilterStore();
-const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
+const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
 const controller: Ref<AbortController> = ref({} as AbortController);
 const menu = ref();
@@ -99,7 +100,7 @@ async function search(searchText: string): Promise<SearchResultSummary[]> {
   if (searchText && searchText.length > 2) {
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText;
-    searchRequest.sortField = "weighting";
+    searchRequest.sortField = getNameFromIri(IM.USAGE_TOTAL);
     searchRequest.page = 1;
     searchRequest.size = 100;
     searchRequest.schemeFilter = [];
@@ -122,7 +123,7 @@ async function search(searchText: string): Promise<SearchResultSummary[]> {
 
     if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
       const sortField = selectedFilters.value.sortFields[0];
-      if (sortField["@id"] === IM.USAGE) searchRequest.sortField = "weighting";
+      if (sortField["@id"]) searchRequest.sortField = getNameFromIri(sortField["@id"]);
 
       if (isArrayHasLength(selectedFilters.value.sortDirections) && isObjectHasKeys(selectedFilters.value.sortDirections[0])) {
         const sortDirection = selectedFilters.value.sortDirections[0];

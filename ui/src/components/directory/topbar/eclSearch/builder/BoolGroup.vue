@@ -73,28 +73,34 @@
             </div>
           </div>
         </template>
-        <Button
-          v-if="props.focus"
-          type="button"
-          icon="fa-solid fa-filter"
-          label="Add refinement"
-          class="add-button"
-          :severity="hover ? 'success' : 'secondary'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          @click="addRefinement()"
-        />
-        <Button
-          v-else
-          type="button"
-          icon="fa-solid fa-plus"
-          label="Add concept"
-          class="add-button"
-          :severity="hover ? 'success' : 'secondary'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          @click="addConcept()"
-        />
+        <div class="add-attribute-container">
+          <Button
+            v-if="props.focus"
+            type="button"
+            icon="fa-solid fa-filter"
+            label="Add refinement"
+            class="add-button"
+            :severity="hover ? 'success' : 'secondary'"
+            :outlined="!hover"
+            :class="!hover && 'hover-button'"
+            @click="addRefinement()"
+          />
+          <Button
+            v-else
+            type="button"
+            icon="fa-solid fa-plus"
+            label="Add concept"
+            class="add-button"
+            :severity="hover ? 'success' : 'secondary'"
+            :outlined="!hover"
+            :class="!hover && 'hover-button'"
+            @click="addConcept()"
+          />
+          <div v-if="canBeAttributeGroup" class="attribute-group-checkbox">
+            <Checkbox v-model="attributeGroup" :binary="true" />
+            <label>Attribute group</label>
+          </div>
+        </div>
       </div>
       <div class="add-group">
         <Button
@@ -114,8 +120,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref, watch, onMounted } from "vue";
-import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
+import { ref, inject, Ref, watch, onMounted, computed, ComputedRef } from "vue";
+import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import _, { isArray } from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -138,26 +144,25 @@ const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuil
 watch(
   () => _.cloneDeep(props.value),
   (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
+    if (!_.isEqual(newValue, oldValue)) {
+      if (props.value.attributeGroup) attributeGroup.value = true;
+    }
   }
 );
-
-watch(
-  () => _.cloneDeep(props.parent),
-  (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) props.value.ecl = generateEcl();
-  }
-);
+const childLoadingState = inject("childLoadingState") as Ref<any>;
 
 const emit = defineEmits({ unGroupItems: _payload => true });
 
-const includeTerms = inject("includeTerms") as Ref<boolean>;
-watch(includeTerms, () => (props.value.ecl = generateEcl()));
+const canBeAttributeGroup: ComputedRef<boolean> = computed(
+  () => props.parent && isArray(props.value.items) && props.value.items.length > 1 && props.value.items.every((i: any) => i.type === "Refinement")
+);
 
 const group: Ref<number[]> = ref([]);
+const attributeGroup = ref(false);
 
 onMounted(() => {
-  props.value.ecl = generateEcl();
+  if (props.value.attributeGroup) attributeGroup.value = true;
+  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
 });
 
 const hover = ref();
@@ -172,7 +177,7 @@ function mouseout(event: any) {
 }
 
 function toggleBool(event: any) {
-  props.value.conjunction = props.value.conjunction === "AND" ? "OR" : "AND";
+  props.value.conjunction = props.value.conjunction === "and" ? "or" : "and";
 }
 
 function toggleExclude() {
@@ -188,7 +193,7 @@ function add(item: any) {
 }
 
 function addConcept() {
-  add({ type: "Concept", descendants: "<<", conjunction: "AND", concept: { iri: "" } });
+  add({ type: "ExpressionConstraint", expressionConstraint: "<<", conjunction: "and", conceptSingle: { iri: "" } });
 }
 
 function deleteItem(index: number) {
@@ -197,39 +202,16 @@ function deleteItem(index: number) {
 
 function getComponent(componentName: string) {
   switch (componentName) {
-    case "Concept":
-      return Concept;
+    case "ExpressionConstraint":
+      return ExpressionConstraint;
     case "Refinement":
       return Refinement;
   }
 }
 
-function generateEcl(): string {
-  let ecl = "";
-  if (isArrayHasLength(props.value.items)) {
-    if (props.value.exclude) ecl += "MINUS ";
-    if (props.parent && isArray(props.value.items) && props.value.items.length > 1 && props.value.items.every((i: any) => i.type === "Refinement")) ecl += "{ ";
-    else if (props.parent) ecl += "( ";
-    for (const [index, item] of props.value.items.entries()) {
-      ecl += generateChildEcl(index, item);
-    }
-    if (props.parent && isArray(props.value.items) && props.value.items.length > 1 && props.value.items.every((i: any) => i.type === "Refinement")) ecl += " }";
-    else if (props.parent) ecl += " )";
-  }
-  return ecl.replace(/ {2,}/g, " ");
-}
-
-function generateChildEcl(index: number, item: any) {
-  let ecl = "";
-  if (index !== 0 && !item.exclude) ecl += props.value.conjunction + " ";
-  if (item.ecl) ecl += item.ecl;
-  if (index + 1 !== props.value.items.length) ecl += "\n";
-  return ecl;
-}
-
 function processGroup() {
   if (group.value.length) {
-    const conjunction = props.parent?.conjunction === "OR" ? "AND" : "OR";
+    const conjunction = props.parent?.conjunction === "or" ? "and" : "or";
     const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: conjunction, items: [] };
     for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
       const item = props.value.items.splice(index, 1)[0];
@@ -243,14 +225,14 @@ function processGroup() {
 function addRefinement() {
   if (!props.focus) {
     const anyConcept = {
-      type: "Concept",
-      descendants: "<<",
-      concept: { iri: "any", name: "ANY", code: "any" },
-      conjunction: "AND",
-      items: [{ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } }]
+      type: "ExpressionConstraint",
+      constraintOperator: "<<",
+      conceptSingle: { iri: "any", name: "ANY", code: "any" },
+      conjunction: "and",
+      items: [{ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } }]
     };
     add(anyConcept);
-  } else add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+  } else add({ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } });
 }
 
 function requestUnGroupItems() {
@@ -331,6 +313,20 @@ function unGroupItems(groupedItems: any) {
   flex-flow: row wrap;
   justify-content: flex-start;
   gap: 4px;
+}
+
+.attribute-group-checkbox {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.add-attribute-container {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .minus-container {

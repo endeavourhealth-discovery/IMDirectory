@@ -13,8 +13,18 @@
         :label="currentVersion"
         class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
         @click="showReleaseNotes"
+        data-testid="releases-button"
       />
-      <Button v-tooltip.bottom="'Themes'" icon="fa-regular fa-palette" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
+      <Button
+        v-tooltip.bottom="'Themes'"
+        icon="fa-regular fa-palette"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openThemesMenu"
+        data-testid="change-theme-button"
+      />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
         <template #item="{ item }: any">
           <div class="theme-row p-link">
@@ -24,7 +34,16 @@
           </div>
         </template>
       </Menu>
-      <Button v-tooltip.bottom="'Scale'" icon="fa-duotone fa-text-size" rounded text plain class="topbar-end-button" @click="openScaleMenu" />
+      <Button
+        v-tooltip.bottom="'Scale'"
+        icon="fa-duotone fa-text-size"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openScaleMenu"
+        data-testid="font-size-button"
+      />
       <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
         <template #item="{ item }: any">
           <div class="scale-row p-link">
@@ -39,23 +58,21 @@
         icon="fa-duotone fa-arrow-down-up-across-line"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
+        data-testid="upload-download-button"
       />
-      <Menu ref="adminMenu" :model="adminItems" :popup="true" />
+      <Menu ref="adminMenu" id="admin-menu" :model="adminItems" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
         icon="fa-regular fa-grid-2"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
+        data-testid="apps-button"
       />
-      <OverlayPanel ref="appsOP" class="app-overlay-panel">
-        <div class="flex flex-row flex-wrap gap-1 justify-content-start">
-          <Button
-            v-for="item in appItems"
-            v-tooltip.bottom="item.label"
-            :icon="item.icon"
-            class="p-button-rounded p-button-text p-button-plain"
-            @click="open(item)"
-          />
+      <OverlayPanel ref="appsOP" class="app-overlay-panel" id="apps-menu">
+        <div class="flex flex-row flex-wrap gap-2 justify-content-start">
+          <template v-for="item in appItems">
+            <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
+          </template>
         </div>
       </OverlayPanel>
       <Button
@@ -66,6 +83,7 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu"
       />
       <Button
         v-tooltip.left="'Account'"
@@ -74,10 +92,11 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu-logged-in"
       >
         <img class="avatar-icon" alt="avatar icon" :src="getUrl(currentUser.avatar)" style="min-width: 1.75rem" />
       </Button>
-      <Menu ref="userMenu" :model="getItems()" :popup="true">
+      <Menu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
             <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--text-color)">
@@ -92,7 +111,7 @@
         </template>
       </Menu>
     </div>
-    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false">
+    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
       <div class="flex flex-column gap-2">
         <label for="template">Template</label>
         <Dropdown id="template" v-model="template" :options="templates" />
@@ -111,6 +130,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, onMounted } from "vue";
+import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, GithubService, UserService, CodeGenService } from "@/services";
 import { MenuItem } from "primevue/menuitem";
@@ -144,7 +164,7 @@ const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
 const adminItems: Ref<MenuItem[]> = ref([]);
-const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
+const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 
 const toast = useToast();
@@ -184,7 +204,7 @@ function getItems(): MenuItem[] {
 }
 
 function openUserMenu(event: any): void {
-  (userMenu.value as any).toggle(event);
+  userMenu.value.toggle(event);
 }
 
 function getUrl(item: string): string {
@@ -193,7 +213,7 @@ function getUrl(item: string): string {
 }
 
 function openAppsOverlay(event: any) {
-  (appsOP.value as any).toggle(event);
+  appsOP.value.toggle(event);
 }
 
 function setUserMenuItems(): void {
@@ -643,9 +663,9 @@ async function generateAndDownload() {
 
 function setAppMenuItems() {
   appItems.value = [
-    { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
-    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() },
-    { label: "UPRN", icon: "fa-regular fa-address-book", command: () => directService.uprn() }
+    { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => directService.view(), color: "var(--blue-500)", size: 2 },
+    { label: "Creator", icon: "fa-duotone fa-circle-plus", command: () => directService.create(), color: "var(--orange-500)", size: 2 },
+    { label: "ASSIGN UPRN", icon: "fa-duotone fa-map-location-dot", command: () => directService.uprn(), color: "var(--red-500)", size: 2 }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }
@@ -717,7 +737,7 @@ function showReleaseNotes() {
 }
 
 .selected {
-  background-colour: red;
+  background-color: red;
 }
 
 .theme-icon {

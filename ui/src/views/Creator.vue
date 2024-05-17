@@ -66,7 +66,6 @@ import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
-import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
   components: {
@@ -216,7 +215,7 @@ onMounted(async () => {
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
       if (propertyIri === IM.DEFINITION) {
-        const newValue = await QueryService.getQueryDisplay(valueIri as string);
+        const newValue = await QueryService.getQueryDisplay(valueIri as string, false);
         editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
         editorEntity.value[IM.DEFINITION] = JSON.stringify({
           match: [
@@ -354,6 +353,10 @@ function submit(): void {
           showLoaderOnConfirm: true,
           allowOutsideClick: () => !Swal.isLoading(),
           preConfirm: async () => {
+            if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
+              await EntityService.updateSubsetsFromSuper(editorEntity.value);
+              delete editorEntity.value[IM.HAS_SUBSET];
+            }
             const res = await EntityService.createEntity(editorEntity.value);
             if (res) {
               creatorStore.updateCreatorSavedEntity(undefined);

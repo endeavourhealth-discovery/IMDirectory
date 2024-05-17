@@ -4,11 +4,6 @@
     <div v-else class="query-display-container flex flex-column gap-3">
       <div class="flex flex-row gap-2">
         <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
-        <!-- <QuickQuery :query-iri="entityIri" v-if="canTestQuery">
-        <template #button="{ runQuickQuery }">
-          <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
-        </template>
-      </QuickQuery> -->
       </div>
       <div class="query-display">
         <div class="rec-query-display">
@@ -79,8 +74,8 @@ onMounted(async () => {
 });
 
 async function init() {
-  if (props.entityIri) query.value = await QueryService.getQueryDisplay(props.entityIri);
-  else if (props.definition) query.value = await QueryService.getQueryDisplayFromQuery(JSON.parse(props.definition));
+  if (props.entityIri) query.value = await QueryService.getQueryDisplay(props.entityIri, true);
+  else if (props.definition) query.value = await QueryService.getQueryDisplayFromQuery(JSON.parse(props.definition), true);
 }
 
 async function generateSQL() {
