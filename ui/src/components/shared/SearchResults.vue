@@ -61,7 +61,7 @@ interface Props {
   showFilters?: boolean;
   showQuickTypeFilters?: boolean;
   quickTypeFiltersAllowed?: string[];
-  defaultQuickTypeFilter?: string;
+  selectedQuickTypeFilter?: string;
   osQuery?: SearchRequest;
   imQuery?: QueryRequest;
 }
@@ -100,8 +100,8 @@ onMounted(() => init());
 
 function init() {
   setFiltersFromStore();
-  if (props.showQuickTypeFilters && props.defaultQuickTypeFilter) {
-    const found = typeOptions.value.find(typeOption => typeOption["@id"] === props.defaultQuickTypeFilter);
+  if (props.showQuickTypeFilters && props.selectedQuickTypeFilter) {
+    const found = typeOptions.value.find(typeOption => typeOption["@id"] === props.selectedQuickTypeFilter);
     if (found) quickTypeFilter.value = found;
   }
 }

@@ -36,9 +36,9 @@
             v-if="activePage === 0"
             :selected="selected"
             :show-filters="showFilters"
-            :show-quick-type-filters="showQuickTypeFilters"
+            :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
             :quick-type-filters-allowed="quickTypeFiltersAllowed"
-            :default-quick-type-filter="defaultQuickTypeFilter"
+            :selected-quick-type-filter="selectedQuickTypeFilter"
             :updateSearch="updateSearch"
             :search-term="searchTerm"
             :im-query="imQuery"
@@ -98,9 +98,8 @@ interface Props {
   rootEntities?: string[];
   searchTerm?: string;
   selectedFilterOptions?: FilterOptions;
-  showQuickTypeFilters?: boolean;
   quickTypeFiltersAllowed?: string[];
-  defaultQuickTypeFilter?: string;
+  selectedQuickTypeFilter?: string;
   showFilters?: boolean;
 }
 
@@ -272,7 +271,7 @@ function onEnter() {
 }
 
 function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
-  if (props.osQuery) {
+  if (props.osQuery && isObjectHasKeys(selectedFilters)) {
     for (const key of Object.keys(selectedFilters)) {
       (props.osQuery as any)[key] = (selectedFilters as any)[key];
     }
