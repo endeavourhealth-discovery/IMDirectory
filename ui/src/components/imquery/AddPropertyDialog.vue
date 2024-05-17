@@ -3,8 +3,8 @@
     <Stepper :style="{ minWidth: '50vw' }">
       <StepperPanel header="Select property">
         <template #content="{ nextCallback }">
-          <div class="flex flex-column">
-            <div class="flex-auto flex align-items-center font-medium">
+          <div class="flex flex-column select-property-wrapper">
+            <div class="flex-auto flex align-items-center font-medium select-property-content">
               <QueryNavTree
                 :editMatch="editMatch"
                 v-model:selected-property="selectedProperty"
@@ -13,7 +13,7 @@
               />
             </div>
           </div>
-          <div class="flex pt-4 justify-content-end">
+          <div class="flex pt-4 justify-content-end next-button">
             <Button :disabled="!isObjectHasKeys(selectedProperty)" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="nextCallback" />
           </div>
         </template>
@@ -21,7 +21,7 @@
       <StepperPanel header="Populate value">
         <template #content="{ prevCallback }">
           <EditProperty v-model:property="editWhere" :data-model-iri="editWhereDMIri ?? dataModelIri" :show-delete="false" />
-          <div class="flex pt-4 justify-content-between">
+          <div class="flex pt-4 justify-content-between populate-property-actions">
             <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="prevCallback" />
             <Button label="Save" iconPos="right" @click="save" />
           </div>
@@ -60,7 +60,7 @@ const editMatch: Ref<Match> = ref({ property: [] } as Match);
 const selectedProperty: Ref<TreeNode> = ref({});
 const visible: Ref<boolean> = ref(false);
 const editWhere: Ref<Where> = ref({});
-const editWhereDMIri: Ref<string | undefined> = ref("");
+const editWhereDMIri: Ref<string> = ref("");
 const whereOrMatch: Ref<Where | Match> = ref({});
 watch(
   () => props.showDialog,
@@ -89,7 +89,9 @@ watch(
       whereOrMatch.value = buildProperty(selectedProperty.value as any);
       if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
         editWhere.value = getEditWhere(whereOrMatch.value.where![0]!);
-        editWhereDMIri.value = getEditWhereDMIri(whereOrMatch.value.where![0]!) ?? (whereOrMatch.value as Match).typeOf?.["@id"];
+        const dmIriFromProperty = getEditWhereDMIri(whereOrMatch.value.where![0]!);
+        if (dmIriFromProperty) editWhereDMIri.value = dmIriFromProperty;
+        else editWhereDMIri.value = (whereOrMatch.value as Match).typeOf?.["@id"] ?? "";
       } else {
         editWhere.value = getEditWhere(whereOrMatch.value);
         editWhereDMIri.value = getEditWhereDMIri(whereOrMatch.value);
@@ -127,6 +129,7 @@ function getEditWhereDMIri(whereMatch: any) {
   const found: string[] = [];
   getEditWhereDMIriRecursively(whereMatch, found);
   if (isArrayHasLength(found)) return found[0];
+  return "";
 }
 
 function getEditWhereDMIriRecursively(where: Where, found: any[]) {

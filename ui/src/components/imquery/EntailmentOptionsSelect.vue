@@ -13,7 +13,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const editOptions: Ref<string | undefined> = ref();
+const editOptions: Ref<string> = ref("");
 
 const options = [
   { id: "memberOf", name: "member of" },

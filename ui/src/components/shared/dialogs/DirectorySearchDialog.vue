@@ -277,7 +277,10 @@ function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
       (props.osQuery as any)[key] = (selectedFilters as any)[key];
     }
   } else if (props.imQuery) {
-    // TODO: add filter options to imquery
+    if (!props.imQuery.query.match) props.imQuery.query.match = [];
+    if (isArrayHasLength(selectedFilters.types)) props.imQuery.query.match.push({ where: [{ "@id": IM.TYPE, is: selectedFilters.types }] });
+    if (isArrayHasLength(selectedFilters.schemes)) props.imQuery.query.match.push({ where: [{ "@id": IM.HAS_SCHEME, is: selectedFilters.schemes }] });
+    if (isArrayHasLength(selectedFilters.status)) props.imQuery.query.match.push({ where: [{ "@id": IM.HAS_STATUS, is: selectedFilters.status }] });
   } else {
     emit("updateSelectedFilters", selectedFilters);
   }
