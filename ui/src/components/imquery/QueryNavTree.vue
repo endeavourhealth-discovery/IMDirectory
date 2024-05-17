@@ -1,15 +1,23 @@
 <template>
   <div class="query-tree-wrapper">
     <div class="query-tree-nav" id="hierarchy-tree-bar-container">
-      <Tree :value="root" :expandedKeys="expandedKeys" @node-expand="handleTreeNodeExpand" class="tree-root" :loading="loading">
+      <Tree
+        v-model:selection-keys="selectedKeys"
+        selectionMode="single"
+        :value="root"
+        :expandedKeys="expandedKeys"
+        :loading="loading"
+        class="tree-root"
+        @node-expand="handleTreeNodeExpand"
+        @node-select="onSelect"
+      >
         <template #default="{ node }: any">
           <div class="tree-row">
-            <span v-if="node.selectable"><Checkbox v-model="node.selected" :binary="true" @input="onCheckInput($event, node)" /></span>
             <span v-if="!node.loading">
               <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
             </span>
             <ProgressSpinner v-if="node.loading" />
-            <span @mouseover="displayOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+            <span @mouseover="showOverlay($event, node.data)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
           </div>
         </template>
       </Tree>
@@ -25,31 +33,34 @@ import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
-import setupQueryTree from "@/composables/setupQueryTree";
 import { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isFolder, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
-import { Match, Where } from "@im-library/interfaces/AutoGen";
+import { Match, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 import { stringAscending } from "@im-library/helpers/Sorters";
+import setupOverlay from "@/composables/setupOverlay";
+import { getKey, getParentNode } from "@im-library/helpers";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
 interface Props {
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
+  selectedProperty: TreeNode;
 }
 const props = defineProps<Props>();
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
-
+const selectedNode = ref();
 const emit = defineEmits({
-  onSelectedUpdate: (_payload: TreeNode[]) => true
+  "update:selectedProperty": (_payload: TreeNode) => true
 });
 
 const loading = ref(true);
-const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
-const { removeOverlay, OS, displayOverlay, hideOverlay, createTreeNode, select, unselect, selectedNodes } = setupQueryTree();
+const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild, selectedKeys } = setupTree();
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
   () => props.dmIri,
@@ -58,21 +69,11 @@ watch(
 
 onMounted(async () => await init());
 
-onUnmounted(() => {
-  removeOverlay();
-});
-
 async function init() {
   loading.value = true;
   await addParentFoldersToRoot();
   if (isArrayHasLength(props.editMatch.where)) await populateCheckBoxes(props.editMatch);
   loading.value = false;
-}
-
-async function onCheckInput(check: boolean, node: TreeNode) {
-  if (check) onSelect(node);
-  else onUnselect(node);
-  emit("onSelectedUpdate", selectedNodes.value);
 }
 
 async function populateCheckBoxes(match: Match) {
@@ -110,13 +111,40 @@ async function selectByIri(property: Where, iri: string, nodes: TreeNode[]) {
   }
 }
 
-function onUnselect(node: any) {
-  if (node.property) delete node.property;
-  unselect(node);
+function createTreeNode(
+  conceptName: string,
+  conceptIri: string,
+  conceptTypes: TTIriRef[],
+  hasChildren: boolean,
+  selectable: boolean,
+  parent?: TreeNode,
+  hasVariable?: string,
+  order?: number
+): TreeNode {
+  return {
+    key: getKey(parent as any),
+    label: conceptName,
+    typeIcon: getFAIconFromType(conceptTypes),
+    color: getColourFromType(conceptTypes),
+    conceptTypes: conceptTypes,
+    data: conceptIri,
+    leaf: !hasChildren,
+    loading: false,
+    children: [] as TreeNode[],
+    parent: getParentNode(parent as any),
+    order: order,
+    selectable: selectable,
+    hasVariable: hasVariable
+  };
+}
+
+function select(node: TreeNode) {
+  selectedNode.value = node;
 }
 
 function onSelect(node: any) {
   select(node);
+  emit("update:selectedProperty", selectedNode.value);
 }
 
 async function handleTreeNodeExpand(node: any) {

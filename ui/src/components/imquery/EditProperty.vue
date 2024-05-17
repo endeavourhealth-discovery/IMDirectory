@@ -8,7 +8,7 @@
       class="concept-select"
     />
     <DatatypeSelect v-else-if="uiProperty?.propertyType === 'datatype'" :datatype="uiProperty.valueType" :property="property" />
-    <Button @click="$emit('deleteProperty')" severity="danger" icon="fa-solid fa-trash" />
+    <Button v-if="showDelete" @click="$emit('deleteProperty')" severity="danger" icon="fa-solid fa-trash" />
   </div>
 </template>
 
@@ -24,9 +24,10 @@ import ConceptSelect from "./ConceptSelect.vue";
 interface Props {
   property: Where;
   dataModelIri: string;
+  showDelete?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), { showDelete: true });
 const uiProperty: Ref<UIProperty | undefined> = ref();
 
 const emit = defineEmits({ deleteProperty: () => true });

@@ -1,8 +1,8 @@
 <template>
   <div class="search-container">
-    <span class="p-input-icon-right search-group">
-      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
-      <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
+    <IconField iconPosition="right">
+      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
+      <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
       <InputText
         id="autocomplete-search"
         v-model="searchText"
@@ -12,7 +12,7 @@
         autofocus
         v-on:keyup.enter="onSearch"
       />
-    </span>
+    </IconField>
     <SplitButton class="search-button p-button-secondary" @click="onSearch" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
       v-if="showFilters"
