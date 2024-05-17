@@ -11,6 +11,7 @@ import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import VueClipboard from "vue3-clipboard";
 import Tooltip from "primevue/tooltip";
 import { createTestingPinia } from "@pinia/testing";
+import PrimeVue from "primevue/config";
 
 createTestingPinia({
   initialState: {
@@ -80,7 +81,8 @@ describe("EclSearch.vue", async () => {
             VueClipboard(app, {
               autoSetContainer: true,
               appendToBody: true
-            })
+            }),
+          PrimeVue
         ]
       }
     });
