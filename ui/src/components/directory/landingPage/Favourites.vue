@@ -134,7 +134,7 @@ async function getFavouritesDetails() {
 }
 
 .favourites-container {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   display: flex;
   width: 100%;
   flex-flow: column nowrap;
