@@ -67,7 +67,7 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
-  showQuickTypeFilters: true,
+  showQuickTypeFilters: false,
   quickTypeFiltersAllowed: () => [IM.CONCEPT, IM.VALUESET],
   rows: 25
 });
