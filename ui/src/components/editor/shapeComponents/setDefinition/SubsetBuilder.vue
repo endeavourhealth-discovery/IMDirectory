@@ -1,6 +1,9 @@
 <template>
   <Panel class="subsets-panel" header="Subsets" toggleable :collapsed="!hasSubSets">
-    <div class="subsets-content">
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
+    </div>
+    <div v-else class="subsets-content">
       <ArrayBuilder v-if="shape.property" :mode="mode" :shape="shape.property[0]" :value="inclusions" @updateClicked="updateInclusions" />
     </div>
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
@@ -12,10 +15,11 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import ArrayBuilder from "../ArrayBuilder.vue";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
-import { COMPONENT, IM, QUERY } from "@im-library/vocabulary";
+import { COMPONENT, IM, QUERY, RDFS } from "@im-library/vocabulary";
 import { EditorMode } from "@im-library/enums";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { QueryService } from "@/services";
 
 interface Props {
   value?: TTIriRef[];
@@ -24,13 +28,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-const hasSubSets: ComputedRef<boolean> = computed(() => isArrayHasLength(inclusions.value));
-
-const inclusions: Ref<TTIriRef[]> = ref([]);
-const invalid = ref(false);
-const validationErrorMessage: Ref<string | undefined> = ref();
-const showValidation = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
@@ -65,12 +62,15 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const showRequired: ComputedRef<boolean> = computed(() => {
-  if (props.shape.minCount && props.shape.minCount > 0) return true;
-  else return false;
-});
-
 const key = props.shape.path["@id"];
+
+const hasSubSets: ComputedRef<boolean> = computed(() => isArrayHasLength(inclusions.value));
+
+const inclusions: Ref<TTIriRef[]> = ref([]);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
+const loading = ref(true);
 
 watch(
   () => _.cloneDeep(inclusions.value),
@@ -86,16 +86,22 @@ watch(
   }
 );
 
-watch(
-  () => _.cloneDeep(props.value),
-  async (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) init();
-  }
-);
-
-onMounted(() => {
-  init();
+onMounted(async () => {
+  loading.value = true;
+  await init();
+  loading.value = false;
 });
+
+async function init() {
+  if (editorEntity?.value[IM.ID]) {
+    const subsets = await QueryService.queryIM({ query: { "@id": QUERY.GET_SUBSETS }, argument: [{ parameter: "this", valueIri: editorEntity.value[IM.ID] }] });
+    if (subsets?.entities) {
+      inclusions.value = subsets.entities.map(s => {
+        return { "@id": s["@id"], name: s[RDFS.LABEL] };
+      });
+    } else inclusions.value = [];
+  } else inclusions.value = [];
+}
 
 function updateValueVariableMap(data: TTIriRef[] | undefined) {
   if (!props.shape.valueVariable) return;
@@ -103,14 +109,8 @@ function updateValueVariableMap(data: TTIriRef[] | undefined) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-function init() {
-  if (props.value) {
-    inclusions.value = _.cloneDeep(props.value);
-  } else inclusions.value = [];
-}
-
 function updateInclusions(data: any) {
-  inclusions.value = data[key];
+  inclusions.value = data[props.shape.path["@id"]];
 }
 
 function updateEntity() {

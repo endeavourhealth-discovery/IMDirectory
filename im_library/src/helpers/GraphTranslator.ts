@@ -1,6 +1,6 @@
 import { TTIriRef } from "../interfaces/AutoGen";
 import { TTBundle, TTGraphData } from "../interfaces";
-import { SHACL, OWL, IM, RDFS, SNOMED, GRAPH } from "../vocabulary";
+import { SHACL, OWL, IM, RDFS, SNOMED, XSD } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
@@ -56,7 +56,7 @@ function getPropertyName(nested: any): string {
 
 function getNameFromIri(iri: string): string {
   if (!iri) return iri;
-  if (iri.startsWith(GRAPH.XMLS) || iri.startsWith(SNOMED.NAMESPACE)) return iri.split("#")[1];
+  if (iri.startsWith(XSD.NAMESPACE) || iri.startsWith(SNOMED.NAMESPACE)) return iri.split("#")[1];
   if (iri.startsWith(IM.NAMESPACE + "im:")) return iri.substring(IM.NAMESPACE.length + "im:".length);
   if (iri.startsWith(IM.NAMESPACE)) return iri.substring(IM.NAMESPACE.length);
   if (iri.startsWith(RDFS.NAMESPACE)) return iri.substring(RDFS.NAMESPACE.length);

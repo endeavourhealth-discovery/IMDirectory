@@ -19,4 +19,5 @@ export class CONFIG {
   public static readonly IMDIRECTORY_ALL_RELEASES = CONFIG.NAMESPACE + "IMDirectoryAllReleases";
   public static readonly IMPORT_DATA_LATEST_RELEASE = CONFIG.NAMESPACE + "ImportDataLatestRelease";
   public static readonly IMPORT_DATA_ALL_RELEASES = CONFIG.NAMESPACE + "ImportDataAllReleases";
+  public static readonly MONITORING = CONFIG.NAMESPACE + "monitoring";
 }

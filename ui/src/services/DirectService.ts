@@ -94,4 +94,8 @@ export default class DirectService {
   public uprn() {
     this.directTo({ appRoute: "uprn", newTab: true });
   }
+
+  public codeGenerator() {
+    this.directTo({ appRoute: "codeGenerator" });
+  }
 }

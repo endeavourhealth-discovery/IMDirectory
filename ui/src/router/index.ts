@@ -52,8 +52,9 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useLoadingStore } from "@/stores/loadingStore";
+import { useQueryStore } from "@/stores/queryStore";
 
-const APP_TITLE = "IM Directory";
+const APP_TITLE = "IM";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -70,7 +71,8 @@ const routes: Array<RouteRecordRaw> = [
         component: LandingPage,
         meta: {
           requiresLicense: true,
-          transitionDelay: "0.2s"
+          transitionDelay: "0.2s",
+          title: "Home"
         }
       },
       {
@@ -87,7 +89,8 @@ const routes: Array<RouteRecordRaw> = [
         name: "Search",
         component: SearchResults,
         meta: {
-          requiresLicense: true
+          requiresLicense: true,
+          title: "Search"
         }
       },
       {
@@ -95,7 +98,8 @@ const routes: Array<RouteRecordRaw> = [
         name: "EclSearch",
         component: EclSearch,
         meta: {
-          requiresLicense: true
+          requiresLicense: true,
+          title: "Ecl search"
         }
       },
       {
@@ -103,7 +107,8 @@ const routes: Array<RouteRecordRaw> = [
         name: "IMQuerySearch",
         component: IMQuerySearch,
         meta: {
-          requiresLicense: true
+          requiresLicense: true,
+          title: "Query search"
         }
       }
     ]
@@ -117,24 +122,28 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "login:returnUrl?",
         name: "Login",
-        component: Login
+        component: Login,
+        meta: { title: "Login" }
       },
       {
         path: "confirm-code:returnUrl?",
         name: "ConfirmCode",
-        component: ConfirmCode
+        component: ConfirmCode,
+        meta: { title: "Confirm code" }
       },
       {
         path: "register:returnUrl?",
         name: "Register",
-        component: Register
+        component: Register,
+        meta: { title: "Register" }
       },
       {
         path: "my-account:returnUrl?",
         name: "UserDetails",
         component: UserDetails,
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
+          title: "My account"
         }
       },
       {
@@ -142,7 +151,8 @@ const routes: Array<RouteRecordRaw> = [
         name: "UserEdit",
         component: UserEdit,
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
+          title: "My account"
         }
       },
       {
@@ -150,40 +160,45 @@ const routes: Array<RouteRecordRaw> = [
         name: "PasswordEdit",
         component: PasswordEdit,
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
+          title: "My account"
         }
       },
       {
         path: "logout:returnUrl?",
         name: "Logout",
-        component: Logout
+        component: Logout,
+        meta: { title: "Logout" }
       },
       {
         path: "password-recovery:returnUrl?",
         name: "ForgotPassword",
-        component: ForgotPassword
+        component: ForgotPassword,
+        meta: { title: "Reset password" }
       },
       {
         path: "password-recovery/submit:returnUrl?",
         name: "ForgotPasswordSubmit",
-        component: ForgotPasswordSubmit
+        component: ForgotPasswordSubmit,
+        meta: { title: "Reset password" }
       },
       {
         path: "mfa-setup",
         name: "MFASetup",
         component: MFASetup,
-        meta: { requiresReAuth: true }
+        meta: { requiresReAuth: true, title: "My account" }
       },
       {
         path: "mfa-login",
         name: "MFALogin",
-        component: MFALogin
+        component: MFALogin,
+        meta: { title: "Login" }
       },
       {
         path: "mfa-delete",
         name: "MFADelete",
         component: MFADelete,
-        meta: { requiresReAuth: true }
+        meta: { requiresReAuth: true, title: "My account" }
       }
     ]
   },
@@ -193,7 +208,8 @@ const routes: Array<RouteRecordRaw> = [
     component: Creator,
     meta: {
       requiresAuth: true,
-      requiresCreateRole: true
+      requiresCreateRole: true,
+      title: "Creator"
     }
   },
   {
@@ -214,7 +230,8 @@ const routes: Array<RouteRecordRaw> = [
     component: Filer,
     meta: {
       requiresAuth: true,
-      requiresLicense: true
+      requiresLicense: true,
+      title: "Filer"
     }
   },
   {
@@ -258,58 +275,68 @@ const routes: Array<RouteRecordRaw> = [
     component: CodeGen,
     meta: {
       requiresAuth: true,
-      requiresLicense: true
+      requiresLicense: true,
+      title: "Code generator"
     }
   },
   {
     path: "/snomedLicense",
     name: "License",
-    component: SnomedLicense
+    component: SnomedLicense,
+    meta: { title: "Snomed license" }
   },
   {
     path: "/privacy",
     name: "Privacy",
-    component: PrivacyPolicy
+    component: PrivacyPolicy,
+    meta: { title: "Privacy" }
   },
-  { path: "/cookies", name: "Cookies", component: Cookies, meta: { view: true } },
+  { path: "/cookies", name: "Cookies", component: Cookies, meta: { view: true, title: "Cookies" } },
   {
     path: "/uprn-agreement",
     name: "UPRNAgreement",
-    component: UprnAgreement
+    component: UprnAgreement,
+    meta: { title: "UPRN agreement" }
   },
   {
     path: "/401/:requiredAccess?:accessType?",
     name: "AccessDenied",
     component: AccessDenied,
-    props: true
+    props: true,
+    meta: { title: "Access denied" }
   },
   {
     path: "/404/:iri?",
     name: "EntityNotFound",
     component: EntityNotFound,
-    props: true
+    props: true,
+    meta: { title: "404" }
   },
   {
     path: "/:pathMatch(.*)*",
     name: "PageNotFound",
-    component: PageNotFound
+    component: PageNotFound,
+    meta: { title: "Page not found" }
   },
   {
     path: "/500",
     name: "ServerOffline",
-    component: ServerOffline
+    component: ServerOffline,
+    meta: { title: "Error" }
   },
   {
     path: "/error",
     name: "VueError",
-    component: VueError
+    component: VueError,
+    meta: { title: "Error" }
   },
   {
     path: "/bugReport",
     name: "BugReport",
     component: BugReport,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      title: "Submit bug report"
     }
   }
 ];
@@ -353,13 +380,14 @@ router.beforeEach(async (to, from) => {
   const creatorStore = useCreatorStore();
   const editorStore = useEditorStore();
   const userStore = useUserStore();
+  const queryStore = useQueryStore();
 
   const currentPath = to.path;
 
   authStore.updateAuthReturnPath(currentPath);
 
   const iri = to.params.selectedIri;
-  if (iri) {
+  if (to.matched.some((record: any) => record.name === "Directory") && iri) {
     directoryStore.updateConceptIri(iri as string);
   }
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
@@ -371,6 +399,19 @@ router.beforeEach(async (to, from) => {
     } catch (_error) {
       await router.push({ name: "EntityNotFound", params: { iri: iri } });
     }
+  }
+  if (to.name?.toString() == "Query") {
+    const queryIri = to.params.queryIri;
+    if (queryIri && typeof queryIri === "string") {
+      queryStore.updateQueryIri(queryIri);
+      try {
+        if (!(await EntityService.iriExists(urlToIri(queryIri)))) {
+          await router.push({ name: "EntityNotFound", params: { iri: queryIri } });
+        }
+      } catch (_error) {
+        await router.push({ name: "EntityNotFound", params: { iri: queryIri } });
+      }
+    } else queryStore.updateQueryIri("");
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
     const res = await userStore.authenticateCurrentUser();
@@ -468,19 +509,32 @@ router.beforeEach(async (to, from) => {
   }
 });
 
-router.afterEach(to => {
+router.afterEach(async to => {
+  const directoryStore = useDirectoryStore();
+  const editorStore = useEditorStore();
+  const queryStore = useQueryStore();
   const loadingStore = useLoadingStore();
+  let title = (to.meta.title as string) ? (to.meta.title as string) : "";
   if (routes.findIndex(view => view.name === to.meta.name) != -1) {
     loadingStore.updateViewsLoading(false);
   }
   if (to.matched.some((record: any) => record.name === "Directory")) {
     loadingStore.updateDirectoryLoading(false);
+    if (!to.meta.title) title += await directoryStore.getConceptName();
+  }
+  if (to.matched.some((record: any) => record.name === "Editor")) {
+    title += "Editor: " + (await editorStore.getConceptName());
+  }
+  if (to.matched.some((record: any) => record.name === "Query")) {
+    title += "Query";
+    if (to.params.queryIri) title += ": " + (await queryStore.getQueryName());
   }
   if (to.matched.some(record => record.name === "Uprn")) {
     loadingStore.updateUprnLoading(false);
+    title += "UPRN";
   }
   nextTick(() => {
-    document.title = (to.meta.title as string) || APP_TITLE;
+    document.title = APP_TITLE + (title ? " - " : "") + title;
   });
 });
 

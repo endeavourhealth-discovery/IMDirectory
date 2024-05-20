@@ -1,7 +1,7 @@
 <template>
   <div id="address-lookup">
     <p>
-      Enter a single address string including a postcode at the end with a comma separating the address from the postcode<br />
+      Enter an address string (must be at least 10 character long).<br />
       e.g. 10 Downing St,Westminster,London,SW1A2AA
     </p>
 
@@ -17,11 +17,6 @@
       <Button @click="submitAddress" class="button">Search</Button>
     </div>
     <small v-if="showInvalid" :class="!validAddress && 'invalid'">{{ invalidErrorMessage }}</small>
-
-    <!-- <div class="commercial-container">
-      <label for="commercial">Commercial: </label>
-      <Checkbox id="commercial" v-model="isCommercial" :binary="true" />
-    </div> -->
 
     <div v-if="!loading" class="data-table-container">
       <table v-if="searchResults" class="data-table">
@@ -82,25 +77,20 @@ watch(isCommercial, async () => {
 });
 
 function isValidAddress(address: string) {
-  return isArrayHasLength(
-    address.match(
-      /[a-zA-Z0-9\s\/]+,[a-zA-Z\s]?,[a-zA-Z\s]?,([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\s?[0-9][A-Za-z]{2})/g
-    )
-  );
+  return address.length >= 10;
 }
 
 async function submitAddress() {
   if (!validAddress.value) {
     searchResults.value = undefined;
     invalidErrorMessage.value =
-      "Address is invalid. Please ensure the address is correct and in the required format '[address line 1], [address line 2], [...], [postcode]' e.g. '10 Downing St, Westminster, London, SW1A2AA'";
+        "Address is invalid. Please ensure the address is at least 10 characters";
     showInvalid.value = true;
     toast.add({ severity: "warn", summary: "Error", detail: invalidErrorMessage.value, life: 3000 });
     return;
   }
   loading.value = true;
   let ncommercial = "0";
-  //if (isCommercial.value == true) ncommercial = "1";
 
   const result = await uprnService.search(searchAddress.value, ncommercial);
   if (result && result.Matched) {
@@ -142,7 +132,6 @@ const keyToDescription = {
 };
 
 function getDefinition(key: string, parentKey?: string) {
-  //if (!parentKey) {
   if (parentKey == "BestMatch") {
     switch (key) {
       case "UPRN":

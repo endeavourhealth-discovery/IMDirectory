@@ -13,7 +13,7 @@ const model: TTIriRef = {
 const properties: DataModelProperty[] = [
   {
     property: { "@id": "", name: "Forename", description: "The GP's first/calling name" },
-    type: { "@id": "XSD:String" },
+    type: { "@id": "XS:String" },
     maxInclusive: "1"
   },
   {
@@ -37,7 +37,7 @@ describe("CodeGen", () => {
         "\n}",
       collectionWrapper: "List<${BASE DATA TYPE}>",
       datatypeMap: {
-        "XSD:String": "String"
+        "XS:String": "String"
       }
     };
 
@@ -60,7 +60,7 @@ describe("CodeGen", () => {
         "\n}",
       collectionWrapper: "List<${BASE DATA TYPE}>",
       datatypeMap: {
-        "XSD:String": "String"
+        "XS:String": "String"
       }
     };
 
@@ -80,7 +80,7 @@ describe("CodeGen", () => {
         "    }\n}",
       collectionWrapper: "List<${BASE DATA TYPE}>",
       datatypeMap: {
-        "XSD:String": "string"
+        "XS:String": "string"
       }
     };
 

@@ -85,7 +85,7 @@ function createMatchQuery(match: Match, qry: SqlQuery) {
 function convertMatch(match: Match, qry: SqlQuery) {
   if (match.is) {
     convertMatchIs(qry, match);
-  } else if (match.bool) {
+  } else if (match.boolMatch) {
     if (match.match && match.match.length > 0) convertMatchBoolSubMatch(qry, match);
     else if (match.where && match.where.length > 0) convertMatchProperties(qry, match);
     else {
@@ -95,7 +95,7 @@ function convertMatch(match: Match, qry: SqlQuery) {
     convertMatchProperties(qry, match);
   } else if (match.match && match.match.length > 0) {
     // Assume bool match "AND"
-    match.bool = Bool.and;
+    match.boolMatch = Bool.and;
     convertMatchBoolSubMatch(qry, match);
   } else if (match.variable && Object.keys(match).length == 1) {
     // TODO: Data fix
@@ -140,14 +140,14 @@ function convertMatchIs(qry: SqlQuery, match: Match) {
 }
 
 function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
-  if (!match.bool || !match.match) {
+  if (!match.boolMatch || !match.match) {
     throw new Error("INVALID MatchBoolSubMatch\n" + JSON.stringify(match, null, 2));
   }
 
-  qry.whereBool = match.bool ? match.bool.toUpperCase() : "AND";
+  qry.whereBool = match.boolWhere ? match.boolWhere.toUpperCase() : "AND";
 
   // TODO: Boolean "OR" should be a union (more performant)
-  // const joiner = "OR" == match.bool.toUpperCase() ? "LEFT JOIN " : "JOIN ";
+  // const joiner = "OR" == match.boolWhere?.toUpperCase() ? "LEFT JOIN " : "JOIN ";
 
   for (const subMatch of match.match) {
     convertMatchToQueryAndMerge(qry, subMatch, match.bool?.toUpperCase());
@@ -179,7 +179,7 @@ function convertMatchProperty(qry: SqlQuery, property: Where) {
     convertMatchPropertyRelative(qry, property);
   } else if (property.value) {
     convertMatchPropertyValue(qry, property);
-  } else if (property.bool) {
+  } else if (property.boolWhere) {
     convertMatchPropertyBool(qry, property);
   } else if (property.isNull) {
     convertMatchPropertyNull(qry, property);
@@ -355,7 +355,7 @@ function convertMatchPropertyValue(qry: SqlQuery, property: Where) {
 }
 
 function convertMatchPropertyBool(qry: SqlQuery, property: Where) {
-  if (!property.bool) {
+  if (!property.boolWhere) {
     throw new Error("INVALID MatchPropertyBool\n" + JSON.stringify(property, null, 2));
   }
 
@@ -367,7 +367,7 @@ function convertMatchPropertyBool(qry: SqlQuery, property: Where) {
 
     qry.withs.push(...subQuery.withs);
     qry.joins.push(...subQuery.joins);
-    qry.wheres.push("(" + subQuery.wheres.join(" " + property.bool.toUpperCase() + " ") + ")");
+    qry.wheres.push("(" + subQuery.wheres.join(" " + property.boolWhere?.toUpperCase() + " ") + ")");
   } else {
     throw new Error("Property BOOL should only contain property conditions");
   }

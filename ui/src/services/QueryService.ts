@@ -1,8 +1,9 @@
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { AllowableChildProperty, AliasEntity, QueryResponse, QueryQueueItem } from "@im-library/interfaces";
+import { AllowableChildProperty, AliasEntity, QueryResponse, UIProperty } from "@im-library/interfaces";
 import axios from "axios";
-import { PathDocument, Query, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { PathDocument, Query, QueryRequest, SearchResponse } from "@im-library/interfaces/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -104,12 +105,14 @@ const QueryService = {
     return axios.post(Env.VITE_NODE_API + "node_api/query/public/labeledQuery", query);
   },
 
-  async getQueryDisplay(iri: string): Promise<Query> {
-    return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri } });
+  async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
   },
 
-  async getQueryDisplayFromQuery(query: Query): Promise<Query> {
-    return axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplayFromQuery", query);
+  async getQueryDisplayFromQuery(query: Query, includeLogicDesc: boolean): Promise<Query> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplayFromQuery", query, {
+      params: { includeLogicDesc: includeLogicDesc }
+    });
   },
 
   async getAllQueries(): Promise<any> {
@@ -120,7 +123,7 @@ const QueryService = {
     return axios.get(Env.API + "api/query/public/allByType", { params: { iri: iri } });
   },
 
-  async getDataModelProperty(dataModelIri: string, propertyIri: string) {
+  async getDataModelProperty(dataModelIri: string, propertyIri: string): Promise<UIProperty> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/dataModelProperty", { params: { dataModelIri: dataModelIri, propertyIri: propertyIri } });
   },
 

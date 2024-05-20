@@ -20,6 +20,7 @@ export class QUERY {
   public static readonly SEARCH_ALLOWABLE_CONTAINED_IN = QUERY.NAMESPACE + "SearchAllowableContainedIn";
   public static readonly SEARCH_MAIN_TYPES = QUERY.NAMESPACE + "SearchmainTypes";
   public static readonly DM_PROPERTY = QUERY.NAMESPACE + "DataModelPropertyByShape";
-  public static readonly SEARCH_SUBCLASS = QUERY.NAMESPACE + "SearchAllowableSubclass";
+  public static readonly SEARCH_ALLOWABLE_SUBCLASS = QUERY.NAMESPACE + "SearchAllowableSubclass";
   public static readonly GET_VALUES_FROM_PROPERTY_RANGE = QUERY.NAMESPACE + "GetValuesFromPropertyRange";
+  public static readonly GET_SUBSETS = QUERY.NAMESPACE + "GetSubsets";
 }

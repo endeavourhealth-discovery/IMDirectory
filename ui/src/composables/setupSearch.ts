@@ -1,7 +1,8 @@
 import { EclService, EntityService, QueryService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 import { SortDirection } from "@im-library/enums";
-import { isObject } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
+import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { EclSearchRequest, FilterOptions } from "@im-library/interfaces";
 import { Page, QueryRequest, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
@@ -82,8 +83,8 @@ function setupSearch(searchPlaceholderValue?: string) {
     if (filterOptions.types) osQuery.typeFilter = filterOptions.types.map(filterOption => filterOption["@id"]);
     if (filterOptions.status) osQuery.statusFilter = filterOptions.status.map(filterOption => filterOption["@id"]);
     if (filterOptions.schemes) osQuery.schemeFilter = filterOptions.schemes.map(filterOption => filterOption["@id"]);
-    if (filterOptions.sortFields) osQuery.sortField = filterOptions.sortFields[0]["@id"] === IM.USAGE ? "weighting" : filterOptions.sortFields[0]["@id"];
-    if (filterOptions.sortDirections) osQuery.sortDirection = filterOptions.sortDirections[0]["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC;
+    if (filterOptions.sortFields) osQuery.sortField = getNameFromIri(filterOptions.sortFields?.[0]["@id"]);
+    if (filterOptions.sortDirections) osQuery.sortDirection = filterOptions.sortDirections?.[0]?.["@id"] === IM.ASCENDING ? SortDirection.ASC : SortDirection.DESC;
     return osQuery;
   }
 
