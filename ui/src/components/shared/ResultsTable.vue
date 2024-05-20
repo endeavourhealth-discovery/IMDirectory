@@ -43,9 +43,13 @@
           </div>
         </template>
       </Column>
-      <Column field="usageTotal" header="Usage">
+      <Column field="usageTotal" header="Weighting">
         <template #body="{ data }: any">
-          <span>{{ data.usageTotal }}</span>
+          <BatteryBar
+            :highest-value="highestUsage"
+            :current-value="data.usageTotal ?? 0"
+            v-tooltip.left="{ value: data.usageTotal?.toString() ?? '0', class: 'entity-tooltip' }"
+          />
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
@@ -71,6 +75,7 @@ import { DirectService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import BatteryBar from "./BatteryBar.vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupDownloadFile from "@/composables/downloadFile";
@@ -125,6 +130,7 @@ const directService = new DirectService();
 const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
 const searchResults: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const totalCount = ref(0);
+const highestUsage = ref(0);
 const page = ref(0);
 const rows = ref(25);
 const rClickOptions: Ref<any[]> = ref([
@@ -174,7 +180,6 @@ async function onSearch() {
     props.imQuery,
     props.eclQuery
   );
-  console.log(response);
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
   else {
     searchResults.value = [];
@@ -203,6 +208,7 @@ function processSearchResults(searchResponse: SearchResponse | undefined): void 
       return copy;
     });
     totalCount.value = searchResponse.count ?? 0;
+    highestUsage.value = searchResponse.highestUsage ?? 0;
   }
 }
 
