@@ -20,7 +20,7 @@
       </StepperPanel>
       <StepperPanel header="Populate value">
         <template #content="{ prevCallback }">
-          <EditProperty v-model:property="editWhere" :data-model-iri="editWhereDMIri ?? dataModelIri" :show-delete="false" />
+          <EditProperty v-model:property="editWhere" :data-model-iri="editWhereDMIri || dataModelIri" :show-delete="false" />
           <div class="flex pt-4 justify-content-between populate-property-actions">
             <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="prevCallback" />
             <Button label="Save" iconPos="right" @click="save" />
