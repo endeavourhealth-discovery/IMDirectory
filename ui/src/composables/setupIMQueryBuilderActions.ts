@@ -1,5 +1,5 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Bool, Match, Query, Where } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Query, Where, Node } from "@im-library/interfaces/AutoGen";
 import { MenuItem } from "primevue/menuitem";
 
 function setupIMQueryBuilderActions() {
@@ -77,7 +77,31 @@ function setupIMQueryBuilderActions() {
       }
   }
 
-  return { toggleWhereBool, toggleMatchBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap };
+  function updateEntailment(node: Node, selectedEntailment: string) {
+    delete node.memberOf;
+    delete node.ancestorsOf;
+    delete node.descendantsOf;
+    delete node.descendantsOrSelfOf;
+
+    switch (selectedEntailment) {
+      case "memberOf":
+        node.memberOf = true;
+        break;
+      case "ancestorsOf":
+        node.ancestorsOf = true;
+        break;
+      case "descendantsOf":
+        node.descendantsOf = true;
+        break;
+      case "descendantsOrSelfOf":
+        node.descendantsOrSelfOf = true;
+        break;
+      default:
+        break;
+    }
+  }
+
+  return { toggleWhereBool, toggleMatchBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap, updateEntailment };
 }
 
 export default setupIMQueryBuilderActions;

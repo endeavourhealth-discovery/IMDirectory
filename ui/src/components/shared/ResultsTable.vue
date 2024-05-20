@@ -173,7 +173,6 @@ async function onSearch() {
     props.imQuery,
     props.eclQuery
   );
-  console.log(response);
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
   else {
     searchResults.value = [];
