@@ -138,27 +138,18 @@
           <InlineMessage v-if="!passwordsMatch && password2 && !focused.get('password2')" severity="error"> Passwords do not match! </InlineMessage>
         </div>
         <div class="privacy-container">
-          <label for="privacy"> I have read and accept the <router-link to="/privacy">privacy policy </router-link></label>
+          <label for="privacy"> I have read and accept the <router-link to="/privacy" target="_blank">privacy policy </router-link></label>
           <Checkbox v-model="privacyPolicyAccepted" :binary="true" />
         </div>
         <div class="flex flex-row justify-content-center">
-          <Button
-            data-testid="register-submit-disabled"
-            v-if="!allVerified"
-            class="user-submit"
-            type="submit"
-            label="Register"
-            disabled
-            @click="handleSubmit"
-          />
-          <Button data-testid="register-submit" v-else class="user-submit" type="submit" label="Register" @click="handleSubmit" />
+          <Button data-testid="register-submit" class="user-submit" type="submit" label="Register" :disabled="!allVerified" @click="handleSubmit" />
         </div>
       </div>
     </template>
     <template #footer>
       <span>
         Already have an account?
-        <a id="login-link" class="footer-link" @click="$router.push({ name: 'Login' })">Login here</a>
+        <router-link id="login-link" class="footer-link" to="/user/login">Login here</router-link>
       </span>
     </template>
   </Card>
