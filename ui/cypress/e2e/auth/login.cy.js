@@ -10,6 +10,10 @@ describe("login", () => {
   it("can login", () => {
     cy.getByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
     cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+    cy.getByTestId("login-submit").click();
+    cy.get(".swal2-popup", { timeout: 60000 }).contains("Login successful");
+    cy.get(".swal2-confirm").click();
+    cy.get("#topbar", { timeout: 60000 });
   });
 
   it("can reveal password", () => {

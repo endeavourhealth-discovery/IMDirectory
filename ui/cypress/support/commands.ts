@@ -36,6 +36,20 @@ Cypress.Commands.add("preventNewTab", () => {
       });
   });
 });
+
+Cypress.Commands.add("login", () => {
+  cy.acceptLicenseAndCookies();
+  cy.get("#topbar", { timeout: 60000 });
+  cy.getByTestId("account-menu").click();
+  cy.get("#account-menu").find("span").contains("Login").click();
+  cy.url().should("include", "/user/login");
+  cy.getByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
+  cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.getByTestId("login-submit").click();
+  cy.get(".swal2-popup", { timeout: 60000 }).contains("Login successful");
+  cy.get(".swal2-confirm").click();
+  cy.get("#topbar", { timeout: 60000 });
+});
 //
 //
 // -- This is a parent command --
@@ -57,6 +71,7 @@ declare global {
       openReleaseNotes(): Chainable<void>;
       getByTestId(id: string): Chainable<void>;
       preventNewTab(): Chainable<void>;
+      login(): Chainable<void>;
     }
   }
 }
