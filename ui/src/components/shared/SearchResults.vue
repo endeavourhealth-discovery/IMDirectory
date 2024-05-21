@@ -38,7 +38,6 @@
       :rows="rows"
       :im-query="imQuery"
       :os-query="osQuery"
-      :showQuickTypeFilters="showQuickTypeFilters"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
     />
@@ -62,12 +61,13 @@ interface Props {
   showFilters?: boolean;
   showQuickTypeFilters?: boolean;
   quickTypeFiltersAllowed?: string[];
+  selectedQuickTypeFilter?: string;
   osQuery?: SearchRequest;
   imQuery?: QueryRequest;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
-  showQuickTypeFilters: true,
+  showQuickTypeFilters: false,
   quickTypeFiltersAllowed: () => [IM.CONCEPT, IM.VALUESET],
   rows: 25
 });
@@ -100,6 +100,10 @@ onMounted(() => init());
 
 function init() {
   setFiltersFromStore();
+  if (props.showQuickTypeFilters && props.selectedQuickTypeFilter) {
+    const found = typeOptions.value.find(typeOption => typeOption["@id"] === props.selectedQuickTypeFilter);
+    if (found) quickTypeFilter.value = found;
+  }
 }
 
 function setFiltersFromStore() {

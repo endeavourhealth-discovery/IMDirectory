@@ -36,8 +36,9 @@
             v-if="activePage === 0"
             :selected="selected"
             :show-filters="showFilters"
-            :show-quick-type-filters="showQuickTypeFilters"
+            :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
             :quick-type-filters-allowed="quickTypeFiltersAllowed"
+            :selected-quick-type-filter="selectedQuickTypeFilter"
             :updateSearch="updateSearch"
             :search-term="searchTerm"
             :im-query="imQuery"
@@ -45,6 +46,7 @@
             :selected-filter-options="selectedFilterOptions"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
+            @selected-filters-updated="onSelectedFiltersUpdate"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -96,8 +98,8 @@ interface Props {
   rootEntities?: string[];
   searchTerm?: string;
   selectedFilterOptions?: FilterOptions;
-  showQuickTypeFilters?: boolean;
   quickTypeFiltersAllowed?: string[];
+  selectedQuickTypeFilter?: string;
   showFilters?: boolean;
 }
 
@@ -114,7 +116,8 @@ watch(
 
 const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
-  "update:selected": payload => true
+  "update:selected": payload => true,
+  updateSelectedFilters: (payload: FilterOptions) => true
 });
 
 const updateSearch: Ref<boolean> = ref(false);
@@ -265,6 +268,22 @@ async function getHasQueryDefinition() {
 
 function onEnter() {
   if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
+}
+
+function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
+  if (props.osQuery && isObjectHasKeys(selectedFilters)) {
+    for (const key of Object.keys(selectedFilters)) {
+      (props.osQuery as any)[key] = (selectedFilters as any)[key];
+    }
+  } else if (props.imQuery) {
+    if (!props.imQuery.query.match) props.imQuery.query.match = [];
+    if (isArrayHasLength(selectedFilters.types)) props.imQuery.query.match.push({ where: [{ "@id": IM.TYPE, is: selectedFilters.types }] });
+    if (isArrayHasLength(selectedFilters.schemes)) props.imQuery.query.match.push({ where: [{ "@id": IM.HAS_SCHEME, is: selectedFilters.schemes }] });
+    if (isArrayHasLength(selectedFilters.status)) props.imQuery.query.match.push({ where: [{ "@id": IM.HAS_STATUS, is: selectedFilters.status }] });
+  } else {
+    emit("updateSelectedFilters", selectedFilters);
+  }
+  updateSearch.value = !updateSearch.value;
 }
 </script>
 

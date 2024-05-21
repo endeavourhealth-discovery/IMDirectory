@@ -18,8 +18,12 @@
     <div class="value-list-container" v-if="isValueList">
       <div class="value-list" v-if="isArrayHasLength(values)">
         <div class="value-list-item" v-for="[index, value] of values.entries()">
-          <EntailmentOptionsSelect :entailment-object="value" />
+          <EntailmentOptionsSelect :entailment-object="value" @update-entailment="onUpdateEntailment" />
           <AutocompleteSearchBar
+            :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET]"
+            :selected-quick-type-filter="quickTypeFilter"
+            :filter-options="filterOptions"
+            @update-selected-filters="onUpdateSelectedFilters"
             :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"
             :root-entities="[datatype]"
             @update:selected="selected => updateSelectedValue(selected, index)"
@@ -40,18 +44,29 @@ import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 import { Node, SearchResultSummary, Where, Element } from "@im-library/interfaces/AutoGen";
 import { cloneDeep, isEqual } from "lodash";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { IM } from "@im-library/vocabulary";
+import { FilterOptions } from "@im-library/interfaces";
+import { onUnmounted } from "vue";
+import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 interface Props {
   datatype: string;
   property: Where;
 }
 const props = defineProps<Props>();
 
+const { updateEntailment } = setupIMQueryBuilderActions();
 const valueField: Ref<"is" | "isNot" | "isNull" | "isNotNull" | undefined> = ref();
 const values: Ref<Element[]> = ref([]);
 const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is" || valueField.value === "isNot");
+const filterOptions: Ref<FilterOptions | undefined> = ref();
+const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
 
 onMounted(() => {
   setValues();
+});
+
+onUnmounted(() => {
+  clearValues();
 });
 
 watch(
@@ -71,6 +86,20 @@ watch(
     }
   }
 );
+
+watch(
+  () => cloneDeep(props.property),
+  () => setValues()
+);
+
+function clearValues() {
+  values.value = [];
+}
+
+function onUpdateEntailment(entailmentOption: string) {
+  updateEntailment(props.property, entailmentOption);
+  quickTypeFilter.value = entailmentOption === "memberOf" ? IM.CONCEPT_SET : IM.CONCEPT;
+}
 
 function onCustomSetSave(customSetRef: Node) {
   values.value = [];
@@ -130,6 +159,10 @@ function setValues() {
     if (!values.value.length) values.value.push({});
   } else if (isObjectHasKeys(props.property, ["isNull"])) valueField.value = "isNull";
   else if (isObjectHasKeys(props.property, ["isNotNull"])) valueField.value = "isNotNull";
+}
+
+function onUpdateSelectedFilters(selectedFilters: FilterOptions) {
+  filterOptions.value = selectedFilters;
 }
 </script>
 
