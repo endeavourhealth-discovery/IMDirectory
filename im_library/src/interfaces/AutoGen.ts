@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-05-21 07:07:17.
+// Generated using typescript-generator version 3.2.1263 on 2024-05-21 10:38:04.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -499,7 +499,7 @@ export interface SearchResponse {
     page?: number;
     count?: number;
     totalCount?: number;
-    maxUsage?: number;
+    highestUsage?: number;
     term?: string;
     entities?: SearchResultSummary[];
 }
