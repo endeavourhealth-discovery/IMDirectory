@@ -271,11 +271,7 @@ function onEnter() {
 }
 
 function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
-  if (props.osQuery && isObjectHasKeys(selectedFilters)) {
-    for (const key of Object.keys(selectedFilters)) {
-      (props.osQuery as any)[key] = (selectedFilters as any)[key];
-    }
-  } else if (props.imQuery) {
+  if (props.imQuery) {
     if (!props.imQuery.query.match) props.imQuery.query.match = [];
     if (isArrayHasLength(selectedFilters.types)) props.imQuery.query.match.push({ where: [{ "@id": IM.TYPE, is: selectedFilters.types }] });
     if (isArrayHasLength(selectedFilters.schemes)) props.imQuery.query.match.push({ where: [{ "@id": IM.HAS_SCHEME, is: selectedFilters.schemes }] });
