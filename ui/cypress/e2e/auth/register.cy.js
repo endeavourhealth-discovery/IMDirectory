@@ -9,7 +9,7 @@ describe("Register", () => {
   it("register button is disabled when fields are empty", () => {
     cy.getByTestId("register-submit").should("be.disabled");
   });
-  it.only("can select avatar", () => {
+  it("can select avatar", () => {
     cy.getByTestId("register-avatar-select").find("img").should("have.attr", "src").should("include", "001-man");
     cy.getByTestId("avatar-op-button").click();
     cy.getByTestId("avatar-button-options").find("img").filter('[src="http://localhost:8082/src/assets/avatars/colour/010-woman.png"]').click();
@@ -66,6 +66,15 @@ describe("Register", () => {
     cy.get(".p-inline-message-error").contains("Passwords do not match!");
     cy.getByTestId("register-password2").clear().type("1234abcdA%");
     cy.get(".p-inline-message-error").should("not.exist");
+  });
+  it("can show privacy policy", () => {
+    cy.preventNewTab();
+    cy.get(".privacy-container").find("a").contains("privacy policy").invoke("removeAttr", "target").click();
+    cy.url().should("include", "/privacy");
+  });
+  it.only("can route to login", () => {
+    cy.get("#login-link").click();
+    cy.url().should("include", "/login");
   });
   it("enabled submit button if fields are correctly filled", () => {
     cy.getByTestId("register-username").type("CypressTest");
