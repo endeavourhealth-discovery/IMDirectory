@@ -91,7 +91,7 @@ const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as str
 const emit = defineEmits({
   "update:selected": (_payload: SearchResultSummary | undefined) => true,
   openDialog: () => true,
-  updateSelectedFilters: (payload: FilterOptions) => true
+  updateSelectedFilters: (_payload: FilterOptions) => true
 });
 
 const resultsOP = ref();

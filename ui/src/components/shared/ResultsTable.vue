@@ -207,7 +207,7 @@ function processSearchResults(searchResponse: SearchResponse | undefined): void 
       return copy;
     });
     totalCount.value = searchResponse.count ?? 0;
-    highestUsage.value = searchResponse.highestUsage ?? 0;
+    highestUsage.value = searchResponse.maxUsage ?? 0;
   }
 }
 
