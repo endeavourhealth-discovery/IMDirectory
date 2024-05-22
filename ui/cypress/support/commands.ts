@@ -50,6 +50,10 @@ Cypress.Commands.add("login", () => {
   cy.get(".swal2-confirm").click();
   cy.get("#topbar", { timeout: 60000 });
 });
+
+Cypress.Commands.add("expandTreeNode", (treeId: string, contains: string) => {
+  cy.get(`#${treeId}`).contains(contains).parents(".p-treenode-selectable").find(".p-tree-toggler").click();
+});
 //
 //
 // -- This is a parent command --
@@ -72,6 +76,7 @@ declare global {
       getByTestId(id: string): Chainable<void>;
       preventNewTab(): Chainable<void>;
       login(): Chainable<void>;
+      expandTreeNode(treeId: string, contains: string): Chainable<void>;
     }
   }
 }
