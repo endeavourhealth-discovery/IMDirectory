@@ -108,7 +108,7 @@
               v-model="password1"
               :class="passwordStrength === 'fail' && password1 && !focused.get('password1') && 'p-invalid'"
             />
-            <Button :icon="showPassword1 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword1" text />
+            <Button :icon="showPassword1 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword1" text data-testid="show-password1-button" />
           </div>
           <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
@@ -133,7 +133,7 @@
               @blur="updateFocused('password2', false)"
               :class="!passwordsMatch && password2 && !focused.get('password2') && 'p-invalid'"
             />
-            <Button :icon="showPassword2 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword2" text />
+            <Button :icon="showPassword2 ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword2" text data-testid="show-password2-button" />
           </div>
           <InlineMessage v-if="!passwordsMatch && password2 && !focused.get('password2')" severity="error"> Passwords do not match! </InlineMessage>
         </div>

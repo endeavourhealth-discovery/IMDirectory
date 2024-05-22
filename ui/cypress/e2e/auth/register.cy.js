@@ -72,9 +72,17 @@ describe("Register", () => {
     cy.get(".privacy-container").find("a").contains("privacy policy").invoke("removeAttr", "target").click();
     cy.url().should("include", "/privacy");
   });
-  it.only("can route to login", () => {
+  it("can route to login", () => {
     cy.get("#login-link").click();
     cy.url().should("include", "/login");
+  });
+  it("can reveal passwords", () => {
+    cy.getByTestId("register-password1").type("1234abcdA%").should("not.have.text", "1234abcdA%");
+    cy.getByTestId("register-password2").type("1234abcdA%").should("not.have.text", "1234abcdA%");
+    cy.getByTestId("show-password1-button").click();
+    cy.getByTestId("show-password2-button").click();
+    cy.getByTestId("register-password1").should("have.value", "1234abcdA%");
+    cy.getByTestId("register-password2").should("have.value", "1234abcdA%");
   });
   it("enabled submit button if fields are correctly filled", () => {
     cy.getByTestId("register-username").type("CypressTest");
