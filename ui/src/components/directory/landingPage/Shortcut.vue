@@ -20,7 +20,7 @@
         :style="'color:' + color + ';width:' + (size + 1) + 'rem'"
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;' + 'width:' + (size + 1) + 'rem'" />
-      <p class="label" :style="'width:' + (size + 1) + 'rem'">{{ label }}</p>
+      <p v-tooltip.bottom="{ value: label }" class="label" :style="'width:' + (size + 2) + 'rem'">{{ label }}</p>
     </div>
   </div>
 </template>
@@ -59,7 +59,8 @@ const props = defineProps<Props>();
 }
 
 .label {
-  word-wrap: break-word;
+  text-overflow: ellipsis;
   text-align: center;
+  overflow: hidden;
 }
 </style>
