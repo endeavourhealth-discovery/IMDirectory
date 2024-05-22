@@ -5,6 +5,7 @@
       v-if="uiProperty?.propertyType === 'class' || uiProperty?.propertyType === 'node'"
       :datatype="uiProperty.valueType"
       :property="property"
+      :data-model-iri="dataModelIri"
       class="concept-select"
     />
     <DatatypeSelect v-else-if="uiProperty?.propertyType === 'datatype'" :datatype="uiProperty.valueType" :property="property" />

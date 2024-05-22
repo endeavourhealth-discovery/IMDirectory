@@ -22,7 +22,7 @@
           <AutocompleteSearchBar
             :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET]"
             :selected-quick-type-filter="quickTypeFilter"
-            :filter-options="filterOptions"
+            :os-query="osQuery"
             @update-selected-filters="onUpdateSelectedFilters"
             :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"
             :root-entities="[datatype]"
@@ -41,16 +41,18 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
-import { Node, SearchResultSummary, Where, Element } from "@im-library/interfaces/AutoGen";
+import { Node, SearchResultSummary, Where, Element, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { cloneDeep, isEqual } from "lodash";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { FilterOptions } from "@im-library/interfaces";
 import { onUnmounted } from "vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
+import { EntityService } from "@/services";
 interface Props {
   datatype: string;
   property: Where;
+  dataModelIri: string;
 }
 const props = defineProps<Props>();
 
@@ -58,11 +60,14 @@ const { updateEntailment } = setupIMQueryBuilderActions();
 const valueField: Ref<"is" | "isNot" | "isNull" | "isNotNull" | undefined> = ref();
 const values: Ref<Element[]> = ref([]);
 const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is" || valueField.value === "isNot");
-const filterOptions: Ref<FilterOptions | undefined> = ref();
 const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
+const osQuery: Ref<SearchRequest | undefined> = ref();
+const conceptSets: Ref<string[]> = ref([]);
 
-onMounted(() => {
+onMounted(async () => {
   setValues();
+  buildOSQuery();
+  await setConceptSets();
 });
 
 onUnmounted(() => {
@@ -91,6 +96,20 @@ watch(
   () => cloneDeep(props.property),
   () => setValues()
 );
+
+function buildOSQuery() {
+  if (!osQuery.value) osQuery.value = { typeFilter: [IM.CONCEPT_SET], statusFilter: [IM.ACTIVE] };
+  osQuery.value.bindingFilter = [{ node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } }];
+}
+
+async function setConceptSets() {
+  if (osQuery.value) {
+    const osQueryCopy = cloneDeep(osQuery.value);
+    osQueryCopy.size = 10000;
+    const response = await EntityService.advancedSearch(osQueryCopy);
+    if (response.entities) conceptSets.value = response.entities?.map(entity => entity.iri);
+  }
+}
 
 function clearValues() {
   values.value = [];
@@ -162,7 +181,17 @@ function setValues() {
 }
 
 function onUpdateSelectedFilters(selectedFilters: FilterOptions) {
-  filterOptions.value = selectedFilters;
+  if (!osQuery.value) osQuery.value = {};
+  if (selectedFilters.types) {
+    if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT)) {
+      delete osQuery.value.bindingFilter;
+      osQuery.value.memberOf = conceptSets.value;
+    } else if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT_SET)) {
+      delete osQuery.value.memberOf;
+      osQuery.value.bindingFilter = [{ node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } }];
+    }
+    osQuery.value.typeFilter = selectedFilters.types.map(type => type["@id"]);
+  }
 }
 </script>
 
