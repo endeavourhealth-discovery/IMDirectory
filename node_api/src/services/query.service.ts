@@ -1,8 +1,7 @@
 import Env from "@/services/env.service";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, EclSearchRequest, QueryResponse, QueryQueueItem, IMQSQL } from "@im-library/interfaces";
-import { AliasEntity, EclSearchRequest, TTProperty, UIProperty } from "@im-library/interfaces";
+import { EclSearchRequest, QueryQueueItem, IMQSQL } from "@im-library/interfaces";
 import { Query, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, QUERY, SHACL } from "@im-library/vocabulary";
 import EclService from "./ecl.service";

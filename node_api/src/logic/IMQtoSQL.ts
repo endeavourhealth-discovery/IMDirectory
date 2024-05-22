@@ -204,6 +204,8 @@ function convertMatchPropertyIs(qry: SqlQuery, property: Where, list: any[], inv
       else if (pIs.descendantsOf) descendants.push(pIs["@id"]);
       else if (pIs.descendantsOrSelfOf) descendantsSelf.push(pIs["@id"]);
       else direct.push(pIs["@id"]);
+    } else if (pIs.parameter) {
+      direct.push("{{ PARAM: " + pIs.parameter + "}}");
     } else {
       throw new Error("UNHANDLED 'IN'/'NOT IN' ENTRY\n" + JSON.stringify(pIs, null, 2));
     }
@@ -241,6 +243,12 @@ function convertMatchPropertyRange(qry: SqlQuery, property: Where) {
   }
 
   const fieldType = qry.getFieldType(property["@id"] as string);
+  const fieldJoin = qry.getFieldJoin(property["@id"] as string);
+
+  if (fieldJoin) {
+    console.log("*********************** FIELD JOIN ***************************");
+    qry.wheres.push(fieldJoin);
+  }
 
   if ("date" == fieldType) {
     if (property.range.from) qry.wheres.push(convertMatchPropertyDateRangeNode(qry.getFieldName(property["@id"] as string), property.range.from));
@@ -338,6 +346,9 @@ function convertMatchPropertyValue(qry: SqlQuery, property: Where) {
   if (!property["@id"] || !property.value) {
     throw new Error("INVALID MatchPropertyValue\n" + JSON.stringify(property, null, 2));
   }
+
+  const join = qry.getFieldJoin(property["@id"]);
+  if (join) qry.joins.push(join.replaceAll("{{alias}}", qry.alias));
 
   let where =
     "date" == qry.getFieldType(property["@id"])

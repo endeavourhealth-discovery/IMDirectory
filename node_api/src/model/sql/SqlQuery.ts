@@ -124,6 +124,10 @@ export class SqlQuery {
     return this.getField(field, table).type;
   }
 
+  public getFieldJoin(field: string, table?: string): string {
+    return this.getField(field, table).join;
+  }
+
   private getField(field: string, table?: string): Field {
     const map = table ? (mapData.typeTables as any)[table] : this.map;
 

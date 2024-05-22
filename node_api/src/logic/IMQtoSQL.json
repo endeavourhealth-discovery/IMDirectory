@@ -4,7 +4,7 @@
       "table": "patient",
       "fields": {
         "http://endhealth.info/im#age": { "field": "(jdt({alias}.json ->> 'dateOfBirth'))", "type": "date" },
-        "http://endhealth.info/im#dateOfBirth": { "field": "({alias}.jdt(json ->> 'dateOfBirth'))", "type": "date" }
+        "http://endhealth.info/im#dateOfBirth": { "field": "(jdt({alias}.json ->> 'dateOfBirth'))", "type": "date" }
       }
     },
     "http://endhealth.info/im#Address": {
@@ -52,7 +52,7 @@
         "http://endhealth.info/im#concept": { "field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri" },
         "http://endhealth.info/im#effectiveDate": { "field": "(jdt({alias}.json -> 'effectiveDate' ->> 'dateTime'))", "type": "date" },
         "http://endhealth.info/im#numericValue": { "field": "(({alias}.json ->> 'value')::INT)", "type": "number" },
-        "http://endhealth.info/im#ageAtEvent": { "field": "age_at_event", "type": "age" }
+        "http://endhealth.info/im#ageAtEvent": { "field": "{alias}_subsel.ageAtEvent", "type": "age", "join": "JOIN (SELECT e.id, DATE_PART('year', AGE(jdt(e.json -> 'effectiveDate' ->> 'dateTime'), jdt(p.json -> 'dateOfBirth' ->> 'dateTime'))) AS ageAtEvent\n\t  FROM patient p \n\t  JOIN event e ON p.id = ((e.json ->> 'patient')::UUID)) AS {{alias}}_subsel ON {{alias}}_subsel.id = {{alias}}.id" }
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
