@@ -5,163 +5,105 @@
     </template>
     <template #title> Register </template>
     <template #content>
-      <div class="p-fluid register-form">
-        <div class="field">
-          <label for="fieldUsername">Username</label>
-          <InputText
-            data-testid="register-username"
-            id="fieldUsername"
-            type="text"
-            maxlength="50"
-            v-model="username"
-            @focus="updateFocused('username', true)"
-            @blur="updateFocused('username', false)"
-            :class="!usernameVerified && username && !focused.get('username') && 'p-invalid'"
-          />
-          <InlineMessage v-if="!usernameVerified && username" severity="error">
-            Username contains unexpected characters. A-Z, 0-9 and hyphen/underscore(-_) only allowed e.g."John-Doe2"
-          </InlineMessage>
-        </div>
-        <div class="field">
-          <label for="fieldEmail1">Email address</label>
-          <div class="flex flex-row align-items-center">
+      <form @submit="onSubmit">
+        <div class="p-fluid register-form">
+          <div class="field">
+            <label for="fieldUsername">Username</label>
             <InputText
-              id="fieldEmail1"
-              data-testid="register-email1"
+              data-testid="register-username"
+              id="fieldUsername"
               type="text"
               maxlength="50"
-              v-model="email1"
-              @focus="updateFocused('email1', true)"
-              @blur="updateFocused('email1', false)"
-              :class="!emailIsNotRegistered && email1Verified && !focused.get('email1') && 'p-invalid'"
+              v-bind="username"
+              @focus="updateFocused('username', true)"
+              @blur="updateFocused('username', false)"
+              :class="errors.username && username.modelValue && !focused.get('username') && 'p-invalid'"
             />
-            <IMFontAwesomeIcon
-              v-if="email1Verified && emailIsNotRegistered"
-              icon="fa-regular fa-circle-check"
-              class="email-check"
-              data-testid="register-email1-verified"
-            />
-            <IMFontAwesomeIcon
-              v-if="(!email1Verified && email1) || !emailIsNotRegistered"
-              icon="fa-regular fa-circle-xmark"
-              class="email-times"
-              data-testid="register-email1-unverified"
-            />
+            <InlineMessage v-if="errors.username" severity="error"> {{ errors.username }} </InlineMessage>
           </div>
-          <InlineMessage v-if="!emailIsNotRegistered && email1 && email1Verified" severity="error">Email address is already registered</InlineMessage>
-        </div>
-        <div class="field">
-          <label for="fieldEmail2">Confirm email address</label>
-          <InputText
-            id="fieldEmail2"
-            data-testid="register-email2"
-            type="text"
-            maxlength="50"
-            v-model="email2"
-            @focus="updateFocused('email2', true)"
-            @blur="updateFocused('email2', false)"
-            :class="!emailsMatch && email2 && !focused.get('email2') && 'p-invalid'"
-          />
-          <InlineMessage v-if="!emailsMatch && email2 && !focused.get('email2')" severity="error"> Email addresses do not match! </InlineMessage>
-        </div>
-        <div class="field">
-          <label for="fieldFirstName">First name</label>
-          <InputText
-            id="fieldFirstName"
-            data-testid="register-firstname"
-            type="text"
-            maxlength="50"
-            v-model="firstName"
-            @focus="updateFocused('firstName', true)"
-            @blur="updateFocused('firstName', false)"
-            :class="!firstNameVerified && firstName && !focused.get('firstName') && 'p-invalid'"
-          />
-          <InlineMessage v-if="!firstNameVerified && firstName" severity="error">
-            First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne".
-          </InlineMessage>
-        </div>
-        <div class="field">
-          <label for="fieldLastName">Last name</label>
-          <InputText
-            id="fieldLastName"
-            data-testid="register-lastname"
-            type="text"
-            maxlength="50"
-            v-model="lastName"
-            @focus="updateFocused('lastName', true)"
-            @blur="updateFocused('lastName', false)"
-            :class="!lastNameVerified && lastName && !focused.get('lastName') && 'p-invalid'"
-          />
-          <InlineMessage v-if="!lastNameVerified && lastName" severity="error">
-            Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O'Keith-Smith".
-          </InlineMessage>
-        </div>
-        <div class="field">
-          <label for="fieldPassword1">Password</label>
-          <div class="input-with-button">
-            <Password
-              :input-props="{ 'data-testid': 'register-password1' }"
-              id="fieldPassword1"
-              :type="showPassword1 ? 'text' : 'password'"
-              maxlength="50"
-              aria-describedby="password-help"
-              v-model="password1"
-              :class="passwordStrength === 'fail' && password1 && !focused.get('password1') && 'p-invalid'"
-              toggleMask
-              strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
-              medium-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
+          <div class="field">
+            <label for="fieldEmail1">Email address</label>
+            <div class="flex flex-row align-items-center">
+              <InputText
+                id="fieldEmail1"
+                data-testid="register-email1"
+                type="text"
+                maxlength="50"
+                v-bind="email1"
+                @focus="updateFocused('email1', true)"
+                @blur="updateFocused('email1', false)"
+                :class="!emailIsNotRegistered && !errors.email1 && !focused.get('email1') && 'p-invalid'"
+              />
+              <IMFontAwesomeIcon
+                v-if="!errors.email1 && email1.modelValue && emailIsNotRegistered"
+                icon="fa-regular fa-circle-check"
+                class="email-check"
+                data-testid="register-email1-verified"
+              />
+              <IMFontAwesomeIcon
+                v-if="(errors.email1 && email1.modelValue) || !emailIsNotRegistered"
+                icon="fa-regular fa-circle-xmark"
+                class="email-times"
+                data-testid="register-email1-unverified"
+              />
+            </div>
+            <InlineMessage v-if="!emailIsNotRegistered && email1.modelValue && !errors.email1" severity="error"
+              >Email address is already registered</InlineMessage
             >
-              <template #header>
-                <h6>Pick a password</h6>
-              </template>
-              <template #footer>
-                <hr />
-                <p class="mt-2">Password should contain:</p>
-                <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
-                  <li>At least one lowercase</li>
-                  <li>At least one uppercase</li>
-                  <li>At least one numeric</li>
-                  <li>Special characters such as !@#$%^&*</li>
-                  <li>Minimum 8 characters</li>
-                </ul>
-              </template>
-            </Password>
+            <InlineMessage v-if="emailIsNotRegistered && errors.email1" severity="error">{{ errors.email1 }}</InlineMessage>
           </div>
-          <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
-          <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
-          <InlineMessage v-if="passwordStrength === 'fail' && password1 !== ''" severity="error"> Invalid password </InlineMessage>
-        </div>
-        <div class="field">
-          <label for="fieldPassword2">Confirm password</label>
-          <div class="input-with-button">
-            <Password
-              id="fieldPassword2"
-              :input-props="{ 'data-testid': 'register-password2' }"
+          <div class="field">
+            <label for="fieldEmail2">Confirm email address</label>
+            <InputText
+              id="fieldEmail2"
+              data-testid="register-email2"
+              type="text"
               maxlength="50"
-              v-model="password2"
-              toggleMask
-              :feedback="false"
+              v-bind="email2"
+              @focus="updateFocused('email2', true)"
+              @blur="updateFocused('email2', false)"
+              :class="errors.email2 && email2.modelValue && !focused.get('email2') && 'p-invalid'"
             />
+            <InlineMessage v-if="errors.email2" severity="error"> {{ errors.email2 }} </InlineMessage>
           </div>
-          <InlineMessage v-if="!passwordsMatch && password2 && !focused.get('password2')" severity="error"> Passwords do not match! </InlineMessage>
+          <div class="field">
+            <label for="fieldFirstName">First name</label>
+            <InputText
+              id="fieldFirstName"
+              data-testid="register-firstname"
+              type="text"
+              maxlength="50"
+              v-bind="firstName"
+              @focus="updateFocused('firstName', true)"
+              @blur="updateFocused('firstName', false)"
+              :class="errors.firstName && firstName.modelValue && !focused.get('firstName') && 'p-invalid'"
+            />
+            <InlineMessage v-if="errors.firstName" severity="error"> {{ errors.firstName }} </InlineMessage>
+          </div>
+          <div class="field">
+            <label for="fieldLastName">Last name</label>
+            <InputText
+              id="fieldLastName"
+              data-testid="register-lastname"
+              type="text"
+              maxlength="50"
+              v-bind="lastName"
+              @focus="updateFocused('lastName', true)"
+              @blur="updateFocused('lastName', false)"
+              :class="errors.lastName && lastName.modelValue && !focused.get('lastName') && 'p-invalid'"
+            />
+            <InlineMessage v-if="errors.lastName" severity="error"> {{ errors.lastName }}</InlineMessage>
+          </div>
+          <PasswordInputs :test-id="testId" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
+          <div class="privacy-container">
+            <label for="privacy"> I have read and accept the <router-link to="/privacy">privacy policy </router-link></label>
+            <Checkbox v-model="privacyPolicyAccepted" :binary="true" />
+          </div>
+          <div class="flex flex-row justify-content-center">
+            <Button :disabled="!allVerified" data-testid="register-submit" class="user-submit" type="submit" label="Register" @click="onSubmit" />
+          </div>
         </div>
-        <div class="privacy-container">
-          <label for="privacy"> I have read and accept the <router-link to="/privacy">privacy policy </router-link></label>
-          <Checkbox v-model="privacyPolicyAccepted" :binary="true" />
-        </div>
-        <div class="flex flex-row justify-content-center">
-          <Button
-            data-testid="register-submit-disabled"
-            v-if="!allVerified"
-            class="user-submit"
-            type="submit"
-            label="Register"
-            disabled
-            @click="handleSubmit"
-          />
-          <Button data-testid="register-submit" v-else class="user-submit" type="submit" label="Register" @click="handleSubmit" />
-        </div>
-      </div>
+      </form>
     </template>
     <template #footer>
       <span>
@@ -178,63 +120,72 @@ import AvatarWithSelector from "./AvatarWithSelector.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { computed, Ref, ref, watch } from "vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
-import {
-  verifyEmailsMatch,
-  verifyIsEmail,
-  verifyIsFirstName,
-  verifyIsLastName,
-  verifyIsUsername,
-  checkPasswordStrength
-} from "@im-library/helpers/UserMethods";
-import { PasswordStrength } from "@im-library/enums";
+import { verifyIsEmail, verifyIsFirstName, verifyIsLastName, verifyIsUsername } from "@im-library/helpers/UserMethods";
 import { Avatars } from "@im-library/constants";
 import { useRouter } from "vue-router";
 import { User } from "@im-library/interfaces";
 import { useAuthStore } from "@/stores/authStore";
-import Password from "primevue/password";
+import PasswordInputs from "@/components/auth/PasswordInputs.vue";
+import * as yup from "yup";
+import { useForm } from "vee-validate";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const emit = defineEmits({
-  userCreated: (payload: User) => true
+  userCreated: (_payload: User) => true
 });
 
 const authStore = useAuthStore();
 const router = useRouter();
 
-const username = ref("");
-const email1 = ref("");
-const email2 = ref("");
-const firstName = ref("");
-const lastName = ref("");
-const password1 = ref("");
-const password2 = ref("");
+const isNewPasswordValid = ref(false);
+const password = ref("");
 const selectedAvatar = ref(Avatars[0]);
 const focused: Ref<Map<string, boolean>> = ref(new Map());
 const emailIsNotRegistered = ref(true);
 const privacyPolicyAccepted = ref(false);
-const showPassword1 = ref(false);
-const showPassword2 = ref(false);
+const testId = ref("register-password-");
+const allVerified = computed(() => isObjectHasKeys(errors) && isNewPasswordValid.value && emailIsNotRegistered.value && privacyPolicyAccepted.value);
 
-const usernameVerified = computed(() => verifyIsUsername(username.value));
-const email1Verified = computed(() => verifyIsEmail(email1.value));
-const emailsMatch = computed(() => verifyEmailsMatch(email1.value, email2.value));
-const firstNameVerified = computed(() => verifyIsFirstName(firstName.value));
-const lastNameVerified = computed(() => verifyIsLastName(lastName.value));
-const passwordStrength = computed(() => checkPasswordStrength(password1.value));
-const passwordsMatch = computed(() => verifyEmailsMatch(password1.value, password2.value));
-const allVerified = computed(
-  () =>
-    usernameVerified.value &&
-    email1Verified.value &&
-    emailsMatch.value &&
-    firstNameVerified.value &&
-    lastNameVerified.value &&
-    passwordStrength.value !== PasswordStrength.fail &&
-    passwordsMatch.value &&
-    emailIsNotRegistered.value &&
-    privacyPolicyAccepted.value
-);
+const schema = yup.object({
+  username: yup
+    .string()
+    .required("Username is required")
+    .test("isUsernameVerified", 'Username contains unexpected characters. A-Z, 0-9 and hyphen/underscore(-_) only allowed e.g."John-Doe2"', () =>
+      verifyIsUsername(username.value.modelValue)
+    ),
+  firstName: yup
+    .string()
+    .required("First name is required")
+    .test("isFirstNameVerified", 'First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne"', () =>
+      verifyIsFirstName(firstName.value.modelValue)
+    ),
+  lastName: yup
+    .string()
+    .required("Last name is required")
+    .test("isLastNameValid", 'Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O\'Keith-Smith"', () =>
+      verifyIsLastName(lastName.value.modelValue)
+    ),
+  email1: yup
+    .string()
+    .required("Email is required")
+    .test("isEmailValid", "Email is not valid", () => verifyIsEmail(email1.value.modelValue)),
+  email2: yup
+    .string()
+    .required("Email is required")
+    .oneOf([yup.ref("email1")], "Email addresses do not match")
+});
 
-watch(email1, async newValue => {
+const { errors, defineComponentBinds, handleSubmit, setValues } = useForm({
+  validationSchema: schema
+});
+
+const username = defineComponentBinds("username");
+const firstName = defineComponentBinds("firstName");
+const lastName = defineComponentBinds("lastName");
+const email1 = defineComponentBinds("email1");
+const email2 = defineComponentBinds("email2");
+
+watch(email1.value.modelValue, async newValue => {
   await verifyEmailIsNotRegistered(newValue);
 });
 
@@ -242,23 +193,23 @@ function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);
 }
 
-function toggleShowPassword1() {
-  showPassword1.value = !showPassword1.value;
+function setNewPassword(newPassword: string) {
+  password.value = newPassword;
 }
 
-function toggleShowPassword2() {
-  showPassword2.value = !showPassword2.value;
+function setIsNewPasswordValid(isValid: boolean) {
+  isNewPasswordValid.value = isValid;
 }
 
-async function handleSubmit(): Promise<void> {
+const onSubmit = handleSubmit(async () => {
   if (allVerified.value) {
     const user = {
       id: "",
-      username: username.value,
-      firstName: firstName.value,
-      lastName: lastName.value,
-      email: email1.value.toLowerCase(),
-      password: password1.value,
+      username: username.value.modelValue,
+      firstName: firstName.value.modelValue,
+      lastName: lastName.value.modelValue,
+      email: email1.value.modelValue.toLowerCase(),
+      password: password.value,
       avatar: selectedAvatar.value,
       roles: [],
       mfaStatus: []
@@ -308,7 +259,7 @@ async function handleSubmit(): Promise<void> {
       confirmButtonText: "Close"
     });
   }
-}
+});
 
 function clearForm(): void {
   username.value = "";
@@ -316,8 +267,7 @@ function clearForm(): void {
   email2.value = "";
   firstName.value = "";
   lastName.value = "";
-  password1.value = "";
-  password2.value = "";
+  password.value = "";
   selectedAvatar.value = Avatars[0];
 }
 
@@ -325,14 +275,8 @@ function updateAvatar(newValue: string): void {
   selectedAvatar.value = newValue;
 }
 
-function checkKey(event: any): void {
-  if (event.keyCode === 13) {
-    handleSubmit();
-  }
-}
-
 async function verifyEmailIsNotRegistered(email: string): Promise<void> {
-  if (email && email1Verified.value) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
+  if (email && errors.email1) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
   else emailIsNotRegistered.value = true;
 }
 </script>

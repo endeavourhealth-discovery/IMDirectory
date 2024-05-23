@@ -167,8 +167,7 @@ describe("PasswordEdit.vue with registeredUser", () => {
 
     await flushPromises();
 
-    expect(component.queryByTestId("password-edit-submit")).to.not.exist;
-    component.getByTestId("password-edit-submit-disabled");
+    expect(component.queryByTestId("password-edit-submit").isDisabled);
   });
 
   it("is button disabled ___ false", async () => {

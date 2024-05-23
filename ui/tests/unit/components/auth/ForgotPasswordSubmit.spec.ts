@@ -46,8 +46,8 @@ describe("ForgotPasswordSubmit.vue no registeredUser", () => {
   it("starts empty if no sharedStore registeredUsername", async () => {
     component.getByTestId("forgot-password-submit-username");
     component.getByTestId("forgot-password-submit-code");
-    component.getByTestId("forgot-password-submit-password1");
-    component.getByTestId("forgot-password-submit-password2");
+    component.getByTestId("forgot-password-submit-password-new1");
+    component.getByTestId("forgot-password-submit-password-new2");
     component.getByTestId("forgot-password-submit-reset");
   });
 });
@@ -85,42 +85,42 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
   });
 
   it("should check password strength __ fail", async () => {
-    const passwordInput = component.getByTestId("forgot-password-submit-password1");
+    const passwordInput = component.getByTestId("forgot-password-submit-password-new1");
     await fireEvent.update(passwordInput, "12345678");
     component.getByDisplayValue("12345678");
-    component.getByText("Password strength: Weak");
+    component.getByText("Password too weak");
   });
 
   it("should check password strength __ medium", async () => {
-    const passwordInput = component.getByTestId("forgot-password-submit-password1");
+    const passwordInput = component.getByTestId("forgot-password-submit-password-new1");
     await fireEvent.update(passwordInput, "1234abcD");
     component.getByDisplayValue("1234abcD");
-    component.getByText("Password strength: Medium");
+    expect(component.queryByText("Password too weak")).to.not.exist;
   });
 
   it("should check password strength __ strong", async () => {
-    const passwordInput = component.getByTestId("forgot-password-submit-password1");
+    const passwordInput = component.getByTestId("forgot-password-submit-password-new1");
     await fireEvent.update(passwordInput, "1234ABcd!!");
     component.getByDisplayValue("1234ABcd!!");
-    component.getByText("Password strength: Strong");
+    expect(component.queryByText("Password too weak")).to.not.exist;
   });
 
   it("should check passwords match __ fail", async () => {
-    const passwordInput1 = component.getByTestId("forgot-password-submit-password1");
+    const passwordInput1 = component.getByTestId("forgot-password-submit-password-new1");
     await fireEvent.update(passwordInput1, "1234ABc%a");
 
-    const passwordInput2 = component.getByTestId("forgot-password-submit-password2");
+    const passwordInput2 = component.getByTestId("forgot-password-submit-password-new2");
     await fireEvent.update(passwordInput2, "1234ABc%b");
     await fireEvent.blur(passwordInput2);
 
     component.getByDisplayValue("1234ABc%a");
     component.getByDisplayValue("1234ABc%b");
-    component.getByText("Passwords do not match!");
+    component.getByText("Passwords do not match");
   });
 
   it("calls swal on auth success", async () => {
-    const passwordInput1 = component.getByTestId("forgot-password-submit-password1");
-    const passwordInput2 = component.getByTestId("forgot-password-submit-password2");
+    const passwordInput1 = component.getByTestId("forgot-password-submit-password-new1");
+    const passwordInput2 = component.getByTestId("forgot-password-submit-password-new2");
     const codeInput = component.getByTestId("forgot-password-submit-code");
     const resetButton = component.getByTestId("forgot-password-submit-reset");
 
@@ -136,8 +136,8 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
   });
 
   it("reroutes on auth success", async () => {
-    const passwordInput1 = component.getByTestId("forgot-password-submit-password1");
-    const passwordInput2 = component.getByTestId("forgot-password-submit-password2");
+    const passwordInput1 = component.getByTestId("forgot-password-submit-password-new1");
+    const passwordInput2 = component.getByTestId("forgot-password-submit-password-new2");
     const codeInput = component.getByTestId("forgot-password-submit-code");
     const resetButton = component.getByTestId("forgot-password-submit-reset");
 
@@ -166,8 +166,8 @@ describe("ForgotPasswordSubmit.vue 403 response", () => {
 
   it("calls swal on auth 403", async () => {
     const usernameInput = component.getByTestId("forgot-password-submit-username");
-    const passwordInput1 = component.getByTestId("forgot-password-submit-password1");
-    const passwordInput2 = component.getByTestId("forgot-password-submit-password2");
+    const passwordInput1 = component.getByTestId("forgot-password-submit-password-new1");
+    const passwordInput2 = component.getByTestId("forgot-password-submit-password-new2");
     const codeInput = component.getByTestId("forgot-password-submit-code");
     const resetButton = component.getByTestId("forgot-password-submit-reset");
 
@@ -181,43 +181,4 @@ describe("ForgotPasswordSubmit.vue 403 response", () => {
     component.getByText("Code Expired");
     component.getByText("Password reset code has expired. Please request a new code");
   });
-
-  // it("reroutes on auth 403", async () => {
-  //   AuthService.forgotPasswordSubmit = vi.fn().mockResolvedValue({ status: 403, message: "Password reset successful" });
-  //   wrapper.vm.newPassword1 = "12345678";
-  //   wrapper.vm.newPassword2 = "12345678";
-  //   wrapper.vm.code = "123456";
-  //   await wrapper.vm.$nextTick();
-  //   wrapper.vm.handleSubmit();
-  //   await wrapper.vm.$nextTick();
-  //   await flushPromises();
-  //   expect(mockPush).toBeCalledTimes(1);
-  //   expect(mockPush).toBeCalledWith({ name: "ForgotPassword" });
-  // });
-
-  // it("doesn't reroute on auth 403 swal cancelled", async () => {
-  //   AuthService.forgotPasswordSubmit = vi.fn().mockResolvedValue({ status: 403, message: "Password reset successful" });
-  //   mockSwal.fire = vi.fn().mockImplementation(() => Promise.resolve({ isConfirmed: false }));
-  //   wrapper.vm.newPassword1 = "12345678";
-  //   wrapper.vm.newPassword2 = "12345678";
-  //   wrapper.vm.code = "123456";
-  //   await wrapper.vm.$nextTick();
-  //   wrapper.vm.handleSubmit();
-  //   await wrapper.vm.$nextTick();
-  //   await flushPromises();
-  //   expect(mockPush).toBeCalledTimes(0);
-  // });
-
-  // it("shows error swal on auth error not 403", async () => {
-  //   AuthService.forgotPasswordSubmit = vi.fn().mockResolvedValue({ status: 500, message: "Password reset auth failed" });
-  //   wrapper.vm.newPassword1 = "12345678";
-  //   wrapper.vm.newPassword2 = "12345678";
-  //   wrapper.vm.code = "123456";
-  //   await wrapper.vm.$nextTick();
-  //   wrapper.vm.handleSubmit();
-  //   await wrapper.vm.$nextTick();
-  //   await flushPromises();
-  //   expect(mockSwal.fire).toBeCalledTimes(1);
-  //   expect(mockSwal.fire).toBeCalledWith({ icon: "error", title: "Error", text: "Password reset auth failed. Check input data." });
-  // });
 });

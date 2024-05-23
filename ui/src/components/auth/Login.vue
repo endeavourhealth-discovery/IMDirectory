@@ -59,7 +59,6 @@ const username = ref("");
 const password = ref("");
 const loading = ref(false);
 const showPassword = ref(false);
-const passwordValue = ref(null);
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
