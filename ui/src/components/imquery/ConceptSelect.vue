@@ -19,7 +19,7 @@
       <div class="value-list" v-if="isArrayHasLength(values)">
         <div v-if="isType === 'Entity'" class="value-list-item" v-for="[index, value] of values.entries()">
           <EntailmentOptionsSelect :entailment-object="value" @update-entailment="onUpdateEntailment" />
-          <SelectButton v-model="isType" :options="['Entity', 'Cluster code']" />
+          <SelectButton v-model="isType" :options="['Entity', 'Cluster code']" @change="handleIsTypeChange(value)" />
           <AutocompleteSearchBar
             :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET]"
             :selected-quick-type-filter="quickTypeFilter"
@@ -70,7 +70,7 @@ const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "i
 const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
 const osQuery: Ref<SearchRequest | undefined> = ref();
 const conceptSets: Ref<string[]> = ref([]);
-const isType: Ref<"Entity" | "Cluster code" | undefined> = ref();
+const isType: Ref<"Entity" | "Cluster code"> = ref("Entity");
 
 onMounted(async () => {
   setValues();
@@ -104,6 +104,12 @@ watch(
   () => cloneDeep(props.property),
   () => setValues()
 );
+
+function handleIsTypeChange(value: Element) {
+  if (isType.value === "Cluster code") delete value["@id"];
+  else if (isType.value === "Entity") delete value.parameter;
+  delete value.name;
+}
 
 function buildOSQuery() {
   if (!osQuery.value) osQuery.value = { typeFilter: [IM.CONCEPT_SET], statusFilter: [IM.ACTIVE] };
@@ -198,6 +204,10 @@ function setValues() {
     if (!values.value.length) values.value.push({});
   } else if (isObjectHasKeys(props.property, ["isNull"])) valueField.value = "isNull";
   else if (isObjectHasKeys(props.property, ["isNotNull"])) valueField.value = "isNotNull";
+  else {
+    valueField.value = "is";
+    isType.value = "Entity";
+  }
 }
 
 function onUpdateSelectedFilters(selectedFilters: FilterOptions) {
