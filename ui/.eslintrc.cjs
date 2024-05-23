@@ -9,8 +9,8 @@ module.exports = {
     "plugin:vue/vue3-essential",
     "eslint:recommended",
     "@vue/typescript/recommended",
-    "@vue/prettier",
-    "@vue/prettier/@typescript-eslint",
+    "@vue/eslint-config-prettier",
+    "@vue/eslint-config-typescript",
     "plugin:cypress/recommended",
     "@vue/typescript"
   ],
@@ -25,10 +25,10 @@ module.exports = {
   ignorePatterns: ["src/discovery-syntax/*"],
 
   rules: {
-    "no-console": import.meta.env.NODE_ENV === "production" ? "warn" : "off",
-    "no-unused-vars": import.meta.env.NODE_ENV === "production" ? "warn" : "off",
-    "no-use-before-define": import.meta.env.NODE_ENV === "production" ? "warn" : "off",
-    "no-debugger": import.meta.env.NODE_ENV === "production" ? "warn" : "off",
+    "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "no-unused-vars": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "no-use-before-define": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
     "@typescript-eslint/no-var-requires": 0,
     "@typescript-eslint/no-explicit-any": "off"
   }
