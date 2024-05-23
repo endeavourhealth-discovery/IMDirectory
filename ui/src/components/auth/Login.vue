@@ -58,17 +58,12 @@ const authReturnPath = computed(() => authStore.authReturnPath);
 const username = ref("");
 const password = ref("");
 const loading = ref(false);
-const showPassword = ref(false);
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
     username.value = registeredUsername.value;
   }
 });
-
-function toggleShowPassword() {
-  showPassword.value = !showPassword.value;
-}
 
 async function handle200(res: CustomAlert) {
   const loggedInUser = res.user;
@@ -203,12 +198,6 @@ async function handleSubmit(): Promise<void> {
       });
     });
   loading.value = false;
-}
-
-function checkKey(event: any): void {
-  if (event.keyCode === 13) {
-    handleSubmit();
-  }
 }
 </script>
 

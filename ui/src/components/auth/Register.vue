@@ -94,7 +94,7 @@
             />
             <InlineMessage v-if="errors.lastName" severity="error"> {{ errors.lastName }}</InlineMessage>
           </div>
-          <PasswordInputs :test-id="testId" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
+          <PasswordInputs test-id="register-password-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
           <div class="privacy-container">
             <label for="privacy"> I have read and accept the <router-link to="/privacy">privacy policy </router-link></label>
             <Checkbox v-model="privacyPolicyAccepted" :binary="true" />
@@ -129,6 +129,7 @@ import PasswordInputs from "@/components/auth/PasswordInputs.vue";
 import * as yup from "yup";
 import { useForm } from "vee-validate";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import _ from "lodash";
 
 const emit = defineEmits({
   userCreated: (_payload: User) => true
@@ -143,7 +144,6 @@ const selectedAvatar = ref(Avatars[0]);
 const focused: Ref<Map<string, boolean>> = ref(new Map());
 const emailIsNotRegistered = ref(true);
 const privacyPolicyAccepted = ref(false);
-const testId = ref("register-password-");
 const allVerified = computed(() => isObjectHasKeys(errors) && isNewPasswordValid.value && emailIsNotRegistered.value && privacyPolicyAccepted.value);
 
 const schema = yup.object({
@@ -185,9 +185,12 @@ const lastName = defineComponentBinds("lastName");
 const email1 = defineComponentBinds("email1");
 const email2 = defineComponentBinds("email2");
 
-watch(email1.value.modelValue, async newValue => {
-  await verifyEmailIsNotRegistered(newValue);
-});
+watch(
+  () => _.cloneDeep(email1.value),
+  async newValue => {
+    await verifyEmailIsNotRegistered(newValue);
+  }
+);
 
 function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);

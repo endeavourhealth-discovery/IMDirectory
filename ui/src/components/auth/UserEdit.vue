@@ -73,7 +73,7 @@
             </div>
             <PasswordInputs
               v-if="showPasswordEdit"
-              :test-id="testId"
+              test-id="user-edit-password-new"
               old-password-required
               @update:oldPassword="setOldPassword"
               @update:password="setNewPassword"
@@ -141,7 +141,6 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 const passwordOld = ref("");
 const password = ref("");
-const testId = ref("user-edit-password-new");
 const isNewPasswordValid = ref(false);
 const username = ref("");
 const selectedAvatar = ref(Avatars[0]);

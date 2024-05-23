@@ -11,7 +11,9 @@
         id="passwordOld"
       />
     </div>
-    <InlineMessage v-if="errors.passwordOld && passwordOld.modelValue === ''" severity="info"> {{ errors.passwordOld }} </InlineMessage>
+    <InlineMessage data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld.modelValue" severity="info">
+      {{ errors.passwordOld }}
+    </InlineMessage>
   </div>
   <div class="field">
     <label for="password">New password</label>
@@ -42,7 +44,9 @@
         </template>
       </Password>
     </div>
-    <InlineMessage v-if="errors.password && password.modelValue !== ''" severity="info"> {{ errors.password }} </InlineMessage>
+    <InlineMessage data-testid="inline-error-message" v-if="errors.password" severity="info">
+      {{ errors.password }}
+    </InlineMessage>
   </div>
   <div class="field">
     <label for="password2">Confirm new password</label>
@@ -56,7 +60,9 @@
         id="password2"
       />
     </div>
-    <InlineMessage v-if="!isMatchingPassword && password2.modelValue" severity="error"> {{ errors.password2 }}</InlineMessage>
+    <InlineMessage data-testid="inline-error-message" v-if="!isMatchingPassword && password2.modelValue" severity="error">
+      {{ errors.password2 }}</InlineMessage
+    >
   </div>
 </template>
 
@@ -108,8 +114,6 @@ function isValidPassword(): boolean {
     checkPasswordStrength(password.value.modelValue) === PasswordStrength.medium || checkPasswordStrength(password.value.modelValue) === PasswordStrength.strong
   );
 }
-
-watch([], async () => {});
 
 const emit = defineEmits({
   "update:password": (_payload: string) => true,

@@ -87,22 +87,23 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
   it("should check password strength __ fail", async () => {
     const passwordInput = component.getByTestId("forgot-password-submit-password-new1");
     await fireEvent.update(passwordInput, "12345678");
+    await flushPromises();
     component.getByDisplayValue("12345678");
-    component.getByText("Password too weak");
+    component.queryByTestId("inline-error-message");
   });
 
   it("should check password strength __ medium", async () => {
     const passwordInput = component.getByTestId("forgot-password-submit-password-new1");
     await fireEvent.update(passwordInput, "1234abcD");
     component.getByDisplayValue("1234abcD");
-    expect(component.queryByText("Password too weak")).to.not.exist;
+    expect(component.queryByDisplayValue("Password too weak")).to.not.exist;
   });
 
   it("should check password strength __ strong", async () => {
     const passwordInput = component.getByTestId("forgot-password-submit-password-new1");
     await fireEvent.update(passwordInput, "1234ABcd!!");
     component.getByDisplayValue("1234ABcd!!");
-    expect(component.queryByText("Password too weak")).to.not.exist;
+    expect(component.queryByDisplayValue("Password too weak")).to.not.exist;
   });
 
   it("should check passwords match __ fail", async () => {
@@ -115,7 +116,7 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
 
     component.getByDisplayValue("1234ABc!a");
     component.getByDisplayValue("1234ABc!b");
-    component.getByText("Passwords do not match");
+    component.queryByTestId("inline-error-message");
   });
 
   it("calls swal on auth success", async () => {

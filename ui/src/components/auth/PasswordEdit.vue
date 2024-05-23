@@ -12,7 +12,7 @@
             <InputText data-testid="password-edit-username" class="p-text-capitalize" id="username" type="text" :value="currentUser.username" disabled />
           </div>
           <PasswordInputs
-            :test-id="testId"
+            test-id="password-edit-password-"
             old-password-required
             @update:oldPassword="setOldPassword"
             @update:password="setNewPassword"
@@ -45,7 +45,6 @@ const currentUser = computed(() => userStore.currentUser);
 const authReturnPath = computed(() => authStore.authReturnPath);
 const buttonDisabled = computed(() => setButtonDisabled());
 
-const testId = ref("password-edit-password-");
 const password = ref("");
 const passwordOld = ref("");
 const isNewPasswordValid = ref(false);

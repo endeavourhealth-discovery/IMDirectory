@@ -6,8 +6,8 @@
       </template>
       <template #title> Account Recovery: <br /><br />Submit Password Reset Code </template>
       <template #content>
-        <form @submit="onSubmit" class="p-fluid flex flex-column justify-content-start password-edit-form">
-          <div class="p-fluid recovery-form">
+        <form @submit="onSubmit" class="p-fluid flex flex-column justify-content-start recovery-form">
+          <div class="p-fluid">
             <div class="field">
               <label for="fieldUsername">Username</label>
               <InputText
@@ -49,7 +49,7 @@
               </div>
               <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
             </div>
-            <PasswordInputs :test-id="testId" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
+            <PasswordInputs test-id="forgot-password-submit-password-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
             <div class="flex flex-row justify-content-center">
               <Button
                 :disabled="!allVerified"
@@ -98,7 +98,7 @@ const schema = yup.object({
   username: yup.string().required("Username is required")
 });
 
-const { errors, defineComponentBinds, handleSubmit, setValues } = useForm({
+const { defineComponentBinds, handleSubmit, errors } = useForm({
   validationSchema: schema
 });
 
@@ -106,14 +106,13 @@ const username = defineComponentBinds("username");
 const code = defineComponentBinds("code");
 
 const password = ref("");
-const testId = ref("forgot-password-submit-password-");
 const isNewPasswordValid = ref(false);
 
 const codeVerified = computed(() => verifyCode(code.value.modelValue));
-const allVerified = computed(() => codeVerified.value && isNewPasswordValid.value && username.value.modelValue !== "");
+const allVerified = computed(() => codeVerified.value && isNewPasswordValid.value && username.value.modelValue);
 
 onMounted(() => {
-  if (registeredUsername.value && registeredUsername.value !== "") {
+  if (registeredUsername.value) {
     setValues({
       username: registeredUsername.value
     });
