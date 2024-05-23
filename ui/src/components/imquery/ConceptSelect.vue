@@ -17,8 +17,9 @@
     </div>
     <div class="value-list-container" v-if="isValueList">
       <div class="value-list" v-if="isArrayHasLength(values)">
-        <div class="value-list-item" v-for="[index, value] of values.entries()">
+        <div v-if="isType === 'Entity'" class="value-list-item" v-for="[index, value] of values.entries()">
           <EntailmentOptionsSelect :entailment-object="value" @update-entailment="onUpdateEntailment" />
+          <SelectButton v-model="isType" :options="['Entity', 'Cluster code']" />
           <AutocompleteSearchBar
             :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET]"
             :selected-quick-type-filter="quickTypeFilter"
@@ -28,6 +29,12 @@
             :root-entities="[datatype]"
             @update:selected="selected => updateSelectedValue(selected, index)"
           />
+          <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-minus" class="add-feature-button" @click="values.splice(index, 1)" />
+        </div>
+        <div v-else class="value-list-item" v-for="[index, value] of values.entries()">
+          <EntailmentOptionsSelect :entailment-object="value" @update-entailment="onUpdateEntailment" />
+          <SelectButton v-model="isType" :options="['Entity', 'Cluster code']" />
+          <InputText v-model="value.parameter" @change="handlePropertyTypeChange" />
           <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-minus" class="add-feature-button" @click="values.splice(index, 1)" />
         </div>
       </div>
@@ -63,6 +70,7 @@ const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "i
 const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
 const osQuery: Ref<SearchRequest | undefined> = ref();
 const conceptSets: Ref<string[]> = ref([]);
+const isType: Ref<"Entity" | "Cluster code" | undefined> = ref();
 
 onMounted(async () => {
   setValues();
@@ -130,6 +138,10 @@ function updateSelectedValue(selected: SearchResultSummary | undefined, index: n
 }
 
 function handlePropertyTypeChange() {
+  if (isType.value === "Cluster code")
+    for (const value of values.value) {
+      value.name = value.parameter;
+    }
   switch (valueField.value) {
     case "isNot":
       if (!values.value.length) values.value = [{}];
@@ -167,13 +179,21 @@ function setValues() {
   if (props.property.is) {
     valueField.value = "is";
     for (const value of props.property.is) {
-      values.value.push({ "@id": value["@id"], name: value.name });
+      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name });
+      else if (value.parameter) {
+        values.value.push({ parameter: value.parameter, name: value.name ?? value.parameter });
+        isType.value = "Cluster code";
+      }
     }
     if (!values.value.length) values.value.push({});
   } else if (props.property.isNot) {
     valueField.value = "isNot";
     for (const value of props.property.isNot) {
-      values.value.push({ "@id": value["@id"], name: value.name });
+      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name });
+      else if (value.parameter) {
+        values.value.push({ parameter: value.parameter, name: value.name ?? value.parameter });
+        isType.value = "Cluster code";
+      }
     }
     if (!values.value.length) values.value.push({});
   } else if (isObjectHasKeys(props.property, ["isNull"])) valueField.value = "isNull";
