@@ -519,7 +519,7 @@ router.afterEach(async to => {
   }
   if (to.matched.some(record => record.name === "Uprn")) {
     loadingStore.updateUprnLoading(false);
-    title += "UPRN";
+    title += "ASSIGN-UPRN";
   }
   nextTick(() => {
     document.title = APP_TITLE + (title ? " - " : "") + title;

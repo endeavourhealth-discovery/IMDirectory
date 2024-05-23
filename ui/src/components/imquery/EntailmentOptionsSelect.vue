@@ -1,9 +1,8 @@
 <template>
-  <Dropdown v-model:model-value="editOptions" optionValue="id" optionLabel="name" :options="options" placeholder="Entailment options" @change="onChange()" />
+  <Dropdown v-model:model-value="selectedOption" optionValue="id" optionLabel="name" :options="options" placeholder="Entailment options" @change="onChange()" />
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Entailment } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
 
@@ -12,8 +11,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-const editOptions: Ref<string> = ref("descendantsOrSelfOf");
+const selectedOption: Ref<string> = ref("");
+const emit = defineEmits({ updateEntailment: (_payload: string) => true });
 
 const options = [
   { id: "memberOf", name: "member of" },
@@ -23,20 +22,18 @@ const options = [
 ];
 
 onMounted(() => {
-  if (isObjectHasKeys(props.entailmentObject)) {
-    editOptions.value = "descendantsOrSelfOf";
-    if (props.entailmentObject.ancestorsOf) editOptions.value = "ancestorsOf";
-    else if (props.entailmentObject.descendantsOrSelfOf) editOptions.value = "descendantsOrSelfOf";
-    else if (props.entailmentObject.descendantsOf) editOptions.value = "descendantsOf";
-  }
+  init();
 });
 
-function onChange() {
-  for (const option of options) {
-    if (isObjectHasKeys(props.entailmentObject, [option.id])) delete (props.entailmentObject as any)[option.id];
-  }
+function init() {
+  if (props.entailmentObject?.ancestorsOf) selectedOption.value = "ancestorsOf";
+  else if (props.entailmentObject?.descendantsOrSelfOf) selectedOption.value = "descendantsOrSelfOf";
+  else if (props.entailmentObject?.descendantsOf) selectedOption.value = "descendantsOf";
+  else selectedOption.value = "memberOf";
+}
 
-  (props.entailmentObject as any)[editOptions.value] = true;
+function onChange() {
+  emit("updateEntailment", selectedOption.value);
 }
 </script>
 
