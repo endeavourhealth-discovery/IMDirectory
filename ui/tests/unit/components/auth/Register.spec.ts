@@ -86,8 +86,8 @@ describe("register.vue prefilled", () => {
     await fireEvent.update(email2Input, "devtest@ergo.co.uk");
     await fireEvent.update(firstnameInput, "John");
     await fireEvent.update(lastnameInput, "Doe");
-    await fireEvent.update(password1Input, "12345678Aa!");
-    await fireEvent.update(password2Input, "12345678Aa!");
+    await fireEvent.update(password1Input, "12345678aA!");
+    await fireEvent.update(password2Input, "12345678aA!");
     await fireEvent.update(avatarSelector, Avatars[0]);
   });
 

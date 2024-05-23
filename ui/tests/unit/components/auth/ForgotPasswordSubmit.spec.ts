@@ -107,14 +107,14 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
 
   it("should check passwords match __ fail", async () => {
     const passwordInput1 = component.getByTestId("forgot-password-submit-password-new1");
-    await fireEvent.update(passwordInput1, "1234ABc%a");
+    await fireEvent.update(passwordInput1, "1234ABc!a");
 
     const passwordInput2 = component.getByTestId("forgot-password-submit-password-new2");
-    await fireEvent.update(passwordInput2, "1234ABc%b");
+    await fireEvent.update(passwordInput2, "1234ABc!b");
     await fireEvent.blur(passwordInput2);
 
-    component.getByDisplayValue("1234ABc%a");
-    component.getByDisplayValue("1234ABc%b");
+    component.getByDisplayValue("1234ABc!a");
+    component.getByDisplayValue("1234ABc!b");
     component.getByText("Passwords do not match");
   });
 
@@ -124,8 +124,8 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
     const codeInput = component.getByTestId("forgot-password-submit-code");
     const resetButton = component.getByTestId("forgot-password-submit-reset");
 
-    await fireEvent.update(passwordInput1, "1234ABc%a");
-    await fireEvent.update(passwordInput2, "1234ABc%a");
+    await fireEvent.update(passwordInput1, "1234ABc!a");
+    await fireEvent.update(passwordInput2, "1234ABc!a");
     await fireEvent.update(codeInput, "123456");
     await fireEvent.click(resetButton);
 
@@ -141,8 +141,8 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
     const codeInput = component.getByTestId("forgot-password-submit-code");
     const resetButton = component.getByTestId("forgot-password-submit-reset");
 
-    await fireEvent.update(passwordInput1, "1234ABc%a");
-    await fireEvent.update(passwordInput2, "1234ABc%a");
+    await fireEvent.update(passwordInput1, "1234ABc!a");
+    await fireEvent.update(passwordInput2, "1234ABc!a");
     await fireEvent.update(codeInput, "123456");
     await fireEvent.click(resetButton);
     // expect(mockPush).to.be.calledOnce;
