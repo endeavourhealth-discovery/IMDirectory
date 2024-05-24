@@ -56,6 +56,11 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
+    this.router.post("/public/search/validatedEntity", (req, res, next) =>
+      this.getValidatedEntitiesBySnomedCodes(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
   }
 
   async getPropertyOptions(req: Request) {
@@ -100,5 +105,11 @@ export default class EntityController {
     const setIriB = req.query.setIriB as string;
     if (!setIriA && !setIriB) throw new CustomError("At least one of setIriA and setIriB parameters needs to be populated.", ErrorType.InvalidInputError);
     return await this.entityService.getSetDiff(setIriA, setIriB);
+  }
+
+
+  async getValidatedEntitiesBySnomedCodes(req: Request) {
+    const codes = req.body;
+    return await this.entityService.findValidatedEntitiesBySnomedCodes(codes);
   }
 }

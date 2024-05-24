@@ -3,7 +3,7 @@ import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris } from "@im-library/interfaces";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
 import { TTIriRef, SearchResultSummary, Concept, DataModelProperty } from "@im-library/interfaces/AutoGen";
@@ -300,5 +300,38 @@ export default class EntityService {
         }
       })
     ).data;
+  }
+
+  async findEntitiesBySnomedCodes(codes: string[]) {
+    const iris = codes.map(code => SNOMED.NAMESPACE + code);
+    const result = await this.getPartialEntities(iris, [RDFS.LABEL, IM.CODE]);
+    return result.map(resolved => resolved.data);
+  }
+
+  async findValidatedEntitiesBySnomedCodes(codes: string[]) {
+    const entities = await this.findEntitiesBySnomedCodes(codes);
+    const needed = await this.getDistillation(entities as TTIriRef[]);
+    const response = [] as any[];
+    for (const entity of entities) {
+      const isInvalid = isObjectHasKeys(entity, ["@id"]) && !isObjectHasKeys(entity, [RDFS.LABEL, IM.CODE]);
+      const index = needed.findIndex(neededEntity => neededEntity["@id"] === entity["@id"]);
+      const isIncluded = response.some(added => entity["@id"] === added["@id"]);
+      if (isInvalid) {
+        entity.statusCode = "Invalid";
+        entity[RDFS.LABEL] = "Not an entity";
+      } else if (index !== -1) {
+        needed.splice(index, 1);
+        entity.statusCode = "Valid";
+      } else {
+        entity.statusCode = "Child";
+      }
+      if (isIncluded) {
+        entity.statusCode = "Duplicate";
+      }
+      entity[IM.CODE] = (entity["@id"] as string).split("#")[1];
+      response.push(entity);
+    }
+
+    return response;
   }
 }

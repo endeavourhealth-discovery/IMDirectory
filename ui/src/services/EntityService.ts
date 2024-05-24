@@ -410,7 +410,7 @@ const EntityService = {
   },
 
   async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<any[]> {
-    return axios.post(Env.VITE_NODE_API + "node_api/public/search/validatedEntity", codes);
+    return axios.post(Env.VITE_NODE_API + "node_api/entity/public/validatedEntity", codes);
   },
 
   async getEntityDetailsDisplay(iri: string): Promise<TreeNode[]> {
