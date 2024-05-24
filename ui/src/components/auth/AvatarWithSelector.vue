@@ -1,6 +1,6 @@
 <template>
   <div class="avatar-container">
-    <img data-testid="avatar-image" id="selected-avatar" :src="getUrl(newAvatar)" alt="avatar icon" />
+    <img data-testid="avatar-image" id="selected-avatar" :src="`/avatars/${newAvatar}`" alt="avatar icon" />
     <Button data-testid="avatar-op-button" icon="fa-solid fa-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
     <OverlayPanel ref="avatar" class="avatar-popup">
       <div>
@@ -11,7 +11,7 @@
       </div>
       <SelectButton data-testid="avatar-button-options" v-model="newAvatar" :options="avatarOptions">
         <template #option="{ option }: any">
-          <img class="avatar-select avatar-icon" :src="getUrl(option)" alt="avatar icon" />
+          <img class="avatar-select avatar-icon" :src="`/avatars/${option}`" alt="avatar icon" />
         </template>
       </SelectButton>
     </OverlayPanel>
@@ -50,11 +50,6 @@ watch(newAvatar, newValue => {
 
 function toggleAvatarSelect(event: any): void {
   avatar.value.toggle(event);
-}
-
-function getUrl(item: string): string {
-  const url = new URL(`../../assets/avatars/${item}`, import.meta.url);
-  return url.href;
 }
 </script>
 
