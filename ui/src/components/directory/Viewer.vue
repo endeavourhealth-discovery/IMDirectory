@@ -8,7 +8,7 @@
     </div>
     <div v-else id="concept-content-dialogs-container">
       <div id="concept-panel-container">
-        <TabView :lazy="true" v-model:active-index="activeTab" id="info-side-bar-tabs">
+        <TabView :lazy="true" v-model:active-index="activeTab" id="viewer-tabs">
           <TabPanel header="Details">
             <div class="concept-panel-content" id="details-container">
               <Details :entityIri="entityIri" @on-open-tab="onOpenTab" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
