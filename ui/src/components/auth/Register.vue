@@ -279,7 +279,7 @@ function updateAvatar(newValue: string): void {
 }
 
 async function verifyEmailIsNotRegistered(email: string): Promise<void> {
-  if (email && errors.value.email1) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
+  if (email && !errors.value.email1) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
   else emailIsNotRegistered.value = true;
 }
 </script>
