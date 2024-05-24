@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { computed, onMounted, Ref, ref } from "vue";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
@@ -90,20 +90,18 @@ const registeredUsername = computed(() => authStore.registeredUsername);
 
 const focused: Ref<Map<string, boolean>> = ref(new Map());
 
-const schema = yup.object({
-  code: yup
-    .string()
-    .required()
-    .test("isCodeVerified", "Code is required", () => verifyCode(code.value.modelValue)),
-  username: yup.string().required("Username is required")
+const { handleSubmit, errors, setValues, defineComponentBinds } = useForm({
+  validationSchema: yup.object({
+    code: yup
+      .string()
+      .required()
+      .test("isCodeVerified", "Code is required", () => verifyCode(code.value.modelValue)),
+    username: yup.string().required("Username is required")
+  })
 });
 
-const { defineComponentBinds, handleSubmit, errors } = useForm({
-  validationSchema: schema
-});
-
-const username = defineComponentBinds("username");
-const code = defineComponentBinds("code");
+const code: any = defineComponentBinds("code");
+const username: any = defineComponentBinds("username");
 
 const password = ref("");
 const isNewPasswordValid = ref(false);

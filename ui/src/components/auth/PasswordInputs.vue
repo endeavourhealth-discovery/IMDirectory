@@ -6,9 +6,12 @@
         v-bind="passwordOld"
         :feedback="false"
         toggleMask
-        :input-props="{ 'data-testid': testId + 'old', autofocus: true }"
+        :input-props="{ autofocus: true }"
         data-testid="password-edit-password-old-container"
         id="passwordOld"
+        :pt="{
+          input: { root: { 'data-testid': testId + 'old' } }
+        }"
       />
     </div>
     <InlineMessage data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld.modelValue" severity="info">
@@ -21,9 +24,11 @@
       <Password
         v-bind="password"
         toggleMask
-        :input-props="{ 'data-testid': testId + 'new1' }"
         data-testid="password-edit-password-new1-container"
         id="password"
+        :pt="{
+          input: { root: { 'data-testid': testId + 'new1' } }
+        }"
         :overlayVisible="true"
         strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
         medium-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
@@ -55,9 +60,11 @@
         v-bind="password2"
         toggleMask
         :feedback="false"
-        :input-props="{ 'data-testid': testId + 'new2' }"
         data-testid="password-edit-password-new2-container"
         id="password2"
+        :pt="{
+          input: { root: { 'data-testid': testId + 'new2' } }
+        }"
       />
     </div>
     <InlineMessage data-testid="inline-error-message" v-if="!isMatchingPassword && password2.modelValue" severity="error">
@@ -81,21 +88,19 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const schema = yup.object({
-  password: yup
-    .string()
-    .required()
-    .test("isValidPassword", "Password too weak", () => isValidPassword())
-    .notOneOf([yup.ref("passwordOld")], "New password must be different"),
-  password2: yup
-    .string()
-    .required()
-    .oneOf([yup.ref("password")], "Passwords do not match"),
-  passwordOld: yup.string().required("Current password is required")
-});
-
 const { defineComponentBinds, errors } = useForm({
-  validationSchema: schema
+  validationSchema: yup.object({
+    password: yup
+      .string()
+      .required()
+      .test("isValidPassword", "Password too weak", () => isValidPassword())
+      .notOneOf([yup.ref("passwordOld")], "New password must be different"),
+    password2: yup
+      .string()
+      .required()
+      .oneOf([yup.ref("password")], "Passwords do not match"),
+    passwordOld: yup.string().required("Current password is required")
+  })
 });
 
 const passwordOld = defineComponentBinds("passwordOld");

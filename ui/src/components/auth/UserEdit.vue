@@ -181,37 +181,35 @@ onMounted(() => {
   }
 });
 
-const schema = yup.object({
-  firstName: yup
-    .string()
-    .required("First name is required")
-    .test("isFirstNameVerified", 'First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne"', () =>
-      verifyIsFirstName(firstName.value.modelValue)
-    ),
-  lastName: yup
-    .string()
-    .required("Last name is required")
-    .test("isLastNameValid", 'Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O\'Keith-Smith"', () =>
-      verifyIsLastName(lastName.value.modelValue)
-    ),
-  email1: yup
-    .string()
-    .required("Email is required")
-    .test("isEmailValid", "Email is not valid", () => verifyIsEmail(email1.value.modelValue)),
-  email2: yup
-    .string()
-    .required("Email is required")
-    .oneOf([yup.ref("email1")], "Emails do not match")
-});
-
 const { errors, defineComponentBinds, handleSubmit, setValues } = useForm({
-  validationSchema: schema
+  validationSchema: yup.object({
+    firstName: yup
+      .string()
+      .required("First name is required")
+      .test("isFirstNameVerified", 'First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne"', () =>
+        verifyIsFirstName(firstName.value.modelValue)
+      ),
+    lastName: yup
+      .string()
+      .required("Last name is required")
+      .test("isLastNameValid", 'Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O\'Keith-Smith"', () =>
+        verifyIsLastName(lastName.value.modelValue)
+      ),
+    email1: yup
+      .string()
+      .required("Email is required")
+      .test("isEmailValid", "Email is not valid", () => verifyIsEmail(email1.value.modelValue)),
+    email2: yup
+      .string()
+      .required("Email is required")
+      .oneOf([yup.ref("email1")], "Emails do not match")
+  })
 });
 
-const firstName = defineComponentBinds("firstName");
-const lastName = defineComponentBinds("lastName");
-const email1 = defineComponentBinds("email1");
-const email2 = defineComponentBinds("email2");
+const firstName: any = defineComponentBinds("firstName");
+const lastName: any = defineComponentBinds("lastName");
+const email1: any = defineComponentBinds("email1");
+const email2: any = defineComponentBinds("email2");
 
 function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);

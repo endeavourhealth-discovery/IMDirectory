@@ -146,7 +146,7 @@ const emailIsNotRegistered = ref(true);
 const privacyPolicyAccepted = ref(false);
 const allVerified = computed(() => isObjectHasKeys(errors) && isNewPasswordValid.value && emailIsNotRegistered.value && privacyPolicyAccepted.value);
 
-const schema = yup.object({
+const schema: any = yup.object({
   username: yup
     .string()
     .required("Username is required")
@@ -179,11 +179,11 @@ const { errors, defineComponentBinds, handleSubmit, setValues } = useForm({
   validationSchema: schema
 });
 
-const username = defineComponentBinds("username");
-const firstName = defineComponentBinds("firstName");
-const lastName = defineComponentBinds("lastName");
-const email1 = defineComponentBinds("email1");
-const email2 = defineComponentBinds("email2");
+const username: any = defineComponentBinds("username");
+const firstName: any = defineComponentBinds("firstName");
+const lastName: any = defineComponentBinds("lastName");
+const email1: any = defineComponentBinds("email1");
+const email2: any = defineComponentBinds("email2");
 
 watch(
   () => _.cloneDeep(email1.value),
@@ -279,7 +279,7 @@ function updateAvatar(newValue: string): void {
 }
 
 async function verifyEmailIsNotRegistered(email: string): Promise<void> {
-  if (email && errors.email1) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
+  if (email && errors.value.email1) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
   else emailIsNotRegistered.value = true;
 }
 </script>
