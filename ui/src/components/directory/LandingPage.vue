@@ -122,10 +122,9 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
 
 #shortcuts-container {
   display: flex;
-  flex-flow: column wrap;
+  flex-flow: column nowrap;
   width: 100%;
   flex: 0 1 auto;
-  overflow: auto;
   padding: 1rem;
   gap: 1rem;
 }
