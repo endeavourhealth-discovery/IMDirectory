@@ -2,7 +2,7 @@
   <div v-if="currentUser" class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center password-edit-card">
       <template #header>
-        <img id="user-icon" class="avatar-icon" :src="getUrl(currentUser.avatar)" alt="avatar icon" aria-haspopup="true" aria-controls="overlay_menu" />
+        <img id="user-icon" class="avatar-icon" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" aria-haspopup="true" aria-controls="overlay_menu" />
       </template>
       <template #title> Change password </template>
       <template #content>
@@ -153,11 +153,6 @@ function handleEditSubmit(): void {
       text: "Error updating password. Authentication error or new passwords do not match."
     });
   }
-}
-
-function getUrl(item: string): string {
-  const url = new URL(`../../assets/avatars/${item}`, import.meta.url);
-  return url.href;
 }
 
 function checkKey(event: any): void {

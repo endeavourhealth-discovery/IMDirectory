@@ -17,7 +17,7 @@
                 v-if="isLoggedIn"
                 id="user-icon"
                 class="avatar-icon"
-                :src="getUrl(currentUser.avatar)"
+                :src="`/avatars/${currentUser.avatar}`"
                 alt="avatar icon"
                 aria-haspopup="true"
                 aria-controls="overlay_menu"
@@ -85,11 +85,6 @@ function handleSubmit(): void {
       });
     }
   });
-}
-
-function getUrl(item: string): string {
-  const url = new URL(`../../assets/avatars/${item}`, import.meta.url);
-  return url.href;
 }
 </script>
 
