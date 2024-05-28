@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { server } from "../../setupTests";
-import { Query, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Query } from "@im-library/interfaces/AutoGen";
 import QueryService from "@/services/query.service";
 import axios from "axios";
 import EntityService from "@/services/entity.service";
@@ -28,49 +28,56 @@ describe("IMQtoSQL.ts", () => {
     const dbPool = new Pool();
 
     try {
+      const fails = [];
+
       for (let i = 0; i < queries.length; i++) {
         const q = queries[i];
-        if ("1st MMR dose given aged 12-18 months" === q.name) {
-          console.log("Testing " + i + ": " + q.name);
-          const entity = await svc.getPartialEntity(q["@id"], [IM.DEFINITION]);
+        console.log("Testing " + i + ": " + q.name);
+        const entity = await svc.getPartialEntity(q["@id"], [IM.DEFINITION]);
 
-          let json = entity.data[IM.DEFINITION];
-          const def: Query = JSON.parse(json);
+        let json = entity.data[IM.DEFINITION];
+        const def: Query = JSON.parse(json);
 
-          try {
-            const actual: string = await qry.generateQuerySQLFromQuery(def, "2db5b8f6146941f298c1d222b3514388");
+        try {
+          const actual: string = await qry.generateQuerySQLFromQuery(def, "2db5b8f6146941f298c1d222b3514388");
 
-            expect(actual).not.toBeNull();
-            expect(actual).not.toBeUndefined();
+          expect(actual).not.toBeNull();
+          expect(actual).not.toBeUndefined();
 
-            let sql = "EXPLAIN " + actual;
-            sql = sql?.replaceAll("$referenceDate", "NOW()");
+          let sql = "EXPLAIN " + actual;
+          sql = sql?.replaceAll("$referenceDate", "NOW()");
 
-            // console.log(sql);
+          // console.log(sql);
 
-            const conn = await dbPool.acquire();
-            await conn
-              .query(sql)
-              .then((result: any) => {
-                console.log("OK");
-              })
-              .catch((error: any) => {
-                console.log("ERROR");
-                console.log(sql);
-                console.log(error);
-                throw error;
-              })
-              .finally(async () => {
-                await conn.close();
-              });
+          const conn = await dbPool.acquire();
+          await conn
+            .query(sql)
+            .then((result: any) => {
+              console.log("OK");
+            })
+            .catch((error: any) => {
+              console.log("ERROR");
+              console.log(sql);
+              console.log(error);
+              throw error;
+            })
+            .finally(async () => {
+              await conn.close();
+            });
 
-            // Validate against postgres using EXPLAIN
-          } catch (e) {
-            console.error("******************** ERROR ********************");
-            console.error("Error on " + i + " [" + q.name + "] (" + q["@id"] + ")");
-            throw e;
-          }
+          // Validate against postgres using EXPLAIN
+        } catch (e) {
+          const fail = "Error on " + i + "/" + queries.length + " [" + q.name + "] (" + q["@id"] + ")";
+          console.error("******************** ERROR ********************");
+          console.error(fail);
+          fails.push(fail);
         }
+      }
+
+      console.log("Test results: " + queries.length + " tests - " + (queries.length - fails.length) + " passed / " + fails.length + " failed");
+
+      for (const fail of fails) {
+        console.log(fail);
       }
     } finally {
       await dbPool.close();

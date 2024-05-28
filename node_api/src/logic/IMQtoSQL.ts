@@ -150,7 +150,7 @@ function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
   // const joiner = "OR" == match.boolWhere?.toUpperCase() ? "LEFT JOIN " : "JOIN ";
 
   for (const subMatch of match.match) {
-    convertMatchToQueryAndMerge(qry, subMatch, match.bool?.toUpperCase());
+    convertMatchToQueryAndMerge(qry, subMatch, match.boolMatch?.toUpperCase());
   }
 }
 
