@@ -4,8 +4,8 @@ import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { EclSearchRequest, FilterOptions } from "@im-library/interfaces";
-import { Page, QueryRequest, SearchRequest } from "@im-library/interfaces/AutoGen";
-import { IM } from "@im-library/vocabulary";
+import { Match, Page, QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { IM, RDF } from "@im-library/vocabulary";
 import { computed, ComputedRef, ref, Ref } from "vue";
 
 function setupSearch(searchPlaceholderValue?: string) {
@@ -84,7 +84,8 @@ function setupSearch(searchPlaceholderValue?: string) {
     if (filterOptions.status) osQuery.statusFilter = filterOptions.status.map(filterOption => filterOption["@id"]);
     if (filterOptions.schemes) osQuery.schemeFilter = filterOptions.schemes.map(filterOption => filterOption["@id"]);
     if (filterOptions.sortFields) osQuery.sortField = getNameFromIri(filterOptions.sortFields?.[0]["@id"]);
-    if (filterOptions.sortDirections) osQuery.sortDirection = filterOptions.sortDirections?.[0]?.["@id"] === IM.ASCENDING ? SortDirection.ASC : SortDirection.DESC;
+    if (filterOptions.sortDirections)
+      osQuery.sortDirection = filterOptions.sortDirections?.[0]?.["@id"] === IM.ASCENDING ? SortDirection.ASC : SortDirection.DESC;
     return osQuery;
   }
 
