@@ -20,7 +20,7 @@
       <Dropdown :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
     </div>
 
-    <div v-else-if="datatype === XSD.LONG || datatype === XSD.INTEGER" class="property-input-container">
+    <div v-else-if="datatype === XSD.LONG || datatype === XSD.INTEGER || datatype === XSD.NUMBER" class="property-input-container">
       <Dropdown
         :options="[
           { id: 'is', name: 'is' },

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-05-09 11:36:22.
+// Generated using typescript-generator version 3.2.1263 on 2024-05-21 10:38:04.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -198,9 +198,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     operator?: Operator;
+    unit?: string;
     dataType?: TTIriRef;
     relativeTo?: PropertyRef;
-    unit?: string;
 }
 
 export interface Case {
@@ -233,10 +233,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
+    memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -358,8 +358,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -410,7 +410,7 @@ export interface EntityDocument {
     isA?: TTIriRef[];
     memberOf?: TTIriRef[];
     subsumptionCount?: number;
-    binding?: any[];
+    binding?: SearchBinding[];
     isDescendentOf?: TTIriRef[];
 }
 
@@ -431,6 +431,11 @@ export interface OrderBy {
     textValue?: string[];
     not?: boolean;
     startsWithTerm?: boolean;
+}
+
+export interface SearchBinding {
+    path?: TTIriRef;
+    node?: TTIriRef;
 }
 
 /**
@@ -454,6 +459,10 @@ export interface SearchRequest {
      * List of code scheme IRI's
      */
     schemeFilter?: string[];
+    /**
+     * List of binding node and path IRI's
+     */
+    bindingFilter?: SearchBinding[];
     /**
      * Marks the results if they are descendants of any of these entities, but does not filter by them
      */
@@ -490,6 +499,7 @@ export interface SearchResponse {
     page?: number;
     count?: number;
     totalCount?: number;
+    highestUsage?: number;
     term?: string;
     entities?: SearchResultSummary[];
 }
@@ -594,7 +604,7 @@ export interface VALIDATION {
 export interface WORKFLOW {
 }
 
-export interface XS {
+export interface XSD {
 }
 
 export interface TTIriRef extends TTValue, Serializable {
@@ -621,8 +631,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    className?: string;
     nativeMethod?: boolean;
+    className?: string;
 }
 
 export interface Exception extends Throwable {
@@ -636,15 +646,15 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
-    code?: string;
     status?: TTIriRef;
+    description?: string;
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {

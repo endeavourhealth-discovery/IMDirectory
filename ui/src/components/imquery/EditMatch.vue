@@ -77,13 +77,13 @@
             :edit-where="nestedWhere"
             :focused="editMatch['@id'] === focusedId"
             :focused-id="focusedId"
-            :match-type-of-iri="typeOf ?? selectedBaseType?.iri"
+            :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
           <AddPropertyDialog
             v-model:show-dialog="showAddPropertyDialog"
-            :dataModelIri="typeOf ?? selectedBaseType?.iri"
+            :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
             :header="'Add property'"
             :show-variable-options="false"
             @on-match-add="onMatchAdd"
@@ -101,7 +101,13 @@
       </div>
       <div v-if="editMatch.then">
         <div class="then-title">Then</div>
-        <EditMatch :editMatch="editMatch.then" :focused-id="focusedId" @on-update-dialog-focus="onNestedUpdateDialogFocus" @delete-match="onDeleteMatch" />
+        <EditMatch
+          :editMatch="editMatch.then"
+          :focused-id="focusedId"
+          :parent-match-type="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+          @on-update-dialog-focus="onNestedUpdateDialogFocus"
+          @delete-match="onDeleteMatch"
+        />
       </div>
       <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
@@ -133,6 +139,7 @@ interface Props {
   isRootFeature?: boolean;
   editMatch: Match;
   focusedId: string | undefined;
+  parentMatchType?: string;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({
@@ -148,7 +155,7 @@ const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
 onMounted(() => {
-  if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!) ?? selectedBaseType.value?.iri;
+  if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
 });
 
 watch(

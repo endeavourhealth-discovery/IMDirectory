@@ -14,4 +14,5 @@ export class XSD {
   public static readonly LONG = XSD.NAMESPACE + "long";
   public static readonly DOUBLE = XSD.NAMESPACE + "double";
   public static readonly DATE_TIME = XSD.NAMESPACE + "dateTime";
+  public static readonly NUMBER = XSD.NAMESPACE + "number";
 }

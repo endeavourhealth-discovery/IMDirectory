@@ -20,15 +20,17 @@
         </span>
       </div>
     </div>
-    <h2 class="heading">Quick type filters</h2>
     <div v-if="showQuickTypeFilters && quickTypeFiltersAllowed" class="quick-type-filters">
-      <div class="radio-label-container">
-        <RadioButton v-model="quickTypeFilter" inputId="allQuickFilter" name="quickTypeFilter" :value="undefined" variant="filled" />
-        <label for="allQuickFilter">All</label>
-      </div>
-      <div v-for="typeOption in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t['@id']))" class="radio-label-container">
-        <RadioButton v-model="quickTypeFilter" :inputId="typeOption.name + 'QuickFilter'" name="quickTypeFilter" :value="typeOption" variant="filled" />
-        <label :for="typeOption.name + 'QuickFilter'">{{ typeOption.name }}</label>
+      <h2 class="heading">Quick type filters</h2>
+      <div class="quick-filters-container">
+        <div class="radio-label-container">
+          <RadioButton v-model="quickTypeFilter" inputId="allQuickFilter" name="quickTypeFilter" :value="undefined" variant="filled" />
+          <label for="allQuickFilter">All</label>
+        </div>
+        <div v-for="typeOption in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t['@id']))" class="radio-label-container">
+          <RadioButton v-model="quickTypeFilter" :inputId="typeOption.name + 'QuickFilter'" name="quickTypeFilter" :value="typeOption" variant="filled" />
+          <label :for="typeOption.name + 'QuickFilter'">{{ typeOption.name }}</label>
+        </div>
       </div>
     </div>
     <ResultsTable
@@ -67,7 +69,7 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
-  showQuickTypeFilters: true,
+  showQuickTypeFilters: false,
   quickTypeFiltersAllowed: () => [IM.CONCEPT, IM.VALUESET],
   rows: 25
 });
@@ -166,6 +168,10 @@ label {
   padding: 0.5rem;
 }
 .quick-type-filters {
+  display: flex;
+  flex-flow: column wrap;
+}
+.quick-filters-container {
   display: flex;
   flex-flow: row wrap;
   gap: 0.5rem;

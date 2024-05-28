@@ -17,17 +17,24 @@
     </div>
     <div class="value-list-container" v-if="isValueList">
       <div class="value-list" v-if="isArrayHasLength(values)">
-        <div class="value-list-item" v-for="[index, value] of values.entries()">
-          <EntailmentOptionsSelect :entailment-object="value" />
+        <div v-if="isType === 'Entity'" class="value-list-item" v-for="[index, value] of values.entries()">
+          <EntailmentOptionsSelect :entailment-object="value" @update-entailment="onUpdateEntailment" />
+          <SelectButton v-model="isType" :options="['Entity', 'Cluster code']" @change="handleIsTypeChange(value)" />
           <AutocompleteSearchBar
             :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET]"
-            :selected-quick-type-filter="isObjectHasKeys(value, ['memberOf']) ? IM.CONCEPT_SET : IM.CONCEPT"
-            :filter-options="filterOptions"
+            :selected-quick-type-filter="quickTypeFilter"
+            :os-query="osQuery"
             @update-selected-filters="onUpdateSelectedFilters"
             :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"
             :root-entities="[datatype]"
             @update:selected="selected => updateSelectedValue(selected, index)"
           />
+          <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-minus" class="add-feature-button" @click="values.splice(index, 1)" />
+        </div>
+        <div v-else class="value-list-item" v-for="[index, value] of values.entries()">
+          <EntailmentOptionsSelect :entailment-object="value" @update-entailment="onUpdateEntailment" />
+          <SelectButton v-model="isType" :options="['Entity', 'Cluster code']" />
+          <InputText v-model="value.parameter" @change="handlePropertyTypeChange" />
           <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-minus" class="add-feature-button" @click="values.splice(index, 1)" />
         </div>
       </div>
@@ -41,24 +48,38 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
-import { Node, SearchResultSummary, Where, Element } from "@im-library/interfaces/AutoGen";
+import { Node, SearchResultSummary, Where, Element, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { cloneDeep, isEqual } from "lodash";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { FilterOptions } from "@im-library/interfaces";
+import { onUnmounted } from "vue";
+import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
+import { EntityService } from "@/services";
 interface Props {
   datatype: string;
   property: Where;
+  dataModelIri: string;
 }
 const props = defineProps<Props>();
 
+const { updateEntailment } = setupIMQueryBuilderActions();
 const valueField: Ref<"is" | "isNot" | "isNull" | "isNotNull" | undefined> = ref();
 const values: Ref<Element[]> = ref([]);
 const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is" || valueField.value === "isNot");
-const filterOptions: Ref<FilterOptions | undefined> = ref();
+const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
+const osQuery: Ref<SearchRequest | undefined> = ref();
+const conceptSets: Ref<string[]> = ref([]);
+const isType: Ref<"Entity" | "Cluster code"> = ref("Entity");
 
-onMounted(() => {
+onMounted(async () => {
   setValues();
+  buildOSQuery();
+  await setConceptSets();
+});
+
+onUnmounted(() => {
+  clearValues();
 });
 
 watch(
@@ -79,6 +100,40 @@ watch(
   }
 );
 
+watch(
+  () => cloneDeep(props.property),
+  () => setValues()
+);
+
+function handleIsTypeChange(value: Element) {
+  if (isType.value === "Cluster code") delete value["@id"];
+  else if (isType.value === "Entity") delete value.parameter;
+  delete value.name;
+}
+
+function buildOSQuery() {
+  if (!osQuery.value) osQuery.value = { typeFilter: [IM.CONCEPT_SET], statusFilter: [IM.ACTIVE] };
+  osQuery.value.bindingFilter = [{ node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } }];
+}
+
+async function setConceptSets() {
+  if (osQuery.value) {
+    const osQueryCopy = cloneDeep(osQuery.value);
+    osQueryCopy.size = 10000;
+    const response = await EntityService.advancedSearch(osQueryCopy);
+    if (response.entities) conceptSets.value = response.entities?.map(entity => entity.iri);
+  }
+}
+
+function clearValues() {
+  values.value = [];
+}
+
+function onUpdateEntailment(entailmentOption: string) {
+  updateEntailment(props.property, entailmentOption);
+  quickTypeFilter.value = entailmentOption === "memberOf" ? IM.CONCEPT_SET : IM.CONCEPT;
+}
+
 function onCustomSetSave(customSetRef: Node) {
   values.value = [];
   values.value.push({ "@id": customSetRef["@id"]!, name: customSetRef.name });
@@ -89,6 +144,10 @@ function updateSelectedValue(selected: SearchResultSummary | undefined, index: n
 }
 
 function handlePropertyTypeChange() {
+  if (isType.value === "Cluster code")
+    for (const value of values.value) {
+      value.name = value.parameter;
+    }
   switch (valueField.value) {
     case "isNot":
       if (!values.value.length) values.value = [{}];
@@ -126,21 +185,43 @@ function setValues() {
   if (props.property.is) {
     valueField.value = "is";
     for (const value of props.property.is) {
-      values.value.push({ "@id": value["@id"], name: value.name });
+      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name });
+      else if (value.parameter) {
+        values.value.push({ parameter: value.parameter, name: value.name ?? value.parameter });
+        isType.value = "Cluster code";
+      }
     }
     if (!values.value.length) values.value.push({});
   } else if (props.property.isNot) {
     valueField.value = "isNot";
     for (const value of props.property.isNot) {
-      values.value.push({ "@id": value["@id"], name: value.name });
+      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name });
+      else if (value.parameter) {
+        values.value.push({ parameter: value.parameter, name: value.name ?? value.parameter });
+        isType.value = "Cluster code";
+      }
     }
     if (!values.value.length) values.value.push({});
   } else if (isObjectHasKeys(props.property, ["isNull"])) valueField.value = "isNull";
   else if (isObjectHasKeys(props.property, ["isNotNull"])) valueField.value = "isNotNull";
+  else {
+    valueField.value = "is";
+    isType.value = "Entity";
+  }
 }
 
 function onUpdateSelectedFilters(selectedFilters: FilterOptions) {
-  filterOptions.value = selectedFilters;
+  if (!osQuery.value) osQuery.value = {};
+  if (selectedFilters.types) {
+    if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT)) {
+      delete osQuery.value.bindingFilter;
+      osQuery.value.memberOf = conceptSets.value;
+    } else if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT_SET)) {
+      delete osQuery.value.memberOf;
+      osQuery.value.bindingFilter = [{ node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } }];
+    }
+    osQuery.value.typeFilter = selectedFilters.types.map(type => type["@id"]);
+  }
 }
 </script>
 
