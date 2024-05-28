@@ -186,7 +186,7 @@ const email1: any = defineComponentBinds("email1");
 const email2: any = defineComponentBinds("email2");
 
 watch(
-  () => _.cloneDeep(email1.value),
+  () => _.cloneDeep(email1.value.modelValue),
   async newValue => {
     await verifyEmailIsNotRegistered(newValue);
   }
@@ -265,11 +265,11 @@ const onSubmit = handleSubmit(async () => {
 });
 
 function clearForm(): void {
-  username.value = "";
-  email1.value = "";
-  email2.value = "";
-  firstName.value = "";
-  lastName.value = "";
+  username.value.modelValue = "";
+  email1.value.modelValue = "";
+  email2.value.modelValue = "";
+  firstName.value.modelValue = "";
+  lastName.value.modelValue = "";
   password.value = "";
   selectedAvatar.value = Avatars[0];
 }
