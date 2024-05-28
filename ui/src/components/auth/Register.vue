@@ -186,7 +186,7 @@ const email1: any = defineComponentBinds("email1");
 const email2: any = defineComponentBinds("email2");
 
 watch(
-  () => _.cloneDeep(email1.value),
+  () => _.cloneDeep(email1.value.modelValue),
   async newValue => {
     await verifyEmailIsNotRegistered(newValue);
   }
