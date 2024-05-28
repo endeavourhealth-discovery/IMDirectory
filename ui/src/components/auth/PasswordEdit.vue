@@ -2,7 +2,7 @@
   <div v-if="currentUser" class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center password-edit-card">
       <template #header>
-        <img id="user-icon" class="avatar-icon" :src="getUrl(currentUser.avatar)" alt="avatar icon" aria-haspopup="true" aria-controls="overlay_menu" />
+        <img id="user-icon" class="avatar-icon" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" aria-haspopup="true" aria-controls="overlay_menu" />
       </template>
       <template #title> Change password </template>
       <template #content>
