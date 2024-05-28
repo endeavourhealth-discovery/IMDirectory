@@ -119,7 +119,7 @@ describe("register.vue prefilled", () => {
     expect(component.queryByTestId("register-email1-unverified")).to.not.exist;
   });
 
-  it.only("should check if emails match __ false", async () => {
+  it("should check if emails match __ false", async () => {
     const email1Input = component.getByTestId("register-email1");
     await fireEvent.update(email1Input, "johndoe@jd.co.uk");
     await fireEvent.blur(email1Input);
