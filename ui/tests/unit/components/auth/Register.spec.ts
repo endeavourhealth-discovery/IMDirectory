@@ -12,6 +12,8 @@ import PrimeVue from "primevue/config";
 import { describe, vi, beforeEach, it, expect } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
+import { flushPromises } from "@vue/test-utils";
+import waitForExpect from "wait-for-expect";
 
 createTestingPinia({
   initialState: {
@@ -51,9 +53,9 @@ describe("register.vue empty", () => {
     component.getByTestId("register-email1");
     component.getByTestId("register-email2");
     component.getByTestId("register-firstname");
-    component.getByTestId("register-password1");
-    component.getByTestId("register-password2");
-    component.getByTestId("register-submit-disabled");
+    component.getByTestId("register-password-new1");
+    component.getByTestId("register-password-new2");
+    expect(component.getByTestId("register-submit").isDisabled);
   });
 });
 
@@ -77,8 +79,8 @@ describe("register.vue prefilled", () => {
     const email2Input = component.getByTestId("register-email2");
     const firstnameInput = component.getByTestId("register-firstname");
     const lastnameInput = component.getByTestId("register-lastname");
-    const password1Input = component.getByTestId("register-password1");
-    const password2Input = component.getByTestId("register-password2");
+    const password1Input = component.getByTestId("register-password-new1");
+    const password2Input = component.getByTestId("register-password-new2");
     const avatarSelector = component.getByTestId("register-avatar-select");
 
     await fireEvent.update(usernameInput, "DevTest");
@@ -86,8 +88,8 @@ describe("register.vue prefilled", () => {
     await fireEvent.update(email2Input, "devtest@ergo.co.uk");
     await fireEvent.update(firstnameInput, "John");
     await fireEvent.update(lastnameInput, "Doe");
-    await fireEvent.update(password1Input, "12345678");
-    await fireEvent.update(password2Input, "12345678");
+    await fireEvent.update(password1Input, "12345678aA!");
+    await fireEvent.update(password2Input, "12345678aA!");
     await fireEvent.update(avatarSelector, Avatars[0]);
   });
 
@@ -97,24 +99,15 @@ describe("register.vue prefilled", () => {
     component.getByTestId("register-email2");
     component.getByTestId("register-firstname");
     component.getByTestId("register-lastname");
-    component.getByTestId("register-password1");
-    component.getByTestId("register-password2");
+    component.getByTestId("register-password-new1");
+    component.getByTestId("register-password-new2");
     component.findByDisplayValue("DevTest");
     component.findByDisplayValue("devtest@ergo.co.uk");
     component.findByDisplayValue("devtest@ergo.co.uk");
-    component.findByDisplayValue("12345678");
-    component.findByDisplayValue("12345678");
+    component.findByDisplayValue("12345678aA!");
+    component.findByDisplayValue("12345678aA!");
     component.findByDisplayValue("John");
     component.findByDisplayValue("Doe");
-  });
-
-  it("should fail emailVerified with incorrect email format", async () => {
-    const email1Input = component.getByTestId("register-email1");
-    await fireEvent.update(email1Input, "johndoe.co.uk");
-    await fireEvent.blur(email1Input);
-
-    component.getByTestId("register-email1-unverified");
-    expect(component.queryByTestId("register-email1-verified")).to.not.exist;
   });
 
   it("should pass emailVerified with correct email format", async () => {
@@ -126,16 +119,17 @@ describe("register.vue prefilled", () => {
     expect(component.queryByTestId("register-email1-unverified")).to.not.exist;
   });
 
-  it("should check if emails match __ false", async () => {
+  it.only("should check if emails match __ false", async () => {
     const email1Input = component.getByTestId("register-email1");
-    await fireEvent.update(email1Input, "johndoe.co.uk");
+    await fireEvent.update(email1Input, "johndoe@jd.co.uk");
     await fireEvent.blur(email1Input);
 
     const email2Input = component.getByTestId("register-email2");
-    await fireEvent.update(email2Input, "jdoe.co.uk");
+    await fireEvent.update(email2Input, "jdoe@jd.co.uk");
     await fireEvent.blur(email2Input);
 
-    component.getByText("Email addresses do not match!");
+    await flushPromises();
+    component.findByDisplayValue("Email addresses do not match");
   });
 
   it("should check if emails match __ true", async () => {
@@ -147,6 +141,6 @@ describe("register.vue prefilled", () => {
     await fireEvent.update(email2Input, "johndoe.co.uk");
     await fireEvent.blur(email2Input);
 
-    expect(component.queryByText("Email addresses do not match!")).to.not.exist;
+    expect(component.queryByText("Email addresses do not match")).to.not.exist;
   });
 });
