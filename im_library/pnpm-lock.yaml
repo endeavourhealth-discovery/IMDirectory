@@ -9,8 +9,8 @@ dependencies:
     specifier: 4.17.12
     version: 4.17.12
   d3:
-    specifier: 7.8.5
-    version: 7.8.5
+    specifier: 7.9.0
+    version: 7.9.0
   google-palette:
     specifier: 1.1.1
     version: 1.1.1
@@ -21,22 +21,22 @@ dependencies:
     specifier: 2.1.7
     version: 2.1.7(typescript@5.4.5)(vue@3.4.27)
   typescript-logging:
-    specifier: 2.1.0
-    version: 2.1.0
+    specifier: 2.2.0
+    version: 2.2.0
   typescript-logging-log4ts-style:
-    specifier: 2.1.0
-    version: 2.1.0(typescript-logging@2.1.0)
+    specifier: 2.2.0
+    version: 2.2.0(typescript-logging@2.2.0)
   uuid:
     specifier: 9.0.1
     version: 9.0.1
   vue-router:
-    specifier: 4.2.2
-    version: 4.2.2(vue@3.4.27)
+    specifier: 4.3.2
+    version: 4.3.2(vue@3.4.27)
 
 devDependencies:
   '@faker-js/faker':
-    specifier: 8.3.1
-    version: 8.3.1
+    specifier: 8.4.1
+    version: 8.4.1
   '@mswjs/data':
     specifier: 0.16.1
     version: 0.16.1(typescript@5.4.5)
@@ -44,8 +44,8 @@ devDependencies:
     specifier: 1.0.3
     version: 1.0.3
   '@types/d3':
-    specifier: 7.4.0
-    version: 7.4.0
+    specifier: 7.4.3
+    version: 7.4.3
   '@vue/test-utils':
     specifier: 2.4.6
     version: 2.4.6
@@ -108,8 +108,8 @@ packages:
     dev: true
     optional: true
 
-  /@faker-js/faker@8.3.1:
-    resolution: {integrity: sha512-FdgpFxY6V6rLZE9mmIBb9hM0xpfvQOSNOLnzolzKwsE1DH+gC7lEKV1p1IbR0lAYyvYd5a4u3qWJzowUkw1bIw==}
+  /@faker-js/faker@8.4.1:
+    resolution: {integrity: sha512-XQ3cU+Q8Uqmrbf2e0cIC/QN43sTBSC8KF12u29Mb47tWrt2hAgBXSgpZMj4Ao8Uk0iJcU99QsOCaIL8934obCg==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
     dev: true
 
@@ -432,8 +432,8 @@ packages:
       '@types/geojson': 7946.0.14
     dev: true
 
-  /@types/d3-hierarchy@3.1.6:
-    resolution: {integrity: sha512-qlmD/8aMk5xGorUvTUWHCiumvgaUXYldYjNVOWtYoTYY/L+WwIEAmJxUmTgr9LoGNG0PPAOmqMDJVDPc7DOpPw==}
+  /@types/d3-hierarchy@3.1.7:
+    resolution: {integrity: sha512-tJFtNoYBtRtkNysX1Xq4sxtjK8YgoWUNpIiUee0/jHGRwqvzYxkq0hGVbbOGSz+JgFxxRu4K8nb3YpG3CMARtg==}
     dev: true
 
   /@types/d3-interpolate@3.0.4:
@@ -503,8 +503,8 @@ packages:
       '@types/d3-selection': 3.0.10
     dev: true
 
-  /@types/d3@7.4.0:
-    resolution: {integrity: sha512-jIfNVK0ZlxcuRDKtRS/SypEyOQ6UHaFQBKv032X45VvxSJ6Yi5G9behy9h6tNTHTDGh5Vq+KbmBjUWLgY4meCA==}
+  /@types/d3@7.4.3:
+    resolution: {integrity: sha512-lZXZ9ckh5R8uiFVt8ogUNf+pIrK4EsWrx2Np75WvF/eTpJ0FMHNhjXk8CKEx/+gpHbNQyJWehbFaTvqmHWB3ww==}
     dependencies:
       '@types/d3-array': 3.2.1
       '@types/d3-axis': 3.0.6
@@ -521,7 +521,7 @@ packages:
       '@types/d3-force': 3.0.9
       '@types/d3-format': 3.0.4
       '@types/d3-geo': 3.1.0
-      '@types/d3-hierarchy': 3.1.6
+      '@types/d3-hierarchy': 3.1.7
       '@types/d3-interpolate': 3.0.4
       '@types/d3-path': 3.1.0
       '@types/d3-polygon': 3.0.2
@@ -982,8 +982,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /d3-geo@3.1.0:
-    resolution: {integrity: sha512-JEo5HxXDdDYXCaWdwLRt79y7giK8SbhZJbFWXqbRTolCHFI5jRqteLzCsq51NKbUoX0PjBVSohxrx+NoOUujYA==}
+  /d3-geo@3.1.1:
+    resolution: {integrity: sha512-637ln3gXKXOwhalDzinUgY83KzNWZRKbYubaG+fGVuc/dxO64RRljtCTnf5ecMyE1RIdtqpkVcq0IbtU2S8j2Q==}
     engines: {node: '>=12'}
     dependencies:
       d3-array: 3.2.4
@@ -1021,8 +1021,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /d3-scale-chromatic@3.0.0:
-    resolution: {integrity: sha512-Lx9thtxAKrO2Pq6OO2Ua474opeziKr279P/TKZsMAhYyNDD3EnCffdbgeSYN5O7m2ByQsxtuP2CSDczNUIZ22g==}
+  /d3-scale-chromatic@3.1.0:
+    resolution: {integrity: sha512-A3s5PWiZ9YCXFye1o246KoscMWqf8BsD9eRiJ3He7C9OBaxKhAd5TFCdEx/7VbKtxxTsu//1mMJFrEt572cEyQ==}
     engines: {node: '>=12'}
     dependencies:
       d3-color: 3.1.0
@@ -1096,8 +1096,8 @@ packages:
       d3-transition: 3.0.1(d3-selection@3.0.0)
     dev: false
 
-  /d3@7.8.5:
-    resolution: {integrity: sha512-JgoahDG51ncUfJu6wX/1vWQEqOflgXyl4MaHqlcSruTez7yhaRKR9i8VjjcQGeS2en/jnFivXuaIMnseMMt0XA==}
+  /d3@7.9.0:
+    resolution: {integrity: sha512-e1U46jVP+w7Iut8Jt8ri1YsPOvFpg46k+K8TpCb0P+zjCkjkPnV7WzfDJzMHy1LnA+wj5pLT1wjO901gLXeEhA==}
     engines: {node: '>=12'}
     dependencies:
       d3-array: 3.2.4
@@ -1114,7 +1114,7 @@ packages:
       d3-fetch: 3.0.1
       d3-force: 3.0.0
       d3-format: 3.1.0
-      d3-geo: 3.1.0
+      d3-geo: 3.1.1
       d3-hierarchy: 3.1.2
       d3-interpolate: 3.0.1
       d3-path: 3.1.0
@@ -1122,7 +1122,7 @@ packages:
       d3-quadtree: 3.0.1
       d3-random: 3.0.1
       d3-scale: 4.0.2
-      d3-scale-chromatic: 3.0.0
+      d3-scale-chromatic: 3.1.0
       d3-selection: 3.0.0
       d3-shape: 3.2.0
       d3-time: 3.1.0
@@ -1953,16 +1953,16 @@ packages:
     dev: true
     optional: true
 
-  /typescript-logging-log4ts-style@2.1.0(typescript-logging@2.1.0):
-    resolution: {integrity: sha512-yXvvi4MbDlvYel3c2/Z1kdf4PiiJ9rUe64iP+GOqrsSEwnCnWh78JLo7yYf7CNOEhaqZBAUa1P5GXoFxoGhTQQ==}
+  /typescript-logging-log4ts-style@2.2.0(typescript-logging@2.2.0):
+    resolution: {integrity: sha512-NP8uoFVoNJkhH6iOM1Y8+/RVFoSPCxLe/kgdxQ0uJNhUJh4CLp7CuMIh/njC9mzK0wdq2DgSJcmlzkqnRXx1Eg==}
     peerDependencies:
-      typescript-logging: ~2.1.0
+      typescript-logging: ~2.2.0
     dependencies:
-      typescript-logging: 2.1.0
+      typescript-logging: 2.2.0
     dev: false
 
-  /typescript-logging@2.1.0:
-    resolution: {integrity: sha512-3xi7Z0fslj8eQIEkiJSEvt5x8I4YDpwp7bdUcN8JDWXJ0RGD6RKkHhOCKgKu4KQU+4X0rm9zyxTK6TQst2hvWw==}
+  /typescript-logging@2.2.0:
+    resolution: {integrity: sha512-mPKFGAgGJmeCqrzA6B64Lqoz6vLPtxa8yCd7sWAnfrz9opuNlxqW57VxjtEOL0OOoQeTdc/kBjGUh8sieBXa8A==}
     dev: false
 
   /typescript@5.4.2:
@@ -2050,8 +2050,8 @@ packages:
       vue: 3.4.27(typescript@5.4.5)
     dev: false
 
-  /vue-router@4.2.2(vue@3.4.27):
-    resolution: {integrity: sha512-cChBPPmAflgBGmy3tBsjeoe3f3VOSG6naKyY5pjtrqLGbNEXdzCigFUHgBvp9e3ysAtFtEx7OLqcSDh/1Cq2TQ==}
+  /vue-router@4.3.2(vue@3.4.27):
+    resolution: {integrity: sha512-hKQJ1vDAZ5LVkKEnHhmm1f9pMiWIBNGF5AwU67PdH7TyXCj/a4hTccuUuYCAMgJK6rO/NVYtQIEN3yL8CECa7Q==}
     peerDependencies:
       vue: ^3.2.0
     dependencies:
