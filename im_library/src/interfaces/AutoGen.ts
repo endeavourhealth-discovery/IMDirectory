@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-05-21 10:38:04.
+// Generated using typescript-generator version 3.2.1263 on 2024-05-30 09:17:25.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -114,6 +114,11 @@ export interface FunctionRequest {
     page?: Page;
 }
 
+export interface FunctionTemplate extends Entity {
+    function?: TTIriRef;
+    parameterTemplate?: ParameterTemplate[];
+}
+
 export interface MapFunction extends TTIriRef {
     argument?: Argument[];
     conceptMap?: { [index: string]: string };
@@ -135,6 +140,12 @@ export interface NodeShape extends TTIriRef {
 export interface Page {
     pageNumber?: number;
     pageSize?: number;
+}
+
+export interface ParameterTemplate extends Entity {
+    label?: string;
+    order?: number;
+    valueTemplate?: ValueTemplate[];
 }
 
 export interface PropertyShape {
@@ -185,6 +196,15 @@ export interface TransformRequest {
     source?: { [index: string]: any[] };
 }
 
+export interface ValueTemplate extends Entity {
+    label?: string;
+    parameter?: string;
+    order?: number;
+    valueType?: TTIriRef;
+    defaultValue?: any;
+    valueOption?: any[];
+}
+
 export interface Argument {
     parameter?: string;
     valueData?: string;
@@ -199,8 +219,8 @@ export interface Assignable {
     value?: string;
     operator?: Operator;
     unit?: string;
-    dataType?: TTIriRef;
     relativeTo?: PropertyRef;
+    dataType?: TTIriRef;
 }
 
 export interface Case {
@@ -233,10 +253,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
-    descendantsOf?: boolean;
     memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -642,19 +662,19 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
     description?: string;
-    prefixes?: TTPrefix[];
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {

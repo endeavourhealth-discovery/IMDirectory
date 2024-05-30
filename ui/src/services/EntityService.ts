@@ -148,11 +148,11 @@ const EntityService = {
     });
   },
 
-  async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<SearchResponse> {
-    return axios.post(api + "api/entity/public/search", request, {
-      signal: controller?.signal
-    });
-  },
+  // async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<SearchResponse> {
+  //   return axios.post(api + "api/entity/public/search", request, {
+  //     signal: controller?.signal
+  //   });
+  // },
 
   async getFolderPath(iri: string): Promise<TTIriRef[]> {
     return axios.get(api + "api/entity/public/folderPath", {

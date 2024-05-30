@@ -1,7 +1,7 @@
 <template>
   <div class="single-select">
     <EntailmentOptionsSelect :entailment-object="editNode" />
-    <AutocompleteSearchBar v-model:selected="selected" :os-query="osQuery" :im-query="imQuery" :root-entities="['http://snomed.info/sct#138875005']" />
+    <AutocompleteSearchBar v-model:selected="selected" :im-query="imQuery" :root-entities="['http://snomed.info/sct#138875005']" />
   </div>
 </template>
 
@@ -12,7 +12,6 @@ import { SearchRequest, Node, SearchResultSummary, QueryRequest } from "@im-libr
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 interface Props {
   editNode: Node;
-  osQuery?: SearchRequest;
   imQuery?: QueryRequest;
 }
 const props = defineProps<Props>();

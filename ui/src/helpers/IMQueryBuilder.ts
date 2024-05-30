@@ -1,6 +1,21 @@
-import { Match, Order, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { isArrayHasLength } from "./DataTypeCheckers";
-import { IM, RDF } from "@im-library/vocabulary";
+import { Match, Order, QueryRequest, SearchBinding, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { IM, RDF, SHACL } from "@im-library/vocabulary";
+import { SearchOptions } from "@im-library/interfaces";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+
+export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
+  const imQuery: QueryRequest = { query: {} };
+  if (isArrayHasLength(filterOptions.status)) addStatusFilterToIMQuery(filterOptions.status, imQuery);
+  if (isArrayHasLength(filterOptions.types)) addTypeFilterToIMQuery(filterOptions.types, imQuery);
+  if (isArrayHasLength(filterOptions.schemes)) addSchemeFilterToIMQuery(filterOptions.schemes, imQuery);
+  if (isArrayHasLength(filterOptions.sortDirections) || isArrayHasLength(filterOptions.sortFields))
+    addSortingToIMQuery(filterOptions.sortFields?.[0], filterOptions.sortDirections?.[0], imQuery);
+  if (isArrayHasLength(filterOptions.isA)) addIsaToIMQuery(filterOptions.isA!, imQuery);
+  if (isArrayHasLength(filterOptions.binding)) addBindingsToIMQuery(filterOptions.binding!, imQuery);
+  if (filterOptions.page) imQuery.page = filterOptions.page;
+  if (filterOptions.textSearch) imQuery.textSearch = filterOptions.textSearch;
+  return imQuery;
+}
 
 export function addStatusFilterToIMQuery(status: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
@@ -28,8 +43,41 @@ export function addIsaToIMQuery(isAs: TTIriRef[], imQuery: QueryRequest) {
 
 export function addSortingToIMQuery(sortingField: TTIriRef, sortDirection: TTIriRef, imQuery: QueryRequest) {
   if (!imQuery.query.orderBy) imQuery.query.orderBy = {};
-  imQuery.query.orderBy.property = sortingField;
-  imQuery.query.orderBy.property.direction = sortDirection["@id"] === IM.ASCENDING ? Order.ascending : Order.descending;
+  if (isObjectHasKeys(sortingField)) imQuery.query.orderBy.property = sortingField;
+  else imQuery.query.orderBy.property = {};
+  if (isObjectHasKeys(sortDirection)) imQuery.query.orderBy.property.direction = sortDirection["@id"] === IM.ASCENDING ? Order.ascending : Order.descending;
+  else imQuery.query.orderBy.property.direction = Order.descending;
 }
 
-export function addBindingToIMQuery(sortingField: TTIriRef, sortDirection: TTIriRef, imQuery: QueryRequest) {}
+export function addMemberOfToIMQuery(memberOfs: TTIriRef[], imQuery: QueryRequest) {
+  if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
+  const memberOfMatch: Match = { where: [{ "@id": IM.IS_MEMBER_OF, is: memberOfs }] };
+  imQuery.query.match?.push(memberOfMatch);
+}
+
+export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
+  if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
+
+  for (const searchBinding of searchBindings) {
+    const match: Match = {
+      where: [
+        {
+          "@id": IM.BINDING,
+          match: {
+            where: [
+              {
+                "@id": SHACL.PATH,
+                is: [{ "@id": searchBinding.path?.["@id"] }]
+              },
+              {
+                "@id": SHACL.NODE,
+                is: [{ "@id": searchBinding.node?.["@id"] }]
+              }
+            ]
+          }
+        }
+      ]
+    };
+    imQuery.query.match?.push(match);
+  }
+}

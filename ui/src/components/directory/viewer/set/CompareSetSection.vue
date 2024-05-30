@@ -27,12 +27,13 @@
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import setupOverlay from "@/composables/setupOverlay";
-import { DirectService, EntityService } from "@/services";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { DirectService, EntityService, QueryService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromIri } from "@im-library/helpers/TTTransform";
-import { FilterOptions } from "@im-library/interfaces";
+import { FilterOptions, SearchOptions } from "@im-library/interfaces";
 import { Concept, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
@@ -98,49 +99,24 @@ async function init() {
 
 async function search(searchText: string): Promise<SearchResultSummary[]> {
   if (searchText && searchText.length > 2) {
-    const searchRequest = {} as SearchRequest;
-    searchRequest.termFilter = searchText;
-    searchRequest.sortField = getNameFromIri(IM.USAGE_TOTAL);
-    searchRequest.page = 1;
-    searchRequest.size = 100;
-    searchRequest.schemeFilter = [];
-    const schemes = selectedFilters.value.schemes;
-    for (const scheme of schemes) {
-      searchRequest.schemeFilter!.push(scheme["@id"]);
-    }
+    const filterOptions: SearchOptions = {
+      schemes: selectedFilters.value.schemes,
+      status: selectedFilters.value.status,
+      types: selectedFilters.value.types,
+      sortDirections: selectedFilters.value.sortDirections,
+      sortFields: selectedFilters.value.sortFields,
+      textSearch: searchText,
+      page: { pageNumber: 1, pageSize: 100 }
+    };
 
-    searchRequest.statusFilter = [];
-    const statusList = selectedFilters.value.status;
-    for (const status of statusList) {
-      searchRequest.statusFilter!.push(status["@id"]);
-    }
-
-    searchRequest.typeFilter = [];
-    const types = [IM.CONCEPT_SET, IM.VALUE_SET];
-    for (const type of types) {
-      searchRequest.typeFilter!.push(type);
-    }
-
-    if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
-      const sortField = selectedFilters.value.sortFields[0];
-      if (sortField["@id"]) searchRequest.sortField = getNameFromIri(sortField["@id"]);
-
-      if (isArrayHasLength(selectedFilters.value.sortDirections) && isObjectHasKeys(selectedFilters.value.sortDirections[0])) {
-        const sortDirection = selectedFilters.value.sortDirections[0];
-        if (sortDirection["@id"] === IM.DESCENDING) searchRequest.sortDirection = SortDirection.DESC;
-        if (sortDirection["@id"] === IM.ASCENDING) searchRequest.sortDirection = SortDirection.ASC;
-      }
-    }
+    const imQuery = buildIMQueryFromFilters(filterOptions);
 
     if (!isObject(controller.value)) {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    const result = await EntityService.advancedSearch(searchRequest, controller.value);
-    if (result?.entities) {
-      if (result.entities.length > 100) result.entities.length = 100;
-      return result.entities;
-    }
+    const result = await QueryService.queryIMSearch(imQuery, controller.value);
+    return result.entities ?? [];
   }
   return [];
 }

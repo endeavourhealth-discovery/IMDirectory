@@ -2,8 +2,8 @@ import { defineStore } from "pinia";
 import { DirectoryState } from "@/stores/types/directoryState";
 
 import { IM, RDFS } from "@im-library/vocabulary";
-import { SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
-import { EntityService } from "@/services";
+import { QueryRequest, SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { EntityService, QueryService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export const useDirectoryStore = defineStore("directory", {
@@ -30,8 +30,8 @@ export const useDirectoryStore = defineStore("directory", {
       }
       return "";
     },
-    async fetchSearchResults(data: { searchRequest: SearchRequest; controller: AbortController }) {
-      const result = await EntityService.advancedSearch(data.searchRequest, data.controller);
+    async fetchSearchResults(data: { imQuery: QueryRequest; controller: AbortController }) {
+      const result = await QueryService.queryIMSearch(data.imQuery, data.controller);
       this.updateSearchResults(result);
     },
     // Mutations
