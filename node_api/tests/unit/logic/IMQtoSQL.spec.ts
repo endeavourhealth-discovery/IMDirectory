@@ -6,6 +6,7 @@ import axios from "axios";
 import EntityService from "@/services/entity.service";
 import { IM } from "@im-library/vocabulary";
 import { Pool } from "postgresql-client";
+import testData from "./IMQtoSQL.json";
 
 describe("IMQtoSQL.ts", () => {
   beforeEach(() => {
