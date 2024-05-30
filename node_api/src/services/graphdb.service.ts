@@ -6,7 +6,7 @@ import _ from "lodash-es";
 import { CustomError } from "@im-library/models";
 import { ErrorType } from "@im-library/enums";
 
-const { ServerClientConfig, ServerClient, RDFRepositoryClient } = Graphdb.server;
+const { ServerClientConfig, ServerClient } = Graphdb.server;
 const { RDFMimeType } = Graphdb.http;
 const { RepositoryClientConfig } = Graphdb.repository;
 const { GetQueryPayload, QueryType, UpdateQueryPayload } = Graphdb.query;
@@ -34,11 +34,11 @@ export class GraphdbService {
     this.repoName = repoName;
   }
 
-  private serverConfig: typeof ServerClientConfig;
-  private server: typeof ServerClient;
-  private repoConfig: typeof RepositoryClientConfig;
+  // private serverConfig: typeof ServerClientConfig;
+  // private server: typeof ServerClient;
+  // private repoConfig: typeof RepositoryClientConfig;
   private repoName: string;
-  private repo: typeof RDFRepositoryClient;
+  private repo: any;
 
   public async update(sparql: string): Promise<boolean> {
     const client = await this.getRepo();
@@ -86,19 +86,19 @@ export class GraphdbService {
 
   private async connect() {
     const timeout = Env.GRAPH_TIMEOUT || 30000;
-    this.serverConfig = new ServerClientConfig(Env.GRAPH_HOST)
+    const serverConfig = new ServerClientConfig(Env.GRAPH_HOST)
       .setTimeout(timeout)
       .setHeaders({
         Accept: RDFMimeType.SPARQL_RESULTS_JSON
       })
       .setKeepAlive(true);
-    this.server = new ServerClient(this.serverConfig);
-    this.repoConfig = new RepositoryClientConfig(Env.GRAPH_HOST)
+    const server = new ServerClient(serverConfig);
+    const repoConfig = new RepositoryClientConfig(Env.GRAPH_HOST)
       .setEndpoints([Env.GRAPH_HOST + "/repositories/" + this.repoName])
       .setReadTimeout(timeout)
       .setWriteTimeout(timeout);
-    const repo = await this.server.getRepository(this.repoName, this.repoConfig);
-    repo.registerParser(new SparqlJsonResultParser());
+    const repo = await server.getRepository(this.repoName, repoConfig);
+    repo.registerParser(new SparqlJsonResultParser({}));
     return repo;
   }
 }
