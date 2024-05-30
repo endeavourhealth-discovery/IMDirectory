@@ -94,7 +94,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRouter, useRoute } from "vue-router";
 import { useConfirm } from "primevue/useconfirm";
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
-import _ from "lodash";
+import _ from "lodash-es";
 import Swal from "sweetalert2";
 import ConfirmDialog from "primevue/confirmdialog";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";

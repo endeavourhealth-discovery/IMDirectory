@@ -22,7 +22,7 @@
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
-import _ from "lodash";
+import _ from "lodash-es";
 import { TTGraphData } from "@im-library/interfaces";
 import { GraphExcludePredicates } from "@im-library/config";
 import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";

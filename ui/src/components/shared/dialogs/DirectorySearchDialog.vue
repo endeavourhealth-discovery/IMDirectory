@@ -82,7 +82,7 @@ import NavTree from "@/components/shared/NavTree.vue";
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
-import _, { cloneDeep } from "lodash";
+import _, { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
 import { QueryRequest, SearchResultSummary, SearchResponse, SearchRequest } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";

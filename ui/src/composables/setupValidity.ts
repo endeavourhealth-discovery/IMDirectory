@@ -5,7 +5,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { FormGenerator, PropertyShape } from "@im-library/interfaces/AutoGen";
 import { IM, COMPONENT } from "@im-library/vocabulary";
-import { isArray } from "lodash";
+import { isArray } from "lodash-es";
 import { Ref, provide, ref } from "vue";
 
 export function setupValidity(shape?: FormGenerator) {

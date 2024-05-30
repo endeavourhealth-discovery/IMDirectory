@@ -9,7 +9,7 @@ import { onMounted, ref, Ref, watch } from "vue";
 import VueJsonPretty from "vue-json-pretty";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {

@@ -6,6 +6,8 @@ import OverlayPanel from "primevue/overlaypanel";
 import testData from "./SearchBar.testData";
 import PrimeVue from "primevue/config";
 import SplitButton from "primevue/splitbutton";
+import InputIcon from "primevue/inputicon";
+import IconField from "primevue/iconfield";
 import Tooltip from "primevue/tooltip";
 import { fireEvent, render } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
@@ -42,7 +44,7 @@ describe("SearchBar.vue", () => {
     queryIMSpy = vi.spyOn(QueryService, "queryIM").mockResolvedValue(testData.SEARCH_RESULTS);
     component = render(SearchBar, {
       global: {
-        components: { InputText, Button, OverlayPanel, SplitButton },
+        components: { InputText, Button, OverlayPanel, SplitButton, InputIcon, IconField },
         plugins: [PrimeVue],
         stubs: { Filters: true },
         directives: { tooltip: Tooltip }

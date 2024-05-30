@@ -82,7 +82,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { Argument, PropertyShape, QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
-import _, { isArray } from "lodash";
+import _, { isArray } from "lodash-es";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import injectionKeys from "@/injectionKeys/injectionKeys";

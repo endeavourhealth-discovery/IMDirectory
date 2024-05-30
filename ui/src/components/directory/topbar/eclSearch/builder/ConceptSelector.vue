@@ -29,7 +29,7 @@ import { IM, SNOMED } from "@im-library/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
-import _ from "lodash";
+import _ from "lodash-es";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
 import { SortDirection } from "@im-library/enums";

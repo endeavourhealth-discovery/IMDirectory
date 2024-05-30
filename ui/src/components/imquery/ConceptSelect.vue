@@ -49,7 +49,7 @@ import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 import { Node, SearchResultSummary, Where, Element, SearchRequest } from "@im-library/interfaces/AutoGen";
-import { cloneDeep, isEqual } from "lodash";
+import { cloneDeep, isEqual } from "lodash-es";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { FilterOptions } from "@im-library/interfaces";

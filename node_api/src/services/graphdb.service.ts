@@ -2,7 +2,7 @@
 // @ts-ignore
 import Graphdb from "graphdb";
 import Env from "@/services/env.service";
-import _ from "lodash";
+import _ from "lodash-es";
 import { CustomError } from "@im-library/models";
 import { ErrorType } from "@im-library/enums";
 

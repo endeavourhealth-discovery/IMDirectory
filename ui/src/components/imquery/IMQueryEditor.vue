@@ -78,7 +78,7 @@ import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { SortDirection } from "@im-library/enums";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import AddMatch from "./AddMatch.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { getNameFromIri } from "@im-library/helpers/TTTransform";

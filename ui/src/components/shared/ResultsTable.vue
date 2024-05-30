@@ -80,7 +80,7 @@ import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethod
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
-import _ from "lodash";
+import _ from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";

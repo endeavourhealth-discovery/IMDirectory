@@ -71,7 +71,7 @@ import { SearchRequest, QueryRequest, SearchResultSummary, SearchResponse } from
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import setupSearch from "@/composables/setupSearch";
-import _ from "lodash";
+import _ from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {

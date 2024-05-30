@@ -51,7 +51,7 @@ import { computed, ComputedRef, onMounted, ref, Ref, watch, PropType } from "vue
 import { FilterOptions } from "@im-library/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
-import _ from "lodash";
+import _ from "lodash-es";
 import { QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 

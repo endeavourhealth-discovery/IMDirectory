@@ -81,11 +81,11 @@ import { IM, SNOMED, QUERY, IM_FUNCTION, RDF } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
 import { SortDirection, ToastSeverity } from "@im-library/enums";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
-import _ from "lodash";
+import _ from "lodash-es";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { getNameFromIri } from "@im-library/helpers/TTTransform";
 

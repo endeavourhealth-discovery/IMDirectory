@@ -93,7 +93,7 @@ import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, n
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import Swal from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";

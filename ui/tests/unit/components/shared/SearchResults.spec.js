@@ -2,10 +2,12 @@ import { render, fireEvent, within } from "@testing-library/vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import Tooltip from "primevue/tooltip";
 import MultiSelect from "primevue/multiselect";
+import RadioButton from "primevue/radiobutton";
 import PrimeVue from "primevue/config";
 import { expect, it, vi } from "vitest";
 import testData from "./SearchResults.testData";
 import { createTestingPinia } from "@pinia/testing";
+import RadioButton from "primevue/radiobutton";
 
 createTestingPinia({
   initialState: {
@@ -33,7 +35,7 @@ describe("SearchResultsTable.vue", () => {
 
     component = render(SearchResults, {
       global: {
-        components: { MultiSelect },
+        components: { MultiSelect, RadioButton },
         directives: { tooltip: Tooltip },
         plugins: [PrimeVue],
         stubs: { ResultsTable: true }

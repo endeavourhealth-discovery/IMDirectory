@@ -131,7 +131,7 @@ import { MenuItem } from "primevue/menuitem";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 

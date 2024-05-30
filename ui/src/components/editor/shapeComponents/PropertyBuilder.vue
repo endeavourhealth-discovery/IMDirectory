@@ -113,7 +113,7 @@
 import { Property } from "@im-library/interfaces";
 import { Argument, PropertyShape, QueryRequest, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
