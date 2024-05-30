@@ -648,7 +648,7 @@ async function downloadCode() {
 async function generateAndDownload() {
   showCodeDownload.value = false;
   toast.add({ severity: "info", summary: "Preparing download", detail: "Generating files for download...", life: 3000 });
-  let blob = await CodeGenService.generateCode(namespace.value, template.value);
+  const blob = await CodeGenService.generateCode(namespace.value, template.value);
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -661,7 +661,7 @@ function setAppMenuItems() {
     { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => directService.view(), color: "var(--blue-500)", size: 2 },
     { label: "Creator", icon: "fa-duotone fa-circle-plus", command: () => directService.create(), color: "var(--orange-500)", size: 2 },
     { label: "ASSIGN UPRN", icon: "fa-duotone fa-map-location-dot", command: () => directService.uprn(), color: "var(--red-500)", size: 2 },
-    { label: "Queries", icon: "fa-solid fa-list-check", command: () => directService.queryQueue() }
+    { label: "Queries", icon: "fa-solid fa-list-check", command: () => directService.queryQueue(), color: "var(--green-500)", size: 2 }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }

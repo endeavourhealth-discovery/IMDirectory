@@ -12,7 +12,6 @@ function IMQtoSQL(definition: Query, baseId = ""): IMQSQL {
     throw new Error("Query must have at least one match");
   }
 
-  // try {
   const qry = SqlQuery.create(definition.typeOf["@id"]!, baseId);
 
   for (const match of definition.match) {
@@ -23,10 +22,6 @@ function IMQtoSQL(definition: Query, baseId = ""): IMQSQL {
   qry.dependentQueries.forEach(d => result.queries.set(d.iri, d));
 
   return result;
-  // } catch (e) {
-  //   if (e instanceof Error) return { error: e.toString() } as IMQSQL;
-  //   else return { error: "Unknown Error" } as IMQSQL;
-  // }
 }
 
 function convertMatchToQueryAndMerge(qry: SqlQuery, subMatch: Match, bool = "AND") {
@@ -49,8 +44,8 @@ function convertMatchToQueryAndMerge(qry: SqlQuery, subMatch: Match, bool = "AND
   }
 }
 
-function convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
-  const qry = createMatchQuery(match, parent);
+function convertMatchToQuery(parent: SqlQuery, match: Match, isThen = false): SqlQuery {
+  const qry = createMatchQuery(match, parent, isThen);
 
   convertMatch(match, qry);
 
@@ -59,22 +54,27 @@ function convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
 
     return qry;
   } else {
-    const thenQuery = convertMatchToQuery(qry, match.then);
+    const thenQuery = convertMatchToQuery(qry, match.then, true);
 
     if (match.orderBy) wrapMatchPartition(qry, match.orderBy);
 
-    if (isArrayHasLength(qry.withs)) {
+    if (qry.withs && qry.withs.length && qry.withs.length > 0) {
       const tmp = qry.withs;
       qry.withs = [];
-      thenQuery.withs.push(...tmp);
-      thenQuery.withs.push(qry.alias + " AS /* cmtq 1 */ ( " + qry.toSql(2) + "\n)\n");
-    } else thenQuery.withs.push(qry.alias + " AS /* cmtg 2 */ ( " + qry.toSql(2) + "\n)\n");
+      const thenWiths = thenQuery.withs;
+      thenQuery.withs = tmp;
+      thenQuery.withs.push(qry.alias + " AS ( " + qry.toSql(2) + "\n)\n");
+      thenQuery.withs.push(...thenWiths);
+    } else thenQuery.withs.push(qry.alias + " AS ( " + qry.toSql(2) + "\n)\n");
 
     return thenQuery;
   }
 }
 
-function createMatchQuery(match: Match, qry: SqlQuery) {
+function createMatchQuery(match: Match, qry: SqlQuery, isThen = false) {
+  if (isThen) {
+    return qry.subQuery(qry.alias, match.variable);
+  }
   if (match.typeOf?.["@id"] && match.typeOf["@id"] != qry.model) {
     return qry.subQuery(match.typeOf["@id"], match.variable);
   } else if (match.nodeRef && match.nodeRef != qry.model) {

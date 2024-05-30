@@ -1,7 +1,5 @@
 import Env from "./Env";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { AllowableChildProperty, AliasEntity, QueryResponse, QueryQueueItem } from "@im-library/interfaces";
-import { AllowableChildProperty, AliasEntity, QueryResponse, UIProperty } from "@im-library/interfaces";
+import { AllowableChildProperty, AliasEntity, QueryResponse, QueryQueueItem, UIProperty } from "@im-library/interfaces";
 import axios from "axios";
 import { PathDocument, Query, QueryRequest, SearchResponse } from "@im-library/interfaces/AutoGen";
 

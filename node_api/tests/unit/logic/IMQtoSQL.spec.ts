@@ -8,14 +8,14 @@ import { IM } from "@im-library/vocabulary";
 import { Pool } from "postgresql-client";
 
 describe("IMQtoSQL.ts", () => {
-  /*  beforeEach(() => {
+  beforeEach(() => {
     vi.resetAllMocks();
     axios.get = vi
       .fn()
       .mockResolvedValueOnce({ data: testData["Q_RegisteredGMS"] })
       .mockResolvedValueOnce({ data: testData["Q_Diabetics"] })
       .mockResolvedValueOnce({ data: testData["Q_Hypertensives"] });
-  });*/
+  });
 
   test("IMQtoSQL", async () => {
     server.close();
@@ -69,7 +69,7 @@ describe("IMQtoSQL.ts", () => {
         } catch (e) {
           const fail = "Error on " + i + "/" + queries.length + " [" + q.name + "] (" + q["@id"] + ")";
           console.error("******************** ERROR ********************");
-          console.error(fail);
+          console.error(e);
           fails.push(fail);
         }
       }
