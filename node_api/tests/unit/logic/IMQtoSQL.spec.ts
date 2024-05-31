@@ -6,26 +6,20 @@ import axios from "axios";
 import EntityService from "@/services/entity.service";
 import { IM } from "@im-library/vocabulary";
 import { Pool } from "postgresql-client";
-import testData from "./IMQtoSQL.json";
 
 describe("IMQtoSQL.ts", () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-    axios.get = vi
-      .fn()
-      .mockResolvedValueOnce({ data: testData["Q_RegisteredGMS"] })
-      .mockResolvedValueOnce({ data: testData["Q_Diabetics"] })
-      .mockResolvedValueOnce({ data: testData["Q_Hypertensives"] });
-  });
-
   test("IMQtoSQL", async () => {
     server.close();
     const svc = new EntityService(axios);
     const qry = new QueryService(axios);
 
     // Load query list
+    console.log("Loading (cohort) queries");
     const queries = await qry.getAllByType("http://endhealth.info/im#CohortQuery");
-    // const queries = [{ "@id": "urn:uuid:24e136d0-22ee-4a8e-9571-db5ffe7360e9", name: "BROKEN QUERY" }];
+
+    if (!queries) throw new Error("No cohort queries found!!!!");
+
+    console.log(queries.length + " queries found");
     const dbPool = new Pool();
 
     try {
@@ -33,6 +27,9 @@ describe("IMQtoSQL.ts", () => {
 
       for (let i = 0; i < queries.length; i++) {
         const q = queries[i];
+
+        // if ("urn:uuid:a4b4ef66-af54-4880-9d38-72d910dd5f24" != q["@id"]) continue;
+
         console.log("Testing " + i + ": " + q.name);
         const entity = await svc.getPartialEntity(q["@id"], [IM.DEFINITION]);
 

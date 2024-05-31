@@ -429,7 +429,7 @@ export default class QueryService {
   }
 
   private async generateIMQSQLFromQuery(query: Query, alias?: string): Promise<IMQSQL> {
-    const result = IMQtoSQL(query, alias);
+    const result = await IMQtoSQL(query, alias);
 
     if (result.queries) {
       let notGenerated = [...result.queries.values()].find(q => !q.sql);

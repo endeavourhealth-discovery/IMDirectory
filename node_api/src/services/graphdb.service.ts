@@ -57,9 +57,7 @@ export class GraphdbService {
         stmt.addBinding("$" + key, bindings[key]);
       }
     }
-    let rs: any;
-
-    rs = await client.query(stmt);
+    let rs: any = await client.query(stmt);
 
     const result: any[] = [];
     rs.on("data", (binding: any) => {
