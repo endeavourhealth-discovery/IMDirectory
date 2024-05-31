@@ -24,10 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, inject, computed } from "vue";
+import { Ref, ref, onMounted, watch, computed } from "vue";
 import { IM, SNOMED } from "@im-library/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { QueryRequest, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -82,7 +82,7 @@ const constraintOperatorOptions = [
   }
 ];
 
-const imQueryForConceptSearch: Ref<QueryRequest> = ref({ query: {} });
+const imQueryForConceptSearch: Ref<QueryRequest | undefined> = ref();
 
 onMounted(async () => {
   await init();

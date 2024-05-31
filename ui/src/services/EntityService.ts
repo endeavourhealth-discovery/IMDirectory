@@ -148,12 +148,6 @@ const EntityService = {
     });
   },
 
-  // async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<SearchResponse> {
-  //   return axios.post(api + "api/entity/public/search", request, {
-  //     signal: controller?.signal
-  //   });
-  // },
-
   async getFolderPath(iri: string): Promise<TTIriRef[]> {
     return axios.get(api + "api/entity/public/folderPath", {
       params: { iri: iri }
@@ -344,12 +338,6 @@ const EntityService = {
 
   async getPredefinedList(listPath: string): Promise<TTIriRef[]> {
     return axios.get(api + "api/entity/public/" + listPath);
-  },
-
-  async getMappingSuggestions(request: SearchRequest, controller: AbortController): Promise<SearchResultSummary[]> {
-    return axios.post(api + "api/entity/public/search", request, {
-      signal: controller.signal
-    });
   },
 
   async getEntityAsEntityReferenceNode(iri: string): Promise<EntityReferenceNode> {

@@ -30,12 +30,10 @@ import setupOverlay from "@/composables/setupOverlay";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
-import { SortDirection } from "@im-library/enums";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getNameFromIri } from "@im-library/helpers/TTTransform";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { FilterOptions, SearchOptions } from "@im-library/interfaces";
-import { Concept, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { Concept, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 interface Props {

@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { SearchRequest, Node, SearchResultSummary, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Node, SearchResultSummary, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 interface Props {
   editNode: Node;

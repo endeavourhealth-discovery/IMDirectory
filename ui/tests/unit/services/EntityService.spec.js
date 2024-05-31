@@ -24,30 +24,6 @@ describe("EntityService.ts ___ axios success", () => {
     expect(result).toBe("axios get return");
   });
 
-  it("can post advancedSearch", async () => {
-    const request = {};
-    request.page = 1;
-    request.schemeFilter = ["http://snomed.info/sct#", "http://endhealth.info/im#"];
-    request.size = 100;
-    request.sortBy = 0;
-    request.statusFilter = ["http://endhealth.info/im#Active", "http://endhealth.info/im#Draft"];
-    request.termFilter = "scolios";
-    request.typeFilter = [
-      "http://www.w3.org/ns/shacl#NodeShape",
-      "http://endhealth.info/im#Concept",
-      "http://endhealth.info/im#ConceptSet",
-      "http://endhealth.info/im#Folder",
-      "http://endhealth.info/im#ConceptSetGroup",
-      "http://endhealth.info/im#QueryTemplate",
-      "http://endhealth.info/im#ValueSet"
-    ];
-    const controller = new AbortController();
-    const result = await EntityService.advancedSearch(request, controller);
-    expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(api + "api/entity/public/search", request, { signal: controller.signal });
-    expect(result).toBe("axios post return");
-  });
-
   it("can get entity parents", async () => {
     const result = await EntityService.getEntityParents("testIri");
     expect(axios.get).toHaveBeenCalledTimes(1);

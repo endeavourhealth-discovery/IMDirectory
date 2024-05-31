@@ -2,9 +2,9 @@ import { defineStore } from "pinia";
 import { DirectoryState } from "@/stores/types/directoryState";
 
 import { IM, RDFS } from "@im-library/vocabulary";
-import { QueryRequest, SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
-import { EntityService, QueryService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
+import { EntityService } from "@/services";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export const useDirectoryStore = defineStore("directory", {
   state: (): DirectoryState => ({
@@ -29,10 +29,6 @@ export const useDirectoryStore = defineStore("directory", {
         if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
       }
       return "";
-    },
-    async fetchSearchResults(data: { imQuery: QueryRequest; controller: AbortController }) {
-      const result = await QueryService.queryIMSearch(data.imQuery, data.controller);
-      this.updateSearchResults(result);
     },
     // Mutations
     updateFindInTreeIri(value: string) {

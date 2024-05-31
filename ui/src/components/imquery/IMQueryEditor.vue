@@ -72,16 +72,14 @@
 <script setup lang="ts">
 import { Ref, onMounted, provide, ref, watch } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { Match, Query, SearchRequest, SearchResultSummary, Bool, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Query, SearchResultSummary, Bool, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
-import { SortDirection } from "@im-library/enums";
 import { cloneDeep } from "lodash";
 import AddMatch from "./AddMatch.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
-import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { SearchOptions } from "@im-library/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 

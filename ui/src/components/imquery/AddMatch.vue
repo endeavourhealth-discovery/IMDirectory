@@ -38,7 +38,7 @@
 import { Ref, ref, watch } from "vue";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
 import DirectorySearchDialog from "../shared/dialogs/DirectorySearchDialog.vue";
-import { Bool, Match, Query, QueryRequest, SearchRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Query, QueryRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { v4 } from "uuid";

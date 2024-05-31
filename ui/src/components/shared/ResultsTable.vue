@@ -84,7 +84,7 @@ import _, { cloneDeep } from "lodash";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { SearchResultSummary, SearchResponse, QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { SearchResultSummary, SearchResponse, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { ExtendedSearchResultSummary, SearchOptions } from "@im-library/interfaces";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EclSearchRequest, FilterOptions } from "@im-library/interfaces";
