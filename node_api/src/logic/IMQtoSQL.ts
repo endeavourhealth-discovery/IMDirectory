@@ -1,11 +1,9 @@
 import { Match, Query, Where, Assignable, OrderLimit, Bool } from "@im-library/interfaces/AutoGen";
 import { SqlQuery } from "@/model/sql/SqlQuery";
 import { IMQSQL } from "@im-library/interfaces";
-import EntityService from "@/services/entity.service";
-import axios from "axios";
-import { IM, RDF } from "@im-library/vocabulary";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
-async function IMQtoSQL(definition: Query, baseId = ""): Promise<IMQSQL> {
+function IMQtoSQL(definition: Query, baseId = ""): IMQSQL {
   if (!definition.typeOf) {
     throw new Error("Query must have a main (model) type");
   }
@@ -17,7 +15,7 @@ async function IMQtoSQL(definition: Query, baseId = ""): Promise<IMQSQL> {
   const qry = SqlQuery.create(definition.typeOf["@id"]!, baseId);
 
   for (const match of definition.match) {
-    await convertMatchToQueryAndMerge(qry, match, match.exclude ? "OR" : "AND");
+    convertMatchToQueryAndMerge(qry, match, match.exclude ? "OR" : "AND");
   }
 
   const result: IMQSQL = { sql: qry.toSql(), sets: qry.dependentSets, queries: new Map<string, { iri: string; alias: string; sql: string }>() };
@@ -26,8 +24,8 @@ async function IMQtoSQL(definition: Query, baseId = ""): Promise<IMQSQL> {
   return result;
 }
 
-async function convertMatchToQueryAndMerge(qry: SqlQuery, subMatch: Match, bool = "AND") {
-  const subQry = await convertMatchToQuery(qry, subMatch);
+function convertMatchToQueryAndMerge(qry: SqlQuery, subMatch: Match, bool = "AND") {
+  const subQry = convertMatchToQuery(qry, subMatch);
   qry.withs.push(...subQry.withs);
   subQry.withs = [];
   qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)");
@@ -46,17 +44,17 @@ async function convertMatchToQueryAndMerge(qry: SqlQuery, subMatch: Match, bool 
   }
 }
 
-async function convertMatchToQuery(parent: SqlQuery, match: Match, isThen = false): Promise<SqlQuery> {
+function convertMatchToQuery(parent: SqlQuery, match: Match, isThen = false): SqlQuery {
   const qry = createMatchQuery(match, parent, isThen);
 
-  await convertMatch(match, qry);
+  convertMatch(match, qry);
 
   if (!match.then) {
     if (match.orderBy) wrapMatchPartition(qry, match.orderBy);
 
     return qry;
   } else {
-    const thenQuery = await convertMatchToQuery(qry, match.then, true);
+    const thenQuery = convertMatchToQuery(qry, match.then, true);
 
     if (match.orderBy) wrapMatchPartition(qry, match.orderBy);
 
@@ -84,21 +82,21 @@ function createMatchQuery(match: Match, qry: SqlQuery, isThen = false) {
   } else return qry.subQuery(qry.model, match.variable);
 }
 
-async function convertMatch(match: Match, qry: SqlQuery) {
+function convertMatch(match: Match, qry: SqlQuery) {
   if (match.is) {
     convertMatchIs(qry, match);
   } else if (match.boolMatch) {
-    if (match.match && match.match.length > 0) await convertMatchBoolSubMatch(qry, match);
-    else if (match.where && match.where.length > 0) await convertMatchProperties(qry, match);
+    if (match.match && match.match.length > 0) convertMatchBoolSubMatch(qry, match);
+    else if (match.where && match.where.length > 0) convertMatchProperties(qry, match);
     else {
       throw new Error("UNHANDLED BOOL MATCH PATTERN\n" + JSON.stringify(match, null, 2));
     }
   } else if (match.where && match.where.length > 0) {
-    await convertMatchProperties(qry, match);
+    convertMatchProperties(qry, match);
   } else if (match.match && match.match.length > 0) {
     // Assume bool match "AND"
     match.boolMatch = Bool.and;
-    await convertMatchBoolSubMatch(qry, match);
+    convertMatchBoolSubMatch(qry, match);
   } else if (match.variable && Object.keys(match).length == 1) {
     // TODO: Data fix
     console.error("VARIABLE-ONLY MATCH!!");
@@ -141,7 +139,7 @@ function convertMatchIs(qry: SqlQuery, match: Match) {
   // qry.joins.push("JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
 }
 
-async function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
+function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
   if (!match.boolMatch || !match.match) {
     throw new Error("INVALID MatchBoolSubMatch\n" + JSON.stringify(match, null, 2));
   }
@@ -152,36 +150,37 @@ async function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
   // const joiner = "OR" == match.boolWhere?.toUpperCase() ? "LEFT JOIN " : "JOIN ";
 
   for (const subMatch of match.match) {
-    await convertMatchToQueryAndMerge(qry, subMatch, match.boolMatch?.toUpperCase());
+    convertMatchToQueryAndMerge(qry, subMatch, match.boolMatch?.toUpperCase());
   }
 }
 
-async function convertMatchProperties(qry: SqlQuery, match: Match) {
+function convertMatchProperties(qry: SqlQuery, match: Match) {
   if (!match.where) {
     throw new Error("INVALID MatchProperty\n" + JSON.stringify(match, null, 2));
   }
 
   for (const property of match.where) {
-    await convertMatchProperty(qry, property);
+    convertMatchProperty(qry, property);
   }
 }
 
-async function convertMatchProperty(qry: SqlQuery, property: Where) {
+function convertMatchProperty(qry: SqlQuery, property: Where) {
   if (property.is) {
-    await convertMatchPropertyIs(qry, property, property.is);
-    // convertMatchPropertyInSet(qry, property);
+    convertMatchPropertyIs(qry, property, property.is);
   } else if (property.isNot) {
-    await convertMatchPropertyIs(qry, property, property.isNot, true);
+    convertMatchPropertyIs(qry, property, property.isNot, true);
   } else if (property.range) {
     convertMatchPropertyRange(qry, property);
   } else if (property.match) {
-    await convertMatchPropertySubMatch(qry, property);
+    convertMatchPropertySubMatch(qry, property);
+  } else if (property.is) {
+    convertMatchPropertyInSet(qry, property);
   } else if (property.relativeTo) {
     convertMatchPropertyRelative(qry, property);
   } else if (property.value) {
     convertMatchPropertyValue(qry, property);
   } else if (property.boolWhere) {
-    await convertMatchPropertyBool(qry, property);
+    convertMatchPropertyBool(qry, property);
   } else if (property.isNull) {
     convertMatchPropertyNull(qry, property);
   } else {
@@ -189,7 +188,7 @@ async function convertMatchProperty(qry: SqlQuery, property: Where) {
   }
 }
 
-async function convertMatchPropertyIs(qry: SqlQuery, property: Where, list: any[], inverse = false) {
+function convertMatchPropertyIs(qry: SqlQuery, property: Where, list: any[], inverse = false) {
   if (!list) {
     throw new Error("INVALID MatchPropertyIs\n" + JSON.stringify(property, null, 2));
   }
@@ -199,21 +198,12 @@ async function convertMatchPropertyIs(qry: SqlQuery, property: Where, list: any[
   const descendants: string[] = [];
   const descendantsSelf: string[] = [];
 
-  const svc = new EntityService(axios);
-
   for (const pIs of list) {
-    let iri = pIs["@id"];
-
-    if (iri) {
-      // What type of IRI is it?
-      const rs = await svc.getPartialEntity(iri, [RDF.TYPE]);
-      if (IM.CONCEPT_SET == rs?.data?.[RDF.TYPE]?.[0]?.["@id"]) iri += "(SET)";
-      else iri += "(IRI)";
-
-      if (pIs.ancestorsOf) ancestors.push(iri);
-      else if (pIs.descendantsOf) descendants.push(iri);
-      else if (pIs.descendantsOrSelfOf) descendantsSelf.push(iri);
-      else direct.push(iri);
+    if (pIs["@id"]) {
+      if (pIs.ancestorsOf) ancestors.push(pIs["@id"]);
+      else if (pIs.descendantsOf) descendants.push(pIs["@id"]);
+      else if (pIs.descendantsOrSelfOf) descendantsSelf.push(pIs["@id"]);
+      else direct.push(pIs["@id"]);
     } else if (pIs.parameter) {
       direct.push("{{ PARAM: " + pIs.parameter + "}}");
     } else {
@@ -281,14 +271,14 @@ function convertMatchPropertyDateRangeNode(fieldName: string, range: Assignable)
   else return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + getOperator(range.operator, fieldName);
 }
 
-async function convertMatchPropertySubMatch(qry: SqlQuery, property: Where) {
+function convertMatchPropertySubMatch(qry: SqlQuery, property: Where) {
   if (!property.match) {
     throw new Error("INVALID MatchPropertySubMatch\n" + JSON.stringify(property, null, 2));
   }
 
   if (!property.match.variable) property.match.variable = qry.getAlias(qry.alias + "_sub");
 
-  await convertMatchToQueryAndMerge(qry, property.match);
+  convertMatchToQueryAndMerge(qry, property.match);
 }
 
 function convertMatchPropertyInSet(qry: SqlQuery, property: Where) {
@@ -375,7 +365,7 @@ function convertMatchPropertyValue(qry: SqlQuery, property: Where) {
   qry.wheres.push(where);
 }
 
-async function convertMatchPropertyBool(qry: SqlQuery, property: Where) {
+function convertMatchPropertyBool(qry: SqlQuery, property: Where) {
   if (!property.boolWhere) {
     throw new Error("INVALID MatchPropertyBool\n" + JSON.stringify(property, null, 2));
   }
@@ -383,7 +373,7 @@ async function convertMatchPropertyBool(qry: SqlQuery, property: Where) {
   if (property.where) {
     const subQuery = qry.subQuery(qry.model, qry.alias);
     for (const p of property.where) {
-      await convertMatchProperty(subQuery, p);
+      convertMatchProperty(subQuery, p);
     }
 
     qry.withs.push(...subQuery.withs);
