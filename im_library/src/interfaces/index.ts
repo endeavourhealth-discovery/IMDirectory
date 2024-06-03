@@ -56,6 +56,7 @@ import { SetDiffObject } from "./SetDiffObject";
 import { CodeTemplate } from "./CodeTemplate";
 import { ExtendedSearchResultSummary } from "./ExtendedSearchResultSummary";
 import { SearchOptions } from "./SearchOptions";
+import { ValidatedEntity } from "./ValidatedEntity";
 
 export {
   type Address,
@@ -116,5 +117,6 @@ export {
   type SetDiffObject,
   type CodeTemplate,
   type ExtendedSearchResultSummary,
-  type SearchOptions
+  type SearchOptions,
+  type ValidatedEntity
 };

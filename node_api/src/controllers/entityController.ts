@@ -56,7 +56,7 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
-    this.router.post("/public/search/validatedEntity", (req, res, next) =>
+    this.router.post("/public/validatedEntity", (req, res, next) =>
       this.getValidatedEntitiesBySnomedCodes(req)
         .then(data => res.send(data))
         .catch(next)
