@@ -29,7 +29,8 @@
     />
   </div>
   <div v-else-if="propertyType === 'within'">
-    <InputText value="the last" disabled class="property-input-title" />
+    <SelectButton v-model="sign" :options="['the last', 'the next']" />
+    <!-- <InputText value="the last" disabled class="property-input-title" /> -->
     <InputNumber v-model:model-value="numberValue" />
     <!-- TODO: model Date options and get from API -->
     <Dropdown
@@ -44,6 +45,7 @@
       optionLabel="name"
       v-model:model-value="unit"
     />
+    <RelativeToSelect v-model:propertyRef="propertyRef" :property="property" :datatype="datatype" :property-iri="property['@id']!" />
   </div>
 </template>
 
@@ -69,6 +71,7 @@ const numberValue: Ref<number> = ref(0);
 const operator: Ref<Operator | undefined> = ref();
 const unit: Ref<string | undefined> = ref();
 const propertyRef: Ref<PropertyRef> = ref({});
+const sign: Ref<"the last" | "the next" | undefined> = ref();
 
 onMounted(async () => {
   await initValues();
