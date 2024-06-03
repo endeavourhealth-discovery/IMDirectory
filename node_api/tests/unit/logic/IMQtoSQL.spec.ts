@@ -6,18 +6,8 @@ import axios from "axios";
 import EntityService from "@/services/entity.service";
 import { IM } from "@im-library/vocabulary";
 import { Pool } from "postgresql-client";
-import testData from "./IMQtoSQL.json";
 
 describe("IMQtoSQL.ts", () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-    axios.get = vi
-      .fn()
-      .mockResolvedValueOnce({ data: testData["Q_RegisteredGMS"] })
-      .mockResolvedValueOnce({ data: testData["Q_Diabetics"] })
-      .mockResolvedValueOnce({ data: testData["Q_Hypertensives"] });
-  });
-
   test("IMQtoSQL", async () => {
     server.close();
     const svc = new EntityService(axios);
