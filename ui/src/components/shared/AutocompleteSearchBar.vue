@@ -183,7 +183,7 @@ async function onEnter(event: any) {
 
 async function search() {
   searchLoading.value = true;
-  const imQueryCopy = cloneDeep(props.imQuery) ?? { query: {} };
+  const imQueryCopy = props.imQuery ? cloneDeep(props.imQuery) : { query: {} };
   imQueryCopy.textSearch = searchText.value;
   imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
   const response = await QueryService.queryIMSearch(imQueryCopy);
