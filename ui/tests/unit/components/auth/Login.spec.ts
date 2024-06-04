@@ -64,7 +64,7 @@ describe("login.vue with registeredUser", () => {
       mfaStatus: []
     };
 
-    AuthService.signIn = vi.fn().mockResolvedValue({ status: 200, message: "Login successful", user: testUser });
+    AuthService.signIn = vi.fn().mockResolvedValue({ status: 200, message: "Login successful" });
 
     mockState.registeredUsername = "testUser";
     component = render(Login, {
@@ -95,7 +95,7 @@ describe("login.vue with registeredUser", () => {
   });
 
   it("fires swal on auth error ___ 401", async () => {
-    AuthService.signIn = vi.fn().mockResolvedValue({ status: 401, message: "Login successful", user: testUser });
+    AuthService.signIn = vi.fn().mockResolvedValue({ status: 403, message: "Additional step required", nextStep: "CONFIRM_SIGN_UP" });
     const usernameInput = component.getByTestId("login-username");
     await fireEvent.update(usernameInput, "Devtest");
     const passwordInput = component.getByTestId("login-password");
