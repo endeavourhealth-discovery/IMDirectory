@@ -46,6 +46,8 @@ export class IM {
   public static readonly MAP_ENTITY = IM.NAMESPACE + "EntityMap";
   public static readonly SET = IM.NAMESPACE + "Set";
   public static readonly IS_CONTAINED_IN = IM.NAMESPACE + "isContainedIn";
+  public static readonly HAS_MEMBER_PARENT = IM.NAMESPACE + "hasMemberParent";
+  public static readonly FUNCTION_TEMPLATE = IM.NAMESPACE + "functionTemplate";
   public static readonly ONE_OF = IM.NAMESPACE + "oneOf";
   public static readonly COMBINATION_OF = IM.NAMESPACE + "combinationOf";
   public static readonly USE_PREDICATES = IM.NAMESPACE + "usePredicates";
