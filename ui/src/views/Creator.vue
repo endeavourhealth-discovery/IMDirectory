@@ -326,7 +326,7 @@ function beforeWindowUnload(e: any) {
 }
 
 function fileChanges(entity: any) {
-  FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser.id + "#", IM.UPDATE_ALL);
+  FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser?.id + "#", IM.UPDATE_ALL);
 }
 
 function submit(): void {

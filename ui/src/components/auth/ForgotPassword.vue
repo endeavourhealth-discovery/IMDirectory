@@ -63,7 +63,8 @@ function handleSubmit(): void {
             text: "Password has been reset for account: " + username.value + ". An email has been sent with a recovery code."
           }).then(() => {
             authStore.updateRegisteredUsername(username.value);
-            router.push({ name: "ForgotPasswordSubmit" });
+            if (res.nextStep === "CONFIRM_RESET_PASSWORD_WITH_CODE") router.push({ name: "ForgotPasswordSubmit" });
+            else router.push({ name: "Login" });
           });
         } else {
           Swal.fire({

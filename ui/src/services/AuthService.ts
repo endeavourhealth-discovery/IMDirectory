@@ -1,43 +1,93 @@
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { CustomAlert, User } from "@im-library/interfaces";
-import { Auth } from "aws-amplify";
+import {
+  AuthError,
+  AuthSession,
+  autoSignIn,
+  confirmResetPassword,
+  confirmSignIn,
+  confirmSignUp,
+  confirmUserAttribute,
+  fetchAuthSession,
+  fetchMFAPreference,
+  FetchMFAPreferenceOutput,
+  fetchUserAttributes,
+  FetchUserAttributesOutput,
+  getCurrentUser,
+  GetCurrentUserOutput,
+  resendSignUpCode,
+  resetPassword,
+  sendUserAttributeVerificationCode,
+  setUpTOTP,
+  signIn,
+  signOut,
+  signUp,
+  SignUpOutput,
+  verifyTOTPSetup,
+  updateMFAPreference,
+  updatePassword,
+  updateUserAttributes
+} from "aws-amplify/auth";
 import axios from "axios";
 import Env from "./Env";
+import { useUserStore } from "@/stores/userStore";
+import { Avatars } from "@im-library/constants";
 
-function processAwsUser(cognitoUser: any) {
-  if (!isObjectHasKeys(cognitoUser, ["attributes", "username"])) throw new Error("Unable to process aws user");
+function processAwsUser(cognitoUser: GetCurrentUserOutput, userAttributes: FetchUserAttributesOutput, authSession: AuthSession, mfa: FetchMFAPreferenceOutput) {
+  if (
+    !isObjectHasKeys(cognitoUser, ["userId", "username"]) ||
+    !isObjectHasKeys(userAttributes, ["email", "custom:forename", "custom:surname", "custom:avatar"])
+  )
+    throw new Error("Unable to process aws user");
   return {
-    id: cognitoUser.attributes.sub,
+    id: cognitoUser.userId,
     username: cognitoUser.username,
-    firstName: cognitoUser.attributes["custom:forename"],
-    lastName: cognitoUser.attributes["custom:surname"],
-    email: cognitoUser.attributes.email,
+    firstName: userAttributes["custom:forename"],
+    lastName: userAttributes["custom:surname"],
+    email: userAttributes.email,
     password: "",
-    avatar: cognitoUser.attributes["custom:avatar"],
-    roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] ?? [],
-    mfaStatus: cognitoUser.preferredMFA ? [cognitoUser.preferredMFA] : []
+    avatar: userAttributes["custom:avatar"],
+    roles: authSession.tokens?.accessToken?.payload["cognito:groups"] ?? [],
+    mfaStatus: mfa.preferred ? [mfa.preferred] : []
   } as User;
 }
 
 const AuthService = {
   async register(userToRegister: User): Promise<CustomAlert> {
     try {
-      await Auth.signUp({
+      const { isSignUpComplete, nextStep, userId }: SignUpOutput = await signUp({
         username: userToRegister.username,
         password: userToRegister.password,
-        attributes: {
-          email: userToRegister.email,
-          "custom:forename": userToRegister.firstName,
-          "custom:surname": userToRegister.lastName,
-          "custom:avatar": userToRegister.avatar
+        options: {
+          userAttributes: {
+            email: userToRegister.email,
+            "custom:forename": userToRegister.firstName,
+            "custom:surname": userToRegister.lastName,
+            "custom:avatar": userToRegister.avatar
+          },
+          autoSignIn: true
         }
       });
-      return { status: 201, message: "User registered successfully" } as CustomAlert;
+      switch (nextStep.signUpStep) {
+        case "DONE": {
+          if (isSignUpComplete) return { status: 201, message: "User registered successfully" };
+          else return { status: 400, message: "Registration failed" };
+        }
+        case "CONFIRM_SIGN_UP":
+        case "COMPLETE_AUTO_SIGN_IN":
+          return { status: 201, message: "Additional step required", nextStep: nextStep.signUpStep };
+        default:
+          throw new Error(`Unhandled signup next step: ${nextStep}`);
+      }
     } catch (err: any) {
-      if (err.code === "UsernameExistsException") {
-        return { status: 409, message: "Username already exists", error: err } as CustomAlert;
+      if (err instanceof AuthError) {
+        if (err.name === "UsernameExistsException") {
+          return { status: 409, message: "Username already exists", error: err };
+        } else {
+          throw new Error("Unhandled AWS amplify error", err);
+        }
       } else {
-        return { status: 400, message: "Username registration failed", error: err } as CustomAlert;
+        throw err;
       }
     }
   },
@@ -48,184 +98,220 @@ const AuthService = {
 
   async confirmRegister(username: string, code: string): Promise<CustomAlert> {
     try {
-      await Auth.confirmSignUp(username, code);
-      return { status: 200, message: "Register confirmation successful" } as CustomAlert;
+      const { isSignUpComplete, userId, nextStep } = await confirmSignUp({ username: username, confirmationCode: code });
+      switch (nextStep.signUpStep) {
+        case "DONE": {
+          if (isSignUpComplete) {
+            return { status: 200, message: "Register confirmation successful" };
+          } else {
+            return { status: 403, message: "Failed register confirmation" };
+          }
+        }
+        case "COMPLETE_AUTO_SIGN_IN":
+        case "CONFIRM_SIGN_UP":
+          return { status: 403, message: "Additional step required", nextStep: nextStep.signUpStep };
+      }
     } catch (err: any) {
-      return { status: 403, message: "Failed register confirmation", error: err } as CustomAlert;
+      return { status: 403, message: "Failed register confirmation", error: err };
     }
   },
 
   async signIn(username: string, password: string): Promise<CustomAlert> {
     try {
-      const user = await Auth.signIn(username, password);
-      if (isObjectHasKeys(user, ["challengeName"])) {
-        return { status: 403, message: user.challengeName, error: undefined, user: user, userRaw: user };
+      const { isSignedIn, nextStep } = await signIn({ username: username, password: password });
+      switch (nextStep.signInStep) {
+        case "CONFIRM_SIGN_IN_WITH_TOTP_CODE":
+        case "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED":
+        case "RESET_PASSWORD":
+        case "CONFIRM_SIGN_UP":
+        case "CONTINUE_SIGN_IN_WITH_TOTP_SETUP":
+          return { status: 403, message: "Additional step required", nextStep: nextStep.signInStep };
+        case "DONE":
+          if (isSignedIn) {
+            await this.getCurrentAuthenticatedUser();
+            return { status: 200, message: "Login successful" };
+          } else return { status: 400, message: "Login failed" };
+        case "CONTINUE_SIGN_IN_WITH_MFA_SELECTION":
+        case "CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE":
+        case "CONFIRM_SIGN_IN_WITH_SMS_CODE":
+        default:
+          throw new Error(`Unhandled signin next step: ${nextStep}`);
       }
-      const signedInUser = processAwsUser(user);
-      if (user.attributes?.email_verified === false) {
-        return { status: 401, message: "EMAIL_UNVERIFIED", error: undefined, user: user, userRaw: user };
-      }
-      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
     } catch (err: any) {
-      if (err.code === "UserNotConfirmedException") {
-        return { status: 401, message: err.message, error: err } as CustomAlert; //message: "User is not confirmed."
-      }
       if (err.message === "Temporary password has expired and must be reset by an administrator.") {
-        return { status: 403, message: err.message, error: err } as CustomAlert;
+        return { status: 403, message: err.message, error: err };
       }
-      return { status: 403, message: "Login failed. Check username and password are correct", error: err } as CustomAlert;
+      if (err.name === "UserAlreadyAuthenticatedException") return { status: 200, message: "Login successful" };
+      return { status: 403, message: "Login failed. Check username and password are correct", error: err };
     }
+  },
+
+  async handleAutoSignIn(): Promise<void> {
+    await autoSignIn();
+    await this.getCurrentAuthenticatedUser();
   },
 
   async resendConfirmationCode(username: string): Promise<CustomAlert> {
     try {
-      await Auth.resendSignUp(username);
-      return { status: 200, message: "Code resent successfully" } as CustomAlert;
+      await resendSignUpCode({ username: username });
+      return { status: 200, message: "Code resent successfully" };
     } catch (err: any) {
-      return { status: 400, message: err.message, error: err } as CustomAlert;
+      return { status: 400, message: err.message, error: err };
     }
   },
 
   async signOut(): Promise<CustomAlert> {
     try {
-      await Auth.signOut({ global: true });
-      return { status: 200, message: "Logged out successfully" } as CustomAlert;
+      await signOut({ global: true });
+      const userStore = useUserStore();
+      userStore.updateCurrentUser(undefined);
+      userStore.clearAllFromUserDatabase();
+      return { status: 200, message: "Logged out successfully" };
     } catch (err: any) {
-      return { status: 400, message: "Error logging out from auth server", error: err } as CustomAlert;
+      return { status: 400, message: "Error logging out from auth server", error: err };
     }
   },
 
   async updateUser(userToUpdate: User): Promise<CustomAlert> {
     try {
-      const user = await Auth.currentAuthenticatedUser();
-      if (user.attributes.sub === userToUpdate.id) {
-        const atts: {
-          email: string;
-          "custom:forename": string;
-          "custom:surname": string;
-          "custom:avatar": string;
-        } = {
-          email: userToUpdate.email,
-          "custom:forename": userToUpdate.firstName,
-          "custom:surname": userToUpdate.lastName,
-          "custom:avatar": userToUpdate.avatar
-        };
-        await Auth.updateUserAttributes(user, atts);
-        const updateResults = await Auth.currentAuthenticatedUser();
-        const updatedUser = processAwsUser(updateResults);
-        return { status: 200, message: "User updated successfully", error: undefined, user: updatedUser, userRaw: updateResults } as CustomAlert;
-      } else {
-        return { status: 403, message: "Authentication error with server" } as CustomAlert;
-      }
+      const atts: {
+        email: string;
+        "custom:forename": string;
+        "custom:surname": string;
+        "custom:avatar": string;
+      } = {
+        email: userToUpdate.email,
+        "custom:forename": userToUpdate.firstName,
+        "custom:surname": userToUpdate.lastName,
+        "custom:avatar": userToUpdate.avatar
+      };
+      await updateUserAttributes({ userAttributes: atts });
+      await this.getCurrentAuthenticatedUser();
+      return { status: 200, message: "User updated successfully" };
     } catch (err: any) {
-      return { status: 500, message: "Error authenticating current user", error: err } as CustomAlert;
+      return { status: 500, message: "Error authenticating current user" };
     }
   },
 
   async verifyEmail(code: string) {
     try {
-      const result = await Auth.verifyCurrentUserAttributeSubmit("email", code);
-      return { status: 200, message: "Email verified successfully" } as CustomAlert;
+      await confirmUserAttribute({ userAttributeKey: "email", confirmationCode: code });
+      return { status: 200, message: "Email verified successfully" };
     } catch (err: any) {
-      return { status: 500, message: "Error verifying email", error: err } as CustomAlert;
+      return { status: 500, message: "Error verifying email", error: err };
     }
   },
 
   async changePassword(oldPassword: string, newPassword: string): Promise<CustomAlert> {
     try {
-      const user = await Auth.currentAuthenticatedUser();
-      await Auth.changePassword(user, oldPassword, newPassword);
-      return { status: 200, message: "Password successfully changed" } as CustomAlert;
+      await updatePassword({ oldPassword: oldPassword, newPassword: newPassword });
+      return { status: 200, message: "Password successfully changed" };
     } catch (err: any) {
-      return { status: 400, message: err.message, error: err } as CustomAlert;
+      return { status: 400, message: err.message, error: err };
     }
   },
 
   async forgotPassword(username: string): Promise<CustomAlert> {
     try {
-      await Auth.forgotPassword(username);
-      return { status: 200, message: "Password reset request sent to server" } as CustomAlert;
+      const { isPasswordReset, nextStep } = await resetPassword({ username: username });
+      switch (nextStep.resetPasswordStep) {
+        case "DONE":
+          return { status: 200, message: "Password has been reset" };
+        case "CONFIRM_RESET_PASSWORD_WITH_CODE":
+          return { status: 200, message: "Password reset request sent to server", nextStep: nextStep.resetPasswordStep };
+        default:
+          throw new Error(`Unhandled reset password next step: ${nextStep}`);
+      }
     } catch (err: any) {
-      return { status: 400, message: "Error resetting password from server", error: err } as CustomAlert;
+      return { status: 400, message: "Error resetting password from server", error: err };
     }
   },
 
   async forgotPasswordSubmit(username: string, code: string, newPassword: string): Promise<CustomAlert> {
     try {
-      await Auth.forgotPasswordSubmit(username, code, newPassword);
-      return { status: 200, message: "Password reset successfully" } as CustomAlert;
+      await confirmResetPassword({ username: username, confirmationCode: code, newPassword: newPassword });
+      return { status: 200, message: "Password reset successfully" };
     } catch (err: any) {
       if (err.code === "ExpiredCodeException") {
-        return { status: 403, message: "Code has expired", error: err } as CustomAlert;
+        return { status: 403, message: "Code has expired", error: err };
       }
-      return { status: 400, message: "Error submitting password-reset credentials", error: err } as CustomAlert;
-    }
-  },
-
-  async forgotUsername(email: string): Promise<CustomAlert> {
-    try {
-      await Auth.verifyCurrentUserAttribute(email);
-      return { status: 200, message: "Account recovery code sent" } as CustomAlert;
-    } catch (err: any) {
-      return { status: 400, message: "Error submitting email", error: err } as CustomAlert;
+      return { status: 400, message: "Error submitting password-reset credentials", error: err };
     }
   },
 
   async getCurrentAuthenticatedUser(): Promise<CustomAlert> {
     try {
-      const cognitoUser = await Auth.currentAuthenticatedUser();
-      const authenticatedUser = processAwsUser(cognitoUser);
-      return { status: 200, message: "User authenticated successfully", error: undefined, user: authenticatedUser, userRaw: cognitoUser } as CustomAlert;
+      const cognitoUser = await getCurrentUser();
+      const userAttributes = await fetchUserAttributes();
+      const tokens = await fetchAuthSession();
+      const mfa = await fetchMFAPreference();
+      const authenticatedUser = processAwsUser(cognitoUser, userAttributes, tokens, mfa);
+      const result = Avatars.find((avatar: string) => avatar === authenticatedUser.avatar);
+      if (!result) {
+        authenticatedUser.avatar = Avatars[0];
+      }
+      const userStore = useUserStore();
+      userStore.updateCurrentUser(authenticatedUser);
+      await userStore.getAllFromUserDatabase();
+      return { status: 200, message: "User authenticated successfully", user: authenticatedUser };
     } catch (err: any) {
-      return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
+      return { status: 403, message: "Error authenticating current user", error: err };
     }
   },
 
-  async getMfaToken(user: any): Promise<string> {
-    return await Auth.setupTOTP(user);
+  async getMfaToken(): Promise<URL> {
+    const output = await setUpTOTP();
+    return output.getSetupUri("Cognito");
   },
 
-  async mfaSignIn(user: any, mfaCode: string) {
+  async mfaSignIn(mfaCode: string): Promise<CustomAlert> {
     try {
-      const authorizedUser = await Auth.confirmSignIn(user, mfaCode, "SOFTWARE_TOKEN_MFA");
-      const signedInUser = processAwsUser(authorizedUser);
-      if (user.attributes?.email_verified === false) {
-        return { status: 401, message: "EMAIL_UNVERIFIED", error: undefined, user: user, userRaw: user };
+      const { isSignedIn, nextStep } = await confirmSignIn({ challengeResponse: mfaCode });
+      switch (nextStep.signInStep) {
+        case "DONE": {
+          if (isSignedIn) {
+            await this.getCurrentAuthenticatedUser();
+            return { status: 200, message: "Login successful" };
+          } else {
+            return { status: 403, message: "Error authenticating current user" };
+          }
+        }
+        case "RESET_PASSWORD":
+        case "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED":
+        case "CONFIRM_SIGN_UP":
+          return { status: 403, message: "Additional step required", nextStep: nextStep.signInStep };
+        default:
+          throw new Error(`Unhandled mfa signin next step: ${nextStep}`);
       }
-      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: authorizedUser } as CustomAlert;
     } catch (err: any) {
-      if (err.code === "UserNotConfirmedException") {
-        return { status: 401, message: err.message, error: err } as CustomAlert; //message: "User is not confirmed."
-      }
-      return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
+      return { status: 403, message: "Error authenticating current user", error: err };
     }
   },
 
-  async setMfaPreference(user: any, preference: "TOTP" | "SMS" | "NOMFA" | "SMS_MFA" | "SOFTWARE_TOKEN_MFA") {
+  async setMfaPreference(preference: "TOTP" | "SMS" | "NOMFA" | "SMS_MFA" | "SOFTWARE_TOKEN_MFA") {
     try {
-      await Auth.setPreferredMFA(user, preference);
+      switch (preference) {
+        case "NOMFA":
+          await updateMFAPreference({ sms: "DISABLED", totp: "DISABLED" });
+          break;
+        case "SMS":
+          await updateMFAPreference({ sms: "PREFERRED", totp: "DISABLED" });
+          break;
+        case "TOTP":
+          await updateMFAPreference({ sms: "DISABLED", totp: "PREFERRED" });
+          break;
+        case "SMS_MFA":
+          await updateMFAPreference({ sms: "ENABLED", totp: "PREFERRED" });
+          break;
+      }
     } catch (error: any) {
       throw new Error("Failed to set user mfa preference", error);
     }
   },
 
-  async verifyMFAToken(user: any, token: string) {
-    await Auth.verifyTotpToken(user, token);
+  async verifyMFAToken(token: string) {
+    await verifyTOTPSetup({ code: token });
   }
-
-  // currently not a feature with AWS Auth
-  // async forgotUsernameSubmit(email: string, code: string): Promise<CustomAlert> {
-  //   try {
-  //     await Auth.(email, code); // finish this if ever becomes a feature
-  //     return new CustomAlert(200, "Account recovered successfully");
-  //   } catch (err: any) {
-  //     console.error(err);
-  //     if (err.code === "ExpiredCodeException"){
-  //       return new CustomAlert(403, "Code has expired", err);
-  //     }
-  //     return new CustomAlert(400, "Error submitting account recovery credentials", err);
-  //   }
-  // },
 };
 
 if (process.env.NODE_ENV !== "test") Object.freeze(AuthService);

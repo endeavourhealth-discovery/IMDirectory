@@ -26,8 +26,8 @@ import FooterBar from "./components/app/FooterBar.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { GithubService, UserService } from "@/services";
-import { Auth } from "aws-amplify";
+import { AuthService, GithubService, UserService } from "@/services";
+import { fetchAuthSession } from "aws-amplify/auth";
 import axios from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
@@ -69,7 +69,7 @@ const latestRelease: Ref<GithubRelease | undefined> = ref();
 
 onMounted(async () => {
   loadingStore.updateViewsLoading(true);
-  await userStore.authenticateCurrentUser();
+  await AuthService.getCurrentAuthenticatedUser();
   await userStore.getAllFromUserDatabase();
 
   let theme = "saga-blue";
@@ -107,7 +107,7 @@ async function setupAxiosInterceptors(axios: any) {
   axios.interceptors.request.use(async (request: any) => {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {};
-      request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
+      request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
     }
     return request;
   });

@@ -16,7 +16,7 @@ import { flushPromises } from "@vue/test-utils";
 import { it, vi } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
 
-createTestingPinia();
+createTestingPinia({ initialState: { user: { currentUser: { username: "Test" } } } });
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

@@ -24,7 +24,7 @@
     "@braintree/sanitize-url": "7.0.2",
     "@sass-collective/strip-unit": "3.1.2",
     "abortcontroller-polyfill": "1.7.5",
-    "aws-amplify": "5.3.13",
+    "aws-amplify": "6.3.4",
     "axios": "1.7.2",
     "chart.js": "4.3.0",
     "copyfiles": "2.4.1",

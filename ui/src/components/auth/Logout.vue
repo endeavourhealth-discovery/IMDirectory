@@ -11,7 +11,7 @@
             <div class="p-text-left">Current User:</div>
           </div>
           <div class="field">
-            <div v-if="isLoggedIn" class="flex flex-row align-items-center p-text-capitalize">
+            <div v-if="currentUser" class="flex flex-row align-items-center p-text-capitalize">
               <img
                 data-testid="logout-avatar-image"
                 v-if="isLoggedIn"
@@ -43,6 +43,7 @@ import { useRouter } from "vue-router";
 import { CustomAlert } from "@im-library/interfaces";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
+import { AuthService } from "@/services";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -61,7 +62,7 @@ function handleSubmit(): void {
     reverseButtons: true
   }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      userStore.logoutCurrentUser().then((res: CustomAlert) => {
+      AuthService.signOut().then((res: CustomAlert) => {
         if (res.status === 200) {
           Swal.fire({
             icon: "success",
