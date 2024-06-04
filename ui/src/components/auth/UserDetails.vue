@@ -4,7 +4,7 @@
     <Card class="flex flex-column justify-content-sm-around align-items-center user-details-card">
       <template #header>
         <h1>My account</h1>
-        <img data-testid="user-details-avatar" id="selected-avatar" :src="getUrl(currentUser.avatar)" alt="avatar icon" />
+        <img data-testid="user-details-avatar" id="selected-avatar" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" />
       </template>
       <template #title> {{ menuItems[activeItem].label }} </template>
       <template #content>
@@ -77,11 +77,6 @@ const menuItems = ref([
 
 function handleEditClicked(): void {
   router.push({ name: "UserEdit" });
-}
-
-function getUrl(item: string): string {
-  const url = new URL(`../../assets/avatars/${item}`, import.meta.url);
-  return url.href;
 }
 </script>
 

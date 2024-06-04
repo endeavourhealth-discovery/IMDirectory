@@ -1,5 +1,4 @@
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { eclToIMQ, eclToBuild, validateEcl } from "@im-library/helpers";
 import { EclSearchRequest } from "@im-library/interfaces";
 import Env from "./env.service";
 import { SearchResponse } from "@im-library/interfaces/AutoGen";
@@ -9,18 +8,6 @@ export default class EclService {
 
   constructor(axios: any) {
     this.axios = axios;
-  }
-
-  public eclToBuild(ecl: string) {
-    return eclToBuild(ecl);
-  }
-
-  public eclToIMQ(ecl: string) {
-    return eclToIMQ(ecl);
-  }
-
-  public validateEcl(ecl: string) {
-    return validateEcl(ecl);
   }
 
   public async evaluateEcl(ecl: string) {
@@ -33,7 +20,7 @@ export default class EclService {
 
   public async eclSearch(eclSearchRequest: EclSearchRequest): Promise<SearchResponse> {
     if (isObjectHasKeys(eclSearchRequest, ["eclString"]) && eclSearchRequest.eclString) {
-      eclSearchRequest.eclQuery = eclToIMQ(eclSearchRequest.eclString);
+      eclSearchRequest.eclQuery = (await this.axios.post(Env.API + "api/ecl/public/queryFromEcl", eclSearchRequest.eclString)).data;
       delete eclSearchRequest.eclString;
     } else if (isObjectHasKeys(eclSearchRequest, ["eclQuery"]) && eclSearchRequest.eclQuery) {
       delete eclSearchRequest.eclString;

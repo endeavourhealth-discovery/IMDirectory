@@ -3,7 +3,6 @@ import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris } from "@im-library/interfaces";
-import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
@@ -183,7 +182,7 @@ export default class EntityService {
 
   async isValidPropertyBoolFocus(focus: any, propertyIri: string) {
     let query;
-    if (focus.ecl) query = eclToIMQ(focus.ecl);
+    if (focus.ecl) query = (await axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
     const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
     const results = await this.eclService.eclSearch(eclSearchRequest);
     let found = false;
@@ -202,7 +201,7 @@ export default class EntityService {
   async getSuperiorPropertiesBoolFocusPaged(focus: any, pageIndex?: number, pageSize?: number, filters?: string[]) {
     let query;
     let superiors = { result: [], totalCount: 0 };
-    if (focus.ecl) query = eclToIMQ(focus.ecl);
+    if (focus.ecl) query = (await axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
     if (query) {
       const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
       const results = await this.eclService.eclSearch(eclSearchRequest);

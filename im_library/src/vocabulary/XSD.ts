@@ -4,13 +4,15 @@ export class XSD {
   public static readonly NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
   public static readonly PREFIX = "xsd";
   public static readonly PATTERN = XSD.NAMESPACE + "pattern";
-  public static readonly MININCLUSIVE = XSD.NAMESPACE + "minInclusive";
-  public static readonly MINEXCLUSIVE = XSD.NAMESPACE + "minExclusive";
-  public static readonly MAXINCLUSIVE = XSD.NAMESPACE + "maxInclusive";
-  public static readonly MAXEXCLUSIVE = XSD.NAMESPACE + "maxExclusive";
+  public static readonly MIN_INCLUSIVE = XSD.NAMESPACE + "minInclusive";
+  public static readonly MIN_EXCLUSIVE = XSD.NAMESPACE + "minExclusive";
+  public static readonly MAX_INCLUSIVE = XSD.NAMESPACE + "maxInclusive";
+  public static readonly MAX_EXCLUSIVE = XSD.NAMESPACE + "maxExclusive";
   public static readonly INTEGER = XSD.NAMESPACE + "integer";
   public static readonly STRING = XSD.NAMESPACE + "string";
   public static readonly BOOLEAN = XSD.NAMESPACE + "boolean";
   public static readonly LONG = XSD.NAMESPACE + "long";
   public static readonly DOUBLE = XSD.NAMESPACE + "double";
+  public static readonly DATE_TIME = XSD.NAMESPACE + "dateTime";
+  public static readonly NUMBER = XSD.NAMESPACE + "number";
 }

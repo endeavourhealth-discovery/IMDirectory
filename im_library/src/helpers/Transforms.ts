@@ -263,9 +263,9 @@ export function entityToAliasEntity(ttEntity: any) {
     ttEntity.entityType = ttEntity[RDF.TYPE];
     delete ttEntity[RDF.TYPE];
   }
-  if (isObjectHasKeys(ttEntity, [IM.WEIGHTING])) {
-    ttEntity.weighting = ttEntity[IM.WEIGHTING];
-    delete ttEntity[IM.WEIGHTING];
+  if (isObjectHasKeys(ttEntity, [IM.USAGE_TOTAL])) {
+    ttEntity.weighting = ttEntity[IM.USAGE_TOTAL];
+    delete ttEntity[IM.USAGE_TOTAL];
   }
 }
 

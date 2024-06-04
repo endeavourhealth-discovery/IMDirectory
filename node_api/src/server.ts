@@ -21,6 +21,7 @@ import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/mor
 import WorkflowController from "./controllers/workflowController";
 import FunctionController from "./controllers/functionController";
 import CodeGenController from "@/controllers/codeGenController";
+import metricsInterceptor from "@/middlewares/metrics.middleware";
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ const app = new App({
     new CodeGenController()
   ],
   middleWares: [
+    metricsInterceptor,
     bodyParser.json({ type: "application/json" }),
     bodyParser.text({ type: "text/plain" }),
     bodyParser.urlencoded({ extended: true }),

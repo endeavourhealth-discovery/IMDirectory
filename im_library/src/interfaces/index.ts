@@ -44,7 +44,7 @@ import { PropertyDisplay } from "./PropertyDisplay";
 import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
-import { TTProperty } from "./TTProperty";
+import { TTProperty, UIProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
 import { ContextMap } from "./ContextMap";
 import { SelectedMatch } from "./SelectedMatch";
@@ -54,6 +54,7 @@ import { BugReport } from "./BugReport";
 import { QueryResponse } from "./QueryResponse";
 import { SetDiffObject } from "./SetDiffObject";
 import { CodeTemplate } from "./CodeTemplate";
+import { ExtendedSearchResultSummary } from "./ExtendedSearchResultSummary";
 
 export {
   type Address,
@@ -103,6 +104,7 @@ export {
   type AliasEntity,
   type PropertyDisplay,
   type TTProperty,
+  type UIProperty,
   type TreeNode,
   type ContextMap,
   type SelectedMatch,
@@ -111,5 +113,6 @@ export {
   type BugReport,
   type QueryResponse,
   type SetDiffObject,
-  type CodeTemplate
+  type CodeTemplate,
+  type ExtendedSearchResultSummary
 };

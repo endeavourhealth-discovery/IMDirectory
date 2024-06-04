@@ -10,14 +10,14 @@
     />
     <Dropdown
       style="width: 4.5rem; min-height: 2.3rem"
-      v-model="value.property.descendants"
-      :options="descendantOptions"
+      v-model="value.property.constraintOperator"
+      :options="constraintOperatorOptions"
       option-label="label"
       option-value="value"
     >
       <template #value="slotProps">
         <div v-if="slotProps.value" class="flex align-items-center">
-          <div>{{ value.property.descendants }}</div>
+          <div>{{ value.property.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
@@ -42,14 +42,14 @@
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <Dropdown
       style="width: 4.5rem; min-height: 2.3rem"
-      v-model="value.value.descendants"
-      :options="descendantOptions"
+      v-model="value.value.constraintOperator"
+      :options="constraintOperatorOptions"
       option-label="label"
       option-value="value"
     >
       <template #value="slotProps">
         <div v-if="slotProps.value" class="flex align-items-center">
-          <div>{{ value.value.descendants }}</div>
+          <div>{{ value.value.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
@@ -79,7 +79,6 @@ import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue
 import { EntityService, FunctionService, QueryService } from "@/services";
 import { IM, SNOMED, QUERY, IM_FUNCTION, RDF } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
 import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash";
@@ -88,15 +87,16 @@ import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary, TTIr
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
+import { getNameFromIri } from "@im-library/helpers/TTTransform";
 
 interface Props {
   value: {
     type: string;
     operator: string;
-    property: { concept?: { iri: string; name?: string } | SearchResultSummary; descendants: string };
-    value: { concept?: { iri: string; name?: string } | SearchResultSummary; descendants: string };
-    ecl?: string;
+    property: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
+    value: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
     validation?: { deferred: { promise: Promise<any>; reject: Function; resolve: Function }; valid: boolean };
+    id?: string;
   };
   parent?: any;
   focus?: any;
@@ -110,6 +110,7 @@ const propertyRanges: Ref<Set<string>> = ref(new Set<string>());
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const childLoadingState = inject("childLoadingState") as Ref<any>;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 const selectedProperty: Ref<SearchResultSummary | undefined> = ref();
 const selectedValue: Ref<SearchResultSummary | undefined> = ref();
@@ -121,26 +122,27 @@ const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"
 const valueTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#138875005"]);
 const showValidation = ref(false);
 const operatorOptions = ["=", "!="];
-const descendantOptions = [
+const constraintOperatorOptions = [
   { label: " ", value: "" },
   { label: "<<", value: "<<" },
-  { label: "<", value: "<" }
+  { label: "<", value: "<" },
+  { label: "^", value: "^" }
 ];
 
 const osQueryForValueSearch: Ref<SearchRequest> = ref({
   isA: Array.from(propertyRanges.value),
   statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
+  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
   typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
   sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
+  sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
 } as SearchRequest);
 
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
 const osQueryForPropertySearch: Ref<SearchRequest | undefined> = ref(undefined);
 
 const hasValue = computed(() => {
-  if (isObjectHasKeys(props.value.value, ["concept", "descendants"]) && isObjectHasKeys(props.value.value.concept, ["iri"])) return true;
+  if (isObjectHasKeys(props.value.value, ["concept", "constraintOperator"]) && isObjectHasKeys(props.value.value.concept, ["iri"])) return true;
   else return false;
 });
 
@@ -150,7 +152,7 @@ const hasFocus = computed(() => {
 });
 
 const hasProperty = computed(() => {
-  if (isObjectHasKeys(props.value.property, ["concept", "descendants"]) && isObjectHasKeys(props.value.property.concept, ["iri"])) return true;
+  if (isObjectHasKeys(props.value.property, ["concept", "constraintOperator"]) && isObjectHasKeys(props.value.property.concept, ["iri"])) return true;
   else return false;
 });
 
@@ -164,7 +166,6 @@ watch(
         else if (!newValue.property.concept) selectedProperty.value = undefined;
         if (newValue?.value?.concept?.iri !== oldValue?.value?.concept?.iri) await processProps();
         else if (!newValue.value.concept) selectedValue.value = undefined;
-        props.value.ecl = generateEcl();
       }
     }
   }
@@ -193,8 +194,6 @@ watch(forceValidation, async () => {
     props.value.validation.deferred.resolve("resolved");
   }
 });
-
-watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 watch(selectedProperty, async (newValue, oldValue) => {
   if (!_.isEqual(newValue, oldValue)) {
@@ -233,9 +232,9 @@ onMounted(async () => {
   await processProps();
   updateQueryForValueSearch();
   updateQueryForPropertySearch();
-  props.value.ecl = generateEcl();
   loadingProperty.value = false;
   loadingValue.value = false;
+  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
 });
 
 function updateQueryForValueSearch() {
@@ -244,8 +243,16 @@ function updateQueryForValueSearch() {
 
 function addIfConcept(focus: any[], iris: TTIriRef[]) {
   for (const item of focus) {
-    if (item.type === "Concept") iris.push({ "@id": item.concept.iri });
-    if (item.type === "BoolGroup") addIfConcept(item.items, iris);
+    if (item.type === "ExpressionConstraint") {
+      if (item.conceptSingle) {
+        iris.push({ "@id": item.conceptSingle.iri });
+      } else if (item.conceptBool) {
+        addIfConcept(item.conceptBoolItem.items, iris);
+      }
+    }
+    if (item.type === "BoolGroup") {
+      addIfConcept(item.items, iris);
+    }
   }
 }
 
@@ -267,10 +274,10 @@ function updateQueryForPropertySearch() {
     osQueryForPropertySearch.value = {
       isA: ["http://snomed.info/sct#410662002"],
       statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-      schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
+      schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
       typeFilter: [RDF.PROPERTY],
       sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-      sortField: filterStoreOptions.value.sortFields[0]?.["@id"] === IM.USAGE ? "weighting" : filterStoreOptions.value.sortFields[0]?.["@id"]
+      sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
     } as SearchRequest;
     imQueryForPropertySearch.value = undefined;
   } else {
@@ -412,24 +419,14 @@ async function processValueProp() {
   }
 }
 
-function generateEcl(): string {
-  let ecl = "";
-  if (hasProperty.value) ecl += builderConceptToEcl(props.value.property, props.parent, includeTerms.value);
-  else ecl += "[ UNKNOWN PROPERTY ]";
-  if (props.value.operator) ecl += " " + props.value.operator + " ";
-  if (hasValue.value) ecl += builderConceptToEcl(props.value.value, props.parent, includeTerms.value);
-  else ecl += "[ UNKNOWN VALUE ]";
-  return ecl;
-}
-
 async function updateProperty(property: SearchResultSummary | undefined) {
-  props.value.property.concept = property;
-  props.value.ecl = generateEcl();
+  if (!property) props.value.property.concept = undefined;
+  else props.value.property.concept = { iri: property.iri };
 }
 
 async function updateValue(value: SearchResultSummary | undefined) {
-  props.value.value.concept = value;
-  props.value.ecl = generateEcl();
+  if (!value) props.value.value.concept = undefined;
+  else props.value.value.concept = { iri: value.iri };
 }
 </script>
 

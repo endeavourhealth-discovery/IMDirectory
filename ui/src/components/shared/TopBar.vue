@@ -13,8 +13,18 @@
         :label="currentVersion"
         class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
         @click="showReleaseNotes"
+        data-testid="releases-button"
       />
-      <Button v-tooltip.bottom="'Themes'" icon="fa-regular fa-palette" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
+      <Button
+        v-tooltip.bottom="'Themes'"
+        icon="fa-regular fa-palette"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openThemesMenu"
+        data-testid="change-theme-button"
+      />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
         <template #item="{ item }: any">
           <div class="theme-row p-link">
@@ -24,7 +34,16 @@
           </div>
         </template>
       </Menu>
-      <Button v-tooltip.bottom="'Scale'" icon="fa-duotone fa-text-size" rounded text plain class="topbar-end-button" @click="openScaleMenu" />
+      <Button
+        v-tooltip.bottom="'Scale'"
+        icon="fa-duotone fa-text-size"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openScaleMenu"
+        data-testid="font-size-button"
+      />
       <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
         <template #item="{ item }: any">
           <div class="scale-row p-link">
@@ -39,23 +58,21 @@
         icon="fa-duotone fa-arrow-down-up-across-line"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
+        data-testid="upload-download-button"
       />
-      <Menu ref="adminMenu" :model="adminItems" :popup="true" />
+      <Menu ref="adminMenu" id="admin-menu" :model="adminItems" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
         icon="fa-regular fa-grid-2"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
+        data-testid="apps-button"
       />
-      <OverlayPanel ref="appsOP" class="app-overlay-panel">
-        <div class="flex flex-row flex-wrap gap-1 justify-content-start">
-          <Button
-            v-for="item in appItems"
-            v-tooltip.bottom="item.label"
-            :icon="item.icon"
-            class="p-button-rounded p-button-text p-button-plain"
-            @click="open(item)"
-          />
+      <OverlayPanel ref="appsOP" class="app-overlay-panel" id="apps-menu">
+        <div class="flex flex-row flex-wrap gap-2 justify-content-start">
+          <template v-for="item in appItems">
+            <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
+          </template>
         </div>
       </OverlayPanel>
       <Button
@@ -66,6 +83,7 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu"
       />
       <Button
         v-tooltip.left="'Account'"
@@ -74,10 +92,11 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu-logged-in"
       >
-        <img class="avatar-icon" alt="avatar icon" :src="getUrl(currentUser.avatar)" style="min-width: 1.75rem" />
+        <img class="avatar-icon" alt="avatar icon" :src="`/avatars/${currentUser.avatar}`" style="min-width: 1.75rem" />
       </Button>
-      <Menu ref="userMenu" :model="getItems()" :popup="true">
+      <Menu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
             <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--text-color)">
@@ -92,7 +111,7 @@
         </template>
       </Menu>
     </div>
-    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false">
+    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
       <div class="flex flex-column gap-2">
         <label for="template">Template</label>
         <Dropdown id="template" v-model="template" :options="templates" />
@@ -111,6 +130,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, onMounted } from "vue";
+import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, GithubService, UserService, CodeGenService } from "@/services";
 import { MenuItem } from "primevue/menuitem";
@@ -144,7 +164,7 @@ const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
 const adminItems: Ref<MenuItem[]> = ref([]);
-const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
+const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 
 const toast = useToast();
@@ -184,16 +204,11 @@ function getItems(): MenuItem[] {
 }
 
 function openUserMenu(event: any): void {
-  (userMenu.value as any).toggle(event);
-}
-
-function getUrl(item: string): string {
-  const url = new URL(`/src/assets/avatars/${item}`, import.meta.url);
-  return url.href;
+  userMenu.value.toggle(event);
 }
 
 function openAppsOverlay(event: any) {
-  (appsOP.value as any).toggle(event);
+  appsOP.value.toggle(event);
 }
 
 function setUserMenuItems(): void {
@@ -285,25 +300,25 @@ function getThemes() {
         {
           key: "arya-blue",
           label: "Blue",
-          image: new URL(`../../assets/themes/arya-blue.png`, import.meta.url),
+          image: "/themeIcons/arya-blue.png",
           command: () => changeTheme("arya-blue")
         },
         {
           key: "arya-green",
           label: "Green",
-          image: new URL(`../../assets/themes/arya-green.png`, import.meta.url),
+          image: "/themeIcons/arya-green.png",
           command: () => changeTheme("arya-green")
         },
         {
           key: "arya-orange",
           label: "Orange",
-          image: new URL(`../../assets/themes/arya-orange.png`, import.meta.url),
+          image: "/themeIcons/arya-orange.png",
           command: () => changeTheme("arya-orange")
         },
         {
           key: "arya-purple",
           label: "Purple",
-          image: new URL(`../../assets/themes/arya-purple.png`, import.meta.url),
+          image: "/themeIcons/arya-purple.png",
           command: () => changeTheme("arya-purple")
         }
       ]
@@ -314,25 +329,25 @@ function getThemes() {
         {
           key: "bootstrap4-light-blue",
           label: "Blue",
-          image: new URL(`../../assets/themes/bootstrap4-light-blue.svg`, import.meta.url),
+          image: "/themeIcons/bootstrap4-light-blue.svg",
           command: () => changeTheme("bootstrap4-light-blue")
         },
         {
           label: "Purple",
-          image: new URL(`../../assets/themes/bootstrap4-light-purple.svg`, import.meta.url),
+          image: "/themeIcons/bootstrap4-light-purple.svg",
           key: "bootstrap4-light-purple",
           command: () => changeTheme("bootstrap4-light-purple")
         },
         {
           key: "bootstrap4-dark-blue",
           label: "Blue",
-          image: new URL(`../../assets/themes/bootstrap4-dark-blue.svg`, import.meta.url),
+          image: "/themeIcons/bootstrap4-dark-blue.svg",
           command: () => changeTheme("bootstrap4-dark-blue")
         },
         {
           key: "bootstrap4-dark-purple",
           label: "Purple",
-          image: new URL(`../../assets/themes/bootstrap4-dark-purple.svg`, import.meta.url),
+          image: "/themeIcons/bootstrap4-dark-purple.svg",
           command: () => changeTheme("bootstrap4-dark-purple")
         }
       ]
@@ -343,7 +358,7 @@ function getThemes() {
         {
           key: "fluent-light",
           label: "Blue",
-          image: new URL(`../../assets/themes/fluent-light.png`, import.meta.url),
+          image: "/themeIcons/fluent-light.png",
           command: () => changeTheme("fluent-light")
         }
       ]
@@ -354,49 +369,49 @@ function getThemes() {
         {
           key: "lara-light-indigo",
           label: "Indigo",
-          image: new URL(`../../assets/themes/lara-light-indigo.png`, import.meta.url),
+          image: "/themeIcons/lara-light-indigo.png",
           command: () => changeTheme("lara-light-indigo")
         },
         {
           key: "lara-light-blue",
           label: "Blue",
-          image: new URL(`../../assets/themes/lara-light-blue.png`, import.meta.url),
+          image: "/themeIcons/lara-light-blue.png",
           command: () => changeTheme("lara-light-blue")
         },
         {
           key: "lara-light-purple",
           label: "Purple",
-          image: new URL(`../../assets/themes/lara-light-purple.png`, import.meta.url),
+          image: "/themeIcons/lara-light-purple.png",
           command: () => changeTheme("lara-light-purple")
         },
         {
           key: "lara-light-teal",
           label: "Teal",
-          image: new URL(`../../assets/themes/lara-light-teal.png`, import.meta.url),
+          image: "/themeIcons/lara-light-teal.png",
           command: () => changeTheme("lara-light-teal")
         },
         {
           key: "lara-dark-indigo",
           label: "Indigo",
-          image: new URL(`../../assets/themes/lara-dark-indigo.png`, import.meta.url),
+          image: "/themeIcons/lara-dark-indigo.png",
           command: () => changeTheme("lara-dark-indigo")
         },
         {
           key: "lara-dark-blue",
           label: "Blue",
-          image: new URL(`../../assets/themes/lara-dark-blue.png`, import.meta.url),
+          image: "/themeIcons/lara-dark-blue.png",
           command: () => changeTheme("lara-dark-blue")
         },
         {
           key: "lara-dark-purple",
           label: "Purple",
-          image: new URL(`../../assets/themes/lara-dark-purple.png`, import.meta.url),
+          image: "/themeIcons/lara-dark-purple.png",
           command: () => changeTheme("lara-dark-purple")
         },
         {
           key: "lara-dark-teal",
           label: "Teal",
-          image: new URL(`../../assets/themes/lara-dark-teal.png`, import.meta.url),
+          image: "/themeIcons/lara-dark-teal.png",
           command: () => changeTheme("lara-dark-teal")
         }
       ]
@@ -407,25 +422,25 @@ function getThemes() {
         {
           key: "md-light-indigo",
           label: "Indigo",
-          image: new URL(`../../assets/themes/md-light-indigo.svg`, import.meta.url),
+          image: "/themeIcons/md-light-indigo.svg",
           command: () => changeTheme("md-light-indigo")
         },
         {
           key: "md-light-deeppurple",
           label: "Deep Purple",
-          image: new URL(`../../assets/themes/md-light-deeppurple.svg`, import.meta.url),
+          image: "/themeIcons/md-light-deeppurple.svg",
           command: () => changeTheme("md-light-deeppurple")
         },
         {
           key: "md-dark-indigo",
           label: "Indigo",
-          image: new URL(`../../assets/themes/md-dark-indigo.svg`, import.meta.url),
+          image: "/themeIcons/md-dark-indigo.svg",
           command: () => changeTheme("md-dark-indigo")
         },
         {
           key: "md-dark-deeppurple",
           label: "Deep Purple",
-          image: new URL(`../../assets/themes/md-dark-deeppurple.svg`, import.meta.url),
+          image: "/themeIcons/md-dark-deeppurple.svg",
           command: () => changeTheme("md-dark-deeppurple")
         }
       ]
@@ -436,25 +451,25 @@ function getThemes() {
         {
           key: "mdc-light-indigo",
           label: "Indigo",
-          image: new URL(`../../assets/themes/mdc-light-indigo.svg`, import.meta.url),
+          image: "/themeIcons/mdc-light-indigo.svg",
           command: () => changeTheme("mdc-light-indigo")
         },
         {
           key: "mdc-light-deeppurple",
           label: "Deep Purple",
-          image: new URL(`../../assets/themes/mdc-light-deeppurple.svg`, import.meta.url),
+          image: "/themeIcons/mdc-light-deeppurple.svg",
           command: () => changeTheme("mdc-light-deeppurple")
         },
         {
           key: "mdc-dark-indigo",
           label: "Indigo",
-          image: new URL(`../../assets/themes/mdc-dark-indigo.svg`, import.meta.url),
+          image: "/themeIcons/mdc-dark-indigo.svg",
           command: () => changeTheme("mdc-dark-indigo")
         },
         {
           key: "mdc-dark-deeppurple",
           label: "Deep Purple",
-          image: new URL(`../../assets/themes/mdc-dark-deeppurple.svg`, import.meta.url),
+          image: "/themeIcons/mdc-dark-deeppurple.svg",
           command: () => changeTheme("mdc-dark-deeppurple")
         }
       ]
@@ -465,7 +480,7 @@ function getThemes() {
         {
           key: "mira",
           label: "Mira",
-          image: new URL(`../../assets/themes/mira.jpg`, import.meta.url),
+          image: "/themeIcons/mira.jpg",
           command: () => changeTheme("mira")
         }
       ]
@@ -476,7 +491,7 @@ function getThemes() {
         {
           key: "nano",
           label: "Nano",
-          image: new URL(`../../assets/themes/nano.jpg`, import.meta.url),
+          image: "/themeIcons/nano.jpg",
           command: () => changeTheme("nano")
         }
       ]
@@ -487,25 +502,25 @@ function getThemes() {
         {
           key: "saga-blue",
           label: "Blue",
-          image: new URL(`../../assets/themes/saga-blue.png`, import.meta.url),
+          image: "/themeIcons/saga-blue.png",
           command: () => changeTheme("saga-blue")
         },
         {
           key: "saga-green",
           label: "Green",
-          image: new URL(`../../assets/themes/saga-green.png`, import.meta.url),
+          image: "/themeIcons/saga-green.png",
           command: () => changeTheme("saga-green")
         },
         {
           key: "saga-orange",
           label: "Orange",
-          image: new URL(`../../assets/themes/saga-orange.png`, import.meta.url),
+          image: "/themeIcons/saga-orange.png",
           command: () => changeTheme("saga-orange")
         },
         {
           key: "saga-purple",
           label: "Purple",
-          image: new URL(`../../assets/themes/saga-purple.png`, import.meta.url),
+          image: "/themeIcons/saga-purple.png",
           command: () => changeTheme("saga-purple")
         }
       ]
@@ -516,13 +531,13 @@ function getThemes() {
         {
           key: "soho-light",
           label: "Light",
-          image: new URL(`../../assets/themes/soho-light.png`, import.meta.url),
+          image: "/themeIcons/soho-light.png",
           command: () => changeTheme("soho-light")
         },
         {
           key: "soho-dark",
           label: "Dark",
-          image: new URL(`../../assets/themes/soho-dark.png`, import.meta.url),
+          image: "/themeIcons/soho-dark.png",
           command: () => changeTheme("soho-dark")
         }
       ]
@@ -533,7 +548,7 @@ function getThemes() {
         {
           key: "tailwind-light",
           label: "Tailwind Light",
-          image: new URL(`../../assets/themes/tailwind-light.png`, import.meta.url),
+          image: "/themeIcons/tailwind-light.png",
           command: () => changeTheme("tailwind-light")
         }
       ]
@@ -544,25 +559,25 @@ function getThemes() {
         {
           key: "vela-blue",
           label: "Blue",
-          image: new URL(`../../assets/themes/vela-blue.png`, import.meta.url),
+          image: "/themeIcons/vela-blue.png",
           command: () => changeTheme("vela-blue")
         },
         {
           key: "vela-green",
           label: "Green",
-          image: new URL(`../../assets/themes/vela-green.png`, import.meta.url),
+          image: "/themeIcons/vela-green.png",
           command: () => changeTheme("vela-green")
         },
         {
           key: "vela-orange",
           label: "Orange",
-          image: new URL(`../../assets/themes/vela-orange.png`, import.meta.url),
+          image: "/themeIcons/vela-orange.png",
           command: () => changeTheme("vela-orange")
         },
         {
           key: "vela-purple",
           label: "Purple",
-          image: new URL(`../../assets/themes/vela-purple.png`, import.meta.url),
+          image: "/themeIcons/vela-purple.png",
           command: () => changeTheme("vela-purple")
         }
       ]
@@ -573,13 +588,13 @@ function getThemes() {
         {
           key: "viva-light",
           label: "Light",
-          image: new URL(`../../assets/themes/viva-light.svg`, import.meta.url),
+          image: "/themeIcons/viva-light.svg",
           command: () => changeTheme("viva-light")
         },
         {
           key: "viva-dark",
           label: "Dark",
-          image: new URL(`../../assets/themes/viva-dark.svg`, import.meta.url),
+          image: "/themeIcons/viva-dark.svg",
           command: () => changeTheme("viva-dark")
         }
       ]
@@ -643,9 +658,9 @@ async function generateAndDownload() {
 
 function setAppMenuItems() {
   appItems.value = [
-    { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
-    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() },
-    { label: "UPRN", icon: "fa-regular fa-address-book", command: () => directService.uprn() }
+    { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => directService.view(), color: "var(--blue-500)", size: 2 },
+    { label: "Creator", icon: "fa-duotone fa-circle-plus", command: () => directService.create(), color: "var(--orange-500)", size: 2 },
+    { label: "ASSIGN UPRN", icon: "fa-duotone fa-map-location-dot", command: () => directService.uprn(), color: "var(--red-500)", size: 2 }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }
@@ -717,7 +732,7 @@ function showReleaseNotes() {
 }
 
 .selected {
-  background-colour: red;
+  background-color: red;
 }
 
 .theme-icon {

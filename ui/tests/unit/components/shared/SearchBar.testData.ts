@@ -35,7 +35,7 @@ export default {
       { "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", name: "Property" },
       { "@id": "http://endhealth.info/im#Folder", name: "Folder" }
     ],
-    sortField: "weighting",
+    sortField: "usageTotal",
     sortDirection: "DESC"
   },
   SEARCH_RESULTS: [

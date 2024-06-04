@@ -1,3 +1,5 @@
+import { XSD } from "@/vocabulary";
+
 export const treeNodeProperty = {
   directFolderProperty: {
     key: "0-0-0-5",
@@ -34,7 +36,7 @@ export const treeNodeProperty = {
     },
     selectable: true,
     ttproperty: {
-      "http://www.w3.org/ns/shacl#datatype": [{ "@id": "http://www.w3.org/2001/XMLSchema#string", name: "string" }],
+      "http://www.w3.org/ns/shacl#datatype": [{ "@id": XSD.STRING, name: "string" }],
       "http://www.w3.org/ns/shacl#order": 6,
       "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#callingName", name: "calling name" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
@@ -106,7 +108,7 @@ export const treeNodeProperty = {
     },
     selectable: true,
     ttproperty: {
-      "http://www.w3.org/ns/shacl#datatype": [{ "@id": "http://www.w3.org/2001/XMLSchema#string", name: "string" }],
+      "http://www.w3.org/ns/shacl#datatype": [{ "@id": XSD.STRING, name: "string" }],
       "http://www.w3.org/ns/shacl#order": 1,
       "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#addressLine", name: "address line" }],
       "http://www.w3.org/ns/shacl#maxCount": 1
@@ -137,7 +139,7 @@ export const treeNodeProperty = {
     },
     selectable: true,
     ttproperty: {
-      "http://www.w3.org/ns/shacl#datatype": [{ "@id": "http://www.w3.org/2001/XMLSchema#string", name: "string" }],
+      "http://www.w3.org/ns/shacl#datatype": [{ "@id": XSD.STRING, name: "string" }],
       "http://www.w3.org/ns/shacl#order": 2,
       "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#text", name: "text" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
