@@ -28,18 +28,26 @@
       :property-iri="property['@id']!"
     />
   </div>
-  <div v-else-if="propertyType === 'within'">
-    <SelectButton v-model="sign" :options="['the last', 'the next']" />
-    <!-- <InputText value="the last" disabled class="property-input-title" /> -->
+  <div v-else-if="propertyType === 'within'" class="flex align-items-baseline">
+    <SelectButton
+      v-model="sign"
+      :options="[
+        { id: '-', name: 'the last' },
+        { id: '+', name: 'the next' }
+      ]"
+      optionValue="id"
+      optionLabel="name"
+      class="flex align-items-baseline"
+    />
     <InputNumber v-model:model-value="numberValue" />
     <!-- TODO: model Date options and get from API -->
     <Dropdown
       :options="[
-        { id: 'Minute', name: 'minute(s)' },
-        { id: 'Hour', name: 'hour(s)' },
-        { id: 'Day', name: 'day(s)' },
-        { id: 'MONTHS', name: 'month(s)' },
-        { id: 'Year', name: 'year(s)' }
+        { id: 'minute', name: 'minute(s)' },
+        { id: 'hour', name: 'hour(s)' },
+        { id: 'day', name: 'day(s)' },
+        { id: 'month', name: 'month(s)' },
+        { id: 'year', name: 'year(s)' }
       ]"
       optionValue="id"
       optionLabel="name"
@@ -71,7 +79,7 @@ const numberValue: Ref<number> = ref(0);
 const operator: Ref<Operator | undefined> = ref();
 const unit: Ref<string | undefined> = ref();
 const propertyRef: Ref<PropertyRef> = ref({});
-const sign: Ref<"the last" | "the next" | undefined> = ref();
+const sign: Ref<"-" | "+" | undefined> = ref();
 
 onMounted(async () => {
   await initValues();
@@ -112,15 +120,23 @@ watch(
   () => updatePropertyValues()
 );
 
+watch(
+  () => sign.value,
+  () => updatePropertyValues()
+);
+
 async function initValues() {
   if (props.property.operator) operator.value = props.property.operator;
 
   if (props.property.value) {
     if (isNumber(props.property.value)) {
       propertyType.value = "within";
+      if (props.property.value.includes("-")) sign.value = "-";
+      else sign.value = "+";
       numberValue.value = Number(props.property.value.replace("-", ""));
       unit.value = props.property.unit;
-    } else if (props.property.relativeTo) {
+    }
+    if (props.property.relativeTo) {
       propertyRef.value = props.property.relativeTo;
     } else {
       propertyType.value = "is";
@@ -164,10 +180,15 @@ function updatePropertyValues() {
   } else if (propertyType.value === "within") {
     props.property.unit = unit.value;
     props.property.operator = Operator.gte;
-    props.property.value = "-" + numberValue.value.toString();
-    props.property.relativeTo = {
-      parameter: "$referenceDate"
-    };
+    props.property.value = (sign.value === "-" ? "-" : "") + numberValue.value.toString();
+    if (isObjectHasKeys(propertyRef.value)) {
+      props.property.operator = operator.value;
+      props.property.relativeTo = propertyRef.value;
+    } else {
+      props.property.relativeTo = {
+        parameter: "$referenceDate"
+      };
+    }
   } else if (propertyType.value === "isNull") {
     props.property.isNull = true;
   } else if (propertyType.value === "notNull") {

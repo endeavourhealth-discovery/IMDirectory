@@ -46,7 +46,7 @@ const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const showTreeSearch: Ref<boolean> = ref(false);
 const searchTerm: Ref<string> = ref("");
-const propertyDisplay: Ref<string> = ref("");
+const propertyDisplay: Ref<string | undefined> = ref();
 const variableOptions: Ref<TreeNode[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const debounce = ref(0);
@@ -59,6 +59,11 @@ const emit = defineEmits({ "update:propertyRef": payload => true });
 onMounted(async () => {
   await initValues();
 });
+
+watch(
+  () => props.propertyRef,
+  async () => await initValues()
+);
 
 watch(
   () => searchTerm.value,
@@ -116,6 +121,7 @@ async function initValues() {
   selectPrepopulatedValue(variableOptions.value, propertyDisplay.value);
   variableOptions.value = await getVariableOptions();
   if (props.property.relativeTo) propertyDisplay.value = getVariableSearchInputDisplay(props.property.relativeTo);
+  if (props.propertyRef) propertyDisplay.value = getVariableSearchInputDisplay(props.propertyRef);
 }
 
 async function getVariableOptions(searchTerm?: string) {
@@ -146,15 +152,17 @@ async function getVariableOptions(searchTerm?: string) {
   return options;
 }
 
-function selectPrepopulatedValue(options: TreeNode[], searchTerm: string) {
+function selectPrepopulatedValue(options: TreeNode[], searchTerm?: string) {
   selectedNode.value = {};
-  const splits = searchTerm.split(" -> ");
-  if (isArrayHasLength(splits)) {
-    const parentOption = options.filter(parentOption => parentOption.label?.includes(splits[0]));
-    if (isArrayHasLength(parentOption)) {
-      expandedKeys.value[parentOption[0].key!] = true;
-      const childOption = parentOption[0].children?.filter(childOption => childOption.label === splits[1]);
-      if (isArrayHasLength(childOption)) selectKey(childOption![0].key!);
+  if (searchTerm) {
+    const splits = searchTerm.split(" -> ");
+    if (isArrayHasLength(splits)) {
+      const parentOption = options.filter(parentOption => parentOption.label?.includes(splits[0]));
+      if (isArrayHasLength(parentOption)) {
+        expandedKeys.value[parentOption[0].key!] = true;
+        const childOption = parentOption[0].children?.filter(childOption => childOption.label === splits[1]);
+        if (isArrayHasLength(childOption)) selectKey(childOption![0].key!);
+      }
     }
   }
 }
