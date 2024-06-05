@@ -45,7 +45,7 @@ function addValueToLabel(treeNode: any, divider: string, value: any) {
 }
 
 function addIriLink(treeNode: any, item: TTIriRef) {
-  if (item["@id"] === IM.NAMESPACE + "loadMore")
+  if (item["@id"] === IM.LOAD_MORE)
     treeNode.children?.push({ key: item["@id"], label: item.name, type: "loadMore", data: { predicate: treeNode.key, totalCount: (item as any).totalCount } });
   else treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
 }
@@ -120,14 +120,14 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
   if (isArrayHasLength(entity[key])) {
     for (const roleGroup of entity[key]) {
       const propertyNode = {
-        key: IM.NAMESPACE + "groupNumber" + roleGroup[IM.NAMESPACE + "groupNumber"],
-        label: "role group " + roleGroup[IM.NAMESPACE + "groupNumber"],
+        key: IM.GROUP_NUMBER + roleGroup[IM.GROUP_NUMBER],
+        label: "role group " + roleGroup[IM.GROUP_NUMBER],
         children: [] as any[]
       };
       newTreeNode.children?.push(propertyNode);
 
       for (const roleKey of Object.keys(roleGroup)) {
-        if (roleKey !== IM.NAMESPACE + "groupNumber")
+        if (roleKey !== IM.GROUP_NUMBER)
           propertyNode.children?.push({
             key: key + "." + roleKey,
             iri: roleKey,

@@ -98,7 +98,7 @@ export default class EntityService {
       response = await this.getBundleByPredicateExclusions(iri, excludedPredicates.concat([IM.HAS_MEMBER]));
       const partialAndCount = await this.getPartialAndTotalCount(iri, IM.HAS_MEMBER, 1, 10);
       response.entity[IM.HAS_MEMBER] = (partialAndCount.result as any[]).concat([
-        { name: "Load more", "@id": IM.NAMESPACE + "loadMore", totalCount: partialAndCount.totalCount as number }
+        { name: "Load more", "@id": IM.LOAD_MORE, totalCount: partialAndCount.totalCount as number }
       ]);
       response.predicates[IM.HAS_MEMBER] = "has member";
     } else {
