@@ -6,7 +6,7 @@
         <AutocompleteSearchBar
           class="base-type-autocomplete"
           v-model:selected="selectedBaseType"
-          :os-query="osQueryForBaseType"
+          :im-query="imQueryForBaseType"
           :root-entities="['http://endhealth.info/im#DataModelClasses']"
         />
       </div>
@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, provide, ref, watch } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { Match, Query, SearchRequest, SearchResultSummary, Bool } from "@im-library/interfaces/AutoGen";
+import { Match, Query, SearchResultSummary, Bool, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
@@ -81,7 +81,8 @@ import { SortDirection } from "@im-library/enums";
 import { cloneDeep } from "lodash-es";
 import AddMatch from "./AddMatch.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
-import { getNameFromIri } from "@im-library/helpers/TTTransform";
+import { SearchOptions } from "@im-library/interfaces";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   queryDefinition?: Query;
@@ -95,7 +96,7 @@ const hover: Ref<number> = ref(-1);
 const showDialog = ref(false);
 const selectedMatch: Ref<Match | undefined> = ref();
 const selectedIndex: Ref<number> = ref(-1);
-const osQueryForBaseType: Ref<SearchRequest | undefined> = ref();
+const imQueryForBaseType: Ref<QueryRequest | undefined> = ref();
 const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
@@ -118,16 +119,21 @@ onMounted(async () => {
     if (editQueryDefinition.value.typeOf)
       selectedBaseType.value = { iri: editQueryDefinition.value.typeOf?.["@id"], name: editQueryDefinition.value.typeOf?.name } as SearchResultSummary;
 
-    osQueryForBaseType.value = {
-      statusFilter: [IM.ACTIVE, IM.DRAFT],
-      typeFilter: [SHACL.NODESHAPE],
-      sortDirection: SortDirection.DESC,
-      sortField: getNameFromIri(IM.USAGE_TOTAL)
-    } as SearchRequest;
+    buildImQueryForBaseType();
 
     populateVariableMap(variableMap.value, editQueryDefinition.value);
   }
 });
+
+function buildImQueryForBaseType() {
+  const searchOptions: SearchOptions = {
+    status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
+    types: [{ "@id": SHACL.NODESHAPE }],
+    sortDirections: [{ "@id": IM.DESCENDING }],
+    sortFields: [{ "@id": IM.USAGE_TOTAL }]
+  } as SearchOptions;
+  imQueryForBaseType.value = buildIMQueryFromFilters(searchOptions);
+}
 
 function mouseover(event: Event, index: number) {
   event.stopPropagation();

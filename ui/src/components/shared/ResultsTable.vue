@@ -71,7 +71,7 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { DirectService } from "@/services";
+import { DirectService, EclService, QueryService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -84,19 +84,17 @@ import _ from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { SearchResultSummary, SearchResponse, QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { ExtendedSearchResultSummary } from "@im-library/interfaces";
+import { SearchResultSummary, SearchResponse, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { ExtendedSearchResultSummary, SearchOptions } from "@im-library/interfaces";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import setupSearch from "@/composables/setupSearch";
 import { EclSearchRequest, FilterOptions } from "@im-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   searchTerm?: string;
   updateSearch?: boolean;
-  selectedFilterOptions?: FilterOptions;
   imQuery?: QueryRequest;
-  osQuery?: SearchRequest;
   eclQuery?: EclSearchRequest;
   pageSize?: number;
   loading?: boolean;
@@ -119,10 +117,9 @@ const userStore = useUserStore();
 const dynamicDialog = useDialog();
 const favourites = computed(() => userStore.favourites);
 const filterStore = useFilterStore();
-const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
-const typeOptions = _.cloneDeep(storeFilterOptions.value.types);
-const { searchLoading, search } = setupSearch();
+const searchLoading: Ref<boolean> = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 
 const directService = new DirectService();
 
@@ -171,19 +168,34 @@ watch(
 );
 
 async function onSearch() {
-  const response = await search(
-    props.searchTerm,
-    props.selectedFilterOptions,
-    { pageNumber: page.value + 1, pageSize: rows.value },
-    props.osQuery,
-    props.imQuery,
-    props.eclQuery
-  );
+  const response = await search(page.value + 1, rows.value);
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
   else {
     searchResults.value = [];
     totalCount.value = 0;
   }
+}
+
+async function search(pageNumber: number, pageSize: number) {
+  let response = undefined;
+  searchLoading.value = true;
+  if (props.eclQuery) {
+    props.eclQuery.page = pageNumber;
+    props.eclQuery.size = pageSize;
+    response = await EclService.ECLSearch(props.eclQuery);
+  } else if (props.imQuery) {
+    props.imQuery.textSearch = props.searchTerm;
+    props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
+    response = await QueryService.queryIMSearch(props.imQuery);
+  } else {
+    const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
+    searchOptions.textSearch = props.searchTerm;
+    searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
+    const imQuery = buildIMQueryFromFilters(searchOptions);
+    response = await QueryService.queryIMSearch(imQuery);
+  }
+  searchLoading.value = false;
+  return response;
 }
 
 function updateFavourites(row?: any) {
@@ -255,14 +267,7 @@ async function exportCSV(): Promise<void> {
       props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
       data: { title: "Downloading", text: "Preparing your download..." }
     });
-    const response = await search(
-      props.searchTerm,
-      props.selectedFilterOptions,
-      { pageNumber: 1, pageSize: totalCount.value },
-      props.osQuery,
-      props.imQuery,
-      props.eclQuery
-    );
+    const response = await search(1, totalCount.value);
     if (response && isArrayHasLength(response.entities)) {
       const heading = ["name", "iri", "code"].join(",");
       const body = response?.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");

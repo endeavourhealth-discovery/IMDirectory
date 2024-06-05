@@ -217,4 +217,11 @@ export class IM {
   public static readonly ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
   public static readonly CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
   public static readonly DATAMODEL_CLASSES = IM.NAMESPACE + "DataModelClasses";
+  public static readonly DATE_TIME = IM.NAMESPACE + "DateTime";
+  public static readonly TEMPLATE_NUMERIC_EVENT_ORDER = IM.NAMESPACE + "TEMPLATE_NumericEventOrder";
+  public static readonly ORDER_BY = IM.NAMESPACE + "OrderBy";
+  public static readonly PARAMETER_TEMPLATE = IM.NAMESPACE + "parameterTemplate";
+  public static readonly VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
+  public static readonly DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
+  public static readonly LOAD_MORE = IM.NAMESPACE + "loadMore";
 }

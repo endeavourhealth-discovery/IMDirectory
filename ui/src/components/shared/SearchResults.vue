@@ -39,7 +39,6 @@
       :selected-filter-options="selectedFilterOptions"
       :rows="rows"
       :im-query="imQuery"
-      :os-query="osQuery"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
     />
@@ -47,12 +46,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch, PropType } from "vue";
+import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash-es";
-import { QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 
 interface Props {
@@ -64,7 +63,6 @@ interface Props {
   showQuickTypeFilters?: boolean;
   quickTypeFiltersAllowed?: string[];
   selectedQuickTypeFilter?: string;
-  osQuery?: SearchRequest;
   imQuery?: QueryRequest;
 }
 const props = withDefaults(defineProps<Props>(), {

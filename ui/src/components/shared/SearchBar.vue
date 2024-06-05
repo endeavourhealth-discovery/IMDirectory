@@ -44,6 +44,7 @@ import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import _ from "lodash-es";
 import setupSearch from "@/composables/setupSearch";
+import { Ref } from "vue";
 
 interface Props {
   searchTerm?: string;
@@ -68,7 +69,8 @@ const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
 ]);
-const { searchPlaceholder, searchLoading, search } = setupSearch();
+const searchPlaceholder: Ref<string> = ref("Search");
+const searchLoading: Ref<boolean> = ref(false);
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const filtersOP = ref();
 const debounce = ref(0);

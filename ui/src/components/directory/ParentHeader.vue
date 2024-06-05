@@ -86,7 +86,7 @@ async function getHasQueryDefinition(entityIri: string) {
 }
 
 function getIcon(entity: any) {
-  if (entity["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];
+  if (entity["@id"] === IM.FAVOURITES) return ["fa-solid", "star"];
   return getFAIconFromType(entity[RDF.TYPE]);
 }
 

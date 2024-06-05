@@ -7,7 +7,6 @@
     >
       <template #header>
         <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
-
         <Breadcrumb :model="pathItems">
           <template #item="{ item }">
             <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
@@ -66,6 +65,7 @@
                 icon="fa-solid fa-layer-group"
                 class="add-feature-button"
               />
+              <FunctionComponent :function-templates="templates" @add-function-property="onAddFunctionProperty" />
             </div>
           </div>
         </div>
@@ -113,14 +113,17 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Bool, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
+import { Match, Bool, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { Ref, inject, onMounted, provide, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 import AddMatch from "./AddMatch.vue";
+import { EntityService } from "@/services";
+import { IM } from "@im-library/vocabulary";
+import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
 
 interface Props {
   showDialog: boolean;
@@ -148,6 +151,7 @@ const visible = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEditMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
+const templates: Ref<any> = ref();
 
 watch(
   () => cloneDeep(focusedEditMatch.value),
@@ -171,7 +175,10 @@ watch(visible, newValue => {
 
 watch(
   () => cloneDeep(props.match),
-  () => setEditMatch()
+  async () => {
+    templates.value = await getFunctionTemplates();
+    setEditMatch();
+  }
 );
 
 watch(
@@ -179,15 +186,28 @@ watch(
   () => setPathItems()
 );
 
-onMounted(() => {
-  init();
+onMounted(async () => {
+  await init();
 });
 
-function init() {
+async function init() {
   setEditMatch();
   focusedEditMatchString.value = JSON.stringify(focusedEditMatch.value);
   setPathItems();
   if (focusedEditMatch.value?.variable) keepAsVariable.value = focusedEditMatch.value?.variable;
+  templates.value = await getFunctionTemplates();
+}
+
+async function getFunctionTemplates() {
+  const iri = props.match?.typeOf?.["@id"] ?? props.queryBaseTypeIri;
+  if (iri) {
+    const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
+    if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
+      const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate["@id"]);
+      const templateEntities = await EntityService.getPartialEntities(iris, []);
+      return templateEntities;
+    }
+  }
 }
 
 function setPathItems() {
@@ -254,6 +274,10 @@ function deleteVariable() {
 function udpateVariableMap() {
   if (focusedEditMatch.value?.variable) delete variableMap.value[focusedEditMatch.value.variable];
   variableMap.value[keepAsVariable.value] = focusedEditMatch.value;
+}
+
+function onAddFunctionProperty(property: string, value: any) {
+  if (property === "orderBy") editMatch.value!.orderBy = value;
 }
 </script>
 

@@ -20,7 +20,7 @@
       <Dropdown :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
     </div>
 
-    <div v-else-if="datatype === XSD.LONG || datatype === XSD.INTEGER || datatype === XSD.NUMBER" class="property-input-container">
+    <div v-else-if="datatype === XSD.LONG || datatype === XSD.INTEGER || datatype === XSD.NUMBER || datatype === XSD.DECIMAL" class="property-input-container">
       <Dropdown
         :options="[
           { id: 'is', name: 'is' },
@@ -55,7 +55,7 @@
         </div>
       </div>
     </div>
-    <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'" class="property-input-container">
+    <div v-else-if="datatype === IM.DATE_TIME" class="property-input-container">
       <DateSelect :property="property" :datatype="datatype" />
     </div>
   </div>
