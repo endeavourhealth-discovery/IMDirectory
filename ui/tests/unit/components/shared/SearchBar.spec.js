@@ -33,12 +33,12 @@ vi.mock("primevue/usedialog", () => ({
 
 describe("SearchBar.vue", () => {
   let component;
-  let advancedSearchSpy;
+  let queryIMSearchSpy;
   let queryIMSpy;
 
   beforeEach(() => {
     vi.resetAllMocks();
-    advancedSearchSpy = vi.spyOn(EntityService, "advancedSearch").mockResolvedValue(testData.SEARCH_RESULTS);
+    queryIMSearchSpy = vi.spyOn(QueryService, "queryIMSearch").mockResolvedValue(testData.SEARCH_RESULTS);
     queryIMSpy = vi.spyOn(QueryService, "queryIM").mockResolvedValue(testData.SEARCH_RESULTS);
     component = render(SearchBar, {
       global: {

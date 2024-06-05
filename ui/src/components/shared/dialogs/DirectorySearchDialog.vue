@@ -14,7 +14,6 @@
           v-model:searchTerm="searchTerm"
           :selected="selected"
           :imQuery="imQuery"
-          :osQuery="osQuery"
           :show-filters="false"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
@@ -42,7 +41,6 @@
             :updateSearch="updateSearch"
             :search-term="searchTerm"
             :im-query="imQuery"
-            :os-query="osQuery"
             :selected-filter-options="selectedFilterOptions"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
@@ -84,7 +82,7 @@ import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import _, { cloneDeep } from "lodash";
 import { EntityService, QueryService } from "@/services";
-import { QueryRequest, SearchResultSummary, SearchResponse, SearchRequest } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
@@ -93,7 +91,6 @@ import { FilterOptions } from "@im-library/interfaces";
 interface Props {
   showDialog: boolean;
   imQuery?: QueryRequest;
-  osQuery?: SearchRequest;
   selected?: SearchResultSummary;
   rootEntities?: string[];
   searchTerm?: string;
@@ -248,12 +245,6 @@ async function getIsSelectableEntity(): Promise<boolean> {
     const imQueryResponse = await QueryService.queryIM(imQuery);
     if (!isObjectHasKeys(imQueryResponse, ["entities"]) || !isArrayHasLength(imQueryResponse.entities)) return false;
     return imQueryResponse.entities.some(item => item["@id"] === detailsIri.value);
-  } else if (props.osQuery) {
-    const osQuery = _.cloneDeep(props.osQuery);
-    osQuery.termFilter = selectedName.value;
-    const osQueryResposne = await EntityService.advancedSearch(osQuery);
-    if (!isObjectHasKeys(osQueryResposne, ["entities"]) || !isArrayHasLength(osQueryResposne.entities)) return false;
-    return osQueryResposne.entities!.some(item => item.iri === detailsIri.value);
   }
   return true;
 }

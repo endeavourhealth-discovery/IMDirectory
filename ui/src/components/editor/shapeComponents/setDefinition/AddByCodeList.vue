@@ -40,14 +40,14 @@
 
       <DataTable class="code-list-result-table" v-if="showResultTable" :value="entities" responsiveLayout="scroll">
         <Column field="code" header="Code">
-          <template #body="{ data }: any"> {{ data["http://endhealth.info/im#code"] }}</template>
+          <template #body="{ data }: { data: ValidatedEntity }"> {{ data.code }}</template>
         </Column>
         <Column field="name" header="Name">
-          <template #body="{ data }: any">{{ data["http://www.w3.org/2000/01/rdf-schema#label"] }} </template>
+          <template #body="{ data }: { data: ValidatedEntity }">{{ data.name ?? data.validationLabel }} </template>
         </Column>
-        <Column field="statusCode" header="Code status">
-          <template #body="{ data }: any">
-            <Tag :value="data.statusCode" :severity="getSeverity(data.statusCode)" :icon="getIcon(data.statusCode)" />
+        <Column field="validationCode" header="Code status">
+          <template #body="{ data }: { data: ValidatedEntity }">
+            <Tag :value="data.validationCode" :severity="getSeverity(data.validationCode)" :icon="getIcon(data.validationCode)" />
           </template>
         </Column>
       </DataTable>
@@ -66,6 +66,7 @@ import { EntityService, ParserService } from "@/services";
 import * as d3 from "d3";
 import { DSVRowArray } from "d3";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
+import { ValidatedEntity } from "@im-library/interfaces";
 
 interface Props {
   showAddByList: boolean;
@@ -98,7 +99,7 @@ const invalidMessage = ref("");
 const isValidText: ComputedRef<boolean> = computed(() => validateText(text.value));
 const isValidUpload: ComputedRef<boolean> = computed(() => validateUpload());
 const hasValidEntities: ComputedRef<boolean> = computed(() => validateEntities());
-const entities: Ref<any[]> = ref([]);
+const entities: Ref<ValidatedEntity[]> = ref([]);
 const showResultTable: Ref<boolean> = ref(false);
 const showDialog = computed(() => props.showAddByList || props.showAddByFile);
 const uploadedFiles: Ref<{ name: string; size: string; data: DSVRowArray<string> }[]> = ref([]);
@@ -132,10 +133,10 @@ function closeDialog() {
 }
 
 function add() {
-  const validEntities = entities.value.filter(entity => entity.statusCode === CODE_STATUS.VALID);
+  const validEntities = entities.value.filter(entity => entity.validationCode === CODE_STATUS.VALID);
   validEntities.forEach(entity => {
     entityToAliasEntity(entity);
-    delete entity.statusCode;
+    delete entity.validationCode;
   });
   emit("addCodeList", validEntities);
 }
@@ -172,7 +173,7 @@ async function processUpload() {
   processing.value = false;
 }
 
-function getSeverity(codeStatus: string) {
+function getSeverity(codeStatus?: string) {
   switch (codeStatus) {
     case CODE_STATUS.VALID:
       return "success";
@@ -186,7 +187,7 @@ function getSeverity(codeStatus: string) {
   }
 }
 
-function getIcon(codeStatus: string) {
+function getIcon(codeStatus?: string) {
   switch (codeStatus) {
     case CODE_STATUS.VALID:
       return "fa-solid fa-check";
@@ -215,7 +216,7 @@ async function getValidatedEntities(codeList: string[]) {
 function validateEntities() {
   const hasOptions = isArrayHasLength(entities.value);
   let hasValidOptions = false;
-  if (hasOptions) hasValidOptions = entities.value.some(entity => entity.statusCode === CODE_STATUS.VALID);
+  if (hasOptions) hasValidOptions = entities.value.some(entity => entity.validationCode === CODE_STATUS.VALID);
   return hasOptions && hasValidOptions;
 }
 </script>

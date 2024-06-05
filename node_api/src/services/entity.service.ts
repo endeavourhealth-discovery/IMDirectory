@@ -2,11 +2,11 @@ import Env from "@/services/env.service";
 import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris } from "@im-library/interfaces";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris, ValidatedEntity } from "@im-library/interfaces";
+import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
-import { TTIriRef, SearchResultSummary, Concept, DataModelProperty } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary, Concept, DataModelProperty, TTEntity } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { byName } from "@im-library/helpers/Sorters";
 
@@ -84,7 +84,7 @@ export default class EntityService {
     return await Promise.all(promises);
   }
 
-  public async getDistillation(refs: TTIriRef[]): Promise<TTIriRef[]> {
+  public async getDistillation(refs: TTEntity[]): Promise<TTEntity[]> {
     const response = await this.axios.post(Env.API + "api/entity/public/distillation", refs);
     return response.data;
   }
@@ -300,5 +300,39 @@ export default class EntityService {
         }
       })
     ).data;
+  }
+
+  async findEntitiesBySnomedCodes(codes: string[]): Promise<any[]> {
+    const iris = codes.map(code => SNOMED.NAMESPACE + code);
+    const result = await this.getPartialEntities(iris, [RDFS.LABEL, IM.CODE]);
+    return result.map(resolved => resolved.data);
+  }
+
+  async findValidatedEntitiesBySnomedCodes(codes: string[]) {
+    const entities = await this.findEntitiesBySnomedCodes(codes);
+    const needed = await this.getDistillation(entities);
+    const response = [] as ValidatedEntity[];
+    for (const entity of entities) {
+      const validatedEntity: ValidatedEntity = { "@id": entity["@id"], name: entity[RDFS.LABEL], code: entity[IM.CODE] };
+      const isInvalid = isObjectHasKeys(entity, ["@id"]) && !isObjectHasKeys(entity, [RDFS.LABEL, IM.CODE]);
+      const index = needed.findIndex(neededEntity => neededEntity["@id"] === validatedEntity["@id"]);
+      const isIncluded = response.some(added => validatedEntity["@id"] === added["@id"]);
+      if (isInvalid) {
+        validatedEntity.validationCode = "Invalid";
+        validatedEntity.validationLabel = "Not an entity";
+      } else if (index !== -1) {
+        needed.splice(index, 1);
+        validatedEntity.validationCode = "Valid";
+      } else {
+        validatedEntity.validationCode = "Child";
+      }
+      if (isIncluded) {
+        validatedEntity.validationCode = "Duplicate";
+      }
+      if (validatedEntity["@id"] && validatedEntity["@id"].includes("#")) validatedEntity.code = validatedEntity["@id"].split("#")[1];
+      response.push(validatedEntity);
+    }
+
+    return response;
   }
 }
