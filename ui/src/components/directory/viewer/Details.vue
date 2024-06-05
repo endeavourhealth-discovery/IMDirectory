@@ -96,7 +96,7 @@ async function getDefinition() {
 }
 
 async function onSelect(node: TreeNode) {
-  if (node.key === IM.NAMESPACE + "loadMore") {
+  if (node.key === IM.LOAD_MORE) {
     const pageIndexInfo = predicatePageIndexMap.value.get(node.data.predicate);
     if (pageIndexInfo) {
       const entityDetails = await EntityService.loadMoreDetailsDisplay(props.entityIri, node.data.predicate, ++pageIndexInfo.pageIndex, 10);
@@ -113,7 +113,7 @@ async function onSelect(node: TreeNode) {
 }
 
 async function onExpand(node: TreeNode) {
-  const hasLoadMore = node.children?.some(child => child.key === IM.NAMESPACE + "loadMore");
+  const hasLoadMore = node.children?.some(child => child.key === IM.LOAD_MORE);
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
 }
 

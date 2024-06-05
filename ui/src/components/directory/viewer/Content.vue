@@ -95,7 +95,7 @@ watch(
   }
 );
 
-const conceptIsFavourite = computed(() => props.entityIri === IM.NAMESPACE + "Favourites");
+const conceptIsFavourite = computed(() => props.entityIri === IM.FAVOURITES);
 
 const loading = ref(false);
 const children: Ref<any[]> = ref([]);
