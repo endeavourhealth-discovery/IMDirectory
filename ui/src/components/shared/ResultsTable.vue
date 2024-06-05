@@ -183,16 +183,18 @@ async function search(pageNumber: number, pageSize: number) {
     props.eclQuery.page = pageNumber;
     props.eclQuery.size = pageSize;
     response = await EclService.ECLSearch(props.eclQuery);
-  } else if (props.imQuery) {
-    props.imQuery.textSearch = props.searchTerm;
-    props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
-    response = await QueryService.queryIMSearch(props.imQuery);
-  } else {
-    const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
-    searchOptions.textSearch = props.searchTerm;
-    searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
-    const imQuery = buildIMQueryFromFilters(searchOptions);
-    response = await QueryService.queryIMSearch(imQuery);
+  } else if (props.searchTerm && props.searchTerm.length > 2) {
+    if (props.imQuery) {
+      props.imQuery.textSearch = props.searchTerm;
+      props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
+      response = await QueryService.queryIMSearch(props.imQuery);
+    } else {
+      const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
+      searchOptions.textSearch = props.searchTerm;
+      searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
+      const imQuery = buildIMQueryFromFilters(searchOptions);
+      response = await QueryService.queryIMSearch(imQuery);
+    }
   }
   searchLoading.value = false;
   return response;
