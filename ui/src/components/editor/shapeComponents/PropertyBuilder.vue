@@ -113,7 +113,7 @@
 import { Property, SearchOptions } from "@im-library/interfaces";
 import { PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";

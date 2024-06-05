@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, onBeforeMount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";

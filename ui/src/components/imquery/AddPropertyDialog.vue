@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 import { Match, Where } from "@im-library/interfaces/AutoGen";
-import _, { cloneDeep } from "lodash";
+import _, { cloneDeep } from "lodash-es";
 import { TreeNode } from "primevue/treenode";
 import { buildProperty } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";

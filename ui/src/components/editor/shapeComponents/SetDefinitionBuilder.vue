@@ -62,7 +62,7 @@ import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
 import { EditorMode } from "@im-library/enums";
 import { EclService } from "@/services";
-import _, { isArray } from "lodash";
+import _, { isArray } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { Match, PropertyShape, Query, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";

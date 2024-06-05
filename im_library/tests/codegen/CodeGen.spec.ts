@@ -42,8 +42,6 @@ describe("CodeGen", () => {
     };
 
     const actual = generateCode(template, model, properties, "org.endeavourhealth.im");
-
-    console.log(actual);
   });
 
   it("Converts a model to JAVA IM DataModel (health database)", () => {
@@ -65,8 +63,6 @@ describe("CodeGen", () => {
     };
 
     const actual = generateCode(template, model, properties, "org.endeavourhealth.im");
-
-    console.log(actual);
   });
 
   it("Converts a model to C#.net class", () => {
@@ -85,8 +81,6 @@ describe("CodeGen", () => {
     };
 
     const actual = generateCode(template, model, properties, "org.endeavourhealth.im");
-
-    console.log(actual);
   });
 
   it("Tests variants", () => {

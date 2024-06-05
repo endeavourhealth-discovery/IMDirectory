@@ -34,7 +34,7 @@ import { byName } from "@im-library/helpers/Sorters";
 import { IM, RDF, RDFS, SNOMED, EDITOR, IM_FUNCTION } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
-import _ from "lodash";
+import _ from "lodash-es";
 import { isConcept } from "@im-library/helpers/ConceptTypeMethods";
 
 interface Props {

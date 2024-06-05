@@ -241,9 +241,9 @@ function swalert(icon: SweetAlertIcon, title: string, text: string) {
 
 function handleFieldsVerified(handlePasswordChange: boolean) {
   loading.value = true;
-  const oldEmail = currentUser.value.email;
+  const oldEmail = currentUser.value?.email;
   const updatedUser = {
-    id: currentUser.value.id,
+    id: currentUser.value?.id,
     username: username.value,
     firstName: firstName.value.modelValue,
     lastName: lastName.value.modelValue,
@@ -293,8 +293,6 @@ function handleEmailChange(res: CustomAlert) {
       AuthService.verifyEmail(result.value).then(res => {
         if (res.status === 200) {
           swalert("success", "Success", "Account details updated successfully.").then(async () => {
-            userStore.updateCurrentUser(res.user);
-            await userStore.getAllFromUserDatabase();
             router.push({ name: "UserDetails" });
           });
         } else {
@@ -353,14 +351,16 @@ function resetForm(): void {
 }
 
 function setFromCurrentUser() {
-  username.value = currentUser.value.username;
-  selectedAvatar.value = currentUser.value.avatar;
-  setValues({
-    firstName: currentUser.value.firstName,
-    lastName: currentUser.value.lastName,
-    email1: currentUser.value.email,
-    email2: currentUser.value.email
-  });
+  if (currentUser.value) {
+    username.value = currentUser.value?.username;
+    selectedAvatar.value = currentUser.value.avatar;
+    setValues({
+      firstName: currentUser.value.firstName,
+      lastName: currentUser.value.lastName,
+      email1: currentUser.value.email,
+      email2: currentUser.value.email
+    });
+  }
 }
 
 function updateAvatar(newValue: string): void {
@@ -375,10 +375,10 @@ function setButtonDisabled(): boolean {
 
 function checkForChanges(): boolean {
   return !(
-    currentUser.value.firstName === firstName.value.modelValue &&
-    currentUser.value.lastName === lastName.value.modelValue &&
-    currentUser.value.email === email1.value.modelValue &&
-    currentUser.value.avatar === selectedAvatar.value
+    currentUser.value?.firstName === firstName.value.modelValue &&
+    currentUser.value?.lastName === lastName.value.modelValue &&
+    currentUser.value?.email === email1.value.modelValue &&
+    currentUser.value?.avatar === selectedAvatar.value
   );
 }
 </script>

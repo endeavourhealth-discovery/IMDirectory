@@ -45,7 +45,7 @@ export default defineComponent({
 <script setup lang="ts">
 import { ref, Ref, watch, computed, onMounted, inject, PropType, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
+import _ from "lodash-es";
 import { ComponentDetails } from "@im-library/interfaces";
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";

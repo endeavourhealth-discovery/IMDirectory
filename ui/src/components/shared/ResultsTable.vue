@@ -80,7 +80,7 @@ import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethod
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
-import _, { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
@@ -211,7 +211,7 @@ function isFavourite(iri: string) {
 function processSearchResults(searchResponse: SearchResponse | undefined): void {
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
     searchResults.value = searchResponse.entities.map(result => {
-      const copy: any = _.cloneDeep(result);
+      const copy: any = cloneDeep(result);
       copy.icon = getFAIconFromType(result.entityType);
       copy.colour = getColourFromType(result.entityType);
       copy.typeNames = getNamesAsStringFromTypes(result.entityType);

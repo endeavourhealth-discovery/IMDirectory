@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-row">
     <div class="menu-container"><TieredMenu :model="menuItems" /></div>
-    <Card class="flex flex-column justify-content-sm-around align-items-center user-details-card">
+    <Card v-if="currentUser" class="flex flex-column justify-content-sm-around align-items-center user-details-card">
       <template #header>
         <h1>My account</h1>
         <img data-testid="user-details-avatar" id="selected-avatar" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" />

@@ -45,7 +45,6 @@ const backgroundColor = styles.getPropertyValue("--surface-a");
 const textColor = styles.getPropertyValue("--text-color");
 
 const isValidCode = computed(() => /\d{6}/.test(code.value));
-const awsUser = computed(() => userStore.awsUser);
 
 const code = ref("");
 
@@ -59,11 +58,10 @@ const qrCodeElement = ref();
 
 onMounted(async () => {
   loadingQRCode.value = true;
-  const mfaToken = await AuthService.getMfaToken(awsUser.value);
-  if (mfaToken) {
-    const codeUrl = "otpauth://totp/AWSCognito:" + awsUser.value?.username + "?secret=" + mfaToken + "&issuer=Cognito";
-    options.value = generateOptions(codeUrl);
-    options.value.data = codeUrl;
+  const mfaTokenUrl = await AuthService.getMfaToken();
+  if (mfaTokenUrl) {
+    options.value = generateOptions(mfaTokenUrl.href);
+    options.value.data = mfaTokenUrl.href;
   }
   loadingQRCode.value = false;
 });
@@ -136,8 +134,8 @@ async function handleSubmitMFA() {
   if (isValidCode.value) {
     loading.value = true;
     try {
-      await AuthService.verifyMFAToken(awsUser.value, code.value);
-      await AuthService.setMfaPreference(awsUser.value, "TOTP");
+      await AuthService.verifyMFAToken(code.value);
+      await AuthService.setMfaPreference("TOTP");
       Swal.fire({
         icon: "success",
         title: "Success",

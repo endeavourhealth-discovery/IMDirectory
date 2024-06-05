@@ -41,7 +41,7 @@ import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { QueryService } from "@/services";
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";

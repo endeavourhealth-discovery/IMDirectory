@@ -17,7 +17,7 @@ import ArrayBuilder from "../ArrayBuilder.vue";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { COMPONENT, IM, QUERY, RDFS } from "@im-library/vocabulary";
 import { EditorMode } from "@im-library/enums";
-import _ from "lodash";
+import _ from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
 

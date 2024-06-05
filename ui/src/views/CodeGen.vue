@@ -72,7 +72,7 @@ import entityService from "@/services/EntityService";
 import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { RDFS, SHACL, XSD } from "@im-library/vocabulary";
-import _ from "lodash";
+import _ from "lodash-es";
 import CodeGenService from "@/services/CodeGenService";
 import { generateCode } from "@im-library/helpers";
 import { CodeTemplate } from "@im-library/interfaces";

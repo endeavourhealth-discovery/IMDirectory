@@ -8,13 +8,15 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
+import OverlayPanel from "primevue/overlaypanel";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import testData from "./LandingPage.testData";
 import { EntityService, ConfigService, DirectService, UserService } from "@/services";
 import { flushPromises } from "@vue/test-utils";
 import { it, vi } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
 
-createTestingPinia();
+createTestingPinia({ initialState: { user: { currentUser: { username: "Test" } } } });
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -44,7 +46,7 @@ describe("LandingPage.vue", async () => {
 
     component = render(LandingPage, {
       global: {
-        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart },
+        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart, IMFontAwesomeIcon, OverlayPanel },
         directives: { Tooltip: Tooltip },
         plugins: [PrimeVue],
         stubs: {

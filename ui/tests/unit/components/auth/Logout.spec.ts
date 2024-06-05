@@ -13,8 +13,6 @@ import { useSharedStore } from "@/stores/sharedStore";
 import { CustomAlert, User } from "@im-library/interfaces";
 import { useUserStore } from "@/stores/userStore";
 
-window.scrollTo = vi.fn() as any;
-
 createTestingPinia();
 const mockState = useSharedStore();
 const mockUserState = useUserStore();
