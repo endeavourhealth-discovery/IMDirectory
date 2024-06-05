@@ -48,7 +48,7 @@
     />
 
     <div class="add-buttons">
-      <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
+      <Button label="Add parent cohort" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
       <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
       <Button
         label="Add new feature"
