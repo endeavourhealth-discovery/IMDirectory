@@ -46,6 +46,7 @@ export class IM {
   public static readonly MAP_ENTITY = IM.NAMESPACE + "EntityMap";
   public static readonly SET = IM.NAMESPACE + "Set";
   public static readonly IS_CONTAINED_IN = IM.NAMESPACE + "isContainedIn";
+  public static readonly HAS_MEMBER_PARENT = IM.NAMESPACE + "hasMemberParent";
   public static readonly FUNCTION_TEMPLATE = IM.NAMESPACE + "functionTemplate";
   public static readonly ONE_OF = IM.NAMESPACE + "oneOf";
   public static readonly COMBINATION_OF = IM.NAMESPACE + "combinationOf";
@@ -216,4 +217,11 @@ export class IM {
   public static readonly ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
   public static readonly CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
   public static readonly DATAMODEL_CLASSES = IM.NAMESPACE + "DataModelClasses";
+  public static readonly DATE_TIME = IM.NAMESPACE + "DateTime";
+  public static readonly TEMPLATE_NUMERIC_EVENT_ORDER = IM.NAMESPACE + "TEMPLATE_NumericEventOrder";
+  public static readonly ORDER_BY = IM.NAMESPACE + "OrderBy";
+  public static readonly PARAMETER_TEMPLATE = IM.NAMESPACE + "parameterTemplate";
+  public static readonly VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
+  public static readonly DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
+  public static readonly LOAD_MORE = IM.NAMESPACE + "loadMore";
 }
