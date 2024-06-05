@@ -69,11 +69,9 @@ import { FilterOptions } from "@im-library/interfaces";
 import { QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
-import setupSearch from "@/composables/setupSearch";
-import _ from "lodash-es";
+import { cloneDeep, isEqual } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import { QueryService } from "@/services";
-import { response } from "msw";
 
 interface Props {
   selected?: SearchResultSummary;
@@ -111,9 +109,9 @@ watch(showDialog, () => {
 });
 
 watch(
-  () => _.cloneDeep(props.selected),
+  () => cloneDeep(props.selected),
   (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
+    if (!isEqual(newValue, oldValue)) {
       searchLoading.value = true;
       if (newValue && newValue.name && newValue.name != searchText.value) {
         searchText.value = newValue.name;
@@ -130,7 +128,7 @@ watch(
 watch(
   selectedLocal,
   (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) emit("update:selected", newValue);
+    if (!isEqual(newValue, oldValue)) emit("update:selected", newValue);
   },
   { deep: true }
 );

@@ -78,7 +78,6 @@ import { EntityService, QueryService } from "@/services";
 import { IM, SNOMED, QUERY, RDF } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
-import { SortDirection, ToastSeverity } from "@im-library/enums";
 import { cloneDeep } from "lodash-es";
 import { ToastSeverity } from "@im-library/enums";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";

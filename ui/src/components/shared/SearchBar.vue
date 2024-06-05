@@ -43,7 +43,6 @@ import { FilterOptions } from "@im-library/interfaces";
 import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import _ from "lodash-es";
-import setupSearch from "@/composables/setupSearch";
 import { Ref } from "vue";
 
 interface Props {
