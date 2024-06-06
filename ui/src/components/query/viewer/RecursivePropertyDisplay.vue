@@ -80,7 +80,7 @@ function getNodeRef(property: Where) {
 }
 </script>
 
-<style>
+<style scoped>
 .feature {
   display: flex;
   flex-flow: column;

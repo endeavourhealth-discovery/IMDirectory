@@ -1,7 +1,7 @@
 <template>
-  <div class="im-query-container">
+  <div id="im-query-editor-container">
     <div class="base-type-container">
-      <div class="base-type-title">Base type:</div>
+      <div class="base-type-title side-title">Base type:</div>
       <div class="base-type-value">
         <AutocompleteSearchBar
           class="base-type-autocomplete"
@@ -12,7 +12,7 @@
       </div>
     </div>
     <div class="feature-container">
-      <div class="feature-title">Features:</div>
+      <div class="feature-title side-title">Features:</div>
       <div class="feature-list">
         <div class="feature-list-container">
           <div v-for="(feature, index) in editQueryDefinition.match" class="feature">
@@ -29,13 +29,25 @@
             <Button @click="deleteFeature(index)" severity="danger" icon="fa-solid fa-trash" class="builder-button expanding-button" />
           </div>
         </div>
-        <EditMatchDialog
-          v-model:show-dialog="showDialog"
-          :match="selectedMatch"
-          :index="selectedIndex"
-          :query-base-type-iri="selectedBaseType?.iri!"
-          @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch, selectedMatch!['@id']!, selectedIndex)"
-        />
+        <div class="add-buttons">
+          <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
+          <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+          <Button
+            label="Add new feature"
+            v-if="selectedBaseType?.iri"
+            @click="showBuildFeature = true"
+            severity="warning"
+            icon="fa-solid fa-screwdriver-wrench"
+            class="add-feature-button"
+          />
+          <Button
+            label="Add feature group"
+            @click="editQueryDefinition.match?.push({ boolMatch: Bool.and })"
+            severity="primary"
+            icon="fa-solid fa-layer-group"
+            class="add-feature-button"
+          />
+        </div>
       </div>
     </div>
     <AddMatch
@@ -46,26 +58,13 @@
       :edit-match="editQueryDefinition"
       :match-type-of-iri="selectedBaseType?.iri!"
     />
-
-    <div class="add-buttons">
-      <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
-      <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
-      <Button
-        label="Add new feature"
-        v-if="selectedBaseType?.iri"
-        @click="showBuildFeature = true"
-        severity="warning"
-        icon="fa-solid fa-screwdriver-wrench"
-        class="add-feature-button"
-      />
-      <Button
-        label="Add feature group"
-        @click="editQueryDefinition.match?.push({ boolMatch: Bool.and })"
-        severity="primary"
-        icon="fa-solid fa-layer-group"
-        class="add-feature-button"
-      />
-    </div>
+    <EditMatchDialog
+      v-model:show-dialog="showDialog"
+      :match="selectedMatch"
+      :index="selectedIndex"
+      :query-base-type-iri="selectedBaseType?.iri!"
+      @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch, selectedMatch!['@id']!, selectedIndex)"
+    />
   </div>
 </template>
 
@@ -165,31 +164,37 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
 </script>
 
 <style scoped>
-.im-query-container {
+#im-query-editor-container {
+  flex: 1 1 auto;
   display: flex;
-  height: 100%;
   width: 100%;
   padding: 0.5rem;
-  flex-flow: column;
+  flex-flow: column nowrap;
+  overflow: auto;
 }
 
 .base-type-container {
+  flex: 0 0 auto;
   display: flex;
   align-items: baseline;
+  padding: 0.5rem;
 }
 
 .feature-container {
+  flex: 1 1 auto;
   display: flex;
-  align-items: baseline;
   width: 100%;
+  overflow: auto;
+  padding: 0.5rem 0.5rem 0 0.5rem;
 }
 
 .feature-list {
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: row;
-  padding: 1rem;
-  height: 100%;
+  flex-flow: column nowrap;
+  gap: 0.2rem;
   width: 100%;
+  overflow: auto;
 }
 
 .feature-list-container {
@@ -197,6 +202,7 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
   flex-flow: column;
   height: 100%;
   width: 100%;
+  overflow: auto;
 }
 
 .feature {
@@ -219,7 +225,6 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
   border: var(--imquery-editor-border-color) 1px solid;
   border-radius: 5px;
   background-color: var(--imquery-editor-background-color);
-  margin: 0.2rem;
   flex: 1;
 }
 
@@ -228,44 +233,31 @@ async function onSaveChanges(editMatch: Match | undefined, id: string, index: nu
   padding: 0.5rem;
   border-radius: 5px;
   background-color: var(--imquery-editor-background-color);
-  margin: 0.2rem;
   flex: 1;
   border: var(--imquery-editor-hover-border-color) 1px solid;
-}
-
-.base-type-autocomplete {
-  margin-left: 1.5rem;
-  margin-right: 1rem;
 }
 
 .clickable {
   cursor: pointer;
 }
 
+.side-title {
+  width: 5rem;
+}
+
 .feature-title {
-  display: flex;
-  align-self: center;
+  flex: 0 0 auto;
+  padding-top: 0.5rem;
 }
 
 .add-buttons {
-  margin-left: 5.8rem;
+  flex: 0 0 auto;
   display: flex;
   flex-flow: row;
+  justify-content: flex-start;
 }
 
 .expanding-button {
   align-self: stretch;
-}
-</style>
-
-<style>
-.builder-button {
-  width: 2rem;
-  margin: 0.1rem;
-}
-
-.vertical-button {
-  writing-mode: vertical-lr;
-  transform: scale(-1);
 }
 </style>
