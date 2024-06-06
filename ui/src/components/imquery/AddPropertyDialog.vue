@@ -4,17 +4,31 @@
       <StepperPanel header="Select property">
         <template #content="{ nextCallback }">
           <div class="flex flex-column select-property-wrapper">
-            <div class="flex-auto flex align-items-center font-medium select-property-content">
+            <!-- <div class="flex-auto flex align-items-center font-medium select-property-content">
               <QueryNavTree
                 :editMatch="editMatch"
                 v-model:selected-property="selectedProperty"
                 :dm-iri="dataModelIri"
                 :show-variable-options="showVariableOptions"
               />
-            </div>
+            </div> -->
+            <AutocompleteSearchBar
+              v-model:selected="selectedGeneralConcept"
+              :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET, SHACL.PROPERTY]"
+              :im-query="imQuery"
+              @update-selected-filters="onUpdateSelectedFilters"
+            />
+
+            <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
+              <template #option="{ option }">
+                <div class="flex align-items-center">
+                  <div>{{ option.path?.[0].name }} -> {{ option.typeOf?.name }}.{{ option.where?.[0].name }} = {{ selectedGeneralConcept?.name }}</div>
+                </div>
+              </template>
+            </Listbox>
           </div>
           <div class="flex pt-4 justify-content-end next-button">
-            <Button :disabled="!isObjectHasKeys(selectedProperty)" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="nextCallback" />
+            <Button :disabled="!isObjectHasKeys(selectedPath)" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="nextCallback" />
           </div>
         </template>
       </StepperPanel>
@@ -33,13 +47,16 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import { Match, Where } from "@im-library/interfaces/AutoGen";
-import _, { cloneDeep } from "lodash";
+import { Match, PathQuery, QueryRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
+import _, { cloneDeep } from "lodash-es";
 import { TreeNode } from "primevue/treenode";
 import { buildProperty } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EditProperty from "./EditProperty.vue";
+import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
+import { IM, SHACL } from "@im-library/vocabulary";
+import { QueryService } from "@/services";
 
 interface Props {
   showDialog: boolean;
@@ -62,11 +79,20 @@ const visible: Ref<boolean> = ref(false);
 const editWhere: Ref<Where> = ref({});
 const editWhereDMIri: Ref<string> = ref("");
 const whereOrMatch: Ref<Where | Match> = ref({});
+const selectedGeneralConcept: Ref<SearchResultSummary | undefined> = ref();
+const imQuery: Ref<QueryRequest | undefined> = ref({ query: {} });
+const pathSuggestions: Ref<Match[]> = ref([]);
+const selectedPath: Ref<Match | undefined> = ref();
 watch(
   () => props.showDialog,
   newValue => {
     visible.value = newValue;
   }
+);
+
+watch(
+  () => cloneDeep(selectedGeneralConcept.value),
+  async () => await getOptions()
 );
 
 watch(visible, newValue => {
@@ -104,6 +130,14 @@ onMounted(() => {
   if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
 });
 
+async function getOptions() {
+  if (selectedGeneralConcept.value?.iri) {
+    const pathQuery = { source: { "@id": props.dataModelIri }, target: { "@id": selectedGeneralConcept.value?.iri } } as PathQuery;
+    const response = await QueryService.pathQuery(pathQuery);
+    pathSuggestions.value = response.match;
+  }
+}
+
 async function save() {
   if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
     emit("onMatchAdd", whereOrMatch.value as Match);
@@ -140,6 +174,8 @@ function getEditWhereDMIriRecursively(where: Where, found: any[]) {
     }
   }
 }
+
+function onUpdateSelectedFilters() {}
 </script>
 
 <style scoped>
