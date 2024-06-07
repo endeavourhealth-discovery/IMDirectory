@@ -5,7 +5,7 @@ import { flushPromises } from "@vue/test-utils";
 import { IM } from "@im-library/vocabulary";
 import { ref } from "vue";
 import { QueryService } from "@/services";
-import _ from "lodash";
+import _ from "lodash-es";
 
 describe("setupValidity", () => {
   describe("constructValidationCheckStatus", () => {
@@ -267,28 +267,26 @@ describe("setupValidity", () => {
       checkValidationSpy = vi.spyOn(QueryService, "checkValidation");
     });
 
-    it("can remove a validity", () => {
-      it("can update validity ___ default validation ___ valid", async () => {
-        const invalid = ref(true);
-        const validationErrorMessage = ref("test");
-        const editorEntity = ref({ ...testData.testEntity });
-        const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
-        checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
-        const wrapper = mountComposable(setupValidity, [testData.testShape]);
-        expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
-        await wrapper.vm.updateValidity(
-          testData.testShape.property[0].property[0].property[0],
-          editorEntity,
-          valueVariableMap,
-          testData.testShape.property[0].property[0].property[0].path["@id"],
-          invalid,
-          validationErrorMessage
-        );
-        await flushPromises();
-        expect(wrapper.vm.editorEntity).toHaveLength(1);
-        wrapper.vm.removeValidity({ key: testData.testShape.property[0].property[0].property[0].path["@id"], valid: true });
-        expect(wrapper.vm.editorEntity).toHaveLength(0);
-      });
+    it("can update validity ___ default validation ___ valid", async () => {
+      const invalid = ref(true);
+      const validationErrorMessage = ref("test");
+      const editorEntity = ref({ ...testData.testEntity });
+      const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
+      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
+      await wrapper.vm.updateValidity(
+        testData.testShape.property[0].property[0].property[0],
+        editorEntity,
+        valueVariableMap,
+        testData.testShape.property[0].property[0].property[0].path["@id"],
+        invalid,
+        validationErrorMessage
+      );
+      await flushPromises();
+      expect(wrapper.vm.editorValidity).toHaveLength(1);
+      wrapper.vm.removeValidity({ key: testData.testShape.property[0].property[0].property[0].path["@id"], valid: true });
+      expect(wrapper.vm.editorValidity).toHaveLength(0);
     });
   });
 

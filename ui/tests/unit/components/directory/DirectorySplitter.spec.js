@@ -3,6 +3,7 @@ import { beforeEach, describe, it } from "vitest";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
+import ProgressSpinner from "primevue/progressspinner";
 import PrimeVue from "primevue/config";
 import { createTestingPinia } from "@pinia/testing";
 
@@ -28,7 +29,7 @@ describe("Home.vue", () => {
   beforeEach(() => {
     component = render(DirectorySplitter, {
       global: {
-        components: { Splitter, SplitterPanel },
+        components: { Splitter, SplitterPanel, ProgressSpinner },
         stubs: ["router-view", "InfoSideBar", "NavTree"],
         plugins: [PrimeVue],
         mocks: {}

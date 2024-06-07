@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { Match } from "@im-library/interfaces/AutoGen";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import { onMounted, ref, watch } from "vue";
 
 const emit = defineEmits({

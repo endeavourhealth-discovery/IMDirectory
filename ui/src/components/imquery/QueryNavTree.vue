@@ -39,7 +39,7 @@ import { isFolder, isProperty, isRecordModel } from "@im-library/helpers/Concept
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
-import _ from "lodash";
+import _ from "lodash-es";
 import { stringAscending } from "@im-library/helpers/Sorters";
 import setupOverlay from "@/composables/setupOverlay";
 import { getKey, getParentNode } from "@im-library/helpers";

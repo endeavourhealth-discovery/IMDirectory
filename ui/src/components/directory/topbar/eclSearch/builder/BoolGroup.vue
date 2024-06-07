@@ -123,7 +123,7 @@
 import { ref, inject, Ref, watch, onMounted, computed, ComputedRef } from "vue";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
-import _, { isArray } from "lodash";
+import _, { isArray } from "lodash-es";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { numberAscending } from "@im-library/helpers/Sorters";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";

@@ -27,7 +27,7 @@ import { byName } from "@im-library/helpers/Sorters";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   shape: PropertyShape;

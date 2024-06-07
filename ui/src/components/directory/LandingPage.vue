@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import _ from "lodash";
+import _ from "lodash-es";
 import { DirectService } from "@/services";
 import { IM, SHACL } from "@im-library/vocabulary";
 import Shortcut from "@/components/directory/landingPage/Shortcut.vue";

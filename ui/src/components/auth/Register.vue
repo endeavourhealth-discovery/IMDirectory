@@ -129,7 +129,7 @@ import PasswordInputs from "@/components/auth/PasswordInputs.vue";
 import * as yup from "yup";
 import { useForm } from "vee-validate";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import _ from "lodash";
+import _ from "lodash-es";
 
 const emit = defineEmits({
   userCreated: (_payload: User) => true

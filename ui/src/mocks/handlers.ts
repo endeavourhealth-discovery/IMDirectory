@@ -1,92 +1,97 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { IM } from "@im-library/vocabulary";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
+import { isArray } from "lodash-es";
 
 const apiUrl = "http://localhost:8082/imapi/api/";
 
 export const handlers = [
-  rest.get(apiUrl + "entity/public/children", async (req, res, ctx) => {
-    const iri = req.url.searchParams.get("iri");
-    if (iri === IM.STATUS) return res(ctx.status(200), ctx.json([IM.ACTIVE, IM.DRAFT, IM.INACTIVE]));
+  http.get(apiUrl + "entity/public/children", async ({ params }) => {
+    const { iri } = params;
+    if (iri === IM.STATUS) return HttpResponse.json([IM.ACTIVE, IM.DRAFT, IM.INACTIVE]);
     else
-      return res(
-        ctx.status(500),
-        ctx.json({
+      return new HttpResponse(
+        JSON.stringify({
           errorMessage: "Fetch mocking is active for this api url. Please mock the fetch request for this url parameter/body in src/mocks/handler.js"
-        })
+        }),
+        { status: 500 }
       );
   }),
-  rest.post(apiUrl + "query/public/entityQuery", async (req, res, ctx) => {
-    const body = await req.json();
-    if (body.queryIri["@id"] === "http://endhealth.info/im#Query_GetIsas") {
-      if (body.argument.this === "http://endhealth.info/im#Status")
-        return res(
-          ctx.status(200),
-          ctx.json([
-            { "@id": IM.ACTIVE, "http://www.w3.org/2000/01/rdf-schema#label": "Active" },
-            { "@id": IM.DRAFT, "http://www.w3.org/2000/01/rdf-schema#label": "Draft" },
-            { "@id": IM.INACTIVE, "http://www.w3.org/2000/01/rdf-schema#label": "Inactive" }
-          ])
-        );
-      else return res(ctx.status(200), ctx.json([]));
+  http.post(apiUrl + "query/public/entityQuery", async ({ request }) => {
+    const body: any = await request.json();
+    const { queryIri, argument } = body;
+    if (queryIri["@id"] === "http://endhealth.info/im#Query_GetIsas") {
+      if (argument.this === "http://endhealth.info/im#Status")
+        return HttpResponse.json([
+          { "@id": IM.ACTIVE, "http://www.w3.org/2000/01/rdf-schema#label": "Active" },
+          { "@id": IM.DRAFT, "http://www.w3.org/2000/01/rdf-schema#label": "Draft" },
+          { "@id": IM.INACTIVE, "http://www.w3.org/2000/01/rdf-schema#label": "Inactive" }
+        ]);
+      else return HttpResponse.json([]);
     } else
-      return res(
-        ctx.status(500),
-        ctx.json({
+      return new HttpResponse(
+        JSON.stringify({
           errorMessage: "Fetch mocking is active for this api url. Please mock the fetch request for this url parameter/body in src/mocks/handler.js"
-        })
+        }),
+        { status: 500 }
       );
   }),
-  rest.post(apiUrl + "function/public/callFunction", async (req, res, ctx) => {
-    const body = await req.json();
-    if (body.functionIri === "http://endhealth.info/im#GetAdditionalAllowableTypes") return res(ctx.status(200), ctx.json([]));
+  http.post(apiUrl + "function/public/callFunction", async ({ request }) => {
+    const body: any = await request.json();
+    const { functionIri } = body;
+    if (functionIri === "http://endhealth.info/im#GetAdditionalAllowableTypes") return HttpResponse.json([]);
     else
-      return res(
-        ctx.status(500),
-        ctx.json({
+      return new HttpResponse(
+        JSON.stringify({
           errorMessage: "Fetch mocking is active for this api url. Please mock the fetch request for this url parameter/body in src/mocks/handler.js"
-        })
+        }),
+        { status: 500 }
       );
   })
 ];
 
 export const handlersFaker = [
-  rest.get(apiUrl + "entity/public/partial", async (req, res, ctx) => {
+  http.get(apiUrl + "entity/public/partial", async ({ params }) => {
     console.log("using msw");
-    const iri = req.url.searchParams.get("iri");
-    const predicates = req.url.searchParams.get("predicates");
-    const predicatesArray = predicates?.split(",");
+    const { iri, predicatesArray } = params;
     const entityValue = {} as any;
     if (iri) entityValue["@id"] = iri;
-    if (predicatesArray && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax")) entityValue["http://www.w3.org/1999/02/22-rdf-syntax"] = null;
-    if (predicatesArray && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
+    if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax"))
+      entityValue["http://www.w3.org/1999/02/22-rdf-syntax"] = null;
+    if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"] = null;
     const entity = fakerFactory.entity.create(entityValue) as any;
     Object.keys(entity).forEach((key: string) => {
       if (!entity[key]) delete entity[key];
     });
-    return res(ctx.status(200), ctx.json(entity));
+    return HttpResponse.json(entity);
   }),
-  rest.get(apiUrl + "entity/public/parents", async (req, res, ctx) => {
-    const iri = req.url.searchParams.get("iri");
-    return res(ctx.status(200), ctx.json([fakerFactory.entitySummary.create(), fakerFactory.entitySummary.create()]));
+  http.get(apiUrl + "entity/public/parents", async ({ params }) => {
+    const { iri } = params;
+    return HttpResponse.json([fakerFactory.entitySummary.create(), fakerFactory.entitySummary.create()]);
   }),
-  rest.get(apiUrl + "entity/public/childrenPaged", async (req, res, ctx) => {
-    const iri = req.url.searchParams.get("iri");
+  http.get(apiUrl + "entity/public/childrenPaged", async ({ params }) => {
+    const { iri } = params;
     const children = [
       fakerFactory.entitySummary.create(),
       fakerFactory.entitySummary.create(),
       fakerFactory.entitySummary.create(),
       fakerFactory.entitySummary.create()
     ];
-    return res(ctx.status(200), ctx.json(fakerFactory.pagedChildren.create({ result: children, totalCount: 4 })));
+    return HttpResponse.json(fakerFactory.pagedChildren.create({ result: children, totalCount: 4 }));
   }),
-  rest.get(apiUrl + "entity/public/summary", async (req, res, ctx) => {
-    const iri = req.url.searchParams.get("iri");
-    if (iri) {
+  http.get(apiUrl + "entity/public/summary", async ({ params }) => {
+    const { iri } = params;
+    if (iri && typeof iri === "string") {
       const found = fakerFactory.entitySummary.findFirst({ where: { "@id": { equals: iri } } });
-      if (found) return res(ctx.status(200), ctx.json(found));
-      else return res(ctx.status(200), ctx.json(fakerFactory.pagedChildren.create()));
-    } else return res(ctx.status(500), ctx.json({ errorMessage: "Missing iri parameter" }));
+      if (found) return HttpResponse.json(found);
+      else return HttpResponse.json(fakerFactory.pagedChildren.create());
+    } else
+      return new HttpResponse(
+        JSON.stringify({
+          errorMessage: "Missing iri parameter"
+        }),
+        { status: 500 }
+      );
   })
 ];

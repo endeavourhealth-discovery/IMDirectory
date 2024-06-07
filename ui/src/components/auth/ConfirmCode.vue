@@ -59,6 +59,7 @@ import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { useAuthStore } from "@/stores/authStore";
+import { autoSignIn } from "aws-amplify/auth";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -95,9 +96,10 @@ function handleSubmit() {
             title: "Success",
             text: res.message,
             confirmButtonText: "Login"
-          }).then(() => {
+          }).then(async () => {
             authStore.updateRegisteredUsername(username.value);
-            router.push({ name: "Login" });
+            if (res.nextStep === "COMPLETE_AUTO_SIGN_IN") await AuthService.handleAutoSignIn();
+            else router.push({ name: "Login" });
           });
         } else {
           Swal.fire({
@@ -136,15 +138,16 @@ function requestCode() {
             text: "Code has been resent to email for: " + username.value
           });
         } else if (res.message === "User is already confirmed.") {
-          await UserService.updateEmailVerified(true).then(() =>
+          await UserService.updateEmailVerified(true).then(async () =>
             Swal.fire({
               icon: "success",
               title: "Success",
               text: "Account has successfully been verified",
               confirmButtonText: "Login"
-            }).then(() => {
+            }).then(async () => {
               authStore.updateRegisteredUsername(username.value);
-              router.push({ name: "Login" });
+              await autoSignIn();
+              router.push({ name: "LandingPage" });
             })
           );
         } else {

@@ -3,7 +3,7 @@ import { TreeNode } from "../interfaces";
 import { Match, Node, Operator, Where, Query, SearchResultSummary } from "../interfaces/AutoGen";
 import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { v4 } from "uuid";
 
 export function getLastMatchFromNestedProperty(matchOrProperty: any, found: Match[]) {

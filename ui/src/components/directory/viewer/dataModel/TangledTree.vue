@@ -18,7 +18,7 @@
 import * as d3 from "d3";
 import { createVNode, onMounted, reactive, ref, Ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
-import _ from "lodash";
+import _ from "lodash-es";
 import { EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";

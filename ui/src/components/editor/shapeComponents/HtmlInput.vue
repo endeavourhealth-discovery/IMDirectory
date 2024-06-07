@@ -16,7 +16,7 @@ import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   shape: PropertyShape;

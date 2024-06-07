@@ -54,7 +54,7 @@ import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisua
 import { Ref, watch, ref, onMounted } from "vue";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   entity: any;

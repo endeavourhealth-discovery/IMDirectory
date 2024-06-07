@@ -113,8 +113,8 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { cloneDeep } from "lodash-es";
 import { Match, Bool, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { cloneDeep } from "lodash";
 import { Ref, inject, onMounted, provide, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";

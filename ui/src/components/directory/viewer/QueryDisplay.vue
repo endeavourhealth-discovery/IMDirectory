@@ -45,15 +45,15 @@ interface Props {
 }
 
 const userStore = useUserStore();
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 const props = defineProps<Props>();
 const query: Ref<Query> = ref({} as Query);
 const sql: Ref<string> = ref("");
 const showSql: Ref<boolean> = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
-const canTestQuery = computed(
-  () => userStore.isLoggedIn && (userStore.currentUser?.roles?.includes("create") || userStore.currentUser?.roles?.includes("edit"))
-);
+const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
 
 watch(
   () => props.definition,

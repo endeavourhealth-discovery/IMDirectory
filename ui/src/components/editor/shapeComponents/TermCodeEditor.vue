@@ -30,7 +30,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { useFilterStore } from "@/stores/filterStore";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   shape: PropertyShape;

@@ -80,7 +80,7 @@ import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethod
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
-import _, { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
@@ -183,16 +183,18 @@ async function search(pageNumber: number, pageSize: number) {
     props.eclQuery.page = pageNumber;
     props.eclQuery.size = pageSize;
     response = await EclService.ECLSearch(props.eclQuery);
-  } else if (props.imQuery) {
-    props.imQuery.textSearch = props.searchTerm;
-    props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
-    response = await QueryService.queryIMSearch(props.imQuery);
-  } else {
-    const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
-    searchOptions.textSearch = props.searchTerm;
-    searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
-    const imQuery = buildIMQueryFromFilters(searchOptions);
-    response = await QueryService.queryIMSearch(imQuery);
+  } else if (props.searchTerm && props.searchTerm.length > 2) {
+    if (props.imQuery) {
+      props.imQuery.textSearch = props.searchTerm;
+      props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
+      response = await QueryService.queryIMSearch(props.imQuery);
+    } else {
+      const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
+      searchOptions.textSearch = props.searchTerm;
+      searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
+      const imQuery = buildIMQueryFromFilters(searchOptions);
+      response = await QueryService.queryIMSearch(imQuery);
+    }
   }
   searchLoading.value = false;
   return response;
@@ -211,7 +213,7 @@ function isFavourite(iri: string) {
 function processSearchResults(searchResponse: SearchResponse | undefined): void {
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
     searchResults.value = searchResponse.entities.map(result => {
-      const copy: any = _.cloneDeep(result);
+      const copy: any = cloneDeep(result);
       copy.icon = getFAIconFromType(result.entityType);
       copy.colour = getColourFromType(result.entityType);
       copy.typeNames = getNamesAsStringFromTypes(result.entityType);

@@ -37,8 +37,6 @@ const router = useRouter();
 const helpDialog = useDialog();
 const userStore = useUserStore();
 
-const awsUser = computed(() => userStore.awsUser);
-
 const loading = ref(false);
 
 function showHelpDialog() {
@@ -63,7 +61,7 @@ function showHelpDialog() {
 
 async function handleDisableMfa() {
   loading.value = true;
-  await AuthService.setMfaPreference(awsUser.value, "NOMFA");
+  await AuthService.setMfaPreference("NOMFA");
   Swal.fire({
     icon: "success",
     title: "Success",

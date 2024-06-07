@@ -60,7 +60,7 @@
 <script setup lang="ts">
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Operator, Where, PropertyRef, Range } from "@im-library/interfaces/AutoGen";
-import { cloneDeep, property } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { Ref, onMounted, ref, watch } from "vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
 import Dropdown from "primevue/dropdown";

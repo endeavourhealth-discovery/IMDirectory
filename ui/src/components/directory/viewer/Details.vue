@@ -43,7 +43,7 @@ import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   entityIri: string;

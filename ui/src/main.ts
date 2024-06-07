@@ -100,13 +100,12 @@ import StepperPanel from "primevue/stepperpanel";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 
-import { Amplify, Auth } from "aws-amplify";
+import { Amplify } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import { createPinia } from "pinia";
 import { useSharedStore } from "@/stores/sharedStore";
 
 Amplify.configure(awsconfig);
-Auth.configure(awsconfig);
 
 // msw initialising
 if (import.meta.env.MODE === "mock") {
