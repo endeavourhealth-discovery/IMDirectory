@@ -1,37 +1,35 @@
 <template>
-  <div class="add-buttons">
-    <DirectorySearchDialog
-      v-model:show-dialog="showAddPopulationDialog"
-      :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
-      :im-query="imQueryForPopulation"
-      @update:selected="onPopulationSelect"
-    />
+  <DirectorySearchDialog
+    v-model:show-dialog="showAddPopulationDialog"
+    :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
+    :im-query="imQueryForPopulation"
+    @update:selected="onPopulationSelect"
+  />
 
-    <DirectorySearchDialog
-      v-model:show-dialog="showAddFeatureDialog"
-      :root-entities="[IM.MODULE_FEATURES]"
-      :im-query="imQueryForFeature"
-      @update:selected="onFeatureSelect"
-    />
+  <DirectorySearchDialog
+    v-model:show-dialog="showAddFeatureDialog"
+    :root-entities="[IM.MODULE_FEATURES]"
+    :im-query="imQueryForFeature"
+    @update:selected="onFeatureSelect"
+  />
 
-    <AddPropertyDialog
-      v-model:show-dialog="showBuildFeatureDialog"
-      :dataModelIri="matchTypeOfIri"
-      :header="'Add new feature'"
-      :show-variable-options="false"
-      @on-match-add="onMatchAdd"
-      @on-property-add="onPropertyAdd"
-    />
+  <AddPropertyDialog
+    v-model:show-dialog="showBuildFeatureDialog"
+    :dataModelIri="matchTypeOfIri"
+    :header="'Add new feature'"
+    :show-variable-options="false"
+    @on-match-add="onMatchAdd"
+    @on-property-add="onPropertyAdd"
+  />
 
-    <AddPropertyDialog
-      v-model:show-dialog="showBuildThenFeatureDialog"
-      :dataModelIri="matchTypeOfIri"
-      :header="'Add new feature'"
-      :show-variable-options="false"
-      @on-match-add="onThenMatchAdd"
-      @on-property-add="onThenPropertyAdd"
-    />
-  </div>
+  <AddPropertyDialog
+    v-model:show-dialog="showBuildThenFeatureDialog"
+    :dataModelIri="matchTypeOfIri"
+    :header="'Add new feature'"
+    :show-variable-options="false"
+    @on-match-add="onThenMatchAdd"
+    @on-property-add="onThenPropertyAdd"
+  />
 </template>
 
 <script setup lang="ts">

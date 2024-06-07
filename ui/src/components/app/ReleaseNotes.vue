@@ -33,9 +33,8 @@
               <p class="version">{{ release.version }}</p>
               <p class="publish-date">publish date: {{ release.publishedDate }}</p>
               <div class="release-notes-container">
-                <ul>
-                  <li v-for="note in release.releaseNotes">{{ note }}</li>
-                </ul>
+                <span v-if="!release.releaseNotes.length">No details</span>
+                <VueShowdown v-else class="showdown-component" v-for="note in release.releaseNotes" :markdown="note" flavor="github" />
               </div>
               <a :href="sanitizeUrl(release.url)">{{ release.url }}</a>
             </div>
@@ -264,5 +263,9 @@ p {
 
 .my-fadeout {
   animation: my-fadeout 150ms linear;
+}
+
+.showdown-component:deep(ul) {
+  margin: 0;
 }
 </style>

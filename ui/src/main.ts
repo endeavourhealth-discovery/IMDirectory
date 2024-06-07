@@ -100,6 +100,8 @@ import StepperPanel from "primevue/stepperpanel";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 
+import { VueShowdownPlugin } from "vue-showdown";
+
 import { Amplify } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import { createPinia } from "pinia";
@@ -125,6 +127,7 @@ const app = createApp(App)
     autoSetContainer: true,
     appendToBody: true
   })
+  .use(VueShowdownPlugin)
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
   .directive("ripple", Ripple)

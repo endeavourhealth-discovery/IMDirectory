@@ -51,6 +51,7 @@
     "vue": "3.4.27",
     "vue-json-pretty": "2.4.0",
     "vue-router": "4.3.2",
+    "vue-showdown": "4.2.0",
     "vue3-clipboard": "1.0.0",
     "vuedraggable": "2.24.3",
     "yup": "1.4.0"
