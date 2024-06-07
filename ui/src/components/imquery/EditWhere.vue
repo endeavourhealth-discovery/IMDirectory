@@ -65,7 +65,7 @@ function onDeleteMatch(matchId: string) {
   flex-flow: column;
 }
 .property-description {
-  width: 100%;
+  width: calc(100% - 1rem);
   height: 100%;
   margin-left: 1rem;
 }
@@ -78,5 +78,14 @@ function onDeleteMatch(matchId: string) {
 .where-group {
   display: flex;
   width: 100%;
+}
+
+.builder-button {
+  width: 2rem;
+}
+
+.vertical-button {
+  writing-mode: vertical-lr;
+  transform: scale(-1);
 }
 </style>

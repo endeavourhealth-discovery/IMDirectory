@@ -7,14 +7,18 @@
         </div>
       </template>
     </TopBar>
-    <div v-if="loading" class="loading-container">
-      <ProgressSpinner />
-    </div>
-    <IMQueryEditor v-else v-model:queryDefinition="queryDefinition" />
-    <div class="button-bar">
-      <Button class="button-bar-button" label="Run" />
-      <Button class="button-bar-button" label="View" severity="secondary" />
-      <Button class="button-bar-button" label="Save" severity="success" />
+    <div id="query-main-container">
+      <div id="query-content-container">
+        <div v-if="loading" class="loading-container">
+          <ProgressSpinner />
+        </div>
+        <IMQueryEditor v-else v-model:queryDefinition="queryDefinition" />
+      </div>
+      <div id="query-footer-bar">
+        <Button class="button-bar-button" label="Run" />
+        <Button class="button-bar-button" label="View" severity="secondary" />
+        <Button class="button-bar-button" label="Save" severity="success" />
+      </div>
     </div>
   </div>
 </template>
@@ -63,11 +67,34 @@ async function setQuery() {
 
 <style lang="scss">
 #topbar-query-container {
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   overflow: auto;
   display: flex;
   flex-flow: column;
+}
+
+#query-main-container {
+  height: calc(100% - 3.5rem);
+  width: 100%;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#query-content-container {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#query-footer-bar {
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
 }
 
 .topbar-content {
@@ -82,6 +109,15 @@ async function setQuery() {
 .title {
   font-size: 2rem;
   white-space: nowrap;
+}
+
+.loading-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .button-bar {
