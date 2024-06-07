@@ -207,7 +207,11 @@ export default class Validator {
           return { isValid: false, message: "1 or more role groups are invalid." };
         } else {
           for (let roles in data[IM.ROLE_GROUP][group]) {
-            if (null === data[IM.ROLE_GROUP][group][roles]["@id"] || "" === data[IM.ROLE_GROUP][group][roles].name) {
+            if (
+              isObjectHasKeys(data[IM.ROLE_GROUP][group], [""]) ||
+              null === data[IM.ROLE_GROUP][group][roles]["@id"] ||
+              "" === data[IM.ROLE_GROUP][group][roles]["name"]
+            ) {
               return { isValid: false, message: "1 or more role groups are invalid." };
             }
           }

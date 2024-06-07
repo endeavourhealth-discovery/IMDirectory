@@ -217,15 +217,17 @@ watch(
   () => _.cloneDeep(dmProperties.value),
   async (newValue, oldValue) => {
     if (JSON.stringify(newValue) !== JSON.stringify(oldValue) && JSON.stringify(loading.value) === "false") {
-      for (let v in newValue) {
+      for (const v in newValue) {
         if (
           oldValue.length <= newValue.length &&
           oldValue[v] &&
           newValue[v].range !== undefined &&
           JSON.stringify(newValue[v].range?.iri) !== JSON.stringify(oldValue[v].range?.iri)
         ) {
-          const newRangeType = await getRangeType(newValue[v].range!.iri!.toString());
-          dmProperties.value[v].rangeType = newRangeType!.toString();
+          if (newValue[v].range?.iri) {
+            const newRangeType = await getRangeType(newValue[v].range!.iri!.toString());
+            dmProperties.value[v].rangeType = newRangeType!.toString();
+          }
         }
       }
       await update();
@@ -491,7 +493,7 @@ async function validateEntity() {
 function updateEntity() {
   if (entityUpdate) {
     const deltas: any[] = [];
-    let dmAllProperties = dmProperties.value.concat(dmPropertiesInherited.value);
+    const dmAllProperties = dmProperties.value.concat(dmPropertiesInherited.value);
     dmAllProperties.forEach((value, index) => {
       const p: any = {};
       let fullPath = {} as TTIriRef;

@@ -632,12 +632,16 @@ function getScales(): MenuItem[] {
 
 async function downloadChanges() {
   toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
-  let blob = await FilerService.downloadDeltas();
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "deltas.zip";
-  link.click();
+  try {
+    let blob = await FilerService.downloadDeltas();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "deltas.zip";
+    link.click();
+  } catch (err) {
+    toast.add({ severity: "error", summary: "Download failed", detail: "File location not found, unable to download deltas", life: 3000 });
+  }
 }
 
 async function downloadCode() {
