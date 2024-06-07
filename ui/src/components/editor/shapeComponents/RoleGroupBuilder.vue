@@ -193,7 +193,6 @@ const valueRequest: QueryRequest = {
   }
 };
 
-/*
 async function propertyDrop(event: any, object: any) {
   const data = event.dataTransfer.getData("conceptIri");
   if (data) {
@@ -256,7 +255,6 @@ async function isValidValue(iri: string): Promise<boolean> {
   if (results.entities) return results.entities.length > 0;
   return false;
 }
-*/
 
 async function update() {
   validateEntity();
