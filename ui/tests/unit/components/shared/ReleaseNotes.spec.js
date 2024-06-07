@@ -11,6 +11,7 @@ import { GithubService } from "@/services";
 import PrimeVue from "primevue/config";
 import StyleClass from "primevue/styleclass";
 import { createTestingPinia } from "@pinia/testing";
+import { VueShowdownPlugin } from "vue-showdown";
 
 createTestingPinia();
 
@@ -34,7 +35,7 @@ describe("ReleaseNotes.vue", () => {
       global: {
         components: { Dialog, Button, ProgressSpinner },
         provide: { axios: axios },
-        plugins: [PrimeVue],
+        plugins: [PrimeVue, VueShowdownPlugin],
         directives: { styleclass: StyleClass }
       },
       props: { appVersion: "v1.0.0", repositoryName: "IMDirectory" }
