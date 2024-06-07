@@ -9,19 +9,19 @@
       <div v-if="loading" class="loading-container">
         <ProgressSpinner strokeWidth="8" />
       </div>
-      <div v-else class="children-container">
-        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup">
+      <div v-else class="children-container concept-colours">
+        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup concept-colours">
           <div :class="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation ? 'error-message' : ''">
             <span v-if="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation" class="error-message">{{
               invalidGroups.find(o => o.groupIndex === rgIndex).errorMessage
             }}</span>
-            <div class="roleGroupRow">
+            <div class="roleGroupTitle">
               <label>Role Group {{ rgIndex }}</label>
               <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRoleGroup(rgIndex)" size="small" />
             </div>
             <div v-for="(row, rIndex) in rg">
-              <div v-if="row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow">
-                <AutoComplete
+              <div v-if="!isObjectHasKeys(row.key, ['@id']) || row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow concept-colours">
+                <!--                <AutoComplete
                   class="roleProperty"
                   :dropdown="true"
                   dropdownMode="current"
@@ -34,9 +34,10 @@
                   @itemSelect="update"
                   @dragover.prevent
                   @dragenter.prevent
-                ></AutoComplete>
+                ></AutoComplete>-->
+                <AutocompleteSearchBar class="roleProperty" v-model:selected="row.key" :im-query="request" :search-placeholder="'Search properties'" />
                 <span style="width: 1rem; text-align: center">:</span>
-                <AutoComplete
+                <!--                <AutoComplete
                   class="roleVal"
                   :dropdown="true"
                   dropdownMode="current"
@@ -49,7 +50,8 @@
                   @itemSelect="update"
                   @dragover.prevent
                   @dragenter.prevent
-                ></AutoComplete>
+                ></AutoComplete>-->
+                <AutocompleteSearchBar class="roleProperty" v-model:selected="row.value" :im-query="valueRequest" :search-placeholder="'Search quantifiers'" />
                 <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRole(rg, rIndex)" />
               </div>
             </div>
@@ -58,22 +60,15 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="buttonGroup">
-        <Button icon="fa-solid fa-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" :disabled="loading" />
+        <div class="buttonGroup">
+          <Button icon="fa-solid fa-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" :disabled="loading" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
-
-defineComponent({
-  components: { EntityAutoComplete }
-});
-</script>
+<script lang="ts"></script>
 
 <script setup lang="ts">
 import { EntityService, QueryService } from "@/services";
@@ -87,6 +82,7 @@ import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useToast } from "primevue/usetoast";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -120,8 +116,6 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 });
 
 const roleGroups: Ref<any[][]> = ref([]);
-const propertySuggestions: Ref<TTIriRef[]> = ref([]);
-const valueSuggestions: Ref<TTIriRef[]> = ref([]);
 const specificValidationErrorMessage: Ref<string | undefined> = ref();
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
@@ -138,6 +132,7 @@ onMounted(async () => {
 watch(
   () => _.cloneDeep(roleGroups.value),
   async () => {
+    await update();
     if (updateValidity) {
       await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
     }
@@ -189,71 +184,34 @@ async function processRole(newData: any[], role: any) {
   }
 }
 
-async function searchProperties(event: AutoCompleteCompleteEvent) {
-  if (event.query.length > 2) {
-    const request: QueryRequest = {
-      textSearch: event.query,
-      query: {
-        activeOnly: true,
-        match: [
+const request: QueryRequest = {
+  query: {
+    activeOnly: true,
+    match: [
+      {
+        instanceOf: {
+          "@id": SNOMED.ATTRIBUTE
+        }
+      }
+    ]
+  }
+};
+
+const valueRequest: QueryRequest = {
+  query: {
+    activeOnly: true,
+    match: [
+      {
+        where: [
           {
-            instanceOf: {
-              "@id": SNOMED.ATTRIBUTE
-            }
+            "@id": IM.HAS_SCHEME,
+            is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
           }
         ]
       }
-    };
-    const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results && results.entities) {
-      propertySuggestions.value = results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
-    }
+    ]
   }
-}
-
-async function searchValues(event: AutoCompleteCompleteEvent) {
-  if (event.query.length > 2) {
-    const request: QueryRequest = {
-      textSearch: event.query,
-      query: {
-        activeOnly: true,
-        match: [
-          {
-            where: [
-              {
-                "@id": IM.HAS_SCHEME,
-                is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
-              }
-            ]
-          }
-        ]
-      }
-    };
-    const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results && results.entities) {
-      valueSuggestions.value = results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
-    }
-  }
-}
-
-async function propertyDrop(event: any, object: any) {
-  const data = event.dataTransfer.getData("conceptIri");
-  if (data) {
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidProperty(conceptIri)) {
-      object.key = { "@id": conceptIri, name: conceptName } as TTIriRef;
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set property",
-        detail: "'" + conceptName + "' is not a valid role group property",
-        life: 3000
-      });
-    }
-  }
-}
+};
 
 async function isValidProperty(iri: string): Promise<boolean> {
   const osRequest: SearchRequest = {
@@ -267,25 +225,6 @@ async function isValidProperty(iri: string): Promise<boolean> {
   const results = await EntityService.advancedSearch(osRequest);
   if (results.entities) return results.entities.length > 0;
   return false;
-}
-
-async function valueDrop(event: any, object: any) {
-  const data = event.dataTransfer.getData("conceptIri");
-  if (data) {
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidValue(conceptIri)) {
-      object.value = { "@id": conceptIri, name: conceptName } as TTIriRef;
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set value",
-        detail: "'" + conceptName + "' is not a valid role group value",
-        life: 3000
-      });
-    }
-  }
 }
 
 async function isValidValue(iri: string): Promise<boolean> {
@@ -303,7 +242,6 @@ async function isValidValue(iri: string): Promise<boolean> {
 
 async function update() {
   validateEntity();
-
   updateEntity();
 }
 
@@ -324,14 +262,16 @@ function isGroupValid(group: any[]): boolean {
     return false;
   }
   for (const pair of group) {
-    if (pair.key["@id"] != IM.GROUP_NUMBER) {
-      if (!pair?.key?.["@id"] || pair.key["@id"] == "") {
+    if (pair.key?.["@id"] != IM.GROUP_NUMBER) {
+      if (!pair.key) pair.key = { "@id": "", name: "" };
+      if (!pair.value) pair.value = { "@id": "", name: "" };
+      if (!isObjectHasKeys(pair.key, ["iri"]) && (!pair?.key?.["@id"] || pair.key["@id"] == "")) {
         specificValidationErrorMessage.value = "Missing role property.";
         invalid.value = true;
         return false;
       }
 
-      if (!pair?.value?.["@id"] || pair.value["@id"] == "") {
+      if (!pair?.value?.["@id"] && pair.value["@id"] == "") {
         specificValidationErrorMessage.value = "Missing role quantifier.";
         invalid.value = true;
         return false;
@@ -351,7 +291,11 @@ function updateEntity() {
     group[IM.GROUP_NUMBER] = i;
     groups[IM.ROLE_GROUP].push(group);
     for (const pair of roleGroups.value[i]) {
-      group[pair.key["@id"]] = pair.value;
+      if (isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
+        group[pair.key["iri"]] = { "@id": pair.value["iri"], name: pair.value["name"] };
+      } else if (isObjectHasKeys(pair.key, ["@id"])) {
+        group[pair.key["@id"]] = pair.value;
+      }
     }
   }
   if (!isArrayHasLength(groups[IM.ROLE_GROUP]) && deleteEntityKey) deleteEntityKey(key);
@@ -383,24 +327,43 @@ div.error-message {
 
 .children-container {
   width: 100%;
-  border-radius: 3px;
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
   overflow: auto;
+  padding: 0.5rem;
 }
 
 .roleGroup {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem 0.5rem 0.5rem;
 }
 
 .roleGroupRow {
   display: flex;
   flex-direction: row;
   align-items: center;
+  padding: 0.5rem;
+}
+
+.concept-colours {
+  border: #d2b33f30 1px solid;
+  border-radius: 3px;
+  background-color: #d2b33f10;
+}
+
+.concept-colours:hover {
+  border: #d2b33f 1px solid;
+}
+
+.roleGroupTitle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 0.5rem 0 0.5rem;
 }
 
 .roleProperty {
@@ -428,7 +391,7 @@ div.error-message {
 }
 
 .role-button {
-  margin-top: 1rem;
+  margin: 0;
 }
 
 .error-message {
