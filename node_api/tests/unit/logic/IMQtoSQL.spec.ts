@@ -23,7 +23,6 @@ describe("IMQtoSQL.ts", () => {
 
       for (let i = 0; i < queries.length; i++) {
         const q = queries[i];
-        console.log("Testing " + i + ": " + q.name);
         const entity = await svc.getPartialEntity(q["@id"], [IM.DEFINITION]);
 
         let json = entity.data[IM.DEFINITION];
@@ -44,12 +43,12 @@ describe("IMQtoSQL.ts", () => {
           await conn
             .query(sql)
             .then((result: any) => {
-              console.log("OK");
+              console.log("Testing " + i + ": Valid [" + q.name + "]");
             })
             .catch((error: any) => {
-              console.log("ERROR");
-              console.log(sql);
-              console.log(error);
+              console.error("Testing " + i + ": ERROR [" + q.name + "]");
+              console.error(sql);
+              console.error(error);
               throw error;
             })
             .finally(async () => {
