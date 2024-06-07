@@ -1,21 +1,24 @@
 <template>
   <div class="search-container">
-    <IconField iconPosition="right">
-      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
-      <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
-      <InputText
-        id="autocomplete-search"
-        v-model="searchText"
-        :placeholder="searchPlaceholder"
-        data-testid="search-input"
-        autofocus
-        v-on:keyup.enter="onEnter"
-        v-on:keyup="select"
-        @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
-        @mouseleave="hideOverlay($event)"
-        :disabled="disabled"
-      />
-    </IconField>
+    <div class="flex">
+      <IconField iconPosition="right">
+        <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
+        <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
+        <InputText
+          id="autocomplete-search"
+          v-model="searchText"
+          :placeholder="searchPlaceholder"
+          data-testid="search-input"
+          autofocus
+          v-on:keyup.enter="onEnter"
+          v-on:keyup="select"
+          @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
+          @mouseleave="hideOverlay($event)"
+          :disabled="disabled"
+        />
+      </IconField>
+      <Button label="Advanced" severity="info" @click="showDialog = true" />
+    </div>
     <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
@@ -36,7 +39,6 @@
         <div v-else>No results</div>
 
         <div class="advanced-search-container">
-          <Button label="Advanced search" class="advanced-search-button" @click="showDialog = true" />
           <small>
             Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
             {{ results?.count ? results.count : 0 }} results
@@ -181,13 +183,15 @@ async function onEnter(event: any) {
 }
 
 async function search() {
-  searchLoading.value = true;
-  const imQueryCopy = props.imQuery ? cloneDeep(props.imQuery) : { query: {} };
-  imQueryCopy.textSearch = searchText.value;
-  imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
-  const response = await QueryService.queryIMSearch(imQueryCopy);
-  searchLoading.value = false;
-  return response;
+  if (searchText.value && searchText.value.length > 2) {
+    searchLoading.value = true;
+    const imQueryCopy = props.imQuery ? cloneDeep(props.imQuery) : { query: {} };
+    imQueryCopy.textSearch = searchText.value;
+    imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
+    const response = await QueryService.queryIMSearch(imQueryCopy);
+    searchLoading.value = false;
+    return response;
+  }
 }
 
 async function showResultsOverlay(event: any) {

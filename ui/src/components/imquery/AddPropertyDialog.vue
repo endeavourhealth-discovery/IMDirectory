@@ -1,7 +1,7 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
     <Stepper :style="{ minWidth: '50vw' }">
-      <StepperPanel header="Select property">
+      <StepperPanel header="Add rule">
         <template #content="{ nextCallback }">
           <div class="flex flex-column select-property-wrapper">
             <!-- <div class="flex-auto flex align-items-center font-medium select-property-content">
@@ -14,11 +14,10 @@
             </div> -->
             <AutocompleteSearchBar
               v-model:selected="selectedGeneralConcept"
-              :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET, SHACL.PROPERTY]"
+              :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET, RDF.PROPERTY]"
               :im-query="imQuery"
               @update-selected-filters="onUpdateSelectedFilters"
             />
-
             <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
               <template #option="{ option }">
                 <div class="flex align-items-center">
@@ -55,7 +54,7 @@ import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EditProperty from "./EditProperty.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { IM, SHACL } from "@im-library/vocabulary";
+import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import { QueryService } from "@/services";
 
 interface Props {
