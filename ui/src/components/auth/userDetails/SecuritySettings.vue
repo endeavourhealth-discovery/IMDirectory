@@ -38,25 +38,30 @@ const twoFactorMethods = ref([
     label: "Authenticator app",
     details: "Use an authentication app or browser extension to get two-factor authentication codes when prompted.",
     icon: "fa-solid fa-mobile",
-    status: getMfaStatus("SOFTWARE_TOKEN_MFA"),
-    key: "SOFTWARE_TOKEN_MFA"
+    status: getMfaStatus("TOTP"),
+    key: "TOTP"
   }
 ]);
 
 function handleMfaActivate(key: string) {
-  if (key === "SOFTWARE_TOKEN_MFA") {
+  if (key === "TOTP") {
     router.push({ name: "MFASetup" });
   }
 }
 
 function handleMfaDelete(key: string) {
-  if (key === "SOFTWARE_TOKEN_MFA") {
+  if (key === "TOTP") {
     router.push({ name: "MFADelete" });
   }
 }
 
 function getMfaStatus(mfaKey: string): boolean {
-  return isObjectHasKeys(currentUser.value, ["mfaStatus"]) && isArrayHasLength(currentUser.value.mfaStatus) && currentUser.value.mfaStatus.includes(mfaKey);
+  return (
+    typeof currentUser.value !== "undefined" &&
+    isObjectHasKeys(currentUser.value, ["mfaStatus"]) &&
+    isArrayHasLength(currentUser.value.mfaStatus) &&
+    currentUser.value.mfaStatus.includes(mfaKey)
+  );
 }
 </script>
 

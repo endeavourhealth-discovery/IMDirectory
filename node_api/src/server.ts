@@ -6,7 +6,6 @@ import ValidationController from "./controllers/validationController";
 import GithubController from "./controllers/githubController";
 import bodyParser from "body-parser";
 import * as dns from "dns";
-import SearchController from "./controllers/searchController";
 import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
 import ParserController from "./controllers/parserController";
@@ -34,7 +33,6 @@ const app = new App({
     new QueryController(),
     new ValidationController(),
     new GithubController(),
-    new SearchController(),
     new EntityController(),
     new CognitoController(),
     new ParserController(),

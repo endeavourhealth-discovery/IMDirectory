@@ -12,13 +12,13 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
-import { Match, SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { IM, SNOMED } from "@im-library/vocabulary";
-import { SortDirection } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 import SingleEntitySelector from "./SingleEntitySelector.vue";
-import { getNameFromIri } from "@im-library/helpers/TTTransform";
+import { SearchOptions } from "@im-library/interfaces";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   editMatch: Match;
@@ -30,22 +30,28 @@ const filterStoreOptions = computed(() => filterStore.filterOptions);
 const selected: Ref<SearchResultSummary | undefined> = ref();
 const propertyType: Ref<"is" | "typeOf" | "instanceOf" | undefined> = ref();
 
-const osQueryForConceptSearch: Ref<SearchRequest> = ref({
-  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => filterOption["@id"] === SNOMED.NAMESPACE).map(s => s["@id"]),
-  statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-  typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
-  sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
-} as SearchRequest);
+const imQueryForConceptSearch: Ref<QueryRequest> = ref({ query: {} });
 
 onMounted(async () => {
   await init();
 });
 
 async function init() {
+  buildIMQueryForConceptSearch();
   if (isObjectHasKeys(props.editMatch, ["is"])) propertyType.value = "is";
   else if (isObjectHasKeys(props.editMatch, ["instanceOf"])) propertyType.value = "instanceOf";
   else if (isObjectHasKeys(props.editMatch, ["typeOf"])) propertyType.value = "typeOf";
+}
+
+function buildIMQueryForConceptSearch() {
+  const searchOptions: SearchOptions = {
+    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
+    status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
+    types: [{ "@id": IM.CONCEPT }],
+    sortDirections: [{ "@id": IM.DESCENDING }],
+    sortFields: [{ "@id": IM.USAGE_TOTAL }]
+  };
+  imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }
 
 async function updateSelectedResult(data: SearchResultSummary | { iri: string; name?: string }) {

@@ -6,7 +6,7 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
-import _ from "lodash";
+import _ from "lodash-es";
 
 export function setupEditorEntity(mode: EditorMode, updateType: Function) {
   const editorStore = useEditorStore();

@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { onMounted, PropType, ref, Ref, watch } from "vue";
 import { ComponentType } from "@im-library/enums";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   position?: number;

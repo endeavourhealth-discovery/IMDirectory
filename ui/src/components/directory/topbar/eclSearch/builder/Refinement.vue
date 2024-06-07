@@ -31,7 +31,6 @@
         :disabled="!hasFocus || loadingProperty"
         v-model:selected="selectedProperty"
         :imQuery="imQueryForPropertySearch"
-        :os-query="osQueryForPropertySearch"
         :root-entities="propertyTreeRoots"
         @open-dialog="updatePropertyTreeRoots"
         :class="!isValidProperty && showValidation && 'invalid'"
@@ -62,7 +61,6 @@
       <AutocompleteSearchBar
         :disabled="!hasProperty || loadingValue || loadingProperty"
         v-model:selected="selectedValue"
-        :osQuery="osQueryForValueSearch"
         :root-entities="valueTreeRoots"
         @open-dialog="updateValueTreeRoots"
         :class="!isValidPropertyValue && showValidation && 'invalid'"
@@ -76,18 +74,19 @@
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { EntityService, FunctionService, QueryService } from "@/services";
-import { IM, SNOMED, QUERY, IM_FUNCTION, RDF } from "@im-library/vocabulary";
+import { EntityService, QueryService } from "@/services";
+import { IM, SNOMED, QUERY, RDF } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
-import { SortDirection, ToastSeverity } from "@im-library/enums";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
+import { ToastSeverity } from "@im-library/enums";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
-import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
-import _ from "lodash";
+import _ from "lodash-es";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getNameFromIri } from "@im-library/helpers/TTTransform";
+import { SearchOptions } from "@im-library/interfaces";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   value: {
@@ -107,7 +106,6 @@ const toast = useToast();
 const filterStore = useFilterStore();
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 const propertyRanges: Ref<Set<string>> = ref(new Set<string>());
-const includeTerms = inject("includeTerms") as Ref<boolean>;
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const childLoadingState = inject("childLoadingState") as Ref<any>;
@@ -129,17 +127,18 @@ const constraintOperatorOptions = [
   { label: "^", value: "^" }
 ];
 
-const osQueryForValueSearch: Ref<SearchRequest> = ref({
-  isA: Array.from(propertyRanges.value),
-  statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
-  typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
-  sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
-} as SearchRequest);
+const imQueryForValueSearch: Ref<SearchOptions> = ref({
+  isA: Array.from(propertyRanges.value).map(propRange => {
+    return { "@id": propRange };
+  }),
+  status: filterStoreOptions.value.status,
+  schemes: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])),
+  types: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT),
+  sortDirections: filterStoreOptions.value.sortDirections,
+  sortFields: filterStoreOptions.value.sortFields
+} as SearchOptions);
 
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
-const osQueryForPropertySearch: Ref<SearchRequest | undefined> = ref(undefined);
 
 const hasValue = computed(() => {
   if (isObjectHasKeys(props.value.value, ["concept", "constraintOperator"]) && isObjectHasKeys(props.value.value.concept, ["iri"])) return true;
@@ -238,7 +237,9 @@ onMounted(async () => {
 });
 
 function updateQueryForValueSearch() {
-  osQueryForValueSearch.value.isA = Array.from(propertyRanges.value);
+  imQueryForValueSearch.value.isA = Array.from(propertyRanges.value).map(isA => {
+    return { "@id": isA };
+  });
 }
 
 function addIfConcept(focus: any[], iris: TTIriRef[]) {
@@ -269,17 +270,16 @@ function updateQueryForPropertySearch() {
         }
       ]
     } as QueryRequest;
-    osQueryForPropertySearch.value = undefined;
   } else if (props.focus.iri === SNOMED.ANY) {
-    osQueryForPropertySearch.value = {
-      isA: ["http://snomed.info/sct#410662002"],
-      statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-      schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
-      typeFilter: [RDF.PROPERTY],
-      sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-      sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
-    } as SearchRequest;
-    imQueryForPropertySearch.value = undefined;
+    const filterOptions = {
+      isAs: ["http://snomed.info/sct#410662002"],
+      status: filterStoreOptions.value.status,
+      schemes: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])),
+      types: [{ "@id": RDF.PROPERTY }],
+      sortDirections: filterStoreOptions.value.sortDirections,
+      sortFields: filterStoreOptions.value.sortFields
+    } as SearchOptions;
+    imQueryForPropertySearch.value = buildIMQueryFromFilters(filterOptions);
   } else {
     imQueryForPropertySearch.value = {
       query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
@@ -290,7 +290,6 @@ function updateQueryForPropertySearch() {
         }
       ]
     } as QueryRequest;
-    osQueryForPropertySearch.value = undefined;
   }
 }
 
@@ -333,10 +332,10 @@ async function updateValueTreeRoots(): Promise<void> {
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus && hasProperty.value && props.focus.iri === SNOMED.ANY && osQueryForPropertySearch.value) {
-    const osQuery = _.cloneDeep(osQueryForPropertySearch.value);
-    osQuery.termFilter = selectedProperty.value?.iri;
-    const results = await EntityService.advancedSearch(osQuery);
+  if (props.focus && hasProperty.value && props.focus.iri === SNOMED.ANY) {
+    const imQuery: QueryRequest = _.cloneDeep(imQueryForPropertySearch.value) ?? { query: {} };
+    imQuery.textSearch = selectedProperty.value?.iri;
+    const results = await QueryService.queryIMSearch(imQuery);
     isValidProperty.value = results.entities?.findIndex(r => r.iri === selectedProperty.value?.iri) != -1 ? true : false;
   } else if (props.focus && hasProperty.value && imQueryForPropertySearch.value) {
     const imQuery = _.cloneDeep(imQueryForPropertySearch.value);
@@ -366,9 +365,9 @@ async function updateIsValidProperty(): Promise<void> {
 
 async function updateIsValidPropertyValue(): Promise<void> {
   if (selectedValue.value && selectedProperty.value) {
-    const osQuery = _.cloneDeep(osQueryForValueSearch.value);
-    osQuery.termFilter = selectedValue.value?.iri;
-    const result = await EntityService.advancedSearch(osQuery);
+    const imQuery: QueryRequest = _.cloneDeep(imQueryForPropertySearch.value) ?? { query: {} };
+    imQuery.textSearch = selectedProperty.value?.iri;
+    const result = await QueryService.queryIMSearch(imQuery);
     isValidPropertyValue.value = result.entities?.findIndex(r => r.iri === selectedValue.value?.iri) != -1 ? true : false;
     if (!isValidPropertyValue.value) {
       toast.add({

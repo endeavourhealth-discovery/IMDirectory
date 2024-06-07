@@ -110,18 +110,18 @@
 </template>
 
 <script setup lang="ts">
-import { Property } from "@im-library/interfaces";
-import { Argument, PropertyShape, QueryRequest, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Property, SearchOptions } from "@im-library/interfaces";
+import { PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   shape: PropertyShape;
@@ -418,14 +418,13 @@ async function pathDrop(object: any, event: DragEvent) {
 }
 
 async function isValidPath(iri: string): Promise<boolean> {
-  const osRequest: SearchRequest = {
-    termFilter: iri,
-    isA: [RDF.PROPERTY],
-    page: 1,
-    size: 1
-  };
-
-  const results = await EntityService.advancedSearch(osRequest);
+  const filterOptions: SearchOptions = {
+    textSearch: iri,
+    isA: [{ "@id": RDF.PROPERTY }],
+    page: { pageNumber: 1, pageSize: 1 }
+  } as SearchOptions;
+  const imQuery = buildIMQueryFromFilters(filterOptions);
+  const results = await QueryService.queryIMSearch(imQuery);
 
   if (results.entities) return results.entities.length > 0;
   return false;
@@ -466,14 +465,13 @@ async function getRangeType(iri: string) {
 }
 
 async function isValidRange(iri: string): Promise<boolean> {
-  const osQuery: SearchRequest = {
-    termFilter: iri,
-    schemeFilter: [SNOMED.NAMESPACE, IM.NAMESPACE],
-    page: 1,
-    size: 1
-  };
-
-  const results = await EntityService.advancedSearch(osQuery);
+  const filterOptions: SearchOptions = {
+    textSearch: iri,
+    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
+    page: { pageNumber: 1, pageSize: 1 }
+  } as SearchOptions;
+  const imQuery = buildIMQueryFromFilters(filterOptions);
+  const results = await QueryService.queryIMSearch(imQuery);
 
   if (results.entities) return results.entities.length > 0;
   return false;

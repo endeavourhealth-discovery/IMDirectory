@@ -1,4 +1,4 @@
-import { Auth } from "aws-amplify";
+import { fetchAuthSession } from "aws-amplify/auth";
 import Env from "./Env";
 import axios from "axios";
 import { RecentActivityItem } from "@im-library/interfaces";
@@ -45,7 +45,7 @@ const UserService = {
         iri: iri
       },
       headers: {
-        Authorization: "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken()
+        Authorization: "Bearer " + (await fetchAuthSession()).tokens?.idToken
       }
     });
   },

@@ -11,8 +11,6 @@ import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import { createTestingPinia } from "@pinia/testing";
 
-window.scrollTo = vi.fn() as any;
-
 createTestingPinia({
   initialState: {
     auth: { registeredUsername: "testUser" }

@@ -101,13 +101,11 @@ describe("register.vue prefilled", () => {
     component.getByTestId("register-lastname");
     component.getByTestId("register-password-new1");
     component.getByTestId("register-password-new2");
-    component.findByDisplayValue("DevTest");
-    component.findByDisplayValue("devtest@ergo.co.uk");
-    component.findByDisplayValue("devtest@ergo.co.uk");
-    component.findByDisplayValue("12345678aA!");
-    component.findByDisplayValue("12345678aA!");
-    component.findByDisplayValue("John");
-    component.findByDisplayValue("Doe");
+    await component.findByDisplayValue("DevTest");
+    expect(await component.findAllByDisplayValue("devtest@ergo.co.uk")).toHaveLength(2);
+    expect(await component.findAllByDisplayValue("12345678aA!")).toHaveLength(2);
+    await component.findByDisplayValue("John");
+    await component.findByDisplayValue("Doe");
   });
 
   it("should pass emailVerified with correct email format", async () => {
@@ -129,7 +127,7 @@ describe("register.vue prefilled", () => {
     await fireEvent.blur(email2Input);
 
     await flushPromises();
-    component.findByDisplayValue("Email addresses do not match");
+    await component.findByText("Email addresses do not match");
   });
 
   it("should check if emails match __ true", async () => {

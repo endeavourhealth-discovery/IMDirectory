@@ -42,14 +42,10 @@ const authStore = useAuthStore();
 
 const isValidCode = computed(() => /\d{6}/.test(code.value));
 const authReturnPath = computed(() => authStore.authReturnPath);
-const awsUser = computed(() => userStore.awsUser);
+const currentUser = computed(() => userStore.currentUser);
 
 const code = ref("");
 const loading = ref(false);
-
-onMounted(() => {
-  if (!awsUser.value) router.push({ name: "Login" });
-});
 
 function showHelpDialog() {
   const dialogProps = {
@@ -72,50 +68,36 @@ function showHelpDialog() {
 }
 
 async function handle200(res: CustomAlert) {
-  const loggedInUser = res.user;
-  if (loggedInUser) {
-    // check if avatar exists and replace lagacy images with default avatar on signin
-    const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-    if (!result) {
-      loggedInUser.avatar = Avatars[0];
-    }
-    userStore.updateCurrentUser(loggedInUser);
-    userStore.updateAwsUser(res.userRaw);
-    await userStore.getAllFromUserDatabase();
-    authStore.updateRegisteredUsername("");
-    Swal.fire({
-      icon: "success",
-      title: "Success",
-      text: "Login successful"
-    }).then(() => {
-      userStore.clearOptionalCookies();
-      if (authReturnPath.value) {
-        router.push({ path: authReturnPath.value });
-      } else {
-        router.push({ name: "LandingPage" });
-      }
-    });
-  }
-}
-
-function handle401(res: CustomAlert) {
   Swal.fire({
-    icon: "warning",
-    title: "User Unconfirmed",
-    text: "Account has not been confirmed. Please confirm account to continue.",
-    showCloseButton: true,
-    showCancelButton: true,
-    confirmButtonText: "Confirm Account"
-  }).then((result: SweetAlertResult) => {
-    if (result.isConfirmed) {
-      if (res.user?.username) authStore.updateRegisteredUsername(res.user?.username);
-      router.push({ name: "ConfirmCode" });
+    icon: "success",
+    title: "Success",
+    text: "Login successful"
+  }).then(() => {
+    userStore.clearOptionalCookies();
+    if (authReturnPath.value) {
+      router.push({ path: authReturnPath.value });
+    } else {
+      router.push({ name: "LandingPage" });
     }
   });
 }
 
 function handle403(res: CustomAlert) {
-  if (res.message === "NEW_PASSWORD_REQUIRED") {
+  if (res.nextStep === "CONFIRM_SIGN_UP") {
+    Swal.fire({
+      icon: "warning",
+      title: "User Unconfirmed",
+      text: "Account has not been confirmed. Please confirm account to continue.",
+      showCloseButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Confirm Account"
+    }).then((result: SweetAlertResult) => {
+      if (result.isConfirmed) {
+        router.push({ name: "ConfirmCode" });
+      }
+    });
+  }
+  if (res.nextStep === "RESET_PASSWORD" || res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD") {
     Swal.fire({
       icon: "warning",
       title: "New password required",
@@ -150,12 +132,10 @@ function handle403(res: CustomAlert) {
 async function handleSubmitMFA() {
   if (isValidCode.value) {
     loading.value = true;
-    await AuthService.mfaSignIn(awsUser.value, code.value)
+    await AuthService.mfaSignIn(code.value)
       .then(async res => {
         if (res.status === 200) {
           await handle200(res);
-        } else if (res.status === 401) {
-          handle401(res);
         } else if (res.status === 403) {
           handle403(res);
         } else {

@@ -19,7 +19,7 @@ import { UIProperty } from "@im-library/interfaces";
 import { Ref, onMounted, ref, watch } from "vue";
 import { QueryService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import ConceptSelect from "./ConceptSelect.vue";
 
 interface Props {

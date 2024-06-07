@@ -1,12 +1,9 @@
-import { flushPromises } from "@vue/test-utils";
-import { EntityService } from "@/services";
-import { beforeEach, describe, vi } from "vitest";
-import testData from "./directoryStore.testData";
+import { beforeEach, describe, expect, vi } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
-import { useSharedStore } from "@/stores/sharedStore";
-import { SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
-import { FilterOptions } from "@im-library/interfaces";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 import { useDirectoryStore } from "@/stores/directoryStore";
+import { it } from "vitest";
+import { afterAll } from "vitest";
 
 describe("state", () => {
   beforeEach(() => {
@@ -70,31 +67,6 @@ describe("mutations", () => {
     const directoryStore = useDirectoryStore();
     directoryStore.updateSidebarControlActivePanel(4);
     expect(directoryStore.sidebarControlActivePanel).toBe(4);
-  });
-});
-
-describe("actions", () => {
-  let iriExistsSpy = vi.spyOn(EntityService, "iriExists");
-  let getFilterOptionsSpy = vi.spyOn(EntityService, "getFilterOptions");
-  let advancedSearchSpy = vi.spyOn(EntityService, "advancedSearch");
-
-  beforeEach(() => {
-    vi.resetAllMocks();
-    createTestingPinia({ stubActions: false });
-    iriExistsSpy.mockResolvedValue(true);
-    getFilterOptionsSpy.mockResolvedValue(testData.FILTER_OPTIONS as any as FilterOptions);
-    advancedSearchSpy.mockResolvedValue(testData.SEARCH_RESULTS as any as SearchResponse);
-  });
-
-  it("can fetchSearchResults ___ pass", async () => {
-    const directoryStore = useDirectoryStore();
-    const testInput = { searchRequest: {} as SearchRequest, controller: new AbortController() };
-    await directoryStore.fetchSearchResults(testInput);
-    await flushPromises();
-    expect(advancedSearchSpy).toBeCalledTimes(1);
-    expect(advancedSearchSpy).toBeCalledWith(testInput.searchRequest, testInput.controller);
-    await flushPromises();
-    expect(directoryStore.searchResults).toEqual(testData.SEARCH_RESULTS);
   });
 });
 

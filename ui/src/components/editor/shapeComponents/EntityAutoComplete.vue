@@ -71,7 +71,7 @@
 <script setup lang="ts">
 import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import _ from "lodash";
+import _ from "lodash-es";
 import { EditorMode } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";

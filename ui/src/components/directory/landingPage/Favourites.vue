@@ -55,7 +55,7 @@ import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byOrder } from "@im-library/helpers/Sorters";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import _, { isArray } from "lodash";
+import _, { isArray } from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { DirectService, EntityService, ConfigService, UserService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";

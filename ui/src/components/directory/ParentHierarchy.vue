@@ -86,8 +86,8 @@ function init() {
 }
 
 async function getPath() {
-  if (props.entityIri === IM.NAMESPACE + "Favourites") {
-    pathItems.value = [{ label: "Favourites", command: () => emit("navigateTo", IM.NAMESPACE + "Favourites") }];
+  if (props.entityIri === IM.FAVOURITES) {
+    pathItems.value = [{ label: "Favourites", command: () => emit("navigateTo", IM.FAVOURITES) }];
     return;
   }
   folderPath.value = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();

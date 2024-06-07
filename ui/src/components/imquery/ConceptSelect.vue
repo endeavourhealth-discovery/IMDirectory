@@ -23,7 +23,7 @@
           <AutocompleteSearchBar
             :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET]"
             :selected-quick-type-filter="quickTypeFilter"
-            :os-query="osQuery"
+            :im-query="imQuery"
             @update-selected-filters="onUpdateSelectedFilters"
             :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"
             :root-entities="[datatype]"
@@ -48,14 +48,15 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
-import { Node, SearchResultSummary, Where, Element, SearchRequest } from "@im-library/interfaces/AutoGen";
-import { cloneDeep, isEqual } from "lodash";
+import { cloneDeep, isEqual } from "lodash-es";
+import { Node, SearchResultSummary, Where, Element, QueryRequest, SearchBinding } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
-import { FilterOptions } from "@im-library/interfaces";
+import { FilterOptions, SearchOptions } from "@im-library/interfaces";
 import { onUnmounted } from "vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
-import { EntityService } from "@/services";
+import { QueryService } from "@/services";
+import { addBindingsToIMQuery, addMemberOfToIMQuery, addTypeFilterToIMQuery, buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 interface Props {
   datatype: string;
   property: Where;
@@ -68,13 +69,13 @@ const valueField: Ref<"is" | "isNot" | "isNull" | "isNotNull" | undefined> = ref
 const values: Ref<Element[]> = ref([]);
 const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is" || valueField.value === "isNot");
 const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
-const osQuery: Ref<SearchRequest | undefined> = ref();
+const imQuery: Ref<QueryRequest | undefined> = ref();
 const conceptSets: Ref<string[]> = ref([]);
 const isType: Ref<"Entity" | "Cluster code"> = ref("Entity");
 
 onMounted(async () => {
   setValues();
-  buildOSQuery();
+  buildIMQuery();
   await setConceptSets();
 });
 
@@ -111,16 +112,20 @@ function handleIsTypeChange(value: Element) {
   delete value.name;
 }
 
-function buildOSQuery() {
-  if (!osQuery.value) osQuery.value = { typeFilter: [IM.CONCEPT_SET], statusFilter: [IM.ACTIVE] };
-  osQuery.value.bindingFilter = [{ node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } }];
+function buildIMQuery() {
+  const filterOptions: SearchOptions = {
+    types: [{ "@id": IM.CONCEPT_SET }],
+    status: [{ "@id": IM.ACTIVE }],
+    binding: [{ node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } }]
+  } as SearchOptions;
+  imQuery.value = buildIMQueryFromFilters(filterOptions);
 }
 
 async function setConceptSets() {
-  if (osQuery.value) {
-    const osQueryCopy = cloneDeep(osQuery.value);
-    osQueryCopy.size = 10000;
-    const response = await EntityService.advancedSearch(osQueryCopy);
+  if (imQuery.value) {
+    const imQueryCopy = cloneDeep(imQuery.value);
+    imQueryCopy.page = { pageSize: 10000, pageNumber: 1 };
+    const response = await QueryService.queryIMSearch(imQueryCopy);
     if (response.entities) conceptSets.value = response.entities?.map(entity => entity.iri);
   }
 }
@@ -211,16 +216,22 @@ function setValues() {
 }
 
 function onUpdateSelectedFilters(selectedFilters: FilterOptions) {
-  if (!osQuery.value) osQuery.value = {};
+  if (!imQuery.value) imQuery.value = { query: {} };
   if (selectedFilters.types) {
     if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT)) {
-      delete osQuery.value.bindingFilter;
-      osQuery.value.memberOf = conceptSets.value;
+      const bindingIndex = imQuery.value.query.match?.findIndex(match => match["@id"] === IM.BINDING);
+      if (bindingIndex !== undefined && bindingIndex !== -1) imQuery.value.query.match?.splice(bindingIndex, 1);
+      const conceptSetRefs = conceptSets.value.map(conceptSet => {
+        return { "@id": conceptSet };
+      });
+      addMemberOfToIMQuery(conceptSetRefs, imQuery.value);
     } else if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT_SET)) {
-      delete osQuery.value.memberOf;
-      osQuery.value.bindingFilter = [{ node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } }];
+      const memberOfIndex = imQuery.value.query.match?.findIndex(match => match["@id"] === IM.HAS_MEMBER);
+      if (memberOfIndex !== undefined && memberOfIndex !== -1) imQuery.value.query.match?.splice(memberOfIndex, 1);
+      const binding: SearchBinding = { node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } };
+      addBindingsToIMQuery([binding], imQuery.value);
     }
-    osQuery.value.typeFilter = selectedFilters.types.map(type => type["@id"]);
+    addTypeFilterToIMQuery(selectedFilters.types, imQuery.value);
   }
 }
 </script>

@@ -25,12 +25,11 @@ export default class DirectService {
     if (options.iri) {
       if (!options.newTab) {
         const currentRoute = this.route.name as RouteRecordName | undefined;
-        this.router
-          .push({
-            name: options.appRoute ?? currentRoute,
-            params: { selectedIri: options.iri }
-          })
-          .then(r => this.directoryStore.updateConceptIri(options.iri!));
+        this.directoryStore.updateConceptIri(options.iri!);
+        this.router.push({
+          name: options.appRoute ?? currentRoute,
+          params: { selectedIri: options.iri }
+        });
       }
       if (options.appRoute) route += options.appRoute + "/" + encodeURIComponent(options.iri);
       else route += encodeURIComponent(options.iri);
@@ -91,7 +90,7 @@ export default class DirectService {
     this.directTo({ appRoute: "uprn", newTab: true });
   }
 
-  public codeGenerator() {
+  public async codeGenerator() {
     this.directTo({ appRoute: "codeGenerator" });
   }
 }

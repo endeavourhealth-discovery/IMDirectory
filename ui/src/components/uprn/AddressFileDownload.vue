@@ -47,15 +47,17 @@ onMounted(async () => {
 });
 
 async function getActivity() {
-  loading.value = true;
+  if (currentuser) {
+    loading.value = true;
 
-  const result = await uprnService.activity(currentuser.id);
-  if (result) {
-    showResults.value = true;
-    searchResults.value = result;
+    const result = await uprnService.activity(currentuser.id);
+    if (result) {
+      showResults.value = true;
+      searchResults.value = result;
+    }
+
+    loading.value = false;
   }
-
-  loading.value = false;
 }
 
 async function download(fileUrl: string) {

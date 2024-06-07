@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Order, OrderDirection, OrderLimit, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Match, Order, OrderDirection, OrderLimit, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, SHACL, XSD } from "@im-library/vocabulary";
 import { Ref, onMounted, ref, watch } from "vue";
 interface OrderProperty {
@@ -33,7 +33,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const orderProperties: Ref<OrderProperty[]> = ref([]);
-const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue", XSD.INTEGER];
+const orderablePropertyTypes = [IM.DATE_TIME, XSD.INTEGER, XSD.DECIMAL];
 onMounted(async () => await init());
 
 watch(
@@ -57,7 +57,6 @@ async function getOrderProperties() {
         orderProperties.push({ name: propName, iri: propId, entityType: propType });
       }
     }
-
   return orderProperties;
 }
 
@@ -65,7 +64,7 @@ function getDirectionOptions(property: OrderDirection) {
   const directionOptions: { name: string; value: Order }[] = [];
   const prop = orderProperties.value.find(op => op.iri == property["@id"]);
   if (prop) {
-    if (prop.entityType[0]["@id"] === IM.NAMESPACE + "DateTime") {
+    if (prop.entityType[0]["@id"] === IM.DATE_TIME) {
       directionOptions.push({ name: "earliest", value: Order.ascending });
       directionOptions.push({ name: "latest", value: Order.descending });
     } else if (prop.entityType[0]["@id"] === XSD.INTEGER) {

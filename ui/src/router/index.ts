@@ -38,7 +38,7 @@ const Query = () => import("@/views/Query.vue");
 const UprnAgreement = () => import("@/views/UprnAgreement.vue");
 
 const CodeGen = () => import("@/views/CodeGen.vue");
-import { EntityService, Env, UserService } from "@/services";
+import { AuthService, EntityService, Env, UserService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 import { nextTick, computed } from "vue";
@@ -402,9 +402,9 @@ router.beforeEach(async (to, from) => {
     } else queryStore.updateQueryIri("");
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
-    const res = await userStore.authenticateCurrentUser();
-    console.log("auth guard user authenticated: " + res.authenticated);
-    if (!res.authenticated) {
+    const { user } = await AuthService.getCurrentAuthenticatedUser();
+    console.log("auth guard user authenticated: " + user ? "true" : "false");
+    if (!user) {
       await directToLogin();
       return false;
     }
@@ -419,9 +419,9 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
-    const res = await userStore.authenticateCurrentUser();
-    console.log("auth guard user authenticated: " + res.authenticated);
-    if (!res.authenticated) {
+    const { status } = await AuthService.getCurrentAuthenticatedUser();
+    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
+    if (status !== 200) {
       await directToLogin();
       return false;
     } else if (!userStore.currentUser?.roles?.includes("create")) {
@@ -430,9 +430,9 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
-    const res = await userStore.authenticateCurrentUser();
-    console.log("auth guard user authenticated: " + res.authenticated);
-    if (!res.authenticated) {
+    const { status } = await AuthService.getCurrentAuthenticatedUser();
+    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
+    if (status !== 200) {
       await directToLogin();
       return false;
     } else if (!userStore.currentUser?.roles?.includes("edit")) {

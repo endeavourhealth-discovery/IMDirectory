@@ -49,7 +49,6 @@
       v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
       :imQuery="imQuery"
-      :osQuery="osQuery"
       :root-entities="rootEntities"
       :selected-filter-options="filterOptions"
       :searchTerm="searchText"
@@ -67,17 +66,16 @@ import { ref, Ref, watch, onMounted } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
-import setupSearch from "@/composables/setupSearch";
-import _ from "lodash";
+import { cloneDeep, isEqual } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
+import { QueryService } from "@/services";
 
 interface Props {
   selected?: SearchResultSummary;
   imQuery?: QueryRequest;
-  osQuery?: SearchRequest;
   filterOptions?: FilterOptions;
   disabled?: boolean;
   rootEntities?: string[];
@@ -99,7 +97,8 @@ const searchText = ref("");
 const results: Ref<SearchResponse | undefined> = ref();
 const showDialog = ref(false);
 const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
-const { searchLoading, searchPlaceholder, search } = setupSearch(props.searchPlaceholder);
+const searchLoading: Ref<boolean> = ref(false);
+const searchPlaceholder: Ref<string> = ref("Search");
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const selectedIndex: Ref<number> = ref(-1);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
@@ -110,9 +109,9 @@ watch(showDialog, () => {
 });
 
 watch(
-  () => _.cloneDeep(props.selected),
+  () => cloneDeep(props.selected),
   (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
+    if (!isEqual(newValue, oldValue)) {
       searchLoading.value = true;
       if (newValue && newValue.name && newValue.name != searchText.value) {
         searchText.value = newValue.name;
@@ -129,7 +128,7 @@ watch(
 watch(
   selectedLocal,
   (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) emit("update:selected", newValue);
+    if (!isEqual(newValue, oldValue)) emit("update:selected", newValue);
   },
   { deep: true }
 );
@@ -152,7 +151,7 @@ onMounted(() => {
 function debounceForSearch(): void {
   clearTimeout(debounce.value);
   debounce.value = window.setTimeout(async () => {
-    results.value = await search(searchText.value, undefined, { pageNumber: 1, pageSize: 10 }, props.osQuery, props.imQuery);
+    results.value = await search();
   }, 600);
   showResultsOverlay(event);
 }
@@ -177,8 +176,18 @@ function select(event: KeyboardEvent) {
 async function onEnter(event: any) {
   if (resultsOP.value) resultsOP.value.show(event);
   if (searchText.value) {
-    results.value = await search(searchText.value, undefined, { pageNumber: 1, pageSize: 10 }, props.osQuery, props.imQuery);
+    results.value = await search();
   }
+}
+
+async function search() {
+  searchLoading.value = true;
+  const imQueryCopy = props.imQuery ? cloneDeep(props.imQuery) : { query: {} };
+  imQueryCopy.textSearch = searchText.value;
+  imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
+  const response = await QueryService.queryIMSearch(imQueryCopy);
+  searchLoading.value = false;
+  return response;
 }
 
 async function showResultsOverlay(event: any) {

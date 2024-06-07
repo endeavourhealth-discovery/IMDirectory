@@ -33,7 +33,7 @@ import { mapToObject } from "@im-library/helpers/Transforms";
 import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
+import _ from "lodash-es";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 
 interface Props {

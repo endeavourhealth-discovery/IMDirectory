@@ -261,7 +261,7 @@ function openScaleMenu(event: any): void {
 }
 
 function isLoggedInWithRole(role: string): boolean {
-  return isLoggedIn.value && currentUser.value && currentUser.value.roles.includes(role);
+  return isLoggedIn.value && typeof currentUser.value !== "undefined" && currentUser.value.roles.includes(role);
 }
 
 async function setAdminMenuItems(): Promise<void> {

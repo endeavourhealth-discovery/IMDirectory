@@ -143,7 +143,7 @@ import Refinement from "@/components/directory/topbar/eclSearch/builder/Refineme
 import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { numberAscending } from "@im-library/helpers/Sorters";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
