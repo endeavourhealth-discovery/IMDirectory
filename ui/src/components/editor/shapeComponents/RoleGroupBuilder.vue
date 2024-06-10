@@ -69,6 +69,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
+import { SearchOptions } from "@im-library/interfaces";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 defineComponent({
   components: { EntityAutoComplete }
@@ -80,9 +82,9 @@ import { EntityService, QueryService } from "@/services";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { Argument, PropertyShape, QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
-import _, { isArray } from "lodash";
+import _, { isArray } from "lodash-es";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -256,15 +258,14 @@ async function propertyDrop(event: any, object: any) {
 }
 
 async function isValidProperty(iri: string): Promise<boolean> {
-  const osRequest: SearchRequest = {
-    isA: [SNOMED.ATTRIBUTE],
-    termFilter: iri,
-    schemeFilter: [IM.NAMESPACE, SNOMED.NAMESPACE],
-    page: 1,
-    size: 1
-  };
-
-  const results = await EntityService.advancedSearch(osRequest);
+  const filterOptions: SearchOptions = {
+    isA: [{ "@id": SNOMED.ATTRIBUTE }],
+    textSearch: iri,
+    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
+    page: { pageNumber: 1, pageSize: 1 }
+  } as SearchOptions;
+  const imQuery = buildIMQueryFromFilters(filterOptions);
+  const results = await QueryService.queryIMSearch(imQuery);
   if (results.entities) return results.entities.length > 0;
   return false;
 }
@@ -289,14 +290,13 @@ async function valueDrop(event: any, object: any) {
 }
 
 async function isValidValue(iri: string): Promise<boolean> {
-  const osRequest: SearchRequest = {
-    schemeFilter: [SNOMED.NAMESPACE, IM.NAMESPACE],
-    termFilter: iri,
-    page: 1,
-    size: 1
-  };
-
-  const results = await EntityService.advancedSearch(osRequest);
+  const filterOptions: SearchOptions = {
+    textSearch: iri,
+    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
+    page: { pageNumber: 1, pageSize: 1 }
+  } as SearchOptions;
+  const imQuery = buildIMQueryFromFilters(filterOptions);
+  const results = await QueryService.queryIMSearch(imQuery);
   if (results.entities) return results.entities.length > 0;
   return false;
 }

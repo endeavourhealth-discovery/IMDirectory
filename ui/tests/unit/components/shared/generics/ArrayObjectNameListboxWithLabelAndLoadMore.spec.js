@@ -6,7 +6,7 @@ import StyleClass from "primevue/styleclass";
 import { expect, it } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
 
-const mockPush = vi.fn();
+const mockPush = vi.fn().mockResolvedValue("router");
 const mockGo = vi.fn();
 const mockRoute = { name: "Concept" };
 

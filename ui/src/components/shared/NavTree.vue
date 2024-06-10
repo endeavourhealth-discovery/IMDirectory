@@ -161,13 +161,13 @@ async function init() {
 }
 
 async function addParentFoldersToRoot() {
-  const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+  const IMChildren = await EntityService.getEntityChildren(IM.MODULE_IM);
   for (let IMchild of IMChildren) {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
-  const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null, undefined);
+  const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], false, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "var(--yellow-500)";
   root.value.push(favNode);
@@ -186,7 +186,7 @@ async function onNodeContext(event: any, node: any) {
   event.preventDefault();
   items.value = [];
 
-  if (currentUser.value === null || !currentUser.value.roles.includes("IMAdmin")) return;
+  if (!currentUser.value || !currentUser.value.roles.includes("IMAdmin")) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
 

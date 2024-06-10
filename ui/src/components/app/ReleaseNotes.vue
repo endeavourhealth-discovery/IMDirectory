@@ -1,58 +1,38 @@
 <template>
-  <Dialog header="What's new" :visible="true" :closable="false" :modal="true" :style="{ width: '80vw' }">
+  <Dialog :visible="true" :closable="false" :modal="true" :style="{ width: '80vw' }">
     <div v-if="loadingGlobal" class="global-loading-container">
       <ProgressSpinner />
     </div>
     <div v-else id="all-releases-container">
-      <Button label="Expand all" @click="viewAll" data-testid="expand-all-button" />
-      <div v-for="[key, appReleases] in releases" class="app-releases">
+      <div class="app-releases">
         <div class="title-container">
-          <p class="app-name">{{ key }}</p>
-          <Button
-            :icon="showApp[key] ? 'pi pi-minus' : 'pi pi-plus'"
-            class="p-button-rounded p-button-text p-button-primary p-button-sm expand-button"
-            :id="'expand-button-' + key"
-            @click="expandAppClicked(key, !showApp[key])"
-            v-styleclass="{
-              selector: '.tgl-' + key,
-              enterClass: 'hidden',
-              enterActiveClass: 'my-fadein',
-              leaveActiveClass: 'my-fadeout',
-              leaveToClass: 'hidden'
-            }"
-            :data-testid="'expand-button-' + key"
-          />
+          <h1 class="title">Releases</h1>
         </div>
-        <div :class="'hidden app-release-content-container tgl-' + key">
-          <div v-if="loadingPerApp[key]" class="loading-container">
+        <div class="app-release-content-container">
+          <div v-if="loadingNotes" class="loading-container">
             <ProgressSpinner />
           </div>
-          <div v-else-if="!appReleases || !appReleases.length">None</div>
+          <div v-else-if="!releases.length"><span>None</span></div>
           <div v-else class="releases-container">
-            <div v-for="release in appReleases" class="release-container">
-              <p class="version">{{ release.version }}</p>
+            <div v-for="release in releases" class="release-container">
+              <h1 class="version">{{ release.version }}</h1>
               <p class="publish-date">publish date: {{ release.publishedDate }}</p>
               <div class="release-notes-container">
-                <ul>
-                  <li v-for="note in release.releaseNotes">{{ note }}</li>
-                </ul>
+                <span v-if="!release.releaseNotes.length">No details</span>
+                <VueShowdown v-else class="showdown-component" v-for="note in release.releaseNotes" :markdown="note" flavor="github" />
               </div>
-              <a :href="sanitizeUrl(release.url)">{{ release.url }}</a>
+              <a class="github-link" :href="sanitizeUrl(release.url)">{{ release.url }}</a>
             </div>
+          </div>
+          <div v-if="!(loadingNotes || loadingGlobal)" class="view-buttons-container">
             <Button
-              v-if="!showLegacy[key]"
+              v-if="releases.length < 2"
               label="View more"
-              @click="getOlderReleases(key)"
+              @click="getOlderReleases()"
               class="release-button view-more"
               data-testid="get-older-release-notes-button"
             />
-            <Button
-              v-else-if="appReleases.length > 1"
-              label="Hide older"
-              @click="hideOlderReleases(key)"
-              class="release-button hide-older"
-              data-testid="hide-older-release-notes-button"
-            />
+            <Button v-else label="Hide older" @click="hideOlderReleases()" class="release-button hide-older" data-testid="hide-older-release-notes-button" />
           </div>
         </div>
       </div>
@@ -73,10 +53,8 @@ import { sanitizeUrl } from "@braintree/sanitize-url";
 
 const sharedStore = useSharedStore();
 
-const releases: Map<string, GithubRelease[]> = reactive(new Map().set("directory", []).set("importData", []));
-const showApp: Ref<any> = ref({ directory: false, importData: false });
-const showLegacy: Ref<any> = ref({ directory: false, importData: false });
-const loadingPerApp: Ref<any> = ref({ directory: false, importData: false });
+const releases: Ref<GithubRelease[]> = ref([]);
+const loadingNotes: Ref<boolean> = ref(false);
 const loadingGlobal = ref(false);
 
 onMounted(async () => {
@@ -85,94 +63,53 @@ onMounted(async () => {
 
 async function init() {
   loadingGlobal.value = true;
-  await getLatestReleaseNotes("IMDirectory");
+  await getLatestReleaseNotes();
   loadingGlobal.value = false;
   await nextTick();
-  startExpanded("IMDirectory");
 }
 
 function setLocalVersion(repoName: string, versionNo: string) {
   localStorage.setItem(repoName + "Version", versionNo);
 }
 
-async function getLatestReleaseNotes(repoName: string) {
-  loadingPerApp.value[repoNameToKey(repoName)] = true;
-  const release = await GithubService.getLatestRelease(repoName);
-  if (isObjectHasKeys(release)) releases.set(repoNameToKey(repoName), [release]);
-  loadingPerApp.value[repoNameToKey(repoName)] = false;
+async function getLatestReleaseNotes() {
+  loadingNotes.value = true;
+  const release = await GithubService.getLatestRelease("IMDirectory");
+  if (isObjectHasKeys(release)) releases.value = [release];
+  loadingNotes.value = false;
 }
 
-async function getAdditionalAppLatestReleaseNotes(currentAppRepo: string) {
-  if (currentAppRepo !== "IMDirectory") await getLatestReleaseNotes("IMDirectory");
-  await getLatestReleaseNotes("ImportData");
-}
-
-async function getAllRepoReleaseNotes(repoName: string) {
-  loadingPerApp.value[repoNameToKey(repoName)] = true;
-  const results = await GithubService.getReleases(repoName);
-  releases.set(repoNameToKey(repoName), results);
-  loadingPerApp.value[repoNameToKey(repoName)] = false;
+async function getAllRepoReleaseNotes() {
+  loadingNotes.value = true;
+  const results = await GithubService.getReleases("IMDirectory");
+  releases.value = results;
+  loadingNotes.value = false;
 }
 
 function close() {
-  const iterator = releases.entries();
-  for (let i = 0; i < releases.size; i++) {
-    const item = iterator.next().value;
-    const key = item[0];
-    const value = item[1];
-    let version;
-    if (value.length) version = value[0].version;
-    if (version) setLocalVersion(keyToRepoName(key), version);
-  }
+  if (releases.value.length) setLocalVersion("IMDirectory", releases.value[0].version);
   sharedStore.updateShowReleaseNotes(false);
 }
 
-async function expandAppClicked(key: string, show: boolean) {
-  if (!releases.get(key)?.length) await getLatestReleaseNotes(keyToRepoName(key));
-  showApp.value[key] = show;
+async function getOlderReleases() {
+  await getAllRepoReleaseNotes();
 }
 
-function startExpanded(repoName: string) {
-  const key = repoNameToKey(repoName);
-  const button = document.getElementById(`expand-button-${key}`) as HTMLElement;
-  if (button) button.click();
-}
-
-function setShowLegacy(repoName: string, show: boolean) {
-  showLegacy.value[repoNameToKey(repoName)] = show;
-}
-
-async function viewAll() {
-  await getAdditionalAppLatestReleaseNotes("directory");
-  if (showApp.value.directory === false) startExpanded("IMDirectory");
-  if (showApp.value.importData === false) startExpanded("ImportData");
-}
-
-async function getOlderReleases(appKey: string) {
-  setShowLegacy(keyToRepoName(appKey), true);
-  await getAllRepoReleaseNotes(keyToRepoName(appKey));
-}
-
-function hideOlderReleases(appKey: string) {
-  const found = releases.get(appKey);
-  if (found) {
-    const first = found[0];
-    releases.set(appKey, [first]);
-  }
-}
-
-function repoNameToKey(repoName: string): string {
-  if (repoName === "ImportData") return "importData";
-  return repoName.substring(2).toLowerCase();
-}
-
-function keyToRepoName(key: string): string {
-  if (key === "importData") return "ImportData";
-  return "IM" + key.substring(0, 1).toUpperCase() + key.substring(1);
+function hideOlderReleases() {
+  const first = releases.value[0];
+  releases.value = [first];
 }
 </script>
 
 <style scoped>
+.global-loading-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+}
+
 #all-releases-container {
   height: 100%;
   width: 100%;
@@ -183,42 +120,64 @@ function keyToRepoName(key: string): string {
   justify-content: flex-start;
 }
 .title-container {
-  height: 100%;
+  flex: 0 0 auto;
   width: 100%;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
 }
-.app-name {
-  text-transform: capitalize;
+.title {
   margin: 0;
+  padding-bottom: 0.5rem;
 }
 
 .app-releases {
   width: 100%;
+  height: 100%;
+  overflow: auto;
   display: flex;
   flex-flow: column nowrap;
   align-items: flex-start;
 }
 
 .app-release-content-container {
-  width: calc(100% - 1rem);
-  margin-left: 1rem;
+  width: 100%;
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .releases-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;
   width: 100%;
+  overflow: auto;
+}
+
+.loading-container {
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
 }
 
 .release-container {
-  width: calc(100% - 1rem);
+  width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--surface-border);
   border-radius: 3px;
+}
+
+.release-notes-container {
+  margin-bottom: 0.5rem;
+}
+
+.view-buttons-container {
+  flex: 0 0 auto;
 }
 
 .loading-container {
@@ -231,8 +190,7 @@ p {
 }
 
 .version {
-  padding: 0 1rem 0 0;
-  font-size: large;
+  margin: 0 0 0.5rem 0;
 }
 
 .release-button {
@@ -264,5 +222,19 @@ p {
 
 .my-fadeout {
   animation: my-fadeout 150ms linear;
+}
+
+.showdown-component:deep(ul) {
+  margin: 0;
+}
+
+.showdown-component:deep(h2) {
+  margin: 0.5rem;
+}
+</style>
+<style>
+.p-dialog-content {
+  display: flex;
+  flex-flow: column nowrap;
 }
 </style>

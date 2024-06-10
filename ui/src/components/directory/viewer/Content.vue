@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, DirectService, UserService } from "@/services";
@@ -95,7 +95,7 @@ watch(
   }
 );
 
-const conceptIsFavourite = computed(() => props.entityIri === IM.NAMESPACE + "Favourites");
+const conceptIsFavourite = computed(() => props.entityIri === IM.FAVOURITES);
 
 const loading = ref(false);
 const children: Ref<any[]> = ref([]);

@@ -10,9 +10,9 @@
       v-tooltip="'Exclude'"
       size="small"
     />
-    <div class="match-description-container">
-      <div class="match-description" v-html="match?.description"></div>
-      <div v-if="match?.match" class="feature-group">
+    <div v-if="match" class="match-description-container">
+      <div v-if="match.description" class="match-description" v-html="match.description"></div>
+      <div v-if="match.match" class="feature-group">
         <Button
           class="builder-button conjunction-button vertical-button"
           :label="match.boolMatch?.toUpperCase() ?? 'AND'"
@@ -22,7 +22,7 @@
         />
         <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display" /></div>
       </div>
-      <div v-if="match?.where" class="where-group">
+      <div v-if="match.where" class="where-group">
         <Button
           v-if="match.where.length > 1"
           class="builder-button conjunction-button vertical-button"
@@ -76,20 +76,25 @@ const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 .match-description {
   width: 100%;
   height: 100%;
-  margin-left: 0.1rem;
 }
 
 .feature-group,
 .where-group {
   display: flex;
-  flex-flow: row;
+  flex-flow: row nowrap;
   align-items: center;
+  overflow: auto;
+  width: 100%;
+  gap: 0.2rem;
 }
 
 .feature-list,
 .where-list {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column;
+  overflow: auto;
+  gap: 0.2rem;
 }
 
 .then-title {
@@ -114,5 +119,19 @@ const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 
 .bool-display {
   align-items: center;
+}
+
+.builder-button {
+  width: 2rem;
+}
+
+.not-button {
+  align-self: stretch;
+}
+
+.vertical-button {
+  writing-mode: vertical-lr;
+  transform: scale(-1);
+  align-self: stretch;
 }
 </style>

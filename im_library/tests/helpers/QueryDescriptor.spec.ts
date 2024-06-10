@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getUnnamedObjects, describeMatch, describeProperty, describeOrderByList } from "@/helpers/QueryDescriptor";
 import { Bool, Match, OrderLimit, Where } from "@/interfaces/AutoGen";
 import { fullTestQueryDefinition, match, orderBy } from "./Query.testData";
-import _ from "lodash";
+import _ from "lodash-es";
 
 describe("QueryDescriptor.ts ___", () => {
   describe("getUnnamedObjects", () => {

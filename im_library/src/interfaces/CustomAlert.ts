@@ -5,5 +5,5 @@ export interface CustomAlert {
   message: string;
   error?: Error | string;
   user?: User;
-  userRaw?: any;
+  nextStep?: string;
 }

@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";

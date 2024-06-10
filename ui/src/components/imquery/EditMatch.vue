@@ -131,7 +131,7 @@ import { MenuItem } from "primevue/menuitem";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
@@ -244,7 +244,6 @@ function ungroupMatches(nestedMatch: Match) {
 .match-description {
   width: 100%;
   height: 100%;
-  margin-left: 0.1rem;
 }
 
 .feature-group,
@@ -253,6 +252,7 @@ function ungroupMatches(nestedMatch: Match) {
   display: flex;
   flex-flow: row;
   align-items: center;
+  gap: 0.2rem;
 }
 
 .feature-list,
@@ -261,6 +261,7 @@ function ungroupMatches(nestedMatch: Match) {
   height: 100%;
   display: flex;
   flex-flow: column;
+  gap: 0.2rem;
 }
 
 .feature-bracket-group {
@@ -312,9 +313,17 @@ function ungroupMatches(nestedMatch: Match) {
 .strike-through {
   text-decoration: line-through;
 }
-</style>
 
-<style>
+.builder-button {
+  width: 2rem;
+}
+
+.vertical-button {
+  writing-mode: vertical-lr;
+  transform: scale(-1);
+  align-self: stretch;
+}
+
 .hover-button {
   color: #00000030 !important;
   border-style: dashed !important;

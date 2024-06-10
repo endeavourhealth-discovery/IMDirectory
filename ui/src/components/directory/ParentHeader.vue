@@ -54,7 +54,7 @@ import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisua
 import { Ref, watch, ref, onMounted } from "vue";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   entity: any;
@@ -86,7 +86,7 @@ async function getHasQueryDefinition(entityIri: string) {
 }
 
 function getIcon(entity: any) {
-  if (entity["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];
+  if (entity["@id"] === IM.FAVOURITES) return ["fa-solid", "star"];
   return getFAIconFromType(entity[RDF.TYPE]);
 }
 

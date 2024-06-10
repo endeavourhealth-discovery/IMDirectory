@@ -33,7 +33,7 @@ import { bundleToText } from "@im-library/helpers/Transforms";
 import { isTTBundle } from "@im-library/helpers/TypeGuards";
 import { TextDefinitionExcludePredicates, DefaultPredicateNames, XmlSchemaDatatypes } from "@im-library/config";
 import { IM } from "@im-library/vocabulary";
-import _ from "lodash";
+import _ from "lodash-es";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 

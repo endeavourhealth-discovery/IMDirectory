@@ -14,8 +14,7 @@
           <div class="field">
             <label for="fieldPassword">Password</label>
             <div class="text-with-button">
-              <InputText data-testid="login-password" id="fieldPassword" :type="showPassword ? 'text' : 'password'" v-model="password" @keyup="checkKey" />
-              <Button :icon="showPassword ? 'fa-light fa-eye-slash' : 'fa-light fa-eye'" @click="toggleShowPassword" text id="reveal-password-button" />
+              <Password v-model="password" :feedback="false" toggleMask data-testid="login-password" id="fieldPassword" />
             </div>
           </div>
           <div class="flex flex-row justify-content-center">
@@ -48,17 +47,19 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
 import { CustomAlert } from "@im-library/interfaces";
+import Password from "primevue/password";
+import _ from "lodash-es";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
 const authReturnPath = computed(() => authStore.authReturnPath);
+const currentUser = computed(() => userStore.currentUser);
 
 const username = ref("");
 const password = ref("");
 const loading = ref(false);
-const showPassword = ref(false);
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
@@ -66,65 +67,39 @@ onMounted(() => {
   }
 });
 
-function toggleShowPassword() {
-  showPassword.value = !showPassword.value;
-}
-
 async function handle200(res: CustomAlert) {
-  const loggedInUser = res.user;
-  if (loggedInUser) {
-    // check if avatar exists and replace lagacy images with default avatar on signin
-    const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-    if (!result) {
-      loggedInUser.avatar = Avatars[0];
-    }
-    userStore.updateCurrentUser(loggedInUser);
-    userStore.updateAwsUser(res.userRaw);
-    await userStore.getAllFromUserDatabase();
-    authStore.updateRegisteredUsername("");
-    Swal.fire({
-      icon: "success",
-      title: "Success",
-      text: "Login successful",
-      footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
-    }).then(() => {
-      userStore.clearOptionalCookies();
-      if (authReturnPath.value) {
-        router.push({ path: authReturnPath.value });
-      } else {
-        router.push({ name: "LandingPage" });
-      }
-    });
-  }
-}
-
-function handle401(res: CustomAlert) {
+  authStore.updateRegisteredUsername("");
   Swal.fire({
-    icon: "warning",
-    title: "User Unconfirmed",
-    text: "Account has not been confirmed. Please confirm account to continue.",
-    showCloseButton: true,
-    showCancelButton: true,
-    confirmButtonText: "Confirm Account"
-  }).then((result: SweetAlertResult) => {
-    if (result.isConfirmed) {
-      if (res.user) {
-        const loggedInUser = res.user;
-        const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-        if (!result) {
-          loggedInUser.avatar = Avatars[0];
-        }
-        userStore.updateCurrentUser(loggedInUser);
-        userStore.updateAwsUser(res.userRaw);
-      }
-      authStore.updateRegisteredUsername(username.value);
-      router.push({ name: "ConfirmCode" });
+    icon: "success",
+    title: "Success",
+    text: "Login successful",
+    footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
+  }).then(() => {
+    userStore.clearOptionalCookies();
+    if (authReturnPath.value) {
+      router.push({ path: authReturnPath.value });
+    } else {
+      router.push({ name: "LandingPage" });
     }
   });
 }
 
 function handle403(res: CustomAlert) {
-  if (res.message === "NEW_PASSWORD_REQUIRED") {
+  if (res.nextStep === "CONFIRM_SIGN_UP") {
+    Swal.fire({
+      icon: "warning",
+      title: "User Unconfirmed",
+      text: "Account has not been confirmed. Please confirm account to continue.",
+      showCloseButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Confirm Account"
+    }).then((result: SweetAlertResult) => {
+      if (result.isConfirmed) {
+        authStore.updateRegisteredUsername(username.value);
+        router.push({ name: "ConfirmCode" });
+      }
+    });
+  } else if (res.message === "NEW_PASSWORD_REQUIRED" || res.nextStep === "RESET_PASSWORD" || res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
     Swal.fire({
       icon: "warning",
       title: "New password required",
@@ -137,8 +112,7 @@ function handle403(res: CustomAlert) {
         router.push({ name: "ForgotPassword" });
       }
     });
-  } else if (res.message === "MFA_SETUP") {
-    userStore.updateAwsUser(res.userRaw);
+  } else if (res.nextStep === "CONTINUE_SIGN_IN_WITH_TOTP_SETUP") {
     Swal.fire({
       icon: "info",
       title: "Redirecting to 2-factor authentication setup...",
@@ -152,8 +126,7 @@ function handle403(res: CustomAlert) {
     }).then(() => {
       router.push({ name: "MFASetup" });
     });
-  } else if (res.message === "SOFTWARE_TOKEN_MFA") {
-    userStore.updateAwsUser(res.userRaw);
+  } else if (res.nextStep === "CONFIRM_SIGN_IN_WITH_TOTP_CODE") {
     router.push({ name: "MFALogin" });
   } else if (res.message) {
     console.error(res.error);
@@ -180,8 +153,6 @@ async function handleSubmit(): Promise<void> {
     .then(async res => {
       if (res.status === 200) {
         await handle200(res);
-      } else if (res.status === 401) {
-        handle401(res);
       } else if (res.status === 403) {
         handle403(res);
       } else {
@@ -203,12 +174,6 @@ async function handleSubmit(): Promise<void> {
       });
     });
   loading.value = false;
-}
-
-function checkKey(event: any): void {
-  if (event.keyCode === 13) {
-    handleSubmit();
-  }
 }
 </script>
 

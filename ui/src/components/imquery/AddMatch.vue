@@ -1,49 +1,49 @@
 <template>
-  <div class="add-buttons">
-    <DirectorySearchDialog
-      v-model:show-dialog="showAddPopulationDialog"
-      :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
-      :os-query="osQueryForPopulation"
-      @update:selected="onPopulationSelect"
-    />
+  <DirectorySearchDialog
+    v-model:show-dialog="showAddPopulationDialog"
+    :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
+    :im-query="imQueryForPopulation"
+    @update:selected="onPopulationSelect"
+  />
 
-    <DirectorySearchDialog
-      v-model:show-dialog="showAddFeatureDialog"
-      :root-entities="[IM.MODULE_FEATURES]"
-      :os-query="osQueryForFeature"
-      @update:selected="onFeatureSelect"
-    />
+  <DirectorySearchDialog
+    v-model:show-dialog="showAddFeatureDialog"
+    :root-entities="[IM.MODULE_FEATURES]"
+    :im-query="imQueryForFeature"
+    @update:selected="onFeatureSelect"
+  />
 
-    <AddPropertyDialog
-      v-model:show-dialog="showBuildFeatureDialog"
-      :dataModelIri="matchTypeOfIri"
-      :header="'Add new feature'"
-      :show-variable-options="false"
-      @on-match-add="onMatchAdd"
-      @on-property-add="onPropertyAdd"
-    />
+  <AddPropertyDialog
+    v-model:show-dialog="showBuildFeatureDialog"
+    :dataModelIri="matchTypeOfIri"
+    :header="'Add new feature'"
+    :show-variable-options="false"
+    @on-match-add="onMatchAdd"
+    @on-property-add="onPropertyAdd"
+  />
 
-    <AddPropertyDialog
-      v-model:show-dialog="showBuildThenFeatureDialog"
-      :dataModelIri="matchTypeOfIri"
-      :header="'Add new feature'"
-      :show-variable-options="false"
-      @on-match-add="onThenMatchAdd"
-      @on-property-add="onThenPropertyAdd"
-    />
-  </div>
+  <AddPropertyDialog
+    v-model:show-dialog="showBuildThenFeatureDialog"
+    :dataModelIri="matchTypeOfIri"
+    :header="'Add new feature'"
+    :show-variable-options="false"
+    @on-match-add="onThenMatchAdd"
+    @on-property-add="onThenPropertyAdd"
+  />
 </template>
 
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
 import DirectorySearchDialog from "../shared/dialogs/DirectorySearchDialog.vue";
-import { Bool, Match, Query, SearchRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Query, QueryRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { v4 } from "uuid";
 import { EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { SearchOptions } from "@im-library/interfaces";
 interface Props {
   editMatch: Match;
   matchTypeOfIri: string;
@@ -65,8 +65,8 @@ const showAddPopulationDialog: Ref<boolean> = ref(false);
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
 const showBuildThenFeatureDialog: Ref<boolean> = ref(false);
 const showAddFeatureDialog: Ref<boolean> = ref(false);
-const osQueryForPopulation: Ref<SearchRequest> = ref({ typeFilter: [IM.COHORT_QUERY] });
-const osQueryForFeature: Ref<SearchRequest> = ref({ typeFilter: [IM.MATCH_CLAUSE] });
+const imQueryForPopulation: Ref<QueryRequest> = ref(buildIMQueryFromFilters({ types: [{ "@id": IM.COHORT_QUERY }] } as SearchOptions));
+const imQueryForFeature: Ref<QueryRequest> = ref(buildIMQueryFromFilters({ types: [{ "@id": IM.MATCH_CLAUSE }] } as SearchOptions));
 
 watch(
   () => props.showAddPopulation,

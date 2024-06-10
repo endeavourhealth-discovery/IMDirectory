@@ -235,7 +235,7 @@ async function onSubmit() {
     bugReport.reproduceSteps = stepsToReproduce.value;
     bugReport.expectedResult = expectedResult.value;
     bugReport.actualResult = actualResult.value;
-    bugReport.createdBy = user.value.id;
+    if (user.value) bugReport.createdBy = user.value.id;
     if (error.value) bugReport.error = error.value;
     bugReport.dateCreated = new Date();
     await WorkflowService.createBugReport(bugReport);

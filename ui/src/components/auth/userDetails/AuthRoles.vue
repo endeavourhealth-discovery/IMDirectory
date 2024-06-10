@@ -3,11 +3,12 @@
     <div class="roles-content">
       <p>Authorisation roles active for your account</p>
       <DataTable
+        v-if="currentUser"
         :value="
-                currentUser.roles.map((role:string) => {
-                  return { role: role };
-                })
-              "
+          currentUser.roles.map((role: string) => {
+            return { role: role };
+          })
+        "
       >
         <Column field="role" header="Role" />
       </DataTable>
