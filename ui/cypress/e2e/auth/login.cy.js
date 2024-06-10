@@ -18,9 +18,9 @@ describe("login", () => {
 
   it("can reveal password", () => {
     cy.getByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
-    cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
-    cy.get("#reveal-password-button").click();
-    cy.getByTestId("login-password").should("have.value", Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+    cy.getByTestId("login-password").find("input").first().type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+    cy.getByTestId("login-password").find("svg").click();
+    cy.getByTestId("login-password").find("input").first().should("have.value", Cypress.env("CYPRESS_LOGIN_PASSWORD"));
   });
 
   it("links to register page", () => {

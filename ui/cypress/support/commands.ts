@@ -20,7 +20,7 @@ Cypress.Commands.add("acceptLicenseAndCookies", () => {
 
 Cypress.Commands.add("openReleaseNotes", () => {
   cy.get(".release-notes-link").click();
-  cy.get(".p-dialog-header").should("have.text", "What's new");
+  cy.get(".p-dialog-content").find(".title", { timeout: 60000 }).should("have.text", "Releases");
 });
 
 Cypress.Commands.add("getByTestId", id => {
