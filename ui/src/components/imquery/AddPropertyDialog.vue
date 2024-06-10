@@ -21,19 +21,47 @@
             <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
               <template #option="{ option }">
                 <div class="flex align-items-center">
-                  <div>{{ option.path?.[0].name }} -> {{ option.typeOf?.name }}.{{ option.where?.[0].name }} = {{ selectedGeneralConcept?.name }}</div>
+                  <div v-if="isSelectedConceptValue">
+                    {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
+                      option.where?.[0].name
+                    }}
+                    =
+                    {{ selectedGeneralConcept?.name }}
+                  </div>
+                  <div v-else-if="isSelectedConceptDatamodel">{{ option.path?.[0].name }} -> {{ option.typeOf?.name }}</div>
+                  <div v-else-if="isSelectedConceptProperty">
+                    {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
+                      option.where?.[0].name
+                    }}
+                  </div>
                 </div>
               </template>
             </Listbox>
           </div>
           <div class="flex pt-4 justify-content-end next-button">
-            <Button :disabled="!isObjectHasKeys(selectedPath)" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="nextCallback" />
+            <Button
+              :disabled="!isObjectHasKeys(selectedPath)"
+              label="Next"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              @click="
+                event => {
+                  addSelectedPathMatch();
+                  nextCallback(event);
+                }
+              "
+            />
           </div>
         </template>
       </StepperPanel>
       <StepperPanel header="Populate value">
         <template #content="{ prevCallback }">
-          <EditProperty v-model:property="editWhere" :data-model-iri="editWhereDMIri || dataModelIri" :show-delete="false" />
+          <EditProperty
+            v-if="isArrayHasLength(editMatch.where)"
+            v-model:property="editMatch.where![0]"
+            :data-model-iri="editMatch.typeOf?.['@id'] || dataModelIri"
+            :show-delete="false"
+          />
           <div class="flex pt-4 justify-content-between populate-property-actions">
             <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="prevCallback" />
             <Button label="Save" iconPos="right" @click="save" />
@@ -48,14 +76,17 @@
 import { Ref, onMounted, ref, watch } from "vue";
 import { Match, PathQuery, QueryRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash-es";
-import { TreeNode } from "primevue/treenode";
-import { buildProperty } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EditProperty from "./EditProperty.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { IM, RDF, SHACL } from "@im-library/vocabulary";
+import { IM, RDF } from "@im-library/vocabulary";
 import { QueryService } from "@/services";
+import { isConcept, isProperty, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { getNameFromIri } from "@im-library/helpers/TTTransform";
+import { computed } from "vue";
+import { FilterOptions } from "@im-library/interfaces";
+import { addTypeFilterToIMQuery, buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   showDialog: boolean;
@@ -72,16 +103,18 @@ const emit = defineEmits({
   onMatchAdd: (_match: Match) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
-const editMatch: Ref<Match> = ref({ property: [] } as Match);
-const selectedProperty: Ref<TreeNode> = ref({});
+const editMatch: Ref<Match> = ref({ where: [] } as Match);
 const visible: Ref<boolean> = ref(false);
-const editWhere: Ref<Where> = ref({});
-const editWhereDMIri: Ref<string> = ref("");
-const whereOrMatch: Ref<Where | Match> = ref({});
 const selectedGeneralConcept: Ref<SearchResultSummary | undefined> = ref();
 const imQuery: Ref<QueryRequest | undefined> = ref({ query: {} });
 const pathSuggestions: Ref<Match[]> = ref([]);
 const selectedPath: Ref<Match | undefined> = ref();
+const isSelectedConceptValue = computed(
+  () => selectedGeneralConcept.value && (isConcept(selectedGeneralConcept.value.entityType) || isValueSet(selectedGeneralConcept.value.entityType))
+);
+const isSelectedConceptProperty = computed(() => selectedGeneralConcept.value && isProperty(selectedGeneralConcept.value.entityType));
+const isSelectedConceptDatamodel = computed(() => selectedGeneralConcept.value && isRecordModel(selectedGeneralConcept.value.entityType));
+
 watch(
   () => props.showDialog,
   newValue => {
@@ -107,27 +140,18 @@ watch(
   }
 );
 
-watch(
-  () => cloneDeep(selectedProperty.value),
-  newValue => {
-    if (isObjectHasKeys(selectedProperty.value)) {
-      whereOrMatch.value = buildProperty(selectedProperty.value as any);
-      if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
-        editWhere.value = getEditWhere(whereOrMatch.value.where![0]!);
-        const dmIriFromProperty = getEditWhereDMIri(whereOrMatch.value.where![0]!);
-        if (dmIriFromProperty) editWhereDMIri.value = dmIriFromProperty;
-        else editWhereDMIri.value = (whereOrMatch.value as Match).typeOf?.["@id"] ?? "";
-      } else {
-        editWhere.value = getEditWhere(whereOrMatch.value);
-        editWhereDMIri.value = getEditWhereDMIri(whereOrMatch.value);
-      }
-    }
-  }
-);
-
 onMounted(() => {
-  if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
+  if (isArrayHasLength(props.match?.where)) editMatch.value.where = cloneDeep(props.match!.where);
 });
+
+async function addSelectedPathMatch() {
+  editMatch.value.where = [];
+  if (selectedPath.value?.where?.[0]) {
+    if (selectedGeneralConcept.value && isSelectedConceptValue.value)
+      selectedPath.value.where[0].is = [{ "@id": selectedGeneralConcept.value.iri, name: selectedGeneralConcept.value.name }];
+    editMatch.value = selectedPath.value;
+  }
+}
 
 async function getOptions() {
   if (selectedGeneralConcept.value?.iri) {
@@ -138,43 +162,13 @@ async function getOptions() {
 }
 
 async function save() {
-  if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
-    emit("onMatchAdd", whereOrMatch.value as Match);
-  } else emit("onPropertyAdd", whereOrMatch.value as Where);
+  emit("onMatchAdd", editMatch.value);
   visible.value = false;
 }
 
-function getEditWhere(whereMatch: any) {
-  const found: any[] = [];
-  getEditWhereRecursively(whereMatch, found);
-  if (isArrayHasLength(found)) return found[0];
+function onUpdateSelectedFilters(filterOptions: FilterOptions) {
+  if (imQuery.value) addTypeFilterToIMQuery(filterOptions.types, imQuery.value);
 }
-
-function getEditWhereRecursively(where: Where, found: any[]) {
-  if (where.match?.where) {
-    for (const nestedWhere of where.match?.where) {
-      getEditWhereRecursively(nestedWhere, found);
-    }
-  } else found.push(where);
-}
-
-function getEditWhereDMIri(whereMatch: any) {
-  const found: string[] = [];
-  getEditWhereDMIriRecursively(whereMatch, found);
-  if (isArrayHasLength(found)) return found[0];
-  return "";
-}
-
-function getEditWhereDMIriRecursively(where: Where, found: any[]) {
-  if (where.match?.where) {
-    found[0] = where.match.typeOf?.["@id"];
-    for (const nestedWhere of where.match?.where) {
-      getEditWhereRecursively(nestedWhere, found);
-    }
-  }
-}
-
-function onUpdateSelectedFilters() {}
 </script>
 
 <style scoped>
