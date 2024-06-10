@@ -87,6 +87,7 @@ import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { computed } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { addTypeFilterToIMQuery, buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { v4 } from "uuid";
 
 interface Props {
   showDialog: boolean;
@@ -162,7 +163,9 @@ async function getOptions() {
 }
 
 async function save() {
-  emit("onMatchAdd", editMatch.value);
+  const editMatchCopy = cloneDeep(editMatch.value);
+  editMatchCopy["@id"] = v4();
+  emit("onMatchAdd", editMatchCopy);
   visible.value = false;
 }
 
