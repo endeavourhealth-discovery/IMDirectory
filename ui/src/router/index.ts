@@ -254,7 +254,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       requiresAuth: true,
       requiresLicense: true,
-      requiresCreateRole: true
+      requiresQueryCreateRole: true,
+      requiresQueryEditRole: true
     }
   },
   {
@@ -352,6 +353,17 @@ async function directToLogin() {
   });
 }
 
+async function checkForRole(role: string, userStore: any) {
+  const { status } = await AuthService.getCurrentAuthenticatedUser();
+  console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
+  if (status !== 200) {
+    await directToLogin();
+    return false;
+  } else if (!userStore.currentUser?.roles?.includes(role)) {
+    await router.push({ name: "AccessDenied", params: { requiredAccess: role, accessType: "role" } });
+  }
+}
+
 router.beforeEach(async (to, from) => {
   const loadingStore = useLoadingStore();
   if (routes.findIndex(view => view.name === to.meta.name) != -1) {
@@ -419,25 +431,15 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
-    const { status } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
-    if (status !== 200) {
-      await directToLogin();
-      return false;
-    } else if (!userStore.currentUser?.roles?.includes("create")) {
-      await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
-    }
+    await checkForRole("create", userStore);
   }
 
   if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
-    const { status } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
-    if (status !== 200) {
-      await directToLogin();
-      return false;
-    } else if (!userStore.currentUser?.roles?.includes("edit")) {
-      await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
-    }
+    await checkForRole("edit", userStore);
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresQueryEditorRole)) {
+    await checkForRole("queryEdit", userStore);
   }
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
