@@ -1,6 +1,6 @@
 import Env from "@/services/env.service";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { entityToAliasEntity } from "@im-library/helpers/Transforms";
+import { convertTTPropertyToUIProperty, entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest, TTProperty, UIProperty } from "@im-library/interfaces";
 import { Query, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, QUERY, SHACL } from "@im-library/vocabulary";
@@ -356,27 +356,11 @@ export default class QueryService {
           }
         }
       ]
-    } as any as QueryRequest;
+    } as QueryRequest;
     const results = await this.queryIM(queryRequest);
     if (isObjectHasKeys(results, ["entities"]) && isArrayHasLength(results.entities)) {
       const ttproperty: any = results.entities[0];
-      const uiProperty = {} as UIProperty;
-      if (ttproperty[SHACL.MAXCOUNT]) uiProperty.maxCount = ttproperty[SHACL.MAXCOUNT];
-      if (ttproperty[SHACL.MINCOUNT]) uiProperty.minCount = ttproperty[SHACL.MINCOUNT];
-      if (isArrayHasLength(ttproperty[SHACL.CLASS])) {
-        uiProperty.propertyType = "class";
-        uiProperty.valueType = ttproperty[SHACL.CLASS]![0]["@id"];
-      }
-      if (isArrayHasLength(ttproperty[SHACL.DATATYPE])) {
-        uiProperty.propertyType = "datatype";
-        uiProperty.valueType = ttproperty[SHACL.DATATYPE]![0]["@id"];
-      }
-      if (isArrayHasLength(ttproperty[SHACL.NODE])) {
-        uiProperty.propertyType = "node";
-        uiProperty.valueType = ttproperty[SHACL.NODE]![0]["@id"];
-      }
-      uiProperty.propertyName = getNameFromRef({ "@id": propertyIri });
-      return uiProperty;
+      return convertTTPropertyToUIProperty(ttproperty);
     } else return undefined;
   }
 

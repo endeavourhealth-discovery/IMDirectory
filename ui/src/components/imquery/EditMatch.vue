@@ -81,22 +81,7 @@
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
-          <AddPropertyDialog
-            v-model:show-dialog="showAddPropertyDialog"
-            :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
-            :header="'Add property'"
-            :show-variable-options="false"
-            @on-match-add="onMatchAdd"
-            @on-property-add="onPropertyAdd"
-          />
-          <Button
-            v-if="editMatch['@id'] === focusedId"
-            label="Add property"
-            severity="success"
-            icon="fa-solid fa-plus"
-            class="add-property-button"
-            @click="showAddPropertyDialog = true"
-          />
+          <Button severity="success" label="Add property" icon="fa-solid fa-plus" class="add-property-button" @click="editMatch.where.push({})" />
         </div>
       </div>
       <div v-if="editMatch.then">

@@ -247,7 +247,10 @@ function updateDialogFocusFromBreadcrumb(id: string | undefined) {
 }
 
 function onSave() {
-  emit("saveChanges", cloneDeep(editMatch.value));
+  const newEditMatch = cloneDeep(editMatch.value);
+  if (newEditMatch && JSON.stringify(newEditMatch) !== JSON.stringify(props.match)) {
+    emit("saveChanges", newEditMatch);
+  }
   visible.value = false;
 }
 
