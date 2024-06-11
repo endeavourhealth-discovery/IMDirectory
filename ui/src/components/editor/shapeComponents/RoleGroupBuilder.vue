@@ -126,6 +126,11 @@ function addRoleGroup() {
 
 function deleteRoleGroup(index: number) {
   roleGroups.value.splice(index, 1);
+  for (let i = index; i < roleGroups.value.length; i++) {
+    if (roleGroups.value[i][0].key["@id"] === IM.GROUP_NUMBER) {
+      roleGroups.value[i][0].value = roleGroups.value[i][0].value - 1;
+    }
+  }
   update();
 }
 
@@ -281,7 +286,7 @@ function isGroupValid(group: any[]): boolean {
     if (!pair.key) {
       pair["key"] = { "@id": "", name: "" };
     }
-    if (!pair.value) {
+    if (!pair.value && pair.value !== 0) {
       pair["value"] = { "@id": "", name: "" };
     }
     if (pair.key["@id"] != IM.GROUP_NUMBER) {
