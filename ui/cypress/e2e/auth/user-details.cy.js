@@ -30,8 +30,13 @@ describe("User details", () => {
     cy.url({ timeout: 60000 }).should("contain", "/mfa-setup");
   });
 
-  it.only("an show authorisation roles", () => {
+  it("an show authorisation roles", () => {
     cy.get(".menu-container").contains("Authorisation roles").click();
     cy.get(".roles-content").find("tr").should("have.length.at.least", 1);
+  });
+
+  it("can open editor", () => {
+    cy.get(".user-edit").click();
+    cy.url({ timeout: 60000 }).should("contain", "my-account/edit");
   });
 });
