@@ -1,5 +1,6 @@
 describe("Register", () => {
   beforeEach(() => {
+    cy.preventNewTab();
     cy.acceptLicenseAndCookies();
     cy.get("#topbar", { timeout: 60000 });
     cy.getByTestId("account-menu").click();
@@ -106,5 +107,28 @@ describe("Register", () => {
     cy.getByTestId("register-submit").should("be.disabled");
     cy.get(".p-checkbox-input").click();
     cy.getByTestId("register-submit").should("be.enabled");
+  });
+
+  it("checks if username is already taken", () => {
+    cy.getByTestId("register-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
+    cy.getByTestId("register-email1").type("cypress@cypress.com");
+    cy.getByTestId("register-email2").type("cypress@cypress.com");
+    cy.getByTestId("register-firstname").type("terry");
+    cy.getByTestId("register-lastname").type("pratchet");
+    cy.getByTestId("password-new1").type("1234abcdA%");
+    cy.getByTestId("password-new2").type("1234abcdA%");
+    cy.get(".p-checkbox-input").click();
+    cy.getByTestId("register-submit").click();
+    cy.get(".swal2-popup", { timeout: 60000 }).contains("Username already taken");
+  });
+
+  it("shows privacy policy", () => {
+    cy.get(".privacy-container").find("a").click();
+    cy.url().should("contain", "/privacy");
+  });
+
+  it("can link to login", () => {
+    cy.get("#login-link").click();
+    cy.url().should("contain", "/login");
   });
 });
