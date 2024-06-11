@@ -44,7 +44,8 @@ const router = useRouter();
 const companyName = ref("Voror Health Technologies Ltd");
 
 function goBack() {
-  router.back();
+  if (window.history.length > 2) router.back();
+  else router.push({ name: "LandingPage" });
 }
 </script>
 
