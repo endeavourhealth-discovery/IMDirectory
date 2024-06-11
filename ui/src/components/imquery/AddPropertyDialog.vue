@@ -4,18 +4,11 @@
       <StepperPanel header="Add rule">
         <template #content="{ nextCallback }">
           <div class="flex flex-column select-property-wrapper">
-            <!-- <div class="flex-auto flex align-items-center font-medium select-property-content">
-              <QueryNavTree
-                :editMatch="editMatch"
-                v-model:selected-property="selectedProperty"
-                :dm-iri="dataModelIri"
-                :show-variable-options="showVariableOptions"
-              />
-            </div> -->
             <AutocompleteSearchBar
               v-model:selected="selectedGeneralConcept"
               :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET, RDF.PROPERTY]"
               :im-query="imQuery"
+              :search-placeholder="'Select concept, set, property or datamodel'"
               @update-selected-filters="onUpdateSelectedFilters"
             />
             <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
@@ -23,15 +16,15 @@
                 <div class="flex align-items-center">
                   <div v-if="isSelectedConceptValue">
                     {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
-                      option.where?.[0].name
+                      option.where?.[0]?.name
                     }}
                     =
                     {{ selectedGeneralConcept?.name }}
                   </div>
-                  <div v-else-if="isSelectedConceptDatamodel">{{ option.path?.[0].name }} -> {{ option.typeOf?.name }}</div>
+                  <div v-else-if="isSelectedConceptDatamodel">{{ option.path?.[0]?.name }} -> {{ option.typeOf?.name }}</div>
                   <div v-else-if="isSelectedConceptProperty">
                     {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
-                      option.where?.[0].name
+                      option.where?.[0]?.name
                     }}
                   </div>
                 </div>
@@ -58,10 +51,13 @@
         <template #content="{ prevCallback }">
           <EditProperty
             v-if="isArrayHasLength(editMatch.where)"
-            v-model:property="editMatch.where![0]"
+            v-for="[index, where] of editMatch.where?.entries()"
+            :property="where"
             :data-model-iri="editMatch.typeOf?.['@id'] || dataModelIri"
-            :show-delete="false"
+            :show-delete="true"
+            @delete-property="editMatch.where?.splice(index, 1)"
           />
+          <Button severity="success" label="Add property" icon="fa-solid fa-plus" class="add-property-button" @click="addProperty" />
           <div class="flex pt-4 justify-content-between populate-property-actions">
             <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="prevCallback" />
             <Button label="Save" iconPos="right" @click="save" />
@@ -76,7 +72,6 @@
 import { Ref, onMounted, ref, watch } from "vue";
 import { Match, PathQuery, QueryRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash-es";
-import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EditProperty from "./EditProperty.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
@@ -86,7 +81,7 @@ import { isConcept, isProperty, isRecordModel, isValueSet } from "@im-library/he
 import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { computed } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { addTypeFilterToIMQuery, buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { addTypeFilterToIMQuery } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 
 interface Props {
@@ -119,6 +114,8 @@ const isSelectedConceptDatamodel = computed(() => selectedGeneralConcept.value &
 watch(
   () => props.showDialog,
   newValue => {
+    if (visible.value) init();
+    else clear();
     visible.value = newValue;
   }
 );
@@ -137,21 +134,23 @@ watch(visible, newValue => {
 watch(
   () => cloneDeep(props.match),
   newValue => {
-    if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
+    if (isObjectHasKeys(props.match, ["where"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
   }
 );
 
-onMounted(() => {
+onMounted(() => init());
+
+function init() {
   if (isArrayHasLength(props.match?.where)) editMatch.value.where = cloneDeep(props.match!.where);
-});
+}
 
 async function addSelectedPathMatch() {
   editMatch.value.where = [];
   if (selectedPath.value?.where?.[0]) {
     if (selectedGeneralConcept.value && isSelectedConceptValue.value)
       selectedPath.value.where[0].is = [{ "@id": selectedGeneralConcept.value.iri, name: selectedGeneralConcept.value.name }];
-    editMatch.value = selectedPath.value;
   }
+  if (selectedPath.value) editMatch.value = selectedPath.value;
 }
 
 async function getOptions() {
@@ -171,6 +170,17 @@ async function save() {
 
 function onUpdateSelectedFilters(filterOptions: FilterOptions) {
   if (imQuery.value) addTypeFilterToIMQuery(filterOptions.types, imQuery.value);
+}
+
+function clear() {
+  editMatch.value = {};
+  pathSuggestions.value = [];
+  selectedGeneralConcept.value = undefined;
+}
+
+function addProperty() {
+  if (!isArrayHasLength(editMatch.value.where)) editMatch.value.where = [];
+  editMatch.value.where!.push({});
 }
 </script>
 
@@ -197,5 +207,11 @@ function onUpdateSelectedFilters(filterOptions: FilterOptions) {
   height: 100%;
   display: flex;
   flex-flow: column;
+}
+
+.add-property-button {
+  width: 10rem;
+  margin-top: 0.5rem;
+  margin-left: 1rem;
 }
 </style>

@@ -113,7 +113,6 @@ import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { MenuItem } from "primevue/menuitem";
-import AddPropertyDialog from "./AddPropertyDialog.vue";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";
@@ -133,7 +132,6 @@ const emit = defineEmits({
   ungroupMatches: (payload: Match) => payload
 });
 const hover: Ref<boolean> = ref(false);
-const showAddPropertyDialog: Ref<boolean> = ref(false);
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, getTypeOfMatch } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
 const typeOf: Ref<string> = ref("");
