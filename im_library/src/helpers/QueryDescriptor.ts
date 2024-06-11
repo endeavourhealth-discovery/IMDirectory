@@ -83,8 +83,7 @@ export function describeMatch(match: Match, index: number, includeLogicDesc: boo
   if (match.then) {
     describeMatch(match.then, 0, includeLogicDesc, Bool.and, "then");
   }
-
-  match.description = display;
+  if (!match.description) match.description = display;
 }
 
 export function describeProperty(property: Where, index: number, includeLogicDesc: boolean, bool?: Bool, matchType?: MatchType) {

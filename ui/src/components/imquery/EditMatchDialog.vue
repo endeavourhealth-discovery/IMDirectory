@@ -13,17 +13,14 @@
           </template>
           <template #separator> / </template>
         </Breadcrumb>
-        <div v-if="!keepAsEdit" class="variable-display">
-          <div v-if="focusedEditMatch?.variable" class="variable" @click="keepAsEdit = true">as {{ focusedEditMatch?.variable }}</div>
-          <Button v-else icon="fa-solid fa-tag" label="Label as a variable" text @click="keepAsEdit = true" />
-        </div>
-        <div class="variable-edit" v-else>
-          <InputText type="text" placeholder="value" v-model="keepAsVariable" />
-          <Button icon="fa-solid fa-check" @click="saveVariable" />
-          <Button icon="fa-solid fa-trash-can" severity="danger" @click="deleteVariable" />
+        <div v-if="editMatch" class="variable-edit">
+          <InputText type="text" placeholder="Name" v-model="editMatch.name" />
+          <InputText type="text" placeholder="Label as a variable" v-model="editMatch.variable" />
         </div>
       </template>
       <div id="imquery-builder-string-container">
+        <Textarea v-if="editMatch" type="text" placeholder="Name" v-model="editMatch.description" autoResize rows="3" />
+
         <div id="imquery-builder-container">
           <div id="imquery-build" v-if="focusedEditMatch">
             <EditMatch
