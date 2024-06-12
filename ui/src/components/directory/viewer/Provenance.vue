@@ -33,11 +33,11 @@
         <label v-html="getLabel(key)"></label>
         <div v-if="!Array.isArray(value) && getLabel(key)">{{ value }}</div>
         <div v-if="Array.isArray(value) && getLabel(key)">
-          <div v-for="v in value">
+          <div v-for="v in value" :key="v">
             <div v-if="getLabel(key) === 'Properties:'">
               <span v-if="isObjectHasKeys(v, [SHACL.PATH])">Property: {{ v[SHACL.PATH][0].name }}</span>
-              <span v-if="isObjectHasKeys(v, [SHACL.NODE])">, Range: {{ v[SHACL.NODE][0].name }} </span
-              ><span v-if="isObjectHasKeys(v, [IM.INHERITED_FROM])"> (inherited)</span>
+              <span v-if="isObjectHasKeys(v, [SHACL.NODE])">, Range: {{ v[SHACL.NODE][0].name }} </span>
+              <span v-if="isObjectHasKeys(v, [IM.INHERITED_FROM])"> (inherited)</span>
             </div>
             <div v-else-if="getLabel(key) === 'Content type:'">
               <span v-if="v.name">{{ v.name }}</span>
@@ -46,6 +46,14 @@
               <span v-if="isObjectHasKeys(v, [RDFS.LABEL])">Name: {{ v[RDFS.LABEL] }}</span
               ><span v-if="isObjectHasKeys(v, [IM.CODE])">, Code: {{ v[IM.CODE] }}</span
               ><span v-if="isObjectHasKeys(v, [IM.HAS_STATUS])">, Status: {{ v[IM.HAS_STATUS][0].name }}</span>
+            </div>
+            <div v-else-if="getLabel(key) === 'Role groups:'">
+              <div v-for="k in Object.keys(v)" :key="k">
+                <span v-if="k === IM.GROUP_NUMBER"> Role group {{ v[k] }}:</span>
+              </div>
+              <div v-for="k in Object.keys(v)" :key="k">
+                <span v-if="k !== IM.GROUP_NUMBER">{{ k }} : {{ v[k][0]["name"] }}</span>
+              </div>
             </div>
             <div v-else-if="v.name">{{ v.name }}</div>
           </div>
@@ -94,7 +102,8 @@ const labels = ref({
   [IM.CONTENT_TYPE]: "Content type:",
   [IM.MATCHED_TO]: "Mapped to:",
   [IM.IS_CHILD_OF]: "Child of:",
-  [IM.HAS_TERM_CODE]: "Term codes:"
+  [IM.HAS_TERM_CODE]: "Term codes:",
+  [IM.ROLE_GROUP]: "Role groups:"
 });
 
 onMounted(async () => {
@@ -148,6 +157,10 @@ function onClose() {
 
 function getLabel(key: any) {
   return labels.value[key];
+}
+
+function getGroupKeyName(key: string) {
+  return EntityService.getPartialEntity(key, [RDFS.LABEL]);
 }
 </script>
 
