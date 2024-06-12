@@ -8,7 +8,7 @@
 
   <DirectorySearchDialog
     v-model:show-dialog="showAddFeatureDialog"
-    :root-entities="[IM.MODULE_FEATURES]"
+    :root-entities="[IM.MODULE_FEATURES, IM.MODULE_QUERIES]"
     :im-query="imQueryForFeature"
     @update:selected="onFeatureSelect"
   />
@@ -66,7 +66,7 @@ const showBuildFeatureDialog: Ref<boolean> = ref(false);
 const showBuildThenFeatureDialog: Ref<boolean> = ref(false);
 const showAddFeatureDialog: Ref<boolean> = ref(false);
 const imQueryForPopulation: Ref<QueryRequest> = ref(buildIMQueryFromFilters({ types: [{ "@id": IM.COHORT_QUERY }] } as SearchOptions));
-const imQueryForFeature: Ref<QueryRequest> = ref(buildIMQueryFromFilters({ types: [{ "@id": IM.MATCH_CLAUSE }] } as SearchOptions));
+const imQueryForFeature: Ref<QueryRequest> = ref(buildIMQueryFromFilters({ types: [{ "@id": IM.MATCH_CLAUSE }, { "@id": IM.COHORT_QUERY }] } as SearchOptions));
 
 watch(
   () => props.showAddPopulation,

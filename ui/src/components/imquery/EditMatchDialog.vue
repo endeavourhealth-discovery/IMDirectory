@@ -15,7 +15,7 @@
         </Breadcrumb>
         <div v-if="editMatch" class="variable-edit">
           <InputText type="text" placeholder="Name" v-model="editMatch.name" />
-          <InputText type="text" placeholder="Label as a variable" v-model="editMatch.variable" />
+          <InputText type="text" placeholder="Keep as reference" v-model="editMatch.variable" />
         </div>
       </template>
       <div id="imquery-builder-string-container">
@@ -40,7 +40,14 @@
             <div class="add-button-bar">
               <Button label="Add test" @click="showBuildThenFeature = true" severity="secondary" icon="fa-solid fa-plus" class="add-feature-button" />
               <Button label="Add parent cohort" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
-              <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+              <Button
+                label="Add existing feature"
+                @click="showAddFeature = true"
+                severity="success"
+                icon="fa-solid fa-plus"
+                class="add-feature-button"
+                v-tooltip.bottom="'Add definition from existing feature'"
+              />
               <Button
                 label="Add new feature"
                 @click="showBuildFeature = true"

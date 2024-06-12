@@ -28,20 +28,20 @@
         </div>
         <div class="add-buttons">
           <Button label="Add parent cohort" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
-          <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+          <Button
+            label="Add existing feature"
+            @click="showAddFeature = true"
+            severity="success"
+            icon="fa-solid fa-plus"
+            class="add-feature-button"
+            v-tooltip.bottom="'Add definition from existing feature'"
+          />
           <Button
             label="Add new feature"
             v-if="selectedBaseType?.iri"
             @click="showBuildFeature = true"
             severity="warning"
             icon="fa-solid fa-screwdriver-wrench"
-            class="add-feature-button"
-          />
-          <Button
-            label="Add feature group"
-            @click="editQueryDefinition.match?.push({ boolMatch: Bool.and })"
-            severity="primary"
-            icon="fa-solid fa-layer-group"
             class="add-feature-button"
           />
         </div>
