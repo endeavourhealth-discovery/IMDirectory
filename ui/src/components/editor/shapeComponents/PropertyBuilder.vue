@@ -5,10 +5,15 @@
       <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
     </div>
     <div class="error-message-container" :class="invalid && showValidation ? 'error-message-container-highlight' : ''">
-      <div :class="[hover ? 'children-container-hover' : 'children-container']" @mouseover="mouseover($event, true)" @mouseout="mouseout">
+      <div
+        class="error-message-container"
+        :class="[hover ? 'children-container-hover' : 'children-container', invalid && showValidation ? 'error-message-container-highlight' : '']"
+        @mouseover="mouseover($event, true)"
+        @mouseout="mouseout"
+      >
         <table>
-          <template v-for="(row, index) in dmProperties" class="property">
-            <tr @mouseover="mouseover($event, row)" @mouseout="mouseout">
+          <template v-for="(row, index) in dmProperties">
+            <tr @mouseover="mouseover($event, row)" @mouseout="mouseout" class="property">
               <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
                 <AutocompleteSearchBar
                   class="search-bar"
@@ -633,5 +638,9 @@ td:first-child {
   min-width: 70%;
   display: flex;
   gap: 0.5rem;
+}
+
+.builder-button {
+  min-width: 10rem;
 }
 </style>
