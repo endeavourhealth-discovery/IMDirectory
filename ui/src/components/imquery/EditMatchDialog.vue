@@ -19,7 +19,7 @@
         </div>
       </template>
       <div id="imquery-builder-string-container">
-        <Textarea v-if="editMatch" type="text" placeholder="Name" v-model="editMatch.description" autoResize rows="3" />
+        <Textarea v-if="editMatch" type="text" placeholder="Description" v-model="editMatch.description" autoResize rows="3" />
 
         <div id="imquery-builder-container">
           <div id="imquery-build" v-if="focusedEditMatch">
@@ -125,7 +125,7 @@ import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
 interface Props {
   showDialog: boolean;
   match: Match | undefined;
-  index: number;
+  index?: number;
   queryBaseTypeIri: string;
 }
 
@@ -208,7 +208,7 @@ async function getFunctionTemplates() {
 }
 
 function setPathItems() {
-  pathItems.value = [{ label: "Feature " + props.index }];
+  pathItems.value = [{ label: props.index ? "Feature " + props.index : "Feature" }];
 }
 
 function setEditMatch() {
