@@ -81,7 +81,23 @@
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
-          <Button severity="success" label="Add property" icon="fa-solid fa-plus" class="add-property-button" @click="editMatch.where.push({})" />
+
+          <AddPropertyDialog
+            v-model:show-dialog="showAddPropertyDialog"
+            :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+            :header="'Add property'"
+            :show-variable-options="false"
+            @on-match-add="onMatchAdd"
+            @on-property-add="onPropertyAdd"
+          />
+          <Button
+            v-if="editMatch['@id'] === focusedId"
+            label="Add property"
+            severity="success"
+            icon="fa-solid fa-plus"
+            class="add-property-button"
+            @click="showAddPropertyDialog = true"
+          />
         </div>
       </div>
       <div v-if="editMatch.then">
@@ -118,6 +134,7 @@ import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import AddPropertyDialog from "./AddPropertyDialog.vue";
 
 interface Props {
   isRootFeature?: boolean;
@@ -137,6 +154,7 @@ const group: Ref<number[]> = ref([]);
 const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
+const showAddPropertyDialog: Ref<boolean> = ref(false);
 onMounted(() => {
   if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
 });

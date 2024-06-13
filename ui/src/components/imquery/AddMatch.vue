@@ -13,7 +13,7 @@
     @update:selected="onFeatureSelect"
   />
 
-  <AddPropertyDialog
+  <AddFeatureDialog
     v-model:show-dialog="showBuildFeatureDialog"
     :dataModelIri="matchTypeOfIri"
     :header="'Add new feature'"
@@ -22,7 +22,7 @@
     @on-property-add="onPropertyAdd"
   />
 
-  <AddPropertyDialog
+  <AddFeatureDialog
     v-model:show-dialog="showBuildThenFeatureDialog"
     :dataModelIri="matchTypeOfIri"
     :header="'Add new feature'"
@@ -34,7 +34,6 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
-import AddPropertyDialog from "./AddPropertyDialog.vue";
 import DirectorySearchDialog from "../shared/dialogs/DirectorySearchDialog.vue";
 import { Bool, Match, Query, QueryRequest, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
@@ -44,6 +43,7 @@ import { EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import { SearchOptions } from "@im-library/interfaces";
+import AddFeatureDialog from "./AddFeatureDialog.vue";
 interface Props {
   editMatch: Match;
   matchTypeOfIri: string;

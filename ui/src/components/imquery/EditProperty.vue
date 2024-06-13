@@ -1,6 +1,6 @@
 <template>
   <div class="property-container">
-    <Dropdown v-model="selectedProperty" :options="propertyOptions" optionLabel="propertyName" placeholder="Select a property" class="w-full md:w-14rem" />
+    <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-14rem" disabled />
     <ConceptSelect
       v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'"
       :datatype="selectedProperty.valueType"
@@ -34,7 +34,6 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), { showDelete: true });
 const selectedProperty: Ref<UIProperty | undefined> = ref();
-const propertyOptions: Ref<UIProperty[]> = ref([]);
 const emit = defineEmits({ deleteProperty: () => true });
 
 onMounted(async () => {
@@ -51,22 +50,11 @@ watch(
   async () => await init()
 );
 
-watch(
-  () => cloneDeep(selectedProperty.value),
-  () => {
-    if (selectedProperty.value) props.property["@id"] = selectedProperty.value.iri;
-  }
-);
-
 async function init() {
-  if (props.dataModelIri) propertyOptions.value = await getPropertyOptions();
-  if (props.property["@id"] && isArrayHasLength(propertyOptions.value)) {
-    const found = propertyOptions.value.find(prop => prop.iri === props.property["@id"]);
-    if (found) selectedProperty.value = found;
-  }
+  if (props.dataModelIri && props.property["@id"]) selectedProperty.value = await getProperty(props.dataModelIri, props.property["@id"]);
 }
 
-async function getPropertyOptions() {
+async function getProperty(dmIri: string, propIri: string) {
   const uiProps: UIProperty[] = [];
   const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY]);
   if (isArrayHasLength(propertiesEntity[SHACL.PROPERTY]))
@@ -77,7 +65,9 @@ async function getPropertyOptions() {
       }
       uiProps.push(uiProperty);
     }
-  return uiProps;
+
+  const found = uiProps.find(prop => prop.iri === props.property["@id"]);
+  if (found) return found;
 }
 </script>
 
