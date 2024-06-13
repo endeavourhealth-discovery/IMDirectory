@@ -18,7 +18,7 @@
             <div class="field">
               <label for="firstName">First name</label>
               <InputText
-                data-testid="user-edit-username"
+                data-testid="user-edit-firstname"
                 id="firstName"
                 type="text"
                 v-bind="firstName"
@@ -73,7 +73,7 @@
             </div>
             <PasswordInputs
               v-if="showPasswordEdit"
-              test-id="user-edit-password-new"
+              test-id="user-edit-password-"
               old-password-required
               @update:oldPassword="setOldPassword"
               @update:password="setNewPassword"
@@ -98,7 +98,7 @@
               />
               <Button data-testid="user-edit-reset-changes-button" class="form-reset p-button-warning" type="button" label="Reset changes" @click="resetForm" />
               <Button
-                data-testid="user-edit-update-disabled-button"
+                data-testid="user-edit-update-button"
                 :disabled="setButtonDisabled()"
                 class="user-edit"
                 type="submit"
@@ -202,7 +202,7 @@ const { errors, defineComponentBinds, handleSubmit, setValues } = useForm({
     email2: yup
       .string()
       .required("Email is required")
-      .oneOf([yup.ref("email1")], "Emails do not match")
+      .oneOf([yup.ref("email1")], "Email addresses do not match")
   })
 });
 
