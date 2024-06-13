@@ -8,7 +8,6 @@ import { DashboardLayout } from "./DashboardLayout";
 import { Dataset } from "./Dataset";
 import { DefinitionConfig } from "./DefinitionConfig";
 import { ECLComponentDetails } from "./ECLComponentDetails";
-import { EclSearchRequest } from "./EclSearchRequest";
 import { EntityReferenceNode } from "./EntityReferenceNode";
 import { ExportValueSet } from "./ExportValueSet";
 import { FiltersAsIris } from "./FiltersAsIris";
@@ -69,7 +68,6 @@ export {
   type Dataset,
   type DefinitionConfig,
   type ECLComponentDetails,
-  type EclSearchRequest,
   type EntityReferenceNode,
   type ExportValueSet,
   type FiltersAsIris,

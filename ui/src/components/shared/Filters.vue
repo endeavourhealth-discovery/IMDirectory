@@ -57,32 +57,6 @@
         </span>
       </div>
     </div>
-
-    <div class="p-field">
-      <div class="p-inputgroup">
-        <span class="p-float-label">
-          <Dropdown id="sortField" optionLabel="name" v-model="selectedSortField" :options="storeFilterOptions.sortFields" @change="emitFilterUpdate()" />
-          <label for="sortField">Select sort field:</label>
-          <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetSortField" v-tooltip="'Reset sort field filters'" />
-        </span>
-      </div>
-    </div>
-
-    <div class="p-field">
-      <div class="p-inputgroup">
-        <span class="p-float-label">
-          <Dropdown
-            id="sortDirection"
-            optionLabel="name"
-            v-model="selectedSortDirection"
-            :options="storeFilterOptions.sortDirections"
-            @change="emitFilterUpdate()"
-          />
-          <label for="sortDirection">Select sort direction:</label>
-          <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetSortDirection" v-tooltip="'Reset sort direction filters'" />
-        </span>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -110,8 +84,6 @@ const includeLegacy = ref(false);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
 const selectedTypes: Ref<TTIriRef[]> = ref([]);
-const selectedSortField: Ref<TTIriRef | undefined> = ref({} as TTIriRef);
-const selectedSortDirection: Ref<TTIriRef | undefined> = ref({} as TTIriRef);
 
 watch(
   () => includeLegacy.value,
@@ -126,28 +98,13 @@ function init() {
 
 function emitFilterUpdate() {
   const filterOptions = { schemes: selectedSchemes.value, status: selectedStatus.value, types: selectedTypes.value } as FilterOptions;
-  if (selectedSortDirection.value) filterOptions.sortDirections = [selectedSortDirection.value];
-  if (selectedSortField.value) filterOptions.sortFields = [selectedSortField.value];
   emit("selectedFiltersUpdated", filterOptions);
-}
-
-function resetSortField() {
-  if (storeDefaultFilterOptions.value) {
-    selectedSortField.value = storeDefaultFilterOptions.value.sortFields?.[0];
-    selectedSortDirection.value = storeDefaultFilterOptions.value.sortDirections?.[0];
-  }
-  emitFilterUpdate();
-}
-
-function resetSortDirection() {
-  if (storeDefaultFilterOptions.value) selectedSortDirection.value = storeDefaultFilterOptions.value.sortDirections?.[0];
-  emitFilterUpdate();
 }
 
 function resetStatus() {
   if (storeFilterOptions.value && storeDefaultFilterOptions.value) {
-    selectedStatus.value = storeFilterOptions.value.status.filter(
-      item => storeDefaultFilterOptions.value?.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+    selectedStatus.value = storeFilterOptions.value.status.filter(item =>
+      storeDefaultFilterOptions.value?.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
   }
   emitFilterUpdate();
@@ -155,8 +112,8 @@ function resetStatus() {
 
 function resetSchemes() {
   if (storeFilterOptions.value && storeDefaultFilterOptions.value) {
-    selectedSchemes.value = storeFilterOptions.value.schemes.filter(
-      item => storeDefaultFilterOptions.value?.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+    selectedSchemes.value = storeFilterOptions.value.schemes.filter(item =>
+      storeDefaultFilterOptions.value?.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
   }
   emitFilterUpdate();
@@ -164,8 +121,8 @@ function resetSchemes() {
 
 function resetTypes() {
   if (storeFilterOptions.value && storeDefaultFilterOptions.value) {
-    selectedTypes.value = storeFilterOptions.value.types.filter(
-      item => storeDefaultFilterOptions.value?.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+    selectedTypes.value = storeFilterOptions.value.types.filter(item =>
+      storeDefaultFilterOptions.value?.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
   }
   emitFilterUpdate();
@@ -176,15 +133,6 @@ function setSelectedOptions(): void {
     if (isArrayHasLength(props.selectedFilterOptions.status)) selectedStatus.value = props.selectedFilterOptions.status;
     if (isArrayHasLength(props.selectedFilterOptions.schemes)) selectedSchemes.value = props.selectedFilterOptions.schemes;
     if (isArrayHasLength(props.selectedFilterOptions.types)) selectedTypes.value = props.selectedFilterOptions.types;
-    if (isArrayHasLength(props.selectedFilterOptions.sortFields))
-      selectedSortField.value = storeFilterOptions.value.sortFields.find(
-        item => props.selectedFilterOptions?.sortFields.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-      );
-
-    if (isArrayHasLength(props.selectedFilterOptions.sortDirections))
-      selectedSortDirection.value = storeFilterOptions.value.sortDirections.find(
-        item => props.selectedFilterOptions?.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-      );
   } else if (
     isArrayHasLength(storeSelectedFilters.value.schemes) ||
     isArrayHasLength(storeSelectedFilters.value.status) ||
@@ -202,9 +150,6 @@ function setSelectedFromStore() {
   if (isArrayHasLength(storeSelectedFilters.value.schemes)) selectedSchemes.value = [...storeSelectedFilters.value.schemes];
 
   if (isArrayHasLength(storeSelectedFilters.value.types)) selectedTypes.value = [...storeSelectedFilters.value.types];
-
-  if (isArrayHasLength(storeSelectedFilters.value.sortFields)) selectedSortField.value = storeSelectedFilters.value.sortFields?.[0];
-  if (isArrayHasLength(storeSelectedFilters.value.sortDirections)) selectedSortDirection.value = storeSelectedFilters.value.sortDirections?.[0];
 }
 
 function setDefaults() {
@@ -213,9 +158,6 @@ function setDefaults() {
   if (isArrayHasLength(storeFilterOptions.value.schemes)) selectedSchemes.value = [...storeDefaultFilterOptions.value.schemes];
 
   if (isArrayHasLength(storeFilterOptions.value.types)) selectedTypes.value = [...storeDefaultFilterOptions.value.types];
-
-  if (isArrayHasLength(storeFilterOptions.value.sortFields)) selectedSortField.value = storeDefaultFilterOptions.value.sortFields?.[0];
-  if (isArrayHasLength(storeFilterOptions.value.sortDirections)) selectedSortDirection.value = storeDefaultFilterOptions.value.sortDirections?.[0];
 }
 
 function setLegacy(include: boolean): void {

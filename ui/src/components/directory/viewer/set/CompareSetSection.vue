@@ -101,8 +101,6 @@ async function search(searchText: string): Promise<SearchResultSummary[]> {
       schemes: selectedFilters.value.schemes,
       status: selectedFilters.value.status,
       types: selectedFilters.value.types,
-      sortDirections: selectedFilters.value.sortDirections,
-      sortFields: selectedFilters.value.sortFields,
       textSearch: searchText,
       page: { pageNumber: 1, pageSize: 100 }
     };
