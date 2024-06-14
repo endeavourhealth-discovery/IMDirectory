@@ -158,10 +158,6 @@ function onClose() {
 function getLabel(key: any) {
   return labels.value[key];
 }
-
-function getGroupKeyName(key: string) {
-  return EntityService.getPartialEntity(key, [RDFS.LABEL]);
-}
 </script>
 
 <style scoped>
