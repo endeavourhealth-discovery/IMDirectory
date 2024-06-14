@@ -126,9 +126,9 @@ function addRoleGroup() {
 
 function deleteRoleGroup(index: number) {
   roleGroups.value.splice(index, 1);
-  for (let i = index; i < roleGroups.value.length; i++) {
-    if (roleGroups.value[i][0].key["@id"] === IM.GROUP_NUMBER) {
-      roleGroups.value[i][0].value = roleGroups.value[i][0].value - 1;
+  for (const rg in roleGroups.value) {
+    if (roleGroups.value[rg][0].key["@id"] === IM.GROUP_NUMBER && rg <= index) {
+      roleGroups.value[rg][0].value = roleGroups.value[rg][0].value - 1;
     }
   }
   update();
@@ -284,10 +284,10 @@ function isGroupValid(group: any[]): boolean {
   }
   for (const pair of group) {
     if (!pair.key) {
-      pair["key"] = { "@id": "", name: "" };
+      pair.key = { "@id": "", name: "" };
     }
     if (!pair.value && pair.value !== 0) {
-      pair["value"] = { "@id": "", name: "" };
+      pair.value = { "@id": "", name: "" };
     }
     if (pair.key["@id"] != IM.GROUP_NUMBER) {
       if (!isObjectHasKeys(pair.key, ["iri"]) && (!pair?.key?.["@id"] || pair.key["@id"] == "")) {
@@ -310,11 +310,11 @@ function updateEntity() {
   const groups: any = {};
   groups[IM.ROLE_GROUP] = [];
 
-  for (let i = 0; i < roleGroups.value.length; i++) {
+  for (const rg in roleGroups.value) {
     const group: any = {};
-    group[IM.GROUP_NUMBER] = i;
+    group[IM.GROUP_NUMBER] = rg;
     groups[IM.ROLE_GROUP].push(group);
-    for (const pair of roleGroups.value[i]) {
+    for (const pair of roleGroups.value[rg]) {
       if (isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
         group[pair.key["iri"]] = { "@id": pair.value["iri"], name: pair.value["name"] };
       } else if (isObjectHasKeys(pair.key, ["iri"]) && !isObjectHasKeys(pair.value, ["iri"])) {

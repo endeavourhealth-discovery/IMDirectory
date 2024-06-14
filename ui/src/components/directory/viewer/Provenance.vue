@@ -51,8 +51,8 @@
               <div v-for="k in Object.keys(v)" :key="k">
                 <span v-if="k === IM.GROUP_NUMBER"> Role group {{ v[k] }}:</span>
               </div>
-              <div v-for="k in Object.keys(v)" :key="k">
-                <span v-if="k !== IM.GROUP_NUMBER">{{ k }} : {{ v[k][0]["name"] }}</span>
+              <div v-for="[key, value] of Object.entries(v)" :key="key">
+                <span v-if="key !== IM.GROUP_NUMBER">{{ key }} : {{ value[0].name }}</span>
               </div>
             </div>
             <div v-else-if="v.name">{{ v.name }}</div>
