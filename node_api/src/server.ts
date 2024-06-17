@@ -10,7 +10,6 @@ import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
 import ParserController from "./controllers/parserController";
 import FhirController from "@/controllers/fhirController";
-import EclController from "@/controllers/eclController";
 import ConfigController from "@/controllers/configController";
 import ProvController from "@/controllers/provController";
 import StatusController from "./controllers/statusController";
@@ -37,7 +36,6 @@ const app = new App({
     new CognitoController(),
     new ParserController(),
     new FhirController(),
-    new EclController(),
     new ConfigController(),
     new ProvController(),
     new WorkflowController(),
