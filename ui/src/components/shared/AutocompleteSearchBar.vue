@@ -48,7 +48,7 @@
       v-if="showDialog"
       v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
-      :imQuery="imQuery"
+      :imQuery="cloneDeep(imQuery)"
       :root-entities="rootEntities"
       :selected-filter-options="filterOptions"
       :searchTerm="searchText"

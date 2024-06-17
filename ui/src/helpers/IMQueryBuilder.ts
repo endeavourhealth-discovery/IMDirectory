@@ -1,4 +1,4 @@
-import { Match, Order, QueryRequest, SearchBinding, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Match, Order, Query, QueryRequest, SearchBinding, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import { SearchOptions } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -80,4 +80,54 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
     };
     imQuery.query.match!.push(match);
   }
+}
+
+export function deleteQueryPredicateIfExists(query: Query, predicateIri: string) {
+  if (query.match) {
+    for (const match of query.match) {
+      deleteMatchPredicateIfExists(match, query.match, predicateIri, true);
+    }
+  }
+}
+
+function deleteMatchPredicateIfExists(match: Match, parent: Match[], predicateIri: string, topLevel: boolean): boolean {
+  if (match["@id"] === predicateIri) {
+    if (topLevel) {
+      parent.splice(parent.indexOf(match), 1);
+      return false;
+    }
+    return true;
+  } else if (match.match) {
+    let deleteRequired = false;
+    for (const subMatch of match.match) {
+      const isDeleteRequired = deleteMatchPredicateIfExists(subMatch, match.match, predicateIri, match.match.length > 1);
+      if (isDeleteRequired) {
+        if (match.match.length > 1) {
+          match.match.splice(match.match.indexOf(subMatch), 1);
+        } else if (topLevel) match.match.splice(parent.indexOf(subMatch), 1);
+        else deleteRequired = true;
+      }
+    }
+    return deleteRequired;
+  } else if (match.where) {
+    let deleteRequired = false;
+    for (const where of match.where) {
+      const isDeleteRequired = deleteWherePredicateIfExists(where, match.where, predicateIri);
+      if (isDeleteRequired) {
+        if (match.where.length > 1) {
+          match.where.splice(
+            match.where.findIndex(w => w["@id"] === where["@id"]),
+            1
+          );
+        } else if (topLevel) {
+          parent.splice(parent.indexOf(match), 1);
+        } else deleteRequired = true;
+      }
+    }
+    return deleteRequired;
+  } else return false;
+}
+
+function deleteWherePredicateIfExists(where: Where, parent: Where[], predicateIri: string): boolean {
+  return where["@id"] === predicateIri;
 }
