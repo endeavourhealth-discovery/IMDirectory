@@ -1,10 +1,9 @@
 import Env from "@/services/env.service";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, EclSearchRequest, TTProperty, UIProperty } from "@im-library/interfaces";
-import { Query, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { AliasEntity, TTProperty, UIProperty } from "@im-library/interfaces";
+import { EclSearchRequest, Query, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, QUERY, SHACL } from "@im-library/vocabulary";
-import EclService from "./ecl.service";
 import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
 import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescriptor";
@@ -14,13 +13,11 @@ import IMQtoSQL from "@/logic/IMQtoSQL";
 
 export default class QueryService {
   axios: any;
-  eclService: EclService;
   entityService: EntityService;
   private graph: GraphdbService;
 
   constructor(axios: any) {
     this.axios = axios;
-    this.eclService = new EclService(axios);
     this.graph = GraphdbService.imRepo();
     this.entityService = new EntityService(axios);
   }
@@ -148,12 +145,12 @@ export default class QueryService {
         }
       };
       const eclSearchRequest: EclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] };
-      const results = await this.eclService.eclSearch(eclSearchRequest);
+      const results = (await this.axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest)).data;
       if (results.entities?.length)
         queryRequest.argument = [
           {
             parameter: "this",
-            valueIriList: results.entities.map(e => {
+            valueIriList: results.entities.map((e: any) => {
               return { "@id": e.iri };
             })
           }
@@ -170,7 +167,7 @@ export default class QueryService {
     if (focus.ecl) query = (await this.axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
     if (query) {
       const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
-      const results = await this.eclService.eclSearch(eclSearchRequest);
+      const results = (await this.axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest)).data;
       const queryRequest = {
         query: {
           "@id": QUERY.ALLOWABLE_PROPERTIES
@@ -181,7 +178,7 @@ export default class QueryService {
         queryRequest.argument = [
           {
             parameter: "this",
-            valueIriList: results.entities.map(e => {
+            valueIriList: results.entities.map((e: any) => {
               return { "@id": e.iri };
             })
           }
