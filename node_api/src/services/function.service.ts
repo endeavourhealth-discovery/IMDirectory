@@ -76,7 +76,7 @@ export default class FunctionService {
       });
       if (ranges.entities?.length) {
         return this.queryService.queryIMSearch({
-          query: { "@id": QUERY.GET_ISAS },
+          query: { "@id": QUERY.GET_DESCENDANTS },
           argument: [
             {
               parameter: "this",
@@ -105,7 +105,7 @@ export default class FunctionService {
       });
       if (ranges.entities?.length) {
         return this.queryService.askQueryIM({
-          query: { "@id": QUERY.GET_ISAS },
+          query: { "@id": QUERY.GET_DESCENDANTS },
           argument: [
             {
               parameter: "this",
