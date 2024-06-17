@@ -8,8 +8,6 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
   if (isArrayHasLength(filterOptions.status)) addStatusFilterToIMQuery(filterOptions.status, imQuery);
   if (isArrayHasLength(filterOptions.types)) addTypeFilterToIMQuery(filterOptions.types, imQuery);
   if (isArrayHasLength(filterOptions.schemes)) addSchemeFilterToIMQuery(filterOptions.schemes, imQuery);
-  if (isArrayHasLength(filterOptions.sortDirections) || isArrayHasLength(filterOptions.sortFields))
-    addSortingToIMQuery(filterOptions.sortFields?.[0], filterOptions.sortDirections?.[0], imQuery);
   if (isArrayHasLength(filterOptions.isA)) addIsaToIMQuery(filterOptions.isA!, imQuery);
   if (isArrayHasLength(filterOptions.binding)) addBindingsToIMQuery(filterOptions.binding!, imQuery);
   if (filterOptions.page) imQuery.page = filterOptions.page;

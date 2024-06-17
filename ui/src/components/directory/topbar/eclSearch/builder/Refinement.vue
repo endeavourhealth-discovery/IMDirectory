@@ -133,9 +133,7 @@ const imQueryForValueSearch: Ref<SearchOptions> = ref({
   }),
   status: filterStoreOptions.value.status,
   schemes: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])),
-  types: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT),
-  sortDirections: filterStoreOptions.value.sortDirections,
-  sortFields: filterStoreOptions.value.sortFields
+  types: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT)
 } as SearchOptions);
 
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
@@ -275,9 +273,7 @@ function updateQueryForPropertySearch() {
       isAs: ["http://snomed.info/sct#410662002"],
       status: filterStoreOptions.value.status,
       schemes: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])),
-      types: [{ "@id": RDF.PROPERTY }],
-      sortDirections: filterStoreOptions.value.sortDirections,
-      sortFields: filterStoreOptions.value.sortFields
+      types: [{ "@id": RDF.PROPERTY }]
     } as SearchOptions;
     imQueryForPropertySearch.value = buildIMQueryFromFilters(filterOptions);
   } else {
@@ -355,8 +351,9 @@ async function updateIsValidProperty(): Promise<void> {
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property",
-          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : props.value.property.concept?.iri}" is not valid for focus "${props
-            .focus?.ecl}"`,
+          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : props.value.property.concept?.iri}" is not valid for focus "${
+            props.focus?.ecl
+          }"`,
           life: 3000
         });
     }
