@@ -1,6 +1,6 @@
 <template>
   <div class="search-container">
-    <IconField iconPosition="right">
+    <IconField class="autocomplete-search" iconPosition="right">
       <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
       <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
       <InputText
@@ -234,6 +234,14 @@ function onListboxOptionClick(event: any, selected: SearchResultSummary) {
 }
 
 #autocomplete-search {
+  font-size: 1rem;
+  border: none;
+  height: 2.25rem;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.autocomplete-search {
   font-size: 1rem;
   border: none;
   height: 2.25rem;
