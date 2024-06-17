@@ -316,11 +316,11 @@ function updateEntity() {
     groups[IM.ROLE_GROUP].push(group);
     for (const pair of roleGroups.value[rg]) {
       if (isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
-        group[pair.key["iri"]] = { "@id": pair.value["iri"], name: pair.value["name"] };
+        group[pair.key.iri] = { "@id": pair.value.iri, name: pair.value.name };
       } else if (isObjectHasKeys(pair.key, ["iri"]) && !isObjectHasKeys(pair.value, ["iri"])) {
-        group[pair.key["iri"]] = pair.value;
+        group[pair.key.iri] = pair.value;
       } else if (!isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
-        group[pair.key["@id"]] = { "@id": pair.value["iri"], name: pair.value["name"] };
+        group[pair.key["@id"]] = { "@id": pair.value.iri, name: pair.value.name };
       } else if (isObjectHasKeys(pair.key, ["@id"])) {
         group[pair.key["@id"]] = pair.value;
       }
