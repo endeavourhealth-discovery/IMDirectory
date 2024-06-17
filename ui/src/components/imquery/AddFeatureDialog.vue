@@ -1,7 +1,7 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
     <Stepper :style="{ minWidth: '50vw' }">
-      <StepperPanel header="Add rule">
+      <StepperPanel>
         <template #content="{ nextCallback }">
           <div class="flex flex-column select-property-wrapper">
             <AutocompleteSearchBar
@@ -47,15 +47,15 @@
           </div>
         </template>
       </StepperPanel>
-      <StepperPanel header="Populate value">
+      <StepperPanel>
         <template #content="{ prevCallback }">
           <EditWhere
-            v-if="isArrayHasLength(editMatch.where)"
-            v-for="[index, where] of editMatch.where?.entries()"
+            v-if="getLeafMatch(editMatch) && isArrayHasLength(getLeafMatch(editMatch).where)"
+            v-for="[index, where] of getLeafMatch(editMatch).where!.entries()"
             :edit-where="where"
             :focused="editMatch['@id'] === focusedId"
             :focused-id="focusedId"
-            :match-type-of-iri="editMatch.typeOf?.['@id'] || dataModelIri"
+            :match-type-of-iri="getLeafMatch(editMatch).typeOf?.['@id'] || dataModelIri"
             @on-update-dialog-focus="() => {}"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
@@ -216,6 +216,20 @@ function onPropertyAdd(property: Where) {
 function onMatchAdd(match: Match) {
   if (!isArrayHasLength(editMatch.value.match)) editMatch.value.match = [];
   editMatch.value.match?.push(match);
+}
+
+function getLeafMatch(match: Match) {
+  if (!match.where) return match;
+  const found: Match[] = [];
+  getLeafWhereRecursively(match.where, found, match);
+  if (found.length) return found[0];
+  else return match;
+}
+
+function getLeafWhereRecursively(whereList: Where[], found: Match[], currentMatch: Match) {
+  const hasNested = whereList.find(nestedWhere => nestedWhere.match?.where);
+  if (hasNested) getLeafWhereRecursively(hasNested.match?.where!, found, hasNested.match!);
+  else found.push(currentMatch);
 }
 </script>
 

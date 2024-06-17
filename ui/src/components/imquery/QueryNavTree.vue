@@ -128,7 +128,7 @@ function createTreeNode(
     color: getColourFromType(conceptTypes),
     conceptTypes: conceptTypes,
     data: conceptIri,
-    leaf: !hasChildren,
+    leaf: true,
     loading: false,
     children: [] as TreeNode[],
     parent: getParentNode(parent as any),

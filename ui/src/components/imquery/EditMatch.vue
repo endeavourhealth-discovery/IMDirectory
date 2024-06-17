@@ -156,13 +156,15 @@ const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary |
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 onMounted(() => {
-  if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
+  if (fullQuery.value)
+    typeOf.value =
+      props.editMatch.typeOf?.["@id"] ?? getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
 });
 
 watch(
   () => cloneDeep(props.editMatch),
   () => {
-    if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!);
+    if (fullQuery.value) typeOf.value = props.editMatch.typeOf?.["@id"] ?? getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!);
   }
 );
 
