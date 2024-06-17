@@ -121,9 +121,7 @@ onMounted(async () => {
 function buildImQueryForBaseType() {
   const searchOptions: SearchOptions = {
     status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
-    types: [{ "@id": SHACL.NODESHAPE }],
-    sortDirections: [{ "@id": IM.DESCENDING }],
-    sortFields: [{ "@id": IM.USAGE_TOTAL }]
+    types: [{ "@id": SHACL.NODESHAPE }]
   } as SearchOptions;
   imQueryForBaseType.value = buildIMQueryFromFilters(searchOptions);
 }

@@ -1,24 +1,21 @@
 <template>
   <div class="search-container">
-    <div class="flex">
-      <IconField iconPosition="right">
-        <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
-        <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
-        <InputText
-          id="autocomplete-search"
-          v-model="searchText"
-          :placeholder="searchPlaceholder"
-          data-testid="search-input"
-          autofocus
-          v-on:keyup.enter="onEnter"
-          v-on:keyup="select"
-          @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
-          @mouseleave="hideOverlay($event)"
-          :disabled="disabled"
-        />
-      </IconField>
-      <Button label="Advanced" severity="info" @click="showDialog = true" />
-    </div>
+    <IconField class="autocomplete-search" iconPosition="right">
+      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
+      <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
+      <InputText
+        id="autocomplete-search"
+        v-model="searchText"
+        :placeholder="searchPlaceholder"
+        data-testid="search-input"
+        autofocus
+        v-on:keyup.enter="onEnter"
+        v-on:keyup="select"
+        @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
+        @mouseleave="hideOverlay($event)"
+        :disabled="disabled"
+      />
+    </IconField>
     <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
@@ -50,7 +47,7 @@
       v-if="showDialog"
       v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
-      :imQuery="imQuery"
+      :imQuery="cloneDeep(imQuery)"
       :root-entities="rootEntities"
       :selected-filter-options="filterOptions"
       :searchTerm="searchText"
@@ -238,6 +235,14 @@ function onListboxOptionClick(event: any, selected: SearchResultSummary) {
 }
 
 #autocomplete-search {
+  font-size: 1rem;
+  border: none;
+  height: 2.25rem;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.autocomplete-search {
   font-size: 1rem;
   border: none;
   height: 2.25rem;

@@ -1,23 +1,20 @@
 import Env from "@/services/env.service";
-import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris, ValidatedEntity } from "@im-library/interfaces";
+import { PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris, ValidatedEntity } from "@im-library/interfaces";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
-import { TTIriRef, SearchResultSummary, Concept, DataModelProperty, TTEntity } from "@im-library/interfaces/AutoGen";
+import { EclSearchRequest, TTIriRef, SearchResultSummary, Concept, DataModelProperty, TTEntity } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { byName } from "@im-library/helpers/Sorters";
 
 export default class EntityService {
   axios: any;
-  eclService: EclService;
   entityRepository: EntityRepository;
 
   constructor(axios: any) {
     this.axios = axios;
-    this.eclService = new EclService(axios);
     this.entityRepository = new EntityRepository();
   }
 
@@ -184,7 +181,7 @@ export default class EntityService {
     let query;
     if (focus.ecl) query = (await axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
     const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
-    const results = await this.eclService.eclSearch(eclSearchRequest);
+    const results = (await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest)).data;
     let found = false;
     let counter = 0;
     if (results.entities && isArrayHasLength(results.entities)) {
@@ -204,12 +201,12 @@ export default class EntityService {
     if (focus.ecl) query = (await axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
     if (query) {
       const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
-      const results = await this.eclService.eclSearch(eclSearchRequest);
+      const results = (await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest)).data;
       if (results.entities && isArrayHasLength(results.entities)) {
         superiors = (
           await this.axios.get(Env.API + "api/entity/public/superiorPropertiesBoolFocusPaged", {
             params: {
-              conceptIris: results.entities.map(result => result.iri).join(","),
+              conceptIris: results.entities.map((result: any) => result.iri).join(","),
               pageIndex: pageIndex,
               pageSize: pageSize,
               schemeFilters: filters?.join(",")

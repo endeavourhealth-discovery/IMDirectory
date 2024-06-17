@@ -200,15 +200,17 @@ export default class Validator {
 
   private isValidRoleGroups(data: any): { isValid: boolean; message?: string } {
     if (!isObjectHasKeys(data, [IM.ROLE_GROUP])) return { isValid: true };
-
-    for (let group in data[IM.ROLE_GROUP]) {
-      if (isObjectHasKeys(data[IM.ROLE_GROUP][group], [IM.GROUP_NUMBER])) {
-        if (Object.keys(data[IM.ROLE_GROUP][group]).length <= 1) {
+    for (let group of data[IM.ROLE_GROUP]) {
+      if (isObjectHasKeys(group, [IM.GROUP_NUMBER])) {
+        if (Object.keys(group).length <= 1) {
           return { isValid: false, message: "1 or more role groups are invalid." };
         } else {
-          for (let roles in data[IM.ROLE_GROUP][group]) {
-            if (null === data[IM.ROLE_GROUP][group][roles]["@id"] || "" === data[IM.ROLE_GROUP][group][roles].name) {
-              return { isValid: false, message: "1 or more role groups are invalid." };
+          for (const [key, value] of Object.entries(group)) {
+            if (key !== IM.GROUP_NUMBER) {
+              let newValue = value as any;
+              if (!key || null === newValue["@id"] || "" === newValue["@id"] || "" === newValue.name) {
+                return { isValid: false, message: "1 or more role groups are invalid." };
+              }
             }
           }
         }
