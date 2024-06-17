@@ -127,7 +127,7 @@ function addRoleGroup() {
 function deleteRoleGroup(index: number) {
   roleGroups.value.splice(index, 1);
   for (const rg in roleGroups.value) {
-    if (roleGroups.value[rg][0].key["@id"] === IM.GROUP_NUMBER && rg <= index) {
+    if (roleGroups.value[rg][0].key["@id"] === IM.GROUP_NUMBER && parseInt(rg) <= index) {
       roleGroups.value[rg][0].value = roleGroups.value[rg][0].value - 1;
     }
   }
