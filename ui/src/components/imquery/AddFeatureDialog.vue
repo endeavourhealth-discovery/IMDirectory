@@ -61,8 +61,9 @@
           />
 
           <AddPropertyDialog
+            v-if="getLeafMatch(editMatch)"
             v-model:show-dialog="showAddPropertyDialog"
-            :dataModelIri="editMatch.typeOf?.['@id'] || dataModelIri"
+            :dataModelIri="getLeafMatch(editMatch).typeOf?.['@id'] || dataModelIri"
             :header="'Add property'"
             :show-variable-options="false"
             @on-match-add="onMatchAdd"
