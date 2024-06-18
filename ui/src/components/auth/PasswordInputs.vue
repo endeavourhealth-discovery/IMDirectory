@@ -3,7 +3,8 @@
     <label for="passwordOld">Current password</label>
     <div class="input-with-button">
       <Password
-        v-bind="passwordOld"
+        v-model="passwordOld"
+        v-bind="passwordOldAttrs"
         :feedback="false"
         toggleMask
         :input-props="{ autofocus: true }"
@@ -14,7 +15,7 @@
         }"
       />
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld.modelValue" severity="info">
+    <InlineMessage data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld" severity="info">
       {{ errors.passwordOld }}
     </InlineMessage>
   </div>
@@ -22,7 +23,8 @@
     <label for="password">New password</label>
     <div class="input-with-button">
       <Password
-        v-bind="password"
+        v-model="password"
+        v-bind="passwordAttrs"
         toggleMask
         data-testid="password-edit-password-new1-container"
         id="password"
@@ -57,7 +59,8 @@
     <label for="password2">Confirm new password</label>
     <div class="input-with-button">
       <Password
-        v-bind="password2"
+        v-model="password2"
+        v-bind="password2Attrs"
         toggleMask
         :feedback="false"
         data-testid="password-edit-password-new2-container"
@@ -67,9 +70,7 @@
         }"
       />
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="!isMatchingPassword && password2.modelValue" severity="error">
-      {{ errors.password2 }}</InlineMessage
-    >
+    <InlineMessage data-testid="inline-error-message" v-if="!isMatchingPassword && password2" severity="error"> {{ errors.password2 }}</InlineMessage>
   </div>
 </template>
 
@@ -88,7 +89,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { defineComponentBinds, errors } = useForm({
+const { defineField, errors } = useForm({
   validationSchema: yup.object({
     password: yup
       .string()
@@ -103,21 +104,19 @@ const { defineComponentBinds, errors } = useForm({
   })
 });
 
-const passwordOld = defineComponentBinds("passwordOld");
-const password = defineComponentBinds("password");
-const password2 = defineComponentBinds("password2");
+const [passwordOld, passwordOldAttrs] = defineField("passwordOld");
+const [password, passwordAttrs] = defineField("password");
+const [password2, password2Attrs] = defineField("password2");
 
-const isMatchingPassword = computed(() => verifyPasswordsMatch(password.value.modelValue, password2.value.modelValue));
+const isMatchingPassword = computed(() => verifyPasswordsMatch(password.value, password2.value));
 const hasOldPassword = computed(() => {
-  if (props.oldPasswordRequired) return passwordOld.value.modelValue && passwordOld.value.modelValue !== password.value.modelValue;
+  if (props.oldPasswordRequired) return passwordOld.value && passwordOld.value !== password.value;
   else return !props.oldPasswordRequired;
 });
 const arePasswordsValid = computed(() => isValidPassword() && isMatchingPassword.value && hasOldPassword.value);
 
 function isValidPassword(): boolean {
-  return (
-    checkPasswordStrength(password.value.modelValue) === PasswordStrength.medium || checkPasswordStrength(password.value.modelValue) === PasswordStrength.strong
-  );
+  return checkPasswordStrength(password.value) === PasswordStrength.medium || checkPasswordStrength(password.value) === PasswordStrength.strong;
 }
 
 const emit = defineEmits({
@@ -126,7 +125,7 @@ const emit = defineEmits({
 });
 
 watch(
-  () => password.value.modelValue,
+  () => password.value,
   async newValue => {
     emit("update:password", newValue);
   }

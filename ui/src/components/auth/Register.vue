@@ -14,10 +14,11 @@
               id="fieldUsername"
               type="text"
               maxlength="50"
-              v-bind="username"
+              v-model="username"
+              v-bind="usernameAttrs"
               @focus="updateFocused('username', true)"
               @blur="updateFocused('username', false)"
-              :class="errors.username && username.modelValue && !focused.get('username') && 'p-invalid'"
+              :class="errors.username && username && !focused.get('username') && 'p-invalid'"
             />
             <InlineMessage v-if="errors.username" severity="error"> {{ errors.username }} </InlineMessage>
           </div>
@@ -29,27 +30,26 @@
                 data-testid="register-email1"
                 type="text"
                 maxlength="50"
-                v-bind="email1"
+                v-model="email1"
+                v-bind="email1Attrs"
                 @focus="updateFocused('email1', true)"
                 @blur="updateFocused('email1', false)"
                 :class="!emailIsNotRegistered && !errors.email1 && !focused.get('email1') && 'p-invalid'"
               />
               <IMFontAwesomeIcon
-                v-if="!errors.email1 && email1.modelValue && emailIsNotRegistered"
+                v-if="!errors.email1 && email1 && emailIsNotRegistered"
                 icon="fa-regular fa-circle-check"
                 class="email-check"
                 data-testid="register-email1-verified"
               />
               <IMFontAwesomeIcon
-                v-if="(errors.email1 && email1.modelValue) || !emailIsNotRegistered"
+                v-if="(errors.email1 && email1) || !emailIsNotRegistered"
                 icon="fa-regular fa-circle-xmark"
                 class="email-times"
                 data-testid="register-email1-unverified"
               />
             </div>
-            <InlineMessage v-if="!emailIsNotRegistered && email1.modelValue && !errors.email1" severity="error"
-              >Email address is already registered</InlineMessage
-            >
+            <InlineMessage v-if="!emailIsNotRegistered && email1 && !errors.email1" severity="error">Email address is already registered</InlineMessage>
             <InlineMessage v-if="emailIsNotRegistered && errors.email1" severity="error">{{ errors.email1 }}</InlineMessage>
           </div>
           <div class="field">
@@ -59,10 +59,11 @@
               data-testid="register-email2"
               type="text"
               maxlength="50"
-              v-bind="email2"
+              v-model="email2"
+              v-bind="email2Attrs"
               @focus="updateFocused('email2', true)"
               @blur="updateFocused('email2', false)"
-              :class="errors.email2 && email2.modelValue && !focused.get('email2') && 'p-invalid'"
+              :class="errors.email2 && email2 && !focused.get('email2') && 'p-invalid'"
             />
             <InlineMessage v-if="errors.email2" severity="error"> {{ errors.email2 }} </InlineMessage>
           </div>
@@ -73,10 +74,11 @@
               data-testid="register-firstname"
               type="text"
               maxlength="50"
-              v-bind="firstName"
+              v-model="firstName"
+              v-bind="firstNameAttrs"
               @focus="updateFocused('firstName', true)"
               @blur="updateFocused('firstName', false)"
-              :class="errors.firstName && firstName.modelValue && !focused.get('firstName') && 'p-invalid'"
+              :class="errors.firstName && firstName && !focused.get('firstName') && 'p-invalid'"
             />
             <InlineMessage v-if="errors.firstName" severity="error"> {{ errors.firstName }} </InlineMessage>
           </div>
@@ -87,10 +89,11 @@
               data-testid="register-lastname"
               type="text"
               maxlength="50"
-              v-bind="lastName"
+              v-model="lastName"
+              v-bind="lastNameAttrs"
               @focus="updateFocused('lastName', true)"
               @blur="updateFocused('lastName', false)"
-              :class="errors.lastName && lastName.modelValue && !focused.get('lastName') && 'p-invalid'"
+              :class="errors.lastName && lastName && !focused.get('lastName') && 'p-invalid'"
             />
             <InlineMessage v-if="errors.lastName" severity="error"> {{ errors.lastName }}</InlineMessage>
           </div>
@@ -151,42 +154,42 @@ const schema: any = yup.object({
     .string()
     .required("Username is required")
     .test("isUsernameVerified", 'Username contains unexpected characters. A-Z, 0-9 and hyphen/underscore(-_) only allowed e.g."John-Doe2"', () =>
-      verifyIsUsername(username.value.modelValue)
+      verifyIsUsername(username.value)
     ),
   firstName: yup
     .string()
     .required("First name is required")
     .test("isFirstNameVerified", 'First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne"', () =>
-      verifyIsFirstName(firstName.value.modelValue)
+      verifyIsFirstName(firstName.value)
     ),
   lastName: yup
     .string()
     .required("Last name is required")
     .test("isLastNameValid", 'Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O\'Keith-Smith"', () =>
-      verifyIsLastName(lastName.value.modelValue)
+      verifyIsLastName(lastName.value)
     ),
   email1: yup
     .string()
     .required("Email is required")
-    .test("isEmailValid", "Email is not valid", () => verifyIsEmail(email1.value.modelValue)),
+    .test("isEmailValid", "Email is not valid", () => verifyIsEmail(email1.value)),
   email2: yup
     .string()
     .required("Email is required")
     .oneOf([yup.ref("email1")], "Email addresses do not match")
 });
 
-const { errors, defineComponentBinds, handleSubmit, setValues } = useForm({
+const { errors, defineField, handleSubmit } = useForm({
   validationSchema: schema
 });
 
-const username: any = defineComponentBinds("username");
-const firstName: any = defineComponentBinds("firstName");
-const lastName: any = defineComponentBinds("lastName");
-const email1: any = defineComponentBinds("email1");
-const email2: any = defineComponentBinds("email2");
+const [username, usernameAttrs]: any = defineField("username");
+const [firstName, firstNameAttrs]: any = defineField("firstName");
+const [lastName, lastNameAttrs]: any = defineField("lastName");
+const [email1, email1Attrs]: any = defineField("email1");
+const [email2, email2Attrs]: any = defineField("email2");
 
 watch(
-  () => _.cloneDeep(email1.value.modelValue),
+  () => _.cloneDeep(email1.value),
   async newValue => {
     await verifyEmailIsNotRegistered(newValue);
   }
@@ -208,10 +211,10 @@ const onSubmit = handleSubmit(async () => {
   if (allVerified.value) {
     const user = {
       id: "",
-      username: username.value.modelValue,
-      firstName: firstName.value.modelValue,
-      lastName: lastName.value.modelValue,
-      email: email1.value.modelValue.toLowerCase(),
+      username: username.value,
+      firstName: firstName.value,
+      lastName: lastName.value,
+      email: email1.value.toLowerCase(),
       password: password.value,
       avatar: selectedAvatar.value,
       roles: [],
@@ -265,11 +268,11 @@ const onSubmit = handleSubmit(async () => {
 });
 
 function clearForm(): void {
-  username.value.modelValue = "";
-  email1.value.modelValue = "";
-  email2.value.modelValue = "";
-  firstName.value.modelValue = "";
-  lastName.value.modelValue = "";
+  username.value = "";
+  email1.value = "";
+  email2.value = "";
+  firstName.value = "";
+  lastName.value = "";
   password.value = "";
   selectedAvatar.value = Avatars[0];
 }
