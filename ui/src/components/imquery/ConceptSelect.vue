@@ -49,14 +49,20 @@ import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 import { cloneDeep, isEqual } from "lodash-es";
-import { Node, SearchResultSummary, Where, Element, QueryRequest, SearchBinding } from "@im-library/interfaces/AutoGen";
+import { Node, SearchResultSummary, Where, Element, QueryRequest, SearchBinding, Query, Match } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { FilterOptions, SearchOptions } from "@im-library/interfaces";
 import { onUnmounted } from "vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { QueryService } from "@/services";
-import { addBindingsToIMQuery, addMemberOfToIMQuery, addTypeFilterToIMQuery, buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import {
+  addBindingsToIMQuery,
+  addMemberOfToIMQuery,
+  addTypeFilterToIMQuery,
+  buildIMQueryFromFilters,
+  deleteQueryPredicateIfExists
+} from "@/helpers/IMQueryBuilder";
 interface Props {
   datatype: string;
   property: Where;
@@ -217,21 +223,30 @@ function setValues() {
 
 function onUpdateSelectedFilters(selectedFilters: FilterOptions) {
   if (!imQuery.value) imQuery.value = { query: {} };
-  if (selectedFilters.types) {
+  if (selectedFilters.types.length == 1) {
     if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT)) {
-      const bindingIndex = imQuery.value.query.match?.findIndex(match => match["@id"] === IM.BINDING);
-      if (bindingIndex !== undefined && bindingIndex !== -1) imQuery.value.query.match?.splice(bindingIndex, 1);
+      deleteQueryPredicateIfExists(imQuery.value.query, IM.BINDING);
+      deleteQueryPredicateIfExists(imQuery.value.query, IM.IS_MEMBER_OF);
       const conceptSetRefs = conceptSets.value.map(conceptSet => {
         return { "@id": conceptSet };
       });
       addMemberOfToIMQuery(conceptSetRefs, imQuery.value);
     } else if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT_SET)) {
-      const memberOfIndex = imQuery.value.query.match?.findIndex(match => match["@id"] === IM.HAS_MEMBER);
-      if (memberOfIndex !== undefined && memberOfIndex !== -1) imQuery.value.query.match?.splice(memberOfIndex, 1);
+      deleteQueryPredicateIfExists(imQuery.value.query, IM.IS_MEMBER_OF);
+      deleteQueryPredicateIfExists(imQuery.value.query, IM.BINDING);
       const binding: SearchBinding = { node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } };
       addBindingsToIMQuery([binding], imQuery.value);
     }
     addTypeFilterToIMQuery(selectedFilters.types, imQuery.value);
+  } else if (selectedFilters.types.find(t => t["@id"] === IM.CONCEPT) && selectedFilters.types.find(t => t["@id"] === IM.CONCEPT_SET)) {
+    deleteQueryPredicateIfExists(imQuery.value.query, IM.BINDING);
+    deleteQueryPredicateIfExists(imQuery.value.query, IM.IS_MEMBER_OF);
+    const conceptSetRefs = conceptSets.value.map(conceptSet => {
+      return { "@id": conceptSet };
+    });
+    addMemberOfToIMQuery(conceptSetRefs, imQuery.value);
+    const binding: SearchBinding = { node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } };
+    addBindingsToIMQuery([binding], imQuery.value);
   }
 }
 </script>

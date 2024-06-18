@@ -21,7 +21,7 @@ function describe(query: Query, includeLogicDesc: boolean) {
   }
   if (isArrayHasLength(query.match)) {
     for (const [index, match] of query.match!.entries()) {
-      describeMatch(match, index, includeLogicDesc, Bool.and);
+      describeMatch(match, index, includeLogicDesc, Bool.or);
     }
   }
   if (isArrayHasLength(query.where)) {

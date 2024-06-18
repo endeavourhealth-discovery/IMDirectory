@@ -107,9 +107,7 @@ function buildIMQueryForConceptSearch() {
   const searchOptions: SearchOptions = {
     schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
     status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
-    types: [{ "@id": IM.CONCEPT }],
-    sortDirections: [{ "@id": IM.DESCENDING }],
-    sortFields: [{ "@id": IM.USAGE_TOTAL }]
+    types: [{ "@id": IM.CONCEPT }]
   };
   imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }

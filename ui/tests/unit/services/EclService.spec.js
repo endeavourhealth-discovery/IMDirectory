@@ -17,7 +17,7 @@ describe("EclService ___ axios success", () => {
     const result = await EclService.ECLSearch({ eclQuery: { from: { "@id": "testString" } }, includeLegacy: false, limit: 1000 }, controller);
     expect(axios.post).toBeCalledTimes(1);
     expect(axios.post).toHaveBeenCalledWith(
-      Env.VITE_NODE_API + "node_api/ecl/public/eclSearch",
+      Env.API + "api/ecl/public/eclSearch",
       { eclQuery: { from: { "@id": "testString" } }, includeLegacy: false, limit: 1000 },
       {
         signal: controller.signal

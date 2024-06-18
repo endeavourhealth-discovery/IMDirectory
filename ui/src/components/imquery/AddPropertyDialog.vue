@@ -166,4 +166,13 @@ function getEditWhereDMIriRecursively(where: Where, found: any[]) {
   display: flex;
   flex-flow: column;
 }
+
+.p-stepper {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+.p-stepper-panels {
+  overflow: auto;
+}
 </style>

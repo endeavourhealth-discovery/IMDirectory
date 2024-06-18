@@ -6,7 +6,7 @@ import { Query, SearchResultSummary, EclSearchRequest, BoolGroup } from "@im-lib
 
 const EclService = {
   async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<{ count: number; entities: SearchResultSummary[]; page: number }> {
-    const results = (await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclSearch", eclSearchRequest, {
+    const results = (await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest, {
       signal: controller?.signal
     })) as { count: number; entities: any[]; page: number };
     if (isObjectHasKeys(results, ["entities"])) results.entities.forEach((result: any) => entityToAliasEntity(result));

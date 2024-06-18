@@ -5,10 +5,15 @@
       <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
     </div>
     <div class="error-message-container" :class="invalid && showValidation ? 'error-message-container-highlight' : ''">
-      <div :class="[hover ? 'children-container-hover' : 'children-container']" @mouseover="mouseover($event, true)" @mouseout="mouseout">
+      <div
+        class="error-message-container"
+        :class="[hover ? 'children-container-hover' : 'children-container', invalid && showValidation ? 'error-message-container-highlight' : '']"
+        @mouseover="mouseover($event, true)"
+        @mouseout="mouseout"
+      >
         <table>
-          <template v-for="(row, index) in dmProperties" class="property">
-            <tr @mouseover="mouseover($event, row)" @mouseout="mouseout">
+          <template v-for="(row, index) in dmProperties">
+            <tr @mouseover="mouseover($event, row)" @mouseout="mouseout" class="property">
               <td class="td-50" :class="[hover === row ? 'table-row-hover' : 'table-row']">
                 <AutocompleteSearchBar
                   class="search-bar"
@@ -217,15 +222,17 @@ watch(
   () => _.cloneDeep(dmProperties.value),
   async (newValue, oldValue) => {
     if (JSON.stringify(newValue) !== JSON.stringify(oldValue) && JSON.stringify(loading.value) === "false") {
-      for (let v in newValue) {
+      for (const v in newValue) {
         if (
           oldValue.length <= newValue.length &&
           oldValue[v] &&
           newValue[v].range !== undefined &&
           JSON.stringify(newValue[v].range?.iri) !== JSON.stringify(oldValue[v].range?.iri)
         ) {
-          const newRangeType = await getRangeType(newValue[v].range!.iri!.toString());
-          dmProperties.value[v].rangeType = newRangeType!.toString();
+          if (newValue[v].range?.iri) {
+            const newRangeType = await getRangeType(newValue[v].range!.iri!.toString());
+            dmProperties.value[v].rangeType = newRangeType!.toString();
+          }
         }
       }
       await update();
@@ -489,7 +496,7 @@ async function validateEntity() {
 function updateEntity() {
   if (entityUpdate) {
     const deltas: any[] = [];
-    let dmAllProperties = dmProperties.value.concat(dmPropertiesInherited.value);
+    const dmAllProperties = dmProperties.value.concat(dmPropertiesInherited.value);
     dmAllProperties.forEach((value, index) => {
       const p: any = {};
       let fullPath = {} as TTIriRef;
@@ -631,5 +638,9 @@ td:first-child {
   min-width: 70%;
   display: flex;
   gap: 0.5rem;
+}
+
+.builder-button {
+  min-width: 10rem;
 }
 </style>

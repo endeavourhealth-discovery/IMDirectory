@@ -33,11 +33,11 @@
         />
         <div class="where-list"><WhereDisplay v-for="nestedWhere in match.where" :where="nestedWhere" /></div>
       </div>
+      <div v-if="match.orderBy" v-html="match.orderBy.description" />
       <div v-if="match.then">
         <div class="then-title">Then</div>
         <MatchDisplay :match="match.then" />
       </div>
-      <div v-if="match.orderBy" v-html="match.orderBy.description" />
       <div v-if="match.variable" class="variable-display">
         <div class="saved-as">saved as</div>
         <div class="variable">{{ match.variable }}</div>
