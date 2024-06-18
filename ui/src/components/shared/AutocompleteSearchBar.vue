@@ -16,6 +16,7 @@
         :disabled="disabled"
       />
     </IconField>
+    <Button label="Advanced" severity="info" @click="showDialog = true" class="advanced-button" icon="pi pi-search" />
     <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
@@ -228,6 +229,10 @@ function onListboxOptionClick(event: any, selected: SearchResultSummary) {
 
 .mic {
   cursor: pointer;
+}
+
+.advanced-button {
+  width: 12%;
 }
 
 .listening {

@@ -2,6 +2,7 @@
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
     <Stepper :style="{ minWidth: '50vw' }">
       <StepperPanel>
+        <template #header> </template>
         <template #content="{ nextCallback }">
           <div class="flex flex-column select-property-wrapper">
             <AutocompleteSearchBar
@@ -48,6 +49,7 @@
         </template>
       </StepperPanel>
       <StepperPanel>
+        <template #header> </template>
         <template #content="{ prevCallback }">
           <EditWhere
             v-if="getLeafMatch(editMatch) && isArrayHasLength(getLeafMatch(editMatch).where)"
