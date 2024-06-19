@@ -14,7 +14,7 @@
             />
             <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
               <template #option="{ option }">
-                <div class="flex align-items-center">
+                <div class="flex align-items-center" id="query-path-options">
                   <div v-if="isSelectedConceptValue">
                     {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
                       option.where?.[0]?.name
@@ -58,7 +58,6 @@
             :focused="editMatch['@id'] === focusedId"
             :focused-id="focusedId"
             :match-type-of-iri="getLeafMatch(editMatch).typeOf?.['@id'] || dataModelIri"
-            @on-update-dialog-focus="() => {}"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
 
@@ -126,7 +125,7 @@ const emit = defineEmits({
 const editMatch: Ref<Match> = ref({ where: [] } as Match);
 const visible: Ref<boolean> = ref(false);
 const selectedGeneralConcept: Ref<SearchResultSummary | undefined> = ref();
-const imQuery: Ref<QueryRequest | undefined> = ref({ query: {} });
+const imQuery: Ref<QueryRequest | undefined> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
 const selectedPath: Ref<Match | undefined> = ref();
 const isSelectedConceptValue = computed(
@@ -159,7 +158,7 @@ watch(visible, newValue => {
 watch(
   () => cloneDeep(props.match),
   newValue => {
-    if (isObjectHasKeys(props.match, ["where"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
+    if (isObjectHasKeys(newValue, ["where"]) && isArrayHasLength(newValue!.where)) editMatch.value.where = cloneDeep(newValue!.where);
   }
 );
 

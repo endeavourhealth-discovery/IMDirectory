@@ -156,15 +156,13 @@ const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary |
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 onMounted(() => {
-  if (fullQuery.value)
-    typeOf.value =
-      props.editMatch.typeOf?.["@id"] ?? getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
+  if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
 });
 
 watch(
   () => cloneDeep(props.editMatch),
   () => {
-    if (fullQuery.value) typeOf.value = props.editMatch.typeOf?.["@id"] ?? getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!);
+    if (fullQuery.value) typeOf.value = typeOf.value = getTypeOf(fullQuery.value);
   }
 );
 
@@ -214,6 +212,10 @@ function ungroupMatches(nestedMatch: Match) {
     const index = props.editMatch.match?.findIndex(match => nestedMatch["@id"] === match["@id"]);
     if (index !== -1) props.editMatch.match?.splice(index!, 1);
   }
+}
+
+function getTypeOf(fullQuery: Match) {
+  return props.editMatch.typeOf?.["@id"] ?? getTypeOfMatch(fullQuery, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
 }
 </script>
 
