@@ -69,8 +69,6 @@ function setupTree() {
   async function onNodeSelect(node: any): Promise<void> {
     if (node.data === "loadMore") {
       if (!node.loading) await loadMore(node);
-    } else if (node.data === IM.FAVOURITES) {
-      return;
     } else {
       selectedNode.value = node;
       onRowClick(node.data);

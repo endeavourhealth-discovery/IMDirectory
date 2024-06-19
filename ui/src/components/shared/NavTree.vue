@@ -317,8 +317,6 @@ async function displayOverlay(event: any, node: any): Promise<void> {
 function onNodeSelect(node: any): void {
   if (node.data === "loadMore") {
     if (!node.loading) loadMore(node);
-  } else if (node.data === IM.FAVOURITES) {
-    return;
   } else {
     selectedNode.value = node;
     emit("rowSelected", node);
