@@ -67,7 +67,8 @@ export const useUserStore = defineStore("user", {
         if (themeResult) this.currentTheme = themeResult;
         const scaleResult = await UserService.getUserScale();
         if (scaleResult) this.currentScale = scaleResult;
-        await this.initFavourites();
+        const favourites = await UserService.getUserFavourites();
+        if (favourites.length) this.favourites = favourites;
         const recentActivityResult = await UserService.getUserMRU();
         if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
         const organisationResults = await UserService.getUserOrganisations();
@@ -106,14 +107,12 @@ export const useUserStore = defineStore("user", {
     },
     async updateFavourites(favourite: string) {
       if (favourite !== "http://endhealth.info/im#Favourites") {
-        const favourites: string[] = this.currentUser ? await UserService.getUserFavourites() : this.favourites;
-        if (!favourites.includes(favourite)) {
-          favourites.push(favourite);
+        if (!this.favourites.includes(favourite)) {
+          this.favourites.push(favourite);
         } else {
-          favourites.splice(favourites.indexOf(favourite), 1);
+          this.favourites.splice(this.favourites.indexOf(favourite), 1);
         }
-        this.favourites = favourites;
-        if (this.currentUser) await UserService.updateUserFavourites(favourites);
+        if (this.currentUser) await UserService.updateUserFavourites(this.favourites);
       }
     },
     async updateCurrentTheme(theme: string) {

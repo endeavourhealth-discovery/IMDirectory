@@ -15,7 +15,7 @@
         scrollHeight="flex"
         class="p-datatable-sm favourites-datatable"
       >
-        <template #empty> No favourites </template>
+        <template #empty>{{ !currentUser ? "Login to add favourites" : "No favourites" }}</template>
         <Column field="name" header="Name">
           <template #body="{ data }: any">
             <div class="favourite-name-icon-container">

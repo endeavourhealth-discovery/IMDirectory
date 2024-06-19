@@ -80,6 +80,7 @@ const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
 
@@ -110,14 +111,6 @@ const rClickOptions: Ref<any[]> = ref([
     label: "View in new tab",
     icon: "fa-solid fa-arrow-up-right-from-square",
     command: () => directService.view(selected.value["@id"])
-  },
-  {
-    separator: true
-  },
-  {
-    label: "Favourite",
-    icon: "fa-solid fa-star",
-    command: () => updateFavourites(selected.value["@id"])
   }
 ]);
 const totalCount = ref(0);
@@ -131,6 +124,16 @@ onMounted(() => init());
 
 async function init() {
   loading.value = true;
+  if (isLoggedIn.value) {
+    rClickOptions.value.push({
+      separator: true
+    });
+    rClickOptions.value.push({
+      label: "Favourite",
+      icon: "fa-solid fa-star",
+      command: () => updateFavourites(selected.value["@id"])
+    });
+  }
   !conceptIsFavourite.value ? await getChildren(props.entityIri) : await getFavourites();
   loading.value = false;
 }
@@ -168,7 +171,7 @@ function isFavourite(iri: string) {
 function updateRClickOptions() {
   rClickOptions.value[0].label = selected.value.hasChildren ? "Open" : "Select";
   rClickOptions.value[0].icon = selected.value.hasChildren ? "fa-solid fa-folder-open" : "fa-solid fa-sitemap";
-  rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
+  if (isLoggedIn.value) rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
 }
 
 function onRowContextMenu(data: any) {

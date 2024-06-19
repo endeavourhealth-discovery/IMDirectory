@@ -29,7 +29,7 @@
       :disabled="!editAllowed"
     />
     <Button
-      v-if="show('favourite') && isFavourite(iri)"
+      v-if="isLoggedIn && show('favourite') && isFavourite(iri)"
       style="color: var(--yellow-500)"
       icon="fa-solid fa-star"
       :severity="getSeverity()"
@@ -40,7 +40,7 @@
       :loading="loadingFavourites"
     />
     <Button
-      v-else-if="show('favourite') && !isFavourite(iri)"
+      v-else-if="isLoggedIn && show('favourite') && !isFavourite(iri)"
       icon="fa-regular fa-star"
       :severity="getSeverity()"
       :class="getClass()"
@@ -63,6 +63,7 @@ const directService = new DirectService();
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 const editAllowed = computed(() => organisations.value.indexOf(props.iri.split("#")[0] + "#") !== -1);
 
 const organisations = computed(() => userStore.organisations);
