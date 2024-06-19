@@ -21,7 +21,11 @@
       :rows-per-page-options="[rows, rows * 2, rows * 4, rows * 8]"
       :loading="searchLoading"
     >
-      <template #empty> None </template>
+      <template #empty>
+        <div>No results found. Do you want to search for any of the following?</div>
+        <div><a class="link">HTML Images</a></div>
+        <div><a class="link">HTML Images</a></div>
+      </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
           <span>Results</span>
@@ -322,5 +326,9 @@ label {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+}
+
+.link {
+  cursor: pointer;
 }
 </style>
