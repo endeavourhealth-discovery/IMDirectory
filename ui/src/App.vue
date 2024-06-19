@@ -72,16 +72,13 @@ const latestRelease: Ref<GithubRelease | undefined> = ref();
 onMounted(async () => {
   loadingStore.updateViewsLoading(true);
   await AuthService.getCurrentAuthenticatedUser();
-  await userStore.getAllFromUserDatabase();
   await filterStore.fetchFilterSettings();
 
   let theme = "saga-blue";
-  if (currentUser.value) await UserService.getUserTheme();
   if (currentTheme.value) theme = currentTheme.value;
   changeTheme(theme);
 
   let scale = "16px";
-  if (currentUser.value) await UserService.getUserScale();
   if (currentScale.value) scale = currentScale.value;
   changeScale(scale);
 

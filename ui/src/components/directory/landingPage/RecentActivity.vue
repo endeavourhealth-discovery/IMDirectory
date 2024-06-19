@@ -106,18 +106,12 @@ function locateInTree(iri: string) {
 }
 
 async function getRecentActivityDetails() {
-  let localActivity: RecentActivityItem[] = [];
-  if (isArrayHasLength(recentLocalActivity.value)) localActivity = recentLocalActivity.value;
-  if (currentUser.value) {
-    const results = await UserService.getUserMRU();
-    if (isArrayHasLength(results)) localActivity = results;
-  }
-  const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
+  const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
 
   const temp: RecentActivityItem[] = [];
 
-  for (const rla of localActivity) {
+  for (const rla of recentLocalActivity.value) {
     const clone = { ...rla };
 
     let result = null;
