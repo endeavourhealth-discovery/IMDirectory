@@ -92,7 +92,7 @@ function getNodeRef(property: Where) {
 .feature-indent {
   display: flex;
   flex-flow: column;
-  margin-left: 2rem;
+  margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
 }
