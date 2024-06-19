@@ -37,6 +37,7 @@ import { useSharedStore } from "@/stores/sharedStore";
 import setupChangeTheme from "@/composables/setupChangeTheme";
 import setupChangeScale from "@/composables/setupChangeScale";
 import { useLoadingStore } from "./stores/loadingStore";
+import { useFilterStore } from "@/stores/filterStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -46,6 +47,7 @@ const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
+const filterStore = useFilterStore();
 
 const { changeTheme } = setupChangeTheme();
 const { changeScale } = setupChangeScale();
@@ -71,6 +73,7 @@ onMounted(async () => {
   loadingStore.updateViewsLoading(true);
   await AuthService.getCurrentAuthenticatedUser();
   await userStore.getAllFromUserDatabase();
+  await filterStore.fetchFilterSettings();
 
   let theme = "saga-blue";
   if (currentUser.value) await UserService.getUserTheme();

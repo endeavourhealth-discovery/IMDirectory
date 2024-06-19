@@ -5,7 +5,7 @@
       icon="fa-duotone fa-list-tree"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="locateInTree(iri)"
+      @click="event => locateInTree(event, iri)"
       v-tooltip.top="'Find in tree'"
       data-testid="select-button"
     />
@@ -14,7 +14,7 @@
       icon="fa-duotone fa-up-right-from-square"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="directService.view(iri)"
+      @click="event => viewEntity(event, iri)"
       v-tooltip.top="'View'"
       data-testid="view-button"
     />
@@ -23,7 +23,7 @@
       icon="fa-duotone fa-pen-to-square"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="directService.edit(iri, true)"
+      @click="event => toEdit(event, iri)"
       v-tooltip.top="'Edit'"
       data-testid="edit-button"
       :disabled="!editAllowed"
@@ -34,24 +34,26 @@
       icon="fa-solid fa-star"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="updateFavourites(iri)"
+      @click="event => updateFavourites(event, iri)"
       v-tooltip.left="'Unfavourite'"
       data-testid="unfavourite-button"
+      :loading="loadingFavourites"
     />
     <Button
       v-else-if="show('favourite') && !isFavourite(iri)"
       icon="fa-regular fa-star"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="updateFavourites(iri)"
+      @click="event => updateFavourites(event, iri)"
       v-tooltip.left="'Favourite'"
       data-testid="favourite-button"
+      :loading="loadingFavourites"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { DirectService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useSharedStore } from "@/stores/sharedStore";
@@ -78,6 +80,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits({
   locateInTree: (_payload: string) => true
 });
+
+const loadingFavourites = ref(false);
 
 function getClass() {
   const activityRowButton = "p-button-rounded p-button-text p-button-plain activity-row-button ";
@@ -107,12 +111,26 @@ function isFavourite(iri: string) {
   return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
 }
 
-function updateFavourites(iri: string) {
-  userStore.updateFavourites(iri);
+async function updateFavourites(event: any, iri: string) {
+  event.stopPropagation();
+  loadingFavourites.value = true;
+  await userStore.updateFavourites(iri);
+  loadingFavourites.value = false;
 }
 
-function locateInTree(iri: string) {
+function locateInTree(event: any, iri: string) {
+  event.stopPropagation();
   emit("locateInTree", iri);
+}
+
+function viewEntity(event: any, iri: string) {
+  event.stopPropagation();
+  directService.view(iri);
+}
+
+function toEdit(event: any, iri: string) {
+  event.stopPropagation();
+  directService.edit(iri, true);
 }
 </script>
 

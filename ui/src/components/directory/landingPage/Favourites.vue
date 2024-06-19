@@ -98,12 +98,7 @@ function locateInTree(iri: string) {
 }
 
 async function getFavouritesDetails() {
-  let localFavourites: string[] = [];
-  if (currentUser.value) {
-    const results = await UserService.getUserFavourites();
-    if (isArrayHasLength(results)) localFavourites = results;
-  }
-  const results = await EntityService.getPartialEntities(localFavourites, [RDFS.LABEL, RDF.TYPE]);
+  const results = await EntityService.getPartialEntities(userFavourites.value, [RDFS.LABEL, RDF.TYPE]);
   if (!results.length) {
     favourites.value = [];
     return;

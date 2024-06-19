@@ -112,8 +112,8 @@ export const useUserStore = defineStore("user", {
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        if (this.currentUser) await UserService.updateUserFavourites(favourites);
         this.favourites = favourites;
+        if (this.currentUser) await UserService.updateUserFavourites(favourites);
       }
     },
     async updateCurrentTheme(theme: string) {
