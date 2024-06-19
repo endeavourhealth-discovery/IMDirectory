@@ -1,5 +1,6 @@
 <template>
   <div class="property-description-container">
+    <div v-if="where.name && !where.description && where?.match" v-html="where.name"></div>
     <MatchDisplay v-if="where?.match" :match="where.match" />
     <div v-if="where?.where" class="where-group">
       <div v-if="where.where.length > 1" class="vertical-button-container">

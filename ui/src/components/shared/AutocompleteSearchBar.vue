@@ -16,6 +16,7 @@
         :disabled="disabled"
       />
     </IconField>
+    <Button label="Advanced" severity="info" @click="showDialog = true" class="advanced-button" icon="pi pi-search" />
     <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
@@ -36,7 +37,6 @@
         <div v-else>No results</div>
 
         <div class="advanced-search-container">
-          <Button label="Advanced search" class="advanced-search-button" @click="showDialog = true" />
           <small>
             Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
             {{ results?.count ? results.count : 0 }} results
@@ -98,7 +98,7 @@ const results: Ref<SearchResponse | undefined> = ref();
 const showDialog = ref(false);
 const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
 const searchLoading: Ref<boolean> = ref(false);
-const searchPlaceholder: Ref<string> = ref("Search");
+const searchPlaceholder: Ref<string> = ref(props.searchPlaceholder ?? "Search");
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const selectedIndex: Ref<number> = ref(-1);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
@@ -181,13 +181,15 @@ async function onEnter(event: any) {
 }
 
 async function search() {
-  searchLoading.value = true;
-  const imQueryCopy = props.imQuery ? cloneDeep(props.imQuery) : { query: {} };
-  imQueryCopy.textSearch = searchText.value;
-  imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
-  const response = await QueryService.queryIMSearch(imQueryCopy);
-  searchLoading.value = false;
-  return response;
+  if (searchText.value && searchText.value.length > 2) {
+    searchLoading.value = true;
+    const imQueryCopy = props.imQuery ? cloneDeep(props.imQuery) : { query: {} };
+    imQueryCopy.textSearch = searchText.value;
+    imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
+    const response = await QueryService.queryIMSearch(imQueryCopy);
+    searchLoading.value = false;
+    return response;
+  }
 }
 
 async function showResultsOverlay(event: any) {
@@ -227,6 +229,10 @@ function onListboxOptionClick(event: any, selected: SearchResultSummary) {
 
 .mic {
   cursor: pointer;
+}
+
+.advanced-button {
+  width: 12%;
 }
 
 .listening {

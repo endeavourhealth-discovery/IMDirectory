@@ -1,14 +1,14 @@
 <template>
   <div class="property-container">
-    <div class="property-title"><InputText :value="uiProperty?.propertyName" disabled /></div>
+    <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-14rem" disabled />
     <ConceptSelect
-      v-if="uiProperty?.propertyType === 'class' || uiProperty?.propertyType === 'node'"
-      :datatype="uiProperty.valueType"
+      v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'"
+      :datatype="selectedProperty.valueType"
       :property="property"
       :data-model-iri="dataModelIri"
       class="concept-select"
     />
-    <DatatypeSelect v-else-if="uiProperty?.propertyType === 'datatype'" :datatype="uiProperty.valueType" :property="property" />
+    <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :datatype="selectedProperty.valueType" :property="property" />
     <Button v-if="showDelete" @click="$emit('deleteProperty')" severity="danger" icon="fa-solid fa-trash" />
   </div>
 </template>
@@ -17,10 +17,14 @@
 import { Where } from "@im-library/interfaces/AutoGen";
 import { UIProperty } from "@im-library/interfaces";
 import { Ref, onMounted, ref, watch } from "vue";
-import { QueryService } from "@/services";
+import { EntityService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
 import { cloneDeep } from "lodash-es";
 import ConceptSelect from "./ConceptSelect.vue";
+import { SHACL } from "@im-library/vocabulary";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { convertTTPropertyToUIProperty } from "@im-library/helpers/Transforms";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 interface Props {
   property: Where;
@@ -29,8 +33,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), { showDelete: true });
-const uiProperty: Ref<UIProperty | undefined> = ref();
-
+const selectedProperty: Ref<UIProperty | undefined> = ref();
 const emit = defineEmits({ deleteProperty: () => true });
 
 onMounted(async () => {
@@ -48,9 +51,23 @@ watch(
 );
 
 async function init() {
-  if (props.dataModelIri && props.property["@id"]) {
-    uiProperty.value = await QueryService.getDataModelProperty(props.dataModelIri, props.property["@id"]);
-  }
+  if (props.dataModelIri && props.property["@id"]) selectedProperty.value = await getProperty(props.dataModelIri, props.property["@id"]);
+}
+
+async function getProperty(dmIri: string, propIri: string) {
+  const uiProps: UIProperty[] = [];
+  const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY]);
+  if (isArrayHasLength(propertiesEntity[SHACL.PROPERTY]))
+    for (const ttprop of propertiesEntity[SHACL.PROPERTY]) {
+      const uiProperty = convertTTPropertyToUIProperty(ttprop);
+      if (isArrayHasLength(ttprop[SHACL.PATH])) {
+        uiProperty.propertyName = getNameFromRef(ttprop[SHACL.PATH][0]);
+      }
+      uiProps.push(uiProperty);
+    }
+
+  const found = uiProps.find(prop => prop.iri === props.property["@id"]);
+  if (found) return found;
 }
 </script>
 

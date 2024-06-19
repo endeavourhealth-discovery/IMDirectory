@@ -15,36 +15,33 @@
       <div class="feature-title side-title">Features:</div>
       <div class="feature-list">
         <div class="feature-list-container">
-          <div v-for="(feature, index) in editQueryDefinition.match" class="feature">
-            <div
-              :class="[hover === index ? 'feature-description-card-hover' : 'feature-description-card']"
-              class="clickable"
-              @mouseover="mouseover($event, index)"
-              @mouseout="mouseout($event, index)"
-              @click="editMatch(index)"
-            >
-              <MatchDisplay class="feature-description" :match="feature" />
-            </div>
-
-            <Button @click="deleteFeature(index)" severity="danger" icon="fa-solid fa-trash" class="builder-button expanding-button" />
+          <div class="feature">
+            <MatchDisplay
+              class="feature-description clickable"
+              :match="editQueryDefinition"
+              :class="[hover ? 'feature-description-card-hover' : 'feature-description-card']"
+              @mouseover="mouseover"
+              @mouseout="mouseout"
+              @click="editMatch"
+            />
           </div>
         </div>
         <div class="add-buttons">
-          <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
-          <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
+          <Button label="Add parent cohort" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
+          <Button
+            label="Add existing feature"
+            @click="showAddFeature = true"
+            severity="success"
+            icon="fa-solid fa-plus"
+            class="add-feature-button"
+            v-tooltip.bottom="'Add definition from existing feature'"
+          />
           <Button
             label="Add new feature"
             v-if="selectedBaseType?.iri"
             @click="showBuildFeature = true"
             severity="warning"
             icon="fa-solid fa-screwdriver-wrench"
-            class="add-feature-button"
-          />
-          <Button
-            label="Add feature group"
-            @click="editQueryDefinition.match?.push({ boolMatch: Bool.and })"
-            severity="primary"
-            icon="fa-solid fa-layer-group"
             class="add-feature-button"
           />
         </div>
@@ -61,9 +58,8 @@
     <EditMatchDialog
       v-model:show-dialog="showDialog"
       :match="selectedMatch"
-      :index="selectedIndex"
       :query-base-type-iri="selectedBaseType?.iri!"
-      @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch, selectedMatch!['@id']!, selectedIndex)"
+      @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch!)"
     />
   </div>
 </template>
@@ -76,7 +72,6 @@ import { QueryService } from "@/services";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
-import { SortDirection } from "@im-library/enums";
 import { cloneDeep } from "lodash-es";
 import AddMatch from "./AddMatch.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
@@ -91,10 +86,9 @@ const props = defineProps<Props>();
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const editQueryDefinition: Ref<Query> = ref({});
-const hover: Ref<number> = ref(-1);
+const hover: Ref<boolean> = ref(false);
 const showDialog = ref(false);
 const selectedMatch: Ref<Match | undefined> = ref();
-const selectedIndex: Ref<number> = ref(-1);
 const imQueryForBaseType: Ref<QueryRequest | undefined> = ref();
 const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
@@ -132,32 +126,23 @@ function buildImQueryForBaseType() {
   imQueryForBaseType.value = buildIMQueryFromFilters(searchOptions);
 }
 
-function mouseover(event: Event, index: number) {
+function mouseover(event: Event) {
   event.stopPropagation();
-  hover.value = index;
+  hover.value = true;
 }
 
-function mouseout(event: Event, index: number) {
+function mouseout(event: Event) {
   event.stopPropagation();
-  hover.value = -1;
+  hover.value = false;
 }
 
-function deleteFeature(index: number) {
-  editQueryDefinition.value.match?.splice(index, 1);
-}
-
-function editMatch(index: number) {
-  selectedMatch.value = editQueryDefinition.value.match?.[index];
-  selectedIndex.value = index;
+function editMatch() {
+  selectedMatch.value = editQueryDefinition.value;
   showDialog.value = true;
 }
 
-async function onSaveChanges(editMatch: Match | undefined, id: string, index: number) {
-  if (!editMatch) editQueryDefinition.value.match = editQueryDefinition.value.match?.filter(rootMatch => rootMatch["@id"] !== id);
-  else {
-    editQueryDefinition.value.match![index] = cloneDeep(editMatch);
-    editQueryDefinition.value = await QueryService.getQueryDisplayFromQuery(editQueryDefinition.value, false);
-  }
+async function onSaveChanges(editMatch: Match) {
+  editQueryDefinition.value = await QueryService.getQueryDisplayFromQuery(editMatch, false);
 }
 </script>
 

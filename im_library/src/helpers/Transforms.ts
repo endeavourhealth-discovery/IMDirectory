@@ -1,8 +1,9 @@
-import { TTBundle } from "../interfaces";
-import { IM, RDF, RDFS } from "../vocabulary";
+import { TTBundle, UIProperty } from "../interfaces";
+import { IM, RDF, RDFS, SHACL } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
 import { TTIriRef } from "../interfaces/AutoGen";
+import { getNameFromRef } from "./TTTransform";
 
 // min 2 characters
 const indentSize = "  ";
@@ -269,6 +270,30 @@ export function entityToAliasEntity(ttEntity: any) {
   }
 }
 
+export function convertTTPropertyToUIProperty(ttproperty: any, propertyName?: string) {
+  const uiProperty = {} as UIProperty;
+  if (ttproperty[SHACL.MAXCOUNT]) uiProperty.maxCount = ttproperty[SHACL.MAXCOUNT];
+  if (ttproperty[SHACL.MINCOUNT]) uiProperty.minCount = ttproperty[SHACL.MINCOUNT];
+  if (isArrayHasLength(ttproperty[SHACL.CLASS])) {
+    uiProperty.propertyType = "class";
+    uiProperty.valueType = ttproperty[SHACL.CLASS]![0]["@id"];
+  }
+  if (isArrayHasLength(ttproperty[SHACL.DATATYPE])) {
+    uiProperty.propertyType = "datatype";
+    uiProperty.valueType = ttproperty[SHACL.DATATYPE]![0]["@id"];
+  }
+  if (isArrayHasLength(ttproperty[SHACL.NODE])) {
+    uiProperty.propertyType = "node";
+    uiProperty.valueType = ttproperty[SHACL.NODE]![0]["@id"];
+  }
+
+  if (isArrayHasLength(ttproperty[SHACL.PATH])) {
+    uiProperty.propertyName = ttproperty[SHACL.PATH]![0].name;
+    uiProperty.iri = ttproperty[SHACL.PATH]![0]["@id"];
+  }
+  return uiProperty;
+}
+
 export default {
   bundleToText,
   ttArrayToString,
@@ -277,5 +302,6 @@ export default {
   ttValueToString,
   termToString,
   mapToObject,
-  entityToAliasEntity
+  entityToAliasEntity,
+  convertTTPropertyToUIProperty
 };
