@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-05-30 09:17:25.
+// Generated using typescript-generator version 3.2.1263 on 2024-06-13 09:20:58.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -218,9 +218,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     operator?: Operator;
-    unit?: string;
-    relativeTo?: PropertyRef;
     dataType?: TTIriRef;
+    relativeTo?: PropertyRef;
+    unit?: string;
 }
 
 export interface Case {
@@ -253,10 +253,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -378,8 +378,8 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -508,8 +508,6 @@ export interface SearchRequest {
      * list of fields or property paths from search result summary to return 
      */
     select?: string[];
-    sortField?: string;
-    sortDirection?: string;
     orderBy?: OrderBy[];
     filter?: Filter[];
     timings?: { [index: string]: string }[];
@@ -553,9 +551,10 @@ export interface EclSearchRequest {
     statusFilter?: TTIriRef[];
     page?: number;
     size?: number;
-    sortField?: string;
-    sortDirection?: string;
     select?: string[];
+}
+
+export interface BNF {
 }
 
 export interface CODE_TEMPLATE {
@@ -662,13 +661,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    type?: TTArray;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
-    description?: string;
     code?: string;
+    description?: string;
     prefixes?: TTPrefix[];
 }
 

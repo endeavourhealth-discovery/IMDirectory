@@ -1,7 +1,7 @@
 import Env from "./Env";
 import { AllowableChildProperty, AliasEntity, QueryResponse, UIProperty } from "@im-library/interfaces";
 import axios from "axios";
-import { PathDocument, Query, QueryRequest, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { Match, PathDocument, PathQuery, Query, QueryRequest, SearchResponse } from "@im-library/interfaces/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -35,6 +35,10 @@ const QueryService = {
 
   async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResponse> {
     return await axios.post(Env.API + "api/query/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
+  },
+
+  async pathQuery(pathQuery: PathQuery, controller?: AbortController, raw: boolean = false): Promise<{ match: Match[] }> {
+    return axios.post(Env.API + "api/query/public/pathQuery", pathQuery, { signal: controller?.signal, raw: raw });
   },
 
   async askQuery(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<boolean> {

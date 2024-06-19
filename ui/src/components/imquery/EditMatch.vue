@@ -81,6 +81,7 @@
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
+
           <AddPropertyDialog
             v-model:show-dialog="showAddPropertyDialog"
             :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
@@ -128,12 +129,12 @@ import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { MenuItem } from "primevue/menuitem";
-import AddPropertyDialog from "./AddPropertyDialog.vue";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import AddPropertyDialog from "./AddPropertyDialog.vue";
 
 interface Props {
   isRootFeature?: boolean;
@@ -148,20 +149,20 @@ const emit = defineEmits({
   ungroupMatches: (payload: Match) => payload
 });
 const hover: Ref<boolean> = ref(false);
-const showAddPropertyDialog: Ref<boolean> = ref(false);
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, getTypeOfMatch } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
 const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
+const showAddPropertyDialog: Ref<boolean> = ref(false);
 onMounted(() => {
-  if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
+  if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
 });
 
 watch(
   () => cloneDeep(props.editMatch),
   () => {
-    if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!);
+    if (fullQuery.value) typeOf.value = typeOf.value = getTypeOf(fullQuery.value);
   }
 );
 
@@ -211,6 +212,10 @@ function ungroupMatches(nestedMatch: Match) {
     const index = props.editMatch.match?.findIndex(match => nestedMatch["@id"] === match["@id"]);
     if (index !== -1) props.editMatch.match?.splice(index!, 1);
   }
+}
+
+function getTypeOf(fullQuery: Match) {
+  return props.editMatch.typeOf?.["@id"] ?? getTypeOfMatch(fullQuery, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
 }
 </script>
 
