@@ -5,12 +5,15 @@ import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/treenode";
-import { ref, Ref } from "vue";
+import { computed, ref, Ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import rowClick from "./rowClick";
+import { useUserStore } from "@/stores/userStore";
 
 function setupTree() {
   const toast = useToast();
+  const userStore = useUserStore();
+  const favourites = computed(() => userStore.favourites);
 
   const { onRowClick } = rowClick();
 
@@ -66,6 +69,8 @@ function setupTree() {
   async function onNodeSelect(node: any): Promise<void> {
     if (node.data === "loadMore") {
       if (!node.loading) await loadMore(node);
+    } else if (node.data === IM.FAVOURITES) {
+      return;
     } else {
       selectedNode.value = node;
       onRowClick(node.data);
@@ -73,7 +78,7 @@ function setupTree() {
   }
 
   function onNodeDblClick($event: any, node: any) {
-    if (node.data !== "loadMore") directService.view(node.key);
+    if (!(node.data === "loadMore" || node.data === IM.FAVOURITES)) directService.view(node.key);
   }
 
   async function loadMore(node: any) {
@@ -104,16 +109,23 @@ function setupTree() {
       node.loading = true;
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       if (!expandedData.value.find(x => x.key === node.key)) expandedData.value.push(node);
-      const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
-      children.result.forEach((child: any) => {
-        if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
-      });
-      if (
-        children.totalCount >= pageSize.value &&
-        node.children.length !== children.totalCount &&
-        node.children[node.children.length - 1].data !== "loadMore"
-      ) {
-        node.children.push(createLoadMoreNode(node, 2, children.totalCount));
+      if (node.data === IM.FAVOURITES) {
+        for (const fav of favourites.value) {
+          const favChild = await EntityService.getEntityAsEntityReferenceNode(fav);
+          if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type, false, node));
+        }
+      } else {
+        const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
+        children.result.forEach((child: any) => {
+          if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+        });
+        if (
+          children.totalCount >= pageSize.value &&
+          node.children.length !== children.totalCount &&
+          node.children[node.children.length - 1].data !== "loadMore"
+        ) {
+          node.children.push(createLoadMoreNode(node, 2, children.totalCount));
+        }
       }
       node.loading = false;
     }
