@@ -16,7 +16,8 @@
         <span id="save-feature-scheme-header">Scheme</span>
         <Dropdown
           id="scheme"
-          v-bind="scheme"
+          v-model="scheme"
+          v-bind="schemeAttrs"
           type="text"
           :class="{ 'p-invalid': errors.scheme }"
           aria-describedby="text-error"
@@ -31,7 +32,7 @@
 
       <div class="flex flex-column gap-2" id="save-feature-name">
         <span id="save-feature-name-header">Name</span>
-        <InputText id="name" v-bind="name" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
+        <InputText id="name" v-model="name" v-bind="nameAttrs" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
         <small class="p-error" id="text-error">{{ errors.name || "&nbsp;" }}</small>
       </div>
 
@@ -84,15 +85,15 @@ const schema = yup.object({
 
 const toast = useToast();
 
-const { defineComponentBinds, handleSubmit, resetForm, errors, setFieldValue } = useForm({
+const { defineField, handleSubmit, resetForm, errors, setFieldValue } = useForm({
   validationSchema: schema
 });
 
-const fullIri: ComputedRef<string> = computed(() => `${scheme.value.modelValue ?? ""}${iri.value.modelValue ?? ""}`);
+const fullIri: ComputedRef<string> = computed(() => `${scheme.value ?? ""}${iri.value ?? ""}`);
 
-const scheme = defineComponentBinds("scheme");
-const iri = defineComponentBinds("iri");
-const name = defineComponentBinds("name");
+const [scheme, schemeAttrs] = defineField("scheme");
+const [iri, iriAttrs] = defineField("iri");
+const [name, nameAttrs] = defineField("name");
 
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const showSaveFeatureDialog = ref(false);
@@ -127,7 +128,7 @@ async function init() {
 }
 
 async function isValidIri() {
-  if (!scheme.value.modelValue) return false;
+  if (!scheme.value) return false;
   const exists = await EntityService.iriExists(fullIri.value);
   return !exists;
 }
@@ -137,8 +138,8 @@ async function getSchemeOptions(): Promise<TTIriRef[]> {
 }
 
 function onNameGenIri() {
-  if (name.value?.modelValue) {
-    const nameValue: string = name.value.modelValue;
+  if (name.value) {
+    const nameValue: string = name.value;
     setFieldValue("iri", nameValue.replaceAll(" ", ""));
   }
 }
@@ -179,10 +180,10 @@ function getDefinition() {
 function buildSetEntity() {
   const setEntity = {} as any;
   setEntity["@id"] = fullIri.value;
-  setEntity[RDFS.LABEL] = name.value.modelValue;
+  setEntity[RDFS.LABEL] = name.value;
   setEntity[RDF.TYPE] = [{ "@id": IM.FEATURE }];
   setEntity[IM.HAS_STATUS] = [{ "@id": IM.DRAFT }];
-  setEntity[IM.HAS_SCHEME] = [{ "@id": scheme.value.modelValue }];
+  setEntity[IM.HAS_SCHEME] = [{ "@id": scheme.value }];
   setEntity[IM.IS_CONTAINED_IN] = [{ "@id": IM.NAMESPACE + "M_CommonClauses" }]; // TODO: add to IM vocab
   setEntity[IM.DEFINITION] = definition.value;
   return setEntity;
