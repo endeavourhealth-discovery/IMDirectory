@@ -1,6 +1,6 @@
 import Env from "@/services/env.service";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { entityToAliasEntity } from "@im-library/helpers/Transforms";
+import { convertTTPropertyToUIProperty, entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, TTProperty, UIProperty } from "@im-library/interfaces";
 import { EclSearchRequest, Query, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, QUERY, SHACL } from "@im-library/vocabulary";
