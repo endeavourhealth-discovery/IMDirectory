@@ -28,6 +28,7 @@ function processEntityKey(key: string, treeNode: any, entity: any, predicates: a
   else if (key === IM.HAS_TERM_CODE) addTermCodes(treeNode, entity, predicates, key);
   else if (key === SHACL.PROPERTY) addProperty(treeNode, entity, predicates, key);
   else if (key === SHACL.PARAMETER) addParameter(treeNode, entity, predicates, key);
+  else if (key === IM.BINDING) addBinding(treeNode, entity, predicates, key);
   else if (key === IM.DEFINITION) addDefinition(treeNode, entity, predicates, key, types ?? []);
   else if (key === IM.HAS_MAP) {
     const defaultNode = { key: key, label: predicates[key], children: [] };
@@ -136,6 +137,21 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
             type: "property"
           });
       }
+    }
+  }
+}
+
+function addBinding(treeNode: any, entity: any, predicates: any, key: any) {
+  const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
+  treeNode.children?.push(newTreeNode);
+  if (isArrayHasLength(entity[key])) {
+    for (const roleGroup of entity[key]) {
+      const bindingNode = {
+        key: roleGroup[SHACL.NODE][0]["@id"],
+        label: roleGroup[SHACL.NODE][0].name,
+        type: "link"
+      };
+      newTreeNode.children?.push(bindingNode);
     }
   }
 }
