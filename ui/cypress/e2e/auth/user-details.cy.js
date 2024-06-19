@@ -1,6 +1,6 @@
 describe("User details", () => {
   beforeEach(() => {
-    cy.login();
+    cy.acceptLicenseAndLogin();
     cy.getByTestId("account-menu-logged-in").click();
     cy.get("#account-menu").contains("My account").click();
     cy.get(".user-container", { timeout: 60000 });

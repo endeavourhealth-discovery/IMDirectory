@@ -1,6 +1,6 @@
 describe("UserEdit", () => {
   beforeEach(() => {
-    cy.login();
+    cy.acceptLicenseAndLogin();
     cy.getByTestId("account-menu-logged-in").click();
     cy.get("#account-menu").contains("Edit account").click();
     cy.get(".user-container", { timeout: 60000 });
