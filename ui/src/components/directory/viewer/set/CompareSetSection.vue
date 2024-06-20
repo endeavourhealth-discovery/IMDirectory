@@ -73,7 +73,9 @@ const rClickItems = ref([
   {
     label: "View",
     icon: "fa-duotone fa-up-right-from-square",
-    command: () => directService.view(selected.value?.["@id"])
+    command: () => {
+      if (selected.value?.["@id"]) directService.view(selected.value["@id"]);
+    }
   }
 ]);
 

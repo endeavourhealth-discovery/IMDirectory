@@ -23,7 +23,7 @@
       :options="listboxData"
       listStyle="max-height: 40rem;overflow: auto;"
       v-model="selected"
-      @change="directService.select(selected['@id'], 'Folder')"
+      @change="directService.select(selected['@id'])"
       emptySelectionMessage="None"
       emptyMessage="None"
       selectionMessage="Selected"

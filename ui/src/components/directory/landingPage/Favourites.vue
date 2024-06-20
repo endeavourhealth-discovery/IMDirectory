@@ -90,7 +90,7 @@ async function init(): Promise<void> {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data.iri, "Folder");
+  directService.select(event.data.iri);
 }
 
 function locateInTree(iri: string) {

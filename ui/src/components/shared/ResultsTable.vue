@@ -133,7 +133,7 @@ const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",
     icon: "fa-solid fa-sitemap",
-    command: () => directService.select((selected.value as any).iri, "Folder")
+    command: () => directService.select((selected.value as any).iri)
   },
   {
     label: "View in new tab",
