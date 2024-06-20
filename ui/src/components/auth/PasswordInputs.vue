@@ -120,9 +120,17 @@ function isValidPassword(): boolean {
 }
 
 const emit = defineEmits({
+  "update:oldPassword": (_payload: string) => true,
   "update:password": (_payload: string) => true,
   "update:arePasswordsValid": (_payload: boolean) => true
 });
+
+watch(
+  () => passwordOld.value,
+  async newValue => {
+    emit("update:oldPassword", newValue);
+  }
+);
 
 watch(
   () => password.value,
