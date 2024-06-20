@@ -32,7 +32,7 @@
         <Column :exportable="false">
           <template #body="{ data }: any">
             <div class="action-buttons-container">
-              <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" @locate-in-tree="locateInTree" />
+              <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" @locate-in-tree="locateInTree" />
             </div>
           </template>
         </Column>
@@ -88,7 +88,7 @@ async function init(): Promise<void> {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data.iri, "Folder");
+  directService.select(event.data.iri);
 }
 
 function getActivityTooltipMessage(activity: RecentActivityItem) {
@@ -106,18 +106,12 @@ function locateInTree(iri: string) {
 }
 
 async function getRecentActivityDetails() {
-  let localActivity: RecentActivityItem[] = [];
-  if (isArrayHasLength(recentLocalActivity.value)) localActivity = recentLocalActivity.value;
-  if (currentUser.value) {
-    const results = await UserService.getUserMRU();
-    if (isArrayHasLength(results)) localActivity = results;
-  }
-  const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
+  const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
 
   const temp: RecentActivityItem[] = [];
 
-  for (const rla of localActivity) {
+  for (const rla of recentLocalActivity.value) {
     const clone = { ...rla };
 
     let result = null;

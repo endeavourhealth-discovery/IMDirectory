@@ -12,6 +12,7 @@
               :url="shortcut.url"
               :color="shortcut.color"
               :size="shortcut.size"
+              :newTab="shortcut.newTab"
             />
           </template>
         </div>
@@ -34,32 +35,32 @@ import Favourites from "@/components/directory/landingPage/Favourites.vue";
 
 const directService = new DirectService();
 
-const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: Function; color: string; size: number }[]> = ref([
+const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: Function; color: string; size: number; newTab?: boolean }[]> = ref([
   {
     label: "Ontology",
     icon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
-    command: () => directService.select(IM.NAMESPACE + "HealthModelOntology", "Folder"),
+    command: () => directService.select(IM.NAMESPACE + "HealthModelOntology"),
     color: getColourFromType([{ "@id": IM.CONCEPT }]),
     size: 4
   },
   {
     label: "Sets",
     icon: getFAIconFromType([{ "@id": IM.SET }]),
-    command: () => directService.select(IM.MODULE_SETS, "Folder"),
+    command: () => directService.select(IM.MODULE_SETS),
     color: getColourFromType([{ "@id": IM.SET }]),
     size: 4
   },
   {
     label: "Models",
     icon: getFAIconFromType([{ "@id": SHACL.NODESHAPE }]),
-    command: () => directService.select(IM.NAMESPACE + "DataModels", "Folder"),
+    command: () => directService.select(IM.NAMESPACE + "DataModels"),
     color: getColourFromType([{ "@id": SHACL.NODESHAPE }]),
     size: 4
   },
   {
     label: "Queries",
     icon: getFAIconFromType([{ "@id": IM.QUERY }]),
-    command: () => directService.select(IM.MODULE_QUERIES, "Folder"),
+    command: () => directService.select(IM.MODULE_QUERIES),
     color: getColourFromType([{ "@id": IM.QUERY }]),
     size: 4
   },
@@ -89,7 +90,8 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
     icon: "/logos/ship-small.png",
     url: "https://wiki.endeavourhealth.org/index.php?title=Welcome_to_the_Endeavour_Health_knowledge_base",
     color: "var(--blue-500)",
-    size: 4
+    size: 4,
+    newTab: true
   }
 ]);
 </script>

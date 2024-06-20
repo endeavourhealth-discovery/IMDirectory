@@ -72,16 +72,16 @@ function updateSplitter(event: any) {
 }
 
 function routeToSelected(selected: any) {
-  if (isObjectHasKeys(selected, ["key"])) directService.select(selected.key, "Folder");
-  else if (isObjectHasKeys(selected, ["iri"])) directService.select(selected.iri, "Folder");
-  else if (typeof selected === "string") directService.select(selected, "Folder");
+  if (isObjectHasKeys(selected, ["key"])) directService.select(selected.key);
+  else if (isObjectHasKeys(selected, ["iri"])) directService.select(selected.iri);
+  else if (typeof selected === "string") directService.select(selected);
 }
 
 function navigateTo(iri: any) {
   if (iri.item?.icon.includes("fa-house")) {
     router.push("/");
   } else {
-    directService.select(iri, "Folder");
+    directService.select(iri);
   }
 }
 

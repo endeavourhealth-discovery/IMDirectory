@@ -15,7 +15,7 @@
         scrollHeight="flex"
         class="p-datatable-sm favourites-datatable"
       >
-        <template #empty> No favourites </template>
+        <template #empty>{{ !currentUser ? "Login to add favourites" : "No favourites" }}</template>
         <Column field="name" header="Name">
           <template #body="{ data }: any">
             <div class="favourite-name-icon-container">
@@ -90,7 +90,7 @@ async function init(): Promise<void> {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data.iri, "Folder");
+  directService.select(event.data.iri);
 }
 
 function locateInTree(iri: string) {
@@ -98,12 +98,7 @@ function locateInTree(iri: string) {
 }
 
 async function getFavouritesDetails() {
-  let localFavourites: string[] = [];
-  if (currentUser.value) {
-    const results = await UserService.getUserFavourites();
-    if (isArrayHasLength(results)) localFavourites = results;
-  }
-  const results = await EntityService.getPartialEntities(localFavourites, [RDFS.LABEL, RDF.TYPE]);
+  const results = await EntityService.getPartialEntities(userFavourites.value, [RDFS.LABEL, RDF.TYPE]);
   if (!results.length) {
     favourites.value = [];
     return;

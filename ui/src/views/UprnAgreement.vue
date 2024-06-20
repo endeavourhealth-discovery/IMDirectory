@@ -75,7 +75,8 @@ const router = useRouter();
 const appName = ref("Information Model");
 
 function goBack() {
-  router.back();
+  if (window.history.length > 2) router.back();
+  else router.push({ name: "LandingPage" });
 }
 </script>
 

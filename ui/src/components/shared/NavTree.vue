@@ -61,6 +61,7 @@ import createNew from "@/composables/createNew";
 import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { useDirectoryStore } from "@/stores/directoryStore";
+import { cloneDeep } from "lodash-es";
 
 interface Props {
   allowDragAndDrop?: boolean;
@@ -85,6 +86,8 @@ const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const favourites = computed(() => userStore.favourites);
 
 const {
   root,
@@ -131,6 +134,17 @@ watch(
   }
 );
 
+watch(
+  () => cloneDeep(favourites.value),
+  () => {
+    const favouritesIndex = root.value.findIndex(node => node.data === IM.FAVOURITES);
+    if (favouritesIndex !== -1) {
+      root.value.splice(favouritesIndex, 1);
+      addFavouritesToTree();
+    }
+  }
+);
+
 watch(props.rootEntities, async () => await addRootEntitiesToTree());
 
 onMounted(async () => {
@@ -167,7 +181,11 @@ async function addParentFoldersToRoot() {
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
-  const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], false, null, undefined);
+  if (isLoggedIn.value) await addFavouritesToTree();
+}
+
+async function addFavouritesToTree() {
+  const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], !!favourites.value.length, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "var(--yellow-500)";
   root.value.push(favNode);

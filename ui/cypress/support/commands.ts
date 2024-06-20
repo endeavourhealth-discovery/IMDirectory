@@ -20,7 +20,7 @@ Cypress.Commands.add("acceptLicenseAndCookies", () => {
 
 Cypress.Commands.add("openReleaseNotes", () => {
   cy.get(".release-notes-link").click();
-  cy.get(".p-dialog-header").should("have.text", "What's new");
+  cy.get(".p-dialog-content").find(".title", { timeout: 60000 }).should("have.text", "Releases");
 });
 
 Cypress.Commands.add("getByTestId", id => {
@@ -35,6 +35,44 @@ Cypress.Commands.add("preventNewTab", () => {
         cy.visit(url);
       });
   });
+});
+
+Cypress.Commands.add("login", () => {
+  cy.get("#topbar", { timeout: 60000 });
+  cy.getByTestId("account-menu").click();
+  cy.get("#account-menu").find("span").contains("Login").click();
+  cy.url().should("include", "/user/login");
+  cy.getByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
+  cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.getByTestId("login-submit").click();
+  cy.get(".swal2-popup", { timeout: 60000 }).contains("Login successful");
+  cy.get(".swal2-confirm").click();
+  cy.get("#topbar", { timeout: 60000 });
+});
+
+Cypress.Commands.add("acceptLicenseAndLogin", () => {
+  cy.acceptLicenseAndCookies();
+  cy.get("#topbar", { timeout: 60000 });
+  cy.getByTestId("account-menu").click();
+  cy.get("#account-menu").find("span").contains("Login").click();
+  cy.url().should("include", "/user/login");
+  cy.getByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
+  cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.getByTestId("login-submit").click();
+  cy.get(".swal2-popup", { timeout: 60000 }).contains("Login successful");
+  cy.get(".swal2-confirm").click();
+  cy.get("#topbar", { timeout: 60000 });
+});
+
+Cypress.Commands.add("expandTreeNode", (treeId: string, contains: string) => {
+  cy.get(`#${treeId}`).contains(contains).parents(".p-treenode-selectable").find(".p-tree-toggler").click();
+});
+
+Cypress.Commands.add("searchAndSelect", (searchTerm: string) => {
+  cy.get("[data-testid='search-input']", { timeout: 60000 }).type(searchTerm);
+  cy.get(".p-selectable-row", { timeout: 60000 }).should("have.length.greaterThan", 1).first().click();
+  cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 10000 }).contains(searchTerm);
+  cy.get("#viewer-tabs", { timeout: 10000 });
 });
 //
 //
@@ -57,6 +95,10 @@ declare global {
       openReleaseNotes(): Chainable<void>;
       getByTestId(id: string): Chainable<void>;
       preventNewTab(): Chainable<void>;
+      login(): Chainable<void>;
+      expandTreeNode(treeId: string, contains: string): Chainable<void>;
+      searchAndSelect(searchTerm: string): Chainable<void>;
+      acceptLicenseAndLogin(): Chainable<void>;
     }
   }
 }

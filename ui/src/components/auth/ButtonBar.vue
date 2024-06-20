@@ -18,7 +18,8 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 function clickedBack(): void {
-  router.back();
+  if (window.history.length > 2) router.back();
+  else router.push({ name: "LandingPage" });
 }
 
 function homeClicked(): void {

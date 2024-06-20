@@ -3,6 +3,7 @@
     <div class="roles-content">
       <p>Authorisation roles active for your account</p>
       <DataTable
+        id="roles-table"
         v-if="currentUser"
         :value="
           currentUser.roles.map((role: string) => {
@@ -10,6 +11,7 @@
           })
         "
       >
+        <template #empty> No roles </template>
         <Column field="role" header="Role" />
       </DataTable>
       <!-- <Button label="Request role" @click="handleEditRole" /> -->

@@ -99,7 +99,7 @@
           </div>
           <PasswordInputs test-id="register-password-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
           <div class="privacy-container">
-            <label for="privacy"> I have read and accept the <router-link to="/privacy">privacy policy </router-link></label>
+            <label for="privacy"> I have read and accept the <a @click="openInNewTab('Privacy')">privacy policy </a></label>
             <Checkbox v-model="privacyPolicyAccepted" :binary="true" />
           </div>
           <div class="flex flex-row justify-content-center">
@@ -111,7 +111,7 @@
     <template #footer>
       <span>
         Already have an account?
-        <a id="login-link" class="footer-link" @click="$router.push({ name: 'Login' })">Login here</a>
+        <router-link id="login-link" class="footer-link" to="/user/login">Login here</router-link>
       </span>
     </template>
   </Card>
@@ -232,7 +232,7 @@ const onSubmit = handleSubmit(async () => {
           }).then((result: SweetAlertResult) => {
             emit("userCreated", user);
             if (result.isConfirmed) {
-              authStore.updateRegisteredUsername(username.value);
+              authStore.updateRegisteredUsername(username.value.modelValue);
               router.push({ name: "ConfirmCode" });
             } else {
               clearForm();
@@ -284,6 +284,11 @@ function updateAvatar(newValue: string): void {
 async function verifyEmailIsNotRegistered(email: string): Promise<void> {
   if (email && !errors.value.email1) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
   else emailIsNotRegistered.value = true;
+}
+
+function openInNewTab(componentName: string) {
+  const routeData = router.resolve({ name: componentName });
+  window.open(routeData.href, "_blank");
 }
 </script>
 

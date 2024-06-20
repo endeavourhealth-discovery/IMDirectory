@@ -16,11 +16,7 @@
       </template>
     </TopBar>
     <div id="app-content-container">
-      <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
-        <ProgressSpinner />
-      </div>
       <DirectorySplitter
-        v-else
         :searchTerm="directorySearchTerm"
         :updateSearch="updateSearch"
         :selected-filter-options="storeSelectedFilterOptions"
@@ -37,23 +33,13 @@ import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import { useRouter } from "vue-router";
 import { useFilterStore } from "@/stores/filterStore";
-import { useUserStore } from "@/stores/userStore";
 import { FilterOptions } from "@im-library/interfaces";
 
 const router = useRouter();
 const filterStore = useFilterStore();
-const userStore = useUserStore();
-const loading = ref(true);
 const directorySearchTerm: Ref<string> = ref("");
 const updateSearch: Ref<boolean> = ref(false);
 const storeSelectedFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
-
-onMounted(async () => {
-  loading.value = true;
-  await filterStore.fetchFilterSettings();
-  await userStore.initFavourites();
-  loading.value = false;
-});
 
 function onSelectedFiltersUpdated(filters: FilterOptions) {
   filterStore.updateSelectedFilterOptions(filters);

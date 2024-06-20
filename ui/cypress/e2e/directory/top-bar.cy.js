@@ -12,7 +12,7 @@ describe("top bar", () => {
 
     it("shows release notes on banner bar link click", () => {
       cy.get(".release-notes-link").click();
-      cy.get(".p-dialog-header").should("have.text", "What's new");
+      cy.get(".p-dialog").find(".title-container", { timeout: 60000 }).find("h1").should("have.text", "Releases");
     });
   });
 
@@ -28,32 +28,21 @@ describe("top bar", () => {
       cy.openReleaseNotes();
     });
     it("starts with latest directory release", () => {
-      cy.get(".tgl-directory > .releases-container > .release-container").should("have.length", 1);
+      cy.get(".releases-container > .release-container").should("have.length", 1);
     });
     it("can view more", () => {
-      cy.get(".tgl-directory").find(".view-more").click();
-      cy.get(".tgl-directory > .releases-container > .release-container").should("have.length.above", 1);
-    });
-    it("can view importData releases", () => {
-      cy.get("#expand-button-importData").click();
-      cy.get(".tgl-importData > .releases-container > .release-container").should("have.length", 1);
-    });
-    it("can view more importData", () => {
-      cy.get("#expand-button-importData").click();
-      cy.get(".tgl-importData").find(".view-more").click();
-      cy.get(".tgl-importData > .releases-container > .release-container").should("have.length.above", 1);
+      cy.get(".app-releases").find(".view-more").click();
+      cy.get(".releases-container > .release-container").should("have.length.above", 1);
     });
     it("has a github url in every release", () => {
-      cy.get(".tgl-directory").find(".view-more").click();
-      cy.get("#expand-button-importData").click();
-      cy.get(".tgl-importData").find(".view-more").click();
+      cy.get(".app-releases").find(".view-more").click();
       cy.get(".release-container").each(($el, index, $list) => {
         cy.wrap($el).find("a").should("have.attr", "href");
       });
     });
     it("can close", () => {
       cy.getByTestId("close-button").click();
-      cy.get(".tgl-directory").should("not.exist");
+      cy.get(".app-releases").should("not.exist");
     });
   });
 
@@ -61,7 +50,7 @@ describe("top bar", () => {
     it("can change theme", () => {
       cy.get("#banner").should("have.css", "background-color", "rgb(33, 150, 243)");
       cy.getByTestId("change-theme-button").click();
-      cy.get('[src="http://localhost:8082/src/assets/themes/arya-purple.png"').click();
+      cy.get('[src="/themeIcons/arya-purple.png"').first().click();
       cy.get("#banner").should("have.css", "background-color", "rgb(186, 104, 200)");
     });
   });
@@ -83,7 +72,7 @@ describe("top bar", () => {
     });
   });
 
-  describe.only("apps", () => {
+  describe("apps", () => {
     it("can open the apps menu", () => {
       cy.getByTestId("apps-button").click();
       cy.get("#apps-menu").find(".shortcut").should("have.length.above", 1);

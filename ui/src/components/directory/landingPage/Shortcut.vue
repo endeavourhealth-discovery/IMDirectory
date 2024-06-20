@@ -1,6 +1,6 @@
 <template>
   <div class="shortcut">
-    <a v-if="url" :href="url" class="shortcut-container">
+    <a v-if="url" :href="url" :target="newTab ? '_blank' : ''" class="shortcut-container">
       <IMFontAwesomeIcon
         v-if="isArray(icon) || icon.startsWith('fa-')"
         class="shortcut-icon"
@@ -34,8 +34,11 @@ interface Props {
   command?: Function;
   color: string;
   size: number;
+  newTab?: boolean;
 }
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  newTab: false
+});
 </script>
 
 <style scoped>

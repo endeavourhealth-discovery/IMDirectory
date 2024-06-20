@@ -167,7 +167,13 @@ const EntityService = {
     });
   },
 
-  async getPagedChildren(iri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController): Promise<any> {
+  async getPagedChildren(
+    iri: string,
+    pageIndex: number,
+    pageSize: number,
+    filters?: FiltersAsIris,
+    controller?: AbortController
+  ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: EntityReferenceNode[] }> {
     return axios.get(api + "api/entity/public/childrenPaged", {
       params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal

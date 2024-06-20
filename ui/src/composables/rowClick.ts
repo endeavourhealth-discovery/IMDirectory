@@ -11,7 +11,7 @@ function rowClick() {
     clicks.value++;
     if (clicks.value === 1) {
       timer.value = setTimeout(() => {
-        directService.select(iri, "Folder");
+        directService.select(iri);
         clicks.value = 0;
       }, delay.value);
     } else {

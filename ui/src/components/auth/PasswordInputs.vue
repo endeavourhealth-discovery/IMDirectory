@@ -8,7 +8,7 @@
         :feedback="false"
         toggleMask
         :input-props="{ autofocus: true }"
-        data-testid="password-edit-password-old-container"
+        data-testid="password-old"
         id="passwordOld"
         :pt="{
           input: { root: { 'data-testid': testId + 'old' } }
@@ -26,7 +26,7 @@
         v-model="password"
         v-bind="passwordAttrs"
         toggleMask
-        data-testid="password-edit-password-new1-container"
+        data-testid="password-new1"
         id="password"
         :pt="{
           input: { root: { 'data-testid': testId + 'new1' } }
@@ -63,7 +63,7 @@
         v-bind="password2Attrs"
         toggleMask
         :feedback="false"
-        data-testid="password-edit-password-new2-container"
+        data-testid="password-new2"
         id="password2"
         :pt="{
           input: { root: { 'data-testid': testId + 'new2' } }
