@@ -14,11 +14,12 @@
                 data-testid="forgot-password-submit-username"
                 id="fieldUsername"
                 type="text"
-                v-bind="username"
+                v-model="username"
+                v-bind="usernameAttrs"
                 :placeholder="registeredUsername"
                 @focus="updateFocused('username', true)"
                 @blur="updateFocused('username', false)"
-                :class="!username.modelValue && focused.get('username') === false && 'p-invalid'"
+                :class="!username && focused.get('username') === false && 'p-invalid'"
               />
               <InlineMessage v-if="errors.username" severity="info"> {{ errors.username }} </InlineMessage>
             </div>
@@ -29,10 +30,11 @@
                   data-testid="forgot-password-submit-code"
                   id="fieldCode"
                   type="password"
-                  v-bind="code"
+                  v-model="code"
+                  v-bind="codeAttrs"
                   @focus="updateFocused('code', true)"
                   @blur="updateFocused('code', false)"
-                  :class="!codeVerified && code.modelValue && !focused.get('code') && 'p-invalid'"
+                  :class="!codeVerified && code && !focused.get('code') && 'p-invalid'"
                 />
                 <IMFontAwesomeIcon
                   v-if="codeVerified"
@@ -41,7 +43,7 @@
                   data-testid="forgot-password-submit-verified"
                 />
                 <IMFontAwesomeIcon
-                  v-if="!codeVerified && code.modelValue"
+                  v-if="!codeVerified && code"
                   icon="fa-regular fa-circle-xmark"
                   style="color: var(--red-500); font-size: 2em"
                   data-testid="forgot-password-submit-unverified"
@@ -90,24 +92,24 @@ const registeredUsername = computed(() => authStore.registeredUsername);
 
 const focused: Ref<Map<string, boolean>> = ref(new Map());
 
-const { handleSubmit, errors, setValues, defineComponentBinds } = useForm({
+const { handleSubmit, errors, setValues, defineField } = useForm({
   validationSchema: yup.object({
     code: yup
       .string()
       .required()
-      .test("isCodeVerified", "Code is required", () => verifyCode(code.value.modelValue)),
+      .test("isCodeVerified", "Code is required", () => verifyCode(code.value)),
     username: yup.string().required("Username is required")
   })
 });
 
-const code: any = defineComponentBinds("code");
-const username: any = defineComponentBinds("username");
+const [code, codeAttrs]: any = defineField("code");
+const [username, usernameAttrs]: any = defineField("username");
 
 const password = ref("");
 const isNewPasswordValid = ref(false);
 
-const codeVerified = computed(() => verifyCode(code.value.modelValue));
-const allVerified = computed(() => codeVerified.value && isNewPasswordValid.value && username.value.modelValue);
+const codeVerified = computed(() => verifyCode(code.value));
+const allVerified = computed(() => codeVerified.value && isNewPasswordValid.value && username.value);
 
 onMounted(() => {
   if (registeredUsername.value) {
@@ -136,7 +138,7 @@ function updateFocused(key: string, value: boolean) {
 
 const onSubmit = handleSubmit(async () => {
   if (allVerified.value) {
-    AuthService.forgotPasswordSubmit(username.value.modelValue, code.value.modelValue, password.value).then(res => {
+    AuthService.forgotPasswordSubmit(username.value, code.value, password.value).then(res => {
       if (res.status === 200) {
         Swal.fire({
           icon: "success",

@@ -21,10 +21,11 @@
                 data-testid="user-edit-username"
                 id="firstName"
                 type="text"
-                v-bind="firstName"
+                v-model="firstName"
+                v-bind="firstNameAttrs"
                 @focus="updateFocused('firstName', true)"
                 @blur="updateFocused('firstName', false)"
-                :class="(!firstName.modelValue || errors.firstName) && 'p-invalid'"
+                :class="(!firstName || errors.firstName) && 'p-invalid'"
               />
               <InlineMessage v-if="errors.firstName" severity="error"> {{ errors.firstName }} </InlineMessage>
             </div>
@@ -34,10 +35,11 @@
                 data-testid="user-edit-lastname"
                 id="lastName"
                 type="text"
-                v-bind="lastName"
+                v-model="lastName"
+                v-bind="lastNameAttrs"
                 @focus="updateFocused('lastName', true)"
                 @blur="updateFocused('lastName', false)"
-                :class="(!lastName.modelValue || errors.lastName) && 'p-invalid'"
+                :class="(!lastName || errors.lastName) && 'p-invalid'"
               />
               <InlineMessage v-if="errors.lastName" severity="error"> {{ errors.lastName }} </InlineMessage>
             </div>
@@ -48,13 +50,14 @@
                   data-testid="user-edit-email1"
                   id="email1"
                   type="text"
-                  v-bind="email1"
+                  v-model="email1"
+                  v-bind="email1Attrs"
                   @focus="updateFocused('email1', true)"
                   @blur="updateFocused('email1', false)"
-                  :class="(errors.email1 || !email1.modelValue) && !focused.get('email1') && 'p-invalid'"
+                  :class="(errors.email1 || !email1) && !focused.get('email1') && 'p-invalid'"
                 />
                 <IMFontAwesomeIcon v-if="!errors.email1" icon="fa-regular fa-circle-check" class="email-check" />
-                <IMFontAwesomeIcon v-if="errors.email1 && email1.modelValue" icon="fa-regular fa-circle-xmark" class="email-times" />
+                <IMFontAwesomeIcon v-if="errors.email1 && email1" icon="fa-regular fa-circle-xmark" class="email-times" />
               </div>
               <InlineMessage v-if="errors.email1" severity="error"> {{ errors.email1 }} </InlineMessage>
             </div>
@@ -64,7 +67,8 @@
                 data-testid="user-edit-email2"
                 id="email2"
                 type="text"
-                v-bind="email2"
+                v-model="email2"
+                v-bind="email2Attrs"
                 @focus="updateFocused('email2', true)"
                 @blur="updateFocused('email2', false)"
                 :class="errors.email2 && !focused.get('email2') && 'p-invalid'"
@@ -181,24 +185,24 @@ onMounted(() => {
   }
 });
 
-const { errors, defineComponentBinds, handleSubmit, setValues } = useForm({
+const { errors, defineField, handleSubmit, setValues } = useForm({
   validationSchema: yup.object({
     firstName: yup
       .string()
       .required("First name is required")
       .test("isFirstNameVerified", 'First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne"', () =>
-        verifyIsFirstName(firstName.value.modelValue)
+        verifyIsFirstName(firstName.value)
       ),
     lastName: yup
       .string()
       .required("Last name is required")
       .test("isLastNameValid", 'Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O\'Keith-Smith"', () =>
-        verifyIsLastName(lastName.value.modelValue)
+        verifyIsLastName(lastName.value)
       ),
     email1: yup
       .string()
       .required("Email is required")
-      .test("isEmailValid", "Email is not valid", () => verifyIsEmail(email1.value.modelValue)),
+      .test("isEmailValid", "Email is not valid", () => verifyIsEmail(email1.value)),
     email2: yup
       .string()
       .required("Email is required")
@@ -206,10 +210,10 @@ const { errors, defineComponentBinds, handleSubmit, setValues } = useForm({
   })
 });
 
-const firstName: any = defineComponentBinds("firstName");
-const lastName: any = defineComponentBinds("lastName");
-const email1: any = defineComponentBinds("email1");
-const email2: any = defineComponentBinds("email2");
+const [firstName, firstNameAttrs]: any = defineField("firstName");
+const [lastName, lastNameAttrs]: any = defineField("lastName");
+const [email1, email1Attrs]: any = defineField("email1");
+const [email2, email2Attrs]: any = defineField("email2");
 
 function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);
@@ -245,9 +249,9 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
   const updatedUser = {
     id: currentUser.value?.id,
     username: username.value,
-    firstName: firstName.value.modelValue,
-    lastName: lastName.value.modelValue,
-    email: email1.value.modelValue,
+    firstName: firstName.value,
+    lastName: lastName.value,
+    email: email1.value,
     password: "",
     avatar: selectedAvatar.value,
     roles: [],
@@ -332,7 +336,7 @@ const onSubmit = handleSubmit(async () => {
 });
 
 function userFieldsVerified(): boolean {
-  return !isObjectHasKeys(errors);
+  return !isObjectHasKeys(errors.value);
 }
 
 function resetForm(): void {
@@ -375,9 +379,9 @@ function setButtonDisabled(): boolean {
 
 function checkForChanges(): boolean {
   return !(
-    currentUser.value?.firstName === firstName.value.modelValue &&
-    currentUser.value?.lastName === lastName.value.modelValue &&
-    currentUser.value?.email === email1.value.modelValue &&
+    currentUser.value?.firstName === firstName.value &&
+    currentUser.value?.lastName === lastName.value &&
+    currentUser.value?.email === email1.value &&
     currentUser.value?.avatar === selectedAvatar.value
   );
 }

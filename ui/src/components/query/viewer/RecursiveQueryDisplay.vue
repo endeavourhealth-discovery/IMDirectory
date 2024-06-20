@@ -86,16 +86,12 @@ function getNodeRef(propertyOrMatch: Where | Match) {
   margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
 }
 
 .feature-indent {
   display: flex;
   flex-flow: column;
-  margin-left: 2rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
+  margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
 }
