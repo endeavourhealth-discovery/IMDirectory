@@ -1,5 +1,5 @@
 <template>
-  <div :class="propertyIndex && property.description ? 'feature-indent' : !propertyIndex && property.description ? 'feature' : ''">
+  <div :class="!propertyIndex && property.description ? 'feature' : ''">
     <span v-if="hasNodeRef(property)" v-html="property.description" @click="onNodeRefClick(property, $event)"></span>
     <span v-else-if="hasBigList(property)" v-html="property.description" @click="onPropertyInClick(property, $event)"></span>
     <span v-else v-html="property.description"></span>
