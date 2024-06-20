@@ -229,7 +229,7 @@ const onSubmit = handleSubmit(async () => {
           }).then((result: SweetAlertResult) => {
             emit("userCreated", user);
             if (result.isConfirmed) {
-              authStore.updateRegisteredUsername(username.value);
+              authStore.updateRegisteredUsername(username.value.modelValue);
               router.push({ name: "ConfirmCode" });
             } else {
               clearForm();

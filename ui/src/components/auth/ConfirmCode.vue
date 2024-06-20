@@ -101,6 +101,25 @@ function handleSubmit() {
             if (res.nextStep === "COMPLETE_AUTO_SIGN_IN") await AuthService.handleAutoSignIn();
             else router.push({ name: "Login" });
           });
+        } else if (res.status === 403) {
+          if (res.nextStep === "COMPLETE_AUTO_SIGN_IN") {
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: "Confirmed registration",
+              confirmButtonText: "Login"
+            }).then(async () => {
+              authStore.updateRegisteredUsername(username.value);
+              await AuthService.handleAutoSignIn();
+              await router.push({ name: "LandingPage" });
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: res.message
+            });
+          }
         } else {
           Swal.fire({
             icon: "error",
