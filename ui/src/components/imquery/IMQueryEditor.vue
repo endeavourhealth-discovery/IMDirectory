@@ -27,23 +27,7 @@
           </div>
         </div>
         <div class="add-buttons">
-          <Button label="Add parent cohort" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
-          <Button
-            label="Add existing feature"
-            @click="showAddFeature = true"
-            severity="success"
-            icon="fa-solid fa-plus"
-            class="add-feature-button"
-            v-tooltip.bottom="'Add definition from existing feature'"
-          />
-          <Button
-            label="Add new feature"
-            v-if="selectedBaseType?.iri"
-            @click="showBuildFeature = true"
-            severity="warning"
-            icon="fa-solid fa-screwdriver-wrench"
-            class="add-feature-button"
-          />
+          <SplitButton label="Add new feature" @click="showBuildFeature = true" :model="addOptions" class="add-feature-button" severity="success" />
         </div>
       </div>
     </div>
@@ -99,6 +83,21 @@ provide("selectedBaseType", selectedBaseType);
 provide("variableMap", variableMap);
 provide("fullQuery", editQueryDefinition);
 const { populateVariableMap } = setupIMQueryBuilderActions();
+
+const addOptions = [
+  {
+    label: "Add parent cohort",
+    command: () => {
+      showAddPopulation.value = true;
+    }
+  },
+  {
+    label: "Add existing feature",
+    command: () => {
+      showAddFeature.value = true;
+    }
+  }
+];
 
 watch(
   () => cloneDeep(editQueryDefinition.value),
