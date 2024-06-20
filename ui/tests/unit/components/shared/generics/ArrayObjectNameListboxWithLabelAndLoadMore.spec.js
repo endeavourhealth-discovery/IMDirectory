@@ -249,7 +249,7 @@ describe("ArrayObjectNameListboxWithLabelAndLoadMore.vue ___ ontology ___ loadmo
     const row = component.getAllByTestId("row-text")[0];
     await fireEvent.click(row);
     expect(mockPush).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenCalledWith({ name: "Folder", params: { selectedIri: "http://snomed.info/sct#405771009" } });
+    expect(mockPush).toHaveBeenCalledWith({ path: "directory/folder/http%3A%2F%2Fsnomed.info%2Fsct%23405771009" });
   });
 
   it("can hide data", async () => {
