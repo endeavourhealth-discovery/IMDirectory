@@ -1,6 +1,7 @@
 <template>
   <div class="edit-match-wrapper">
     <Button
+      v-if="!isBooleanEditor"
       :severity="editMatch.exclude ? 'danger' : 'secondary'"
       :outlined="!editMatch.exclude"
       label="NOT"
@@ -22,6 +23,7 @@
 
       <div v-if="editMatch?.match" class="feature-group">
         <Button
+          v-if="isBooleanEditor"
           class="expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolMatch?.toUpperCase() ?? 'AND'"
           @click.stop="toggleMatchBool(editMatch)"
@@ -29,7 +31,7 @@
         <div class="feature-bracket-group">
           <div class="feature-list">
             <div class="nested-match" v-for="[index, nestedMatch] in editMatch.match.entries()">
-              <span class="left-container">
+              <span class="left-container" v-if="isBooleanEditor">
                 <div class="group-checkbox">
                   <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" @click.stop />
                   <label :for="'group' + index">Select</label>
@@ -46,12 +48,23 @@
               <EditMatch
                 :editMatch="nestedMatch"
                 :focused-id="focusedId"
+                :is-boolean-editor="isBooleanEditor"
                 @on-update-dialog-focus="onNestedUpdateDialogFocus"
                 @delete-match="onDeleteMatch"
                 @ungroup-matches="ungroupMatches"
               />
             </div>
-            <SplitButton label="Add new feature" @click="showBuildFeature = true" :model="addOptions" class="add-feature-button" severity="success" />
+            <Button
+              type="button"
+              label="Add feature"
+              icon="fa-solid fa-plus"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              severity="success"
+              class="add-feature-button"
+              @click.stop="event => menu.toggle(event)"
+            />
+            <Menu ref="menu" id="overlay_menu" :model="addOptions" :popup="true" />
             <AddMatch
               v-model:show-add-feature="showAddFeature"
               v-model:show-add-population="showAddPopulation"
@@ -84,9 +97,10 @@
           <EditWhere
             v-for="[index, nestedWhere] in editMatch.where.entries()"
             :edit-where="nestedWhere"
-            :focused="editMatch['@id'] === focusedId"
+            :focused="!isBooleanEditor && editMatch['@id'] === focusedId"
             :focused-id="focusedId"
             :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+            :is-boolean-editor="isBooleanEditor"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
@@ -100,7 +114,7 @@
             @on-property-add="onPropertyAdd"
           />
           <Button
-            v-if="editMatch['@id'] === focusedId"
+            v-if="!isBooleanEditor && editMatch['@id'] === focusedId"
             label="Add property"
             severity="success"
             icon="fa-solid fa-plus"
@@ -115,6 +129,7 @@
           :editMatch="editMatch.then"
           :focused-id="focusedId"
           :parent-match-type="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+          :is-boolean-editor="isBooleanEditor"
           @on-update-dialog-focus="onNestedUpdateDialogFocus"
           @delete-match="onDeleteMatch"
         />
@@ -151,6 +166,7 @@ interface Props {
   editMatch: Match;
   focusedId?: string;
   parentMatchType?: string;
+  isBooleanEditor?: boolean;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({
@@ -158,6 +174,7 @@ const emit = defineEmits({
   deleteMatch: (payload: string) => payload,
   ungroupMatches: (payload: Match) => payload
 });
+const menu = ref();
 const hover: Ref<boolean> = ref(false);
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, getTypeOfMatch } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
@@ -170,6 +187,12 @@ const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
 const addOptions = [
+  {
+    label: "Add new feature",
+    command: () => {
+      showBuildFeature.value = true;
+    }
+  },
   {
     label: "Add parent cohort",
     command: () => {
@@ -321,7 +344,7 @@ function getTypeOf(fullQuery: Match) {
 }
 
 .add-feature-button {
-  width: 20%;
+  width: 10%;
   display: flex;
   margin-top: 0.3rem;
 }

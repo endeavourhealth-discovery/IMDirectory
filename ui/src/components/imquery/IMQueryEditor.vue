@@ -15,9 +15,19 @@
       <div class="feature-title side-title">Features:</div>
       <div class="feature-list">
         <div class="feature-list-container">
-          <div class="feature">
-            <EditMatch :edit-match="editQueryDefinition" :is-root-feature="true" class="feature-description clickable" @click="editMatch" />
-          </div>
+          <EditMatch
+            :edit-match="editQueryDefinition"
+            :is-boolean-editor="true"
+            :is-root-feature="true"
+            class="feature-description clickable"
+            @on-update-dialog-focus="editMatch"
+          />
+          <EditMatchDialog
+            v-model:show-dialog="showDialog"
+            :match="editQueryDefinition"
+            :query-base-type-iri="selectedBaseType?.iri!"
+            @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch!)"
+          />
         </div>
       </div>
     </div>
@@ -28,12 +38,6 @@
       v-model:show-build-then-feature="showBuildThenFeature"
       :edit-match="editQueryDefinition"
       :match-type-of-iri="selectedBaseType?.iri!"
-    />
-    <EditMatchDialog
-      v-model:show-dialog="showDialog"
-      :match="selectedMatch"
-      :query-base-type-iri="selectedBaseType?.iri!"
-      @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch!)"
     />
   </div>
 </template>
@@ -127,7 +131,6 @@ function mouseout(event: Event) {
 }
 
 function editMatch() {
-  console.log("gege");
   selectedMatch.value = editQueryDefinition.value;
   showDialog.value = true;
 }
@@ -177,13 +180,6 @@ async function onSaveChanges(editMatch: Match) {
   height: 100%;
   width: 100%;
   overflow: auto;
-}
-
-.feature {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-  justify-content: center;
 }
 
 .feature-description {

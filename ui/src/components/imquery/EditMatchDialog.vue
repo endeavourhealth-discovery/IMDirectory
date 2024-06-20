@@ -7,7 +7,7 @@
     >
       <template #header>
         <div class="flex align-items-center">
-          <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" class="flex-grow-1" />
+          <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
           <Breadcrumb :model="pathItems" class="flex-grow-1">
             <template #item="{ item }">
               <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
@@ -40,7 +40,6 @@
               :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
             />
             <div class="add-button-bar">
-              <SplitButton label="Add new feature" @click="showBuildFeature = true" :model="addOptions" class="add-feature-button" severity="success" />
               <Button label="Add test" @click="showBuildThenFeature = true" severity="secondary" icon="fa-solid fa-plus" class="add-feature-button" />
               <Button
                 v-if="!focusedEditMatch?.orderBy"
@@ -136,20 +135,7 @@ const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEdi
 const pathItems: Ref<MenuItem[]> = ref([]);
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const templates: Ref<any> = ref();
-const addOptions = [
-  {
-    label: "Add parent cohort",
-    command: () => {
-      showAddPopulation.value = true;
-    }
-  },
-  {
-    label: "Add existing feature",
-    command: () => {
-      showAddFeature.value = true;
-    }
-  }
-];
+
 watch(
   () => cloneDeep(focusedEditMatch.value),
   newValue => {
