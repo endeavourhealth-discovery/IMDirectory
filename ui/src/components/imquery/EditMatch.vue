@@ -51,6 +51,15 @@
                 @ungroup-matches="ungroupMatches"
               />
             </div>
+            <SplitButton label="Add new feature" @click="showBuildFeature = true" :model="addOptions" class="add-feature-button" severity="success" />
+            <AddMatch
+              v-model:show-add-feature="showAddFeature"
+              v-model:show-add-population="showAddPopulation"
+              v-model:show-build-feature="showBuildFeature"
+              v-model:show-build-then-feature="showBuildThenFeature"
+              :edit-match="editMatch"
+              :match-type-of-iri="selectedBaseType?.iri!"
+            />
           </div>
           <Button
             v-if="!isRootFeature && editMatch?.match?.length > 1"
@@ -112,16 +121,6 @@
       </div>
       <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
-
-      <SplitButton label="Add new feature" @click="showBuildFeature = true" :model="addOptions" class="add-feature-button" severity="success" />
-      <AddMatch
-        v-model:show-add-feature="showAddFeature"
-        v-model:show-add-population="showAddPopulation"
-        v-model:show-build-feature="showBuildFeature"
-        v-model:show-build-then-feature="showBuildThenFeature"
-        :edit-match="editMatch"
-        :match-type-of-iri="selectedBaseType?.iri!"
-      />
     </div>
     <Button
       v-if="!isRootFeature"
@@ -322,6 +321,8 @@ function getTypeOf(fullQuery: Match) {
 }
 
 .add-feature-button {
+  width: 20%;
+  display: flex;
   margin-top: 0.3rem;
 }
 .expanding-button {
