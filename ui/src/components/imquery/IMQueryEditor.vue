@@ -16,18 +16,8 @@
       <div class="feature-list">
         <div class="feature-list-container">
           <div class="feature">
-            <MatchDisplay
-              class="feature-description clickable"
-              :match="editQueryDefinition"
-              :class="[hover ? 'feature-description-card-hover' : 'feature-description-card']"
-              @mouseover="mouseover"
-              @mouseout="mouseout"
-              @click="editMatch"
-            />
+            <EditMatch :edit-match="editQueryDefinition" :is-root-feature="true" class="feature-description clickable" @click="editMatch" />
           </div>
-        </div>
-        <div class="add-buttons">
-          <SplitButton label="Add new feature" @click="showBuildFeature = true" :model="addOptions" class="add-feature-button" severity="success" />
         </div>
       </div>
     </div>
@@ -61,6 +51,7 @@ import AddMatch from "./AddMatch.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { SearchOptions } from "@im-library/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import EditMatch from "./EditMatch.vue";
 
 interface Props {
   queryDefinition?: Query;
@@ -136,6 +127,7 @@ function mouseout(event: Event) {
 }
 
 function editMatch() {
+  console.log("gege");
   selectedMatch.value = editQueryDefinition.value;
   showDialog.value = true;
 }

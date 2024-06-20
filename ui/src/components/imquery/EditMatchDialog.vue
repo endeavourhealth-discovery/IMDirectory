@@ -6,16 +6,18 @@
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
     >
       <template #header>
-        <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
-        <Breadcrumb :model="pathItems">
-          <template #item="{ item }">
-            <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
-          </template>
-          <template #separator> / </template>
-        </Breadcrumb>
-        <div v-if="editMatch" class="variable-edit">
-          <InputText type="text" placeholder="Name" v-model="editMatch.name" />
-          <InputText type="text" placeholder="Keep as reference" v-model="editMatch.variable" />
+        <div class="flex align-items-center">
+          <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" class="flex-grow-1" />
+          <Breadcrumb :model="pathItems" class="flex-grow-1">
+            <template #item="{ item }">
+              <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
+            </template>
+            <template #separator> / </template>
+          </Breadcrumb>
+          <div v-if="editMatch" class="variable-edit flex-none">
+            <InputText type="text" placeholder="Name" v-model="editMatch.name" />
+            <InputText type="text" placeholder="Keep as reference" v-model="editMatch.variable" />
+          </div>
         </div>
       </template>
       <div id="imquery-builder-string-container">

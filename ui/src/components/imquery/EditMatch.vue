@@ -112,6 +112,16 @@
       </div>
       <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
+
+      <SplitButton label="Add new feature" @click="showBuildFeature = true" :model="addOptions" class="add-feature-button" severity="success" />
+      <AddMatch
+        v-model:show-add-feature="showAddFeature"
+        v-model:show-add-population="showAddPopulation"
+        v-model:show-build-feature="showBuildFeature"
+        v-model:show-build-then-feature="showBuildThenFeature"
+        :edit-match="editMatch"
+        :match-type-of-iri="selectedBaseType?.iri!"
+      />
     </div>
     <Button
       v-if="!isRootFeature"
@@ -135,11 +145,12 @@ import { cloneDeep } from "lodash-es";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
+import AddMatch from "./AddMatch.vue";
 
 interface Props {
   isRootFeature?: boolean;
   editMatch: Match;
-  focusedId: string | undefined;
+  focusedId?: string;
   parentMatchType?: string;
 }
 const props = defineProps<Props>();
@@ -155,6 +166,24 @@ const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
 const showAddPropertyDialog: Ref<boolean> = ref(false);
+const showAddPopulation: Ref<boolean> = ref(false);
+const showBuildFeature: Ref<boolean> = ref(false);
+const showBuildThenFeature: Ref<boolean> = ref(false);
+const showAddFeature: Ref<boolean> = ref(false);
+const addOptions = [
+  {
+    label: "Add parent cohort",
+    command: () => {
+      showAddPopulation.value = true;
+    }
+  },
+  {
+    label: "Add existing feature",
+    command: () => {
+      showAddFeature.value = true;
+    }
+  }
+];
 onMounted(() => {
   if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
 });
@@ -293,9 +322,7 @@ function getTypeOf(fullQuery: Match) {
 }
 
 .add-feature-button {
-  width: 10rem;
-  margin-top: 0.5rem;
-  margin-left: 0.5rem;
+  margin-top: 0.3rem;
 }
 .expanding-button {
   align-self: stretch;
