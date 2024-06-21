@@ -232,6 +232,7 @@ function addGroup() {
 function addConcept() {
   props.value.conceptBool = undefined;
   props.value.conceptSingle = { iri: "" };
+  props.value.constraintOperator = "<<";
 }
 
 function deleteItem(index: number) {
