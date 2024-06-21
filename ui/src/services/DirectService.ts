@@ -21,7 +21,7 @@ export default class DirectService {
   }
 
   private directTo(options: { iri?: string; action?: string; appRoute: string; newTab?: boolean }) {
-    let pathUrl = "/";
+    let pathUrl = "";
     pathUrl += options.appRoute + "/";
     if (options.iri) pathUrl += encodeURIComponent(options.iri);
     if (options.action && options.iri) {
@@ -30,7 +30,7 @@ export default class DirectService {
     if (!options.newTab) {
       if (options.iri) this.directoryStore.updateConceptIri(options.iri!);
       this.router.push({
-        path: pathUrl
+        path: "/" + pathUrl
       });
     } else {
       window.open(Env.DIRECTORY_URL + pathUrl);
