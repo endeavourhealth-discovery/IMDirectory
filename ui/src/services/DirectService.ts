@@ -30,7 +30,7 @@ export default class DirectService {
     if (!options.newTab) {
       if (options.iri) this.directoryStore.updateConceptIri(options.iri!);
       this.router.push({
-        path: pathUrl
+        path: "/" + pathUrl
       });
     } else {
       window.open(Env.DIRECTORY_URL + pathUrl);
