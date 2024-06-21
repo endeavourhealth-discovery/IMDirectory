@@ -34,10 +34,7 @@ import { useUserStore } from "@/stores/userStore";
 import { Avatars } from "@im-library/constants";
 
 function processAwsUser(cognitoUser: GetCurrentUserOutput, userAttributes: FetchUserAttributesOutput, authSession: AuthSession, mfa: FetchMFAPreferenceOutput) {
-  if (
-    !isObjectHasKeys(cognitoUser, ["userId", "username"]) ||
-    !isObjectHasKeys(userAttributes, ["email", "custom:forename", "custom:surname", "custom:avatar"])
-  )
+  if (!isObjectHasKeys(cognitoUser, ["userId", "username"]) || !isObjectHasKeys(userAttributes, ["email", "custom:forename", "custom:surname"]))
     throw new Error("Unable to process aws user");
   return {
     id: cognitoUser.userId,
@@ -46,7 +43,7 @@ function processAwsUser(cognitoUser: GetCurrentUserOutput, userAttributes: Fetch
     lastName: userAttributes["custom:surname"],
     email: userAttributes.email,
     password: "",
-    avatar: userAttributes["custom:avatar"],
+    avatar: userAttributes["custom:avatar"] ?? "",
     roles: authSession.tokens?.accessToken?.payload["cognito:groups"] ?? [],
     mfaStatus: mfa.preferred ? [mfa.preferred] : []
   } as User;
@@ -246,9 +243,9 @@ const AuthService = {
       const tokens = await fetchAuthSession();
       const mfa = await fetchMFAPreference();
       const authenticatedUser = processAwsUser(cognitoUser, userAttributes, tokens, mfa);
-      const result = Avatars.find((avatar: string) => avatar === authenticatedUser.avatar);
-      if (!result) {
+      if (!authenticatedUser.avatar || !Avatars.find((avatar: string) => avatar === authenticatedUser.avatar)) {
         authenticatedUser.avatar = Avatars[0];
+        await this.updateUser(authenticatedUser);
       }
       const userStore = useUserStore();
       userStore.updateCurrentUser(authenticatedUser);
