@@ -1,7 +1,6 @@
 <template>
   <div class="edit-match-wrapper">
     <Button
-      v-if="!isBooleanEditor"
       :severity="editMatch.exclude ? 'danger' : 'secondary'"
       :outlined="!editMatch.exclude"
       label="NOT"
@@ -75,7 +74,7 @@
             />
           </div>
           <Button
-            v-if="!isRootFeature && editMatch?.match?.length > 1"
+            v-if="!isRootFeature && editMatch?.match?.length > 1 && isBooleanEditor"
             class="builder-button group-button"
             severity="warning"
             icon="fa-solid fa-brackets-curly"
@@ -344,7 +343,7 @@ function getTypeOf(fullQuery: Match) {
 }
 
 .add-feature-button {
-  width: 10%;
+  width: 15%;
   display: flex;
   margin-top: 0.3rem;
 }

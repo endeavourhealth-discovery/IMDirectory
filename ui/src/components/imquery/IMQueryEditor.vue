@@ -20,11 +20,11 @@
             :is-boolean-editor="true"
             :is-root-feature="true"
             class="feature-description clickable"
-            @on-update-dialog-focus="editMatch"
+            @on-update-dialog-focus="menuItems => editMatch(menuItems)"
           />
           <EditMatchDialog
             v-model:show-dialog="showDialog"
-            :match="editQueryDefinition"
+            :match="selectedMatch"
             :query-base-type-iri="selectedBaseType?.iri!"
             @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch!)"
           />
@@ -56,6 +56,8 @@ import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions
 import { SearchOptions } from "@im-library/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import EditMatch from "./EditMatch.vue";
+import { MenuItem } from "primevue/menuitem";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   queryDefinition?: Query;
@@ -130,8 +132,8 @@ function mouseout(event: Event) {
   hover.value = false;
 }
 
-function editMatch() {
-  selectedMatch.value = editQueryDefinition.value;
+function editMatch(menuItems: MenuItem[]) {
+  selectedMatch.value = isArrayHasLength(menuItems) ? menuItems[menuItems.length - 1].editMatch : editQueryDefinition.value;
   showDialog.value = true;
 }
 
