@@ -147,7 +147,10 @@ const selectedAvatar = ref(Avatars[0]);
 const focused: Ref<Map<string, boolean>> = ref(new Map());
 const emailIsNotRegistered = ref(true);
 const privacyPolicyAccepted = ref(false);
-const allVerified = computed(() => isObjectHasKeys(errors) && isNewPasswordValid.value && emailIsNotRegistered.value && privacyPolicyAccepted.value);
+const allHasValue = computed(() => username.value && firstName.value && lastName.value && email1.value && email2.value);
+const allVerified = computed(
+  () => allHasValue.value && !isObjectHasKeys(errors.value) && isNewPasswordValid.value && emailIsNotRegistered.value && privacyPolicyAccepted.value
+);
 
 const schema: any = yup.object({
   username: yup
@@ -232,7 +235,7 @@ const onSubmit = handleSubmit(async () => {
           }).then((result: SweetAlertResult) => {
             emit("userCreated", user);
             if (result.isConfirmed) {
-              authStore.updateRegisteredUsername(username.value.modelValue);
+              authStore.updateRegisteredUsername(username.value);
               router.push({ name: "ConfirmCode" });
             } else {
               clearForm();
