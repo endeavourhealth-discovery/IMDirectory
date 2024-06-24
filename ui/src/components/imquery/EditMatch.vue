@@ -62,6 +62,7 @@
               severity="success"
               class="add-feature-button"
               @click.stop="event => menu.toggle(event)"
+              :disabled="!selectedBaseType"
             />
             <Menu ref="menu" id="overlay_menu" :model="addOptions" :popup="true" />
             <AddMatch
