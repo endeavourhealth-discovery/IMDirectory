@@ -5,11 +5,13 @@ import logger from "./logger.middleware";
 
 function errorHandler(error: any, request: Request, response: Response, next: NextFunction) {
   process.on("uncaughtException", err => {
+    console.error("fatal", error);
     logger.log("fatal", error);
     process.exit(1);
   });
 
   process.on("unhandledRejection", (reason, promise) => {
+    console.error("fatal", error);
     logger.log("fatal", error);
     process.exit(1);
   });
@@ -26,6 +28,7 @@ function errorHandler(error: any, request: Request, response: Response, next: Ne
     logger.error(error);
     handleResponse(error.response, newApiError);
   } else {
+    console.error("fatal", error);
     logger.log("fatal", error);
     process.exit(1);
   }
