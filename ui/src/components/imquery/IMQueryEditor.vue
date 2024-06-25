@@ -47,7 +47,6 @@ import { Ref, onMounted, provide, ref, watch } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import { Match, Query, SearchResultSummary, Bool, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
-import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash-es";
@@ -113,16 +112,16 @@ function editMatch(menuItems: MenuItem[]) {
 async function onSaveChanges(editMatch: Match) {
   if (selectedMenuItem.value) {
     const describedMatch = await QueryService.getQueryDisplayFromQuery(editMatch, false);
-    if (isObjectHasKeys(describedMatch, ["where"])) selectedMenuItem.value.editMatch.where = describedMatch.where;
+    if (describedMatch.where) selectedMenuItem.value.editMatch.where = describedMatch.where;
     if (describedMatch.match) selectedMenuItem.value.editMatch.match = describedMatch.match;
     if (describedMatch.then) selectedMenuItem.value.editMatch.then = describedMatch.then;
     if (describedMatch.groupBy) selectedMenuItem.value.editMatch.groupBy = describedMatch.groupBy;
     if (isObjectHasKeys(describedMatch, ["exclude"])) selectedMenuItem.value.editMatch.exclude = describedMatch.exclude;
     if (describedMatch.instanceOf) selectedMenuItem.value.editMatch.instanceOf = describedMatch.instanceOf;
-    if (describedMatch.nodeRef) selectedMenuItem.value.editMatch.nodeRef = describedMatch.nodeRef;
+    if (isObjectHasKeys(describedMatch, ["nodeRef"])) selectedMenuItem.value.editMatch.nodeRef = describedMatch.nodeRef;
     if (describedMatch.typeOf) selectedMenuItem.value.editMatch.typeOf = describedMatch.typeOf;
-    if (describedMatch.name) selectedMenuItem.value.editMatch.name = describedMatch.name;
-    if (describedMatch.description) selectedMenuItem.value.editMatch.description = describedMatch.description;
+    if (isObjectHasKeys(describedMatch, ["name"])) selectedMenuItem.value.editMatch.name = describedMatch.name;
+    if (isObjectHasKeys(describedMatch, ["description"])) selectedMenuItem.value.editMatch.description = describedMatch.description;
   }
 }
 </script>

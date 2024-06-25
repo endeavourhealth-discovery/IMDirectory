@@ -202,15 +202,11 @@ function clear() {
   selectedGeneralConcept.value = undefined;
 }
 
-function addProperty() {
-  if (!isArrayHasLength(editMatch.value.where)) editMatch.value.where = [];
-  editMatch.value.where!.push({});
-}
-
 function onPropertyAdd(property: Where) {
-  const hasProperty = editMatch.value.where?.some(where => where["@id"] === property["@id"]);
+  const leafMatch = getLeafMatch(editMatch.value);
+  const hasProperty = leafMatch.where?.some(where => where["@id"] === property["@id"]);
   if (!hasProperty) {
-    editMatch.value.where?.push(property);
+    leafMatch.where?.push(property);
     describeMatch(editMatch.value, 0, false);
   }
 }
