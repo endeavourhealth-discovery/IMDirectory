@@ -52,6 +52,18 @@ const app = new App({
   ]
 });
 
+process.on("uncaughtException", err => {
+  console.error("fatal", err);
+  logger.log("fatal", err);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", err => {
+  console.error("fatal", err);
+  logger.log("fatal", err);
+  process.exit(1);
+});
+
 if (import.meta.env.PROD) app.listen();
 
 function shutdownFunction(signal?: string | undefined): Promise<void> {
