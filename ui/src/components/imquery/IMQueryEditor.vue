@@ -24,7 +24,7 @@
           />
           <EditMatchDialog
             v-model:show-dialog="showDialog"
-            :match="selectedMatch"
+            :match="selectedMenuItem?.editMatch"
             :query-base-type-iri="selectedBaseType?.iri!"
             @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch!)"
           />
@@ -57,7 +57,7 @@ import { SearchOptions } from "@im-library/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   queryDefinition?: Query;
@@ -67,34 +67,18 @@ const props = defineProps<Props>();
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const editQueryDefinition: Ref<Query> = ref({});
-const hover: Ref<boolean> = ref(false);
 const showDialog = ref(false);
-const selectedMatch: Ref<Match | undefined> = ref();
 const imQueryForBaseType: Ref<QueryRequest | undefined> = ref();
 const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
 const variableMap: Ref<{ [key: string]: any }> = ref({});
+const selectedMenuItem: Ref<MenuItem | undefined> = ref();
 provide("selectedBaseType", selectedBaseType);
 provide("variableMap", variableMap);
 provide("fullQuery", editQueryDefinition);
 const { populateVariableMap } = setupIMQueryBuilderActions();
-
-const addOptions = [
-  {
-    label: "Add parent cohort",
-    command: () => {
-      showAddPopulation.value = true;
-    }
-  },
-  {
-    label: "Add existing feature",
-    command: () => {
-      showAddFeature.value = true;
-    }
-  }
-];
 
 watch(
   () => cloneDeep(editQueryDefinition.value),
@@ -109,7 +93,6 @@ onMounted(async () => {
       selectedBaseType.value = { iri: editQueryDefinition.value.typeOf?.["@id"], name: editQueryDefinition.value.typeOf?.name } as SearchResultSummary;
 
     buildImQueryForBaseType();
-
     populateVariableMap(variableMap.value, editQueryDefinition.value);
   }
 });
@@ -122,23 +105,25 @@ function buildImQueryForBaseType() {
   imQueryForBaseType.value = buildIMQueryFromFilters(searchOptions);
 }
 
-function mouseover(event: Event) {
-  event.stopPropagation();
-  hover.value = true;
-}
-
-function mouseout(event: Event) {
-  event.stopPropagation();
-  hover.value = false;
-}
-
 function editMatch(menuItems: MenuItem[]) {
-  selectedMatch.value = isArrayHasLength(menuItems) ? menuItems[menuItems.length - 1].editMatch : editQueryDefinition.value;
+  if (isArrayHasLength(menuItems)) selectedMenuItem.value = menuItems[menuItems.length - 1];
   showDialog.value = true;
 }
 
 async function onSaveChanges(editMatch: Match) {
-  editQueryDefinition.value = await QueryService.getQueryDisplayFromQuery(editMatch, false);
+  if (selectedMenuItem.value) {
+    const describedMatch = await QueryService.getQueryDisplayFromQuery(editMatch, false);
+    if (isObjectHasKeys(describedMatch, ["where"])) selectedMenuItem.value.editMatch.where = describedMatch.where;
+    if (describedMatch.match) selectedMenuItem.value.editMatch.match = describedMatch.match;
+    if (describedMatch.then) selectedMenuItem.value.editMatch.then = describedMatch.then;
+    if (describedMatch.groupBy) selectedMenuItem.value.editMatch.groupBy = describedMatch.groupBy;
+    if (isObjectHasKeys(describedMatch, ["exclude"])) selectedMenuItem.value.editMatch.exclude = describedMatch.exclude;
+    if (describedMatch.instanceOf) selectedMenuItem.value.editMatch.instanceOf = describedMatch.instanceOf;
+    if (describedMatch.nodeRef) selectedMenuItem.value.editMatch.nodeRef = describedMatch.nodeRef;
+    if (describedMatch.typeOf) selectedMenuItem.value.editMatch.typeOf = describedMatch.typeOf;
+    if (describedMatch.name) selectedMenuItem.value.editMatch.name = describedMatch.name;
+    if (describedMatch.description) selectedMenuItem.value.editMatch.description = describedMatch.description;
+  }
 }
 </script>
 
