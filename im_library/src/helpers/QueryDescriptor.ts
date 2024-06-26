@@ -16,9 +16,6 @@ export function describeQuery(query: Query, includeLogicDesc: boolean): Query {
 }
 
 function describe(query: Query, includeLogicDesc: boolean) {
-  if (isObjectHasKeys(query, ["name"])) {
-    query.description = query.name;
-  }
   if (isArrayHasLength(query.match)) {
     for (const [index, match] of query.match!.entries()) {
       describeMatch(match, index, includeLogicDesc, Bool.or);
