@@ -17,24 +17,18 @@
     </div>
     <div class="value-list-container" v-if="isValueList">
       <div class="value-list" v-if="isArrayHasLength(values)">
-        <div v-if="isType === 'Entity'" class="value-list-item" v-for="[index, value] of values.entries()">
+        <div class="value-list-item" v-for="[index, value] of values.entries()">
           <EntailmentOptionsSelect :entailment-object="value" @update-entailment="onUpdateEntailment" />
-          <SelectButton v-model="isType" :options="['Entity', 'Cluster code']" @change="handleIsTypeChange(value)" />
+          <SelectButton v-model="isType" :options="['Concept', 'Concept set']" @change="handleIsTypeChange(value)" />
           <AutocompleteSearchBar
             :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET]"
             :selected-quick-type-filter="quickTypeFilter"
             :im-query="imQuery"
-            @update-selected-filters="onUpdateSelectedFilters"
-            :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"
             :root-entities="[datatype]"
+            :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"
+            @update-selected-filters="onUpdateSelectedFilters"
             @update:selected="selected => updateSelectedValue(selected, index)"
           />
-          <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-minus" class="add-feature-button" @click="values.splice(index, 1)" />
-        </div>
-        <div v-else class="value-list-item" v-for="[index, value] of values.entries()">
-          <EntailmentOptionsSelect :entailment-object="value" @update-entailment="onUpdateEntailment" />
-          <SelectButton v-model="isType" :options="['Entity', 'Cluster code']" />
-          <InputText v-model="value.parameter" @change="handlePropertyTypeChange" />
           <Button v-if="values.length > 1" severity="danger" icon="fa-solid fa-minus" class="add-feature-button" @click="values.splice(index, 1)" />
         </div>
       </div>
@@ -77,7 +71,7 @@ const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "i
 const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const conceptSets: Ref<string[]> = ref([]);
-const isType: Ref<"Entity" | "Cluster code"> = ref("Entity");
+const isType: Ref<"Concept" | "Concept set"> = ref("Concept set");
 
 onMounted(async () => {
   setValues();
@@ -113,9 +107,10 @@ watch(
 );
 
 function handleIsTypeChange(value: Element) {
-  if (isType.value === "Cluster code") delete value["@id"];
-  else if (isType.value === "Entity") delete value.parameter;
+  delete value["@id"];
   delete value.name;
+  if (isType.value === "Concept") quickTypeFilter.value = IM.CONCEPT;
+  else if (isType.value === "Concept set") quickTypeFilter.value = IM.CONCEPT_SET;
 }
 
 function buildIMQuery() {
@@ -143,6 +138,7 @@ function clearValues() {
 function onUpdateEntailment(entailmentOption: string) {
   updateEntailment(props.property, entailmentOption);
   quickTypeFilter.value = entailmentOption === "memberOf" ? IM.CONCEPT_SET : IM.CONCEPT;
+  isType.value = entailmentOption === "memberOf" ? "Concept set" : "Concept";
 }
 
 function onCustomSetSave(customSetRef: Node) {
@@ -155,10 +151,6 @@ function updateSelectedValue(selected: SearchResultSummary | undefined, index: n
 }
 
 function handlePropertyTypeChange() {
-  if (isType.value === "Cluster code")
-    for (const value of values.value) {
-      value.name = value.parameter;
-    }
   switch (valueField.value) {
     case "isNot":
       if (!values.value.length) values.value = [{}];
@@ -197,41 +189,37 @@ function setValues() {
     valueField.value = "is";
     for (const value of props.property.is) {
       if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name });
-      else if (value.parameter) {
-        values.value.push({ parameter: value.parameter, name: value.name ?? value.parameter });
-        isType.value = "Cluster code";
-      }
     }
     if (!values.value.length) values.value.push({});
   } else if (props.property.isNot) {
     valueField.value = "isNot";
     for (const value of props.property.isNot) {
       if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name });
-      else if (value.parameter) {
-        values.value.push({ parameter: value.parameter, name: value.name ?? value.parameter });
-        isType.value = "Cluster code";
-      }
     }
     if (!values.value.length) values.value.push({});
   } else if (isObjectHasKeys(props.property, ["isNull"])) valueField.value = "isNull";
   else if (isObjectHasKeys(props.property, ["isNotNull"])) valueField.value = "isNotNull";
   else {
     valueField.value = "is";
-    isType.value = "Entity";
+    isType.value = "Concept set";
   }
 }
 
 function onUpdateSelectedFilters(selectedFilters: FilterOptions) {
   if (!imQuery.value) imQuery.value = { query: {} };
-  if (selectedFilters.types.length == 1) {
+  if (selectedFilters.types.length === 1) {
     if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT)) {
       deleteQueryPredicateIfExists(imQuery.value.query, IM.BINDING);
       deleteQueryPredicateIfExists(imQuery.value.query, IM.IS_MEMBER_OF);
+      isType.value = "Concept";
+      quickTypeFilter.value = IM.CONCEPT;
       const conceptSetRefs = conceptSets.value.map(conceptSet => {
         return { "@id": conceptSet };
       });
       addMemberOfToIMQuery(conceptSetRefs, imQuery.value);
     } else if (selectedFilters.types.find(type => type["@id"] === IM.CONCEPT_SET)) {
+      isType.value = "Concept set";
+      quickTypeFilter.value = IM.CONCEPT_SET;
       deleteQueryPredicateIfExists(imQuery.value.query, IM.IS_MEMBER_OF);
       deleteQueryPredicateIfExists(imQuery.value.query, IM.BINDING);
       const binding: SearchBinding = { node: { "@id": props.dataModelIri }, path: { "@id": props.property["@id"]! } };
