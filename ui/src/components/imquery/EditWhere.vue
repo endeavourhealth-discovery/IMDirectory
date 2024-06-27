@@ -22,6 +22,7 @@
           :focused-id="focusedId"
           :match-type-of-iri="matchTypeOfIri"
           :editWhere="nestedWhere"
+          :is-boolean-editor="isBooleanEditor"
           @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
           @delete-property="editWhere.where?.splice(index, 1)"
         />
@@ -31,6 +32,7 @@
       v-if="editWhere?.match"
       :edit-match="editWhere.match"
       :focused-id="focusedId"
+      :is-boolean-editor="isBooleanEditor"
       @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
       @delete-match="onDeleteMatch"
     />
@@ -48,6 +50,7 @@ interface Props {
   editWhere: Where;
   focused: boolean;
   focusedId: string | undefined;
+  isBooleanEditor?: boolean;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteProperty: () => true });
