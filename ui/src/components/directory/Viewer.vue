@@ -177,8 +177,7 @@ function setDefaultTab() {
 }
 
 function setTabMap() {
-  const tabList = document.getElementById("concept-main-container")?.children?.[0]?.children?.[0]?.children?.[0]?.children?.[0]?.children?.[0]?.children?.[0]
-    ?.children as HTMLCollectionOf<HTMLElement>;
+  const tabList = document.getElementById("viewer-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
   if (tabList?.length) {
     for (let i = 0; i < tabList.length; i++) {
       if (tabList[i].textContent) {
