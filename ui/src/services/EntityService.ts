@@ -10,7 +10,7 @@ import {
   PropertyDisplay,
   SetDiffObject
 } from "@im-library/interfaces";
-import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary, DownloadOptions } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/treenode";
@@ -519,6 +519,10 @@ const EntityService = {
         dataModelIri: dataModelIri
       }
     });
+  },
+
+  async downloadSearchResults(downloadSettings: DownloadOptions) {
+    return axios.post(Env.API + "api/entity/public/downloadSearchResults", downloadSettings, { responseType: "blob", raw: true });
   }
 };
 
