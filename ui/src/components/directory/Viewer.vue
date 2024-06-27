@@ -54,6 +54,11 @@
               <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
+          <TabPanel header="Data models" v-if="isProperty(types)">
+            <div v-if="isObjectHasKeys(concept)" class="concept-panel-content" id="definition-container">
+              <DataModels :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+            </div>
+          </TabPanel>
           <TabPanel header="Used in">
             <div class="concept-panel-content" id="usedin-container">
               <UsedIn :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
@@ -109,10 +114,11 @@ import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 import { DefinitionConfig } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel, isFeature } from "@im-library/helpers/ConceptTypeMethods";
+import { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel, isFeature, isProperty } from "@im-library/helpers/ConceptTypeMethods";
 import { EntityService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import Details from "./viewer/Details.vue";
+import DataModels from "./viewer/DataModels.vue";
 
 import { useRouter } from "vue-router";
 import setupConcept from "@/composables/setupConcept";
@@ -163,13 +169,16 @@ function setDefaultTab() {
     activeTab.value = tabMap.get("Query") ?? 0;
   } else if (isValueSet(types.value)) {
     activeTab.value = tabMap.get("Set") ?? 0;
+  } else if (isProperty(types.value)) {
+    activeTab.value = tabMap.get("Data models") ?? 0;
   } else {
     activeTab.value = 0;
   }
 }
 
 function setTabMap() {
-  const tabList = document.getElementById("info-side-bar-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
+  const tabList = document.getElementById("concept-main-container")?.children?.[0]?.children?.[0]?.children?.[0]?.children?.[0]?.children?.[0]?.children?.[0]
+    ?.children as HTMLCollectionOf<HTMLElement>;
   if (tabList?.length) {
     for (let i = 0; i < tabList.length; i++) {
       if (tabList[i].textContent) {
