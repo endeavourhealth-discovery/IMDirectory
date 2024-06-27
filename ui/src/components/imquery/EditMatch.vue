@@ -61,10 +61,10 @@
               aria-controls="overlay_menu"
               severity="success"
               class="add-feature-button"
-              @click.stop="event => menu.toggle(event)"
+              @click.stop="event => addFeatureMenu.toggle(event)"
               :disabled="!selectedBaseType"
             />
-            <Menu ref="menu" id="overlay_menu" :model="addOptions" :popup="true" />
+            <Menu ref="addFeatureMenu" id="overlay_menu" :model="addOptions" :popup="true" />
             <AddMatch
               v-model:show-add-feature="showAddFeature"
               v-model:show-add-population="showAddPopulation"
@@ -174,7 +174,7 @@ const emit = defineEmits({
   deleteMatch: (payload: string) => payload,
   ungroupMatches: (payload: Match) => payload
 });
-const menu = ref();
+const addFeatureMenu = ref();
 const hover: Ref<boolean> = ref(false);
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, getTypeOfMatch } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
