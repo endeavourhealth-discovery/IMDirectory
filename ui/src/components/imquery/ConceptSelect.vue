@@ -25,7 +25,7 @@
             :selected-quick-type-filter="quickTypeFilter"
             :im-query="imQuery"
             :root-entities="[datatype]"
-            :selected="{ iri: value['@id'], name: value.name } as SearchResultSummary"
+            :selected="value.summary"
             @update-selected-filters="onUpdateSelectedFilters"
             @update:selected="selected => updateSelectedValue(selected, index)"
           />
@@ -49,7 +49,7 @@ import { IM } from "@im-library/vocabulary";
 import { FilterOptions, SearchOptions } from "@im-library/interfaces";
 import { onUnmounted } from "vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
-import { QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import {
   addBindingsToIMQuery,
   addMemberOfToIMQuery,
@@ -57,6 +57,11 @@ import {
   buildIMQueryFromFilters,
   deleteQueryPredicateIfExists
 } from "@/helpers/IMQueryBuilder";
+
+interface ElementWithSummary extends Element {
+  summary?: SearchResultSummary;
+}
+
 interface Props {
   datatype: string;
   property: Where;
@@ -66,7 +71,7 @@ const props = defineProps<Props>();
 
 const { updateEntailment } = setupIMQueryBuilderActions();
 const valueField: Ref<"is" | "isNot" | "isNull" | "isNotNull" | undefined> = ref();
-const values: Ref<Element[]> = ref([]);
+const values: Ref<ElementWithSummary[]> = ref([]);
 const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is" || valueField.value === "isNot");
 const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
 const imQuery: Ref<QueryRequest | undefined> = ref();
@@ -74,7 +79,7 @@ const conceptSets: Ref<string[]> = ref([]);
 const isType: Ref<"Concept" | "Concept set"> = ref("Concept set");
 
 onMounted(async () => {
-  setValues();
+  await setValues();
   buildIMQuery();
   await setConceptSets();
 });
@@ -82,29 +87,6 @@ onMounted(async () => {
 onUnmounted(() => {
   clearValues();
 });
-
-watch(
-  () => valueField.value,
-  (newValue, oldValue) => {
-    if (!isEqual(newValue, oldValue)) {
-      handlePropertyTypeChange();
-    }
-  }
-);
-
-watch(
-  () => cloneDeep(values.value),
-  (newValue, oldValue) => {
-    if (!isEqual(newValue, oldValue)) {
-      handlePropertyTypeChange();
-    }
-  }
-);
-
-watch(
-  () => cloneDeep(props.property),
-  () => setValues()
-);
 
 function handleIsTypeChange(value: Element) {
   delete value["@id"];
@@ -141,13 +123,14 @@ function onUpdateEntailment(entailmentOption: string) {
   isType.value = entailmentOption === "memberOf" ? "Concept set" : "Concept";
 }
 
-function onCustomSetSave(customSetRef: Node) {
+async function onCustomSetSave(customSetRef: Node) {
   values.value = [];
-  values.value.push({ "@id": customSetRef["@id"]!, name: customSetRef.name });
+  values.value.push({ "@id": customSetRef["@id"]!, name: customSetRef.name, summary: await EntityService.getEntitySummary(customSetRef["@id"]!) });
 }
 
 function updateSelectedValue(selected: SearchResultSummary | undefined, index: number) {
-  if (selected?.iri) values.value[index] = { "@id": selected?.iri, name: selected.name };
+  if (selected?.iri) values.value[index] = { "@id": selected?.iri, name: selected.name, summary: selected };
+  handlePropertyTypeChange();
 }
 
 function handlePropertyTypeChange() {
@@ -183,18 +166,18 @@ function handlePropertyTypeChange() {
   }
 }
 
-function setValues() {
+async function setValues() {
   values.value = [];
   if (props.property.is) {
     valueField.value = "is";
     for (const value of props.property.is) {
-      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name });
+      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name, summary: await EntityService.getEntitySummary(value["@id"]) });
     }
     if (!values.value.length) values.value.push({});
   } else if (props.property.isNot) {
     valueField.value = "isNot";
     for (const value of props.property.isNot) {
-      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name });
+      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name, summary: await EntityService.getEntitySummary(value["@id"]) });
     }
     if (!values.value.length) values.value.push({});
   } else if (isObjectHasKeys(props.property, ["isNull"])) valueField.value = "isNull";

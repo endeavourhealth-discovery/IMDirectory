@@ -20,13 +20,13 @@
             :is-boolean-editor="true"
             :is-root-feature="true"
             class="feature-description clickable"
-            @on-update-dialog-focus="menuItems => editMatch(menuItems)"
+            @on-update-dialog-focus="editMatch"
           />
           <EditMatchDialog
             v-model:show-dialog="showDialog"
             :match="selectedMenuItem?.editMatch"
             :query-base-type-iri="selectedBaseType?.iri!"
-            @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch!)"
+            @save-changes="onSaveChanges"
           />
         </div>
       </div>

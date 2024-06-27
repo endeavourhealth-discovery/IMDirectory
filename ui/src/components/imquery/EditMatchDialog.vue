@@ -119,7 +119,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
-  saveChanges: (payload: Match | undefined) => payload
+  saveChanges: (payload: Match) => payload
 });
 const keepAsVariable: Ref<string> = ref("");
 const showAddPopulation: Ref<boolean> = ref(false);
