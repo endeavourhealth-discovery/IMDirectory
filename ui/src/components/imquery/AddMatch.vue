@@ -30,6 +30,24 @@
     @on-match-add="onThenMatchAdd"
     @on-property-add="onThenPropertyAdd"
   />
+
+  <!-- <AddNewFeatureDialog
+    v-model:show-dialog="showBuildFeatureDialog"
+    :dataModelIri="matchTypeOfIri"
+    :header="'Add new feature'"
+    :show-variable-options="false"
+    @on-match-add="onMatchAdd"
+    @on-property-add="onPropertyAdd"
+  />
+
+  <AddNewFeatureDialog
+    v-model:show-dialog="showBuildThenFeatureDialog"
+    :dataModelIri="matchTypeOfIri"
+    :header="'Add new feature'"
+    :show-variable-options="false"
+    @on-match-add="onThenMatchAdd"
+    @on-property-add="onThenPropertyAdd"
+  /> -->
 </template>
 
 <script setup lang="ts">
@@ -44,6 +62,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import { SearchOptions } from "@im-library/interfaces";
 import AddFeatureDialog from "./AddFeatureDialog.vue";
+import AddNewFeatureDialog from "./AddNewFeatureDialog.vue";
 interface Props {
   editMatch: Match;
   matchTypeOfIri: string;
