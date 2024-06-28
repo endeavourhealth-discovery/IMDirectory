@@ -25,7 +25,7 @@
         @dragleave="mouseout"
       >
         <Button
-          class="builder-button conjunction-button vertical-button"
+          class="p-button-secondary p-button-outlined builder-button conjunction-button vertical-button"
           :label="value.conjunction"
           @click="toggleBool"
           draggable="true"

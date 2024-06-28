@@ -22,7 +22,7 @@
 
       <div v-if="editMatch?.match" class="feature-group">
         <Button
-          class="expanding-button builder-button conjunction-button vertical-button"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolMatch?.toUpperCase() ?? 'AND'"
           @click.stop="toggleMatchBool(editMatch)"
         />
@@ -67,7 +67,7 @@
       <div v-if="editMatch?.where" class="where-group">
         <Button
           v-if="editMatch.where.length > 1"
-          class="expanding-button builder-button conjunction-button vertical-button"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolWhere?.toUpperCase() ?? 'AND'"
           @click.stop="toggleWhereBool(editMatch)"
         />
@@ -93,10 +93,12 @@
           <Button
             v-if="editMatch['@id'] === focusedId"
             label="Add property"
-            severity="success"
             icon="fa-solid fa-plus"
-            class="add-property-button"
             @click="showAddPropertyDialog = true"
+            class="add-button"
+            :severity="hover ? 'success' : 'secondary'"
+            :outlined="!hover"
+            :class="!hover && 'hover-button'"
           />
         </div>
       </div>
@@ -332,5 +334,12 @@ function getTypeOf(fullQuery: Match) {
 .hover-button {
   color: #00000030 !important;
   border-style: dashed !important;
+}
+
+.add-button {
+  margin-left: 0.1rem;
+  width: 12rem;
+  max-height: 1rem;
+  padding: 1rem;
 }
 </style>
