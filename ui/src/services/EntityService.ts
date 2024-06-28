@@ -513,6 +513,14 @@ const EntityService = {
     return axios.post(Env.API + "api/entity/updateSubsetsFromSuper", entity);
   },
 
+  async getDataModelsFromProperty(propIri: string): Promise<TTIriRef[]> {
+    return axios.get(Env.API + "api/entity/public/dataModels", {
+      params: {
+        propIri: propIri
+      }
+    });
+  },
+
   async getLinkedDataModels(dataModelIri: string): Promise<string[]> {
     return axios.get(api + "api/entity/public/linkedDataModels", {
       params: {
