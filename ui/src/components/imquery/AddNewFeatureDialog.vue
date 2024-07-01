@@ -1,14 +1,12 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw', maxWidth: '80vw', minHeight: '50vh', maxHeight: '80vh' }">
-    <div class="flex justify-content-center align-items-center">
-      <div class="justify-self-left">What are you searching for?</div>
-      <SelectButton v-model="selectedType" :options="typeOptions" aria-labelledby="basic" />
-    </div>
-
     <Stepper :style="{ minWidth: '50vw' }">
       <StepperPanel>
         <template #header> </template>
         <template #content="{ nextCallback }">
+          <div class="flex justify-content-center align-items-center">
+            <SelectButton v-model="selectedType" :options="typeOptions" option-label="name" aria-labelledby="basic" @change="onTypeSelect" />
+          </div>
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
               <div class="search-bar">
@@ -24,12 +22,18 @@
               </div>
               <div class="vertical-divider">
                 <div class="left-container">
-                  <NavTree :selectedIri="treeIri" :find-in-tree="findInDialogTree" @found-in-tree="findInDialogTree = false" @row-selected="showDetails" />
+                  <NavTree
+                    :selectedIri="treeIri"
+                    :find-in-tree="findInDialogTree"
+                    :root-entities="rootEntities"
+                    @found-in-tree="findInDialogTree = false"
+                    @row-selected="showDetails"
+                  />
                 </div>
                 <div class="right-container">
                   <SearchResults
                     v-if="activePage === 0"
-                    :show-filters="true"
+                    :show-filters="false"
                     :updateSearch="updateSearch"
                     :search-term="searchTerm"
                     :im-query="imQuery"
@@ -158,17 +162,15 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import { Match, PathQuery, QueryRequest, SearchResponse, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
+import { Match, PathQuery, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { IM, RDF } from "@im-library/vocabulary";
+import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import { EntityService, QueryService } from "@/services";
 import { isConcept, isProperty, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { computed } from "vue";
-import { FilterOptions } from "@im-library/interfaces";
-import { addTypeFilterToIMQuery } from "@/helpers/IMQueryBuilder";
+import { addTypeFilterToIMQuery, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import EditWhere from "./EditWhere.vue";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
@@ -179,6 +181,12 @@ import SearchResults from "../shared/SearchResults.vue";
 import DirectoryDetails from "../directory/DirectoryDetails.vue";
 import IMQuerySearch from "../directory/IMQuerySearch.vue";
 import EclSearch from "../directory/EclSearch.vue";
+
+interface TypeOption {
+  name: string;
+  rootIri: string;
+  typeIri: string;
+}
 
 interface Props {
   showDialog: boolean;
@@ -210,22 +218,21 @@ const focusedId: Ref<string | undefined> = ref();
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 
 const updateSearch: Ref<boolean> = ref(false);
-const hasQueryDefinition: Ref<boolean> = ref(false);
-const validationLoading: Ref<boolean> = ref(false);
-const isSelectableEntity: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 
-const searchResults: Ref<SearchResponse | undefined> = ref();
-const searchLoading = ref(false);
 const treeIri = ref("");
 const searchTerm = ref("");
 const history: Ref<string[]> = ref([]);
 const activePage = ref(0);
-const selectedName = ref("");
 const detailsIri = ref("");
-const typeOptions = ref(["Concept", "Concept set", "Property", "Data model"]);
+const typeOptions: Ref<TypeOption[]> = ref([
+  { name: "Concept", rootIri: "http://endhealth.info/im#HealthModelOntology", typeIri: IM.CONCEPT },
+  { name: "Concept set", rootIri: IM.FOLDER_SETS, typeIri: IM.CONCEPT_SET },
+  { name: "Property", rootIri: "http://endhealth.info/im#Properties", typeIri: IM.DATAMODEL_PROPERTY },
+  { name: "Data model", rootIri: "http://endhealth.info/im#DataModels", typeIri: SHACL.NODESHAPE }
+]);
 const selectedType: Ref<"Concept" | "Concept set" | "Property" | "Data model" | undefined> = ref();
-
+const rootEntities: Ref<string[] | undefined> = ref();
 watch(
   () => props.showDialog,
   newValue => {
@@ -281,10 +288,6 @@ async function save() {
   editMatchCopy["@id"] = v4();
   emit("onMatchAdd", editMatchCopy);
   visible.value = false;
-}
-
-function onUpdateSelectedFilters(filterOptions: FilterOptions) {
-  if (imQuery.value) addTypeFilterToIMQuery(filterOptions.types, imQuery.value);
 }
 
 function clear() {
@@ -353,10 +356,28 @@ function navigateTo(iri: string) {
 function updateSelected(data: SearchResultSummary) {
   navigateTo(data.iri);
   locateInTree(data.iri);
+  selectedGeneralConcept.value = data;
 }
 
 async function updateSelectedFromIri(iri: string) {
-  const entity = await EntityService.getEntitySummary(iri);
+  selectedGeneralConcept.value = await EntityService.getEntitySummary(iri);
+}
+
+function onTypeSelect(event: { value: TypeOption }) {
+  if (event.value) {
+    if (event.value.typeIri) updateIMQuery({ "@id": event.value.typeIri });
+    if (event.value.rootIri) rootEntities.value = [event.value.rootIri];
+  } else {
+    rootEntities.value = [];
+    imQuery.value = undefined;
+  }
+  updateSearch.value = !updateSearch.value;
+}
+
+function updateIMQuery(type: TTIriRef) {
+  if (!imQuery.value) imQuery.value = { query: {} };
+  if (imQuery.value.query) deleteQueryPredicateIfExists(imQuery.value?.query, RDF.TYPE);
+  addTypeFilterToIMQuery([type], imQuery.value, true);
 }
 </script>
 

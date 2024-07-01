@@ -145,7 +145,10 @@ watch(
   }
 );
 
-watch(props.rootEntities, async () => await addRootEntitiesToTree());
+watch(
+  () => props.rootEntities,
+  async () => await init()
+);
 
 onMounted(async () => {
   await init();
@@ -192,6 +195,7 @@ async function addFavouritesToTree() {
 }
 
 async function addRootEntitiesToTree() {
+  root.value = [];
   for (const item of props.rootEntities) {
     const itemSummary = await EntityService.getEntityAsEntityReferenceNode(item);
     const hasNode = !!root.value.find(node => node.data === itemSummary["@id"]);

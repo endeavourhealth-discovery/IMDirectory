@@ -13,7 +13,7 @@
     @update:selected="onFeatureSelect"
   />
 
-  <AddFeatureDialog
+  <!-- <AddFeatureDialog
     v-model:show-dialog="showBuildFeatureDialog"
     :dataModelIri="matchTypeOfIri"
     :header="'Add new feature'"
@@ -29,9 +29,9 @@
     :show-variable-options="false"
     @on-match-add="onThenMatchAdd"
     @on-property-add="onThenPropertyAdd"
-  />
+  /> -->
 
-  <!-- <AddNewFeatureDialog
+  <AddNewFeatureDialog
     v-model:show-dialog="showBuildFeatureDialog"
     :dataModelIri="matchTypeOfIri"
     :header="'Add new feature'"
@@ -47,7 +47,7 @@
     :show-variable-options="false"
     @on-match-add="onThenMatchAdd"
     @on-property-add="onThenPropertyAdd"
-  /> -->
+  />
 </template>
 
 <script setup lang="ts">
