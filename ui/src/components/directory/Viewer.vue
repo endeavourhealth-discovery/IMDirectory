@@ -14,7 +14,7 @@
               <Details :entityIri="entityIri" @on-open-tab="onOpenTab" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
-          <TabPanel v-if="terms" header="Terms">
+          <TabPanel v-if="showTerms" header="Terms">
             <div class="concept-panel-content" id="term-table-container">
               <TermCodeTable :terms="terms" />
             </div>
@@ -112,7 +112,7 @@ import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 
 import { DefinitionConfig } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { SearchTermCode, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel, isFeature, isProperty } from "@im-library/helpers/ConceptTypeMethods";
 import { EntityService } from "@/services";
@@ -145,10 +145,11 @@ const header = ref("");
 const activeTab = ref(0);
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
+const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
 
 const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = setupConcept();
 const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = setupConfig();
-const { terms, getTerms }: { terms: Ref<any[] | undefined>; getTerms: Function } = setupTerms();
+const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: Function } = setupTerms();
 let tabMap = reactive(new Map<string, number>());
 
 onMounted(async () => {

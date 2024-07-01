@@ -5,7 +5,6 @@
 
 import { TTIriRef } from "../interfaces/AutoGen";
 import { IM, RDF, SHACL } from "../vocabulary";
-import palette from "google-palette";
 
 export function isOfTypes(conceptTypeElements: TTIriRef[], ...types: string[]): boolean {
   if (!conceptTypeElements || !conceptTypeElements.length) {
