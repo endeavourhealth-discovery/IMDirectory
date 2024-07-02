@@ -95,23 +95,7 @@ async function onNodeExpand(node: TreeNode) {
             if (child.children && !child.children.includes(newChild)) child.children!.push(newChild);
           }
         }
-        const iris = [];
-        for (const child of node.children) {
-          for (const child2 of child.children!) {
-            iris.push(child2.key!);
-          }
-        }
-        const entity2 = await EntityService.getPartialEntities(iris, [RDF.TYPE]);
-        for (const e in entity2) {
-          node.children.forEach((child: TreeNode) => {
-            child.children!.forEach((child2: TreeNode) => {
-              if (child2.key === entity2[e]["@id"]) {
-                child2.data.typeIcon = getFAIconFromType(entity2[e][RDF.TYPE]);
-                child2.data.color = getColourFromType(entity2[e][RDF.TYPE]);
-              }
-            });
-          });
-        }
+        await setIconData(node);
         child.loading = false;
       }
     }
@@ -125,6 +109,28 @@ function onNodeCollapse(node: TreeNode) {
         delete expandedKeys.value[child.key];
       }
     });
+  }
+}
+
+async function setIconData(node: TreeNode) {
+  const iris = [];
+  if (node.children) {
+    for (const child of node.children) {
+      for (const child2 of child.children!) {
+        iris.push(child2.key!);
+      }
+    }
+    const typeEntities = await EntityService.getPartialEntities(iris, [RDF.TYPE]);
+    for (const typeEntity of typeEntities) {
+      node.children.forEach((child: TreeNode) => {
+        child.children!.forEach((child2: TreeNode) => {
+          if (child2.key === typeEntity["@id"]) {
+            child2.data.typeIcon = getFAIconFromType(typeEntity[RDF.TYPE]);
+            child2.data.color = getColourFromType(typeEntity[RDF.TYPE]);
+          }
+        });
+      });
+    }
   }
 }
 
@@ -194,6 +200,8 @@ async function getDataModelPropertiesDisplay(iri: string): Promise<TreeNode[]> {
   }
   return propertyList;
 }
+
+function createOrNode() {}
 </script>
 
 <style scoped>
