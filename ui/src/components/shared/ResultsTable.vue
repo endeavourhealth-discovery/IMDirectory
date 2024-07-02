@@ -18,7 +18,7 @@
       @page="onPage($event)"
       :lazy="true"
       :total-records="totalCount"
-      :rows-per-page-options="[rows, rows * 2, rows * 4, rows * 8]"
+      :rows-per-page-options="props.rows ? [props.rows] : [rows, rows * 2, rows * 4, rows * 8]"
       :loading="searchLoading"
     >
       <template #empty> None </template>
@@ -98,6 +98,7 @@ interface Props {
   eclQuery?: EclSearchRequest;
   pageSize?: number;
   loading?: boolean;
+  rows?: number;
 }
 
 const props = defineProps<Props>();
@@ -128,7 +129,7 @@ const searchResults: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const totalCount = ref(0);
 const highestUsage = ref(0);
 const page = ref(0);
-const rows = ref(25);
+const rows = ref(props.rows ?? 25);
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",

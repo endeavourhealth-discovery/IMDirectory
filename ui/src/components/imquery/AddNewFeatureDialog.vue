@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw', minHeight: '50vh' }">
+  <Dialog v-model:visible="visible" modal :header="header" :style="{ minWidth: '100vw', minHeight: '100vh' }">
     <Stepper :style="{ minWidth: '50vw' }">
       <StepperPanel>
         <template #header> </template>
@@ -27,13 +27,7 @@
               </div>
               <div class="vertical-divider">
                 <div class="left-container">
-                  <NavTree
-                    :selectedIri="treeIri"
-                    :find-in-tree="findInDialogTree"
-                    :root-entities="rootEntities"
-                    @found-in-tree="findInDialogTree = false"
-                    @row-selected="showDetails"
-                  />
+                  <NavTree :selectedIri="treeIri" :find-in-tree="findInDialogTree" :root-entities="rootEntities" @found-in-tree="findInDialogTree = false" />
                 </div>
                 <div class="right-container">
                   <SearchResults
@@ -42,42 +36,31 @@
                     :updateSearch="updateSearch"
                     :search-term="searchTerm"
                     :im-query="imQuery"
+                    :rows="5"
                     @selectedUpdated="updateSelected"
                     @locate-in-tree="locateInTree"
                   />
-
-                  <div v-if="activePage === 1">
-                    <DirectoryDetails
-                      :selected-iri="detailsIri"
-                      @locateInTree="locateInTree"
-                      @navigateTo="navigateTo"
-                      :showSelectButton="true"
-                      v-model:history="history"
-                      @selected-updated="updateSelectedFromIri"
-                    />
-                    <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
-                      <template #option="{ option }">
-                        <div class="flex align-items-center" id="query-path-options">
-                          <div v-if="isSelectedConceptValue">
-                            {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
-                              option.where?.[0]?.name
-                            }}
-                            =
-                            {{ selectedGeneralConcept?.name }}
-                          </div>
-                          <div v-else-if="isSelectedConceptDatamodel">{{ option.path?.[0]?.name }} -> {{ option.typeOf?.name }}</div>
-                          <div v-else-if="isSelectedConceptProperty">
-                            {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
-                              option.where?.[0]?.name
-                            }}
-                          </div>
-                        </div>
-                      </template>
-                    </Listbox>
-                  </div>
-
                   <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
                   <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
+                  <Listbox v-if="selectedGeneralConcept" v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
+                    <template #option="{ option }">
+                      <div class="flex align-items-center" id="query-path-options">
+                        <div v-if="isSelectedConceptValue">
+                          {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
+                            option.where?.[0]?.name
+                          }}
+                          =
+                          {{ selectedGeneralConcept?.name }}
+                        </div>
+                        <div v-else-if="isSelectedConceptDatamodel">{{ option.path?.[0]?.name }} -> {{ option.typeOf?.name }}</div>
+                        <div v-else-if="isSelectedConceptProperty">
+                          {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
+                            option.where?.[0]?.name
+                          }}
+                        </div>
+                      </div>
+                    </template>
+                  </Listbox>
                 </div>
               </div>
             </div>
@@ -227,10 +210,10 @@ const findInDialogTree = ref(false);
 
 const treeIri = ref("");
 const searchTerm = ref("");
-const history: Ref<string[]> = ref([]);
 const activePage = ref(0);
 const detailsIri = ref("");
 const typeOptions: Ref<TypeOption[]> = ref([
+  { name: "All", rootIri: "", typeIri: "" },
   { name: "Concept", rootIri: "http://endhealth.info/im#HealthModelOntology", typeIri: IM.CONCEPT },
   { name: "Concept set", rootIri: IM.FOLDER_SETS, typeIri: IM.CONCEPT_SET },
   { name: "Property", rootIri: "http://endhealth.info/im#Properties", typeIri: IM.DATAMODEL_PROPERTY },
@@ -299,6 +282,10 @@ function clear() {
   editMatch.value = {};
   pathSuggestions.value = [];
   selectedGeneralConcept.value = undefined;
+  searchTerm.value = "";
+  selectedType.value = undefined;
+  treeIri.value = "";
+  detailsIri.value = "";
 }
 
 function onPropertyAdd(property: Where) {
@@ -348,33 +335,19 @@ function locateInTree(iri: string) {
   treeIri.value = iri;
 }
 
-function showDetails(data: any) {
-  detailsIri.value = data.key;
-  activePage.value = 1;
-}
-
-function navigateTo(iri: string) {
-  detailsIri.value = iri;
-  activePage.value = 1;
-}
-
 function updateSelected(data: SearchResultSummary) {
-  navigateTo(data.iri);
   locateInTree(data.iri);
   selectedGeneralConcept.value = data;
 }
 
-async function updateSelectedFromIri(iri: string) {
-  selectedGeneralConcept.value = await EntityService.getEntitySummary(iri);
-}
-
 function onTypeSelect() {
   if (selectedType.value) {
+    if (!selectedType.value.typeIri && !selectedType.value.rootIri) {
+      rootEntities.value = [];
+      imQuery.value = undefined;
+    }
     if (selectedType.value.typeIri) updateIMQuery({ "@id": selectedType.value.typeIri });
     if (selectedType.value.rootIri) rootEntities.value = [selectedType.value.rootIri];
-  } else {
-    rootEntities.value = [];
-    imQuery.value = undefined;
   }
   updateSearch.value = !updateSearch.value;
 }
@@ -432,6 +405,7 @@ function updateIMQuery(type: TTIriRef) {
   overflow: auto;
   display: flex;
   flex-flow: row nowrap;
+  height: calc(100vh - 18rem);
 }
 
 .left-container {
