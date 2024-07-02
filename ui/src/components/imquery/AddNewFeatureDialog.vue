@@ -1,9 +1,11 @@
 <template>
-  <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw', maxWidth: '80vw', minHeight: '50vh', maxHeight: '80vh' }">
+  <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw', minHeight: '50vh' }">
     <Stepper :style="{ minWidth: '50vw' }">
       <StepperPanel>
         <template #header> </template>
         <template #content="{ nextCallback }">
+          <!-- {{ selectedPath }} -->
+
           <div class="flex justify-content-center align-items-center">
             <SelectButton v-model="selectedType" :options="typeOptions" option-label="name" aria-labelledby="basic" @change="onTypeSelect" />
           </div>

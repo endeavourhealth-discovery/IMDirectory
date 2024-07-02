@@ -294,6 +294,30 @@ export function convertTTPropertyToUIProperty(ttproperty: any, propertyName?: st
   return uiProperty;
 }
 
+export function convertUIPropertyFromDMConcept(range: TTIriRef, propertyName?: string) {
+  const uiProperty = {} as UIProperty;
+  // if (ttproperty[SHACL.MAXCOUNT]) uiProperty.maxCount = ttproperty[SHACL.MAXCOUNT];
+  // if (ttproperty[SHACL.MINCOUNT]) uiProperty.minCount = ttproperty[SHACL.MINCOUNT];
+  // if (isArrayHasLength(ttproperty[SHACL.CLASS])) {
+  //   uiProperty.propertyType = "class";
+  //   uiProperty.valueType = ttproperty[SHACL.CLASS]![0]["@id"];
+  // }
+  // if (isArrayHasLength(ttproperty[SHACL.DATATYPE])) {
+  //   uiProperty.propertyType = "datatype";
+  //   uiProperty.valueType = ttproperty[SHACL.DATATYPE]![0]["@id"];
+  // }
+  // if (isArrayHasLength(ttproperty[SHACL.NODE])) {
+  //   uiProperty.propertyType = "node";
+  //   uiProperty.valueType = ttproperty[SHACL.NODE]![0]["@id"];
+  // }
+
+  // if (isArrayHasLength(ttproperty[SHACL.PATH])) {
+  //   uiProperty.propertyName = ttproperty[SHACL.PATH]![0].name;
+  //   uiProperty.iri = ttproperty[SHACL.PATH]![0]["@id"];
+  // }
+  return uiProperty;
+}
+
 export default {
   bundleToText,
   ttArrayToString,
