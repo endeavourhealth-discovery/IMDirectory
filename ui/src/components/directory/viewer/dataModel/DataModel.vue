@@ -1,6 +1,6 @@
 <template>
   <div id="tree-container">
-    <Tree :value="newData" v-model:expandedKeys="expandedKeys" @node-expand="onNodeExpand" :loading="loading" icon="loading">
+    <Tree :value="newData" v-model:expandedKeys="expandedKeys" @node-expand="onNodeExpand" @node-collapse="onNodeCollapse" :loading="loading" icon="loading">
       <template #property="{ node }: any">
         <div class="tree-row">
           <ProgressSpinner v-if="node.loading" />
@@ -51,7 +51,7 @@ watch(
 
 const loading = ref(false);
 const newData: Ref<TreeNode[]> = ref([]);
-const expandedKeys = ref({});
+const expandedKeys = ref({} as any);
 
 onMounted(async () => {
   await getDataModel(props.entityIri);
@@ -79,7 +79,7 @@ async function onNodeExpand(node: TreeNode) {
     }
   } else {
     if (node.children && node.children.length) {
-      for (const [index, child] of node.children.entries()) {
+      for (const child of node.children) {
         child.loading = true;
         if (isObjectHasKeys(child.data, ["type"])) {
           for (const type of child.data.type) {
@@ -115,6 +115,16 @@ async function onNodeExpand(node: TreeNode) {
         child.loading = false;
       }
     }
+  }
+}
+
+function onNodeCollapse(node: TreeNode) {
+  for (const [key, value] of Object.entries(expandedKeys.value)) {
+    node.children!.forEach((child: TreeNode) => {
+      if (child.key === key) {
+        delete expandedKeys.value[child.key];
+      }
+    });
   }
 }
 
