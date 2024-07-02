@@ -18,7 +18,7 @@
       @page="onPage($event)"
       :lazy="true"
       :total-records="totalCount"
-      :rows-per-page-options="[rows, rows * 2, rows * 4, rows * 8]"
+      :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
       :loading="searchLoading"
     >
       <template #empty> None </template>
@@ -123,7 +123,10 @@ const emit = defineEmits({
 });
 
 onMounted(async () => {
-  if (props.pageSize) rows.value = props.pageSize;
+  if (props.pageSize) {
+    rows.value = props.pageSize;
+    rowsOriginal.value = props.pageSize;
+  }
   if (props.searchTerm) await onSearch();
 });
 
@@ -143,6 +146,7 @@ const totalCount = ref(0);
 const highestUsage = ref(0);
 const page = ref(0);
 const rows = ref(25);
+const rowsOriginal = ref(25);
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",
