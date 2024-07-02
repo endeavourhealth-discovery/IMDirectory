@@ -1,5 +1,4 @@
 <template>
-  <!-- {{ property }} -->
   <div class="property-container">
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-14rem" disabled />
     <ConceptSelect
@@ -24,7 +23,7 @@ import { cloneDeep } from "lodash-es";
 import ConceptSelect from "./ConceptSelect.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { convertTTPropertyToUIProperty } from "@im-library/helpers/Transforms";
+import { convertTTPropertyToUIProperty, convertUIPropertyFromDMConcept } from "@im-library/helpers/Transforms";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 interface Props {
@@ -56,20 +55,21 @@ async function init() {
 }
 
 async function getProperty(dmIri: string, propIri: string) {
+  const conceptProp = IM.NAMESPACE + "concept";
   const uiProps: UIProperty[] = [];
-  const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY, IM.NAMESPACE + "concept"]);
-  console.log(propertiesEntity);
+  const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY, conceptProp]);
   if (isArrayHasLength(propertiesEntity[SHACL.PROPERTY]))
     for (const ttprop of propertiesEntity[SHACL.PROPERTY]) {
       const uiProperty = convertTTPropertyToUIProperty(ttprop);
       if (isArrayHasLength(ttprop[SHACL.PATH])) {
         uiProperty.propertyName = getNameFromRef(ttprop[SHACL.PATH][0]);
-        console.log(uiProperty.propertyName);
       }
       uiProps.push(uiProperty);
     }
 
-  if (isArrayHasLength(propertiesEntity[SHACL.PROPERTY])) {
+  if (isArrayHasLength(propertiesEntity[conceptProp])) {
+    const uiProperty = convertUIPropertyFromDMConcept(propertiesEntity[conceptProp][0]["@id"]);
+    uiProps.push(uiProperty);
   }
 
   const found = uiProps.find(prop => prop.iri === props.property["@id"]);

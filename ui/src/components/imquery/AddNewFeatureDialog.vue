@@ -4,8 +4,6 @@
       <StepperPanel>
         <template #header> </template>
         <template #content="{ nextCallback }">
-          <!-- {{ selectedPath }} -->
-
           <div class="flex justify-content-center align-items-center">
             <SelectButton v-model="selectedType" :options="typeOptions" option-label="name" aria-labelledby="basic" @change="onTypeSelect" />
           </div>
