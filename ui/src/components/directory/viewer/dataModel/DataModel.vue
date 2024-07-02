@@ -1,6 +1,6 @@
 <template>
   <div id="tree-container">
-    <Tree :value="newData" v-model:expandedKeys="expandedKeys" @node-expand="onNodeExpand" @node-collapse="onNodeCollapse" :loading="loading" icon="loading">
+    <Tree :value="data" v-model:expandedKeys="expandedKeys" @node-expand="onNodeExpand" @node-collapse="onNodeCollapse" :loading="loading" icon="loading">
       <template #property="{ node }: any">
         <div class="tree-row">
           <ProgressSpinner v-if="node.loading" />
@@ -50,7 +50,7 @@ watch(
 );
 
 const loading = ref(false);
-const newData: Ref<TreeNode[]> = ref([]);
+const data: Ref<TreeNode[]> = ref([]);
 const expandedKeys = ref({} as any);
 
 onMounted(async () => {
@@ -61,9 +61,9 @@ async function getDataModel(iri: string) {
   loading.value = true;
   const name = (await EntityService.getNames([iri]))[0].name;
   const children = await getDataModelPropertiesDisplay(iri);
-  newData.value.push({ key: iri, label: name ?? iri, children: children, type: "root" } as TreeNode);
-  await onNodeExpand(newData.value[0]);
-  if (newData.value[0].key) expandedKeys.value = { [newData.value[0].key]: true };
+  data.value.push({ key: iri, label: name ?? iri, children: children, type: "root" } as TreeNode);
+  await onNodeExpand(data.value[0]);
+  if (data.value[0].key) expandedKeys.value = { [data.value[0].key]: true };
   loading.value = false;
 }
 
