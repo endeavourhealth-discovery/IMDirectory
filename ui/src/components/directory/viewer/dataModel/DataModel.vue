@@ -1,16 +1,39 @@
 <template>
   <div id="tree-container">
-    <TangledTree :entityIri="entityIri" :data="data" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+    <Tree :value="newData" v-model:expandedKeys="expandedKeys" @node-expand="onNodeExpand" :loading="loading" icon="loading">
+      <template #property="{ node }: any">
+        <div class="tree-row">
+          <ProgressSpinner v-if="node.loading" />
+          <IMFontAwesomeIcon
+            v-if="node.data.typeIcon && !node.loading"
+            v-tooltip.top="'Cardinality: ' + node.data.cardinality"
+            :icon="node.data.typeIcon"
+            fixed-width
+            :style="'color:' + node.data.color"
+          />
+          <IMViewerLink :iri="node.key" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        </div>
+      </template>
+      <template #type="{ node }: any">
+        <div class="tree-row">
+          <ProgressSpinner v-if="node.loading" />
+          <IMFontAwesomeIcon v-if="node.data.typeIcon && !node.loading" :icon="node.data.typeIcon" fixed-width :style="'color:' + node.data.color" />
+          <IMViewerLink :iri="node.key" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        </div>
+      </template>
+    </Tree>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import { EntityService } from "@/services";
-import TangledTree from "./TangledTree.vue";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { TreeNode } from "primevue/treenode";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { RDF, SHACL } from "@im-library/vocabulary";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 interface Props {
   entityIri: string;
@@ -27,76 +50,139 @@ watch(
 );
 
 const loading = ref(false);
-const data: Ref<TangledTreeData[][]> = ref([]);
-const twinNode = ref("twin-node-");
+const newData: Ref<TreeNode[]> = ref([]);
+const expandedKeys = ref({});
 
-onMounted(async () => await getDataModel(props.entityIri));
+onMounted(async () => {
+  await getDataModel(props.entityIri);
+});
 
 async function getDataModel(iri: string) {
   loading.value = true;
   const name = (await EntityService.getNames([iri]))[0].name;
-  data.value.push([{ id: iri, parents: [], name: name ?? iri, type: "root" }]);
-  await addPropertiesAndTypes(iri);
+  const children = await getDataModelPropertiesDisplay(iri);
+  newData.value.push({ key: iri, label: name ?? iri, children: children, type: "root" } as TreeNode);
+  await onNodeExpand(newData.value[0]);
+  if (newData.value[0].key) expandedKeys.value = { [newData.value[0].key]: true };
+  loading.value = false;
 }
 
-async function addPropertiesAndTypes(iri: any) {
-  const result = await EntityService.getPropertiesDisplay(iri);
-  const { groups, properties } = getGroupsPropertiesTypes(iri, twinNode, result);
-  if (groups.length) data.value.push(groups.toSorted((a: TangledTreeData, b: TangledTreeData) => a.name.localeCompare(b.name)));
-  else {
-    data.value.push(properties);
-  }
-}
-
-function getGroupsPropertiesTypes(iri: any, twinNode: any, propertyDisplay: PropertyDisplay[]) {
-  let properties = [] as TangledTreeData[];
-  let types = [] as any[];
-  const groups = [] as TangledTreeData[];
-  propertyDisplay.forEach(property => {
-    if (isObjectHasKeys(property, ["group"])) {
-      addGroup(groups, properties, property, iri);
-    } else {
-      addProperty(properties, property, iri);
+async function onNodeExpand(node: TreeNode) {
+  if (node.type === "property") {
+    if (node.children && node.children.length) {
+      for (const child of node.children) {
+        child.loading = true;
+        const children = await getDataModelPropertiesDisplay(child.key!);
+        if (children.length) child.children = children;
+        child.loading = false;
+      }
     }
-  });
-  properties = Object.values(properties.reduce((acc, obj) => ({ ...acc, [obj.id]: obj }), {}));
-  return { properties, types, groups };
-}
-
-function addGroup(groups: TangledTreeData[], properties: TangledTreeData[], property: PropertyDisplay, parent: any) {
-  let groupData = groups.find(prop => prop.id === property.group?.["@id"]);
-  if (!groupData) {
-    groupData = {
-      id: property.group?.["@id"] as string,
-      parents: [parent],
-      name: (property.group?.name ?? property.group?.["@id"]) as string,
-      type: "group"
-    };
-    groups.push(groupData);
+  } else {
+    if (node.children && node.children.length) {
+      for (const [index, child] of node.children.entries()) {
+        child.loading = true;
+        if (isObjectHasKeys(child.data, ["type"])) {
+          for (const type of child.data.type) {
+            const newChild = {
+              key: type["@id"],
+              label: type.name,
+              children: [] as TreeNode[],
+              selectable: true,
+              type: "type",
+              loading: false,
+              data: {}
+            } as TreeNode;
+            if (child.children && !child.children.includes(newChild)) child.children!.push(newChild);
+          }
+        }
+        const iris = [];
+        for (const child of node.children) {
+          for (const child2 of child.children!) {
+            iris.push(child2.key!);
+          }
+        }
+        const entity2 = await EntityService.getPartialEntities(iris, [RDF.TYPE]);
+        for (const e in entity2) {
+          node.children.forEach((child: TreeNode) => {
+            child.children!.forEach((child2: TreeNode) => {
+              if (child2.key === entity2[e]["@id"]) {
+                child2.data.typeIcon = getFAIconFromType(entity2[e][RDF.TYPE]);
+                child2.data.color = getColourFromType(entity2[e][RDF.TYPE]);
+              }
+            });
+          });
+        }
+        child.loading = false;
+      }
+    }
   }
-
-  addProperty(properties, property, groupData);
 }
-function addProperty(properties: TangledTreeData[], property: PropertyDisplay, parent: any) {
-  let propId = "";
-  let propName = "";
-  const range = [] as TTIriRef[];
-  property.property.forEach(p => {
-    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
-    propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name as string}`;
-  });
-  property.type?.forEach(t => {
-    range.push(t);
-  });
-  properties.push({
-    id: propId,
-    parents: [parent],
-    name: propName,
-    type: "property",
-    cardinality: property.cardinality,
-    isOr: property.isOr,
-    range: range
-  });
+
+async function getDataModelPropertiesDisplay(iri: string): Promise<TreeNode[]> {
+  const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
+  const propertyList = [] as TreeNode[];
+  if (isObjectHasKeys(entity, [SHACL.PROPERTY]) && isArrayHasLength(entity[SHACL.PROPERTY])) {
+    const iris = [];
+    for (const ttproperty2 of entity[SHACL.PROPERTY]) {
+      iris.push(ttproperty2[SHACL.PATH][0]["@id"]);
+    }
+    const entity2 = await EntityService.getPartialEntities(iris, [RDF.TYPE]);
+    for (const [index, ttproperty] of entity[SHACL.PROPERTY].entries()) {
+      const cardinality = `${ttproperty[SHACL.MINCOUNT] || 0} : ${ttproperty[SHACL.MAXCOUNT] || "*"}`;
+      if (isObjectHasKeys(ttproperty, [SHACL.OR])) {
+        const property = {
+          key: ttproperty[SHACL.PATH][0]["@id"],
+          label: ttproperty[SHACL.PATH][0].name,
+          children: [] as TreeNode[],
+          selectable: true,
+          loading: false,
+          data: {
+            cardinality: cardinality,
+            isOr: true,
+            type: [] as TreeNode[]
+          },
+          type: "property"
+        } as TreeNode;
+        for (const orProperty of ttproperty[SHACL.OR]) {
+          const type = orProperty[SHACL.CLASS] || orProperty[SHACL.NODE] || orProperty[SHACL.DATATYPE] || [];
+          const name = `${orProperty[SHACL.PATH]?.[0].name}  (${
+            isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"].slice(type[0]["@id"].indexOf("#") + 1)) : ""
+          })`;
+          property.property.push({ "@id": orProperty[SHACL.PATH]?.[0]["@id"], name: name });
+          const types = isArrayHasLength(type) ? type[0] : {};
+          property.data.type.push(types);
+          property.data.typeIcon = getFAIconFromType(types);
+          property.data.color = getColourFromType(types);
+        }
+        propertyList.push(property);
+      } else {
+        const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
+        const group = ttproperty?.[SHACL.GROUP]?.[0];
+        const name = `${ttproperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"]) : ""})`;
+        const typeTypes = entity2[index][RDF.TYPE];
+        const property = {
+          key: ttproperty[SHACL.PATH][0]["@id"],
+          label: name,
+          children: [] as TreeNode[],
+          selectable: true,
+          loading: false,
+          data: {
+            type: [isArrayHasLength(type) ? type[0] : ""],
+            cardinality: cardinality,
+            isOr: false,
+            typeIcon: getFAIconFromType(typeTypes),
+            color: getColourFromType(typeTypes)
+          },
+          type: "property"
+        } as TreeNode;
+        if (group) {
+          property.group = group;
+        }
+        propertyList.push(property);
+      }
+    }
+  }
+  return propertyList;
 }
 </script>
 
@@ -106,5 +192,19 @@ function addProperty(properties: TangledTreeData[], property: PropertyDisplay, p
   height: 100%;
   position: relative;
   overflow: auto;
+}
+
+.tree-row {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.tree-row .p-progress-spinner {
+  width: 1.25em !important;
+  height: 1.25em !important;
+  flex: 0 0 auto;
 }
 </style>
