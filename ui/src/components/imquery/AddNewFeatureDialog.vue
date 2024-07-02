@@ -4,21 +4,26 @@
       <StepperPanel>
         <template #header> </template>
         <template #content="{ nextCallback }">
-          <div class="flex justify-content-center align-items-center">
-            <SelectButton v-model="selectedType" :options="typeOptions" option-label="name" aria-labelledby="basic" @change="onTypeSelect" />
-          </div>
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
               <div class="search-bar">
-                <SearchBar
-                  v-model:searchTerm="searchTerm"
-                  v-model:selected="selectedGeneralConcept"
-                  :imQuery="imQuery"
-                  :show-filters="false"
-                  @to-ecl-search="showEclSearch"
-                  @to-query-search="showQuerySearch"
-                  @to-search="onSearch"
-                />
+                <div class="flex justify-content-center align-items-center">
+                  <SearchBar
+                    v-model:searchTerm="searchTerm"
+                    v-model:selected="selectedGeneralConcept"
+                    :imQuery="imQuery"
+                    :show-filters="false"
+                    @to-ecl-search="showEclSearch"
+                    @to-query-search="showQuerySearch"
+                    @to-search="onSearch"
+                  />
+                  <div class="type-options flex flex-wrap gap-3">
+                    <div v-for="typeOption in typeOptions" :key="typeOption.name" class="flex align-items-center">
+                      <RadioButton v-model="selectedType" :inputId="typeOption.name" name="dynamic" :value="typeOption" @change="onTypeSelect" />
+                      <label :for="typeOption.name" class="gap-1">{{ typeOption.name }}</label>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="vertical-divider">
                 <div class="left-container">
@@ -231,7 +236,7 @@ const typeOptions: Ref<TypeOption[]> = ref([
   { name: "Property", rootIri: "http://endhealth.info/im#Properties", typeIri: IM.DATAMODEL_PROPERTY },
   { name: "Data model", rootIri: "http://endhealth.info/im#DataModels", typeIri: SHACL.NODESHAPE }
 ]);
-const selectedType: Ref<"Concept" | "Concept set" | "Property" | "Data model" | undefined> = ref();
+const selectedType: Ref<TypeOption | undefined> = ref();
 const rootEntities: Ref<string[] | undefined> = ref();
 watch(
   () => props.showDialog,
@@ -363,10 +368,10 @@ async function updateSelectedFromIri(iri: string) {
   selectedGeneralConcept.value = await EntityService.getEntitySummary(iri);
 }
 
-function onTypeSelect(event: { value: TypeOption }) {
-  if (event.value) {
-    if (event.value.typeIri) updateIMQuery({ "@id": event.value.typeIri });
-    if (event.value.rootIri) rootEntities.value = [event.value.rootIri];
+function onTypeSelect() {
+  if (selectedType.value) {
+    if (selectedType.value.typeIri) updateIMQuery({ "@id": selectedType.value.typeIri });
+    if (selectedType.value.rootIri) rootEntities.value = [selectedType.value.rootIri];
   } else {
     rootEntities.value = [];
     imQuery.value = undefined;
