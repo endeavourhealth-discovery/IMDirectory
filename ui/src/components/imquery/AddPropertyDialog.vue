@@ -43,7 +43,7 @@ const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
-const selectedProperty: Ref<TreeNode> = ref({});
+const selectedProperty: Ref<TreeNode | undefined> = ref();
 const visible: Ref<boolean> = ref(false);
 const editWhere: Ref<Where> = ref({});
 const editWhereDMIri: Ref<string> = ref("");

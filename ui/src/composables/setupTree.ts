@@ -18,7 +18,7 @@ function setupTree() {
   const { onRowClick } = rowClick();
 
   const selectedKeys: Ref<any> = ref({});
-  const selectedNode: Ref<TreeNode> = ref({});
+  const selectedNode: Ref<TreeNode | undefined> = ref();
   const root: Ref<TreeNode[]> = ref([]);
   const expandedKeys: Ref<any> = ref({});
   const expandedData: Ref<TreeNode[]> = ref([]);
@@ -66,7 +66,7 @@ function setupTree() {
     };
   }
 
-  async function onNodeSelect(node: any): Promise<void> {
+  async function onNodeSelect(node: TreeNode): Promise<void> {
     if (node.data === "loadMore") {
       if (!node.loading) await loadMore(node);
     } else {
