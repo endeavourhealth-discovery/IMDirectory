@@ -78,15 +78,14 @@ const imQuery: Ref<QueryRequest | undefined> = ref();
 const conceptSets: Ref<string[]> = ref([]);
 const isType: Ref<"Concept" | "Concept set"> = ref("Concept set");
 
-onMounted(async () => {
+onMounted(async () => await init());
+onUnmounted(() => clearValues());
+
+async function init() {
   await setValues();
   buildIMQuery();
   await setConceptSets();
-});
-
-onUnmounted(() => {
-  clearValues();
-});
+}
 
 function handleIsTypeChange(value: Element) {
   delete value["@id"];

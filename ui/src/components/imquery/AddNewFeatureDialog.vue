@@ -2,7 +2,9 @@
   <Dialog v-model:visible="visible" modal :header="header" :style="{ minWidth: '100vw', minHeight: '100vh' }">
     <Stepper :style="{ minWidth: '50vw' }">
       <StepperPanel>
-        <template #header> </template>
+        <template #header>
+          <!-- add selected path here -->
+        </template>
         <template #content="{ nextCallback }">
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
@@ -30,6 +32,7 @@
                   <NavTree :selectedIri="treeIri" :find-in-tree="findInDialogTree" :root-entities="rootEntities" @found-in-tree="findInDialogTree = false" />
                 </div>
                 <div class="right-container">
+                  <!-- Component with search results/details and selected list -->
                   <SearchResults
                     v-if="activePage === 0"
                     :show-filters="false"
@@ -64,46 +67,9 @@
                 </div>
               </div>
             </div>
-            <!-- <AutocompleteSearchBar
-              v-model:selected="selectedGeneralConcept"
-              :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET, RDF.PROPERTY]"
-              :im-query="imQuery"
-              :search-placeholder="'Select concept, set, property or datamodel'"
-              @update-selected-filters="onUpdateSelectedFilters"
-            /> -->
-            <!-- <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
-              <template #option="{ option }">
-                <div class="flex align-items-center" id="query-path-options">
-                  <div v-if="isSelectedConceptValue">
-                    {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
-                      option.where?.[0]?.name
-                    }}
-                    =
-                    {{ selectedGeneralConcept?.name }}
-                  </div>
-                  <div v-else-if="isSelectedConceptDatamodel">{{ option.path?.[0]?.name }} -> {{ option.typeOf?.name }}</div>
-                  <div v-else-if="isSelectedConceptProperty">
-                    {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
-                      option.where?.[0]?.name
-                    }}
-                  </div>
-                </div>
-              </template>
-            </Listbox> -->
           </div>
           <div class="flex pt-4 justify-content-end next-button">
-            <Button
-              :disabled="!isObjectHasKeys(selectedPath)"
-              label="Next"
-              icon="pi pi-arrow-right"
-              iconPos="right"
-              @click="
-                event => {
-                  addSelectedPathMatch();
-                  nextCallback(event);
-                }
-              "
-            />
+            <Button :disabled="!isObjectHasKeys(selectedPath)" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="event => nextCallback(event)" />
           </div>
         </template>
       </StepperPanel>
@@ -264,6 +230,7 @@ async function addSelectedPathMatch() {
 }
 
 async function getOptions() {
+  selectedPath.value = undefined;
   if (selectedGeneralConcept.value?.iri) {
     const pathQuery = { source: { "@id": props.dataModelIri }, target: { "@id": selectedGeneralConcept.value?.iri } } as PathQuery;
     const response = await QueryService.pathQuery(pathQuery);
@@ -338,6 +305,10 @@ function locateInTree(iri: string) {
 function updateSelected(data: SearchResultSummary) {
   locateInTree(data.iri);
   selectedGeneralConcept.value = data;
+}
+
+async function updateSelectedFromIri(iri: string) {
+  selectedGeneralConcept.value = await EntityService.getEntitySummary(iri);
 }
 
 function onTypeSelect() {
