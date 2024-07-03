@@ -11,14 +11,14 @@
             fixed-width
             :style="'color:' + node.data.color"
           />
-          <IMViewerLink :iri="node.key" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </template>
       <template #type="{ node }: any">
         <div class="tree-row">
           <ProgressSpinner v-if="node.loading" />
           <IMFontAwesomeIcon v-if="node.data.typeIcon && !node.loading" :icon="node.data.typeIcon" fixed-width :style="'color:' + node.data.color" />
-          <IMViewerLink :iri="node.key" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </template>
     </Tree>
@@ -60,8 +60,8 @@ onMounted(async () => {
 async function getDataModel(iri: string) {
   loading.value = true;
   const name = (await EntityService.getNames([iri]))[0].name;
-  const children = await getDataModelPropertiesDisplay(iri);
-  data.value.push({ key: iri, label: name ?? iri, children: children, type: "root" } as TreeNode);
+  const children = await getDataModelPropertiesDisplay(iri, "0");
+  data.value.push({ key: "0", label: name ?? iri, children: children, type: "root", data: { iri: iri } } as TreeNode);
   await onNodeExpand(data.value[0]);
   if (data.value[0].key) expandedKeys.value = { [data.value[0].key]: true };
   loading.value = false;
@@ -72,7 +72,7 @@ async function onNodeExpand(node: TreeNode) {
     if (node.children && node.children.length) {
       for (const child of node.children) {
         child.loading = true;
-        const children = await getDataModelPropertiesDisplay(child.key!);
+        const children = await getDataModelPropertiesDisplay(child.data.iri, child.key!);
         if (children.length) child.children = children;
         child.loading = false;
       }
@@ -82,15 +82,17 @@ async function onNodeExpand(node: TreeNode) {
       for (const child of node.children) {
         child.loading = true;
         if (isObjectHasKeys(child.data, ["type"])) {
-          for (const type of child.data.type) {
+          for (const [index, type] of child.data.type.entries()) {
             const newChild = {
-              key: type["@id"],
+              key: child.key + "-" + index.toString(),
               label: type.name,
               children: [] as TreeNode[],
               selectable: true,
               type: "type",
               loading: false,
-              data: {}
+              data: {
+                iri: type["@id"]
+              }
             } as TreeNode;
             if (child.children && !child.children.includes(newChild)) child.children!.push(newChild);
           }
@@ -117,14 +119,14 @@ async function setIconData(node: TreeNode) {
   if (node.children) {
     for (const child of node.children) {
       for (const child2 of child.children!) {
-        iris.push(child2.key!);
+        iris.push(child2.data.iri!);
       }
     }
     const typeEntities = await EntityService.getPartialEntities(iris, [RDF.TYPE]);
     for (const typeEntity of typeEntities) {
       node.children.forEach((child: TreeNode) => {
         child.children!.forEach((child2: TreeNode) => {
-          if (child2.key === typeEntity["@id"]) {
+          if (child2.data.iri === typeEntity["@id"]) {
             child2.data.typeIcon = getFAIconFromType(typeEntity[RDF.TYPE]);
             child2.data.color = getColourFromType(typeEntity[RDF.TYPE]);
           }
@@ -134,7 +136,68 @@ async function setIconData(node: TreeNode) {
   }
 }
 
-async function getDataModelPropertiesDisplay(iri: string): Promise<TreeNode[]> {
+function createOrNode(ttproperty: any, cardinality: string, index: any, propertyList: TreeNode[], parentKey: string) {
+  const property = {
+    key: parentKey + "-" + index.toString(),
+    label: ttproperty[SHACL.PATH][0].name,
+    children: [] as TreeNode[],
+    selectable: true,
+    loading: false,
+    data: {
+      cardinality: cardinality,
+      isOr: true,
+      type: [] as TreeNode[],
+      iri: ttproperty[SHACL.PATH][0]["@id"]
+    },
+    type: "property"
+  } as TreeNode;
+
+  for (const orProperty of ttproperty[SHACL.OR]) {
+    const type = orProperty[SHACL.CLASS] || orProperty[SHACL.NODE] || orProperty[SHACL.DATATYPE] || [];
+    const types = isArrayHasLength(type) ? type[0] : {};
+    const name = `${orProperty[SHACL.PATH]?.[0].name}  (${
+      isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"].slice(type[0]["@id"].indexOf("#") + 1)) : ""
+    })`;
+
+    property.property.push({ "@id": orProperty[SHACL.PATH]?.[0]["@id"], name: name });
+    property.data.type.push(types);
+    property.data.typeIcon = getFAIconFromType(types);
+    property.data.color = getColourFromType(types);
+  }
+  propertyList.push(property);
+}
+
+function createNode(ttproperty: any, entity2: any[], index: any, cardinality: string, propertyList: TreeNode[], parentKey: string) {
+  const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
+  const group = ttproperty?.[SHACL.GROUP]?.[0];
+  const name = `${ttproperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"]) : ""})`;
+  const typeTypes = entity2[index][RDF.TYPE];
+
+  const property = {
+    key: parentKey + "-" + index.toString(),
+    label: name,
+    children: [] as TreeNode[],
+    selectable: true,
+    loading: false,
+    data: {
+      type: [isArrayHasLength(type) ? type[0] : ""],
+      cardinality: cardinality,
+      isOr: false,
+      typeIcon: getFAIconFromType(typeTypes),
+      color: getColourFromType(typeTypes),
+      iri: ttproperty[SHACL.PATH][0]["@id"]
+    },
+    type: "property"
+  } as TreeNode;
+
+  if (group) {
+    property.group = group;
+  }
+
+  propertyList.push(property);
+}
+
+async function getDataModelPropertiesDisplay(iri: string, parentKey: string): Promise<TreeNode[]> {
   const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
   const propertyList = [] as TreeNode[];
   if (isObjectHasKeys(entity, [SHACL.PROPERTY]) && isArrayHasLength(entity[SHACL.PROPERTY])) {
@@ -146,62 +209,14 @@ async function getDataModelPropertiesDisplay(iri: string): Promise<TreeNode[]> {
     for (const [index, ttproperty] of entity[SHACL.PROPERTY].entries()) {
       const cardinality = `${ttproperty[SHACL.MINCOUNT] || 0} : ${ttproperty[SHACL.MAXCOUNT] || "*"}`;
       if (isObjectHasKeys(ttproperty, [SHACL.OR])) {
-        const property = {
-          key: ttproperty[SHACL.PATH][0]["@id"],
-          label: ttproperty[SHACL.PATH][0].name,
-          children: [] as TreeNode[],
-          selectable: true,
-          loading: false,
-          data: {
-            cardinality: cardinality,
-            isOr: true,
-            type: [] as TreeNode[]
-          },
-          type: "property"
-        } as TreeNode;
-        for (const orProperty of ttproperty[SHACL.OR]) {
-          const type = orProperty[SHACL.CLASS] || orProperty[SHACL.NODE] || orProperty[SHACL.DATATYPE] || [];
-          const name = `${orProperty[SHACL.PATH]?.[0].name}  (${
-            isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"].slice(type[0]["@id"].indexOf("#") + 1)) : ""
-          })`;
-          property.property.push({ "@id": orProperty[SHACL.PATH]?.[0]["@id"], name: name });
-          const types = isArrayHasLength(type) ? type[0] : {};
-          property.data.type.push(types);
-          property.data.typeIcon = getFAIconFromType(types);
-          property.data.color = getColourFromType(types);
-        }
-        propertyList.push(property);
+        createOrNode(ttproperty, cardinality, index, propertyList, parentKey);
       } else {
-        const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
-        const group = ttproperty?.[SHACL.GROUP]?.[0];
-        const name = `${ttproperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"]) : ""})`;
-        const typeTypes = entity2[index][RDF.TYPE];
-        const property = {
-          key: ttproperty[SHACL.PATH][0]["@id"],
-          label: name,
-          children: [] as TreeNode[],
-          selectable: true,
-          loading: false,
-          data: {
-            type: [isArrayHasLength(type) ? type[0] : ""],
-            cardinality: cardinality,
-            isOr: false,
-            typeIcon: getFAIconFromType(typeTypes),
-            color: getColourFromType(typeTypes)
-          },
-          type: "property"
-        } as TreeNode;
-        if (group) {
-          property.group = group;
-        }
-        propertyList.push(property);
+        createNode(ttproperty, entity2, index, cardinality, propertyList, parentKey);
       }
     }
   }
   return propertyList;
 }
-
-function createOrNode() {}
 </script>
 
 <style scoped>
