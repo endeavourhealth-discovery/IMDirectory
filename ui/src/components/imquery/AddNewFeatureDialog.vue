@@ -3,13 +3,14 @@
     <Stepper :style="{ minWidth: '50vw' }">
       <StepperPanel>
         <template #header>
-          <!-- add selected path here -->
+          <!-- TODO: add selected path display here + cannot change if on edit -->
         </template>
         <template #content="{ nextCallback }">
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
               <div class="search-bar">
-                <div class="flex justify-content-center align-items-center">
+                <!--TODO: Move the following div to a subcomponent -->
+                <!-- <div class="flex justify-content-center align-items-center">
                   <SearchBar
                     v-model:searchTerm="searchTerm"
                     v-model:selected="selectedGeneralConcept"
@@ -25,27 +26,17 @@
                       <label :for="typeOption.name" class="gap-1">{{ typeOption.name }}</label>
                     </div>
                   </div>
-                </div>
+                </div> -->
               </div>
               <div class="vertical-divider">
                 <div class="left-container">
                   <NavTree :selectedIri="treeIri" :find-in-tree="findInDialogTree" :root-entities="rootEntities" @found-in-tree="findInDialogTree = false" />
                 </div>
                 <div class="right-container">
-                  <!-- Component with search results/details and selected list -->
-                  <SearchResults
-                    v-if="activePage === 0"
-                    :show-filters="false"
-                    :updateSearch="updateSearch"
-                    :search-term="searchTerm"
-                    :im-query="imQuery"
-                    :rows="5"
-                    @selectedUpdated="updateSelected"
-                    @locate-in-tree="locateInTree"
-                  />
-                  <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
-                  <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
-                  <Listbox v-if="selectedGeneralConcept" v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
+                  <!-- TODO: Component with 2 subcombonents - one for search results(SearchResults?+EclSearch?+IMQuerySearch?)/details(DirectoryDetails?) and one for selected list(ConceptSelect?) -->
+                </div>
+                <!-- TODO: Convert following to dialog that prompts the user to select a path if options contain more than one option -->
+                <!-- <Listbox v-if="selectedGeneralConcept" v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
                     <template #option="{ option }">
                       <div class="flex align-items-center" id="query-path-options">
                         <div v-if="isSelectedConceptValue">
@@ -63,8 +54,7 @@
                         </div>
                       </div>
                     </template>
-                  </Listbox>
-                </div>
+                  </Listbox> -->
               </div>
             </div>
           </div>
@@ -76,7 +66,8 @@
       <StepperPanel>
         <template #header> </template>
         <template #content="{ prevCallback }">
-          <EditWhere
+          <!-- Replace following with EditMatch in order to have orderby + test options -->
+          <!-- <EditWhere
             v-if="getLeafMatch(editMatch) && isArrayHasLength(getLeafMatch(editMatch).where)"
             v-for="[index, where] of getLeafMatch(editMatch).where!.entries()"
             :edit-where="where"
@@ -84,7 +75,7 @@
             :focused-id="focusedId"
             :match-type-of-iri="getLeafMatch(editMatch).typeOf?.['@id'] || dataModelIri"
             @delete-property="editMatch.where?.splice(index, 1)"
-          />
+          /> -->
 
           <AddPropertyDialog
             v-if="getLeafMatch(editMatch)"
