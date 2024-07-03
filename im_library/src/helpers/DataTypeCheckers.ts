@@ -12,7 +12,7 @@ export function isObjectHasKeys(object: any, keys?: string[]): boolean {
   if (keys) {
     const objectKeys = Object.keys(object);
     let result = true;
-    keys.forEach((key) => {
+    keys.forEach(key => {
       if (!objectKeys.includes(key)) result = false;
     });
     return result;
@@ -29,5 +29,5 @@ export function isObject(object: any): boolean {
 export default {
   isArrayHasLength,
   isObjectHasKeys,
-  isObject,
+  isObject
 };

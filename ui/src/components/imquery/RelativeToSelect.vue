@@ -153,7 +153,7 @@ async function getVariableOptions(searchTerm?: string) {
 }
 
 function selectPrepopulatedValue(options: TreeNode[], searchTerm?: string) {
-  selectedNode.value = {};
+  selectedNode.value = undefined;
   if (searchTerm) {
     const splits = searchTerm.split(" -> ");
     if (isArrayHasLength(splits)) {
