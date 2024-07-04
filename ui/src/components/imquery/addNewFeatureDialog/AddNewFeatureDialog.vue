@@ -9,14 +9,39 @@
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
               <div class="search-bar">
-                <SearchBarWithRadioFilters />
+                <SearchBarWithRadioFilters
+                  @on-search="
+                    payload => {
+                      searchTerm = payload;
+                      updateSearch = !updateSearch;
+                    }
+                  "
+                  @on-type-select="onTypeSelect"
+                />
               </div>
               <div class="vertical-divider">
                 <div class="left-container">
-                  <NavTree :selectedIri="treeIri" :find-in-tree="findInDialogTree" :root-entities="rootEntities" @found-in-tree="findInDialogTree = false" />
+                  <NavTree
+                    :selectedIri="treeIri"
+                    :find-in-tree="findInDialogTree"
+                    :root-entities="rootEntities"
+                    @found-in-tree="findInDialogTree = false"
+                    @row-selected="node => (treeIri = node.data)"
+                  />
                 </div>
                 <div class="right-container">
-                  <SearchResultsAndDetails />
+                  <SearchResultsAndDetails
+                    :selectedIri="treeIri"
+                    :search-term="searchTerm"
+                    :udpate-search="updateSearch"
+                    :im-query="imQuery"
+                    @navigate-to="
+                      iri => {
+                        // treeIri = iri;
+                        // findInDialogTree = true;
+                      }
+                    "
+                  />
                 </div>
               </div>
             </div>
@@ -78,15 +103,9 @@ import { v4 } from "uuid";
 import AddPropertyDialog from "../AddPropertyDialog.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import NavTree from "../../shared/NavTree.vue";
-import SearchBarWithRadioFilters from "./SearchBarWithRadioFilters.vue";
+import SearchBarWithRadioFilters, { TypeOption } from "./SearchBarWithRadioFilters.vue";
 import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
-
-interface TypeOption {
-  name: string;
-  rootIri: string;
-  typeIri: string;
-}
 
 interface Props {
   showDialog: boolean;
@@ -124,14 +143,7 @@ const treeIri = ref("");
 const searchTerm = ref("");
 const activePage = ref(0);
 const detailsIri = ref("");
-const typeOptions: Ref<TypeOption[]> = ref([
-  { name: "All", rootIri: "", typeIri: "" },
-  { name: "Concept", rootIri: "http://endhealth.info/im#HealthModelOntology", typeIri: IM.CONCEPT },
-  { name: "Concept set", rootIri: IM.FOLDER_SETS, typeIri: IM.CONCEPT_SET },
-  { name: "Property", rootIri: "http://endhealth.info/im#Properties", typeIri: IM.DATAMODEL_PROPERTY },
-  { name: "Data model", rootIri: "http://endhealth.info/im#DataModels", typeIri: SHACL.NODESHAPE }
-]);
-const selectedType: Ref<TypeOption | undefined> = ref();
+
 const rootEntities: Ref<string[] | undefined> = ref();
 watch(
   () => props.showDialog,
@@ -196,7 +208,7 @@ function clear() {
   pathSuggestions.value = [];
   selectedGeneralConcept.value = undefined;
   searchTerm.value = "";
-  selectedType.value = undefined;
+  // selectedType.value = undefined;
   treeIri.value = "";
   detailsIri.value = "";
 }
@@ -257,14 +269,14 @@ async function updateSelectedFromIri(iri: string) {
   selectedGeneralConcept.value = await EntityService.getEntitySummary(iri);
 }
 
-function onTypeSelect() {
-  if (selectedType.value) {
-    if (!selectedType.value.typeIri && !selectedType.value.rootIri) {
+function onTypeSelect(typeOption: TypeOption) {
+  if (typeOption) {
+    if (!typeOption.typeIri && !typeOption.rootIri) {
       rootEntities.value = [];
       imQuery.value = undefined;
     }
-    if (selectedType.value.typeIri) updateIMQuery({ "@id": selectedType.value.typeIri });
-    if (selectedType.value.rootIri) rootEntities.value = [selectedType.value.rootIri];
+    if (typeOption.typeIri) updateIMQuery({ "@id": typeOption.typeIri });
+    if (typeOption.rootIri) rootEntities.value = [typeOption.rootIri];
   }
   updateSearch.value = !updateSearch.value;
 }
