@@ -3,6 +3,7 @@
     <Stepper :style="{ minWidth: '50vw' }">
       <StepperPanel>
         <template #header>
+          {{ selectedPath }}
           <!-- TODO: add selected path display here + cannot change if on edit -->
         </template>
         <template #content="{ nextCallback }">
@@ -33,14 +34,10 @@
                   <SearchResultsAndDetails
                     :selectedIri="treeIri"
                     :search-term="searchTerm"
-                    :udpate-search="updateSearch"
+                    :update-search="updateSearch"
                     :im-query="imQuery"
-                    @navigate-to="
-                      iri => {
-                        // treeIri = iri;
-                        // findInDialogTree = true;
-                      }
-                    "
+                    :data-model-iri="dataModelIri"
+                    v-model:selected-path="selectedPath"
                   />
                 </div>
               </div>
@@ -106,6 +103,7 @@ import NavTree from "../../shared/NavTree.vue";
 import SearchBarWithRadioFilters, { TypeOption } from "./SearchBarWithRadioFilters.vue";
 import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
+import PathSelectDialog from "./PathSelectDialog.vue";
 
 interface Props {
   showDialog: boolean;
@@ -131,8 +129,7 @@ const selectedPath: Ref<Match | undefined> = ref();
 const isSelectedConceptValue = computed(
   () => selectedGeneralConcept.value && (isConcept(selectedGeneralConcept.value.entityType) || isValueSet(selectedGeneralConcept.value.entityType))
 );
-const isSelectedConceptProperty = computed(() => selectedGeneralConcept.value && isProperty(selectedGeneralConcept.value.entityType));
-const isSelectedConceptDatamodel = computed(() => selectedGeneralConcept.value && isRecordModel(selectedGeneralConcept.value.entityType));
+
 const focusedId: Ref<string | undefined> = ref();
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 
@@ -241,32 +238,8 @@ function getLeafWhereRecursively(whereList: Where[], found: Match[], currentMatc
   else found.push(currentMatch);
 }
 
-function showEclSearch() {
-  activePage.value = 2;
-}
-
-function showQuerySearch() {
-  activePage.value = 3;
-}
-
-function onSearch() {
-  if (searchTerm.value) {
-    activePage.value = 0;
-    updateSearch.value = !updateSearch.value;
-  }
-}
-
 function locateInTree(iri: string) {
   treeIri.value = iri;
-}
-
-function updateSelected(data: SearchResultSummary) {
-  locateInTree(data.iri);
-  selectedGeneralConcept.value = data;
-}
-
-async function updateSelectedFromIri(iri: string) {
-  selectedGeneralConcept.value = await EntityService.getEntitySummary(iri);
 }
 
 function onTypeSelect(typeOption: TypeOption) {
