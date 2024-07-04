@@ -29,16 +29,12 @@
       <StepperPanel>
         <template #header> </template>
         <template #content="{ prevCallback }">
-          <!-- Replace following with EditMatch in order to have orderby + test options -->
-          <!-- <EditWhere
-            v-if="getLeafMatch(editMatch) && isArrayHasLength(getLeafMatch(editMatch).where)"
-            v-for="[index, where] of getLeafMatch(editMatch).where!.entries()"
-            :edit-where="where"
-            :focused="editMatch['@id'] === focusedId"
-            :focused-id="focusedId"
-            :match-type-of-iri="getLeafMatch(editMatch).typeOf?.['@id'] || dataModelIri"
-            @delete-property="editMatch.where?.splice(index, 1)"
-          /> -->
+          <EditMatch
+            v-if="getLeafMatch(editMatch)"
+            :edit-match="getLeafMatch(editMatch)"
+            :is-root-feature="true"
+            :focused-id="getLeafMatch(editMatch)['@id']"
+          />
 
           <AddPropertyDialog
             v-if="getLeafMatch(editMatch)"
@@ -70,27 +66,21 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import { Match, PathQuery, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
+import { Match, PathQuery, QueryRequest, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import { EntityService, QueryService } from "@/services";
 import { isConcept, isProperty, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { computed } from "vue";
 import { addTypeFilterToIMQuery, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
-import EditWhere from "./EditWhere.vue";
-import AddPropertyDialog from "./AddPropertyDialog.vue";
+import AddPropertyDialog from "../AddPropertyDialog.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
-import SearchBar from "../shared/SearchBar.vue";
-import NavTree from "../shared/NavTree.vue";
-import SearchResults from "../shared/SearchResults.vue";
-import DirectoryDetails from "../directory/DirectoryDetails.vue";
-import IMQuerySearch from "../directory/IMQuerySearch.vue";
-import EclSearch from "../directory/EclSearch.vue";
+import NavTree from "../../shared/NavTree.vue";
 import SearchBarWithRadioFilters from "./SearchBarWithRadioFilters.vue";
 import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
+import EditMatch from "../EditMatch.vue";
 
 interface TypeOption {
   name: string;
