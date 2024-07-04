@@ -9,52 +9,15 @@
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
               <div class="search-bar">
-                <!--TODO: Move the following div to a subcomponent -->
-                <!-- <div class="flex justify-content-center align-items-center">
-                  <SearchBar
-                    v-model:searchTerm="searchTerm"
-                    v-model:selected="selectedGeneralConcept"
-                    :imQuery="imQuery"
-                    :show-filters="false"
-                    @to-ecl-search="showEclSearch"
-                    @to-query-search="showQuerySearch"
-                    @to-search="onSearch"
-                  />
-                  <div class="type-options flex flex-wrap gap-3">
-                    <div v-for="typeOption in typeOptions" :key="typeOption.name" class="flex align-items-center">
-                      <RadioButton v-model="selectedType" :inputId="typeOption.name" name="dynamic" :value="typeOption" @change="onTypeSelect" />
-                      <label :for="typeOption.name" class="gap-1">{{ typeOption.name }}</label>
-                    </div>
-                  </div>
-                </div> -->
+                <SearchBarWithRadioFilters />
               </div>
               <div class="vertical-divider">
                 <div class="left-container">
                   <NavTree :selectedIri="treeIri" :find-in-tree="findInDialogTree" :root-entities="rootEntities" @found-in-tree="findInDialogTree = false" />
                 </div>
                 <div class="right-container">
-                  <!-- TODO: Component with 2 subcombonents - one for search results(SearchResults?+EclSearch?+IMQuerySearch?)/details(DirectoryDetails?) and one for selected list(ConceptSelect?) -->
+                  <SearchResultsAndDetails />
                 </div>
-                <!-- TODO: Convert following to dialog that prompts the user to select a path if options contain more than one option -->
-                <!-- <Listbox v-if="selectedGeneralConcept" v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
-                    <template #option="{ option }">
-                      <div class="flex align-items-center" id="query-path-options">
-                        <div v-if="isSelectedConceptValue">
-                          {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
-                            option.where?.[0]?.name
-                          }}
-                          =
-                          {{ selectedGeneralConcept?.name }}
-                        </div>
-                        <div v-else-if="isSelectedConceptDatamodel">{{ option.path?.[0]?.name }} -> {{ option.typeOf?.name }}</div>
-                        <div v-else-if="isSelectedConceptProperty">
-                          {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
-                            option.where?.[0]?.name
-                          }}
-                        </div>
-                      </div>
-                    </template>
-                  </Listbox> -->
               </div>
             </div>
           </div>
@@ -126,6 +89,8 @@ import SearchResults from "../shared/SearchResults.vue";
 import DirectoryDetails from "../directory/DirectoryDetails.vue";
 import IMQuerySearch from "../directory/IMQuerySearch.vue";
 import EclSearch from "../directory/EclSearch.vue";
+import SearchBarWithRadioFilters from "./SearchBarWithRadioFilters.vue";
+import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 
 interface TypeOption {
   name: string;

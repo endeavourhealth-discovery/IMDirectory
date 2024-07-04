@@ -62,7 +62,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import { SearchOptions } from "@im-library/interfaces";
 import AddFeatureDialog from "./AddFeatureDialog.vue";
-import AddNewFeatureDialog from "./AddNewFeatureDialog.vue";
+import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 interface Props {
   editMatch: Match;
   matchTypeOfIri: string;
