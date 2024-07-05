@@ -3,8 +3,7 @@
     <Stepper :style="{ minWidth: '50vw' }">
       <StepperPanel>
         <template #header>
-          {{ selectedPath }}
-          <!-- TODO: add selected path display here + cannot change if on edit -->
+          <PathDisplay v-if="selectedPath" :path="selectedPath" />
         </template>
         <template #content="{ nextCallback }">
           <div class="flex flex-column select-property-wrapper">
@@ -104,6 +103,7 @@ import SearchBarWithRadioFilters, { TypeOption } from "./SearchBarWithRadioFilte
 import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
+import PathDisplay from "./PathDisplay.vue";
 
 interface Props {
   showDialog: boolean;

@@ -34,7 +34,7 @@
     @onClose="showDialog = false"
   />
 
-  <SelectedSet :selected-set="selectedSet" />
+  <SelectedSet v-if="selectedSet.size" :selected-set="selectedSet" />
   <!-- TODO: Component with 2 subcombonents - one for search results(SearchResults?+EclSearch?+IMQuerySearch?)/details(DirectoryDetails?) and one for selected list(ConceptSelect?) -->
 </template>
 
@@ -108,7 +108,10 @@ async function onSelect() {
     else {
       // show that this is invalid with toast
     }
-  } else await setQueryPath();
+  } else {
+    await setQueryPath();
+    addToSelectedList();
+  }
 }
 
 async function setQueryPath() {
