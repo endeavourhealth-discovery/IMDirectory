@@ -3,7 +3,7 @@
     <div class="quick-filters-container">
       <div class="quick-filter-container">
         <label>Include legacy:</label>
-        <InputSwitch v-model="includeLegacy" @change="emitFilterUpdate()" />
+        <ToggleSwitch v-model="includeLegacy" @change="emitFilterUpdate()" />
       </div>
     </div>
 

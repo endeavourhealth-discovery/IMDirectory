@@ -29,7 +29,7 @@
             <p>Drag and drop files here to upload.</p>
           </template>
         </FileUpload>
-        <Dropdown v-if="isArrayHasLength(headers)" v-model="selectedColumn" :options="headers" option-label="label" placeholder="Select column" />
+        <Select v-if="isArrayHasLength(headers)" v-model="selectedColumn" :options="headers" option-label="label" placeholder="Select column" />
         <Button :loading="processing" :disabled="!isValidUpload" label="Process" class="process-button" @click="processUpload" />
       </div>
       <div v-else-if="showAddByList" class="code-list-container">

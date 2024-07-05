@@ -1,5 +1,5 @@
 <template>
-  <Sidebar
+  <Drawer
     :visible="!cookiesEssentialAccepted || showCookieConsent"
     position="left"
     :showCloseIcon="false"
@@ -21,7 +21,7 @@
     <p>These cookies enable core functionality such as security, network management and accessibility.</p>
 
     <h2>Optional cookies</h2>
-    <InputSwitch v-model="optionalChecked" data-testid="optional-cookies-switch" />
+    <ToggleSwitch v-model="optionalChecked" data-testid="optional-cookies-switch" />
     <p>
       These cookies are used to improve the user experience on this site. These cookies are recommended for the best experience, but are not required to use the
       site's core functionality.
@@ -29,7 +29,7 @@
     <div class="save-button-container">
       <Button label="Save and close" @click="handleSave" class="save-button" data-testid="cookies-save" />
     </div>
-  </Sidebar>
+  </Drawer>
 </template>
 
 <script setup lang="ts">

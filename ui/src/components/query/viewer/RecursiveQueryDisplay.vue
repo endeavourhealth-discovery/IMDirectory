@@ -40,10 +40,10 @@
     />
   </div>
 
-  <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedNodeRef)" /> </OverlayPanel>
-  <OverlayPanel ref="op1">
+  <Popover ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedNodeRef)" /> </Popover>
+  <Popover ref="op1">
     <ListOverlay :list="list" />
-  </OverlayPanel>
+  </Popover>
 </template>
 
 <script setup lang="ts">

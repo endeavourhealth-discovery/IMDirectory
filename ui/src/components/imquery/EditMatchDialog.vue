@@ -3,7 +3,7 @@
     <Dialog
       v-model:visible="visible"
       maximizable
-      :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
+      :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--p-surface-section)' }"
     >
       <template #header>
         <div class="flex align-items-center">
@@ -55,32 +55,38 @@
 
         <div class="imquery-output-container">
           <Panel header="Output" toggleable collapsed>
-            <TabView>
-              <TabPanel header="Query JSON">
-                <div class="imquery-string-container">
-                  <pre class="imquery-output-string">{{ focusedEditMatch }}</pre>
-                  <Button
-                    icon="fa-solid fa-copy"
-                    v-tooltip.left="'Copy to clipboard'"
-                    v-clipboard:copy="copyToClipboard()"
-                    v-clipboard:success="onCopy"
-                    v-clipboard:error="onCopyError"
-                  />
-                </div>
-              </TabPanel>
-              <TabPanel header="Description">
-                <div class="imquery-description-container">
-                  <div class="imquery-description"><MatchDisplay v-if="editMatch" class="feature-description" :match="editMatch" /></div>
-                  <Button
-                    icon="fa-solid fa-copy"
-                    v-tooltip.left="'Copy to clipboard'"
-                    v-clipboard:copy="copyToClipboard()"
-                    v-clipboard:success="onCopy"
-                    v-clipboard:error="onCopyError"
-                  />
-                </div>
-              </TabPanel>
-            </TabView>
+            <Tabs value="0">
+              <TabList>
+                <Tab value="0">Query JSON</Tab>
+                <Tab value="1">Description</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel value="0">
+                  <div class="imquery-string-container">
+                    <pre class="imquery-output-string">{{ focusedEditMatch }}</pre>
+                    <Button
+                      icon="fa-solid fa-copy"
+                      v-tooltip.left="'Copy to clipboard'"
+                      v-clipboard:copy="copyToClipboard()"
+                      v-clipboard:success="onCopy"
+                      v-clipboard:error="onCopyError"
+                    />
+                  </div>
+                </TabPanel>
+                <TabPanel value="1">
+                  <div class="imquery-description-container">
+                    <div class="imquery-description"><MatchDisplay v-if="editMatch" class="feature-description" :match="editMatch" /></div>
+                    <Button
+                      icon="fa-solid fa-copy"
+                      v-tooltip.left="'Copy to clipboard'"
+                      v-clipboard:copy="copyToClipboard()"
+                      v-clipboard:success="onCopy"
+                      v-clipboard:error="onCopyError"
+                    />
+                  </div>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </Panel>
         </div>
       </div>
@@ -303,8 +309,8 @@ function onAddFunctionProperty(property: string, value: any) {
 }
 
 .imquery-output-string {
-  background-color: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  background-color: var(--p-surface-a);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
   padding: 1rem;
   margin: 0;
@@ -329,8 +335,8 @@ function onAddFunctionProperty(property: string, value: any) {
 }
 
 .imquery-description {
-  background-color: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  background-color: var(--p-surface-a);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
   padding: 1rem;
   margin: 0;

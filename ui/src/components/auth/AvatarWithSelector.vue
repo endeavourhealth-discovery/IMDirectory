@@ -2,7 +2,7 @@
   <div class="avatar-container">
     <img data-testid="avatar-image" id="selected-avatar" :src="`/avatars/${newAvatar}`" alt="avatar icon" />
     <Button data-testid="avatar-op-button" icon="fa-solid fa-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
-    <OverlayPanel ref="avatar" class="avatar-popup">
+    <Popover ref="avatar" class="avatar-popup">
       <div>
         Icons made by
         <a href="https://www.flaticon.com/authors/vitaly-gorbachev" title="Vitaly Gorbachev">Vitaly Gorbachev</a>
@@ -14,7 +14,7 @@
           <img class="avatar-select avatar-icon" :src="`/avatars/${option}`" alt="avatar icon" />
         </template>
       </SelectButton>
-    </OverlayPanel>
+    </Popover>
   </div>
 </template>
 
@@ -67,7 +67,7 @@ function toggleAvatarSelect(event: any): void {
 
 #selected-avatar {
   width: 10rem;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-surface-border);
   border-radius: 50%;
 }
 
@@ -85,6 +85,6 @@ function toggleAvatarSelect(event: any): void {
 
 .avatar-popup div div .p-button {
   margin: 2px;
-  border-right: 1px solid var(--surface-border) !important;
+  border-right: 1px solid var(--p-surface-border) !important;
 }
 </style>

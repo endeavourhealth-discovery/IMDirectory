@@ -23,9 +23,9 @@
           @drop.prevent
           :class="invalid && showValidation && 'invalid'"
         >
-          <template #item="{ item }: any">
-            <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, item)" @mouseleave="hideOptionsOverlay($event)">
-              <span>{{ item.name }}</span>
+          <template #option="{ option }: any">
+            <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, option)" @mouseleave="hideOptionsOverlay($event)">
+              <span>{{ option.name }}</span>
             </div>
           </template>
         </AutoComplete>
@@ -34,7 +34,7 @@
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
-  <OverlayPanel class="options-op" ref="optionsOP" :dismissable="true" stype="width: 50vw" :breakpoints="{ '960px': '75vw' }">
+  <Popover class="options-op" ref="optionsOP" :dismissable="true" stype="width: 50vw" :breakpoints="{ '960px': '75vw' }">
     <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
       <div class="left-side" style="width: 50%">
         <p>
@@ -65,7 +65,7 @@
         </p>
       </div>
     </div>
-  </OverlayPanel>
+  </Popover>
 </template>
 
 <script setup lang="ts">
@@ -280,8 +280,8 @@ function searchOptions(event: any) {
   if (!event.query.trim().length) {
     getAutocompleteOptions();
   } else {
-    autocompleteOptions.value = autocompleteOptions.value.filter(
-      option => option.name?.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
+    autocompleteOptions.value = autocompleteOptions.value.filter(option =>
+      option.name?.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
     );
   }
 }
@@ -374,9 +374,9 @@ function hasData() {
 
 .label {
   cursor: pointer;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
-  background-color: var(--surface-a);
+  background-color: var(--p-surface-a);
   padding: 0.25rem;
 }
 
@@ -395,13 +395,13 @@ function hasData() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .autocomplete-option {
@@ -420,6 +420,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

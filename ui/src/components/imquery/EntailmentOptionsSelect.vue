@@ -1,5 +1,5 @@
 <template>
-  <Dropdown v-model:model-value="selectedOption" optionValue="id" optionLabel="name" :options="options" placeholder="Entailment options" @change="onChange()" />
+  <Select v-model:model-value="selectedOption" optionValue="id" optionLabel="name" :options="options" placeholder="Entailment options" @change="onChange()" />
 </template>
 
 <script setup lang="ts">

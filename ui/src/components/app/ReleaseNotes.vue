@@ -168,7 +168,7 @@ function hideOlderReleases() {
 .release-container {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
 }
 

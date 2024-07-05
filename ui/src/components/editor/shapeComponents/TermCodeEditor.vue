@@ -15,7 +15,7 @@
       </div>
       <div class="status-container">
         <label for="term-status">Status</label>
-        <Dropdown class="dropdown term-status" v-model="status" :options="statusOptions" optionLabel="name" />
+        <Select class="dropdown term-status" v-model="status" :options="statusOptions" optionLabel="name" />
       </div>
     </div>
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
@@ -223,13 +223,13 @@ function updateEntity() {
 }
 
 .invalid {
-  border: solid 1px var(--red-500);
+  border: solid 1px var(--p-red-500);
   padding: 0.25rem;
   border-radius: 5px;
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
@@ -241,6 +241,6 @@ function updateEntity() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

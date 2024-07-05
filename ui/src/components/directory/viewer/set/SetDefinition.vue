@@ -23,14 +23,17 @@
       </div>
     </div>
 
-    <Accordion multiple v-model:activeIndex="active">
-      <AccordionTab header="Subsets">
-        <div class="set-accordion-content" id="set-definition-container">
-          <SubsetDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
-        </div>
-      </AccordionTab>
-      <AccordionTab>
-        <template #header>
+    <Accordion multiple v-model:value="active">
+      <AccordionPanel value="0">
+        <AccordionHeader>Subsets</AccordionHeader>
+        <AccordionContent>
+          <div class="set-accordion-content" id="set-definition-container">
+            <SubsetDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          </div>
+        </AccordionContent>
+      </AccordionPanel>
+      <AccordionPanel value="1">
+        <AccordionContent>
           <div class="definition-header">
             <span>Definition</span>
             <Button
@@ -42,16 +45,19 @@
               @click="onCopy"
             />
           </div>
-        </template>
+        </AccordionContent>
         <div class="set-accordion-content" id="set-definition-container">
           <QueryDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
-      </AccordionTab>
-      <AccordionTab header="Direct Members">
-        <div class="set-accordion-content" id="members-container">
-          <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @open-download-dialog="displayDialog" />
-        </div>
-      </AccordionTab>
+      </AccordionPanel>
+      <AccordionPanel value="2" header="Direct Members">
+        <AccordionHeader>Direct Members</AccordionHeader>
+        <AccordionContent>
+          <div class="set-accordion-content" id="members-container">
+            <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @open-download-dialog="displayDialog" />
+          </div>
+        </AccordionContent>
+      </AccordionPanel>
     </Accordion>
   </div>
   <CompareSetDialog v-model:show-dialog="showCompareSetDialog" :set-iri-a="entityIri" />
@@ -100,7 +106,7 @@ const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();
 const ttentity = ref();
-const active = ref([] as number[]);
+const active: Ref<string[]> = ref([]);
 const emit = defineEmits({ navigateTo: (_payload: string) => true });
 const showCompareSetDialog = ref(false);
 
@@ -122,7 +128,7 @@ const { copyObjectToClipboard } = setupCopyToClipboard();
 const hasDefinition = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION]);
 
 onMounted(async () => {
-  active.value = [0, 1, 2];
+  active.value = ["0", "1", "2"];
   entity.value = await EntityService.getPartialEntity(props.entityIri, [IM.IS_SUBSET_OF, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.DEFINITION, IM.HAS_MEMBER]);
   if (entity.value[IM.IS_SUBSET_OF]) {
     subsetOf.value = entity.value[IM.IS_SUBSET_OF];
@@ -274,8 +280,8 @@ function closeDialog() {
 }
 
 .concept-button:hover {
-  background-color: var(--highlight-bg) !important;
-  color: var(--text-color) !important;
+  background-color: var(--p-highlight-bg) !important;
+  color: var(--p-text-color) !important;
 }
 
 .table-header-bar {

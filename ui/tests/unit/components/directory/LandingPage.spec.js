@@ -8,7 +8,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import testData from "./LandingPage.testData";
 import { EntityService, ConfigService, DirectService, UserService } from "@/services";
@@ -54,7 +54,7 @@ describe("LandingPage.vue", async () => {
 
     component = render(LandingPage, {
       global: {
-        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart, IMFontAwesomeIcon, OverlayPanel },
+        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart, IMFontAwesomeIcon, Popover },
         directives: { Tooltip: Tooltip },
         plugins: [PrimeVue],
         stubs: {

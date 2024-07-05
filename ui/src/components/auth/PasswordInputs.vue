@@ -15,9 +15,9 @@
         }"
       />
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld" severity="info">
+    <Message data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld" severity="info">
       {{ errors.passwordOld }}
-    </InlineMessage>
+    </Message>
   </div>
   <div class="field">
     <label for="password">New password</label>
@@ -51,9 +51,9 @@
         </template>
       </Password>
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="errors.password" severity="info">
+    <Message data-testid="inline-error-message" v-if="errors.password" severity="info">
       {{ errors.password }}
-    </InlineMessage>
+    </Message>
   </div>
   <div class="field">
     <label for="password2">Confirm new password</label>
@@ -70,7 +70,7 @@
         }"
       />
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="!isMatchingPassword && password2" severity="error"> {{ errors.password2 }}</InlineMessage>
+    <Message data-testid="inline-error-message" v-if="!isMatchingPassword && password2" severity="error"> {{ errors.password2 }}</Message>
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 <template>
   <div class="datatype-select">
     <div v-if="datatype === XSD.STRING" class="property-input-container">
-      <Dropdown
+      <Select
         :options="[
           { id: 'is', name: 'is' },
           { id: 'startsWith', name: 'starts with' },
@@ -17,11 +17,11 @@
     </div>
 
     <div v-else-if="datatype === XSD.BOOLEAN" class="property-input-container">
-      <Dropdown :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
+      <Select :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
     </div>
 
     <div v-else-if="datatype === XSD.LONG || datatype === XSD.INTEGER || datatype === XSD.NUMBER || datatype === XSD.DECIMAL" class="property-input-container">
-      <Dropdown
+      <Select
         :options="[
           { id: 'is', name: 'is' },
           { id: 'range', name: 'in range' },
@@ -33,24 +33,24 @@
         v-model:model-value="propertyType"
       />
       <div v-if="propertyType === 'is'" class="property-input">
-        <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
+        <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
         <InputText type="text" placeholder="value" v-model="property.value" />
-        <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" />
+        <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" />
         <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
       </div>
       <div v-else-if="propertyType === 'range'" class="property-input">
         <div class="property-range" v-if="property?.range?.from">
           <InputText :value="'From'" disabled class="property-input-title" />
-          <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.from.operator" />
+          <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.from.operator" />
           <InputText type="text" placeholder="value" v-model="property.range.from.value" />
-          <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range.from.unit" />
+          <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.range.from.unit" />
           <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
         </div>
         <div class="property-range" v-if="property?.range?.to">
           <InputText :value="'To'" disabled class="property-input-title" />
-          <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.to.operator" />
+          <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.to.operator" />
           <InputText type="text" placeholder="value" v-model="property.range.to.value" />
-          <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.range.to.unit" />
+          <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.range.to.unit" />
           <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
         </div>
       </div>

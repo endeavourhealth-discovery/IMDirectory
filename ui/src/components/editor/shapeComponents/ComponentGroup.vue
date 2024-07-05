@@ -99,7 +99,7 @@ function setProperties(shape: PropertyShape) {
   width: 100%;
   flex: 1 1 auto;
   padding: 1rem;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
   display: flex;
   flex-flow: row wrap;
@@ -114,7 +114,7 @@ function setProperties(shape: PropertyShape) {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: var(--text-color);
+  color: var(--p-text-color);
 }
 
 .title-bar {
@@ -125,6 +125,6 @@ function setProperties(shape: PropertyShape) {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

@@ -21,7 +21,7 @@
                 @blur="updateFocused('username', false)"
                 :class="!username && focused.get('username') === false && 'p-invalid'"
               />
-              <InlineMessage v-if="errors.username" severity="info"> {{ errors.username }} </InlineMessage>
+              <Message v-if="errors.username" severity="info"> {{ errors.username }} </Message>
             </div>
             <div class="field">
               <label for="fieldCode">Confirmation code</label>
@@ -39,13 +39,13 @@
                 <IMFontAwesomeIcon
                   v-if="codeVerified"
                   icon="fa-regular fa-circle-check"
-                  style="color: var(--green-500); font-size: 2em"
+                  style="color: var(--p-green-500); font-size: 2em"
                   data-testid="forgot-password-submit-verified"
                 />
                 <IMFontAwesomeIcon
                   v-if="!codeVerified && code"
                   icon="fa-regular fa-circle-xmark"
-                  style="color: var(--red-500); font-size: 2em"
+                  style="color: var(--p-red-500); font-size: 2em"
                   data-testid="forgot-password-submit-unverified"
                 />
               </div>

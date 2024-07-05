@@ -23,7 +23,7 @@
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
     />
-    <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
+    <Popover ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
       <div v-if="showFilters" class="p-fluid results-filter-container">
         <Filters
           :search="onSearch"
@@ -32,7 +32,7 @@
           @selectedFiltersUpdated="emit('selectedFiltersUpdated', $event)"
         />
       </div>
-    </OverlayPanel>
+    </Popover>
   </div>
 </template>
 

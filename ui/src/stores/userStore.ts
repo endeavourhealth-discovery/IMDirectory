@@ -9,7 +9,10 @@ export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
     cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
-    currentTheme: "" as string,
+    currentPreset: "" as string,
+    currentPrimaryColor: "" as string,
+    currentSurfaceColor: "" as string,
+    darkMode: false,
     currentScale: "16px" as string,
     currentUser: undefined,
     favourites: [] as string[],
@@ -24,7 +27,9 @@ export const useUserStore = defineStore("user", {
   },
   actions: {
     clearAllFromUserDatabase() {
-      this.currentTheme = "saga-blue";
+      this.currentPreset = "";
+      this.currentPrimaryColor = "";
+      this.currentSurfaceColor = "";
       this.favourites = [];
       this.recentLocalActivity = [];
     },
@@ -63,8 +68,14 @@ export const useUserStore = defineStore("user", {
     },
     async getAllFromUserDatabase(): Promise<void> {
       if (this.currentUser) {
-        const themeResult = await UserService.getUserTheme();
-        if (themeResult) this.currentTheme = themeResult;
+        const preset = await UserService.getUserPreset();
+        if (preset) this.currentPreset = preset;
+        const primaryColor = await UserService.getUserPrimaryColor();
+        if (primaryColor) this.currentPrimaryColor = primaryColor;
+        const surfaceColor = await UserService.getUserSurfaceColor();
+        if (surfaceColor) this.currentSurfaceColor = surfaceColor;
+        const darkMode = await UserService.getUserDarkMode();
+        if (darkMode) this.darkMode = darkMode;
         const scaleResult = await UserService.getUserScale();
         if (scaleResult) this.currentScale = scaleResult;
         const favourites = await UserService.getUserFavourites();
@@ -115,9 +126,21 @@ export const useUserStore = defineStore("user", {
         if (this.currentUser) await UserService.updateUserFavourites(this.favourites);
       }
     },
-    async updateCurrentTheme(theme: string) {
-      if (this.currentUser) await UserService.updateUserTheme(theme);
-      this.currentTheme = theme;
+    async updatePreset(preset: string) {
+      if (this.currentUser) await UserService.updateUserPreset(preset);
+      this.currentPreset = preset;
+    },
+    async updatePrimaryColor(color: string) {
+      if (this.currentUser) await UserService.updateUserPrimaryColor(color);
+      this.currentPrimaryColor = color;
+    },
+    async updateSurfaceColor(color: string) {
+      if (this.currentUser) await UserService.updateUserSurfaceColor(color);
+      this.currentSurfaceColor = color;
+    },
+    async updateDarkMode(bool: boolean) {
+      if (this.currentUser) await UserService.updateUserDarkMode(bool);
+      this.darkMode = bool;
     },
     async updateCurrentScale(scale: string) {
       if (this.currentUser) await UserService.updateUserScale(scale);
