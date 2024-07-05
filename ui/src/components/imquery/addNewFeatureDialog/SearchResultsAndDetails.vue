@@ -1,37 +1,43 @@
 <template>
-  <div v-if="activePage === 0 && detailsIri">
-    <ParentHeader
-      v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
-      :entity="detailsEntity"
-      @locateInTree="(iri: string) => $emit('locateInTree', iri)"
-      :showSelectButton="true"
-      @entitySelected="(iri: string) => onSelect()"
-    />
-    <Viewer
-      :entityIri="detailsIri"
-      @navigateTo="
-        (iri: string) => {
-          detailsIri = iri;
-        }
-      "
-    />
-    <Button label="Select" @click="onSelect" />
-  </div>
-
-  <SearchResults
-    v-if="activePage === 1"
-    :show-filters="false"
-    :updateSearch="updateSearch"
-    :search-term="searchTerm"
-    :im-query="imQuery"
-    :rows="10"
-    @selectedUpdated="
-      summary => {
-        detailsIri = summary.iri;
-        activePage = 0;
-      }
-    "
-  />
+  <TabView v-model:activeIndex="activePage">
+    <TabPanel header="Search">
+      <SearchResults
+        v-if="activePage === 0"
+        :show-filters="false"
+        :updateSearch="updateSearch"
+        :search-term="searchTerm"
+        :im-query="imQuery"
+        :rows="10"
+        @selectedUpdated="
+          summary => {
+            detailsIri = summary.iri;
+            activePage = 1;
+          }
+        "
+      />
+    </TabPanel>
+    <TabPanel header="Details">
+      <div v-if="activePage === 1 && detailsIri">
+        <ParentHeader
+          v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
+          :entity="detailsEntity"
+          @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+          :showSelectButton="true"
+          @entitySelected="(iri: string) => onSelect()"
+        />
+        <div><b>Hierarhcy tree</b></div>
+        <SecondaryTree
+          :entityIri="detailsIri"
+          @navigateTo="
+            (iri: string) => {
+              detailsIri = iri;
+            }
+          "
+        />
+      </div>
+    </TabPanel>
+  </TabView>
+  <Button label="Select" @click="onSelect" />
 
   <PathSelectDialog
     v-bind:showDialog="showDialog"
@@ -58,6 +64,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isConcept, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import SelectedSet from "./SelectedSet.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
+import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 
 interface Props {
   selectedIri: string;
@@ -91,7 +98,7 @@ watch(
 watch(
   () => props.updateSearch,
   () => {
-    activePage.value = 1;
+    activePage.value = 0;
   }
 );
 
