@@ -1,6 +1,12 @@
 <template>
   <div v-if="activePage === 0 && detailsIri">
-    {{ detailsIri }}
+    <ParentHeader
+      v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
+      :entity="detailsEntity"
+      @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+      :showSelectButton="true"
+      @entitySelected="(iri: string) => onSelect()"
+    />
     <Viewer
       :entityIri="detailsIri"
       @navigateTo="
@@ -47,10 +53,11 @@ import { ref } from "vue";
 import { onMounted, watch } from "vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import { EntityService, QueryService } from "@/services";
-import { RDF } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isConcept, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import SelectedSet from "./SelectedSet.vue";
+import ParentHeader from "@/components/directory/ParentHeader.vue";
 
 interface Props {
   selectedIri: string;
@@ -61,12 +68,12 @@ interface Props {
   selectedPath: Match | undefined;
 }
 
-const emit = defineEmits({ navigateTo: (payload: string) => payload, "update:selectedPath": payload => payload });
+const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": payload => payload });
 const props = defineProps<Props>();
 const detailsIri: Ref<string> = ref("");
 const activePage: Ref<number> = ref(0);
 const selectedSet: Ref<Set<string>> = ref(new Set<string>());
-const detailsEntityType: Ref<TTIriRef[]> = ref([]);
+const detailsEntity: Ref<any> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
 const showDialog: Ref<boolean> = ref(false);
 watch(
@@ -78,7 +85,7 @@ watch(
 
 watch(
   () => detailsIri.value,
-  async () => await setEntityType()
+  async () => await setEntity()
 );
 
 watch(
@@ -92,19 +99,18 @@ onMounted(() => init());
 
 function init() {
   detailsIri.value = props.selectedIri;
-  setEntityType();
+  setEntity();
 }
 
-async function setEntityType() {
+async function setEntity() {
   if (detailsIri.value) {
-    const responseEntity = await EntityService.getPartialEntity(detailsIri.value, [RDF.TYPE]);
-    if (isObjectHasKeys(responseEntity, [RDF.TYPE])) detailsEntityType.value = responseEntity[RDF.TYPE];
+    detailsEntity.value = await EntityService.getEntityByPredicateExclusions(detailsIri.value, [IM.HAS_MEMBER]);
   }
 }
 
 async function onSelect() {
   if (props.selectedPath) {
-    if (isConcept(detailsEntityType.value) || isValueSet(detailsEntityType.value)) await addToSelectedList();
+    if (isConcept(detailsEntity.value[RDF.TYPE]) || isValueSet(detailsEntity.value[RDF.TYPE])) await addToSelectedList();
     else {
       // show that this is invalid with toast
     }

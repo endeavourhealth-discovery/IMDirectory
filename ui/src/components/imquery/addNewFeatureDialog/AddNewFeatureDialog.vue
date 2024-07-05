@@ -37,6 +37,7 @@
                     :im-query="imQuery"
                     :data-model-iri="dataModelIri"
                     v-model:selected-path="selectedPath"
+                    @locate-in-tree="iri => (treeIri = iri)"
                   />
                 </div>
               </div>
