@@ -34,8 +34,7 @@
     @onClose="showDialog = false"
   />
 
-  {{ selectedSet }}
-
+  <SelectedSet :selected-set="selectedSet" />
   <!-- TODO: Component with 2 subcombonents - one for search results(SearchResults?+EclSearch?+IMQuerySearch?)/details(DirectoryDetails?) and one for selected list(ConceptSelect?) -->
 </template>
 
@@ -51,6 +50,8 @@ import { EntityService, QueryService } from "@/services";
 import { RDF } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isConcept, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import SelectedSet from "./SelectedSet.vue";
+
 interface Props {
   selectedIri: string;
   searchTerm: string;
