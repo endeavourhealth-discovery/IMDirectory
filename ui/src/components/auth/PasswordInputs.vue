@@ -11,7 +11,7 @@
         data-testid="password-old"
         id="passwordOld"
         :pt="{
-          input: { root: { 'data-testid': testId + 'old' } }
+          'pc-input': { root: { 'data-testid': testId + 'old' } }
         }"
       />
     </div>
@@ -29,7 +29,7 @@
         data-testid="password-new1"
         id="password"
         :pt="{
-          input: { root: { 'data-testid': testId + 'new1' } }
+          'pc-input': { root: { 'data-testid': testId + 'new1' } }
         }"
         :overlayVisible="true"
         strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
@@ -66,7 +66,7 @@
         data-testid="password-new2"
         id="password2"
         :pt="{
-          input: { root: { 'data-testid': testId + 'new2' } }
+          'pc-input': { root: { 'data-testid': testId + 'new2' } }
         }"
       />
     </div>
