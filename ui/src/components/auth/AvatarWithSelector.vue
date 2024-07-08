@@ -9,7 +9,12 @@
         from
         <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
       </div>
-      <SelectButton data-testid="avatar-button-options" v-model="newAvatar" :options="avatarOptions">
+      <SelectButton
+        data-testid="avatar-button-options"
+        v-model="newAvatar"
+        :options="avatarOptions"
+        :pt="{ 'pc-button': { root: { 'data-testid': 'avatar-select-button' } } }"
+      >
         <template #option="{ option }: any">
           <img class="avatar-select avatar-icon" :src="`/avatars/${option}`" alt="avatar icon" />
         </template>
@@ -80,6 +85,22 @@ function toggleAvatarSelect(event: any): void {
 .avatar-popup {
   width: 25em;
   height: 40vh;
+  overflow-y: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.avatar-popup > .p-popover-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  max-height: 100%;
+}
+
+.avatar-popup > .p-popover-content > .p-selectbutton {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row wrap;
   overflow-y: auto;
 }
 

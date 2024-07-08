@@ -1,7 +1,7 @@
 import Register from "@/components/auth/Register.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
-import InlineMessage from "primevue/inlinemessage";
+import Message from "primevue/message";
 import Button from "primevue/button";
 import SelectButton from "primevue/selectbutton";
 import Popover from "primevue/popover";
@@ -42,7 +42,7 @@ describe("register.vue empty", () => {
     component = render(Register, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage, SelectButton, Popover, Checkbox },
+        components: { Card, Button, InputText, Message, SelectButton, Popover, Checkbox },
         stubs: { "router-link": true }
       }
     });
@@ -70,7 +70,7 @@ describe("register.vue prefilled", () => {
     component = render(Register, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage, SelectButton, Popover, Checkbox },
+        components: { Card, Button, InputText, Message, SelectButton, Popover, Checkbox },
         stubs: { "router-link": true }
       }
     });

@@ -29,14 +29,14 @@ describe("AvatarWithSelector.vue", () => {
   it("starts with a list of avatars", async () => {
     const avatarOpButton = component.getByTestId("avatar-op-button");
     await fireEvent.click(avatarOpButton);
-    const buttons = within(component.getByTestId("avatar-button-options")).getAllByRole("radio");
+    const buttons = within(component.getByTestId("avatar-button-options")).getAllByTestId("avatar-select-button");
     expect(buttons.length).to.equal(100);
   });
 
   it("renders correct image after change", async () => {
     const avatarOpButton = component.getByTestId("avatar-op-button");
     await fireEvent.click(avatarOpButton);
-    const buttons = within(component.getByTestId("avatar-button-options")).getAllByRole("radio");
+    const buttons = within(component.getByTestId("avatar-button-options")).getAllByTestId("avatar-select-button");
     await fireEvent.click(buttons[12]);
     expect(component.emitted()).to.contain.keys("avatarSelected");
     expect((component.emitted()["avatarSelected"][0] as any)[0]).to.equal("colour/013-woman.png");
