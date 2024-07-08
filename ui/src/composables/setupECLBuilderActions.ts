@@ -114,16 +114,18 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
 
   function group(draggedItem: any, dropzoneItem: any, parent: any, index?: number) {
     console.log("group");
-    const conjunction = parent.conjunction === "OR" ? "AND" : "OR";
+    const conjunction = parent.conjunction === "or" ? "and" : "or";
     const newBoolGroup = { type: "BoolGroup", conjunction: conjunction, items: [] as any[] };
     newBoolGroup.items.push(draggedItem);
     newBoolGroup.items.push(dropzoneItem);
     if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items)) {
       parent.items = parent.items.filter(
         (parentItem: any) =>
-          dropzoneItem.conjunction !== parentItem.conjunction ||
-          dropzoneItem.conceptSingle !== parentItem.conceptSingle ||
-          dropzoneItem.constraintOperator !== parentItem.constraintOperator
+          !(
+            dropzoneItem.conjunction === parentItem.conjunction &&
+            dropzoneItem.conceptSingle === parentItem.conceptSingle &&
+            dropzoneItem.constraintOperator === parentItem.constraintOperator
+          )
       );
       if (index) parent.items.splice(index, 0, newBoolGroup);
       else parent.items.push(newBoolGroup);
@@ -134,11 +136,22 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   function onDragEnd(draggedItem: any, parent: any) {
     if (wasDraggedAndDropped.value && isObjectHasKeys(parent, ["items"])) {
       console.log(parent.items);
+      for (const parentItem of parent.items) {
+        console.log(
+          !(
+            draggedItem.conjunction !== parentItem.conjunction &&
+            draggedItem.conceptSingle !== parentItem.conceptSingle &&
+            draggedItem.constraintOperator !== parentItem.constraintOperator
+          )
+        );
+      }
       parent.items = parent.items.filter(
         (parentItem: any) =>
-          draggedItem.conjunction !== parentItem.conjunction &&
-          draggedItem.conceptSingle !== parentItem.conceptSingle &&
-          draggedItem.constraintOperator !== parentItem.constraintOperator
+          !(
+            draggedItem.conjunction !== parentItem.conjunction &&
+            draggedItem.conceptSingle !== parentItem.conceptSingle &&
+            draggedItem.constraintOperator !== parentItem.constraintOperator
+          )
       );
     }
     console.log(parent.items);
