@@ -129,7 +129,6 @@ async function onSearch() {
 
 #autocomplete-search {
   font-size: 1rem;
-  border: none;
   height: 2.25rem;
   flex: 1 1 auto;
   width: 100%;
@@ -141,5 +140,9 @@ async function onSearch() {
 
 .search-button {
   height: 2.25rem;
+}
+
+.p-inputicon {
+  color: var(--p-inputtext-color);
 }
 </style>

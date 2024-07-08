@@ -207,9 +207,6 @@ function hasData() {
   min-width: 25rem;
   align-items: center;
 }
-.p-float-label {
-  flex: 1 1 auto;
-}
 .loading-icon {
   flex: 0 0 auto;
 }

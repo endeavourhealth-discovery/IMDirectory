@@ -4,10 +4,10 @@
     <Popover id="overlay-context-menu" ref="menu" v-if="displayMenu" :style="{ width: '300px', top: overlayTop + 'px' }">
       <div class="p-field">
         <div class="p-inputgroup">
-          <span class="p-float-label">
+          <FloatLabel>
             <MultiSelect id="properties" v-model="selected" :options="multiselectMenu" optionLabel="label" display="chip" @change="change($event)" />
             <label for="properties">Select Properties</label>
-          </span>
+          </FloatLabel>
         </div>
       </div>
     </Popover>
