@@ -36,10 +36,10 @@
     </div>
     <div class="filters-container">
       <div class="status-filter p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="onSearch()" :options="statusOptions" display="chip" />
           <label for="status">Select status:</label>
-        </span>
+        </FloatLabel>
       </div>
     </div>
     <div class="results-container">

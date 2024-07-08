@@ -45,10 +45,10 @@
     <div class="flex-container content-container" v-if="displayLegacyOptions">
       <div class="p-field">
         <div class="p-inputgroup">
-          <span class="p-float-label">
+          <FloatLabel>
             <MultiSelect id="scheme" v-model="selectedSchemes" :options="schemesOptions" optionLabel="name" display="chip" />
             <label for="scheme">Filter Legacy Scheme</label>
-          </span>
+          </FloatLabel>
         </div>
       </div>
     </div>

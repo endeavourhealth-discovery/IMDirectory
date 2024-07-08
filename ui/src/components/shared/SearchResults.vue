@@ -2,22 +2,22 @@
   <div id="search-results-main-container">
     <div v-if="showFilters" class="filters-container">
       <div class="p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" optionLabel="name" display="chip" />
           <label for="status">Select status:</label>
-        </span>
+        </FloatLabel>
       </div>
       <div class="p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" optionLabel="name" display="chip" />
           <label for="scheme">Select scheme:</label>
-        </span>
+        </FloatLabel>
       </div>
       <div class="p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" optionLabel="name" display="chip" />
           <label for="type">Select concept type:</label>
-        </span>
+        </FloatLabel>
       </div>
     </div>
     <div v-if="showQuickTypeFilters && quickTypeFiltersAllowed" class="quick-type-filters">
@@ -189,5 +189,9 @@ label {
 .heading {
   padding-left: 0.5rem;
   margin: 0;
+}
+
+.p-multiselect {
+  width: 100%;
 }
 </style>

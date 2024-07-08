@@ -284,10 +284,15 @@ function onOpenTab(predicate: string) {
   overflow: auto;
 }
 
-.p-tabview {
+.p-tabs {
   height: 100%;
   display: flex;
   flex-flow: column nowrap;
+  overflow: auto;
+}
+
+.p-tabpanels {
+  flex: 1 1 auto;
   overflow: auto;
 }
 
