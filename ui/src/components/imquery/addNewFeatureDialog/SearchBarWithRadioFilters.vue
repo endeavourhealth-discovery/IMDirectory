@@ -43,7 +43,9 @@ const typeOptions: Ref<TypeOption[]> = ref([
   { name: "Concept", rootIri: "http://endhealth.info/im#HealthModelOntology", typeIri: IM.CONCEPT },
   { name: "Concept set", rootIri: IM.FOLDER_SETS, typeIri: IM.CONCEPT_SET },
   { name: "Property", rootIri: "http://endhealth.info/im#Properties", typeIri: IM.DATAMODEL_PROPERTY },
-  { name: "Data model", rootIri: "http://endhealth.info/im#DataModels", typeIri: SHACL.NODESHAPE }
+  { name: "Data model", rootIri: "http://endhealth.info/im#DataModels", typeIri: SHACL.NODESHAPE },
+  { name: "Feature", rootIri: "http://endhealth.info/im#M_MatchClauses", typeIri: IM.MATCH_CLAUSE },
+  { name: "Cohort", rootIri: "http://endhealth.info/im#Q_Queries", typeIri: IM.COHORT_QUERY }
 ]);
 
 onMounted(async () => {});

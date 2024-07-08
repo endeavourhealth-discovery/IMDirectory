@@ -61,10 +61,9 @@
               aria-controls="overlay_menu"
               severity="success"
               class="add-feature-button"
-              @click.stop="event => addFeatureMenu.toggle(event)"
+              @click.stop="showBuildFeature = true"
               :disabled="!selectedBaseType"
             />
-            <Menu ref="addFeatureMenu" id="overlay_menu" :model="addOptions" :popup="true" />
             <AddMatch
               v-model:show-add-feature="showAddFeature"
               v-model:show-add-population="showAddPopulation"
@@ -186,26 +185,6 @@ const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
-const addOptions = [
-  {
-    label: "Add new feature",
-    command: () => {
-      showBuildFeature.value = true;
-    }
-  },
-  {
-    label: "Add parent cohort",
-    command: () => {
-      showAddPopulation.value = true;
-    }
-  },
-  {
-    label: "Add existing feature",
-    command: () => {
-      showAddFeature.value = true;
-    }
-  }
-];
 onMounted(() => {
   if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
 });
