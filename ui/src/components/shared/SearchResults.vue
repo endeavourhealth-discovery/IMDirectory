@@ -39,8 +39,11 @@
       :selected-filter-options="selectedFilterOptions"
       :rows="rows"
       :im-query="imQuery"
+      :show-select="showSelect"
       @rowSelected="updateSelected"
-      @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+      @locateInTree="(iri: string) => emit('locateInTree', iri)"
+      @viewHierarchy="(iri: string) => emit('viewHierarchy', iri)"
+      @addToList="(iri: string) => emit('addToList', iri)"
     />
   </div>
 </template>
@@ -64,6 +67,7 @@ interface Props {
   quickTypeFiltersAllowed?: string[];
   selectedQuickTypeFilter?: string;
   imQuery?: QueryRequest;
+  showSelect?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
@@ -75,7 +79,9 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  selectedFiltersUpdated: (_payload: FilterOptions) => true
+  selectedFiltersUpdated: (_payload: FilterOptions) => true,
+  addToList: (_payload: string) => true,
+  viewHierarchy: (_payload: string) => true
 });
 
 const filterStore = useFilterStore();

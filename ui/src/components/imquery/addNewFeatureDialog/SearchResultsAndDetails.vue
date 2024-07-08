@@ -1,5 +1,5 @@
 <template>
-  <TabView v-model:activeIndex="activePage">
+  <TabView v-if="detailsIri || searchTerm" v-model:activeIndex="activePage">
     <TabPanel header="Search">
       <SearchResults
         v-if="activePage === 0"
@@ -8,12 +8,20 @@
         :search-term="searchTerm"
         :im-query="imQuery"
         :rows="10"
+        :show-select="true"
         @selectedUpdated="
           summary => {
             detailsIri = summary.iri;
             activePage = 1;
           }
         "
+        @viewHierarchy="
+          (iri: string) => {
+            detailsIri = iri;
+            activePage = 1;
+          }
+        "
+        @addToList="(iri: string) => onSelect(iri)"
       />
     </TabPanel>
     <TabPanel header="Details">
@@ -21,23 +29,30 @@
         <ParentHeader
           v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
           :entity="detailsEntity"
+          :showSelect="true"
           @locateInTree="(iri: string) => $emit('locateInTree', iri)"
-          :showSelectButton="true"
-          @entitySelected="(iri: string) => onSelect()"
+          @viewHierarchy="
+            (iri: string) => {
+              detailsIri = iri;
+              activePage = 1;
+            }
+          "
+          @addToList="(iri: string) => onSelect(iri)"
         />
         <div><b>Hierarhcy tree</b></div>
         <SecondaryTree
           :entityIri="detailsIri"
+          :show-select="true"
           @navigateTo="
             (iri: string) => {
               detailsIri = iri;
             }
           "
+          @onSelect="onSelect"
         />
       </div>
     </TabPanel>
   </TabView>
-  <Button label="Select" @click="onSelect" />
 
   <PathSelectDialog
     v-bind:showDialog="showDialog"
@@ -115,21 +130,22 @@ async function setEntity() {
   }
 }
 
-async function onSelect() {
+async function onSelect(iri: string) {
+  const entityType = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
   if (props.selectedPath) {
-    if (isConcept(detailsEntity.value[RDF.TYPE]) || isValueSet(detailsEntity.value[RDF.TYPE])) await addToSelectedList();
+    if (isConcept(entityType[RDF.TYPE]) || isValueSet(entityType[RDF.TYPE])) await addToSelectedList(iri);
     else {
       // show that this is invalid with toast
     }
   } else {
-    await setQueryPath();
-    addToSelectedList();
+    await setQueryPath(iri);
+    addToSelectedList(iri);
   }
 }
 
-async function setQueryPath() {
-  if (detailsIri.value) {
-    const pathQuery = { source: { "@id": props.dataModelIri }, target: { "@id": detailsIri.value } } as PathQuery;
+async function setQueryPath(iri: string) {
+  if (iri) {
+    const pathQuery = { source: { "@id": props.dataModelIri }, target: { "@id": iri } } as PathQuery;
     const response = await QueryService.pathQuery(pathQuery);
     console.log(response);
     if (response.match.length === 1) emit("update:selectedPath", response.match[0]);
@@ -140,9 +156,9 @@ async function setQueryPath() {
   }
 }
 
-async function addToSelectedList() {
+async function addToSelectedList(iri: string) {
   const isValidSelection = await isValidValueForSelectedPath();
-  if (isValidSelection) selectedSet.value.add(detailsIri.value);
+  if (isValidSelection) selectedSet.value.add(iri);
 }
 
 async function isValidValueForSelectedPath() {

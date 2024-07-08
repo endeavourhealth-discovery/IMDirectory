@@ -10,6 +10,15 @@
       data-testid="select-button"
     />
     <Button
+      v-if="show('viewHierarchy')"
+      icon="fa-duotone fa-sitemap"
+      :severity="getSeverity()"
+      :class="getClass()"
+      @click.stop="emit('viewHierarchy', iri)"
+      v-tooltip.top="'View hierarchy'"
+      data-testid="hierarchy-button"
+    />
+    <Button
       v-if="show('view')"
       icon="fa-duotone fa-up-right-from-square"
       :severity="getSeverity()"
@@ -49,6 +58,15 @@
       data-testid="favourite-button"
       :loading="loadingFavourites"
     />
+    <Button
+      v-if="show('addToList')"
+      icon="fa-regular fa-square-plus"
+      :severity="getSeverity()"
+      :class="getClass()"
+      @click.stop="emit('addToList', iri)"
+      v-tooltip.top="'Add to list'"
+      data-testid="add-button"
+    />
   </div>
 </template>
 
@@ -79,7 +97,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits({
-  locateInTree: (_payload: string) => true
+  locateInTree: (_payload: string) => true,
+  addToList: (_payload: string) => true,
+  viewHierarchy: (_payload: string) => true
 });
 
 const loadingFavourites = ref(false);
