@@ -56,6 +56,7 @@ import { CodeTemplate } from "./CodeTemplate";
 import { ExtendedSearchResultSummary } from "./ExtendedSearchResultSummary";
 import { SearchOptions } from "./SearchOptions";
 import { ValidatedEntity } from "./ValidatedEntity";
+import { DownloadSettings } from "./DownloadSettings";
 
 export {
   type Address,
@@ -116,5 +117,6 @@ export {
   type CodeTemplate,
   type ExtendedSearchResultSummary,
   type SearchOptions,
-  type ValidatedEntity
+  type ValidatedEntity,
+  type DownloadSettings
 };

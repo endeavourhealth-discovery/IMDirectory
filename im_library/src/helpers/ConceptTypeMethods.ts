@@ -4,6 +4,7 @@
 // Everything else
 
 import { TTIriRef } from "../interfaces/AutoGen";
+import { IM, RDF, SHACL } from "../vocabulary";
 import { IM, OWL, RDF, SHACL } from "../vocabulary";
 import palette from "google-palette";
 

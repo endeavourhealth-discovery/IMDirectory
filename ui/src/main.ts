@@ -2,6 +2,7 @@ import { createApp, ComponentPublicInstance } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import PrimeVue from "primevue/config";
+import Aura from "@primevue/themes/aura";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
 import axios from "axios";
@@ -26,7 +27,6 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 // PrimeVue Components
 import Card from "primevue/card";
-import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import InputText from "primevue/inputtext";
 import Tree from "primevue/tree";
@@ -34,7 +34,9 @@ import Divider from "primevue/divider";
 import Button from "primevue/button";
 import Panel from "primevue/panel";
 import Accordion from "primevue/accordion";
-import AccordionTab from "primevue/accordiontab";
+import AccordionPanel from "primevue/accordionpanel";
+import AccordionHeader from "primevue/accordionheader";
+import AccordionContent from "primevue/accordioncontent";
 import ScrollPanel from "primevue/scrollpanel";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
@@ -45,18 +47,17 @@ import ColumnGroup from "primevue/columngroup"; //optional for column grouping
 import FileUpload from "primevue/fileupload";
 import OrganizationChart from "primevue/organizationchart";
 import Textarea from "primevue/textarea";
-import Dropdown from "primevue/dropdown";
+import Select from "primevue/select";
 import ConfirmDialog from "primevue/confirmdialog";
 import Tooltip from "primevue/tooltip";
 import Dialog from "primevue/dialog";
 import SplitButton from "primevue/splitbutton";
 import MultiSelect from "primevue/multiselect";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import Chart from "primevue/chart";
 import Menu from "primevue/menu";
 import ProgressSpinner from "primevue/progressspinner";
 import Menubar from "primevue/menubar";
-import InlineMessage from "primevue/inlinemessage";
 import Message from "primevue/message";
 import ConfirmationService from "primevue/confirmationservice";
 import Avatar from "primevue/avatar";
@@ -68,18 +69,15 @@ import Toast from "primevue/toast";
 import Checkbox from "primevue/checkbox";
 import PickList from "primevue/picklist";
 import ContextMenu from "primevue/contextmenu";
-import { FilterMatchMode, FilterOperator } from "primevue/api";
 import RadioButton from "primevue/radiobutton";
 import ConfirmPopup from "primevue/confirmpopup";
-import InputSwitch from "primevue/inputswitch";
+import ToggleSwitch from "primevue/toggleswitch";
 import StyleClass from "primevue/styleclass";
 import Tag from "primevue/tag";
 import AutoComplete from "primevue/autocomplete";
 import Breadcrumb from "primevue/breadcrumb";
-import Sidebar from "primevue/sidebar";
-import Chips from "primevue/chips";
+import Drawer from "primevue/drawer";
 import DataView from "primevue/dataview";
-import Steps from "primevue/steps";
 import Chip from "primevue/chip";
 import ToggleButton from "primevue/togglebutton";
 import Skeleton from "primevue/skeleton";
@@ -87,18 +85,26 @@ import DialogService from "primevue/dialogservice";
 import DynamicDialog from "primevue/dynamicdialog";
 import Image from "primevue/image";
 import InputNumber from "primevue/inputnumber";
-import Calendar from "primevue/calendar";
+import DatePicker from "primevue/datepicker";
 import TreeSelect from "primevue/treeselect";
 import Inplace from "primevue/inplace";
 import TieredMenu from "primevue/tieredmenu";
-import TabMenu from "primevue/tabmenu";
 import Ripple from "primevue/ripple";
 import VirtualScroller from "primevue/virtualscroller";
 import Fieldset from "primevue/fieldset";
 import Stepper from "primevue/stepper";
-import StepperPanel from "primevue/stepperpanel";
+import StepList from "primevue/steplist";
+import StepPanels from "primevue/steppanels";
+import StepItem from "primevue/stepitem";
+import Step from "primevue/step";
+import StepPanel from "primevue/steppanel";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
+import Tabs from "primevue/tabs";
+import TabList from "primevue/tablist";
+import Tab from "primevue/tab";
+import TabPanels from "primevue/tabpanels";
+import FloatLabel from "primevue/floatlabel";
 
 import { VueShowdownPlugin } from "vue-showdown";
 
@@ -119,7 +125,7 @@ const pinia = createPinia();
 const app = createApp(App)
   .use(pinia)
   .use(router)
-  .use(PrimeVue, { ripple: true, local: { dateFormat: "dd/mm/yyyy" } })
+  .use(PrimeVue, { ripple: true, local: { dateFormat: "dd/mm/yyyy" }, theme: { preset: Aura, options: { darkModeSelector: ".my-app-dark" } } })
   .use(ConfirmationService)
   .use(ToastService)
   .use(DialogService)
@@ -134,7 +140,6 @@ const app = createApp(App)
   .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
   .component("Card", Card)
   .component("ProgressSpinner", ProgressSpinner)
-  .component("TabView", TabView)
   .component("TabPanel", TabPanel)
   .component("InputText", InputText)
   .component("Tree", Tree)
@@ -142,7 +147,9 @@ const app = createApp(App)
   .component("Button", Button)
   .component("Panel", Panel)
   .component("Accordion", Accordion)
-  .component("AccordionTab", AccordionTab)
+  .component("AccordionPanel", AccordionPanel)
+  .component("AccordionHeader", AccordionHeader)
+  .component("AccordionContent", AccordionContent)
   .component("ScrollPanel", ScrollPanel)
   .component("Splitter", Splitter)
   .component("SplitterPanel", SplitterPanel)
@@ -152,16 +159,15 @@ const app = createApp(App)
   .component("ColumnGroup", ColumnGroup)
   .component("OrganizationChart", OrganizationChart)
   .component("Textarea", Textarea)
-  .component("Dropdown", Dropdown)
+  .component("Select", Select)
   .component("ConfirmDialog", ConfirmDialog)
   .component("Dialog", Dialog)
   .component("SplitButton", SplitButton)
   .component("MultiSelect", MultiSelect)
-  .component("OverlayPanel", OverlayPanel)
+  .component("Popover", Popover)
   .component("Menu", Menu)
   .component("Chart", Chart)
   .component("Menubar", Menubar)
-  .component("InlineMessage", InlineMessage)
   .component("Message", Message)
   .component("Avatar", Avatar)
   .component("MegaMenu", MegaMenu)
@@ -172,35 +178,39 @@ const app = createApp(App)
   .component("PickList", PickList)
   .component("FileUpload", FileUpload)
   .component("ContextMenu", ContextMenu)
-  .component("FilterMatchMode", FilterMatchMode)
-  .component("FilterOperator", FilterOperator)
   .component("RadioButton", RadioButton)
   .component("ConfirmPopup", ConfirmPopup)
-  .component("InputSwitch", InputSwitch)
+  .component("ToggleSwitch", ToggleSwitch)
   .component("AutoComplete", AutoComplete)
   .component("Breadcrumb", Breadcrumb)
-  .component("Sidebar", Sidebar)
-  .component("Chips", Chips)
+  .component("Drawer", Drawer)
   .component("DataView", DataView)
   .component("Tag", Tag)
-  .component("Steps", Steps)
   .component("Chip", Chip)
   .component("ToggleButton", ToggleButton)
   .component("Skeleton", Skeleton)
   .component("DynamicDialog", DynamicDialog)
   .component("Image", Image)
-  .component("Calendar", Calendar)
+  .component("DatePicker", DatePicker)
   .component("InputNumber", InputNumber)
   .component("Inplace", Inplace)
   .component("TieredMenu", TieredMenu)
   .component("TreeSelect", TreeSelect)
   .component("VirtualScroller", VirtualScroller)
-  .component("TabMenu", TabMenu)
   .component("Stepper", Stepper)
-  .component("StepperPanel", StepperPanel)
+  .component("StepPanels", StepPanels)
+  .component("StepList", StepList)
+  .component("StepPanel", StepPanel)
+  .component("StepItem", StepItem)
+  .component("Step", Step)
   .component("IconField", IconField)
   .component("InputIcon", InputIcon)
-  .component("Fieldset", Fieldset);
+  .component("Fieldset", Fieldset)
+  .component("Tabs", Tabs)
+  .component("TabList", TabList)
+  .component("Tab", Tab)
+  .component("TabPanels", TabPanels)
+  .component("FloatLabel", FloatLabel);
 
 const sharedStore = useSharedStore();
 

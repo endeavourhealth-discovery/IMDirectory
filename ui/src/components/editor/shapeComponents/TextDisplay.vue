@@ -207,9 +207,6 @@ function hasData() {
   min-width: 25rem;
   align-items: center;
 }
-.p-float-label {
-  flex: 1 1 auto;
-}
 .loading-icon {
   flex: 0 0 auto;
 }
@@ -234,11 +231,11 @@ function hasData() {
 }
 
 .invalid {
-  border-color: var(--red-500);
+  border-color: var(--p-red-500);
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

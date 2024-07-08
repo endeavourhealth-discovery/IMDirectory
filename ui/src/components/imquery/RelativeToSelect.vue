@@ -1,6 +1,6 @@
 <template>
   <InputText type="text" v-model="propertyDisplay" @click="showDialog" placeholder="relative to" />
-  <Dialog v-model:visible="showTreeSearch" modal header="Select property" :style="{ backgroundColor: 'var(--surface-section)' }">
+  <Dialog v-model:visible="showTreeSearch" modal header="Select property" :style="{ backgroundColor: 'var(--p-surface-section)' }">
     <div class="relative-to-select-dialog">
       <InputText type="text" v-model="searchTerm" />
       <Tree
@@ -153,7 +153,7 @@ async function getVariableOptions(searchTerm?: string) {
 }
 
 function selectPrepopulatedValue(options: TreeNode[], searchTerm?: string) {
-  selectedNode.value = {};
+  selectedNode.value = undefined;
   if (searchTerm) {
     const splits = searchTerm.split(" -> ");
     if (isArrayHasLength(splits)) {

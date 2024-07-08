@@ -3,30 +3,36 @@
     <div class="ecl-container">
       <div class="text-copy-container">
         <div id="definition-panel-container">
-          <TabView class="ecl-tabview">
-            <TabPanel class="tabview-panel" header="ECL">
-              <div class="ecl-panel">
-                <Textarea
-                  v-model="ecl"
-                  id="ecl-string-container"
-                  :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
-                  :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
-                  data-testid="ecl-string"
-                  :disabled="loading"
-                  @dragenter.prevent
-                  @dragover.prevent
-                  @drop="dropReceived($event)"
-                />
-                <div class="show-names-container">
-                  <label for="">Show names</label>
-                  <Checkbox v-model="showNames" :binary="true" />
+          <Tabs value="0" class="ecl-tabview">
+            <TabList>
+              <Tab value="0">ECL</Tab>
+              <Tab value="1">Display</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel value="0" class="tabview-panel">
+                <div class="ecl-panel">
+                  <Textarea
+                    v-model="ecl"
+                    id="ecl-string-container"
+                    :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
+                    :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
+                    data-testid="ecl-string"
+                    :disabled="loading"
+                    @dragenter.prevent
+                    @dragover.prevent
+                    @drop="dropReceived($event)"
+                  />
+                  <div class="show-names-container">
+                    <label for="">Show names</label>
+                    <Checkbox v-model="showNames" :binary="true" />
+                  </div>
                 </div>
-              </div>
-            </TabPanel>
-            <TabPanel header="Display">
-              <QueryDisplay :definition="value" />
-            </TabPanel>
-          </TabView>
+              </TabPanel>
+              <TabPanel value="1">
+                <QueryDisplay :definition="value" />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </div>
       </div>
       <div class="button-container">
@@ -314,7 +320,7 @@ Textarea {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 #definition-panel-container:deep(.p-tabview-panels) {
@@ -347,11 +353,11 @@ Textarea {
 }
 
 .subsets-panel:deep(.p-panel-header) {
-  background: var(--surface-a);
+  background: var(--p-surface-a);
 }
 
 .ecl-tabview {
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-surface-border);
 }
 
 .ecl-panel {

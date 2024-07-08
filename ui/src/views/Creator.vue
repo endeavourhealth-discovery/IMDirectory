@@ -579,7 +579,7 @@ function processEntityValue(property: PropertyShape) {
 }
 
 .required-info {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 .button-bar {

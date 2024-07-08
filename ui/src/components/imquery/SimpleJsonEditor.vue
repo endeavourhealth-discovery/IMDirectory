@@ -48,7 +48,7 @@ function onChange() {
 
 <style scoped>
 .error-message {
-  color: var(--red-800);
+  color: var(--p-red-800);
 }
 
 .json-string {

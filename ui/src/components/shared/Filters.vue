@@ -3,13 +3,13 @@
     <div class="quick-filters-container">
       <div class="quick-filter-container">
         <label>Include legacy:</label>
-        <InputSwitch v-model="includeLegacy" @change="emitFilterUpdate()" />
+        <ToggleSwitch v-model="includeLegacy" @change="emitFilterUpdate()" />
       </div>
     </div>
 
     <div class="p-field">
       <div class="p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect
             id="status"
             optionLabel="name"
@@ -20,13 +20,13 @@
           />
           <label for="status">Select status:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetStatus" v-tooltip="'Reset status filters'" />
-        </span>
+        </FloatLabel>
       </div>
     </div>
 
     <div class="p-field">
       <div class="p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect
             id="scheme"
             optionLabel="name"
@@ -37,13 +37,13 @@
           />
           <label for="scheme">Select scheme:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetSchemes" v-tooltip="'Reset scheme filters'" />
-        </span>
+        </FloatLabel>
       </div>
     </div>
 
     <div class="p-field">
       <div class="p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect
             id="conceptType"
             optionLabel="name"
@@ -54,7 +54,7 @@
           />
           <label for="conceptType">Select concept type:</label>
           <Button icon="fa-solid fa-rotate-left" severity="secondary" @click="resetTypes" v-tooltip="'Reset type filters'" />
-        </span>
+        </FloatLabel>
       </div>
     </div>
   </div>

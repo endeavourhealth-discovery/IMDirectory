@@ -10,10 +10,10 @@
 </template>
 
 <script setup lang="ts">
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { SearchTermCode } from "@im-library/interfaces/AutoGen";
 
 interface Props {
-  terms: { term: string; code: string; status: TTIriRef }[];
+  terms: SearchTermCode[];
 }
 
 const props = defineProps<Props>();

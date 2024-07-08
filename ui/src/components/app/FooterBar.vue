@@ -3,7 +3,7 @@
     <div id="footer-start">
       <IMFontAwesomeIcon
         icon="fa-duotone fa-cookie-bite"
-        :style="'--fa-primary-color: var(--orange-900); --fa-secondary-color: var(--yellow-500)'"
+        :style="'--fa-primary-color: var(--p-orange-900); --fa-secondary-color: var(--p-yellow-500);'"
         class="footer-icon"
         v-tooltip.right="'Cookie settings'"
         @click="showCookieSettings"
@@ -35,11 +35,10 @@ function showCookieSettings() {
   flex: 0 0 auto;
   width: 100%;
   height: 3rem;
-  background-color: var(--surface-0);
   display: flex;
   flex-flow: row nowrap;
   overflow: hidden;
-  border-top: 1px solid var(--surface-border);
+  border-top: 1px solid var(--p-surface-border);
 }
 
 #footer-start {

@@ -83,8 +83,7 @@ function isValidAddress(address: string) {
 async function submitAddress() {
   if (!validAddress.value) {
     searchResults.value = undefined;
-    invalidErrorMessage.value =
-        "Address is invalid. Please ensure the address is at least 10 characters";
+    invalidErrorMessage.value = "Address is invalid. Please ensure the address is at least 10 characters";
     showInvalid.value = true;
     toast.add({ severity: "warn", summary: "Error", detail: invalidErrorMessage.value, life: 3000 });
     return;
@@ -288,6 +287,6 @@ tbody {
 }
 
 .invalid {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

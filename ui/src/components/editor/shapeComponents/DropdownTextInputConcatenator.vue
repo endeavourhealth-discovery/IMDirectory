@@ -6,7 +6,7 @@
         <span v-if="showRequired" class="required">*</span>
       </div>
       <div class="content-container">
-        <Dropdown :disabled="loading" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
+        <Select :disabled="loading" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
         <InputText :disabled="loading" class="p-inputtext-lg input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
         <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
       </div>
@@ -237,13 +237,13 @@ function hasData() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .title-bar {
@@ -253,6 +253,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

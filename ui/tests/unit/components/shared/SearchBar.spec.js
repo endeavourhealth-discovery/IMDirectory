@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import testData from "./SearchBar.testData";
 import PrimeVue from "primevue/config";
 import SplitButton from "primevue/splitbutton";
@@ -44,7 +44,7 @@ describe("SearchBar.vue", () => {
     queryIMSpy = vi.spyOn(QueryService, "queryIM").mockResolvedValue(testData.SEARCH_RESULTS);
     component = render(SearchBar, {
       global: {
-        components: { InputText, Button, OverlayPanel, SplitButton, InputIcon, IconField },
+        components: { InputText, Button, Popover, SplitButton, InputIcon, IconField },
         plugins: [PrimeVue],
         stubs: { Filters: true },
         directives: { tooltip: Tooltip }
