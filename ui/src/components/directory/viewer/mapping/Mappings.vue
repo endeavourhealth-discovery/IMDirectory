@@ -56,7 +56,7 @@
       </template>
     </OrganizationChart>
 
-    <OverlayPanel ref="opMap" id="overlay-panel-maps">
+    <Popover ref="opMap" id="overlay-panel-maps">
       <div class="flex flex-column justify-contents-start map-overlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
@@ -66,25 +66,25 @@
           {{ hoveredResult.assuranceLevel }}
         </p>
       </div>
-    </OverlayPanel>
+    </Popover>
 
-    <OverlayPanel ref="opMatchedFrom" id="overlay-panel-simple-maps">
+    <Popover ref="opMatchedFrom" id="overlay-panel-simple-maps">
       <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedFromOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
         <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
       </div>
-    </OverlayPanel>
+    </Popover>
 
-    <OverlayPanel ref="opMatchedTo" id="overlay-panel-simple-maps">
+    <Popover ref="opMatchedTo" id="overlay-panel-simple-maps">
       <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedToOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
         <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
       </div>
-    </OverlayPanel>
+    </Popover>
     <div class="context-table">
       <DataTable v-model:expandedRows="contextExpandedRows" :value="contextMaps" dataKey="id">
         <Column expander style="width: 5rem" />
@@ -345,24 +345,24 @@ function handleMatchedToToggle(event: any, data: any) {
 <style scoped>
 td,
 th {
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-surface-border);
   padding: 0.5rem;
   text-align: left;
   overflow-wrap: break-word;
 }
 
 tr:nth-child(even) {
-  background-color: var(--surface-a);
+  background-color: var(--p-surface-a);
 }
 
 th[scope="col"] {
-  background-color: var(--surface-a);
-  color: var(--text-color);
+  background-color: var(--p-surface-a);
+  color: var(--p-text-color);
 }
 
 table {
   border-collapse: collapse;
-  border: 2px solid var(--surface-border);
+  border: 2px solid var(--p-surface-border);
 }
 
 .p-organizationchart {

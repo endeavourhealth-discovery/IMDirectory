@@ -35,7 +35,7 @@ function showReleaseNotes() {
 #banner {
   width: 100%;
   height: 2rem;
-  background-color: var(--primary-color);
+  background-color: var(--p-primary-color);
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
@@ -53,13 +53,13 @@ function showReleaseNotes() {
 }
 
 .banner-text {
-  color: var(--primary-color-text);
+  color: var(--p-primary-color-text);
   font-size: 1rem;
 }
 
 .release-notes-link {
   font-weight: bold;
-  color: var(--primary-color-text);
+  color: var(--p-primary-color-text);
   cursor: pointer;
 }
 
@@ -71,11 +71,11 @@ function showReleaseNotes() {
   flex: 0 0 auto;
   height: 2rem !important;
   width: 2rem !important;
-  color: var(--primary-color-text);
+  color: var(--p-primary-color-text);
 }
 
 .close-button:hover {
-  color: var(--primary-color) !important;
-  background-color: var(--primary-color-text) !important;
+  color: var(--p-primary-color) !important;
+  background-color: var(--p-primary-color-text) !important;
 }
 </style>

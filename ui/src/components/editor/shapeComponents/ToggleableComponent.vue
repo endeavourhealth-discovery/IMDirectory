@@ -120,12 +120,12 @@ function processEntityValue(property: PropertyShape | undefined) {
 }
 
 .toggleable-entity-search:deep(.label-container) {
-  border-color: var(--red-500);
+  border-color: var(--p-red-500);
 }
 
 .label {
   font-size: 1rem;
-  color: var(--text-color);
+  color: var(--p-text-color);
 }
 
 .title {

@@ -138,7 +138,7 @@ function updateEntity() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
@@ -153,18 +153,18 @@ function updateEntity() {
 .query-editor {
   height: 60vh;
   overflow-y: auto;
-  border: 1px solid var(--surface-border);
-  background-color: var(--default);
+  border: 1px solid var(--p-surface-border);
+  background-color: var(--p-default);
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
   border-radius: 5px;
   padding: 0.25rem;
 }

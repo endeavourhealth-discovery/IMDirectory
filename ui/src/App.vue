@@ -34,10 +34,10 @@ import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import setupChangeTheme from "@/composables/setupChangeTheme";
 import setupChangeScale from "@/composables/setupChangeScale";
 import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
+import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -49,23 +49,19 @@ const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
 
-const { changeTheme } = setupChangeTheme();
 const { changeScale } = setupChangeScale();
+const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
-const currentTheme = computed(() => userStore.currentTheme);
 const currentScale = computed(() => userStore.currentScale);
+const currentPreset = computed(() => userStore.currentPreset);
+const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
+const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
+const darkMode = computed(() => userStore.darkMode);
 const viewsLoading = computed(() => loadingStore.viewsLoading);
-
-watch(
-  () => currentTheme.value,
-  newValue => {
-    changeTheme(newValue);
-  }
-);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 
@@ -73,11 +69,8 @@ onMounted(async () => {
   loadingStore.updateViewsLoading(true);
   await AuthService.getCurrentAuthenticatedUser();
   await filterStore.fetchFilterSettings();
-
-  let theme = "saga-blue";
-  if (currentTheme.value) theme = currentTheme.value;
-  changeTheme(theme);
-
+  await userStore.getAllFromUserDatabase();
+  setThemeOptions();
   let scale = "16px";
   if (currentScale.value) scale = currentScale.value;
   changeScale(scale);
@@ -85,6 +78,13 @@ onMounted(async () => {
   await setShowBanner();
   loadingStore.updateViewsLoading(false);
 });
+
+function setThemeOptions() {
+  if (currentPreset.value) changePreset(currentPreset.value);
+  if (currentPrimaryColor.value) changePrimaryColor(currentPrimaryColor.value);
+  if (currentSurfaceColor.value) changeSurfaceColor(currentSurfaceColor.value);
+  if (darkMode.value) changeDarkMode(darkMode.value);
+}
 
 async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
@@ -231,7 +231,6 @@ function setupExternalErrorHandler() {
   flex-flow: column nowrap;
   justify-content: space-between;
   overflow: auto;
-  background-color: var(--surface-ground);
 }
 .loading-container {
   width: 100%;
@@ -254,7 +253,7 @@ function setupExternalErrorHandler() {
   z-index: 1;
 }
 .swal2-popup {
-  background-color: var(--surface-a);
+  background-color: var(--p-surface-0);
 }
 .p-toast-message-text {
   width: calc(100% - 4rem);

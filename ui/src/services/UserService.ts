@@ -19,15 +19,32 @@ const UserService = {
   async getUserOrganisations(): Promise<string[]> {
     return await axios.get(Env.API + "api/user/organisations");
   },
-  async updateUserTheme(theme: string): Promise<string> {
-    return await axios.post(Env.API + "api/user/theme", {
-      themeValue: theme
-    });
+  async getUserPreset(): Promise<string> {
+    return await axios.get(Env.API + "api/user/preset");
+  },
+  async getUserPrimaryColor(): Promise<string> {
+    return await axios.get(Env.API + "api/user/primaryColor");
+  },
+  async getUserSurfaceColor(): Promise<string> {
+    return await axios.get(Env.API + "api/user/surfaceColor");
+  },
+  async getUserDarkMode(): Promise<boolean> {
+    return await axios.get(Env.API + "api/user/darkMode");
+  },
+  async updateUserPreset(preset: string): Promise<void> {
+    return await axios.post(Env.API + "api/user/preset", preset, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+  },
+  async updateUserPrimaryColor(color: string): Promise<void> {
+    return await axios.post(Env.API + "api/user/primaryColor", color, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+  },
+  async updateUserSurfaceColor(color: string): Promise<void> {
+    return await axios.post(Env.API + "api/user/surfaceColor", color, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+  },
+  async updateUserDarkMode(bool: boolean): Promise<void> {
+    return await axios.post(Env.API + "api/user/darkMode", { bool: bool });
   },
   async updateUserScale(scale: string): Promise<string> {
-    return await axios.post(Env.API + "api/user/scale", {
-      scaleValue: scale
-    });
+    return await axios.post(Env.API + "api/user/scale", scale, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
   },
   async updateUserMRU(mru: RecentActivityItem[]): Promise<void> {
     return await axios.post(Env.API + "api/user/MRU", mru);

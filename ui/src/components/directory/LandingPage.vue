@@ -68,28 +68,28 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
     label: "Creator",
     icon: "fa-duotone fa-circle-plus",
     command: () => directService.create(),
-    color: "var(--orange-500)",
+    color: "var(--p-orange-500)",
     size: 4
   },
   {
     label: "Code templates",
     icon: "fa-duotone fa-code",
     command: () => directService.codeGenerator(),
-    color: "var(--teal-500)",
+    color: "var(--p-teal-500)",
     size: 4
   },
   {
     label: "ASSIGN UPRN",
     icon: "fa-duotone fa-map-location-dot",
     command: () => directService.uprn(),
-    color: "var(--red-500)",
+    color: "var(--p-red-500)",
     size: 4
   },
   {
     label: "Wiki",
     icon: "/logos/ship-small.png",
     url: "https://wiki.endeavourhealth.org/index.php?title=Welcome_to_the_Endeavour_Health_knowledge_base",
-    color: "var(--blue-500)",
+    color: "var(--p-blue-500)",
     size: 4,
     newTab: true
   }

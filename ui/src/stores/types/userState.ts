@@ -3,7 +3,10 @@ import { Namespace, RecentActivityItem, HistoryItem, FilterOptions, User } from 
 export interface UserState {
   cookiesEssentialAccepted: boolean;
   cookiesOptionalAccepted: boolean;
-  currentTheme: string;
+  currentPreset: string;
+  currentPrimaryColor: string;
+  currentSurfaceColor: string;
+  darkMode: boolean;
   currentScale: string;
   currentUser: User | undefined;
   favourites: string[];

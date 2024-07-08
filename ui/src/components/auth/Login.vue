@@ -13,9 +13,7 @@
           </div>
           <div class="field">
             <label for="fieldPassword">Password</label>
-            <div class="text-with-button">
-              <Password v-model="password" :feedback="false" toggleMask data-testid="login-password" id="fieldPassword" />
-            </div>
+            <Password v-model="password" :feedback="false" toggleMask data-testid="login-password" id="fieldPassword" />
           </div>
           <div class="flex flex-row justify-content-center">
             <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="handleSubmit" :loading="loading" />
@@ -73,7 +71,7 @@ async function handle200(res: CustomAlert) {
     icon: "success",
     title: "Success",
     text: "Login successful",
-    footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
+    footer: `<p style="color: var(--p-red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
   }).then(() => {
     userStore.clearOptionalCookies();
     if (authReturnPath.value) {

@@ -1,6 +1,6 @@
 <template>
   <div class="match-container" v-if="propertyType">
-    <Dropdown :options="['typeOf', 'instanceOf']" v-model:model-value="propertyType" />
+    <Select :options="['typeOf', 'instanceOf']" v-model:model-value="propertyType" />
     <div v-if="propertyType === 'is' && editMatch.is" class="multi-select">
       <SingleEntitySelector v-for="is in editMatch.is" :edit-node="is" />
     </div>
@@ -93,9 +93,9 @@ async function updateSelectedResult(data: SearchResultSummary | { iri: string; n
   font-size: 1rem;
   padding: 4px 4px;
   margin: 0;
-  color: var(--text-color);
-  background: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  color: var(--p-text-color);
+  background: var(--p-surface-a);
+  border: 1px solid var(--p-surface-border);
   transition:
     background-color 0.2s,
     color 0.2s,
@@ -122,7 +122,7 @@ async function updateSelectedResult(data: SearchResultSummary | { iri: string; n
 }
 
 .inactive {
-  color: var(--text-color-secondary);
+  color: var(--p-text-color-secondary);
 }
 
 .selected-label {

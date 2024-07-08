@@ -3,7 +3,7 @@ import { vi } from "vitest";
 import AvatarWithSelector from "@/components/auth/AvatarWithSelector.vue";
 import Button from "primevue/button";
 import SelectButton from "primevue/selectbutton";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import PrimeVue from "primevue/config";
 import { describe, beforeEach, expect, it } from "vitest";
 describe("AvatarWithSelector.vue", () => {
@@ -16,7 +16,7 @@ describe("AvatarWithSelector.vue", () => {
       props: { selectedAvatar: "colour/002-man.png" },
       global: {
         plugins: [PrimeVue],
-        components: { Button, SelectButton, OverlayPanel }
+        components: { Button, SelectButton, Popover }
       }
     });
   });
