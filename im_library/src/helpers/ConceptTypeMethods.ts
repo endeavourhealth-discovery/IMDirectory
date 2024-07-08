@@ -4,7 +4,7 @@
 // Everything else
 
 import { TTIriRef } from "../interfaces/AutoGen";
-import { IM, RDF, SHACL } from "../vocabulary";
+import { IM, OWL, RDF, SHACL } from "../vocabulary";
 import palette from "google-palette";
 
 export function isOfTypes(conceptTypeElements: TTIriRef[], ...types: string[]): boolean {
@@ -31,7 +31,7 @@ export function isTask(conceptTypes: TTIriRef[]): boolean {
 }
 
 export function isProperty(conceptTypes: TTIriRef[]): boolean {
-  return isOfTypes(conceptTypes, RDF.PROPERTY, SHACL.PROPERTY, IM.DATA_PROPERTY, IM.TARGET_PROPERTY, IM.FUNCTION_PROPERTY);
+  return isOfTypes(conceptTypes, RDF.PROPERTY, SHACL.PROPERTY, IM.DATA_PROPERTY, IM.TARGET_PROPERTY, IM.FUNCTION_PROPERTY, OWL.ANNOTATION_PROPERTY);
 }
 
 export function isConcept(conceptTypes: TTIriRef[]): boolean {
