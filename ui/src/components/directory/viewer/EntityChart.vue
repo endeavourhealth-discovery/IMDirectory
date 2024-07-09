@@ -116,11 +116,11 @@ td {
 }
 
 tr:nth-child(even) {
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
 }
 
 th[scope="col"] {
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
   color: var(--p-text-color);
 }
 

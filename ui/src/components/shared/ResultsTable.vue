@@ -330,7 +330,7 @@ label {
   height: 100%;
   flex: 1 1 auto;
   overflow: auto;
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
   display: flex;
   flex-flow: column nowrap;
 }

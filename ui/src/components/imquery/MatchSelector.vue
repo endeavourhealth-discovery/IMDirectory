@@ -94,7 +94,7 @@ async function updateSelectedResult(data: SearchResultSummary | { iri: string; n
   padding: 4px 4px;
   margin: 0;
   color: var(--p-text-color);
-  background: var(--p-surface-a);
+  background: var(--p-content-background);
   border: 1px solid var(--p-surface-border);
   transition:
     background-color 0.2s,

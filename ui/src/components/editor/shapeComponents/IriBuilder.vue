@@ -334,7 +334,7 @@ function hasData() {
   font-feature-settings: inherit;
   font-size: 1rem;
   color: var(--p-text-color-secondary);
-  background: var(--p-surface-a);
+  background: var(--p-content-background);
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
