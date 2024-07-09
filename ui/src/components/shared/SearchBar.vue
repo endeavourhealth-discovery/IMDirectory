@@ -1,8 +1,9 @@
 <template>
   <div class="search-container">
-    <IconField iconPosition="right">
-      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
-      <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
+    <InputGroup class="search-group">
+      <InputGroupAddon @click="toggleListen" class="mic">
+        <IMFontAwesomeIcon :icon="listening ? 'fa-duotone fa-microphone-slash' : 'fa-duotone fa-microphone'" />
+      </InputGroupAddon>
       <InputText
         id="autocomplete-search"
         v-model="searchText"
@@ -11,8 +12,9 @@
         data-testid="search-input"
         autofocus
         v-on:keyup.enter="onSearch"
+        :loading="searchLoading"
       />
-    </IconField>
+    </InputGroup>
     <SplitButton class="search-button p-button-secondary" @click="onSearch" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
       v-if="showFilters"
@@ -44,6 +46,8 @@ import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import _ from "lodash-es";
 import { Ref } from "vue";
+import InputGroupAddon from "primevue/inputgroupaddon";
+import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 
 interface Props {
   searchTerm?: string;
