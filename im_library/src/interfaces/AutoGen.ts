@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-06-13 09:20:58.
+// Generated using typescript-generator version 3.2.1263 on 2024-06-27 16:32:20.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -217,10 +217,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
-    dataType?: TTIriRef;
-    relativeTo?: PropertyRef;
     unit?: string;
+    operator?: Operator;
+    relativeTo?: PropertyRef;
+    dataType?: TTIriRef;
 }
 
 export interface Case {
@@ -253,9 +253,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
+    descendantsOf?: boolean;
     memberOf?: boolean;
 }
 
@@ -409,6 +409,19 @@ export interface Where extends PropertyRef, Assignable {
     isNotNull?: boolean;
     null?: boolean;
     notNull?: boolean;
+}
+
+export interface DownloadOptions {
+    queryRequest?: QueryRequest;
+    eclSearchRequest?: EclSearchRequest;
+    totalCount?: number;
+    format?: string;
+    includeDefinition?: boolean;
+    includeCore?: boolean;
+    includeLegacy?: boolean;
+    includeSubsets?: boolean;
+    subsetsOnOwnRow?: boolean;
+    im1id?: boolean;
 }
 
 export interface EntityDocument {

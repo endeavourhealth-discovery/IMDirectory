@@ -3,7 +3,7 @@
     v-model:visible="showSaveFeatureDialog"
     modal
     header="Save feature"
-    :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--surface-section)' }"
+    :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--p-surface-section)' }"
   >
     <form @submit="onSubmit" class="flex flex-column gap-2 save-feature-form">
       <div class="flex flex-column gap-2" id="save-feature-full-iri">
@@ -14,7 +14,7 @@
 
       <div class="flex flex-column gap-2" id="save-feature-scheme-iri">
         <span id="save-feature-scheme-header">Scheme</span>
-        <Dropdown
+        <Select
           id="scheme"
           v-model="scheme"
           v-bind="schemeAttrs"

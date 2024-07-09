@@ -48,17 +48,17 @@ function sendErrorReport() {
   gap: 0.5rem;
 }
 .error-icon {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 .error-code {
-  color: var(--text-color);
+  color: var(--p-text-color);
   font-size: 6rem;
   margin: 1.5rem 0 0.5rem 0;
 }
 
 .error-header {
-  color: var(--text-color);
+  color: var(--p-text-color);
   margin: 0.5rem;
 }
 

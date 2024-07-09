@@ -39,7 +39,7 @@
     />
     <Button
       v-if="isLoggedIn && show('favourite') && isFavourite(iri)"
-      style="color: var(--yellow-500)"
+      style="color: var(--p-yellow-500)"
       icon="fa-solid fa-star"
       :severity="getSeverity()"
       :class="getClass()"
@@ -157,8 +157,8 @@ function toEdit(event: any, iri: string) {
 
 <style scoped>
 .activity-row-button:hover {
-  background-color: var(--text-color) !important;
-  color: var(--surface-a) !important;
+  background-color: var(--p-text-color) !important;
+  color: var(--p-surface-a) !important;
   z-index: 999;
 }
 
@@ -168,13 +168,13 @@ function toEdit(event: any, iri: string) {
 }
 
 .concept-button:hover {
-  background-color: var(--text-color) !important;
-  color: var(--surface-a) !important;
+  background-color: var(--p-text-color) !important;
+  color: var(--p-surface-a) !important;
 }
 
 .concept-button-fav:hover {
-  background-color: var(--yellow-500) !important;
-  color: var(--surface-a) !important;
+  background-color: var(--p-yellow-500) !important;
+  color: var(--p-surface-a) !important;
 }
 
 .p-button.p-button-icon-only.p-button-rounded {

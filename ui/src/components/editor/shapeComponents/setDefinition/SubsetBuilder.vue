@@ -153,13 +153,13 @@ function updateEntity() {
 }
 
 .subsets-content:deep(#autocomplete-search) {
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-surface-border);
 }
 
 .title {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--p-text-color);
   padding-top: 0.5rem;
 }
 </style>

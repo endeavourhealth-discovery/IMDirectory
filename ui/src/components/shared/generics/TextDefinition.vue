@@ -123,7 +123,7 @@ function getCount(): number {
 
 .text-definition {
   width: 100%;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
   padding: 0.5rem;
   margin: 0.5rem 0 0 0;

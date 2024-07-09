@@ -1,5 +1,5 @@
 <template>
-  <OverlayPanel ref="OP" id="overlay-panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
+  <Popover ref="OP" id="overlay-panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
     <div v-if="hoveredResult?.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
       <div class="left-side" style="width: 50%">
         <p>
@@ -34,7 +34,7 @@
         </p>
       </div>
     </div>
-  </OverlayPanel>
+  </Popover>
 </template>
 
 <script setup lang="ts">

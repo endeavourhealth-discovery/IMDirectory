@@ -8,7 +8,7 @@
       @dragstart="onDragStart($event, value, parent)"
       @dragend="onDragEnd(value, parent)"
     />
-    <Dropdown
+    <Select
       style="width: 4.5rem; min-height: 2.3rem"
       v-model="value.property.constraintOperator"
       :options="constraintOperatorOptions"
@@ -25,7 +25,7 @@
           <div>{{ slotProps.option.label }}</div>
         </div>
       </template>
-    </Dropdown>
+    </Select>
     <div class="property-container">
       <AutocompleteSearchBar
         :disabled="!hasFocus || loadingProperty"
@@ -38,8 +38,8 @@
       <small v-if="!isValidProperty && showValidation" class="validate-error">Property is invalid for selected expression constraint.</small>
     </div>
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
-    <Dropdown
+    <Select style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
+    <Select
       style="width: 4.5rem; min-height: 2.3rem"
       v-model="value.value.constraintOperator"
       :options="constraintOperatorOptions"
@@ -56,7 +56,7 @@
           <div>{{ slotProps.option.label }}</div>
         </div>
       </template>
-    </Dropdown>
+    </Select>
     <div class="value-container">
       <AutocompleteSearchBar
         :disabled="!hasProperty || loadingValue || loadingProperty"
@@ -461,9 +461,9 @@ async function updateValue(value: SearchResultSummary | undefined) {
   font-size: 1rem;
   padding: 4px 4px;
   margin: 0;
-  color: var(--text-color);
-  background: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  color: var(--p-text-color);
+  background: var(--p-surface-a);
+  border: 1px solid var(--p-surface-border);
   transition:
     background-color 0.2s,
     color 0.2s,
@@ -482,7 +482,7 @@ async function updateValue(value: SearchResultSummary | undefined) {
 }
 
 .inactive {
-  color: var(--text-color-secondary);
+  color: var(--p-text-color-secondary);
 }
 
 .selected-label {
@@ -490,11 +490,11 @@ async function updateValue(value: SearchResultSummary | undefined) {
 }
 
 .p-invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
   overflow: auto;
@@ -502,7 +502,7 @@ async function updateValue(value: SearchResultSummary | undefined) {
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
   border-radius: 3px;
 }
 </style>

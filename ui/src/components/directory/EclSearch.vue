@@ -36,10 +36,10 @@
     </div>
     <div class="filters-container">
       <div class="status-filter p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="onSearch()" :options="statusOptions" display="chip" />
           <label for="status">Select status:</label>
-        </span>
+        </FloatLabel>
       </div>
     </div>
     <div class="results-container">
@@ -66,7 +66,7 @@
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
-import { EclSearchRequest, TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { EclSearchRequest, TTIriRef, SearchResultSummary, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
 import { byName } from "@im-library/helpers/Sorters";
@@ -74,6 +74,7 @@ import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { addStatusFilterToIMQuery } from "@/helpers/IMQueryBuilder";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
@@ -214,7 +215,7 @@ function setFilterDefaults() {
 }
 
 .error-message {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 .filters-container {

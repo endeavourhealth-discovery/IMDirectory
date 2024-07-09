@@ -181,9 +181,9 @@ async function onSaveChanges(editMatch: Match) {
 
 .feature-description-card {
   padding: 0.5rem;
-  border: var(--imquery-editor-border-color) 1px solid;
+  border: var(--p-imquery-editor-border-color) 1px solid;
   border-radius: 5px;
-  background-color: var(--imquery-editor-background-color);
+  background-color: var(--p-imquery-editor-background-color);
   flex: 1;
 }
 
@@ -191,9 +191,9 @@ async function onSaveChanges(editMatch: Match) {
   width: 100%;
   padding: 0.5rem;
   border-radius: 5px;
-  background-color: var(--imquery-editor-background-color);
+  background-color: var(--p-imquery-editor-background-color);
   flex: 1;
-  border: var(--imquery-editor-hover-border-color) 1px solid;
+  border: var(--p-imquery-editor-hover-border-color) 1px solid;
 }
 
 .clickable {

@@ -63,12 +63,12 @@
       </template>
     </Tree>
 
-    <OverlayPanel v-if="hoveredResult.iri === 'load'" ref="altTreeOP" id="secondary_tree_overlay_panel" style="width: 700px" :breakpoints="{ '960px': '75vw' }">
+    <Popover v-if="hoveredResult.iri === 'load'" ref="altTreeOP" id="secondary_tree_overlay_panel" style="width: 700px" :breakpoints="{ '960px': '75vw' }">
       <div class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 7px">
         <span>{{ hoveredResult.name }}</span>
       </div>
-    </OverlayPanel>
-    <OverlayPanel v-else ref="altTreeOP" id="secondary_tree_overlay_panel" style="width: 700px" :breakpoints="{ '960px': '75vw' }">
+    </Popover>
+    <Popover v-else ref="altTreeOP" id="secondary_tree_overlay_panel" style="width: 700px" :breakpoints="{ '960px': '75vw' }">
       <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 7px">
         <div class="left-side" style="width: 50%">
           <p>
@@ -99,7 +99,7 @@
           </p>
         </div>
       </div>
-    </OverlayPanel>
+    </Popover>
   </div>
 </template>
 
@@ -351,7 +351,7 @@ function navigate(event: any, iri: string): void {
 
 #secondary-tree-bar-container {
   flex: 1 1 auto;
-  border-top: 1px solid var(--surface-border);
+  border-top: 1px solid var(--p-surface-border);
 }
 
 .p-progress-spinner {

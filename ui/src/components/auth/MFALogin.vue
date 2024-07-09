@@ -192,7 +192,7 @@ async function handleSubmitMFA() {
 }
 
 .invalid-text {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 .submit-button {

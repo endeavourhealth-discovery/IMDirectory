@@ -11,13 +11,13 @@
         data-testid="password-old"
         id="passwordOld"
         :pt="{
-          input: { root: { 'data-testid': testId + 'old' } }
+          'pc-input': { root: { 'data-testid': testId + 'old' } }
         }"
       />
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld" severity="info">
+    <Message data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld" severity="info">
       {{ errors.passwordOld }}
-    </InlineMessage>
+    </Message>
   </div>
   <div class="field">
     <label for="password">New password</label>
@@ -29,7 +29,7 @@
         data-testid="password-new1"
         id="password"
         :pt="{
-          input: { root: { 'data-testid': testId + 'new1' } }
+          'pc-input': { root: { 'data-testid': testId + 'new1' } }
         }"
         :overlayVisible="true"
         strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
@@ -51,9 +51,9 @@
         </template>
       </Password>
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="errors.password" severity="info">
+    <Message data-testid="inline-error-message" v-if="errors.password" severity="info">
       {{ errors.password }}
-    </InlineMessage>
+    </Message>
   </div>
   <div class="field">
     <label for="password2">Confirm new password</label>
@@ -66,11 +66,11 @@
         data-testid="password-new2"
         id="password2"
         :pt="{
-          input: { root: { 'data-testid': testId + 'new2' } }
+          'pc-input': { root: { 'data-testid': testId + 'new2' } }
         }"
       />
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="!isMatchingPassword && password2" severity="error"> {{ errors.password2 }}</InlineMessage>
+    <Message data-testid="inline-error-message" v-if="!isMatchingPassword && password2" severity="error"> {{ errors.password2 }}</Message>
   </div>
 </template>
 

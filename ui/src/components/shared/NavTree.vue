@@ -27,7 +27,7 @@
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
-          <ProgressSpinner v-if="node.loading" />
+          <ProgressSpinner v-if="node.loading" class="progress-spinner" />
           <span class="row-name" @mouseover="displayOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
         </div>
       </template>
@@ -190,7 +190,7 @@ async function addParentFoldersToRoot() {
 async function addFavouritesToTree() {
   const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], !!favourites.value.length, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
-  favNode.color = "var(--yellow-500)";
+  favNode.color = "var(--p-yellow-500)";
   root.value.push(favNode);
 }
 
@@ -212,9 +212,15 @@ async function onNodeContext(event: any, node: any) {
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
 
-  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.key && node.key !== selectedNode.value.key && node.typeIcon.includes("fa-folder")) {
+  if (
+    selectedNode.value &&
+    isObjectHasKeys(selectedNode.value) &&
+    selectedNode.value.key &&
+    node.key !== selectedNode.value.key &&
+    node.typeIcon.includes("fa-folder")
+  ) {
     const isOwnDescendant = await EntityService.getPathBetweenNodes(node.key, selectedNode.value.key);
-    if (isOwnDescendant.findIndex(pathItem => pathItem["@id"] === selectedNode.value.key) === -1) {
+    if (isOwnDescendant.findIndex(pathItem => pathItem["@id"] === selectedNode.value?.key) === -1) {
       items.value.push({
         label: "Move selection here",
         icon: "fa-solid fa-fw fa-file-import",
@@ -235,7 +241,7 @@ async function onNodeContext(event: any, node: any) {
 }
 
 function confirmMove(node: TreeNode) {
-  if (isObjectHasKeys(selectedNode.value)) {
+  if (selectedNode.value && isObjectHasKeys(selectedNode.value)) {
     confirm.require({
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
@@ -251,7 +257,15 @@ function confirmMove(node: TreeNode) {
 }
 
 async function moveConcept(target: TreeNode) {
-  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+  if (
+    selectedNode.value &&
+    isObjectHasKeys(selectedNode.value) &&
+    selectedNode.value.parentNode &&
+    selectedNode.value.key &&
+    target &&
+    target.key &&
+    target.children
+  ) {
     try {
       await FilerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
       toast.add({ severity: "success", summary: "Move", detail: 'Moved "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
@@ -265,7 +279,7 @@ async function moveConcept(target: TreeNode) {
 }
 
 function confirmAdd(node: TreeNode) {
-  if (isObjectHasKeys(selectedNode.value)) {
+  if (selectedNode.value && isObjectHasKeys(selectedNode.value)) {
     confirm.require({
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
@@ -281,7 +295,15 @@ function confirmAdd(node: TreeNode) {
 }
 
 async function addConcept(target: TreeNode) {
-  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+  if (
+    selectedNode.value &&
+    isObjectHasKeys(selectedNode.value) &&
+    selectedNode.value.parentNode &&
+    selectedNode.value.key &&
+    target &&
+    target.key &&
+    target.children
+  ) {
     try {
       await FilerService.addToFolder(selectedNode.value.key, target.key);
       toast.add({ severity: "success", summary: "Add", detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
@@ -377,7 +399,7 @@ function dragStart(event: any, data: any) {
   width: 100% !important;
 }
 
-.tree-row .p-progress-spinner {
+.progress-spinner {
   width: 1.25em !important;
   height: 1.25em !important;
   flex: 0 0 auto;

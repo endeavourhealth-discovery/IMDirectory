@@ -1,7 +1,7 @@
 <template>
   <div class="property-input">
     <div class="value-field">
-      <Dropdown
+      <Select
         :options="[
           { id: 'is', name: 'is' },
           { id: 'isNot', name: 'is not' },

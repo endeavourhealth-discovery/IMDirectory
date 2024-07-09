@@ -4,7 +4,7 @@
     v-model:visible="showSaveCustomSetDialog"
     modal
     header="Save custom set"
-    :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--surface-section)' }"
+    :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--p-surface-section)' }"
   >
     <form @submit="onSubmit" class="flex flex-column gap-2 save-set-form">
       <div class="flex flex-column gap-2" id="save-set-full-iri">
@@ -15,7 +15,7 @@
 
       <div class="flex flex-column gap-2" id="save-set-scheme-iri">
         <span id="save-set-scheme-header">Scheme</span>
-        <Dropdown
+        <Select
           id="scheme"
           v-model="scheme"
           v-bind="schemeAttrs"
@@ -40,7 +40,7 @@
       <div class="flex flex-column gap-2" id="save-set-type">
         <span id="save-set-type-header">Type</span>
 
-        <Dropdown
+        <Select
           id="type"
           v-model="type"
           v-bind="typeAttrs"

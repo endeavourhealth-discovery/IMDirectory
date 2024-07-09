@@ -49,7 +49,7 @@ interface Props {
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
-  selectedProperty: TreeNode;
+  selectedProperty: TreeNode | undefined;
 }
 const props = defineProps<Props>();
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;

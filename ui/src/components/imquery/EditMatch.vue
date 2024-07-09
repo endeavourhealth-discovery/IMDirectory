@@ -253,9 +253,9 @@ function getTypeOf(fullQuery: Match) {
 .edit-match-container {
   width: 99%;
   padding: 0.5rem;
-  border: var(--imquery-editor-border-color) 1px solid;
+  border: var(--p-imquery-editor-border-color) 1px solid;
   border-radius: 5px;
-  background-color: var(--imquery-editor-background-color);
+  background-color: var(--p-imquery-editor-background-color);
   margin: 0.5rem;
   flex: 1;
   cursor: pointer;
@@ -273,7 +273,7 @@ function getTypeOf(fullQuery: Match) {
   background-color: #6bb28c10;
   margin: 0.5rem;
   flex: 1;
-  border: var(--imquery-editor-hover-border-color) 1px solid;
+  border: var(--p-imquery-editor-hover-border-color) 1px solid;
 }
 
 .match-description {

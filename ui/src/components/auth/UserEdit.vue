@@ -27,7 +27,7 @@
                 @blur="updateFocused('firstName', false)"
                 :class="(!firstName || errors.firstName) && 'p-invalid'"
               />
-              <InlineMessage v-if="errors.firstName" severity="error"> {{ errors.firstName }} </InlineMessage>
+              <Message v-if="errors.firstName" severity="error"> {{ errors.firstName }} </Message>
             </div>
             <div class="field">
               <label for="lastName">Last name</label>
@@ -41,7 +41,7 @@
                 @blur="updateFocused('lastName', false)"
                 :class="(!lastName || errors.lastName) && 'p-invalid'"
               />
-              <InlineMessage v-if="errors.lastName" severity="error"> {{ errors.lastName }} </InlineMessage>
+              <Message v-if="errors.lastName" severity="error"> {{ errors.lastName }} </Message>
             </div>
             <div class="field">
               <label for="email1">Email address</label>
@@ -59,7 +59,7 @@
                 <IMFontAwesomeIcon v-if="!errors.email1" icon="fa-regular fa-circle-check" class="email-check" />
                 <IMFontAwesomeIcon v-if="errors.email1 && email1" icon="fa-regular fa-circle-xmark" class="email-times" />
               </div>
-              <InlineMessage v-if="errors.email1" severity="error"> {{ errors.email1 }} </InlineMessage>
+              <Message v-if="errors.email1" severity="error"> {{ errors.email1 }} </Message>
             </div>
             <div class="field">
               <label for="email2">Confirm email address</label>
@@ -73,7 +73,7 @@
                 @blur="updateFocused('email2', false)"
                 :class="errors.email2 && !focused.get('email2') && 'p-invalid'"
               />
-              <InlineMessage v-if="errors.email2" severity="error"> {{ errors.email2 }}</InlineMessage>
+              <Message v-if="errors.email2" severity="error"> {{ errors.email2 }}</Message>
             </div>
             <PasswordInputs
               v-if="showPasswordEdit"
@@ -406,11 +406,11 @@ function checkForChanges(): boolean {
   padding: 0 2em;
 }
 .email-check {
-  color: var(--green-500);
+  color: var(--p-green-500);
   font-size: 2em;
 }
 .email-times {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 2em;
 }
 

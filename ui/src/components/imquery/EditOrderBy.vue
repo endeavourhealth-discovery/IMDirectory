@@ -1,8 +1,8 @@
 <template>
   <div v-if="orderBy.property" class="order-by">
     <InputText value="Order by" disabled class="w-full md:w-5rem" />
-    <Dropdown v-model="orderBy.property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
-    <Dropdown
+    <Select v-model="orderBy.property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
+    <Select
       v-model="orderBy.property.direction"
       :options="getDirectionOptions(orderBy.property)"
       optionLabel="name"
