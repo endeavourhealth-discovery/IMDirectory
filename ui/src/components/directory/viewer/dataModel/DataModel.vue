@@ -3,7 +3,7 @@
     <Tree :value="data" v-model:expandedKeys="expandedKeys" @node-expand="onNodeExpand" @node-collapse="onNodeCollapse" :loading="loading" icon="loading">
       <template #property="{ node }: any">
         <div class="tree-row">
-          <ProgressSpinner v-if="node.loading" />
+          <ProgressSpinner class="progress-spinner" v-if="node.loading" />
           <IMFontAwesomeIcon
             v-if="node.data.typeIcon && !node.loading"
             v-tooltip.top="'Cardinality: ' + node.data.cardinality"
@@ -16,14 +16,14 @@
       </template>
       <template #type="{ node }: any">
         <div class="tree-row">
-          <ProgressSpinner v-if="node.loading" />
+          <ProgressSpinner class="progress-spinner" v-if="node.loading" />
           <IMFontAwesomeIcon v-if="node.data.typeIcon && !node.loading" :icon="node.data.typeIcon" fixed-width :style="'color:' + node.data.color" />
           <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </template>
       <template #or="{ node }: any">
         <div class="tree-row">
-          <ProgressSpinner v-if="node.loading" />
+          <ProgressSpinner class="progress-spinner" v-if="node.loading" />
           <span> {{ node.label }}</span>
         </div>
       </template>
@@ -271,7 +271,7 @@ async function getDataModelPropertiesDisplay(iri: string, parentKey: string): Pr
   gap: 0.25rem;
 }
 
-.tree-row .p-progress-spinner {
+.progress-spinner {
   width: 1.25em !important;
   height: 1.25em !important;
   flex: 0 0 auto;
