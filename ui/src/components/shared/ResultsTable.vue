@@ -119,7 +119,8 @@ const props = defineProps<Props>();
 const emit = defineEmits({
   rowSelected: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  "update:loading": _payload => true
+  "update:loading": _payload => true,
+  searchResultsUpdated: (_payload: SearchResponse | undefined) => true
 });
 
 onMounted(async () => {
@@ -188,6 +189,7 @@ watch(
 
 async function onSearch() {
   const response = await search(page.value + 1, rows.value);
+  emit("searchResultsUpdated", response);
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
   else {
     searchResults.value = [];
