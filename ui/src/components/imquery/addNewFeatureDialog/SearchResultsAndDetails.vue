@@ -1,58 +1,63 @@
 <template>
-  <TabView v-if="detailsIri || searchTerm" v-model:activeIndex="activePage">
-    <TabPanel header="Search">
-      <SearchResults
-        v-if="activePage === 0"
-        :show-filters="false"
-        :updateSearch="updateSearch"
-        :search-term="searchTerm"
-        :im-query="imQuery"
-        :rows="10"
-        :show-select="true"
-        @selectedUpdated="
-          summary => {
-            detailsIri = summary.iri;
-            activePage = 1;
-          }
-        "
-        @viewHierarchy="
-          (iri: string) => {
-            detailsIri = iri;
-            activePage = 1;
-          }
-        "
-        @addToList="(iri: string) => onSelect(iri)"
-      />
-    </TabPanel>
-    <TabPanel header="Details">
-      <div v-if="activePage === 1 && detailsIri">
-        <ParentHeader
-          v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
-          :entity="detailsEntity"
-          :showSelect="true"
-          @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+  <Tabs v-if="detailsIri || searchTerm" v-model:value="activePage">
+    <TabList>
+      <Tab value="0">Search</Tab>
+      <Tab value="1">Details</Tab>
+    </TabList>
+    <TabPanels>
+      <TabPanel value="0">
+        <SearchResults
+          :show-filters="false"
+          :updateSearch="updateSearch"
+          :search-term="searchTerm"
+          :im-query="imQuery"
+          :rows="10"
+          :show-select="true"
+          @selectedUpdated="
+            summary => {
+              detailsIri = summary.iri;
+              activePage = '1';
+            }
+          "
           @viewHierarchy="
             (iri: string) => {
               detailsIri = iri;
-              activePage = 1;
+              activePage = '1';
             }
           "
           @addToList="(iri: string) => onSelect(iri)"
         />
-        <div><b>Hierarhcy tree</b></div>
-        <SecondaryTree
-          :entityIri="detailsIri"
-          :show-select="true"
-          @navigateTo="
-            (iri: string) => {
-              detailsIri = iri;
-            }
-          "
-          @onSelect="onSelect"
-        />
-      </div>
-    </TabPanel>
-  </TabView>
+      </TabPanel>
+      <TabPanel value="1">
+        <div v-if="detailsIri">
+          <ParentHeader
+            v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
+            :entity="detailsEntity"
+            :showSelect="true"
+            @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+            @viewHierarchy="
+              (iri: string) => {
+                detailsIri = iri;
+                activePage = '1';
+              }
+            "
+            @addToList="(iri: string) => onSelect(iri)"
+          />
+          <div><b>Hierarhcy tree</b></div>
+          <SecondaryTree
+            :entityIri="detailsIri"
+            :show-select="true"
+            @navigateTo="
+              (iri: string) => {
+                detailsIri = iri;
+              }
+            "
+            @onSelect="onSelect"
+          />
+        </div>
+      </TabPanel>
+    </TabPanels>
+  </Tabs>
 
   <PathSelectDialog
     v-bind:showDialog="showDialog"
@@ -93,7 +98,7 @@ interface Props {
 const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": payload => payload });
 const props = defineProps<Props>();
 const detailsIri: Ref<string> = ref("");
-const activePage: Ref<number> = ref(0);
+const activePage: Ref<string> = ref("0");
 const selectedSet: Ref<Set<string>> = ref(new Set<string>());
 const detailsEntity: Ref<any> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
@@ -113,7 +118,7 @@ watch(
 watch(
   () => props.updateSearch,
   () => {
-    activePage.value = 0;
+    activePage.value = "0";
   }
 );
 

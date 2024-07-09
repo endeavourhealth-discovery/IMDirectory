@@ -1,11 +1,12 @@
 <template>
   <Dialog v-model:visible="visible" modal :header="header" :style="{ minWidth: '100vw', minHeight: '100vh' }">
-    <Stepper :style="{ minWidth: '50vw' }">
-      <StepperPanel>
-        <template #header>
-          <PathDisplay v-if="selectedPath" :path="selectedPath" />
-        </template>
-        <template #content="{ nextCallback }">
+    <Stepper value="1" :style="{ minWidth: '50vw' }">
+      <StepList>
+        <Step value="1"><PathDisplay v-if="selectedPath" :path="selectedPath" /></Step>
+        <Step value="2"></Step>
+      </StepList>
+      <StepPanels>
+        <StepPanel v-slot="{ activateCallback }" value="1">
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
               <div class="search-bar">
@@ -44,13 +45,10 @@
             </div>
           </div>
           <div class="flex pt-4 justify-content-end next-button">
-            <Button :disabled="!isObjectHasKeys(selectedPath)" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="event => nextCallback(event)" />
+            <Button :disabled="!isObjectHasKeys(selectedPath)" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback('2')" />
           </div>
-        </template>
-      </StepperPanel>
-      <StepperPanel>
-        <template #header> </template>
-        <template #content="{ prevCallback }">
+        </StepPanel>
+        <StepPanel v-slot="{ activateCallback }" value="2">
           <EditMatch
             v-if="getLeafMatch(editMatch)"
             :edit-match="getLeafMatch(editMatch)"
@@ -77,11 +75,11 @@
           />
 
           <div class="flex pt-4 justify-content-between populate-property-actions">
-            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="prevCallback" />
+            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback('1')" />
             <Button label="Save" iconPos="right" @click="save" />
           </div>
-        </template>
-      </StepperPanel>
+        </StepPanel>
+      </StepPanels>
     </Stepper>
   </Dialog>
 </template>
