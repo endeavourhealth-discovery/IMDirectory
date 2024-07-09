@@ -20,6 +20,11 @@
       :total-records="totalCount"
       :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
       :loading="searchLoading"
+      :paginatorTemplate="
+        disablePageDropdown
+          ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink'
+          : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'
+      "
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
@@ -112,6 +117,7 @@ interface Props {
   eclQuery?: EclSearchRequest;
   pageSize?: number;
   loading?: boolean;
+  disablePageDropdown?: boolean;
 }
 
 const props = defineProps<Props>();
