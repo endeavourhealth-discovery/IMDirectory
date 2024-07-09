@@ -3,7 +3,7 @@
     <Tree :value="data" v-model:expandedKeys="expandedKeys" @node-expand="onNodeExpand" @node-collapse="onNodeCollapse" :loading="loading" icon="loading">
       <template #property="{ node }: any">
         <div class="tree-row">
-          <ProgressSpinner v-if="node.loading" />
+          <ProgressSpinner class="progress-spinner" v-if="node.loading" />
           <IMFontAwesomeIcon
             v-if="node.data.typeIcon && !node.loading"
             v-tooltip.top="'Cardinality: ' + node.data.cardinality"
@@ -16,9 +16,15 @@
       </template>
       <template #type="{ node }: any">
         <div class="tree-row">
-          <ProgressSpinner v-if="node.loading" />
+          <ProgressSpinner class="progress-spinner" v-if="node.loading" />
           <IMFontAwesomeIcon v-if="node.data.typeIcon && !node.loading" :icon="node.data.typeIcon" fixed-width :style="'color:' + node.data.color" />
           <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        </div>
+      </template>
+      <template #or="{ node }: any">
+        <div class="tree-row">
+          <ProgressSpinner class="progress-spinner" v-if="node.loading" />
+          <span> {{ node.label }}</span>
         </div>
       </template>
     </Tree>
@@ -68,49 +74,50 @@ async function getDataModel(iri: string) {
 }
 
 async function onNodeExpand(node: TreeNode) {
-  if (node.type === "property") {
-    if (node.children && node.children.length) {
+  if (node.children && node.children.length) {
+    if (node.type === "property") {
       for (const child of node.children) {
-        child.loading = true;
-        const children = await getDataModelPropertiesDisplay(child.data.iri, child.key!);
-        if (children.length) child.children = children;
-        child.loading = false;
-      }
-    }
-  } else {
-    if (node.children && node.children.length) {
-      for (const child of node.children) {
-        child.loading = true;
-        if (isObjectHasKeys(child.data, ["type"])) {
-          for (const [index, type] of child.data.type.entries()) {
-            const newChild = {
-              key: child.key + "-" + index.toString(),
-              label: type.name,
-              children: [] as TreeNode[],
-              selectable: true,
-              type: "type",
-              loading: false,
-              data: {
-                iri: type["@id"]
-              }
-            } as TreeNode;
-            if (child.children && !child.children.includes(newChild)) child.children!.push(newChild);
-          }
+        if (child.children && !child.children.length) {
+          child.loading = true;
+          const children = await getDataModelPropertiesDisplay(child.data.iri, child.key!);
+          if (children.length) child.children = children;
+          child.loading = false;
         }
-        await setIconData(node);
-        child.loading = false;
+      }
+    } else if (node.type === "type" || node.type === "root") {
+      for (const child of node.children) {
+        if (child.type === "or") expandedKeys.value[child.key!] = true;
+        if (child.children && !child.children.length) {
+          child.loading = true;
+          if (isObjectHasKeys(child.data, ["type"])) {
+            for (const [index, type] of child.data.type.entries()) {
+              const newChild = {
+                key: child.key + "-" + index.toString(),
+                label: type.name,
+                children: [] as TreeNode[],
+                selectable: true,
+                type: "type",
+                loading: false,
+                data: {
+                  iri: type["@id"]
+                }
+              } as TreeNode;
+              if (child.children && !child.children.includes(newChild)) child.children!.push(newChild);
+            }
+          }
+          await setIconData(node);
+          child.loading = false;
+        }
       }
     }
   }
 }
 
 function onNodeCollapse(node: TreeNode) {
-  for (const [key, value] of Object.entries(expandedKeys.value)) {
-    node.children!.forEach((child: TreeNode) => {
-      if (child.key === key) {
-        delete expandedKeys.value[child.key];
-      }
-    });
+  for (const key of Object.keys(expandedKeys.value)) {
+    if (key.toString().startsWith(node.key! + "-")) {
+      delete expandedKeys.value[key];
+    }
   }
 }
 
@@ -119,7 +126,7 @@ async function setIconData(node: TreeNode) {
   if (node.children) {
     for (const child of node.children) {
       for (const child2 of child.children!) {
-        iris.push(child2.data.iri!);
+        if (child2.data.iri) iris.push(child2.data.iri);
       }
     }
     const typeEntities = await EntityService.getPartialEntities(iris, [RDF.TYPE]);
@@ -136,10 +143,10 @@ async function setIconData(node: TreeNode) {
   }
 }
 
-function createOrNode(ttproperty: any, cardinality: string, index: any, propertyList: TreeNode[], parentKey: string) {
+async function createOrNode(ttproperty: any, cardinality: string, index: any, propertyList: TreeNode[], parentKey: string) {
   const property = {
     key: parentKey + "-" + index.toString(),
-    label: ttproperty[SHACL.PATH][0].name,
+    label: "or",
     children: [] as TreeNode[],
     selectable: true,
     loading: false,
@@ -147,32 +154,61 @@ function createOrNode(ttproperty: any, cardinality: string, index: any, property
       cardinality: cardinality,
       isOr: true,
       type: [] as TreeNode[],
-      iri: ttproperty[SHACL.PATH][0]["@id"]
+      iri: ""
     },
-    type: "property"
+    type: "or"
   } as TreeNode;
-
-  for (const orProperty of ttproperty[SHACL.OR]) {
-    const type = orProperty[SHACL.CLASS] || orProperty[SHACL.NODE] || orProperty[SHACL.DATATYPE] || [];
-    const types = isArrayHasLength(type) ? type[0] : {};
-    const name = `${orProperty[SHACL.PATH]?.[0].name}  (${
-      isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"].slice(type[0]["@id"].indexOf("#") + 1)) : ""
-    })`;
-
-    property.property.push({ "@id": orProperty[SHACL.PATH]?.[0]["@id"], name: name });
-    property.data.type.push(types);
-    property.data.typeIcon = getFAIconFromType(types);
-    property.data.color = getColourFromType(types);
+  for (const [index2, orProperty] of ttproperty[SHACL.OR].entries()) {
+    if (property.children && property.children.length < ttproperty[SHACL.OR].length) {
+      const type = orProperty[SHACL.CLASS] || orProperty[SHACL.NODE] || orProperty[SHACL.DATATYPE] || [];
+      const types = isArrayHasLength(type) ? type[0] : {};
+      const name = `${orProperty[SHACL.PATH]?.[0].name}  ${
+        isArrayHasLength(type) ? "(" + (type[0].name ? type[0].name : type[0]["@id"].slice(type[0]["@id"].indexOf("#") + 1)) + ")" : ""
+      }`;
+      property.data.typeIcon = getFAIconFromType(types);
+      property.data.color = getColourFromType(types);
+      const newChild = {
+        key: property.key + "-" + index2.toString(),
+        label: name,
+        children: [] as TreeNode[],
+        selectable: true,
+        type: "property",
+        loading: false,
+        data: {
+          iri: orProperty[SHACL.PATH][0]["@id"],
+          type: type
+        }
+      } as TreeNode;
+      property.children!.push(newChild);
+    }
+  }
+  for (const child of property.children!) {
+    child.loading = true;
+    for (const [index, type] of child.data.type.entries()) {
+      const newChild = {
+        key: child.key + "-" + index.toString(),
+        label: type.name,
+        children: [] as TreeNode[],
+        selectable: true,
+        type: "type",
+        loading: false,
+        data: {
+          iri: type["@id"]
+        }
+      } as TreeNode;
+      if (child.children && !child.children.includes(newChild)) child.children!.push(newChild);
+    }
+    child.loading = false;
+    await setIconData(property);
   }
   propertyList.push(property);
 }
 
 function createNode(ttproperty: any, entity2: any[], index: any, cardinality: string, propertyList: TreeNode[], parentKey: string) {
-  const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
+  const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || ttproperty[SHACL.NAMESPACE + "dataType"] || [];
   const group = ttproperty?.[SHACL.GROUP]?.[0];
-  const name = `${ttproperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"]) : ""})`;
-  const typeTypes = entity2[index][RDF.TYPE];
-
+  const name = `${ttproperty[SHACL.PATH]?.[0].name}  ${isArrayHasLength(type) ? "(" + (type[0].name ? type[0].name : type[0]["@id"]) + ")" : ""}`;
+  const typeTypes = isObjectHasKeys(entity2[index], [RDF.TYPE]) ? entity2[index][RDF.TYPE] : [];
   const property = {
     key: parentKey + "-" + index.toString(),
     label: name,
@@ -203,13 +239,13 @@ async function getDataModelPropertiesDisplay(iri: string, parentKey: string): Pr
   if (isObjectHasKeys(entity, [SHACL.PROPERTY]) && isArrayHasLength(entity[SHACL.PROPERTY])) {
     const iris = [];
     for (const ttproperty2 of entity[SHACL.PROPERTY]) {
-      iris.push(ttproperty2[SHACL.PATH][0]["@id"]);
+      if (isObjectHasKeys(ttproperty2, [SHACL.PATH])) iris.push(ttproperty2[SHACL.PATH][0]["@id"]);
     }
     const entity2 = await EntityService.getPartialEntities(iris, [RDF.TYPE]);
     for (const [index, ttproperty] of entity[SHACL.PROPERTY].entries()) {
       const cardinality = `${ttproperty[SHACL.MINCOUNT] || 0} : ${ttproperty[SHACL.MAXCOUNT] || "*"}`;
       if (isObjectHasKeys(ttproperty, [SHACL.OR])) {
-        createOrNode(ttproperty, cardinality, index, propertyList, parentKey);
+        await createOrNode(ttproperty, cardinality, index, propertyList, parentKey);
       } else {
         createNode(ttproperty, entity2, index, cardinality, propertyList, parentKey);
       }
@@ -235,7 +271,7 @@ async function getDataModelPropertiesDisplay(iri: string, parentKey: string): Pr
   gap: 0.25rem;
 }
 
-.tree-row .p-progress-spinner {
+.progress-spinner {
   width: 1.25em !important;
   height: 1.25em !important;
   flex: 0 0 auto;

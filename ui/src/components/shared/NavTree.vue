@@ -27,7 +27,7 @@
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
-          <ProgressSpinner v-if="node.loading" />
+          <ProgressSpinner v-if="node.loading" class="progress-spinner" />
           <span class="row-name" @mouseover="displayOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
         </div>
       </template>
@@ -395,7 +395,7 @@ function dragStart(event: any, data: any) {
   width: 100% !important;
 }
 
-.tree-row .p-progress-spinner {
+.progress-spinner {
   width: 1.25em !important;
   height: 1.25em !important;
   flex: 0 0 auto;
