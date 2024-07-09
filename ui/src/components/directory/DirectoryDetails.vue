@@ -3,6 +3,10 @@
     <ProgressSpinner />
   </div>
   <div v-else id="directory-table-container">
+    <router-link v-if="searchResults?.entities?.length" to="/directory/search">
+      <IMFontAwesomeIcon icon="fa-solid fa-arrow-left" />
+      Back to search results
+    </router-link>
     <div class="header-container">
       <ParentHierarchy
         :entityIri="entity['@id']"
@@ -25,12 +29,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch } from "vue";
+import { computed, onMounted, ref, Ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 interface Props {
   selectedIri: string;
@@ -50,6 +55,9 @@ watch(
   () => props.selectedIri,
   async () => await init()
 );
+
+const directoryStore = useDirectoryStore();
+const searchResults = computed(() => directoryStore.searchResults);
 
 const entity: Ref<any> = ref({});
 const loading = ref(true);

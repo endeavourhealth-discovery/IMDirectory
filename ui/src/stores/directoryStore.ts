@@ -10,7 +10,7 @@ export const useDirectoryStore = defineStore("directory", {
   state: (): DirectoryState => ({
     conceptIri: IM.MODULE_ONTOLOGY,
     findInTreeIri: "",
-    searchResults: {} as SearchResponse,
+    searchResults: undefined,
     findInTreeBoolean: false,
     searchLoading: false,
     sidebarControlActivePanel: 0,
@@ -41,7 +41,7 @@ export const useDirectoryStore = defineStore("directory", {
     updateSearchLoading(loading: boolean) {
       this.searchLoading = loading;
     },
-    updateSearchResults(searchResults: SearchResponse) {
+    updateSearchResults(searchResults: SearchResponse | undefined) {
       this.searchResults = searchResults;
     },
     updateSidebarControlActivePanel(number: number) {

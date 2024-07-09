@@ -41,6 +41,7 @@
       :im-query="imQuery"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+      @searchResultsUpdated="(searchResults: SearchResponse | undefined) => $emit('searchResultsUpdated', searchResults)"
     />
   </div>
 </template>
@@ -51,7 +52,7 @@ import { FilterOptions } from "@im-library/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash-es";
-import { QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 
 interface Props {
@@ -75,7 +76,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  selectedFiltersUpdated: (_payload: FilterOptions) => true
+  selectedFiltersUpdated: (_payload: FilterOptions) => true,
+  searchResultsUpdated: (_payload: SearchResponse | undefined) => true
 });
 
 const filterStore = useFilterStore();
