@@ -1,9 +1,13 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
-    <Stepper :style="{ minWidth: '50vw' }">
-      <StepperPanel>
-        <template #header> </template>
-        <template #content="{ nextCallback }">
+    <Stepper value="0" :style="{ minWidth: '50vw' }">
+      <StepList value="0">
+        <Step value="0"></Step>
+        <Step value="1"></Step>
+        <Step value="2"></Step>
+      </StepList>
+      <StepPanels value="0">
+        <StepPanel value="0" v-slot="{ activateCallback }">
           <div class="flex flex-column select-property-wrapper">
             <AutocompleteSearchBar
               v-model:selected="selectedGeneralConcept"
@@ -39,18 +43,15 @@
               icon="pi pi-arrow-right"
               iconPos="right"
               @click="
-                event => {
+                () => {
                   addSelectedPathMatch();
-                  nextCallback(event);
+                  activateCallback();
                 }
               "
             />
           </div>
-        </template>
-      </StepperPanel>
-      <StepperPanel>
-        <template #header> </template>
-        <template #content="{ prevCallback }">
+        </StepPanel>
+        <StepPanel value="1" v-slot="{ activateCallback }">
           <EditWhere
             v-if="getLeafMatch(editMatch) && isArrayHasLength(getLeafMatch(editMatch).where)"
             v-for="[index, where] of getLeafMatch(editMatch).where!.entries()"
@@ -80,11 +81,11 @@
           />
 
           <div class="flex pt-4 justify-content-between populate-property-actions">
-            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="prevCallback" />
+            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback" />
             <Button label="Save" iconPos="right" @click="save" />
           </div>
-        </template>
-      </StepperPanel>
+        </StepPanel>
+      </StepPanels>
     </Stepper>
   </Dialog>
 </template>
@@ -202,15 +203,11 @@ function clear() {
   selectedGeneralConcept.value = undefined;
 }
 
-function addProperty() {
-  if (!isArrayHasLength(editMatch.value.where)) editMatch.value.where = [];
-  editMatch.value.where!.push({});
-}
-
 function onPropertyAdd(property: Where) {
-  const hasProperty = editMatch.value.where?.some(where => where["@id"] === property["@id"]);
+  const leafMatch = getLeafMatch(editMatch.value);
+  const hasProperty = leafMatch.where?.some(where => where["@id"] === property["@id"]);
   if (!hasProperty) {
-    editMatch.value.where?.push(property);
+    leafMatch.where?.push(property);
     describeMatch(editMatch.value, 0, false);
   }
 }

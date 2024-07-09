@@ -223,13 +223,13 @@ function locateInTree(iri: string) {
 }
 
 .row-button:hover {
-  background-color: var(--surface-border) !important;
-  color: var(--surface-a) !important;
+  background-color: var(--p-surface-border) !important;
+  color: var(--p-content-background) !important;
 }
 
 .row-button-fav:hover {
-  background-color: var(--yellow-500) !important;
-  color: var(--surface-a) !important;
+  background-color: var(--p-yellow-500) !important;
+  color: var(--p-content-background) !important;
 }
 
 .content-wrapper {

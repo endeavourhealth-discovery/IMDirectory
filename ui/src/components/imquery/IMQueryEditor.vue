@@ -15,34 +15,18 @@
       <div class="feature-title side-title">Features:</div>
       <div class="feature-list">
         <div class="feature-list-container">
-          <div class="feature">
-            <MatchDisplay
-              class="feature-description clickable"
-              :match="editQueryDefinition"
-              :class="[hover ? 'feature-description-card-hover' : 'feature-description-card']"
-              @mouseover="mouseover"
-              @mouseout="mouseout"
-              @click="editMatch"
-            />
-          </div>
-        </div>
-        <div class="add-buttons">
-          <Button label="Add parent cohort" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
-          <Button
-            label="Add existing feature"
-            @click="showAddFeature = true"
-            severity="success"
-            icon="fa-solid fa-plus"
-            class="add-feature-button"
-            v-tooltip.bottom="'Add definition from existing feature'"
+          <EditMatch
+            :edit-match="editQueryDefinition"
+            :is-boolean-editor="true"
+            :is-root-feature="true"
+            class="feature-description clickable"
+            @on-update-dialog-focus="editMatch"
           />
-          <Button
-            label="Add new feature"
-            v-if="selectedBaseType?.iri"
-            @click="showBuildFeature = true"
-            severity="warning"
-            icon="fa-solid fa-screwdriver-wrench"
-            class="add-feature-button"
+          <EditMatchDialog
+            v-model:show-dialog="showDialog"
+            :match="selectedMenuItem?.editMatch"
+            :query-base-type-iri="selectedBaseType?.iri!"
+            @save-changes="onSaveChanges"
           />
         </div>
       </div>
@@ -55,12 +39,6 @@
       :edit-match="editQueryDefinition"
       :match-type-of-iri="selectedBaseType?.iri!"
     />
-    <EditMatchDialog
-      v-model:show-dialog="showDialog"
-      :match="selectedMatch"
-      :query-base-type-iri="selectedBaseType?.iri!"
-      @save-changes="(editMatch: Match | undefined) => onSaveChanges(editMatch!)"
-    />
   </div>
 </template>
 
@@ -69,7 +47,6 @@ import { Ref, onMounted, provide, ref, watch } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import { Match, Query, SearchResultSummary, Bool, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
-import MatchDisplay from "./MatchDisplay.vue";
 import EditMatchDialog from "./EditMatchDialog.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash-es";
@@ -77,6 +54,9 @@ import AddMatch from "./AddMatch.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { SearchOptions } from "@im-library/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import EditMatch from "./EditMatch.vue";
+import { MenuItem } from "primevue/menuitem";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   queryDefinition?: Query;
@@ -86,15 +66,14 @@ const props = defineProps<Props>();
 
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const editQueryDefinition: Ref<Query> = ref({});
-const hover: Ref<boolean> = ref(false);
 const showDialog = ref(false);
-const selectedMatch: Ref<Match | undefined> = ref();
 const imQueryForBaseType: Ref<QueryRequest | undefined> = ref();
 const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
 const variableMap: Ref<{ [key: string]: any }> = ref({});
+const selectedMenuItem: Ref<MenuItem | undefined> = ref();
 provide("selectedBaseType", selectedBaseType);
 provide("variableMap", variableMap);
 provide("fullQuery", editQueryDefinition);
@@ -113,7 +92,6 @@ onMounted(async () => {
       selectedBaseType.value = { iri: editQueryDefinition.value.typeOf?.["@id"], name: editQueryDefinition.value.typeOf?.name } as SearchResultSummary;
 
     buildImQueryForBaseType();
-
     populateVariableMap(variableMap.value, editQueryDefinition.value);
   }
 });
@@ -126,23 +104,25 @@ function buildImQueryForBaseType() {
   imQueryForBaseType.value = buildIMQueryFromFilters(searchOptions);
 }
 
-function mouseover(event: Event) {
-  event.stopPropagation();
-  hover.value = true;
-}
-
-function mouseout(event: Event) {
-  event.stopPropagation();
-  hover.value = false;
-}
-
-function editMatch() {
-  selectedMatch.value = editQueryDefinition.value;
+function editMatch(menuItems: MenuItem[]) {
+  if (isArrayHasLength(menuItems)) selectedMenuItem.value = menuItems[menuItems.length - 1];
   showDialog.value = true;
 }
 
 async function onSaveChanges(editMatch: Match) {
-  editQueryDefinition.value = await QueryService.getQueryDisplayFromQuery(editMatch, false);
+  if (selectedMenuItem.value) {
+    const describedMatch = await QueryService.getQueryDisplayFromQuery(editMatch, false);
+    if (describedMatch.where) selectedMenuItem.value.editMatch.where = describedMatch.where;
+    if (describedMatch.match) selectedMenuItem.value.editMatch.match = describedMatch.match;
+    if (describedMatch.then) selectedMenuItem.value.editMatch.then = describedMatch.then;
+    if (describedMatch.groupBy) selectedMenuItem.value.editMatch.groupBy = describedMatch.groupBy;
+    if (isObjectHasKeys(describedMatch, ["exclude"])) selectedMenuItem.value.editMatch.exclude = describedMatch.exclude;
+    if (describedMatch.instanceOf) selectedMenuItem.value.editMatch.instanceOf = describedMatch.instanceOf;
+    if (isObjectHasKeys(describedMatch, ["nodeRef"])) selectedMenuItem.value.editMatch.nodeRef = describedMatch.nodeRef;
+    if (describedMatch.typeOf) selectedMenuItem.value.editMatch.typeOf = describedMatch.typeOf;
+    if (isObjectHasKeys(describedMatch, ["name"])) selectedMenuItem.value.editMatch.name = describedMatch.name;
+    if (isObjectHasKeys(describedMatch, ["description"])) selectedMenuItem.value.editMatch.description = describedMatch.description;
+  }
 }
 </script>
 
@@ -188,13 +168,6 @@ async function onSaveChanges(editMatch: Match) {
   overflow: auto;
 }
 
-.feature {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-  justify-content: center;
-}
-
 .feature-description {
   width: 100%;
 }
@@ -205,9 +178,9 @@ async function onSaveChanges(editMatch: Match) {
 
 .feature-description-card {
   padding: 0.5rem;
-  border: var(--imquery-editor-border-color) 1px solid;
+  border: var(--p-imquery-editor-border-color) 1px solid;
   border-radius: 5px;
-  background-color: var(--imquery-editor-background-color);
+  background-color: var(--p-imquery-editor-background-color);
   flex: 1;
 }
 
@@ -215,9 +188,9 @@ async function onSaveChanges(editMatch: Match) {
   width: 100%;
   padding: 0.5rem;
   border-radius: 5px;
-  background-color: var(--imquery-editor-background-color);
+  background-color: var(--p-imquery-editor-background-color);
   flex: 1;
-  border: var(--imquery-editor-hover-border-color) 1px solid;
+  border: var(--p-imquery-editor-hover-border-color) 1px solid;
 }
 
 .clickable {

@@ -1,10 +1,10 @@
 import UserEdit from "@/components/auth/UserEdit.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
-import InlineMessage from "primevue/inlinemessage";
+import Message from "primevue/message";
 import Button from "primevue/button";
 import SelectButton from "primevue/selectbutton";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import AvatarWithSelector from "@/components/auth/AvatarWithSelector.vue";
 import { AuthService } from "@/services";
 import { setupServer } from "msw/node";
@@ -78,7 +78,7 @@ describe("userEdit.vue ___ user", () => {
     component = render(UserEdit, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage, SelectButton, OverlayPanel, AvatarWithSelector, TieredMenu },
+        components: { Card, Button, InputText, Message, SelectButton, Popover, AvatarWithSelector, TieredMenu },
         stubs: { "router-link": true }
       }
     });

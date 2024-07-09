@@ -1,5 +1,5 @@
 <template>
-  <Dropdown
+  <Select
     :options="[
       { id: 'is', name: 'is' },
       { id: 'between', name: 'between' },
@@ -12,14 +12,14 @@
     v-model:model-value="propertyType"
   />
   <div v-if="propertyType === 'between'">
-    <Calendar v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
+    <DatePicker v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
     <InputText value="and" disabled class="property-input-title-and" />
-    <Calendar v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
+    <DatePicker v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
   </div>
   <div v-else-if="propertyType === 'is'" class="flex">
-    <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="operator" />
-    <Dropdown type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" />
-    <Calendar v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
+    <Select type="text" placeholder="operator" :options="operatorOptions" v-model="operator" />
+    <Select type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" />
+    <DatePicker v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
     <RelativeToSelect
       v-else-if="valueType === 'variable'"
       v-model:propertyRef="propertyRef"
@@ -41,7 +41,7 @@
     />
     <InputNumber v-model:model-value="numberValue" />
     <!-- TODO: model Date options and get from API -->
-    <Dropdown
+    <Select
       :options="[
         { id: 'minute', name: 'minute(s)' },
         { id: 'hour', name: 'hour(s)' },

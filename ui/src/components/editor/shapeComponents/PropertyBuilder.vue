@@ -575,7 +575,7 @@ function updateEntity() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 .children-container {

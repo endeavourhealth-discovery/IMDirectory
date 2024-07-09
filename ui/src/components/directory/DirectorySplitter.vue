@@ -26,9 +26,12 @@
           @navigateTo="navigateTo"
           @locateInTree="locateInTree"
           @selected-filters-updated="emit('selectedFiltersUpdated', $event)"
+          @searchResultsUpdated="updateSearchResults"
         >
           <transition :name="route?.meta?.transition || 'fade'" :mode="route?.meta?.mode || 'in-out'">
-            <component :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
+            <keep-alive>
+              <component :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
+            </keep-alive>
           </transition>
         </router-view>
       </div>
@@ -44,7 +47,8 @@ import { Ref, computed, ref, onMounted, watch } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRouter } from "vue-router";
 import { useLoadingStore } from "@/stores/loadingStore";
-import { FilterOptions } from "@im-library/interfaces";
+import { ExtendedSearchResultSummary, FilterOptions } from "@im-library/interfaces";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   searchTerm: string;
@@ -87,6 +91,10 @@ function navigateTo(iri: any) {
 
 function locateInTree(iri: string) {
   directoryStore.updateFindInTreeIri(iri);
+}
+
+function updateSearchResults(searchResults: SearchResponse | undefined) {
+  directoryStore.updateSearchResults(searchResults);
 }
 </script>
 

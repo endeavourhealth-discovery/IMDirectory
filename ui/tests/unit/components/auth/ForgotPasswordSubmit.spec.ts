@@ -1,6 +1,6 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
-import InlineMessage from "primevue/inlinemessage";
+import Message from "primevue/message";
 import { flushPromises } from "@vue/test-utils";
 import ForgotPasswordSubmit from "@/components/auth/ForgotPasswordSubmit.vue";
 import InputText from "primevue/inputtext";
@@ -38,7 +38,7 @@ describe("ForgotPasswordSubmit.vue no registeredUser", () => {
     component = render(ForgotPasswordSubmit, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage }
+        components: { Card, Button, InputText, Message }
       }
     });
   });
@@ -63,7 +63,7 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
     component = render(ForgotPasswordSubmit, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage }
+        components: { Card, Button, InputText, Message }
       }
     });
   });
@@ -160,7 +160,7 @@ describe("ForgotPasswordSubmit.vue 403 response", () => {
     component = render(ForgotPasswordSubmit, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage }
+        components: { Card, Button, InputText, Message }
       }
     });
   });

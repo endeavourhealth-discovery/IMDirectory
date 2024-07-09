@@ -210,21 +210,21 @@ function requestCode() {
 }
 
 .password-check {
-  color: var(--green-500);
+  color: var(--p-green-500);
   font-size: 2em;
 }
 
 .password-times {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 2em;
 }
 
 .invalid {
-  border-color: var(--red-400);
+  border-color: var(--p-red-400);
 }
 
 .validate-error {
-  color: var(--red-400);
+  color: var(--p-red-400);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

@@ -51,7 +51,7 @@ function handleSubmit(): void {
     title: "Warning",
     text: "Reset password for account: " + username.value,
     showCancelButton: true,
-    confirmButtonColor: "var(--primary-color)",
+    confirmButtonColor: "var(--p-primary-color)",
     confirmButtonText: "Reset Password"
   }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {

@@ -118,8 +118,8 @@ function onClick(event: any, item: any) {
 }
 
 .padding-container {
-  background: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  background: var(--p-content-background);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
   overflow: a;
 }
@@ -147,7 +147,7 @@ function onClick(event: any, item: any) {
   border: none;
   padding: 0;
   margin: 0;
-  background-color: var(--surface-a);
+  background-color: var(--p-content-background);
 }
 
 .p-menuitem {

@@ -5,7 +5,7 @@ import axios from "axios";
 import Button from "primevue/button";
 import Tree from "primevue/tree";
 import ProgressSpinner from "primevue/progressspinner";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import Tooltip from "primevue/tooltip";
 import { flushPromises } from "@vue/test-utils";
 import { EntityService } from "@/services";
@@ -45,7 +45,7 @@ describe("SecondaryTree.vue", () => {
   beforeEach(() => {
     component = render(SecondaryTree, {
       global: {
-        components: { Button, Tree, ProgressSpinner, OverlayPanel },
+        components: { Button, Tree, ProgressSpinner, Popover },
         stubs: { FontAwesomeIcon: true },
         directives: { Tooltip: Tooltip },
         provide: { axios: axios },

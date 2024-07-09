@@ -16,8 +16,8 @@
         :disabled="disabled"
       />
     </IconField>
-    <Button label="Advanced" severity="info" @click="showDialog = true" class="advanced-button" icon="pi pi-search" />
-    <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
+    <Button severity="info" @click="showDialog = true" icon="pi pi-search" v-tooltip="'Advanced search'" />
+    <Popover ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
       </div>
@@ -43,7 +43,7 @@
           </small>
         </div>
       </div>
-    </OverlayPanel>
+    </Popover>
     <DirectorySearchDialog
       v-if="showDialog"
       v-model:show-dialog="showDialog"

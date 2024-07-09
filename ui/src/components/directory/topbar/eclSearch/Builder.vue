@@ -19,7 +19,7 @@
       <div class="ecl-builder-dialog-header">
         <strong>ECL Builder:</strong>
         <Button icon="fa-regular fa-circle-question" text rounded @mouseover="toggle" @mouseout="toggle" />
-        <OverlayPanel ref="op">Select or drag and drop for grouping</OverlayPanel>
+        <Popover ref="op">Select or drag and drop for grouping</Popover>
       </div>
     </template>
     <div id="builder-string-container">
@@ -355,8 +355,8 @@ function stripIds(idBuild: any) {
 }
 
 .output-string {
-  background-color: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  background-color: var(--p-content-background);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
   padding: 1rem;
   margin: 0;

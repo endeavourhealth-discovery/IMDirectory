@@ -1,6 +1,15 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
-    <QueryNavTree :editMatch="editMatch" v-model:selected-property="selectedProperty" :dm-iri="dataModelIri" :show-variable-options="showVariableOptions" />
+    <div class="flex">
+      <QueryNavTree
+        class="w-5"
+        :editMatch="editMatch"
+        v-model:selected-property="selectedProperty"
+        :dm-iri="dataModelIri"
+        :show-variable-options="showVariableOptions"
+      />
+      <EditProperty class="align-self-center w-12" :property="editWhere" :data-model-iri="editWhereDMIri || dataModelIri" :show-delete="false" />
+    </div>
     <template #footer>
       <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
       <Button type="button" label="Save" @click="save"></Button>
@@ -16,6 +25,7 @@ import { buildProperty } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
+import EditProperty from "./EditProperty.vue";
 
 interface Props {
   showDialog: boolean;
@@ -33,7 +43,7 @@ const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
-const selectedProperty: Ref<TreeNode> = ref({});
+const selectedProperty: Ref<TreeNode | undefined> = ref();
 const visible: Ref<boolean> = ref(false);
 const editWhere: Ref<Where> = ref({});
 const editWhereDMIri: Ref<string> = ref("");

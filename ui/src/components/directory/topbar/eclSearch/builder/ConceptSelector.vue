@@ -1,6 +1,6 @@
 <template>
   <div v-if="value.conceptSingle" class="concept-container">
-    <Dropdown
+    <Select
       style="width: 4.5rem; min-height: 2.3rem"
       v-model="value.constraintOperator"
       :options="constraintOperatorOptions"
@@ -17,7 +17,7 @@
           <div>{{ slotProps.option.label }}</div>
         </div>
       </template>
-    </Dropdown>
+    </Select>
     <AutocompleteSearchBar v-model:selected="selected" :im-query="imQueryForConceptSearch" :root-entities="['http://snomed.info/sct#138875005']" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
@@ -159,9 +159,9 @@ function updateConcept(concept: SearchResultSummary | undefined) {
   font-size: 1rem;
   padding: 4px 4px;
   margin: 0;
-  color: var(--text-color);
-  background: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  color: var(--p-text-color);
+  background: var(--p-content-background);
+  border: 1px solid var(--p-surface-border);
   transition:
     background-color 0.2s,
     color 0.2s,
@@ -188,7 +188,7 @@ function updateConcept(concept: SearchResultSummary | undefined) {
 }
 
 .inactive {
-  color: var(--text-color-secondary);
+  color: var(--p-text-color-secondary);
 }
 
 .selected-label {

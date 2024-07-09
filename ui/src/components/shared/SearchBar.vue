@@ -1,8 +1,9 @@
 <template>
   <div class="search-container">
-    <IconField iconPosition="right">
-      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
-      <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
+    <InputGroup class="search-group">
+      <InputGroupAddon @click="toggleListen" class="mic">
+        <IMFontAwesomeIcon :icon="listening ? 'fa-duotone fa-microphone-slash' : 'fa-duotone fa-microphone'" />
+      </InputGroupAddon>
       <InputText
         id="autocomplete-search"
         v-model="searchText"
@@ -11,8 +12,9 @@
         data-testid="search-input"
         autofocus
         v-on:keyup.enter="onSearch"
+        :loading="searchLoading"
       />
-    </IconField>
+    </InputGroup>
     <SplitButton class="search-button p-button-secondary" @click="onSearch" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
       v-if="showFilters"
@@ -23,7 +25,7 @@
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
     />
-    <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
+    <Popover ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
       <div v-if="showFilters" class="p-fluid results-filter-container">
         <Filters
           :search="onSearch"
@@ -32,7 +34,7 @@
           @selectedFiltersUpdated="emit('selectedFiltersUpdated', $event)"
         />
       </div>
-    </OverlayPanel>
+    </Popover>
   </div>
 </template>
 
@@ -44,6 +46,8 @@ import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import _ from "lodash-es";
 import { Ref } from "vue";
+import InputGroupAddon from "primevue/inputgroupaddon";
+import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 
 interface Props {
   searchTerm?: string;
@@ -129,7 +133,6 @@ async function onSearch() {
 
 #autocomplete-search {
   font-size: 1rem;
-  border: none;
   height: 2.25rem;
   flex: 1 1 auto;
   width: 100%;
@@ -141,5 +144,9 @@ async function onSearch() {
 
 .search-button {
   height: 2.25rem;
+}
+
+.p-inputicon {
+  color: var(--p-inputtext-color);
 }
 </style>

@@ -2,22 +2,22 @@
   <div id="search-results-main-container">
     <div v-if="showFilters" class="filters-container">
       <div class="p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" optionLabel="name" display="chip" />
           <label for="status">Select status:</label>
-        </span>
+        </FloatLabel>
       </div>
       <div class="p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" optionLabel="name" display="chip" />
           <label for="scheme">Select scheme:</label>
-        </span>
+        </FloatLabel>
       </div>
       <div class="p-inputgroup">
-        <span class="p-float-label">
+        <FloatLabel>
           <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" optionLabel="name" display="chip" />
           <label for="type">Select concept type:</label>
-        </span>
+        </FloatLabel>
       </div>
     </div>
     <div v-if="showQuickTypeFilters && quickTypeFiltersAllowed" class="quick-type-filters">
@@ -41,6 +41,7 @@
       :im-query="imQuery"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+      @searchResultsUpdated="(searchResults: SearchResponse | undefined) => $emit('searchResultsUpdated', searchResults)"
     />
   </div>
 </template>
@@ -51,7 +52,7 @@ import { FilterOptions } from "@im-library/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash-es";
-import { QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 
 interface Props {
@@ -75,7 +76,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  selectedFiltersUpdated: (_payload: FilterOptions) => true
+  selectedFiltersUpdated: (_payload: FilterOptions) => true,
+  searchResultsUpdated: (_payload: SearchResponse | undefined) => true
 });
 
 const filterStore = useFilterStore();
@@ -148,7 +150,7 @@ label {
 #search-results-main-container {
   flex: 1 1 auto;
   overflow: auto;
-  background-color: var(--surface-a);
+  background-color: var(--p-content-background);
   display: flex;
   flex-flow: column nowrap;
 }
@@ -189,5 +191,9 @@ label {
 .heading {
   padding-left: 0.5rem;
   margin: 0;
+}
+
+.p-multiselect {
+  width: 100%;
 }
 </style>

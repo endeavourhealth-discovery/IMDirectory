@@ -22,14 +22,15 @@
 
       <div v-if="editMatch?.match" class="feature-group">
         <Button
-          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
+          v-if="isBooleanEditor"
+          class="expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolMatch?.toUpperCase() ?? 'AND'"
           @click.stop="toggleMatchBool(editMatch)"
         />
         <div class="feature-bracket-group">
           <div class="feature-list">
             <div class="nested-match" v-for="[index, nestedMatch] in editMatch.match.entries()">
-              <span class="left-container">
+              <span class="left-container" v-if="isBooleanEditor">
                 <div class="group-checkbox">
                   <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" @click.stop />
                   <label :for="'group' + index">Select</label>
@@ -46,14 +47,35 @@
               <EditMatch
                 :editMatch="nestedMatch"
                 :focused-id="focusedId"
+                :is-boolean-editor="isBooleanEditor"
                 @on-update-dialog-focus="onNestedUpdateDialogFocus"
                 @delete-match="onDeleteMatch"
                 @ungroup-matches="ungroupMatches"
               />
             </div>
+            <Button
+              type="button"
+              label="Add feature"
+              icon="fa-solid fa-plus"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              severity="success"
+              class="add-feature-button"
+              @click.stop="event => addFeatureMenu.toggle(event)"
+              :disabled="!selectedBaseType"
+            />
+            <Menu ref="addFeatureMenu" id="overlay_menu" :model="addOptions" :popup="true" />
+            <AddMatch
+              v-model:show-add-feature="showAddFeature"
+              v-model:show-add-population="showAddPopulation"
+              v-model:show-build-feature="showBuildFeature"
+              v-model:show-build-then-feature="showBuildThenFeature"
+              :edit-match="editMatch"
+              :match-type-of-iri="selectedBaseType?.iri!"
+            />
           </div>
           <Button
-            v-if="!isRootFeature && editMatch?.match?.length > 1"
+            v-if="!isRootFeature && editMatch?.match?.length > 1 && isBooleanEditor"
             class="builder-button group-button"
             severity="warning"
             icon="fa-solid fa-brackets-curly"
@@ -67,7 +89,7 @@
       <div v-if="editMatch?.where" class="where-group">
         <Button
           v-if="editMatch.where.length > 1"
-          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
+          class="expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolWhere?.toUpperCase() ?? 'AND'"
           @click.stop="toggleWhereBool(editMatch)"
         />
@@ -75,9 +97,10 @@
           <EditWhere
             v-for="[index, nestedWhere] in editMatch.where.entries()"
             :edit-where="nestedWhere"
-            :focused="editMatch['@id'] === focusedId"
+            :focused="!isBooleanEditor && editMatch['@id'] === focusedId"
             :focused-id="focusedId"
             :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+            :is-boolean-editor="isBooleanEditor"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
@@ -91,14 +114,12 @@
             @on-property-add="onPropertyAdd"
           />
           <Button
-            v-if="editMatch['@id'] === focusedId"
+            v-if="!isBooleanEditor && editMatch['@id'] === focusedId"
             label="Add property"
+            severity="success"
             icon="fa-solid fa-plus"
+            class="add-property-button"
             @click="showAddPropertyDialog = true"
-            class="add-button"
-            :severity="hover ? 'success' : 'secondary'"
-            :outlined="!hover"
-            :class="!hover && 'hover-button'"
           />
         </div>
       </div>
@@ -108,6 +129,7 @@
           :editMatch="editMatch.then"
           :focused-id="focusedId"
           :parent-match-type="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+          :is-boolean-editor="isBooleanEditor"
           @on-update-dialog-focus="onNestedUpdateDialogFocus"
           @delete-match="onDeleteMatch"
         />
@@ -137,12 +159,14 @@ import { cloneDeep } from "lodash-es";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
+import AddMatch from "./AddMatch.vue";
 
 interface Props {
   isRootFeature?: boolean;
   editMatch: Match;
-  focusedId: string | undefined;
+  focusedId?: string;
   parentMatchType?: string;
+  isBooleanEditor?: boolean;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({
@@ -150,6 +174,7 @@ const emit = defineEmits({
   deleteMatch: (payload: string) => payload,
   ungroupMatches: (payload: Match) => payload
 });
+const addFeatureMenu = ref();
 const hover: Ref<boolean> = ref(false);
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, getTypeOfMatch } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
@@ -157,6 +182,30 @@ const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
 const showAddPropertyDialog: Ref<boolean> = ref(false);
+const showAddPopulation: Ref<boolean> = ref(false);
+const showBuildFeature: Ref<boolean> = ref(false);
+const showBuildThenFeature: Ref<boolean> = ref(false);
+const showAddFeature: Ref<boolean> = ref(false);
+const addOptions = [
+  {
+    label: "Add new feature",
+    command: () => {
+      showBuildFeature.value = true;
+    }
+  },
+  {
+    label: "Add parent cohort",
+    command: () => {
+      showAddPopulation.value = true;
+    }
+  },
+  {
+    label: "Add existing feature",
+    command: () => {
+      showAddFeature.value = true;
+    }
+  }
+];
 onMounted(() => {
   if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
 });
@@ -225,9 +274,9 @@ function getTypeOf(fullQuery: Match) {
 .edit-match-container {
   width: 99%;
   padding: 0.5rem;
-  border: var(--imquery-editor-border-color) 1px solid;
+  border: var(--p-imquery-editor-border-color) 1px solid;
   border-radius: 5px;
-  background-color: var(--imquery-editor-background-color);
+  background-color: var(--p-imquery-editor-background-color);
   margin: 0.5rem;
   flex: 1;
   cursor: pointer;
@@ -245,7 +294,7 @@ function getTypeOf(fullQuery: Match) {
   background-color: #6bb28c10;
   margin: 0.5rem;
   flex: 1;
-  border: var(--imquery-editor-hover-border-color) 1px solid;
+  border: var(--p-imquery-editor-hover-border-color) 1px solid;
 }
 
 .match-description {
@@ -295,9 +344,9 @@ function getTypeOf(fullQuery: Match) {
 }
 
 .add-feature-button {
-  width: 10rem;
-  margin-top: 0.5rem;
-  margin-left: 0.5rem;
+  width: 15%;
+  display: flex;
+  margin-top: 0.3rem;
 }
 .expanding-button {
   align-self: stretch;
@@ -334,12 +383,5 @@ function getTypeOf(fullQuery: Match) {
 .hover-button {
   color: #00000030 !important;
   border-style: dashed !important;
-}
-
-.add-button {
-  margin-left: 0.1rem;
-  width: 12rem;
-  max-height: 1rem;
-  padding: 1rem;
 }
 </style>

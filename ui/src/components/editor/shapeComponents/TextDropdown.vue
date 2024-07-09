@@ -5,7 +5,7 @@
         <span v-if="shape.showTitle">{{ shape.name }}</span>
         <span v-if="showRequired" class="required">*</span>
       </div>
-      <Dropdown class="text-single-dropdown" :class="invalid && showValidation && 'invalid'" v-model="selectedItem" :options="dropdownOptions" />
+      <Select class="text-single-dropdown" :class="invalid && showValidation && 'invalid'" v-model="selectedItem" :options="dropdownOptions" />
     </span>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
@@ -200,13 +200,13 @@ function hasData() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .title-bar {
@@ -216,6 +216,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

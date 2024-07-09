@@ -3,7 +3,7 @@ import { vi } from "vitest";
 import AvatarWithSelector from "@/components/auth/AvatarWithSelector.vue";
 import Button from "primevue/button";
 import SelectButton from "primevue/selectbutton";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import PrimeVue from "primevue/config";
 import { describe, beforeEach, expect, it } from "vitest";
 describe("AvatarWithSelector.vue", () => {
@@ -16,7 +16,7 @@ describe("AvatarWithSelector.vue", () => {
       props: { selectedAvatar: "colour/002-man.png" },
       global: {
         plugins: [PrimeVue],
-        components: { Button, SelectButton, OverlayPanel }
+        components: { Button, SelectButton, Popover }
       }
     });
   });
@@ -29,14 +29,14 @@ describe("AvatarWithSelector.vue", () => {
   it("starts with a list of avatars", async () => {
     const avatarOpButton = component.getByTestId("avatar-op-button");
     await fireEvent.click(avatarOpButton);
-    const buttons = within(component.getByTestId("avatar-button-options")).getAllByRole("radio");
+    const buttons = within(component.getByTestId("avatar-button-options")).getAllByTestId("avatar-select-button");
     expect(buttons.length).to.equal(100);
   });
 
   it("renders correct image after change", async () => {
     const avatarOpButton = component.getByTestId("avatar-op-button");
     await fireEvent.click(avatarOpButton);
-    const buttons = within(component.getByTestId("avatar-button-options")).getAllByRole("radio");
+    const buttons = within(component.getByTestId("avatar-button-options")).getAllByTestId("avatar-select-button");
     await fireEvent.click(buttons[12]);
     expect(component.emitted()).to.contain.keys("avatarSelected");
     expect((component.emitted()["avatarSelected"][0] as any)[0]).to.equal("colour/013-woman.png");

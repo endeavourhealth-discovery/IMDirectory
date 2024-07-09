@@ -18,21 +18,24 @@
       @page="onPage($event)"
       :lazy="true"
       :total-records="totalCount"
-      :rows-per-page-options="[rows, rows * 2, rows * 4, rows * 8]"
+      :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
       :loading="searchLoading"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
-          <span>Results</span>
-          <span v-if="totalCount"> {{ " (" + totalCount + ")" }}</span>
-          <Button
-            :disabled="!searchResults"
-            class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
-            icon="fa-duotone fa-fw fa-file-arrow-down"
-            @click="exportCSV()"
-            v-tooltip.right="'Download results table'"
-          />
+          <div class="header">
+            <div class="results-title">
+              <span>Results</span>
+              <span v-if="totalCount"> {{ " (" + totalCount + ")" }}</span>
+            </div>
+            <Button
+              :disabled="!searchResults.length"
+              label="Download..."
+              @click="() => (showDownloadOptions = true)"
+              v-tooltip.right="'Download search results'"
+            />
+          </div>
         </template>
         <template #body="{ data }: any">
           <div class="datatable-flex-cell">
@@ -66,15 +69,26 @@
     </DataTable>
     <ContextMenu :model="rClickOptions" ref="contextMenu" />
     <OverlaySummary ref="OS" />
+    <DownloadOptionsDialog
+      :show-dialog="showDownloadOptions"
+      :show-im1="false"
+      :show-definition="false"
+      :show-core="false"
+      :show-legacy="false"
+      :show-im1-id="false"
+      @download="download"
+      @close-dialog="showDownloadOptions = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { DirectService, EclService, QueryService } from "@/services";
+import { DirectService, EclService, EntityService, QueryService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import DownloadOptionsDialog from "./dialogs/DownloadOptionsDialog.vue";
 import BatteryBar from "./BatteryBar.vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
@@ -84,8 +98,8 @@ import { cloneDeep } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest } from "@im-library/interfaces/AutoGen";
-import { ExtendedSearchResultSummary, SearchOptions } from "@im-library/interfaces";
+import { DownloadOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+import { DownloadSettings, ExtendedSearchResultSummary, SearchOptions } from "@im-library/interfaces";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { FilterOptions } from "@im-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
@@ -105,11 +119,15 @@ const props = defineProps<Props>();
 const emit = defineEmits({
   rowSelected: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
-  "update:loading": _payload => true
+  "update:loading": _payload => true,
+  searchResultsUpdated: (_payload: SearchResponse | undefined) => true
 });
 
 onMounted(async () => {
-  if (props.pageSize) rows.value = props.pageSize;
+  if (props.pageSize) {
+    rows.value = props.pageSize;
+    rowsOriginal.value = props.pageSize;
+  }
   if (props.searchTerm) await onSearch();
 });
 
@@ -129,6 +147,7 @@ const totalCount = ref(0);
 const highestUsage = ref(0);
 const page = ref(0);
 const rows = ref(25);
+const rowsOriginal = ref(25);
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",
@@ -152,6 +171,7 @@ const rClickOptions: Ref<any[]> = ref([
 const delay = ref(200);
 const clicks = ref(0);
 const timer: Ref<NodeJS.Timeout> = ref({} as NodeJS.Timeout);
+const showDownloadOptions = ref(false);
 
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
@@ -169,6 +189,7 @@ watch(
 
 async function onSearch() {
   const response = await search(page.value + 1, rows.value);
+  emit("searchResultsUpdated", response);
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
   else {
     searchResults.value = [];
@@ -183,7 +204,8 @@ async function search(pageNumber: number, pageSize: number) {
     props.eclQuery.page = pageNumber;
     props.eclQuery.size = pageSize;
     response = await EclService.ECLSearch(props.eclQuery);
-  } else if (props.searchTerm && props.searchTerm.length > 2) {
+  }
+  if (props.searchTerm && props.searchTerm.length > 2) {
     if (props.imQuery) {
       props.imQuery.textSearch = props.searchTerm;
       props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
@@ -263,21 +285,41 @@ function onRowSelect(event: any) {
   }
 }
 
-async function exportCSV(): Promise<void> {
-  if (isArrayHasLength(searchResults.value)) {
-    const downloadDialog = dynamicDialog.open(LoadingDialog, {
-      props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
-      data: { title: "Downloading", text: "Preparing your download..." }
-    });
-    const response = await search(1, totalCount.value);
-    if (response && isArrayHasLength(response.entities)) {
-      const heading = ["name", "iri", "code"].join(",");
-      const body = response?.entities?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
-      const csv = [heading, body].join("\n");
-      downloadFile(csv, "results.csv");
-    }
-    downloadDialog.close();
+async function download(downloadSettings: DownloadSettings): Promise<void> {
+  const downloadDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Downloading", text: "Preparing your download..." }
+  });
+  let downloadQuery: QueryRequest | undefined;
+  let eclSearchRequest: EclSearchRequest | undefined;
+  if (props.eclQuery) {
+    eclSearchRequest = cloneDeep(props.eclQuery);
+    eclSearchRequest.page = 1;
+    eclSearchRequest.size = totalCount.value;
   }
+  if (props.searchTerm && props.searchTerm.length > 2) {
+    if (props.imQuery) {
+      downloadQuery = cloneDeep(props.imQuery);
+      downloadQuery.textSearch = props.searchTerm;
+      downloadQuery.page = { pageNumber: 1, pageSize: totalCount.value };
+    } else {
+      const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
+      searchOptions.textSearch = props.searchTerm;
+      searchOptions.page = { pageNumber: 1, pageSize: totalCount.value };
+      downloadQuery = buildIMQueryFromFilters(searchOptions);
+    }
+  }
+  if (downloadQuery || eclSearchRequest) {
+    const options: DownloadOptions = {
+      queryRequest: downloadQuery,
+      eclSearchRequest: eclSearchRequest,
+      totalCount: totalCount.value,
+      format: downloadSettings.selectedFormat
+    };
+    const result = await EntityService.downloadSearchResults(options);
+    if (result) downloadFile(result, "search-results-" + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + downloadSettings.selectedFormat);
+  }
+  downloadDialog.close();
 }
 </script>
 
@@ -290,7 +332,7 @@ label {
   height: 100%;
   flex: 1 1 auto;
   overflow: auto;
-  background-color: var(--surface-a);
+  background-color: var(--p-content-background);
   display: flex;
   flex-flow: column nowrap;
 }
@@ -322,5 +364,12 @@ label {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+}
+
+.header {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 0.5rem;
 }
 </style>

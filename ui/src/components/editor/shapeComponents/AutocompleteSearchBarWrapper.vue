@@ -240,9 +240,9 @@ function hasData() {
 
 .label {
   cursor: pointer;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
-  background-color: var(--surface-a);
+  background-color: var(--p-content-background);
   padding: 0.25rem;
 }
 
@@ -251,7 +251,7 @@ function hasData() {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: var(--text-color);
+  color: var(--p-text-color);
 }
 
 .search-text {
@@ -263,9 +263,9 @@ function hasData() {
   font-size: 1rem;
   padding: 4px 4px;
   margin: 0;
-  color: var(--text-color);
-  background: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  color: var(--p-text-color);
+  background: var(--p-content-background);
+  border: 1px solid var(--p-surface-border);
   transition:
     background-color 0.2s,
     color 0.2s,
@@ -281,13 +281,13 @@ function hasData() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .selected-label {
@@ -301,6 +301,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

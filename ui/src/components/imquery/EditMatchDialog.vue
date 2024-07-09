@@ -3,19 +3,21 @@
     <Dialog
       v-model:visible="visible"
       maximizable
-      :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
+      :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--p-surface-section)' }"
     >
       <template #header>
-        <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
-        <Breadcrumb :model="pathItems">
-          <template #item="{ item }">
-            <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
-          </template>
-          <template #separator> / </template>
-        </Breadcrumb>
-        <div v-if="editMatch" class="variable-edit">
-          <InputText type="text" placeholder="Name" v-model="editMatch.name" />
-          <InputText type="text" placeholder="Keep as reference" v-model="editMatch.variable" />
+        <div class="flex align-items-center">
+          <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
+          <Breadcrumb :model="pathItems" class="flex-grow-1">
+            <template #item="{ item }">
+              <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
+            </template>
+            <template #separator> / </template>
+          </Breadcrumb>
+          <div v-if="editMatch" class="variable-edit flex-none">
+            <InputText type="text" placeholder="Name" v-model="editMatch.name" />
+            <InputText type="text" placeholder="Keep as reference" v-model="editMatch.variable" />
+          </div>
         </div>
       </template>
       <div id="imquery-builder-string-container">
@@ -39,34 +41,11 @@
             />
             <div class="add-button-bar">
               <Button label="Add test" @click="showBuildThenFeature = true" severity="secondary" icon="fa-solid fa-plus" class="add-feature-button" />
-              <Button label="Add parent cohort" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
-              <Button
-                label="Add existing feature"
-                @click="showAddFeature = true"
-                severity="success"
-                icon="fa-solid fa-plus"
-                class="add-feature-button"
-                v-tooltip.bottom="'Add definition from existing feature'"
-              />
-              <Button
-                label="Add new feature"
-                @click="showBuildFeature = true"
-                severity="warning"
-                icon="fa-solid fa-screwdriver-wrench"
-                class="add-feature-button"
-              />
               <Button
                 v-if="!focusedEditMatch?.orderBy"
                 label="Add order by"
                 @click="focusedEditMatch!.orderBy = { description: '', limit: 0, partitionBy: {}, property: {} }"
                 icon="fa-solid fa-arrow-down-z-a"
-                class="add-feature-button"
-              />
-              <Button
-                label="Add feature group"
-                @click="focusedEditMatch!.match?.push({ boolMatch: Bool.and })"
-                severity="primary"
-                icon="fa-solid fa-layer-group"
                 class="add-feature-button"
               />
               <FunctionComponent :function-templates="templates" @add-function-property="onAddFunctionProperty" />
@@ -76,32 +55,38 @@
 
         <div class="imquery-output-container">
           <Panel header="Output" toggleable collapsed>
-            <TabView>
-              <TabPanel header="Query JSON">
-                <div class="imquery-string-container">
-                  <pre class="imquery-output-string">{{ focusedEditMatch }}</pre>
-                  <Button
-                    icon="fa-solid fa-copy"
-                    v-tooltip.left="'Copy to clipboard'"
-                    v-clipboard:copy="copyToClipboard()"
-                    v-clipboard:success="onCopy"
-                    v-clipboard:error="onCopyError"
-                  />
-                </div>
-              </TabPanel>
-              <TabPanel header="Description">
-                <div class="imquery-description-container">
-                  <div class="imquery-description"><MatchDisplay v-if="editMatch" class="feature-description" :match="editMatch" /></div>
-                  <Button
-                    icon="fa-solid fa-copy"
-                    v-tooltip.left="'Copy to clipboard'"
-                    v-clipboard:copy="copyToClipboard()"
-                    v-clipboard:success="onCopy"
-                    v-clipboard:error="onCopyError"
-                  />
-                </div>
-              </TabPanel>
-            </TabView>
+            <Tabs value="0">
+              <TabList>
+                <Tab value="0">Query JSON</Tab>
+                <Tab value="1">Description</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel value="0">
+                  <div class="imquery-string-container">
+                    <pre class="imquery-output-string">{{ focusedEditMatch }}</pre>
+                    <Button
+                      icon="fa-solid fa-copy"
+                      v-tooltip.left="'Copy to clipboard'"
+                      v-clipboard:copy="copyToClipboard()"
+                      v-clipboard:success="onCopy"
+                      v-clipboard:error="onCopyError"
+                    />
+                  </div>
+                </TabPanel>
+                <TabPanel value="1">
+                  <div class="imquery-description-container">
+                    <div class="imquery-description"><MatchDisplay v-if="editMatch" class="feature-description" :match="editMatch" /></div>
+                    <Button
+                      icon="fa-solid fa-copy"
+                      v-tooltip.left="'Copy to clipboard'"
+                      v-clipboard:copy="copyToClipboard()"
+                      v-clipboard:success="onCopy"
+                      v-clipboard:error="onCopyError"
+                    />
+                  </div>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </Panel>
         </div>
       </div>
@@ -140,7 +125,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
-  saveChanges: (payload: Match | undefined) => payload
+  saveChanges: (payload: Match) => payload
 });
 const keepAsVariable: Ref<string> = ref("");
 const showAddPopulation: Ref<boolean> = ref(false);
@@ -324,8 +309,8 @@ function onAddFunctionProperty(property: string, value: any) {
 }
 
 .imquery-output-string {
-  background-color: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  background-color: var(--p-content-background);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
   padding: 1rem;
   margin: 0;
@@ -350,8 +335,8 @@ function onAddFunctionProperty(property: string, value: any) {
 }
 
 .imquery-description {
-  background-color: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  background-color: var(--p-content-background);
+  border: 1px solid var(--p-surface-border);
   border-radius: 3px;
   padding: 1rem;
   margin: 0;
