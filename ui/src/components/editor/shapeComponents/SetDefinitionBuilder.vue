@@ -353,7 +353,7 @@ Textarea {
 }
 
 .subsets-panel:deep(.p-panel-header) {
-  background: var(--p-surface-a);
+  background: var(--p-content-background);
 }
 
 .ecl-tabview {

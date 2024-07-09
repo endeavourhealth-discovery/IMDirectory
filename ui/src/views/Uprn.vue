@@ -66,7 +66,7 @@ const items = ref([
   overflow: auto;
   display: flex;
   flex-flow: column nowrap;
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
 }
 #uprn-menu {
   flex: 0 0 auto;
