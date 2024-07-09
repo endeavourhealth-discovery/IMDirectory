@@ -47,8 +47,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { ExtendedSearchResultSummary, FilterOptions } from "@im-library/interfaces";
+import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
+import { FilterOptions } from "@im-library/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash-es";
@@ -79,8 +79,6 @@ const emit = defineEmits({
   selectedFiltersUpdated: (_payload: FilterOptions) => true,
   searchResultsUpdated: (_payload: SearchResponse | undefined) => true
 });
-
-// onUnmounted(() => emit("searchResultsUpdated", undefined));
 
 const filterStore = useFilterStore();
 const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
