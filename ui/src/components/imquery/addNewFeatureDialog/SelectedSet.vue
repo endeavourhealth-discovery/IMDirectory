@@ -1,11 +1,18 @@
 <template>
   <div class="flex w-full">
-    <Listbox v-model="selectedEntity" :options="selectedEntities" class="flex w-full">
+    <Listbox :options="selectedEntities" class="flex w-full">
       <template #option="{ option }" class="flex flex-row">
-        <div>
-          <ToggleButton v-model="option.include" onLabel="include" offLabel="exclude" />
-          <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="p-mx-1 type-icon" />
-          <span @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay($event)">{{ option[RDFS.LABEL] }}</span>
+        <div class="flex flex-row">
+          <div class="flex flex-row gap-1 align-items-baseline">
+            <Button @click="selectedSet.delete(option['@id'])" class="builder-button" :severity="'danger'" icon="fa-solid fa-x" text />
+            <ToggleButton v-model="option.include" onLabel="include" offLabel="exclude" />
+            <InputText v-if="isValueSet(option[RDF.TYPE])" type="text" v-model="option.entailment" disabled />
+            <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
+            <div class="flex-column">
+              <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="p-mx-1 type-icon" />
+              <span @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay($event)">{{ option[RDFS.LABEL] }}</span>
+            </div>
+          </div>
         </div>
       </template>
     </Listbox>
@@ -32,7 +39,11 @@ interface Props {
 }
 const props = defineProps<Props>();
 const selectedEntities: Ref<any[]> = ref([]);
-const selectedEntity: Ref<any> = ref();
+const entailmentOptions: { name: string; id: string }[] = [
+  { name: "descendants of", id: "descendantsOf" },
+  { name: "descendants or self of", id: "descendantsOrSelfOf" },
+  { name: "ancestors of", id: "ancestorsOf" }
+];
 watch(
   () => cloneDeep(props.selectedSet),
   async () => await init()
@@ -47,10 +58,6 @@ async function init() {
     entity.include = true;
     if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
     else entity.entailment = "descendantsOrSelfOf";
-    // descendantsOf?: boolean;
-    // descendantsOrSelfOf?: boolean;
-    // ancestorsOf?: boolean;
-    // memberOf?: boolean;
   }
   selectedEntities.value = entities;
 }

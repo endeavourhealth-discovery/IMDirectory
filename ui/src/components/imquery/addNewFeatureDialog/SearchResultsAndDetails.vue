@@ -1,72 +1,76 @@
 <template>
-  <Tabs v-if="detailsIri || searchTerm" v-model:value="activePage">
-    <TabList>
-      <Tab value="0">Search</Tab>
-      <Tab value="1">Details</Tab>
-    </TabList>
-    <TabPanels>
-      <TabPanel value="0">
-        <SearchResults
-          :show-filters="false"
-          :updateSearch="updateSearch"
-          :search-term="searchTerm"
-          :im-query="imQuery"
-          :rows="10"
-          :show-select="true"
-          @selectedUpdated="
-            summary => {
-              detailsIri = summary.iri;
-              activePage = '1';
-            }
-          "
-          @viewHierarchy="
-            (iri: string) => {
-              detailsIri = iri;
-              activePage = '1';
-            }
-          "
-          @addToList="(iri: string) => onSelect(iri)"
-        />
-      </TabPanel>
-      <TabPanel value="1">
-        <div v-if="detailsIri">
-          <ParentHeader
-            v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
-            :entity="detailsEntity"
-            :showSelect="true"
-            @locateInTree="(iri: string) => $emit('locateInTree', iri)"
-            @viewHierarchy="
-              (iri: string) => {
-                detailsIri = iri;
-                activePage = '1';
-              }
-            "
-            @addToList="(iri: string) => onSelect(iri)"
-          />
-          <div><b>Hierarhcy tree</b></div>
-          <SecondaryTree
-            :entityIri="detailsIri"
-            :show-select="true"
-            @navigateTo="
-              (iri: string) => {
-                detailsIri = iri;
-              }
-            "
-            @onSelect="onSelect"
-          />
-        </div>
-      </TabPanel>
-    </TabPanels>
-  </Tabs>
+  <div class="flex flex-column w-full h-full">
+    <div class="top-half-component">
+      <Tabs v-if="detailsIri || searchTerm" v-model:value="activePage" class="w-full">
+        <TabList>
+          <Tab value="0">Search</Tab>
+          <Tab value="1">Details</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel value="0">
+            <SearchResults
+              :show-filters="false"
+              :updateSearch="updateSearch"
+              :search-term="searchTerm"
+              :im-query="imQuery"
+              :rows="10"
+              :show-select="true"
+              @selectedUpdated="
+                summary => {
+                  detailsIri = summary.iri;
+                  activePage = '1';
+                }
+              "
+              @viewHierarchy="
+                (iri: string) => {
+                  detailsIri = iri;
+                  activePage = '1';
+                }
+              "
+              @addToList="(iri: string) => onSelect(iri)"
+            />
+          </TabPanel>
+          <TabPanel value="1">
+            <div v-if="detailsIri">
+              <ParentHeader
+                v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
+                :entity="detailsEntity"
+                :showSelect="true"
+                @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+                @viewHierarchy="
+                  (iri: string) => {
+                    detailsIri = iri;
+                    activePage = '1';
+                  }
+                "
+                @addToList="(iri: string) => onSelect(iri)"
+              />
+              <div><b>Hierarhcy tree</b></div>
+              <SecondaryTree
+                :entityIri="detailsIri"
+                :show-select="true"
+                @navigateTo="
+                  (iri: string) => {
+                    detailsIri = iri;
+                  }
+                "
+                @onSelect="onSelect"
+              />
+            </div>
 
-  <PathSelectDialog
-    v-bind:showDialog="showDialog"
-    :pathSuggestions="pathSuggestions"
-    @onSelectedPath="path => emit('update:selectedPath', path)"
-    @onClose="showDialog = false"
-  />
+            <PathSelectDialog
+              v-bind:showDialog="showDialog"
+              :pathSuggestions="pathSuggestions"
+              @onSelectedPath="path => emit('update:selectedPath', path)"
+              @onClose="showDialog = false"
+            />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </div>
 
-  <SelectedSet v-if="selectedSet.size" :selected-set="selectedSet" />
+    <SelectedSet v-if="selectedSet.size" :selected-set="selectedSet" class="bottom-half-component" />
+  </div>
   <!-- TODO: Component with 2 subcombonents - one for search results(SearchResults?+EclSearch?+IMQuerySearch?)/details(DirectoryDetails?) and one for selected list(ConceptSelect?) -->
 </template>
 
