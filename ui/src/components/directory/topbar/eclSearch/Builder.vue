@@ -130,7 +130,8 @@ function toggle(event: any) {
 }
 
 watch(queryString, async () => {
-  isValidEcl.value = await EclService.isValidECL(queryString.value);
+  if (queryString.value) isValidEcl.value = await EclService.isValidECL(queryString.value);
+  else isValidEcl.value = false;
 });
 
 provide("includeTerms", readonly(includeTerms));
