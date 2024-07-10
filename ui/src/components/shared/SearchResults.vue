@@ -37,8 +37,9 @@
       :search-term="searchTerm"
       :updateSearch="updateSearch"
       :selected-filter-options="selectedFilterOptions"
-      :rows="rows"
+      :pageSize="rows"
       :im-query="imQuery"
+      :disablePageDropdown="disablePageDropdown"
       :show-select="showSelect"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => emit('locateInTree', iri)"
@@ -68,6 +69,7 @@ interface Props {
   quickTypeFiltersAllowed?: string[];
   selectedQuickTypeFilter?: string;
   imQuery?: QueryRequest;
+  disablePageDropdown?: boolean;
   showSelect?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
