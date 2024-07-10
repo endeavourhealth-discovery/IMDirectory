@@ -50,28 +50,10 @@
         </StepPanel>
         <StepPanel v-slot="{ activateCallback }" value="2">
           <EditMatch
-            v-if="getLeafMatch(editMatch)"
+            v-if="editMatch && getLeafMatch(editMatch)"
             :edit-match="getLeafMatch(editMatch)"
             :is-root-feature="true"
             :focused-id="getLeafMatch(editMatch)['@id']"
-          />
-
-          <AddPropertyDialog
-            v-if="getLeafMatch(editMatch)"
-            v-model:show-dialog="showAddPropertyDialog"
-            :dataModelIri="getLeafMatch(editMatch).typeOf?.['@id'] || dataModelIri"
-            :header="'Add property'"
-            :show-variable-options="false"
-            @on-match-add="onMatchAdd"
-            @on-property-add="onPropertyAdd"
-          />
-          <Button
-            v-if="editMatch['@id'] === focusedId"
-            label="Add property"
-            severity="success"
-            icon="fa-solid fa-plus"
-            class="add-property-button"
-            @click="showAddPropertyDialog = true"
           />
 
           <div class="flex pt-4 justify-content-between populate-property-actions">
@@ -85,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, ref, watch } from "vue";
+import { Ref, onMounted, provide, ref, watch } from "vue";
 import { Match, PathQuery, QueryRequest, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -119,25 +101,19 @@ const emit = defineEmits({
   onMatchAdd: (_match: Match) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
-const editMatch: Ref<Match> = ref({ where: [] } as Match);
+const editMatch: Ref<Match | undefined> = ref();
 const visible: Ref<boolean> = ref(false);
 const selectedGeneralConcept: Ref<SearchResultSummary | undefined> = ref();
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
 const selectedPath: Ref<Match | undefined> = ref();
-const isSelectedConceptValue = computed(
-  () => selectedGeneralConcept.value && (isConcept(selectedGeneralConcept.value.entityType) || isValueSet(selectedGeneralConcept.value.entityType))
-);
-
-const focusedId: Ref<string | undefined> = ref();
-const showAddPropertyDialog: Ref<boolean> = ref(false);
+provide("selectedPath", selectedPath);
 
 const updateSearch: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 
 const treeIri = ref("");
 const searchTerm = ref("");
-const activePage = ref(0);
 const detailsIri = ref("");
 
 const rootEntities: Ref<string[] | undefined> = ref();
@@ -164,23 +140,21 @@ watch(visible, newValue => {
 watch(
   () => cloneDeep(props.match),
   newValue => {
-    if (isObjectHasKeys(newValue, ["where"]) && isArrayHasLength(newValue!.where)) editMatch.value.where = cloneDeep(newValue!.where);
+    if (editMatch.value && isObjectHasKeys(newValue, ["where"]) && isArrayHasLength(newValue!.where)) editMatch.value.where = cloneDeep(newValue!.where);
+  }
+);
+
+watch(
+  () => cloneDeep(selectedPath.value),
+  newValue => {
+    editMatch.value = cloneDeep(newValue);
   }
 );
 
 onMounted(() => init());
 
 function init() {
-  if (isArrayHasLength(props.match?.where)) editMatch.value.where = cloneDeep(props.match!.where);
-}
-
-async function addSelectedPathMatch() {
-  editMatch.value.where = [];
-  if (selectedPath.value?.where?.[0]) {
-    if (selectedGeneralConcept.value && isSelectedConceptValue.value)
-      selectedPath.value.where[0].is = [{ "@id": selectedGeneralConcept.value.iri, name: selectedGeneralConcept.value.name }];
-  }
-  if (selectedPath.value) editMatch.value = selectedPath.value;
+  if (isArrayHasLength(props.match?.where)) editMatch.value = cloneDeep(props.match);
 }
 
 async function getOptions() {
@@ -193,9 +167,11 @@ async function getOptions() {
 }
 
 async function save() {
-  const editMatchCopy = cloneDeep(editMatch.value);
-  editMatchCopy["@id"] = v4();
-  emit("onMatchAdd", editMatchCopy);
+  if (editMatch.value) {
+    const editMatchCopy = cloneDeep(editMatch.value);
+    editMatchCopy["@id"] = v4();
+    emit("onMatchAdd", editMatchCopy);
+  }
   visible.value = false;
 }
 
@@ -207,20 +183,6 @@ function clear() {
   // selectedType.value = undefined;
   treeIri.value = "";
   detailsIri.value = "";
-}
-
-function onPropertyAdd(property: Where) {
-  const leafMatch = getLeafMatch(editMatch.value);
-  const hasProperty = leafMatch.where?.some(where => where["@id"] === property["@id"]);
-  if (!hasProperty) {
-    leafMatch.where?.push(property);
-    describeMatch(editMatch.value, 0, false);
-  }
-}
-
-function onMatchAdd(match: Match) {
-  if (!isArrayHasLength(editMatch.value.match)) editMatch.value.match = [];
-  editMatch.value.match?.push(match);
 }
 
 function getLeafMatch(match: Match) {

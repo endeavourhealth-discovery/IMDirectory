@@ -22,10 +22,10 @@
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
-import { onMounted, watch, Ref, ref } from "vue";
+import { onMounted, watch, Ref, ref, inject } from "vue";
 import { RDF, RDFS } from "@im-library/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Match, Node, TTIriRef } from "@im-library/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupOverlay from "@/composables/setupOverlay";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
@@ -34,19 +34,33 @@ import { isConcept, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
+interface SelectedEntity {
+  "@id": string;
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": TTIriRef[];
+  "http://www.w3.org/2000/01/rdf-schema#label": string;
+  icon: string[];
+  include: boolean;
+  entailment: "memberOf" | "descendantsOf" | "descendantsOrSelfOf" | "ancestorsOf";
+}
+
 interface Props {
   selectedSet: Set<string>;
 }
 const props = defineProps<Props>();
-const selectedEntities: Ref<any[]> = ref([]);
+const selectedEntities: Ref<SelectedEntity[]> = ref([]);
 const entailmentOptions: { name: string; id: string }[] = [
   { name: "descendants of", id: "descendantsOf" },
   { name: "descendants or self of", id: "descendantsOrSelfOf" },
   { name: "ancestors of", id: "ancestorsOf" }
 ];
+const selectedPath = inject("selectedPath") as Ref<Match | undefined>;
+
 watch(
   () => cloneDeep(props.selectedSet),
-  async () => await init()
+  async () => {
+    await init();
+    updatePathValues();
+  }
 );
 onMounted(async () => await init());
 
@@ -64,6 +78,40 @@ async function init() {
 
 function getColourStyleFromType(types: TTIriRef[]) {
   return "color: " + getColourFromType(types);
+}
+
+function updatePathValues() {
+  if (selectedPath.value?.where?.[0]) {
+    selectedPath.value.where[0].is = selectedEntities.value
+      .filter(selected => selected.include === true)
+      .map(selected => convertSelectedEntityToNode(selected));
+    selectedPath.value.where[0].isNot = selectedEntities.value
+      .filter(selected => selected.include === false)
+      .map(selected => convertSelectedEntityToNode(selected));
+  }
+}
+
+function convertSelectedEntityToNode(selected: SelectedEntity): Node {
+  const node: Node = { "@id": selected["@id"] };
+  switch (selected.entailment) {
+    case "memberOf":
+      node.memberOf = true;
+      break;
+    case "descendantsOf":
+      node.descendantsOf = true;
+      break;
+    case "descendantsOrSelfOf":
+      node.descendantsOrSelfOf = true;
+      break;
+    case "ancestorsOf":
+      node.ancestorsOf = true;
+      break;
+
+    default:
+      node.descendantsOrSelfOf = true;
+      break;
+  }
+  return node;
 }
 </script>
 
