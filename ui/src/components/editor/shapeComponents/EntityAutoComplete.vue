@@ -376,7 +376,7 @@ function hasData() {
   cursor: pointer;
   border: 1px solid var(--p-surface-border);
   border-radius: 3px;
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
   padding: 0.25rem;
 }
 

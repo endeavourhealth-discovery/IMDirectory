@@ -43,6 +43,7 @@
       icon="fa-solid fa-star"
       :severity="getSeverity()"
       :class="getClass()"
+      class="fav"
       @click="event => updateFavourites(event, iri)"
       v-tooltip.left="'Unfavourite'"
       data-testid="unfavourite-button"
@@ -158,7 +159,7 @@ function toEdit(event: any, iri: string) {
 <style scoped>
 .activity-row-button:hover {
   background-color: var(--p-text-color) !important;
-  color: var(--p-surface-a) !important;
+  color: var(--p-content-background) !important;
   z-index: 999;
 }
 
@@ -169,12 +170,12 @@ function toEdit(event: any, iri: string) {
 
 .concept-button:hover {
   background-color: var(--p-text-color) !important;
-  color: var(--p-surface-a) !important;
+  color: var(--p-content-background) !important;
 }
 
-.concept-button-fav:hover {
+.fav:hover {
   background-color: var(--p-yellow-500) !important;
-  color: var(--p-surface-a) !important;
+  color: var(--p-content-background) !important;
 }
 
 .p-button.p-button-icon-only.p-button-rounded {

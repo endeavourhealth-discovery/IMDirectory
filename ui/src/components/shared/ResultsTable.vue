@@ -124,6 +124,7 @@ const emit = defineEmits({
   rowSelected: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
   "update:loading": _payload => true,
+  searchResultsUpdated: (_payload: SearchResponse | undefined) => true,
   addToList: (_payload: string) => true,
   viewHierarchy: (_payload: string) => true
 });
@@ -194,6 +195,7 @@ watch(
 
 async function onSearch() {
   const response = await search(page.value + 1, rows.value);
+  emit("searchResultsUpdated", response);
   if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
   else {
     searchResults.value = [];
@@ -336,7 +338,7 @@ label {
   height: 100%;
   flex: 1 1 auto;
   overflow: auto;
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
   display: flex;
   flex-flow: column nowrap;
 }

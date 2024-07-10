@@ -253,7 +253,7 @@ function setupExternalErrorHandler() {
   z-index: 1;
 }
 .swal2-popup {
-  background-color: var(--p-surface-0);
+  background-color: var(--p-content-background);
 }
 .p-toast-message-text {
   width: calc(100% - 4rem);

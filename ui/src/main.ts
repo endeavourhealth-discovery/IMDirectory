@@ -105,6 +105,8 @@ import TabList from "primevue/tablist";
 import Tab from "primevue/tab";
 import TabPanels from "primevue/tabpanels";
 import FloatLabel from "primevue/floatlabel";
+import InputGroup from "primevue/inputgroup";
+import InputGroupAddon from "primevue/inputgroupaddon";
 
 import { VueShowdownPlugin } from "vue-showdown";
 
@@ -210,7 +212,9 @@ const app = createApp(App)
   .component("TabList", TabList)
   .component("Tab", Tab)
   .component("TabPanels", TabPanels)
-  .component("FloatLabel", FloatLabel);
+  .component("FloatLabel", FloatLabel)
+  .component("InputGroup", InputGroup)
+  .component("InputGroupAddon", InputGroupAddon);
 
 const sharedStore = useSharedStore();
 

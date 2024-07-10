@@ -42,6 +42,7 @@
       :show-select="showSelect"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => emit('locateInTree', iri)"
+      @searchResultsUpdated="(searchResults: SearchResponse | undefined) => $emit('searchResultsUpdated', searchResults)"
       @viewHierarchy="(iri: string) => emit('viewHierarchy', iri)"
       @addToList="(iri: string) => emit('addToList', iri)"
     />
@@ -54,7 +55,7 @@ import { FilterOptions } from "@im-library/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash-es";
-import { QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 
 interface Props {
@@ -80,6 +81,7 @@ const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
   selectedFiltersUpdated: (_payload: FilterOptions) => true,
+  searchResultsUpdated: (_payload: SearchResponse | undefined) => true,
   addToList: (_payload: string) => true,
   viewHierarchy: (_payload: string) => true
 });
@@ -154,7 +156,7 @@ label {
 #search-results-main-container {
   flex: 1 1 auto;
   overflow: auto;
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
   display: flex;
   flex-flow: column nowrap;
 }

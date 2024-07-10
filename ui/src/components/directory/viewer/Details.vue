@@ -128,7 +128,7 @@ function openTab(predicate: string) {
   flex-flow: column nowrap;
   width: 100%;
   height: 100%;
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
 }
 .tree-container {
   height: 100vh;

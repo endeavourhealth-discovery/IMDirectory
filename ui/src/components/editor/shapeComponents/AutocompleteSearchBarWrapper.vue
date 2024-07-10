@@ -242,7 +242,7 @@ function hasData() {
   cursor: pointer;
   border: 1px solid var(--p-surface-border);
   border-radius: 3px;
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
   padding: 0.25rem;
 }
 
@@ -264,7 +264,7 @@ function hasData() {
   padding: 4px 4px;
   margin: 0;
   color: var(--p-text-color);
-  background: var(--p-surface-a);
+  background: var(--p-content-background);
   border: 1px solid var(--p-surface-border);
   transition:
     background-color 0.2s,

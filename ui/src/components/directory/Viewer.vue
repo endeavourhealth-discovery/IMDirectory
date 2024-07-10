@@ -306,7 +306,7 @@ function onOpenTab(predicate: string) {
 .concept-panel-content {
   height: 100%;
   overflow: auto;
-  background-color: var(--p-surface-a);
+  background-color: var(--p-content-background);
   display: flex;
 }
 

@@ -33,7 +33,7 @@ describe("state", () => {
       ])
     );
     expect(directoryStore.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
-    expect(directoryStore.searchResults).toEqual({});
+    expect(directoryStore.searchResults).toEqual(undefined);
     expect(directoryStore.focusHierarchy).toBe(false);
   });
 });
