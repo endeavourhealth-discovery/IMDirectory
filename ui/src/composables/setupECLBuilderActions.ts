@@ -107,14 +107,7 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     newBoolGroup.items.push(draggedItem);
     newBoolGroup.items.push(dropzoneItem);
     if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items)) {
-      parent.items = parent.items.filter(
-        (parentItem: any) =>
-          !(
-            dropzoneItem.constraintOperator === toRaw(parentItem.constraintOperator) &&
-            JSON.stringify(dropzoneItem.conceptSingle) === JSON.stringify(parentItem.conceptSingle) &&
-            dropzoneItem.constraintOperator === toRaw(parentItem.constraintOperator)
-          )
-      );
+      parent.items = parent.items.filter((parentItem: any) => JSON.stringify(dropzoneItem) !== JSON.stringify(parentItem));
       if (index) parent.items.splice(index, 0, newBoolGroup);
       else parent.items.push(newBoolGroup);
       wasDraggedAndDropped.value = true;
@@ -123,7 +116,7 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
 
   function onDragEnd(draggedItem: any, parent: any) {
     if (wasDraggedAndDropped.value && isObjectHasKeys(parent, ["items"])) {
-      parent.items = parent.items.filter((parentItem: any) => draggedItem !== parentItem);
+      parent.items = parent.items.filter((parentItem: any) => JSON.stringify(draggedItem) !== JSON.stringify(parentItem));
     }
     wasDraggedAndDropped.value = false;
   }
