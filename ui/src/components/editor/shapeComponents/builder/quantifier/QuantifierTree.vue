@@ -156,7 +156,7 @@ async function findPathToNode(iri: string) {
       });
     }
     const container = document.getElementById("quantifier-tree-container") as HTMLElement;
-    const highlighted = container.getElementsByClassName("p-highlight")[0];
+    const highlighted = container.getElementsByClassName("p-tree-node-selected")?.[0];
     if (highlighted) highlighted.scrollIntoView();
   }
 }

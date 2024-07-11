@@ -143,8 +143,8 @@ export const useUserStore = defineStore("user", {
       this.darkMode = bool;
     },
     async updateCurrentScale(scale: string) {
-      if (this.currentUser) await UserService.updateUserScale(scale);
       this.currentScale = scale;
+      if (this.currentUser) await UserService.updateUserScale(scale);
     },
     updateCurrentUser(user: any) {
       this.currentUser = user;

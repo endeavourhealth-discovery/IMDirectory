@@ -21,7 +21,7 @@
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
       </div>
-      <div v-else class="p-fluid results-container">
+      <div v-else class="results-container">
         <Listbox v-if="results?.entities" v-model="selectedLocal" :options="results.entities">
           <template #option="slotProps">
             <div
