@@ -17,10 +17,11 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     const draggedItemDataString = event.dataTransfer.getData("draggedItem");
     const { draggedItem, draggedItemParent } = JSON.parse(draggedItemDataString);
     console.log(`dropping ${draggedItem.type} to ${dropzoneItem.type}`);
+    const rawDropzoneItem = toRaw(dropzoneItem);
     if (
-      dropzoneItem.conjunction === draggedItem.conjunction &&
-      dropzoneItem.conceptSingle?.iri === draggedItem.conceptSingle?.iri &&
-      dropzoneItem.constraintOperator === draggedItem.constraintOperator
+      rawDropzoneItem.conjunction === draggedItem.conjunction &&
+      rawDropzoneItem.conceptSingle?.iri === draggedItem.conceptSingle?.iri &&
+      rawDropzoneItem.constraintOperator === draggedItem.constraintOperator
     )
       toast.add({
         severity: "warn",
@@ -29,9 +30,9 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
         life: 3000
       });
     else if (
-      dropzoneItem.conjunction === draggedItemParent.conjunction &&
-      dropzoneItem.conceptSingle?.iri === draggedItemParent.conceptSingle?.iri &&
-      dropzoneItem.constraintOperator === draggedItemParent.constraintOperator
+      rawDropzoneItem.conjunction === draggedItemParent.conjunction &&
+      rawDropzoneItem.conceptSingle?.iri === draggedItemParent.conceptSingle?.iri &&
+      rawDropzoneItem.constraintOperator === draggedItemParent.constraintOperator
     )
       toast.add({
         severity: "warn",
@@ -40,17 +41,17 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
         life: 3000
       });
     else if (
-      (draggedItem.type === "ExpressionConstraint" && dropzoneItem.type === "ExpressionConstraint") ||
-      (draggedItem.type === "Refinement" && dropzoneItem.type === "Refinement")
+      (draggedItem.type === "ExpressionConstraint" && rawDropzoneItem.type === "ExpressionConstraint") ||
+      (draggedItem.type === "Refinement" && rawDropzoneItem.type === "Refinement")
     ) {
       group(draggedItem, _.cloneDeep(dropzoneItem), parent, index);
     } else if (
-      (draggedItem.type === "ExpressionConstraint" && dropzoneItem.type === "BoolGroup") ||
-      (draggedItem.type === "Refinement" && dropzoneItem.type === "BoolGroup") ||
-      (draggedItem.type === "Refinement" && dropzoneItem.type === "ExpressionConstraint")
+      (draggedItem.type === "ExpressionConstraint" && rawDropzoneItem.type === "BoolGroup") ||
+      (draggedItem.type === "Refinement" && rawDropzoneItem.type === "BoolGroup") ||
+      (draggedItem.type === "Refinement" && rawDropzoneItem.type === "ExpressionConstraint")
     ) {
-      insert(draggedItem, dropzoneItem);
-    } else if (draggedItem.type === "BoolGroup" && dropzoneItem.type === "BoolGroup") {
+      insert(draggedItem, rawDropzoneItem);
+    } else if (draggedItem.type === "BoolGroup" && rawDropzoneItem.type === "BoolGroup") {
       Swal.fire({
         title: "Do you want to insert or merge?",
         showDenyButton: true,
@@ -60,7 +61,7 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
         denyButtonColor: "Green"
       }).then(result => {
         if (result.isConfirmed) {
-          insert(draggedItem, dropzoneItem);
+          insert(draggedItem, rawDropzoneItem);
           if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
             parent.items = parent.items.filter(
               (parentItem: any) =>
@@ -120,7 +121,7 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
         (parentItem: any) =>
           !(
             dropzoneItem.constraintOperator === toRaw(parentItem.constraintOperator) &&
-            JSON.stringify(dropzoneItem.conceptSingle) === JSON.stringify(toRaw(parentItem.conceptSingle)) &&
+            JSON.stringify(dropzoneItem.conceptSingle) === JSON.stringify(parentItem.conceptSingle) &&
             dropzoneItem.constraintOperator === toRaw(parentItem.constraintOperator)
           )
       );
