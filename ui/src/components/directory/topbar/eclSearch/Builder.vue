@@ -195,7 +195,6 @@ async function generateQueryString() {
     try {
       const buildClone = _.cloneDeep(build.value);
       stripIds(buildClone);
-      console.log(buildClone);
       const query = await EclService.getQueryFromEclBuilder(buildClone, true);
       queryString.value = await EclService.getECLFromQuery(query, includeTerms.value);
       eclStringError.value = { error: false, message: "" };

@@ -1,5 +1,5 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Ref } from "vue";
+import { Ref, toRaw } from "vue";
 import Swal from "sweetalert2";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash-es";
@@ -90,15 +90,13 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   }
 
   function insert(draggedItem: any, dropzoneItem: any) {
-    console.log("insert");
     if (!isArrayHasLength(dropzoneItem.items)) dropzoneItem.items = [];
     dropzoneItem.items.push(draggedItem);
     wasDraggedAndDropped.value = true;
   }
 
   function merge(draggedItem: any, dropzoneItem: any, parent: any, index?: number) {
-    console.log("merge");
-    const newBoolGroup = { type: "BoolGroup", conjunction: "OR", items: [] as any[] };
+    const newBoolGroup = { type: "BoolGroup", conjunction: "or", items: [] as any[] };
     newBoolGroup.items = draggedItem.items.concat(dropzoneItem.items);
     if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items)) {
       parent.items = parent.items.filter(
@@ -113,7 +111,6 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   }
 
   function group(draggedItem: any, dropzoneItem: any, parent: any, index?: number) {
-    console.log("group");
     const conjunction = parent.conjunction === "or" ? "and" : "or";
     const newBoolGroup = { type: "BoolGroup", conjunction: conjunction, items: [] as any[] };
     newBoolGroup.items.push(draggedItem);
@@ -122,9 +119,9 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
       parent.items = parent.items.filter(
         (parentItem: any) =>
           !(
-            dropzoneItem.conjunction === parentItem.conjunction &&
-            dropzoneItem.conceptSingle === parentItem.conceptSingle &&
-            dropzoneItem.constraintOperator === parentItem.constraintOperator
+            dropzoneItem.constraintOperator === toRaw(parentItem.constraintOperator) &&
+            JSON.stringify(dropzoneItem.conceptSingle) === JSON.stringify(toRaw(parentItem.conceptSingle)) &&
+            dropzoneItem.constraintOperator === toRaw(parentItem.constraintOperator)
           )
       );
       if (index) parent.items.splice(index, 0, newBoolGroup);
@@ -135,26 +132,8 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
 
   function onDragEnd(draggedItem: any, parent: any) {
     if (wasDraggedAndDropped.value && isObjectHasKeys(parent, ["items"])) {
-      console.log(parent.items);
-      for (const parentItem of parent.items) {
-        console.log(
-          !(
-            draggedItem.conjunction !== parentItem.conjunction &&
-            draggedItem.conceptSingle !== parentItem.conceptSingle &&
-            draggedItem.constraintOperator !== parentItem.constraintOperator
-          )
-        );
-      }
-      parent.items = parent.items.filter(
-        (parentItem: any) =>
-          !(
-            draggedItem.conjunction !== parentItem.conjunction &&
-            draggedItem.conceptSingle !== parentItem.conceptSingle &&
-            draggedItem.constraintOperator !== parentItem.constraintOperator
-          )
-      );
+      parent.items = parent.items.filter((parentItem: any) => draggedItem !== parentItem);
     }
-    console.log(parent.items);
     wasDraggedAndDropped.value = false;
   }
 
