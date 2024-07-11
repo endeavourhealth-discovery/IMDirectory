@@ -60,31 +60,21 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
         denyButtonText: "Merge",
         denyButtonColor: "Green"
       }).then(result => {
-        if (result.isConfirmed) {
-          insert(draggedItem, rawDropzoneItem);
-          if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
-            parent.items = parent.items.filter(
-              (parentItem: any) =>
-                draggedItem.conjunction !== parentItem.conjunction ||
-                draggedItem.conceptSingle !== parentItem.conceptSingle ||
-                draggedItem.constraintOperator !== parentItem.constraintOperator
-            );
-        } else if (result.isDenied) {
-          merge(draggedItem, dropzoneItem, parent);
-          if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
-            parent.items = parent.items.filter(
-              (parentItem: any) =>
-                draggedItem.conjunction !== parentItem.conjunction ||
-                draggedItem.conceptSingle !== parentItem.conceptSingle ||
-                draggedItem.constraintOperator !== parentItem.constraintOperator
-            );
-        }
+        if (result.isConfirmed) insert(draggedItem, rawDropzoneItem);
+        else if (result.isDenied) merge(draggedItem, dropzoneItem, parent);
+        if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
+          parent.items = parent.items.filter(
+            (parentItem: any) =>
+              draggedItem.conjunction !== toRaw(parentItem.conjunction) ||
+              JSON.stringify(draggedItem.conceptSingle) !== JSON.stringify(parentItem.conceptSingle) ||
+              draggedItem.constraintOperator !== toRaw(parentItem.constraintOperator)
+          );
       });
     } else {
       toast.add({
         severity: "warn",
         summary: "Unable to drop",
-        detail: "Invalid dropzone. Valid dropzones are highlighted blocks and AND/OR buttons",
+        detail: "Invalid dropzone. Valid dropzones are highlighted blocks and and/or buttons",
         life: 3000
       });
     }
@@ -102,9 +92,9 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items)) {
       parent.items = parent.items.filter(
         (parentItem: any) =>
-          dropzoneItem.conjunction !== parentItem.conjunction ||
-          dropzoneItem.conceptSingle !== parentItem.conceptSingle ||
-          dropzoneItem.constraintOperator !== parentItem.constraintOperator
+          dropzoneItem.conjunction !== toRaw(parentItem.conjunction) ||
+          JSON.stringify(dropzoneItem.conceptSingle) !== JSON.stringify(parentItem.conceptSingle) ||
+          dropzoneItem.constraintOperator !== toRaw(parentItem.constraintOperator)
       );
       parent.items.push(newBoolGroup);
       wasDraggedAndDropped.value = true;
