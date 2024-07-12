@@ -39,6 +39,7 @@
                     :data-model-iri="dataModelIri"
                     v-model:selected-path="selectedPath"
                     @locate-in-tree="iri => (treeIri = iri)"
+                    @go-to-next-step="activateCallback('2')"
                   />
                 </div>
               </div>
@@ -75,7 +76,7 @@ import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import { EntityService, QueryService } from "@/services";
 import { isConcept, isProperty, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { computed } from "vue";
-import { addTypeFilterToIMQuery, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
+import { addBindingsToIMQuery, addTypeFilterToIMQuery, buildIMQueryFromFilters, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import AddPropertyDialog from "../AddPropertyDialog.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
@@ -85,6 +86,7 @@ import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import PathDisplay from "./PathDisplay.vue";
+import { SearchOptions } from "@im-library/interfaces";
 
 interface Props {
   showDialog: boolean;
@@ -148,6 +150,7 @@ watch(
   () => cloneDeep(selectedPath.value),
   newValue => {
     editMatch.value = cloneDeep(newValue);
+    updateIMQueryBinding();
   }
 );
 
@@ -209,16 +212,25 @@ function onTypeSelect(typeOption: TypeOption) {
       rootEntities.value = [];
       imQuery.value = undefined;
     }
-    if (typeOption.typeIri) updateIMQuery({ "@id": typeOption.typeIri });
+    if (typeOption.typeIri) updateIMQueryType({ "@id": typeOption.typeIri });
     if (typeOption.rootIri) rootEntities.value = [typeOption.rootIri];
   }
   updateSearch.value = !updateSearch.value;
 }
 
-function updateIMQuery(type: TTIriRef) {
+function updateIMQueryType(type: TTIriRef) {
   if (!imQuery.value) imQuery.value = { query: {} };
   if (imQuery.value.query) deleteQueryPredicateIfExists(imQuery.value?.query, RDF.TYPE);
   addTypeFilterToIMQuery([type], imQuery.value, true);
+}
+
+function updateIMQueryBinding() {
+  const dmIri = selectedPath.value?.typeOf?.["@id"];
+  const propIri = selectedPath.value?.where?.[0]?.["@id"];
+  if (dmIri && propIri) {
+    if (!imQuery.value) imQuery.value = { query: {} };
+    addBindingsToIMQuery([{ node: { "@id": dmIri }, path: { "@id": propIri } }], imQuery.value);
+  }
 }
 </script>
 

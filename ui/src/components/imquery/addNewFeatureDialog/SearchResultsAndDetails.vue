@@ -27,11 +27,11 @@
                   activePage = '1';
                 }
               "
-              @addToList="(iri: string) => onSelect(iri)"
+              @addToList="onSelect"
             />
           </TabPanel>
           <TabPanel value="1">
-            <div v-if="detailsIri">
+            <div v-if="detailsEntity && detailsIri">
               <ParentHeader
                 v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
                 :entity="detailsEntity"
@@ -43,19 +43,33 @@
                     activePage = '1';
                   }
                 "
-                @addToList="(iri: string) => onSelect(iri)"
+                @addToList="onSelect"
               />
-              <div><b>Hierarhcy tree</b></div>
-              <SecondaryTree
-                :entityIri="detailsIri"
-                :show-select="true"
-                @navigateTo="
-                  (iri: string) => {
-                    detailsIri = iri;
-                  }
-                "
-                @onSelect="onSelect"
-              />
+              <div v-if="isRecordModel(detailsEntity[RDF.TYPE])">
+                <div><b>Properties</b></div>
+                <DataModel
+                  :entityIri="detailsIri"
+                  @navigateTo="
+                    (iri: string) => {
+                      detailsIri = iri;
+                    }
+                  "
+                />
+              </div>
+
+              <div v-else>
+                <div><b>Hierarhcy tree</b></div>
+                <SecondaryTree
+                  :entityIri="detailsIri"
+                  :show-select="true"
+                  @navigateTo="
+                    (iri: string) => {
+                      detailsIri = iri;
+                    }
+                  "
+                  @onSelect="onSelect"
+                />
+              </div>
             </div>
 
             <PathSelectDialog
@@ -83,12 +97,17 @@ import { ref } from "vue";
 import { onMounted, watch } from "vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import { EntityService, QueryService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { isConcept, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { isConcept, isFeature, isProperty, isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import SelectedSet from "./SelectedSet.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
+import DataModel from "@/components/directory/viewer/dataModel/DataModel.vue";
+import { ToastSeverity } from "@im-library/enums";
+import { useToast } from "primevue/usetoast";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { FilterOptions } from "@im-library/interfaces";
 
 interface Props {
   selectedIri: string;
@@ -99,7 +118,7 @@ interface Props {
   selectedPath: Match | undefined;
 }
 
-const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": payload => payload });
+const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": (payload: Match) => payload, goToNextStep: () => true });
 const props = defineProps<Props>();
 const detailsIri: Ref<string> = ref("");
 const activePage: Ref<string> = ref("0");
@@ -107,6 +126,8 @@ const selectedSet: Ref<Set<string>> = ref(new Set<string>());
 const detailsEntity: Ref<any> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
 const showDialog: Ref<boolean> = ref(false);
+const toast = useToast();
+
 watch(
   () => props.selectedIri,
   () => {
@@ -116,7 +137,10 @@ watch(
 
 watch(
   () => detailsIri.value,
-  async () => await setEntity()
+  async () => {
+    await setEntity();
+    activePage.value = "1";
+  }
 );
 
 watch(
@@ -144,11 +168,21 @@ async function onSelect(iri: string) {
   if (props.selectedPath) {
     if (isConcept(entityType[RDF.TYPE]) || isValueSet(entityType[RDF.TYPE])) await addToSelectedList(iri);
     else {
-      // show that this is invalid with toast
+      toast.add({
+        severity: ToastSeverity.ERROR,
+        summary: "Invalid value",
+        detail: `Only values within the range of your selected path are valid.`,
+        life: 3000
+      });
     }
+  } else if (isFeature(entityType[RDF.TYPE]) || isQuery(entityType[RDF.TYPE])) {
+    await addToSelectedList(iri);
   } else {
     await setQueryPath(iri);
-    addToSelectedList(iri);
+    if (isConcept(entityType[RDF.TYPE]) || isValueSet(entityType[RDF.TYPE])) await addToSelectedList(iri);
+    else if (isProperty(entityType[RDF.TYPE])) {
+      emit("goToNextStep");
+    }
   }
 }
 
@@ -166,13 +200,7 @@ async function setQueryPath(iri: string) {
 }
 
 async function addToSelectedList(iri: string) {
-  const isValidSelection = await isValidValueForSelectedPath();
-  if (isValidSelection) selectedSet.value.add(iri);
-}
-
-async function isValidValueForSelectedPath() {
-  // if in range return true, else return false
-  return true;
+  selectedSet.value.add(iri);
 }
 </script>
 

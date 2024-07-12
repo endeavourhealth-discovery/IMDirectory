@@ -224,4 +224,5 @@ export class IM {
   public static readonly VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
   public static readonly DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
   public static readonly LOAD_MORE = IM.NAMESPACE + "loadMore";
+  public static readonly DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
 }
