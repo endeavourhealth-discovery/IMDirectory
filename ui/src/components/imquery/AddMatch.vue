@@ -36,6 +36,7 @@
     :dataModelIri="matchTypeOfIri"
     :header="'Add new feature'"
     :show-variable-options="false"
+    :can-clear-path="true"
     @on-match-add="onMatchAdd"
     @on-property-add="onPropertyAdd"
   />
@@ -45,6 +46,7 @@
     :dataModelIri="matchTypeOfIri"
     :header="'Add new feature'"
     :show-variable-options="false"
+    :can-clear-path="true"
     @on-match-add="onThenMatchAdd"
     @on-property-add="onThenPropertyAdd"
   />

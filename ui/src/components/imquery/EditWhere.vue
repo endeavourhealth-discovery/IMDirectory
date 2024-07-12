@@ -10,7 +10,7 @@
           class="builder-button conjunction-button vertical-button"
           :label="editWhere.boolWhere?.toUpperCase() ?? 'AND'"
           @click="
-            e => {
+            (e: MouseEvent) => {
               e.stopPropagation();
               toggleWhereBool(editWhere);
             }

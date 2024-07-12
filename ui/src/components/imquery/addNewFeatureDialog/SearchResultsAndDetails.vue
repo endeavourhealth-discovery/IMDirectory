@@ -116,13 +116,13 @@ interface Props {
   imQuery: QueryRequest | undefined;
   dataModelIri: string;
   selectedPath: Match | undefined;
+  selectedSet: Set<string>;
 }
 
 const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": (payload: Match) => payload, goToNextStep: () => true });
 const props = defineProps<Props>();
 const detailsIri: Ref<string> = ref("");
 const activePage: Ref<string> = ref("0");
-const selectedSet: Ref<Set<string>> = ref(new Set<string>());
 const detailsEntity: Ref<any> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
 const showDialog: Ref<boolean> = ref(false);
@@ -200,7 +200,7 @@ async function setQueryPath(iri: string) {
 }
 
 async function addToSelectedList(iri: string) {
-  selectedSet.value.add(iri);
+  props.selectedSet.add(iri);
 }
 </script>
 

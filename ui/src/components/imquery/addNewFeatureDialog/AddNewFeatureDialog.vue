@@ -2,7 +2,7 @@
   <Dialog v-model:visible="visible" modal :header="header" :style="{ minWidth: '100vw', minHeight: '100vh' }">
     <Stepper value="1" :style="{ minWidth: '50vw' }">
       <StepList>
-        <Step value="1"><PathDisplay v-if="selectedPath" :path="selectedPath" /></Step>
+        <Step value="1"><PathDisplay v-if="selectedPath" :path="selectedPath" :can-clear-path="canClearPath" @on-clear-path="clearPath" /></Step>
         <Step value="2"></Step>
       </StepList>
       <StepPanels>
@@ -37,6 +37,7 @@
                     :update-search="updateSearch"
                     :im-query="imQuery"
                     :data-model-iri="dataModelIri"
+                    :selectedSet="selectedSet"
                     v-model:selected-path="selectedPath"
                     @locate-in-tree="iri => (treeIri = iri)"
                     @go-to-next-step="activateCallback('2')"
@@ -87,10 +88,12 @@ import EditMatch from "../EditMatch.vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import PathDisplay from "./PathDisplay.vue";
 import { SearchOptions } from "@im-library/interfaces";
+import SelectedSet from "./SelectedSet.vue";
 
 interface Props {
   showDialog: boolean;
   match?: Match;
+  canClearPath?: boolean;
   header: string;
   dataModelIri: string;
   showVariableOptions: boolean;
@@ -111,6 +114,7 @@ const pathSuggestions: Ref<Match[]> = ref([]);
 const selectedPath: Ref<Match | undefined> = ref();
 provide("selectedPath", selectedPath);
 
+const selectedSet: Ref<Set<string>> = ref(new Set<string>());
 const updateSearch: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 
@@ -134,9 +138,8 @@ watch(
 );
 
 watch(visible, newValue => {
-  if (!newValue) {
-    emit("update:showDialog", newValue);
-  }
+  if (!newValue) emit("update:showDialog", newValue);
+  else init();
 });
 
 watch(
@@ -157,7 +160,8 @@ watch(
 onMounted(() => init());
 
 function init() {
-  if (isArrayHasLength(props.match?.where)) editMatch.value = cloneDeep(props.match);
+  if (isObjectHasKeys(props.match)) editMatch.value = cloneDeep(props.match);
+  else selectedPath.value = undefined;
 }
 
 async function getOptions() {
@@ -231,6 +235,13 @@ function updateIMQueryBinding() {
     if (!imQuery.value) imQuery.value = { query: {} };
     addBindingsToIMQuery([{ node: { "@id": dmIri }, path: { "@id": propIri } }], imQuery.value);
   }
+}
+
+function clearPath() {
+  selectedPath.value = undefined;
+  updateSearch.value = !updateSearch.value;
+  if (isObjectHasKeys(imQuery.value, ["query"])) deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
+  selectedSet.value = new Set<string>();
 }
 </script>
 
