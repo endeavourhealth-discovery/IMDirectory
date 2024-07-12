@@ -9,7 +9,7 @@
     <div v-else id="concept-content-dialogs-container">
       <div id="concept-panel-container">
         <Tabs v-model:value="activeTab" id="viewer-tabs">
-          <TabList>
+          <TabList id="tab-list">
             <Tab value="0">Details</Tab>
             <Tab v-if="showTerms" value="1">Terms</Tab>
             <Tab v-if="showMappings" value="2">Maps</Tab>
@@ -170,7 +170,7 @@ const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, IM.SET, IM.CO
 const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = setupConcept();
 const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = setupConfig();
 const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: Function } = setupTerms();
-let tabMap = reactive(new Map<string, string>());
+const tabMap = reactive(new Map<string, string>());
 
 onMounted(async () => {
   await init();
@@ -201,8 +201,9 @@ function setTabMap() {
   const tabList = document.getElementById("viewer-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
   if (tabList?.length) {
     for (let i = 0; i < tabList.length; i++) {
+      const index = tabList[i].id.replace("viewer-tabs_tab_", "");
       if (tabList[i].textContent) {
-        tabMap.set(tabList[i].textContent as string, i.toString());
+        tabMap.set(tabList[i].textContent as string, index.toString());
       }
     }
   }
