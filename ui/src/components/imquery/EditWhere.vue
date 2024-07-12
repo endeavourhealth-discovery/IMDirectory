@@ -1,7 +1,13 @@
 <template>
   <div class="property-description-container">
     <div v-if="editWhere.name && !editWhere.description && editWhere?.match" v-html="editWhere.name"></div>
-    <EditProperty v-if="focused && !editWhere?.match" :property="editWhere" :data-model-iri="matchTypeOfIri" @delete-property="$emit('deleteProperty')" />
+    <EditProperty
+      v-if="focused && !editWhere?.match"
+      :property="editWhere"
+      :data-model-iri="matchTypeOfIri"
+      :edit-match="parentMatch"
+      @delete-property="$emit('deleteProperty')"
+    />
     <div v-else class="property-description" v-html="editWhere?.description"></div>
 
     <div v-if="editWhere?.where" class="where-group">
@@ -23,6 +29,7 @@
           :match-type-of-iri="matchTypeOfIri"
           :editWhere="nestedWhere"
           :is-boolean-editor="isBooleanEditor"
+          :parent-match="parentMatch"
           @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
           @delete-property="editWhere.where?.splice(index, 1)"
         />
@@ -40,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { Where } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 import EditProperty from "./EditProperty.vue";
@@ -51,6 +58,7 @@ interface Props {
   focused: boolean;
   focusedId: string | undefined;
   isBooleanEditor?: boolean;
+  parentMatch: Match;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteProperty: () => true });

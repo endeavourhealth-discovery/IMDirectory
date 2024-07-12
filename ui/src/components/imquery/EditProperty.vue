@@ -10,19 +10,32 @@
     /> -->
     <span v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'">
       <InputText value="is" disabled />
-      <span v-if="property.valueLabel"><InputText :value="property.valueLabel" disabled /></span>
+      <span v-if="property.valueLabel">
+        <InputText :value="property.valueLabel" @click="showBuildFeatureDialog = true" />
+      </span>
 
-      <span v-else-if="isArrayHasLength(property.is)">
+      <span v-else-if="isArrayHasLength(property.is)" @click="showBuildFeatureDialog = true">
         <span>[{{ property.is!.map(is => getNameFromRef(is)).join(", ") }}]</span>
       </span>
+      <AddNewFeatureDialog
+        v-model:show-dialog="showBuildFeatureDialog"
+        :dataModelIri="dataModelIri"
+        :header="'Add new feature'"
+        :show-variable-options="false"
+        :can-clear-path="true"
+        :has-next-step="true"
+        :match="editMatch"
+        @on-match-add="onMatchAdd"
+      />
     </span>
+
     <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :datatype="selectedProperty.valueType" :property="property" />
     <Button v-if="showDelete" @click="$emit('deleteProperty')" severity="danger" icon="fa-solid fa-trash" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Where } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import { UIProperty } from "@im-library/interfaces";
 import { Ref, onMounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
@@ -33,15 +46,18 @@ import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { convertTTPropertyToUIProperty, convertUIPropertyFromDMConcept } from "@im-library/helpers/Transforms";
 import { getNameFromIri, getNameFromRef } from "@im-library/helpers/TTTransform";
+import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 
 interface Props {
   property: Where;
   dataModelIri: string;
   showDelete?: boolean;
+  editMatch: Match;
 }
 
 const props = withDefaults(defineProps<Props>(), { showDelete: true });
 const selectedProperty: Ref<UIProperty | undefined> = ref();
+const showBuildFeatureDialog: Ref<boolean> = ref(false);
 const emit = defineEmits({ deleteProperty: () => true });
 
 onMounted(async () => {
@@ -82,6 +98,10 @@ async function getProperty(dmIri: string, propIri: string) {
 
   const found = uiProps.find(prop => prop.iri === props.property["@id"]);
   if (found) return found;
+}
+
+function onMatchAdd(updatedMatch: Match) {
+  props.editMatch.where = updatedMatch.where;
 }
 </script>
 

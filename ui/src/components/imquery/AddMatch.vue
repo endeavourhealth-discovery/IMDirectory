@@ -37,6 +37,7 @@
     :header="'Add new feature'"
     :show-variable-options="false"
     :can-clear-path="true"
+    :has-next-step="true"
     @on-match-add="onMatchAdd"
     @on-property-add="onPropertyAdd"
   />
@@ -47,6 +48,7 @@
     :header="'Add new feature'"
     :show-variable-options="false"
     :can-clear-path="true"
+    :has-next-step="true"
     @on-match-add="onThenMatchAdd"
     @on-property-add="onThenPropertyAdd"
   />

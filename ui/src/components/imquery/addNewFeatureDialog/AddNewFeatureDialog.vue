@@ -47,7 +47,15 @@
             </div>
           </div>
           <div class="flex pt-4 justify-content-end next-button">
-            <Button :disabled="!isObjectHasKeys(selectedPath)" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback('2')" />
+            <Button
+              v-if="hasNextStep"
+              :disabled="!isObjectHasKeys(selectedPath) || !selectedPath?.where?.[0].valueLabel"
+              label="Next"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              @click="activateCallback('2')"
+            />
+            <Button v-else :disabled="!isObjectHasKeys(selectedPath) || !selectedPath?.where?.[0].valueLabel" label="Save" iconPos="right" @click="save" />
           </div>
         </StepPanel>
         <StepPanel v-slot="{ activateCallback }" value="2">
@@ -97,6 +105,7 @@ interface Props {
   header: string;
   dataModelIri: string;
   showVariableOptions: boolean;
+  hasNextStep?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -160,8 +169,10 @@ watch(
 onMounted(() => init());
 
 function init() {
-  if (isObjectHasKeys(props.match)) editMatch.value = cloneDeep(props.match);
-  else {
+  if (isObjectHasKeys(props.match)) {
+    editMatch.value = cloneDeep(props.match);
+    selectedPath.value = cloneDeep(editMatch.value);
+  } else {
     selectedPath.value = undefined;
     selectedSet.value = new Set<string>();
   }

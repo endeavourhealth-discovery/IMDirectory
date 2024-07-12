@@ -75,6 +75,7 @@ async function init() {
     else entity.entailment = "descendantsOrSelfOf";
   }
   selectedEntities.value = entities;
+  if (selectedPath.value?.where?.[0].valueLabel) valueLabel.value = selectedPath.value?.where?.[0].valueLabel;
 }
 
 function getColourStyleFromType(types: TTIriRef[]) {

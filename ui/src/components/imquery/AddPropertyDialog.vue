@@ -8,7 +8,13 @@
         :dm-iri="dataModelIri"
         :show-variable-options="showVariableOptions"
       />
-      <EditProperty class="align-self-center w-12" :property="editWhere" :data-model-iri="editWhereDMIri || dataModelIri" :show-delete="false" />
+      <EditProperty
+        class="align-self-center w-12"
+        :edit-match="match"
+        :property="editWhere"
+        :data-model-iri="editWhereDMIri || dataModelIri"
+        :show-delete="false"
+      />
     </div>
     <template #footer>
       <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
@@ -29,7 +35,7 @@ import EditProperty from "./EditProperty.vue";
 
 interface Props {
   showDialog: boolean;
-  match?: Match;
+  match: Match;
   header: string;
   dataModelIri: string;
   showVariableOptions: boolean;

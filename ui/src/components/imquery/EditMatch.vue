@@ -100,6 +100,7 @@
             :focused-id="focusedId"
             :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
             :is-boolean-editor="isBooleanEditor"
+            :parent-match="editMatch"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
@@ -108,6 +109,7 @@
             v-model:show-dialog="showAddPropertyDialog"
             :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
             :header="'Add property'"
+            :match="editMatch"
             :show-variable-options="false"
             @on-match-add="onMatchAdd"
             @on-property-add="onPropertyAdd"
