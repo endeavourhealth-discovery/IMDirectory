@@ -161,7 +161,10 @@ onMounted(() => init());
 
 function init() {
   if (isObjectHasKeys(props.match)) editMatch.value = cloneDeep(props.match);
-  else selectedPath.value = undefined;
+  else {
+    selectedPath.value = undefined;
+    selectedSet.value = new Set<string>();
+  }
 }
 
 async function getOptions() {

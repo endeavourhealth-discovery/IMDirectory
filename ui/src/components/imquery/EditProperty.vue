@@ -1,13 +1,21 @@
 <template>
   <div class="property-container">
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-14rem" disabled />
-    <ConceptSelect
+    <!-- <ConceptSelect
       v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'"
       :datatype="selectedProperty.valueType"
       :property="property"
       :data-model-iri="dataModelIri"
       class="concept-select"
-    />
+    /> -->
+    <span v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'">
+      <InputText value="is" disabled />
+      <span v-if="property.valueLabel"><InputText :value="property.valueLabel" disabled /></span>
+
+      <span v-else-if="isArrayHasLength(property.is)">
+        <span>[{{ property.is!.map(is => getNameFromRef(is)).join(", ") }}]</span>
+      </span>
+    </span>
     <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :datatype="selectedProperty.valueType" :property="property" />
     <Button v-if="showDelete" @click="$emit('deleteProperty')" severity="danger" icon="fa-solid fa-trash" />
   </div>
@@ -24,7 +32,7 @@ import ConceptSelect from "./ConceptSelect.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { convertTTPropertyToUIProperty, convertUIPropertyFromDMConcept } from "@im-library/helpers/Transforms";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import { getNameFromIri, getNameFromRef } from "@im-library/helpers/TTTransform";
 
 interface Props {
   property: Where;

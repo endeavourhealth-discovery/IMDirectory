@@ -1,5 +1,6 @@
 <template>
-  <div class="flex w-full">
+  <div class="flex w-full flex-column">
+    <InputText type="text" v-model="valueLabel" placeholder="Value label" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #option="{ option }" class="flex flex-row">
         <div class="flex flex-row">
@@ -54,7 +55,7 @@ const entailmentOptions: { name: string; id: string }[] = [
   { name: "ancestors of", id: "ancestorsOf" }
 ];
 const selectedPath = inject("selectedPath") as Ref<Match | undefined>;
-
+const valueLabel: Ref<string> = ref("");
 watch(
   () => cloneDeep(props.selectedSet),
   async () => {
@@ -112,6 +113,12 @@ function convertSelectedEntityToNode(selected: SelectedEntity): Node {
       break;
   }
   return node;
+}
+
+function updateValueLabel() {
+  if (selectedPath.value?.where?.[0]) {
+    selectedPath.value.where[0].valueLabel = valueLabel.value;
+  }
 }
 </script>
 

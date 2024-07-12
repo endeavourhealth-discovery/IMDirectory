@@ -21,4 +21,5 @@ export interface UIProperty {
   valueType: string;
   maxCount: number;
   minCount: number;
+  valueLabel: string;
 }
