@@ -3,7 +3,7 @@ import { Query } from "@/interfaces/AutoGen";
 
 export const match: {
   withType: Match;
-  withSet: Match;
+  withSet : Match;
   withInstance: Match;
   withName: Match;
   withDescendantsOrSelfOf: Where;
@@ -17,8 +17,8 @@ export const match: {
   withOneNestedPropertyOfIs: Match;
 } = {
   withType: { typeOf: { "@id": "Patient" } },
-  withSet: { is: [{ "@id": "CSET_EmailOnlineEncounter" }] },
-  withInstance: { instanceOf: { "@id": "http://snomed.info/sct#325841000000109" } },
+  withSet: { instanceOf: [{ "@id": "CSET_EmailOnlineEncounter",memberOf: true }] },
+  withInstance: { instanceOf:[ { "@id": "http://snomed.info/sct#325841000000109" }] },
   withName: {
     name: "Text message consultation",
     "@id": "http://endhealth.info/im#1681000252102"
@@ -38,7 +38,7 @@ export const match: {
     ancestorsOf: true,
     "@id": "http://endhealth.info/im#1681000252102"
   },
-  withExclude: { exclude: true, is: [{ "@id": "http://endhealth.info/im#Q_Hypertensives" }] },
+  withExclude: { exclude: true, instanceOf: [{ "@id": "http://endhealth.info/im#Q_Hypertensives" }] },
   withVariable: {},
   withOneDirectPropertyOfRange: {
     where: [
@@ -230,7 +230,7 @@ export const fullTestQueryDefinition: Query = {
   name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
   match: [
     {
-      is: [
+      instanceOf: [
         {
           "@id": "http://endhealth.info/im#Q_RegisteredGMS",
           name: "Registered for GMS services on reference date"
@@ -261,7 +261,7 @@ export const fullTestQueryDefinition: Query = {
           ]
         },
         {
-          is: [
+          instanceOf: [
             {
               "@id": "http://example/queries#Q_Diabetics"
             }
@@ -427,7 +427,7 @@ export const fullTestQueryDefinition: Query = {
     },
     {
       exclude: true,
-      is: [
+      instanceOf: [
         {
           "@id": "http://endhealth.info/im#Q_Hypertensives",
           name: "Hypertensives"

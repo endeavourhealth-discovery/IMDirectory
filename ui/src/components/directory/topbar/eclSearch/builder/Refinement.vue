@@ -127,14 +127,7 @@ const constraintOperatorOptions = [
   { label: "^", value: "^" }
 ];
 
-const imQueryForValueSearch: Ref<SearchOptions> = ref({
-  isA: Array.from(propertyRanges.value).map(propRange => {
-    return { "@id": propRange };
-  }),
-  status: filterStoreOptions.value.status,
-  schemes: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])),
-  types: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT)
-} as SearchOptions);
+const imQueryForValueSearch: Ref<QueryRequest | undefined> =ref(undefined);
 
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
 
@@ -235,9 +228,15 @@ onMounted(async () => {
 });
 
 function updateQueryForValueSearch() {
-  imQueryForValueSearch.value.isA = Array.from(propertyRanges.value).map(isA => {
-    return { "@id": isA };
-  });
+  imQueryForValueSearch.value = {
+    query: { "@id": QUERY.ALLOWABLE_RANGES },
+    argument: [
+      {
+        parameter: "this",
+        valueIri: { "@id": props.value.property.concept?.iri }
+      }
+    ]
+  } as QueryRequest;
 }
 
 function addIfConcept(focus: any[], iris: TTIriRef[]) {
