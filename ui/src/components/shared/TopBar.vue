@@ -501,7 +501,7 @@ function showReleaseNotes() {
 <style>
 .topbar-end-button:hover {
   background-color: var(--p-text-color) !important;
-  color: var(--p-surface-0) !important;
+  color: var(--p-content-background) !important;
 }
 
 .app-overlay-panel {
