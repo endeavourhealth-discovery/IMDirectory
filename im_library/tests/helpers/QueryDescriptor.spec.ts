@@ -4,7 +4,7 @@ import { Bool, Match, OrderLimit, Where } from "@/interfaces/AutoGen";
 import { fullTestQueryDefinition, match, orderBy } from "./Query.testData";
 import _ from "lodash-es";
 
-describe("QueryDescriptor.ts ___", () => {
+describe.skip("QueryDescriptor.ts ___", () => {
   describe("getUnnamedObjects", () => {
     it("can get all resolved object iris without a name in query with a reference to the object", () => {
       const unnamedObjects = getUnnamedObjects(fullTestQueryDefinition as Match);

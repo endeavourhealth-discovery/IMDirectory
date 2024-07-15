@@ -1,5 +1,13 @@
 <template>
-  <div :class="matchIndex && (match.description || match.nodeRef || match.name) ? 'feature-indent' : !matchIndex && (match.description || match.nodeRef || match.name) ? 'feature' : ''">
+  <div
+    :class="
+      matchIndex && (match.description || match.nodeRef || match.name)
+        ? 'feature-indent'
+        : !matchIndex && (match.description || match.nodeRef || match.name)
+          ? 'feature'
+          : ''
+    "
+  >
     <span v-if="match.name" v-html="match.name"> </span>
     <span v-else-if="match.description" v-html="match.description"> </span>
     <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>

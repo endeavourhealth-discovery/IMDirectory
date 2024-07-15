@@ -127,7 +127,7 @@ const constraintOperatorOptions = [
   { label: "^", value: "^" }
 ];
 
-const imQueryForValueSearch: Ref<QueryRequest | undefined> =ref(undefined);
+const imQueryForValueSearch: Ref<QueryRequest | undefined> = ref(undefined);
 
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
 

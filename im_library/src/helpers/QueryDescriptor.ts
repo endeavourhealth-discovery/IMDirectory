@@ -118,8 +118,7 @@ export function getDisplayFromMatch(match: Match, includeLogicDesc: boolean, mat
   if (match.typeOf) {
     display = getNameFromRef(match.typeOf);
     display += getDisplaySuffixFromEntailment(match.typeOf);
-  }
-  else if (isArrayHasLength(match.instanceOf)) {
+  } else if (isArrayHasLength(match.instanceOf)) {
     for (const [index, instanceOf] of match.instanceOf!.entries()) {
       display = (display != "" ? " or " : "") + (instanceOf.memberOf ? "is member of " : "is  ") + getNameFromRef(instanceOf);
       display += getDisplaySuffixFromEntailment(instanceOf);

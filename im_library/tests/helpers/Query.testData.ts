@@ -3,7 +3,7 @@ import { Query } from "@/interfaces/AutoGen";
 
 export const match: {
   withType: Match;
-  withSet : Match;
+  withSet: Match;
   withInstance: Match;
   withName: Match;
   withDescendantsOrSelfOf: Where;
@@ -17,8 +17,8 @@ export const match: {
   withOneNestedPropertyOfIs: Match;
 } = {
   withType: { typeOf: { "@id": "Patient" } },
-  withSet: { instanceOf: [{ "@id": "CSET_EmailOnlineEncounter",memberOf: true }] },
-  withInstance: { instanceOf:[ { "@id": "http://snomed.info/sct#325841000000109" }] },
+  withSet: { instanceOf: [{ "@id": "CSET_EmailOnlineEncounter", memberOf: true }] },
+  withInstance: { instanceOf: [{ "@id": "http://snomed.info/sct#325841000000109" }] },
   withName: {
     name: "Text message consultation",
     "@id": "http://endhealth.info/im#1681000252102"
