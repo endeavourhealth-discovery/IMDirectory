@@ -8,7 +8,7 @@
     </div>
     <div v-else id="concept-content-dialogs-container">
       <div id="concept-panel-container">
-        <Tabs v-model:value="activeTab" id="viewer-tabs">
+        <Tabs v-model:value="activeTab" id="viewer-tabs" :lazy="true">
           <TabList id="tab-list">
             <Tab value="0">Details</Tab>
             <Tab v-if="showTerms" value="1">Terms</Tab>
