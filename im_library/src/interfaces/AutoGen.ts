@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-06-27 16:32:20.
+// Generated using typescript-generator version 3.2.1263 on 2024-07-12 10:19:15.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -217,8 +217,8 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
     operator?: Operator;
+    unit?: string;
     relativeTo?: PropertyRef;
     dataType?: TTIriRef;
 }
@@ -254,9 +254,9 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     ancestorsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
     memberOf?: boolean;
+    descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -271,26 +271,26 @@ export interface IriLD {
 }
 
 export interface Match extends IriLD {
+    description?: string;
     exclude?: boolean;
     nodeRef?: string;
     boolMatch?: Bool;
     boolWhere?: Bool;
-    description?: string;
-    graph?: Element;
-    path?: IriLD[];
-    match?: Match[];
+    typeOf?: Node;
+    instanceOf?: Node[];
     where?: Where[];
-    is?: Node[];
+    match?: Match[];
+    graph?: Element;
     orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
-    instanceOf?: Node;
-    typeOf?: Node;
     variable?: string;
     then?: Match;
+    path?: IriLD[];
 }
 
 export interface Node extends Element {
+    exclude?: boolean;
 }
 
 export interface OrderDirection extends PropertyRef {
@@ -330,6 +330,8 @@ export interface Query extends Match {
     query?: Query[];
     groupBy?: PropertyRef[];
     prefixes?: Prefix[];
+    imQuery?: boolean;
+    parentResult?: any;
 }
 
 export interface QueryEntity extends Entity {
@@ -350,6 +352,8 @@ export interface QueryRequest extends ContextMap {
     name?: string;
     page?: Page;
     askIri?: string;
+    timings?: { [index: string]: string }[];
+    cohort?: TTIriRef[];
 }
 
 export interface Range {
@@ -378,8 +382,10 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    case?: Case;
+    match?: Match[];
+    boolMatch?: Bool;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -678,15 +684,15 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
-    code?: string;
     description?: string;
+    status?: TTIriRef;
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {
@@ -785,6 +791,12 @@ export const enum OrderableDate {
 export const enum OrderableNumber {
     highest = "highest",
     lowest = "lowest",
+}
+
+export const enum QueryLanguage {
+    elastic = "elastic",
+    sparql = "sparql",
+    sql = "sql",
 }
 
 export const enum VarType {

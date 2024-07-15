@@ -201,7 +201,7 @@ function getIsContainedIn() {
 function getDefinition() {
   const matches: Match[] = [];
   for (const member of props.setMembers) {
-    matches.push({ name: member.name, instanceOf: member });
+    matches.push({ name: member.name, instanceOf: [member] });
   }
   const definition = {
     match: [
