@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, provide, ref, watch } from "vue";
-import { Match, PathQuery, QueryRequest, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
+import { Match, Node, PathQuery, QueryRequest, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
@@ -106,6 +106,7 @@ interface Props {
   dataModelIri: string;
   showVariableOptions: boolean;
   hasNextStep?: boolean;
+  isList?: Node[];
 }
 
 const props = defineProps<Props>();
@@ -123,7 +124,7 @@ const pathSuggestions: Ref<Match[]> = ref([]);
 const selectedPath: Ref<Match | undefined> = ref();
 provide("selectedPath", selectedPath);
 
-const selectedSet: Ref<Set<string>> = ref(new Set<string>());
+const selectedSet: Ref<Set<string>> = ref(props.isList ? new Set<string>(props.isList.map(isItem => isItem["@id"]!)) : new Set<string>());
 const updateSearch: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 

@@ -25,6 +25,7 @@
         :can-clear-path="true"
         :has-next-step="true"
         :match="editMatch"
+        :isList="property.is"
         @on-match-add="onMatchAdd"
       />
     </span>
