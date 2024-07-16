@@ -13,7 +13,7 @@
             <Message v-if="errors.username" severity="error">{{ errors.username }}</Message>
           </div>
           <div class="flex flex-row justify-content-center">
-            <Button data-testid="forgot-password-user-submit" class="user-submit" type="submit" label="Request Reset Code" v-on:click.prevent="handleSubmit" />
+            <Button data-testid="forgot-password-user-submit" class="user-submit" type="submit" label="Request Reset Code" v-on:click.prevent="onSubmit" />
           </div>
         </form>
       </template>

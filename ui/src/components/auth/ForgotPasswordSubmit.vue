@@ -24,7 +24,7 @@
           </div>
           <div class="field">
             <label for="fieldCode">Confirmation code</label>
-            <div class="flex flex-row align-items-center">
+            <div class="flex flex-row justify-content-center">
               <InputOtp
                 data-testid="forgot-password-submit-code"
                 id="fieldCode"
@@ -34,23 +34,13 @@
                 @focus="updateFocused('code', true)"
                 @blur="updateFocused('code', false)"
                 :class="!codeVerified && code && !focused.get('code') && 'p-invalid'"
-              />
-              <IMFontAwesomeIcon
-                v-if="codeVerified"
-                icon="fa-regular fa-circle-check"
-                style="color: var(--p-green-500); font-size: 2em"
-                data-testid="forgot-password-submit-verified"
-              />
-              <IMFontAwesomeIcon
-                v-if="!codeVerified && code"
-                icon="fa-regular fa-circle-xmark"
-                style="color: var(--p-red-500); font-size: 2em"
-                data-testid="forgot-password-submit-unverified"
+                :pt="{ 'pc-input': { root: { 'data-testid': 'otp-input' } } }"
               />
             </div>
+            <Message v-if="errors.code" severity="error">{{ errors.code }}</Message>
             <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
           </div>
-          <PasswordInputs test-id="forgot-password-submit-password-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
+          <PasswordInputs test-id="forgot-password-submit-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
           <div class="flex flex-row justify-content-center">
             <Button
               :disabled="!allVerified"
@@ -92,10 +82,7 @@ const focused: Ref<Map<string, boolean>> = ref(new Map());
 
 const { handleSubmit, errors, setValues, defineField } = useForm({
   validationSchema: yup.object({
-    code: yup
-      .string()
-      .required()
-      .test("isCodeVerified", "Code is required", () => verifyCode(code.value)),
+    code: yup.string().required().length(6),
     username: yup.string().required("Username is required")
   })
 });

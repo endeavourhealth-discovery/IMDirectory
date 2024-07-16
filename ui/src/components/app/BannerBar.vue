@@ -53,13 +53,13 @@ function showReleaseNotes() {
 }
 
 .banner-text {
-  color: var(--p-primary-color-text);
+  color: var(--p-text-color);
   font-size: 1rem;
 }
 
 .release-notes-link {
   font-weight: bold;
-  color: var(--p-primary-color-text);
+  color: var(--p-text-color);
   cursor: pointer;
 }
 
@@ -71,11 +71,11 @@ function showReleaseNotes() {
   flex: 0 0 auto;
   height: 2rem !important;
   width: 2rem !important;
-  color: var(--p-primary-color-text);
+  color: var(--p-text-color);
 }
 
 .close-button:hover {
   color: var(--p-primary-color) !important;
-  background-color: var(--p-primary-color-text) !important;
+  background-color: var(--p-text-color) !important;
 }
 </style>
