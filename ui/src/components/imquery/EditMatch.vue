@@ -23,7 +23,7 @@
       <div v-if="editMatch?.match" class="feature-group">
         <Button
           v-if="isBooleanEditor"
-          class="p-button p-component p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolMatch?.toUpperCase() ?? 'AND'"
           @click.stop="toggleMatchBool(editMatch)"
         />
@@ -88,7 +88,7 @@
       <div v-if="editMatch?.where" class="where-group">
         <Button
           v-if="editMatch.where.length > 1"
-          class="p-button p-component p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolWhere?.toUpperCase() ?? 'AND'"
           @click.stop="toggleWhereBool(editMatch)"
         />
