@@ -323,12 +323,6 @@ function getTypeOf(fullQuery: Match) {
   margin-top: 0.5rem;
   margin-left: 1rem;
 }
-
-.add-feature-button {
-  width: 15%;
-  display: flex;
-  margin-top: 0.3rem;
-}
 .expanding-button {
   align-self: stretch;
 }
@@ -364,5 +358,11 @@ function getTypeOf(fullQuery: Match) {
 .hover-button {
   color: #00000030 !important;
   border-style: dashed !important;
+}
+
+.add-feature-button {
+  width: 10rem;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
 }
 </style>

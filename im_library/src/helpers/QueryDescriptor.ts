@@ -80,7 +80,9 @@ export function describeMatch(match: Match, index: number, includeLogicDesc: boo
   if (match.then) {
     describeMatch(match.then, 0, includeLogicDesc, Bool.and, "then");
   }
-  if (!match.description) match.description = display;
+  if (!match.name) {
+    match.name = display;
+  }
 }
 
 export function describeProperty(property: Where, index: number, includeLogicDesc: boolean, bool?: Bool, matchType?: MatchType) {
@@ -113,13 +115,14 @@ export function getDisplayFromMatch(match: Match, includeLogicDesc: boolean, mat
     }
   }
 
-  if (match.is) display = getDisplayFromIs(match.is);
-  else if (match.typeOf) {
+  if (match.typeOf) {
     display = getNameFromRef(match.typeOf);
     display += getDisplaySuffixFromEntailment(match.typeOf);
-  } else if (match.instanceOf) {
-    display = (match.instanceOf.memberOf ? "is member of " : "is instance of ") + getNameFromRef(match.instanceOf);
-    display += getDisplaySuffixFromEntailment(match.instanceOf);
+  } else if (isArrayHasLength(match.instanceOf)) {
+    for (const [index, instanceOf] of match.instanceOf!.entries()) {
+      display = (display != "" ? " or " : "") + (instanceOf.memberOf ? "is member of " : "is  ") + getNameFromRef(instanceOf);
+      display += getDisplaySuffixFromEntailment(instanceOf);
+    }
   } else if (!match.where && match["@id"] && match.name) {
     display += getDisplaySuffixFromEntailment(match as any);
   }

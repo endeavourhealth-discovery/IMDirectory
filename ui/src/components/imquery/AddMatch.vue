@@ -140,7 +140,7 @@ watch(showBuildFeatureDialog, newValue => {
 });
 
 function onPopulationSelect(selected: SearchResultSummary) {
-  const match: Match = { "@id": v4(), instanceOf: { "@id": selected.iri, name: selected.name, memberOf: true } };
+  const match: Match = { "@id": v4(), instanceOf: [{ "@id": selected.iri, name: selected.name, memberOf: true }] };
   describeMatch(match, 0, false);
   if (!props.editMatch.match) props.editMatch.match = [];
   props.editMatch.match.push(match);

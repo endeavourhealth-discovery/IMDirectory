@@ -1,11 +1,10 @@
 <template>
   <div class="match-container" v-if="propertyType">
     <Select :options="['typeOf', 'instanceOf']" v-model:model-value="propertyType" />
-    <div v-if="propertyType === 'is' && editMatch.is" class="multi-select">
-      <SingleEntitySelector v-for="is in editMatch.is" :edit-node="is" />
+    <div v-if="propertyType === 'instanceOf' && editMatch.instanceOf" class="multi-select">
+      <SingleEntitySelector v-for="instanceOf in editMatch.instanceOf" :edit-node="instanceOf" />
     </div>
     <SingleEntitySelector v-else-if="propertyType === 'typeOf' && editMatch.typeOf" :edit-node="editMatch.typeOf" />
-    <SingleEntitySelector v-else-if="propertyType === 'instanceOf' && editMatch.instanceOf" :edit-node="editMatch.instanceOf" />
   </div>
 </template>
 
@@ -28,7 +27,7 @@ const props = defineProps<Props>();
 const filterStore = useFilterStore();
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 const selected: Ref<SearchResultSummary | undefined> = ref();
-const propertyType: Ref<"is" | "typeOf" | "instanceOf" | undefined> = ref();
+const propertyType: Ref<"typeOf" | "instanceOf" | undefined> = ref();
 
 const imQueryForConceptSearch: Ref<QueryRequest> = ref({ query: {} });
 
@@ -38,8 +37,7 @@ onMounted(async () => {
 
 async function init() {
   buildIMQueryForConceptSearch();
-  if (isObjectHasKeys(props.editMatch, ["is"])) propertyType.value = "is";
-  else if (isObjectHasKeys(props.editMatch, ["instanceOf"])) propertyType.value = "instanceOf";
+  if (isObjectHasKeys(props.editMatch, ["instanceOf"])) propertyType.value = "instanceOf";
   else if (isObjectHasKeys(props.editMatch, ["typeOf"])) propertyType.value = "typeOf";
 }
 

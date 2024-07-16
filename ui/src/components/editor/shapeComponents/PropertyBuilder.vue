@@ -180,9 +180,11 @@ const pSuggestions: Ref<QueryRequest | undefined> = ref({
     activeOnly: true,
     match: [
       {
-        instanceOf: {
-          "@id": RDF.PROPERTY
-        }
+        instanceOf: [
+          {
+            "@id": RDF.PROPERTY
+          }
+        ]
       }
     ]
   }
