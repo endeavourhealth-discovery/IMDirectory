@@ -6,6 +6,7 @@ import ConfirmCode from "@/components/auth/ConfirmCode.vue";
 import InputText from "primevue/inputtext";
 import InputOtp from "primevue/inputotp";
 import Dialog from "primevue/dialog";
+import Message from "primevue/message";
 import { AuthService } from "@/services";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
@@ -74,7 +75,7 @@ describe("ConfirmCode.vue with registeredUser", () => {
     component = render(ConfirmCode, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, Dialog, InputOtp }
+        components: { Card, Button, InputText, Dialog, InputOtp, Message }
       }
     });
   });
