@@ -4,7 +4,6 @@
       <Select
         :options="[
           { id: 'is', name: 'is' },
-          { id: 'isNot', name: 'is not' },
           { id: 'isNull', name: 'is not recorded' },
           { id: 'isNotNull', name: 'is recorded' }
         ]"
@@ -70,9 +69,9 @@ interface Props {
 const props = defineProps<Props>();
 
 const { updateEntailment } = setupIMQueryBuilderActions();
-const valueField: Ref<"is" | "isNot" | "isNull" | "isNotNull" | undefined> = ref();
+const valueField: Ref<"is" | "isNull" | "isNotNull" | undefined> = ref();
 const values: Ref<ElementWithSummary[]> = ref([]);
-const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is" || valueField.value === "isNot");
+const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is");
 const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const conceptSets: Ref<string[]> = ref([]);
@@ -134,17 +133,9 @@ function updateSelectedValue(selected: SearchResultSummary | undefined, index: n
 
 function handlePropertyTypeChange() {
   switch (valueField.value) {
-    case "isNot":
-      if (!values.value.length) values.value = [{}];
-      props.property.isNot = values.value;
-      delete props.property.is;
-      delete props.property.isNull;
-      delete props.property.isNotNull;
-      break;
     case "is":
       if (!values.value.length) values.value = [{}];
       props.property.is = values.value;
-      delete props.property.isNot;
       delete props.property.isNull;
       delete props.property.isNotNull;
       break;
@@ -152,13 +143,11 @@ function handlePropertyTypeChange() {
       props.property.isNull = true;
       delete props.property.is;
       delete props.property.isNotNull;
-      delete props.property.isNot;
       break;
     case "isNotNull":
       props.property.isNotNull = true;
       delete props.property.is;
       delete props.property.isNull;
-      delete props.property.isNot;
       break;
     default:
       break;
@@ -170,12 +159,6 @@ async function setValues() {
   if (props.property.is) {
     valueField.value = "is";
     for (const value of props.property.is) {
-      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name, summary: await EntityService.getEntitySummary(value["@id"]) });
-    }
-    if (!values.value.length) values.value.push({});
-  } else if (props.property.isNot) {
-    valueField.value = "isNot";
-    for (const value of props.property.isNot) {
       if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name, summary: await EntityService.getEntitySummary(value["@id"]) });
     }
     if (!values.value.length) values.value.push({});

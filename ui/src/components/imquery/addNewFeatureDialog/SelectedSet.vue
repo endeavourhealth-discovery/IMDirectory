@@ -84,17 +84,12 @@ function getColourStyleFromType(types: TTIriRef[]) {
 
 function updatePathValues() {
   if (selectedPath.value?.where?.[0]) {
-    selectedPath.value.where[0].is = selectedEntities.value
-      .filter(selected => selected.include === true)
-      .map(selected => convertSelectedEntityToNode(selected));
-    selectedPath.value.where[0].isNot = selectedEntities.value
-      .filter(selected => selected.include === false)
-      .map(selected => convertSelectedEntityToNode(selected));
+    selectedPath.value.where[0].is = selectedEntities.value.map(selected => convertSelectedEntityToNode(selected));
   }
 }
 
 function convertSelectedEntityToNode(selected: SelectedEntity): Node {
-  const node: Node = { "@id": selected["@id"] };
+  const node: Node = { "@id": selected["@id"], exclude: !selected.include };
   switch (selected.entailment) {
     case "memberOf":
       node.memberOf = true;
