@@ -3,6 +3,7 @@ import SearchResults from "@/components/shared/SearchResults.vue";
 import Tooltip from "primevue/tooltip";
 import MultiSelect from "primevue/multiselect";
 import RadioButton from "primevue/radiobutton";
+import FloatLabel from "primevue/floatlabel";
 import PrimeVue from "primevue/config";
 import { expect, it, vi } from "vitest";
 import testData from "./SearchResults.testData";
@@ -35,7 +36,7 @@ describe("SearchResultsTable.vue", () => {
 
     component = render(SearchResults, {
       global: {
-        components: { MultiSelect, RadioButton },
+        components: { MultiSelect, RadioButton, FloatLabel },
         directives: { tooltip: Tooltip },
         plugins: [PrimeVue],
         stubs: { ResultsTable: true }

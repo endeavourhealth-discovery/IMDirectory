@@ -33,7 +33,8 @@ describe("Home.vue", () => {
         stubs: ["router-view", "InfoSideBar", "NavTree"],
         plugins: [PrimeVue],
         mocks: {}
-      }
+      },
+      props: { searchTerm: "", updateSearch: false, selectedFilterOptions: {} }
     });
   });
 
