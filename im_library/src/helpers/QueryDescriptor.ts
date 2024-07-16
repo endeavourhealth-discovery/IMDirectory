@@ -183,8 +183,7 @@ export function getDisplayFromProperty(property: Where, matchType?: MatchType) {
         if (totalNumberOfNodes === 1) display += " " + property.valueLabel;
         else display += " " + getDisplayFromNodeRef(property.valueLabel);
       } else {
-        if (property.is) display += " " + getDisplayFromList(true, property.is);
-        if (property.isNot) display += " " + getDisplayFromList(false, property.isNot);
+        if (property.instanceOf) display += " " + getDisplayFromList(true, property.instanceOf);
       }
     }
     if (property.operator) display = getDisplayFromOperator(propertyName, property);
@@ -202,14 +201,12 @@ export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchTyp
 }
 
 function isPropertyValueList(property: Where) {
-  return isArrayHasLength(property.is) || isArrayHasLength(property.isNot);
+  return isArrayHasLength(property.instanceOf);
 }
 
 export function getNumberOfListItems(property: Where) {
   let totalNumberOfNodes = 0;
-  if (isArrayHasLength(property.is)) totalNumberOfNodes += property.is!.length;
-  if (isArrayHasLength(property.isNot)) totalNumberOfNodes += property.isNot!.length;
-
+  if (isArrayHasLength(property.instanceOf)) totalNumberOfNodes += property.instanceOf!.length;
   return totalNumberOfNodes;
 }
 
@@ -402,10 +399,10 @@ function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
   let iri = "";
   if (isObjectHasKeys(object, ["@id"])) iri = object["@id"];
   else if (isObjectHasKeys(object.typeOf, ["@id"])) iri = object["typeOf"]?.["@id"];
-  else if (isArrayHasLength(object.is)) {
-    if (object.is.length === 1) iri = object["is"][0]["@id"];
-    else if (object.is.length > 1) {
-      for (const item of object.is) {
+  else if (isArrayHasLength(object.instanceOf)) {
+    if (object.instanceOf.length === 1) iri = object.instanceOf[0]["@id"];
+    else if (object.instanceOf.length > 1) {
+      for (const item of object.instanceOf) {
         addUnnamedObject(unnamedObjects, item);
       }
     }
