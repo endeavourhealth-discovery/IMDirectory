@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-07-16 12:45:31.
+// Generated using typescript-generator version 3.2.1263 on 2024-07-16 13:14:49.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -217,7 +217,6 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
     unit?: string;
     operator?: Operator;
     dataType?: TTIriRef;
@@ -385,8 +384,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -407,8 +406,8 @@ export interface Where extends PropertyRef, Assignable {
     match?: Match;
     range?: Range;
     isNull?: boolean;
-    anyRoleGroup?: boolean;
     instanceOf?: Node[];
+    anyRoleGroup?: boolean;
     boolWhere?: Bool;
     where?: Where[];
     valueLabel?: string;
@@ -688,7 +687,6 @@ export interface TTEntity extends TTNode, Serializable {
     description?: string;
     code?: string;
     prefixes?: TTPrefix[];
-    code?: string;
 }
 
 export interface TTContext extends Serializable {
