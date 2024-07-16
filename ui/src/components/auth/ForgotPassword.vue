@@ -6,15 +6,16 @@
       </template>
       <template #title> Account Recovery: <br /><br />Password Reset </template>
       <template #content>
-        <div class="p-fluid recovery-form">
+        <form class="recovery-form" @submit="onSubmit">
           <div class="field">
             <label for="fieldUsername">Username</label>
             <InputText data-testid="forgot-password-username-input" id="fieldUsername" type="text" v-model="username" />
+            <Message v-if="errors.username" severity="error">{{ errors.username }}</Message>
           </div>
           <div class="flex flex-row justify-content-center">
             <Button data-testid="forgot-password-user-submit" class="user-submit" type="submit" label="Request Reset Code" v-on:click.prevent="handleSubmit" />
           </div>
-        </div>
+        </form>
       </template>
       <template #footer>
         <small>
@@ -39,13 +40,21 @@ import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
+import * as yup from "yup";
+import { useForm } from "vee-validate";
 
 const router = useRouter();
 const authStore = useAuthStore();
 
-let username = ref("");
+const schema = yup.object({
+  username: yup.string().required("Username is required")
+});
 
-function handleSubmit(): void {
+const { errors, defineField, handleSubmit } = useForm({ validationSchema: schema });
+
+const [username, usernameAttrs] = defineField("username");
+
+const onSubmit = handleSubmit(async () => {
   Swal.fire({
     icon: "warning",
     title: "Warning",
@@ -76,7 +85,7 @@ function handleSubmit(): void {
       });
     }
   });
-}
+});
 </script>
 
 <style scoped>
@@ -90,6 +99,13 @@ function handleSubmit(): void {
 
 .recovery-form {
   max-width: 25em;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .footer-link:hover {

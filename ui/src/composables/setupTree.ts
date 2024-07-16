@@ -215,7 +215,7 @@ function setupTree() {
   function scrollToHighlighted(containerId: string) {
     const container = document.getElementById(containerId) as HTMLElement;
     if (container) {
-      const highlighted = container.getElementsByClassName("p-highlight")[0];
+      const highlighted = container.getElementsByClassName("p-tree-node-selected")?.[0];
       if (highlighted) highlighted.scrollIntoView();
     }
   }

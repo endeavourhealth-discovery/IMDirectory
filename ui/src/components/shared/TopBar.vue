@@ -67,7 +67,7 @@
       />
       <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
         <template #item="{ item }: any">
-          <div class="scale-row p-link">
+          <div class="scale-row">
             <span class="theme-icon p-menuitem-icon" :class="item.icon" />
             <span class="p-menuitem-text">{{ item.label }}</span>
             <span v-if="item.key === currentScale" class="theme-icon p-menuitem-icon fa-regular fa-check" />
@@ -361,19 +361,19 @@ function getScales(): MenuItem[] {
           key: "12px",
           label: "Small",
           icon: "fa-regular fa-a fa-xs",
-          command: () => changeScale("12px")
+          command: async () => await changeScale("12px")
         },
         {
           key: "14px",
           label: "Medium",
           icon: "fa-regular fa-a fa-sm",
-          command: () => changeScale("14px")
+          command: async () => await changeScale("14px")
         },
         {
           key: "16px",
           label: "Large",
           icon: "fa-regular fa-a",
-          command: () => changeScale("16px")
+          command: async () => await changeScale("16px")
         }
       ]
     }
@@ -482,6 +482,7 @@ function showReleaseNotes() {
   align-items: center;
   gap: 0.5rem;
   min-height: 30px;
+  cursor: pointer;
 }
 
 .selected {

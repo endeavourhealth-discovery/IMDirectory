@@ -6,19 +6,21 @@
       </template>
       <template #title> Login </template>
       <template #content>
-        <div class="p-fluid login-form">
+        <form class="login-form" @submit="onSubmit">
           <div class="field">
             <label for="fieldUsername">Username</label>
             <InputText data-testid="login-username" id="fieldUsername" type="text" v-model="username" :placeholder="username" />
+            <Message v-if="errors.username" severity="error">{{ errors.username }}</Message>
           </div>
           <div class="field">
             <label for="fieldPassword">Password</label>
             <Password v-model="password" :feedback="false" toggleMask data-testid="login-password" id="fieldPassword" />
+            <Message v-if="errors.password" severity="error">{{ errors.password }}</Message>
           </div>
           <div class="flex flex-row justify-content-center">
-            <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="handleSubmit" :loading="loading" />
+            <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="onSubmit" :loading="loading" />
           </div>
-        </div>
+        </form>
       </template>
       <template #footer>
         <small>Don't have an account yet? <a id="register-link" class="footer-link" @click="router.push({ name: 'Register' })">Register here</a></small>
@@ -39,7 +41,6 @@
 import { computed, onMounted, ref } from "vue";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { Avatars } from "@im-library/constants";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
@@ -47,17 +48,26 @@ import { useUserStore } from "@/stores/userStore";
 import { CustomAlert } from "@im-library/interfaces";
 import Password from "primevue/password";
 import _ from "lodash-es";
+import * as yup from "yup";
+import { useForm } from "vee-validate";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
 const authReturnPath = computed(() => authStore.authReturnPath);
-const currentUser = computed(() => userStore.currentUser);
 
-const username = ref("");
-const password = ref("");
 const loading = ref(false);
+
+const schema = yup.object({
+  username: yup.string().required("Username is required"),
+  password: yup.string().required("Password is required")
+});
+
+const { errors, defineField, handleSubmit } = useForm({ validationSchema: schema });
+
+const [username] = defineField("username");
+const [password] = defineField("password");
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
@@ -145,7 +155,7 @@ function handle403(res: CustomAlert) {
   }
 }
 
-async function handleSubmit(): Promise<void> {
+const onSubmit = async function handleSubmit(): Promise<void> {
   loading.value = true;
   await AuthService.signIn(username.value, password.value)
     .then(async res => {
@@ -172,7 +182,7 @@ async function handleSubmit(): Promise<void> {
       });
     });
   loading.value = false;
-}
+};
 </script>
 
 <style scoped>
@@ -186,6 +196,13 @@ async function handleSubmit(): Promise<void> {
 
 .login-form {
   max-width: 25em;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .footer-link:hover {
