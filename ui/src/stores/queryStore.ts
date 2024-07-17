@@ -20,7 +20,7 @@ export const useQueryStore = defineStore("query", {
             where: [
               {
                 "@id": "http://endhealth.info/im#returnType",
-                is: [
+                instanceOf: [
                   {
                     parameter: "dataModelIri"
                   }

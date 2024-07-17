@@ -6,62 +6,50 @@
       </template>
       <template #title> Account Recovery: <br /><br />Submit Password Reset Code </template>
       <template #content>
-        <form @submit="onSubmit" class="p-fluid flex flex-column justify-content-start recovery-form">
-          <div class="p-fluid">
-            <div class="field">
-              <label for="fieldUsername">Username</label>
-              <InputText
-                data-testid="forgot-password-submit-username"
-                id="fieldUsername"
-                type="text"
-                v-model="username"
-                v-bind="usernameAttrs"
-                :placeholder="registeredUsername"
-                @focus="updateFocused('username', true)"
-                @blur="updateFocused('username', false)"
-                :class="!username && focused.get('username') === false && 'p-invalid'"
-              />
-              <Message v-if="errors.username" severity="info"> {{ errors.username }} </Message>
-            </div>
-            <div class="field">
-              <label for="fieldCode">Confirmation code</label>
-              <div class="flex flex-row align-items-center">
-                <InputText
-                  data-testid="forgot-password-submit-code"
-                  id="fieldCode"
-                  type="password"
-                  v-model="code"
-                  v-bind="codeAttrs"
-                  @focus="updateFocused('code', true)"
-                  @blur="updateFocused('code', false)"
-                  :class="!codeVerified && code && !focused.get('code') && 'p-invalid'"
-                />
-                <IMFontAwesomeIcon
-                  v-if="codeVerified"
-                  icon="fa-regular fa-circle-check"
-                  style="color: var(--p-green-500); font-size: 2em"
-                  data-testid="forgot-password-submit-verified"
-                />
-                <IMFontAwesomeIcon
-                  v-if="!codeVerified && code"
-                  icon="fa-regular fa-circle-xmark"
-                  style="color: var(--p-red-500); font-size: 2em"
-                  data-testid="forgot-password-submit-unverified"
-                />
-              </div>
-              <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
-            </div>
-            <PasswordInputs test-id="forgot-password-submit-password-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
+        <form @submit="onSubmit" class="flex flex-column justify-content-start recovery-form">
+          <div class="field">
+            <label for="fieldUsername">Username</label>
+            <InputText
+              data-testid="forgot-password-submit-username"
+              id="fieldUsername"
+              type="text"
+              v-model="username"
+              v-bind="usernameAttrs"
+              :placeholder="registeredUsername"
+              @focus="updateFocused('username', true)"
+              @blur="updateFocused('username', false)"
+              :class="!username && focused.get('username') === false && 'p-invalid'"
+            />
+            <Message v-if="errors.username" severity="info"> {{ errors.username }} </Message>
+          </div>
+          <div class="field">
+            <label for="fieldCode">Confirmation code</label>
             <div class="flex flex-row justify-content-center">
-              <Button
-                :disabled="!allVerified"
-                data-testid="forgot-password-submit-reset"
-                class="user-submit"
-                type="submit"
-                label="Reset Password"
-                v-on:click.prevent="onSubmit"
+              <InputOtp
+                data-testid="forgot-password-submit-code"
+                id="fieldCode"
+                :length="6"
+                v-model="code"
+                v-bind="codeAttrs"
+                @focus="updateFocused('code', true)"
+                @blur="updateFocused('code', false)"
+                :class="!codeVerified && code && !focused.get('code') && 'p-invalid'"
+                :pt="{ 'pc-input': { root: { 'data-testid': 'otp-input' } } }"
               />
             </div>
+            <Message v-if="errors.code" severity="error">{{ errors.code }}</Message>
+            <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
+          </div>
+          <PasswordInputs test-id="forgot-password-submit-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
+          <div class="flex flex-row justify-content-center">
+            <Button
+              :disabled="!allVerified"
+              data-testid="forgot-password-submit-reset"
+              class="user-submit"
+              type="submit"
+              label="Reset Password"
+              v-on:click.prevent="onSubmit"
+            />
           </div>
         </form>
       </template>
@@ -94,10 +82,7 @@ const focused: Ref<Map<string, boolean>> = ref(new Map());
 
 const { handleSubmit, errors, setValues, defineField } = useForm({
   validationSchema: yup.object({
-    code: yup
-      .string()
-      .required()
-      .test("isCodeVerified", "Code is required", () => verifyCode(code.value)),
+    code: yup.string().required().length(6),
     username: yup.string().required("Username is required")
   })
 });
@@ -192,5 +177,9 @@ const onSubmit = handleSubmit(async () => {
 .icon-header {
   font-size: 5rem;
   margin-top: 1em;
+}
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 </style>

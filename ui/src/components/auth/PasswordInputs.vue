@@ -10,6 +10,7 @@
         :input-props="{ autofocus: true }"
         data-testid="password-old"
         id="passwordOld"
+        fluid
         :pt="{
           'pc-input': { root: { 'data-testid': testId + 'old' } }
         }"
@@ -26,6 +27,7 @@
         v-model="password"
         v-bind="passwordAttrs"
         toggleMask
+        fluid
         data-testid="password-new1"
         id="password"
         :pt="{
@@ -62,6 +64,7 @@
         v-model="password2"
         v-bind="password2Attrs"
         toggleMask
+        fluid
         :feedback="false"
         data-testid="password-new2"
         id="password2"
@@ -147,4 +150,18 @@ watch(
 );
 </script>
 
-<style scoped></style>
+<style scoped>
+.field {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+.input-with-button {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row;
+}
+.p-password {
+  width: 100%;
+}
+</style>

@@ -8,7 +8,7 @@
       </template>
       <template #title> {{ menuItems[activeItem].label }} </template>
       <template #content>
-        <div v-if="activeItem === 0" class="p-fluid flex flex-column justify-content-start user-edit-form">
+        <div v-if="activeItem === 0" class="flex flex-column justify-content-start user-edit-form">
           <form @submit="onSubmit">
             <div class="field">
               <label for="username">Username</label>
@@ -52,6 +52,7 @@
                   type="text"
                   v-model="email1"
                   v-bind="email1Attrs"
+                  fluid
                   @focus="updateFocused('email1', true)"
                   @blur="updateFocused('email1', false)"
                   :class="(errors.email1 || !email1) && !focused.get('email1') && 'p-invalid'"
@@ -67,6 +68,7 @@
                 data-testid="user-edit-email2"
                 id="email2"
                 type="text"
+                fluid
                 v-model="email2"
                 v-bind="email2Attrs"
                 @focus="updateFocused('email2', true)"
@@ -400,6 +402,13 @@ function checkForChanges(): boolean {
 
 .user-edit-form {
   max-width: 32em;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .user-edit-card {

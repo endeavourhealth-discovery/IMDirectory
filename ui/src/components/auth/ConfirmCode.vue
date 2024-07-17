@@ -6,24 +6,52 @@
       </template>
       <template #title> Confirmation Code </template>
       <template #content>
-        <div class="p-fluid code-form">
+        <form @subit="onSubmit" class="code-form">
           <div class="field">
             <label for="fieldUsername">Username</label>
-            <InputText data-testid="confirm-code-username-input" id="fieldUsername" type="text" v-model="username" :placeholder="username" />
+            <InputText
+              data-testid="confirm-code-username-input"
+              id="fieldUsername"
+              type="text"
+              v-model="username"
+              v-bind="usernameAttrs"
+              :class="errors.username && username && !focused.get('username') && 'p-invalid'"
+              @focus="updateFocused('username', true)"
+              @blur="updateFocused('username', false)"
+            />
+            <Message v-if="errors.username && !focused.get('username')" severity="error">{{ errors.username }}</Message>
           </div>
           <div class="field">
             <label for="fieldCode">Confirmation code</label>
             <div class="flex flex-row align-items-center">
-              <InputText data-testid="confirm-code-input" id="fieldCode" type="password" v-model="code" />
-              <IMFontAwesomeIcon v-if="codeVerified" icon="fa-regular fa-circle-check" class="password-check" />
-              <IMFontAwesomeIcon v-if="!codeVerified && code" icon="fa-regular fa-circle-xmark" class="password-times" />
+              <InputOtp
+                class="flex-auto"
+                data-testid="confirm-code-input"
+                id="fieldCode"
+                type="password"
+                :length="6"
+                v-model="code"
+                v-bind="codeAttrs"
+                :class="errors.code && code && !focused.get('code') && 'p-invalid'"
+                @focus="updateFocused('code', true)"
+                @blur="updateFocused('code', false)"
+                :pt="{ 'pc-input': { root: { 'data-testid': 'otp-input' } } }"
+              />
             </div>
+            <Message v-if="errors.code && !focused.get('code')" severity="error">{{ errors.code }}</Message>
             <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
           </div>
           <div class="flex flex-row justify-content-center">
-            <Button data-testid="confirm-code-submit-button" class="user-submit" type="submit" label="Submit" @click="handleSubmit" />
+            <Button
+              data-testid="confirm-code-submit-button"
+              class="user-submit"
+              type="submit"
+              label="Submit"
+              :disabled="Object.keys(values).length < 2 || Object.keys(errors).length > 0"
+              @click="onSubmit"
+            />
           </div>
-        </div>
+        </form>
       </template>
       <template #footer>
         <small
@@ -40,41 +68,59 @@
   </div>
   <Dialog v-model:visible="showDialog" header="Request new code" :modal="true" :style="{ width: '40vw' }">
     <div class="dialog-container">
-      <div class="flex flex-column">
-        <label for="dialog-username">Enter your username</label>
-        <InputText id="dialog-username" type="text" v-model="username" :class="usernameInvalid && 'invalid'" />
-        <small v-if="usernameInvalid" class="validate-error">Username is required.</small>
-      </div>
+      <form class="flex flex-column" @submit="requestCode">
+        <div class="field">
+          <label for="dialog-username">Enter your username</label>
+          <InputText id="dialog-username" type="text" v-model="username" :class="errors.username && 'invalid'" />
+          <small v-if="errors.username" class="validate-error">Username is required.</small>
+        </div>
+      </form>
     </div>
     <template #footer>
-      <Button data-testid="confirm-code-resend-code-button" type="submit" label="Request a new code" @click="requestCode" />
+      <Button
+        data-testid="confirm-code-resend-code-button"
+        type="submit"
+        label="Request a new code"
+        :disabled="!username || !!errors.username"
+        @click="requestCode"
+      />
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
 import { AuthService, UserService } from "@/services";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, Ref, ref } from "vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { useAuthStore } from "@/stores/authStore";
 import { autoSignIn } from "aws-amplify/auth";
+import * as yup from "yup";
+import { useForm } from "vee-validate";
 
 const authStore = useAuthStore();
 const router = useRouter();
 
 const registeredUsername = computed(() => authStore.registeredUsername);
 
-let code = ref("");
-let username = ref("");
-let showDialog = ref(false);
+const showDialog = ref(false);
 
-const codeVerified = computed(() => verifyCode(code.value));
-
-const usernameInvalid = computed(() => {
-  return !username.value;
+const schema = yup.object({
+  username: yup.string().required("Username is required"),
+  code: yup.string().required("Code is required").length(6)
 });
+
+const { values, errors, defineField, handleSubmit } = useForm({ validationSchema: schema });
+
+const [username, usernameAttrs] = defineField("username");
+const [code, codeAttrs] = defineField("code");
+
+const focused: Ref<Map<string, boolean>> = ref(new Map());
+
+function updateFocused(key: string, value: boolean) {
+  focused.value.set(key, value);
+}
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
@@ -82,44 +128,32 @@ onMounted(() => {
   }
 });
 
-function verifyCode(code: string) {
-  return /^.{6,}$/.test(code) && code.length <= 6;
-}
-
-function handleSubmit() {
-  if (codeVerified.value && !usernameInvalid.value) {
-    AuthService.confirmRegister(username.value, code.value)
-      .then(res => {
-        if (res.status === 200) {
+const onSubmit = handleSubmit(async () => {
+  await AuthService.confirmRegister(username.value, code.value)
+    .then(res => {
+      if (res.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: res.message,
+          confirmButtonText: "Login"
+        }).then(async () => {
+          authStore.updateRegisteredUsername(username.value);
+          if (res.nextStep === "COMPLETE_AUTO_SIGN_IN") await AuthService.handleAutoSignIn();
+          else router.push({ name: "Login" });
+        });
+      } else if (res.status === 403) {
+        if (res.nextStep === "COMPLETE_AUTO_SIGN_IN") {
           Swal.fire({
             icon: "success",
             title: "Success",
-            text: res.message,
+            text: "Confirmed registration",
             confirmButtonText: "Login"
           }).then(async () => {
             authStore.updateRegisteredUsername(username.value);
-            if (res.nextStep === "COMPLETE_AUTO_SIGN_IN") await AuthService.handleAutoSignIn();
-            else router.push({ name: "Login" });
+            await AuthService.handleAutoSignIn();
+            await router.push({ name: "LandingPage" });
           });
-        } else if (res.status === 403) {
-          if (res.nextStep === "COMPLETE_AUTO_SIGN_IN") {
-            Swal.fire({
-              icon: "success",
-              title: "Success",
-              text: "Confirmed registration",
-              confirmButtonText: "Login"
-            }).then(async () => {
-              authStore.updateRegisteredUsername(username.value);
-              await AuthService.handleAutoSignIn();
-              await router.push({ name: "LandingPage" });
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: res.message
-            });
-          }
         } else {
           Swal.fire({
             icon: "error",
@@ -127,73 +161,79 @@ function handleSubmit() {
             text: res.message
           });
         }
-      })
-      .catch(err => {
-        console.error(err);
+      } else {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Auth Service Error"
+          text: res.message
         });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Auth Service Error"
       });
-  } else {
-    Swal.fire({
-      icon: "warning",
-      title: "Invalid Credentials",
-      text: "Username or Confirmation Code incorrect."
     });
-  }
-}
+});
 
-function requestCode() {
-  if (!usernameInvalid.value) {
-    showDialog.value = false;
-    AuthService.resendConfirmationCode(username.value)
-      .then(async res => {
-        if (res.status === 200) {
+async function requestCode() {
+  showDialog.value = false;
+  await AuthService.resendConfirmationCode(username.value)
+    .then(async res => {
+      if (res.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Code has been resent to email for: " + username.value
+        });
+      } else if (res.message === "User is already confirmed.") {
+        await UserService.updateEmailVerified(true).then(async () =>
           Swal.fire({
             icon: "success",
             title: "Success",
-            text: "Code has been resent to email for: " + username.value
-          });
-        } else if (res.message === "User is already confirmed.") {
-          await UserService.updateEmailVerified(true).then(async () =>
-            Swal.fire({
-              icon: "success",
-              title: "Success",
-              text: "Account has successfully been verified",
-              confirmButtonText: "Login"
-            }).then(async () => {
-              authStore.updateRegisteredUsername(username.value);
-              await autoSignIn();
-              router.push({ name: "LandingPage" });
-            })
-          );
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Code resending failed. Please check your username is correct."
-          });
-        }
-      })
-      .catch(err => {
-        console.error(err);
+            text: "Account has successfully been verified",
+            confirmButtonText: "Login"
+          }).then(async () => {
+            authStore.updateRegisteredUsername(username.value);
+            await autoSignIn();
+            router.push({ name: "LandingPage" });
+          })
+        );
+      } else {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Internal application error"
+          text: "Code resending failed. Please check your username is correct."
         });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Internal application error"
       });
-  } else if (showDialog.value === false) {
-    showDialog.value = true;
-  }
+    });
 }
 </script>
 
 <style scoped>
 .confirm-card {
   padding: 0 2em;
+}
+
+.code-form {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .user-submit {

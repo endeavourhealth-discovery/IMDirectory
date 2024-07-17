@@ -6,7 +6,7 @@
       </template>
       <template #title> Logout </template>
       <template #content>
-        <div class="p-fluid logout-form">
+        <div class="logout-form">
           <div class="field">
             <div class="p-text-left">Current User:</div>
           </div>
@@ -97,6 +97,8 @@ function handleSubmit(): void {
 .logout-form {
   max-width: 25em;
   min-width: 15em;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .logout-card {

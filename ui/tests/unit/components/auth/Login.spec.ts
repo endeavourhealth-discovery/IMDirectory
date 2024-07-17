@@ -3,6 +3,7 @@ import Login from "@/components/auth/Login.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
+import Message from "primevue/message";
 import { AuthService } from "@/services";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
@@ -36,7 +37,7 @@ describe("login.vue no registeredUser", () => {
     component = render(Login, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText }
+        components: { Card, Button, InputText, Message }
       }
     });
   });
@@ -70,7 +71,7 @@ describe("login.vue with registeredUser", () => {
     component = render(Login, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText }
+        components: { Card, Button, InputText, Message }
       }
     });
   });

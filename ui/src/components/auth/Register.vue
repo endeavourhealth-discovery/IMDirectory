@@ -6,7 +6,7 @@
     <template #title> Register </template>
     <template #content>
       <form @submit="onSubmit">
-        <div class="p-fluid register-form">
+        <div class="register-form">
           <div class="field">
             <label for="fieldUsername">Username</label>
             <InputText
@@ -32,6 +32,7 @@
                 maxlength="50"
                 v-model="email1"
                 v-bind="email1Attrs"
+                class="flex-auto"
                 @focus="updateFocused('email1', true)"
                 @blur="updateFocused('email1', false)"
                 :class="!emailIsNotRegistered && !errors.email1 && !focused.get('email1') && 'p-invalid'"
@@ -306,7 +307,14 @@ function openInNewTab(componentName: string) {
 }
 
 .register-form {
+  display: flex;
+  flex-flow: column nowrap;
   max-width: 32em;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .footer-link:hover {
