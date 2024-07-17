@@ -38,6 +38,7 @@
     :show-variable-options="false"
     :can-clear-path="true"
     :has-next-step="true"
+    :show-type-filters="true"
     @on-match-add="onMatchAdd"
     @on-property-add="onPropertyAdd"
   />
@@ -49,6 +50,7 @@
     :show-variable-options="false"
     :can-clear-path="true"
     :has-next-step="true"
+    :show-type-filters="true"
     @on-match-add="onThenMatchAdd"
     @on-property-add="onThenPropertyAdd"
   />

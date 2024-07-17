@@ -11,6 +11,7 @@
             <div class="directory-search-dialog-content">
               <div class="search-bar">
                 <SearchBarWithRadioFilters
+                  :show-type-filters="showTypeFilters"
                   @on-search="
                     payload => {
                       searchTerm = payload;
@@ -49,13 +50,13 @@
           <div class="flex pt-4 justify-content-end next-button">
             <Button
               v-if="hasNextStep"
-              :disabled="!isObjectHasKeys(selectedPath) || !selectedPath?.where?.[0].valueLabel"
+              :disabled="!isObjectHasKeys(selectedPath)"
               label="Next"
               icon="pi pi-arrow-right"
               iconPos="right"
               @click="activateCallback('2')"
             />
-            <Button v-else :disabled="!isObjectHasKeys(selectedPath) || !selectedPath?.where?.[0].valueLabel" label="Save" iconPos="right" @click="save" />
+            <Button v-else :disabled="!isObjectHasKeys(selectedPath)" label="Save" iconPos="right" @click="save" />
           </div>
         </StepPanel>
         <StepPanel v-slot="{ activateCallback }" value="2">
@@ -81,22 +82,15 @@ import { Ref, onMounted, provide, ref, watch } from "vue";
 import { Match, Node, PathQuery, QueryRequest, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF, SHACL } from "@im-library/vocabulary";
-import { EntityService, QueryService } from "@/services";
-import { isConcept, isProperty, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { computed } from "vue";
-import { addBindingsToIMQuery, addTypeFilterToIMQuery, buildIMQueryFromFilters, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
+import { IM, RDF } from "@im-library/vocabulary";
+import { QueryService } from "@/services";
+import { addBindingsToIMQuery, addTypeFilterToIMQuery, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
-import AddPropertyDialog from "../AddPropertyDialog.vue";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import NavTree from "../../shared/NavTree.vue";
 import SearchBarWithRadioFilters, { TypeOption } from "./SearchBarWithRadioFilters.vue";
 import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
-import PathSelectDialog from "./PathSelectDialog.vue";
 import PathDisplay from "./PathDisplay.vue";
-import { SearchOptions } from "@im-library/interfaces";
-import SelectedSet from "./SelectedSet.vue";
 
 interface Props {
   showDialog: boolean;
@@ -106,6 +100,7 @@ interface Props {
   dataModelIri: string;
   showVariableOptions: boolean;
   hasNextStep?: boolean;
+  showTypeFilters?: boolean;
   isList?: Node[];
 }
 
@@ -170,6 +165,8 @@ watch(
 onMounted(() => init());
 
 function init() {
+  imQuery.value = undefined;
+  rootEntities.value = undefined;
   if (isObjectHasKeys(props.match)) {
     editMatch.value = cloneDeep(props.match);
     selectedPath.value = cloneDeep(editMatch.value);
@@ -202,7 +199,6 @@ function clear() {
   pathSuggestions.value = [];
   selectedGeneralConcept.value = undefined;
   searchTerm.value = "";
-  // selectedType.value = undefined;
   treeIri.value = "";
   detailsIri.value = "";
 }
@@ -219,10 +215,6 @@ function getLeafWhereRecursively(whereList: Where[], found: Match[], currentMatc
   const hasNested = whereList.find(nestedWhere => nestedWhere.match?.where);
   if (hasNested) getLeafWhereRecursively(hasNested.match?.where!, found, hasNested.match!);
   else found.push(currentMatch);
-}
-
-function locateInTree(iri: string) {
-  treeIri.value = iri;
 }
 
 function onTypeSelect(typeOption: TypeOption) {

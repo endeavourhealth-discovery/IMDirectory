@@ -26,6 +26,7 @@
         :has-next-step="false"
         :match="editMatch"
         :isList="property.instanceOf"
+        :show-type-filters="false"
         @on-match-add="onMatchAdd"
       />
     </span>

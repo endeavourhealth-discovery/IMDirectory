@@ -1,22 +1,19 @@
 <template>
-  <!--TODO: Move the following div to a subcomponent -->
-  <div class="flex justify-content-center align-items-center">
-    <SearchBar v-model:searchTerm="searchTerm" :show-filters="false" @to-search="emit('onSearch', searchTerm)" />
-    <div class="type-options flex flex-wrap gap-3">
-      <div v-for="typeOption in typeOptions" :key="typeOption.name" class="flex align-items-center">
-        <RadioButton
-          v-model="selectedType"
-          :inputId="typeOption.name"
-          name="dynamic"
-          :value="typeOption"
-          @change="
-            {
-              if (selectedType) emit('onTypeSelect', selectedType);
-            }
-          "
-        />
-        <label :for="typeOption.name" class="gap-1">{{ typeOption.name }}</label>
-      </div>
+  <SearchBar v-model:searchTerm="searchTerm" :show-filters="false" @to-search="emit('onSearch', searchTerm)" />
+  <div v-if="showTypeFilters" class="type-options flex flex-wrap gap-3">
+    <div v-for="typeOption in typeOptions" :key="typeOption.name" class="flex align-items-center">
+      <RadioButton
+        v-model="selectedType"
+        :inputId="typeOption.name"
+        name="dynamic"
+        :value="typeOption"
+        @change="
+          {
+            if (selectedType) emit('onTypeSelect', selectedType);
+          }
+        "
+      />
+      <label :for="typeOption.name" class="gap-1">{{ typeOption.name }}</label>
     </div>
   </div>
 </template>
@@ -34,6 +31,14 @@ export interface TypeOption {
   typeIri: string;
 }
 
+interface Props {
+  showTypeFilters?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  showTypeFilters: true
+});
+
 const emit = defineEmits({ onTypeSelect: (payload: TypeOption) => payload, onSearch: (payload: string) => payload });
 
 const searchTerm: Ref<string> = ref("");
@@ -47,7 +52,9 @@ const typeOptions: Ref<TypeOption[]> = ref([
   { name: "Cohort", rootIri: "http://endhealth.info/im#Q_Queries", typeIri: IM.COHORT_QUERY }
 ]);
 
-onMounted(async () => {});
+onMounted(() => {
+  selectedType.value = undefined;
+});
 </script>
 
 <style scoped></style>

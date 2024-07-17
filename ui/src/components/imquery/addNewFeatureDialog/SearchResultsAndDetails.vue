@@ -85,11 +85,9 @@
 
     <SelectedSet v-if="selectedSet.size" :selected-set="selectedSet" class="bottom-half-component" />
   </div>
-  <!-- TODO: Component with 2 subcombonents - one for search results(SearchResults?+EclSearch?+IMQuerySearch?)/details(DirectoryDetails?) and one for selected list(ConceptSelect?) -->
 </template>
 
 <script setup lang="ts">
-import Viewer from "@/components/directory/Viewer.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { Match, PathQuery, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { Ref } from "vue";
@@ -97,8 +95,7 @@ import { ref } from "vue";
 import { onMounted, watch } from "vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import { EntityService, QueryService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { IM, RDF } from "@im-library/vocabulary";
 import { isConcept, isFeature, isProperty, isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import SelectedSet from "./SelectedSet.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
@@ -106,8 +103,6 @@ import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import DataModel from "@/components/directory/viewer/dataModel/DataModel.vue";
 import { ToastSeverity } from "@im-library/enums";
 import { useToast } from "primevue/usetoast";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
-import { FilterOptions } from "@im-library/interfaces";
 
 interface Props {
   selectedIri: string;
