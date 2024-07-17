@@ -192,7 +192,7 @@ const valueRequest: QueryRequest = {
         where: [
           {
             "@id": IM.HAS_SCHEME,
-            is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
+            instanceOf: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
           }
         ]
       }

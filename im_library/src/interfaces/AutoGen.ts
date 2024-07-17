@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-07-12 10:19:15.
+// Generated using typescript-generator version 3.2.1263 on 2024-07-16 13:14:49.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -217,10 +217,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
     unit?: string;
-    relativeTo?: PropertyRef;
+    operator?: Operator;
     dataType?: TTIriRef;
+    relativeTo?: PropertyRef;
 }
 
 export interface Case {
@@ -253,9 +253,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
-    memberOf?: boolean;
     descendantsOf?: boolean;
+    memberOf?: boolean;
+    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -384,8 +384,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -406,9 +406,8 @@ export interface Where extends PropertyRef, Assignable {
     match?: Match;
     range?: Range;
     isNull?: boolean;
-    isNot?: Node[];
+    instanceOf?: Node[];
     anyRoleGroup?: boolean;
-    is?: Node[];
     boolWhere?: Bool;
     where?: Where[];
     valueLabel?: string;
@@ -684,10 +683,10 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
     status?: TTIriRef;
-    prefixes?: TTPrefix[];
+    description?: string;
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {

@@ -173,7 +173,7 @@ async function addSelectedPathMatch() {
   editMatch.value.where = [];
   if (selectedPath.value?.where?.[0]) {
     if (selectedGeneralConcept.value && isSelectedConceptValue.value)
-      selectedPath.value.where[0].is = [{ "@id": selectedGeneralConcept.value.iri, name: selectedGeneralConcept.value.name }];
+      selectedPath.value.where[0].instanceOf = [{ "@id": selectedGeneralConcept.value.iri, name: selectedGeneralConcept.value.name }];
   }
   if (selectedPath.value) editMatch.value = selectedPath.value;
 }

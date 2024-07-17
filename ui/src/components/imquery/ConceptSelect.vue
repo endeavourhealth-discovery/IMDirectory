@@ -135,31 +135,21 @@ function updateSelectedValue(selected: SearchResultSummary | undefined, index: n
 
 function handlePropertyTypeChange() {
   switch (valueField.value) {
-    case "isNot":
-      if (!values.value.length) values.value = [{}];
-      props.property.isNot = values.value;
-      delete props.property.is;
-      delete props.property.isNull;
-      delete props.property.isNotNull;
-      break;
     case "is":
       if (!values.value.length) values.value = [{}];
-      props.property.is = values.value;
-      delete props.property.isNot;
+      props.property.instanceOf = values.value;
       delete props.property.isNull;
       delete props.property.isNotNull;
       break;
     case "isNull":
       props.property.isNull = true;
-      delete props.property.is;
+      delete props.property.instanceOf;
       delete props.property.isNotNull;
-      delete props.property.isNot;
       break;
     case "isNotNull":
       props.property.isNotNull = true;
-      delete props.property.is;
+      delete props.property.instanceOf;
       delete props.property.isNull;
-      delete props.property.isNot;
       break;
     default:
       break;
@@ -168,15 +158,9 @@ function handlePropertyTypeChange() {
 
 async function setValues() {
   values.value = [];
-  if (props.property.is) {
+  if (props.property.instanceOf) {
     valueField.value = "is";
-    for (const value of props.property.is) {
-      if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name, summary: await EntityService.getEntitySummary(value["@id"]) });
-    }
-    if (!values.value.length) values.value.push({});
-  } else if (props.property.isNot) {
-    valueField.value = "isNot";
-    for (const value of props.property.isNot) {
+    for (const value of props.property.instanceOf) {
       if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name, summary: await EntityService.getEntitySummary(value["@id"]) });
     }
     if (!values.value.length) values.value.push({});
