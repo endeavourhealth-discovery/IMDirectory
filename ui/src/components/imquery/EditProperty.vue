@@ -14,18 +14,18 @@
         <InputText :value="property.valueLabel" @click="showBuildFeatureDialog = true" />
       </span>
 
-      <span v-else-if="isArrayHasLength(property.is)" @click="showBuildFeatureDialog = true">
-        <span>[{{ property.is!.map(is => getNameFromRef(is)).join(", ") }}]</span>
+      <span v-else-if="isArrayHasLength(property.instanceOf)" @click="showBuildFeatureDialog = true">
+        <span>[{{ property.instanceOf!.map(instanceOf => getNameFromRef(instanceOf)).join(", ") }}]</span>
       </span>
       <AddNewFeatureDialog
         v-model:show-dialog="showBuildFeatureDialog"
         :dataModelIri="dataModelIri"
         :header="'Add new feature'"
         :show-variable-options="false"
-        :can-clear-path="true"
-        :has-next-step="true"
+        :can-clear-path="false"
+        :has-next-step="false"
         :match="editMatch"
-        :isList="property.is"
+        :isList="property.instanceOf"
         @on-match-add="onMatchAdd"
       />
     </span>

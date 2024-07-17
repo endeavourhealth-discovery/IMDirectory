@@ -84,7 +84,7 @@ function getColourStyleFromType(types: TTIriRef[]) {
 
 function updatePathValues() {
   if (selectedPath.value?.where?.[0]) {
-    selectedPath.value.where[0].is = selectedEntities.value.map(selected => convertSelectedEntityToNode(selected));
+    selectedPath.value.where[0].instanceOf = selectedEntities.value.map(selected => convertSelectedEntityToNode(selected));
   }
 }
 
