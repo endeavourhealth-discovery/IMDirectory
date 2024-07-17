@@ -1,10 +1,6 @@
 <template>
   <div>
-    <Dialog
-      v-model:visible="visible"
-      maximizable
-      :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--p-surface-section)' }"
-    >
+    <Dialog v-model:visible="visible" maximizable :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }" class="edit-match-dialog">
       <template #header>
         <div class="flex align-items-center">
           <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
@@ -367,5 +363,9 @@ function onAddFunctionProperty(property: string, value: any) {
 .add-button-bar {
   display: flex;
   column-gap: 0.2rem;
+}
+
+.edit-match-dialog {
+  background-color: var(--p-surface-section);
 }
 </style>
