@@ -32,7 +32,8 @@ function setupTree() {
     conceptTypes: TTIriRef[],
     hasChildren: boolean,
     parent: TreeNode | null,
-    order?: number
+    order?: number,
+    index?: string
   ): TreeNode {
     return {
       key: conceptIri,
@@ -45,11 +46,12 @@ function setupTree() {
       loading: false,
       children: [] as TreeNode[],
       order: order,
-      parentNode: parent
+      parentNode: parent,
+      index: index
     };
   }
 
-  function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): any {
+  function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number, index?: string): any {
     return {
       key: "loadMore" + parentNode.data,
       label: "Load more...",
@@ -62,7 +64,8 @@ function setupTree() {
       parentNode: parentNode,
       nextPage: nextPage,
       totalCount: totalCount,
-      style: "font-weight: bold;"
+      style: "font-weight: bold;",
+      index: index
     };
   }
 
@@ -84,18 +87,48 @@ function setupTree() {
     if (node.nextPage * pageSize.value <= node.totalCount) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
-      children.result.forEach((child: any) => {
+      for (const [index, child] of children.result.entries()) {
+        if (!nodeHasChild(node.parentNode, child))
+          node.parentNode.children.push(
+            createTreeNode(
+              child.name,
+              child["@id"],
+              child.type,
+              child.hasChildren,
+              node,
+              undefined,
+              node.parentNode.index + "-" + (pageSize.value * (node.nextPage - 1) + index)
+            )
+          );
+      }
+      /*children.result.forEach((child: any) => {
         if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
-      });
+      });*/
       node.nextPage = node.nextPage + 1;
-      node.parentNode.children.push(createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
+      node.parentNode.children.push(
+        createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount, node.parentNode.index + "-" + (node.parentNode.children.length - 1).toString())
+      );
     } else if (node.nextPage * pageSize.value > node.totalCount) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
-      children.result.forEach((child: any) => {
+      for (const [index, child] of children.result.entries()) {
+        if (!nodeHasChild(node.parentNode, child))
+          node.parentNode.children.push(
+            createTreeNode(
+              child.name,
+              child["@id"],
+              child.type,
+              child.hasChildren,
+              node.parentNode,
+              undefined,
+              node.parentNode.index + "-" + (pageSize.value * (node.nextPage - 1) + index)
+            )
+          );
+      }
+      /*children.result.forEach((child: any) => {
         if (!nodeHasChild(node.parentNode, child))
           node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node.parentNode));
-      });
+      });*/
     } else {
       node.parentNode.children.pop();
     }
@@ -108,21 +141,25 @@ function setupTree() {
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       if (!expandedData.value.find(x => x.key === node.key)) expandedData.value.push(node);
       if (node.data === IM.FAVOURITES) {
-        for (const fav of favourites.value) {
+        for (const [index, fav] of favourites.value.entries()) {
           const favChild = await EntityService.getEntityAsEntityReferenceNode(fav);
-          if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type, false, node));
+          if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type, false, node, undefined, node.index + "-" + index));
         }
       } else {
         const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
-        children.result.forEach((child: any) => {
+        for (const [index, child] of children.result.entries()) {
+          if (!nodeHasChild(node, child))
+            node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node, undefined, node.index + "-" + index));
+        }
+        /*children.result.forEach((child: any) => {
           if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
-        });
+        });*/
         if (
           children.totalCount >= pageSize.value &&
           node.children.length !== children.totalCount &&
           node.children[node.children.length - 1].data !== "loadMore"
         ) {
-          node.children.push(createLoadMoreNode(node, 2, children.totalCount));
+          node.children.push(createLoadMoreNode(node, 2, children.totalCount, node.index + "-" + (node.children.length - 1).toString()));
         }
       }
       node.loading = false;

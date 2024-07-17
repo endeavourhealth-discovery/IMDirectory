@@ -12,6 +12,7 @@
       :loading="loading"
     >
       <template #default="{ node }: any">
+        {{ node.index }}
         <div
           class="tree-row"
           :class="allowDragAndDrop && 'grabbable'"
@@ -167,6 +168,7 @@ document.addEventListener("visibilitychange", function () {
 });
 
 async function init() {
+  console.log("A");
   loading.value = true;
   if (isArrayHasLength(props.rootEntities)) await addRootEntitiesToTree();
   else await addParentFoldersToRoot();
@@ -181,6 +183,8 @@ async function addParentFoldersToRoot() {
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
+  for (const index in root.value) root.value[index].index = index;
+  console.log(root.value);
   if (isLoggedIn.value) await addFavouritesToTree();
 }
 
@@ -192,9 +196,11 @@ async function addFavouritesToTree() {
 }
 
 async function addRootEntitiesToTree() {
-  for (const item of props.rootEntities) {
+  console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  for (const [index, item] of props.rootEntities) {
     const itemSummary = await EntityService.getEntityAsEntityReferenceNode(item);
     const hasNode = !!root.value.find(node => node.data === itemSummary["@id"]);
+    console.log(index);
     if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary["@id"], itemSummary.type, itemSummary.hasGrandChildren, null));
   }
   root.value.sort(byKey);
