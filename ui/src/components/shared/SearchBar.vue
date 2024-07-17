@@ -26,7 +26,7 @@
       data-testid="filters-open-button"
     />
     <Popover ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
-      <div v-if="showFilters" class="p-fluid results-filter-container">
+      <div v-if="showFilters" class="results-filter-container">
         <Filters
           :search="onSearch"
           data-testid="filters"
@@ -117,6 +117,11 @@ async function onSearch() {
   align-items: center;
   gap: 0.2rem;
   overflow: auto;
+}
+
+.results-filter-container {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .search-group {

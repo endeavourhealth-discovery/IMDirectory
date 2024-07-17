@@ -76,7 +76,7 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
     property.operator = Operator.eq;
     property.value = "";
   } else if (isObjectHasKeys(treeNode.ttproperty, [SHACL.CLASS])) {
-    property.is = [];
+    property.instanceOf = [];
   }
   (property as any).key = treeNode.key;
   return property as Where;

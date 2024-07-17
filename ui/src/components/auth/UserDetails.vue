@@ -8,7 +8,7 @@
       </template>
       <template #title> {{ menuItems[activeItem].label }} </template>
       <template #content>
-        <div v-if="activeItem === 0" class="p-fluid flex flex-column justify-content-start user-details-form">
+        <div v-if="activeItem === 0" class="flex flex-column justify-content-start user-details-form">
           <div class="field">
             <label for="username">Username</label>
             <InputText data-testid="user-details-username" id="username" type="text" :value="currentUser.username" disabled />
@@ -87,6 +87,13 @@ function handleEditClicked(): void {
 
 .user-details-form {
   width: 32em;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .user-details-card {

@@ -6,7 +6,7 @@
       </template>
       <template #title> Change password </template>
       <template #content>
-        <form @submit="onSubmit" class="p-fluid flex flex-column justify-content-start password-edit-form">
+        <form @submit="onSubmit" class="flex flex-column justify-content-start password-edit-form">
           <div v-if="currentUser.username" class="field">
             <label for="userName">Username</label>
             <InputText data-testid="password-edit-username" class="p-text-capitalize" id="username" type="text" :value="currentUser.username" disabled />
@@ -122,6 +122,13 @@ const onSubmit = handleSubmit(async () => {
 
 .password-edit-form {
   max-width: 32em;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .avatar-icon {

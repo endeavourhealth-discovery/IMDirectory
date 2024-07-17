@@ -65,7 +65,7 @@ export const match: {
     where: [
       {
         "@id": "http://endhealth.info/im#statedGender",
-        is: [
+        instanceOf: [
           {
             "@id": "http://endhealth.info/im#905041000252107",
             name: "Female (stated gender)",
@@ -96,7 +96,7 @@ export const match: {
       },
       {
         "@id": "http://endhealth.info/im#statedGender",
-        is: [
+        instanceOf: [
           {
             "@id": "http://endhealth.info/im#905041000252107",
             name: "Female (stated gender)"
@@ -114,7 +114,7 @@ export const match: {
           where: [
             {
               "@id": "http://endhealth.info/im#concept",
-              is: [
+              instanceOf: [
                 {
                   "@id": "http://snomed.info/sct#714628002",
                   descendantsOf: true
@@ -160,11 +160,11 @@ export const where: {
       }
     }
   },
-  withIs: { "@id": "http://endhealth.info/im#concept", is: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }] },
+  withIs: { "@id": "http://endhealth.info/im#concept", instanceOf: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }] },
   withIsAndValueLabel: {
     "@id": "http://endhealth.info/im#concept",
     name: "concept",
-    is: [
+    instanceOf: [
       {
         "@id": "http://snomed.info/sct#271649006",
         name: "Systolic blood pressure"
@@ -178,11 +178,11 @@ export const where: {
   },
   withNotIsAndName: {
     "@id": "http://endhealth.info/im#concept",
-    isNot: [{ "@id": "http://snomed.info/sct#714628002", name: "Prediabetes (finding)", descendantsOf: true }]
+    instanceOf: [{ "@id": "http://snomed.info/sct#714628002", name: "Prediabetes (finding)", descendantsOf: true, exclude: true }]
   },
   withValueLabelIs: {
     "@id": "http://endhealth.info/im#concept",
-    is: [{ "@id": "http://snomed.info/sct#271649006" }, { "@id": "http://endhealth.info/emis#1994021000006104" }],
+    instanceOf: [{ "@id": "http://snomed.info/sct#271649006" }, { "@id": "http://endhealth.info/emis#1994021000006104" }],
     valueLabel: "Office or home systolic blood pressure"
   },
   withComparison: { "@id": "http://endhealth.info/im#numericValue", operator: Operator.gt, value: "150" },
@@ -275,7 +275,7 @@ export const fullTestQueryDefinition: Query = {
                 where: [
                   {
                     "@id": "http://endhealth.info/im#concept",
-                    is: [
+                    instanceOf: [
                       {
                         "@id": "http://snomed.info/sct#714628002",
                         descendantsOf: true
@@ -304,7 +304,7 @@ export const fullTestQueryDefinition: Query = {
               {
                 "@id": "http://endhealth.info/im#concept",
                 name: "concept",
-                is: [
+                instanceOf: [
                   {
                     "@id": "http://snomed.info/sct#271649006",
                     name: "Systolic blood pressure",
@@ -352,7 +352,7 @@ export const fullTestQueryDefinition: Query = {
           where: [
             {
               "@id": "http://endhealth.info/im#concept",
-              is: [
+              instanceOf: [
                 {
                   "@id": "http://snomed.info/sct#271649006",
                   name: "Systolic blood pressure",
@@ -373,7 +373,7 @@ export const fullTestQueryDefinition: Query = {
           where: [
             {
               "@id": "http://endhealth.info/im#concept",
-              is: [
+              instanceOf: [
                 {
                   "@id": "http://endhealth.info/emis#1994021000006104",
                   name: "Home systolic blood pressure",
@@ -403,7 +403,7 @@ export const fullTestQueryDefinition: Query = {
             where: [
               {
                 "@id": "http://endhealth.info/im#concept",
-                is: [
+                instanceOf: [
                   {
                     "@id": "http://endhealth.info/im#InvitedForScreening"
                   }
