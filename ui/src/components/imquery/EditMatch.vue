@@ -17,13 +17,18 @@
       @mouseout.stop="hover = false"
       @click.stop="emit('onUpdateDialogFocus', [getMenuItemFromMatch(props.editMatch)])"
     >
-      <MatchSelector v-if="focusedId === editMatch['@id'] && isFlatMatch(editMatch)" :editMatch="editMatch" />
-      <div v-else v-html="editMatch?.description" />
+      <MatchSelector
+        v-if="focusedId === editMatch['@id'] && isFlatMatch(editMatch)"
+        :editMatch="editMatch"
+        :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+      />
+      <div v-else-if="editMatch?.description" v-html="editMatch?.description" />
+      <div v-else-if="editMatch?.name" v-html="editMatch?.name" />
 
       <div v-if="editMatch?.match" class="feature-group">
         <Button
           v-if="isBooleanEditor"
-          class="expanding-button builder-button conjunction-button vertical-button"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolMatch?.toUpperCase() ?? 'AND'"
           @click.stop="toggleMatchBool(editMatch)"
         />
@@ -61,10 +66,9 @@
               aria-controls="overlay_menu"
               severity="success"
               class="add-feature-button"
-              @click.stop="event => addFeatureMenu.toggle(event)"
+              @click.stop="showBuildFeature = true"
               :disabled="!selectedBaseType"
             />
-            <Menu ref="addFeatureMenu" id="overlay_menu" :model="addOptions" :popup="true" />
             <AddMatch
               v-model:show-add-feature="showAddFeature"
               v-model:show-add-population="showAddPopulation"
@@ -89,7 +93,7 @@
       <div v-if="editMatch?.where" class="where-group">
         <Button
           v-if="editMatch.where.length > 1"
-          class="expanding-button builder-button conjunction-button vertical-button"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolWhere?.toUpperCase() ?? 'AND'"
           @click.stop="toggleWhereBool(editMatch)"
         />
@@ -101,6 +105,7 @@
             :focused-id="focusedId"
             :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
             :is-boolean-editor="isBooleanEditor"
+            :parent-match="editMatch"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
@@ -109,6 +114,7 @@
             v-model:show-dialog="showAddPropertyDialog"
             :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
             :header="'Add property'"
+            :match="editMatch"
             :show-variable-options="false"
             @on-match-add="onMatchAdd"
             @on-property-add="onPropertyAdd"
@@ -186,26 +192,6 @@ const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
-const addOptions = [
-  {
-    label: "Add new feature",
-    command: () => {
-      showBuildFeature.value = true;
-    }
-  },
-  {
-    label: "Add parent cohort",
-    command: () => {
-      showAddPopulation.value = true;
-    }
-  },
-  {
-    label: "Add existing feature",
-    command: () => {
-      showAddFeature.value = true;
-    }
-  }
-];
 onMounted(() => {
   if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
 });

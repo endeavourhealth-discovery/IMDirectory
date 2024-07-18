@@ -5,16 +5,25 @@
       icon="fa-duotone fa-list-tree"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="event => locateInTree(event, iri)"
+      @click="(event: MouseEvent) => locateInTree(event, iri)"
       v-tooltip.top="'Find in tree'"
       data-testid="select-button"
+    />
+    <Button
+      v-if="show('viewHierarchy')"
+      icon="fa-duotone fa-sitemap"
+      :severity="getSeverity()"
+      :class="getClass()"
+      @click.stop="emit('viewHierarchy', iri)"
+      v-tooltip.top="'View hierarchy'"
+      data-testid="hierarchy-button"
     />
     <Button
       v-if="show('view')"
       icon="fa-duotone fa-up-right-from-square"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="event => viewEntity(event, iri)"
+      @click="(event: MouseEvent) => viewEntity(event, iri)"
       v-tooltip.top="'View'"
       data-testid="view-button"
     />
@@ -23,7 +32,7 @@
       icon="fa-duotone fa-pen-to-square"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="event => toEdit(event, iri)"
+      @click="(event: MouseEvent) => toEdit(event, iri)"
       v-tooltip.top="'Edit'"
       data-testid="edit-button"
       :disabled="!editAllowed"
@@ -35,7 +44,7 @@
       :severity="getSeverity()"
       :class="getClass()"
       class="fav"
-      @click="event => updateFavourites(event, iri)"
+      @click="(event: MouseEvent) => updateFavourites(event, iri)"
       v-tooltip.left="'Unfavourite'"
       data-testid="unfavourite-button"
       :loading="loadingFavourites"
@@ -45,10 +54,19 @@
       icon="fa-regular fa-star"
       :severity="getSeverity()"
       :class="getClass()"
-      @click="event => updateFavourites(event, iri)"
+      @click="(event: MouseEvent) => updateFavourites(event, iri)"
       v-tooltip.left="'Favourite'"
       data-testid="favourite-button"
       :loading="loadingFavourites"
+    />
+    <Button
+      v-if="show('addToList')"
+      icon="fa-regular fa-square-plus"
+      :severity="getSeverity()"
+      :class="getClass()"
+      @click.stop="emit('addToList', iri)"
+      v-tooltip.top="'Add to list'"
+      data-testid="add-button"
     />
   </div>
 </template>
@@ -80,7 +98,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits({
-  locateInTree: (_payload: string) => true
+  locateInTree: (_payload: string) => true,
+  addToList: (_payload: string) => true,
+  viewHierarchy: (_payload: string) => true
 });
 
 const loadingFavourites = ref(false);

@@ -1,64 +1,44 @@
 <template>
-  <div class="match-container" v-if="propertyType">
-    <Select :options="['typeOf', 'instanceOf']" v-model:model-value="propertyType" />
-    <div v-if="propertyType === 'instanceOf' && editMatch.instanceOf" class="multi-select">
-      <SingleEntitySelector v-for="instanceOf in editMatch.instanceOf" :edit-node="instanceOf" />
-    </div>
-    <SingleEntitySelector v-else-if="propertyType === 'typeOf' && editMatch.typeOf" :edit-node="editMatch.typeOf" />
+  <div class="match-container" v-if="isArrayHasLength(editMatch.instanceOf)">
+    <InputText value="is member of" disabled />
+
+    <span v-if="isArrayHasLength(editMatch.instanceOf)" @click="showBuildFeatureDialog = true">
+      <InputText v-if="editMatch.name ?? editMatch.description" :value="editMatch.name ?? editMatch.description" @click="showBuildFeatureDialog = true" />
+      <InputText v-else :value="`${editMatch.instanceOf!.map(instanceOf => getNameFromRef(instanceOf)).join(', ')}`" @click="showBuildFeatureDialog = true" />
+    </span>
+    <AddNewFeatureDialog
+      v-model:show-dialog="showBuildFeatureDialog"
+      :dataModelIri="dataModelIri"
+      :header="'Add new feature'"
+      :show-variable-options="false"
+      :can-clear-path="false"
+      :has-next-step="false"
+      :isList="editMatch.instanceOf"
+      :show-type-filters="false"
+      @on-match-add="onMatchAdd"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, onMounted, ref } from "vue";
-import { useFilterStore } from "@/stores/filterStore";
-import { Match, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
-import { IM, SNOMED } from "@im-library/vocabulary";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { EntityService } from "@/services";
-import SingleEntitySelector from "./SingleEntitySelector.vue";
-import { SearchOptions } from "@im-library/interfaces";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { Ref, ref } from "vue";
+import { Match } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+
+import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   editMatch: Match;
+  dataModelIri: string;
 }
 const props = defineProps<Props>();
+const showBuildFeatureDialog: Ref<boolean> = ref(false);
 
-const filterStore = useFilterStore();
-const filterStoreOptions = computed(() => filterStore.filterOptions);
-const selected: Ref<SearchResultSummary | undefined> = ref();
-const propertyType: Ref<"typeOf" | "instanceOf" | undefined> = ref();
-
-const imQueryForConceptSearch: Ref<QueryRequest> = ref({ query: {} });
-
-onMounted(async () => {
-  await init();
-});
-
-async function init() {
-  buildIMQueryForConceptSearch();
-  if (isObjectHasKeys(props.editMatch, ["instanceOf"])) propertyType.value = "instanceOf";
-  else if (isObjectHasKeys(props.editMatch, ["typeOf"])) propertyType.value = "typeOf";
-}
-
-function buildIMQueryForConceptSearch() {
-  const searchOptions: SearchOptions = {
-    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
-    status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
-    types: [{ "@id": IM.CONCEPT }]
-  };
-  imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
-}
-
-async function updateSelectedResult(data: SearchResultSummary | { iri: string; name?: string }) {
-  if (!isObjectHasKeys(data)) selected.value = undefined;
-  else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as SearchResultSummary;
-  else if (data.iri) {
-    const asSummary = await EntityService.getEntitySummary(data.iri);
-    selected.value = isObjectHasKeys(asSummary) ? asSummary : undefined;
-  } else {
-    selected.value = undefined;
-  }
+function onMatchAdd(updatedMatch: Match) {
+  props.editMatch.instanceOf = updatedMatch.instanceOf;
+  describeMatch(props.editMatch, 0, false);
 }
 </script>
 

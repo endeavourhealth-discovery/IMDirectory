@@ -64,9 +64,11 @@
         <template #body="{ data }: any">
           <div class="buttons-container">
             <ActionButtons
-              :buttons="['findInTree', 'view', 'edit', 'favourite']"
+              :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'favourite'] : ['viewHierarchy', 'view', 'addToList']"
               :iri="data.iri"
               @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
+              @view-hierarchy="(iri: string) => emit('viewHierarchy', iri)"
+              @add-to-list="(iri: string) => emit('addToList', iri)"
             />
           </div>
         </template>
@@ -118,6 +120,7 @@ interface Props {
   pageSize?: number;
   loading?: boolean;
   disablePageDropdown?: boolean;
+  showSelect?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -126,7 +129,9 @@ const emit = defineEmits({
   rowSelected: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
   "update:loading": _payload => true,
-  searchResultsUpdated: (_payload: SearchResponse | undefined) => true
+  searchResultsUpdated: (_payload: SearchResponse | undefined) => true,
+  addToList: (_payload: string) => true,
+  viewHierarchy: (_payload: string) => true
 });
 
 onMounted(async () => {
