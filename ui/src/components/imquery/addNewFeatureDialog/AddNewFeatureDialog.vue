@@ -6,7 +6,7 @@
         <Step value="2"></Step>
       </StepList>
       <StepPanels value="0">
-        <StepPanel v-slot="{ activateCallback }" value="1">
+        <StepPanel v-slot="{ activateCallback }: { activateCallback: (num: string) => void }" value="1">
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
               <div class="search-bar">
@@ -50,7 +50,7 @@
             <Button v-else :disabled="!isObjectHasKeys(selectedPath) && !hasQueryOrFeatureSelected" label="Save" iconPos="right" @click="save" />
           </div>
         </StepPanel>
-        <StepPanel v-slot="{ activateCallback }" value="2">
+        <StepPanel v-slot="{ activateCallback }: { activateCallback: (num: string) => void }" value="2">
           <EditMatch
             v-if="editMatch && getLeafMatch(editMatch)"
             :edit-match="getLeafMatch(editMatch)"
