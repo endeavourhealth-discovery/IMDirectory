@@ -6,9 +6,9 @@
   >
     <template #header>Select path</template>
     <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full">
-      <template #option="{ option }">
-        <div class="flex align-items-center" id="query-path-options">
-          <div v-if="option.path">{{ option.path?.[0].name }} -> {{ option.typeOf?.name }} . {{ option.where?.[0]?.name }}</div>
+      <template #option="{ option }: { option: Match }">
+        <div class="flex align-items-center" id="query-path-options" v-if="isArrayHasLength(option.where)">
+          <div v-if="option.path && option.typeOf">{{ option.path?.[0].name }} -> {{ option.typeOf?.name }} . {{ option.where?.[0]?.name }}</div>
           <div v-else>{{ option.where?.[0]?.name }}</div>
         </div>
       </template>
@@ -21,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import { ref } from "vue";

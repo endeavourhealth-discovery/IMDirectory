@@ -37,6 +37,8 @@ export class IM {
   public static readonly PATH_TO = IM.NAMESPACE + "pathTo";
   public static readonly OPENSEARCH_QUERY = IM.NAMESPACE + "OpenSearchQuery";
   public static readonly DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
+  public static readonly ONTOLOGY_PARENT_FOLDER = IM.NAMESPACE + "HealthModelOntology";
+  public static readonly PROPERTIES_FOLDER = IM.NAMESPACE + "Properties";
   public static readonly TASK = IM.NAMESPACE + "Task";
   public static readonly FIELD_GROUP = IM.NAMESPACE + "FieldGroup";
   public static readonly MATCH_CLAUSE = IM.NAMESPACE + "MatchClause";

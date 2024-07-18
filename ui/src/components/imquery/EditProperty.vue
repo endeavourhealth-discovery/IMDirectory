@@ -2,13 +2,13 @@
   <div class="property-container">
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-14rem" disabled />
     <span v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'">
-      <InputText value="is" disabled />
+      <span class="is-title"> is </span>
       <span v-if="property.valueLabel">
         <InputText :value="property.valueLabel" @click="showBuildFeatureDialog = true" />
       </span>
 
       <span v-else-if="isArrayHasLength(property.instanceOf)" @click="showBuildFeatureDialog = true">
-        <span>[{{ property.instanceOf!.map(instanceOf => getNameFromRef(instanceOf)).join(", ") }}]</span>
+        <InputText :value="computedInstanceOfDisplay" />
       </span>
       <AddNewFeatureDialog
         v-model:show-dialog="showBuildFeatureDialog"
@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import { UIProperty } from "@im-library/interfaces";
-import { Ref, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
 import { cloneDeep } from "lodash-es";
@@ -53,6 +53,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { showDelete: true });
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
+const computedInstanceOfDisplay: ComputedRef<string> = computed(() => props.property.instanceOf!.map(instanceOf => getNameFromRef(instanceOf)).join(", "));
 const emit = defineEmits({ deleteProperty: () => true });
 
 onMounted(async () => {
@@ -128,5 +129,9 @@ function onMatchAdd(updatedMatch: Match) {
 
 .concept-select {
   width: 100%;
+}
+
+.is-title {
+  padding: 1rem;
 }
 </style>

@@ -20,8 +20,8 @@
 
 <script setup lang="ts">
 import SearchBar from "@/components/shared/SearchBar.vue";
-import { IM, SHACL } from "@im-library/vocabulary";
-import { onMounted, watch, ref, Ref } from "vue";
+import { IM } from "@im-library/vocabulary";
+import { ref, Ref } from "vue";
 
 export interface TypeOption {
   name: string;
@@ -43,11 +43,11 @@ const searchTerm: Ref<string> = ref("");
 const selectedType: Ref<TypeOption | undefined> = ref();
 const typeOptions: Ref<TypeOption[]> = ref([
   { name: "All", rootIri: "", typeIri: "" },
-  { name: "Concept", rootIri: "http://endhealth.info/im#HealthModelOntology", typeIri: IM.CONCEPT },
+  { name: "Concept", rootIri: IM.ONTOLOGY_PARENT_FOLDER, typeIri: IM.CONCEPT },
   { name: "Concept set", rootIri: IM.FOLDER_SETS, typeIri: IM.CONCEPT_SET },
-  { name: "Property", rootIri: "http://endhealth.info/im#Properties", typeIri: IM.DATAMODEL_PROPERTY },
-  { name: "Feature", rootIri: "http://endhealth.info/im#M_MatchClauses", typeIri: IM.MATCH_CLAUSE },
-  { name: "Cohort", rootIri: "http://endhealth.info/im#Q_Queries", typeIri: IM.COHORT_QUERY }
+  { name: "Property", rootIri: IM.PROPERTIES_FOLDER, typeIri: IM.DATAMODEL_PROPERTY },
+  { name: "Feature", rootIri: IM.MODULE_FEATURES, typeIri: IM.MATCH_CLAUSE },
+  { name: "Cohort", rootIri: IM.MODULE_QUERIES, typeIri: IM.COHORT_QUERY }
 ]);
 </script>
 

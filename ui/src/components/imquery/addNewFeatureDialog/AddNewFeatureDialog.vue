@@ -106,7 +106,6 @@ const emit = defineEmits({
 });
 const editMatch: Ref<Match | undefined> = ref();
 const visible: Ref<boolean> = ref(false);
-const selectedGeneralConcept: Ref<SearchResultSummary | undefined> = ref();
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
 const selectedPath: Ref<Match | undefined> = ref();
@@ -131,11 +130,6 @@ watch(
   }
 );
 
-watch(
-  () => cloneDeep(selectedGeneralConcept.value),
-  async () => await getOptions()
-);
-
 watch(visible, newValue => {
   if (!newValue) emit("update:showDialog", newValue);
   else init();
@@ -158,7 +152,9 @@ watch(
 
 watch(
   () => cloneDeep(selectedValueMap.value),
-  async () => await setHasQueryOrFeatureSelected()
+  async () => {
+    await setHasQueryOrFeatureSelected();
+  }
 );
 
 onMounted(() => init());
@@ -185,15 +181,6 @@ async function setHasQueryOrFeatureSelected() {
   } else hasQueryOrFeatureSelected.value = false;
 }
 
-async function getOptions() {
-  selectedPath.value = undefined;
-  if (selectedGeneralConcept.value?.iri) {
-    const pathQuery = { source: { "@id": props.dataModelIri }, target: { "@id": selectedGeneralConcept.value?.iri } } as PathQuery;
-    const response = await QueryService.pathQuery(pathQuery);
-    pathSuggestions.value = response.match;
-  }
-}
-
 async function save() {
   if (editMatch.value) {
     const editMatchCopy = cloneDeep(editMatch.value);
@@ -210,10 +197,10 @@ async function save() {
 function clear() {
   editMatch.value = undefined;
   pathSuggestions.value = [];
-  selectedGeneralConcept.value = undefined;
   searchTerm.value = "";
   treeIri.value = "";
   detailsIri.value = "";
+  selectedValueMap.value.clear();
 }
 
 function getLeafMatch(match: Match) {
@@ -350,9 +337,6 @@ function onSearch(payload: string) {
   flex-wrap: nowrap;
   justify-content: flex-end;
 }
-</style>
-
-<style>
 .p-dialog-content {
   flex: 1 1 auto;
   display: flex;
