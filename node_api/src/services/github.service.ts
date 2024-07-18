@@ -17,12 +17,14 @@ export default class GithubService {
   public async getLatestRelease(repo: string) {
     if (!Env.GIT_TOKEN) return;
     const result = await this.octokit.request("GET /repos/{owner}/{repo}/releases/latest", { owner: this.owner, repo: repo, type: "private" });
+    console.error(result);
     return this.processRelease(result.data);
   }
 
   public async getReleases(repo: string) {
     if (!Env.GIT_TOKEN) return;
     const results = await this.octokit.request("GET /repos/{owner}/{repo}/releases", { owner: this.owner, repo: repo, type: "private" });
+    console.error(results);
     const processedResults: GithubRelease[] = [];
     results.data.forEach((result: any) => processedResults.push(this.processRelease(result)));
     return processedResults;

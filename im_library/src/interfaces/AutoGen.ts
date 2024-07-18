@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-07-16 13:14:49.
+// Generated using typescript-generator version 3.2.1263 on 2024-07-18 14:36:28.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -53,6 +53,16 @@ export interface Refinement extends BuilderComponent {
 export interface SubExpressionConstraint {
     concept?: ConceptReference;
     constraintOperator?: string;
+}
+
+export interface GithubRelease {
+    version?: string;
+    title?: string;
+    createdDate?: string;
+    publishedDate?: string;
+    releaseNotes?: string[];
+    author?: string;
+    url?: string;
 }
 
 export interface ArrayButtons {
@@ -217,10 +227,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
     operator?: Operator;
     dataType?: TTIriRef;
     relativeTo?: PropertyRef;
+    unit?: string;
 }
 
 export interface Case {
@@ -253,10 +263,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    memberOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -384,8 +394,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -683,15 +693,15 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     description?: string;
+    status?: TTIriRef;
     code?: string;
     prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {
