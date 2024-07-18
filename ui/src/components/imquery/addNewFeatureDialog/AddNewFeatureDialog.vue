@@ -1,11 +1,11 @@
 <template>
   <Dialog v-model:visible="visible" modal :header="header" :style="{ minWidth: '100vw', minHeight: '100vh' }">
     <Stepper value="1" :style="{ minWidth: '50vw' }">
-      <StepList>
+      <StepList value="0">
         <Step value="1"><PathDisplay v-if="selectedPath" :path="selectedPath" :can-clear-path="canClearPath" @on-clear-path="clearPath" /></Step>
         <Step value="2"></Step>
       </StepList>
-      <StepPanels>
+      <StepPanels value="0">
         <StepPanel v-slot="{ activateCallback }" value="1">
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
