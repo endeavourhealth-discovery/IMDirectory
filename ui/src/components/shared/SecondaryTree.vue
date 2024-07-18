@@ -58,7 +58,6 @@
             node.label
           }}</span>
           <Button icon="fa-regular fa-square-plus" text @click.stop="emit('onSelect', node.data)" v-tooltip="'Add to list'" data-testid="add-button" />
-          <!-- <Button v-if="showSelect" icon="pi pi-plus" v-tooltip="'Add to list'" outlined @click="emit('onSelect', node.data)" /> -->
         </div>
       </template>
     </Tree>

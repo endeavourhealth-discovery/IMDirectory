@@ -8,7 +8,7 @@
         name="dynamic"
         :value="typeOption"
         @change="
-          {
+          () => {
             if (selectedType) emit('onTypeSelect', selectedType);
           }
         "
@@ -21,9 +21,7 @@
 <script setup lang="ts">
 import SearchBar from "@/components/shared/SearchBar.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
-import { ref } from "vue";
-import { Ref } from "vue";
-import { onMounted, watch } from "vue";
+import { onMounted, watch, ref, Ref } from "vue";
 
 export interface TypeOption {
   name: string;
@@ -51,10 +49,6 @@ const typeOptions: Ref<TypeOption[]> = ref([
   { name: "Feature", rootIri: "http://endhealth.info/im#M_MatchClauses", typeIri: IM.MATCH_CLAUSE },
   { name: "Cohort", rootIri: "http://endhealth.info/im#Q_Queries", typeIri: IM.COHORT_QUERY }
 ]);
-
-onMounted(() => {
-  selectedType.value = undefined;
-});
 </script>
 
 <style scoped></style>

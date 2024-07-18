@@ -300,8 +300,7 @@ function onSearch(payload: string) {
   margin-top: 0.5rem;
   margin-left: 1rem;
 }
-</style>
-<style scoped>
+
 .directory-search-dialog-content {
   width: 100%;
   flex: 1 1 auto;

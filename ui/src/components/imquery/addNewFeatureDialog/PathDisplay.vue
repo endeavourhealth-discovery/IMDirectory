@@ -17,7 +17,6 @@ const props = withDefaults(defineProps<Props>(), {
   canClearPath: true
 });
 const emit = defineEmits({ onClearPath: () => true });
-onMounted(async () => {});
 </script>
 
 <style scoped></style>

@@ -1,13 +1,6 @@
 <template>
   <div class="property-container">
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-14rem" disabled />
-    <!-- <ConceptSelect
-      v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'"
-      :datatype="selectedProperty.valueType"
-      :property="property"
-      :data-model-iri="dataModelIri"
-      class="concept-select"
-    /> -->
     <span v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'">
       <InputText value="is" disabled />
       <span v-if="property.valueLabel">

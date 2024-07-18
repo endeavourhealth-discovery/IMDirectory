@@ -15,42 +15,27 @@
               :im-query="imQuery"
               :rows="10"
               :show-select="true"
-              @selectedUpdated="
-                summary => {
-                  detailsIri = summary.iri;
-                  activePage = '1';
-                }
-              "
-              @viewHierarchy="
-                (iri: string) => {
-                  detailsIri = iri;
-                  activePage = '1';
-                }
-              "
+              @selectedUpdated="onSelectedUpdate"
+              @viewHierarchy="onViewHierarchy"
               @addToList="onSelect"
             />
           </TabPanel>
           <TabPanel value="1">
-            <div v-if="detailsEntity && detailsIri">
+            <div class="details-tab" v-if="detailsEntity && detailsIri">
               <ParentHeader
                 v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
                 :entity="detailsEntity"
                 :showSelect="true"
                 @locateInTree="(iri: string) => $emit('locateInTree', iri)"
-                @viewHierarchy="
-                  (iri: string) => {
-                    detailsIri = iri;
-                    activePage = '1';
-                  }
-                "
+                @viewHierarchy="onViewHierarchy"
                 @addToList="onSelect"
               />
-              <div v-if="isRecordModel(detailsEntity[RDF.TYPE])">
+              <div class="dm-details" v-if="isRecordModel(detailsEntity[RDF.TYPE])">
                 <div class="view-title"><b>Properties</b></div>
                 <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
               </div>
 
-              <div v-else>
+              <div class="entity-details" v-else>
                 <div class="view-title"><b>Hierarchy tree</b></div>
                 <SecondaryTree :entityIri="detailsIri" :show-select="true" @navigateTo="(iri: string) => (detailsIri = iri)" @onSelect="onSelect" />
               </div>
@@ -73,7 +58,7 @@
 
 <script setup lang="ts">
 import SearchResults from "@/components/shared/SearchResults.vue";
-import { Match, Node, PathQuery, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Match, Node, PathQuery, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { Ref, ref, onMounted, watch } from "vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import { EntityService, QueryService } from "@/services";
@@ -205,6 +190,16 @@ async function hasFeatureOrQuerySelected() {
   const iri = props.selectedValueMap.keys().next().value;
   const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
   return isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
+}
+
+function onSelectedUpdate(summary: SearchResultSummary) {
+  detailsIri.value = summary.iri;
+  activePage.value = "1";
+}
+
+function onViewHierarchy(iri: string) {
+  detailsIri.value = iri;
+  activePage.value = "1";
 }
 </script>
 

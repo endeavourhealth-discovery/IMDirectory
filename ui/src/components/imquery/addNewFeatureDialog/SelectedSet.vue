@@ -3,8 +3,8 @@
     <InputText type="text" v-model="valueLabel" placeholder="Value label" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #option="{ option }" class="flex flex-row">
-        <div class="flex flex-row">
-          <div class="flex flex-row gap-1 align-items-baseline">
+        <div class="option-wrapper flex flex-row">
+          <div class="option-content flex flex-row gap-1 align-items-baseline">
             <Button @click="selectedValueMap.delete(option['@id'])" class="builder-button" :severity="'danger'" icon="fa-solid fa-x" text />
             <ToggleButton v-model="option.include" onLabel="include" offLabel="exclude" />
             <InputText v-if="isValueSet(option[RDF.TYPE])" type="text" v-model="option.entailment" disabled />

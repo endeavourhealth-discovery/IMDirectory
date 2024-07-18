@@ -15,17 +15,7 @@
     </Listbox>
     <template #footer>
       <Button label="Close" severity="secondary" icon="pi pi-arrow-left" @click="visible = false" />
-      <Button
-        label="Select"
-        :disabled="!selectedPath"
-        iconPos="right"
-        @click="
-          {
-            if (selectedPath) emit('onSelectedPath', selectedPath);
-            visible = false;
-          }
-        "
-      />
+      <Button label="Select" :disabled="!selectedPath" iconPos="right" @click="onSelect" />
     </template>
   </Dialog>
 </template>
@@ -61,7 +51,11 @@ watch(
     visible.value = newValue;
   }
 );
-onMounted(async () => {});
+
+function onSelect() {
+  if (selectedPath.value) emit("onSelectedPath", selectedPath.value);
+  visible.value = false;
+}
 </script>
 
 <style scoped></style>
