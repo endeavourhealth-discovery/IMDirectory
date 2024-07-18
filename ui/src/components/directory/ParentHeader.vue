@@ -4,11 +4,11 @@
       <div class="title-container">
         <h4 v-if="!showSelect" class="title">
           <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
-          <span>{{ entity["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}</span>
+          <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
         </h4>
         <div v-else class="title">
           <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
-          <span>{{ entity["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}</span>
+          <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
         </div>
       </div>
       <div class="entity-buttons-container">
@@ -54,7 +54,7 @@ import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjec
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { IM, RDF } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, watch, ref, onMounted } from "vue";

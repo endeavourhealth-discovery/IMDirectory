@@ -46,29 +46,13 @@
                 @addToList="onSelect"
               />
               <div v-if="isRecordModel(detailsEntity[RDF.TYPE])">
-                <div><b>Properties</b></div>
-                <DataModel
-                  :entityIri="detailsIri"
-                  @navigateTo="
-                    (iri: string) => {
-                      detailsIri = iri;
-                    }
-                  "
-                />
+                <div class="view-title"><b>Properties</b></div>
+                <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
               </div>
 
               <div v-else>
-                <div><b>Hierarhcy tree</b></div>
-                <SecondaryTree
-                  :entityIri="detailsIri"
-                  :show-select="true"
-                  @navigateTo="
-                    (iri: string) => {
-                      detailsIri = iri;
-                    }
-                  "
-                  @onSelect="onSelect"
-                />
+                <div class="view-title"><b>Hierarchy tree</b></div>
+                <SecondaryTree :entityIri="detailsIri" :show-select="true" @navigateTo="(iri: string) => (detailsIri = iri)" @onSelect="onSelect" />
               </div>
             </div>
 
@@ -83,19 +67,17 @@
       </Tabs>
     </div>
 
-    <SelectedSet v-if="selectedSet.size" :selected-set="selectedSet" class="bottom-half-component" />
+    <SelectedSet v-if="selectedValueMap.size" :selectedValueMap="selectedValueMap" class="bottom-half-component" />
   </div>
 </template>
 
 <script setup lang="ts">
 import SearchResults from "@/components/shared/SearchResults.vue";
-import { Match, PathQuery, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { Ref } from "vue";
-import { ref } from "vue";
-import { onMounted, watch } from "vue";
+import { Match, Node, PathQuery, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Ref, ref, onMounted, watch } from "vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import { EntityService, QueryService } from "@/services";
-import { IM, RDF } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isConcept, isFeature, isProperty, isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import SelectedSet from "./SelectedSet.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
@@ -111,7 +93,7 @@ interface Props {
   imQuery: QueryRequest | undefined;
   dataModelIri: string;
   selectedPath: Match | undefined;
-  selectedSet: Set<string>;
+  selectedValueMap: Map<string, Node>;
 }
 
 const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": (payload: Match) => payload, goToNextStep: () => true });
@@ -161,8 +143,19 @@ async function setEntity() {
 async function onSelect(iri: string) {
   const entityType = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
   if (props.selectedPath) {
-    if (isConcept(entityType[RDF.TYPE]) || isValueSet(entityType[RDF.TYPE])) await addToSelectedList(iri);
-    else {
+    if (isConcept(entityType[RDF.TYPE]) || isValueSet(entityType[RDF.TYPE])) {
+      if (props.selectedValueMap.size) {
+        const has = await hasFeatureOrQuerySelected();
+        if (!has) addToSelectedList(iri);
+        else
+          toast.add({
+            severity: ToastSeverity.ERROR,
+            summary: "Invalid value",
+            detail: `Only concepts and concept sets can be added to this list. If you want to add different types of values clear the list first or create a separate feature.`,
+            life: 3000
+          });
+      } else await addToSelectedList(iri);
+    } else {
       toast.add({
         severity: ToastSeverity.ERROR,
         summary: "Invalid value",
@@ -171,7 +164,17 @@ async function onSelect(iri: string) {
       });
     }
   } else if (isFeature(entityType[RDF.TYPE]) || isQuery(entityType[RDF.TYPE])) {
-    await addToSelectedList(iri);
+    if (props.selectedValueMap.size) {
+      const has = await hasFeatureOrQuerySelected();
+      if (has) addToSelectedList(iri);
+      else
+        toast.add({
+          severity: ToastSeverity.ERROR,
+          summary: "Invalid value",
+          detail: `Only features and queries can be added to this list. If you want to add different types of values clear the list first or create a separate feature.`,
+          life: 3000
+        });
+    } else await addToSelectedList(iri);
   } else {
     await setQueryPath(iri);
     if (isConcept(entityType[RDF.TYPE]) || isValueSet(entityType[RDF.TYPE])) await addToSelectedList(iri);
@@ -185,7 +188,6 @@ async function setQueryPath(iri: string) {
   if (iri) {
     const pathQuery = { source: { "@id": props.dataModelIri }, target: { "@id": iri } } as PathQuery;
     const response = await QueryService.pathQuery(pathQuery);
-    console.log(response);
     if (response.match.length === 1) emit("update:selectedPath", response.match[0]);
     else if (response.match.length > 1) {
       pathSuggestions.value = response.match;
@@ -195,7 +197,14 @@ async function setQueryPath(iri: string) {
 }
 
 async function addToSelectedList(iri: string) {
-  props.selectedSet.add(iri);
+  const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
+  props.selectedValueMap.set(iri, { "@id": iri, name: entity[RDFS.LABEL] });
+}
+
+async function hasFeatureOrQuerySelected() {
+  const iri = props.selectedValueMap.keys().next().value;
+  const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
+  return isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
 }
 </script>
 

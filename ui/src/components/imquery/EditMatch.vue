@@ -17,8 +17,13 @@
       @mouseout.stop="hover = false"
       @click.stop="emit('onUpdateDialogFocus', [getMenuItemFromMatch(props.editMatch)])"
     >
-      <MatchSelector v-if="focusedId === editMatch['@id'] && isFlatMatch(editMatch)" :editMatch="editMatch" />
-      <div v-else v-html="editMatch?.description" />
+      <MatchSelector
+        v-if="focusedId === editMatch['@id'] && isFlatMatch(editMatch)"
+        :editMatch="editMatch"
+        :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+      />
+      <div v-else-if="editMatch?.description" v-html="editMatch?.description" />
+      <div v-else-if="editMatch?.name" v-html="editMatch?.name" />
 
       <div v-if="editMatch?.match" class="feature-group">
         <Button

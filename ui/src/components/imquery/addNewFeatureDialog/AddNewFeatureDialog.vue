@@ -10,16 +10,7 @@
           <div class="flex flex-column select-property-wrapper">
             <div class="directory-search-dialog-content">
               <div class="search-bar">
-                <SearchBarWithRadioFilters
-                  :show-type-filters="showTypeFilters"
-                  @on-search="
-                    payload => {
-                      searchTerm = payload;
-                      updateSearch = !updateSearch;
-                    }
-                  "
-                  @on-type-select="onTypeSelect"
-                />
+                <SearchBarWithRadioFilters :show-type-filters="showTypeFilters" @on-search="onSearch" @on-type-select="onTypeSelect" />
               </div>
               <div class="vertical-divider">
                 <div class="left-container">
@@ -38,7 +29,7 @@
                     :update-search="updateSearch"
                     :im-query="imQuery"
                     :data-model-iri="dataModelIri"
-                    :selectedSet="selectedSet"
+                    :selected-value-map="selectedValueMap"
                     v-model:selected-path="selectedPath"
                     @locate-in-tree="iri => (treeIri = iri)"
                     @go-to-next-step="activateCallback('2')"
@@ -49,14 +40,14 @@
           </div>
           <div class="flex pt-4 justify-content-end next-button">
             <Button
-              v-if="hasNextStep"
+              v-if="hasNextStep && !hasQueryOrFeatureSelected"
               :disabled="!isObjectHasKeys(selectedPath)"
               label="Next"
               icon="pi pi-arrow-right"
               iconPos="right"
               @click="activateCallback('2')"
             />
-            <Button v-else :disabled="!isObjectHasKeys(selectedPath)" label="Save" iconPos="right" @click="save" />
+            <Button v-else :disabled="!isObjectHasKeys(selectedPath) && !hasQueryOrFeatureSelected" label="Save" iconPos="right" @click="save" />
           </div>
         </StepPanel>
         <StepPanel v-slot="{ activateCallback }" value="2">
@@ -80,10 +71,10 @@
 <script setup lang="ts">
 import { Ref, onMounted, provide, ref, watch } from "vue";
 import { Match, Node, PathQuery, QueryRequest, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
-import _, { cloneDeep } from "lodash-es";
+import { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF } from "@im-library/vocabulary";
-import { QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { addBindingsToIMQuery, addTypeFilterToIMQuery, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import NavTree from "../../shared/NavTree.vue";
@@ -91,6 +82,8 @@ import SearchBarWithRadioFilters, { TypeOption } from "./SearchBarWithRadioFilte
 import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
 import PathDisplay from "./PathDisplay.vue";
+import { isFeature, isQuery } from "@im-library/helpers/ConceptTypeMethods";
+import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   showDialog: boolean;
@@ -119,13 +112,14 @@ const pathSuggestions: Ref<Match[]> = ref([]);
 const selectedPath: Ref<Match | undefined> = ref();
 provide("selectedPath", selectedPath);
 
-const selectedSet: Ref<Set<string>> = ref(props.isList ? new Set<string>(props.isList.map(isItem => isItem["@id"]!)) : new Set<string>());
+const selectedValueMap: Ref<Map<string, Node>> = ref(new Map<string, Node>());
 const updateSearch: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 
 const treeIri = ref("");
 const searchTerm = ref("");
 const detailsIri = ref("");
+const hasQueryOrFeatureSelected: Ref<boolean> = ref(false);
 
 const rootEntities: Ref<string[] | undefined> = ref();
 watch(
@@ -162,9 +156,17 @@ watch(
   }
 );
 
+watch(
+  () => cloneDeep(selectedValueMap.value),
+  async () => await setHasQueryOrFeatureSelected()
+);
+
 onMounted(() => init());
 
 function init() {
+  if (props.isList?.length) {
+    for (const isItem of props.isList) selectedValueMap.value.set(isItem["@id"]!, isItem);
+  }
   imQuery.value = undefined;
   rootEntities.value = undefined;
   if (isObjectHasKeys(props.match)) {
@@ -172,8 +174,15 @@ function init() {
     selectedPath.value = cloneDeep(editMatch.value);
   } else {
     selectedPath.value = undefined;
-    selectedSet.value = new Set<string>();
   }
+}
+
+async function setHasQueryOrFeatureSelected() {
+  if (selectedValueMap.value.size) {
+    const iri = selectedValueMap.value.keys().next().value;
+    const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
+    hasQueryOrFeatureSelected.value = isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
+  } else hasQueryOrFeatureSelected.value = false;
 }
 
 async function getOptions() {
@@ -190,12 +199,16 @@ async function save() {
     const editMatchCopy = cloneDeep(editMatch.value);
     editMatchCopy["@id"] = v4();
     emit("onMatchAdd", editMatchCopy);
+  } else if (hasQueryOrFeatureSelected.value) {
+    const editMatchCopy: Match = { "@id": v4(), instanceOf: Array.from(selectedValueMap.value.values()) };
+    describeMatch(editMatchCopy, 0, false);
+    emit("onMatchAdd", editMatchCopy);
   }
   visible.value = false;
 }
 
 function clear() {
-  editMatch.value = {};
+  editMatch.value = undefined;
   pathSuggestions.value = [];
   selectedGeneralConcept.value = undefined;
   searchTerm.value = "";
@@ -248,7 +261,12 @@ function clearPath() {
   selectedPath.value = undefined;
   updateSearch.value = !updateSearch.value;
   if (isObjectHasKeys(imQuery.value, ["query"])) deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
-  selectedSet.value = new Set<string>();
+  selectedValueMap.value = new Map<string, Node>();
+}
+
+function onSearch(payload: string) {
+  searchTerm.value = payload;
+  updateSearch.value = !updateSearch.value;
 }
 </script>
 

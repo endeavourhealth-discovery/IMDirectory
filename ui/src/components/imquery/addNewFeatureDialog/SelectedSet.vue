@@ -5,7 +5,7 @@
       <template #option="{ option }" class="flex flex-row">
         <div class="flex flex-row">
           <div class="flex flex-row gap-1 align-items-baseline">
-            <Button @click="selectedSet.delete(option['@id'])" class="builder-button" :severity="'danger'" icon="fa-solid fa-x" text />
+            <Button @click="selectedValueMap.delete(option['@id'])" class="builder-button" :severity="'danger'" icon="fa-solid fa-x" text />
             <ToggleButton v-model="option.include" onLabel="include" offLabel="exclude" />
             <InputText v-if="isValueSet(option[RDF.TYPE])" type="text" v-model="option.entailment" disabled />
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
@@ -45,7 +45,7 @@ interface SelectedEntity {
 }
 
 interface Props {
-  selectedSet: Set<string>;
+  selectedValueMap: Map<string, Node>;
 }
 const props = defineProps<Props>();
 const selectedEntities: Ref<SelectedEntity[]> = ref([]);
@@ -57,7 +57,7 @@ const entailmentOptions: { name: string; id: string }[] = [
 const selectedPath = inject("selectedPath") as Ref<Match | undefined>;
 const valueLabel: Ref<string> = ref("");
 watch(
-  () => cloneDeep(props.selectedSet),
+  () => cloneDeep(props.selectedValueMap),
   async () => {
     await init();
     updatePathValues();
@@ -66,11 +66,11 @@ watch(
 onMounted(async () => await init());
 
 async function init() {
-  const selectedList = Array.from(props.selectedSet);
+  const selectedList = Array.from(props.selectedValueMap.keys());
   const entities = await EntityService.getPartialEntities(selectedList, [RDF.TYPE, RDFS.LABEL]);
   for (const entity of entities) {
     entity.icon = getFAIconFromType(entity[RDF.TYPE]);
-    entity.include = true;
+    entity.include = !props.selectedValueMap.get(entity["@id"])?.exclude;
     if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
     else entity.entailment = "descendantsOrSelfOf";
   }
