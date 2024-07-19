@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full flex-column">
+  <div v-if="selectedValueMap?.size" class="flex w-full flex-column">
     <InputText type="text" v-model="valueLabel" placeholder="Value label" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #option="{ option }" class="flex flex-row">
@@ -44,10 +44,6 @@ interface SelectedEntity {
   entailment: "memberOf" | "descendantsOf" | "descendantsOrSelfOf" | "ancestorsOf";
 }
 
-interface Props {
-  selectedValueMap: Map<string, Node>;
-}
-const props = defineProps<Props>();
 const selectedEntities: Ref<SelectedEntity[]> = ref([]);
 const entailmentOptions: { name: string; id: string }[] = [
   { name: "descendants of", id: "descendantsOf" },
@@ -56,8 +52,10 @@ const entailmentOptions: { name: string; id: string }[] = [
 ];
 const selectedPath = inject("selectedPath") as Ref<Match | undefined>;
 const valueLabel: Ref<string> = ref("");
+const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
+
 watch(
-  () => cloneDeep(props.selectedValueMap),
+  () => cloneDeep(selectedValueMap.value),
   async () => {
     await init();
     updatePathValues();
@@ -66,11 +64,11 @@ watch(
 onMounted(async () => await init());
 
 async function init() {
-  const selectedList = Array.from(props.selectedValueMap.keys());
+  const selectedList = Array.from(selectedValueMap.value.keys());
   const entities = await EntityService.getPartialEntities(selectedList, [RDF.TYPE, RDFS.LABEL]);
   for (const entity of entities) {
     entity.icon = getFAIconFromType(entity[RDF.TYPE]);
-    entity.include = !props.selectedValueMap.get(entity["@id"])?.exclude;
+    entity.include = !selectedValueMap.value.get(entity["@id"])?.exclude;
     if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
     else entity.entailment = "descendantsOrSelfOf";
   }

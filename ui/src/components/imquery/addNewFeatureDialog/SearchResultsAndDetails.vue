@@ -52,14 +52,14 @@
       </Tabs>
     </div>
 
-    <SelectedSet v-if="selectedValueMap.size" :selectedValueMap="selectedValueMap" class="bottom-half-component" />
+    <SelectedSet class="bottom-half-component" />
   </div>
 </template>
 
 <script setup lang="ts">
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { Match, Node, PathQuery, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { Ref, ref, onMounted, watch } from "vue";
+import { Ref, ref, onMounted, watch, inject } from "vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import { EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
@@ -78,7 +78,6 @@ interface Props {
   imQuery: QueryRequest | undefined;
   dataModelIri: string;
   selectedPath: Match | undefined;
-  selectedValueMap: Map<string, Node>;
 }
 
 const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": (payload: Match) => payload, goToNextStep: () => true });
@@ -89,6 +88,7 @@ const detailsEntity: Ref<any> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
 const showDialog: Ref<boolean> = ref(false);
 const toast = useToast();
+const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 
 watch(
   () => props.selectedIri,
@@ -126,12 +126,12 @@ async function setEntity() {
 }
 
 async function onSelect(iri: string) {
-  const entityType = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
+  const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
   if (props.selectedPath) {
-    if (isConcept(entityType[RDF.TYPE]) || isValueSet(entityType[RDF.TYPE])) {
-      if (props.selectedValueMap.size) {
+    if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE])) {
+      if (selectedValueMap.value.size) {
         const has = await hasFeatureOrQuerySelected();
-        if (!has) addToSelectedList(iri);
+        if (!has) addToSelectedList(iri, entity[RDFS.LABEL]);
         else
           toast.add({
             severity: ToastSeverity.ERROR,
@@ -139,7 +139,7 @@ async function onSelect(iri: string) {
             detail: `Only concepts and concept sets can be added to this list. If you want to add different types of values clear the list first or create a separate feature.`,
             life: 3000
           });
-      } else await addToSelectedList(iri);
+      } else addToSelectedList(iri, entity[RDFS.LABEL]);
     } else {
       toast.add({
         severity: ToastSeverity.ERROR,
@@ -148,10 +148,10 @@ async function onSelect(iri: string) {
         life: 3000
       });
     }
-  } else if (isFeature(entityType[RDF.TYPE]) || isQuery(entityType[RDF.TYPE])) {
-    if (props.selectedValueMap.size) {
+  } else if (isFeature(entity[RDF.TYPE]) || isQuery(entity[RDF.TYPE])) {
+    if (selectedValueMap.value.size) {
       const has = await hasFeatureOrQuerySelected();
-      if (has) addToSelectedList(iri);
+      if (has) addToSelectedList(iri, entity[RDFS.LABEL]);
       else
         toast.add({
           severity: ToastSeverity.ERROR,
@@ -159,11 +159,11 @@ async function onSelect(iri: string) {
           detail: `Only features and queries can be added to this list. If you want to add different types of values clear the list first or create a separate feature.`,
           life: 3000
         });
-    } else await addToSelectedList(iri);
+    } else addToSelectedList(iri, entity[RDFS.LABEL]);
   } else {
     await setQueryPath(iri);
-    if (isConcept(entityType[RDF.TYPE]) || isValueSet(entityType[RDF.TYPE])) await addToSelectedList(iri);
-    else if (isProperty(entityType[RDF.TYPE])) {
+    if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE])) addToSelectedList(iri, entity[RDFS.LABEL]);
+    else if (isProperty(entity[RDF.TYPE])) {
       emit("goToNextStep");
     }
   }
@@ -181,13 +181,12 @@ async function setQueryPath(iri: string) {
   }
 }
 
-async function addToSelectedList(iri: string) {
-  const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
-  props.selectedValueMap.set(iri, { "@id": iri, name: entity[RDFS.LABEL] });
+function addToSelectedList(iri: string, name: string) {
+  selectedValueMap.value.set(iri, { "@id": iri, name: name });
 }
 
 async function hasFeatureOrQuerySelected() {
-  const iri = props.selectedValueMap.keys().next().value;
+  const iri = selectedValueMap.value.keys().next().value;
   const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
   return isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
 }
