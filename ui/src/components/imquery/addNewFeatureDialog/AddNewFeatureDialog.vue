@@ -29,7 +29,6 @@
                     :update-search="updateSearch"
                     :im-query="imQuery"
                     :data-model-iri="dataModelIri"
-                    :selected-value-map="selectedValueMap"
                     v-model:selected-path="selectedPath"
                     @locate-in-tree="iri => (treeIri = iri)"
                     @go-to-next-step="activateCallback('2')"
@@ -112,6 +111,8 @@ const selectedPath: Ref<Match | undefined> = ref();
 provide("selectedPath", selectedPath);
 
 const selectedValueMap: Ref<Map<string, Node>> = ref(new Map<string, Node>());
+provide("selectedValueMap", selectedValueMap);
+
 const updateSearch: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 
@@ -240,6 +241,7 @@ function updateIMQueryBinding() {
   const propIri = selectedPath.value?.where?.[0]?.["@id"];
   if (dmIri && propIri) {
     if (!imQuery.value) imQuery.value = { query: {} };
+    deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
     addBindingsToIMQuery([{ node: { "@id": dmIri }, path: { "@id": propIri } }], imQuery.value);
   }
 }
@@ -247,7 +249,7 @@ function updateIMQueryBinding() {
 function clearPath() {
   selectedPath.value = undefined;
   updateSearch.value = !updateSearch.value;
-  if (isObjectHasKeys(imQuery.value, ["query"])) deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
+  if (imQuery.value) deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
   selectedValueMap.value = new Map<string, Node>();
 }
 
