@@ -10,13 +10,6 @@ describe("EntityService.ts ___ axios success", () => {
     axios.post = vi.fn().mockResolvedValue("axios post return");
   });
 
-  it("can downloadConcept", async () => {
-    const result = await EntityService.downloadConcept("testIri", "testFormat");
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/exportConcept", { params: { iri: "testIri", format: "testFormat" }, responseType: "blob" });
-    expect(result).toBe("axios get return");
-  });
-
   it("can get partial entity", async () => {
     const result = await EntityService.getPartialEntity("testIri", ["pred_1", "pred_2", "pred_3"]);
     expect(axios.get).toHaveBeenCalledTimes(1);

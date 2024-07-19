@@ -8,7 +8,6 @@ import bodyParser from "body-parser";
 import * as dns from "dns";
 import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
-import ParserController from "./controllers/parserController";
 import FhirController from "@/controllers/fhirController";
 import ProvController from "@/controllers/provController";
 import StatusController from "./controllers/statusController";
@@ -16,7 +15,6 @@ import gracefulShutdown from "http-graceful-shutdown";
 import logger from "./middlewares/logger.middleware";
 import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/morgan.middleware";
 import WorkflowController from "./controllers/workflowController";
-import FunctionController from "./controllers/functionController";
 import CodeGenController from "@/controllers/codeGenController";
 import metricsInterceptor from "@/middlewares/metrics.middleware";
 
@@ -33,11 +31,9 @@ const app = new App({
     new GithubController(),
     new EntityController(),
     new CognitoController(),
-    new ParserController(),
     new FhirController(),
     new ProvController(),
     new WorkflowController(),
-    new FunctionController(),
     new CodeGenController()
   ],
   middleWares: [

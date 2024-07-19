@@ -6,7 +6,6 @@ import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
 import { EclSearchRequest, TTIriRef, SearchResultSummary, Concept, DataModelProperty, TTEntity } from "@im-library/interfaces/AutoGen";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { byName } from "@im-library/helpers/Sorters";
 
 export default class EntityService {
@@ -16,35 +15,6 @@ export default class EntityService {
   constructor(axios: any) {
     this.axios = axios;
     this.entityRepository = new EntityRepository();
-  }
-
-  public async getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
-    const propertiesEntity = await this.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
-    if (!isObjectHasKeys(propertiesEntity.data, [SHACL.PROPERTY])) return {} as TreeNode;
-    const allProperties: any[] = propertiesEntity.data[SHACL.PROPERTY];
-    const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === dataTypeIri);
-    if (!isArrayHasLength(validOptions)) return {} as TreeNode;
-
-    const treeNode = {
-      key: key,
-      label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
-      children: [] as TreeNode[],
-      selectable: false
-    } as TreeNode;
-
-    for (const property of validOptions) {
-      treeNode.children.push({
-        key: key + "/" + property[SHACL.PATH][0]["@id"],
-        label: property[SHACL.PATH][0].name,
-        data: {
-          "@id": property[SHACL.PATH][0]["@id"],
-          nodeRef: key,
-          name: property[SHACL.PATH][0].name
-        }
-      } as TreeNode);
-    }
-
-    return treeNode;
   }
 
   public async getPartialEntity(iri: string, predicates: string[]): Promise<any> {
@@ -175,24 +145,6 @@ export default class EntityService {
     }
 
     return propertyList;
-  }
-
-  async isValidPropertyBoolFocus(focus: any, propertyIri: string) {
-    let query;
-    if (focus.ecl) query = (await axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
-    const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
-    const results = (await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest)).data;
-    let found = false;
-    let counter = 0;
-    if (results.entities && isArrayHasLength(results.entities)) {
-      while (!found && counter < results.entities.length) {
-        const conceptIri = results.entities[counter].iri;
-        const result = (await axios.get(Env.API + "api/entity/public/isValidProperty", { params: { entity: conceptIri, property: propertyIri } })).data;
-        if (result) found = result;
-        counter++;
-      }
-    }
-    return found;
   }
 
   async getSuperiorPropertiesBoolFocusPaged(focus: any, pageIndex?: number, pageSize?: number, filters?: string[]) {

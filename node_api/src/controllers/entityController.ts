@@ -36,11 +36,6 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
-    this.router.post("/public/isValidPropertyBoolFocus", (req, res, next) =>
-      this.isValidPropertyBoolFocus(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
     this.router.post("/public/superiorPropertiesBoolFocusPaged", (req, res, next) =>
       this.getSuperiorPropertiesBoolFocusPaged(req)
         .then(data => res.send(data))
@@ -51,20 +46,11 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
-    this.router.get("/public/propertyOptions", (req, res, next) =>
-      this.getPropertyOptions(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
     this.router.post("/public/validatedEntity", (req, res, next) =>
       this.getValidatedEntitiesBySnomedCodes(req)
         .then(data => res.send(data))
         .catch(next)
     );
-  }
-
-  async getPropertyOptions(req: Request) {
-    return await this.entityService.getPropertyOptions(req.query.dataModelIri as string, req.query.dataTypeIri as string, req.query.key as string);
   }
 
   async getPropertiesDisplay(req: Request) {
@@ -82,10 +68,6 @@ export default class EntityController {
       req.query.pageIndex as string,
       req.query.pageSize as string
     );
-  }
-
-  async isValidPropertyBoolFocus(req: Request) {
-    return await this.entityService.isValidPropertyBoolFocus(req.body.focus, req.body.propertyIri);
   }
 
   async getSuperiorPropertiesBoolFocusPaged(req: Request) {
@@ -106,7 +88,6 @@ export default class EntityController {
     if (!setIriA && !setIriB) throw new CustomError("At least one of setIriA and setIriB parameters needs to be populated.", ErrorType.InvalidInputError);
     return await this.entityService.getSetDiff(setIriA, setIriB);
   }
-
 
   async getValidatedEntitiesBySnomedCodes(req: Request) {
     const codes = req.body;

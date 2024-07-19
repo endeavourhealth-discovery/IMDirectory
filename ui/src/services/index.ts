@@ -8,7 +8,6 @@ import QueryService from "./QueryService";
 import SetService from "./SetService";
 import GithubService from "./GithubService";
 import ProvService from "./ProvService";
-import ParserService from "./ParserService";
 import EclService from "./EclService";
 import UserService from "./UserService";
 import FunctionService from "./FunctionService";
@@ -21,7 +20,6 @@ export {
   EntityService,
   FilerService,
   Env,
-  ParserService,
   QueryService,
   SetService,
   GithubService,

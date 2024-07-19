@@ -67,7 +67,6 @@ describe("router", () => {
       const userStore = useUserStore();
       userStore.updateSnomedLicenseAccepted(true);
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
-      UserService.getUserTheme = async () => "";
       UserService.getUserScale = async () => "";
       await router.push("/");
       await router.isReady();
@@ -112,7 +111,6 @@ describe("router", () => {
       userStore.updateSnomedLicenseAccepted(true);
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       authenticateCurrentUserSpy = vi.spyOn(userStore, "authenticateCurrentUser").mockResolvedValue({ authenticated: false });
-      UserService.getUserTheme = async () => "";
       UserService.getUserScale = async () => "";
       await router.push("/");
       await router.isReady();
@@ -166,7 +164,6 @@ describe("router", () => {
       userStore.snomedLicenseAccepted = true;
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       authenticateCurrentUserSpy = vi.spyOn(userStore, "authenticateCurrentUser").mockResolvedValue({ authenticated: true });
-      UserService.getUserTheme = async () => "";
       UserService.getUserScale = async () => "";
       await router.push("/");
       await router.isReady();
