@@ -135,18 +135,18 @@ function handlePropertyTypeChange() {
   switch (valueField.value) {
     case "is":
       if (!values.value.length) values.value = [{}];
-      props.property.instanceOf = values.value;
+      props.property.is = values.value;
       delete props.property.isNull;
       delete props.property.isNotNull;
       break;
     case "isNull":
       props.property.isNull = true;
-      delete props.property.instanceOf;
+      delete props.property.is;
       delete props.property.isNotNull;
       break;
     case "isNotNull":
       props.property.isNotNull = true;
-      delete props.property.instanceOf;
+      delete props.property.is;
       delete props.property.isNull;
       break;
     default:
@@ -156,9 +156,9 @@ function handlePropertyTypeChange() {
 
 async function setValues() {
   values.value = [];
-  if (props.property.instanceOf) {
+  if (props.property.is) {
     valueField.value = "is";
-    for (const value of props.property.instanceOf) {
+    for (const value of props.property.is) {
       if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name, summary: await EntityService.getEntitySummary(value["@id"]) });
     }
     if (!values.value.length) values.value.push({});
