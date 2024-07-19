@@ -37,10 +37,6 @@ export default class QueryService {
     return response.data;
   }
 
-  public async getQuery(query: QueryRequest): Promise<Query> {
-    return await this.axios.post(Env.API + "api/query/public/getQuery", query);
-  }
-
   public async isAllowableRangeSuggestion(propertyIri: string, rangeIri: string): Promise<boolean> {
     const allowableRangesQuery: QueryRequest = {
       query: {

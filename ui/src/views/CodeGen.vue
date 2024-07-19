@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
 import { onMounted, Ref, ref, watch } from "vue";
-import entityService from "@/services/EntityService";
+import EntityService from "@/services/EntityService";
 import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { RDFS, SHACL, XSD } from "@im-library/vocabulary";
@@ -190,7 +190,7 @@ PROPERTIES:
 }
 async function convert() {
   if (modelData == null)
-    modelData = await entityService.getPartialEntity("http://endhealth.info/im#GPRegistrationEpisode", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
+    modelData = await EntityService.getPartialEntity("http://endhealth.info/im#GPRegistrationEpisode", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
 
   const iri: TTIriRef = {
     "@id": modelData["@id"],
