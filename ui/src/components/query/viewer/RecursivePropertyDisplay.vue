@@ -65,7 +65,7 @@ function onPropertyInClick(property: Where, event: any) {
 
 function getFullList(property: Where) {
   let fullList: Node[] = [];
-  if (isArrayHasLength(property.instanceOf)) fullList = fullList.concat(property.instanceOf!);
+  if (isArrayHasLength(property.is)) fullList = fullList.concat(property.is!);
   return fullList;
 }
 
