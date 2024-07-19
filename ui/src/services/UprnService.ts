@@ -5,6 +5,18 @@ import axios from "axios";
 const api = Env.UPRN_API;
 
 const UprnService = {
+  async search(address: string, ncommercial: string): Promise<UprnSearchResponse> {
+    return axios.get(api + "/api2/getinfo", {
+      params: { adrec: address, commercial: ncommercial }
+    });
+  },
+
+  async activity(user: string): Promise<any> {
+    return axios.get(api + "/api2/activity", {
+      params: { u: user }
+    });
+  },
+
   async download(file: string): Promise<any> {
     return axios.get(api + "/api2/download3", {
       responseType: "blob",

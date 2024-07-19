@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, watch } from "vue";
-import uprnService from "@/services/UprnService";
+import UprnService from "@/services/UprnService";
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
 import { UprnSearchResponse } from "@im-library/interfaces";
@@ -91,7 +91,7 @@ async function submitAddress() {
   loading.value = true;
   let ncommercial = "0";
 
-  const result = await uprnService.search(searchAddress.value, ncommercial);
+  const result = await UprnService.search(searchAddress.value, ncommercial);
   if (result && result.Matched) {
     searchResults.value = result;
   } else {
