@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-07-19 08:45:03.
+// Generated using typescript-generator version 3.2.1263 on 2024-07-22 09:40:25.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -53,6 +53,16 @@ export interface Refinement extends BuilderComponent {
 export interface SubExpressionConstraint {
     concept?: ConceptReference;
     constraintOperator?: string;
+}
+
+export interface GithubRelease {
+    version?: string;
+    title?: string;
+    createdDate?: string;
+    publishedDate?: string;
+    releaseNotes?: string[];
+    author?: string;
+    url?: string;
 }
 
 export interface ArrayButtons {
@@ -217,10 +227,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    relativeTo?: PropertyRef;
-    dataType?: TTIriRef;
-    unit?: string;
     operator?: Operator;
+    dataType?: TTIriRef;
+    relativeTo?: PropertyRef;
+    unit?: string;
 }
 
 export interface Case {
@@ -253,10 +263,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
     descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -384,8 +394,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
