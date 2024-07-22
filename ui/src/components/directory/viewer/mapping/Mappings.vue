@@ -85,7 +85,7 @@
         <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
       </div>
     </Popover>
-    <div class="context-table">
+    <div v-if="contextMaps.length" class="context-table">
       <DataTable v-model:expandedRows="contextExpandedRows" :value="contextMaps" dataKey="id">
         <Column expander style="width: 5rem" />
         <Column field="property" header="Property"></Column>
