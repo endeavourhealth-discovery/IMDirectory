@@ -138,7 +138,6 @@ export default class QueryService {
   }
 
   async getPropertyRange(propIri: string): Promise<any> {
-    const isTrue = '"true"^^http://www.w3.org/2001/XMLSchema#boolean';
     const queryRequest = {
       argument: [
         {
@@ -158,8 +157,8 @@ export default class QueryService {
     if (isObjectHasKeys(response, ["entities"]) && response.entities.length !== 0) {
       return response.entities;
     } else {
-      const propType = await this.checkPropertyType(propIri);
-      if (propType.objectProperty.id === isTrue) {
+      const propType = (await this.axios.get(Env.API + "entity/public/checkPropertyType", { iri: propIri })).data;
+      if (propType === IM.DATAMODEL_OBJECTPROPERTY) {
         queryRequest.query = { "@id": QUERY.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as any;
         const suggestions = await this.queryIM(queryRequest);
         suggestions.entities.push({
@@ -167,33 +166,13 @@ export default class QueryService {
           "http://www.w3.org/2000/01/rdf-schema#label": "Terminology concept"
         });
         return suggestions.entities;
-      } else if (propType.dataProperty.id === isTrue) {
+      } else if (propType === IM.DATAMODEL_DATAPROPERTY) {
         queryRequest.query = { "@id": QUERY.DATA_PROPERTY_RANGE_SUGGESTIONS } as any;
         const dataTypes = await this.queryIM(queryRequest);
         if (isObjectHasKeys(dataTypes, ["entities"]) && dataTypes.entities.length !== 0) {
           return dataTypes.entities;
         }
       } else return [];
-    }
-  }
-
-  public async checkPropertyType(propIri: string) {
-    const query =
-      "SELECT ?objectProperty ?dataProperty " +
-      "WHERE {" +
-      "bind(exists{?propIri ?isA  ?objProp} as ?objectProperty)" +
-      "bind(exists{?propIri ?isA ?dataProp} as ?dataProperty)" +
-      "} ";
-
-    const rs = await this.graph.execute(query, {
-      propIri: sanitise(propIri),
-      isA: sanitise(IM.IS_A),
-      objProp: sanitise(IM.DATAMODEL_OBJECTPROPERTY),
-      dataProp: sanitise(IM.DATAMODEL_DATAPROPERTY)
-    });
-
-    if (isArrayHasLength(rs)) {
-      return rs[0];
     }
   }
 
