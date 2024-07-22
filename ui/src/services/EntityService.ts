@@ -389,7 +389,7 @@ const EntityService = {
   },
 
   async getContextMaps(conceptIri: string): Promise<any[]> {
-    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/conceptContextMaps", {
+    return axios.get(Env.API + "api/entity/public/conceptContextMaps", {
       params: { iri: conceptIri }
     });
   },

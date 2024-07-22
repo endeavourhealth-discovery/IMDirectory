@@ -41,11 +41,6 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
-    this.router.get("/public/conceptContextMaps", (req, res, next) =>
-      this.getConceptContextMaps(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
     this.router.post("/public/validatedEntity", (req, res, next) =>
       this.getValidatedEntitiesBySnomedCodes(req)
         .then(data => res.send(data))
@@ -76,10 +71,6 @@ export default class EntityController {
     const pageSize = req.body.pageSize;
     const filters = req.body.filters;
     return await this.entityService.getSuperiorPropertiesBoolFocusPaged(focus, pageIndex, pageSize, filters);
-  }
-
-  async getConceptContextMaps(req: Request): Promise<ContextMap[]> {
-    return await this.entityService.getConceptContextMaps(req.query.iri as string);
   }
 
   async getSetDiff(req: Request) {

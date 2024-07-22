@@ -9,7 +9,6 @@ import * as dns from "dns";
 import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
 import FhirController from "@/controllers/fhirController";
-import ProvController from "@/controllers/provController";
 import StatusController from "./controllers/statusController";
 import gracefulShutdown from "http-graceful-shutdown";
 import logger from "./middlewares/logger.middleware";
@@ -32,7 +31,6 @@ const app = new App({
     new EntityController(),
     new CognitoController(),
     new FhirController(),
-    new ProvController(),
     new WorkflowController(),
     new CodeGenController()
   ],

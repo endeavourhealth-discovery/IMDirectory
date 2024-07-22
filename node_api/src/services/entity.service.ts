@@ -4,17 +4,14 @@ import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris, ValidatedEntity } from "@im-library/interfaces";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import EntityRepository from "@/repositories/entityRepository";
 import { EclSearchRequest, TTIriRef, SearchResultSummary, Concept, DataModelProperty, TTEntity } from "@im-library/interfaces/AutoGen";
 import { byName } from "@im-library/helpers/Sorters";
 
 export default class EntityService {
   axios: any;
-  entityRepository: EntityRepository;
 
   constructor(axios: any) {
     this.axios = axios;
-    this.entityRepository = new EntityRepository();
   }
 
   public async getPartialEntity(iri: string, predicates: string[]): Promise<any> {
@@ -168,14 +165,6 @@ export default class EntityService {
       }
     }
     return superiors;
-  }
-
-  async getConceptContextMaps(iri: string): Promise<ContextMap[]> {
-    return await this.entityRepository.getConceptContextMaps(iri);
-  }
-
-  async getInverseIsas(iri: string, searchTerm?: string): Promise<any[]> {
-    return await this.entityRepository.getInverseIsas(iri, searchTerm);
   }
 
   async isInverseIsa(iri: string, searchTerm?: string): Promise<boolean> {
