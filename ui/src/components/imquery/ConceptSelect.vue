@@ -4,7 +4,6 @@
       <Select
         :options="[
           { id: 'is', name: 'is' },
-          { id: 'isNot', name: 'is not' },
           { id: 'isNull', name: 'is not recorded' },
           { id: 'isNotNull', name: 'is recorded' }
         ]"
@@ -70,23 +69,22 @@ interface Props {
 const props = defineProps<Props>();
 
 const { updateEntailment } = setupIMQueryBuilderActions();
-const valueField: Ref<"is" | "isNot" | "isNull" | "isNotNull" | undefined> = ref();
+const valueField: Ref<"is" | "isNull" | "isNotNull" | undefined> = ref();
 const values: Ref<ElementWithSummary[]> = ref([]);
-const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is" || valueField.value === "isNot");
+const isValueList: ComputedRef<boolean> = computed(() => valueField.value === "is");
 const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const conceptSets: Ref<string[]> = ref([]);
 const isType: Ref<"Concept" | "Concept set"> = ref("Concept set");
 
-onMounted(async () => {
+onMounted(async () => await init());
+onUnmounted(() => clearValues());
+
+async function init() {
   await setValues();
   buildIMQuery();
   await setConceptSets();
-});
-
-onUnmounted(() => {
-  clearValues();
-});
+}
 
 function handleIsTypeChange(value: Element) {
   delete value["@id"];
@@ -137,18 +135,18 @@ function handlePropertyTypeChange() {
   switch (valueField.value) {
     case "is":
       if (!values.value.length) values.value = [{}];
-      props.property.instanceOf = values.value;
+      props.property.is = values.value;
       delete props.property.isNull;
       delete props.property.isNotNull;
       break;
     case "isNull":
       props.property.isNull = true;
-      delete props.property.instanceOf;
+      delete props.property.is;
       delete props.property.isNotNull;
       break;
     case "isNotNull":
       props.property.isNotNull = true;
-      delete props.property.instanceOf;
+      delete props.property.is;
       delete props.property.isNull;
       break;
     default:
@@ -158,9 +156,9 @@ function handlePropertyTypeChange() {
 
 async function setValues() {
   values.value = [];
-  if (props.property.instanceOf) {
+  if (props.property.is) {
     valueField.value = "is";
-    for (const value of props.property.instanceOf) {
+    for (const value of props.property.is) {
       if (value["@id"]) values.value.push({ "@id": value["@id"], name: value.name, summary: await EntityService.getEntitySummary(value["@id"]) });
     }
     if (!values.value.length) values.value.push({});

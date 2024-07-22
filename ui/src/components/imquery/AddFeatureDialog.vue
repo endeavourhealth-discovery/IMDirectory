@@ -56,6 +56,7 @@
             v-if="getLeafMatch(editMatch) && isArrayHasLength(getLeafMatch(editMatch).where)"
             v-for="[index, where] of getLeafMatch(editMatch).where!.entries()"
             :edit-where="where"
+            :parent-match="getLeafMatch(editMatch)"
             :focused="editMatch['@id'] === focusedId"
             :focused-id="focusedId"
             :match-type-of-iri="getLeafMatch(editMatch).typeOf?.['@id'] || dataModelIri"
@@ -68,6 +69,7 @@
             :dataModelIri="getLeafMatch(editMatch).typeOf?.['@id'] || dataModelIri"
             :header="'Add property'"
             :show-variable-options="false"
+            :match="editMatch"
             @on-match-add="onMatchAdd"
             @on-property-add="onPropertyAdd"
           />
@@ -173,7 +175,7 @@ async function addSelectedPathMatch() {
   editMatch.value.where = [];
   if (selectedPath.value?.where?.[0]) {
     if (selectedGeneralConcept.value && isSelectedConceptValue.value)
-      selectedPath.value.where[0].instanceOf = [{ "@id": selectedGeneralConcept.value.iri, name: selectedGeneralConcept.value.name }];
+      selectedPath.value.where[0].is = [{ "@id": selectedGeneralConcept.value.iri, name: selectedGeneralConcept.value.name }];
   }
   if (selectedPath.value) editMatch.value = selectedPath.value;
 }

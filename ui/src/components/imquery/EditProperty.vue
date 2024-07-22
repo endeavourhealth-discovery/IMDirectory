@@ -1,39 +1,59 @@
 <template>
   <div class="property-container">
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-14rem" disabled />
-    <ConceptSelect
-      v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'"
-      :datatype="selectedProperty.valueType"
-      :property="property"
-      :data-model-iri="dataModelIri"
-      class="concept-select"
-    />
+    <span v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'">
+      <span class="is-title"> is </span>
+      <span v-if="property.valueLabel">
+        <InputText :value="property.valueLabel" @click="showBuildFeatureDialog = true" />
+      </span>
+
+      <span v-else-if="isArrayHasLength(property.is)" @click="showBuildFeatureDialog = true">
+        <InputText :value="computedInstanceOfDisplay" />
+      </span>
+      <AddNewFeatureDialog
+        v-model:show-dialog="showBuildFeatureDialog"
+        :dataModelIri="dataModelIri"
+        :header="'Add new feature'"
+        :show-variable-options="false"
+        :can-clear-path="false"
+        :has-next-step="false"
+        :match="editMatch"
+        :isList="property.is"
+        :show-type-filters="false"
+        @on-match-add="onMatchAdd"
+      />
+    </span>
+
     <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :datatype="selectedProperty.valueType" :property="property" />
     <Button v-if="showDelete" @click="$emit('deleteProperty')" severity="danger" icon="fa-solid fa-trash" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Where } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import { UIProperty } from "@im-library/interfaces";
-import { Ref, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
 import { cloneDeep } from "lodash-es";
 import ConceptSelect from "./ConceptSelect.vue";
-import { SHACL } from "@im-library/vocabulary";
+import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { convertTTPropertyToUIProperty } from "@im-library/helpers/Transforms";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import { convertTTPropertyToUIProperty, convertUIPropertyFromDMConcept } from "@im-library/helpers/Transforms";
+import { getNameFromIri, getNameFromRef } from "@im-library/helpers/TTTransform";
+import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 
 interface Props {
   property: Where;
   dataModelIri: string;
   showDelete?: boolean;
+  editMatch: Match;
 }
 
 const props = withDefaults(defineProps<Props>(), { showDelete: true });
 const selectedProperty: Ref<UIProperty | undefined> = ref();
+const showBuildFeatureDialog: Ref<boolean> = ref(false);
+const computedInstanceOfDisplay: ComputedRef<string> = computed(() => props.property.is!.map(is => getNameFromRef(is)).join(", "));
 const emit = defineEmits({ deleteProperty: () => true });
 
 onMounted(async () => {
@@ -55,8 +75,9 @@ async function init() {
 }
 
 async function getProperty(dmIri: string, propIri: string) {
+  const conceptProp = IM.NAMESPACE + "concept";
   const uiProps: UIProperty[] = [];
-  const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY]);
+  const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY, conceptProp]);
   if (isArrayHasLength(propertiesEntity[SHACL.PROPERTY]))
     for (const ttprop of propertiesEntity[SHACL.PROPERTY]) {
       const uiProperty = convertTTPropertyToUIProperty(ttprop);
@@ -66,8 +87,17 @@ async function getProperty(dmIri: string, propIri: string) {
       uiProps.push(uiProperty);
     }
 
+  if (isArrayHasLength(propertiesEntity[conceptProp])) {
+    const uiProperty = convertUIPropertyFromDMConcept(propertiesEntity[conceptProp][0]["@id"]);
+    uiProps.push(uiProperty);
+  }
+
   const found = uiProps.find(prop => prop.iri === props.property["@id"]);
   if (found) return found;
+}
+
+function onMatchAdd(updatedMatch: Match) {
+  props.editMatch.where = updatedMatch.where;
 }
 </script>
 
@@ -99,5 +129,9 @@ async function getProperty(dmIri: string, propIri: string) {
 
 .concept-select {
   width: 100%;
+}
+
+.is-title {
+  padding: 1rem;
 }
 </style>

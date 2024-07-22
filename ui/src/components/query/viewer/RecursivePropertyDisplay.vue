@@ -26,8 +26,7 @@
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Node, Query, Where } from "@im-library/interfaces/AutoGen";
-import { Ref } from "vue";
-import { ref } from "vue";
+import { Ref, ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
 import RecursiveQueryDisplay from "./RecursiveQueryDisplay.vue";
@@ -66,7 +65,7 @@ function onPropertyInClick(property: Where, event: any) {
 
 function getFullList(property: Where) {
   let fullList: Node[] = [];
-  if (isArrayHasLength(property.instanceOf)) fullList = fullList.concat(property.instanceOf!);
+  if (isArrayHasLength(property.is)) fullList = fullList.concat(property.is!);
   return fullList;
 }
 

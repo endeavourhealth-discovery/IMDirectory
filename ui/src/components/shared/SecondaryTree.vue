@@ -57,6 +57,7 @@
           <span class="tree-node-label" data-testid="row-label" @mouseover="showPopup($event, node.data, node)" @mouseleave="hidePopup($event)">{{
             node.label
           }}</span>
+          <Button icon="fa-regular fa-square-plus" text @click.stop="emit('onSelect', node.data)" v-tooltip="'Add to list'" data-testid="add-button" />
         </div>
       </template>
     </Tree>
@@ -115,12 +116,14 @@ import { TreeNode } from "primevue/treenode";
 
 interface Props {
   entityIri: string;
+  showSelect?: boolean;
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  navigateTo: (_payload: string) => true
+  navigateTo: (_payload: string) => true,
+  onSelect: (_payload: string) => true
 });
 
 const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, loadMore } = setupTree();

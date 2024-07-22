@@ -80,6 +80,7 @@ export function describeMatch(match: Match, index: number, includeLogicDesc: boo
   if (match.then) {
     describeMatch(match.then, 0, includeLogicDesc, Bool.and, "then");
   }
+  match.description = display;
   if (!match.name) {
     match.name = display;
   }
@@ -120,7 +121,7 @@ export function getDisplayFromMatch(match: Match, includeLogicDesc: boolean, mat
     display += getDisplaySuffixFromEntailment(match.typeOf);
   } else if (isArrayHasLength(match.instanceOf)) {
     for (const [index, instanceOf] of match.instanceOf!.entries()) {
-      display = (display != "" ? " or " : "") + (instanceOf.memberOf ? "is member of " : "is  ") + getNameFromRef(instanceOf);
+      display += (display != "" ? " or " : "") + (instanceOf.memberOf ? "is member of " : "is  ") + getNameFromRef(instanceOf);
       display += getDisplaySuffixFromEntailment(instanceOf);
     }
   } else if (!match.where && match["@id"] && match.name) {
@@ -183,7 +184,7 @@ export function getDisplayFromProperty(property: Where, matchType?: MatchType) {
         if (totalNumberOfNodes === 1) display += " " + property.valueLabel;
         else display += " " + getDisplayFromNodeRef(property.valueLabel);
       } else {
-        if (property.instanceOf) display += " " + getDisplayFromList(true, property.instanceOf);
+        if (property.is) display += " " + getDisplayFromList(true, property.is);
       }
     }
     if (property.operator) display = getDisplayFromOperator(propertyName, property);
@@ -201,12 +202,12 @@ export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchTyp
 }
 
 function isPropertyValueList(property: Where) {
-  return isArrayHasLength(property.instanceOf);
+  return isArrayHasLength(property.is);
 }
 
 export function getNumberOfListItems(property: Where) {
   let totalNumberOfNodes = 0;
-  if (isArrayHasLength(property.instanceOf)) totalNumberOfNodes += property.instanceOf!.length;
+  if (isArrayHasLength(property.is)) totalNumberOfNodes += property.is!.length;
   return totalNumberOfNodes;
 }
 

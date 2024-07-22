@@ -270,7 +270,7 @@ export function entityToAliasEntity(ttEntity: any) {
   }
 }
 
-export function convertTTPropertyToUIProperty(ttproperty: any, propertyName?: string) {
+export function convertTTPropertyToUIProperty(ttproperty: any, propertyName?: string): UIProperty {
   const uiProperty = {} as UIProperty;
   if (ttproperty[SHACL.MAXCOUNT]) uiProperty.maxCount = ttproperty[SHACL.MAXCOUNT];
   if (ttproperty[SHACL.MINCOUNT]) uiProperty.minCount = ttproperty[SHACL.MINCOUNT];
@@ -292,6 +292,10 @@ export function convertTTPropertyToUIProperty(ttproperty: any, propertyName?: st
     uiProperty.iri = ttproperty[SHACL.PATH]![0]["@id"];
   }
   return uiProperty;
+}
+
+export function convertUIPropertyFromDMConcept(range: string, propertyName?: string): UIProperty {
+  return { propertyType: "class", valueType: range, propertyName: propertyName ?? "concept", iri: IM.NAMESPACE + "concept" } as UIProperty;
 }
 
 export default {

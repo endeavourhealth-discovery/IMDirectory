@@ -57,6 +57,7 @@ import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   queryDefinition?: Query;
@@ -116,12 +117,14 @@ async function onSaveChanges(editMatch: Match) {
     if (describedMatch.match) selectedMenuItem.value.editMatch.match = describedMatch.match;
     if (describedMatch.then) selectedMenuItem.value.editMatch.then = describedMatch.then;
     if (describedMatch.groupBy) selectedMenuItem.value.editMatch.groupBy = describedMatch.groupBy;
+    if (describedMatch.orderBy) selectedMenuItem.value.editMatch.orderBy = describedMatch.orderBy;
     if (isObjectHasKeys(describedMatch, ["exclude"])) selectedMenuItem.value.editMatch.exclude = describedMatch.exclude;
     if (describedMatch.instanceOf) selectedMenuItem.value.editMatch.instanceOf = describedMatch.instanceOf;
     if (isObjectHasKeys(describedMatch, ["nodeRef"])) selectedMenuItem.value.editMatch.nodeRef = describedMatch.nodeRef;
     if (describedMatch.typeOf) selectedMenuItem.value.editMatch.typeOf = describedMatch.typeOf;
     if (isObjectHasKeys(describedMatch, ["name"])) selectedMenuItem.value.editMatch.name = describedMatch.name;
     if (isObjectHasKeys(describedMatch, ["description"])) selectedMenuItem.value.editMatch.description = describedMatch.description;
+    describeMatch(selectedMenuItem.value.editMatch, 0, false);
   }
 }
 </script>

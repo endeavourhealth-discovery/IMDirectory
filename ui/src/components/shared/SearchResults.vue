@@ -40,9 +40,12 @@
       :pageSize="rows"
       :im-query="imQuery"
       :disablePageDropdown="disablePageDropdown"
+      :show-select="showSelect"
       @rowSelected="updateSelected"
-      @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+      @locateInTree="(iri: string) => emit('locateInTree', iri)"
       @searchResultsUpdated="(searchResults: SearchResponse | undefined) => $emit('searchResultsUpdated', searchResults)"
+      @viewHierarchy="(iri: string) => emit('viewHierarchy', iri)"
+      @addToList="(iri: string) => emit('addToList', iri)"
     />
   </div>
 </template>
@@ -67,6 +70,7 @@ interface Props {
   selectedQuickTypeFilter?: string;
   imQuery?: QueryRequest;
   disablePageDropdown?: boolean;
+  showSelect?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
@@ -79,7 +83,9 @@ const emit = defineEmits({
   selectedUpdated: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
   selectedFiltersUpdated: (_payload: FilterOptions) => true,
-  searchResultsUpdated: (_payload: SearchResponse | undefined) => true
+  searchResultsUpdated: (_payload: SearchResponse | undefined) => true,
+  addToList: (_payload: string) => true,
+  viewHierarchy: (_payload: string) => true
 });
 
 const filterStore = useFilterStore();

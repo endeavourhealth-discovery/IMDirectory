@@ -17,25 +17,25 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
 
 export function addStatusFilterToIMQuery(status: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const statusMatch: Match = { where: [{ "@id": IM.HAS_STATUS, instanceOf: status }] };
+  const statusMatch: Match = { where: [{ "@id": IM.HAS_STATUS, is: status }] };
   imQuery.query.match!.push(statusMatch);
 }
 
-export function addTypeFilterToIMQuery(types: TTIriRef[], imQuery: QueryRequest) {
+export function addTypeFilterToIMQuery(types: TTIriRef[], imQuery: QueryRequest, withSubTypes?: boolean) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const typeMatch: Match = { where: [{ "@id": RDF.TYPE, instanceOf: types }] };
+  const typeMatch: Match = { where: [{ "@id": RDF.TYPE, is: types }] };
   imQuery.query.match!.push(typeMatch);
 }
 
 export function addSchemeFilterToIMQuery(schemes: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const schemeMatch: Match = { where: [{ "@id": IM.HAS_SCHEME, instanceOf: schemes }] };
+  const schemeMatch: Match = { where: [{ "@id": IM.HAS_SCHEME, is: schemes }] };
   imQuery.query.match!.push(schemeMatch);
 }
 
 export function addIsaToIMQuery(isAs: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const isAMatch: Match = { where: [{ "@id": IM.IS_A, instanceOf: isAs }] };
+  const isAMatch: Match = { where: [{ "@id": IM.IS_A, is: isAs }] };
   imQuery.query.match!.push(isAMatch);
 }
 
@@ -49,7 +49,7 @@ export function addSortingToIMQuery(sortingField: TTIriRef, sortDirection: TTIri
 
 export function addMemberOfToIMQuery(memberOfs: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const memberOfMatch: Match = { where: [{ "@id": IM.IS_MEMBER_OF, instanceOf: memberOfs }] };
+  const memberOfMatch: Match = { where: [{ "@id": IM.IS_MEMBER_OF, is: memberOfs }] };
   imQuery.query.match!.push(memberOfMatch);
 }
 
@@ -65,11 +65,11 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
             where: [
               {
                 "@id": SHACL.PATH,
-                instanceOf: [{ "@id": searchBinding.path?.["@id"] }]
+                is: [{ "@id": searchBinding.path?.["@id"] }]
               },
               {
                 "@id": SHACL.NODE,
-                instanceOf: [{ "@id": searchBinding.node?.["@id"] }]
+                is: [{ "@id": searchBinding.node?.["@id"] }]
               }
             ]
           }
