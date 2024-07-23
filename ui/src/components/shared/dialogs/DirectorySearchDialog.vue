@@ -4,7 +4,7 @@
     modal
     maximizable
     header="Search"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--p-surface-section)' }"
+    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
     class="search-dialog"
     @keyup.enter="onEnter"
   >
@@ -296,7 +296,6 @@ function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
 
 .search-bar {
   min-height: 3.5rem;
-  background-color: var(--p-surface-100);
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
