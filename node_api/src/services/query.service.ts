@@ -6,7 +6,7 @@ import { EclSearchRequest, Query, QueryRequest, SearchResponse, TTIriRef } from 
 import { IM, QUERY, SHACL } from "@im-library/vocabulary";
 import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
-import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescriptor";
+import { describeQuery } from "@im-library/helpers/QueryDescriptor";
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import IMQtoSQL from "@/logic/IMQtoSQL";
@@ -174,51 +174,6 @@ export default class QueryService {
         }
       } else return [];
     }
-  }
-
-  public async getQueryDisplay(queryIri: string, includeLogicDesc: boolean) {
-    const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
-    if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION])) {
-      return {};
-    }
-    const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
-    return await this.getQueryDisplayFromQuery(query, includeLogicDesc);
-  }
-
-  public async getQueryDisplayFromQuery(query: Query, includeLogicDesc: boolean) {
-    const labeledQuery = await this.getLabeledQuery(query);
-    const queryWithMatchIds = generateMatchIds(labeledQuery);
-    return await this.generateQueryDescriptions(queryWithMatchIds, includeLogicDesc);
-  }
-
-  public async getLabeledQuery(query: Query) {
-    const sparqlStart = "SELECT ?s ?o {" + " ?s rdfs:label ?o " + "VALUES ?s { ";
-    let sparqlBody = "";
-    const sparqlEnd = "} }";
-
-    const unnamedObjects = getUnnamedObjects(query);
-    for (const iri of Object.keys(unnamedObjects)) {
-      if (!iri.includes(" ")) sparqlBody += "<" + iri + "> ";
-    }
-    const completeQuery = sparqlStart + sparqlBody + sparqlEnd;
-    const iriToNameMap = new Map<string, string>();
-
-    const rs = await this.graph.execute(completeQuery);
-
-    if (isArrayHasLength(rs))
-      for (const r of rs)
-        if (isArrayHasLength(Object.keys(r)))
-          if (isObjectHasKeys(r, ["s", "o"])) {
-            if (r.s.id && r.o.id) iriToNameMap.set(r.s.id, r.o.id.replaceAll('"', ""));
-          }
-
-    for (const iri of Object.keys(unnamedObjects)) {
-      for (const unnamedObject of unnamedObjects[iri]) {
-        unnamedObject.name = iriToNameMap.get(iri) ?? getNameFromRef(unnamedObject);
-      }
-    }
-
-    return query;
   }
 
   public async generateQueryDescriptions(query: Query, includeLogicDesc: boolean): Promise<Query> {

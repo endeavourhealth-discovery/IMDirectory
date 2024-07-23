@@ -19,18 +19,6 @@ export default class QueryController {
   }
 
   private initRoutes() {
-    this.router.get("/public/queryDisplay", (req, res, next) =>
-      this.getQueryDisplay(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
-
-    this.router.post("/public/queryDisplayFromQuery", (req, res, next) =>
-      this.getQueryDisplayFromQuery(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
-
     this.router.get("/public/allowableChildTypes", (req, res, next) =>
       this.getAllowableChildTypes(req)
         .then(data => res.send(data))
@@ -38,12 +26,6 @@ export default class QueryController {
     );
     this.router.get("/public/propertyRange", (req, res, next) =>
       this.getPropertyRange(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
-
-    this.router.post("/public/labeledQuery", (req, res, next) =>
-      this.getLabeledQuery(req)
         .then(data => res.send(data))
         .catch(next)
     );
@@ -73,24 +55,6 @@ export default class QueryController {
 
   async getPropertyRange(req: Request) {
     return await this.queryService.getPropertyRange(req.query.propIri as string);
-  }
-
-  async getQueryDisplay(req: Request) {
-    const queryIri: string = req.query.queryIri as string;
-    const includeLogicDesc: boolean = req.query.includeLogicDesc === "true";
-    return await this.queryService.getQueryDisplay(queryIri, includeLogicDesc);
-  }
-
-  async getQueryDisplayFromQuery(req: Request) {
-    const query: Query = req.body;
-    const includeLogicDesc: boolean = req.query.includeLogicDesc === "true";
-    if (!isObjectHasKeys(query)) return undefined;
-    return await this.queryService.getQueryDisplayFromQuery(query, includeLogicDesc);
-  }
-
-  async getLabeledQuery(req: Request) {
-    const query: any = req.body;
-    return await this.queryService.getLabeledQuery(query);
   }
 
   async generateQuerySQL(req: Request) {
