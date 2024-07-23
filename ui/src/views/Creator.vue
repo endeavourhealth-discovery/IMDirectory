@@ -531,7 +531,7 @@ function processEntityValue(property: PropertyShape) {
 }
 
 .sidebar-toggle {
-  position: absolute;
+  position: absolute !important;
   top: 0.5rem;
   right: 0.5rem;
 }

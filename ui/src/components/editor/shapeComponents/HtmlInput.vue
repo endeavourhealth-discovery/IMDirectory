@@ -137,7 +137,6 @@ function hasData() {
 
 <style scoped>
 .html-input-container {
-  min-width: 25rem;
   flex: 1 1 auto;
   flex-flow: column nowrap;
 }

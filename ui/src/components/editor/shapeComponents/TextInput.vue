@@ -148,7 +148,6 @@ function hasData() {
   flex-flow: column nowrap;
 }
 .input-text {
-  min-width: 25rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;

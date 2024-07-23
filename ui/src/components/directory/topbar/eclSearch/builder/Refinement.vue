@@ -462,14 +462,14 @@ async function updateValue(value: SearchResultSummary | undefined) {
   margin: 0;
   color: var(--p-text-color);
   background: var(--p-content-background);
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--p-textarea-border-color);
   transition:
     background-color 0.2s,
     color 0.2s,
     border-color 0.2s,
     box-shadow 0.2s;
   appearance: none;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   height: 2.2rem;
   display: flex;
   flex-flow: column;
@@ -502,6 +502,6 @@ async function updateValue(value: SearchResultSummary | undefined) {
 
 .invalid {
   border: 1px solid var(--p-red-500);
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
 }
 </style>

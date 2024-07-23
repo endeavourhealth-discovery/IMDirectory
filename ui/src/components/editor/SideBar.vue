@@ -116,7 +116,7 @@ function downloadRequested(data: { term: string; count: number }) {
   flex: 0 1 auto;
   width: 100%;
   overflow: auto;
-  border: 1px var(--p-surface-border) solid;
-  border-radius: 3px;
+  border: 1px var(--p-textarea-border-color) solid;
+  border-radius: var(--p-textarea-border-radius);
 }
 </style>

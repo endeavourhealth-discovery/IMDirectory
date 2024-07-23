@@ -95,7 +95,7 @@ async function generateSQL() {
 .query-display {
   max-height: 100vh;
   overflow-y: auto;
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--p-textarea-border-color);
 }
 
 .rec-query-display {

@@ -72,7 +72,7 @@ function toggleAvatarSelect(event: any): void {
 
 #selected-avatar {
   width: 10rem;
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--p-textarea-border-color);
   border-radius: 50%;
 }
 
@@ -106,6 +106,6 @@ function toggleAvatarSelect(event: any): void {
 
 .avatar-popup div div .p-button {
   margin: 2px;
-  border-right: 1px solid var(--p-surface-border) !important;
+  border-right: 1px solid var(--p-textarea-border-color) !important;
 }
 </style>

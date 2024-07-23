@@ -231,7 +231,7 @@ function hasData() {
 
 .label-container {
   flex: 1 1 auto;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   width: 100%;
   display: flex;
   flex-flow: row nowrap;
@@ -240,8 +240,8 @@ function hasData() {
 
 .label {
   cursor: pointer;
-  border: 1px solid var(--p-surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   background-color: var(--p-content-background);
   padding: 0.25rem;
 }
@@ -256,7 +256,6 @@ function hasData() {
 
 .search-text {
   flex: 1 1 auto;
-  min-width: 25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -265,14 +264,14 @@ function hasData() {
   margin: 0;
   color: var(--p-text-color);
   background: var(--p-content-background);
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--p-textarea-border-color);
   transition:
     background-color 0.2s,
     color 0.2s,
     border-color 0.2s,
     box-shadow 0.2s;
   appearance: none;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   cursor: pointer;
   height: 2.7rem;
   display: flex;

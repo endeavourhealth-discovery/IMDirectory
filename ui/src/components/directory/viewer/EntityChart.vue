@@ -105,7 +105,7 @@ async function getGraph(iri: string): Promise<void> {
 <style scoped>
 td,
 th {
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--p-textarea-border-color);
   padding: 0.5rem;
   overflow-wrap: break-word;
   text-align: left;
@@ -126,7 +126,7 @@ th[scope="col"] {
 
 table {
   border-collapse: collapse;
-  border: 2px solid var(--p-surface-border);
+  border: 2px solid var(--p-textarea-border-color);
 }
 
 .p-organizationchart {

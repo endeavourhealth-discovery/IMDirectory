@@ -17,7 +17,7 @@
           display="chip"
         />
       </div>
-      <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
+      <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" :style="{ width: '2rem', height: '2rem' }" />
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
@@ -219,7 +219,6 @@ function hasData() {
 .multiselect-loading-container {
   display: flex;
   flex-flow: row wrap;
-  min-width: 25rem;
   align-items: flex-start;
   height: fit-content;
 }
@@ -242,7 +241,7 @@ function hasData() {
   flex: 0 1 auto;
 }
 
-.p-progress-spinner {
+.p-progressspinner {
   width: 2rem;
   height: 2rem;
 }

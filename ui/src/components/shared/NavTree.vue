@@ -198,8 +198,10 @@ async function addRootEntitiesToTree() {
   root.value = [];
   for (const item of props.rootEntities) {
     const itemSummary = await EntityService.getEntityAsEntityReferenceNode(item);
-    const hasNode = !!root.value.find(node => node.data === itemSummary["@id"]);
-    if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary["@id"], itemSummary.type, itemSummary.hasGrandChildren, null));
+    if (itemSummary) {
+      const hasNode = !!root.value.find(node => node.data === itemSummary["@id"]);
+      if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary["@id"], itemSummary.type, itemSummary.hasGrandChildren, null));
+    }
   }
   root.value.sort(byKey);
 }

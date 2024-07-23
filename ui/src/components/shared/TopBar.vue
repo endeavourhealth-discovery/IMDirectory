@@ -437,6 +437,7 @@ function showReleaseNotes() {
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
+  border-bottom: 1px solid var(--p-content-border-color);
 }
 
 #topbar-start {

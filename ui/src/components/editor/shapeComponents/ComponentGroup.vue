@@ -99,8 +99,8 @@ function setProperties(shape: PropertyShape) {
   width: 100%;
   flex: 1 1 auto;
   padding: 1rem;
-  border: 1px solid var(--p-surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
