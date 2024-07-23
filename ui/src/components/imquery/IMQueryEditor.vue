@@ -7,7 +7,7 @@
           class="base-type-autocomplete"
           v-model:selected="selectedBaseType"
           :im-query="imQueryForBaseType"
-          :root-entities="['http://endhealth.info/im#DataModelClasses']"
+          :root-entities="['http://endhealth.info/im#DataModels', 'http://endhealth.info/im#Q_Queries']"
         />
       </div>
     </div>
