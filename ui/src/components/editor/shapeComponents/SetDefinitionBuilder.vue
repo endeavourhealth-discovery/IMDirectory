@@ -357,7 +357,7 @@ Textarea {
 }
 
 .ecl-tabview {
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--p-textarea-border-color);
 }
 
 .ecl-panel {

@@ -328,7 +328,7 @@ async function addBaseEntityToRoot(iri: string) {
   min-width: 2rem;
 }
 
-.tree-row .p-progress-spinner {
+.tree-row .p-progressspinner {
   width: 1.25em !important;
   height: 1.25em !important;
 }

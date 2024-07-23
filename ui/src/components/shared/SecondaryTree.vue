@@ -350,10 +350,10 @@ function navigate(event: any, iri: string): void {
 
 #secondary-tree-bar-container {
   flex: 1 1 auto;
-  border-top: 1px solid var(--p-surface-border);
+  border-top: 1px solid var(--p-textarea-border-color);
 }
 
-.p-progress-spinner {
+.p-progressspinner {
   width: 1.25em !important;
   height: 1.25em !important;
 }

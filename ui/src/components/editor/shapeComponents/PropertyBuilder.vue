@@ -535,7 +535,7 @@ function updateEntity() {
 .error-message-container-highlight {
   padding: 0.3rem;
   border: 1px solid red;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
 }
 
 .toggle-button {

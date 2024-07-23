@@ -367,15 +367,15 @@ function hasData() {
 .label-container {
   width: 100%;
   flex: 1 1 auto;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   position: relative;
   min-width: 15rem;
 }
 
 .label {
   cursor: pointer;
-  border: 1px solid var(--p-surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   background-color: var(--p-content-background);
   padding: 0.25rem;
 }

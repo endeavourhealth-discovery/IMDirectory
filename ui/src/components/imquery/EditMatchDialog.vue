@@ -306,8 +306,8 @@ function onAddFunctionProperty(property: string, value: any) {
 
 .imquery-output-string {
   background-color: var(--p-content-background);
-  border: 1px solid var(--p-surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   padding: 1rem;
   margin: 0;
   height: 100%;
@@ -332,8 +332,8 @@ function onAddFunctionProperty(property: string, value: any) {
 
 .imquery-description {
   background-color: var(--p-content-background);
-  border: 1px solid var(--p-surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   padding: 1rem;
   margin: 0;
   height: 100%;

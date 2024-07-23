@@ -38,7 +38,7 @@ function showCookieSettings() {
   display: flex;
   flex-flow: row nowrap;
   overflow: hidden;
-  border-top: 1px solid var(--p-surface-border);
+  border-top: 1px solid var(--p-content-border-color);
 }
 
 #footer-start {

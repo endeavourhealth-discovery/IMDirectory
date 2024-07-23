@@ -73,14 +73,14 @@ function onMatchAdd(updatedMatch: Match) {
   margin: 0;
   color: var(--p-text-color);
   background: var(--p-content-background);
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--p-textarea-border-color);
   transition:
     background-color 0.2s,
     color 0.2s,
     border-color 0.2s,
     box-shadow 0.2s;
   appearance: none;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   height: 2.7rem;
   display: flex;
   flex-flow: column;

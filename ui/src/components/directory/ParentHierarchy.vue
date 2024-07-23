@@ -119,8 +119,8 @@ function onClick(event: any, item: any) {
 
 .padding-container {
   background: var(--p-content-background);
-  border: 1px solid var(--p-surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   overflow: a;
 }
 

@@ -203,7 +203,6 @@ function hasData() {
   flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  min-width: 25rem;
   height: fit-content;
 }
 .label-content-container {

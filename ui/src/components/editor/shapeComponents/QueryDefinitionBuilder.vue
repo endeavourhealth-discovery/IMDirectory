@@ -153,8 +153,9 @@ function updateEntity() {
 .query-editor {
   height: 60vh;
   overflow-y: auto;
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--p-textarea-border-color);
   background-color: var(--p-default);
+  border-radius: var(--p-content-border-radius);
 }
 
 .validate-error {

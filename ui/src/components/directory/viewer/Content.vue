@@ -223,7 +223,7 @@ function locateInTree(iri: string) {
 }
 
 .row-button:hover {
-  background-color: var(--p-surface-border) !important;
+  background-color: var(--p-textarea-border-color) !important;
   color: var(--p-content-background) !important;
 }
 

@@ -345,7 +345,7 @@ function handleMatchedToToggle(event: any, data: any) {
 <style scoped>
 td,
 th {
-  border: 1px solid var(--p-surface-border);
+  border: 1px solid var(--p-textarea-border-color);
   padding: 0.5rem;
   text-align: left;
   overflow-wrap: break-word;
@@ -362,7 +362,7 @@ th[scope="col"] {
 
 table {
   border-collapse: collapse;
-  border: 2px solid var(--p-surface-border);
+  border: 2px solid var(--p-textarea-border-color);
 }
 
 .p-organizationchart {

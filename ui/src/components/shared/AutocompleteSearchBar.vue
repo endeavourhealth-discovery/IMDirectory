@@ -241,7 +241,6 @@ function onListboxOptionClick(event: any, selected: SearchResultSummary) {
 
 #autocomplete-search {
   font-size: 1rem;
-  border: none;
   height: 2.25rem;
   flex: 1 1 auto;
   width: 100%;
@@ -249,7 +248,6 @@ function onListboxOptionClick(event: any, selected: SearchResultSummary) {
 
 .autocomplete-search {
   font-size: 1rem;
-  border: none;
   height: 2.25rem;
   flex: 1 1 auto;
   width: 100%;

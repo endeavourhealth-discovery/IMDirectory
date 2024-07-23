@@ -344,7 +344,7 @@ span.error-message {
 
 div.error-message {
   border: 1px solid red;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
 }
 
 #role-group-builder h2 {
@@ -381,7 +381,7 @@ div.error-message {
 
 .concept-colours {
   border: #d2b33f30 1px solid;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   background-color: #d2b33f10;
 }
 

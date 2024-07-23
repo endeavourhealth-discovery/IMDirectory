@@ -178,7 +178,6 @@ function hasData() {
   flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  min-width: 25rem;
   align-items: center;
   height: fit-content;
 }
@@ -199,7 +198,7 @@ function hasData() {
   flex: 0 0 auto;
 }
 
-.p-progress-spinner {
+.p-progressspinner {
   width: 2rem;
   height: 2rem;
 }

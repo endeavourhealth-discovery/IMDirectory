@@ -210,7 +210,7 @@ function hasData() {
 .loading-icon {
   flex: 0 0 auto;
 }
-.p-progress-spinner {
+.p-progressspinner {
   width: 2rem;
   height: 2rem;
 }

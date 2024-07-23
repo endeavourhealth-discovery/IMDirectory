@@ -300,7 +300,6 @@ function hasData() {
   flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  min-width: 25rem;
   height: fit-content;
 }
 .label-content-container {
@@ -339,8 +338,8 @@ function hasData() {
   flex-flow: row nowrap;
   align-items: center;
   padding: 0.625rem 0.625rem;
-  border: 1px solid var(--p-surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
 }
 
 .loading-icon {
