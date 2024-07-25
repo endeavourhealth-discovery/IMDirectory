@@ -105,10 +105,10 @@ async function onNodeExpand(node: TreeNode) {
               if (child.children && !child.children.includes(newChild)) child.children!.push(newChild);
             }
           }
-          await setIconData(node);
           child.loading = false;
         }
       }
+      await setIconData(node);
     }
   }
 }
