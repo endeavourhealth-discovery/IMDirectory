@@ -89,26 +89,30 @@ async function onNodeExpand(node: TreeNode) {
         if (child.type === "or") expandedKeys.value[child.key!] = true;
         if (child.children && !child.children.length) {
           child.loading = true;
-          if (isObjectHasKeys(child.data, ["type"])) {
-            for (const [index, type] of child.data.type.entries()) {
-              const newChild = {
-                key: child.key + "-" + index.toString(),
-                label: type.name,
-                children: [] as TreeNode[],
-                selectable: true,
-                type: "type",
-                loading: false,
-                data: {
-                  iri: type["@id"]
-                }
-              } as TreeNode;
-              if (child.children && !child.children.includes(newChild)) child.children!.push(newChild);
-            }
-          }
-          await setIconData(node);
+          processChildTypes(child);
           child.loading = false;
         }
       }
+      await setIconData(node);
+    }
+  }
+}
+
+function processChildTypes(child: TreeNode) {
+  if (isObjectHasKeys(child.data, ["type"])) {
+    for (const [index, type] of child.data.type.entries()) {
+      const newChild = {
+        key: child.key + "-" + index.toString(),
+        label: type.name,
+        children: [] as TreeNode[],
+        selectable: true,
+        type: "type",
+        loading: false,
+        data: {
+          iri: type["@id"]
+        }
+      } as TreeNode;
+      if (child.children && !child.children.includes(newChild)) child.children!.push(newChild);
     }
   }
 }
