@@ -75,6 +75,7 @@ function setLocalVersion(repoName: string, versionNo: string) {
 async function getLatestReleaseNotes() {
   loadingNotes.value = true;
   const release = await GithubService.getLatestRelease("IMDirectory");
+  release.releaseNotes = release.releaseNotes.map(note => note.replaceAll("%27", "'").replaceAll("%22", '"'));
   if (isObjectHasKeys(release)) releases.value = [release];
   loadingNotes.value = false;
 }
@@ -82,6 +83,7 @@ async function getLatestReleaseNotes() {
 async function getAllRepoReleaseNotes() {
   loadingNotes.value = true;
   const results = await GithubService.getReleases("IMDirectory");
+  results.forEach(res => (res.releaseNotes = res.releaseNotes.map(note => note.replaceAll("%27", "'").replaceAll("%22", '"'))));
   releases.value = results;
   loadingNotes.value = false;
 }

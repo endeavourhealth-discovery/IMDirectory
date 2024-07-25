@@ -4,9 +4,6 @@ import axios from "axios";
 import { RecentActivityItem } from "@im-library/interfaces";
 
 const UserService = {
-  async getUserTheme(): Promise<string> {
-    return await axios.get(Env.API + "api/user/theme");
-  },
   async getUserScale(): Promise<string> {
     return await axios.get(Env.API + "api/user/scale");
   },

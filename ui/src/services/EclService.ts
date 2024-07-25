@@ -13,16 +13,8 @@ const EclService = {
     return results;
   },
 
-  async eclSearchTotalCount(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<number> {
-    return axios.post(Env.API + "api/ecl/public/eclSearchTotalCount", eclSearchRequest, { signal: controller?.signal });
-  },
-
   async getEcl(query: any): Promise<string> {
     return await axios.post(Env.API + "api/ecl/public/ecl", query);
-  },
-
-  async evaluateEclQuery(eclSearchRequest: EclSearchRequest): Promise<any> {
-    return axios.post(Env.API + "api/ecl/public/evaluateEcl", eclSearchRequest, { headers: { "Content-Type": "application/json" } });
   },
 
   async getQueryFromECL(ecl: string, raw: boolean = false): Promise<Query> {

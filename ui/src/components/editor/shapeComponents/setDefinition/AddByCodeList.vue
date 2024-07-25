@@ -62,7 +62,7 @@
 <script setup lang="ts">
 import { computed, ComputedRef, Ref, ref } from "vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { EntityService, ParserService } from "@/services";
+import { EntityService } from "@/services";
 import * as d3 from "d3";
 import { DSVRowArray } from "d3";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
@@ -146,7 +146,7 @@ async function processText() {
   invalidMessage.value = "";
   if (isValidText.value) {
     try {
-      const codeList = await ParserService.getListFromText(text.value);
+      const codeList = getListFromText(text.value);
       if (codeList) entities.value = await getValidatedEntities(codeList);
       else invalidMessage.value = "Entered values are not valid.";
       if (isArrayHasLength(entities.value)) showResultTable.value = true;
@@ -162,7 +162,7 @@ async function processText() {
 async function processUpload() {
   processing.value = true;
   try {
-    const codeList: string[] = await ParserService.getListFromFile(uploadedFiles.value[0].data, selectedColumn.value.data);
+    const codeList: string[] = getListFromFile(uploadedFiles.value[0].data, selectedColumn.value.data);
     entities.value = await getValidatedEntities(codeList);
     if (isArrayHasLength(entities.value)) showResultTable.value = true;
   } catch (error) {
@@ -171,6 +171,32 @@ async function processUpload() {
     }
   }
   processing.value = false;
+}
+
+function getListFromFile(file: any, selectedColumn: string) {
+  let codeList: string[] = [];
+  const headers = [];
+  for (const column of Object.keys(file[0])) {
+    headers.push(column);
+  }
+
+  for (const row of file) {
+    if (selectedColumn) {
+      const rowArray = getListFromText(row[selectedColumn] as string);
+      if (isArrayHasLength(rowArray)) codeList = codeList.concat(rowArray);
+    } else {
+      for (const key of headers) {
+        const rowArray = getListFromText(row[key] as string);
+        if (isArrayHasLength(rowArray)) codeList = codeList.concat(rowArray);
+      }
+    }
+  }
+  return codeList;
+}
+
+function getListFromText(text: string): string[] {
+  const result = text.match(/\d+/g);
+  return result?.filter(code => code.length >= 6) as string[];
 }
 
 function getSeverity(codeStatus?: string) {

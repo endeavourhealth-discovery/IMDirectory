@@ -26,24 +26,6 @@ const UprnService = {
 
   async upload(files: FormData): Promise<any> {
     return axios.post(api + "/api2/fileupload2", files);
-  },
-
-  async assignRegister(user_id: string, name: string, organization: string): Promise<any> {
-    return axios.post(api + "/api2/register", {
-      params: {
-        userid: user_id,
-        organisation: organization,
-        name: name
-      }
-    });
-  },
-
-  async getRegister(user_id: string): Promise<any> {
-    return await axios.get(api + "/api2/getreg", {
-      params: {
-        userid: user_id
-      }
-    });
   }
 };
 

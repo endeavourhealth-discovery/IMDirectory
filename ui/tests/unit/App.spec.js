@@ -44,28 +44,16 @@ vi.mock("primevue/usetoast", () => ({
   })
 }));
 
-let changeThemeMock = vi.fn();
-
-vi.mock("@/composables/setupChangeTheme.ts", () => {
-  return {
-    default: () => ({
-      changeTheme: () => changeThemeMock
-    })
-  };
-});
-
 describe("App.vue", () => {
   let component;
   let getLatestReleaseSpy;
   let testLatestRelease = fakerFactory.githubRelease.create();
-  let getUserThemeSpy;
   let getUserScaleSpy;
   let getCurrentAuthenticatedUserSpy;
 
   beforeEach(async () => {
     vi.resetAllMocks();
     getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
-    getUserThemeSpy = vi.spyOn(UserService, "getUserTheme").mockResolvedValue("saga-orange");
     getUserScaleSpy = vi.spyOn(UserService, "getUserScale").mockResolvedValue("16px");
     getCurrentAuthenticatedUserSpy = vi.spyOn(AuthService, "getCurrentAuthenticatedUser").mockResolvedValue(true);
     component = render(App, {

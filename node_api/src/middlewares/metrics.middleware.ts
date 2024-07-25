@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import graphite from "graphite";
 import * as os from "os";
-import ConfigService from "@/services/config.service";
-import { CONFIG } from "@im-library/vocabulary";
+import axios from "axios";
+import Env from "@/services/env.service";
 
 const metrics: any = {};
 let client: any;
@@ -10,7 +10,7 @@ let client: any;
 async function metricsInterceptor(req: Request, res: Response, next: NextFunction) {
   if (!client) {
     try {
-      const json = await new ConfigService().getConfig(CONFIG.MONITORING);
+      const json = (await axios.get(Env.API + "api/config/public/monitoring")).data;
       const monitoringCfg = JSON.parse(json);
       if (monitoringCfg.graphite) client = graphite.createClient("plaintext://" + monitoringCfg.graphite.address + ":" + monitoringCfg.graphite.port + "/");
       else if (monitoringCfg.console) client = new consoleClient();

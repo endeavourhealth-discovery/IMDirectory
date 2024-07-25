@@ -29,7 +29,6 @@
 
 <script setup lang="ts">
 import { useToast } from "primevue/usetoast";
-import uprnService from "@/services/UprnService";
 import { ref, computed, onMounted, Ref } from "vue";
 import UprnService from "@/services/UprnService";
 import { useUserStore } from "@/stores/userStore";
@@ -50,7 +49,7 @@ async function getActivity() {
   if (currentuser) {
     loading.value = true;
 
-    const result = await uprnService.activity(currentuser.id);
+    const result = await UprnService.activity(currentuser.id);
     if (result) {
       showResults.value = true;
       searchResults.value = result;
