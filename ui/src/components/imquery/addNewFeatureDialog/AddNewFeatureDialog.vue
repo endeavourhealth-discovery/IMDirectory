@@ -1,6 +1,9 @@
 <template>
   <Dialog v-model:visible="visible" modal :header="header" :style="{ minWidth: '100vw', minHeight: '100vh' }">
-    <Stepper value="1" :style="{ minWidth: '50vw' }">
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
+    </div>
+    <Stepper v-else value="1" :style="{ minWidth: '50vw' }">
       <StepList value="0">
         <Step value="1"><PathDisplay v-if="selectedPath" :path="selectedPath" :can-clear-path="canClearPath" @on-clear-path="clearPath" /></Step>
         <Step value="2"></Step>
@@ -15,6 +18,7 @@
               <div class="vertical-divider">
                 <div class="left-container">
                   <NavTree
+                    v-if="rootEntities != undefined"
                     :selectedIri="treeIri"
                     :find-in-tree="findInDialogTree"
                     :root-entities="rootEntities"
@@ -108,6 +112,7 @@ const visible: Ref<boolean> = ref(false);
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
 const selectedPath: Ref<Match | undefined> = ref();
+const loading = ref(true);
 provide("selectedPath", selectedPath);
 
 const selectedValueMap: Ref<Map<string, Node>> = ref(new Map<string, Node>());
@@ -161,6 +166,7 @@ watch(
 onMounted(() => init());
 
 function init() {
+  loading.value = true;
   if (props.isList?.length) {
     for (const isItem of props.isList) selectedValueMap.value.set(isItem["@id"]!, isItem);
   }
@@ -172,6 +178,7 @@ function init() {
   } else {
     selectedPath.value = undefined;
   }
+  loading.value = false;
 }
 
 async function setHasQueryOrFeatureSelected() {

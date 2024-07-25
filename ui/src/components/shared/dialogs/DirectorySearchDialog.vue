@@ -45,6 +45,7 @@
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
             @selected-filters-updated="onSelectedFiltersUpdate"
+            @searchResultsUpdated="updateSearchResults"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -53,7 +54,9 @@
             @navigateTo="navigateTo"
             :showSelectButton="true"
             v-model:history="history"
+            :searchResults
             @selected-updated="updateSelectedFromIri"
+            @go-to-search-results="goToSearchResults"
           />
           <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
           <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
@@ -87,6 +90,7 @@ import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { FilterOptions } from "@im-library/interfaces";
+import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
   showDialog: boolean;
@@ -116,6 +120,8 @@ const emit = defineEmits({
   "update:selected": payload => true,
   updateSelectedFilters: (payload: FilterOptions) => true
 });
+
+const sharedStore = useSharedStore();
 
 const updateSearch: Ref<boolean> = ref(false);
 const hasQueryDefinition: Ref<boolean> = ref(false);
@@ -264,6 +270,14 @@ function onEnter() {
 function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
   emit("updateSelectedFilters", selectedFilters);
   updateSearch.value = !updateSearch.value;
+}
+
+function updateSearchResults(newSearchResults: SearchResponse | undefined) {
+  searchResults.value = newSearchResults;
+}
+
+function goToSearchResults() {
+  activePage.value = 0;
 }
 </script>
 

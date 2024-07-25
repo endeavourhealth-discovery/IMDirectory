@@ -10,10 +10,10 @@
       />
     </div>
     <div id="footer-middle">
-      <router-link to="/privacy" class="footer-link">Privacy policy</router-link>
-      <router-link to="/cookies" class="footer-link">Cookie policy</router-link>
-      <router-link to="/snomedLicense" class="footer-link">Snomed agreement</router-link>
-      <router-link to="/uprn-agreement" class="footer-link">Uprn agreement</router-link>
+      <Button link as="router-link" label="Privacy policy" to="/privacy" class="footer-link" />
+      <Button link as="router-link" label="Cookie policy" to="/cookies" class="footer-link" />
+      <Button link as="router-link" label="Snomed agreement" to="/snomedLicense" class="footer-link" />
+      <Button link as="router-link" label="Uprn agreement" to="/uprn-agreement" class="footer-link" />
     </div>
     <div id="footer-end"></div>
   </div>
@@ -67,15 +67,6 @@ function showCookieSettings() {
   justify-content: flex-start;
   align-items: center;
   padding: 0.5rem;
-}
-
-.footer-link {
-  color: var(--hyperlink-blue);
-  cursor: pointer;
-}
-
-.footer-link:hover {
-  text-decoration: underline;
 }
 
 .footer-icon {

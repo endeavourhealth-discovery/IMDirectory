@@ -21,12 +21,14 @@
           :searchTerm="searchTerm"
           :updateSearch="updateSearch"
           :selected-filter-options="selectedFilterOptions"
-          :rows="100"
+          :rows="50"
+          :searchResults="searchResults"
           @selectedUpdated="routeToSelected"
           @navigateTo="navigateTo"
           @locateInTree="locateInTree"
           @selected-filters-updated="emit('selectedFiltersUpdated', $event)"
           @searchResultsUpdated="updateSearchResults"
+          @goToSearchResults="goToSearchResults"
         >
           <transition :name="route?.meta?.transition || 'fade'" :mode="route?.meta?.mode || 'in-out'">
             <keep-alive>
@@ -70,6 +72,7 @@ const findInTreeBoolean = computed(() => directoryStore.findInTreeBoolean);
 const directoryLoading = computed(() => loadingStore.directoryLoading);
 
 const history: Ref<string[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 
 function updateSplitter(event: any) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
@@ -93,8 +96,12 @@ function locateInTree(iri: string) {
   directoryStore.updateFindInTreeIri(iri);
 }
 
-function updateSearchResults(searchResults: SearchResponse | undefined) {
-  directoryStore.updateSearchResults(searchResults);
+function updateSearchResults(newSearchResults: SearchResponse | undefined) {
+  searchResults.value = newSearchResults;
+}
+
+async function goToSearchResults() {
+  await router.push({ name: "Search" });
 }
 </script>
 

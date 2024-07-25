@@ -1,55 +1,55 @@
 <template>
   <div class="flex flex-column w-full h-full">
     <div class="top-half-component">
-      <Tabs v-if="detailsIri || searchTerm" v-model:value="activePage" class="w-full">
-        <TabList>
-          <Tab value="0">Search</Tab>
-          <Tab value="1">Details</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel value="0">
-            <SearchResults
-              :show-filters="false"
-              :updateSearch="updateSearch"
-              :search-term="searchTerm"
-              :im-query="imQuery"
-              :rows="10"
-              :show-select="true"
-              @selectedUpdated="onSelectedUpdate"
-              @viewHierarchy="onViewHierarchy"
-              @addToList="onSelect"
-            />
-          </TabPanel>
-          <TabPanel value="1">
-            <div class="details-tab" v-if="detailsEntity && detailsIri">
-              <ParentHeader
-                v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
-                :entity="detailsEntity"
-                :showSelect="true"
-                @locateInTree="(iri: string) => $emit('locateInTree', iri)"
-                @viewHierarchy="onViewHierarchy"
-                @addToList="onSelect"
-              />
-              <div class="dm-details" v-if="isRecordModel(detailsEntity[RDF.TYPE])">
-                <div class="view-title"><b>Properties</b></div>
-                <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
-              </div>
+      <SearchResults
+        v-if="activePage === 0"
+        :show-filters="false"
+        :updateSearch="updateSearch"
+        :search-term="searchTerm"
+        :im-query="imQuery"
+        :rows="10"
+        :show-select="true"
+        @selectedUpdated="onSelectedUpdate"
+        @viewHierarchy="onViewHierarchy"
+        @addToList="onSelect"
+        @search-results-updated="updateSearchResults"
+      />
+      <div class="details-tab" v-if="activePage === 1">
+        <div class="to-search-button-container">
+          <Button
+            link
+            v-if="searchResults?.entities?.length"
+            label="Back to search results"
+            icon="fa-solid fa-arrow-left"
+            class="back-to-search"
+            @click="activePage = 0"
+          />
+        </div>
+        <ParentHeader
+          v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
+          :entity="detailsEntity"
+          :showSelect="true"
+          @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+          @viewHierarchy="onViewHierarchy"
+          @addToList="onSelect"
+        />
+        <div class="dm-details" v-if="isRecordModel(detailsEntity?.[RDF.TYPE])">
+          <div class="view-title"><b>Properties</b></div>
+          <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
+        </div>
 
-              <div class="entity-details" v-else>
-                <div class="view-title"><b>Hierarchy tree</b></div>
-                <SecondaryTree :entityIri="detailsIri" :show-select="true" @navigateTo="(iri: string) => (detailsIri = iri)" @onSelect="onSelect" />
-              </div>
-            </div>
+        <div class="entity-details" v-else>
+          <div class="view-title"><b>Hierarchy tree</b></div>
+          <SecondaryTree :entityIri="detailsIri" :show-select="true" @navigateTo="(iri: string) => (detailsIri = iri)" @onSelect="onSelect" />
+        </div>
+      </div>
 
-            <PathSelectDialog
-              v-bind:showDialog="showDialog"
-              :pathSuggestions="pathSuggestions"
-              @onSelectedPath="path => emit('update:selectedPath', path)"
-              @onClose="showDialog = false"
-            />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+      <PathSelectDialog
+        v-bind:showDialog="showDialog"
+        :pathSuggestions="pathSuggestions"
+        @onSelectedPath="path => emit('update:selectedPath', path)"
+        @onClose="showDialog = false"
+      />
     </div>
 
     <SelectedSet class="bottom-half-component" />
@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 import SearchResults from "@/components/shared/SearchResults.vue";
-import { Match, Node, PathQuery, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Match, Node, PathQuery, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { Ref, ref, onMounted, watch, inject } from "vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import { EntityService, QueryService } from "@/services";
@@ -83,10 +83,11 @@ interface Props {
 const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": (payload: Match) => payload, goToNextStep: () => true });
 const props = defineProps<Props>();
 const detailsIri: Ref<string> = ref("");
-const activePage: Ref<string> = ref("0");
+const activePage: Ref<number> = ref(0);
 const detailsEntity: Ref<any> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
 const showDialog: Ref<boolean> = ref(false);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const toast = useToast();
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 
@@ -101,14 +102,14 @@ watch(
   () => detailsIri.value,
   async () => {
     await setEntity();
-    activePage.value = "1";
+    activePage.value = 1;
   }
 );
 
 watch(
   () => props.updateSearch,
   () => {
-    activePage.value = "0";
+    activePage.value = 0;
   }
 );
 
@@ -193,12 +194,16 @@ async function hasFeatureOrQuerySelected() {
 
 function onSelectedUpdate(summary: SearchResultSummary) {
   detailsIri.value = summary.iri;
-  activePage.value = "1";
+  activePage.value = 1;
 }
 
 function onViewHierarchy(iri: string) {
   detailsIri.value = iri;
-  activePage.value = "1";
+  activePage.value = 1;
+}
+
+function updateSearchResults(newSearchResults: SearchResponse | undefined) {
+  searchResults.value = newSearchResults;
 }
 </script>
 

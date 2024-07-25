@@ -3,10 +3,16 @@
     <ProgressSpinner />
   </div>
   <div v-else id="directory-table-container">
-    <router-link v-if="searchResults?.entities?.length" to="/directory/search">
-      <IMFontAwesomeIcon icon="fa-solid fa-arrow-left" />
-      Back to search results
-    </router-link>
+    <div class="to-search-button-container">
+      <Button
+        link
+        v-if="searchResults?.entities?.length"
+        label="Back to search results"
+        icon="fa-solid fa-arrow-left"
+        class="back-to-search"
+        @click="$emit('goToSearchResults')"
+      />
+    </div>
     <div class="header-container">
       <ParentHierarchy
         :entityIri="entity['@id']"
@@ -35,12 +41,13 @@ import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import { useDirectoryStore } from "@/stores/directoryStore";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   selectedIri: string;
   showSelectButton?: boolean;
   history: string[];
+  searchResults?: SearchResponse;
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
 
@@ -48,16 +55,14 @@ const emit = defineEmits({
   navigateTo: (_payload: string) => true,
   locateInTree: (_payload: string) => true,
   "update:history": (_payload: string[]) => true,
-  selectedUpdated: (_payload: string) => true
+  selectedUpdated: (_payload: string) => true,
+  goToSearchResults: () => true
 });
 
 watch(
   () => props.selectedIri,
   async () => await init()
 );
-
-const directoryStore = useDirectoryStore();
-const searchResults = computed(() => directoryStore.searchResults);
 
 const entity: Ref<any> = ref({});
 const loading = ref(true);
@@ -93,5 +98,9 @@ async function init() {
 .header-container {
   display: flex;
   flex-flow: column nowrap;
+}
+
+.back-to-search {
+  padding-bottom: 0;
 }
 </style>
