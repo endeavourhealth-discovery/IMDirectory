@@ -134,8 +134,8 @@ async function setupAxiosInterceptors(axios: any) {
           summary: error.response.data.code,
           detail: error.response.data.debugMessage
         });
-      } else if (error?.response?.status >= 500 && error.code === "ERR_BAD_RESPONSE") {
-        router.push({ name: "ServerOffline" }).then();
+      } else if (error?.response?.status >= 500) {
+        handle5xx(error);
       } else if (error.code === "ERR_CANCELED") {
         return;
       } else {
@@ -175,6 +175,20 @@ function handle403(error: any) {
       severity: "error",
       summary: "Access denied"
     });
+  }
+}
+
+function handle5xx(error: any) {
+  if (error.code === "ERR_BAD_RESPONSE") {
+    if (error.response.data.code === "OpenSearchException") {
+      toast.add({
+        severity: "error",
+        summary: "Error calling OpenSearch",
+        detail: error.response.data.debugMessage
+      });
+    } else router.push({ name: "ServerOffline" }).then();
+  } else if (error.code === "ERR_CANCELED") {
+    return;
   }
 }
 
