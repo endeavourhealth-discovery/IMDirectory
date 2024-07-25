@@ -146,7 +146,7 @@ watch(
 );
 
 watch(
-  () => props.rootEntities,
+  () => cloneDeep(props.rootEntities),
   async () => await init()
 );
 
