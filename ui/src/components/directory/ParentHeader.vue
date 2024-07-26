@@ -2,14 +2,14 @@
   <div class="parent-header-container">
     <div class="title-buttons-container">
       <div class="title-container">
-        <h4 v-if="!showSelect" class="title">
+        <h2 v-if="!showSelect" class="title">
           <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
           <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
-        </h4>
-        <div v-else class="title">
+        </h2>
+        <h2 v-else class="title">
           <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
           <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
-        </div>
+        </h2>
       </div>
       <div class="entity-buttons-container">
         <ActionButtons
