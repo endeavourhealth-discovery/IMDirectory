@@ -1,7 +1,7 @@
 <template>
   <div id="im-query-editor-container">
     <div class="base-type-container">
-      <div class="base-type-title side-title">Base type:</div>
+      <div class="base-type-title side-title">Find all:</div>
       <div class="base-type-value">
         <AutocompleteSearchBar
           class="base-type-autocomplete"
@@ -11,8 +11,8 @@
         />
       </div>
     </div>
-    <div class="feature-container">
-      <div class="feature-title side-title">Features:</div>
+    <div class="feature-container" v-if="selectedBaseType">
+      <div class="feature-title side-title">Where:</div>
       <div class="feature-list">
         <div class="feature-list-container">
           <EditMatch
