@@ -46,6 +46,7 @@
 
       <PathSelectDialog
         v-bind:showDialog="showDialog"
+        :property="propertyIri"
         :pathSuggestions="pathSuggestions"
         @onSelectedPath="path => emit('update:selectedPath', path)"
         @onClose="showDialog = false"
@@ -83,6 +84,7 @@ interface Props {
 const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": (payload: Match) => payload, goToNextStep: () => true });
 const props = defineProps<Props>();
 const detailsIri: Ref<string> = ref("");
+const propertyIri: Ref<TTIriRef | undefined> = ref();
 const activePage: Ref<number> = ref(0);
 const detailsEntity: Ref<any> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
@@ -162,7 +164,7 @@ async function onSelect(iri: string) {
         });
     } else addToSelectedList(iri, entity[RDFS.LABEL]);
   } else {
-    await setQueryPath(iri);
+    await setQueryPath(iri, entity[RDFS.LABEL]);
     if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE])) addToSelectedList(iri, entity[RDFS.LABEL]);
     else if (isProperty(entity[RDF.TYPE])) {
       emit("goToNextStep");
@@ -170,12 +172,15 @@ async function onSelect(iri: string) {
   }
 }
 
-async function setQueryPath(iri: string) {
+async function setQueryPath(iri: string, name: string) {
   if (iri) {
     const pathQuery = { source: { "@id": props.dataModelIri }, target: { "@id": iri } } as PathQuery;
     const response = await QueryService.pathQuery(pathQuery);
     if (response.match.length === 1) emit("update:selectedPath", response.match[0]);
     else if (response.match.length > 1) {
+      console.log("Possible paths:");
+      console.log(pathSuggestions);
+      propertyIri.value = { "@id": iri, name };
       pathSuggestions.value = response.match;
       showDialog.value = true;
     }
