@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" modal :header="header" :style="{ minWidth: '100vw', minHeight: '100vh' }">
+  <Dialog v-model:visible="visible" modal :header="header" :style="{ minWidth: '95vw', minHeight: '95vh' }">
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
