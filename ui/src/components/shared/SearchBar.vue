@@ -13,6 +13,7 @@
         autofocus
         v-on:keyup.enter="onSearch"
         :loading="searchLoading"
+        :pt="{ root: { autocomplete: allowAutocomplete ? 'on' : 'off' } }"
       />
     </InputGroup>
     <SplitButton class="search-button p-button-secondary" @click="onSearch" label="Search" :model="buttonActions" :loading="searchLoading" />
@@ -54,9 +55,11 @@ interface Props {
   showFilters: boolean;
   selectedFilterOptions?: FilterOptions;
   selected?: SearchResultSummary;
+  allowAutocomplete?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
-  showFilters: false
+  showFilters: false,
+  allowAutocomplete: true
 });
 
 const emit = defineEmits({

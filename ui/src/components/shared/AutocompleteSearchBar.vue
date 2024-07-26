@@ -14,6 +14,7 @@
         @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
         @mouseleave="hideOverlay($event)"
         :disabled="disabled"
+        :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
       />
     </IconField>
     <Button severity="info" @click="showDialog = true" icon="pi pi-search" v-tooltip="'Advanced search'" />
@@ -82,9 +83,10 @@ interface Props {
   searchPlaceholder?: string;
   quickTypeFiltersAllowed?: string[];
   selectedQuickTypeFilter?: string;
+  allowBrowserAutocomplete?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[] });
+const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowBrowserAutocomplete: false });
 
 const emit = defineEmits({
   "update:selected": (_payload: SearchResultSummary | undefined) => true,
