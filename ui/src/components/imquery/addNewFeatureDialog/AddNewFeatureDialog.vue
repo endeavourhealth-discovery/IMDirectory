@@ -3,71 +3,56 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <Stepper v-else value="1" :style="{ minWidth: '50vw' }">
-      <StepList value="0">
-        <Step value="1"><PathDisplay v-if="selectedPath" :path="selectedPath" :can-clear-path="canClearPath" @on-clear-path="clearPath" /></Step>
-        <Step value="2"></Step>
-      </StepList>
-      <StepPanels value="0">
-        <StepPanel v-slot="{ activateCallback }: { activateCallback: (num: string) => void }" value="1">
-          <div class="flex flex-column select-property-wrapper">
-            <div class="directory-search-dialog-content">
-              <div class="search-bar">
-                <SearchBarWithRadioFilters :show-type-filters="showTypeFilters" @on-search="onSearch" @on-type-select="onTypeSelect" />
-              </div>
-              <div class="vertical-divider">
-                <div class="left-container">
-                  <NavTree
-                    v-if="rootEntities != undefined"
-                    :selectedIri="treeIri"
-                    :find-in-tree="findInDialogTree"
-                    :root-entities="rootEntities"
-                    @found-in-tree="findInDialogTree = false"
-                    @row-selected="node => (treeIri = node.data)"
-                  />
-                </div>
-                <div class="right-container">
-                  <SearchResultsAndDetails
-                    :selectedIri="treeIri"
-                    :search-term="searchTerm"
-                    :update-search="updateSearch"
-                    :im-query="imQuery"
-                    :data-model-iri="dataModelIri"
-                    v-model:selected-path="selectedPath"
-                    @locate-in-tree="iri => (treeIri = iri)"
-                    @go-to-next-step="activateCallback('2')"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="flex pt-4 justify-content-end next-button">
-            <Button
-              v-if="hasNextStep && !hasQueryOrFeatureSelected"
-              :disabled="!isObjectHasKeys(selectedPath)"
-              label="Next"
-              icon="pi pi-arrow-right"
-              iconPos="right"
-              @click="activateCallback('2')"
+    <div class="flex flex-auto flex-column gap-2 select-property-wrapper">
+      <div v-if="active === 1" class="directory-search-dialog-content">
+        <PathDisplay v-if="selectedPath" :path="selectedPath" :can-clear-path="canClearPath" @on-clear-path="clearPath" />
+        <div class="search-bar">
+          <SearchBarWithRadioFilters :show-type-filters="showTypeFilters" @on-search="onSearch" @on-type-select="onTypeSelect" />
+        </div>
+        <div class="vertical-divider">
+          <div class="left-container">
+            <NavTree
+              v-if="rootEntities != undefined"
+              :selectedIri="treeIri"
+              :find-in-tree="findInDialogTree"
+              :root-entities="rootEntities"
+              @found-in-tree="findInDialogTree = false"
+              @row-selected="node => (treeIri = node.data)"
             />
-            <Button v-else :disabled="!isObjectHasKeys(selectedPath) && !hasQueryOrFeatureSelected" label="Save" iconPos="right" @click="save" />
           </div>
-        </StepPanel>
-        <StepPanel v-slot="{ activateCallback }: { activateCallback: (num: string) => void }" value="2">
-          <EditMatch
-            v-if="editMatch && getLeafMatch(editMatch)"
-            :edit-match="getLeafMatch(editMatch)"
-            :is-root-feature="true"
-            :focused-id="getLeafMatch(editMatch)['@id']"
-          />
-
-          <div class="flex pt-4 justify-content-between populate-property-actions">
-            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback('1')" />
-            <Button label="Save" iconPos="right" @click="save" />
+          <div class="right-container">
+            <SearchResultsAndDetails
+              :selectedIri="treeIri"
+              :search-term="searchTerm"
+              :update-search="updateSearch"
+              :im-query="imQuery"
+              :data-model-iri="dataModelIri"
+              v-model:selected-path="selectedPath"
+              @locate-in-tree="iri => (treeIri = iri)"
+              @go-to-next-step="active = 2"
+            />
           </div>
-        </StepPanel>
-      </StepPanels>
-    </Stepper>
+        </div>
+      </div>
+      <EditMatch
+        v-if="active === 2 && editMatch && getLeafMatch(editMatch)"
+        :edit-match="getLeafMatch(editMatch)"
+        :is-root-feature="true"
+        :focused-id="getLeafMatch(editMatch)['@id']"
+      />
+      <div class="flex flex-0 gap-2 justify-content-end populate-property-actions">
+        <Button label="Cancel" severity="secondary" @click="visible = false" />
+        <Button
+          v-if="active === 1 && hasNextStep && !hasQueryOrFeatureSelected"
+          :disabled="!isObjectHasKeys(selectedPath)"
+          label="Next"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          @click="active = 2"
+        />
+        <Button v-else label="Save" iconPos="right" @click="save" />
+      </div>
+    </div>
   </Dialog>
 </template>
 
@@ -125,6 +110,7 @@ const treeIri = ref("");
 const searchTerm = ref("");
 const detailsIri = ref("");
 const hasQueryOrFeatureSelected: Ref<boolean> = ref(false);
+const active = ref(1);
 
 const rootEntities: Ref<string[] | undefined> = ref();
 watch(
@@ -167,6 +153,7 @@ onMounted(() => init());
 
 function init() {
   loading.value = true;
+  active.value = 1;
   if (props.isList?.length) {
     for (const isItem of props.isList) selectedValueMap.value.set(isItem["@id"]!, isItem);
   }
