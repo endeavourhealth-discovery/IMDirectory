@@ -33,6 +33,7 @@
           @viewHierarchy="onViewHierarchy"
           @addToList="onSelect"
         />
+        <PathDisplay v-if="displaySelectedPath" :path="displaySelectedPath" :canClearPath="false" />
         <div class="dm-details" v-if="isRecordModel(detailsEntity?.[RDF.TYPE])">
           <div class="view-title"><b>Properties</b></div>
           <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
@@ -69,6 +70,7 @@ import SelectedSet from "./SelectedSet.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import DataModel from "@/components/directory/viewer/dataModel/DataModel.vue";
+import PathDisplay from "./PathDisplay.vue";
 import { ToastSeverity } from "@im-library/enums";
 import { useToast } from "primevue/usetoast";
 
@@ -92,6 +94,7 @@ const showDialog: Ref<boolean> = ref(false);
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const toast = useToast();
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
+const displaySelectedPath: Ref<Match | undefined> = ref();
 
 watch(
   () => props.selectedIri,
@@ -104,6 +107,7 @@ watch(
   () => detailsIri.value,
   async () => {
     await setEntity();
+    await getPath();
     activePage.value = 1;
   }
 );
@@ -115,11 +119,20 @@ watch(
   }
 );
 
-onMounted(() => init());
+onMounted(async () => await init());
 
-function init() {
+async function init() {
   detailsIri.value = props.selectedIri;
-  setEntity();
+  await setEntity();
+  await getPath();
+}
+
+async function getPath() {
+  if (props.dataModelIri && detailsIri.value) {
+    const pathQuery: PathQuery = { source: { "@id": props.dataModelIri } as TTIriRef, target: { "@id": detailsIri.value } as TTIriRef };
+    const result = await QueryService.pathQuery(pathQuery);
+    if (result?.match?.length) displaySelectedPath.value = result.match[0];
+  }
 }
 
 async function setEntity() {
