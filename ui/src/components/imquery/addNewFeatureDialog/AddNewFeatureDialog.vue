@@ -30,6 +30,7 @@
               v-model:selected-path="selectedPath"
               @locate-in-tree="iri => (treeIri = iri)"
               @go-to-next-step="active = 2"
+              :selectedType="selectedType"
             />
           </div>
         </div>
@@ -45,8 +46,7 @@
         <Button
           v-if="active === 1 && hasNextStep && !hasQueryOrFeatureSelected"
           :disabled="!isObjectHasKeys(selectedPath)"
-          label="Next"
-          icon="pi pi-arrow-right"
+          label="Select"
           iconPos="right"
           @click="active = 2"
         />
@@ -111,6 +111,7 @@ const searchTerm = ref("");
 const detailsIri = ref("");
 const hasQueryOrFeatureSelected: Ref<boolean> = ref(false);
 const active = ref(1);
+const selectedType = ref("");
 
 const rootEntities: Ref<string[] | undefined> = ref();
 watch(
@@ -218,7 +219,10 @@ function onTypeSelect(typeOption: TypeOption) {
       rootEntities.value = [];
       imQuery.value = undefined;
     }
-    if (typeOption.typeIri) updateIMQueryType({ "@id": typeOption.typeIri });
+    if (typeOption.typeIri) {
+      updateIMQueryType({ "@id": typeOption.typeIri });
+      selectedType.value = typeOption.typeIri;
+    }
     if (typeOption.rootIri) rootEntities.value = [typeOption.rootIri];
   }
   updateSearch.value = !updateSearch.value;

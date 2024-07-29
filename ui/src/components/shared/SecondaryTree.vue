@@ -57,7 +57,14 @@
           <span class="tree-node-label" data-testid="row-label" @mouseover="showPopup($event, node.data, node)" @mouseleave="hidePopup($event)">{{
             node.label
           }}</span>
-          <Button icon="fa-regular fa-square-plus" text @click.stop="emit('onSelect', node.data)" v-tooltip="'Add to list'" data-testid="add-button" />
+          <Button
+            v-if="showSelect"
+            icon="fa-regular fa-square-plus"
+            text
+            @click.stop="emit('onSelect', node.data)"
+            v-tooltip="'Add to list'"
+            data-testid="add-button"
+          />
         </div>
       </template>
     </Tree>
