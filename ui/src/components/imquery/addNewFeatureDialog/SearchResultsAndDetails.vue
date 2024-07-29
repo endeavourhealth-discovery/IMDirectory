@@ -8,7 +8,7 @@
         :search-term="searchTerm"
         :im-query="imQuery"
         :rows="10"
-        :show-select="true"
+        :show-select="allowMultipleSelect"
         @selectedUpdated="onSelectedUpdate"
         @viewHierarchy="onViewHierarchy"
         @addToList="onSelect"
@@ -28,7 +28,7 @@
         <ParentHeader
           v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
           :entity="detailsEntity"
-          :showSelect="true"
+          :showSelect="allowMultipleSelect"
           @locateInTree="(iri: string) => $emit('locateInTree', iri)"
           @viewHierarchy="onViewHierarchy"
           @addToList="onSelect"
@@ -41,7 +41,7 @@
 
         <div class="entity-details" v-else>
           <div class="view-title"><b>Hierarchy tree</b></div>
-          <SecondaryTree :entityIri="detailsIri" :show-select="true" @navigateTo="(iri: string) => (detailsIri = iri)" @onSelect="onSelect" />
+          <SecondaryTree :entityIri="detailsIri" :show-select="allowMultipleSelect" @navigateTo="(iri: string) => (detailsIri = iri)" @onSelect="onSelect" />
         </div>
       </div>
 
@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { Match, Node, PathQuery, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { Ref, ref, onMounted, watch, inject } from "vue";
+import { Ref, ref, onMounted, watch, inject, computed } from "vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
 import { EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
@@ -81,6 +81,7 @@ interface Props {
   imQuery: QueryRequest | undefined;
   dataModelIri: string;
   selectedPath: Match | undefined;
+  selectedType: string;
 }
 
 const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": (payload: Match) => payload, goToNextStep: () => true });
@@ -95,6 +96,8 @@ const searchResults: Ref<SearchResponse | undefined> = ref();
 const toast = useToast();
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 const displaySelectedPath: Ref<Match | undefined> = ref();
+
+const allowMultipleSelect = computed(() => [IM.CONCEPT_SET].includes(props.selectedType));
 
 watch(
   () => props.selectedIri,
@@ -129,7 +132,7 @@ async function init() {
 
 async function getPath() {
   if (props.dataModelIri && detailsIri.value) {
-    const pathQuery: PathQuery = { source: { "@id": props.dataModelIri } as TTIriRef, target: { "@id": detailsIri.value } as TTIriRef };
+    const pathQuery: PathQuery = { source: { "@id": props.dataModelIri } as TTIriRef, target: { "@id": detailsIri.value } as TTIriRef } as PathQuery;
     const result = await QueryService.pathQuery(pathQuery);
     if (result?.match?.length) displaySelectedPath.value = result.match[0];
   }
