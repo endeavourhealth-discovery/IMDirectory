@@ -132,7 +132,7 @@ async function init() {
 
 async function getPath() {
   if (props.dataModelIri && detailsIri.value) {
-    const pathQuery: PathQuery = { source: { "@id": props.dataModelIri } as TTIriRef, target: { "@id": detailsIri.value } as TTIriRef };
+    const pathQuery: PathQuery = { source: { "@id": props.dataModelIri } as TTIriRef, target: { "@id": detailsIri.value } as TTIriRef } as PathQuery;
     const result = await QueryService.pathQuery(pathQuery);
     if (result?.match?.length) displaySelectedPath.value = result.match[0];
   }
