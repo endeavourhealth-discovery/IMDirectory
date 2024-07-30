@@ -8,7 +8,7 @@
     <SnomedConsent />
     <div id="main-container">
       <BannerBar v-if="!viewsLoading && showBanner" :latestRelease="latestRelease" />
-      <div v-if="viewsLoading" class="flex flex-row justify-content-center align-items-center loading-container">
+      <div v-if="viewsLoading" class="flex flex-row justify-center items-center loading-container">
         <ProgressSpinner />
       </div>
       <router-view v-else />

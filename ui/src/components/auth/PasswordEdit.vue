@@ -1,12 +1,12 @@
 <template>
-  <div v-if="currentUser" class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center password-edit-card">
+  <div v-if="currentUser" class="flex flex-row items-center">
+    <Card class="flex flex-col justify-content-sm-around items-center password-edit-card">
       <template #header>
         <img id="user-icon" class="avatar-icon" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" aria-haspopup="true" aria-controls="overlay_menu" />
       </template>
       <template #title> Change password </template>
       <template #content>
-        <form @submit="onSubmit" class="flex flex-column justify-content-start password-edit-form">
+        <form @submit="onSubmit" class="flex flex-col justify-start password-edit-form">
           <div v-if="currentUser.username" class="field">
             <label for="userName">Username</label>
             <InputText data-testid="password-edit-username" class="p-text-capitalize" id="username" type="text" :value="currentUser.username" disabled />
@@ -18,7 +18,7 @@
             @update:password="setNewPassword"
             @update:arePasswordsValid="setIsNewPasswordValid"
           />
-          <div class="flex flex-row justify-content-center">
+          <div class="flex flex-row justify-center">
             <Button data-testid="password-edit-submit" class="user-edit" type="submit" label="Change password" :disabled="buttonDisabled" @click="onSubmit" />
           </div>
         </form>

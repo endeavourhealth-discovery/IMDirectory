@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-row justify-contents-center align-items-center loading-container" v-if="loading">
+  <div class="flex flex-row justify-contents-center items-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
-  <div v-else class="flex flex-column justify-contents-center align-items-center flex-auto">
+  <div v-else class="flex flex-col justify-contents-center items-center flex-auto">
     <OrganizationChart :value="data" data-testid="mappings">
       <template #hasMap="{ node }: any">
         <span>{{ node.data.label }}</span>
@@ -57,7 +57,7 @@
     </OrganizationChart>
 
     <Popover ref="opMap" id="overlay-panel-maps">
-      <div class="flex flex-column justify-contents-start map-overlay">
+      <div class="flex flex-col justify-contents-start map-overlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Priority: </strong>{{ hoveredResult.priority }}</p>
@@ -69,7 +69,7 @@
     </Popover>
 
     <Popover ref="opMatchedFrom" id="overlay-panel-simple-maps">
-      <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedFromOverlay">
+      <div class="flex flex-col justify-contents-start simple-maps-overlay" data-testid="matchedFromOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
@@ -78,7 +78,7 @@
     </Popover>
 
     <Popover ref="opMatchedTo" id="overlay-panel-simple-maps">
-      <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedToOverlay">
+      <div class="flex flex-col justify-contents-start simple-maps-overlay" data-testid="matchedToOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
@@ -93,7 +93,7 @@
         <Column field="value" header="Value"></Column>
         <Column field="regex" header="Regex"></Column>
         <template #expansion="{ data }: { data: { context: Context[] } }">
-          <div class="p-3">
+          <div class="p-4">
             <DataTable :value="data.context">
               <Column field="publisher" header="Publisher"></Column>
               <Column field="system" header="System"></Column>

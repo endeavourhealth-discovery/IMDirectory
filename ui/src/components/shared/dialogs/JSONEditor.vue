@@ -1,5 +1,5 @@
 <template>
-  <div class="card flex flex-column justify-content-center json-value-wrapper">
+  <div class="card flex flex-col justify-center json-value-wrapper">
     <Textarea
       id="value"
       class="definition-value"

@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-column justify-contents-start" id="secondary-tree-bar-container">
-    <div id="alternate-parents-container" class="flex flex-column justify-contents-start align-items-start">
+  <div class="flex flex-col justify-contents-start" id="secondary-tree-bar-container">
+    <div id="alternate-parents-container" class="flex flex-col justify-contents-start items-start">
       <Button
         v-for="altParent of alternateParents"
         :key="altParent.iri"

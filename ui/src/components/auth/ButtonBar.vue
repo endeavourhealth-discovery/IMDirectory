@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row justify-content-start">
+  <div class="flex flex-row justify-start">
     <Button
       data-testid="button-bar-back-button"
       class="back-button"

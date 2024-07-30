@@ -9,7 +9,7 @@
         :expanded-keys="expandedKeys"
         :selection-keys="selectedKeys"
         placeholder="Select property"
-        class="md:w-20rem w-full"
+        class="md:w-80 w-full"
         selection-mode="single"
         @node-select="onNodeSelect"
       />

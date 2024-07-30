@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
+  <div class="flex flex-col justify-start" id="hierarchy-tree-bar-container">
     <Tree
       :value="root"
       selectionMode="single"

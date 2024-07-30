@@ -8,7 +8,7 @@
       </StepList>
       <StepPanels value="0">
         <StepPanel value="0" v-slot="{ activateCallback }">
-          <div class="flex flex-column select-property-wrapper">
+          <div class="flex flex-col select-property-wrapper">
             <AutocompleteSearchBar
               v-model:selected="selectedGeneralConcept"
               :quick-type-filters-allowed="[IM.CONCEPT, IM.CONCEPT_SET, RDF.PROPERTY]"
@@ -18,7 +18,7 @@
             />
             <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full" listStyle="max-height:250px">
               <template #option="{ option }">
-                <div class="flex align-items-center" id="query-path-options">
+                <div class="flex items-center" id="query-path-options">
                   <div v-if="isSelectedConceptValue">
                     {{ option.path?.[0].name ?? getNameFromIri(dataModelIri) }} -> {{ option.typeOf?.name ?? getNameFromIri(dataModelIri) }}.{{
                       option.where?.[0]?.name
@@ -36,7 +36,7 @@
               </template>
             </Listbox>
           </div>
-          <div class="flex pt-4 justify-content-end next-button">
+          <div class="flex pt-6 justify-end next-button">
             <Button
               :disabled="!isObjectHasKeys(selectedPath)"
               label="Next"
@@ -82,7 +82,7 @@
             @click="showAddPropertyDialog = true"
           />
 
-          <div class="flex pt-4 justify-content-between populate-property-actions">
+          <div class="flex pt-6 justify-between populate-property-actions">
             <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback" />
             <Button label="Save" iconPos="right" @click="save" />
           </div>

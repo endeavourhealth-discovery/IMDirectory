@@ -2,9 +2,9 @@
   <div>
     <Dialog v-model:visible="visible" maximizable :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }" class="edit-match-dialog">
       <template #header>
-        <div class="flex align-items-center">
+        <div class="flex items-center">
           <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
-          <Breadcrumb :model="pathItems" class="flex-grow-1">
+          <Breadcrumb :model="pathItems" class="grow">
             <template #item="{ item }">
               <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
             </template>

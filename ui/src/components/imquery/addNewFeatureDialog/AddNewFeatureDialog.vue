@@ -3,7 +3,7 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div class="flex flex-auto flex-column gap-2 select-property-wrapper">
+    <div class="flex flex-auto flex-col gap-2 select-property-wrapper">
       <div v-if="active === 1" class="directory-search-dialog-content">
         <PathDisplay v-if="selectedPath" :path="selectedPath" :can-clear-path="canClearPath" @on-clear-path="clearPath" />
         <div class="search-bar">
@@ -47,7 +47,7 @@
         :is-root-feature="true"
         :focused-id="getLeafMatch(editMatch)['@id']"
       />
-      <div class="flex flex-0 gap-2 justify-content-end populate-property-actions">
+      <div class="flex flex-0 gap-2 justify-end populate-property-actions">
         <Button label="Cancel" severity="secondary" @click="visible = false" />
         <Button v-if="active === 1 && hasNextStep && !hasQueryOrFeatureSelected" :disabled="disableSelect" label="Select" iconPos="right" @click="active = 2" />
         <Button v-else label="Save" iconPos="right" @click="save" />

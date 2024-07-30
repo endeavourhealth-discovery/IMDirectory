@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-column w-full h-full">
+  <div class="flex flex-col w-full h-full">
     <div class="top-half-component">
       <SearchResults
         v-if="activePage === 0"

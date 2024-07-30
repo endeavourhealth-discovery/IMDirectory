@@ -1,6 +1,6 @@
 <template>
   <div id="mfa-login">
-    <Card class="flex flex-column justify-content-sm-around align-items-center mfa-login-card">
+    <Card class="flex flex-col justify-content-sm-around items-center mfa-login-card">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-shield-halved" class="icon-header" />
       </template>

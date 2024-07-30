@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
+  <div v-if="loading" class="flex flex-row justify-center items-center loading-container">
     <ProgressSpinner />
   </div>
   <VueJsonPretty v-else class="json" :path="'res'" :data="entityJSON.entity" @nodeClick="onClick" />

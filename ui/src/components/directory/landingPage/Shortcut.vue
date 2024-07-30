@@ -1,6 +1,6 @@
 <template>
   <div class="shortcut">
-    <a v-if="url" :href="url" :target="newTab ? '_blank' : ''" class="shortcut-container">
+    <Button v-if="url" link as="a" :href="url" :target="newTab ? '_blank' : ''" class="shortcut-container">
       <IMFontAwesomeIcon
         v-if="isArray(icon) || icon.startsWith('fa-')"
         class="shortcut-icon"
@@ -10,8 +10,8 @@
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;width:' + (size + 1) + 'rem'" />
       <p class="label" :style="'width:' + (size + 1) + 'rem'">{{ label }}</p>
-    </a>
-    <div v-if="command" class="shortcut-container command-shortcut" @click="command()">
+    </Button>
+    <Button v-if="command" link as="a" class="shortcut-container command-shortcut" @click="command()">
       <IMFontAwesomeIcon
         v-if="isArray(icon) || icon.startsWith('fa-')"
         class="shortcut-icon"
@@ -21,7 +21,7 @@
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;' + 'width:' + (size + 1) + 'rem'" />
       <p v-tooltip.bottom="{ value: label }" class="label" :style="'width:' + (size + 2) + 'rem'">{{ label }}</p>
-    </div>
+    </Button>
   </div>
 </template>
 
@@ -46,12 +46,6 @@ const props = withDefaults(defineProps<Props>(), {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-}
-
-.command-shortcut {
-  text-decoration: none;
-  color: #2196f3;
-  cursor: pointer;
 }
 
 .shortcut-icon {

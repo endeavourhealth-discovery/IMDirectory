@@ -2,7 +2,7 @@
   <Dialog v-model:visible="visible" maximizable modal :style="{ minWidth: '50vw' }" header="Select Path">
     <Listbox v-model="selectedPath" :options="pathSuggestions" class="w-full">
       <template #option="{ option }: { option: Match }">
-        <div class="flex align-items-center" id="query-path-options" v-if="isArrayHasLength(option.where)">
+        <div class="flex items-center" id="query-path-options" v-if="isArrayHasLength(option.where)">
           <div v-if="option.path && option.typeOf">{{ option.path?.[0].name }} -> {{ option.typeOf?.name }} . {{ option.where?.[0]?.name }}</div>
           <div v-else-if="option.where?.[0]?.['@id'] === property?.['@id']">. {{ option.where?.[0]?.name }}</div>
           <div v-else>-> {{ option.where?.[0]?.name }} . {{ property?.name }}</div>

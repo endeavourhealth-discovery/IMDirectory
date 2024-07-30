@@ -50,7 +50,7 @@
             />
           </div>
           <h2>Presets</h2>
-          <SelectButton v-model="preset" :options="themeOptions.presets" />
+          <SelectButton v-model="preset" :options="themeOptions.presets" :allowEmpty="false" />
           <h2>Dark mode</h2>
           <ToggleSwitch v-model="darkMode" />
         </div>
@@ -90,7 +90,7 @@
         data-testid="apps-button"
       />
       <Popover ref="appsOP" class="app-overlay-panel" id="apps-menu">
-        <div class="flex flex-row flex-wrap gap-2 justify-content-start">
+        <div class="flex flex-row flex-wrap gap-2 justify-start">
           <template v-for="item in appItems">
             <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
           </template>
@@ -133,11 +133,11 @@
       </Menu>
     </div>
     <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
-      <div class="flex flex-column gap-2">
+      <div class="flex flex-col gap-2">
         <label for="template">Template</label>
         <Select id="template" v-model="template" :options="templates" />
       </div>
-      <div class="flex flex-column gap-2">
+      <div class="flex flex-col gap-2">
         <label for="namespace">Namespace/Package</label>
         <InputText id="namespace" type="text" v-model="namespace" autofocus />
       </div>

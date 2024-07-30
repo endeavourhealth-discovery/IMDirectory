@@ -3,9 +3,9 @@
     <div class="flex-container content-container">
       <div class="item-container">
         <span class="text">Format</span>
-        <div class="card flex justify-content-center">
-          <div class="flex flex-column gap-3">
-            <div v-for="format of formatOptions" :key="format.key" class="flex align-items-center">
+        <div class="card flex justify-center">
+          <div class="flex flex-col gap-4">
+            <div v-for="format of formatOptions" :key="format.key" class="flex items-center">
               <div v-if="format.include" class="format-item">
                 <RadioButton v-model="selectedFormat" :inputId="format.key" name="pizza" :value="format.name" />
                 <label :for="format.key" class="ml-2">{{ format.name }}</label>
@@ -17,8 +17,8 @@
       <div v-if="contentOptions.some(o => o.include)" class="item-container">
         <span class="text">Content</span>
         <div class="card flex justify-content-left">
-          <div class="flex flex-column gap-3">
-            <div v-for="content of contentOptions" :key="content.key" class="flex align-items-center check-container">
+          <div class="flex flex-col gap-4">
+            <div v-for="content of contentOptions" :key="content.key" class="flex items-center check-container">
               <div v-if="content.include" class="content-item">
                 <Checkbox v-model="selectedContents" :inputId="content.key" name="content" :value="content.name" :disabled="content.disabled" />
                 <label :for="content.key">{{ content.name }}</label>
@@ -31,13 +31,13 @@
         <div class="toggle-container" v-if="!coreSelected || !showSubsets">
           <span class="text">Show Subset</span>
           <div class="card flex justify-content-left" style="margin: 10px 0 0 0">
-            <ToggleButton v-model="checked" class="w-9rem h-2rem" />
+            <ToggleButton v-model="checked" class="w-36 h-8" />
           </div>
         </div>
         <div class="toggle-container" v-if="!displayLegacyOptions">
           <span class="text">Legacy</span>
           <div class="card flex justify-content-left" style="margin: 10px 0 0 0">
-            <ToggleButton v-model="checkedLegacy" onLabel="Own Row" offLabel="Inline Column" class="w-9rem h-2rem" />
+            <ToggleButton v-model="checkedLegacy" onLabel="Own Row" offLabel="Inline Column" class="w-36 h-8" />
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@
       </div>
     </div>
     <div class="flex-container content-container" style="justify-content: flex-end">
-      <div class="card flex justify-content-center" style="gap: 1rem">
+      <div class="card flex justify-center" style="gap: 1rem">
         <Button
           v-if="selectedFormat === 'IMv1'"
           label="Download"

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex align-items-baseline path-display-container" v-if="isArrayHasLength(path.where)">
+  <div class="flex items-baseline path-display-container" v-if="isArrayHasLength(path.where)">
     <span class="title"><strong>Path:&nbsp;</strong></span>
     <div v-if="path.path && path.typeOf">{{ path.path?.[0].name }} -> {{ path.typeOf?.name }} . {{ path.where?.[0]?.name }}</div>
     <div v-else-if="path.where?.[0]?.name">{{ toTitleCase(path.where?.[0]?.name) }}</div>

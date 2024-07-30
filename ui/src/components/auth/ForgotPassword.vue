@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center recovery-card">
+  <div class="flex flex-row items-center">
+    <Card class="flex flex-col justify-content-sm-around items-center recovery-card">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-user" class="icon-header" />
       </template>
@@ -12,7 +12,7 @@
             <InputText data-testid="forgot-password-username-input" id="fieldUsername" type="text" v-model="username" />
             <Message v-if="errors.username" severity="error">{{ errors.username }}</Message>
           </div>
-          <div class="flex flex-row justify-content-center">
+          <div class="flex flex-row justify-center">
             <Button data-testid="forgot-password-user-submit" class="user-submit" type="submit" label="Request Reset Code" v-on:click.prevent="onSubmit" />
           </div>
         </form>
