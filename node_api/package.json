@@ -70,7 +70,6 @@
     "@types/nodemailer": "6.4.15",
     "@types/swagger-ui-express": "4.1.6",
     "nodemon": "3.1.2",
-    "primevue": "3.52.0",
     "swagger-autogen": "2.23.7",
     "vite-plugin-node": "3.1.0"
   },
