@@ -163,7 +163,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import setupChangeScale from "@/composables/setupChangeScale";
 import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
-import PresetThemes from "@/enums/PresetThemes";
+import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
+import PrimeVueColors from "@/enums/PrimeVueColors";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -189,28 +190,28 @@ const accountItems: Ref<MenuItem[]> = ref([]);
 const adminItems: Ref<MenuItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
-const themeOptions = ref({
+const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: PrimeVueColors[]; presets: PrimeVuePresetThemes[] }> = ref({
   primaryColours: [
-    "emerald",
-    "green",
-    "lime",
-    "red",
-    "orange",
-    "amber",
-    "yellow",
-    "teal",
-    "cyan",
-    "sky",
-    "blue",
-    "indigo",
-    "violet",
-    "purple",
-    "fuchsia",
-    "pink",
-    "rose"
+    PrimeVueColors.EMERALD,
+    PrimeVueColors.GREEN,
+    PrimeVueColors.LIME,
+    PrimeVueColors.RED,
+    PrimeVueColors.ORANGE,
+    PrimeVueColors.AMBER,
+    PrimeVueColors.YELLOW,
+    PrimeVueColors.TEAL,
+    PrimeVueColors.CYAN,
+    PrimeVueColors.SKY,
+    PrimeVueColors.BLUE,
+    PrimeVueColors.INDIGO,
+    PrimeVueColors.VIOLET,
+    PrimeVueColors.PURPLE,
+    PrimeVueColors.FUCHSIA,
+    PrimeVueColors.PINK,
+    PrimeVueColors.ROSE
   ],
-  surfaceColours: ["slate", "gray", "zinc", "neutral", "stone"],
-  presets: [PresetThemes.AURA, PresetThemes.LARA, PresetThemes.NORA]
+  surfaceColours: [PrimeVueColors.SLATE, PrimeVueColors.GRAY, PrimeVueColors.ZINC, PrimeVueColors.NEUTRAL, PrimeVueColors.STONE],
+  presets: [PrimeVuePresetThemes.AURA, PrimeVuePresetThemes.LARA, PrimeVuePresetThemes.NORA]
 });
 const preset = ref(themeOptions.value.presets[0]);
 const darkMode = ref(false);

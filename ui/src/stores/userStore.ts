@@ -4,15 +4,16 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { AuthService, EntityService, UserService } from "@/services";
 import { Avatars } from "@im-library/constants";
 import { CustomAlert, HistoryItem, RecentActivityItem, User } from "@im-library/interfaces";
-import PresetThemes from "@/enums/presetThemes";
+import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
+import PrimeVueColors from "@/enums/PrimeVueColors";
 
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
     cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
     currentPreset: undefined,
-    currentPrimaryColor: "" as string,
-    currentSurfaceColor: "" as string,
+    currentPrimaryColor: undefined,
+    currentSurfaceColor: undefined,
     darkMode: false,
     currentScale: "16px" as string,
     currentUser: undefined,
@@ -29,8 +30,8 @@ export const useUserStore = defineStore("user", {
   actions: {
     clearAllFromUserDatabase() {
       this.currentPreset = undefined;
-      this.currentPrimaryColor = "";
-      this.currentSurfaceColor = "";
+      this.currentPrimaryColor = undefined;
+      this.currentSurfaceColor = undefined;
       this.favourites = [];
       this.recentLocalActivity = [];
     },
@@ -127,15 +128,15 @@ export const useUserStore = defineStore("user", {
         if (this.currentUser) await UserService.updateUserFavourites(this.favourites);
       }
     },
-    async updatePreset(preset: PresetThemes) {
+    async updatePreset(preset: PrimeVuePresetThemes) {
       if (this.currentUser) await UserService.updateUserPreset(preset);
       this.currentPreset = preset;
     },
-    async updatePrimaryColor(color: string) {
+    async updatePrimaryColor(color: PrimeVueColors) {
       if (this.currentUser) await UserService.updateUserPrimaryColor(color);
       this.currentPrimaryColor = color;
     },
-    async updateSurfaceColor(color: string) {
+    async updateSurfaceColor(color: PrimeVueColors) {
       if (this.currentUser) await UserService.updateUserSurfaceColor(color);
       this.currentSurfaceColor = color;
     },

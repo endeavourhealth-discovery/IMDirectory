@@ -1,4 +1,5 @@
-import PresetThemes from "@/enums/PresetThemes";
+import PrimeVueColors from "@/enums/PrimeVueColors";
+import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import { useUserStore } from "@/stores/userStore";
 import { usePreset, updatePrimaryPalette, updateSurfacePalette, palette, updatePreset } from "@primevue/themes";
 import Aura from "@primevue/themes/aura";
@@ -8,15 +9,15 @@ import Nora from "@primevue/themes/nora";
 function setupChangeThemeOptions() {
   const userStore = useUserStore();
 
-  async function changePreset(preset: PresetThemes) {
+  async function changePreset(preset: PrimeVuePresetThemes) {
     switch (preset) {
-      case PresetThemes.AURA:
+      case PrimeVuePresetThemes.AURA:
         usePreset(Aura);
         break;
-      case PresetThemes.NORA:
+      case PrimeVuePresetThemes.NORA:
         usePreset(Nora);
         break;
-      case PresetThemes.LARA:
+      case PrimeVuePresetThemes.LARA:
         usePreset(Lara);
         break;
       default:
@@ -29,13 +30,13 @@ function setupChangeThemeOptions() {
     if (preset !== userStore.currentPreset) await userStore.updatePreset(preset);
   }
 
-  async function changePrimaryColor(color: string) {
+  async function changePrimaryColor(color: PrimeVueColors) {
     const colorPalette = palette(`{${color}}`);
     updatePrimaryPalette(colorPalette);
     if (color !== userStore.currentPrimaryColor) await userStore.updatePrimaryColor(color);
   }
 
-  async function changeSurfaceColor(color: string) {
+  async function changeSurfaceColor(color: PrimeVueColors) {
     const colorPalette = palette(`{${color}}`);
     updateSurfacePalette(colorPalette);
     if (color !== userStore.currentSurfaceColor) await userStore.updateSurfaceColor(color);
