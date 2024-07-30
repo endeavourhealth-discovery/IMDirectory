@@ -2,7 +2,7 @@
   <SearchBar v-model:searchTerm="searchTerm" :show-filters="false" @to-search="emit('onSearch', searchTerm)" />
   <div v-if="showTypeFilters" class="type-options flex flex-wrap gap-3">
     <div v-for="typeOption in typeOptions" :key="typeOption.name" class="flex align-items-center">
-      <RadioButton v-model="selectedType" :inputId="typeOption.name" name="dynamic" :value="typeOption" />
+      <RadioButton v-model="selectedType" :disabled="lockTypeFilters" :inputId="typeOption.name" name="dynamic" :value="typeOption" />
       <label :for="typeOption.name" class="gap-1">{{ typeOption.name }}</label>
     </div>
   </div>
@@ -21,6 +21,7 @@ export interface TypeOption {
 
 interface Props {
   showTypeFilters?: boolean;
+  lockTypeFilters?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {

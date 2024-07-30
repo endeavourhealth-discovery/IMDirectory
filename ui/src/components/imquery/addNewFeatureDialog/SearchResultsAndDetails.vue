@@ -84,7 +84,12 @@ interface Props {
   selectedType: string;
 }
 
-const emit = defineEmits({ locateInTree: (payload: string) => payload, "update:selectedPath": (payload: Match) => payload, goToNextStep: () => true });
+const emit = defineEmits({
+  locateInTree: (payload: string) => payload,
+  "update:selectedPath": (payload: Match) => payload,
+  goToNextStep: () => true,
+  selectedIri: (payload: string) => payload
+});
 const props = defineProps<Props>();
 const detailsIri: Ref<string> = ref("");
 const propertyIri: Ref<TTIriRef | undefined> = ref();
@@ -108,10 +113,11 @@ watch(
 
 watch(
   () => detailsIri.value,
-  async () => {
+  async newValue => {
     await setEntity();
     await getPath();
     activePage.value = 1;
+    emit("selectedIri", newValue);
   }
 );
 
@@ -121,6 +127,10 @@ watch(
     activePage.value = 0;
   }
 );
+
+watch(activePage, newValue => {
+  if (newValue === 0) emit("selectedIri", "");
+});
 
 onMounted(async () => await init());
 

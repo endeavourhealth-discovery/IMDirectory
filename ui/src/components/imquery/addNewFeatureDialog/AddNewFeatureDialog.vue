@@ -7,7 +7,12 @@
       <div v-if="active === 1" class="directory-search-dialog-content">
         <PathDisplay v-if="selectedPath" :path="selectedPath" :can-clear-path="canClearPath" @on-clear-path="clearPath" />
         <div class="search-bar">
-          <SearchBarWithRadioFilters :show-type-filters="showTypeFilters" @on-search="onSearch" @on-type-select="onTypeSelect" />
+          <SearchBarWithRadioFilters
+            :show-type-filters="showTypeFilters"
+            :lockTypeFilters="lockTypeFilters"
+            @on-search="onSearch"
+            @on-type-select="onTypeSelect"
+          />
         </div>
         <div class="vertical-divider">
           <div class="left-container">
@@ -30,6 +35,7 @@
               v-model:selected-path="selectedPath"
               @locate-in-tree="iri => (treeIri = iri)"
               @go-to-next-step="active = 2"
+              @selected-iri="updateSelectedIri"
               :selectedType="selectedType"
             />
           </div>
@@ -43,13 +49,7 @@
       />
       <div class="flex flex-0 gap-2 justify-content-end populate-property-actions">
         <Button label="Cancel" severity="secondary" @click="visible = false" />
-        <Button
-          v-if="active === 1 && hasNextStep && !hasQueryOrFeatureSelected"
-          :disabled="!isObjectHasKeys(selectedPath)"
-          label="Select"
-          iconPos="right"
-          @click="active = 2"
-        />
+        <Button v-if="active === 1 && hasNextStep && !hasQueryOrFeatureSelected" :disabled="disableSelect" label="Select" iconPos="right" @click="active = 2" />
         <Button v-else label="Save" iconPos="right" @click="save" />
       </div>
     </div>
@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, provide, ref, watch } from "vue";
+import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 import { Match, Node, PathQuery, QueryRequest, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -112,6 +112,13 @@ const detailsIri = ref("");
 const hasQueryOrFeatureSelected: Ref<boolean> = ref(false);
 const active = ref(1);
 const selectedType = ref("");
+
+const disableSelect = computed(
+  () =>
+    (selectedType.value === IM.CONCEPT_SET && selectedValueMap.value.size < 1 && !selectedPath.value) ||
+    (selectedType.value !== IM.CONCEPT_SET && !detailsIri.value)
+);
+const lockTypeFilters = computed(() => selectedType.value === IM.CONCEPT_SET && selectedValueMap.value.size > 0);
 
 const rootEntities: Ref<string[] | undefined> = ref();
 watch(
@@ -254,6 +261,10 @@ function clearPath() {
 function onSearch(payload: string) {
   searchTerm.value = payload;
   updateSearch.value = !updateSearch.value;
+}
+
+function updateSelectedIri(iri: string) {
+  detailsIri.value = iri;
 }
 </script>
 
