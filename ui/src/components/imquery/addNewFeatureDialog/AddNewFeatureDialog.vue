@@ -269,6 +269,10 @@ function updateSelectedIri(iri: string) {
 </script>
 
 <style scoped>
+.select-property-wrapper {
+  flex: 1 1 auto;
+  overflow: auto;
+}
 .footer {
   display: flex;
   justify-content: end;
