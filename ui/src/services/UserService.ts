@@ -2,7 +2,8 @@ import { fetchAuthSession } from "aws-amplify/auth";
 import Env from "./Env";
 import axios from "axios";
 import { RecentActivityItem } from "@im-library/interfaces";
-import PresetThemes from "@/enums/presetThemes";
+import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
+import PrimeVueColors from "@/enums/PrimeVueColors";
 
 const UserService = {
   async getUserScale(): Promise<string> {
@@ -17,25 +18,25 @@ const UserService = {
   async getUserOrganisations(): Promise<string[]> {
     return await axios.get(Env.API + "api/user/organisations");
   },
-  async getUserPreset(): Promise<PresetThemes> {
+  async getUserPreset(): Promise<PrimeVuePresetThemes> {
     return await axios.get(Env.API + "api/user/preset");
   },
-  async getUserPrimaryColor(): Promise<string> {
+  async getUserPrimaryColor(): Promise<PrimeVueColors> {
     return await axios.get(Env.API + "api/user/primaryColor");
   },
-  async getUserSurfaceColor(): Promise<string> {
+  async getUserSurfaceColor(): Promise<PrimeVueColors> {
     return await axios.get(Env.API + "api/user/surfaceColor");
   },
   async getUserDarkMode(): Promise<boolean> {
     return await axios.get(Env.API + "api/user/darkMode");
   },
-  async updateUserPreset(preset: PresetThemes): Promise<void> {
+  async updateUserPreset(preset: PrimeVuePresetThemes): Promise<void> {
     return await axios.post(Env.API + "api/user/preset", preset, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
   },
-  async updateUserPrimaryColor(color: string): Promise<void> {
+  async updateUserPrimaryColor(color: PrimeVueColors): Promise<void> {
     return await axios.post(Env.API + "api/user/primaryColor", color, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
   },
-  async updateUserSurfaceColor(color: string): Promise<void> {
+  async updateUserSurfaceColor(color: PrimeVueColors): Promise<void> {
     return await axios.post(Env.API + "api/user/surfaceColor", color, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
   },
   async updateUserDarkMode(bool: boolean): Promise<void> {
