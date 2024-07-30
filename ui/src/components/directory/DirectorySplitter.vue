@@ -11,7 +11,7 @@
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
-        <div v-if="directoryLoading" class="flex flex-row justify-content-center align-items-center loading-container">
+        <div v-if="directoryLoading" class="flex flex-row justify-center items-center loading-container">
           <ProgressSpinner />
         </div>
         <router-view

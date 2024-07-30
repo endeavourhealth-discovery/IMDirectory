@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center confirm-card">
+  <div class="flex flex-row items-center">
+    <Card class="flex flex-col justify-content-sm-around items-center confirm-card">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-key" class="icon-header" />
       </template>
@@ -23,7 +23,7 @@
           </div>
           <div class="field">
             <label for="fieldCode">Confirmation code</label>
-            <div class="flex flex-row align-items-center">
+            <div class="flex flex-row items-center">
               <InputOtp
                 class="flex-auto"
                 data-testid="confirm-code-input"
@@ -41,7 +41,7 @@
             <Message v-if="errors.code && !focused.get('code')" severity="error">{{ errors.code }}</Message>
             <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
           </div>
-          <div class="flex flex-row justify-content-center">
+          <div class="flex flex-row justify-center">
             <Button
               data-testid="confirm-code-submit-button"
               class="user-submit"
@@ -68,7 +68,7 @@
   </div>
   <Dialog v-model:visible="showDialog" header="Request new code" :modal="true" :style="{ width: '40vw' }">
     <div class="dialog-container">
-      <form class="flex flex-column" @submit="requestCode">
+      <form class="flex flex-col" @submit="requestCode">
         <div class="field">
           <label for="dialog-username">Enter your username</label>
           <InputText id="dialog-username" type="text" v-model="username" :class="errors.username && 'invalid'" />

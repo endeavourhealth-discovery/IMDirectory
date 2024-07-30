@@ -1,15 +1,15 @@
 <template>
-  <div v-if="selectedValueMap?.size" class="flex w-full flex-column">
+  <div v-if="selectedValueMap?.size" class="flex w-full flex-col">
     <InputText type="text" v-model="valueLabel" placeholder="Value label" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #option="{ option }" class="flex flex-row">
         <div class="option-wrapper flex flex-row">
-          <div class="option-content flex flex-row gap-1 align-items-baseline">
+          <div class="option-content flex flex-row gap-1 items-baseline">
             <Button @click="selectedValueMap.delete(option['@id'])" class="builder-button" :severity="'danger'" icon="fa-solid fa-x" text />
             <ToggleButton v-model="option.include" onLabel="include" offLabel="exclude" />
             <InputText v-if="isValueSet(option[RDF.TYPE])" type="text" v-model="option.entailment" disabled />
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
-            <div class="flex-column">
+            <div class="flex-col">
               <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="p-mx-1 type-icon" />
               <span @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay($event)">{{ option[RDFS.LABEL] }}</span>
             </div>

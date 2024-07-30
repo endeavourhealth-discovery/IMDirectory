@@ -4,11 +4,11 @@
       <ProgressSpinner />
     </div>
     <div v-else class="content-container" :class="showValidation && invalid && 'invalid'">
-      <div class="query-editor-container flex flex-column gap-3">
-        <div class="query-editor flex flex-column p-2">
+      <div class="query-editor-container flex flex-col gap-4">
+        <div class="query-editor flex flex-col p-2">
           <IMQueryEditor v-model:queryDefinition="queryDefinition" />
         </div>
-        <div class="flex flex-row gap-2 justify-content-end">
+        <div class="flex flex-row gap-2 justify-end">
           <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 <template>
   <div v-if="orderBy.property" class="order-by">
-    <InputText value="Order by" disabled class="w-full md:w-5rem" />
+    <InputText value="Order by" disabled class="w-full md:w-20" />
     <Select v-model="orderBy.property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
     <Select
       v-model="orderBy.property.direction"
@@ -9,7 +9,7 @@
       optionValue="value"
       placeholder="Select direction"
     />
-    <InputText value="Limit" disabled class="w-full md:w-5rem" />
+    <InputText value="Limit" disabled class="w-full md:w-20" />
     <InputNumber v-model="orderBy.limit" placeholder="Set limit" class="limit" />
     <Button severity="danger" icon="fa-solid fa-trash" @click="deleteOrderBy" />
   </div>

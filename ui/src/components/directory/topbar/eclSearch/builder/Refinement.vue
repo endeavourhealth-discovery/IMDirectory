@@ -16,12 +16,12 @@
       option-value="value"
     >
       <template #value="slotProps">
-        <div v-if="slotProps.value" class="flex align-items-center">
+        <div v-if="slotProps.value" class="flex items-center">
           <div>{{ value.property.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
-        <div class="flex align-items-center" style="min-height: 1rem">
+        <div class="flex items-center" style="min-height: 1rem">
           <div>{{ slotProps.option.label }}</div>
         </div>
       </template>
@@ -47,12 +47,12 @@
       option-value="value"
     >
       <template #value="slotProps">
-        <div v-if="slotProps.value" class="flex align-items-center">
+        <div v-if="slotProps.value" class="flex items-center">
           <div>{{ value.value.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
-        <div class="flex align-items-center" style="min-height: 1rem">
+        <div class="flex items-center" style="min-height: 1rem">
           <div>{{ slotProps.option.label }}</div>
         </div>
       </template>

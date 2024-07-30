@@ -1,7 +1,7 @@
 <template>
   <SearchBar v-model:searchTerm="searchTerm" :show-filters="false" @to-search="emit('onSearch', searchTerm)" />
-  <div v-if="showTypeFilters" class="type-options flex flex-wrap gap-3">
-    <div v-for="typeOption in typeOptions" :key="typeOption.name" class="flex align-items-center">
+  <div v-if="showTypeFilters" class="type-options flex flex-wrap gap-4">
+    <div v-for="typeOption in typeOptions" :key="typeOption.name" class="flex items-center">
       <RadioButton v-model="selectedType" :disabled="lockTypeFilters" :inputId="typeOption.name" name="dynamic" :value="typeOption" />
       <label :for="typeOption.name" class="gap-1">{{ typeOption.name }}</label>
     </div>

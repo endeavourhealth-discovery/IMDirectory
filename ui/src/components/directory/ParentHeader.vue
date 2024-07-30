@@ -26,7 +26,7 @@
       <TextWithLabel label="Iri" :data="entity['@id']" v-if="!!entity['@id']" />
       <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
     </div>
-    <div class="flex flex-row justify-content-start">
+    <div class="flex flex-row justify-start">
       <ArrayObjectNameTagWithLabel v-if="!!entity['http://endhealth.info/im#status']" label="Status" :data="entity['http://endhealth.info/im#status']" />
       <ArrayObjectNamesToStringWithLabel
         label="Types"

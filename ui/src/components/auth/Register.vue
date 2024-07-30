@@ -1,5 +1,5 @@
 <template>
-  <Card class="flex flex-column justify-content-sm-around align-items-center register-card">
+  <Card class="flex flex-col justify-content-sm-around items-center register-card">
     <template #header>
       <avatar-with-selector data-testid="register-avatar-select" :selectedAvatar="selectedAvatar" @avatarSelected="updateAvatar" />
     </template>
@@ -24,7 +24,7 @@
           </div>
           <div class="field">
             <label for="fieldEmail1">Email address</label>
-            <div class="flex flex-row align-items-center">
+            <div class="flex flex-row items-center">
               <InputText
                 id="fieldEmail1"
                 data-testid="register-email1"
@@ -103,7 +103,7 @@
             <label for="privacy"> I have read and accept the <a @click="openInNewTab('Privacy')">privacy policy </a></label>
             <Checkbox v-model="privacyPolicyAccepted" :binary="true" />
           </div>
-          <div class="flex flex-row justify-content-center">
+          <div class="flex flex-row justify-center">
             <Button :disabled="!allVerified" data-testid="register-submit" class="user-submit" type="submit" label="Register" @click="onSubmit" />
           </div>
         </div>

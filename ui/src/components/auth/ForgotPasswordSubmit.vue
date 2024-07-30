@@ -1,12 +1,12 @@
 <template>
-  <div class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center recovery-card">
+  <div class="flex flex-row items-center">
+    <Card class="flex flex-col justify-content-sm-around items-center recovery-card">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-user" class="icon-header" />
       </template>
       <template #title> Account Recovery: <br /><br />Submit Password Reset Code </template>
       <template #content>
-        <form @submit="onSubmit" class="flex flex-column justify-content-start recovery-form">
+        <form @submit="onSubmit" class="flex flex-col justify-start recovery-form">
           <div class="field">
             <label for="fieldUsername">Username</label>
             <InputText
@@ -24,7 +24,7 @@
           </div>
           <div class="field">
             <label for="fieldCode">Confirmation code</label>
-            <div class="flex flex-row justify-content-center">
+            <div class="flex flex-row justify-center">
               <InputOtp
                 data-testid="forgot-password-submit-code"
                 id="fieldCode"
@@ -41,7 +41,7 @@
             <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
           </div>
           <PasswordInputs test-id="forgot-password-submit-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
-          <div class="flex flex-row justify-content-center">
+          <div class="flex flex-row justify-center">
             <Button
               :disabled="!allVerified"
               data-testid="forgot-password-submit-reset"

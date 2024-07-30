@@ -1,14 +1,14 @@
 <template>
   <div class="flex flex-row">
     <div class="menu-container"><TieredMenu :model="menuItems" /></div>
-    <Card class="flex flex-column justify-content-sm-around align-items-center user-edit-card">
+    <Card class="flex flex-col justify-content-sm-around items-center user-edit-card">
       <template #header>
         <h1>Edit my account</h1>
         <avatar-with-selector :selectedAvatar="selectedAvatar" @avatarSelected="updateAvatar" />
       </template>
       <template #title> {{ menuItems[activeItem].label }} </template>
       <template #content>
-        <div v-if="activeItem === 0" class="flex flex-column justify-content-start user-edit-form">
+        <div v-if="activeItem === 0" class="flex flex-col justify-start user-edit-form">
           <form @submit="onSubmit">
             <div class="field">
               <label for="username">Username</label>
@@ -45,7 +45,7 @@
             </div>
             <div class="field">
               <label for="email1">Email address</label>
-              <div class="flex flex-row align-items-center">
+              <div class="flex flex-row items-center">
                 <InputText
                   data-testid="user-edit-email1"
                   id="email1"
@@ -85,7 +85,7 @@
               @update:password="setNewPassword"
               @update:arePasswordsValid="setIsNewPasswordValid"
             />
-            <div class="flex flex-row justify-content-between align-items-center">
+            <div class="flex flex-row justify-between items-center">
               <Button
                 data-testid="user-edit-password-change-button"
                 v-if="!showPasswordEdit"

@@ -2,14 +2,14 @@
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
     <div class="flex">
       <QueryNavTree
-        class="w-5"
+        class="w-5/12"
         :editMatch="editMatch"
         v-model:selected-property="selectedProperty"
         :dm-iri="dataModelIri"
         :show-variable-options="showVariableOptions"
       />
       <EditProperty
-        class="align-self-center w-12"
+        class="self-center w-full"
         :edit-match="match"
         :property="editWhere"
         :data-model-iri="editWhereDMIri || dataModelIri"

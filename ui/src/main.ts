@@ -128,7 +128,11 @@ const pinia = createPinia();
 const app = createApp(App)
   .use(pinia)
   .use(router)
-  .use(PrimeVue, { ripple: true, local: { dateFormat: "dd/mm/yyyy" }, theme: { preset: Aura, options: { darkModeSelector: ".my-app-dark" } } })
+  .use(PrimeVue, {
+    ripple: true,
+    local: { dateFormat: "dd/mm/yyyy" },
+    theme: { preset: Aura, options: { darkModeSelector: ".my-app-dark", cssLayer: { name: "primevue", order: "tailwind-base, primevue, tailwind-utilities" } } }
+  })
   .use(ConfirmationService)
   .use(ToastService)
   .use(DialogService)

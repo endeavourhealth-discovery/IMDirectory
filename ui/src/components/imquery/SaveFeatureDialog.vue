@@ -5,14 +5,14 @@
     header="Save feature"
     :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--p-surface-section)' }"
   >
-    <form @submit="onSubmit" class="flex flex-column gap-2 save-feature-form">
-      <div class="flex flex-column gap-2" id="save-feature-full-iri">
+    <form @submit="onSubmit" class="flex flex-col gap-2 save-feature-form">
+      <div class="flex flex-col gap-2" id="save-feature-full-iri">
         <span id="save-feature-iri-header">Iri</span>
         <InputText :model-value="fullIri" type="text" disabled />
         <small class="p-error" id="text-error">{{ errors.iri || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-column gap-2" id="save-feature-scheme-iri">
+      <div class="flex flex-col gap-2" id="save-feature-scheme-iri">
         <span id="save-feature-scheme-header">Scheme</span>
         <Select
           id="scheme"
@@ -30,7 +30,7 @@
         <small class="p-error flex-1" id="text-error">{{ errors.scheme || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-column gap-2" id="save-feature-name">
+      <div class="flex flex-col gap-2" id="save-feature-name">
         <span id="save-feature-name-header">Name</span>
         <InputText id="name" v-model="name" v-bind="nameAttrs" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
         <small class="p-error" id="text-error">{{ errors.name || "&nbsp;" }}</small>

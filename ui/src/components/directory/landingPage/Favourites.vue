@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row justify-content-center align-items-center loading-container" v-if="loading">
+  <div class="flex flex-row justify-center items-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
   <div v-else class="favourites-container">

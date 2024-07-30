@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center login-card">
+  <div class="flex flex-row items-center">
+    <Card class="flex flex-col justify-content-sm-around items-center login-card">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-users" class="icon-header" />
       </template>
@@ -25,7 +25,7 @@
             />
             <Message v-if="errors.password" severity="error">{{ errors.password }}</Message>
           </div>
-          <div class="flex flex-row justify-content-center">
+          <div class="flex flex-row justify-center">
             <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="onSubmit" :loading="loading" />
           </div>
         </form>

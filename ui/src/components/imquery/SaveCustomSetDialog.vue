@@ -6,14 +6,14 @@
     header="Save custom set"
     :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--p-surface-section)' }"
   >
-    <form @submit="onSubmit" class="flex flex-column gap-2 save-set-form">
-      <div class="flex flex-column gap-2" id="save-set-full-iri">
+    <form @submit="onSubmit" class="flex flex-col gap-2 save-set-form">
+      <div class="flex flex-col gap-2" id="save-set-full-iri">
         <span id="save-set-iri-header">Iri</span>
         <InputText :model-value="fullIri" type="text" disabled />
         <small class="p-error" id="text-error">{{ errors.iri || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-column gap-2" id="save-set-scheme-iri">
+      <div class="flex flex-col gap-2" id="save-set-scheme-iri">
         <span id="save-set-scheme-header">Scheme</span>
         <Select
           id="scheme"
@@ -31,13 +31,13 @@
         <small class="p-error flex-1" id="text-error">{{ errors.scheme || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-column gap-2" id="save-set-name">
+      <div class="flex flex-col gap-2" id="save-set-name">
         <span id="save-set-name-header">Name</span>
         <InputText id="name" v-model="name" v-bind="nameAttrs" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
         <small class="p-error" id="text-error">{{ errors.name || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-column gap-2" id="save-set-type">
+      <div class="flex flex-col gap-2" id="save-set-type">
         <span id="save-set-type-header">Type</span>
 
         <Select
@@ -55,7 +55,7 @@
       </div>
 
       <span id="members-title">Members</span>
-      <Listbox v-model="selectedMember" :options="setMembers" optionLabel="name" class="flex flex-column" />
+      <Listbox v-model="selectedMember" :options="setMembers" optionLabel="name" class="flex flex-col" />
     </form>
 
     <template #footer>

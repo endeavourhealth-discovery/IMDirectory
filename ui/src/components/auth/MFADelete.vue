@@ -1,6 +1,6 @@
 <template>
   <div id="mfa-delete">
-    <Card class="flex flex-column justify-content-sm-around align-items-center mfa-delete-card">
+    <Card class="flex flex-col justify-content-sm-around items-center mfa-delete-card">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-shield-slash" class="icon-header" />
       </template>

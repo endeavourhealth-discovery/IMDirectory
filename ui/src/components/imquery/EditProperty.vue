@@ -1,6 +1,6 @@
 <template>
   <div class="property-container">
-    <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-14rem" disabled />
+    <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-56" disabled />
     <span v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'">
       <span class="is-title"> is </span>
       <span v-if="property.valueLabel">

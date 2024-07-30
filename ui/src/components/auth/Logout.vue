@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center logout-card">
+  <div class="flex flex-row items-center">
+    <Card class="flex flex-col justify-content-sm-around items-center logout-card">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-arrow-right-from-bracket" class="icon-header" />
       </template>
@@ -11,7 +11,7 @@
             <div class="p-text-left">Current User:</div>
           </div>
           <div class="field">
-            <div v-if="currentUser" class="flex flex-row align-items-center p-text-capitalize">
+            <div v-if="currentUser" class="flex flex-row items-center p-text-capitalize">
               <img
                 data-testid="logout-avatar-image"
                 v-if="isLoggedIn"
@@ -26,7 +26,7 @@
             </div>
             <div v-if="!isLoggedIn" class="p-text-left p-text-capitalize">Guest</div>
           </div>
-          <div class="flex flex-row justify-content-center">
+          <div class="flex flex-row justify-center">
             <Button data-testid="logout-submit" class="user-submit" type="submit" label="Logout" @click="handleSubmit" />
           </div>
         </div>

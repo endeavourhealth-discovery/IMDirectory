@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-column align-items-center justify-content-start user-container">
-    <div class="flex flex-column justify-content-start card-button-container">
+  <div class="flex flex-col items-center justify-start user-container">
+    <div class="flex flex-col justify-start card-button-container">
       <ButtonBar />
       <div id="user-card-container">
         <router-view />

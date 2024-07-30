@@ -28,7 +28,7 @@
       :property-iri="property['@id']!"
     />
   </div>
-  <div v-else-if="propertyType === 'within'" class="flex align-items-baseline">
+  <div v-else-if="propertyType === 'within'" class="flex items-baseline">
     <SelectButton
       v-model="sign"
       :options="[
@@ -37,7 +37,7 @@
       ]"
       optionValue="id"
       optionLabel="name"
-      class="flex align-items-baseline"
+      class="flex items-baseline"
     />
     <InputNumber v-model:model-value="numberValue" />
     <!-- TODO: model Date options and get from API -->
