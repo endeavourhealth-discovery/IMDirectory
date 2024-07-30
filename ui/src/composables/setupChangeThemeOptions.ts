@@ -1,5 +1,6 @@
+import PresetThemes from "@/enums/PresetThemes";
 import { useUserStore } from "@/stores/userStore";
-import { usePreset, updatePrimaryPalette, updateSurfacePalette, palette } from "@primevue/themes";
+import { usePreset, updatePrimaryPalette, updateSurfacePalette, palette, updatePreset } from "@primevue/themes";
 import Aura from "@primevue/themes/aura";
 import Lara from "@primevue/themes/lara";
 import Nora from "@primevue/themes/nora";
@@ -7,21 +8,24 @@ import Nora from "@primevue/themes/nora";
 function setupChangeThemeOptions() {
   const userStore = useUserStore();
 
-  async function changePreset(preset: string) {
+  async function changePreset(preset: PresetThemes) {
     switch (preset) {
-      case "aura":
+      case PresetThemes.AURA:
         usePreset(Aura);
         break;
-      case "nora":
+      case PresetThemes.NORA:
         usePreset(Nora);
         break;
-      case "lara":
+      case PresetThemes.LARA:
         usePreset(Lara);
         break;
       default:
         usePreset(Aura);
         break;
     }
+    if (userStore.currentPrimaryColor) changePrimaryColor(userStore.currentPrimaryColor);
+    if (userStore.currentSurfaceColor) changeSurfaceColor(userStore.currentSurfaceColor);
+    if (userStore.darkMode) changeDarkMode(userStore.darkMode);
     if (preset !== userStore.currentPreset) await userStore.updatePreset(preset);
   }
 

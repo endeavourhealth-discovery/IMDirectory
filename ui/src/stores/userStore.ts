@@ -4,12 +4,13 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { AuthService, EntityService, UserService } from "@/services";
 import { Avatars } from "@im-library/constants";
 import { CustomAlert, HistoryItem, RecentActivityItem, User } from "@im-library/interfaces";
+import PresetThemes from "@/enums/presetThemes";
 
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
     cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
-    currentPreset: "" as string,
+    currentPreset: undefined,
     currentPrimaryColor: "" as string,
     currentSurfaceColor: "" as string,
     darkMode: false,
@@ -27,7 +28,7 @@ export const useUserStore = defineStore("user", {
   },
   actions: {
     clearAllFromUserDatabase() {
-      this.currentPreset = "";
+      this.currentPreset = undefined;
       this.currentPrimaryColor = "";
       this.currentSurfaceColor = "";
       this.favourites = [];
@@ -126,7 +127,7 @@ export const useUserStore = defineStore("user", {
         if (this.currentUser) await UserService.updateUserFavourites(this.favourites);
       }
     },
-    async updatePreset(preset: string) {
+    async updatePreset(preset: PresetThemes) {
       if (this.currentUser) await UserService.updateUserPreset(preset);
       this.currentPreset = preset;
     },

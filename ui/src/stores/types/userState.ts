@@ -1,9 +1,10 @@
+import PresetThemes from "@/enums/presetThemes";
 import { Namespace, RecentActivityItem, HistoryItem, FilterOptions, User } from "@im-library/interfaces";
 
 export interface UserState {
   cookiesEssentialAccepted: boolean;
   cookiesOptionalAccepted: boolean;
-  currentPreset: string;
+  currentPreset: PresetThemes | undefined;
   currentPrimaryColor: string;
   currentSurfaceColor: string;
   darkMode: boolean;
