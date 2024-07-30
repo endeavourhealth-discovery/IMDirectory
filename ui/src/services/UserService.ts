@@ -2,6 +2,7 @@ import { fetchAuthSession } from "aws-amplify/auth";
 import Env from "./Env";
 import axios from "axios";
 import { RecentActivityItem } from "@im-library/interfaces";
+import PresetThemes from "@/enums/presetThemes";
 
 const UserService = {
   async getUserScale(): Promise<string> {
@@ -16,7 +17,7 @@ const UserService = {
   async getUserOrganisations(): Promise<string[]> {
     return await axios.get(Env.API + "api/user/organisations");
   },
-  async getUserPreset(): Promise<string> {
+  async getUserPreset(): Promise<PresetThemes> {
     return await axios.get(Env.API + "api/user/preset");
   },
   async getUserPrimaryColor(): Promise<string> {
@@ -28,7 +29,7 @@ const UserService = {
   async getUserDarkMode(): Promise<boolean> {
     return await axios.get(Env.API + "api/user/darkMode");
   },
-  async updateUserPreset(preset: string): Promise<void> {
+  async updateUserPreset(preset: PresetThemes): Promise<void> {
     return await axios.post(Env.API + "api/user/preset", preset, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
   },
   async updateUserPrimaryColor(color: string): Promise<void> {

@@ -163,6 +163,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import setupChangeScale from "@/composables/setupChangeScale";
 import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
+import PresetThemes from "@/enums/PresetThemes";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -209,7 +210,7 @@ const themeOptions = ref({
     "rose"
   ],
   surfaceColours: ["slate", "gray", "zinc", "neutral", "stone"],
-  presets: ["Aura"]
+  presets: [PresetThemes.AURA, PresetThemes.LARA, PresetThemes.NORA]
 });
 const preset = ref(themeOptions.value.presets[0]);
 const darkMode = ref(false);
