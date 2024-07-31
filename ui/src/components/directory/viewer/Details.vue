@@ -15,7 +15,7 @@
     >
       <template #default="{ node }: any">
         <div v-if="tabPredicates.includes(node.key!)">
-          <a class="clickable" @click="openTab(node.key!)">{{ node.label }}</a>
+          <Button link as="a" class="clickable p-0" @click="openTab(node.key!)">{{ node.label }}</Button>
         </div>
 
         <div v-else-if="node.data">

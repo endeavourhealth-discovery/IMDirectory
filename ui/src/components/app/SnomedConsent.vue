@@ -11,24 +11,26 @@
       <div class="license-content">
         <strong>Information Model</strong> includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of the International Health Terminology
         Standards Development Organization (IHTSDO). All rights reserved. SNOMED CT® was originally created by the College of American Pathologists. “SNOMED”,
-        “SNOMED CT” and “SNOMED Clinical Terms” are registered trademarks of the IHTSDO (<a href="http://www.ihtsdo.org">www.ihtsdo.org</a>)Use of SNOMED CT in
-        <strong>Information Model</strong> is governed by the conditions of the following SNOMED CT license issued by the IHTSDO:
+        “SNOMED CT” and “SNOMED Clinical Terms” are registered trademarks of the IHTSDO (<Button link as="a" href="http://www.ihtsdo.org">www.ihtsdo.org</Button
+        >)Use of SNOMED CT in <strong>Information Model</strong> is governed by the conditions of the following SNOMED CT license issued by the IHTSDO:
 
         <ol>
           <li>
             The meaning of the terms “Affiliate”, or “Data Analysis System”, “Data Creation System”, “Derivative”, “End User”, “Extension”, “Member”,
             “Non-Member Territory”, “SNOMED CT” and “SNOMED CT Content” are as defined in the IHTSDO Affiliate License Agreement (see
-            <a href="http://www.ihtsdo.org/resource/resource/117">on the IHTSDO web site</a>).
+            <Button link as="a" href="http://www.ihtsdo.org/resource/resource/117">on the IHTSDO web site</Button>).
           </li>
           <li>
             Information about Affiliate Licensing is available at
-            <a href="http://www.ihtsdo.org/snomed-ct/get-snomed-ct"> http://www.ihtsdo.org/snomed-ct/get-snomed-ct</a>. Individuals or organizations wishing to
-            register as IHTSDO Affiliates can register at <a href="https://mlds.ihtsdotools.org">mlds.ihtsdotools.org</a>, subject to acceptance of the
-            Affiliate License Agreement (see <a href="http://www.ihtsdo.org/resource/resource/117"> on the IHTSDO web site</a>).
+            <Button link as="a" href="http://www.ihtsdo.org/snomed-ct/get-snomed-ct"> http://www.ihtsdo.org/snomed-ct/get-snomed-ct</Button>. Individuals or
+            organizations wishing to register as IHTSDO Affiliates can register at
+            <Button link as="a" href="https://mlds.ihtsdotools.org">mlds.ihtsdotools.org</Button>, subject to acceptance of the Affiliate License Agreement (see
+            <Button link as="a" href="http://www.ihtsdo.org/resource/resource/117"> on the IHTSDO web site</Button>).
           </li>
           <li>
             The current list of IHTSDO Member Territories can be viewed at
-            <a href="http://www.ihtsdo.org/members">www.ihtsdo.org/members</a>. Countries not included in that list are "Non-Member Territories".
+            <Button link as="a" href="http://www.ihtsdo.org/members">www.ihtsdo.org/members</Button>. Countries not included in that list are "Non-Member
+            Territories".
           </li>
           <li>
             End Users, that do not hold an IHTSDO Affiliate License, may access SNOMED CT® using <strong>Information Model</strong> subject to acceptance of
@@ -116,5 +118,9 @@ function submitAgree(): void {
   margin: 20px;
   border: 1px solid;
   padding: 10px;
+}
+
+#license-content:deep(.p-button-link) {
+  padding: 0;
 }
 </style>

@@ -20,7 +20,9 @@
       <template #footer>
         <small>
           Already have a recovery code?
-          <a id="password-submit-link" class="footer-link" @click="router.push({ name: 'ForgotPasswordSubmit' })">Submit Code</a>
+          <Button link as="a" id="password-submit-link" class="footer-link p-0 text-xs" @click="router.push({ name: 'ForgotPasswordSubmit' })"
+            >Submit Code</Button
+          >
         </small>
         <br />
         <br />

@@ -5,9 +5,9 @@
     <Popover ref="avatar" class="avatar-popup">
       <div>
         Icons made by
-        <a href="https://www.flaticon.com/authors/vitaly-gorbachev" title="Vitaly Gorbachev">Vitaly Gorbachev</a>
+        <Button link as="a" href="https://www.flaticon.com/authors/vitaly-gorbachev" class="p-0" title="Vitaly Gorbachev">Vitaly Gorbachev</Button>
         from
-        <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+        <Button link as="a" href="https://www.flaticon.com/" class="p-0" title="Flaticon">www.flaticon.com</Button>
       </div>
       <SelectButton
         data-testid="avatar-button-options"

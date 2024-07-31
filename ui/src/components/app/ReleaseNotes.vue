@@ -21,7 +21,7 @@
                 <span v-if="!release.releaseNotes.length">No details</span>
                 <VueShowdown v-else class="showdown-component" v-for="note in release.releaseNotes" :markdown="note" flavor="github" />
               </div>
-              <a class="github-link" :href="sanitizeUrl(release.url)">{{ release.url }}</a>
+              <Button link as="a" class="github-link" :href="sanitizeUrl(release.url)">{{ release.url }}</Button>
             </div>
           </div>
           <div v-if="!(loadingNotes || loadingGlobal)" class="view-buttons-container">
@@ -170,8 +170,8 @@ function hideOlderReleases() {
 .release-container {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid var(--p-textarea-border-color);
-  border-radius: var(--p-textarea-border-radius);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-content-border-radius);
 }
 
 .release-notes-container {
@@ -198,6 +198,10 @@ p {
 .release-button {
   margin-top: 0.5rem;
   width: fit-content;
+}
+
+.github-link {
+  padding: 0;
 }
 
 @keyframes my-fadein {
