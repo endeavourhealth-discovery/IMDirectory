@@ -78,15 +78,15 @@ export function ttIriToString(
   if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
     const escapedUrl = iriToUrl(iri["@id"]);
     if (iri["@id"] === seeMore) {
-      result += `<a href="">`;
+      result += `<Button link as="a" href="">`;
     } else {
-      result += `<a target="_blank" href="${window.location.origin}${appPath}/#/concept/${escapedUrl}">`;
+      result += `<Button link as="a" target="_blank" href="${window.location.origin}${appPath}/#/concept/${escapedUrl}">`;
     }
   }
   if (iri.name) result += removeEndBrackets(iri.name);
   else result += iri["@id"];
   if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
-    result += "</a>";
+    result += "</Button>";
   }
   if (previous === "array") result += "\n";
   return result;

@@ -31,14 +31,28 @@
         </form>
       </template>
       <template #footer>
-        <small>Don't have an account yet? <a id="register-link" class="footer-link" @click="router.push({ name: 'Register' })">Register here</a></small>
+        <small
+          >Don't have an account yet?
+          <Button link as="a" id="register-link" class="footer-link p-0 text-xs" @click="router.push({ name: 'Register' })">Register here</Button></small
+        >
         <br />
         <br />
-        <small>Already received a confirmation code? <a id="code-link" class="footer-link" @click="router.push({ name: 'ConfirmCode' })">Add it here</a></small>
+        <small
+          >Already received a confirmation code?
+          <Button link as="a" id="code-link" class="footer-link p-0 text-xs" @click="router.push({ name: 'ConfirmCode' })">Add it here</Button></small
+        >
         <br />
         <br />
         <small>
-          Forgot your password or username? <br /><a id="recover-link" class="footer-link" @click="router.push({ name: 'ForgotPassword' })"> Recover account</a>
+          Forgot your password or username? <br /><Button
+            link
+            as="a"
+            id="recover-link"
+            class="footer-link p-0 text-xs"
+            @click="router.push({ name: 'ForgotPassword' })"
+          >
+            Recover account</Button
+          >
         </small>
       </template>
     </Card>

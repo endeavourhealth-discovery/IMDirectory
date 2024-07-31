@@ -100,7 +100,7 @@
           </div>
           <PasswordInputs test-id="register-password-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
           <div class="privacy-container">
-            <label for="privacy"> I have read and accept the <a @click="openInNewTab('Privacy')">privacy policy </a></label>
+            <label for="privacy"> I have read and accept the <Button link as="a" class="p-0" @click="openInNewTab('Privacy')">privacy policy </Button></label>
             <Checkbox v-model="privacyPolicyAccepted" :binary="true" />
           </div>
           <div class="flex flex-row justify-center">
@@ -112,7 +112,7 @@
     <template #footer>
       <span>
         Already have an account?
-        <router-link id="login-link" class="footer-link" to="/user/login">Login here</router-link>
+        <Button link as="router-link" id="login-link" class="footer-link p-0" to="/user/login">Login here</Button>
       </span>
     </template>
   </Card>

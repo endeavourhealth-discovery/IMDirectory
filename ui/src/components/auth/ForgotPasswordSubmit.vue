@@ -54,7 +54,10 @@
         </form>
       </template>
       <template #footer>
-        <small>Request a new code <a id="password-submit-link" class="footer-link" @click="router.push({ name: 'ForgotPassword' })">here</a></small>
+        <small
+          >Request a new code
+          <Button link as="a" id="password-submit-link" class="footer-link p-0 text-xs" @click="router.push({ name: 'ForgotPassword' })">here</Button></small
+        >
         <br />
         <br />
         <small>If you have forgotten your username, please contact an admin</small>

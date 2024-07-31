@@ -11,15 +11,20 @@
       <ul>
         <li>
           <IMFontAwesomeIcon icon="fa-brands fa-google" />
-          <a href="https://support.google.com/accounts/answer/1066447?hl=en&co=GENIE.Platform%3DiOS"> Google authenticator </a>
+          <Button link as="a" class="p-0" href="https://support.google.com/accounts/answer/1066447?hl=en&co=GENIE.Platform%3DiOS">
+            Google authenticator
+          </Button>
         </li>
         <li>
           <IMFontAwesomeIcon icon="fa-brands fa-microsoft" />
-          <a
+          <Button
+            link
+            as="a"
+            class="p-0"
             href="https://support.microsoft.com/en-us/account-billing/download-and-install-the-microsoft-authenticator-app-351498fc-850a-45da-b7b6-27e523b8702a"
           >
             Microsoft Authenticator
-          </a>
+          </Button>
         </li>
       </ul>
     </div>
