@@ -247,10 +247,8 @@ function showQuerySearch() {
 async function getIsSelectableEntity(): Promise<boolean> {
   if (props.imQuery) {
     const imQuery = _.cloneDeep(props.imQuery);
-    imQuery.textSearch = selectedName.value;
-    const imQueryResponse = await QueryService.queryIM(imQuery);
-    if (!isObjectHasKeys(imQueryResponse, ["entities"]) || !isArrayHasLength(imQueryResponse.entities)) return false;
-    return imQueryResponse.entities.some(item => item["@id"] === detailsIri.value);
+    imQuery.askIri = detailsIri.value;
+    return await QueryService.askQuery(imQuery);
   }
   return true;
 }
