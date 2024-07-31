@@ -54,7 +54,7 @@ describe("EditorMethods", () => {
       expect(processComponentType({ "@id": COMPONENT.TEXT_INPUT })).toBe(ComponentType.TEXT_INPUT);
       expect(processComponentType({ "@id": COMPONENT.HTML_INPUT })).toBe(ComponentType.HTML_INPUT);
       expect(processComponentType({ "@id": COMPONENT.ARRAY_BUILDER })).toBe(ComponentType.ARRAY_BUILDER);
-      expect(processComponentType({ "@id": COMPONENT.ENTITY_SEARCH })).toBe(ComponentType.ENTITY_SEARCH);
+      expect(processComponentType({ "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER })).toBe(ComponentType.AUTOCOMPLETE_SEARCH_BAR_WRAPPER);
       expect(processComponentType({ "@id": COMPONENT.ENTITY_COMBOBOX })).toBe(ComponentType.ENTITY_COMBOBOX);
       expect(processComponentType({ "@id": COMPONENT.ENTITY_DROPDOWN })).toBe(ComponentType.ENTITY_DROPDOWN);
       expect(processComponentType({ "@id": COMPONENT.ENTITY_AUTO_COMPLETE })).toBe(ComponentType.ENTITY_AUTO_COMPLETE);
