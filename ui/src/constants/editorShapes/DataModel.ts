@@ -229,7 +229,7 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   select: [
                     {
@@ -284,7 +284,7 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   }
                 }
               ],
