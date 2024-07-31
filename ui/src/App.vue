@@ -8,7 +8,7 @@
     <SnomedConsent />
     <div id="main-container">
       <BannerBar v-if="!viewsLoading && showBanner" :latestRelease="latestRelease" />
-      <div v-if="viewsLoading" class="flex flex-row justify-center items-center loading-container">
+      <div v-if="viewsLoading" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
       <router-view v-else />
@@ -225,6 +225,7 @@ function setupExternalErrorHandler() {
 @import "@/assets/layout/flags/flags.css";
 @import "@/assets/layout/sass/_main.scss";
 @import "sweetalert2/dist/sweetalert2.min.css";
+@import "@/assets/tailwind.css";
 </style>
 
 <style scoped>

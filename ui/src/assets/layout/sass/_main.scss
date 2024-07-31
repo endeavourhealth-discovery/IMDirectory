@@ -1,14 +1,3 @@
-@layer tailwind-base, primevue, tailwind-utilities;
-
-@layer tailwind-base {
-  @tailwind base;
-}
-
-@layer tailwind-utilities {
-  @tailwind components;
-  @tailwind utilities;
-}
-
 html {
   font-family:
     "Inter var",
@@ -40,25 +29,6 @@ body {
   @include fluid-type($min_width, $max_width, $min_font, $max-font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-@layer base {
-  h1 {
-    @apply text-3xl;
-    @apply font-bold;
-  }
-  h2 {
-    @apply text-2xl;
-    @apply font-bold;
-  }
-  h3 {
-    @apply text-xl;
-    @apply font-semibold;
-  }
-  h4 {
-    @apply text-lg;
-    @apply font-semibold;
-  }
 }
 
 :root {
