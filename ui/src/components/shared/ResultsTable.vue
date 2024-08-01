@@ -45,7 +45,7 @@
         <template #body="{ data }: any">
           <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
-            <span class="break-word" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
+            <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
               {{ data.code ? data.name + " | " + data.code : data.name }}
             </span>
           </div>
@@ -281,18 +281,11 @@ function onRowContextMenu(event: any) {
 }
 
 function onRowSelect(event: any) {
-  clicks.value++;
-  if (clicks.value === 1) {
-    timer.value = setTimeout(() => {
-      const found = searchResults.value.find(result => event.data.iri === result.iri);
-      if (found) emit("rowSelected", found);
-      clicks.value = 0;
-    }, delay.value);
+  if (event.originalEvent.metaKey || event.originalEvent.ctrlKey) {
+    directService.view(event.data.iri);
   } else {
-    clearTimeout(timer.value);
     const found = searchResults.value.find(result => event.data.iri === result.iri);
     if (found) emit("rowSelected", found);
-    clicks.value = 0;
   }
 }
 
