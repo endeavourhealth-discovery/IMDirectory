@@ -147,7 +147,10 @@
       v-if="!isRootFeature"
       severity="danger"
       icon="fa-solid fa-trash"
-      class="builder-button"
+      :outlined="!hover"
+      :class="[!hover && 'hover-button', 'builder-button']"
+      @mouseover="hover = true"
+      @mouseout="hover = false"
       @click.stop="emit('deleteMatch', props.editMatch['@id']!)"
     />
   </div>
