@@ -356,4 +356,8 @@ function updateSelectedIri(iri: string) {
   flex: 1 1 auto;
   display: flex;
 }
+
+.populate-property-actions {
+  margin-top: auto !important;
+}
 </style>
