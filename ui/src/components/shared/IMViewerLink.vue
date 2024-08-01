@@ -1,16 +1,21 @@
 <template>
   <div
     v-if="html"
-    :class="getClass()"
-    @click="click()"
+    @click="click($event)"
     @mouseover="showOverlay($event, props.iri)"
     @mouseleave="hideOverlay"
     v-html="label"
     @contextmenu="onNodeContext"
   ></div>
-  <div v-else :class="getClass()" @click="click()" @mouseover="showOverlay($event, props.iri)" @mouseleave="hideOverlay" @contextmenu="onNodeContext">
-    {{ label || iri }}
-  </div>
+  <Button
+    v-else
+    link
+    :label="label || iri"
+    @click="click($event)"
+    @mouseover="showOverlay($event, props.iri)"
+    @mouseleave="hideOverlay"
+    @contextmenu="onNodeContext"
+  />
   <ContextMenu ref="vLinkMenu" :model="items" />
   <OverlaySummary ref="OS" />
 </template>
@@ -49,28 +54,17 @@ const items = ref([
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
 
-function getClass() {
-  const clasz = "clickable ";
-  if (props.action === "select") return clasz;
-  else return clasz + "link";
-}
-
 function onNodeContext(event: any) {
   vLinkMenu.value.show(event);
 }
 
-async function click() {
-  emit("navigateTo", props.iri);
+async function click(event: MouseEvent) {
+  if (event.metaKey || event.ctrlKey) {
+    directService.view(props.iri);
+  } else {
+    directService.select(props.iri);
+  }
 }
 </script>
 
-<style scoped>
-.clickable {
-  cursor: pointer;
-}
-
-.link {
-  text-decoration: none;
-  color: #2196f3;
-}
-</style>
+<style scoped></style>

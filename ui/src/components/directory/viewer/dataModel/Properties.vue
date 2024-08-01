@@ -35,14 +35,14 @@
 
       <Column field="property" header="Name">
         <template #body="{ data }: any">
-          <div class="link" @click="navigate(data.property[0]['@id'])" data-testid="name">
+          <div class="link" @click="navigate($event, data.property[0]['@id'])" data-testid="name">
             {{ data.property[0].name || data.property[0]["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
         <template #body="{ data }: any">
-          <div class="link" @click="navigate(data.type[0]['@id'])">
+          <div class="link" @click="navigate($event, data.type[0]['@id'])">
             {{ data.type[0].name || data.type[0]["@id"] }}
           </div>
         </template>
@@ -66,14 +66,14 @@
 
       <Column field="property" header="Name">
         <template #body="{ data }: any">
-          <div class="link" @click="navigate(data.property[0]['@id'])" data-testid="name">
+          <div class="link" @click="navigate($event, data.property[0]['@id'])" data-testid="name">
             {{ data.property[0].name || data.property[0]["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
         <template #body="{ data }: any">
-          <div class="link" @click="navigate(data.type[0]['@id'])">
+          <div class="link" @click="navigate($event, data.type[0]['@id'])">
             {{ data.type[0].name || data.type[0]["@id"] }}
           </div>
         </template>
@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import { PropertyDisplay } from "@im-library/interfaces";
-import { EntityService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
@@ -100,6 +100,8 @@ const props = defineProps<Props>();
 const emit = defineEmits({
   navigateTo: (_payload: string) => true
 });
+
+const directService = new DirectService();
 
 const loading = ref(false);
 const properties: Ref<any[]> = ref([]);
@@ -151,9 +153,13 @@ function getProperty(result: PropertyDisplay): PropertyDisplay {
   } as PropertyDisplay;
 }
 
-function navigate(iri: any): void {
+function navigate(event: MouseEvent, iri: any): void {
   if (!iri.includes("OR")) {
-    emit("navigateTo", iri);
+    if (event.metaKey || event.ctrlKey) {
+      directService.view(iri);
+    } else {
+      directService.select(iri);
+    }
   }
 }
 

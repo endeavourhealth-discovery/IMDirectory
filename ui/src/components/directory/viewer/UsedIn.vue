@@ -42,6 +42,7 @@ import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupOverlay from "@/composables/setupOverlay";
+import { DirectService } from "@/services";
 
 interface Props {
   entityIri: string;
@@ -51,6 +52,8 @@ const props = defineProps<Props>();
 const emit = defineEmits({
   navigateTo: (_payload: string) => true
 });
+
+const directService = new DirectService();
 
 const usages: Ref<any[]> = ref([]);
 const loading = ref(false);
@@ -79,7 +82,11 @@ async function init() {
 }
 
 function onRowSelect(event: any) {
-  emit("navigateTo", event.data["@id"]);
+  if (event.originalEvent.metaKey || event.originalEvent.ctrlKey) {
+    directService.view(event.data["@id"]);
+  } else {
+    directService.select(event.data["@id"]);
+  }
 }
 
 async function getUsages(iri: string, pageIndex: number, pageSize: number): Promise<void> {
