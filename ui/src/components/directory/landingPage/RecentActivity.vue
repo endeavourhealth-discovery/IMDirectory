@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row justify-center items-center loading-container" v-if="loading">
+  <div class="loading-container flex flex-row items-center justify-center" v-if="loading">
     <ProgressSpinner />
   </div>
   <div v-else class="activity-container">
@@ -20,7 +20,7 @@
           <template #body="{ data }: any">
             <div class="activity-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
-              <span class="activity-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+              <span class="activity-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
         </Column>
@@ -57,12 +57,10 @@ import _, { isArray } from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { DirectService, EntityService, ConfigService, UserService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
-import rowClick from "@/composables/rowClick";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
-const { onRowClick }: { onRowClick: Function } = rowClick();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 const directService = new DirectService();

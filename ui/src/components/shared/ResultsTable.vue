@@ -45,7 +45,7 @@
         <template #body="{ data }: any">
           <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
-            <span class="break-word" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">
+            <span class="break-word" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
               {{ data.code ? data.name + " | " + data.code : data.name }}
             </span>
           </div>

@@ -7,15 +7,12 @@ import { IM } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/treenode";
 import { computed, ref, Ref } from "vue";
 import { useToast } from "primevue/usetoast";
-import rowClick from "./rowClick";
 import { useUserStore } from "@/stores/userStore";
 
-function setupTree() {
+function setupTree(emit?: any) {
   const toast = useToast();
   const userStore = useUserStore();
   const favourites = computed(() => userStore.favourites);
-
-  const { onRowClick } = rowClick();
 
   const selectedKeys: Ref<any> = ref({});
   const selectedNode: Ref<TreeNode | undefined> = ref();
@@ -49,7 +46,7 @@ function setupTree() {
     };
   }
 
-  function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): any {
+  function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): TreeNode {
     return {
       key: "loadMore" + parentNode.data,
       label: "Load more...",
@@ -71,20 +68,35 @@ function setupTree() {
       if (!node.loading) await loadMore(node);
     } else {
       selectedNode.value = node;
-      onRowClick(node.data);
+      directService.select(node.data);
     }
   }
 
-  function onNodeDblClick($event: any, node: any) {
+  function onNodeDblClick($event: MouseEvent, node: TreeNode) {
     if (!(node.data === "loadMore" || node.data === IM.FAVOURITES)) directService.view(node.key);
   }
 
-  async function loadMore(node: any) {
+  function customOnClick(event: MouseEvent, node: TreeNode, useEmits?: boolean) {
+    if (useEmits) {
+      if (!emit) throw new Error("setupTree requires vue emits for custom clicks");
+      if (checkForControlClick(event)) emit("rowControlClicked", node.data);
+      else emit("rowClicked", node.data);
+    } else {
+      if (checkForControlClick(event)) directService.view(node.data);
+      else directService.select(node.data);
+    }
+  }
+
+  function checkForControlClick(event: MouseEvent): boolean {
+    return event.metaKey || event.ctrlKey;
+  }
+
+  async function loadMore(node: TreeNode) {
     node.loading = true;
     if (node.nextPage * pageSize.value <= node.totalCount) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
-      children.result.forEach((child: any) => {
+      children.result.forEach(child => {
         if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
       });
       node.nextPage = node.nextPage + 1;
@@ -238,7 +250,7 @@ function setupTree() {
     onNodeDblClick,
     onNodeExpand,
     onNodeSelect,
-    onRowClick,
+    customOnClick,
     loadMore,
     loadMoreChildren,
     locateChildInLoadMore,

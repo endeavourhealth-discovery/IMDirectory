@@ -4,11 +4,11 @@
     :class="getClass()"
     @click="click()"
     @mouseover="showOverlay($event, props.iri)"
-    @mouseleave="hideOverlay($event)"
+    @mouseleave="hideOverlay"
     v-html="label"
     @contextmenu="onNodeContext"
   ></div>
-  <div v-else :class="getClass()" @click="click()" @mouseover="showOverlay($event, props.iri)" @mouseleave="hideOverlay($event)" @contextmenu="onNodeContext">
+  <div v-else :class="getClass()" @click="click()" @mouseover="showOverlay($event, props.iri)" @mouseleave="hideOverlay" @contextmenu="onNodeContext">
     {{ label || iri }}
   </div>
   <ContextMenu ref="vLinkMenu" :model="items" />

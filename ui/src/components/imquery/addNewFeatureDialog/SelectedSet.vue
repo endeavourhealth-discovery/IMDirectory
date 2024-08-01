@@ -4,14 +4,14 @@
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #option="{ option }" class="flex flex-row">
         <div class="option-wrapper flex flex-row">
-          <div class="option-content flex flex-row gap-1 items-baseline">
+          <div class="option-content flex flex-row items-baseline gap-1">
             <Button @click="selectedValueMap.delete(option['@id'])" class="builder-button" :severity="'danger'" icon="fa-solid fa-x" text />
             <ToggleButton v-model="option.include" onLabel="include" offLabel="exclude" />
             <InputText v-if="isValueSet(option[RDF.TYPE])" type="text" v-model="option.entailment" disabled />
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
             <div class="flex-col">
               <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="p-mx-1 type-icon" />
-              <span @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay($event)">{{ option[RDFS.LABEL] }}</span>
+              <span @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay">{{ option[RDFS.LABEL] }}</span>
             </div>
           </div>
         </div>
