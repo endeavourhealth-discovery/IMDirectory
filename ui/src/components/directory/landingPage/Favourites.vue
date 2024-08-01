@@ -20,14 +20,14 @@
           <template #body="{ data }: any">
             <div class="favourite-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
-              <span class="favourite-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
+              <span class="favourite-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
         </Column>
         <Column field="type" header="Type">
           <template #body="{ data }: any">
-            <div class="favourite-type-container">
-              <span class="favourite-type" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.entityType }}</span>
+            <div class="favourite-type-container flex flex-row">
+              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.entityType }}</span>
             </div>
           </template>
         </Column>
@@ -165,9 +165,5 @@ async function getFavouritesDetails() {
   align-items: center;
   overflow: auto;
   gap: 0.25rem;
-}
-
-.favourite-name {
-  flex: 0 1 auto;
 }
 </style>

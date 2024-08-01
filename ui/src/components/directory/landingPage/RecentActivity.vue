@@ -20,7 +20,7 @@
           <template #body="{ data }: any">
             <div class="activity-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
-              <span class="activity-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
+              <span class="activity-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
         </Column>
@@ -178,9 +178,5 @@ async function getRecentActivityDetails() {
   align-items: center;
   overflow: auto;
   gap: 0.25rem;
-}
-
-.activity-name {
-  flex: 0 1 auto;
 }
 </style>
