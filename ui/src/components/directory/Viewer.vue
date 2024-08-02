@@ -329,14 +329,7 @@ function onOpenTab(predicate: string) {
   overflow: auto;
 }
 
-#concept-panel-container:deep(.p-tabview-panel) {
-  height: 100%;
-  overflow: auto;
-}
-
-#concept-panel-container {
-  height: 100%;
-  width: 100%;
-  overflow: auto;
+#tab-list {
+  display: flex;
 }
 </style>
