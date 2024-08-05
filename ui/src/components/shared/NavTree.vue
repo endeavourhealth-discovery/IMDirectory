@@ -12,6 +12,7 @@
       :loading="loading"
     >
       <template #default="{ node }: any">
+        {{ node.index }}
         <div
           class="tree-row"
           :class="allowDragAndDrop && 'grabbable'"
@@ -187,6 +188,8 @@ async function addParentFoldersToRoot() {
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
+  for (const index in root.value) root.value[index].index = index;
+  console.log(root.value);
   if (isLoggedIn.value) await addFavouritesToTree();
 }
 
