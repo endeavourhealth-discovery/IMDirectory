@@ -287,4 +287,8 @@ function onListboxOptionClick(selected: SearchResultSummary) {
   justify-content: center;
   align-items: center;
 }
+
+.listbox-item {
+  width: 100%;
+}
 </style>
