@@ -8,12 +8,7 @@
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <Listbox v-model="selected" :options="members" optionLabel="name" :virtualScrollerOptions="{ itemSize: 45, delay: 150 }" listStyle="height: 97%" filter>
       <template #option="{ option }: { option: Concept }">
-        <div
-          class="member-name"
-          @mouseover="showOverlay($event, option['@id'])"
-          @mouseleave="hideOverlay($event)"
-          @contextmenu="onMemberRightClick($event, option)"
-        >
+        <div class="member-name" @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay" @contextmenu="onMemberRightClick($event, option)">
           {{ option.name }}
         </div>
       </template>

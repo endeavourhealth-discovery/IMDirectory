@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full h-full">
+  <div class="flex h-full w-full flex-col">
     <div class="top-half-component">
       <SearchResults
         v-if="activePage === 0"
@@ -41,7 +41,13 @@
 
         <div class="entity-details" v-else>
           <div class="view-title"><b>Hierarchy tree</b></div>
-          <SecondaryTree :entityIri="detailsIri" :show-select="allowMultipleSelect" @navigateTo="(iri: string) => (detailsIri = iri)" @onSelect="onSelect" />
+          <SecondaryTree
+            :entityIri="detailsIri"
+            :show-select="allowMultipleSelect"
+            @row-clicked="(iri: string) => (detailsIri = iri)"
+            @onSelect="onSelect"
+            @row-control-clicked="handleControlClick"
+          />
         </div>
       </div>
 
@@ -63,7 +69,7 @@ import SearchResults from "@/components/shared/SearchResults.vue";
 import { Match, Node, PathQuery, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { Ref, ref, onMounted, watch, inject, computed } from "vue";
 import PathSelectDialog from "./PathSelectDialog.vue";
-import { EntityService, QueryService } from "@/services";
+import { DirectService, EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isConcept, isFeature, isProperty, isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import SelectedSet from "./SelectedSet.vue";
@@ -91,6 +97,9 @@ const emit = defineEmits({
   selectedIri: (payload: string) => payload
 });
 const props = defineProps<Props>();
+
+const directService = new DirectService();
+
 const detailsIri: Ref<string> = ref("");
 const propertyIri: Ref<TTIriRef | undefined> = ref();
 const activePage: Ref<number> = ref(0);
@@ -235,6 +244,10 @@ function onViewHierarchy(iri: string) {
 
 function updateSearchResults(newSearchResults: SearchResponse | undefined) {
   searchResults.value = newSearchResults;
+}
+
+function handleControlClick(iri: string) {
+  directService.view(iri);
 }
 </script>
 

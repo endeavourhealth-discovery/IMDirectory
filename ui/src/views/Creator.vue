@@ -208,14 +208,17 @@ onMounted(async () => {
     getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (typeIri) {
+    const typeIriFixed = removeEndSlash(typeIri as string);
     currentStep.value = 1;
-    const typeEntity = await EntityService.getPartialEntity(typeIri as string, [RDFS.LABEL]);
-    editorEntity.value[RDF.TYPE] = [{ "@id": typeIri, name: typeEntity[RDFS.LABEL] }];
-    shape.value = getShape(typeIri as string);
+    const typeEntity = await EntityService.getPartialEntity(typeIriFixed, [RDFS.LABEL]);
+    editorEntity.value[RDF.TYPE] = [{ "@id": typeIriFixed, name: typeEntity[RDFS.LABEL] }];
+    shape.value = getShape(typeIriFixed);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
-      if (propertyIri === IM.DEFINITION) {
-        const newValue = await QueryService.getQueryDisplay(valueIri as string, false);
+      const propertyIriFixed = removeEndSlash(propertyIri as string);
+      const valueIriFixed = removeEndSlash(valueIri as string);
+      if (propertyIriFixed === IM.DEFINITION) {
+        const newValue = await QueryService.getQueryDisplay(valueIriFixed, false);
         editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
         editorEntity.value[IM.DEFINITION] = JSON.stringify({
           match: [
@@ -234,8 +237,8 @@ onMounted(async () => {
           }
         });
       } else {
-        const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDFS.LABEL]);
-        editorEntity.value[propertyIri as string] = [
+        const containingEntity = await EntityService.getPartialEntity(valueIriFixed, [RDFS.LABEL]);
+        editorEntity.value[propertyIriFixed] = [
           {
             "@id": containingEntity["@id"],
             name: containingEntity[RDFS.LABEL]
@@ -248,6 +251,11 @@ onMounted(async () => {
   }
   loading.value = false;
 });
+
+function removeEndSlash(urlProp: string) {
+  if (urlProp.endsWith("/")) return urlProp.slice(0, -1);
+  else return urlProp;
+}
 
 async function showEntityFoundWarning() {
   await Swal.fire({

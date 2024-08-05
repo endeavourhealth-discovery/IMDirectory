@@ -85,7 +85,7 @@
             </TabPanel>
             <TabPanel value="11">
               <div class="concept-panel-content" id="secondary-tree-container">
-                <SecondaryTree :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                <SecondaryTree :entityIri="entityIri" @row-clicked="(iri: string) => emit('navigateTo', iri)" @row-control-clicked="handleControlClick" />
               </div>
             </TabPanel>
             <TabPanel v-if="showGraph" value="12">
@@ -130,6 +130,7 @@ import JSONViewer from "./viewer/JSONViewer.vue";
 import Provenance from "./viewer/Provenance.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
+import { DirectService } from "@/services";
 
 import { DefinitionConfig } from "@im-library/interfaces";
 import { SearchTermCode, TTIriRef } from "@im-library/interfaces/AutoGen";
@@ -157,6 +158,7 @@ const emit = defineEmits({
 });
 
 const router = useRouter();
+const directService = new DirectService();
 
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
@@ -250,6 +252,10 @@ function onOpenTab(predicate: string) {
     default:
       break;
   }
+}
+
+function handleControlClick(iri: string) {
+  directService.view(iri);
 }
 </script>
 <style scoped>

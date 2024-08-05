@@ -12,7 +12,7 @@
         v-on:keyup.enter="onEnter"
         v-on:keyup="select"
         @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
-        @mouseleave="hideOverlay($event)"
+        @mouseleave="hideOverlay"
         :disabled="disabled"
         :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
       />
@@ -28,8 +28,8 @@
             <div
               class="listbox-item"
               @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
-              @mouseleave="hideOverlay($event)"
-              @click="onListboxOptionClick($event, slotProps.option)"
+              @mouseleave="hideOverlay"
+              @click="onListboxOptionClick(slotProps.option)"
             >
               <span>{{ slotProps.option.name }}</span>
             </div>
@@ -202,9 +202,9 @@ function hideResultsOverlay() {
   if (resultsOP.value) resultsOP.value.hide();
 }
 
-function onListboxOptionClick(event: any, selected: SearchResultSummary) {
+function onListboxOptionClick(selected: SearchResultSummary) {
   selectedLocal.value = selected;
-  hideOverlay(event);
+  hideOverlay();
   hideResultsOverlay();
 }
 </script>

@@ -252,7 +252,7 @@ const ConceptShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   path: {
                     "@id": RDFS.SUBCLASS_OF
@@ -298,7 +298,7 @@ const ConceptShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   select: [
                     {
@@ -356,7 +356,7 @@ const ConceptShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   }
                 }
               ]
@@ -405,7 +405,7 @@ const ConceptShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   }
                 }
               ],
@@ -456,7 +456,7 @@ const ConceptShape: FormGenerator = {
                   builderChild: true,
                   order: 1,
                   minCount: 0,
-                  componentType: { "@id": COMPONENT.ENTITY_SEARCH }
+                  componentType: { "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER }
                 }
               ]
             }

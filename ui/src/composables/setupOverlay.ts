@@ -1,14 +1,14 @@
 import { Ref, ref } from "vue";
 
 function setupOverlay() {
-  const OS: Ref<any> = ref();
+  const OS = ref();
 
-  async function showOverlay(event: any, data: any): Promise<void> {
+  async function showOverlay(event: MouseEvent, data: any): Promise<void> {
     if (OS.value) await OS.value.showOverlay(event, data);
   }
 
-  function hideOverlay(event: any): void {
-    if (OS.value) OS.value.hideOverlay(event);
+  function hideOverlay(): void {
+    if (OS.value) OS.value.hideOverlay();
   }
 
   return {
