@@ -150,8 +150,10 @@ function setupTree(emit?: any) {
     const collapsedKeys = [];
     if (node.children) {
       for (const child of node.children) {
-        collapsedKeys.push(child.key);
-        deleteKeysRecursively(child);
+        if (child.children.length) {
+          collapsedKeys.push(child.key);
+          deleteKeysRecursively(child);
+        }
       }
     }
     for (const key of collapsedKeys) {
