@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col justify-contents-start" id="secondary-tree-bar-container">
-    <div id="alternate-parents-container" class="flex flex-col justify-contents-start items-start">
+  <div class="justify-contents-start flex flex-col" id="secondary-tree-bar-container">
+    <div id="alternate-parents-container" class="justify-contents-start flex flex-col items-start">
       <Button
         v-for="altParent of alternateParents"
         :key="altParent.iri"
@@ -9,19 +9,19 @@
         icon="fa-solid fa-chevron-up"
         @click="expandParents(altParent.listPosition)"
         @mouseenter="showPopup($event, altParent.iri)"
-        @mouseleave="hidePopup($event)"
+        @mouseleave="hidePopup"
         class="p-button-text p-button-plain"
         data-testid="alt-parent"
       />
     </div>
-    <div class="flex flex-row justify-contents-start" id="secondary-tree-parents-bar">
+    <div class="justify-contents-start flex flex-row" id="secondary-tree-parents-bar">
       <Button
         :label="currentParent?.name"
         :disabled="loading || !currentParent"
         icon="fa-solid fa-chevron-up"
         @click="expandParents(parentPosition)"
         @mouseenter="showPopup($event, currentParent?.iri)"
-        @mouseleave="hidePopup($event)"
+        @mouseleave="hidePopup"
         class="p-button-text p-button-plain"
         data-testid="parent"
       />
@@ -45,18 +45,16 @@
         <div
           v-else
           class="tree-row"
-          @click="navigate($event, node.data)"
-          @dblclick="onNodeDblClick($event, node)"
-          v-tooltip.top="'CTRL+click to navigate'"
+          @click="customOnClick($event, node, true)"
+          @mouseover="showPopup($event, node.data)"
+          @mouseleave="hidePopup"
           data-testid="row"
         >
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
           <ProgressSpinner v-if="node.loading" />
-          <span class="tree-node-label" data-testid="row-label" @mouseover="showPopup($event, node.data, node)" @mouseleave="hidePopup($event)">{{
-            node.label
-          }}</span>
+          <span class="tree-node-label" data-testid="row-label">{{ node.label }}</span>
           <Button
             v-if="showSelect"
             icon="fa-regular fa-square-plus"
@@ -68,44 +66,9 @@
         </div>
       </template>
     </Tree>
+    <small>CTRL+click to open in new tab</small>
 
-    <Popover v-if="hoveredResult.iri === 'load'" ref="altTreeOP" id="secondary_tree_overlay_panel" style="width: 700px" :breakpoints="{ '960px': '75vw' }">
-      <div class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 7px">
-        <span>{{ hoveredResult.name }}</span>
-      </div>
-    </Popover>
-    <Popover v-else ref="altTreeOP" id="secondary_tree_overlay_panel" style="width: 700px" :breakpoints="{ '960px': '75vw' }">
-      <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 7px">
-        <div class="left-side" style="width: 50%">
-          <p>
-            <strong>Name: </strong>
-            <span>{{ hoveredResult.name }}</span>
-          </p>
-          <p>
-            <strong>Iri: </strong>
-            <span style="word-break: break-all">{{ hoveredResult.iri }}</span>
-          </p>
-          <p v-if="hoveredResult.code">
-            <strong>Code: </strong>
-            <span>{{ hoveredResult.code }}</span>
-          </p>
-        </div>
-        <div class="right-side" style="width: 50%">
-          <p v-if="hoveredResult.status">
-            <strong>Status: </strong>
-            <span>{{ hoveredResult.status.name }}</span>
-          </p>
-          <p v-if="hoveredResult.scheme">
-            <strong>Scheme: </strong>
-            <span>{{ hoveredResult.scheme.name }}</span>
-          </p>
-          <p v-if="hoveredResult.entityType">
-            <strong>Type: </strong>
-            <span>{{ getConceptTypes(hoveredResult.entityType) }}</span>
-          </p>
-        </div>
-      </div>
-    </Popover>
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 
@@ -119,7 +82,9 @@ import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
+import OverlaySummary from "./OverlaySummary.vue";
 import { TreeNode } from "primevue/treenode";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   entityIri: string;
@@ -129,23 +94,24 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  navigateTo: (_payload: string) => true,
-  onSelect: (_payload: string) => true
+  rowClicked: (_payload: string) => true,
+  rowControlClicked: (_payload: string) => true,
+  onSelect: (_payload: string) => true,
+  rowSelected: (_payload: TreeNode | undefined) => true
 });
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, loadMore } = setupTree();
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore, selectedNode } =
+  setupTree(emit);
+const { showOverlay, hideOverlay, OS } = setupOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const currentParent: Ref<TreeParent | null> = ref(null);
 const alternateParents: Ref<TreeParent[]> = ref([]);
 const parentPosition = ref(0);
-const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-const overlayLocation: Ref = ref({});
+const overlayLocation: Ref<MouseEvent | undefined> = ref();
 const loading = ref(false);
 const totalCount = ref(0);
 const pageSize = ref(20);
-
-const altTreeOP = ref();
 
 watch(
   () => props.entityIri,
@@ -159,7 +125,7 @@ watch(
 );
 
 watch(loading, newValue => {
-  if (newValue) hidePopup(overlayLocation.value);
+  if (newValue) hidePopup();
 });
 
 onMounted(async () => {
@@ -168,8 +134,8 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  if (isObject(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
-    hidePopup(overlayLocation.value);
+  if (overlayLocation.value) {
+    hidePopup();
   }
 });
 
@@ -307,40 +273,20 @@ async function setExpandedParentParents(): Promise<void> {
 async function onNodeSelect(node: any): Promise<void> {
   if (node.data === "loadMore") {
     if (!node.loading) await loadMore(node);
-  } else {
   }
   await nextTick();
   selectedKeys.value = {};
   selectedKeys.value[conceptAggregate.value.concept[RDFS.LABEL]] = true;
 }
 
-async function showPopup(event: any, iri?: string, node?: any): Promise<void> {
-  if (iri === "loadMore") {
-    overlayLocation.value = event;
-    const x = altTreeOP.value as any;
-    x.show(event);
-    hoveredResult.value.iri = "load";
-    hoveredResult.value.name = node.parentNode.label;
-  } else if (iri) {
-    overlayLocation.value = event;
-    const x = altTreeOP.value as any;
-    x.show(event);
-    hoveredResult.value = await EntityService.getEntitySummary(iri);
+async function showPopup(event: MouseEvent, iri?: string): Promise<void> {
+  if (iri && iri !== "loadMode") {
+    showOverlay(event, iri);
   }
 }
 
-function hidePopup(event: any): void {
-  const x = altTreeOP.value as any;
-  x.hide(event);
-  overlayLocation.value = {} as any;
-}
-
-function getConceptTypes(types: TTIriRef[]): string {
-  return getNamesAsStringFromTypes(types);
-}
-
-function navigate(event: any, iri: string): void {
-  if (event.metaKey || event.ctrlKey) emit("navigateTo", iri);
+function hidePopup(): void {
+  hideOverlay();
 }
 </script>
 
@@ -353,6 +299,10 @@ function navigate(event: any, iri: string): void {
 
 .tree-root ::v-deep(.p-tree-toggler) {
   min-width: 2rem;
+}
+
+.tree-root ::v-deep(.p-tree-node-label) {
+  width: 100% !important;
 }
 
 #secondary-tree-bar-container {
@@ -378,6 +328,7 @@ function navigate(event: any, iri: string): void {
 }
 
 .tree-node-label {
+  flex: 1 1 auto;
   word-break: break-all;
 }
 </style>

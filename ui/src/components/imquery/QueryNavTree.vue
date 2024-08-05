@@ -17,7 +17,7 @@
               <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
             </span>
             <ProgressSpinner v-if="node.loading" />
-            <span @mouseover="showOverlay($event, node.data)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+            <span @mouseover="showOverlay($event, node.data)" @mouseleave="hideOverlay">{{ node.label }}</span>
           </div>
         </template>
       </Tree>

@@ -9,7 +9,7 @@
         :expanded-keys="expandedKeys"
         :selection-keys="selectedKeys"
         placeholder="Select property"
-        class="md:w-80 w-full"
+        class="w-full md:w-80"
         selection-mode="single"
         @node-select="onNodeSelect"
       />
@@ -42,6 +42,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
 const queryStore = useQueryStore();
 const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);

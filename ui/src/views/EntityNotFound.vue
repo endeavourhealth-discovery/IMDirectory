@@ -48,7 +48,7 @@ function goHome() {
 .error-code {
   color: var(--p-text-color);
   font-size: 6rem;
-  margin: 1.5 rem 0 0.5rem 0;
+  margin: 1.5rem 0 0.5rem 0;
 }
 
 .error-header {

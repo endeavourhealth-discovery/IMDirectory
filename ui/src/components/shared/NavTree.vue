@@ -19,6 +19,8 @@
           @dragstart="dragStart($event, node.data)"
           @dblclick="emit('rowDblClicked', node)"
           @contextmenu="onNodeContext($event, node)"
+          @mouseover="displayOverlay($event, node)"
+          @mouseleave="hideOverlay"
         >
           <span v-if="allowDragAndDrop">
             <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
@@ -28,10 +30,11 @@
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
           <ProgressSpinner v-if="node.loading" class="progress-spinner" />
-          <span class="row-name" @mouseover="displayOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+          <span class="row-name">{{ node.label }}</span>
         </div>
       </template>
     </Tree>
+    <small class="p-1">CTRL+click to open in new tab</small>
     <OverlaySummary ref="OS" />
     <Dialog header="New folder" :visible="newFolder !== null" :modal="true" :closable="false">
       <InputText type="text" v-model="newFolderName" autofocus @keyup.enter="createFolder" />
@@ -107,12 +110,12 @@ const {
   scrollToHighlighted,
   selectAndExpand,
   nodeHasChild
-} = setupTree();
+} = setupTree(emit);
 const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 
 const loading = ref(true);
 const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-const overlayLocation: Ref<any> = ref({});
+const overlayLocation: Ref<MouseEvent | undefined> = ref();
 const items: Ref<any[]> = ref([]);
 const newFolder: Ref<null | TreeNode> = ref(null);
 const newFolderName = ref("");
@@ -155,8 +158,8 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  if (isObjectHasKeys(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
-    hideOverlay(overlayLocation.value);
+  if (overlayLocation.value) {
+    hideOverlay();
   }
 });
 
@@ -356,7 +359,7 @@ function dragStart(event: any, data: any) {
     event.dataTransfer.setData("conceptIri", JSON.stringify(data));
     event.dataTransfer.effectAllowed = "copy";
     event.dataTransfer.dropEffect = "copy";
-    hideOverlay(overlayLocation.value);
+    hideOverlay();
   }
 }
 </script>
@@ -397,7 +400,7 @@ function dragStart(event: any, data: any) {
   min-width: 2rem;
 }
 
-.tree-root ::v-deep(.p-treenode-label) {
+.tree-root ::v-deep(.p-tree-node-label) {
   width: 100% !important;
 }
 

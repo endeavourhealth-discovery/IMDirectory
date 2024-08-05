@@ -1,6 +1,7 @@
 <template>
   <Popover ref="OP" id="overlay-panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-    <div v-if="hoveredResult?.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
+    <div v-if="loading" class="flex flex-row justify-center"><ProgressSpinner /></div>
+    <div v-else-if="hoveredResult?.name" class="justify-contents-start result-overlay flex flex-row" style="width: 100%; gap: 1rem">
       <div class="left-side" style="width: 50%">
         <p>
           <strong>Name: </strong>
@@ -46,13 +47,16 @@ import { ref, Ref } from "vue";
 const hoveredResult: Ref<SearchResultSummary | undefined> = ref();
 const overlayLocation: Ref<any> = ref({});
 const OP = ref();
+const loading = ref(true);
 
 async function showOverlay(event: any, iri: any): Promise<void> {
   if (iri) {
+    loading.value = true;
     const x = OP.value;
     overlayLocation.value = event;
     x.show(overlayLocation.value);
     hoveredResult.value = await EntityService.getEntitySummary(iri);
+    loading.value = false;
   }
 }
 

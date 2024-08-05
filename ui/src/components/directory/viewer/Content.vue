@@ -28,7 +28,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
-            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay">{{ data.name }}</span>
           </div>
         </template>
       </Column>

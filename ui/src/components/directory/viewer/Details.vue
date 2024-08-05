@@ -138,4 +138,10 @@ function openTab(predicate: string) {
 .details-tree-button {
   margin-right: 0.5rem;
 }
+
+.tree-container:deep(.p-tree-node-label) {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
+}
 </style>
