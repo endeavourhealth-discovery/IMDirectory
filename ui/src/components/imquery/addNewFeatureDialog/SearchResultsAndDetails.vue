@@ -105,7 +105,7 @@ const searchResults: Ref<SearchResponse | undefined> = ref();
 const toast = useToast();
 const currentPath: Ref<Match | undefined> = ref();
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
-const allowMultipleSelect = computed(() => [IM.CONCEPT_SET].includes(props.selectedType));
+const allowMultipleSelect = computed(() => [IM.CONCEPT_SET, IM.CONCEPT].includes(props.selectedType));
 
 watch(
   () => props.selectedIri,
