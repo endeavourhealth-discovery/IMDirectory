@@ -114,8 +114,8 @@ function setupTree(emit?: any) {
           );
       }
       /*children.result.forEach((child: any) => {
-        if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
-      });*/
+                                                                                                                                if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+                                                                                                                              });*/
       node.nextPage = node.nextPage + 1;
       node.parentNode.children.push(
         createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount, node.parentNode.index + "-" + (node.parentNode.children.length - 1).toString())
@@ -138,9 +138,9 @@ function setupTree(emit?: any) {
           );
       }
       /*children.result.forEach((child: any) => {
-        if (!nodeHasChild(node.parentNode, child))
-          node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node.parentNode));
-      });*/
+                                                                                                                                if (!nodeHasChild(node.parentNode, child))
+                                                                                                                                  node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node.parentNode));
+                                                                                                                              });*/
     } else {
       node.parentNode.children.pop();
     }
@@ -164,8 +164,8 @@ function setupTree(emit?: any) {
             node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node, undefined, node.index + "-" + index));
         }
         /*children.result.forEach((child: any) => {
-          if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
-        });*/
+                                                                                                                                                                          if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+                                                                                                                                                                        });*/
         if (
           children.totalCount >= pageSize.value &&
           node.children.length !== children.totalCount &&
@@ -179,13 +179,21 @@ function setupTree(emit?: any) {
   }
 
   function onNodeCollapse(node: any) {
-    if (isObjectHasKeys(expandedKeys.value, [node.key])) {
-      delete expandedKeys.value[node.key];
-      const index = expandedData.value.findIndex(x => x.key === node.key);
-      if (index > -1) expandedData.value.splice(index, 1);
+    deleteKeysRecursively(node);
+    delete expandedKeys.value[node.key];
+  }
+
+  function deleteKeysRecursively(node: any) {
+    const collapsedKeys = [];
+    if (node.children) {
+      for (const child of node.children) {
+        collapsedKeys.push(child.key);
+        deleteKeysRecursively(child);
+      }
     }
-    node.children = [];
-    node.leaf = false;
+    for (const key of collapsedKeys) {
+      delete expandedKeys.value[key];
+    }
   }
 
   function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
