@@ -76,7 +76,7 @@ function setupTree() {
   }
 
   function onNodeDblClick($event: any, node: any) {
-    if (!(node.data === "loadMore" || node.data === IM.FAVOURITES)) directService.view(node.key);
+    if (!(node.data === "loadMore" || node.data === IM.FAVOURITES)) directService.select(node.key);
   }
 
   async function loadMore(node: any) {

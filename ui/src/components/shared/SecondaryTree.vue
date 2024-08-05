@@ -45,8 +45,8 @@
         <div
           v-else
           class="tree-row"
-          @click="navigate($event, node.data)"
-          @dblclick="onNodeDblClick($event, node)"
+          @click="onNodeDblClick($event, node)"
+          @dblclick="navigate($event, node.data)"
           v-tooltip.top="'Ctrl + click to navigate'"
           data-testid="row"
         >
