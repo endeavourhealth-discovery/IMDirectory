@@ -358,6 +358,6 @@ function updateSelectedIri(iri: string) {
 }
 
 .populate-property-actions {
-  margin-top: auto !important;
+  margin-top: auto;
 }
 </style>
