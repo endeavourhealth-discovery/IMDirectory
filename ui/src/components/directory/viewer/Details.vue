@@ -141,5 +141,7 @@ function openTab(predicate: string) {
 
 .tree-container:deep(.p-tree-node-label) {
   flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
 }
 </style>

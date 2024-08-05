@@ -1,6 +1,7 @@
 <template>
   <div
     v-if="html"
+    class="flex-auto justify-start"
     @click="click($event)"
     @mouseover="showOverlay($event, props.iri)"
     @mouseleave="hideOverlay"
@@ -10,6 +11,7 @@
   <Button
     v-else
     link
+    class="flex-auto justify-start"
     :label="label || iri"
     @click="click($event)"
     @mouseover="showOverlay($event, props.iri)"
