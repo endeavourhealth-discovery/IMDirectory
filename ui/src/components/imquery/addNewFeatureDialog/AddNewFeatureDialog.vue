@@ -3,9 +3,8 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div class="flex flex-auto flex-col gap-2 select-property-wrapper">
+    <div class="select-property-wrapper flex flex-auto flex-col gap-2">
       <div v-if="active === 1" class="directory-search-dialog-content">
-        <PathDisplay v-if="selectedPath" :path="selectedPath" :can-clear-path="canClearPath" @on-clear-path="clearPath" />
         <div class="search-bar">
           <SearchBarWithRadioFilters
             :show-type-filters="showTypeFilters"
@@ -47,7 +46,7 @@
         :is-root-feature="true"
         :focused-id="getLeafMatch(editMatch)['@id']"
       />
-      <div class="flex flex-0 gap-2 justify-end populate-property-actions">
+      <div class="flex-0 populate-property-actions flex justify-end gap-2">
         <Button label="Cancel" severity="secondary" @click="visible = false" />
         <Button v-if="active === 1 && hasNextStep && !hasQueryOrFeatureSelected" :disabled="disableSelect" label="Select" iconPos="right" @click="active = 2" />
         <Button v-else label="Save" iconPos="right" @click="save" />
@@ -69,7 +68,6 @@ import NavTree from "../../shared/NavTree.vue";
 import SearchBarWithRadioFilters, { TypeOption } from "./SearchBarWithRadioFilters.vue";
 import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
-import PathDisplay from "./PathDisplay.vue";
 import { isFeature, isQuery } from "@im-library/helpers/ConceptTypeMethods";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
