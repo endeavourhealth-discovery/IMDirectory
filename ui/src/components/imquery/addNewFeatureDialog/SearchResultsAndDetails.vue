@@ -111,7 +111,7 @@ const toast = useToast();
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 const displaySelectedPath: Ref<Match | undefined> = ref();
 
-const allowMultipleSelect = computed(() => [IM.CONCEPT_SET].includes(props.selectedType));
+const allowMultipleSelect = computed(() => [IM.CONCEPT_SET, IM.CONCEPT].includes(props.selectedType));
 
 watch(
   () => props.selectedIri,
