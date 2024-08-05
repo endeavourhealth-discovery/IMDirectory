@@ -6,7 +6,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
+import _ from "lodash-es";
 
 interface Props {
   label: string;
@@ -25,6 +26,13 @@ const convertedText = ref("");
 onMounted(() => {
   init();
 });
+
+watch(
+  () => props.data,
+  (newValue, oldValue) => {
+    if (_.isEqual(newValue, oldValue)) init();
+  }
+);
 
 function init() {
   if (!props.data) {
