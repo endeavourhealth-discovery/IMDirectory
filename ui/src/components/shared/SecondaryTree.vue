@@ -47,7 +47,7 @@
           class="tree-row"
           @click="onNodeDblClick($event, node)"
           @dblclick="navigate($event, node.data)"
-          v-tooltip.top="'Ctrl + click to navigate'"
+          v-tooltip.top="'Double click to navigate'"
           data-testid="row"
         >
           <span v-if="!node.loading">
