@@ -142,13 +142,23 @@ function setupTree(emit?: any) {
   }
 
   function onNodeCollapse(node: any) {
-    if (isObjectHasKeys(expandedKeys.value, [node.key])) {
-      delete expandedKeys.value[node.key];
-      const index = expandedData.value.findIndex(x => x.key === node.key);
-      if (index > -1) expandedData.value.splice(index, 1);
+    deleteKeysRecursively(node);
+    delete expandedKeys.value[node.key];
+  }
+
+  function deleteKeysRecursively(node: any) {
+    const collapsedKeys = [];
+    if (node.children) {
+      for (const child of node.children) {
+        if (child.children.length) {
+          collapsedKeys.push(child.key);
+          deleteKeysRecursively(child);
+        }
+      }
     }
-    node.children = [];
-    node.leaf = false;
+    for (const key of collapsedKeys) {
+      delete expandedKeys.value[key];
+    }
   }
 
   function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {

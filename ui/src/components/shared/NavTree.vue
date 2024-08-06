@@ -1,33 +1,33 @@
 <template>
-  <div class="flex flex-col justify-start" id="hierarchy-tree-bar-container">
+  <div id="hierarchy-tree-bar-container" class="flex flex-col justify-start">
     <Tree
-      :value="root"
-      selectionMode="single"
+      v-model:expandedKeys="expandedKeys"
       v-model:selectionKeys="selectedKeys"
-      :expandedKeys="expandedKeys"
+      :loading="loading"
+      :value="root"
+      class="tree-root"
+      selectionMode="single"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
       @node-collapse="onNodeCollapse"
-      class="tree-root"
-      :loading="loading"
     >
       <template #default="{ node }: any">
         <div
-          class="tree-row"
           :class="allowDragAndDrop && 'grabbable'"
           :draggable="allowDragAndDrop"
-          @dragstart="dragStart($event, node.data)"
-          @dblclick="emit('rowDblClicked', node)"
+          class="tree-row"
           @contextmenu="onNodeContext($event, node)"
-          @mouseover="displayOverlay($event, node)"
+          @dblclick="emit('rowDblClicked', node)"
+          @dragstart="dragStart($event, node.data)"
           @mouseleave="hideOverlay"
+          @mouseover="displayOverlay($event, node)"
         >
           <span v-if="allowDragAndDrop">
-            <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
+            <IMFontAwesomeIcon class="drag-icon grabbable" icon="fa-solid fa-grip-vertical" />
           </span>
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!node.loading">
-            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
+            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" :style="'color:' + node.color" fixed-width />
           </span>
           <ProgressSpinner v-if="node.loading" class="progress-spinner" />
           <span class="row-name">{{ node.label }}</span>
@@ -36,18 +36,18 @@
     </Tree>
     <small class="p-1">CTRL+click to open in new tab</small>
     <OverlaySummary ref="OS" />
-    <Dialog header="New folder" :visible="newFolder !== null" :modal="true" :closable="false">
-      <InputText type="text" v-model="newFolderName" autofocus @keyup.enter="createFolder" />
+    <Dialog :closable="false" :modal="true" :visible="newFolder !== null" header="New folder">
+      <InputText v-model="newFolderName" autofocus type="text" @keyup.enter="createFolder" />
       <template #footer>
-        <Button label="Cancel" icon="fa-regular fa-xmark" @click="newFolder = null" class="p-button-text" />
-        <Button label="Create" :icon="newFolderIcon" :disabled="creating || !newFolderName" @click="createFolder" />
+        <Button class="p-button-text" icon="fa-regular fa-xmark" label="Cancel" @click="newFolder = null" />
+        <Button :disabled="creating || !newFolderName" :icon="newFolderIcon" label="Create" @click="createFolder" />
       </template>
     </Dialog>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, ref, Ref, watch, onMounted, onBeforeUnmount } from "vue";
+<script lang="ts" setup>
+import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import OverlaySummary from "./OverlaySummary.vue";
 import { useToast } from "primevue/usetoast";
@@ -61,7 +61,7 @@ import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
-import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { cloneDeep } from "lodash-es";
@@ -74,7 +74,11 @@ interface Props {
   findInTree?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowRightClick: false, allowDragAndDrop: false });
+const props = withDefaults(defineProps<Props>(), {
+  rootEntities: () => [] as string[],
+  allowRightClick: false,
+  allowDragAndDrop: false
+});
 
 const emit = defineEmits({
   rowSelected: payload => true,
@@ -273,7 +277,12 @@ async function moveConcept(target: TreeNode) {
   ) {
     try {
       await FilerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
-      toast.add({ severity: "success", summary: "Move", detail: 'Moved "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
+      toast.add({
+        severity: "success",
+        summary: "Move",
+        detail: 'Moved "' + selectedNode.value.label + '" into "' + target.label + '"',
+        life: 3000
+      });
       selectedNode.value.parentNode.children = selectedNode.value.parentNode.children.filter((v: TreeNode) => v != selectedNode.value);
       selectedNode.value.parentNode = target;
       target.children.push(selectedNode.value);
@@ -311,7 +320,12 @@ async function addConcept(target: TreeNode) {
   ) {
     try {
       await FilerService.addToFolder(selectedNode.value.key, target.key);
-      toast.add({ severity: "success", summary: "Add", detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
+      toast.add({
+        severity: "success",
+        summary: "Add",
+        detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"',
+        life: 3000
+      });
       target.children.push(selectedNode.value); // Does this need to be a (deep) clone?
     } catch (e: any) {
       toast.add({ severity: "error", summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
@@ -326,12 +340,35 @@ async function createFolder() {
 
   try {
     const iri = await FilerService.createFolder(newFolder.value.key, newFolderName.value);
-    toast.add({ severity: "success", summary: "New folder", detail: 'New folder "' + newFolderName.value + '" created', life: 3000 });
+    toast.add({
+      severity: "success",
+      summary: "New folder",
+      detail: 'New folder "' + newFolderName.value + '" created',
+      life: 3000
+    });
     if (newFolder.value.children) {
-      newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" } as TTIriRef], false, newFolder.value));
+      newFolder.value.children.push(
+        createTreeNode(
+          newFolderName.value,
+          iri,
+          [
+            {
+              "@id": IM.FOLDER,
+              name: "Folder"
+            } as TTIriRef
+          ],
+          false,
+          newFolder.value
+        )
+      );
     }
   } catch (e) {
-    toast.add({ severity: "error", summary: "New folder", detail: '"' + newFolderName.value + '" already exists', life: 3000 });
+    toast.add({
+      severity: "error",
+      summary: "New folder",
+      detail: '"' + newFolderName.value + '" already exists',
+      life: 3000
+    });
   } finally {
     newFolder.value = null;
     creating.value = false;
@@ -396,12 +433,17 @@ function dragStart(event: any, data: any) {
   border: none;
   padding: 0;
 }
+
 .tree-root ::v-deep(.p-tree-toggler) {
   min-width: 2rem;
 }
 
 .tree-root ::v-deep(.p-tree-node-label) {
   width: 100% !important;
+}
+
+.tree-root ::v-deep(.p-tree-node-content) {
+  padding: 0;
 }
 
 .progress-spinner {
