@@ -85,6 +85,7 @@ interface Props {
   dataModelIri: string;
   selectedPath: Match | undefined;
   selectedType: string;
+  canClearPath?: boolean;
 }
 
 const emit = defineEmits({
@@ -118,9 +119,11 @@ watch(
   () => detailsIri.value,
   async newValue => {
     await setEntity();
-    pathSuggestions.value = await getPathOptions(props.dataModelIri, detailsIri.value);
-    if (pathSuggestions.value.length && !props.selectedPath) emit("update:selectedPath", pathSuggestions.value[0]);
-    else if (props.selectedPath && isProperty(detailsEntity.value?.[RDF.TYPE])) emit("update:selectedPath", pathSuggestions.value[0]);
+    if (props.canClearPath) {
+      pathSuggestions.value = await getPathOptions(props.dataModelIri, detailsIri.value);
+      if (pathSuggestions.value.length && !props.selectedPath) emit("update:selectedPath", pathSuggestions.value[0]);
+      else if (props.selectedPath && isProperty(detailsEntity.value?.[RDF.TYPE])) emit("update:selectedPath", pathSuggestions.value[0]);
+    }
     activePage.value = 1;
     emit("selectedIri", newValue);
   }
@@ -143,6 +146,7 @@ async function init() {
   detailsIri.value = props.selectedIri;
   await setEntity();
   pathSuggestions.value = await getPathOptions(props.dataModelIri, detailsIri.value);
+  if (!pathSuggestions.value.length && props.selectedPath) pathSuggestions.value = [props.selectedPath];
 }
 
 async function getPathOptions(dataModelIri: string, valueIri: string) {
@@ -162,15 +166,17 @@ async function setEntity() {
 
 async function onSelect(iri: string) {
   const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
-
+  if (props.selectedPath && !currentPath.value) currentPath.value = cloneDeep(pathSuggestions.value[0]);
   if (props.selectedPath && currentPath.value) {
-    const pathOptions = await getPathOptions(props.dataModelIri, iri);
-    if (pathOptions?.length) {
-      const index = pathOptions?.findIndex(pathOption => JSON.stringify(pathOption) === JSON.stringify(currentPath.value));
-      if (index === -1) {
-        pathSuggestions.value = pathOptions;
-        emit("update:selectedPath", pathOptions[0]);
-        currentPath.value = cloneDeep(pathSuggestions.value[0]);
+    if (props.canClearPath) {
+      const pathOptions = await getPathOptions(props.dataModelIri, iri);
+      if (pathOptions?.length) {
+        const index = pathOptions?.findIndex(pathOption => JSON.stringify(pathOption) === JSON.stringify(currentPath.value));
+        if (index === -1) {
+          pathSuggestions.value = pathOptions;
+          emit("update:selectedPath", pathOptions[0]);
+          currentPath.value = cloneDeep(pathSuggestions.value[0]);
+        }
       }
     }
 

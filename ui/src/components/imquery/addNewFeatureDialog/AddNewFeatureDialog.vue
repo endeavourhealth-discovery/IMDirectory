@@ -36,6 +36,7 @@
               @go-to-next-step="active = 2"
               @selected-iri="updateSelectedIri"
               :selectedType="selectedType"
+              :can-clear-path="canClearPath"
             />
           </div>
         </div>
@@ -168,6 +169,7 @@ function init() {
   if (isObjectHasKeys(props.match)) {
     editMatch.value = cloneDeep(props.match);
     selectedPath.value = cloneDeep(editMatch.value);
+    pathSuggestions.value = [selectedPath.value!];
   } else {
     selectedPath.value = undefined;
   }

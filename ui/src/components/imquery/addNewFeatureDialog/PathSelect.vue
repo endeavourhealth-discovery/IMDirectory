@@ -1,5 +1,6 @@
 <template>
   <Listbox v-model="localSelectedPath" :options="pathSuggestions" class="w-full" @change="onSelect()">
+    <template #empty> No available paths </template>
     <template #option="{ option }: { option: Match }">
       <div class="flex items-center" id="query-path-options" v-if="isArrayHasLength(option.where)">
         <div v-if="option.path && option.typeOf">{{ option.path?.[0].name }} -> {{ option.typeOf?.name }} . {{ option.where?.[0]?.name }}</div>
