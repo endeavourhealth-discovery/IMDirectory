@@ -90,7 +90,7 @@
         data-testid="apps-button"
       />
       <Popover ref="appsOP" class="app-overlay-panel" id="apps-menu">
-        <div class="flex flex-row flex-wrap gap-2 justify-start">
+        <div class="flex flex-row flex-wrap justify-start gap-2">
           <template v-for="item in appItems">
             <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
           </template>
@@ -376,6 +376,12 @@ function getScales(): MenuItem[] {
           label: "Large",
           icon: "fa-regular fa-a",
           command: async () => await changeScale("16px")
+        },
+        {
+          key: "18px",
+          label: "XLarge",
+          icon: "fa-regular fa-a",
+          command: async () => await changeScale("18px")
         }
       ]
     }
