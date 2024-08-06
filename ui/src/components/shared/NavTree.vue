@@ -442,9 +442,9 @@ function dragStart(event: any, data: any) {
   width: 100% !important;
 }
 
-.tree-root ::v-deep(.p-tree-node-content) {
+/*.tree-root ::v-deep(.p-tree-node-content) {
   padding: 0;
-}
+}*/
 
 .progress-spinner {
   width: 1.25em !important;
