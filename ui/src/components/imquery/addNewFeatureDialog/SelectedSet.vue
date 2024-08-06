@@ -87,7 +87,7 @@ function updatePathValues() {
 }
 
 function convertSelectedEntityToNode(selected: SelectedEntity): Node {
-  const node: Node = { "@id": selected["@id"], exclude: !selected.include };
+  const node: Node = { "@id": selected["@id"], name: selected["http://www.w3.org/2000/01/rdf-schema#label"], exclude: !selected.include };
   switch (selected.entailment) {
     case "memberOf":
       node.memberOf = true;
