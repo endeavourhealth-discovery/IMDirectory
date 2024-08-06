@@ -51,7 +51,7 @@
       </div>
     </div>
     <SelectedSet class="bottom-half-component" />
-    <PathSelectDialog
+    <PathSelect
       :selected-path="selectedPath"
       :data-model-iri="dataModelIri"
       :pathSuggestions="pathSuggestions"
@@ -64,7 +64,7 @@
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { Match, Node, PathQuery, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { Ref, ref, onMounted, watch, inject, computed } from "vue";
-import PathSelectDialog from "./PathSelectDialog.vue";
+import PathSelect from "./PathSelect.vue";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isConcept, isFeature, isProperty, isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
