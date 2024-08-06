@@ -33,7 +33,6 @@
           @viewHierarchy="onViewHierarchy"
           @addToList="onSelect"
         />
-        <PathDisplay v-if="displaySelectedPath" :path="displaySelectedPath" :canClearPath="false" />
         <div class="dm-details" v-if="isRecordModel(detailsEntity?.[RDF.TYPE])">
           <div class="view-title"><b>Properties</b></div>
           <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
@@ -50,17 +49,14 @@
           />
         </div>
       </div>
-
-      <PathSelectDialog
-        v-bind:showDialog="showDialog"
-        :property="propertyIri"
-        :pathSuggestions="pathSuggestions"
-        @onSelectedPath="path => emit('update:selectedPath', path)"
-        @onClose="showDialog = false"
-      />
     </div>
-
     <SelectedSet class="bottom-half-component" />
+    <PathSelect
+      :selected-path="selectedPath"
+      :data-model-iri="dataModelIri"
+      :pathSuggestions="pathSuggestions"
+      @onSelectedPath="(path: Match) => emit('update:selectedPath', path)"
+    />
   </div>
 </template>
 
@@ -68,7 +64,7 @@
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { Match, Node, PathQuery, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { Ref, ref, onMounted, watch, inject, computed } from "vue";
-import PathSelectDialog from "./PathSelectDialog.vue";
+import PathSelect from "./PathSelect.vue";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isConcept, isFeature, isProperty, isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
@@ -76,9 +72,10 @@ import SelectedSet from "./SelectedSet.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import DataModel from "@/components/directory/viewer/dataModel/DataModel.vue";
-import PathDisplay from "./PathDisplay.vue";
 import { ToastSeverity } from "@im-library/enums";
 import { useToast } from "primevue/usetoast";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { cloneDeep } from "lodash-es";
 
 interface Props {
   selectedIri: string;
@@ -101,16 +98,13 @@ const props = defineProps<Props>();
 const directService = new DirectService();
 
 const detailsIri: Ref<string> = ref("");
-const propertyIri: Ref<TTIriRef | undefined> = ref();
 const activePage: Ref<number> = ref(0);
 const detailsEntity: Ref<any> = ref();
 const pathSuggestions: Ref<Match[]> = ref([]);
-const showDialog: Ref<boolean> = ref(false);
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const toast = useToast();
+const currentPath: Ref<Match | undefined> = ref();
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
-const displaySelectedPath: Ref<Match | undefined> = ref();
-
 const allowMultipleSelect = computed(() => [IM.CONCEPT_SET, IM.CONCEPT].includes(props.selectedType));
 
 watch(
@@ -124,7 +118,9 @@ watch(
   () => detailsIri.value,
   async newValue => {
     await setEntity();
-    await getPath();
+    pathSuggestions.value = await getPathOptions(props.dataModelIri, detailsIri.value);
+    if (pathSuggestions.value.length && !props.selectedPath) emit("update:selectedPath", pathSuggestions.value[0]);
+    else if (props.selectedPath && isProperty(detailsEntity.value?.[RDF.TYPE])) emit("update:selectedPath", pathSuggestions.value[0]);
     activePage.value = 1;
     emit("selectedIri", newValue);
   }
@@ -146,15 +142,16 @@ onMounted(async () => await init());
 async function init() {
   detailsIri.value = props.selectedIri;
   await setEntity();
-  await getPath();
+  pathSuggestions.value = await getPathOptions(props.dataModelIri, detailsIri.value);
 }
 
-async function getPath() {
-  if (props.dataModelIri && detailsIri.value) {
-    const pathQuery: PathQuery = { source: { "@id": props.dataModelIri } as TTIriRef, target: { "@id": detailsIri.value } as TTIriRef } as PathQuery;
+async function getPathOptions(dataModelIri: string, valueIri: string) {
+  if (dataModelIri && valueIri) {
+    const pathQuery: PathQuery = { source: { "@id": dataModelIri } as TTIriRef, target: { "@id": valueIri } as TTIriRef } as PathQuery;
     const result = await QueryService.pathQuery(pathQuery);
-    if (result?.match?.length) displaySelectedPath.value = result.match[0];
+    if (result?.match?.length) return result.match;
   }
+  return [];
 }
 
 async function setEntity() {
@@ -165,7 +162,18 @@ async function setEntity() {
 
 async function onSelect(iri: string) {
   const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
-  if (props.selectedPath) {
+
+  if (props.selectedPath && currentPath.value) {
+    const pathOptions = await getPathOptions(props.dataModelIri, iri);
+    if (pathOptions?.length) {
+      const index = pathOptions?.findIndex(pathOption => JSON.stringify(pathOption) === JSON.stringify(currentPath.value));
+      if (index === -1) {
+        pathSuggestions.value = pathOptions;
+        emit("update:selectedPath", pathOptions[0]);
+        currentPath.value = cloneDeep(pathSuggestions.value[0]);
+      }
+    }
+
     if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE])) {
       if (selectedValueMap.value.size) {
         const has = await hasFeatureOrQuerySelected();
@@ -199,7 +207,7 @@ async function onSelect(iri: string) {
         });
     } else addToSelectedList(iri, entity[RDFS.LABEL]);
   } else {
-    await setQueryPath(iri, entity[RDFS.LABEL]);
+    await setQueryPath(iri);
     if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE])) addToSelectedList(iri, entity[RDFS.LABEL]);
     else if (isProperty(entity[RDF.TYPE])) {
       emit("goToNextStep");
@@ -207,18 +215,11 @@ async function onSelect(iri: string) {
   }
 }
 
-async function setQueryPath(iri: string, name: string) {
-  if (iri) {
-    const pathQuery = { source: { "@id": props.dataModelIri }, target: { "@id": iri } } as PathQuery;
-    const response = await QueryService.pathQuery(pathQuery);
-    if (response.match.length === 1) emit("update:selectedPath", response.match[0]);
-    else if (response.match.length > 1) {
-      console.log("Possible paths:");
-      console.log(pathSuggestions);
-      propertyIri.value = { "@id": iri, name };
-      pathSuggestions.value = response.match;
-      showDialog.value = true;
-    }
+async function setQueryPath(iri: string) {
+  pathSuggestions.value = (await getPathOptions(props.dataModelIri, iri)) ?? [];
+  if (isArrayHasLength(pathSuggestions.value)) {
+    emit("update:selectedPath", pathSuggestions.value[0]);
+    currentPath.value = cloneDeep(pathSuggestions.value[0]);
   }
 }
 
