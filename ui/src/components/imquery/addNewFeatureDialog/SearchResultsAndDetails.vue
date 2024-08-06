@@ -55,7 +55,7 @@
       :selected-path="selectedPath"
       :data-model-iri="dataModelIri"
       :pathSuggestions="pathSuggestions"
-      @onSelectedPath="path => emit('update:selectedPath', path)"
+      @onSelectedPath="(path: Match) => emit('update:selectedPath', path)"
     />
   </div>
 </template>
