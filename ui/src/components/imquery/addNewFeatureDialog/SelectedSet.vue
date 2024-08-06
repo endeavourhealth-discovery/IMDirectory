@@ -56,10 +56,11 @@ const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 
 watch(
   () => cloneDeep(selectedValueMap.value),
-  async () => {
-    await init();
-    updatePathValues();
-  }
+  async () => await init()
+);
+watch(
+  () => cloneDeep(selectedEntities.value),
+  async () => updatePathValues()
 );
 onMounted(async () => await init());
 
