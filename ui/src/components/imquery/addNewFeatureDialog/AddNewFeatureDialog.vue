@@ -75,6 +75,7 @@ import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 interface Props {
   showDialog: boolean;
   match?: Match;
+  propertyIri?: string;
   canClearPath?: boolean;
   header: string;
   dataModelIri: string;
@@ -169,6 +170,10 @@ function init() {
   if (isObjectHasKeys(props.match)) {
     editMatch.value = cloneDeep(props.match);
     selectedPath.value = cloneDeep(editMatch.value);
+    if (selectedPath.value?.where && props.propertyIri && props.dataModelIri) {
+      if (!selectedPath.value.typeOf) selectedPath.value.typeOf = { "@id": props.dataModelIri };
+      selectedPath.value.where.push({ "@id": props.propertyIri });
+    }
     pathSuggestions.value = [selectedPath.value!];
   } else {
     selectedPath.value = undefined;
@@ -242,20 +247,14 @@ function updateIMQueryType(type: TTIriRef) {
 }
 
 function updateIMQueryBinding() {
-  const dmIri = selectedPath.value?.typeOf?.["@id"];
-  const propIri = selectedPath.value?.where?.[0]?.["@id"];
+  const dmIri = selectedPath.value?.typeOf?.["@id"] ?? props.dataModelIri;
+  const propIri = props.propertyIri ?? selectedPath.value?.where?.[0]?.["@id"];
+  console.log(dmIri, propIri);
   if (dmIri && propIri) {
     if (!imQuery.value) imQuery.value = { query: {} };
     deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
     addBindingsToIMQuery([{ node: { "@id": dmIri }, path: { "@id": propIri } }], imQuery.value);
   }
-}
-
-function clearPath() {
-  selectedPath.value = undefined;
-  updateSearch.value = !updateSearch.value;
-  if (imQuery.value) deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
-  selectedValueMap.value = new Map<string, Node>();
 }
 
 function onSearch(payload: string) {

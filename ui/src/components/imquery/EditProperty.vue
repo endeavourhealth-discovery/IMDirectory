@@ -10,6 +10,9 @@
       <span v-else @click="showBuildFeatureDialog = true">
         <InputText :value="computedInstanceOfDisplay" />
       </span>
+      {{ editMatch }}
+      -
+      {{ selectedProperty }}
       <AddNewFeatureDialog
         v-model:show-dialog="showBuildFeatureDialog"
         :dataModelIri="dataModelIri"
@@ -18,6 +21,7 @@
         :can-clear-path="false"
         :has-next-step="false"
         :match="editMatch"
+        :property-iri="selectedProperty.iri"
         :isList="property.is"
         :show-type-filters="false"
         @on-match-add="onMatchAdd"
