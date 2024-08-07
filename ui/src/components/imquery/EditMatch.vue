@@ -143,6 +143,7 @@
       </div>
       <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
+      <span v-if="editMatch.variable" v-html="getDisplayFromVariable(editMatch.variable)"></span>
     </div>
     <Button
       v-if="!isRootFeature"
@@ -163,7 +164,7 @@ import { MenuItem } from "primevue/menuitem";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+import { describeMatch, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
 import AddMatch from "./AddMatch.vue";
