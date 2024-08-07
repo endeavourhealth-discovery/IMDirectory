@@ -250,7 +250,6 @@ function updateIMQueryType(type: TTIriRef) {
 function updateIMQueryBinding() {
   const dmIri = selectedPath.value?.typeOf?.["@id"] ?? props.dataModelIri;
   const propIri = props.propertyIri ?? selectedPath.value?.where?.[0]?.["@id"];
-  console.log(dmIri, propIri);
   if (dmIri && propIri) {
     if (!imQuery.value) imQuery.value = { query: {} };
     deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
