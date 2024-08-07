@@ -116,10 +116,14 @@ const selectedType = ref("");
 
 const disableSelect = computed(
   () =>
-    (selectedType.value === IM.CONCEPT_SET && selectedValueMap.value.size < 1 && !selectedPath.value) ||
-    (selectedType.value !== IM.CONCEPT_SET && !detailsIri.value)
+    ([IM.CONCEPT_SET, IM.CONCEPT].includes(selectedType.value) && selectedValueMap.value.size < 1 && !selectedPath.value) ||
+    (![IM.CONCEPT_SET, IM.CONCEPT].includes(selectedType.value) && !detailsIri.value)
 );
-const lockTypeFilters = computed(() => selectedType.value === IM.CONCEPT_SET && selectedValueMap.value.size > 0);
+const lockTypeFilters = computed(() => {
+  if ((selectedType.value === IM.CONCEPT_SET || selectedType.value === IM.CONCEPT) && selectedValueMap.value.size > 0) {
+    return { all: true, concept: false, conceptSet: false, property: true, feature: true, cohort: true };
+  } else return undefined;
+});
 
 const rootEntities: Ref<string[] | undefined> = ref();
 watch(
