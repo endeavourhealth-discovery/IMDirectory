@@ -1,5 +1,5 @@
 <template>
-  <div class="flex">
+  <div class="flex items-center gap-1">
     <Button
       v-if="show('findInTree')"
       icon="fa-duotone fa-list-tree"
@@ -59,15 +59,7 @@
       data-testid="favourite-button"
       :loading="loadingFavourites"
     />
-    <Button
-      v-if="show('addToList')"
-      icon="fa-regular fa-square-plus"
-      :severity="getSeverity()"
-      :class="getClass()"
-      @click.stop="emit('addToList', iri)"
-      v-tooltip.top="'Add to list'"
-      data-testid="add-button"
-    />
+    <Button v-if="show('addToList')" label="Add" @click.stop="emit('addToList', iri)" v-tooltip.top="'Add to list'" data-testid="add-button" />
   </div>
 </template>
 

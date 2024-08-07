@@ -1,6 +1,7 @@
 <template>
   <div class="edit-match-wrapper">
     <Button
+      v-if="!isEmptyMatch()"
       :severity="editMatch.exclude ? 'danger' : 'secondary'"
       :outlined="!editMatch.exclude"
       label="NOT"
@@ -27,7 +28,7 @@
 
       <div v-if="editMatch?.match" class="feature-group">
         <Button
-          v-if="isBooleanEditor"
+          v-if="isBooleanEditor && editMatch?.match.length > 1"
           class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolMatch?.toUpperCase() ?? 'AND'"
           @click.stop="toggleMatchBool(editMatch)"
@@ -142,6 +143,7 @@
       </div>
       <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
+      <span v-if="editMatch.variable" v-html="getDisplayFromVariable(editMatch.variable)"></span>
     </div>
     <Button
       v-if="!isRootFeature"
@@ -162,8 +164,8 @@ import { MenuItem } from "primevue/menuitem";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { describeMatch, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
 import AddMatch from "./AddMatch.vue";
 
@@ -253,6 +255,14 @@ function ungroupMatches(nestedMatch: Match) {
 
 function getTypeOf(fullQuery: Match) {
   return props.editMatch.typeOf?.["@id"] ?? getTypeOfMatch(fullQuery, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
+}
+
+function isEmptyMatch() {
+  if (!isObjectHasKeys(props.editMatch)) return true;
+  return (
+    JSON.stringify(props.editMatch) === JSON.stringify({ match: [], boolMatch: "and" }) ||
+    JSON.stringify(props.editMatch) === JSON.stringify({ match: [], boolMatch: "and", exclude: false })
+  );
 }
 </script>
 

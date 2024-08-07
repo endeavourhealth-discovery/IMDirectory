@@ -57,10 +57,10 @@
           <span class="tree-node-label" data-testid="row-label">{{ node.label }}</span>
           <Button
             v-if="showSelect"
-            icon="fa-regular fa-square-plus"
-            text
+            label="Add"
             @click.stop="emit('onSelect', node.data)"
             v-tooltip="'Add to list'"
+            class="self-center"
             data-testid="add-button"
           />
         </div>

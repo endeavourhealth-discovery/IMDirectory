@@ -3,9 +3,8 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div class="flex flex-auto flex-col gap-2 select-property-wrapper">
+    <div class="select-property-wrapper flex flex-auto flex-col gap-2">
       <div v-if="active === 1" class="directory-search-dialog-content">
-        <PathDisplay v-if="selectedPath" :path="selectedPath" :can-clear-path="canClearPath" @on-clear-path="clearPath" />
         <div class="search-bar">
           <SearchBarWithRadioFilters
             :show-type-filters="showTypeFilters"
@@ -27,16 +26,18 @@
           </div>
           <div class="right-container">
             <SearchResultsAndDetails
+              v-model:selected-path="selectedPath"
               :selectedIri="treeIri"
               :search-term="searchTerm"
               :update-search="updateSearch"
               :im-query="imQuery"
               :data-model-iri="dataModelIri"
-              v-model:selected-path="selectedPath"
+              :selectedType="selectedType"
+              :can-clear-path="canClearPath"
+              :property-iri="propertyIri"
               @locate-in-tree="iri => (treeIri = iri)"
               @go-to-next-step="active = 2"
               @selected-iri="updateSelectedIri"
-              :selectedType="selectedType"
             />
           </div>
         </div>
@@ -47,7 +48,7 @@
         :is-root-feature="true"
         :focused-id="getLeafMatch(editMatch)['@id']"
       />
-      <div class="flex flex-0 gap-2 justify-end populate-property-actions">
+      <div class="flex-0 populate-property-actions flex justify-end gap-2">
         <Button label="Cancel" severity="secondary" @click="visible = false" />
         <Button v-if="active === 1 && hasNextStep && !hasQueryOrFeatureSelected" :disabled="disableSelect" label="Select" iconPos="right" @click="active = 2" />
         <Button v-else label="Save" iconPos="right" @click="save" />
@@ -69,13 +70,13 @@ import NavTree from "../../shared/NavTree.vue";
 import SearchBarWithRadioFilters, { TypeOption } from "./SearchBarWithRadioFilters.vue";
 import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
-import PathDisplay from "./PathDisplay.vue";
 import { isFeature, isQuery } from "@im-library/helpers/ConceptTypeMethods";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   showDialog: boolean;
   match?: Match;
+  propertyIri?: string;
   canClearPath?: boolean;
   header: string;
   dataModelIri: string;
@@ -115,10 +116,14 @@ const selectedType = ref("");
 
 const disableSelect = computed(
   () =>
-    (selectedType.value === IM.CONCEPT_SET && selectedValueMap.value.size < 1 && !selectedPath.value) ||
-    (selectedType.value !== IM.CONCEPT_SET && !detailsIri.value)
+    ([IM.CONCEPT_SET, IM.CONCEPT].includes(selectedType.value) && selectedValueMap.value.size < 1 && !selectedPath.value) ||
+    (![IM.CONCEPT_SET, IM.CONCEPT].includes(selectedType.value) && !detailsIri.value)
 );
-const lockTypeFilters = computed(() => selectedType.value === IM.CONCEPT_SET && selectedValueMap.value.size > 0);
+const lockTypeFilters = computed(() => {
+  if ((selectedType.value === IM.CONCEPT_SET || selectedType.value === IM.CONCEPT) && selectedValueMap.value.size > 0) {
+    return { all: true, concept: false, conceptSet: false, property: true, feature: true, cohort: true };
+  } else return undefined;
+});
 
 const rootEntities: Ref<string[] | undefined> = ref();
 watch(
@@ -170,6 +175,11 @@ function init() {
   if (isObjectHasKeys(props.match)) {
     editMatch.value = cloneDeep(props.match);
     selectedPath.value = cloneDeep(editMatch.value);
+    if (selectedPath.value?.where && props.propertyIri && props.dataModelIri) {
+      if (!selectedPath.value.typeOf) selectedPath.value.typeOf = { "@id": props.dataModelIri };
+      selectedPath.value.where.push({ "@id": props.propertyIri });
+    }
+    pathSuggestions.value = [selectedPath.value!];
   } else {
     selectedPath.value = undefined;
   }
@@ -242,20 +252,13 @@ function updateIMQueryType(type: TTIriRef) {
 }
 
 function updateIMQueryBinding() {
-  const dmIri = selectedPath.value?.typeOf?.["@id"];
-  const propIri = selectedPath.value?.where?.[0]?.["@id"];
+  const dmIri = selectedPath.value?.typeOf?.["@id"] ?? props.dataModelIri;
+  const propIri = props.propertyIri ?? selectedPath.value?.where?.[0]?.["@id"];
   if (dmIri && propIri) {
     if (!imQuery.value) imQuery.value = { query: {} };
     deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
     addBindingsToIMQuery([{ node: { "@id": dmIri }, path: { "@id": propIri } }], imQuery.value);
   }
-}
-
-function clearPath() {
-  selectedPath.value = undefined;
-  updateSearch.value = !updateSearch.value;
-  if (imQuery.value) deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
-  selectedValueMap.value = new Map<string, Node>();
 }
 
 function onSearch(payload: string) {

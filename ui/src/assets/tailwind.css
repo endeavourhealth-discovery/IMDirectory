@@ -10,6 +10,29 @@
 }
 
 @layer base {
+  body {
+    @apply text-base;
+  }
+  @screen sm {
+    body {
+      @apply text-sm;
+    }
+  }
+  @screen md {
+    body {
+      @apply text-base;
+    }
+  }
+  @screen lg {
+    body {
+      @apply text-lg;
+    }
+  }
+  @screen xl {
+    body {
+      @apply text-xl;
+    }
+  }
   h1 {
     @apply text-3xl;
     @apply font-bold;

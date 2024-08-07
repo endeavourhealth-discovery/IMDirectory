@@ -7,7 +7,7 @@
         <InputText :value="property.valueLabel" @click="showBuildFeatureDialog = true" />
       </span>
 
-      <span v-else-if="isArrayHasLength(property.is)" @click="showBuildFeatureDialog = true">
+      <span v-else @click="showBuildFeatureDialog = true">
         <InputText :value="computedInstanceOfDisplay" />
       </span>
       <AddNewFeatureDialog
@@ -18,6 +18,7 @@
         :can-clear-path="false"
         :has-next-step="false"
         :match="editMatch"
+        :property-iri="selectedProperty.iri"
         :isList="property.is"
         :show-type-filters="false"
         @on-match-add="onMatchAdd"
@@ -53,7 +54,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { showDelete: true });
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
-const computedInstanceOfDisplay: ComputedRef<string> = computed(() => props.property.is!.map(is => getNameFromRef(is)).join(", "));
+const computedInstanceOfDisplay: ComputedRef<string | undefined> = computed(() => props.property.is?.map(is => getNameFromRef(is)).join(", "));
 const emit = defineEmits({ deleteProperty: () => true });
 
 onMounted(async () => {
