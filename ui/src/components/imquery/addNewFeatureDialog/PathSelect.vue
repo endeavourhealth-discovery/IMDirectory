@@ -1,4 +1,5 @@
 <template>
+  <div class="view-title"><b>Path</b></div>
   <Listbox v-model="localSelectedPath" :options="pathSuggestions" class="w-full" @change="onSelect()">
     <template #empty> No available paths </template>
     <template #option="{ option }: { option: Match }">
