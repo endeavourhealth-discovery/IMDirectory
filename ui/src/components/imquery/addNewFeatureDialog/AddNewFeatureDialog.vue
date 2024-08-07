@@ -26,17 +26,18 @@
           </div>
           <div class="right-container">
             <SearchResultsAndDetails
+              v-model:selected-path="selectedPath"
               :selectedIri="treeIri"
               :search-term="searchTerm"
               :update-search="updateSearch"
               :im-query="imQuery"
               :data-model-iri="dataModelIri"
-              v-model:selected-path="selectedPath"
+              :selectedType="selectedType"
+              :can-clear-path="canClearPath"
+              :property-iri="propertyIri"
               @locate-in-tree="iri => (treeIri = iri)"
               @go-to-next-step="active = 2"
               @selected-iri="updateSelectedIri"
-              :selectedType="selectedType"
-              :can-clear-path="canClearPath"
             />
           </div>
         </div>
