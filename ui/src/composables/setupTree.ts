@@ -19,7 +19,7 @@ function setupTree(emit?: any) {
   const root: Ref<TreeNode[]> = ref([]);
   const expandedKeys: Ref<any> = ref({});
   const expandedData: Ref<TreeNode[]> = ref([]);
-  const pageSize = ref(20);
+  const pageSize = ref(50);
 
   const directService = new DirectService();
 
