@@ -28,7 +28,9 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   showTypeFilters: true,
-  lockTypeFilters: { all: false, concept: false, conceptSet: false, property: false, feature: false, cohort: false }
+  lockTypeFilters: () => {
+    return { all: false, concept: false, conceptSet: false, property: false, feature: false, cohort: false };
+  }
 });
 
 const emit = defineEmits({ onTypeSelect: (payload: TypeOption) => payload, onSearch: (payload: string) => payload });
