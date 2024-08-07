@@ -124,6 +124,7 @@ async function onSaveChanges(editMatch: Match) {
     if (describedMatch.typeOf) selectedMenuItem.value.editMatch.typeOf = describedMatch.typeOf;
     if (isObjectHasKeys(describedMatch, ["name"])) selectedMenuItem.value.editMatch.name = describedMatch.name;
     if (isObjectHasKeys(describedMatch, ["description"])) selectedMenuItem.value.editMatch.description = describedMatch.description;
+    if (isObjectHasKeys(describedMatch, ["variable"])) selectedMenuItem.value.editMatch.variable = describedMatch.variable;
     describeMatch(selectedMenuItem.value.editMatch, 0, false);
   }
 }
