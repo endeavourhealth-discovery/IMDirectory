@@ -52,6 +52,7 @@
     </div>
     <SelectedSet class="bottom-half-component" />
     <PathSelect
+      :property-iri="propertyIri"
       :selected-path="selectedPath"
       :data-model-iri="dataModelIri"
       :pathSuggestions="pathSuggestions"
@@ -86,6 +87,7 @@ interface Props {
   selectedPath: Match | undefined;
   selectedType: string;
   canClearPath?: boolean;
+  propertyIri?: string;
 }
 
 const emit = defineEmits({

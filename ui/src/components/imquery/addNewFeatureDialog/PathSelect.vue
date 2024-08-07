@@ -3,8 +3,10 @@
     <template #empty> No available paths </template>
     <template #option="{ option }: { option: Match }">
       <div class="flex items-center" id="query-path-options" v-if="isArrayHasLength(option.where)">
-        <div v-if="option.path && option.typeOf">{{ option.path?.[0].name }} -> {{ option.typeOf?.name }} . {{ option.where?.[0]?.name }}</div>
-        <div v-else>{{ toTitleCase(getNameFromIri(dataModelIri)) }} -> {{ option.where?.[0]?.name }}</div>
+        <div v-if="option.path && option.typeOf">
+          {{ option.path?.[0].name }} -> {{ option.typeOf?.name }} . {{ propertyIri ? getNameFromIri(propertyIri) : option.where?.[0]?.name }}
+        </div>
+        <div v-else>{{ toTitleCase(getNameFromIri(dataModelIri)) }} -> {{ propertyIri ? getNameFromIri(propertyIri) : option.where?.[0]?.name }}</div>
       </div>
     </template>
   </Listbox>
@@ -20,6 +22,7 @@ import { Ref } from "vue";
 interface Props {
   selectedPath: Match | undefined;
   dataModelIri: string;
+  propertyIri?: string;
   pathSuggestions: Match[];
 }
 const props = defineProps<Props>();

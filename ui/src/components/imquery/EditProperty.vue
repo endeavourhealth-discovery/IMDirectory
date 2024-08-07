@@ -18,6 +18,7 @@
         :can-clear-path="false"
         :has-next-step="false"
         :match="editMatch"
+        :property-iri="selectedProperty.iri"
         :isList="property.is"
         :show-type-filters="false"
         @on-match-add="onMatchAdd"

@@ -26,17 +26,18 @@
           </div>
           <div class="right-container">
             <SearchResultsAndDetails
+              v-model:selected-path="selectedPath"
               :selectedIri="treeIri"
               :search-term="searchTerm"
               :update-search="updateSearch"
               :im-query="imQuery"
               :data-model-iri="dataModelIri"
-              v-model:selected-path="selectedPath"
+              :selectedType="selectedType"
+              :can-clear-path="canClearPath"
+              :property-iri="propertyIri"
               @locate-in-tree="iri => (treeIri = iri)"
               @go-to-next-step="active = 2"
               @selected-iri="updateSelectedIri"
-              :selectedType="selectedType"
-              :can-clear-path="canClearPath"
             />
           </div>
         </div>
@@ -75,6 +76,7 @@ import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 interface Props {
   showDialog: boolean;
   match?: Match;
+  propertyIri?: string;
   canClearPath?: boolean;
   header: string;
   dataModelIri: string;
@@ -169,6 +171,10 @@ function init() {
   if (isObjectHasKeys(props.match)) {
     editMatch.value = cloneDeep(props.match);
     selectedPath.value = cloneDeep(editMatch.value);
+    if (selectedPath.value?.where && props.propertyIri && props.dataModelIri) {
+      if (!selectedPath.value.typeOf) selectedPath.value.typeOf = { "@id": props.dataModelIri };
+      selectedPath.value.where.push({ "@id": props.propertyIri });
+    }
     pathSuggestions.value = [selectedPath.value!];
   } else {
     selectedPath.value = undefined;
@@ -242,20 +248,13 @@ function updateIMQueryType(type: TTIriRef) {
 }
 
 function updateIMQueryBinding() {
-  const dmIri = selectedPath.value?.typeOf?.["@id"];
-  const propIri = selectedPath.value?.where?.[0]?.["@id"];
+  const dmIri = selectedPath.value?.typeOf?.["@id"] ?? props.dataModelIri;
+  const propIri = props.propertyIri ?? selectedPath.value?.where?.[0]?.["@id"];
   if (dmIri && propIri) {
     if (!imQuery.value) imQuery.value = { query: {} };
     deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
     addBindingsToIMQuery([{ node: { "@id": dmIri }, path: { "@id": propIri } }], imQuery.value);
   }
-}
-
-function clearPath() {
-  selectedPath.value = undefined;
-  updateSearch.value = !updateSearch.value;
-  if (imQuery.value) deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
-  selectedValueMap.value = new Map<string, Node>();
 }
 
 function onSearch(payload: string) {

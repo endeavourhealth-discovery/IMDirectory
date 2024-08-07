@@ -9,8 +9,8 @@
         :show-variable-options="showVariableOptions"
       />
       <EditProperty
-        class="self-center w-full"
-        :edit-match="match"
+        class="w-full self-center"
+        :edit-match="editMatch"
         :property="editWhere"
         :data-model-iri="editWhereDMIri || dataModelIri"
         :show-delete="false"
@@ -70,7 +70,7 @@ watch(visible, newValue => {
 watch(
   () => cloneDeep(props.match),
   newValue => {
-    if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
+    if (isObjectHasKeys(props.match, ["where"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
   }
 );
 
@@ -87,6 +87,7 @@ watch(
       } else {
         editWhere.value = getEditWhere(whereOrMatch.value);
         editWhereDMIri.value = getEditWhereDMIri(whereOrMatch.value);
+        editMatch.value.where?.push(editWhere.value);
       }
     }
   }
