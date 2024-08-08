@@ -59,12 +59,12 @@
 
 <script setup lang="ts">
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
-import { Match, Node, PathQuery, QueryRequest, SearchResultSummary, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
+import { Match, Node, QueryRequest, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF } from "@im-library/vocabulary";
-import { EntityService, QueryService } from "@/services";
-import { addBindingsToIMQuery, addTypeFilterToIMQuery, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
+import { EntityService } from "@/services";
+import { addTypeFilterToIMQuery, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import NavTree from "../../shared/NavTree.vue";
 import SearchBarWithRadioFilters, { TypeOption } from "./SearchBarWithRadioFilters.vue";
@@ -151,7 +151,6 @@ watch(
   () => cloneDeep(selectedPath.value),
   newValue => {
     editMatch.value = cloneDeep(newValue);
-    updateIMQueryBinding();
   }
 );
 
@@ -249,16 +248,6 @@ function updateIMQueryType(type: TTIriRef) {
   if (!imQuery.value) imQuery.value = { query: {} };
   if (imQuery.value.query) deleteQueryPredicateIfExists(imQuery.value?.query, RDF.TYPE);
   addTypeFilterToIMQuery([type], imQuery.value, true);
-}
-
-function updateIMQueryBinding() {
-  const dmIri = selectedPath.value?.typeOf?.["@id"] ?? props.dataModelIri;
-  const propIri = props.propertyIri ?? selectedPath.value?.where?.[0]?.["@id"];
-  if (dmIri && propIri) {
-    if (!imQuery.value) imQuery.value = { query: {} };
-    deleteQueryPredicateIfExists(imQuery.value!.query, IM.BINDING);
-    addBindingsToIMQuery([{ node: { "@id": dmIri }, path: { "@id": propIri } }], imQuery.value);
-  }
 }
 
 function onSearch(payload: string) {
