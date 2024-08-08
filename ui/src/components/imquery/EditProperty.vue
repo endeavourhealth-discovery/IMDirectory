@@ -1,15 +1,24 @@
 <template>
-  <div class="property-container">
+  <div class="ml-1 mt-1 flex flex-row items-center gap-2">
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-56" disabled />
-    <span v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'">
-      <span class="is-title"> is </span>
-      <span v-if="property.valueLabel">
+    <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
+      <span class="self-center"> is </span>
+      <div v-if="property.valueLabel">
         <InputText :value="property.valueLabel" @click="showBuildFeatureDialog = true" />
-      </span>
+      </div>
 
-      <span v-else @click="showBuildFeatureDialog = true">
-        <InputText :value="computedInstanceOfDisplay" />
-      </span>
+      <InputGroup v-else class="flex flex-row flex-nowrap">
+        <div class="border-1 border-border-surface flex flex-row rounded border border-solid p-1">
+          <div v-for="is of property.is"><Chip :label="truncateName(getNameFromRef(is))" v-tooltip.bottom="getNameFromRef(is)" /></div>
+        </div>
+        <Button icon="fa-solid fa-chevron-down" severity="secondary" @click="toggleDropdown" />
+        <Button label="Edit" @click="showBuildFeatureDialog = true" />
+      </InputGroup>
+      <Popover ref="dropdown">
+        <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
+          <span v-for="is of property.is" class="p-1">{{ getNameFromRef(is) }}</span>
+        </div>
+      </Popover>
       <AddNewFeatureDialog
         v-model:show-dialog="showBuildFeatureDialog"
         :dataModelIri="dataModelIri"
@@ -23,7 +32,7 @@
         :show-type-filters="false"
         @on-match-add="onMatchAdd"
       />
-    </span>
+    </div>
 
     <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :datatype="selectedProperty.valueType" :property="property" />
     <Button v-if="showDelete" @click="$emit('deleteProperty')" severity="danger" icon="fa-solid fa-trash" />
@@ -56,6 +65,8 @@ const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
 const computedInstanceOfDisplay: ComputedRef<string | undefined> = computed(() => props.property.is?.map(is => getNameFromRef(is)).join(", "));
 const emit = defineEmits({ deleteProperty: () => true });
+
+const dropdown = ref();
 
 onMounted(async () => {
   await init();
@@ -100,17 +111,17 @@ async function getProperty(dmIri: string, propIri: string) {
 function onMatchAdd(updatedMatch: Match) {
   props.editMatch.where = updatedMatch.where;
 }
+
+function truncateName(name: string) {
+  if (name.length > 25) return name.substring(0, 25) + "...";
+}
+
+function toggleDropdown(event: MouseEvent) {
+  dropdown.value.toggle(event);
+}
 </script>
 
 <style scoped>
-.property-container {
-  display: flex;
-  flex-flow: row;
-  margin-left: 1rem;
-  margin-top: 1rem;
-  align-items: baseline;
-}
-
 .property-label {
   padding: 0.1rem;
 }
