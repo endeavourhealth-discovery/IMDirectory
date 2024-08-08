@@ -1,6 +1,6 @@
 <template>
   <div class="view-title"><b>Path</b></div>
-  <Listbox v-model="localSelectedPath" :options="pathSuggestions" class="w-full" @change="onSelect()">
+  <Listbox v-model="localSelectedPath" :options="pathSuggestions" class="w-full" :invalid="localSelectedPath === null" @change="onSelect()">
     <template #empty> No available paths </template>
     <template #option="{ option }: { option: Match }">
       <div class="flex items-center" id="query-path-options" v-if="isArrayHasLength(option.where)">
@@ -18,6 +18,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { toTitleCase } from "@im-library/helpers/StringManipulators";
 import { getNameFromIri } from "@im-library/helpers/TTTransform";
 import { Match, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { cloneDeep } from "lodash-es";
 import { ref, watch } from "vue";
 import { Ref } from "vue";
 interface Props {
@@ -27,6 +28,9 @@ interface Props {
   pathSuggestions: Match[];
 }
 const props = defineProps<Props>();
+
+const visible: Ref<boolean> = ref(false);
+const localSelectedPath: Ref<Match | undefined> = ref();
 
 const emit = defineEmits({
   onSelectedPath: (payload: Match) => payload
@@ -38,8 +42,13 @@ watch(
     localSelectedPath.value = props.selectedPath;
   }
 );
-const visible: Ref<boolean> = ref(false);
-const localSelectedPath: Ref<Match | undefined> = ref();
+
+watch(
+  () => cloneDeep(localSelectedPath.value),
+  newValue => {
+    if (!newValue) localSelectedPath.value = props.selectedPath;
+  }
+);
 
 function onSelect() {
   if (localSelectedPath.value) emit("onSelectedPath", localSelectedPath.value);
