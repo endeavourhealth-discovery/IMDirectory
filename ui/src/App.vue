@@ -17,8 +17,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef, Ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, ComputedRef, onMounted, ref, Ref } from "vue";
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
@@ -26,7 +26,7 @@ import FooterBar from "./components/app/FooterBar.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { AuthService, GithubService, UserService } from "@/services";
+import { AuthService, GithubService } from "@/services";
 import { fetchAuthSession } from "aws-amplify/auth";
 import axios from "axios";
 import semver from "semver";
@@ -226,6 +226,7 @@ function setupExternalErrorHandler() {
 @import "@/assets/layout/sass/_main.scss";
 @import "sweetalert2/dist/sweetalert2.min.css";
 @import "@/assets/tailwind.css";
+@import "@/assets/primevueOverrides.css";
 </style>
 
 <style scoped>
@@ -247,6 +248,7 @@ function setupExternalErrorHandler() {
   justify-content: space-between;
   overflow: auto;
 }
+
 .loading-container {
   width: 100%;
   flex: 1 1 auto;
@@ -254,31 +256,7 @@ function setupExternalErrorHandler() {
 </style>
 
 <style>
-.p-dialog-mask {
-  z-index: 1;
-}
 .swal2-popup {
   background-color: var(--p-content-background);
-}
-.p-toast-message-text {
-  width: calc(100% - 4rem);
-}
-
-.p-toast-message-content {
-  width: 100%;
-}
-
-.p-toast-detail {
-  width: 100%;
-  word-wrap: break-word;
-}
-
-.p-dialog-header-icons {
-  flex: 1 0 auto;
-  justify-content: flex-end;
-}
-
-.p-progressspinner {
-  overflow: hidden;
 }
 </style>

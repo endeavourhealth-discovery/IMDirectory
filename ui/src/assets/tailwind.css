@@ -13,6 +13,7 @@
   body {
     @apply text-base;
   }
+
   @screen sm {
     body {
       @apply text-sm;
@@ -51,11 +52,5 @@
   h4 {
     @apply text-lg;
     @apply font-semibold;
-  }
-}
-
-@layer components {
-  .p-tree-node-content {
-    @apply p-0;
   }
 }
