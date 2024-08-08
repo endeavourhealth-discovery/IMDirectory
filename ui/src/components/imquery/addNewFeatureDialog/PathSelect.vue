@@ -1,7 +1,7 @@
 <template>
-  <div class="view-title"><b>Path</b></div>
+  <div class="view-title"><b>Relationship</b></div>
   <Listbox v-model="localSelectedPath" :options="pathSuggestions" class="w-full" :invalid="localSelectedPath === null" @change="onSelect()">
-    <template #empty> No available paths </template>
+    <template #empty> No available relationships </template>
     <template #option="{ option }: { option: Match }">
       <div class="flex items-center" id="query-path-options" v-if="isArrayHasLength(option.where)">
         <div v-if="option.path && option.typeOf">

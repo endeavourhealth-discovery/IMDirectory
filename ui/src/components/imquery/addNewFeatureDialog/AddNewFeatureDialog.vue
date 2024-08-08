@@ -72,6 +72,7 @@ import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
 import { isFeature, isQuery } from "@im-library/helpers/ConceptTypeMethods";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 
 interface Props {
   showDialog: boolean;
@@ -87,6 +88,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { getLeafMatch } = setupIMQueryBuilderActions();
+
 const emit = defineEmits({
   onClose: () => true,
   onPropertyAdd: (_property: Where) => true,
@@ -213,20 +216,6 @@ function clear() {
   treeIri.value = "";
   detailsIri.value = "";
   selectedValueMap.value.clear();
-}
-
-function getLeafMatch(match: Match) {
-  if (!match.where) return match;
-  const found: Match[] = [];
-  getLeafWhereRecursively(match.where, found, match);
-  if (found.length) return found[0];
-  else return match;
-}
-
-function getLeafWhereRecursively(whereList: Where[], found: Match[], currentMatch: Match) {
-  const hasNested = whereList.find(nestedWhere => nestedWhere.match?.where);
-  if (hasNested) getLeafWhereRecursively(hasNested.match?.where!, found, hasNested.match!);
-  else found.push(currentMatch);
 }
 
 function onTypeSelect(typeOption: TypeOption) {
