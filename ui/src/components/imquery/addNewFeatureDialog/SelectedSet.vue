@@ -1,5 +1,8 @@
 <template>
-  <div v-if="selectedValueMap?.size" class="flex w-full flex-col">
+  <div v-if="loading" class="flex w-full flex-col">
+    <ProgressSpinner />
+  </div>
+  <div v-else-if="selectedValueMap?.size" class="flex w-full flex-col">
     <InputText type="text" v-model="valueLabel" placeholder="Value label" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #option="{ option }" class="flex flex-row">
@@ -44,6 +47,7 @@ interface SelectedEntity {
   entailment: "memberOf" | "descendantsOf" | "descendantsOrSelfOf" | "ancestorsOf";
 }
 
+const loading = ref(true);
 const selectedEntities: Ref<SelectedEntity[]> = ref([]);
 const entailmentOptions: { name: string; id: string }[] = [
   { name: "descendants of", id: "descendantsOf" },
@@ -65,6 +69,7 @@ watch(
 onMounted(async () => await init());
 
 async function init() {
+  loading.value = true;
   const selectedList = Array.from(selectedValueMap.value.keys());
   const entities = await EntityService.getPartialEntities(selectedList, [RDF.TYPE, RDFS.LABEL]);
   for (const entity of entities) {
@@ -75,6 +80,7 @@ async function init() {
   }
   selectedEntities.value = entities;
   if (selectedPath.value?.where?.[0].valueLabel) valueLabel.value = selectedPath.value?.where?.[0].valueLabel;
+  loading.value = false;
 }
 
 function getColourStyleFromType(types: TTIriRef[]) {

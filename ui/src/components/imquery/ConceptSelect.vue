@@ -1,5 +1,8 @@
 <template>
-  <div class="property-input">
+  <div v-if="loading" class="flex">
+    <ProgressSpinner />
+  </div>
+  <div v-else class="property-input">
     <div class="value-field">
       <Select
         :options="[
@@ -76,14 +79,17 @@ const quickTypeFilter: Ref<string> = ref(IM.CONCEPT_SET);
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const conceptSets: Ref<string[]> = ref([]);
 const isType: Ref<"Concept" | "Concept set"> = ref("Concept set");
+const loading = ref(true);
 
 onMounted(async () => await init());
 onUnmounted(() => clearValues());
 
 async function init() {
+  loading.value = true;
   await setValues();
   buildIMQuery();
   await setConceptSets();
+  loading.value = false;
 }
 
 function handleIsTypeChange(value: Element) {
