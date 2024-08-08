@@ -65,15 +65,29 @@ const viewsLoading = computed(() => loadingStore.viewsLoading);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 
+watch(currentPreset, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) changePreset(newValue);
+});
+watch(currentScale, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) changeScale(newValue);
+});
+watch(currentPrimaryColor, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) changePrimaryColor(newValue);
+});
+watch(currentSurfaceColor, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) changeSurfaceColor(newValue);
+});
+watch(darkMode, (newValue, oldValue) => {
+  if (newValue !== oldValue) changeDarkMode(newValue);
+});
+
 onMounted(async () => {
   loadingStore.updateViewsLoading(true);
   await AuthService.getCurrentAuthenticatedUser();
   await filterStore.fetchFilterSettings();
   await userStore.getAllFromUserDatabase();
   setThemeOptions();
-  let scale = "16px";
-  if (currentScale.value) scale = currentScale.value;
-  changeScale(scale);
+  if (currentScale.value) changeScale(currentScale.value);
 
   await setShowBanner();
   loadingStore.updateViewsLoading(false);

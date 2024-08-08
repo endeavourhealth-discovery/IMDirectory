@@ -32,10 +32,16 @@
             <Button
               v-for="color in themeOptions.primaryColours"
               rounded
-              class="round-button"
+              class="round-button border-none"
+              :class="selectedPrimaryColor === color && 'selected-primary'"
               :style="'background-color:var(--p-' + color + '-500)'"
               v-tooltip="color"
-              @click="changePrimaryColor(color)"
+              @click="
+                {
+                  selectedPrimaryColor = color;
+                  changePrimaryColor(color);
+                }
+              "
             />
           </div>
           <h2>Surface</h2>
@@ -43,10 +49,16 @@
             <Button
               v-for="color in themeOptions.surfaceColours"
               rounded
-              class="round-button"
+              class="round-button border-none"
+              :class="selectedSurfaceColor === color && 'selected-surface'"
               :style="'background-color:var(--p-' + color + '-500)'"
               v-tooltip="color"
-              @click="changeSurfaceColor(color)"
+              @click="
+                {
+                  selectedSurfaceColor = color;
+                  changeSurfaceColor(color);
+                }
+              "
             />
           </div>
           <h2>Presets</h2>
@@ -175,6 +187,8 @@ const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentScale = computed(() => userStore.currentScale);
 const currentPreset = computed(() => userStore.currentPreset);
+const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
+const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
 const userDarkMode = computed(() => userStore.darkMode);
 
 const { changeScale } = setupChangeScale();
@@ -215,6 +229,8 @@ const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: Prim
 });
 const preset = ref(themeOptions.value.presets[0]);
 const darkMode = ref(false);
+const selectedPrimaryColor = ref(themeOptions.value.primaryColours[0]);
+const selectedSurfaceColor = ref(themeOptions.value.surfaceColours[0]);
 
 const toast = useToast();
 const adminMenu = ref();
@@ -233,11 +249,10 @@ watch(darkMode, async newValue => {
 });
 
 onMounted(async () => {
-  if (isLoggedIn.value) darkMode.value = userDarkMode.value;
-  else {
-    const element = document.querySelector("html");
-    if (element) darkMode.value = element.classList.contains("my-app-dark");
-  }
+  darkMode.value = userDarkMode.value;
+  if (currentPreset.value) preset.value = currentPreset.value;
+  if (currentPrimaryColor.value) selectedPrimaryColor.value = currentPrimaryColor.value;
+  if (currentSurfaceColor.value) selectedSurfaceColor.value = currentSurfaceColor.value;
   setUserMenuItems();
   setAppMenuItems();
   await setAdminMenuItems();
@@ -494,8 +509,14 @@ function showReleaseNotes() {
   cursor: pointer;
 }
 
-.selected {
-  background-color: red;
+.selected-primary {
+  border: solid 2px;
+  @apply border-surface;
+}
+
+.selected-surface {
+  border: solid 2px;
+  @apply border-primary;
 }
 
 .theme-icon {
