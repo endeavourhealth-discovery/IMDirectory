@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, ref, Ref } from "vue";
+import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
