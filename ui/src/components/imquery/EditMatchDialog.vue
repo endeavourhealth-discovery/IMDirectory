@@ -16,7 +16,10 @@
           </div>
         </div>
       </template>
-      <div id="imquery-builder-string-container">
+      <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
+        <ProgressSpinner />
+      </div>
+      <div v-else class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
         <Textarea v-if="editMatch" type="text" placeholder="Description" v-model="editMatch.description" autoResize rows="3" />
 
         <div id="imquery-builder-container">
@@ -137,6 +140,7 @@ const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEdi
 const pathItems: Ref<MenuItem[]> = ref([]);
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const templates: Ref<any> = ref();
+const loading = ref(true);
 
 watch(
   () => cloneDeep(focusedEditMatch.value),
@@ -176,11 +180,13 @@ onMounted(async () => {
 });
 
 async function init() {
+  loading.value = true;
   setEditMatch();
   focusedEditMatchString.value = JSON.stringify(focusedEditMatch.value);
   setPathItems();
   if (focusedEditMatch.value?.variable) keepAsVariable.value = focusedEditMatch.value?.variable;
   templates.value = await getFunctionTemplates();
+  loading.value = false;
 }
 
 async function getFunctionTemplates() {

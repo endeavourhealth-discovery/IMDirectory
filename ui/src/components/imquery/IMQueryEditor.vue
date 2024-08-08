@@ -1,5 +1,8 @@
 <template>
-  <div id="im-query-editor-container">
+  <div v-if="loading" class="flex flex-auto">
+    <ProgressSpinner />
+  </div>
+  <div v-else id="im-query-editor-container">
     <div class="base-type-container">
       <div class="base-type-title side-title">Find all:</div>
       <div class="base-type-value">
@@ -75,6 +78,7 @@ const showBuildThenFeature: Ref<boolean> = ref(false);
 const showAddFeature: Ref<boolean> = ref(false);
 const variableMap: Ref<{ [key: string]: any }> = ref({});
 const selectedMenuItem: Ref<MenuItem | undefined> = ref();
+const loading = ref(true);
 provide("selectedBaseType", selectedBaseType);
 provide("variableMap", variableMap);
 provide("fullQuery", editQueryDefinition);
@@ -86,6 +90,7 @@ watch(
 );
 
 onMounted(async () => {
+  loading.value = true;
   if (props.queryDefinition) {
     editQueryDefinition.value = cloneDeep(props.queryDefinition);
     editQueryDefinition.value = await QueryService.getQueryDisplayFromQuery(editQueryDefinition.value, false);
@@ -95,6 +100,7 @@ onMounted(async () => {
     buildImQueryForBaseType();
     populateVariableMap(variableMap.value, editQueryDefinition.value);
   }
+  loading.value = false;
 });
 
 function buildImQueryForBaseType() {

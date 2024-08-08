@@ -1,5 +1,8 @@
 <template>
-  <div v-if="orderBy.property" class="order-by">
+  <div v-if="loading" class="flex">
+    <ProgressSpinner />
+  </div>
+  <div v-else-if="orderBy.property" class="order-by">
     <InputText value="Order by" disabled class="w-full md:w-20" />
     <Select v-model="orderBy.property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
     <Select
@@ -33,6 +36,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const orderProperties: Ref<OrderProperty[]> = ref([]);
+const loading = ref(true);
 const orderablePropertyTypes = [IM.DATE_TIME, XSD.INTEGER, XSD.DECIMAL];
 onMounted(async () => await init());
 
@@ -42,7 +46,9 @@ watch(
 );
 
 async function init() {
+  loading.value = true;
   if (props.dmIri) orderProperties.value = await getOrderProperties();
+  loading.value = false;
 }
 
 async function getOrderProperties() {

@@ -81,8 +81,8 @@ const unit: Ref<string | undefined> = ref();
 const propertyRef: Ref<PropertyRef> = ref({});
 const sign: Ref<"-" | "+" | undefined> = ref();
 
-onMounted(async () => {
-  await initValues();
+onMounted(() => {
+  initValues();
 });
 
 watch(
@@ -125,7 +125,7 @@ watch(
   () => updatePropertyValues()
 );
 
-async function initValues() {
+function initValues() {
   if (props.property.operator) operator.value = props.property.operator;
 
   if (props.property.value) {
