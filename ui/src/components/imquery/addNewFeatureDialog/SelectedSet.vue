@@ -1,7 +1,8 @@
 <template>
-  <div v-if="selectedValueMap?.size" class="flex w-full flex-col">
+  <div v-if="canHaveValueList" class="flex w-full flex-col">
     <InputText type="text" v-model="valueLabel" placeholder="Value label" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
+      <template #empty> Add concepts and/or sets to this list </template>
       <template #option="{ option }" class="flex flex-row">
         <div class="option-wrapper flex flex-row">
           <div class="option-content flex flex-row items-baseline gap-1">
@@ -24,7 +25,7 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { onMounted, watch, Ref, ref, inject } from "vue";
-import { RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Match, Node, TTIriRef } from "@im-library/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -32,7 +33,15 @@ import setupOverlay from "@/composables/setupOverlay";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
 import { isConcept, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
+interface Props {
+  dataModelIri: string;
+}
+
+const props = defineProps<Props>();
+const { getLeafMatch } = setupIMQueryBuilderActions();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 interface SelectedEntity {
@@ -53,6 +62,12 @@ const entailmentOptions: { name: string; id: string }[] = [
 const selectedPath = inject("selectedPath") as Ref<Match | undefined>;
 const valueLabel: Ref<string> = ref("");
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
+const canHaveValueList: Ref<boolean> = ref(false);
+
+watch(
+  () => cloneDeep(selectedPath.value),
+  async newValue => await updateCanHaveValueList(newValue)
+);
 
 watch(
   () => cloneDeep(selectedValueMap.value),
@@ -114,6 +129,19 @@ function updateValueLabel() {
   if (selectedPath.value?.where?.[0]) {
     selectedPath.value.where[0].valueLabel = valueLabel.value;
   }
+}
+
+async function updateCanHaveValueList(path: Match | undefined) {
+  if (path) {
+    const dmIri = path.typeOf?.["@id"] ?? props.dataModelIri;
+    const propIri = getLeafMatch(path)?.where?.[0]["@id"];
+    if (propIri === IM.DATA_MODEL_CONCEPT) canHaveValueList.value = true;
+    else if (dmIri && propIri) {
+      const entity = await EntityService.getPartialEntity(dmIri, [SHACL.PROPERTY]);
+      const prop = entity[SHACL.PROPERTY]?.find((prop: any) => prop?.[SHACL.PATH]?.[0]["@id"] === propIri);
+      canHaveValueList.value = prop && isArrayHasLength(prop[SHACL.CLASS]);
+    } else canHaveValueList.value = false;
+  } else canHaveValueList.value = false;
 }
 </script>
 

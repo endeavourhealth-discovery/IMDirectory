@@ -50,7 +50,7 @@
         </div>
       </div>
     </div>
-    <SelectedSet class="bottom-half-component" />
+    <SelectedSet :data-model-iri="dataModelIri" class="bottom-half-component" />
     <PathSelect
       :property-iri="propertyIri"
       :selected-path="selectedPath"
