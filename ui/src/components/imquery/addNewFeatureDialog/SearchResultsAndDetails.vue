@@ -1,63 +1,68 @@
 <template>
   <div class="flex h-full w-full flex-col">
-    <div class="top-half-component">
-      <SearchResults
-        v-if="activePage === 0"
-        :show-filters="false"
-        :updateSearch="updateSearch"
-        :search-term="searchTerm"
-        :im-query="imQuery"
-        :rows="10"
-        :show-select="allowMultipleSelect"
-        @selectedUpdated="onSelectedUpdate"
-        @viewHierarchy="onViewHierarchy"
-        @addToList="onSelect"
-        @search-results-updated="updateSearchResults"
-      />
-      <div class="details-tab" v-if="activePage === 1">
-        <div class="to-search-button-container">
-          <Button
-            link
-            v-if="searchResults?.entities?.length"
-            label="Back to search results"
-            icon="fa-solid fa-arrow-left"
-            class="back-to-search"
-            @click="activePage = 0"
-          />
-        </div>
-        <ParentHeader
-          v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
-          :entity="detailsEntity"
-          :showSelect="allowMultipleSelect"
-          @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+    <div v-if="loading" class="flex flex-auto flex-col">
+      <ProgressSpinner />
+    </div>
+    <div v-else class="flex flex-auto flex-col">
+      <div class="top-half-component">
+        <SearchResults
+          v-if="activePage === 0"
+          :show-filters="false"
+          :updateSearch="updateSearch"
+          :search-term="searchTerm"
+          :im-query="imQuery"
+          :rows="10"
+          :show-select="allowMultipleSelect"
+          @selectedUpdated="onSelectedUpdate"
           @viewHierarchy="onViewHierarchy"
           @addToList="onSelect"
+          @search-results-updated="updateSearchResults"
         />
-        <div class="dm-details" v-if="isRecordModel(detailsEntity?.[RDF.TYPE])">
-          <div class="view-title"><b>Properties</b></div>
-          <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
-        </div>
-
-        <div class="entity-details" v-else>
-          <div class="view-title"><b>Hierarchy tree</b></div>
-          <SecondaryTree
-            :entityIri="detailsIri"
-            :show-select="allowMultipleSelect"
-            @row-clicked="(iri: string) => (detailsIri = iri)"
-            @onSelect="onSelect"
-            @row-control-clicked="handleControlClick"
+        <div class="details-tab" v-if="activePage === 1">
+          <div class="to-search-button-container">
+            <Button
+              link
+              v-if="searchResults?.entities?.length"
+              label="Back to search results"
+              icon="fa-solid fa-arrow-left"
+              class="back-to-search"
+              @click="activePage = 0"
+            />
+          </div>
+          <ParentHeader
+            v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
+            :entity="detailsEntity"
+            :showSelect="allowMultipleSelect"
+            @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+            @viewHierarchy="onViewHierarchy"
+            @addToList="onSelect"
           />
+          <div class="dm-details" v-if="isRecordModel(detailsEntity?.[RDF.TYPE])">
+            <div class="view-title"><b>Properties</b></div>
+            <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
+          </div>
+
+          <div class="entity-details" v-else>
+            <div class="view-title"><b>Hierarchy tree</b></div>
+            <SecondaryTree
+              :entityIri="detailsIri"
+              :show-select="allowMultipleSelect"
+              @row-clicked="(iri: string) => (detailsIri = iri)"
+              @onSelect="onSelect"
+              @row-control-clicked="handleControlClick"
+            />
+          </div>
         </div>
       </div>
+      <SelectedSet class="bottom-half-component" />
+      <PathSelect
+        :property-iri="propertyIri"
+        :selected-path="selectedPath"
+        :data-model-iri="dataModelIri"
+        :pathSuggestions="pathSuggestions"
+        @onSelectedPath="(path: Match) => emit('update:selectedPath', path)"
+      />
     </div>
-    <SelectedSet class="bottom-half-component" />
-    <PathSelect
-      :property-iri="propertyIri"
-      :selected-path="selectedPath"
-      :data-model-iri="dataModelIri"
-      :pathSuggestions="pathSuggestions"
-      @onSelectedPath="(path: Match) => emit('update:selectedPath', path)"
-    />
   </div>
 </template>
 
@@ -103,6 +108,7 @@ const directService = new DirectService();
 const detailsIri: Ref<string> = ref("");
 const activePage: Ref<number> = ref(0);
 const detailsEntity: Ref<any> = ref();
+const loading = ref(true);
 const pathSuggestions: Ref<Match[]> = ref([]);
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const toast = useToast();
@@ -145,10 +151,12 @@ watch(activePage, newValue => {
 onMounted(async () => await init());
 
 async function init() {
+  loading.value = true;
   detailsIri.value = props.selectedIri;
   await setEntity();
   pathSuggestions.value = await getPathOptions(props.dataModelIri, detailsIri.value);
   if (!pathSuggestions.value.length && props.selectedPath) pathSuggestions.value = [props.selectedPath];
+  loading.value = false;
 }
 
 async function getPathOptions(dataModelIri: string, valueIri: string) {

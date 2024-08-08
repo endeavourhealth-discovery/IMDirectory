@@ -1,5 +1,8 @@
 <template>
-  <div class="ml-1 mt-1 flex flex-row items-center gap-2">
+  <div v-if="loading" class="flex">
+    <ProgressSpinner />
+  </div>
+  <div v-else class="ml-1 mt-1 flex flex-row items-center gap-2">
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-56" disabled />
     <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
       <span class="self-center"> is </span>
@@ -65,6 +68,7 @@ const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
 const computedInstanceOfDisplay: ComputedRef<string | undefined> = computed(() => props.property.is?.map(is => getNameFromRef(is)).join(", "));
 const emit = defineEmits({ deleteProperty: () => true });
+const loading = ref(true);
 
 const dropdown = ref();
 
@@ -83,7 +87,9 @@ watch(
 );
 
 async function init() {
+  loading.value = true;
   if (props.dataModelIri && props.property["@id"]) selectedProperty.value = await getProperty(props.dataModelIri, props.property["@id"]);
+  loading.value = false;
 }
 
 async function getProperty(dmIri: string, propIri: string) {
