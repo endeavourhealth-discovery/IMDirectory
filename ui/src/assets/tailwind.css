@@ -37,16 +37,25 @@
     @apply text-3xl;
     @apply font-bold;
   }
+
   h2 {
     @apply text-2xl;
     @apply font-bold;
   }
+
   h3 {
     @apply text-xl;
     @apply font-semibold;
   }
+
   h4 {
     @apply text-lg;
     @apply font-semibold;
+  }
+}
+
+@layer components {
+  .p-tree-node-content {
+    @apply p-0;
   }
 }
