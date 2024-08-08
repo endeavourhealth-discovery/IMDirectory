@@ -15,7 +15,7 @@ export const useUserStore = defineStore("user", {
     currentPrimaryColor: undefined,
     currentSurfaceColor: undefined,
     darkMode: false,
-    currentScale: "16px" as string,
+    currentScale: "14px",
     currentUser: undefined,
     favourites: [] as string[],
     history: [] as HistoryItem[],
@@ -86,7 +86,20 @@ export const useUserStore = defineStore("user", {
         if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
         const organisationResults = await UserService.getUserOrganisations();
         if (organisationResults) this.organisations = organisationResults;
-      }
+      } else this.getAllFromLocalStorage();
+    },
+    getAllFromLocalStorage(): void {
+      const preset = localStorage.getItem("preset");
+      if (preset && Object.values(PrimeVuePresetThemes).includes(preset as PrimeVuePresetThemes)) this.currentPreset = preset as PrimeVuePresetThemes;
+      const darkMode = localStorage.getItem("darkMode");
+      if (darkMode === "true") this.darkMode = true;
+      else this.darkMode = false;
+      const primaryColor = localStorage.getItem("primaryColor");
+      if (primaryColor && Object.values(PrimeVueColors).includes(primaryColor as PrimeVueColors)) this.currentPrimaryColor = primaryColor as PrimeVueColors;
+      const surfaceColor = localStorage.getItem("surfaceColor");
+      if (surfaceColor && Object.values(PrimeVueColors).includes(surfaceColor as PrimeVueColors)) this.currentSurfaceColor = surfaceColor as PrimeVueColors;
+      const scale = localStorage.getItem("scale");
+      if (scale) this.currentScale = scale;
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
       let activity: RecentActivityItem[] = [];
@@ -129,24 +142,29 @@ export const useUserStore = defineStore("user", {
       }
     },
     async updatePreset(preset: PrimeVuePresetThemes) {
-      if (this.currentUser) await UserService.updateUserPreset(preset);
       this.currentPreset = preset;
+      if (this.currentUser) await UserService.updateUserPreset(preset);
+      else localStorage.setItem("preset", preset);
     },
     async updatePrimaryColor(color: PrimeVueColors) {
-      if (this.currentUser) await UserService.updateUserPrimaryColor(color);
       this.currentPrimaryColor = color;
+      if (this.currentUser) await UserService.updateUserPrimaryColor(color);
+      else localStorage.setItem("primaryColor", color);
     },
     async updateSurfaceColor(color: PrimeVueColors) {
-      if (this.currentUser) await UserService.updateUserSurfaceColor(color);
       this.currentSurfaceColor = color;
+      if (this.currentUser) await UserService.updateUserSurfaceColor(color);
+      else localStorage.setItem("surfaceColor", color);
     },
     async updateDarkMode(bool: boolean) {
-      if (this.currentUser) await UserService.updateUserDarkMode(bool);
       this.darkMode = bool;
+      if (this.currentUser) await UserService.updateUserDarkMode(bool);
+      else localStorage.setItem("darkMode", bool === true ? "true" : "");
     },
     async updateCurrentScale(scale: string) {
       this.currentScale = scale;
       if (this.currentUser) await UserService.updateUserScale(scale);
+      else localStorage.setItem("scale", scale);
     },
     updateCurrentUser(user: any) {
       this.currentUser = user;
