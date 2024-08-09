@@ -50,7 +50,8 @@
       />
       <div class="flex-0 populate-property-actions flex justify-end gap-2">
         <Button label="Cancel" severity="secondary" @click="visible = false" />
-        <Button v-if="active === 1 && hasNextStep && !hasQueryOrFeatureSelected" :disabled="disableSelect" label="Select" iconPos="right" @click="active = 2" />
+        <Button v-if="hasQueryOrFeatureSelected" label="Save" @click="addQueryOrFeature" />
+        <Button v-else-if="active === 1 && hasNextStep" :disabled="disableSelect" label="Select" iconPos="right" @click="active = 2" />
         <Button v-else label="Save" iconPos="right" @click="save" />
       </div>
     </div>
@@ -201,11 +202,14 @@ async function save() {
     const editMatchCopy = cloneDeep(editMatch.value);
     editMatchCopy["@id"] = v4();
     emit("onMatchAdd", editMatchCopy);
-  } else if (hasQueryOrFeatureSelected.value) {
-    const editMatchCopy: Match = { "@id": v4(), instanceOf: Array.from(selectedValueMap.value.values()) };
-    describeMatch(editMatchCopy, 0, false);
-    emit("onMatchAdd", editMatchCopy);
   }
+  visible.value = false;
+}
+
+function addQueryOrFeature() {
+  const editMatchCopy: Match = { "@id": v4(), instanceOf: Array.from(selectedValueMap.value.values()) };
+  describeMatch(editMatchCopy, 0, false);
+  emit("onMatchAdd", editMatchCopy);
   visible.value = false;
 }
 
