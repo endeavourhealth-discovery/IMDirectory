@@ -282,7 +282,8 @@ export const hasMultiplePredicates = {
                 "@id": "http://snomed.info/sct#229819007",
                 name: "Tobacco use and exposure (observable entity)"
               },
-              type: "property"
+              type: "property",
+              children: []
             }
           ]
         }
