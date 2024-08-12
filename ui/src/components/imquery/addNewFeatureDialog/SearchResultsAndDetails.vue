@@ -195,8 +195,17 @@ async function onSelect(iri: string) {
     if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE])) {
       if (selectedValueMap.value.size) {
         const has = await hasFeatureOrQuerySelected();
-        if (!has) addToSelectedList(iri, entity[RDFS.LABEL]);
-        else
+        if (!has) {
+          const valuePathSuggestions = (await getPathOptions(props.dataModelIri, iri)) ?? [];
+          if (!isArrayHasLength(valuePathSuggestions))
+            toast.add({
+              severity: ToastSeverity.WARN,
+              summary: "No relationship found between type and value",
+              detail: `Value is not directly connected through a defined relationship with the rest of the values of the list. Make sure this value can be part of the list.`,
+              life: 3000
+            });
+          addToSelectedList(iri, entity[RDFS.LABEL]);
+        } else
           toast.add({
             severity: ToastSeverity.ERROR,
             summary: "Invalid value",
@@ -226,7 +235,7 @@ async function onSelect(iri: string) {
     } else addToSelectedList(iri, entity[RDFS.LABEL]);
   } else {
     await setQueryPath(iri);
-    if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE])) addToSelectedList(iri, entity[RDFS.LABEL]);
+    if (isArrayHasLength(pathSuggestions.value) && (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]))) addToSelectedList(iri, entity[RDFS.LABEL]);
     else if (isProperty(entity[RDF.TYPE])) {
       emit("goToNextStep");
     }
@@ -235,6 +244,13 @@ async function onSelect(iri: string) {
 
 async function setQueryPath(iri: string) {
   pathSuggestions.value = (await getPathOptions(props.dataModelIri, iri)) ?? [];
+  if (!isArrayHasLength(pathSuggestions.value))
+    toast.add({
+      severity: ToastSeverity.ERROR,
+      summary: "No relationship found between type and value",
+      detail: `Cannot find a property connected to this value, please select a property first.`,
+      life: 3000
+    });
   if (isArrayHasLength(pathSuggestions.value)) {
     emit("update:selectedPath", pathSuggestions.value[0]);
     currentPath.value = cloneDeep(pathSuggestions.value[0]);
