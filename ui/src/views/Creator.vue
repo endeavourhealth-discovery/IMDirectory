@@ -16,7 +16,7 @@
           </div>
           <div v-else class="creator-layout-container">
             <template v-for="group of groups">
-              <component :is="processComponentType(group.componentType)" :shape="group" :mode="EditorMode.CREATE" :value="processEntityValue(group)" />
+              <component :is="processComponentType(group.componentType)" :mode="EditorMode.CREATE" :shape="group" :value="processEntityValue(group)" />
             </template>
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
@@ -24,9 +24,9 @@
             <SideBar :editorEntity="editorEntity" />
           </div>
           <Button
+            :label="showSidebar ? 'hide sidebar' : 'show sidebar'"
             class="p-button-rounded p-button-outlined sidebar-toggle"
             severity="info"
-            :label="showSidebar ? 'hide sidebar' : 'show sidebar'"
             @click="onShowSidebar"
           />
         </div>
@@ -34,9 +34,9 @@
           <div class="required-container">
             <span class="required-info">(*) item is required.</span>
           </div>
-          <div class="button-bar" id="creator-button-bar">
-            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
-            <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
+          <div id="creator-button-bar" class="button-bar">
+            <Button data-testid="cancel-button" icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" />
+            <Button class="save-button" icon="fa-solid fa-check" label="Create" severity="success" @click="submit" />
           </div>
         </div>
       </div>
@@ -88,7 +88,7 @@ export default defineComponent({
 });
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
@@ -111,6 +111,7 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
+
 interface Props {
   type?: TTIriRef;
 }

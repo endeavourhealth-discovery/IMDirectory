@@ -7,14 +7,14 @@
       <div class="base-type-title side-title">Find all:</div>
       <div class="base-type-value">
         <AutocompleteSearchBar
-          class="base-type-autocomplete"
           v-model:selected="selectedBaseType"
           :im-query="imQueryForBaseType"
           :root-entities="['http://endhealth.info/im#DataModels', 'http://endhealth.info/im#Q_Queries']"
+          class="base-type-autocomplete"
         />
       </div>
     </div>
-    <div class="feature-container" v-if="selectedBaseType">
+    <div v-if="selectedBaseType" class="feature-container">
       <div class="feature-title side-title">Where:</div>
       <div class="feature-list">
         <div class="feature-list-container">
@@ -45,10 +45,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, onMounted, provide, ref, watch } from "vue";
+<script lang="ts" setup>
+import { onMounted, provide, Ref, ref, watch } from "vue";
 import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
-import { Match, Query, SearchResultSummary, Bool, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Node, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import EditMatchDialog from "./EditMatchDialog.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
@@ -65,6 +65,11 @@ import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 interface Props {
   queryDefinition?: Query;
 }
+
+const emit = defineEmits({
+  updateQuery: (_payload: Query) => true,
+  updateBaseType: (_payload: SearchResultSummary | undefined) => true
+});
 
 const props = defineProps<Props>();
 
@@ -86,7 +91,17 @@ const { populateVariableMap } = setupIMQueryBuilderActions();
 
 watch(
   () => cloneDeep(editQueryDefinition.value),
-  () => populateVariableMap(variableMap.value, editQueryDefinition.value)
+  () => {
+    console.log(editQueryDefinition.value);
+    populateVariableMap(variableMap.value, editQueryDefinition.value);
+    emit("updateQuery", editQueryDefinition.value);
+  }
+);
+watch(
+  () => cloneDeep(selectedBaseType.value),
+  () => {
+    if (selectedBaseType.value) editQueryDefinition.value.typeOf = { "@id": selectedBaseType.value.iri } as Node;
+  }
 );
 
 onMounted(async () => {
@@ -95,7 +110,10 @@ onMounted(async () => {
     editQueryDefinition.value = cloneDeep(props.queryDefinition);
     editQueryDefinition.value = await QueryService.getQueryDisplayFromQuery(editQueryDefinition.value, false);
     if (editQueryDefinition.value.typeOf)
-      selectedBaseType.value = { iri: editQueryDefinition.value.typeOf?.["@id"], name: editQueryDefinition.value.typeOf?.name } as SearchResultSummary;
+      selectedBaseType.value = {
+        iri: editQueryDefinition.value.typeOf?.["@id"],
+        name: editQueryDefinition.value.typeOf?.name
+      } as SearchResultSummary;
 
     buildImQueryForBaseType();
     populateVariableMap(variableMap.value, editQueryDefinition.value);
