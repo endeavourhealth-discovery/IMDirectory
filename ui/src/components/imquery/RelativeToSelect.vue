@@ -1,6 +1,6 @@
 <template>
   <InputText type="text" v-model="propertyDisplay" @click="showDialog" placeholder="relative to" />
-  <Dialog v-model:visible="showTreeSearch" modal header="Select property" :style="{ backgroundColor: 'var(--p-surface-section)' }">
+  <Dialog v-model:visible="showTreeSearch" modal header="Select property">
     <div class="relative-to-select-dialog">
       <InputText type="text" v-model="searchTerm" />
       <Tree
