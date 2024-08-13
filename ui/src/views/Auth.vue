@@ -1,15 +1,13 @@
 <template>
-  <div class="flex flex-col items-center justify-start user-container">
-    <div class="flex flex-col justify-start card-button-container">
+  <div class="user-container flex flex-col items-center justify-start">
+    <div class="card-button-container flex flex-col justify-start gap-y-2">
       <ButtonBar />
-      <div id="user-card-container">
-        <router-view />
-      </div>
+      <router-view />
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import ButtonBar from "@/components/auth/ButtonBar.vue";
 </script>
 
@@ -17,8 +15,9 @@ import ButtonBar from "@/components/auth/ButtonBar.vue";
 .user-container {
   width: 100%;
   flex: 1 1 auto;
-  margin-top: 5vh;
+  padding-top: 5vh;
   overflow: auto;
+  background-color: var(--p-surface-50);
 }
 
 .card-button-container {

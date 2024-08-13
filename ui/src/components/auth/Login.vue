@@ -1,65 +1,58 @@
 <template>
   <div class="flex flex-row items-center">
-    <Card class="flex flex-col justify-content-sm-around items-center login-card">
+    <Card class="justify-content-sm-around login-card flex flex-col items-center">
       <template #header>
-        <IMFontAwesomeIcon icon="fa-solid fa-users" class="icon-header" />
+        <IMFontAwesomeIcon class="icon-header" icon="fa-solid fa-users" />
       </template>
-      <template #title> Login </template>
+      <template #title> Login</template>
       <template #content>
         <form class="login-form" @submit="onSubmit">
           <div class="field">
             <label for="fieldUsername">Username</label>
-            <InputText data-testid="login-username" id="fieldUsername" type="text" v-model="username" :placeholder="username" />
+            <InputText id="fieldUsername" v-model="username" :placeholder="username" data-testid="login-username" type="text" />
             <Message v-if="errors.username" severity="error">{{ errors.username }}</Message>
           </div>
           <div class="field">
             <label for="fieldPassword">Password</label>
             <Password
+              id="fieldPassword"
               v-model="password"
               :feedback="false"
-              toggleMask
-              id="fieldPassword"
               :pt="{
                 'pc-input': { root: { 'data-testid': 'login-password' } }
               }"
+              toggleMask
             />
             <Message v-if="errors.password" severity="error">{{ errors.password }}</Message>
           </div>
-          <div class="flex flex-row justify-center">
-            <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="onSubmit" :loading="loading" />
+          <div class="mt-3 flex flex-row justify-center">
+            <Button :loading="loading" class="user-submit" data-testid="login-submit" label="Login" type="submit" @click="onSubmit" />
           </div>
         </form>
       </template>
       <template #footer>
         <small
           >Don't have an account yet?
-          <Button link as="a" id="register-link" class="footer-link p-0 text-xs" @click="router.push({ name: 'Register' })">Register here</Button></small
-        >
+          <Button id="register-link" as="a" class="footer-link p-0 text-xs" link @click="router.push({ name: 'Register' })">Register here </Button>
+        </small>
         <br />
         <br />
         <small
           >Already received a confirmation code?
-          <Button link as="a" id="code-link" class="footer-link p-0 text-xs" @click="router.push({ name: 'ConfirmCode' })">Add it here</Button></small
-        >
+          <Button id="code-link" as="a" class="footer-link p-0 text-xs" link @click="router.push({ name: 'ConfirmCode' })">Add it here </Button>
+        </small>
         <br />
         <br />
         <small>
-          Forgot your password or username? <br /><Button
-            link
-            as="a"
-            id="recover-link"
-            class="footer-link p-0 text-xs"
-            @click="router.push({ name: 'ForgotPassword' })"
-          >
-            Recover account</Button
-          >
+          Forgot your password or username? <br />
+          <Button id="recover-link" as="a" class="footer-link p-0 text-xs" link @click="router.push({ name: 'ForgotPassword' })"> Recover account </Button>
         </small>
       </template>
     </Card>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, onMounted, ref } from "vue";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
@@ -69,7 +62,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
 import { CustomAlert } from "@im-library/interfaces";
 import Password from "primevue/password";
-import _ from "lodash-es";
 import * as yup from "yup";
 import { useForm } from "vee-validate";
 
@@ -239,5 +231,9 @@ const onSubmit = async function handleSubmit(): Promise<void> {
 .text-with-button {
   display: flex;
   flex-flow: row nowrap;
+}
+
+.p-password:deep(.p-password-input) {
+  width: 100%;
 }
 </style>

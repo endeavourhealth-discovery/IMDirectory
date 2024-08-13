@@ -1,116 +1,118 @@
 <template>
   <div class="flex flex-row">
-    <div class="menu-container"><TieredMenu :model="menuItems" /></div>
-    <Card class="flex flex-col justify-content-sm-around items-center user-edit-card">
+    <div class="menu-container">
+      <TieredMenu :model="menuItems" />
+    </div>
+    <Card class="justify-content-sm-around user-edit-card flex flex-col items-center">
       <template #header>
         <h1>Edit my account</h1>
         <avatar-with-selector :selectedAvatar="selectedAvatar" @avatarSelected="updateAvatar" />
       </template>
-      <template #title> {{ menuItems[activeItem].label }} </template>
+      <template #title> {{ menuItems[activeItem].label }}</template>
       <template #content>
-        <div v-if="activeItem === 0" class="flex flex-col justify-start user-edit-form">
+        <div v-if="activeItem === 0" class="user-edit-form flex flex-col justify-start">
           <form @submit="onSubmit">
             <div class="field">
               <label for="username">Username</label>
-              <InputText data-testid="user-edit-username" id="username" type="text" v-model="username" disabled />
+              <InputText id="username" v-model="username" data-testid="user-edit-username" disabled type="text" />
               <small id="user-help">Username cannot currently be changed.</small>
             </div>
             <div class="field">
               <label for="firstName">First name</label>
               <InputText
-                data-testid="user-edit-firstname"
                 id="firstName"
-                type="text"
                 v-model="firstName"
-                v-bind="firstNameAttrs"
-                @focus="updateFocused('firstName', true)"
-                @blur="updateFocused('firstName', false)"
                 :class="(!firstName || errors.firstName) && 'p-invalid'"
+                data-testid="user-edit-firstname"
+                type="text"
+                v-bind="firstNameAttrs"
+                @blur="updateFocused('firstName', false)"
+                @focus="updateFocused('firstName', true)"
               />
-              <Message v-if="errors.firstName" severity="error"> {{ errors.firstName }} </Message>
+              <Message v-if="errors.firstName" severity="error"> {{ errors.firstName }}</Message>
             </div>
             <div class="field">
               <label for="lastName">Last name</label>
               <InputText
-                data-testid="user-edit-lastname"
                 id="lastName"
-                type="text"
                 v-model="lastName"
-                v-bind="lastNameAttrs"
-                @focus="updateFocused('lastName', true)"
-                @blur="updateFocused('lastName', false)"
                 :class="(!lastName || errors.lastName) && 'p-invalid'"
+                data-testid="user-edit-lastname"
+                type="text"
+                v-bind="lastNameAttrs"
+                @blur="updateFocused('lastName', false)"
+                @focus="updateFocused('lastName', true)"
               />
-              <Message v-if="errors.lastName" severity="error"> {{ errors.lastName }} </Message>
+              <Message v-if="errors.lastName" severity="error"> {{ errors.lastName }}</Message>
             </div>
             <div class="field">
               <label for="email1">Email address</label>
-              <div class="flex flex-row items-center">
+              <div class="flex flex-row items-center gap-4">
                 <InputText
-                  data-testid="user-edit-email1"
                   id="email1"
-                  type="text"
                   v-model="email1"
-                  v-bind="email1Attrs"
-                  fluid
-                  @focus="updateFocused('email1', true)"
-                  @blur="updateFocused('email1', false)"
                   :class="(errors.email1 || !email1) && !focused.get('email1') && 'p-invalid'"
+                  data-testid="user-edit-email1"
+                  fluid
+                  type="text"
+                  v-bind="email1Attrs"
+                  @blur="updateFocused('email1', false)"
+                  @focus="updateFocused('email1', true)"
                 />
-                <IMFontAwesomeIcon v-if="!errors.email1" icon="fa-regular fa-circle-check" class="email-check" />
-                <IMFontAwesomeIcon v-if="errors.email1 && email1" icon="fa-regular fa-circle-xmark" class="email-times" />
+                <IMFontAwesomeIcon v-if="!errors.email1" class="email-check" icon="fa-regular fa-circle-check" />
+                <IMFontAwesomeIcon v-if="errors.email1 && email1" class="email-times" icon="fa-regular fa-circle-xmark" />
               </div>
-              <Message v-if="errors.email1" severity="error"> {{ errors.email1 }} </Message>
+              <Message v-if="errors.email1" severity="error"> {{ errors.email1 }}</Message>
             </div>
             <div class="field">
               <label for="email2">Confirm email address</label>
               <InputText
-                data-testid="user-edit-email2"
                 id="email2"
-                type="text"
-                fluid
                 v-model="email2"
-                v-bind="email2Attrs"
-                @focus="updateFocused('email2', true)"
-                @blur="updateFocused('email2', false)"
                 :class="errors.email2 && !focused.get('email2') && 'p-invalid'"
+                data-testid="user-edit-email2"
+                fluid
+                type="text"
+                v-bind="email2Attrs"
+                @blur="updateFocused('email2', false)"
+                @focus="updateFocused('email2', true)"
               />
               <Message v-if="errors.email2" severity="error"> {{ errors.email2 }}</Message>
             </div>
             <PasswordInputs
               v-if="showPasswordEdit"
-              test-id="user-edit-password-"
               old-password-required
+              test-id="user-edit-password-"
               @update:oldPassword="setOldPassword"
               @update:password="setNewPassword"
               @update:arePasswordsValid="setIsNewPasswordValid"
             />
-            <div class="flex flex-row justify-between items-center">
+            <div class="flex flex-row items-center justify-between gap-4">
               <Button
-                data-testid="user-edit-password-change-button"
                 v-if="!showPasswordEdit"
                 class="password-edit p-button-secondary"
-                type="submit"
+                data-testid="user-edit-password-change-button"
                 label="Change password"
+                type="submit"
                 @click="editPasswordClicked(true)"
               />
               <Button
-                data-testid="user-edit-password-change-cancel-button"
                 v-else
                 class="password-edit p-button-secondary"
-                type="submit"
+                data-testid="user-edit-password-change-cancel-button"
                 label="Cancel password edit"
+                type="submit"
                 @click="editPasswordClicked(false)"
               />
-              <Button data-testid="user-edit-reset-changes-button" class="form-reset p-button-warning" type="button" label="Reset changes" @click="resetForm" />
+              <Button class="form-reset p-button-warning" data-testid="user-edit-reset-changes-button" label="Reset changes" type="button" @click="resetForm" />
               <Button
-                data-testid="user-edit-update-button"
                 :disabled="setButtonDisabled()"
-                class="user-edit"
-                type="submit"
-                label="Update account"
-                @click="onSubmit"
                 :loading="loading"
+                class="user-edit"
+                data-testid="user-edit-update-button"
+                label="Update account"
+                type="submit"
+                @click="onSubmit"
               />
             </div>
           </form>
@@ -122,7 +124,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, onMounted, ref, Ref } from "vue";
 import Swal, { SweetAlertIcon, SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
@@ -412,12 +414,14 @@ function checkForChanges(): boolean {
 }
 
 .user-edit-card {
-  padding: 0 2em;
+  padding: 1.25em 2em 0 2em;
 }
+
 .email-check {
   color: var(--p-green-500);
   font-size: 2em;
 }
+
 .email-times {
   color: var(--p-red-500);
   font-size: 2em;
