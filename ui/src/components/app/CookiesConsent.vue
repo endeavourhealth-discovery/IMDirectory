@@ -81,11 +81,7 @@ function handleSave() {
 }
 </script>
 
-<style>
-.p-drawer-mask {
-  z-index: 1;
-}
-</style>
+<style></style>
 
 <style scoped>
 .save-button-container {
