@@ -1,8 +1,8 @@
 <template>
   <div v-if="loading" class="flex">
-    <ProgressSpinner />
+    <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
   </div>
-  <div v-else class="ml-1 mt-1 flex flex-row items-center gap-2">
+  <div class="ml-1 mt-1 flex flex-row items-center gap-2">
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-56" disabled />
     <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
       <span class="self-center"> is </span>
