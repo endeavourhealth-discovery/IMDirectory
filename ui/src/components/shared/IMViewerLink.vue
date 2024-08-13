@@ -3,27 +3,27 @@
     v-if="html"
     class="flex-auto justify-start"
     @click="click($event)"
-    @mouseover="showOverlay($event, props.iri)"
-    @mouseleave="hideOverlay"
-    v-html="label"
     @contextmenu="onNodeContext"
+    @mouseleave="hideOverlay"
+    @mouseover="showOverlay($event, props.iri)"
+    v-html="label"
   ></div>
   <Button
     v-else
-    link
-    class="flex-auto justify-start"
     :label="label || iri"
+    class="flex-auto justify-start p-0"
+    link
     @click="click($event)"
-    @mouseover="showOverlay($event, props.iri)"
-    @mouseleave="hideOverlay"
     @contextmenu="onNodeContext"
+    @mouseleave="hideOverlay"
+    @mouseover="showOverlay($event, props.iri)"
   />
   <ContextMenu ref="vLinkMenu" :model="items" />
   <OverlaySummary ref="OS" />
 </template>
 
-<script setup lang="ts">
-import { computed, ref } from "vue";
+<script lang="ts" setup>
+import { ref } from "vue";
 import { DirectService } from "../../services";
 import OverlaySummary from "./OverlaySummary.vue";
 import setupOverlay from "@/composables/setupOverlay";
