@@ -156,8 +156,8 @@ async function getVariableOptions(searchTerm?: string) {
 
 async function getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
   const propertiesEntity = await EntityService.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
-  if (!isObjectHasKeys(propertiesEntity.data, [SHACL.PROPERTY])) return {} as TreeNode;
-  const allProperties: any[] = propertiesEntity.data[SHACL.PROPERTY];
+  if (!isObjectHasKeys(propertiesEntity, [SHACL.PROPERTY])) return {} as TreeNode;
+  const allProperties: any[] = propertiesEntity[SHACL.PROPERTY];
   const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === dataTypeIri);
   if (!isArrayHasLength(validOptions)) return {} as TreeNode;
 
