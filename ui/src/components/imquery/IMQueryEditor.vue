@@ -67,8 +67,7 @@ interface Props {
 }
 
 const emit = defineEmits({
-  updateQuery: (_payload: Query) => true,
-  updateBaseType: (_payload: SearchResultSummary | undefined) => true
+  updateQuery: (_payload: Query) => true
 });
 
 const props = defineProps<Props>();

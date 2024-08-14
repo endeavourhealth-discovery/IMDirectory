@@ -6,7 +6,7 @@
     <div v-else :class="showValidation && invalid && 'invalid'" class="content-container">
       <div class="query-editor-container flex flex-col gap-4">
         <div class="query-editor flex flex-col p-2">
-          <IMQueryEditor v-model:queryDefinition="queryDefinition" @updateBaseType="updateBaseType" @updateQuery="updateQueryDefinition" />
+          <IMQueryEditor v-model:queryDefinition="queryDefinition" @updateQuery="updateQueryDefinition" />
         </div>
         <div class="flex flex-row justify-end gap-2">
           <div>
@@ -39,7 +39,7 @@
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, PropertyShape, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -132,11 +132,6 @@ function updateEntity() {
 
 function updateQueryDefinition(test: any) {
   queryDefinition.value = test;
-}
-
-function updateBaseType(baseType: SearchResultSummary | undefined) {
-  if (!queryDefinition.value) queryDefinition.value = {};
-  if (baseType) queryDefinition.value = { "@id": baseType.iri } as Node;
 }
 </script>
 
