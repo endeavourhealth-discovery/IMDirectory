@@ -1,6 +1,6 @@
 <template>
   <InputText type="text" v-model="propertyDisplay" @click="showDialog" placeholder="relative to" />
-  <Dialog v-model:visible="showTreeSearch" modal header="Select property" :style="{ backgroundColor: 'var(--p-surface-section)' }">
+  <Dialog v-model:visible="showTreeSearch" modal header="Select property">
     <div class="relative-to-select-dialog">
       <InputText type="text" v-model="searchTerm" />
       <Tree
@@ -156,8 +156,8 @@ async function getVariableOptions(searchTerm?: string) {
 
 async function getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
   const propertiesEntity = await EntityService.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
-  if (!isObjectHasKeys(propertiesEntity.data, [SHACL.PROPERTY])) return {} as TreeNode;
-  const allProperties: any[] = propertiesEntity.data[SHACL.PROPERTY];
+  if (!isObjectHasKeys(propertiesEntity, [SHACL.PROPERTY])) return {} as TreeNode;
+  const allProperties: any[] = propertiesEntity[SHACL.PROPERTY];
   const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === dataTypeIri);
   if (!isArrayHasLength(validOptions)) return {} as TreeNode;
 

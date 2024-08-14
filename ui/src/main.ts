@@ -57,6 +57,7 @@ import Popover from "primevue/popover";
 import Chart from "primevue/chart";
 import Menu from "primevue/menu";
 import ProgressSpinner from "primevue/progressspinner";
+import ProgressBar from "primevue/progressbar";
 import Menubar from "primevue/menubar";
 import Message from "primevue/message";
 import ConfirmationService from "primevue/confirmationservice";
@@ -219,6 +220,7 @@ const app = createApp(App)
   .component("TabPanels", TabPanels)
   .component("FloatLabel", FloatLabel)
   .component("InputGroup", InputGroup)
+  .component("ProgressBar", ProgressBar)
   .component("InputGroupAddon", InputGroupAddon)
   .component("InputOtp", InputOtp);
 

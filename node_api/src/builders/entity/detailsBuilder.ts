@@ -129,16 +129,29 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
 
       for (const roleKey of Object.keys(roleGroup)) {
         if (roleKey !== IM.GROUP_NUMBER)
-          propertyNode.children?.push({
-            key: key + "." + roleKey,
-            iri: roleKey,
-            label: predicates[roleKey],
-            data: roleGroup[roleKey]?.[0],
-            type: "property"
-          });
+          propertyNode.children?.push(getRoleValue(predicates,roleGroup,roleKey,key));
       }
     }
   }
+}
+function getRoleValue(predicates: any, roleGroup:any,roleKey: any,key :string) {
+  const valueNode = {
+    key: key + "." + roleKey,
+    iri: roleKey,
+    label: predicates[roleKey],
+    type: "property",
+    data: roleGroup[roleKey],
+    children: [] as any[]
+  };
+  if (roleGroup[roleKey].length==1) {
+    valueNode.data = roleGroup[roleKey][0];
+  }
+  else {
+      for (const valueChild of roleGroup[roleKey]) {
+        addIriLink(valueNode,valueChild);
+      }
+    }
+  return valueNode;
 }
 
 function addBinding(treeNode: any, entity: any, predicates: any, key: any) {
