@@ -93,7 +93,6 @@ const { getLeafMatch } = setupIMQueryBuilderActions();
 
 const emit = defineEmits({
   onClose: () => true,
-  onPropertyAdd: (_property: Where) => true,
   onMatchAdd: (_match: Match) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
@@ -180,7 +179,7 @@ function init() {
     selectedPath.value = cloneDeep(editMatch.value);
     if (selectedPath.value?.where && props.propertyIri && props.dataModelIri) {
       if (!selectedPath.value.typeOf) selectedPath.value.typeOf = { "@id": props.dataModelIri };
-      selectedPath.value.where.push({ "@id": props.propertyIri });
+      if (selectedPath.value.where.findIndex(where => where["@id"] === props.propertyIri) === -1) selectedPath.value.where.push({ "@id": props.propertyIri });
     }
     pathSuggestions.value = [selectedPath.value!];
   } else {

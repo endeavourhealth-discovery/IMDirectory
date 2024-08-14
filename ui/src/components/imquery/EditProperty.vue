@@ -6,13 +6,11 @@
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-56" disabled />
     <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
       <span class="self-center"> is </span>
-      <div v-if="property.valueLabel">
-        <InputText :value="property.valueLabel" @click="showBuildFeatureDialog = true" />
-      </div>
 
-      <InputGroup v-else class="flex flex-row flex-nowrap">
+      <InputGroup class="flex flex-row flex-nowrap">
         <div class="border-1 border-border-surface flex flex-row rounded border border-solid p-1">
-          <div v-for="is of property.is"><Chip :label="truncateName(getNameFromRef(is))" v-tooltip.bottom="getNameFromRef(is)" /></div>
+          <div v-if="property.valueLabel"><Chip :label="property.valueLabel" /></div>
+          <div v-else v-for="is of property.is"><Chip :label="truncateName(getNameFromRef(is))" v-tooltip.bottom="getNameFromRef(is)" /></div>
         </div>
         <Button icon="fa-solid fa-chevron-down" severity="secondary" @click="toggleDropdown" />
         <Button label="Edit" @click="showBuildFeatureDialog = true" />
