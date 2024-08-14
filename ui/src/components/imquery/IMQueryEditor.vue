@@ -92,7 +92,6 @@ const { populateVariableMap } = setupIMQueryBuilderActions();
 watch(
   () => cloneDeep(editQueryDefinition.value),
   () => {
-    console.log(editQueryDefinition.value);
     populateVariableMap(variableMap.value, editQueryDefinition.value);
     emit("updateQuery", editQueryDefinition.value);
   }

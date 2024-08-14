@@ -135,8 +135,6 @@ function updateQueryDefinition(test: any) {
 }
 
 function updateBaseType(baseType: SearchResultSummary | undefined) {
-  console.log("test");
-  console.log(baseType);
   if (!queryDefinition.value) queryDefinition.value = {};
   if (baseType) queryDefinition.value = { "@id": baseType.iri } as Node;
 }
