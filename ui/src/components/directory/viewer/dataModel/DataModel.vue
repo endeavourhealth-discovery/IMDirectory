@@ -211,7 +211,15 @@ async function createOrNode(ttproperty: any, cardinality: string, index: any, pr
 function createNode(ttproperty: any, entity2: any[], index: any, cardinality: string, propertyList: TreeNode[], parentKey: string) {
   const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || ttproperty[SHACL.NAMESPACE + "dataType"] || [];
   const group = ttproperty?.[SHACL.GROUP]?.[0];
-  const name = `${ttproperty[SHACL.PATH]?.[0].name}  ${isArrayHasLength(type) ? "(" + (type[0].name ? type[0].name : type[0]["@id"]) + ")" : ""}`;
+  let name = ttproperty[SHACL.PATH]?.[0].name;
+  if (isArrayHasLength(type)){
+    if (type.length==1){
+      name=name+"("+ (type[0].name ? type[0].name : type[0]["@id"]) + ")";
+    }
+    else
+      name=name+"(any of the below)";
+  }
+
   const typeTypes = isObjectHasKeys(entity2[index], [RDF.TYPE]) ? entity2[index][RDF.TYPE] : [];
   const property = {
     key: parentKey + "-" + index.toString(),
@@ -220,7 +228,7 @@ function createNode(ttproperty: any, entity2: any[], index: any, cardinality: st
     selectable: true,
     loading: false,
     data: {
-      type: [isArrayHasLength(type) ? type[0] : ""],
+      type : isArrayHasLength(type) ? [...type] : [],
       cardinality: cardinality,
       isOr: false,
       typeIcon: getFAIconFromType(typeTypes),
