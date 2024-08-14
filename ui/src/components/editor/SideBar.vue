@@ -1,10 +1,10 @@
 <template>
   <div class="sidebar">
-    <VueJsonPretty class="json" :path="'res'" :data="editorEntityDisplay" />
+    <VueJsonPretty :data="editorEntityDisplay" :path="'res'" class="json" />
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onMounted, ref, Ref, watch } from "vue";
 import VueJsonPretty from "vue-json-pretty";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
