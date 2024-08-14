@@ -38,7 +38,7 @@ const QueryService = {
   },
 
   async getLabeledQuery(query: Query): Promise<Query> {
-    return axios.post(Env.API + "api/query/public/labeledQuery", query);
+    return axios.post(Env.API + "api/query/public/labelQuery", query);
   },
 
   async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
