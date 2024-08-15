@@ -23,7 +23,7 @@
         :editMatch="editMatch"
         :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
       />
-      <div v-else-if="editMatch?.description" v-html="editMatch?.description" />
+      <div v-else-if="editMatch.displayLabel">{{ editMatch.displayLabel }}</div>
       <div v-else-if="editMatch?.name" v-html="editMatch?.name" />
 
       <div v-if="editMatch?.match" class="feature-group">
@@ -71,12 +71,12 @@
               :disabled="!selectedBaseType"
             />
             <AddMatch
-              v-model:show-add-feature="showAddFeature"
-              v-model:show-add-population="showAddPopulation"
               v-model:show-build-feature="showBuildFeature"
               v-model:show-build-then-feature="showBuildThenFeature"
               :edit-match="editMatch"
               :match-type-of-iri="selectedBaseType?.iri!"
+              @add-feature="onMatchAdd"
+              @add-then="onThenAdd"
             />
           </div>
           <Button
@@ -143,7 +143,7 @@
       </div>
       <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
-      <span v-if="editMatch.variable" v-html="getDisplayFromVariable(editMatch.variable)"></span>
+      <span v-if="editMatch.variable" v-html="editMatch.variable"></span>
     </div>
     <Button
       v-if="!isRootFeature"
@@ -164,7 +164,6 @@ import { MenuItem } from "primevue/menuitem";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";
-import { describeMatch, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
 import AddMatch from "./AddMatch.vue";
@@ -190,10 +189,9 @@ const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
 const showAddPropertyDialog: Ref<boolean> = ref(false);
-const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
-const showAddFeature: Ref<boolean> = ref(false);
+
 onMounted(() => {
   if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
 });
@@ -219,13 +217,16 @@ function onPropertyAdd(property: Where) {
   const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
   if (!hasProperty) {
     props.editMatch.where?.push(property);
-    describeMatch(props.editMatch, 0, false);
   }
 }
 
 function onMatchAdd(match: Match) {
   if (!isArrayHasLength(props.editMatch.match)) props.editMatch.match = [];
   props.editMatch.match?.push(match);
+}
+
+function onThenAdd(match: Match) {
+  props.editMatch.then = match;
 }
 
 function bracketItems() {

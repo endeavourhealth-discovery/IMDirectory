@@ -1,7 +1,6 @@
 <template>
   <div :class="!propertyIndex && property.description ? 'feature' : ''">
     <span v-if="hasNodeRef(property)" v-html="property.description" @click="onNodeRefClick(property, $event)"></span>
-    <span v-else-if="hasBigList(property)" v-html="property.description" @click="onPropertyInClick(property, $event)"></span>
     <span v-else v-html="property.description"></span>
     <RecursivePropertyDisplay
       v-if="isArrayHasLength(property.where)"
@@ -30,7 +29,6 @@ import { Ref, ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
 import RecursiveQueryDisplay from "./RecursiveQueryDisplay.vue";
-import { getNumberOfListItems } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   fullQuery: Query;
@@ -48,19 +46,9 @@ const op1: Ref<any> = ref();
 const clickedProperty: Ref<Where> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
 
-function hasBigList(property: Where) {
-  const numberOfItems = getNumberOfListItems(property);
-  return numberOfItems > 1;
-}
-
 function onNodeRefClick(property: Where, event: any) {
   clickedProperty.value = property;
   op.value.toggle(event);
-}
-
-function onPropertyInClick(property: Where, event: any) {
-  list.value = getFullList(property);
-  op1.value.toggle(event);
 }
 
 function getFullList(property: Where) {

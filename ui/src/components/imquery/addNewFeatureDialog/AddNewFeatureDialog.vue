@@ -72,7 +72,6 @@ import SearchBarWithRadioFilters, { TypeOption } from "./SearchBarWithRadioFilte
 import SearchResultsAndDetails from "./SearchResultsAndDetails.vue";
 import EditMatch from "../EditMatch.vue";
 import { isFeature, isQuery } from "@im-library/helpers/ConceptTypeMethods";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 
 interface Props {
@@ -207,7 +206,6 @@ async function save() {
 
 function addQueryOrFeature() {
   const editMatchCopy: Match = { "@id": v4(), instanceOf: Array.from(selectedValueMap.value.values()) };
-  describeMatch(editMatchCopy, 0, false);
   emit("onMatchAdd", editMatchCopy);
   visible.value = false;
 }

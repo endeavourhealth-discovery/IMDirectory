@@ -10,7 +10,6 @@
   >
     <span v-if="match.name" v-html="match.name"> </span>
     <span v-else-if="match.description" v-html="match.description"> </span>
-    <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -30,7 +29,7 @@
     <span v-if="match.then">
       <RecursiveQueryDisplay :match="match.then" :parent-match="match" :full-query="fullQuery" />
     </span>
-    <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
+    <span v-if="match.variable">{{ "label as " + match.variable }}</span>
     <span v-if="isArrayHasLength(match.query)" class="output">output</span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.query)"
@@ -60,7 +59,6 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Node, Query, Where, Return } from "@im-library/interfaces/AutoGen";
 import { onMounted, Ref, ref } from "vue";
 import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
-import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
 

@@ -1,14 +1,11 @@
 import Env from "@/services/env.service";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, TTProperty, UIProperty } from "@im-library/interfaces";
 import { EclSearchRequest, Query, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM, QUERY, SHACL } from "@im-library/vocabulary";
-import { GraphdbService, sanitise } from "@/services/graphdb.service";
+import { IM, QUERY } from "@im-library/vocabulary";
+import { GraphdbService } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
-import { describeQuery } from "@im-library/helpers/QueryDescriptor";
-import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
+
 import IMQtoSQL from "@/logic/IMQtoSQL";
 
 export default class QueryService {
@@ -174,10 +171,6 @@ export default class QueryService {
         }
       } else return [];
     }
-  }
-
-  public async generateQueryDescriptions(query: Query, includeLogicDesc: boolean): Promise<Query> {
-    return describeQuery(query, includeLogicDesc);
   }
 
   public async generateQuerySQL(queryIri: string) {

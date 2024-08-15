@@ -60,7 +60,6 @@ import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   queryDefinition?: Query;
@@ -90,9 +89,12 @@ const { populateVariableMap } = setupIMQueryBuilderActions();
 
 watch(
   () => cloneDeep(editQueryDefinition.value),
-  () => {
-    populateVariableMap(variableMap.value, editQueryDefinition.value);
-    emit("updateQuery", editQueryDefinition.value);
+  async (newValue, oldValue) => {
+    if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
+      editQueryDefinition.value = await QueryService.getQueryDisplayFromQuery(editQueryDefinition.value, false);
+      populateVariableMap(variableMap.value, editQueryDefinition.value);
+      emit("updateQuery", editQueryDefinition.value);
+    }
   }
 );
 watch(
@@ -147,7 +149,6 @@ async function onSaveChanges(editMatch: Match) {
     if (isObjectHasKeys(describedMatch, ["name"])) selectedMenuItem.value.editMatch.name = describedMatch.name;
     if (isObjectHasKeys(describedMatch, ["description"])) selectedMenuItem.value.editMatch.description = describedMatch.description;
     if (isObjectHasKeys(describedMatch, ["variable"])) selectedMenuItem.value.editMatch.variable = describedMatch.variable;
-    describeMatch(selectedMenuItem.value.editMatch, 0, false);
   }
 }
 </script>

@@ -27,7 +27,6 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   editMatch: Match;
@@ -38,7 +37,6 @@ const showBuildFeatureDialog: Ref<boolean> = ref(false);
 
 function onMatchAdd(updatedMatch: Match) {
   props.editMatch.instanceOf = updatedMatch.instanceOf;
-  describeMatch(props.editMatch, 0, false);
 }
 </script>
 
