@@ -143,7 +143,7 @@
       </div>
       <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
-      <span v-if="editMatch.variable" v-html="editMatch.variable"></span>
+      <span v-if="editMatch.variable">label as {{ editMatch.variable }}</span>
     </div>
     <Button
       v-if="!isRootFeature"
@@ -226,7 +226,9 @@ function onMatchAdd(match: Match) {
 }
 
 function onThenAdd(match: Match) {
+  console.log(props.editMatch);
   props.editMatch.then = match;
+  console.log(props.editMatch);
 }
 
 function bracketItems() {
