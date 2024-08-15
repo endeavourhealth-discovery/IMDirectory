@@ -2,7 +2,7 @@
   @apply p-0;
 }
 
-.p-dialog-mask {
+.p-drawer-mask {
   z-index: 1;
 }
 

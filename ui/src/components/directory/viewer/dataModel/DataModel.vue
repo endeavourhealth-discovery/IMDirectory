@@ -1,29 +1,36 @@
 <template>
   <div id="tree-container">
-    <Tree :value="data" v-model:expandedKeys="expandedKeys" @node-expand="onNodeExpand" @node-collapse="onNodeCollapse" :loading="loading" icon="loading">
+    <Tree v-model:expandedKeys="expandedKeys" :loading="loading" :value="data" icon="loading" @node-expand="onNodeExpand" @node-collapse="onNodeCollapse">
       <template #property="{ node }: any">
-        <div class="tree-row">
-          <ProgressSpinner class="progress-spinner" v-if="node.loading" />
+        <div class="items-center">
+          <ProgressSpinner v-if="node.loading" class="progress-spinner" />
           <IMFontAwesomeIcon
             v-if="node.data.typeIcon && !node.loading"
             v-tooltip.top="'Cardinality: ' + node.data.cardinality"
             :icon="node.data.typeIcon"
-            fixed-width
             :style="'color:' + node.data.color"
+            class="mr-2"
+            fixed-width
           />
           <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </template>
       <template #type="{ node }: any">
-        <div class="tree-row">
-          <ProgressSpinner class="progress-spinner" v-if="node.loading" />
-          <IMFontAwesomeIcon v-if="node.data.typeIcon && !node.loading" :icon="node.data.typeIcon" fixed-width :style="'color:' + node.data.color" />
+        <div class="items-center">
+          <ProgressSpinner v-if="node.loading" class="progress-spinner" />
+          <IMFontAwesomeIcon
+            v-if="node.data.typeIcon && !node.loading"
+            :icon="node.data.typeIcon"
+            :style="'color:' + node.data.color"
+            class="mr-2"
+            fixed-width
+          />
           <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </template>
       <template #or="{ node }: any">
-        <div class="tree-row">
-          <ProgressSpinner class="progress-spinner" v-if="node.loading" />
+        <div class="items-center">
+          <ProgressSpinner v-if="node.loading" class="progress-spinner" />
           <span> {{ node.label }}</span>
         </div>
       </template>
@@ -31,7 +38,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onMounted, Ref, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -44,6 +51,7 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 interface Props {
   entityIri: string;
 }
+
 const props = defineProps<Props>();
 
 const emit = defineEmits({
@@ -212,12 +220,10 @@ function createNode(ttproperty: any, entity2: any[], index: any, cardinality: st
   const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || ttproperty[SHACL.NAMESPACE + "dataType"] || [];
   const group = ttproperty?.[SHACL.GROUP]?.[0];
   let name = ttproperty[SHACL.PATH]?.[0].name;
-  if (isArrayHasLength(type)){
-    if (type.length==1){
-      name=name+"("+ (type[0].name ? type[0].name : type[0]["@id"]) + ")";
-    }
-    else
-      name=name+"(any of the below)";
+  if (isArrayHasLength(type)) {
+    if (type.length == 1) {
+      name = name + " (" + (type[0].name ? type[0].name : type[0]["@id"]) + ")";
+    } else name = name + " (any of the below)";
   }
 
   const typeTypes = isObjectHasKeys(entity2[index], [RDF.TYPE]) ? entity2[index][RDF.TYPE] : [];
@@ -228,7 +234,7 @@ function createNode(ttproperty: any, entity2: any[], index: any, cardinality: st
     selectable: true,
     loading: false,
     data: {
-      type : isArrayHasLength(type) ? [...type] : [],
+      type: isArrayHasLength(type) ? [...type] : [],
       cardinality: cardinality,
       isOr: false,
       typeIcon: getFAIconFromType(typeTypes),

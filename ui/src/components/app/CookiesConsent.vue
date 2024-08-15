@@ -1,18 +1,22 @@
 <template>
   <Drawer
+    id="cookies-sidebar"
+    :autoZIndex="false"
+    :blockScroll="true"
+    :dismissable="false"
+    :modal="true"
+    :showCloseIcon="false"
     :visible="!cookiesEssentialAccepted || showCookieConsent"
     position="left"
-    :showCloseIcon="false"
-    :dismissable="false"
-    :blockScroll="true"
-    :modal="true"
-    :autoZIndex="false"
-    id="cookies-sidebar"
     style="width: 40%"
   >
     <h1>Our use of cookies</h1>
     <p>We use necessary cookies to make this site work.</p>
-    <p>For detailed information on the cookies we use, please visit our <router-link to="/cookies">cookies page</router-link>.</p>
+    <p>
+      For detailed information on the cookies we use, please visit our
+      <router-link to="/cookies">cookies page</router-link>
+      .
+    </p>
     <div class="buttons-container">
       <Button data-testid="accept-all-cookies" label="Accept all cookies" @click="handleAcceptAll" />
       <Button data-testid="accept-essential-cookies" label="Accept essential only" @click="handleAcceptEssential" />
@@ -27,13 +31,13 @@
       site's core functionality.
     </p>
     <div class="save-button-container">
-      <Button label="Save and close" @click="handleSave" class="save-button" data-testid="cookies-save" />
+      <Button class="save-button" data-testid="cookies-save" label="Save and close" @click="handleSave" />
     </div>
   </Drawer>
 </template>
 
-<script setup lang="ts">
-import { ComputedRef, onMounted, ref, computed, watch } from "vue";
+<script lang="ts" setup>
+import { computed, ComputedRef, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
@@ -77,24 +81,20 @@ function handleSave() {
 }
 </script>
 
-<style>
-.p-sidebar-mask {
-  z-index: 10000;
-}
-</style>
-
 <style scoped>
 .save-button-container {
   display: flex;
   justify-content: center;
   flex-flow: row;
 }
+
 .buttons-container {
   display: flex;
   justify-content: center;
   flex-flow: row;
   gap: 0.5rem;
 }
+
 .save-button {
   width: fit-content;
 }

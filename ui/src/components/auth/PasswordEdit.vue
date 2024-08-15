@@ -1,25 +1,25 @@
 <template>
   <div v-if="currentUser" class="flex flex-row items-center">
-    <Card class="flex flex-col justify-content-sm-around items-center password-edit-card">
+    <Card class="justify-content-sm-around password-edit-card flex flex-col items-center">
       <template #header>
-        <img id="user-icon" class="avatar-icon" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" aria-haspopup="true" aria-controls="overlay_menu" />
+        <img id="user-icon" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" aria-controls="overlay_menu" aria-haspopup="true" class="avatar-icon" />
       </template>
-      <template #title> Change password </template>
+      <template #title> Change password</template>
       <template #content>
-        <form @submit="onSubmit" class="flex flex-col justify-start password-edit-form">
+        <form class="password-edit-form flex flex-col justify-start" @submit="onSubmit">
           <div v-if="currentUser.username" class="field">
             <label for="userName">Username</label>
-            <InputText data-testid="password-edit-username" class="p-text-capitalize" id="username" type="text" :value="currentUser.username" disabled />
+            <InputText id="username" :value="currentUser.username" class="p-text-capitalize" data-testid="password-edit-username" disabled type="text" />
           </div>
           <PasswordInputs
-            test-id="password-edit-password-"
             old-password-required
+            test-id="password-edit-password-"
             @update:oldPassword="setOldPassword"
             @update:password="setNewPassword"
             @update:arePasswordsValid="setIsNewPasswordValid"
           />
-          <div class="flex flex-row justify-center">
-            <Button data-testid="password-edit-submit" class="user-edit" type="submit" label="Change password" :disabled="buttonDisabled" @click="onSubmit" />
+          <div class="mt-2 flex flex-row justify-center">
+            <Button :disabled="buttonDisabled" class="user-edit" data-testid="password-edit-submit" label="Change password" type="submit" @click="onSubmit" />
           </div>
         </form>
       </template>
@@ -27,7 +27,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, ref } from "vue";
 import { AuthService } from "@/services";
 import Swal from "sweetalert2";
@@ -113,17 +113,17 @@ const onSubmit = handleSubmit(async () => {
 
 <style scoped>
 .password-edit-card {
-  padding: 0 2em;
+  padding: 1.25rem 2em 0 2em;
 }
 
 .user-edit {
-  width: fit-content !important;
+  min-width: fit-content !important;
 }
 
 .password-edit-form {
-  max-width: 32em;
   display: flex;
   flex-flow: column nowrap;
+  min-width: 20rem;
 }
 
 .field {

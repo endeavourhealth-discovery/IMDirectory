@@ -4,7 +4,7 @@
       <template #content>
         <div class="topbar-content">
           <span class="title"><strong>IM Editor:</strong></span>
-          <span class="entity-name" v-tooltip="{ value: entityName, class: 'name-tooltip' }" data-testid="entity-title-name">{{ entityName }}</span>
+          <span v-tooltip="{ value: entityName, class: 'name-tooltip' }" class="entity-name" data-testid="entity-title-name">{{ entityName }}</span>
         </div>
       </template>
     </TopBar>
@@ -17,7 +17,7 @@
           </div>
           <div v-else class="editor-layout-container">
             <template v-for="group of groups">
-              <component :is="processComponentType(group.componentType)" :shape="group" :mode="EditorMode.EDIT" :value="processEntityValue(group)" />
+              <component :is="processComponentType(group.componentType)" :mode="EditorMode.EDIT" :shape="group" :value="processEntityValue(group)" />
             </template>
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
@@ -25,20 +25,20 @@
             <SideBar :editorEntity="editorEntity" />
           </div>
           <Button
-            class="p-button-rounded p-button-outlined sidebar-toggle"
             :label="showSidebar ? 'hide sidebar' : 'show sidebar'"
-            @click="onShowSidebar"
-            severity="info"
+            class="p-button-rounded p-button-outlined sidebar-toggle absolute h-fit min-w-fit"
             data-testid="show-sidebar-button"
+            severity="info"
+            @click="onShowSidebar"
           />
         </div>
         <div id="editor-footer-bar">
           <div class="required-container">
             <span class="required-info">(*) item is required.</span>
           </div>
-          <div class="button-bar" id="editor-button-bar">
-            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
-            <Button icon="fa-solid fa-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
+          <div id="editor-button-bar" class="button-bar">
+            <Button data-testid="cancel-button" icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeEditor" />
+            <Button class="save-button" data-testid="submit-button" icon="fa-solid fa-check" label="Save" @click="submit" />
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@ export default defineComponent({
 });
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, Ref, watch, nextTick } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
@@ -429,12 +429,6 @@ function closeEditor() {
   align-items: center;
 }
 
-.sidebar-toggle {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-}
-
 .loading-container {
   width: 100%;
   height: 100%;
@@ -506,9 +500,9 @@ function closeEditor() {
 }
 
 .sidebar-toggle {
-  position: absolute;
-  top: 0.5rem;
-  right: 1.5rem;
+  position: absolute !important;
+  top: 5px;
+  right: 5px;
 }
 
 #summary-editor-container {
