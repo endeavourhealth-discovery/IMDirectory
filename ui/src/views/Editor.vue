@@ -26,7 +26,7 @@
           </div>
           <Button
             :label="showSidebar ? 'hide sidebar' : 'show sidebar'"
-            class="p-button-rounded p-button-outlined sidebar-toggle h-fit min-w-fit"
+            class="p-button-rounded p-button-outlined sidebar-toggle absolute h-fit min-w-fit"
             data-testid="show-sidebar-button"
             severity="info"
             @click="onShowSidebar"
@@ -500,9 +500,9 @@ function closeEditor() {
 }
 
 .sidebar-toggle {
-  position: absolute;
-  top: 0.5rem;
-  right: 1.5rem;
+  position: absolute !important;
+  top: 5px;
+  right: 5px;
 }
 
 #summary-editor-container {
