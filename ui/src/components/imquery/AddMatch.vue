@@ -13,7 +13,7 @@
   <AddNewFeatureDialog
     v-model:show-dialog="showBuildThenFeatureDialog"
     :dataModelIri="matchTypeOfIri"
-    :header="'Add new feature'"
+    :header="'Add test'"
     :show-variable-options="false"
     :can-clear-path="true"
     :has-next-step="true"

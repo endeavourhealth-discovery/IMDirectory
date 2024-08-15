@@ -37,6 +37,8 @@
               v-model:show-build-then-feature="showBuildThenFeature"
               :edit-match="focusedEditMatch"
               :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
+              @add-feature="onMatchAdd"
+              @add-then="onThenAdd"
             />
             <div class="add-button-bar">
               <Button label="Add test" @click="showBuildThenFeature = true" severity="secondary" icon="fa-solid fa-plus" class="add-feature-button" />
@@ -248,6 +250,17 @@ function onSave() {
 function onCancel() {
   init();
   visible.value = false;
+}
+
+function onMatchAdd(match: Match) {
+  if (!editMatch.value) editMatch.value = {};
+  if (!editMatch.value.match?.length) editMatch.value.match = [];
+  editMatch.value.match.push(match);
+}
+
+function onThenAdd(match: Match) {
+  if (!editMatch.value) editMatch.value = {};
+  editMatch.value.then = match;
 }
 
 function saveVariable() {
