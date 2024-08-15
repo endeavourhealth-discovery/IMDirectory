@@ -20,7 +20,10 @@
       <Select :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
     </div>
 
-    <div v-else-if="datatype === XSD.LONG || datatype === XSD.INTEGER || datatype === XSD.NUMBER || datatype === XSD.DECIMAL" class="property-input-container">
+    <div
+      v-else-if="datatype === XSD.LONG || datatype === XSD.INTEGER || datatype === XSD.NUMBER || datatype === XSD.DECIMAL || datatype === IM.NUMERIC_VALUE"
+      class="property-input-container"
+    >
       <Select
         :options="[
           { id: 'is', name: 'is' },

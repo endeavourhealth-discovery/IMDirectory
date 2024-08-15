@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-07-22 09:40:25.
+// Generated using typescript-generator version 3.2.1263 on 2024-08-15 12:45:32.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -227,10 +227,8 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
-    dataType?: TTIriRef;
-    relativeTo?: PropertyRef;
     unit?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -263,8 +261,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    descendantsOf?: boolean;
     ancestorsOf?: boolean;
     memberOf?: boolean;
 }
@@ -297,6 +295,7 @@ export interface Match extends IriLD {
     variable?: string;
     then?: Match;
     path?: IriLD[];
+    displayLabel?: string;
 }
 
 export interface Node extends Element {
@@ -394,8 +393,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -411,17 +410,22 @@ export interface When {
     then?: ReturnProperty;
 }
 
-export interface Where extends PropertyRef, Assignable {
+export interface Where extends PropertyRef {
     description?: string;
     match?: Match;
     range?: Range;
+    operator?: Operator;
     isNull?: boolean;
+    value?: string;
+    unit?: string;
+    relativeTo?: PropertyRef;
     anyRoleGroup?: boolean;
     is?: Node[];
     boolWhere?: Bool;
     where?: Where[];
     valueLabel?: string;
     isNotNull?: boolean;
+    displayLabel?: string;
     null?: boolean;
     notNull?: boolean;
 }
@@ -448,7 +452,6 @@ export interface EntityDocument {
     code?: string;
     alternativeCode?: string;
     matchTerm?: string[];
-    key?: string[];
     scheme?: TTIriRef;
     entityType?: TTIriRef[];
     status?: TTIriRef;
@@ -458,7 +461,7 @@ export interface EntityDocument {
     isA?: TTIriRef[];
     memberOf?: TTIriRef[];
     subsumptionCount?: number;
-    binding?: SearchBinding[];
+    binding?: string[];
     isDescendentOf?: TTIriRef[];
 }
 
@@ -678,8 +681,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    nativeMethod?: boolean;
     className?: string;
+    nativeMethod?: boolean;
 }
 
 export interface Exception extends Throwable {
@@ -693,9 +696,9 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
-    status?: TTIriRef;
     code?: string;
+    status?: TTIriRef;
+    description?: string;
     prefixes?: TTPrefix[];
 }
 
@@ -800,12 +803,6 @@ export const enum OrderableDate {
 export const enum OrderableNumber {
     highest = "highest",
     lowest = "lowest",
-}
-
-export const enum QueryLanguage {
-    elastic = "elastic",
-    sparql = "sparql",
-    sql = "sql",
 }
 
 export const enum VarType {
