@@ -220,12 +220,10 @@ function createNode(ttproperty: any, entity2: any[], index: any, cardinality: st
   const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || ttproperty[SHACL.NAMESPACE + "dataType"] || [];
   const group = ttproperty?.[SHACL.GROUP]?.[0];
   let name = ttproperty[SHACL.PATH]?.[0].name;
-  if (isArrayHasLength(type)){
-    if (type.length==1){
-      name=name+"("+ (type[0].name ? type[0].name : type[0]["@id"]) + ")";
-    }
-    else
-      name=name+"(any of the below)";
+  if (isArrayHasLength(type)) {
+    if (type.length == 1) {
+      name = name + " (" + (type[0].name ? type[0].name : type[0]["@id"]) + ")";
+    } else name = name + " (any of the below)";
   }
 
   const typeTypes = isObjectHasKeys(entity2[index], [RDF.TYPE]) ? entity2[index][RDF.TYPE] : [];
@@ -236,7 +234,7 @@ function createNode(ttproperty: any, entity2: any[], index: any, cardinality: st
     selectable: true,
     loading: false,
     data: {
-      type : isArrayHasLength(type) ? [...type] : [],
+      type: isArrayHasLength(type) ? [...type] : [],
       cardinality: cardinality,
       isOr: false,
       typeIcon: getFAIconFromType(typeTypes),

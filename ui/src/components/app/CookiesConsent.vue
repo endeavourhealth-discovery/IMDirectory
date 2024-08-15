@@ -81,8 +81,6 @@ function handleSave() {
 }
 </script>
 
-<style></style>
-
 <style scoped>
 .save-button-container {
   display: flex;
