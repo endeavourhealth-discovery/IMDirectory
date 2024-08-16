@@ -9,7 +9,7 @@
         <AutocompleteSearchBar
           v-model:selected="selectedBaseType"
           :im-query="imQueryForBaseType"
-          :root-entities="['http://endhealth.info/im#DataModels', 'http://endhealth.info/im#Q_Queries']"
+          :root-entities="[IM.HEALTH_RECORDS, IM.MODULE_QUERIES]"
           class="base-type-autocomplete"
         />
       </div>
