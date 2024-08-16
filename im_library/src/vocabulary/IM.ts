@@ -228,4 +228,5 @@ export class IM {
   public static readonly LOAD_MORE = IM.NAMESPACE + "loadMore";
   public static readonly DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
   public static readonly NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
+  public static readonly HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
 }
