@@ -1,6 +1,4 @@
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
-import { IM, RDFS } from "@im-library/vocabulary";
 import { ref, Ref } from "vue";
 import { SearchTermCode } from "@im-library/interfaces/AutoGen";
 

@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-row items-center">
-    <Card class="flex flex-col justify-content-sm-around items-center recovery-card">
+    <Card class="justify-content-sm-around recovery-card flex flex-col items-center">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-user" class="icon-header" />
       </template>
@@ -36,7 +36,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import Swal, { SweetAlertResult } from "sweetalert2";

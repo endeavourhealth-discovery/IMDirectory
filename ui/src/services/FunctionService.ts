@@ -1,7 +1,6 @@
 import axios from "axios";
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { FunctionRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 
 const FunctionService = {
   async runFunction(iri: string, args?: any[]): Promise<any> {

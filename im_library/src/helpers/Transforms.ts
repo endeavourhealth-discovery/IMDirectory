@@ -3,7 +3,6 @@ import { IM, RDF, RDFS, SHACL } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
 import { TTIriRef } from "../interfaces/AutoGen";
-import { getNameFromRef } from "./TTTransform";
 
 // min 2 characters
 const indentSize = "  ";

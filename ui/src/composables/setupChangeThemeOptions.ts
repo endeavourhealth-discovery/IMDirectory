@@ -1,7 +1,7 @@
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import { useUserStore } from "@/stores/userStore";
-import { usePreset, updatePrimaryPalette, updateSurfacePalette, palette, updatePreset } from "@primevue/themes";
+import { usePreset, updatePrimaryPalette, updateSurfacePalette, palette } from "@primevue/themes";
 import Aura from "@primevue/themes/aura";
 import Lara from "@primevue/themes/lara";
 import Nora from "@primevue/themes/nora";

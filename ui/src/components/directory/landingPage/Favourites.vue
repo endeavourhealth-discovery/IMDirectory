@@ -47,19 +47,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useUserStore } from "@/stores/userStore";
-import { RecentActivityItem, ExtendedSearchResultSummary } from "@im-library/interfaces";
+import { ExtendedSearchResultSummary } from "@im-library/interfaces";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
 
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { byOrder } from "@im-library/helpers/Sorters";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import _, { isArray } from "lodash-es";
+import _ from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { DirectService, EntityService, ConfigService, UserService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { RDF, RDFS } from "@im-library/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 

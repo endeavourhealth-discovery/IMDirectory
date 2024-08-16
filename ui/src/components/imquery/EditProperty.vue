@@ -47,11 +47,10 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
 import { cloneDeep } from "lodash-es";
-import ConceptSelect from "./ConceptSelect.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { convertTTPropertyToUIProperty, convertUIPropertyFromDMConcept } from "@im-library/helpers/Transforms";
-import { getNameFromIri, getNameFromRef } from "@im-library/helpers/TTTransform";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 
 interface Props {

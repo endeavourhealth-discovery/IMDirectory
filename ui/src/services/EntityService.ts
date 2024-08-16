@@ -1,20 +1,10 @@
-import { IM } from "@im-library/vocabulary";
-import {
-  EntityReferenceNode,
-  FiltersAsIris,
-  TTBundle,
-  TermCode,
-  Namespace,
-  ExportValueSet,
-  FilterOptions,
-  PropertyDisplay,
-  SetDiffObject
-} from "@im-library/interfaces";
-import { TTIriRef, SearchRequest, SearchResponse, SearchResultSummary, DownloadOptions } from "@im-library/interfaces/AutoGen";
+import { IM, RDFS } from "@im-library/vocabulary";
+import { EntityReferenceNode, FiltersAsIris, TTBundle, TermCode, Namespace, FilterOptions, PropertyDisplay, SetDiffObject } from "@im-library/interfaces";
+import { TTIriRef, SearchResultSummary, DownloadOptions } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/treenode";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { OrganizationChartNode } from "primevue/organizationchart";
 const api = Env.API;
 
@@ -408,6 +398,11 @@ const EntityService = {
 
   async downloadSearchResults(downloadSettings: DownloadOptions) {
     return axios.post(Env.API + "api/entity/public/downloadSearchResults", downloadSettings, { responseType: "blob", raw: true });
+  },
+
+  async getName(iri: string): Promise<string | undefined> {
+    const result = await EntityService.getPartialEntity(iri, [RDFS.LABEL]);
+    if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
   }
 };
 

@@ -89,7 +89,6 @@ import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue"
 import { useDialog } from "primevue/usedialog";
 import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
-import { useFilterStore } from "@/stores/filterStore";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@im-library/interfaces";
@@ -105,7 +104,6 @@ const toast = useToast();
 const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();
-const ttentity = ref();
 const active: Ref<string[]> = ref([]);
 const emit = defineEmits({ navigateTo: (_payload: string) => true });
 const showCompareSetDialog = ref(false);
@@ -116,9 +114,7 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-const loading = ref(false);
 const downloading = ref(false);
-const members: Ref<TTIriRef[]> = ref([]);
 const isPublishing = ref(false);
 const showOptions = ref(false);
 const entity: Ref<any> = ref({});

@@ -1,4 +1,4 @@
-import { Ref, ref } from "vue";
+import { ref } from "vue";
 
 function setupOverlay() {
   const OS = ref();

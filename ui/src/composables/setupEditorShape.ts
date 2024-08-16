@@ -5,10 +5,8 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { EntityService } from "@/services";
 import { useRoute, useRouter } from "vue-router";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
-import { processComponentType } from "@im-library/helpers/EditorMethods";
 import editorShapes from "@/constants/editorShapes";
 
 export function setupEditorShape() {

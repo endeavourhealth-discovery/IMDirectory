@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, onMounted, ref, Ref } from "vue";
+import { onMounted, ref, Ref } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";

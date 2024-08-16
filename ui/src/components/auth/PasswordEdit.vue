@@ -51,11 +51,6 @@ const isNewPasswordValid = ref(false);
 
 const { handleSubmit } = useForm({});
 
-function getUrl(item: string): string {
-  const url = new URL(`../../assets/avatars/${item}`, import.meta.url);
-  return url.href;
-}
-
 function setOldPassword(oldPassword: string) {
   passwordOld.value = oldPassword;
 }

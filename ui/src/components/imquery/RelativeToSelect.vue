@@ -26,7 +26,6 @@
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import setupTree from "@/composables/setupTree";
 import { EntityService } from "@/services";
-import { useQueryStore } from "@/stores/queryStore";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { Where, PropertyRef, Match, Query } from "@im-library/interfaces/AutoGen";
@@ -43,9 +42,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const queryStore = useQueryStore();
 const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
-const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const showTreeSearch: Ref<boolean> = ref(false);
 const searchTerm: Ref<string> = ref("");
 const propertyDisplay: Ref<string | undefined> = ref();
@@ -135,14 +132,6 @@ async function getVariableOptions(searchTerm?: string) {
     if (dataModelIri) {
       const treeNode = await getPropertyOptions(dataModelIri, props.datatype, key);
       if (isObjectHasKeys(treeNode)) options.push(treeNode);
-    }
-  }
-
-  if (queryTypeIri.value) {
-    const option = await getPropertyOptions(queryTypeIri.value, props.datatype, getNameFromRef({ "@id": queryTypeIri.value }));
-    if (isObjectHasKeys(option)) {
-      option.children = option.children?.filter(childOption => childOption.data["@id"] !== props.propertyIri);
-      if (isArrayHasLength(option.children)) options.push(option);
     }
   }
 

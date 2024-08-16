@@ -5,7 +5,6 @@ import { EditorMode } from "./EditorMode";
 import { PasswordStrength } from "./PasswordStrength";
 import { QueryComponentType } from "./QueryComponentType";
 import { SortDirection } from "./SortDirection";
-import { QueryDisplayType } from "./QueryBuilder";
 import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
 import { ErrorType } from "./ErrorType";
@@ -20,7 +19,6 @@ export {
   PasswordStrength,
   QueryComponentType,
   SortDirection,
-  QueryDisplayType,
   ToastSeverity,
   TagSeverity,
   ErrorType,

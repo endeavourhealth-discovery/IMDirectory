@@ -15,7 +15,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import ArrayBuilder from "../ArrayBuilder.vue";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
-import { COMPONENT, IM, QUERY, RDFS } from "@im-library/vocabulary";
+import { IM, QUERY, RDFS } from "@im-library/vocabulary";
 import { EditorMode } from "@im-library/enums";
 import _ from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";

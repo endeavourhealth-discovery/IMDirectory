@@ -72,7 +72,6 @@ import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { onMounted, ref, Ref, watch } from "vue";
 import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { setupEditorShape } from "@/composables/setupEditorShape";
 
 interface Props {
   entityIri: string;
@@ -109,8 +108,6 @@ const labels = ref({
 onMounted(async () => {
   await getProvHistory(props.entityIri);
 });
-
-const { shape, getShapesCombined, processShape, groups } = setupEditorShape();
 
 watch(selectedProvenance, async () => {
   if (selectedProvenance.value && isObjectHasKeys(selectedProvenance.value, ["prov"])) {

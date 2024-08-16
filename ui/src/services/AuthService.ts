@@ -17,7 +17,6 @@ import {
   GetCurrentUserOutput,
   resendSignUpCode,
   resetPassword,
-  sendUserAttributeVerificationCode,
   setUpTOTP,
   signIn,
   signOut,

@@ -1,7 +1,7 @@
 import Env from "./Env";
-import { AllowableChildProperty, AliasEntity, QueryResponse, UIProperty } from "@im-library/interfaces";
+import { AllowableChildProperty, QueryResponse } from "@im-library/interfaces";
 import axios from "axios";
-import { Match, PathDocument, PathQuery, Query, QueryRequest, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { Match, PathQuery, Query, QueryRequest, SearchResponse } from "@im-library/interfaces/AutoGen";
 
 const QueryService = {
   async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {

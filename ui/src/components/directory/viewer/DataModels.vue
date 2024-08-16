@@ -43,7 +43,6 @@ import { IM, SHACL } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";

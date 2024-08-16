@@ -50,14 +50,13 @@ import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
 
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { byOrder } from "@im-library/helpers/Sorters";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import _, { isArray } from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { DirectService, EntityService, ConfigService, UserService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { RDF, RDFS } from "@im-library/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
@@ -67,7 +66,6 @@ const directService = new DirectService();
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const recentLocalActivity = computed(() => userStore.recentLocalActivity);
-const currentUser = computed(() => userStore.currentUser);
 const selected: Ref<any> = ref({});
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
