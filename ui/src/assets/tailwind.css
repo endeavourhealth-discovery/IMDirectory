@@ -37,20 +37,28 @@
   h1 {
     @apply text-3xl;
     @apply font-bold;
+    @apply my-2;
   }
 
   h2 {
     @apply text-2xl;
     @apply font-bold;
+    @apply my-2;
   }
 
   h3 {
     @apply text-xl;
     @apply font-semibold;
+    @apply my-2;
   }
 
   h4 {
     @apply text-lg;
     @apply font-semibold;
+    @apply my-1;
+  }
+
+  p {
+    @apply my-1;
   }
 }
