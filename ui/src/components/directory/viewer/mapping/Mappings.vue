@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-row justify-contents-center items-center loading-container" v-if="loading">
+  <div class="justify-contents-center loading-container flex flex-row items-center" v-if="loading">
     <ProgressSpinner />
   </div>
-  <div v-else class="flex flex-col justify-contents-center items-center flex-auto">
+  <div v-else class="justify-contents-center flex flex-auto flex-col items-center">
     <OrganizationChart :value="data" data-testid="mappings">
       <template #hasMap="{ node }: any">
         <span>{{ node.data.label }}</span>
@@ -57,7 +57,7 @@
     </OrganizationChart>
 
     <Popover ref="opMap" id="overlay-panel-maps">
-      <div class="flex flex-col justify-contents-start map-overlay">
+      <div class="justify-contents-start map-overlay flex flex-col">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Priority: </strong>{{ hoveredResult.priority }}</p>
@@ -69,7 +69,7 @@
     </Popover>
 
     <Popover ref="opMatchedFrom" id="overlay-panel-simple-maps">
-      <div class="flex flex-col justify-contents-start simple-maps-overlay" data-testid="matchedFromOverlay">
+      <div class="justify-contents-start simple-maps-overlay flex flex-col" data-testid="matchedFromOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
@@ -78,7 +78,7 @@
     </Popover>
 
     <Popover ref="opMatchedTo" id="overlay-panel-simple-maps">
-      <div class="flex flex-col justify-contents-start simple-maps-overlay" data-testid="matchedToOverlay">
+      <div class="justify-contents-start simple-maps-overlay flex flex-col" data-testid="matchedToOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
@@ -89,7 +89,6 @@
       <DataTable v-model:expandedRows="contextExpandedRows" :value="contextMaps" dataKey="id">
         <Column expander style="width: 5rem" />
         <Column field="property" header="Property"></Column>
-        <Column field="node" header="Map node"></Column>
         <Column field="value" header="Value"></Column>
         <Column field="regex" header="Regex"></Column>
         <template #expansion="{ data }: { data: { context: Context[] } }">
