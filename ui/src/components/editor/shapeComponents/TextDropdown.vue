@@ -13,16 +13,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType, ComputedRef, computed } from "vue";
+import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
-import { byName } from "@im-library/helpers/Sorters";
-import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import _ from "lodash-es";
 
 interface Props {

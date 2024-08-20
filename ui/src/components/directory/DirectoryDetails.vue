@@ -1,5 +1,5 @@
 <template>
-  <div class="loading-container flex flex-row justify-center items-center" v-if="loading">
+  <div class="loading-container flex flex-row items-center justify-center" v-if="loading">
     <ProgressSpinner />
   </div>
   <div v-else id="directory-table-container">
@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { onMounted, ref, Ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";

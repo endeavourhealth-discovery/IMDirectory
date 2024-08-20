@@ -30,7 +30,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, watch, onMounted, ref, inject } from "vue";
+import { watch, onMounted, ref, inject } from "vue";
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";

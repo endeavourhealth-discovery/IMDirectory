@@ -35,7 +35,7 @@
     </div>
   </div>
   <Popover class="options-op" ref="optionsOP" :dismissable="true" stype="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-    <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
+    <div v-if="hoveredResult.name" class="justify-contents-start result-overlay flex flex-row" style="width: 100%; gap: 1rem">
       <div class="left-side" style="width: 50%">
         <p>
           <strong>Name: </strong>
@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch } from "vue";
+import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, Ref, ref, watch } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash-es";
 import { EditorMode } from "@im-library/enums";
@@ -79,7 +79,7 @@ import { processArguments } from "@im-library/helpers/EditorMethods";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { byName } from "@im-library/helpers/Sorters";
 import { QueryService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 

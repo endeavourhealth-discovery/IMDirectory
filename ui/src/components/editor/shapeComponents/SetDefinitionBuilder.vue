@@ -65,18 +65,13 @@
 import { onMounted, ref, watch, Ref, PropType, inject, ComputedRef, computed } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
-import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
 import { EditorMode } from "@im-library/enums";
 import { EclService } from "@/services";
-import _, { isArray } from "lodash-es";
+import _ from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { Match, PropertyShape, Query, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
+import { Match, PropertyShape, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import { IM } from "@im-library/vocabulary";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {

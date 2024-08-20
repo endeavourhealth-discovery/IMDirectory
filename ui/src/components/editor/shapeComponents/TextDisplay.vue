@@ -12,14 +12,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType, Ref, computed } from "vue";
+import { ref, watch, onMounted, inject, Ref } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash-es";
 import { PropertyShape, Argument } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
-import { FunctionService, QueryService } from "@/services";
+import { FunctionService } from "@/services";
 
 interface Props {
   shape: PropertyShape;

@@ -1,6 +1,6 @@
 <template>
   <div id="mfa-login">
-    <Card class="flex flex-col justify-content-sm-around items-center mfa-login-card">
+    <Card class="justify-content-sm-around mfa-login-card flex flex-col items-center">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-shield-halved" class="icon-header" />
       </template>
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, h, computed } from "vue";
+import { ref, h, computed } from "vue";
 import { useDialog } from "primevue/usedialog";
 import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
@@ -32,7 +32,6 @@ import { AuthService } from "@/services";
 import { useUserStore } from "@/stores/userStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
-import { Avatars } from "@im-library/constants";
 import { CustomAlert } from "@im-library/interfaces";
 
 const router = useRouter();

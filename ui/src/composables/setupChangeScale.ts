@@ -1,6 +1,4 @@
 import { useUserStore } from "@/stores/userStore";
-import { usePrimeVue } from "primevue/config";
-import { computed } from "vue";
 
 function setupChangeScale() {
   const userStore = useUserStore();

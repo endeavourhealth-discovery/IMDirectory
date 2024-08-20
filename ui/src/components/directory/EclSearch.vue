@@ -74,7 +74,6 @@ import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { addStatusFilterToIMQuery } from "@/helpers/IMQueryBuilder";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,

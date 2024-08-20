@@ -6,36 +6,6 @@ import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import { v4 } from "uuid";
 
-export function getLastMatchFromNestedProperty(matchOrProperty: any, found: Match[]) {
-  if (isObjectHasKeys(matchOrProperty, ["match"])) getLastMatchFromNestedProperty(matchOrProperty.match, found);
-  else if (isArrayHasLength(matchOrProperty.property)) {
-    if (isObjectHasKeys(matchOrProperty.property[0], ["match"])) getLastMatchFromNestedProperty(matchOrProperty.property[0].match, found);
-    else {
-      found.push(matchOrProperty);
-      return;
-    }
-  }
-}
-
-export function buildInSetMatchFromCS(cs: SearchResultSummary) {
-  return { "@id": v4(), is: [buildNodeFromCS(cs)] } as Match;
-}
-
-export function buildNodeFromCS(cs: SearchResultSummary) {
-  return { "@id": cs.iri, name: cs.name } as Node;
-}
-
-function getHasVariable(treeNode: TreeNode) {
-  const hasVariable: string[] = [];
-  getHasVariableRecursively(treeNode, hasVariable);
-  return hasVariable[0] ?? "";
-}
-
-function getHasVariableRecursively(treeNode: TreeNode, hasVariable: string[]) {
-  if (treeNode.hasVariable) hasVariable.push(treeNode.hasVariable);
-  if (isObjectHasKeys(treeNode, ["parent"])) getHasVariableRecursively(treeNode.parent!, hasVariable);
-}
-
 export function buildProperty(treeNode: TreeNode): Where | Match {
   const flatList: TreeNode[] = [];
   populateFlatListOfNodesRecursively(flatList, treeNode);
@@ -80,12 +50,6 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
   }
   (property as any).key = treeNode.key;
   return property as Where;
-}
-
-export function isNestedProperty(treeNode: TreeNode) {
-  const parentList: TreeNode[] = [];
-  populateFlatListOfNodesRecursively(parentList, treeNode);
-  return parentList.length > 1;
 }
 
 export function generateMatchIds(query: Query) {

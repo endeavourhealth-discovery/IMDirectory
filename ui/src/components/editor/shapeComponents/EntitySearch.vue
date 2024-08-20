@@ -34,7 +34,7 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService, EntityService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { useEditorStore } from "@/stores/editorStore";
 import { useToast } from "primevue/usetoast";
 

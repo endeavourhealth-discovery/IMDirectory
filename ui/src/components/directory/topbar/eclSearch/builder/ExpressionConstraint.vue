@@ -136,7 +136,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, inject } from "vue";
+import { Ref, ref, onMounted, inject } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";

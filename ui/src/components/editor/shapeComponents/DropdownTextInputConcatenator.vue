@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, PropType, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
+import { inject, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
