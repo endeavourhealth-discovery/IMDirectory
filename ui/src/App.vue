@@ -8,7 +8,7 @@
     <SnomedConsent />
     <div id="main-container">
       <BannerBar v-if="!viewsLoading && showBanner" :latestRelease="latestRelease" />
-      <div v-if="viewsLoading" class="flex flex-row justify-content-center align-items-center loading-container">
+      <div v-if="viewsLoading" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
       <router-view v-else />
@@ -17,8 +17,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef, Ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
@@ -26,16 +26,18 @@ import FooterBar from "./components/app/FooterBar.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { GithubService, UserService } from "@/services";
-import { Auth } from "aws-amplify";
+import { AuthService, GithubService } from "@/services";
+import { fetchAuthSession } from "aws-amplify/auth";
 import axios from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import setupChangeTheme from "@/composables/setupChangeTheme";
+import setupChangeScale from "@/composables/setupChangeScale";
 import { useLoadingStore } from "./stores/loadingStore";
+import { useFilterStore } from "@/stores/filterStore";
+import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -45,36 +47,58 @@ const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
+const filterStore = useFilterStore();
 
-const { changeTheme } = setupChangeTheme();
+const { changeScale } = setupChangeScale();
+const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
-const currentTheme = computed(() => userStore.currentTheme);
+const currentScale = computed(() => userStore.currentScale);
+const currentPreset = computed(() => userStore.currentPreset);
+const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
+const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
+const darkMode = computed(() => userStore.darkMode);
 const viewsLoading = computed(() => loadingStore.viewsLoading);
-
-watch(
-  () => currentTheme.value,
-  newValue => {
-    changeTheme(newValue);
-  }
-);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 
+watch(currentPreset, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) changePreset(newValue);
+});
+watch(currentScale, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) changeScale(newValue);
+});
+watch(currentPrimaryColor, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) changePrimaryColor(newValue);
+});
+watch(currentSurfaceColor, (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) changeSurfaceColor(newValue);
+});
+watch(darkMode, (newValue, oldValue) => {
+  if (newValue !== oldValue) changeDarkMode(newValue);
+});
+
 onMounted(async () => {
   loadingStore.updateViewsLoading(true);
-  await userStore.authenticateCurrentUser();
+  await AuthService.getCurrentAuthenticatedUser();
+  await filterStore.fetchFilterSettings();
   await userStore.getAllFromUserDatabase();
-  let theme = "saga-blue";
-  if (currentUser.value) await UserService.getUserTheme();
-  if (currentTheme.value) theme = currentTheme.value;
-  changeTheme(theme);
+  setThemeOptions();
+  if (currentScale.value) changeScale(currentScale.value);
+
   await setShowBanner();
   loadingStore.updateViewsLoading(false);
 });
+
+function setThemeOptions() {
+  if (currentPreset.value) changePreset(currentPreset.value);
+  if (currentPrimaryColor.value) changePrimaryColor(currentPrimaryColor.value);
+  if (currentSurfaceColor.value) changeSurfaceColor(currentSurfaceColor.value);
+  if (darkMode.value) changeDarkMode(darkMode.value);
+}
 
 async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
@@ -97,7 +121,7 @@ async function setupAxiosInterceptors(axios: any) {
   axios.interceptors.request.use(async (request: any) => {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {};
-      request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
+      request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
     }
     return request;
   });
@@ -124,8 +148,8 @@ async function setupAxiosInterceptors(axios: any) {
           summary: error.response.data.code,
           detail: error.response.data.debugMessage
         });
-      } else if (error?.response?.status >= 500 && error.code === "ERR_BAD_RESPONSE") {
-        router.push({ name: "ServerOffline" }).then();
+      } else if (error?.response?.status >= 500) {
+        handle5xx(error);
       } else if (error.code === "ERR_CANCELED") {
         return;
       } else {
@@ -168,6 +192,20 @@ function handle403(error: any) {
   }
 }
 
+function handle5xx(error: any) {
+  if (error.code === "ERR_BAD_RESPONSE") {
+    if (error.response.data.code === "OpenSearchException") {
+      toast.add({
+        severity: "error",
+        summary: "Error calling OpenSearch",
+        detail: error.response.data.debugMessage
+      });
+    } else router.push({ name: "ServerOffline" }).then();
+  } else if (error.code === "ERR_CANCELED") {
+    return;
+  }
+}
+
 function setupExternalErrorHandler() {
   window.addEventListener("unhandledrejection", e => {
     e.preventDefault();
@@ -201,6 +239,8 @@ function setupExternalErrorHandler() {
 @import "@/assets/layout/flags/flags.css";
 @import "@/assets/layout/sass/_main.scss";
 @import "sweetalert2/dist/sweetalert2.min.css";
+@import "@/assets/tailwind.css";
+@import "@/assets/primevueOverrides.css";
 </style>
 
 <style scoped>
@@ -221,8 +261,8 @@ function setupExternalErrorHandler() {
   flex-flow: column nowrap;
   justify-content: space-between;
   overflow: auto;
-  background-color: var(--surface-ground);
 }
+
 .loading-container {
   width: 100%;
   flex: 1 1 auto;
@@ -230,34 +270,7 @@ function setupExternalErrorHandler() {
 </style>
 
 <style>
-:root {
-  --hyperlink-blue: #2196f3;
-}
-.p-dialog-mask {
-  z-index: 1;
-}
 .swal2-popup {
-  background-color: var(--surface-a);
-}
-.p-toast-message-text {
-  width: calc(100% - 4rem);
-}
-
-.p-toast-message-content {
-  width: 100%;
-}
-
-.p-toast-detail {
-  width: 100%;
-  word-wrap: break-word;
-}
-
-.p-dialog-header-icons {
-  flex: 1 0 auto;
-  justify-content: flex-end;
-}
-
-.p-progress-spinner {
-  overflow: hidden;
+  background-color: var(--p-content-background);
 }
 </style>

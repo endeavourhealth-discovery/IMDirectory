@@ -1,4 +1,4 @@
-import { Match, Query, Property, Assignable, OrderLimit, Bool } from "@im-library/interfaces/AutoGen";
+import { Match, Query, Where, Assignable, OrderLimit, Bool } from "@im-library/interfaces/AutoGen";
 import { SqlQuery } from "@/model/sql/SqlQuery";
 
 function IMQtoSQL(definition: Query): string {
@@ -59,19 +59,19 @@ function createMatchQuery(match: Match, qry: SqlQuery) {
 }
 
 function convertMatch(match: Match, qry: SqlQuery) {
-  if (match.is) {
-    convertMatchIs(qry, match);
-  } else if (match.bool) {
+  if (match.instanceOf) {
+    convertMatchInstanceOf(qry, match);
+  } else if (match.boolMatch) {
     if (match.match && match.match.length > 0) convertMatchBoolSubMatch(qry, match);
-    else if (match.property && match.property.length > 0) convertMatchProperties(qry, match);
+    else if (match.where && match.where.length > 0) convertMatchProperties(qry, match);
     else {
       throw new Error("UNHANDLED BOOL MATCH PATTERN\n" + JSON.stringify(match, null, 2));
     }
-  } else if (match.property && match.property.length > 0) {
+  } else if (match.where && match.where.length > 0) {
     convertMatchProperties(qry, match);
   } else if (match.match && match.match.length > 0) {
     // Assume bool match "AND"
-    match.bool = Bool.and;
+    match.boolMatch = Bool.and;
     convertMatchBoolSubMatch(qry, match);
   } else {
     throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
@@ -101,22 +101,22 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
   qry.wheres.push("rn = 1");
 }
 
-function convertMatchIs(qry: SqlQuery, match: Match) {
-  if (!match.is) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
+function convertMatchInstanceOf(qry: SqlQuery, match: Match) {
+  if (!match.instanceOf) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
   const rsltTbl = qry.alias + "_rslt";
   qry.joins.push("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
-  qry.wheres.push(rsltTbl + ".iri = '" + match.is[0]["@id"] + "'");
+  qry.wheres.push(rsltTbl + ".iri = '" + match.instanceOf[0]["@id"] + "'");
 }
 
 function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
-  if (!match.bool || !match.match) {
+  if (!match.boolMatch || !match.match) {
     throw new Error("INVALID MatchBoolSubMatch\n" + JSON.stringify(match, null, 2));
   }
 
-  qry.whereBool = match.bool ? match.bool.toUpperCase() : "AND";
+  qry.whereBool = match.boolWhere ? match.boolWhere.toUpperCase() : "AND";
 
   // TODO: Boolean "OR" should be a union (more performant)
-  const joiner = "OR" == match.bool.toUpperCase() ? "LEFT JOIN " : "JOIN ";
+  const joiner = "OR" == match.boolWhere?.toUpperCase() ? "LEFT JOIN " : "JOIN ";
 
   for (const subMatch of match.match) {
     const subQuery = convertMatchToQuery(qry, subMatch);
@@ -137,31 +137,27 @@ function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
 }
 
 function convertMatchProperties(qry: SqlQuery, match: Match) {
-  if (!match.property) {
+  if (!match.where) {
     throw new Error("INVALID MatchProperty\n" + JSON.stringify(match, null, 2));
   }
 
-  for (const property of match.property) {
+  for (const property of match.where) {
     convertMatchProperty(qry, property);
   }
 }
 
-function convertMatchProperty(qry: SqlQuery, property: Property) {
+function convertMatchProperty(qry: SqlQuery, property: Where) {
   if (property.is) {
     convertMatchPropertyIs(qry, property, property.is);
-  } else if (property.isNot) {
-    convertMatchPropertyIs(qry, property, property.isNot, true);
   } else if (property.range) {
     convertMatchPropertyRange(qry, property);
   } else if (property.match) {
     convertMatchPropertySubMatch(qry, property);
-  } else if (property.is) {
-    convertMatchPropertyInSet(qry, property);
   } else if (property.relativeTo) {
     convertMatchPropertyRelative(qry, property);
   } else if (property.value) {
     convertMatchPropertyValue(qry, property);
-  } else if (property.bool) {
+  } else if (property.boolWhere) {
     convertMatchPropertyBool(qry, property);
   } else if (property.isNull) {
     convertMatchPropertyNull(qry, property);
@@ -170,7 +166,7 @@ function convertMatchProperty(qry: SqlQuery, property: Property) {
   }
 }
 
-function convertMatchPropertyIs(qry: SqlQuery, property: Property, list: any[], inverse = false) {
+function convertMatchPropertyIs(qry: SqlQuery, property: Where, list: any[], inverse = false) {
   if (!list) {
     throw new Error("INVALID MatchPropertyIs\n" + JSON.stringify(property, null, 2));
   }
@@ -217,7 +213,7 @@ function convertMatchPropertyIs(qry: SqlQuery, property: Property, list: any[], 
   }
 }
 
-function convertMatchPropertyRange(qry: SqlQuery, property: Property) {
+function convertMatchPropertyRange(qry: SqlQuery, property: Where) {
   if (!property.range) {
     throw new Error("INVALID MatchPropertyRange\n" + JSON.stringify(property, null, 2));
   }
@@ -244,7 +240,7 @@ function convertMatchPropertyDateRangeNode(fieldName: string, range: Assignable)
   return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + range.operator + " " + fieldName;
 }
 
-function convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
+function convertMatchPropertySubMatch(qry: SqlQuery, property: Where) {
   if (!property.match) {
     throw new Error("INVALID MatchPropertySubMatch\n" + JSON.stringify(property, null, 2));
   }
@@ -264,7 +260,7 @@ function convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
   }
 }
 
-function convertMatchPropertyInSet(qry: SqlQuery, property: Property) {
+function convertMatchPropertyInSet(qry: SqlQuery, property: Where) {
   if (!property["@id"]) throw new Error("INVALID PROPERTY\n" + JSON.stringify(property, null, 2));
 
   if (!property.is) {
@@ -289,7 +285,7 @@ function convertMatchPropertyInSet(qry: SqlQuery, property: Property) {
   else qry.wheres.push(mmbrTbl + ".iri IN ('" + inList.join("',\n'") + "')");
 }
 
-function convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
+function convertMatchPropertyRelative(qry: SqlQuery, property: Where) {
   if (!property["@id"] || !property.relativeTo) {
     throw new Error("INVALID MatchPropertyRelative\n" + JSON.stringify(property, null, 2));
   }
@@ -313,7 +309,7 @@ function convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
   }
 }
 
-function convertMatchPropertyRelativeTo(qry: SqlQuery, property: Property, field: string) {
+function convertMatchPropertyRelativeTo(qry: SqlQuery, property: Where, field: string) {
   const fieldType = qry.getFieldType(property["@id"] as string);
   if ("date" == fieldType)
     if (property.value) return "(" + field + " + INTERVAL '" + property.value + " " + property.unit + "')";
@@ -323,7 +319,7 @@ function convertMatchPropertyRelativeTo(qry: SqlQuery, property: Property, field
   }
 }
 
-function convertMatchPropertyValue(qry: SqlQuery, property: Property) {
+function convertMatchPropertyValue(qry: SqlQuery, property: Where) {
   if (!property["@id"] || !property.value) {
     throw new Error("INVALID MatchPropertyValue\n" + JSON.stringify(property, null, 2));
   }
@@ -343,23 +339,23 @@ function convertMatchPropertyValue(qry: SqlQuery, property: Property) {
   qry.wheres.push(where);
 }
 
-function convertMatchPropertyBool(qry: SqlQuery, property: Property) {
-  if (!property.bool) {
+function convertMatchPropertyBool(qry: SqlQuery, property: Where) {
+  if (!property.boolWhere) {
     throw new Error("INVALID MatchPropertyBool\n" + JSON.stringify(property, null, 2));
   }
 
-  if (property.property) {
+  if (property.where) {
     const subQuery = qry.subQuery(qry.model, qry.alias);
-    for (const p of property.property) {
+    for (const p of property.where) {
       convertMatchProperty(subQuery, p);
     }
-    qry.wheres.push("(" + subQuery.wheres.join(" " + property.bool.toUpperCase() + " ") + ")");
+    qry.wheres.push("(" + subQuery.wheres.join(" " + property.boolWhere?.toUpperCase() + " ") + ")");
   } else {
     throw new Error("Property BOOL should only contain property conditions");
   }
 }
 
-function convertMatchPropertyNull(qry: SqlQuery, property: Property) {
+function convertMatchPropertyNull(qry: SqlQuery, property: Where) {
   if (!property["@id"]) {
     throw new Error("INVALID MatchPropertyNull\n" + JSON.stringify(property, null, 2));
   }

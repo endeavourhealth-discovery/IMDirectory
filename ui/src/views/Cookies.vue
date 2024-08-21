@@ -56,7 +56,8 @@ const userCookiesData: Ref<{ cookie: string; name: string; purpose: string }[]> 
 ]);
 
 function goBack() {
-  router.back();
+  if (window.history.length > 2) router.back();
+  else router.push({ name: "LandingPage" });
 }
 </script>
 

@@ -27,12 +27,12 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch, onMounted, inject, computed, ComputedRef } from "vue";
+import { ref, Ref, watch, onMounted, inject, computed, ComputedRef } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
-import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {
@@ -99,8 +99,8 @@ function setProperties(shape: PropertyShape) {
   width: 100%;
   flex: 1 1 auto;
   padding: 1rem;
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
@@ -114,7 +114,7 @@ function setProperties(shape: PropertyShape) {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: var(--text-color);
+  color: var(--p-text-color);
 }
 
 .title-bar {
@@ -125,6 +125,6 @@ function setProperties(shape: PropertyShape) {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

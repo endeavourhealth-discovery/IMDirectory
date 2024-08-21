@@ -1,47 +1,34 @@
 <template>
   <div class="compare-set-section">
-    <div v-if="header === 'Shared members '" class="section-header-shared">{{ header }} - ({{ members.length }})</div>
-    <div v-else class="section-header">
-      <div class="section-header-title">{{ header }}</div>
-      <Inplace :closable="true">
-        <template #display> {{ selectedSet?.name || "Click to select set" }} - ({{ members.length }}) </template>
-        <template #content>
-          <AutoComplete v-model="selectedSet" optionLabel="name" :suggestions="filteredSets" @complete="searchValueSet" />
-        </template>
-      </Inplace>
+    <div class="section-header">
+      <div>{{ header }}</div>
+      <AutoComplete v-if="header !== 'Shared members '" v-model="selectedSet" optionLabel="name" :suggestions="filteredSets" @complete="searchValueSet" />
+      <div v-if="isArrayHasLength(members)">({{ members.length }})</div>
     </div>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Listbox v-model="selected" :options="members" optionLabel="name" :virtualScrollerOptions="{ itemSize: 45, delay: 150 }" listStyle="height: 100%" filter>
+    <Listbox v-model="selected" :options="members" optionLabel="name" :virtualScrollerOptions="{ itemSize: 45, delay: 150 }" listStyle="height: 97%" filter>
       <template #option="{ option }: { option: Concept }">
-        <div
-          class="member-name"
-          @dblclick="directService.view(option['@id'])"
-          @mouseover="showOverlay($event, option['@id'])"
-          @mouseleave="hideOverlay($event)"
-          v-tooltip.right="'Copy to clipboard'"
-          v-clipboard:copy="option.code"
-          v-clipboard:success="onCopy"
-          v-clipboard:error="onCopyError"
-        >
+        <div class="member-name" @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay" @contextmenu="onMemberRightClick($event, option)">
           {{ option.name }}
         </div>
       </template>
     </Listbox>
     <OverlaySummary ref="OS" />
+    <ContextMenu ref="menu" :model="rClickItems" />
   </div>
 </template>
 
 <script setup lang="ts">
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import setupOverlay from "@/composables/setupOverlay";
-import { DirectService, EntityService } from "@/services";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { DirectService, EntityService, QueryService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
-import { SortDirection, ToastSeverity } from "@im-library/enums";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { FilterOptions } from "@im-library/interfaces";
-import { Concept, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { ToastOptions } from "@im-library/models";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
+import { FilterOptions, SearchOptions } from "@im-library/interfaces";
+import { Concept, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 interface Props {
@@ -57,13 +44,35 @@ const toast = useToast();
 const directService = new DirectService();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const filterStore = useFilterStore();
-const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
+const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
 const controller: Ref<AbortController> = ref({} as AbortController);
+const menu = ref();
 
 const selectedSet: Ref<SearchResultSummary | undefined> = ref();
 const filteredSets: Ref<SearchResultSummary[]> = ref([]);
 const selected: Ref<Concept | undefined> = ref();
+const { copyObjectToClipboard } = setupCopyToClipboard();
+
+const rClickItems = ref([
+  {
+    label: "Copy code",
+    icon: "fa-solid fa-copy",
+    command: async () => {
+      if (selected.value?.code) copyObjectToClipboard(navigator, selected.value?.code);
+    }
+  },
+  {
+    separator: true
+  },
+  {
+    label: "View",
+    icon: "fa-duotone fa-up-right-from-square",
+    command: () => {
+      if (selected.value?.["@id"]) directService.view(selected.value["@id"]);
+    }
+  }
+]);
 
 const emit = defineEmits({ "update:selectedSet": _payload => true });
 
@@ -83,59 +92,24 @@ async function init() {
   }
 }
 
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Code copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy code to clipboard"));
-}
-
 async function search(searchText: string): Promise<SearchResultSummary[]> {
   if (searchText && searchText.length > 2) {
-    const searchRequest = {} as SearchRequest;
-    searchRequest.termFilter = searchText;
-    searchRequest.sortField = "weighting";
-    searchRequest.page = 1;
-    searchRequest.size = 100;
-    searchRequest.schemeFilter = [];
-    const schemes = selectedFilters.value.schemes;
-    for (const scheme of schemes) {
-      searchRequest.schemeFilter!.push(scheme["@id"]);
-    }
+    const filterOptions: SearchOptions = {
+      schemes: selectedFilters.value.schemes,
+      status: selectedFilters.value.status,
+      types: selectedFilters.value.types,
+      textSearch: searchText,
+      page: { pageNumber: 1, pageSize: 100 }
+    };
 
-    searchRequest.statusFilter = [];
-    const statusList = selectedFilters.value.status;
-    for (const status of statusList) {
-      searchRequest.statusFilter!.push(status["@id"]);
-    }
-
-    searchRequest.typeFilter = [];
-    const types = [IM.CONCEPT_SET, IM.VALUE_SET];
-    for (const type of types) {
-      searchRequest.typeFilter!.push(type);
-    }
-
-    if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
-      const sortField = selectedFilters.value.sortFields[0];
-      if (sortField["@id"] === IM.USAGE) searchRequest.sortField = "weighting";
-
-      if (isArrayHasLength(selectedFilters.value.sortDirections) && isObjectHasKeys(selectedFilters.value.sortDirections[0])) {
-        const sortDirection = selectedFilters.value.sortDirections[0];
-        if (sortDirection["@id"] === IM.DESCENDING) searchRequest.sortDirection = SortDirection.DESC;
-        if (sortDirection["@id"] === IM.ASCENDING) searchRequest.sortDirection = SortDirection.ASC;
-      }
-    }
+    const imQuery = buildIMQueryFromFilters(filterOptions);
 
     if (!isObject(controller.value)) {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    const result = await EntityService.advancedSearch(searchRequest, controller.value);
-    if (result?.entities) {
-      if (result.entities.length > 100) result.entities.length = 100;
-      return result.entities;
-    }
+    const result = await QueryService.queryIMSearch(imQuery, controller.value);
+    return result.entities ?? [];
   }
   return [];
 }
@@ -144,28 +118,19 @@ async function searchValueSet(event: any) {
   const searchTerm: string = event.query;
   filteredSets.value = await search(searchTerm);
 }
+
+function onMemberRightClick(event: any, option: Concept) {
+  selected.value = option;
+  menu.value.show(event);
+}
 </script>
 
 <style scoped>
-.section-header-title {
-  padding-bottom: 1rem;
-}
 .section-header {
   display: flex;
   justify-content: center;
   align-items: baseline;
-}
-
-.section-header-shared {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  padding-bottom: 1rem;
-}
-
-.compare-set-section {
-  height: 100%;
-  width: 100%;
+  height: 5%;
 }
 
 .p-listbox {
@@ -183,16 +148,10 @@ async function searchValueSet(event: any) {
   width: 100%;
   height: 100%;
   flex-wrap: wrap;
-  align-items: center;
 }
 </style>
 
 <style>
-.p-listbox-list {
-  width: 1px;
-  height: 1px;
-}
-
 .p-listbox-item {
   width: 100%;
   height: 100%;

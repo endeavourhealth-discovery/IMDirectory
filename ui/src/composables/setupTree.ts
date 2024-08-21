@@ -5,21 +5,21 @@ import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/treenode";
-import { ref, Ref } from "vue";
+import { computed, ref, Ref } from "vue";
 import { useToast } from "primevue/usetoast";
-import rowClick from "./rowClick";
+import { useUserStore } from "@/stores/userStore";
 
-function setupTree() {
+function setupTree(emit?: any) {
   const toast = useToast();
-
-  const { onRowClick } = rowClick();
+  const userStore = useUserStore();
+  const favourites = computed(() => userStore.favourites);
 
   const selectedKeys: Ref<any> = ref({});
-  const selectedNode: Ref<TreeNode> = ref({});
+  const selectedNode: Ref<TreeNode | undefined> = ref();
   const root: Ref<TreeNode[]> = ref([]);
   const expandedKeys: Ref<any> = ref({});
   const expandedData: Ref<TreeNode[]> = ref([]);
-  const pageSize = ref(20);
+  const pageSize = ref(50);
 
   const directService = new DirectService();
 
@@ -46,7 +46,7 @@ function setupTree() {
     };
   }
 
-  function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): any {
+  function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): TreeNode {
     return {
       key: "loadMore" + parentNode.data,
       label: "Load more...",
@@ -63,25 +63,40 @@ function setupTree() {
     };
   }
 
-  async function onNodeSelect(node: any): Promise<void> {
+  async function onNodeSelect(node: TreeNode): Promise<void> {
     if (node.data === "loadMore") {
       if (!node.loading) await loadMore(node);
     } else {
       selectedNode.value = node;
-      onRowClick(node.data);
+      directService.select(node.data);
     }
   }
 
-  function onNodeDblClick($event: any, node: any) {
-    if (node.data !== "loadMore") directService.view(node.key);
+  function onNodeDblClick($event: MouseEvent, node: TreeNode) {
+    if (!(node.data === "loadMore" || node.data === IM.FAVOURITES)) directService.view(node.key);
   }
 
-  async function loadMore(node: any) {
+  function customOnClick(event: MouseEvent, node: TreeNode, useEmits?: boolean) {
+    if (useEmits) {
+      if (!emit) throw new Error("setupTree requires vue emits for custom clicks");
+      if (checkForControlClick(event)) emit("rowControlClicked", node.data);
+      else emit("rowClicked", node.data);
+    } else {
+      if (checkForControlClick(event)) directService.view(node.data);
+      else directService.select(node.data);
+    }
+  }
+
+  function checkForControlClick(event: MouseEvent): boolean {
+    return event.metaKey || event.ctrlKey;
+  }
+
+  async function loadMore(node: TreeNode) {
     node.loading = true;
     if (node.nextPage * pageSize.value <= node.totalCount) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
-      children.result.forEach((child: any) => {
+      children.result.forEach(child => {
         if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
       });
       node.nextPage = node.nextPage + 1;
@@ -104,29 +119,46 @@ function setupTree() {
       node.loading = true;
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       if (!expandedData.value.find(x => x.key === node.key)) expandedData.value.push(node);
-      const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
-      children.result.forEach((child: any) => {
-        if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
-      });
-      if (
-        children.totalCount >= pageSize.value &&
-        node.children.length !== children.totalCount &&
-        node.children[node.children.length - 1].data !== "loadMore"
-      ) {
-        node.children.push(createLoadMoreNode(node, 2, children.totalCount));
+      if (node.data === IM.FAVOURITES) {
+        for (const fav of favourites.value) {
+          const favChild = await EntityService.getEntityAsEntityReferenceNode(fav);
+          if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type, false, node));
+        }
+      } else {
+        const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
+        children.result.forEach((child: any) => {
+          if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+        });
+        if (
+          children.totalCount >= pageSize.value &&
+          node.children.length !== children.totalCount &&
+          node.children[node.children.length - 1].data !== "loadMore"
+        ) {
+          node.children.push(createLoadMoreNode(node, 2, children.totalCount));
+        }
       }
       node.loading = false;
     }
   }
 
   function onNodeCollapse(node: any) {
-    if (isObjectHasKeys(expandedKeys.value, [node.key])) {
-      delete expandedKeys.value[node.key];
-      const index = expandedData.value.findIndex(x => x.key === node.key);
-      if (index > -1) expandedData.value.splice(index, 1);
+    deleteKeysRecursively(node);
+    delete expandedKeys.value[node.key];
+  }
+
+  function deleteKeysRecursively(node: any) {
+    const collapsedKeys = [];
+    if (node.children) {
+      for (const child of node.children) {
+        if (child.children.length) {
+          collapsedKeys.push(child.key);
+          deleteKeysRecursively(child);
+        }
+      }
     }
-    node.children = [];
-    node.leaf = false;
+    for (const key of collapsedKeys) {
+      delete expandedKeys.value[key];
+    }
   }
 
   function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
@@ -205,7 +237,7 @@ function setupTree() {
   function scrollToHighlighted(containerId: string) {
     const container = document.getElementById(containerId) as HTMLElement;
     if (container) {
-      const highlighted = container.getElementsByClassName("p-highlight")[0];
+      const highlighted = container.getElementsByClassName("p-tree-node-selected")?.[0];
       if (highlighted) highlighted.scrollIntoView();
     }
   }
@@ -228,7 +260,7 @@ function setupTree() {
     onNodeDblClick,
     onNodeExpand,
     onNodeSelect,
-    onRowClick,
+    customOnClick,
     loadMore,
     loadMoreChildren,
     locateChildInLoadMore,

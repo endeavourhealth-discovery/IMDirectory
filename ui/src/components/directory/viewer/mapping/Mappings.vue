@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-row justify-contents-center align-items-center loading-container" v-if="loading">
+  <div class="justify-contents-center loading-container flex flex-row items-center" v-if="loading">
     <ProgressSpinner />
   </div>
-  <div v-else class="flex flex-column justify-contents-center align-items-center flex-auto">
+  <div v-else class="justify-contents-center flex flex-auto flex-col items-center">
     <OrganizationChart :value="data" data-testid="mappings">
       <template #hasMap="{ node }: any">
         <span>{{ node.data.label }}</span>
@@ -56,8 +56,8 @@
       </template>
     </OrganizationChart>
 
-    <OverlayPanel ref="opMap" id="overlay-panel-maps">
-      <div class="flex flex-column justify-contents-start map-overlay">
+    <Popover ref="opMap" id="overlay-panel-maps">
+      <div class="justify-contents-start map-overlay flex flex-col">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Priority: </strong>{{ hoveredResult.priority }}</p>
@@ -66,34 +66,33 @@
           {{ hoveredResult.assuranceLevel }}
         </p>
       </div>
-    </OverlayPanel>
+    </Popover>
 
-    <OverlayPanel ref="opMatchedFrom" id="overlay-panel-simple-maps">
-      <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedFromOverlay">
+    <Popover ref="opMatchedFrom" id="overlay-panel-simple-maps">
+      <div class="justify-contents-start simple-maps-overlay flex flex-col" data-testid="matchedFromOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
         <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
       </div>
-    </OverlayPanel>
+    </Popover>
 
-    <OverlayPanel ref="opMatchedTo" id="overlay-panel-simple-maps">
-      <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedToOverlay">
+    <Popover ref="opMatchedTo" id="overlay-panel-simple-maps">
+      <div class="justify-contents-start simple-maps-overlay flex flex-col" data-testid="matchedToOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
         <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
         <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
       </div>
-    </OverlayPanel>
-    <div class="context-table">
+    </Popover>
+    <div v-if="contextMaps.length" class="context-table">
       <DataTable v-model:expandedRows="contextExpandedRows" :value="contextMaps" dataKey="id">
         <Column expander style="width: 5rem" />
         <Column field="property" header="Property"></Column>
-        <Column field="node" header="Map node"></Column>
         <Column field="value" header="Value"></Column>
         <Column field="regex" header="Regex"></Column>
         <template #expansion="{ data }: { data: { context: Context[] } }">
-          <div class="p-3">
+          <div class="p-4">
             <DataTable :value="data.context">
               <Column field="publisher" header="Publisher"></Column>
               <Column field="system" header="System"></Column>
@@ -345,24 +344,24 @@ function handleMatchedToToggle(event: any, data: any) {
 <style scoped>
 td,
 th {
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-textarea-border-color);
   padding: 0.5rem;
   text-align: left;
   overflow-wrap: break-word;
 }
 
 tr:nth-child(even) {
-  background-color: var(--surface-a);
+  background-color: var(--p-content-background);
 }
 
 th[scope="col"] {
-  background-color: var(--surface-a);
-  color: var(--text-color);
+  background-color: var(--p-content-background);
+  color: var(--p-text-color);
 }
 
 table {
   border-collapse: collapse;
-  border: 2px solid var(--surface-border);
+  border: 2px solid var(--p-textarea-border-color);
 }
 
 .p-organizationchart {

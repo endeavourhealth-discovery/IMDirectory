@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import InputText from "primevue/inputtext";
+import InputGroup from "primevue/inputgroup";
 import Button from "primevue/button";
-import OverlayPanel from "primevue/overlaypanel";
+import Popover from "primevue/popover";
 import testData from "./SearchBar.testData";
 import PrimeVue from "primevue/config";
 import SplitButton from "primevue/splitbutton";
+import InputIcon from "primevue/inputicon";
+import IconField from "primevue/iconfield";
 import Tooltip from "primevue/tooltip";
 import { fireEvent, render } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
@@ -33,21 +36,21 @@ vi.mock("primevue/usedialog", () => ({
 
 describe("SearchBar.vue", () => {
   let component;
-  let advancedSearchSpy;
+  let queryIMSearchSpy;
   let queryIMSpy;
 
   beforeEach(() => {
     vi.resetAllMocks();
-    advancedSearchSpy = vi.spyOn(EntityService, "advancedSearch").mockResolvedValue(testData.SEARCH_RESULTS);
+    queryIMSearchSpy = vi.spyOn(QueryService, "queryIMSearch").mockResolvedValue(testData.SEARCH_RESULTS);
     queryIMSpy = vi.spyOn(QueryService, "queryIM").mockResolvedValue(testData.SEARCH_RESULTS);
     component = render(SearchBar, {
       global: {
-        components: { InputText, Button, OverlayPanel, SplitButton },
+        components: { InputText, Button, Popover, SplitButton, InputIcon, IconField, InputGroup },
         plugins: [PrimeVue],
         stubs: { Filters: true },
         directives: { tooltip: Tooltip }
       },
-      props: { searchResults: [], searchLoading: false, loadMore: { page: 1, count: 20 }, download: { term: "Scolio", count: 355 } }
+      props: { searchResults: [], searchLoading: false, loadMore: { page: 1, count: 20 }, download: { term: "Scolio", count: 355 }, showFilters: true }
     });
   });
 
@@ -55,7 +58,7 @@ describe("SearchBar.vue", () => {
     const input = component.getByTestId("search-input");
     await fireEvent.update(input, "Scoliosis");
     await new Promise(resolve => setTimeout(resolve, 1000));
-    expect(advancedSearchSpy).toHaveBeenCalledTimes(1);
+    expect(component.emitted()).toHaveProperty("toSearch");
   });
 
   it("opens filters", async () => {

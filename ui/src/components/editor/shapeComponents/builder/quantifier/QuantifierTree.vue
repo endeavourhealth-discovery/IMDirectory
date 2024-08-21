@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, onMounted, ref, Ref } from "vue";
+import { onMounted, ref, Ref } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
@@ -156,7 +156,7 @@ async function findPathToNode(iri: string) {
       });
     }
     const container = document.getElementById("quantifier-tree-container") as HTMLElement;
-    const highlighted = container.getElementsByClassName("p-highlight")[0];
+    const highlighted = container.getElementsByClassName("p-tree-node-selected")?.[0];
     if (highlighted) highlighted.scrollIntoView();
   }
 }
@@ -197,7 +197,7 @@ async function findPathToNode(iri: string) {
   min-width: 2rem;
 }
 
-.tree-row .p-progress-spinner {
+.tree-row .p-progressspinner {
   width: 1.25em !important;
   height: 1.25em !important;
 }

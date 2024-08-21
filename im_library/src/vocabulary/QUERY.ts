@@ -4,8 +4,9 @@ export class QUERY {
   public static readonly DOMAIN = "http://endhealth.info/im#";
   public static readonly NAMESPACE = QUERY.DOMAIN + "Query_";
   public static readonly ALLOWABLE_RANGES = QUERY.NAMESPACE + "AllowableRanges";
-  public static readonly GET_ISAS = QUERY.NAMESPACE + "GetIsas";
+  public static readonly ALLOWABLE_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "AllowableRangeSuggestions";
   public static readonly GET_DESCENDANTS = QUERY.NAMESPACE + "GetDescendants";
+  public static readonly GET_ANCESTORS = QUERY.NAMESPACE + "GetAncestors";
   public static readonly SEARCH_CONTAINED_IN = QUERY.NAMESPACE + "SearchContainedIn";
   public static readonly ALLOWABLE_CHILD_TYPES = QUERY.NAMESPACE + "AllowableChildTypes";
   public static readonly PROPERTY_RANGE = QUERY.NAMESPACE + "PropertyRange";
@@ -18,5 +19,7 @@ export class QUERY {
   public static readonly SEARCH_ALLOWABLE_CONTAINED_IN = QUERY.NAMESPACE + "SearchAllowableContainedIn";
   public static readonly SEARCH_MAIN_TYPES = QUERY.NAMESPACE + "SearchmainTypes";
   public static readonly DM_PROPERTY = QUERY.NAMESPACE + "DataModelPropertyByShape";
-  public static readonly SEARCH_SUBCLASS = QUERY.NAMESPACE + "SearchAllowableSubclass";
+  public static readonly SEARCH_ALLOWABLE_SUBCLASS = QUERY.NAMESPACE + "SearchAllowableSubclass";
+  public static readonly GET_VALUES_FROM_PROPERTY_RANGE = QUERY.NAMESPACE + "GetValuesFromPropertyRange";
+  public static readonly GET_SUBSETS = QUERY.NAMESPACE + "GetSubsets";
 }

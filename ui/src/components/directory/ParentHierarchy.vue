@@ -1,7 +1,7 @@
 <template>
   <div class="breadcrumb-container">
-    <div class="padding-container grid">
-      <div class="col-10 table-header">
+    <div class="padding-container grid grid-cols-12 gap-4">
+      <div class="col-span-10 table-header">
         <Breadcrumb :home="home" :model="pathItems">
           <template #item="{ item }: { item: any }">
             <div class="p-menuitem" @click="onClick($event, item)">
@@ -12,7 +12,7 @@
         </Breadcrumb>
         <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
       </div>
-      <div class="col-2 header-button-group p-buttonset">
+      <div class="col-span-2 header-button-group p-buttonset">
         <Button icon="fa-regular fa-angle-left" :disabled="!canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
         <Button
           icon="fa-regular fa-angle-right"
@@ -86,8 +86,8 @@ function init() {
 }
 
 async function getPath() {
-  if (props.entityIri === IM.NAMESPACE + "Favourites") {
-    pathItems.value = [{ label: "Favourites", command: () => emit("navigateTo", IM.NAMESPACE + "Favourites") }];
+  if (props.entityIri === IM.FAVOURITES) {
+    pathItems.value = [{ label: "Favourites", command: () => emit("navigateTo", IM.FAVOURITES) }];
     return;
   }
   folderPath.value = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();
@@ -118,9 +118,9 @@ function onClick(event: any, item: any) {
 }
 
 .padding-container {
-  background: var(--surface-a);
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
+  background: var(--p-content-background);
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   overflow: a;
 }
 
@@ -147,7 +147,7 @@ function onClick(event: any, item: any) {
   border: none;
   padding: 0;
   margin: 0;
-  background-color: var(--surface-a);
+  background-color: var(--p-content-background);
 }
 
 .p-menuitem {

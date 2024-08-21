@@ -23,7 +23,7 @@
       :options="listboxData"
       listStyle="max-height: 40rem;overflow: auto;"
       v-model="selected"
-      @change="directService.select(selected['@id'], 'Folder')"
+      @change="directService.select(selected['@id'])"
       emptySelectionMessage="None"
       emptyMessage="None"
       selectionMessage="Selected"
@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import _ from "lodash";
+import _ from "lodash-es";
 import { DirectService } from "@/services";
 import { getLogger } from "@im-library/logger/LogConfig";
 import { useDirectoryStore } from "@/stores/directoryStore";

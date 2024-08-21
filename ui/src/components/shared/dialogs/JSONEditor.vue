@@ -1,5 +1,5 @@
 <template>
-  <div class="card flex flex-column justify-content-center json-value-wrapper">
+  <div class="card flex flex-col justify-center json-value-wrapper">
     <Textarea
       id="value"
       class="definition-value"
@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { Match } from "@im-library/interfaces/AutoGen";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import { onMounted, ref, watch } from "vue";
 
 const emit = defineEmits({

@@ -43,18 +43,16 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType, ComputedRef } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
+import _ from "lodash-es";
 import { ComponentDetails } from "@im-library/interfaces";
-import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@im-library/helpers/EditorBuilderJsonMethods";
-import { isPropertyShape } from "@im-library/helpers/TypeGuards";
-import { QueryService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { SHACL } from "@im-library/vocabulary";
 
 interface Props {
   shape: PropertyShape;
@@ -63,6 +61,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const emit = defineEmits({ updateClicked: _payload => true });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
@@ -77,8 +77,12 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      }
       showValidation.value = true;
     }
   });
@@ -90,7 +94,10 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
     async (newValue, oldValue) => {
       if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
         if (updateValidity) {
-          if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+          if (props.shape.builderChild) {
+            hasData();
+            showValidation.value = true;
+          } else if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
             invalid.value = false;
             validationErrorMessage.value = undefined;
           } else {
@@ -129,24 +136,26 @@ onMounted(async () => {
 
 watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], ([newPropsValue, newPropsShape], [oldPropsValue, oldPropsShape]) => {
   // updateBuildLength();
-  if (JSON.stringify(newPropsValue) !== JSON.stringify(oldPropsValue) && build.value.length) updateBuildPropsValue();
-  if (JSON.stringify(newPropsShape.path["@id"]) !== JSON.stringify(oldPropsShape.path["@id"])) init();
+  if (!_.isEqual(newPropsValue, oldPropsValue) && build.value.length) updateBuildPropsValue();
+  if (!_.isEqual(newPropsShape.path["@id"], oldPropsShape.path["@id"])) init();
 });
 
 watch(
   () => _.cloneDeep(build.value),
-  async newValue => {
-    if (!loading.value && finishedChildLoading.value) {
-      if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
-      if (updateValidity) {
-        if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
-          invalid.value = false;
-          validationErrorMessage.value = undefined;
-        } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+  async (newValue, oldValue) => {
+    if (!_.isEqual(newValue, oldValue)) {
+      if (!loading.value && finishedChildLoading.value) {
+        if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
+        if (updateValidity) {
+          if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+            invalid.value = false;
+            validationErrorMessage.value = undefined;
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
         }
+        updateValueVariableMap(props.value);
       }
-      updateValueVariableMap(props.value);
     }
   }
 );
@@ -157,19 +166,6 @@ function updateBuildPropsValue() {
       if (build.value[i] && build.value[i].value !== v) build.value[i].value = v;
     });
 }
-
-// function updateBuildShape() {
-//   build.value.forEach(b => {
-//     if (b.shape !== (isObjectHasKeys(props.shape, ["property"]) ? props.shape.property[0] : props.shape.subGroup[0]))
-//       b.shape = isObjectHasKeys(props.shape, ["property"]) ? props.shape.property[0] : props.shape.subGroup[0];
-//   });
-// }
-
-// function updateBuildLength() {
-//   if (props.value && isArrayHasLength(props.value) && props.value.length !== build.value.length) {
-//     if (props.value.length > build.value.length) build.value.p
-// }
-// }
 
 const finishedChildLoading = computed(
   () => !build.value.some(c => (isObjectHasKeys(c.value) && !isObjectHasKeys(c.json)) || (isArrayHasLength(c.value) && !isObjectHasKeys(c.json)))
@@ -278,7 +274,10 @@ function updateEntity() {
   const value = generateBuildAsJson();
   const result = {} as any;
   result[key] = value;
-  if (!value.length && deleteEntityKey) deleteEntityKey(key);
+  if (props.shape.builderChild) {
+    emit("updateClicked", result);
+    return;
+  } else if (!value.length && deleteEntityKey) deleteEntityKey(key);
   else if (entityUpdate) entityUpdate(result);
 }
 
@@ -368,6 +367,16 @@ function updateValueVariableMap(data: any[] | undefined) {
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.property?.[0]?.minCount === 0 && !isArrayHasLength(build.value)) return;
+  if (!isArrayHasLength(build.value)) {
+    invalid.value = true;
+    validationErrorMessage.value = "Item is required";
+  }
+}
 </script>
 
 <style scoped>
@@ -388,7 +397,7 @@ function updateValueVariableMap(data: any[] | undefined) {
 }
 .children-container {
   width: 100%;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
@@ -397,13 +406,13 @@ function updateValueVariableMap(data: any[] | undefined) {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
   border-radius: 5px;
   padding: 0.25rem;
 }
@@ -420,6 +429,6 @@ function updateValueVariableMap(data: any[] | undefined) {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

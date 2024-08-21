@@ -9,13 +9,13 @@
         type="text"
         @click="showDialog = true"
         class="search-text"
-        v-tooltip="{ value: selectedResult.name ?? '', class: 'entity-tooltip' }"
+        v-tooltip="{ value: selectedResult?.name ?? '', class: 'entity-tooltip' }"
         @dragenter.prevent
         @dragover.prevent
         @drop="dropReceived"
         :class="invalid && showValidation && 'invalid'"
       >
-        <div class="selected-label">{{ selectedResult.name ?? "Search..." }}</div>
+        <div class="selected-label">{{ selectedResult?.name ?? "Search..." }}</div>
       </div>
       <DirectorySearchDialog v-model:show-dialog="showDialog" v-model:selected="selectedResult" :search-by-query="queryRequest" />
     </div>
@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -34,7 +34,7 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService, EntityService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { useEditorStore } from "@/stores/editorStore";
 import { useToast } from "primevue/usetoast";
 
@@ -113,7 +113,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 });
 
 const loading = ref(false);
-const selectedResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
+const selectedResult: Ref<SearchResultSummary | undefined> = ref();
 const key = ref("");
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -174,10 +174,12 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
 }
 
 function updateEntity() {
-  const result = {} as any;
-  result[key.value] = convertToTTIriRef(selectedResult.value);
-  if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
-  else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
+  if (selectedResult.value) {
+    const result = {} as any;
+    result[key.value] = convertToTTIriRef(selectedResult.value);
+    if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
+    else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
+  }
 }
 
 function updateValueVariableMap(data: TTIriRef | undefined) {
@@ -229,7 +231,7 @@ function hasData() {
 
 .label-container {
   flex: 1 1 auto;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   width: 100%;
   display: flex;
   flex-flow: row nowrap;
@@ -238,9 +240,9 @@ function hasData() {
 
 .label {
   cursor: pointer;
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
-  background-color: var(--surface-a);
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
+  background-color: var(--p-content-background);
   padding: 0.25rem;
 }
 
@@ -249,28 +251,27 @@ function hasData() {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: var(--text-color);
+  color: var(--p-text-color);
 }
 
 .search-text {
   flex: 1 1 auto;
-  min-width: 25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 1rem;
   padding: 4px 4px;
   margin: 0;
-  color: var(--text-color);
-  background: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  color: var(--p-text-color);
+  background: var(--p-content-background);
+  border: 1px solid var(--p-textarea-border-color);
   transition:
     background-color 0.2s,
     color 0.2s,
     border-color 0.2s,
     box-shadow 0.2s;
   appearance: none;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   cursor: pointer;
   height: 2.7rem;
   display: flex;
@@ -279,13 +280,13 @@ function hasData() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .selected-label {
@@ -299,6 +300,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

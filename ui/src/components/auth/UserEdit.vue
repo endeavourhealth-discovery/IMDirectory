@@ -1,153 +1,121 @@
 <template>
   <div class="flex flex-row">
-    <div class="menu-container"><TieredMenu :model="menuItems" /></div>
-    <Card class="flex flex-column justify-content-sm-around align-items-center user-edit-card">
+    <div class="menu-container">
+      <TieredMenu :model="menuItems" />
+    </div>
+    <Card class="justify-content-sm-around user-edit-card flex flex-col items-center">
       <template #header>
         <h1>Edit my account</h1>
         <avatar-with-selector :selectedAvatar="selectedAvatar" @avatarSelected="updateAvatar" />
       </template>
-      <template #title> {{ menuItems[activeItem].label }} </template>
+      <template #title> {{ menuItems[activeItem].label }}</template>
       <template #content>
-        <div v-if="activeItem === 0" class="p-fluid flex flex-column justify-content-start user-edit-form">
-          <div class="field">
-            <label for="username">Username</label>
-            <InputText data-testid="user-edit-username" id="username" type="text" v-model="username" disabled />
-            <small id="user-help">Username cannot currently be changed.</small>
-          </div>
-          <div class="field">
-            <label for="firstName">First name</label>
-            <InputText
-              data-testid="user-edit-username"
-              id="firstName"
-              type="text"
-              v-model="firstName"
-              @focus="updateFocused('firstName', true)"
-              @blur="updateFocused('firstName', false)"
-              :class="(!firstName || !firstNameVerified) && 'p-invalid'"
-            />
-            <InlineMessage v-if="!firstNameVerified && firstName && !focused.get('firstName')" severity="error">
-              First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne".
-            </InlineMessage>
-            <InlineMessage v-if="!firstName" severity="error"> First name is required. </InlineMessage>
-          </div>
-          <div class="field">
-            <label for="lastName">Last name</label>
-            <InputText
-              data-testid="user-edit-lastname"
-              id="lastName"
-              type="text"
-              v-model="lastName"
-              @focus="updateFocused('lastName', true)"
-              @blur="updateFocused('lastName', false)"
-              :class="(!lastName || !lastNameVerified) && 'p-invalid'"
-            />
-            <InlineMessage v-if="!lastNameVerified && lastName && !focused.get('lastName')" severity="error">
-              Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O'Keith-Smith".
-            </InlineMessage>
-            <InlineMessage v-if="!lastName" severity="error"> Last name is required. </InlineMessage>
-          </div>
-          <div class="field">
-            <label for="email1">Email address</label>
-            <div class="flex flex-row align-items-center">
-              <InputText
-                data-testid="user-edit-email1"
-                id="email1"
-                type="text"
-                v-model="email1"
-                @focus="updateFocused('email1', true)"
-                @blur="updateFocused('email1', false)"
-                :class="(!email1Verified || !email1) && !focused.get('email1') && 'p-invalid'"
-              />
-              <IMFontAwesomeIcon v-if="email1Verified" icon="fa-regular fa-circle-check" class="email-check" />
-              <IMFontAwesomeIcon v-if="!email1Verified && email1" icon="fa-regular fa-circle-xmark" class="email-times" />
+        <div v-if="activeItem === 0" class="user-edit-form flex flex-col justify-start">
+          <form @submit="onSubmit">
+            <div class="field">
+              <label for="username">Username</label>
+              <InputText id="username" v-model="username" data-testid="user-edit-username" disabled type="text" />
+              <small id="user-help">Username cannot currently be changed.</small>
             </div>
-            <InlineMessage v-if="!email1" severity="error"> Email is required. </InlineMessage>
-          </div>
-          <div class="field">
-            <label for="email2">Confirm email address</label>
-            <InputText
-              data-testid="user-edit-email2"
-              id="email2"
-              type="text"
-              v-model="email2"
-              @focus="updateFocused('email2', true)"
-              @blur="updateFocused('email2', false)"
-              :class="!emailsMatch && !focused.get('email2') && 'p-invalid'"
+            <div class="field">
+              <label for="firstName">First name</label>
+              <InputText
+                id="firstName"
+                v-model="firstName"
+                :class="(!firstName || errors.firstName) && 'p-invalid'"
+                data-testid="user-edit-firstname"
+                type="text"
+                v-bind="firstNameAttrs"
+                @blur="updateFocused('firstName', false)"
+                @focus="updateFocused('firstName', true)"
+              />
+              <Message v-if="errors.firstName" severity="error"> {{ errors.firstName }}</Message>
+            </div>
+            <div class="field">
+              <label for="lastName">Last name</label>
+              <InputText
+                id="lastName"
+                v-model="lastName"
+                :class="(!lastName || errors.lastName) && 'p-invalid'"
+                data-testid="user-edit-lastname"
+                type="text"
+                v-bind="lastNameAttrs"
+                @blur="updateFocused('lastName', false)"
+                @focus="updateFocused('lastName', true)"
+              />
+              <Message v-if="errors.lastName" severity="error"> {{ errors.lastName }}</Message>
+            </div>
+            <div class="field">
+              <label for="email1">Email address</label>
+              <div class="flex flex-row items-center gap-4">
+                <InputText
+                  id="email1"
+                  v-model="email1"
+                  :class="(errors.email1 || !email1) && !focused.get('email1') && 'p-invalid'"
+                  data-testid="user-edit-email1"
+                  fluid
+                  type="text"
+                  v-bind="email1Attrs"
+                  @blur="updateFocused('email1', false)"
+                  @focus="updateFocused('email1', true)"
+                />
+                <IMFontAwesomeIcon v-if="!errors.email1" class="email-check" icon="fa-regular fa-circle-check" />
+                <IMFontAwesomeIcon v-if="errors.email1 && email1" class="email-times" icon="fa-regular fa-circle-xmark" />
+              </div>
+              <Message v-if="errors.email1" severity="error"> {{ errors.email1 }}</Message>
+            </div>
+            <div class="field">
+              <label for="email2">Confirm email address</label>
+              <InputText
+                id="email2"
+                v-model="email2"
+                :class="errors.email2 && !focused.get('email2') && 'p-invalid'"
+                data-testid="user-edit-email2"
+                fluid
+                type="text"
+                v-bind="email2Attrs"
+                @blur="updateFocused('email2', false)"
+                @focus="updateFocused('email2', true)"
+              />
+              <Message v-if="errors.email2" severity="error"> {{ errors.email2 }}</Message>
+            </div>
+            <PasswordInputs
+              v-if="showPasswordEdit"
+              old-password-required
+              test-id="user-edit-password-"
+              @update:oldPassword="setOldPassword"
+              @update:password="setNewPassword"
+              @update:arePasswordsValid="setIsNewPasswordValid"
             />
-            <InlineMessage v-if="!emailsMatch && !focused.get('email2')" severity="error"> Email addresses do not match! </InlineMessage>
-          </div>
-          <div v-if="showPasswordEdit" class="field">
-            <label for="passwordOld">Current password</label>
-            <InputText data-testid="user-edit-password-old" id="passwordOld" type="password" v-model="passwordOld" />
-          </div>
-          <div v-if="showPasswordEdit" class="field">
-            <label for="passwordNew1">New password</label>
-            <InputText
-              data-testid="user-edit-password-new1"
-              id="passwordNew1"
-              type="password"
-              v-model="passwordNew1"
-              :class="passwordStrength === 'fail' && !focused.get('passwordNew1') && 'p-invalid'"
-            />
-            <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'fail' && passwordNew1 !== ''" severity="error"> Invalid password </InlineMessage>
-            <small id="password-help">
-              Password must be a minimum length of 8 characters. Improve password strength with a mixture of UPPERCASE, lowercase, numbers and special
-              characters [!@#$%^&*].
-            </small>
-          </div>
-          <div v-if="showPasswordEdit" class="field">
-            <label for="passwordNew2">Confirm new password</label>
-            <InputText
-              data-testid="user-edit-password-new2"
-              id="passwordNew2"
-              type="password"
-              v-model="passwordNew2"
-              @focus="updateFocused('password2', true)"
-              @blur="updateFocused('password2', false)"
-              :class="!passwordsMatch && passwordNew2 && !focused.get('passwordNew2') && 'p-invalid'"
-            />
-            <InlineMessage v-if="!passwordsMatch && focused.get('password2') === false" severity="error"> New passwords do not match </InlineMessage>
-          </div>
-          <div class="flex flex-row justify-content-between align-items-center">
-            <Button
-              data-testid="user-edit-password-change-button"
-              v-if="!showPasswordEdit"
-              class="password-edit p-button-secondary"
-              type="submit"
-              label="Change password"
-              @click="editPasswordClicked(true)"
-            />
-            <Button
-              data-testid="user-edit-password-change-cancel-button"
-              v-else
-              class="password-edit p-button-secondary"
-              type="submit"
-              label="Cancel password edit"
-              @click="editPasswordClicked(false)"
-            />
-            <Button data-testid="user-edit-reset-changes-button" class="form-reset p-button-warning" type="button" label="Reset changes" @click="resetForm" />
-            <Button
-              data-testid="user-edit-update-disabled-button"
-              v-if="setButtonDisabled()"
-              class="user-edit"
-              type="submit"
-              label="Update account"
-              disabled
-              @click="handleEditSubmit"
-            />
-            <Button
-              data-testid="user-edit-update-button"
-              v-else
-              class="user-edit"
-              type="submit"
-              label="Update account"
-              @click="handleEditSubmit"
-              :loading="loading"
-            />
-          </div>
+            <div class="flex flex-row items-center justify-between gap-4">
+              <Button
+                v-if="!showPasswordEdit"
+                class="password-edit p-button-secondary"
+                data-testid="user-edit-password-change-button"
+                label="Change password"
+                type="submit"
+                @click="editPasswordClicked(true)"
+              />
+              <Button
+                v-else
+                class="password-edit p-button-secondary"
+                data-testid="user-edit-password-change-cancel-button"
+                label="Cancel password edit"
+                type="submit"
+                @click="editPasswordClicked(false)"
+              />
+              <Button class="form-reset p-button-warning" data-testid="user-edit-reset-changes-button" label="Reset changes" type="button" @click="resetForm" />
+              <Button
+                :disabled="setButtonDisabled()"
+                :loading="loading"
+                class="user-edit"
+                data-testid="user-edit-update-button"
+                label="Update account"
+                type="submit"
+                @click="onSubmit"
+              />
+            </div>
+          </form>
         </div>
         <SecuritySettings v-if="activeItem === 1" />
         <AuthRoles v-if="activeItem === 2" />
@@ -156,7 +124,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, onMounted, ref, Ref } from "vue";
 import Swal, { SweetAlertIcon, SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
@@ -165,32 +133,24 @@ import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import AuthRoles from "@/components/auth/userDetails/AuthRoles.vue";
 import SecuritySettings from "@/components/auth/userDetails/SecuritySettings.vue";
 import { Avatars } from "@im-library/constants";
-import { PasswordStrength } from "@im-library/enums";
-import {
-  verifyEmailsMatch,
-  verifyIsEmail,
-  verifyIsFirstName,
-  verifyIsLastName,
-  verifyPasswordsMatch,
-  checkPasswordStrength
-} from "@im-library/helpers/UserMethods";
+import { verifyIsEmail, verifyIsFirstName, verifyIsLastName } from "@im-library/helpers/UserMethods";
 import { useRouter } from "vue-router";
 import { CustomAlert, User } from "@im-library/interfaces";
 import { useUserStore } from "@/stores/userStore";
+import PasswordInputs from "@/components/auth/PasswordInputs.vue";
+import * as yup from "yup";
+import { useForm } from "vee-validate";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const router = useRouter();
 const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-const username = ref("");
-const firstName = ref("");
-const lastName = ref("");
-const email1 = ref("");
-const email2 = ref("");
 const passwordOld = ref("");
-const passwordNew1 = ref("");
-const passwordNew2 = ref("");
+const password = ref("");
+const isNewPasswordValid = ref(false);
+const username = ref("");
 const selectedAvatar = ref(Avatars[0]);
 const showPasswordEdit = ref(false);
 const focused: Ref<Map<string, boolean>> = ref(new Map());
@@ -223,31 +183,60 @@ const menuItems = ref([
   }
 ]);
 
-const email1Verified = computed(() => verifyIsEmail(email1.value));
-const emailsMatch = computed(() => verifyEmailsMatch(email1.value, email2.value));
-const passwordStrengthOld = computed(() => checkPasswordStrength(passwordOld.value));
-const passwordStrength = computed(() => checkPasswordStrength(passwordNew1.value));
-const passwordsMatch = computed(() => verifyPasswordsMatch(passwordNew1.value, passwordNew2.value));
-const firstNameVerified = computed(() => verifyIsFirstName(firstName.value));
-const lastNameVerified = computed(() => verifyIsLastName(lastName.value));
-
 onMounted(() => {
   if (currentUser.value && isLoggedIn.value) {
     setFromCurrentUser();
   }
 });
 
+const { errors, defineField, handleSubmit, setValues } = useForm({
+  validationSchema: yup.object({
+    firstName: yup
+      .string()
+      .required("First name is required")
+      .test("isFirstNameVerified", 'First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne"', () =>
+        verifyIsFirstName(firstName.value)
+      ),
+    lastName: yup
+      .string()
+      .required("Last name is required")
+      .test("isLastNameValid", 'Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O\'Keith-Smith"', () =>
+        verifyIsLastName(lastName.value)
+      ),
+    email1: yup
+      .string()
+      .required("Email is required")
+      .test("isEmailValid", "Email is not valid", () => verifyIsEmail(email1.value)),
+    email2: yup
+      .string()
+      .required("Email is required")
+      .oneOf([yup.ref("email1")], "Email addresses do not match")
+  })
+});
+
+const [firstName, firstNameAttrs]: any = defineField("firstName");
+const [lastName, lastNameAttrs]: any = defineField("lastName");
+const [email1, email1Attrs]: any = defineField("email1");
+const [email2, email2Attrs]: any = defineField("email2");
+
 function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);
 }
 
 function editPasswordClicked(result: boolean): void {
-  if (result === false) {
-    passwordOld.value = "";
-    passwordNew1.value = "";
-    passwordNew2.value = "";
-  }
   showPasswordEdit.value = result;
+}
+
+function setOldPassword(oldPassword: string) {
+  passwordOld.value = oldPassword;
+}
+
+function setNewPassword(newPassword: string) {
+  password.value = newPassword;
+}
+
+function setIsNewPasswordValid(isValid: boolean) {
+  isNewPasswordValid.value = isValid;
 }
 
 function swalert(icon: SweetAlertIcon, title: string, text: string) {
@@ -260,9 +249,9 @@ function swalert(icon: SweetAlertIcon, title: string, text: string) {
 
 function handleFieldsVerified(handlePasswordChange: boolean) {
   loading.value = true;
-  const oldEmail = currentUser.value.email;
+  const oldEmail = currentUser.value?.email;
   const updatedUser = {
-    id: currentUser.value.id,
+    id: currentUser.value?.id,
     username: username.value,
     firstName: firstName.value,
     lastName: lastName.value,
@@ -312,8 +301,6 @@ function handleEmailChange(res: CustomAlert) {
       AuthService.verifyEmail(result.value).then(res => {
         if (res.status === 200) {
           swalert("success", "Success", "Account details updated successfully.").then(async () => {
-            userStore.updateCurrentUser(res.user);
-            await userStore.getAllFromUserDatabase();
             router.push({ name: "UserDetails" });
           });
         } else {
@@ -327,23 +314,21 @@ function handleEmailChange(res: CustomAlert) {
 }
 
 function submitPasswordChange(res: CustomAlert) {
-  AuthService.changePassword(passwordOld.value, passwordNew1.value).then(async res2 => {
+  AuthService.changePassword(passwordOld.value, password.value).then(async res2 => {
     res2.status === 200
       ? swalert("success", "Success", "User details and password successfully updated.")
       : swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
     userStore.updateCurrentUser(res.user);
     await userStore.getAllFromUserDatabase();
-    router.push({ name: "UserDetails" });
+    await router.push({ name: "UserDetails" });
   });
 }
 
-function handleEditSubmit(): void {
-  if (userFieldsVerified() && passwordFieldsVerified()) {
+const onSubmit = handleSubmit(async () => {
+  if (userFieldsVerified() && isNewPasswordValid.value) {
     handleFieldsVerified(true);
   } else if (showPasswordEdit.value) {
-    const message = !passwordDifferentFromOriginal()
-      ? "New password can not be the same as the current password."
-      : "Authentication failed. Please check your current password.";
+    const message = "Password cannot be updated. Please check all fields are valid.";
     swalert("error", "Error", message);
   } else if (!checkForChanges()) {
     swalert("warning", "Nothing to update", "Your account details have not been updated.");
@@ -352,32 +337,10 @@ function handleEditSubmit(): void {
   } else {
     swalert("error", "Error", "Error with user form");
   }
-}
+});
 
 function userFieldsVerified(): boolean {
-  if (email1Verified.value && emailsMatch.value && firstNameVerified.value && lastNameVerified.effect && selectedAvatar.value) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function passwordFieldsVerified(): boolean {
-  if (
-    showPasswordEdit.value &&
-    passwordsMatch.value &&
-    passwordStrength.value !== PasswordStrength.fail &&
-    passwordStrengthOld.value !== PasswordStrength.fail &&
-    passwordDifferentFromOriginal()
-  ) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function passwordDifferentFromOriginal(): boolean {
-  return passwordOld.value !== passwordNew1.value;
+  return !isObjectHasKeys(errors.value);
 }
 
 function resetForm(): void {
@@ -396,12 +359,16 @@ function resetForm(): void {
 }
 
 function setFromCurrentUser() {
-  username.value = currentUser.value.username;
-  firstName.value = currentUser.value.firstName;
-  lastName.value = currentUser.value.lastName;
-  email1.value = currentUser.value.email;
-  email2.value = currentUser.value.email;
-  selectedAvatar.value = currentUser.value.avatar;
+  if (currentUser.value) {
+    username.value = currentUser.value?.username;
+    selectedAvatar.value = currentUser.value.avatar;
+    setValues({
+      firstName: currentUser.value.firstName,
+      lastName: currentUser.value.lastName,
+      email1: currentUser.value.email,
+      email2: currentUser.value.email
+    });
+  }
 }
 
 function updateAvatar(newValue: string): void {
@@ -411,24 +378,16 @@ function updateAvatar(newValue: string): void {
 function setButtonDisabled(): boolean {
   if (userFieldsVerified() && !showPasswordEdit.value && checkForChanges()) {
     return false;
-  } else if (userFieldsVerified() && passwordFieldsVerified()) {
-    return false;
-  } else {
-    return true;
-  }
+  } else return !(userFieldsVerified() && isNewPasswordValid.value);
 }
 
 function checkForChanges(): boolean {
-  if (
-    currentUser.value.firstName === firstName.value &&
-    currentUser.value.lastName === lastName.value &&
-    currentUser.value.email === email1.value &&
-    currentUser.value.avatar === selectedAvatar.value
-  ) {
-    return false;
-  } else {
-    return true;
-  }
+  return !(
+    currentUser.value?.firstName === firstName.value &&
+    currentUser.value?.lastName === lastName.value &&
+    currentUser.value?.email === email1.value &&
+    currentUser.value?.avatar === selectedAvatar.value
+  );
 }
 </script>
 
@@ -445,17 +404,31 @@ function checkForChanges(): boolean {
 
 .user-edit-form {
   max-width: 32em;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .user-edit-card {
-  padding: 0 2em;
+  padding: 1.25em 2em 0 2em;
 }
+
 .email-check {
-  color: var(--green-500);
+  color: var(--p-green-500);
   font-size: 2em;
 }
+
 .email-times {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 2em;
+}
+
+.input-with-button {
+  display: flex;
+  flex-flow: row nowrap;
 }
 </style>

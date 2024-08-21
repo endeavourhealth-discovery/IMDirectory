@@ -1,5 +1,5 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY, XSD } from "@im-library/vocabulary";
 
 const CohortQueryShape: FormGenerator = {
   "@id": EDITOR.COHORT_QUERY_SHAPE,
@@ -195,7 +195,7 @@ const CohortQueryShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   select: [
                     {

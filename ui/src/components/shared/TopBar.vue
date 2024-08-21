@@ -13,13 +13,76 @@
         :label="currentVersion"
         class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
         @click="showReleaseNotes"
+        data-testid="releases-button"
       />
-      <Button v-tooltip.bottom="'Themes'" icon="fa-regular fa-palette" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
-      <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
+      <Button
+        v-tooltip.bottom="'Themes'"
+        icon="fa-regular fa-palette"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openThemesMenu"
+        data-testid="change-theme-button"
+      />
+      <Popover ref="themesMenu" id="themes-menu">
+        <div class="theme-container">
+          <h2>Primary</h2>
+          <div class="color-picker">
+            <Button
+              v-for="color in themeOptions.primaryColours"
+              rounded
+              class="round-button border-none"
+              :class="selectedPrimaryColor === color && 'selected-primary'"
+              :style="'background-color:var(--p-' + color + '-500)'"
+              v-tooltip="color"
+              @click="
+                {
+                  selectedPrimaryColor = color;
+                  changePrimaryColor(color);
+                }
+              "
+            />
+          </div>
+          <h2>Surface</h2>
+          <div class="color-picker">
+            <Button
+              v-for="color in themeOptions.surfaceColours"
+              rounded
+              class="round-button border-none"
+              :class="selectedSurfaceColor === color && 'selected-surface'"
+              :style="'background-color:var(--p-' + color + '-500)'"
+              v-tooltip="color"
+              @click="
+                {
+                  selectedSurfaceColor = color;
+                  changeSurfaceColor(color);
+                }
+              "
+            />
+          </div>
+          <h2>Presets</h2>
+          <SelectButton v-model="preset" :options="themeOptions.presets" :allowEmpty="false" />
+          <h2>Dark mode</h2>
+          <ToggleSwitch v-model="darkMode" />
+        </div>
+      </Popover>
+      <Button
+        v-tooltip.bottom="'Scale'"
+        icon="fa-duotone fa-text-size"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openScaleMenu"
+        data-testid="font-size-button"
+      />
+      <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
         <template #item="{ item }: any">
-          <div class="theme-row p-link">
-            <Image class="theme-icon p-menuitem-icon" v-if="item.image" :src="item.image" alt="icon" width="30" />
+          <div class="scale-row">
+            <span class="theme-icon p-menuitem-icon" :class="item.icon" />
             <span class="p-menuitem-text">{{ item.label }}</span>
+            <span v-if="item.key === currentScale" class="theme-icon p-menuitem-icon fa-regular fa-check" />
           </div>
         </template>
       </Menu>
@@ -28,25 +91,23 @@
         icon="fa-duotone fa-arrow-down-up-across-line"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
+        data-testid="upload-download-button"
       />
-      <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
+      <Menu ref="adminMenu" id="admin-menu" :model="adminItems" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
         icon="fa-regular fa-grid-2"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
+        data-testid="apps-button"
       />
-      <OverlayPanel ref="appsOP" class="app-overlay-panel">
-        <div class="flex flex-row flex-wrap gap-1 justify-content-start">
-          <Button
-            v-for="item in appItems"
-            v-tooltip.bottom="item.label"
-            :icon="item.icon"
-            class="p-button-rounded p-button-text p-button-plain"
-            @click="open(item)"
-          />
+      <Popover ref="appsOP" class="app-overlay-panel" id="apps-menu">
+        <div class="flex flex-row flex-wrap justify-start gap-2">
+          <template v-for="item in appItems">
+            <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
+          </template>
         </div>
-      </OverlayPanel>
+      </Popover>
       <Button
         v-tooltip.left="'Account'"
         v-if="!isLoggedIn"
@@ -55,6 +116,7 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu"
       />
       <Button
         v-tooltip.left="'Account'"
@@ -63,31 +125,47 @@
         @click="openUserMenu"
         aria-haspopup="true"
         aria-controls="overlay_menu"
+        data-testid="account-menu-logged-in"
       >
-        <img class="avatar-icon" alt="avatar icon" :src="getUrl(currentUser.avatar)" style="min-width: 1.75rem" />
+        <img class="avatar-icon" alt="avatar icon" :src="`/avatars/${currentUser.avatar}`" style="min-width: 1.75rem" />
       </Button>
-      <Menu ref="userMenu" :model="getItems()" :popup="true">
+      <Menu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-            <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--text-color)">
+            <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--p-text-color)">
               <span :class="item.icon" />
               <span class="ml-2">{{ item.label }}</span>
             </a>
           </router-link>
-          <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action" style="color: var(--text-color)">
+          <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action" style="color: var(--p-text-color)">
             <span :class="item.icon" />
             <span class="ml-2">{{ item.label }}</span>
           </a>
         </template>
       </Menu>
     </div>
+    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
+      <div class="flex flex-col gap-2">
+        <label for="template">Template</label>
+        <Select id="template" v-model="template" :options="templates" />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="namespace">Namespace/Package</label>
+        <InputText id="namespace" type="text" v-model="namespace" autofocus />
+      </div>
+      <template #footer>
+        <Button label="Cancel" icon="fa-regular fa-xmark" @click="showCodeDownload = false" class="p-button-text" />
+        <Button label="Download" icon="fa-duotone fa-display-code" :disabled="!template" @click="generateAndDownload" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, onMounted } from "vue";
+import { computed, ref, Ref, onMounted, watch } from "vue";
+import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
+import { DirectService, Env, FilerService, GithubService, UserService, CodeGenService } from "@/services";
 import { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -95,7 +173,10 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
-import setupChangeTheme from "@/composables/setupChangeTheme";
+import setupChangeScale from "@/composables/setupChangeScale";
+import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
+import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
+import PrimeVueColors from "@/enums/PrimeVueColors";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -104,26 +185,77 @@ const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const currentTheme = computed(() => userStore.currentTheme);
+const currentScale = computed(() => userStore.currentScale);
+const currentPreset = computed(() => userStore.currentPreset);
+const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
+const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
+const userDarkMode = computed(() => userStore.darkMode);
 
-const { changeTheme } = setupChangeTheme();
+const { changeScale } = setupChangeScale();
+const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
 
+const showCodeDownload = ref(false);
+const namespace = ref();
+const templates: Ref<string[]> = ref([]);
+const template = ref();
 const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
-const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
+const adminItems: Ref<MenuItem[]> = ref([]);
+const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
+const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: PrimeVueColors[]; presets: PrimeVuePresetThemes[] }> = ref({
+  primaryColours: [
+    PrimeVueColors.EMERALD,
+    PrimeVueColors.GREEN,
+    PrimeVueColors.LIME,
+    PrimeVueColors.RED,
+    PrimeVueColors.ORANGE,
+    PrimeVueColors.AMBER,
+    PrimeVueColors.YELLOW,
+    PrimeVueColors.TEAL,
+    PrimeVueColors.CYAN,
+    PrimeVueColors.SKY,
+    PrimeVueColors.BLUE,
+    PrimeVueColors.INDIGO,
+    PrimeVueColors.VIOLET,
+    PrimeVueColors.PURPLE,
+    PrimeVueColors.FUCHSIA,
+    PrimeVueColors.PINK,
+    PrimeVueColors.ROSE
+  ],
+  surfaceColours: [PrimeVueColors.SLATE, PrimeVueColors.GRAY, PrimeVueColors.ZINC, PrimeVueColors.NEUTRAL, PrimeVueColors.STONE],
+  presets: [PrimeVuePresetThemes.AURA, PrimeVuePresetThemes.LARA, PrimeVuePresetThemes.NORA]
+});
+const preset = ref(themeOptions.value.presets[0]);
+const darkMode = ref(false);
+const selectedPrimaryColor = ref(themeOptions.value.primaryColours[0]);
+const selectedSurfaceColor = ref(themeOptions.value.surfaceColours[0]);
 
 const toast = useToast();
 const adminMenu = ref();
 const themesMenu = ref();
+const scaleMenu = ref();
 const userMenu = ref();
 const appsOP = ref();
 const directService = new DirectService();
 
+watch(preset, async newValue => {
+  await changePreset(newValue);
+});
+
+watch(darkMode, async newValue => {
+  await changeDarkMode(newValue);
+});
+
 onMounted(async () => {
+  darkMode.value = userDarkMode.value;
+  if (currentPreset.value) preset.value = currentPreset.value;
+  if (currentPrimaryColor.value) selectedPrimaryColor.value = currentPrimaryColor.value;
+  if (currentSurfaceColor.value) selectedSurfaceColor.value = currentSurfaceColor.value;
   setUserMenuItems();
   setAppMenuItems();
+  await setAdminMenuItems();
   await getCurrentVersion();
 });
 
@@ -149,16 +281,11 @@ function getItems(): MenuItem[] {
 }
 
 function openUserMenu(event: any): void {
-  (userMenu.value as any).toggle(event);
-}
-
-function getUrl(item: string): string {
-  const url = new URL(`/src/assets/avatars/${item}`, import.meta.url);
-  return url.href;
+  userMenu.value.toggle(event);
 }
 
 function openAppsOverlay(event: any) {
-  (appsOP.value as any).toggle(event);
+  appsOP.value.toggle(event);
 }
 
 function setUserMenuItems(): void {
@@ -206,12 +333,16 @@ function openThemesMenu(event: any): void {
   themesMenu.value.toggle(event);
 }
 
-function isLoggedInWithRole(role: string): boolean {
-  return isLoggedIn.value && currentUser.value && currentUser.value.roles.includes(role);
+function openScaleMenu(event: any): void {
+  scaleMenu.value.toggle(event);
 }
 
-function getAdminItems(): any[] {
-  return [
+function isLoggedInWithRole(role: string): boolean {
+  return isLoggedIn.value && typeof currentUser.value !== "undefined" && currentUser.value.roles.includes(role);
+}
+
+async function setAdminMenuItems(): Promise<void> {
+  adminItems.value = [
     {
       label: "Filing Documents",
       icon: "fa-duotone fa-files",
@@ -227,327 +358,45 @@ function getAdminItems(): any[] {
           icon: "fa-duotone fa-file-arrow-up",
           disabled: !(isLoggedInWithRole("create") || isLoggedInWithRole("edit")),
           command: () => directService.file()
-        }
-      ]
-    },
-    {
-      label: "Code Downloads",
-      icon: "fa-duotone fa-code",
-      items: [
+        },
         {
-          label: "Download Java",
-          icon: "fa-brands fa-java",
-          command: () => downloadJava()
+          label: "Download Code",
+          icon: "fa-duotone fa-display-code",
+          command: () => downloadCode()
         }
       ]
     }
   ];
 }
 
-function getThemes() {
+function getScales(): MenuItem[] {
   return [
     {
-      label: "Arya",
+      label: "UI Scale",
       items: [
         {
-          label: "Blue",
-          image: new URL(`../../assets/themes/arya-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "arya-blue",
-          command: () => changeTheme("arya-blue")
+          key: "12px",
+          label: "Small",
+          icon: "fa-regular fa-a fa-xs",
+          command: async () => await changeScale("12px")
         },
         {
-          label: "Green",
-          image: new URL(`../../assets/themes/arya-green.png`, import.meta.url),
-          disabled: currentTheme.value === "arya-green",
-          command: () => changeTheme("arya-green")
+          key: "14px",
+          label: "Medium",
+          icon: "fa-regular fa-a fa-sm",
+          command: async () => await changeScale("14px")
         },
         {
-          label: "Orange",
-          image: new URL(`../../assets/themes/arya-orange.png`, import.meta.url),
-          disabled: currentTheme.value === "arya-orange",
-          command: () => changeTheme("arya-orange")
+          key: "16px",
+          label: "Large",
+          icon: "fa-regular fa-a",
+          command: async () => await changeScale("16px")
         },
         {
-          label: "Purple",
-          image: new URL(`../../assets/themes/arya-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "arya-purple",
-          command: () => changeTheme("arya-purple")
-        }
-      ]
-    },
-    {
-      label: "Bootstrap",
-      items: [
-        {
-          label: "Blue",
-          image: new URL(`../../assets/themes/bootstrap4-light-blue.svg`, import.meta.url),
-          disabled: currentTheme.value === "bootstrap4-light-blue",
-          command: () => changeTheme("bootstrap4-light-blue")
-        },
-        {
-          label: "Purple",
-          image: new URL(`../../assets/themes/bootstrap4-light-purple.svg`, import.meta.url),
-          disabled: currentTheme.value === "bootstrap4-light-purple",
-          command: () => changeTheme("bootstrap4-light-purple")
-        },
-        {
-          label: "Blue",
-          image: new URL(`../../assets/themes/bootstrap4-dark-blue.svg`, import.meta.url),
-          disabled: currentTheme.value === "bootstrap4-dark-blue",
-          command: () => changeTheme("bootstrap4-dark-blue")
-        },
-        {
-          label: "Purple",
-          image: new URL(`../../assets/themes/bootstrap4-dark-purple.svg`, import.meta.url),
-          disabled: currentTheme.value === "bootstrap4-dark-purple",
-          command: () => changeTheme("bootstrap4-dark-purple")
-        }
-      ]
-    },
-    {
-      label: "Fluent UI",
-      items: [
-        {
-          label: "Blue",
-          image: new URL(`../../assets/themes/fluent-light.png`, import.meta.url),
-          disabled: currentTheme.value === "fluent-light",
-          command: () => changeTheme("fluent-light")
-        }
-      ]
-    },
-    {
-      label: "Lara",
-      items: [
-        {
-          label: "Indigo",
-          image: new URL(`../../assets/themes/lara-light-indigo.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-light-indigo",
-          command: () => changeTheme("lara-light-indigo")
-        },
-        {
-          label: "Blue",
-          image: new URL(`../../assets/themes/lara-light-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-light-blue",
-          command: () => changeTheme("lara-light-blue")
-        },
-        {
-          label: "Purple",
-          image: new URL(`../../assets/themes/lara-light-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-light-purple",
-          command: () => changeTheme("lara-light-purple")
-        },
-        {
-          label: "Teal",
-          image: new URL(`../../assets/themes/lara-light-teal.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-light-teal",
-          command: () => changeTheme("lara-light-teal")
-        },
-        {
-          label: "Indigo",
-          image: new URL(`../../assets/themes/lara-dark-indigo.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-dark-indigo",
-          command: () => changeTheme("lara-dark-indigo")
-        },
-        {
-          label: "Blue",
-          image: new URL(`../../assets/themes/lara-dark-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-dark-blue",
-          command: () => changeTheme("lara-dark-blue")
-        },
-        {
-          label: "Purple",
-          image: new URL(`../../assets/themes/lara-dark-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-dark-purple",
-          command: () => changeTheme("lara-dark-purple")
-        },
-        {
-          label: "Teal",
-          image: new URL(`../../assets/themes/lara-dark-teal.png`, import.meta.url),
-          disabled: currentTheme.value === "lara-dark-teal",
-          command: () => changeTheme("lara-dark-teal")
-        }
-      ]
-    },
-    {
-      label: "Material Design",
-      items: [
-        {
-          label: "Indigo",
-          image: new URL(`../../assets/themes/md-light-indigo.svg`, import.meta.url),
-          disabled: currentTheme.value === "md-light-indigo",
-          command: () => changeTheme("md-light-indigo")
-        },
-        {
-          label: "Deep Purple",
-          image: new URL(`../../assets/themes/md-light-deeppurple.svg`, import.meta.url),
-          disabled: currentTheme.value === "md-light-deeppurple",
-          command: () => changeTheme("md-light-deeppurple")
-        },
-        {
-          label: "Indigo",
-          image: new URL(`../../assets/themes/md-dark-indigo.svg`, import.meta.url),
-          disabled: currentTheme.value === "md-dark-indigo",
-          command: () => changeTheme("md-dark-indigo")
-        },
-        {
-          label: "Deep Purple",
-          image: new URL(`../../assets/themes/md-dark-deeppurple.svg`, import.meta.url),
-          disabled: currentTheme.value === "md-dark-deeppurple",
-          command: () => changeTheme("md-dark-deeppurple")
-        }
-      ]
-    },
-    {
-      label: "Material Design Compact",
-      items: [
-        {
-          label: "Indigo",
-          image: new URL(`../../assets/themes/mdc-light-indigo.svg`, import.meta.url),
-          disabled: currentTheme.value === "mdc-light-indigo",
-          command: () => changeTheme("mdc-light-indigo")
-        },
-        {
-          label: "Deep Purple",
-          image: new URL(`../../assets/themes/mdc-light-deeppurple.svg`, import.meta.url),
-          disabled: currentTheme.value === "mdc-light-deeppurple",
-          command: () => changeTheme("mdc-light-deeppurple")
-        },
-        {
-          label: "Indigo",
-          image: new URL(`../../assets/themes/mdc-dark-indigo.svg`, import.meta.url),
-          disabled: currentTheme.value === "mdc-dark-indigo",
-          command: () => changeTheme("mdc-dark-indigo")
-        },
-        {
-          label: "Deep Purple",
-          image: new URL(`../../assets/themes/mdc-dark-deeppurple.svg`, import.meta.url),
-          disabled: currentTheme.value === "mdc-dark-deeppurple",
-          command: () => changeTheme("mdc-dark-deeppurple")
-        }
-      ]
-    },
-    {
-      label: "Mira",
-      items: [
-        {
-          label: "Mira",
-          image: new URL(`../../assets/themes/mira.jpg`, import.meta.url),
-          disabled: currentTheme.value === "mira",
-          command: () => changeTheme("mira")
-        }
-      ]
-    },
-    {
-      label: "Nano",
-      items: [
-        {
-          label: "Nano",
-          image: new URL(`../../assets/themes/nano.jpg`, import.meta.url),
-          disabled: currentTheme.value === "nano",
-          command: () => changeTheme("nano")
-        }
-      ]
-    },
-    {
-      label: "Saga",
-      items: [
-        {
-          label: "Blue",
-          image: new URL(`../../assets/themes/saga-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "saga-blue",
-          command: () => changeTheme("saga-blue")
-        },
-        {
-          label: "Green",
-          image: new URL(`../../assets/themes/saga-green.png`, import.meta.url),
-          disabled: currentTheme.value === "saga-green",
-          command: () => changeTheme("saga-green")
-        },
-        {
-          label: "Orange",
-          image: new URL(`../../assets/themes/saga-orange.png`, import.meta.url),
-          disabled: currentTheme.value === "saga-orange",
-          command: () => changeTheme("saga-orange")
-        },
-        {
-          label: "Purple",
-          image: new URL(`../../assets/themes/saga-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "saga-purple",
-          command: () => changeTheme("saga-purple")
-        }
-      ]
-    },
-    {
-      label: "Soho",
-      items: [
-        {
-          label: "Light",
-          image: new URL(`../../assets/themes/soho-light.png`, import.meta.url),
-          disabled: currentTheme.value === "soho-light",
-          command: () => changeTheme("soho-light")
-        },
-        {
-          label: "Dark",
-          image: new URL(`../../assets/themes/soho-dark.png`, import.meta.url),
-          disabled: currentTheme.value === "soho-dark",
-          command: () => changeTheme("soho-dark")
-        }
-      ]
-    },
-    {
-      label: "Tailwind",
-      items: [
-        {
-          label: "Tailwind Light",
-          image: new URL(`../../assets/themes/tailwind-light.png`, import.meta.url),
-          disabled: currentTheme.value === "tailwind-light",
-          command: () => changeTheme("tailwind-light")
-        }
-      ]
-    },
-    {
-      label: "Vela",
-      items: [
-        {
-          label: "Blue",
-          image: new URL(`../../assets/themes/vela-blue.png`, import.meta.url),
-          disabled: currentTheme.value === "vela-blue",
-          command: () => changeTheme("vela-blue")
-        },
-        {
-          label: "Green",
-          image: new URL(`../../assets/themes/vela-green.png`, import.meta.url),
-          disabled: currentTheme.value === "vela-green",
-          command: () => changeTheme("vela-green")
-        },
-        {
-          label: "Orange",
-          image: new URL(`../../assets/themes/vela-orange.png`, import.meta.url),
-          disabled: currentTheme.value === "vela-orange",
-          command: () => changeTheme("vela-orange")
-        },
-        {
-          label: "Purple",
-          image: new URL(`../../assets/themes/vela-purple.png`, import.meta.url),
-          disabled: currentTheme.value === "vela-purple",
-          command: () => changeTheme("vela-purple")
-        }
-      ]
-    },
-    {
-      label: "Viva",
-      items: [
-        {
-          label: "Light",
-          image: new URL(`../../assets/themes/viva-light.svg`, import.meta.url),
-          disabled: currentTheme.value === "viva-light",
-          command: () => changeTheme("viva-light")
-        },
-        {
-          label: "Dark",
-          image: new URL(`../../assets/themes/viva-dark.svg`, import.meta.url),
-          disabled: currentTheme.value === "viva-dark",
-          command: () => changeTheme("viva-dark")
+          key: "18px",
+          label: "XLarge",
+          icon: "fa-regular fa-a",
+          command: async () => await changeScale("18px")
         }
       ]
     }
@@ -556,17 +405,27 @@ function getThemes() {
 
 async function downloadChanges() {
   toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
-  let blob = await FilerService.downloadDeltas();
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "deltas.zip";
-  link.click();
+  try {
+    let blob = await FilerService.downloadDeltas();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "deltas.zip";
+    link.click();
+  } catch (err) {
+    toast.add({ severity: "error", summary: "Download failed", detail: "File location not found, unable to download deltas", life: 3000 });
+  }
 }
 
-async function downloadJava() {
-  toast.add({ severity: "info", summary: "Preparing download", detail: "Generating Java files for download...", life: 3000 });
-  let blob = await DataModelService.generateJava();
+async function downloadCode() {
+  templates.value = await CodeGenService.getCodeTemplateList();
+  showCodeDownload.value = true;
+}
+
+async function generateAndDownload() {
+  showCodeDownload.value = false;
+  toast.add({ severity: "info", summary: "Preparing download", detail: "Generating files for download...", life: 3000 });
+  let blob = await CodeGenService.generateCode(namespace.value, template.value);
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -576,10 +435,10 @@ async function downloadJava() {
 
 function setAppMenuItems() {
   appItems.value = [
-    { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
-    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() },
-    { label: "UPRN", icon: "fa-regular fa-address-book", command: () => directService.uprn() },
-    { label: "Workflow", icon: "fa-solid fa-list-check", command: () => directService.workflow() }
+    { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => router.push({ name: "LandingPage" }), color: "var(--p-blue-500)", size: 2 },
+    { label: "Creator", icon: "fa-duotone fa-circle-plus", command: () => directService.create(), color: "var(--p-orange-500)", size: 2 },
+    { label: "ASSIGN UPRN", icon: "fa-duotone fa-map-location-dot", command: () => directService.uprn(), color: "var(--p-red-500)", size: 2 },
+    { label: "Workflow", icon: "fa-duotone fa-list-check", command: () => directService.workflow(), color: "var(--p-green-500)", size: 2 }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }
@@ -602,7 +461,7 @@ function showReleaseNotes() {
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
-  background-color: var(--surface-100);
+  border-bottom: 1px solid var(--p-content-border-color);
 }
 
 #topbar-start {
@@ -641,6 +500,26 @@ function showReleaseNotes() {
   gap: 0.5rem;
 }
 
+.scale-row {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 30px;
+  cursor: pointer;
+}
+
+.selected-primary {
+  border: solid 2px;
+  @apply border-surface;
+}
+
+.selected-surface {
+  border: solid 2px;
+  @apply border-primary;
+}
+
 .theme-icon {
   margin-left: 1rem;
   display: flex;
@@ -653,8 +532,8 @@ function showReleaseNotes() {
 
 <style>
 .topbar-end-button:hover {
-  background-color: var(--text-color) !important;
-  color: var(--surface-a) !important;
+  background-color: var(--p-text-color) !important;
+  color: var(--p-content-background) !important;
 }
 
 .app-overlay-panel {
@@ -668,11 +547,25 @@ function showReleaseNotes() {
 .p-tooltip {
   z-index: 999;
 }
-</style>
 
-<style>
 #themes-menu {
   overflow: auto;
-  height: 35vh;
+  width: 20vw;
+}
+
+.theme-container {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.color-picker {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 0.25rem;
+}
+
+.round-button {
+  height: 2rem;
+  width: 2rem;
 }
 </style>

@@ -1,71 +1,41 @@
 <template>
-  <div v-if="currentUser" class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center password-edit-card">
+  <div v-if="currentUser" class="flex flex-row items-center">
+    <Card class="justify-content-sm-around password-edit-card flex flex-col items-center">
       <template #header>
-        <img id="user-icon" class="avatar-icon" :src="getUrl(currentUser.avatar)" alt="avatar icon" aria-haspopup="true" aria-controls="overlay_menu" />
+        <img id="user-icon" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" aria-controls="overlay_menu" aria-haspopup="true" class="avatar-icon" />
       </template>
-      <template #title> Change password </template>
+      <template #title> Change password</template>
       <template #content>
-        <div class="p-fluid flex flex-column justify-content-start password-edit-form">
+        <form class="password-edit-form flex flex-col justify-start" @submit="onSubmit">
           <div v-if="currentUser.username" class="field">
             <label for="userName">Username</label>
-            <InputText data-testid="password-edit-username" class="p-text-capitalize" id="username" type="text" :value="currentUser.username" disabled />
+            <InputText id="username" :value="currentUser.username" class="p-text-capitalize" data-testid="password-edit-username" disabled type="text" />
           </div>
-          <div class="field">
-            <label for="passwordOld">Current password</label>
-            <InputText data-testid="password-edit-password-old" id="passwordOld" type="password" v-model="passwordOld" />
+          <PasswordInputs
+            old-password-required
+            test-id="password-edit-password-"
+            @update:oldPassword="setOldPassword"
+            @update:password="setNewPassword"
+            @update:arePasswordsValid="setIsNewPasswordValid"
+          />
+          <div class="mt-2 flex flex-row justify-center">
+            <Button :disabled="buttonDisabled" class="user-edit" data-testid="password-edit-submit" label="Change password" type="submit" @click="onSubmit" />
           </div>
-          <div class="field">
-            <label for="passwordNew1">New password</label>
-            <InputText data-testid="password-edit-password-new1" id="passwordNew1" type="password" v-model="passwordNew1" />
-            <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
-            <InlineMessage v-if="passwordStrength === 'fail' && passwordNew1 !== ''" severity="error"> Invalid password </InlineMessage>
-            <small id="password-help">
-              Password must be a minimum length of 8 characters. Improve password strength with a mixture of UPPERCASE, lowercase, numbers and special
-              characters [!@#$%^&*].
-            </small>
-          </div>
-          <div class="field">
-            <label for="passwordNew2">Confirm new password</label>
-            <InputText
-              data-testid="password-edit-password-new2"
-              id="passwordNew2"
-              type="password"
-              v-model="passwordNew2"
-              @blur="setShowPassword2Message"
-              @keyup="checkKey"
-            />
-            <InlineMessage v-if="showPassword2Message" severity="error"> New passwords do not match! </InlineMessage>
-          </div>
-          <div class="flex flex-row justify-content-center">
-            <Button
-              v-if="setButtonDisabled()"
-              data-testid="password-edit-submit-disabled"
-              class="user-edit"
-              type="submit"
-              label="Change password"
-              disabled
-              @click="handleEditSubmit"
-            />
-            <Button v-else class="user-edit" data-testid="password-edit-submit" type="submit" label="Change password" @click="handleEditSubmit" />
-          </div>
-        </div>
+        </form>
       </template>
     </Card>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, Ref, ref } from "vue";
+<script lang="ts" setup>
+import { computed, ref } from "vue";
 import { AuthService } from "@/services";
-import { PasswordStrength } from "@im-library/enums";
-import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
+import { useForm } from "vee-validate";
+import PasswordInputs from "@/components/auth/PasswordInputs.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -73,29 +43,33 @@ const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);
 const authReturnPath = computed(() => authStore.authReturnPath);
+const buttonDisabled = computed(() => setButtonDisabled());
 
-let passwordOld = ref("");
-let passwordNew1 = ref("");
-let passwordNew2 = ref("");
-let showPassword2Message = ref(false);
+const password = ref("");
+const passwordOld = ref("");
+const isNewPasswordValid = ref(false);
 
-const passwordsMatch = computed(() => verifyPasswordsMatch(passwordNew1.value, passwordNew2.value));
-const passwordStrength: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordNew1.value));
-const passwordStrengthOld: Ref<PasswordStrength> = computed(() => checkPasswordStrength(passwordOld.value));
-const passwordDifferentFromOriginal = computed(() => passwordOld.value !== passwordNew1.value);
+const { handleSubmit } = useForm({});
 
-function setShowPassword2Message(): void {
-  showPassword2Message.value = !passwordsMatch.value;
+function setOldPassword(oldPassword: string) {
+  passwordOld.value = oldPassword;
 }
 
-function handleEditSubmit(): void {
-  if (
-    passwordsMatch.value &&
-    passwordStrength.value !== PasswordStrength.fail &&
-    passwordStrengthOld.value !== PasswordStrength.fail &&
-    passwordDifferentFromOriginal.value
-  ) {
-    AuthService.changePassword(passwordOld.value, passwordNew1.value).then(res => {
+function setNewPassword(newPassword: string) {
+  password.value = newPassword;
+}
+
+function setIsNewPasswordValid(isValid: boolean) {
+  isNewPasswordValid.value = isValid;
+}
+
+function setButtonDisabled(): boolean {
+  return !isNewPasswordValid.value;
+}
+
+const onSubmit = handleSubmit(async () => {
+  if (isNewPasswordValid.value) {
+    AuthService.changePassword(passwordOld.value, password.value).then(res => {
       if (res.status === 200) {
         Swal.fire({
           icon: "success",
@@ -116,7 +90,7 @@ function handleEditSubmit(): void {
         });
       }
     });
-  } else if (!passwordDifferentFromOriginal.value) {
+  } else if (passwordOld.value === password.value) {
     Swal.fire({
       icon: "error",
       title: "Error",
@@ -129,35 +103,27 @@ function handleEditSubmit(): void {
       text: "Error updating password. Authentication error or new passwords do not match."
     });
   }
-}
-
-function getUrl(item: string): string {
-  const url = new URL(`../../assets/avatars/${item}`, import.meta.url);
-  return url.href;
-}
-
-function checkKey(event: any): void {
-  if (event.keyCode === 13) {
-    handleEditSubmit();
-  }
-}
-
-function setButtonDisabled(): boolean {
-  return !(passwordStrength.value !== PasswordStrength.fail && passwordsMatch.value && passwordOld.value !== "");
-}
+});
 </script>
 
 <style scoped>
 .password-edit-card {
-  padding: 0 2em;
+  padding: 1.25rem 2em 0 2em;
 }
 
 .user-edit {
-  width: fit-content !important;
+  min-width: fit-content !important;
 }
 
 .password-edit-form {
-  max-width: 32em;
+  display: flex;
+  flex-flow: column nowrap;
+  min-width: 20rem;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .avatar-icon {
@@ -165,5 +131,10 @@ function setButtonDisabled(): boolean {
   width: 10rem;
   border: 1px solid lightgray;
   border-radius: 50%;
+}
+
+.input-with-button {
+  display: flex;
+  flex-flow: row nowrap;
 }
 </style>

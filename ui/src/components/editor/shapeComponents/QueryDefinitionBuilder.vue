@@ -3,49 +3,51 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else class="content-container" :class="showValidation && invalid && 'invalid'">
-      <div class="query-editor-container flex flex-column gap-3">
-        <div class="query-editor flex flex-column p-2">
-          <CohortEditor v-model:queryDefinition="queryDefinition" />
+    <div v-else :class="showValidation && invalid && 'invalid'" class="content-container">
+      <div class="query-editor-container flex flex-col gap-4">
+        <div class="query-editor flex flex-col p-2">
+          <IMQueryEditor v-model:queryDefinition="queryDefinition" @updateQuery="updateQueryDefinition" />
         </div>
-        <div class="flex flex-row gap-2 justify-content-end">
-          <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
-          <!-- <QuickQuery :query="queryDefinition">
-            <template #button="{ runQuickQuery }">
-              <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" />
-            </template>
-          </QuickQuery> -->
+        <div class="flex flex-row justify-end gap-2">
+          <div>
+            <Button data-testid="sql-button" label="Generate SQL" @click="generateSQL" />
+          </div>
         </div>
       </div>
     </div>
     <div class="validate-error-container"></div>
-    <span class="validate-error" v-if="validationErrorMessage && showValidation"> {{ validationErrorMessage }}</span>
+    <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
 
-    <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
+    <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
       <pre>{{ sql }}</pre>
       <template #footer>
-        <Button label="Copy to Clipboard" @click="copy" data-testid="copy-button" />
-        <Button label="Close" @click="showSql = false" data-testid="close-button" />
+        <Button
+          v-clipboard:copy="copyToClipboard()"
+          v-clipboard:error="onCopyError"
+          v-clipboard:success="onCopy"
+          v-tooltip.left="'Copy to clipboard'"
+          data-testid="copy-button"
+          label="Copy to Clipboard"
+        />
+        <Button data-testid="close-button" label="Close" @click="showSql = false" />
       </template>
     </Dialog>
   </div>
 </template>
 
-<script setup lang="ts">
-import QuickQuery from "@/components/query/QuickQuery.vue";
-import CohortEditor from "@/components/query/builder/CohortEditor.vue";
+<script lang="ts" setup>
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { EditorMode, ToastSeverity } from "@im-library/enums";
+import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
-import { Ref, inject, onMounted, ref, watch } from "vue";
+import { inject, onMounted, Ref, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { QueryService } from "@/services";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import IMQueryEditor from "@/components/imquery/IMQueryEditor.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -71,15 +73,15 @@ if (forceValidation) {
     }
   });
 }
-const toast = useToast();
 const route = useRoute();
 const loading = ref(true);
-const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
+const queryDefinition: Ref<Query | undefined> = ref();
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 const showValidation = ref(false);
 const showSql: Ref<boolean> = ref(false);
 const sql: Ref<string> = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
 const key = props.shape.path["@id"];
 
@@ -88,7 +90,7 @@ watch(
   async newValue => {
     updateEntity();
     if (updateValidity && valueVariableMap) {
-      if (isArrayHasLength(newValue.match)) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (newValue && isArrayHasLength(newValue.match)) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
       showValidation.value = true;
     }
   }
@@ -101,21 +103,18 @@ onMounted(async () => {
 });
 
 async function init() {
-  QueryService.getQueryDisplay;
   if (props.value) {
     const definition = JSON.parse(props.value);
     const labeledQuery = await QueryService.getLabeledQuery(definition);
     queryDefinition.value = generateMatchIds(labeledQuery);
   } else queryDefinition.value = generateDefaultQuery();
 }
-async function generateSQL() {
-  sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
-  showSql.value = true;
-}
 
-async function copy() {
-  await navigator.clipboard.writeText(sql.value);
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "SQL copied to clipboard"));
+async function generateSQL() {
+  if (queryDefinition.value) {
+    sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
+    showSql.value = true;
+  }
 }
 
 function generateDefaultQuery() {
@@ -123,12 +122,16 @@ function generateDefaultQuery() {
 }
 
 function updateEntity() {
-  if (!isArrayHasLength(queryDefinition.value.match) && deleteEntityKey) deleteEntityKey(key);
+  if (queryDefinition.value && !isArrayHasLength(queryDefinition.value.match) && deleteEntityKey) deleteEntityKey(key);
   else {
     const imDefinition: any = {};
     imDefinition[IM.DEFINITION] = JSON.stringify(cloneDeep(queryDefinition.value));
     if (entityUpdate) entityUpdate(imDefinition);
   }
+}
+
+function updateQueryDefinition(test: any) {
+  queryDefinition.value = test;
 }
 </script>
 
@@ -142,7 +145,7 @@ function updateEntity() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
@@ -157,18 +160,19 @@ function updateEntity() {
 .query-editor {
   height: 60vh;
   overflow-y: auto;
-  border: 1px solid var(--surface-border);
-  background-color: var(--default);
+  border: 1px solid var(--p-textarea-border-color);
+  background-color: var(--p-default);
+  border-radius: var(--p-content-border-radius);
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
   border-radius: 5px;
   padding: 0.25rem;
 }

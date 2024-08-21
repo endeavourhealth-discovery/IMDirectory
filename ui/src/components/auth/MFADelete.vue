@@ -1,6 +1,6 @@
 <template>
   <div id="mfa-delete">
-    <Card class="flex flex-column justify-content-sm-around align-items-center mfa-delete-card">
+    <Card class="justify-content-sm-around mfa-delete-card flex flex-col items-center">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-shield-slash" class="icon-header" />
       </template>
@@ -23,21 +23,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed } from "vue";
+import { ref, h } from "vue";
 import { useDialog } from "primevue/usedialog";
 import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
 import Swal from "sweetalert2";
 import { AuthService } from "@/services";
 import { useUserStore } from "@/stores/userStore";
-import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const helpDialog = useDialog();
 const userStore = useUserStore();
-
-const awsUser = computed(() => userStore.awsUser);
 
 const loading = ref(false);
 
@@ -63,7 +60,7 @@ function showHelpDialog() {
 
 async function handleDisableMfa() {
   loading.value = true;
-  await AuthService.setMfaPreference(awsUser.value, "NOMFA");
+  await AuthService.setMfaPreference("NOMFA");
   Swal.fire({
     icon: "success",
     title: "Success",
@@ -110,7 +107,7 @@ function handleCancel() {
 }
 
 .invalid-text {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 .buttons-container {

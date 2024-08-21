@@ -2,17 +2,23 @@
   <div class="parent-header-container">
     <div class="title-buttons-container">
       <div class="title-container">
-        <h4 class="title">
+        <h2 v-if="!showSelect" class="title">
           <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
-          <span>{{ entity["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}</span>
-        </h4>
+          <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
+        </h2>
+        <h2 v-else class="title">
+          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
+          <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
+        </h2>
       </div>
       <div class="entity-buttons-container">
         <ActionButtons
-          :buttons="['findInTree', 'view', 'edit', 'favourite']"
+          :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'addToList']"
           :iri="entity['@id']"
           :type="'entityButton'"
           @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
+          @view-hierarchy="(iri: string) => emit('viewHierarchy', iri)"
+          @add-to-list="(iri: string) => emit('addToList', iri)"
         />
       </div>
     </div>
@@ -20,7 +26,7 @@
       <TextWithLabel label="Iri" :data="entity['@id']" v-if="!!entity['@id']" />
       <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
     </div>
-    <div class="flex flex-row justify-content-start">
+    <div class="flex flex-row justify-start">
       <ArrayObjectNameTagWithLabel v-if="!!entity['http://endhealth.info/im#status']" label="Status" :data="entity['http://endhealth.info/im#status']" />
       <ArrayObjectNamesToStringWithLabel
         label="Types"
@@ -48,22 +54,24 @@ import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjec
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { IM, RDF } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, watch, ref, onMounted } from "vue";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   entity: any;
+  showSelect?: boolean;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({
-  entitySelected: (_payload: string) => true,
   locateInTree: (_payload: string) => true,
-  navigateTo: (_payload: string) => true
+  navigateTo: (_payload: string) => true,
+  addToList: (_payload: string) => true,
+  viewHierarchy: (_payload: string) => true
 });
 const hasQueryDefinition: Ref<boolean> = ref(false);
 
@@ -86,7 +94,7 @@ async function getHasQueryDefinition(entityIri: string) {
 }
 
 function getIcon(entity: any) {
-  if (entity["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];
+  if (entity["@id"] === IM.FAVOURITES) return ["fa-solid", "star"];
   return getFAIconFromType(entity[RDF.TYPE]);
 }
 

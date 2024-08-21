@@ -13,3 +13,13 @@ export interface TTProperty {
   "http://www.w3.org/ns/shacl#minCount"?: number;
   [key: string]: any;
 }
+
+export interface UIProperty {
+  iri: string;
+  propertyName: string;
+  propertyType: "class" | "datatype" | "node";
+  valueType: string;
+  maxCount: number;
+  minCount: number;
+  valueLabel: string;
+}

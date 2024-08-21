@@ -1,29 +1,54 @@
-import { Auth } from "aws-amplify";
+import { fetchAuthSession } from "aws-amplify/auth";
 import Env from "./Env";
 import axios from "axios";
+import { RecentActivityItem } from "@im-library/interfaces";
+import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
+import PrimeVueColors from "@/enums/PrimeVueColors";
 
 const UserService = {
-  async getUserTheme(): Promise<string> {
-    return await axios.get(Env.API + "api/user/theme");
+  async getUserScale(): Promise<string> {
+    return await axios.get(Env.API + "api/user/scale");
   },
-  async getUserMRU(): Promise<any> {
+  async getUserMRU(): Promise<RecentActivityItem[]> {
     return await axios.get(Env.API + "api/user/MRU");
   },
-  async getUserFavourites(): Promise<any> {
+  async getUserFavourites(): Promise<string[]> {
     return await axios.get(Env.API + "api/user/favourites");
   },
   async getUserOrganisations(): Promise<string[]> {
     return await axios.get(Env.API + "api/user/organisations");
   },
-  async updateUserTheme(theme: string): Promise<string> {
-    return await axios.post(Env.API + "api/user/theme", {
-      themeValue: theme
-    });
+  async getUserPreset(): Promise<PrimeVuePresetThemes> {
+    return await axios.get(Env.API + "api/user/preset");
   },
-  async updateUserMRU(mru: any[]): Promise<any> {
+  async getUserPrimaryColor(): Promise<PrimeVueColors> {
+    return await axios.get(Env.API + "api/user/primaryColor");
+  },
+  async getUserSurfaceColor(): Promise<PrimeVueColors> {
+    return await axios.get(Env.API + "api/user/surfaceColor");
+  },
+  async getUserDarkMode(): Promise<boolean> {
+    return await axios.get(Env.API + "api/user/darkMode");
+  },
+  async updateUserPreset(preset: PrimeVuePresetThemes): Promise<void> {
+    return await axios.post(Env.API + "api/user/preset", preset, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+  },
+  async updateUserPrimaryColor(color: PrimeVueColors): Promise<void> {
+    return await axios.post(Env.API + "api/user/primaryColor", color, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+  },
+  async updateUserSurfaceColor(color: PrimeVueColors): Promise<void> {
+    return await axios.post(Env.API + "api/user/surfaceColor", color, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+  },
+  async updateUserDarkMode(bool: boolean): Promise<void> {
+    return await axios.post(Env.API + "api/user/darkMode", { bool: bool });
+  },
+  async updateUserScale(scale: string): Promise<string> {
+    return await axios.post(Env.API + "api/user/scale", scale, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+  },
+  async updateUserMRU(mru: RecentActivityItem[]): Promise<void> {
     return await axios.post(Env.API + "api/user/MRU", mru);
   },
-  async updateUserFavourites(favourites: any[]): Promise<any> {
+  async updateUserFavourites(favourites: string[]): Promise<void> {
     return await axios.post(Env.API + "api/user/favourites", favourites);
   },
   async updateUserOrganisations(organisations: string[]): Promise<string[]> {
@@ -36,9 +61,13 @@ const UserService = {
         iri: iri
       },
       headers: {
-        Authorization: "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken()
+        Authorization: "Bearer " + (await fetchAuthSession()).tokens?.idToken
       }
     });
+  },
+
+  async updateEmailVerified(verified: boolean): Promise<void> {
+    return await axios.post(Env.VITE_NODE_API + "node_api/cognito/updateEmailVerified", { verified: verified });
   }
 };
 

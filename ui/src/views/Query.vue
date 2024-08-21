@@ -7,15 +7,18 @@
         </div>
       </template>
     </TopBar>
-    <div v-if="loading" class="loading-container">
-      <ProgressSpinner />
-    </div>
-    <CohortEditor v-else v-model:queryDefinition="queryDefinition" />
-
-    <div class="button-bar">
-      <Button class="button-bar-button" label="Run" />
-      <Button class="button-bar-button" label="View" severity="secondary" />
-      <Button class="button-bar-button" label="Save" severity="success" />
+    <div id="query-main-container">
+      <div id="query-content-container">
+        <div v-if="loading" class="loading-container">
+          <ProgressSpinner />
+        </div>
+        <IMQueryEditor v-else v-model:queryDefinition="queryDefinition" />
+      </div>
+      <div id="query-footer-bar">
+        <Button class="button-bar-button" label="Run" />
+        <Button class="button-bar-button" label="View" severity="secondary" />
+        <Button class="button-bar-button" label="Save" severity="success" />
+      </div>
     </div>
   </div>
 </template>
@@ -23,23 +26,26 @@
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
-import _ from "lodash";
-import CohortEditor from "@/components/query/builder/CohortEditor.vue";
+import _ from "lodash-es";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
-import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, onBeforeMount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useFilterStore } from "@/stores/filterStore";
 import { resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
+import IMQueryEditor from "@/components/imquery/IMQueryEditor.vue";
+import { useFilterStore } from "@/stores/filterStore";
 
-const filterStore = useFilterStore();
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const loading = ref(true);
+const filterStore = useFilterStore();
+
+onBeforeMount(async () => {
+  await filterStore.fetchFilterSettings();
+});
 
 onMounted(async () => {
-  await filterStore.fetchFilterSettings();
   await init();
 });
 
@@ -55,17 +61,40 @@ async function init() {
 
 async function setQuery() {
   const resolvedIri = resolveIri(queryIri.value);
-  if (resolvedIri) queryDefinition.value = await QueryService.getQueryDisplay(resolvedIri);
+  if (resolvedIri) queryDefinition.value = await QueryService.getQueryDisplay(resolvedIri, false);
 }
 </script>
 
 <style lang="scss">
 #topbar-query-container {
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   overflow: auto;
   display: flex;
   flex-flow: column;
+}
+
+#query-main-container {
+  height: calc(100% - 3.5rem);
+  width: 100%;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#query-content-container {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#query-footer-bar {
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
 }
 
 .topbar-content {
@@ -80,6 +109,15 @@ async function setQuery() {
 .title {
   font-size: 2rem;
   white-space: nowrap;
+}
+
+.loading-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .button-bar {

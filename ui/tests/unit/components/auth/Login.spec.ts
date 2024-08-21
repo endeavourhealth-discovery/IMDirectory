@@ -3,6 +3,7 @@ import Login from "@/components/auth/Login.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
+import Message from "primevue/message";
 import { AuthService } from "@/services";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
@@ -36,7 +37,7 @@ describe("login.vue no registeredUser", () => {
     component = render(Login, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText }
+        components: { Card, Button, InputText, Message }
       }
     });
   });
@@ -64,13 +65,13 @@ describe("login.vue with registeredUser", () => {
       mfaStatus: []
     };
 
-    AuthService.signIn = vi.fn().mockResolvedValue({ status: 200, message: "Login successful", user: testUser });
+    AuthService.signIn = vi.fn().mockResolvedValue({ status: 200, message: "Login successful" });
 
     mockState.registeredUsername = "testUser";
     component = render(Login, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText }
+        components: { Card, Button, InputText, Message }
       }
     });
   });
@@ -95,7 +96,7 @@ describe("login.vue with registeredUser", () => {
   });
 
   it("fires swal on auth error ___ 401", async () => {
-    AuthService.signIn = vi.fn().mockResolvedValue({ status: 401, message: "Login successful", user: testUser });
+    AuthService.signIn = vi.fn().mockResolvedValue({ status: 403, message: "Additional step required", nextStep: "CONFIRM_SIGN_UP" });
     const usernameInput = component.getByTestId("login-username");
     await fireEvent.update(usernameInput, "Devtest");
     const passwordInput = component.getByTestId("login-password");

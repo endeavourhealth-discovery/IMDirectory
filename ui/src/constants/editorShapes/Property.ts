@@ -203,7 +203,7 @@ const PropertyShape: FormGenerator = {
               order: 1,
               select: [
                 {
-                  "@id": QUERY.SEARCH_SUBCLASS
+                  "@id": QUERY.SEARCH_ALLOWABLE_SUBCLASS
                 }
               ],
               argument: [
@@ -221,7 +221,7 @@ const PropertyShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.ENTITY_SEARCH
+                "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
               }
             }
           ],
@@ -267,7 +267,7 @@ const PropertyShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.ENTITY_SEARCH
+                "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
               }
             }
           ],

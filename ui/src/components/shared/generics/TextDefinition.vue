@@ -33,7 +33,7 @@ import { bundleToText } from "@im-library/helpers/Transforms";
 import { isTTBundle } from "@im-library/helpers/TypeGuards";
 import { TextDefinitionExcludePredicates, DefaultPredicateNames, XmlSchemaDatatypes } from "@im-library/config";
 import { IM } from "@im-library/vocabulary";
-import _ from "lodash";
+import _ from "lodash-es";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
@@ -123,8 +123,8 @@ function getCount(): number {
 
 .text-definition {
   width: 100%;
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   padding: 0.5rem;
   margin: 0.5rem 0 0 0;
   overflow: auto;

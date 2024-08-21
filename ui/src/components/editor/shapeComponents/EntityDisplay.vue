@@ -11,17 +11,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, Ref, watch, onMounted, inject } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
-import { byName } from "@im-library/helpers/Sorters";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { EntityService, FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   shape: PropertyShape;
@@ -178,7 +177,6 @@ function hasData() {
   flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  min-width: 25rem;
   align-items: center;
   height: fit-content;
 }
@@ -199,18 +197,18 @@ function hasData() {
   flex: 0 0 auto;
 }
 
-.p-progress-spinner {
+.p-progressspinner {
   width: 2rem;
   height: 2rem;
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 </style>

@@ -17,14 +17,14 @@
           display="chip"
         />
       </div>
-      <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
+      <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" :style="{ width: '2rem', height: '2rem' }" />
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType, ComputedRef, computed } from "vue";
+import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
@@ -33,7 +33,7 @@ import { mapToObject } from "@im-library/helpers/Transforms";
 import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
+import _ from "lodash-es";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 
 interface Props {
@@ -219,7 +219,6 @@ function hasData() {
 .multiselect-loading-container {
   display: flex;
   flex-flow: row wrap;
-  min-width: 25rem;
   align-items: flex-start;
   height: fit-content;
 }
@@ -242,19 +241,19 @@ function hasData() {
   flex: 0 1 auto;
 }
 
-.p-progress-spinner {
+.p-progressspinner {
   width: 2rem;
   height: 2rem;
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .title-bar {
@@ -264,6 +263,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

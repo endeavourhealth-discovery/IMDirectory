@@ -36,30 +36,16 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
-    this.router.post("/public/isValidPropertyBoolFocus", (req, res, next) =>
-      this.isValidPropertyBoolFocus(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
     this.router.post("/public/superiorPropertiesBoolFocusPaged", (req, res, next) =>
       this.getSuperiorPropertiesBoolFocusPaged(req)
         .then(data => res.send(data))
         .catch(next)
     );
-    this.router.get("/public/conceptContextMaps", (req, res, next) =>
-      this.getConceptContextMaps(req)
+    this.router.post("/public/validatedEntity", (req, res, next) =>
+      this.getValidatedEntitiesBySnomedCodes(req)
         .then(data => res.send(data))
         .catch(next)
     );
-    this.router.get("/public/propertyOptions", (req, res, next) =>
-      this.getPropertyOptions(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
-  }
-
-  async getPropertyOptions(req: Request) {
-    return await this.entityService.getPropertyOptions(req.query.dataModelIri as string, req.query.dataTypeIri as string, req.query.key as string);
   }
 
   async getPropertiesDisplay(req: Request) {
@@ -79,10 +65,6 @@ export default class EntityController {
     );
   }
 
-  async isValidPropertyBoolFocus(req: Request) {
-    return await this.entityService.isValidPropertyBoolFocus(req.body.focus, req.body.propertyIri);
-  }
-
   async getSuperiorPropertiesBoolFocusPaged(req: Request) {
     const focus = req.body.focus;
     const pageIndex = req.body.pageIndex;
@@ -91,14 +73,15 @@ export default class EntityController {
     return await this.entityService.getSuperiorPropertiesBoolFocusPaged(focus, pageIndex, pageSize, filters);
   }
 
-  async getConceptContextMaps(req: Request): Promise<ContextMap[]> {
-    return await this.entityService.getConceptContextMaps(req.query.iri as string);
-  }
-
   async getSetDiff(req: Request) {
     const setIriA = req.query.setIriA as string;
     const setIriB = req.query.setIriB as string;
     if (!setIriA && !setIriB) throw new CustomError("At least one of setIriA and setIriB parameters needs to be populated.", ErrorType.InvalidInputError);
     return await this.entityService.getSetDiff(setIriA, setIriB);
+  }
+
+  async getValidatedEntitiesBySnomedCodes(req: Request) {
+    const codes = req.body;
+    return await this.entityService.findValidatedEntitiesBySnomedCodes(codes);
   }
 }

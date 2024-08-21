@@ -11,6 +11,7 @@ import { GithubService } from "@/services";
 import PrimeVue from "primevue/config";
 import StyleClass from "primevue/styleclass";
 import { createTestingPinia } from "@pinia/testing";
+import { VueShowdownPlugin } from "vue-showdown";
 
 createTestingPinia();
 
@@ -34,7 +35,7 @@ describe("ReleaseNotes.vue", () => {
       global: {
         components: { Dialog, Button, ProgressSpinner },
         provide: { axios: axios },
-        plugins: [PrimeVue],
+        plugins: [PrimeVue, VueShowdownPlugin],
         directives: { styleclass: StyleClass }
       },
       props: { appVersion: "v1.0.0", repositoryName: "IMDirectory" }
@@ -48,20 +49,6 @@ describe("ReleaseNotes.vue", () => {
     component.getByText(text => text.endsWith(testLatestRelease.publishedDate));
     component.getByText(testLatestRelease.url);
     component.getByText(testLatestRelease.releaseNotes[0]);
-    const button = component.getByTestId("expand-button-directory");
-    expect(button.classList.contains("pi-minus"));
-  });
-
-  it("can expand all app releases", async () => {
-    const button = component.getByTestId("expand-all-button");
-    await fireEvent.click(button);
-    await flushPromises();
-    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(2);
-    expect(getLatestReleaseSpy).toHaveBeenCalledWith("ImportData");
-    const directoryButton = component.getByTestId("expand-button-directory");
-    expect(directoryButton.classList.contains("pi-minus"));
-    const importDataButton = component.getByTestId("expand-button-importData");
-    expect(importDataButton.classList.contains("pi-minus"));
   });
 
   it("can get olderReleaseNotes", async () => {
@@ -73,19 +60,6 @@ describe("ReleaseNotes.vue", () => {
     component.getByText(testReleases[0].version);
     component.getByText(testReleases[1].version);
     component.getByText(testReleases[2].version);
-  });
-
-  it("gets releases on expand if not props repo", async () => {
-    const testLatestRelease2 = fakerFactory.githubRelease.create();
-    getLatestReleaseSpy.mockResolvedValue(testLatestRelease2);
-    const button = component.getByTestId("expand-button-importData");
-    await fireEvent.click(button);
-    await flushPromises();
-    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(1);
-    expect(getLatestReleaseSpy).toHaveBeenCalledWith("ImportData");
-    component.getByText(testLatestRelease2.version);
-    const importDataButton = component.getByTestId("expand-button-importData");
-    expect(importDataButton.classList.contains("pi-minus"));
   });
 
   it("can hide older releases", async () => {
@@ -108,17 +82,5 @@ describe("ReleaseNotes.vue", () => {
     await fireEvent.click(button);
     expect(setItemSpy).toHaveBeenCalledOnce();
     expect(setItemSpy).toHaveBeenCalledWith("IMDirectoryVersion", testLatestRelease.version);
-  });
-
-  it("saves all opened on close", async () => {
-    const expandAllbutton = component.getByTestId("expand-all-button");
-    await fireEvent.click(expandAllbutton);
-    await flushPromises();
-    const button = component.getByTestId("close-button");
-    await fireEvent.click(button);
-    await flushPromises();
-    expect(setItemSpy).toHaveBeenCalledTimes(2);
-    expect(setItemSpy).toHaveBeenCalledWith("IMDirectoryVersion", testLatestRelease.version);
-    expect(setItemSpy).toHaveBeenCalledWith("ImportDataVersion", testLatestRelease.version);
   });
 });

@@ -6,8 +6,8 @@ import DynamicDialog from "primevue/dynamicdialog";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import ProgressSpinner from "primevue/progressspinner";
-import InputSwitch from "primevue/inputswitch";
-import Sidebar from "primevue/sidebar";
+import ToggleSwitch from "primevue/toggleswitch";
+import Drawer from "primevue/drawer";
 import { flushPromises, shallowMount } from "@vue/test-utils";
 import PrimeVue from "primevue/config";
 import TopBar from "@/components/shared/TopBar.vue";
@@ -41,6 +41,16 @@ vi.mock("@/composables/setupChangeTheme.ts", () => {
   };
 });
 
+let changeScaleMock = vi.fn();
+
+vi.mock("@/composables/setupChangeScale.ts", () => {
+  return {
+    default: () => ({
+      changeScale: () => changeScaleMock
+    })
+  };
+});
+
 describe("router", () => {
   afterEach(() => {
     vi.resetAllMocks();
@@ -57,13 +67,13 @@ describe("router", () => {
       const userStore = useUserStore();
       userStore.updateSnomedLicenseAccepted(true);
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
-      UserService.getUserTheme = async () => "";
+      UserService.getUserScale = async () => "";
       await router.push("/");
       await router.isReady();
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -101,13 +111,13 @@ describe("router", () => {
       userStore.updateSnomedLicenseAccepted(true);
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       authenticateCurrentUserSpy = vi.spyOn(userStore, "authenticateCurrentUser").mockResolvedValue({ authenticated: false });
-      UserService.getUserTheme = async () => "";
+      UserService.getUserScale = async () => "";
       await router.push("/");
       await router.isReady();
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -154,13 +164,13 @@ describe("router", () => {
       userStore.snomedLicenseAccepted = true;
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       authenticateCurrentUserSpy = vi.spyOn(userStore, "authenticateCurrentUser").mockResolvedValue({ authenticated: true });
-      UserService.getUserTheme = async () => "";
+      UserService.getUserScale = async () => "";
       await router.push("/");
       await router.isReady();
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -207,7 +217,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -251,7 +261,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -293,7 +303,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -337,7 +347,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -377,7 +387,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -418,7 +428,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -465,7 +475,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -512,7 +522,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -561,7 +571,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },
@@ -608,7 +618,7 @@ describe("router", () => {
 
       render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, InputSwitch, Sidebar },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog, ToggleSwitch, Drawer },
           plugins: [router, PrimeVue],
           stubs: {
             SnomedLicense: { template: "<span>Test Snomed License</span>" },

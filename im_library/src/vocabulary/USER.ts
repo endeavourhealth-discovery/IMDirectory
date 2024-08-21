@@ -4,7 +4,11 @@ export class USER {
   public static readonly DOMAIN = "http://endhealth.info/";
   public static readonly NAMESPACE = USER.DOMAIN + "user#";
   public static readonly PREFIX = "usr";
-  public static readonly USER_THEME = USER.DOMAIN + "UserTheme";
+  public static readonly USER_PRESET = USER.DOMAIN + "UserPreset";
+  public static readonly USER_PRIMARY_COLOR = USER.DOMAIN + "UserPrimaryColor";
+  public static readonly USER_SURFACE_COLOR = USER.DOMAIN + "UserSurfaceColor";
+  public static readonly USER_DARK_MODE = USER.DOMAIN + "UserDarkMode";
+  public static readonly USER_SCALE = USER.DOMAIN + "UserScale";
   public static readonly USER_MRU = USER.DOMAIN + "UserMRU";
   public static readonly USER_FAVOURITES = USER.DOMAIN + "UserFavourites";
   public static readonly ORGANISATIONS = USER.DOMAIN + "ORGANISATIONS";

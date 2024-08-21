@@ -28,6 +28,7 @@ function processEntityKey(key: string, treeNode: any, entity: any, predicates: a
   else if (key === IM.HAS_TERM_CODE) addTermCodes(treeNode, entity, predicates, key);
   else if (key === SHACL.PROPERTY) addProperty(treeNode, entity, predicates, key);
   else if (key === SHACL.PARAMETER) addParameter(treeNode, entity, predicates, key);
+  else if (key === IM.BINDING) addBinding(treeNode, entity, predicates, key);
   else if (key === IM.DEFINITION) addDefinition(treeNode, entity, predicates, key, types ?? []);
   else if (key === IM.HAS_MAP) {
     const defaultNode = { key: key, label: predicates[key], children: [] };
@@ -45,7 +46,7 @@ function addValueToLabel(treeNode: any, divider: string, value: any) {
 }
 
 function addIriLink(treeNode: any, item: TTIriRef) {
-  if (item["@id"] === IM.NAMESPACE + "loadMore")
+  if (item["@id"] === IM.LOAD_MORE)
     treeNode.children?.push({ key: item["@id"], label: item.name, type: "loadMore", data: { predicate: treeNode.key, totalCount: (item as any).totalCount } });
   else treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
 }
@@ -120,22 +121,50 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
   if (isArrayHasLength(entity[key])) {
     for (const roleGroup of entity[key]) {
       const propertyNode = {
-        key: IM.NAMESPACE + "groupNumber" + roleGroup[IM.NAMESPACE + "groupNumber"],
-        label: "role group " + roleGroup[IM.NAMESPACE + "groupNumber"],
+        key: IM.GROUP_NUMBER + roleGroup[IM.GROUP_NUMBER],
+        label: "role group " + roleGroup[IM.GROUP_NUMBER],
         children: [] as any[]
       };
       newTreeNode.children?.push(propertyNode);
 
       for (const roleKey of Object.keys(roleGroup)) {
-        if (roleKey !== IM.NAMESPACE + "groupNumber")
-          propertyNode.children?.push({
-            key: key + "." + roleKey,
-            iri: roleKey,
-            label: predicates[roleKey],
-            data: roleGroup[roleKey]?.[0],
-            type: "property"
-          });
+        if (roleKey !== IM.GROUP_NUMBER)
+          propertyNode.children?.push(getRoleValue(predicates,roleGroup,roleKey,key));
       }
+    }
+  }
+}
+function getRoleValue(predicates: any, roleGroup:any,roleKey: any,key :string) {
+  const valueNode = {
+    key: key + "." + roleKey,
+    iri: roleKey,
+    label: predicates[roleKey],
+    type: "property",
+    data: roleGroup[roleKey],
+    children: [] as any[]
+  };
+  if (roleGroup[roleKey].length==1) {
+    valueNode.data = roleGroup[roleKey][0];
+  }
+  else {
+      for (const valueChild of roleGroup[roleKey]) {
+        addIriLink(valueNode,valueChild);
+      }
+    }
+  return valueNode;
+}
+
+function addBinding(treeNode: any, entity: any, predicates: any, key: any) {
+  const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
+  treeNode.children?.push(newTreeNode);
+  if (isArrayHasLength(entity[key])) {
+    for (const roleGroup of entity[key]) {
+      const bindingNode = {
+        key: roleGroup[SHACL.NODE][0]["@id"],
+        label: roleGroup[SHACL.NODE][0].name,
+        type: "link"
+      };
+      newTreeNode.children?.push(bindingNode);
     }
   }
 }

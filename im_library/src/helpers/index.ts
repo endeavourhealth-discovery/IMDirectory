@@ -14,15 +14,12 @@ import EditorMethods from "./EditorMethods";
 import TypeGuards from "./TypeGuards";
 import UtililityMethods from "./UtilityMethods";
 import StringManipulators from "./StringManipulators";
-import EclBuilderConceptToEcl from "./EclBuilderConceptToEcl";
-import { eclToBuild } from "./Ecl/EclToBuild";
-import { eclToIMQ } from "./Ecl/EclToIMQ";
-import { validateEcl } from "./Ecl/ValidateEcl";
 import { dateNow } from "./Datetime/DateNow";
 import { timeNow } from "./Datetime/TimeNow";
 import { timeNow12Hr } from "./Datetime/TimeNow12Hr";
 import { getKey, getParentNode } from "./TreeHelper";
 import { deferred } from "./Deferred";
+import { generateCode } from "./CodeGenerator";
 
 export {
   ChartRescale,
@@ -40,15 +37,12 @@ export {
   TypeGuards,
   UtililityMethods,
   StringManipulators,
-  EclBuilderConceptToEcl,
-  eclToBuild,
-  eclToIMQ,
-  validateEcl,
   TTTransform,
   dateNow,
   timeNow,
   timeNow12Hr,
   getKey,
   getParentNode,
-  deferred
+  deferred,
+  generateCode
 };

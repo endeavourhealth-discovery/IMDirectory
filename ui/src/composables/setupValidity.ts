@@ -1,12 +1,11 @@
-import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
 import { deferred } from "@im-library/helpers/Deferred";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { FormGenerator, PropertyShape } from "@im-library/interfaces/AutoGen";
 import { IM, COMPONENT } from "@im-library/vocabulary";
-import { isArray } from "lodash";
-import { Ref, provide, ref } from "vue";
+import { isArray } from "lodash-es";
+import { Ref, ref } from "vue";
 
 export function setupValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);

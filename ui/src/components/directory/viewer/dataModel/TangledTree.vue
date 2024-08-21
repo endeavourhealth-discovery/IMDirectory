@@ -1,16 +1,16 @@
 <template>
   <div id="data-model-svg-container">
     <svg id="data-model-svg"></svg>
-    <OverlayPanel id="overlay-context-menu" ref="menu" v-if="displayMenu" :style="{ width: '300px', top: overlayTop + 'px' }">
+    <Popover id="overlay-context-menu" ref="menu" v-if="displayMenu" :style="{ width: '300px', top: overlayTop + 'px' }">
       <div class="p-field">
         <div class="p-inputgroup">
-          <span class="p-float-label">
+          <FloatLabel>
             <MultiSelect id="properties" v-model="selected" :options="multiselectMenu" optionLabel="label" display="chip" @change="change($event)" />
             <label for="properties">Select Properties</label>
-          </span>
+          </FloatLabel>
         </div>
       </div>
-    </OverlayPanel>
+    </Popover>
   </div>
 </template>
 
@@ -18,7 +18,7 @@
 import * as d3 from "d3";
 import { createVNode, onMounted, reactive, ref, Ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
-import _ from "lodash";
+import _ from "lodash-es";
 import { EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
@@ -675,8 +675,8 @@ function hasSubPropertiesOpen(node: any) {
   width: 120px;
   padding: 2px;
   font: 12px sans-serif;
-  background-color: var(--surface-b);
-  color: var(--text-color);
+  background-color: var(--p-surface-b);
+  color: var(--p-text-color);
   border: 0px;
   border-radius: 8px;
   pointer-events: none;

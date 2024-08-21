@@ -31,5 +31,7 @@ export enum ComponentType {
   TERM_CODE_EDITOR = "TermCodeEditor",
   TEXT_DROPDOWN = "TextDropdown",
   ENTITY_DISPLAY = "EntityDisplay",
-  IRI_BUILDER = "IriBuilder"
+  IRI_BUILDER = "IriBuilder",
+  AUTOCOMPLETE_SEARCH_BAR_WRAPPER = "AutocompleteSearchBarWrapper",
+  SUBSET_BUILDER = "SubsetBuilder"
 }

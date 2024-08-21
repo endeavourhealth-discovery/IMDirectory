@@ -26,4 +26,6 @@ export class COMPONENT {
   public static readonly TEXT_DROPDOWN = COMPONENT.NAMESPACE + "textDropdown";
   public static readonly ENTITY_DISPLAY = COMPONENT.NAMESPACE + "entityDisplay";
   public static readonly IRI_BUILDER = COMPONENT.NAMESPACE + "iriBuilder";
+  public static readonly AUTOCOMPLETE_SEARCH_BAR_WRAPPER = COMPONENT.NAMESPACE + "autocompleteSearchBarWrapper";
+  public static readonly SUBSET_BUILDER = COMPONENT.NAMESPACE + "subsetBuilder";
 }

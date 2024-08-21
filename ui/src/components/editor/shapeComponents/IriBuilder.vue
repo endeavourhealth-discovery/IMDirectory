@@ -6,7 +6,7 @@
         <span v-if="showRequired" class="required">*</span>
       </div>
       <div class="content-container">
-        <Dropdown :disabled="disableSchemeEdit" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
+        <Select :disabled="disableSchemeEdit" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
         <span v-if="includePrefix" class="prefix">{{ prefix }}</span>
         <InputText
           :disabled="disableCodeEdit"
@@ -34,7 +34,7 @@ import { byName } from "@im-library/helpers/Sorters";
 import { IM, RDF, RDFS, SNOMED, EDITOR, IM_FUNCTION } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
-import _ from "lodash";
+import _ from "lodash-es";
 import { isConcept } from "@im-library/helpers/ConceptTypeMethods";
 
 interface Props {
@@ -300,7 +300,6 @@ function hasData() {
   flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  min-width: 25rem;
   height: fit-content;
 }
 .label-content-container {
@@ -333,14 +332,14 @@ function hasData() {
   font-family: inherit;
   font-feature-settings: inherit;
   font-size: 1rem;
-  color: var(--text-color-secondary);
-  background: var(--surface-a);
+  color: var(--p-text-color-secondary);
+  background: var(--p-content-background);
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
   padding: 0.625rem 0.625rem;
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
 }
 
 .loading-icon {
@@ -348,13 +347,13 @@ function hasData() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .title-bar {
@@ -364,6 +363,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

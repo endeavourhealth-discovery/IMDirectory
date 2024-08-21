@@ -4,40 +4,48 @@
     modal
     maximizable
     header="Search"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
+    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
     class="search-dialog"
     @keyup.enter="onEnter"
   >
     <div class="directory-search-dialog-content">
       <div class="search-bar">
         <SearchBar
-          v-model:searchResults="searchResults"
-          v-model:searchLoading="searchLoading"
+          v-model:searchTerm="searchTerm"
+          :selected="selected"
+          :imQuery="imQuery"
+          :show-filters="false"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
-          :selected="selected"
-          :filter-options="filterOptions"
-          v-model:loadMore="loadMore"
-          :filterDefaults="filterDefaults"
-          v-model:download="download"
+          @to-search="onSearch"
         />
       </div>
       <div class="vertical-divider">
         <div class="left-container">
-          <NavTree :selectedIri="treeIri" :root-entities="rootEntities" @row-selected="showDetails" />
+          <NavTree
+            :selectedIri="treeIri"
+            :root-entities="rootEntities"
+            :find-in-tree="findInDialogTree"
+            @found-in-tree="findInDialogTree = false"
+            @row-selected="showDetails"
+          />
         </div>
         <div class="right-container">
           <SearchResults
             v-if="activePage === 0"
-            :searchResults="searchResults"
-            :searchLoading="searchLoading"
             :selected="selected"
+            :show-filters="showFilters"
+            :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
+            :quick-type-filters-allowed="quickTypeFiltersAllowed"
+            :selected-quick-type-filter="selectedQuickTypeFilter"
+            :updateSearch="updateSearch"
+            :search-term="searchTerm"
+            :im-query="imQuery"
+            :selected-filter-options="selectedFilterOptions"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
-            @lazy-load-requested="lazyLoadRequested"
-            :lazy-loading="true"
-            :rows="25"
-            @download-requested="downloadRequested"
+            @selected-filters-updated="onSelectedFiltersUpdate"
+            @searchResultsUpdated="updateSearchResults"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -46,7 +54,9 @@
             @navigateTo="navigateTo"
             :showSelectButton="true"
             v-model:history="history"
+            :searchResults
             @selected-updated="updateSelectedFromIri"
+            @go-to-search-results="goToSearchResults"
           />
           <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
           <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
@@ -66,31 +76,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref, computed } from "vue";
-import { FilterOptions } from "@im-library/interfaces";
+import { ref, onMounted, watch, Ref } from "vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
-import _, { cloneDeep } from "lodash";
-import { EntityService, FunctionService, QueryService } from "@/services";
-import { FunctionRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import _, { cloneDeep } from "lodash-es";
+import { EntityService, QueryService } from "@/services";
+import { QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { FilterOptions } from "@im-library/interfaces";
+import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
   showDialog: boolean;
-  searchByQuery?: QueryRequest;
-  searchByFunction?: FunctionRequest;
+  imQuery?: QueryRequest;
   selected?: SearchResultSummary;
   rootEntities?: string[];
-  filterOptions?: FilterOptions;
-  filterDefaults?: FilterOptions;
+  searchTerm?: string;
+  selectedFilterOptions?: FilterOptions;
+  quickTypeFiltersAllowed?: string[];
+  selectedQuickTypeFilter?: string;
+  showFilters?: boolean;
 }
-const props = defineProps<Props>();
+
+const props = withDefaults(defineProps<Props>(), {
+  showFilters: false
+});
 watch(
   () => props.showDialog,
   newValue => {
@@ -101,15 +117,17 @@ watch(
 
 const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
-  "update:selected": payload => true
+  "update:selected": payload => true,
+  updateSelectedFilters: (payload: FilterOptions) => true
 });
 
+const sharedStore = useSharedStore();
+
+const updateSearch: Ref<boolean> = ref(false);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
-const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
-const download: Ref<{ term: string; count: number } | undefined> = ref();
-
+const findInDialogTree = ref(false);
 const visible = ref(false);
 watch(visible, newValue => {
   if (!newValue) {
@@ -120,6 +138,14 @@ watch(visible, newValue => {
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
+const searchTerm = ref("");
+
+watch(
+  () => treeIri.value,
+  () => {
+    findInDialogTree.value = true;
+  }
+);
 const detailsIri = ref("");
 
 watch(
@@ -151,8 +177,16 @@ watch(
 
 onMounted(() => {
   visible.value = props.showDialog;
+  searchTerm.value = props.searchTerm ?? "";
   initSelection();
 });
+
+function onSearch() {
+  if (searchTerm.value) {
+    activePage.value = 0;
+    updateSearch.value = !updateSearch.value;
+  }
+}
 
 async function setSelectedName() {
   if (detailsIri.value) {
@@ -211,24 +245,12 @@ function showQuerySearch() {
 }
 
 async function getIsSelectableEntity(): Promise<boolean> {
-  if (!props.searchByQuery && !props.searchByFunction) return true;
-  if (props.searchByQuery) {
-    const queryRequest = _.cloneDeep(props.searchByQuery);
-    queryRequest.textSearch = selectedName.value;
-    const queryResults = await QueryService.queryIM(queryRequest);
-    if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
-    return queryResults.entities.some(item => item["@id"] === detailsIri.value);
-  } else if (props.searchByFunction) {
-    const functionRequest: FunctionRequest = _.cloneDeep(props.searchByFunction);
-    if (functionRequest.arguments && isArrayHasLength(functionRequest.arguments)) {
-      const found = functionRequest.arguments.find(arg => arg.parameter === "searchIri");
-      if (found) found.valueData = detailsIri.value;
-      else functionRequest.arguments.push({ parameter: "searchIri", valueData: detailsIri.value });
-    } else functionRequest.arguments = [{ parameter: "searchIri", valueData: detailsIri.value }];
-    if (functionRequest.functionIri) {
-      return await FunctionService.runAskFunction(functionRequest);
-    } else return false;
-  } else return false;
+  if (props.imQuery) {
+    const imQuery = _.cloneDeep(props.imQuery);
+    imQuery.askIri = detailsIri.value;
+    return await QueryService.askQuery(imQuery);
+  }
+  return true;
 }
 
 async function getHasQueryDefinition() {
@@ -243,12 +265,17 @@ function onEnter() {
   if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
 }
 
-function lazyLoadRequested(event: any) {
-  loadMore.value = event;
+function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
+  emit("updateSelectedFilters", selectedFilters);
+  updateSearch.value = !updateSearch.value;
 }
 
-function downloadRequested(data: { term: string; count: number }) {
-  download.value = data;
+function updateSearchResults(newSearchResults: SearchResponse | undefined) {
+  searchResults.value = newSearchResults;
+}
+
+function goToSearchResults() {
+  activePage.value = 0;
 }
 </script>
 
@@ -281,7 +308,6 @@ function downloadRequested(data: { term: string; count: number }) {
 
 .search-bar {
   min-height: 3.5rem;
-  background-color: var(--surface-100);
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
@@ -297,7 +323,9 @@ function downloadRequested(data: { term: string; count: number }) {
 
 .button-footer {
   display: flex;
+  flex: 1 0 auto;
   flex-wrap: nowrap;
+  justify-content: flex-end;
 }
 </style>
 

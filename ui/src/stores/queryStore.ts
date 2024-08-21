@@ -2,9 +2,13 @@ import { defineStore } from "pinia";
 import { QueryState } from "@/stores/types/queryState";
 import { SelectedMatch } from "@im-library/interfaces";
 import { QueryRequest } from "@im-library/interfaces/AutoGen";
+import { EntityService } from "@/services";
+import { RDFS } from "@im-library/vocabulary";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export const useQueryStore = defineStore("query", {
   state: (): QueryState => ({
+    queryIri: "",
     selectedMatches: [] as SelectedMatch[],
     variableMap: new Map<string, any>(),
     returnType: "",
@@ -13,7 +17,7 @@ export const useQueryStore = defineStore("query", {
         name: "Get by return type",
         match: [
           {
-            property: [
+            where: [
               {
                 "@id": "http://endhealth.info/im#returnType",
                 is: [
@@ -29,6 +33,9 @@ export const useQueryStore = defineStore("query", {
     } as QueryRequest
   }),
   actions: {
+    updateQueryIri(iri: string) {
+      this.queryIri = iri;
+    },
     updateReturnType(returnType: string) {
       this.returnType = returnType;
     },
@@ -37,6 +44,13 @@ export const useQueryStore = defineStore("query", {
     },
     clearSelectedMatches() {
       this.selectedMatches = [];
+    },
+    async getQueryName(): Promise<string> {
+      if (this.queryIri) {
+        const result = await EntityService.getPartialEntity(this.queryIri, [RDFS.LABEL]);
+        if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+      }
+      return "";
     }
   }
 });

@@ -10,42 +10,11 @@ describe("EntityService.ts ___ axios success", () => {
     axios.post = vi.fn().mockResolvedValue("axios post return");
   });
 
-  it("can downloadConcept", async () => {
-    const result = await EntityService.downloadConcept("testIri", "testFormat");
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/exportConcept", { params: { iri: "testIri", format: "testFormat" }, responseType: "blob" });
-    expect(result).toBe("axios get return");
-  });
-
   it("can get partial entity", async () => {
     const result = await EntityService.getPartialEntity("testIri", ["pred_1", "pred_2", "pred_3"]);
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/partial", { params: { iri: "testIri", predicates: "pred_1,pred_2,pred_3" } });
     expect(result).toBe("axios get return");
-  });
-
-  it("can post advancedSearch", async () => {
-    const request = {};
-    request.page = 1;
-    request.schemeFilter = ["http://snomed.info/sct#", "http://endhealth.info/im#"];
-    request.size = 100;
-    request.sortBy = 0;
-    request.statusFilter = ["http://endhealth.info/im#Active", "http://endhealth.info/im#Draft"];
-    request.termFilter = "scolios";
-    request.typeFilter = [
-      "http://www.w3.org/ns/shacl#NodeShape",
-      "http://endhealth.info/im#Concept",
-      "http://endhealth.info/im#ConceptSet",
-      "http://endhealth.info/im#Folder",
-      "http://endhealth.info/im#ConceptSetGroup",
-      "http://endhealth.info/im#QueryTemplate",
-      "http://endhealth.info/im#ValueSet"
-    ];
-    const controller = new AbortController();
-    const result = await EntityService.advancedSearch(request, controller);
-    expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(api + "api/entity/public/search", request, { signal: controller.signal });
-    expect(result).toBe("axios post return");
   });
 
   it("can get entity parents", async () => {

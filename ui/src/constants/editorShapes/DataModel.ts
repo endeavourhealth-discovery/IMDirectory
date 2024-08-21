@@ -229,11 +229,11 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   select: [
                     {
-                      "@id": QUERY.SEARCH_SUBCLASS
+                      "@id": QUERY.SEARCH_ALLOWABLE_SUBCLASS
                     }
                   ],
                   argument: [
@@ -284,7 +284,7 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   }
                 }
               ],

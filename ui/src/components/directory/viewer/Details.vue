@@ -15,7 +15,7 @@
     >
       <template #default="{ node }: any">
         <div v-if="tabPredicates.includes(node.key!)">
-          <a class="clickable" @click="openTab(node.key!)">{{ node.label }}</a>
+          <Button link as="a" class="clickable p-0" @click="openTab(node.key!)">{{ node.label }}</Button>
         </div>
 
         <div v-else-if="node.data">
@@ -43,6 +43,7 @@ import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import _ from "lodash-es";
 
 interface Props {
   entityIri: string;
@@ -88,11 +89,14 @@ const expandNode = (node: TreeNode) => {
 };
 
 async function getDefinition() {
-  definition.value = (await EntityService.getEntityDetailsDisplay(props.entityIri)).filter((c: any) => c.key !== IM.IS_A);
+  const result = await EntityService.getEntityDetailsDisplay(props.entityIri);
+  if (_.isArray(result)) {
+    definition.value = result.filter((c: any) => c.key !== IM.IS_A);
+  } else definition.value = undefined;
 }
 
 async function onSelect(node: TreeNode) {
-  if (node.key === IM.NAMESPACE + "loadMore") {
+  if (node.key === IM.LOAD_MORE) {
     const pageIndexInfo = predicatePageIndexMap.value.get(node.data.predicate);
     if (pageIndexInfo) {
       const entityDetails = await EntityService.loadMoreDetailsDisplay(props.entityIri, node.data.predicate, ++pageIndexInfo.pageIndex, 10);
@@ -109,7 +113,7 @@ async function onSelect(node: TreeNode) {
 }
 
 async function onExpand(node: TreeNode) {
-  const hasLoadMore = node.children?.some(child => child.key === IM.NAMESPACE + "loadMore");
+  const hasLoadMore = node.children?.some(child => child.key === IM.LOAD_MORE);
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
 }
 
@@ -124,7 +128,7 @@ function openTab(predicate: string) {
   flex-flow: column nowrap;
   width: 100%;
   height: 100%;
-  background-color: var(--surface-a);
+  background-color: var(--p-content-background);
 }
 .tree-container {
   height: 100vh;
@@ -133,5 +137,11 @@ function openTab(predicate: string) {
 
 .details-tree-button {
   margin-right: 0.5rem;
+}
+
+.tree-container:deep(.p-tree-node-label) {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
 }
 </style>

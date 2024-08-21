@@ -18,9 +18,11 @@
           </p>
           <p>
             This service/work/research acknowledges the use of the Open Access Discovery Programme UPRN-match Address Matching Algorithm (current version 4.2)
-            which is licensed under Apache 2.0 and can be accessed <a href="https://github.com/endeavourhealth-discovery/uprn-match">here</a>. The current
-            version number can be found
-            <a href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking">here</a>.
+            which is licensed under Apache 2.0 and can be accessed <Button link href="https://github.com/endeavourhealth-discovery/uprn-match">here</Button>.
+            The current version number can be found
+            <Button link as="a" class="p-0" href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking"
+              >here</Button
+            >.
           </p>
           <p>
             This algorithm was developed by David Stables with the support of the Endeavour Health Charity, and by Gill Harper and Carol Dezateux, Queen Mary,
@@ -43,7 +45,10 @@
             The Discovery Programme Address Matching Algorithm has been developed to give a deterministic match to the best estimate Ordnance Survey AddressBase
             Premium Unique Property Reference Number (UPRN) of where a person lives based on their NHS patient recorded address. To facilitate this, only UPRNs
             with relevant residential property classification codes in Ordnance Survey AddressBase Premium are matched to by the algorithm. Documentation of the
-            method can be found <a href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking">here</a>.
+            method can be found
+            <Button link as="a" class="p-0" href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking"
+              >here</Button
+            >.
           </p>
           <p>
             The algorithm has evolved throughout its development and has been quality assured against gold standard datasets to calculate error rates and
@@ -57,7 +62,9 @@
 
           <p>
             The algorithm error rates and description of match qualifiers can also be found
-            <a href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking">here</a>.
+            <Button link as="a" class="p-0" href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking"
+              >here</Button
+            >.
           </p>
           <p>
             The user should be aware of the aforementioned caveats and how they might affect the particular purpose for which they intend to use the assigned

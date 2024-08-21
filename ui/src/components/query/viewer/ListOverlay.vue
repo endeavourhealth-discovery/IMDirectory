@@ -1,7 +1,6 @@
 <template>
   <div v-for="item in list">
-    <div v-if="isObjectHasKeys(item, ['is'])">'{{ item.name }}'</div>
-    <div v-else>{{ item.name }}</div>
+    <div>{{ item.name }}</div>
   </div>
 </template>
 

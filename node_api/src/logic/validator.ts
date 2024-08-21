@@ -66,7 +66,7 @@ export default class Validator {
   private isValidDefinition(data: any): { isValid: boolean; message?: string } {
     let valid = false;
     let message: string | undefined = "Definition is invalid.";
-    if (isObjectHasKeys(data, [IM.DEFINITION])) {
+    if (isObjectHasKeys(data, [IM.DEFINITION]) || isObjectHasKeys(data, [IM.IS_SUBSET_OF]) || isObjectHasKeys(data, [IM.HAS_SUBSET])) {
       valid = true;
       message = undefined;
     }
@@ -185,28 +185,13 @@ export default class Validator {
   private async isValidStatus(data: any): Promise<{ isValid: boolean; message?: string }> {
     let valid = false;
     let message: string | undefined = "Status is invalid";
-    const queryReq = {
-      argument: [
-        {
-          valueIri: {
-            "@id": IM.STATUS
-          },
-          parameter: "this"
-        }
-      ],
-      query: {
-        "@id": QUERY.GET_DESCENDANTS
-      }
-    };
-    const statuses = await this.queryService.queryIM(queryReq);
+    const statuses = await this.entityService.getEntityChildren(IM.STATUS);
 
     if (isObjectHasKeys(data, [IM.HAS_STATUS]) && isArrayHasLength(data[IM.HAS_STATUS])) {
       if (data[IM.HAS_STATUS][0]["@id"] && data[IM.HAS_STATUS][0].name) {
-        for (let s in statuses.entities) {
-          if (data[IM.HAS_STATUS][0]["@id"] === statuses.entities[s]["@id"] && data[IM.HAS_STATUS][0].name === statuses.entities[s][RDFS.LABEL]) {
-            valid = true;
-            message = undefined;
-          }
+        if (statuses.findIndex(s => s["@id"] === data[IM.HAS_STATUS][0]["@id"]) != -1) {
+          valid = true;
+          message = undefined;
         }
       }
     }
@@ -215,15 +200,17 @@ export default class Validator {
 
   private isValidRoleGroups(data: any): { isValid: boolean; message?: string } {
     if (!isObjectHasKeys(data, [IM.ROLE_GROUP])) return { isValid: true };
-
-    for (let group in data[IM.ROLE_GROUP]) {
-      if (isObjectHasKeys(data[IM.ROLE_GROUP][group], [IM.GROUP_NUMBER])) {
-        if (Object.keys(data[IM.ROLE_GROUP][group]).length <= 1) {
+    for (let group of data[IM.ROLE_GROUP]) {
+      if (isObjectHasKeys(group, [IM.GROUP_NUMBER])) {
+        if (Object.keys(group).length <= 1) {
           return { isValid: false, message: "1 or more role groups are invalid." };
         } else {
-          for (let roles in data[IM.ROLE_GROUP][group]) {
-            if (null === data[IM.ROLE_GROUP][group][roles]["@id"] || "" === data[IM.ROLE_GROUP][group][roles].name) {
-              return { isValid: false, message: "1 or more role groups are invalid." };
+          for (const [key, value] of Object.entries(group)) {
+            if (key !== IM.GROUP_NUMBER) {
+              let newValue = value as any;
+              if (!key || null === newValue["@id"] || "" === newValue["@id"] || "" === newValue.name) {
+                return { isValid: false, message: "1 or more role groups are invalid." };
+              }
             }
           }
         }

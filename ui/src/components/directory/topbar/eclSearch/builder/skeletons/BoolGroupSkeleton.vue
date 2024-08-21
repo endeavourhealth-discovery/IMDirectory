@@ -54,9 +54,9 @@ function getSkeletonComponent(componentName: string) {
   justify-content: flex-start;
   align-items: flex-start;
   padding: 0.5rem;
-  border: #ff8c0030 1px solid;
+  border: #488bc230 1px solid;
   border-radius: 5px;
-  background-color: #ff8c0010;
+  background-color: #488bc210;
   margin: 0.5rem;
   flex: 1;
 }

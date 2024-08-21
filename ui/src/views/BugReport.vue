@@ -14,7 +14,7 @@
           <div class="bug-report-form">
             <div class="field">
               <label for="product">Select app where the issue occurred</label>
-              <Dropdown
+              <Select
                 v-model="selectedProduct"
                 :options="productOptions"
                 :class="{ 'p-invalid': productErrorMessage }"
@@ -25,18 +25,13 @@
             </div>
             <div class="field">
               <label for="module">What module of the app were you in when the issue occurred? </label>
-              <Dropdown
-                v-model="selectedModule"
-                :options="moduleOptions"
-                :class="{ 'p-invalid': moduleErrorMessage }"
-                @blur="showErrorMessages.module = true"
-              />
+              <Select v-model="selectedModule" :options="moduleOptions" :class="{ 'p-invalid': moduleErrorMessage }" @blur="showErrorMessages.module = true" />
               <small>Module can be identified in the browser url after the '#' e.g. http://im.endeavourhealth.net/#/<strong>auth</strong></small>
               <small v-if="showErrorMessages.module && moduleErrorMessage" class="p-error">{{ moduleErrorMessage }}</small>
             </div>
             <div class="field">
               <label for="os">What operating system were you using?</label>
-              <Dropdown
+              <Select
                 v-model="selectedOS"
                 :options="osOptions"
                 :class="osErrorMessage && selectedOS !== OperatingSystem.OTHER && 'p-invalid'"
@@ -54,7 +49,7 @@
 
             <div class="field">
               <label for="browser">What browser were you using?</label>
-              <Dropdown
+              <Select
                 v-model="selectedBrowser"
                 :options="browserOptions"
                 :class="browserErrorMessage && selectedBrowser !== Browser.OTHER && 'p-invalid'"
@@ -227,7 +222,7 @@ async function onSubmit() {
     bugReport.reproduceSteps = stepsToReproduce.value;
     bugReport.expectedResult = expectedResult.value;
     bugReport.actualResult = actualResult.value;
-    bugReport.createdBy = user.value.id;
+    if (user.value) bugReport.createdBy = user.value.id;
     if (error.value) bugReport.error = error.value;
     const latestResult = await GithubService.getLatestRelease("IMDirectory");
     if (latestResult) bugReport.version = latestResult.version;

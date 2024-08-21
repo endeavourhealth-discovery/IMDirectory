@@ -41,10 +41,11 @@ import PropertyBuilder from "./PropertyBuilder.vue";
 import TermCodeEditor from "./TermCodeEditor.vue";
 import EntityDropdown from "./EntityDropdown.vue";
 import EntityDisplay from "./EntityDisplay.vue";
+import AutocompleteSearchBarWrapper from "./AutocompleteSearchBarWrapper.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  components: { EntitySearch, EntityAutoComplete, ComponentGroup, PropertyBuilder, TermCodeEditor, EntityDropdown, EntityDisplay }
+  components: { EntitySearch, EntityAutoComplete, ComponentGroup, PropertyBuilder, TermCodeEditor, EntityDropdown, EntityDisplay, AutocompleteSearchBarWrapper }
 });
 </script>
 
@@ -158,16 +159,16 @@ function addNextClicked(item: any): void {
 .label-container {
   flex: 1 1 auto;
   padding: 1rem;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   position: relative;
   min-width: 15rem;
 }
 
 .label {
   cursor: pointer;
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
-  background-color: var(--surface-a);
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
+  background-color: var(--p-content-background);
   padding: 0.25rem;
 }
 
@@ -176,7 +177,7 @@ function addNextClicked(item: any): void {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: var(--text-color);
+  color: var(--p-text-color);
 }
 
 .search-input {

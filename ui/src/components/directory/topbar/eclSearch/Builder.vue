@@ -16,7 +16,11 @@
     :auto-z-index="false"
   >
     <template #header>
-      <h3>ECL Builder:</h3>
+      <div class="ecl-builder-dialog-header">
+        <strong>ECL Builder:</strong>
+        <Button icon="fa-regular fa-circle-question" text rounded @mouseover="toggle" @mouseout="toggle" />
+        <Popover ref="op">Select or drag and drop for grouping</Popover>
+      </div>
     </template>
     <div id="builder-string-container">
       <div id="query-builder-container">
@@ -24,30 +28,41 @@
           <ProgressSpinner v-if="loading" />
           <BoolGroup v-else :value="build" :rootBool="true" />
         </div>
-        <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading"
-          >*Move pointer over panel above to add concepts, refinements and groups.</small
-        >
+        <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading">
+          *Move pointer over panel above to add concepts, refinements and groups.
+        </small>
       </div>
       <div id="build-string-container">
-        <h3>Output:</h3>
-        <div class="field-checkbox">
-          <Checkbox inputId="includeTerms" v-model="includeTerms" :binary="true" />
-          <label for="includeTerms">Include terms</label>
-        </div>
-        <div class="string-copy-container">
-          <pre class="output-string">{{ queryString }}</pre>
-          <Button
-            icon="fa-solid fa-copy"
-            v-tooltip.left="'Copy to clipboard'"
-            v-clipboard:copy="copyToClipboard()"
-            v-clipboard:success="onCopy"
-            v-clipboard:error="onCopyError"
-          />
-        </div>
+        <Panel header="Output" toggleable collapsed>
+          <div class="field-checkbox">
+            <Checkbox inputId="includeTerms" v-model="includeTerms" :binary="true" />
+            <label for="includeTerms">Include terms</label>
+          </div>
+          <div class="string-copy-container">
+            <div v-if="eclStringError.error" class="output-string" style="color: red">Error generating ecl text. Please check your inputs are correct.</div>
+            <div
+              v-else-if="isObjectHasKeys(childLoadingState) && !Object.values(childLoadingState).every(item => item === true)"
+              class="output-string"
+              style="color: red"
+            >
+              <ProgressSpinner />
+            </div>
+            <pre v-else class="output-string">{{ queryString }}</pre>
+            <Button
+              icon="fa-solid fa-copy"
+              v-tooltip.left="'Copy to clipboard'"
+              v-clipboard:copy="copyToClipboard()"
+              v-clipboard:success="onCopy"
+              v-clipboard:error="onCopyError"
+              :disabled="eclConversionError.error"
+            />
+          </div>
+        </Panel>
       </div>
     </div>
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" />
+      <Button label="Validate" severity="help" @click="validateBuild" :disabled="!isValidEcl" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>
@@ -55,22 +70,24 @@
 
 <script lang="ts">
 import BoolGroup from "./builder/BoolGroup.vue";
-import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
+import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { useDialog } from "primevue/usedialog";
+import { deferred } from "@im-library/helpers";
+import Swal from "sweetalert2";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 export default defineComponent({
-  components: { BoolGroup, Concept, Refinement }
+  components: { BoolGroup, ExpressionConstraint, Refinement }
 });
 </script>
 
 <script setup lang="ts">
 import { Ref, ref, watch, onMounted, provide, readonly, defineComponent } from "vue";
-import { useToast } from "primevue/usetoast";
-import _ from "lodash";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
+import _ from "lodash-es";
 import EclService from "@/services/EclService";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   showDialog?: boolean;
@@ -84,20 +101,42 @@ const emit = defineEmits({
   closeDialog: () => true
 });
 
-const toast = useToast();
+const dynamicDialog = useDialog();
 
-const build: Ref<any> = ref({ type: "BoolGroup", operator: "OR" });
+const build: Ref<any> = ref({ type: "BoolGroup", operator: "or" });
 const includeTerms = ref(true);
+const forceValidation = ref(false);
 const queryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
+
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
+const eclStringError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
 const isValidEcl = ref(false);
+const isValid = ref(false);
+const childLoadingState: Ref<any> = ref({});
+watch(
+  () => _.cloneDeep(childLoadingState.value),
+  newValue => {
+    if (Object.values(newValue).every(item => item === true)) generateQueryString();
+  }
+);
+
+const wasDraggedAndDropped = ref(false);
+provide("wasDraggedAndDropped", wasDraggedAndDropped);
+const op = ref();
+function toggle(event: any) {
+  op.value.toggle(event);
+}
 
 watch(queryString, async () => {
-  isValidEcl.value = await EclService.isValidECL(queryString.value);
+  if (queryString.value) isValidEcl.value = await EclService.isValidECL(queryString.value);
+  else isValidEcl.value = false;
 });
 
 provide("includeTerms", readonly(includeTerms));
+provide("forceValidation", readonly(forceValidation));
+provide("childLoadingState", childLoadingState);
 
 onMounted(async () => {
   if (props.eclString) {
@@ -107,30 +146,32 @@ onMounted(async () => {
 
 watch(
   () => props.eclString,
-  newValue => {
-    if (newValue) createBuildFromEclString(newValue);
+  async newValue => {
+    if (newValue) await createBuildFromEclString(newValue);
     else createDefaultBuild();
   }
 );
 
 watch(
   () => _.cloneDeep(build.value),
-  () => {
-    generateQueryString();
+  async () => {
+    if (!loading.value && build.value) await generateQueryString();
   }
 );
 
-watch(includeTerms, () => generateQueryString());
+watch(includeTerms, async () => await generateQueryString());
 
 function createDefaultBuild() {
-  build.value = { type: "BoolGroup", conjunction: "OR" };
+  build.value = { type: "BoolGroup", conjunction: "or" };
 }
 
 async function createBuildFromEclString(ecl: string) {
   try {
     loading.value = true;
-    build.value = await EclService.getBuildFromEcl(ecl, true);
+    const query = await EclService.getQueryFromECL(ecl, true);
+    build.value = await EclService.getEclBuilderFromQuery(query, true);
     eclConversionError.value = { error: false, message: "" };
+    createInitialLoadingState(build.value, 0, 0);
   } catch (err: any) {
     createDefaultBuild();
     if (err?.response?.data) eclConversionError.value = { error: true, message: err.response.data.debugMessage };
@@ -138,6 +179,7 @@ async function createBuildFromEclString(ecl: string) {
   }
   emit("eclConversionError", eclConversionError.value);
   loading.value = false;
+  await generateQueryString();
 }
 
 function submit(): void {
@@ -148,20 +190,125 @@ function closeBuilderDialog(): void {
   emit("closeDialog");
 }
 
-function generateQueryString() {
-  if (isObjectHasKeys(build.value, ["ecl"])) queryString.value = build.value.ecl;
+async function generateQueryString() {
+  if (!isObjectHasKeys(childLoadingState.value) || Object.values(childLoadingState.value).every(item => item === true)) {
+    try {
+      const buildClone = _.cloneDeep(build.value);
+      stripIds(buildClone);
+      const query = await EclService.getQueryFromEclBuilder(buildClone, true);
+      queryString.value = await EclService.getECLFromQuery(query, includeTerms.value);
+      eclStringError.value = { error: false, message: "" };
+    } catch (err: any) {
+      eclStringError.value = { error: true, message: err.message };
+    }
+  }
 }
 
-function copyToClipboard(): string {
-  return queryString.value;
+async function validateBuild() {
+  const verificationDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Validating", text: "Running validation checks..." }
+  });
+  const validationBuild = generateValidation();
+  forceValidation.value = true;
+  const promises = validationBuild.map(v => v.validation.deferred.promise);
+  const result = await Promise.allSettled(promises)
+    .then(result => {
+      return result.every(r => r.status === "fulfilled");
+    })
+    .catch(err => {
+      verificationDialog.close();
+      throw err;
+    });
+  if (result) {
+    isValid.value = validationBuild.every(v => v.validation.valid);
+    if (isValid.value) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "All entities are valid.",
+        confirmButtonText: "Close",
+        confirmButtonColor: "##2196F3"
+      });
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "Invalid values found. Please review your entries.",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
+    }
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "Timeout",
+      text: "Validation timed out. Please contact an admin for support.",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
+    });
+  }
+  forceValidation.value = false;
+  verificationDialog.close();
 }
 
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
+function generateValidation(): any[] {
+  const flattenedBuild: any[] = [];
+  flattenBuild(build.value, flattenedBuild);
+  return flattenedBuild;
 }
 
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipbard"));
+function flattenBuild(build: any, flattenedBuild: any[]) {
+  if (isArrayHasLength(build.items))
+    build.items.forEach((item: any) => {
+      if (item.type === "Refinement") {
+        item.validation = { deferred: deferred(6000), valid: false };
+        flattenedBuild.push(item);
+      }
+      flattenBuild(item, flattenedBuild);
+    });
+}
+
+function createInitialLoadingState(initialBuild: any, depth: number, position: number) {
+  if (initialBuild) {
+    const id = depth + "-" + position;
+    initialBuild.id = id;
+    childLoadingState.value[id] = false;
+    if (initialBuild.items?.length) {
+      for (const [index, item] of initialBuild.items.entries()) {
+        createInitialLoadingState(item, depth + 1, index);
+      }
+    } else if (initialBuild.type === "ExpressionConstraint") {
+      if (initialBuild.conceptBool) {
+        createInitialLoadingState(initialBuild.conceptBool, depth + 1, 1);
+      }
+      if (initialBuild.refinementItems) {
+        for (const [index, item] of initialBuild.refinementItems.entries()) {
+          createInitialLoadingState(item, depth + 1, index);
+        }
+      }
+    }
+  }
+}
+
+function stripIds(idBuild: any) {
+  if (idBuild) {
+    delete idBuild.id;
+    if (idBuild.items?.length) {
+      for (const [index, item] of idBuild.items.entries()) {
+        stripIds(item);
+      }
+    } else if (idBuild.type === "ExpressionConstraint") {
+      if (idBuild.conceptBool) {
+        stripIds(idBuild.conceptBool);
+      }
+      if (idBuild.refinementItems) {
+        for (const [index, item] of idBuild.refinementItems.entries()) {
+          stripIds(item);
+        }
+      }
+    }
+  }
 }
 </script>
 
@@ -208,9 +355,9 @@ function onCopyError(): void {
 }
 
 .output-string {
-  background-color: var(--surface-a);
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
+  background-color: var(--p-content-background);
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   padding: 1rem;
   margin: 0;
   height: 100%;
@@ -224,5 +371,13 @@ function onCopyError(): void {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+}
+
+.ecl-builder-dialog-header {
+  display: flex;
+  flex-flow: row;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: larger;
 }
 </style>

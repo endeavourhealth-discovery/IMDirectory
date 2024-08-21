@@ -1,6 +1,6 @@
 <template>
   <div id="mfa-login">
-    <Card class="flex flex-column justify-content-sm-around align-items-center mfa-login-card">
+    <Card class="justify-content-sm-around mfa-login-card flex flex-col items-center">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-shield-halved" class="icon-header" />
       </template>
@@ -11,7 +11,7 @@
           <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
           <div class="code-input">
             <label for="mfa-code">Code</label>
-            <InputText id="mfa-code" v-model="code" v-on:keyup.enter="handleSubmitMFA" />
+            <InputText id="mfa-code" v-model="code" v-on:keyup.enter="handleSubmitMFA" autofocus />
             <small id="mfa-code-help">Enter the code from your authenticator app</small>
             <small v-if="!isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
           </div>
@@ -23,16 +23,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, h, computed } from "vue";
+import { ref, h, computed } from "vue";
 import { useDialog } from "primevue/usedialog";
 import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
-import Swal from "sweetalert2";
+import Swal, { SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
 import { useUserStore } from "@/stores/userStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
-import { Avatars } from "@im-library/constants";
+import { CustomAlert } from "@im-library/interfaces";
 
 const router = useRouter();
 const helpDialog = useDialog();
@@ -41,14 +41,10 @@ const authStore = useAuthStore();
 
 const isValidCode = computed(() => /\d{6}/.test(code.value));
 const authReturnPath = computed(() => authStore.authReturnPath);
-const awsUser = computed(() => userStore.awsUser);
+const currentUser = computed(() => userStore.currentUser);
 
 const code = ref("");
 const loading = ref(false);
-
-onMounted(() => {
-  if (!awsUser.value) router.push({ name: "Login" });
-});
 
 function showHelpDialog() {
   const dialogProps = {
@@ -70,33 +66,83 @@ function showHelpDialog() {
   });
 }
 
+async function handle200(res: CustomAlert) {
+  Swal.fire({
+    icon: "success",
+    title: "Success",
+    text: "Login successful"
+  }).then(() => {
+    userStore.clearOptionalCookies();
+    if (authReturnPath.value) {
+      router.push({ path: authReturnPath.value });
+    } else {
+      router.push({ name: "LandingPage" });
+    }
+  });
+}
+
+function handle403(res: CustomAlert) {
+  if (res.nextStep === "CONFIRM_SIGN_UP") {
+    Swal.fire({
+      icon: "warning",
+      title: "User Unconfirmed",
+      text: "Account has not been confirmed. Please confirm account to continue.",
+      showCloseButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Confirm Account"
+    }).then((result: SweetAlertResult) => {
+      if (result.isConfirmed) {
+        router.push({ name: "ConfirmCode" });
+      }
+    });
+  }
+  if (res.nextStep === "RESET_PASSWORD" || res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD") {
+    Swal.fire({
+      icon: "warning",
+      title: "New password required",
+      text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+      showCloseButton: false,
+      showCancelButton: false,
+      confirmButtonText: "Reset password"
+    }).then((result: SweetAlertResult) => {
+      if (result.isConfirmed) {
+        router.push({ name: "ForgotPassword" });
+      }
+    });
+  } else if (res.message) {
+    console.error(res.error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: res.message,
+      confirmButtonText: "Close"
+    });
+  } else {
+    console.error(res.error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Authentication error",
+      confirmButtonText: "Close"
+    });
+  }
+}
+
 async function handleSubmitMFA() {
   if (isValidCode.value) {
     loading.value = true;
-    await AuthService.mfaSignIn(awsUser.value, code.value)
+    await AuthService.mfaSignIn(code.value)
       .then(async res => {
-        if (res.status === 200 && res.user) {
-          const loggedInUser = res.user;
-          // check if avatar exists and replace lagacy images with default avatar on signin
-          const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-          if (!result) {
-            loggedInUser.avatar = Avatars[0];
-          }
-          userStore.updateCurrentUser(loggedInUser);
-          userStore.updateAwsUser(res.userRaw);
-          await userStore.getAllFromUserDatabase();
-          authStore.updateRegisteredUsername("");
+        if (res.status === 200) {
+          await handle200(res);
+        } else if (res.status === 403) {
+          handle403(res);
+        } else {
           Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Login successful"
-          }).then(() => {
-            userStore.clearOptionalCookies();
-            if (authReturnPath.value) {
-              router.push({ path: authReturnPath.value });
-            } else {
-              router.push({ name: "LandingPage" });
-            }
+            icon: "error",
+            title: "Error",
+            text: res.message,
+            confirmButtonText: "Close"
           });
         }
       })
@@ -145,7 +191,7 @@ async function handleSubmitMFA() {
 }
 
 .invalid-text {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 .submit-button {

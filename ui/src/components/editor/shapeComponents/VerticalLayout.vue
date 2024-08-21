@@ -4,7 +4,7 @@
       <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
       <h2 v-if="showRequired" class="required">*</h2>
     </div>
-    <div v-for="(component, index) in components" class="component-container" :style="'height:' + heights[index]">
+    <div v-for="(component, index) in components" class="component-container" :style="styles.find(s => s.index === index)?.style">
       <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>
   </div>
@@ -28,6 +28,7 @@ import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder
 import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
 import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
 import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
+import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
 import { shapeTypes } from "qr-code-styling";
 
 export default defineComponent({
@@ -47,7 +48,8 @@ export default defineComponent({
     TermCodeEditor,
     TextDropdown,
     EntityDisplay,
-    IriBuilder
+    IriBuilder,
+    SubsetBuilder
   }
 });
 </script>
@@ -82,27 +84,22 @@ const manualWidth = computed(() =>
 );
 
 const components: Ref<any[]> = ref([]);
-const heights: Ref<String[]> = ref([]);
+const styles: Ref<{ index: number; style: any }[]> = ref([]);
 
 onMounted(() => {
   setComponents();
-  setHeights();
+  setStyles();
 });
 
 function setComponents() {
   if (isObjectHasKeys(props.shape, ["property"])) components.value = props.shape.property!;
 }
 
-function setHeights() {
-  if (props.shape.argument) {
-    const splitArgs = props.shape.argument[0].valueData?.split(",");
-    if (splitArgs && splitArgs?.length) {
-      heights.value = splitArgs;
-      return;
-    }
+function setStyles() {
+  const styleArg = props.shape.argument?.find(a => a.parameter === "style");
+  if (styleArg) {
+    styles.value = styleArg.valueObject;
   }
-
-  if (isObjectHasKeys(props.shape, ["property"])) props.shape.property?.forEach(() => heights.value.push("fit-content"));
 }
 
 function processEntityValue(property: PropertyShape) {
@@ -127,6 +124,7 @@ function processEntityValue(property: PropertyShape) {
 
 .component-container {
   width: 100%;
+  flex: 0 1 auto;
 }
 
 .vertical-layout-container:deep(label) {
@@ -142,6 +140,6 @@ function processEntityValue(property: PropertyShape) {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

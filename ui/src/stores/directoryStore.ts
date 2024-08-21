@@ -1,16 +1,16 @@
 import { defineStore } from "pinia";
 import { DirectoryState } from "@/stores/types/directoryState";
 
-import { IM } from "@im-library/vocabulary";
-import { SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { IM, RDFS } from "@im-library/vocabulary";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export const useDirectoryStore = defineStore("directory", {
   state: (): DirectoryState => ({
     conceptIri: IM.MODULE_ONTOLOGY,
     findInTreeIri: "",
-    searchResults: {} as SearchResponse,
+    searchResults: undefined,
     findInTreeBoolean: false,
     searchLoading: false,
     sidebarControlActivePanel: 0,
@@ -23,9 +23,12 @@ export const useDirectoryStore = defineStore("directory", {
     updateConceptIri(conceptIri: string) {
       this.conceptIri = conceptIri;
     },
-    async fetchSearchResults(data: { searchRequest: SearchRequest; controller: AbortController }) {
-      const result = await EntityService.advancedSearch(data.searchRequest, data.controller);
-      this.updateSearchResults(result);
+    async getConceptName(): Promise<string> {
+      if (this.conceptIri) {
+        const result = await EntityService.getPartialEntity(this.conceptIri, [RDFS.LABEL]);
+        if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+      }
+      return "";
     },
     // Mutations
     updateFindInTreeIri(value: string) {
@@ -38,7 +41,7 @@ export const useDirectoryStore = defineStore("directory", {
     updateSearchLoading(loading: boolean) {
       this.searchLoading = loading;
     },
-    updateSearchResults(searchResults: SearchResponse) {
+    updateSearchResults(searchResults: SearchResponse | undefined) {
       this.searchResults = searchResults;
     },
     updateSidebarControlActivePanel(number: number) {

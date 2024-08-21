@@ -4,16 +4,6 @@ import { NextFunction, Request, Response } from "express";
 import logger from "./logger.middleware";
 
 function errorHandler(error: any, request: Request, response: Response, next: NextFunction) {
-  process.on("uncaughtException", err => {
-    logger.log("fatal", error);
-    process.exit(1);
-  });
-
-  process.on("unhandledRejection", (reason, promise) => {
-    logger.log("fatal", error);
-    process.exit(1);
-  });
-
   let status = error.status ?? 500;
   let message = error.message ?? "Uncaught server error occurred";
   const newApiError = new ApiError(status, message);
@@ -26,6 +16,7 @@ function errorHandler(error: any, request: Request, response: Response, next: Ne
     logger.error(error);
     handleResponse(error.response, newApiError);
   } else {
+    console.error("fatal", error);
     logger.log("fatal", error);
     process.exit(1);
   }

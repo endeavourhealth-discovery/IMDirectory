@@ -5,15 +5,15 @@
       <p>Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to sign in.</p>
       <DataView :value="twoFactorMethods" data-key="label">
         <template #header> Two-factor methods </template>
-        <template #list="{ data }: any">
-          <div class="col-12">
+        <template #list="slotProps">
+          <div v-for="(item, index) in slotProps.items" class="col-span-12">
             <div class="two-factor-row">
               <div class="mfa-row-details">
-                <span>{{ data.label }}</span>
-                <Tag :value="data.status ? 'Active' : 'Inactive'" :severity="data.status ? 'success' : 'warning'" rounded />
+                <span>{{ item.label }}</span>
+                <Tag :value="item.status ? 'Active' : 'Inactive'" :severity="item.status ? 'success' : 'warning'" rounded />
               </div>
-              <Button v-if="data.status" severity="danger" label="Deactivate" @click="handleMfaDelete(data.key)" />
-              <Button v-else label="Activate" @click="handleMfaActivate(data.key)" />
+              <Button v-if="item.status" severity="danger" label="Deactivate" @click="handleMfaDelete(item.key)" />
+              <Button v-else label="Activate" @click="handleMfaActivate(item.key)" />
             </div>
           </div>
         </template>
@@ -38,25 +38,30 @@ const twoFactorMethods = ref([
     label: "Authenticator app",
     details: "Use an authentication app or browser extension to get two-factor authentication codes when prompted.",
     icon: "fa-solid fa-mobile",
-    status: getMfaStatus("SOFTWARE_TOKEN_MFA"),
-    key: "SOFTWARE_TOKEN_MFA"
+    status: getMfaStatus("TOTP"),
+    key: "TOTP"
   }
 ]);
 
 function handleMfaActivate(key: string) {
-  if (key === "SOFTWARE_TOKEN_MFA") {
+  if (key === "TOTP") {
     router.push({ name: "MFASetup" });
   }
 }
 
 function handleMfaDelete(key: string) {
-  if (key === "SOFTWARE_TOKEN_MFA") {
+  if (key === "TOTP") {
     router.push({ name: "MFADelete" });
   }
 }
 
 function getMfaStatus(mfaKey: string): boolean {
-  return isObjectHasKeys(currentUser.value, ["mfaStatus"]) && isArrayHasLength(currentUser.value.mfaStatus) && currentUser.value.mfaStatus.includes(mfaKey);
+  return (
+    typeof currentUser.value !== "undefined" &&
+    isObjectHasKeys(currentUser.value, ["mfaStatus"]) &&
+    isArrayHasLength(currentUser.value.mfaStatus) &&
+    currentUser.value.mfaStatus.includes(mfaKey)
+  );
 }
 </script>
 

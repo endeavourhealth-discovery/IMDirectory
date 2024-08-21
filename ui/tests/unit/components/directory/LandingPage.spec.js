@@ -8,13 +8,24 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
+import Popover from "primevue/popover";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import testData from "./LandingPage.testData";
 import { EntityService, ConfigService, DirectService, UserService } from "@/services";
 import { flushPromises } from "@vue/test-utils";
 import { it, vi } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
 
-createTestingPinia();
+createTestingPinia({
+  initialState: {
+    user: {
+      currentUser: {
+        username: "Test"
+      },
+      recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }]
+    }
+  }
+});
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -32,27 +43,23 @@ describe("LandingPage.vue", async () => {
   let component;
   let getPartialSpy;
   let getPartialsSpy;
-  let getDashboardLayoutSpy;
   let directToSpy;
 
   beforeEach(async () => {
     vi.resetAllMocks();
     getPartialSpy = vi.spyOn(EntityService, "getPartialEntity").mockResolvedValueOnce(testData.ONTOLOGY_OVERVIEW).mockResolvedValueOnce(testData.CONCEPT_TYPES);
     getPartialsSpy = vi.spyOn(EntityService, "getPartialEntities").mockResolvedValue([testData.ENTITY]);
-    getDashboardLayoutSpy = vi.spyOn(ConfigService, "getDashboardLayout").mockResolvedValue(testData.DASHBOARD_LAYOUT);
     directToSpy = vi.spyOn(DirectService.prototype, "directTo");
     vi.useFakeTimers().setSystemTime(new Date("2022-09-23T12:18:59.78"));
-    UserService.getUserMRU = async () => [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }];
 
     component = render(LandingPage, {
       global: {
-        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart },
+        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart, IMFontAwesomeIcon, Popover },
         directives: { Tooltip: Tooltip },
         plugins: [PrimeVue],
         stubs: {
-          ReportTable: { template: "<span>Test Report Table</span>" },
-          PieChartDashCard: { template: "<span>Test Pie Chart</span>" },
-          ActionButtons: true
+          ActionButtons: true,
+          Favourites: true
         }
       }
     });
@@ -65,13 +72,5 @@ describe("LandingPage.vue", async () => {
 
   it("sets activity time", () => {
     component.getByText("Viewed yesterday");
-  });
-
-  it("shows report table if in config", () => {
-    component.getByText("Test Report Table");
-  });
-
-  it("shows pie chart if in config", () => {
-    component.getByText("Test Pie Chart");
   });
 });

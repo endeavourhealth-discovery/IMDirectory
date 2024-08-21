@@ -28,7 +28,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
-            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -53,10 +53,10 @@
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { EntityService, DirectService, UserService } from "@/services";
+import { EntityService, DirectService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
@@ -80,6 +80,7 @@ const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
 
@@ -95,7 +96,7 @@ watch(
   }
 );
 
-const conceptIsFavourite = computed(() => props.entityIri === IM.NAMESPACE + "Favourites");
+const conceptIsFavourite = computed(() => props.entityIri === IM.FAVOURITES);
 
 const loading = ref(false);
 const children: Ref<any[]> = ref([]);
@@ -110,14 +111,6 @@ const rClickOptions: Ref<any[]> = ref([
     label: "View in new tab",
     icon: "fa-solid fa-arrow-up-right-from-square",
     command: () => directService.view(selected.value["@id"])
-  },
-  {
-    separator: true
-  },
-  {
-    label: "Favourite",
-    icon: "fa-solid fa-star",
-    command: () => updateFavourites(selected.value["@id"])
   }
 ]);
 const totalCount = ref(0);
@@ -131,15 +124,22 @@ onMounted(() => init());
 
 async function init() {
   loading.value = true;
+  if (isLoggedIn.value) {
+    rClickOptions.value.push({
+      separator: true
+    });
+    rClickOptions.value.push({
+      label: "Favourite",
+      icon: "fa-solid fa-star",
+      command: () => updateFavourites(selected.value["@id"])
+    });
+  }
   !conceptIsFavourite.value ? await getChildren(props.entityIri) : await getFavourites();
   loading.value = false;
 }
 
 async function getFavourites() {
-  let favouriteList: string[];
-  if (currentUser.value) favouriteList = await UserService.getUserFavourites();
-  else favouriteList = favourites ? favourites.value : [];
-  const result = await EntityService.getPartialEntities(favouriteList, [RDFS.LABEL, RDF.TYPE]);
+  const result = await EntityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map((child: any) => {
     return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
   });
@@ -171,7 +171,7 @@ function isFavourite(iri: string) {
 function updateRClickOptions() {
   rClickOptions.value[0].label = selected.value.hasChildren ? "Open" : "Select";
   rClickOptions.value[0].icon = selected.value.hasChildren ? "fa-solid fa-folder-open" : "fa-solid fa-sitemap";
-  rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
+  if (isLoggedIn.value) rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
 }
 
 function onRowContextMenu(data: any) {
@@ -223,13 +223,13 @@ function locateInTree(iri: string) {
 }
 
 .row-button:hover {
-  background-color: var(--surface-border) !important;
-  color: var(--surface-a) !important;
+  background-color: var(--p-textarea-border-color) !important;
+  color: var(--p-content-background) !important;
 }
 
 .row-button-fav:hover {
-  background-color: var(--yellow-500) !important;
-  color: var(--surface-a) !important;
+  background-color: var(--p-yellow-500) !important;
+  color: var(--p-content-background) !important;
 }
 
 .content-wrapper {

@@ -4,7 +4,7 @@
       <svg id="force-layout-svg">
         <defs id="defs">
           <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="25" refY="6" orient="auto-start-reverse">
-            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: var(--surface-500)"></path>
+            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: var(--p-surface-500)"></path>
           </marker>
         </defs>
       </svg>
@@ -22,7 +22,7 @@
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
-import _ from "lodash";
+import _ from "lodash-es";
 import { TTGraphData } from "@im-library/interfaces";
 import { GraphExcludePredicates } from "@im-library/config";
 import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";
@@ -74,11 +74,11 @@ const width = ref(400);
 const force = ref(-5000);
 const radius = ref(16);
 const colour = ref({
-  activeNode: { fill: "var(--surface-100)", stroke: "var(--surface-500)" },
-  inactiveNode: { fill: "var(--primary-200)", stroke: "var(--surface-500)" },
-  centerNode: { fill: "var(--primary-color)", stroke: "var(--text-color)" },
+  activeNode: { fill: "var(--p-surface-100)", stroke: "var(--p-surface-500)" },
+  inactiveNode: { fill: "var(--p-primary-200)", stroke: "var(--p-surface-500)" },
+  centerNode: { fill: "var(--p-primary-color)", stroke: "var(--p-text-color)" },
   font: {},
-  path: { fill: "", stroke: "var(--surface-500)" }
+  path: { fill: "", stroke: "var(--p-surface-500)" }
 });
 const contextMenu: Ref<{ iri: string; label: string; command: (d: any) => void; disabled?: boolean }[]> = ref([]);
 
@@ -211,7 +211,7 @@ function drawGraph() {
     .attr("startOffset", "50%")
     .attr("font-size", () => `${pathFontSize.value}px`)
     .text((d: any) => d.target.data.relToParent)
-    .style("fill", "var(--text-color)");
+    .style("fill", "var(--p-text-color)");
 
   const node = svg
     .append("g")
@@ -434,13 +434,13 @@ function zoomOut() {
   opacity: 33%;
   padding: 0.25rem !important;
   width: auto !important;
-  background-color: var(--surface-b) !important;
-  color: var(--text-color);
+  background-color: var(--p-surface-b) !important;
+  color: var(--p-text-color);
 }
 
 .svg-pan-zoom-control:hover {
   opacity: 100%;
-  color: var(--text-color) !important;
+  color: var(--p-text-color) !important;
 }
 
 #force-layout-svg {
@@ -479,8 +479,8 @@ function zoomOut() {
   width: 120px;
   padding: 2px;
   font: 12px sans-serif;
-  background-color: var(--surface-b);
-  color: var(--text-color);
+  background-color: var(--p-surface-b);
+  color: var(--p-text-color);
   border: 0px;
   border-radius: 8px;
   pointer-events: none;

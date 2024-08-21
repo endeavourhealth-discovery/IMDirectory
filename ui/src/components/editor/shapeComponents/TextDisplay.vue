@@ -12,14 +12,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType, Ref, computed } from "vue";
+import { ref, watch, onMounted, inject, Ref } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
+import _ from "lodash-es";
 import { PropertyShape, Argument } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
-import { FunctionService, QueryService } from "@/services";
+import { FunctionService } from "@/services";
 
 interface Props {
   shape: PropertyShape;
@@ -207,13 +207,10 @@ function hasData() {
   min-width: 25rem;
   align-items: center;
 }
-.p-float-label {
-  flex: 1 1 auto;
-}
 .loading-icon {
   flex: 0 0 auto;
 }
-.p-progress-spinner {
+.p-progressspinner {
   width: 2rem;
   height: 2rem;
 }
@@ -234,11 +231,11 @@ function hasData() {
 }
 
 .invalid {
-  border-color: var(--red-500);
+  border-color: var(--p-red-500);
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
