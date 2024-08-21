@@ -90,7 +90,6 @@ watch(
   () => {
     switch (propertyType.value) {
       case "range":
-        console.log('here')
         props.property.operator = undefined;
         props.property.isNull = undefined;
         props.property.isNotNull = undefined;
