@@ -28,7 +28,7 @@
     "@types/graphite": "0.1.2",
     "@types/lodash-es": "4.17.12",
     "adm-zip": "0.5.12",
-    "axios": "1.7.2",
+    "axios": "1.7.4",
     "body-parser": "1.20.2",
     "cognito-express": "3.0.4",
     "cors": "2.8.5",
