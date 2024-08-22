@@ -136,7 +136,7 @@ onMounted(() => {
   else if (props.property.operator === "startsWith" || props.property.operator === "contains") propertyType.value = props.property.operator;
   else if (props.property.isNull) propertyType.value = "isNull";
   else if (props.property.isNotNull) propertyType.value = "notNull";
-  else propertyType.value = "is";
+  else if (props.datatype !== IM.DATE_TIME) propertyType.value = "is";
 });
 </script>
 

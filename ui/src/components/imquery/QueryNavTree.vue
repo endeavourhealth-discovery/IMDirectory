@@ -350,7 +350,6 @@ async function addBaseEntityToRoot(iri: string) {
   display: flex;
   flex-flow: column;
   height: 100%;
-  width: 100%;
   justify-content: space-between;
 }
 </style>
