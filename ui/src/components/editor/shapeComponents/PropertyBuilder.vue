@@ -601,7 +601,6 @@ function updateEntity() {
   border: #781c8130 1px;
   border-style: solid none solid none;
   padding: 0.5rem;
-  display: flex;
   margin: 0;
   flex-grow: 1;
 }
