@@ -2,7 +2,7 @@
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
     <div class="flex">
       <QueryNavTree
-        class="w-5/12"
+        class="w-4/12"
         :editMatch="editMatch"
         v-model:selected-property="selectedProperty"
         :dm-iri="dataModelIri"

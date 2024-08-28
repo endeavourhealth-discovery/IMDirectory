@@ -11,12 +11,7 @@
     optionLabel="name"
     v-model:model-value="propertyType"
   />
-  <div v-if="propertyType === 'between'">
-    <DatePicker v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
-    <InputText value="and" disabled class="property-input-title-and" />
-    <DatePicker v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
-  </div>
-  <div v-else-if="propertyType === 'is'" class="flex">
+  <div v-if="propertyType === 'is'" class="flex">
     <Select type="text" placeholder="operator" :options="operatorOptions" v-model="operator" />
     <Select type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" />
     <DatePicker v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
@@ -27,6 +22,11 @@
       :datatype="datatype"
       :property-iri="property['@id']!"
     />
+  </div>
+  <div v-else-if="propertyType === 'between'">
+    <DatePicker v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
+    <InputText value="and" disabled class="property-input-title-and" />
+    <DatePicker v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
   </div>
   <div v-else-if="propertyType === 'within'" class="flex items-baseline">
     <SelectButton
@@ -63,7 +63,6 @@ import { Operator, Where, PropertyRef, Range } from "@im-library/interfaces/Auto
 import { cloneDeep } from "lodash-es";
 import { Ref, onMounted, ref, watch } from "vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
-import Dropdown from "primevue/dropdown";
 
 interface Props {
   property: Where;
@@ -84,6 +83,11 @@ const sign: Ref<"-" | "+" | undefined> = ref();
 onMounted(() => {
   initValues();
 });
+
+watch(
+  () => propertyType.value,
+  () => updatePropertyValues()
+);
 
 watch(
   () => numberValue.value,
@@ -111,11 +115,6 @@ watch(
 );
 
 watch(
-  () => propertyType.value,
-  () => updatePropertyValues()
-);
-
-watch(
   () => unit.value,
   () => updatePropertyValues()
 );
@@ -135,12 +134,13 @@ function initValues() {
       else sign.value = "+";
       numberValue.value = Number(props.property.value.replace("-", ""));
       unit.value = props.property.unit;
+    } else {
+      selectedValueA.value = getDateFromString(props.property.value);
+      propertyType.value = "is";
     }
     if (props.property.relativeTo) {
+      valueType.value = "variable";
       propertyRef.value = props.property.relativeTo;
-    } else {
-      propertyType.value = "is";
-      selectedValueA.value = getDateFromString(props.property.value);
     }
   } else if (isObjectHasKeys(props.property, ["range"])) {
     propertyType.value = "between";
@@ -164,35 +164,68 @@ function isNumber(stringNumber: string) {
 
 function updatePropertyValues() {
   clearAllProperties();
-  if (propertyType.value === "is") {
-    if (selectedValueA.value && valueType.value === "date") {
-      props.property.value = getStringFromDate(selectedValueA.value);
-      props.property.operator = operator.value;
-    } else if (isObjectHasKeys(propertyRef.value)) {
-      props.property.operator = operator.value;
-      props.property.relativeTo = propertyRef.value;
-    }
-  } else if (propertyType.value === "between") {
-    if (!isObjectHasKeys(props.property, ["range"]))
-      props.property.range = { from: { operator: "=", unit: "DATE", value: "" }, to: { operator: "=", unit: "DATE", value: "" } } as Range;
-    if (selectedValueA.value) props.property.range!.from.value = getStringFromDate(selectedValueA.value);
-    if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);
-  } else if (propertyType.value === "within") {
-    props.property.unit = unit.value;
-    props.property.operator = Operator.gte;
-    props.property.value = (sign.value === "-" ? "-" : "") + numberValue.value.toString();
-    if (isObjectHasKeys(propertyRef.value)) {
-      props.property.operator = operator.value;
-      props.property.relativeTo = propertyRef.value;
-    } else {
-      props.property.relativeTo = {
-        parameter: "$referenceDate"
-      };
-    }
-  } else if (propertyType.value === "isNull") {
-    props.property.isNull = true;
-  } else if (propertyType.value === "notNull") {
-    props.property.isNotNull = true;
+  switch (propertyType.value) {
+    case "is":
+      populateIsDate();
+      break;
+    case "between":
+      populateBetweenDate();
+      break;
+    case "within":
+      populateWithinDate();
+      break;
+    case "isNull":
+      props.property.isNull = true;
+      break;
+    case "notNull":
+      props.property.isNotNull = true;
+      break;
+
+    default:
+      break;
+  }
+}
+
+function populateIsDate() {
+  delete props.property.isNotNull;
+  delete props.property.isNull;
+  selectedValueB.value = undefined;
+  sign.value = undefined;
+
+  props.property.operator = operator.value;
+  if (valueType.value === "date") props.property.value = getStringFromDate(selectedValueA.value);
+  else if (valueType.value === "variable") props.property.relativeTo = propertyRef.value;
+}
+
+function populateBetweenDate() {
+  delete props.property.operator;
+  operator.value = undefined;
+  delete props.property.value;
+  delete props.property.unit;
+  delete props.property.relativeTo;
+  delete props.property.isNotNull;
+  delete props.property.isNull;
+
+  if (!isObjectHasKeys(props.property, ["range"]))
+    props.property.range = { from: { operator: "=", unit: "DATE", value: "" }, to: { operator: "=", unit: "DATE", value: "" } } as Range;
+  if (selectedValueA.value) props.property.range!.from.value = getStringFromDate(selectedValueA.value);
+  if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);
+}
+
+function populateWithinDate() {
+  delete props.property.isNotNull;
+  delete props.property.isNull;
+
+  props.property.unit = unit.value;
+  props.property.operator = operator.value;
+  props.property.value = (sign.value === "-" ? "-" : "") + numberValue.value.toString();
+  if (isObjectHasKeys(propertyRef.value)) {
+    props.property.operator = operator.value;
+    props.property.relativeTo = propertyRef.value;
+  } else {
+    props.property.relativeTo = {
+      parameter: "$referenceDate"
+    };
   }
 }
 
@@ -207,6 +240,7 @@ function clearAllProperties() {
 }
 
 function getStringFromDate(date: Date) {
+  if (!date) return "";
   return [date.getDate(), date.getMonth() + 1, date.getFullYear()].join("/");
 }
 

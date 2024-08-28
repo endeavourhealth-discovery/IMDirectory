@@ -65,7 +65,6 @@
 </template>
 
 <script setup lang="ts">
-import Dropdown from "primevue/dropdown";
 import { Ref, onMounted, ref, watch } from "vue";
 import { IM, XSD } from "@im-library/vocabulary";
 import { Assignable, Range, Where, Operator } from "@im-library/interfaces/AutoGen";
@@ -112,7 +111,7 @@ watch(
         delete props.property.range;
         props.property.isNull = undefined;
         props.property.isNotNull = undefined;
-        props.property.operator = Operator.eq;
+        if (!operatorOptions.includes(props.property.operator as string)) props.property.operator = Operator.eq;
         break;
       case "notNull":
         delete props.property.range;
@@ -137,7 +136,7 @@ onMounted(() => {
   else if (props.property.operator === "startsWith" || props.property.operator === "contains") propertyType.value = props.property.operator;
   else if (props.property.isNull) propertyType.value = "isNull";
   else if (props.property.isNotNull) propertyType.value = "notNull";
-  else propertyType.value = "is";
+  else if (props.datatype !== IM.DATE_TIME) propertyType.value = "is";
 });
 </script>
 
