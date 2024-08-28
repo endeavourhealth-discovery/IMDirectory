@@ -140,9 +140,7 @@ export class IM {
   public static readonly PLABEL = IM.NAMESPACE + "pLabel";
   public static readonly OLABEL = IM.NAMESPACE + "oLabel";
   public static readonly EXAMPLE = IM.NAMESPACE + "example";
-  public static readonly IM1ID = IM.NAMESPACE + "im1Id";
   public static readonly PRIVACY_LEVEL = IM.NAMESPACE + "privacyLevel";
-  public static readonly IM1SCHEME = IM.NAMESPACE + "im1Scheme";
   public static readonly VALUE_SELECT = IM.NAMESPACE + "valueSelect";
   public static readonly VALUE_VARIABLE = IM.NAMESPACE + "valueVariable";
   public static readonly PLACEHOLDER = IM.NAMESPACE + "placeHolder";
@@ -229,4 +227,5 @@ export class IM {
   public static readonly DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
   public static readonly NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
   public static readonly HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
+  public static readonly HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";
 }
