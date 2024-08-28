@@ -8,6 +8,7 @@ export class IM {
   public static readonly VALUE = "@value";
   public static readonly TYPE = "@type";
   public static readonly id = IM.NAMESPACE + "id";
+  public static readonly RELATIONSHIP_TYPE = IM.NAMESPACE+"relationshipType";
   public static readonly CODE = IM.NAMESPACE + "code";
   public static readonly PREFERRED_NAME = IM.NAMESPACE + "preferredName";
   public static readonly HAS_SCHEME = IM.NAMESPACE + "scheme";
