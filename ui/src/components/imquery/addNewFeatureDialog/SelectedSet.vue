@@ -8,19 +8,15 @@
       <template #empty> Add concepts and/or sets to this list</template>
       <template #option="{ option }" class="flex flex-row">
         <div class="option-wrapper flex flex-row">
-          <div class="option-content flex flex-row items-baseline gap-1">
-            <ToggleButton v-model="option.include" onLabel="include" offLabel="exclude" />
-            <InputText v-if="isValueSet(option[RDF.TYPE])" type="text" v-model="option.entailment" disabled />
-          <div class="option-content flex flex-row items-center gap-1" style="'max-width:100%;">
-            <Button :severity="'danger'" class="builder-button flex-shrink-0" icon="fa-solid fa-x" text @click="selectedValueMap.delete(option['@id'])" />
+          <div class="option-content flex flex-row items-center gap-1">
             <ToggleButton v-model="option.include" class="flex-shrink-0" offLabel="exclude" onLabel="include" />
             <InputText v-if="isValueSet(option[RDF.TYPE])" v-model="option.entailment" disabled type="text" />
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
             <div class="flex-col px-1 pb-1">
-              <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="p-mx-1 type-icon" />
+              <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="type-icon mr-2" />
               <span @mouseleave="hideOverlay" @mouseover="showOverlay($event, option['@id'])">{{ option[RDFS.LABEL] }}</span>
             </div>
-            <Button @click="selectedValueMap.delete(option['@id'])" class="builder-button" :severity="'danger'" icon="fa-solid fa-trash" text />
+            <Button :severity="'danger'" class="builder-button" icon="fa-solid fa-trash" text @click="selectedValueMap.delete(option['@id'])" />
           </div>
         </div>
       </template>
