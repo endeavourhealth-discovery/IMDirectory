@@ -176,7 +176,8 @@ const request: QueryRequest = {
       {
         instanceOf: [
           {
-            "@id": SNOMED.ATTRIBUTE
+            "@id": SNOMED.ATTRIBUTE,
+            descendantsOrSelfOf: true
           }
         ]
       }
