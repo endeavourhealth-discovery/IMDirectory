@@ -74,7 +74,7 @@ onMounted(async () => {
 async function getDataModel(iri: string) {
   loading.value = true;
   const name = (await EntityService.getNames([iri]))[0].name;
-  const children = await getDataModelPropertiesDisplay(iri, "0");
+  const children = await getDataModelPropertiesDisplay(iri, "0",null);
   data.value.push({ key: "0", label: name ?? iri, children: children, type: "root", data: { iri: iri } } as TreeNode);
   await onNodeExpand(data.value[0]);
   if (data.value[0].key) expandedKeys.value = { [data.value[0].key]: true };
@@ -87,7 +87,7 @@ async function onNodeExpand(node: TreeNode) {
       for (const child of node.children) {
         if (child.children && !child.children.length) {
           child.loading = true;
-          const children = await getDataModelPropertiesDisplay(child.data.iri, child.key!);
+          const children = await getDataModelPropertiesDisplay(child.data.iri, child.key!,props.entityIri);
           if (children.length) child.children = children;
           child.loading = false;
         }
@@ -251,8 +251,8 @@ function createNode(ttproperty: any, entity2: any[], index: any, cardinality: st
   propertyList.push(property);
 }
 
-async function getDataModelPropertiesDisplay(iri: string, parentKey: string): Promise<TreeNode[]> {
-  const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
+async function getDataModelPropertiesDisplay(iri: string, parentKey: string,parent:null | string): Promise<TreeNode[]> {
+  const entity = await EntityService.getDataModelProperties(iri,parent);
   const propertyList = [] as TreeNode[];
   if (isObjectHasKeys(entity, [SHACL.PROPERTY]) && isArrayHasLength(entity[SHACL.PROPERTY])) {
     const iris = [];
