@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" modal :header="header" :style="{ minWidth: '95vw', minHeight: '95vh' }">
+  <Dialog v-model:visible="visible" :header="header" :style="{ width: '95vw', minHeight: '95vh' }" modal>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
@@ -7,8 +7,8 @@
       <div v-if="active === 1" class="directory-search-dialog-content">
         <div class="search-bar">
           <SearchBarWithRadioFilters
-            :show-type-filters="showTypeFilters"
             :lockTypeFilters="lockTypeFilters"
+            :show-type-filters="showTypeFilters"
             @on-search="onSearch"
             @on-type-select="onTypeSelect"
           />
@@ -17,9 +17,9 @@
           <div class="left-container">
             <NavTree
               v-if="rootEntities != undefined"
-              :selectedIri="treeIri"
               :find-in-tree="findInDialogTree"
               :root-entities="rootEntities"
+              :selectedIri="treeIri"
               @found-in-tree="findInDialogTree = false"
               @row-selected="node => (treeIri = node.data)"
             />
@@ -27,14 +27,14 @@
           <div class="right-container">
             <SearchResultsAndDetails
               v-model:selected-path="selectedPath"
-              :selectedIri="treeIri"
-              :search-term="searchTerm"
-              :update-search="updateSearch"
-              :im-query="imQuery"
-              :data-model-iri="dataModelIri"
-              :selectedType="selectedType"
               :can-clear-path="canClearPath"
+              :data-model-iri="dataModelIri"
+              :im-query="imQuery"
               :property-iri="propertyIri"
+              :search-term="searchTerm"
+              :selectedIri="treeIri"
+              :selectedType="selectedType"
+              :update-search="updateSearch"
               @locate-in-tree="iri => (treeIri = iri)"
               @go-to-next-step="active = 2"
               @selected-iri="updateSelectedIri"
@@ -45,22 +45,22 @@
       <EditMatch
         v-if="active === 2 && editMatch && getLeafMatch(editMatch)"
         :edit-match="getLeafMatch(editMatch)"
-        :is-root-feature="true"
         :focused-id="getLeafMatch(editMatch)['@id']"
+        :is-root-feature="true"
       />
       <div class="flex-0 populate-property-actions flex justify-end gap-2">
         <Button label="Cancel" severity="secondary" @click="visible = false" />
         <Button v-if="hasQueryOrFeatureSelected" label="Save" @click="addQueryOrFeature" />
-        <Button v-else-if="active === 1 && hasNextStep" :disabled="disableSelect" label="OK" iconPos="right" @click="active = 2" />
-        <Button v-else label="Save" iconPos="right" @click="save" />
+        <Button v-else-if="active === 1 && hasNextStep" :disabled="disableSelect" iconPos="right" label="OK" @click="active = 2" />
+        <Button v-else iconPos="right" label="Save" @click="save" />
       </div>
     </div>
   </Dialog>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, onMounted, provide, ref, watch } from "vue";
-import { Match, Node, QueryRequest, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
+<script lang="ts" setup>
+import { computed, onMounted, provide, Ref, ref, watch } from "vue";
+import { Match, Node, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF } from "@im-library/vocabulary";
@@ -255,6 +255,7 @@ function updateSelectedIri(iri: string) {
   flex: 1 1 auto;
   overflow: auto;
 }
+
 .footer {
   display: flex;
   justify-content: end;
@@ -334,6 +335,7 @@ function updateSelectedIri(iri: string) {
   flex-wrap: nowrap;
   justify-content: flex-end;
 }
+
 .p-dialog-content {
   flex: 1 1 auto;
   display: flex;
