@@ -196,14 +196,6 @@ async function onSelect(iri: string) {
       if (selectedValueMap.value.size) {
         const has = await hasFeatureOrQuerySelected();
         if (!has) {
-          const valuePathSuggestions = (await getPathOptions(props.dataModelIri, iri)) ?? [];
-          if (!isArrayHasLength(valuePathSuggestions))
-            toast.add({
-              severity: ToastSeverity.WARN,
-              summary: "No relationship found between type and value",
-              detail: `Value is not directly connected through a defined relationship with the rest of the values of the list. Make sure this value can be part of the list.`,
-              life: 3000
-            });
           addToSelectedList(iri, entity[RDFS.LABEL]);
         } else
           toast.add({
@@ -246,7 +238,7 @@ async function setQueryPath(iri: string) {
   pathSuggestions.value = (await getPathOptions(props.dataModelIri, iri)) ?? [];
   if (!isArrayHasLength(pathSuggestions.value))
     toast.add({
-      severity: ToastSeverity.ERROR,
+      severity: ToastSeverity.WARN,
       summary: "No relationship found between type and value",
       detail: `Cannot find a property connected to this value, please select a property first.`,
       life: 3000
