@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-08-15 12:45:32.
+// Generated using typescript-generator version 3.2.1263 on 2024-08-28 14:33:52.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -261,10 +261,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -393,8 +393,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -585,6 +585,65 @@ export interface EclSearchRequest {
     select?: string[];
 }
 
+export interface BugReport extends Task {
+    product?: string;
+    version?: string;
+    module?: TaskModule;
+    os?: OperatingSystem;
+    osOther?: string;
+    browser?: Browser;
+    browserOther?: string;
+    severity?: Severity;
+    status?: Status;
+    error?: string;
+    description?: string;
+    reproduceSteps?: string;
+    expectedResult?: string;
+    actualResult?: string;
+}
+
+export interface EntityApproval extends Task {
+    approvalType?: ApprovalType;
+}
+
+export interface RoleRequest extends Task {
+    role?: UserRole;
+}
+
+export interface Task {
+    id?: TTIriRef;
+    createdBy?: string;
+    type?: TaskType;
+    state?: TaskState;
+    assignedTo?: string;
+    dateCreated?: Date;
+    history?: TaskHistory[];
+}
+
+/**
+ * Structure containing search request parameters and filters
+ */
+export interface WorkflowRequest {
+    page?: number;
+    size?: number;
+    userId?: string;
+}
+
+export interface WorkflowResponse {
+    page?: number;
+    count?: number;
+    tasks?: Task[];
+}
+
+export interface TaskHistory {
+    predicate?: string;
+    originalObject?: string;
+    newObject?: string;
+    changeDate?: Date;
+    modifiedBy?: string;
+    dateTime?: Date;
+}
+
 export interface BNF {
 }
 
@@ -681,8 +740,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    className?: string;
     nativeMethod?: boolean;
+    className?: string;
 }
 
 export interface Exception extends Throwable {
@@ -696,8 +755,8 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    code?: string;
     status?: TTIriRef;
+    code?: string;
     description?: string;
     prefixes?: TTPrefix[];
 }
@@ -809,4 +868,78 @@ export const enum VarType {
     NODE = "NODE",
     PATH = "PATH",
     LITERAL = "LITERAL",
+}
+
+export const enum Browser {
+    CHROME = "CHROME",
+    FIREFOX = "FIREFOX",
+    EDGE = "EDGE",
+    IE = "IE",
+    OTHER = "OTHER",
+}
+
+export const enum OperatingSystem {
+    WINDOWS = "WINDOWS",
+    MACOS = "MACOS",
+    LINUX = "LINUX",
+    OTHER = "OTHER",
+}
+
+export const enum Severity {
+    CRITICAL = "CRITICAL",
+    MAJOR = "MAJOR",
+    MINOR = "MINOR",
+    TRIVIAL = "TRIVIAL",
+    ENHANCEMENT = "ENHANCEMENT",
+    UNASSIGNED = "UNASSIGNED",
+}
+
+export const enum Status {
+    NEW = "NEW",
+    FIXED = "FIXED",
+    ASSIGNED = "ASSIGNED",
+    VERIFIED = "VERIFIED",
+    REOPENED = "REOPENED",
+    WONT_FIX = "WONT_FIX",
+}
+
+export const enum TaskModule {
+    DIRECTORY = "DIRECTORY",
+    QUERY = "QUERY",
+    CREATOR = "CREATOR",
+    EDITOR = "EDITOR",
+    UPRN = "UPRN",
+    AUTH = "AUTH",
+}
+
+export const enum ApprovalType {
+    EDIT = "EDIT",
+    CREATE = "CREATE",
+}
+
+export const enum UserRole {
+    ADMIN = "ADMIN",
+    DEVELOPER = "DEVELOPER",
+    PUBLISHER = "PUBLISHER",
+    CREATOR = "CREATOR",
+    EDITOR = "EDITOR",
+    TASK_MANAGER = "TASK_MANAGER",
+    AUTHORISER = "AUTHORISER",
+    APPROVER = "APPROVER",
+}
+
+export const enum TaskState {
+    TODO = "TODO",
+    IN_PROGRESS = "IN_PROGRESS",
+    APPROVED = "APPROVED",
+    COMPLETE = "COMPLETE",
+    REJECTED = "REJECTED",
+    CANCELLED = "CANCELLED",
+    UNDER_REVIEW = "UNDER_REVIEW",
+}
+
+export const enum TaskType {
+    BUG_REPORT = "BUG_REPORT",
+    ROLE_REQUEST = "ROLE_REQUEST",
+    ENTITY_APPROVAL = "ENTITY_APPROVAL",
 }
