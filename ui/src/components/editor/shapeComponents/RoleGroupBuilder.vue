@@ -174,7 +174,7 @@ const request: QueryRequest = {
     activeOnly: true,
     match: [
       {
-        instanceOf: [
+        isA: [
           {
             "@id": SNOMED.ATTRIBUTE
           }
