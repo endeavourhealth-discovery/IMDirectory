@@ -119,7 +119,7 @@ function setupTree(emit?: any) {
       node.loading = true;
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       if (!expandedData.value.find(x => x.key === node.key)) expandedData.value.push(node);
-      if (node.data === IM.FAVOURITES) {
+      if (node.data === IM.FAVOURITES && node.children.length < favourites.value.length) {
         for (const fav of favourites.value) {
           const favChild = await EntityService.getEntityAsEntityReferenceNode(fav);
           if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type, false, node));
