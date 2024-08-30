@@ -1,10 +1,10 @@
 import Env from "@/services/env.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris, ValidatedEntity } from "@im-library/interfaces";
+import { PropertyDisplay, TTBundle, EntityReferenceNode, FiltersAsIris, ValidatedEntity } from "@im-library/interfaces";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { EclSearchRequest, TTIriRef, SearchResultSummary, Concept, DataModelProperty, TTEntity } from "@im-library/interfaces/AutoGen";
+import { EclSearchRequest, TTIriRef, Concept, TTEntity } from "@im-library/interfaces/AutoGen";
 import { byName } from "@im-library/helpers/Sorters";
 
 export default class EntityService {
@@ -41,11 +41,7 @@ export default class EntityService {
   }
 
   public async getPartialEntities(typeIris: string[], predicates: string[]): Promise<any[]> {
-    const promises: Promise<any>[] = [];
-    typeIris.forEach(iri => {
-      promises.push(this.getPartialEntity(iri, predicates));
-    });
-    return await Promise.all(promises);
+    return axios.get(Env.API + +"api/entity/public/partials", { params: { iris: typeIris.join(","), predicates: predicates.join(",") } });
   }
 
   public async getDistillation(refs: TTEntity[]): Promise<TTEntity[]> {
@@ -167,18 +163,6 @@ export default class EntityService {
     return superiors;
   }
 
-  async isInverseIsa(iri: string, searchTerm?: string): Promise<boolean> {
-    return (await this.axios.get(Env.API + "api/entity/public/isInverseIsa", { params: { subjectIri: iri, objectIri: searchTerm } })).data;
-  }
-
-  async getEntityReferenceNode(iri: string): Promise<EntityReferenceNode> {
-    return (await this.axios.get(Env.API + "api/entity/public/asEntityReferenceNode", { params: { iri: iri } })).data;
-  }
-
-  async getEntitySummary(iri: string): Promise<SearchResultSummary> {
-    return (await this.axios.get(Env.API + "api/entity/public/summary", { params: { iri: iri } })).data;
-  }
-
   async getSetDiff(setIriA: string, setIriB: string) {
     let membersA: Concept[] = [];
     let membersB: Concept[] = [];
@@ -215,26 +199,6 @@ export default class EntityService {
           iri: iri,
           legacy: legacy,
           includeSubsets: includeSubsets
-        }
-      })
-    ).data;
-  }
-
-  async getSubsets(iri: string): Promise<TTIriRef[]> {
-    return (
-      await axios.get(Env.API + "api/entity/public/subsets", {
-        params: {
-          iri: iri
-        }
-      })
-    ).data;
-  }
-
-  async getDataModelProperties(iri: string): Promise<DataModelProperty[]> {
-    return (
-      await axios.get(Env.API + "api/entity/public/dataModelProperties", {
-        params: {
-          iri: iri
         }
       })
     ).data;
