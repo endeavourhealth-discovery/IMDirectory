@@ -72,7 +72,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import { cloneDeep, isEqual } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
-import { QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 
 interface Props {
   selected?: SearchResultSummary;
@@ -112,7 +112,7 @@ watch(showDialog, () => {
 
 watch(
   () => cloneDeep(props.selected),
-  (newValue, oldValue) => {
+  async (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       searchLoading.value = true;
       if (newValue && newValue.name && newValue.name != searchText.value) {
@@ -130,7 +130,7 @@ watch(
 watch(
   selectedLocal,
   (newValue, oldValue) => {
-    if (!isEqual(newValue, oldValue)) emit("update:selected", newValue);
+    if (newValue?.iri !== oldValue?.iri) emit("update:selected", newValue);
   },
   { deep: true }
 );
@@ -141,8 +141,9 @@ watch(searchText, newValue => {
   } else if (!searchLoading.value && newValue != props.selected?.name) debounceForSearch();
 });
 
-onMounted(() => {
+onMounted(async () => {
   searchLoading.value = true;
+  if (props.selected && !props.selected.name && props.selected.iri) props.selected.name = await EntityService.getName(props.selected.iri);
   if (props.selected?.name) {
     searchText.value = props.selected.name;
     selectedLocal.value = props.selected;
