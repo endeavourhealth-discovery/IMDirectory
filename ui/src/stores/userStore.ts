@@ -28,9 +28,9 @@ export const useUserStore = defineStore("user", {
   },
   actions: {
     clearAllFromUserDatabase() {
-      this.currentPreset = undefined;
-      this.currentPrimaryColor = undefined;
-      this.currentSurfaceColor = undefined;
+      this.currentPreset = PrimeVuePresetThemes.AURA;
+      this.currentPrimaryColor = PrimeVueColors.EMERALD;
+      this.currentSurfaceColor = PrimeVueColors.SLATE;
       this.darkMode = false;
       this.currentScale = "14px";
       this.favourites = [];
