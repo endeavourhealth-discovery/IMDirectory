@@ -8,8 +8,7 @@ import { SortDirection } from "./SortDirection";
 import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
 import { ErrorType } from "./ErrorType";
-import * as BugReportEnums from "./bugReport/index";
-import * as WorkflowEnums from "./workflow/index";
+import { TaskState, TaskType, TaskModule, Browser, OperatingSystem, Severity, Status, UserRole } from "../interfaces/AutoGen";
 
 export {
   BuilderType,
@@ -22,6 +21,12 @@ export {
   ToastSeverity,
   TagSeverity,
   ErrorType,
-  BugReportEnums,
-  WorkflowEnums
+  TaskModule,
+  TaskState,
+  TaskType,
+  Browser,
+  OperatingSystem,
+  Severity,
+  Status,
+  UserRole
 };

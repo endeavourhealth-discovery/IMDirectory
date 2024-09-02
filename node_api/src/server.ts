@@ -12,7 +12,6 @@ import FhirController from "@/controllers/fhirController";
 import gracefulShutdown from "http-graceful-shutdown";
 import logger from "./middlewares/logger.middleware";
 import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/morgan.middleware";
-import WorkflowController from "./controllers/workflowController";
 import CodeGenController from "@/controllers/codeGenController";
 import metricsInterceptor from "@/middlewares/metrics.middleware";
 
@@ -29,7 +28,6 @@ const app = new App({
     new EntityController(),
     new CognitoController(),
     new FhirController(),
-    new WorkflowController(),
     new CodeGenController()
   ],
   middleWares: [

@@ -29,6 +29,7 @@ const BugReport = () => import("@/views/BugReport.vue");
 const SnomedLicense = () => import("@/views/SnomedLicense.vue");
 const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
 const Cookies = () => import("@/views/Cookies.vue");
+const Workflow = () => import("@/views/Workflow.vue");
 const Filer = () => import("@/views/Filer.vue");
 const Uprn = () => import("@/views/Uprn.vue");
 const SingleFileLookup = () => import("@/components/uprn/SingleAddressLookup.vue");
@@ -220,6 +221,15 @@ const routes: Array<RouteRecordRaw> = [
       requiresLicense: true,
       requiresEditRole: true,
       requiresOrganisation: true
+    }
+  },
+  {
+    path: "/workflow",
+    name: "Workflow",
+    component: Workflow,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true
     }
   },
   {

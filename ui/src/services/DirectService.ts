@@ -85,6 +85,10 @@ export default class DirectService {
     this.directTo({ appRoute: "uprn", newTab: true });
   }
 
+  public workflow() {
+    this.directTo({ appRoute: "workflow", newTab: true });
+  }
+
   public codeGenerator() {
     this.directTo({ appRoute: "codeGenerator" });
   }

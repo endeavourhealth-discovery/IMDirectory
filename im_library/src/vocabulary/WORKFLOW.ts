@@ -11,11 +11,21 @@ export class WORKFLOW {
   public static readonly RELATED_PRODUCT = WORKFLOW.NAMESPACE + "relatedProduct";
   public static readonly RELATED_MODULE = WORKFLOW.NAMESPACE + "relatedModule";
   public static readonly OPERATING_SYSTEM = WORKFLOW.NAMESPACE + "operatingSystem";
+  public static readonly OPERATING_SYSTEM_OTHER = WORKFLOW.NAMESPACE + "operatingSystemOther";
   public static readonly BROWSER = WORKFLOW.NAMESPACE + "browser";
+  public static readonly BROWSER_OTHER = WORKFLOW.NAMESPACE + "browserOther";
   public static readonly SEVERITY = WORKFLOW.NAMESPACE + "severity";
   public static readonly ERROR = WORKFLOW.NAMESPACE + "errorDetails";
   public static readonly REPRODUCE_STEPS = WORKFLOW.NAMESPACE + "reproduceSteps";
   public static readonly EXPECTED_RESULT = WORKFLOW.NAMESPACE + "expectedResult";
   public static readonly ACTUAL_RESULT = WORKFLOW.NAMESPACE + "actualResult";
   public static readonly RELATED_VERSION = WORKFLOW.NAMESPACE + "relatedVersion";
+  public static readonly REQUESTED_ROLE = WORKFLOW.NAMESPACE + "requestedRole";
+  public static readonly APPROVAL_TYPE = WORKFLOW.NAMESPACE + "approvalType";
+  public static readonly HISTORY = WORKFLOW.NAMESPACE + "history";
+  public static readonly HISTORY_PREDICATE = WORKFLOW.NAMESPACE + "historyPredicate";
+  public static readonly HISTORY_ORIGINAL_OBJECT = WORKFLOW.NAMESPACE + "historyOriginalObject";
+  public static readonly HISTORY_NEW_OBJECT = WORKFLOW.NAMESPACE + "historyNewObject";
+  public static readonly HISTORY_CHANGE_DATE = WORKFLOW.NAMESPACE + "historyChangeDate";
+  public static readonly MODIFIED_BY = WORKFLOW.NAMESPACE + "modifiedBy";
 }
