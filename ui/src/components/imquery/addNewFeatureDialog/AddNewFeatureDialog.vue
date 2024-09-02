@@ -80,7 +80,7 @@ interface Props {
   propertyIri?: string;
   canClearPath?: boolean;
   header: string;
-  dataModelIri: string;
+  dataModelIri: string | undefined;
   showVariableOptions: boolean;
   hasNextStep?: boolean;
   showTypeFilters?: boolean;

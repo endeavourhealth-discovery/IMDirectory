@@ -8,13 +8,7 @@
         :dm-iri="dataModelIri"
         :show-variable-options="showVariableOptions"
       />
-      <EditProperty
-        class="w-full self-center"
-        :edit-match="editMatch"
-        :property="editWhere"
-        :data-model-iri="editWhereDMIri || dataModelIri"
-        :show-delete="false"
-      />
+      <EditProperty :edit-match="editMatch" :property="editWhere" :data-model-iri="editWhereDMIri || dataModelIri" :show-delete="false" />
     </div>
     <template #footer>
       <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
@@ -94,7 +88,7 @@ watch(
 );
 
 onMounted(() => {
-  if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
+  if (isObjectHasKeys(props.match, ["where"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
 });
 
 async function save() {
