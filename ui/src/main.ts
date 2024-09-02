@@ -141,7 +141,7 @@ const app = createApp(App)
     autoSetContainer: true,
     appendToBody: true
   })
-  .use(VueShowdownPlugin)
+  .use(VueShowdownPlugin, { flavor: "github" })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
   .directive("ripple", Ripple)
