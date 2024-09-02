@@ -68,15 +68,12 @@ const emit = defineEmits({
 });
 
 const props = defineProps<Props>();
-
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const editQueryDefinition: Ref<Query> = ref({});
 const showDialog = ref(false);
 const imQueryForBaseType: Ref<QueryRequest | undefined> = ref();
-const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
-const showAddFeature: Ref<boolean> = ref(false);
 const variableMap: Ref<{ [key: string]: any }> = ref({});
 const selectedMenuItem: Ref<MenuItem | undefined> = ref();
 const loading = ref(true);
@@ -95,9 +92,11 @@ watch(
     }
   }
 );
+
 watch(
   () => cloneDeep(selectedBaseType.value),
-  () => {
+  (newValue, oldValue) => {
+    if (newValue?.iri !== oldValue?.iri && oldValue?.iri && editQueryDefinition.value.typeOf?.["@id"]) editQueryDefinition.value.match = [];
     if (selectedBaseType.value) editQueryDefinition.value.typeOf = { "@id": selectedBaseType.value.iri } as Node;
   }
 );
