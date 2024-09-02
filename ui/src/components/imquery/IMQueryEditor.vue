@@ -35,8 +35,6 @@
       </div>
     </div>
     <AddMatch
-      v-model:show-add-feature="showAddFeature"
-      v-model:show-add-population="showAddPopulation"
       v-model:show-build-feature="showBuildFeature"
       v-model:show-build-then-feature="showBuildThenFeature"
       :edit-match="editQueryDefinition"
@@ -130,7 +128,7 @@ function buildImQueryForBaseType() {
 }
 
 function editMatch(menuItems: MenuItem[]) {
-  if (isArrayHasLength(menuItems)) selectedMenuItem.value = menuItems[menuItems.length - 1];
+  if (menuItems && isArrayHasLength(menuItems)) selectedMenuItem.value = menuItems[menuItems.length - 1];
   showDialog.value = true;
 }
 

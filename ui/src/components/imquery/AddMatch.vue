@@ -28,7 +28,7 @@ import { Match } from "@im-library/interfaces/AutoGen";
 import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 interface Props {
   editMatch: Match;
-  matchTypeOfIri: string;
+  matchTypeOfIri: string | undefined;
   showBuildFeature: boolean;
   showBuildThenFeature: boolean;
 }

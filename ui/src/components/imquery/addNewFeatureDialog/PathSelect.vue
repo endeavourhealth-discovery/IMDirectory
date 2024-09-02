@@ -7,7 +7,9 @@
         <div v-if="option.path && option.typeOf">
           {{ option.path?.[0].name }} -> {{ option.typeOf?.name }} . {{ propertyIri ? getNameFromIri(propertyIri) : option.where?.[0]?.name }}
         </div>
-        <div v-else>{{ toTitleCase(getNameFromIri(dataModelIri)) }} -> {{ propertyIri ? getNameFromIri(propertyIri) : option.where?.[0]?.name }}</div>
+        <div v-else-if="dataModelIri">
+          {{ toTitleCase(getNameFromIri(dataModelIri)) }} -> {{ propertyIri ? getNameFromIri(propertyIri) : option.where?.[0]?.name }}
+        </div>
       </div>
     </template>
   </Listbox>
@@ -23,7 +25,7 @@ import { ref, watch } from "vue";
 import { Ref } from "vue";
 interface Props {
   selectedPath: Match | undefined;
-  dataModelIri: string;
+  dataModelIri: string | undefined;
   propertyIri?: string;
   pathSuggestions: Match[];
 }

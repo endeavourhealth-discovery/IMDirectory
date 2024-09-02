@@ -10,23 +10,25 @@
     optionValue="id"
     optionLabel="name"
     v-model:model-value="propertyType"
+    @change="clearAllProperties"
   />
   <div v-if="propertyType === 'is'" class="flex">
-    <Select type="text" placeholder="operator" :options="operatorOptions" v-model="operator" />
-    <Select type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" />
-    <DatePicker v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
+    <Select type="text" placeholder="operator" :options="operatorOptions" v-model="operator" @change="populateIsDate" />
+    <Select type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" @change="populateIsDate" />
+    <DatePicker v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" @update:model-value="populateIsDate" />
     <RelativeToSelect
       v-else-if="valueType === 'variable'"
       v-model:propertyRef="propertyRef"
       :property="property"
       :datatype="datatype"
       :property-iri="property['@id']!"
+      @update:property-ref="populateIsDate"
     />
   </div>
   <div v-else-if="propertyType === 'between'">
-    <DatePicker v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
-    <InputText value="and" disabled class="property-input-title-and" />
-    <DatePicker v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
+    <DatePicker v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" @update:model-value="populateBetweenDate" />
+    <InputText value="and" disabled class="property-input-title-and" @change="populateBetweenDate" />
+    <DatePicker v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" @update:model-value="populateBetweenDate" />
   </div>
   <div v-else-if="propertyType === 'within'" class="flex items-baseline">
     <SelectButton
@@ -38,8 +40,9 @@
       optionValue="id"
       optionLabel="name"
       class="flex items-baseline"
+      @change="populateWithinDate"
     />
-    <InputNumber v-model:model-value="numberValue" />
+    <InputNumber v-model:model-value="numberValue" @change="populateWithinDate" />
     <!-- TODO: model Date options and get from API -->
     <Select
       :options="[
@@ -52,8 +55,15 @@
       optionValue="id"
       optionLabel="name"
       v-model:model-value="unit"
+      @change="populateWithinDate"
     />
-    <RelativeToSelect v-model:propertyRef="propertyRef" :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+    <RelativeToSelect
+      v-model:propertyRef="propertyRef"
+      :property="property"
+      :datatype="datatype"
+      :property-iri="property['@id']!"
+      @change="populateWithinDate"
+    />
   </div>
 </template>
 
@@ -70,14 +80,14 @@ interface Props {
 }
 const props = defineProps<Props>();
 const propertyType: Ref<"is" | "between" | "within" | "isNull" | "notNull" | undefined> = ref();
-const valueType: Ref<"date" | "variable"> = ref("date");
+const valueType: Ref<"date" | "variable" | undefined> = ref("date");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
 const operatorOptions = ["=", ">=", ">", "<="];
 const numberValue: Ref<number> = ref(0);
 const operator: Ref<Operator | undefined> = ref();
 const unit: Ref<string | undefined> = ref();
-const propertyRef: Ref<PropertyRef> = ref({});
+const propertyRef: Ref<PropertyRef | undefined> = ref({});
 const sign: Ref<"-" | "+" | undefined> = ref();
 
 onMounted(() => {
@@ -85,47 +95,13 @@ onMounted(() => {
 });
 
 watch(
-  () => propertyType.value,
-  () => updatePropertyValues()
-);
-
-watch(
-  () => numberValue.value,
-  () => updatePropertyValues()
-);
-
-watch(
-  () => cloneDeep(selectedValueA.value),
-  () => updatePropertyValues()
-);
-
-watch(
-  () => cloneDeep(selectedValueB.value),
-  () => updatePropertyValues()
-);
-
-watch(
-  () => cloneDeep(operator.value),
-  () => updatePropertyValues()
-);
-
-watch(
-  () => cloneDeep(propertyRef.value),
-  () => updatePropertyValues()
-);
-
-watch(
-  () => unit.value,
-  () => updatePropertyValues()
-);
-
-watch(
-  () => sign.value,
-  () => updatePropertyValues()
+  () => cloneDeep(props.property),
+  () => initValues()
 );
 
 function initValues() {
   if (props.property.operator) operator.value = props.property.operator;
+  if (props.property.relativeTo) propertyRef.value = props.property.relativeTo;
 
   if (props.property.value) {
     if (isNumber(props.property.value)) {
@@ -162,30 +138,6 @@ function isNumber(stringNumber: string) {
   return /^-?\d+$/.test(stringNumber);
 }
 
-function updatePropertyValues() {
-  clearAllProperties();
-  switch (propertyType.value) {
-    case "is":
-      populateIsDate();
-      break;
-    case "between":
-      populateBetweenDate();
-      break;
-    case "within":
-      populateWithinDate();
-      break;
-    case "isNull":
-      props.property.isNull = true;
-      break;
-    case "notNull":
-      props.property.isNotNull = true;
-      break;
-
-    default:
-      break;
-  }
-}
-
 function populateIsDate() {
   delete props.property.isNotNull;
   delete props.property.isNull;
@@ -193,8 +145,11 @@ function populateIsDate() {
   sign.value = undefined;
 
   props.property.operator = operator.value;
-  if (valueType.value === "date") props.property.value = getStringFromDate(selectedValueA.value);
-  else if (valueType.value === "variable") props.property.relativeTo = propertyRef.value;
+  if (valueType.value === "date") {
+    props.property.value = getStringFromDate(selectedValueA.value);
+    delete props.property.relativeTo;
+    propertyRef.value = undefined;
+  } else if (valueType.value === "variable") props.property.relativeTo = propertyRef.value;
 }
 
 function populateBetweenDate() {
@@ -237,6 +192,15 @@ function clearAllProperties() {
   delete props.property.isNull;
   delete props.property.isNotNull;
   delete props.property.range;
+
+  valueType.value = undefined;
+  selectedValueA.value = undefined;
+  selectedValueB.value = undefined;
+  numberValue.value = 0;
+  operator.value = undefined;
+  unit.value = undefined;
+  propertyRef.value = undefined;
+  sign.value = undefined;
 }
 
 function getStringFromDate(date: Date) {

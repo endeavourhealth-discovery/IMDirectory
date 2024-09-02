@@ -40,7 +40,7 @@ import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
-  dataModelIri: string;
+  dataModelIri: string | undefined;
 }
 
 const props = defineProps<Props>();

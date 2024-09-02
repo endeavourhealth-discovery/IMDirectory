@@ -181,7 +181,6 @@ const emit = defineEmits({
   deleteMatch: (payload: string) => payload,
   ungroupMatches: (payload: Match) => payload
 });
-const addFeatureMenu = ref();
 const hover: Ref<boolean> = ref(false);
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, getTypeOfMatch } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
@@ -226,9 +225,7 @@ function onMatchAdd(match: Match) {
 }
 
 function onThenAdd(match: Match) {
-  console.log(props.editMatch);
   props.editMatch.then = match;
-  console.log(props.editMatch);
 }
 
 function bracketItems() {
