@@ -63,6 +63,9 @@ const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
 const darkMode = computed(() => userStore.darkMode);
 const viewsLoading = computed(() => loadingStore.viewsLoading);
 
+userStore.getAllFromLocalStorage();
+setThemeOptions();
+
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 
 watch(currentPreset, (newValue, oldValue) => {
