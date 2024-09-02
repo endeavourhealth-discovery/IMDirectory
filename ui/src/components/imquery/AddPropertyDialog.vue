@@ -19,13 +19,14 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import { Match, Where } from "@im-library/interfaces/AutoGen";
+import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/treenode";
 import { buildProperty } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import EditProperty from "./EditProperty.vue";
+import { QueryService } from "@/services";
 
 interface Props {
   showDialog: boolean;
