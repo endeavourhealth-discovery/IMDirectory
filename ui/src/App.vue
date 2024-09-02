@@ -63,6 +63,9 @@ const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
 const darkMode = computed(() => userStore.darkMode);
 const viewsLoading = computed(() => loadingStore.viewsLoading);
 
+userStore.getAllFromLocalStorage();
+setThemeOptions();
+
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 
 watch(currentPreset, (newValue, oldValue) => {
@@ -84,11 +87,10 @@ watch(darkMode, (newValue, oldValue) => {
 onMounted(async () => {
   loadingStore.updateViewsLoading(true);
   await AuthService.getCurrentAuthenticatedUser();
-  await filterStore.fetchFilterSettings();
   await userStore.getAllFromUserDatabase();
   setThemeOptions();
   if (currentScale.value) changeScale(currentScale.value);
-
+  await filterStore.fetchFilterSettings();
   await setShowBanner();
   loadingStore.updateViewsLoading(false);
 });

@@ -162,6 +162,7 @@ const AuthService = {
       const userStore = useUserStore();
       userStore.updateCurrentUser(undefined);
       userStore.clearAllFromUserDatabase();
+      userStore.clearAllFromLocalStorage();
       return { status: 200, message: "Logged out successfully" };
     } catch (err: any) {
       return { status: 400, message: "Error logging out from auth server", error: err };

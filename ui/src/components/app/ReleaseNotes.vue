@@ -204,6 +204,12 @@ p {
   padding: 0;
 }
 
+.showdown-component:deep(ul) {
+  list-style-type: disc;
+  list-style-position: inside;
+  padding-left: 1rem;
+}
+
 @keyframes my-fadein {
   0% {
     opacity: 0;

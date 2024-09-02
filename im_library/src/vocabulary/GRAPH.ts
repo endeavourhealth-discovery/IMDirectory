@@ -20,13 +20,12 @@ export class GRAPH {
   public static readonly IM1 = "http://endhealth.info/im1#";
   public static readonly ENCOUNTERS = "http://endhealth.info/enc#";
   public static readonly CONFIG = "http://endhealth.info/config#";
-  public static readonly CEG_QUERY = "http://endhealth.info/ceg/qry#";
+  public static readonly CEG = "http://endhealth.info/ceg#";
   public static readonly NHS_TFC = "http://endhealth.info/nhstfc#";
   public static readonly STATS = "http://endhealth.info/stats#";
   public static readonly DELTAS = "http://endhealth.info/deltas#";
   public static readonly PROV = "http://endhealth.info/prov#";
   public static readonly QUERY = "http://endhealth.info/query#";
-  public static readonly CEG16 = "http://endhealth.info/ceg16#";
   public static readonly REPORTS = "http://endhealth.info/reports#";
   public static readonly OPS_ROLES = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#";
   public static readonly XS = "http://www.w3.org/2001/XMLSchema#";

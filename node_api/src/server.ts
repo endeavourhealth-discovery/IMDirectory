@@ -9,7 +9,6 @@ import * as dns from "dns";
 import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
 import FhirController from "@/controllers/fhirController";
-import StatusController from "./controllers/statusController";
 import gracefulShutdown from "http-graceful-shutdown";
 import logger from "./middlewares/logger.middleware";
 import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/morgan.middleware";
@@ -23,7 +22,6 @@ dns.setDefaultResultOrder("ipv4first");
 const app = new App({
   port: 3000,
   controllers: [
-    new StatusController(),
     new QueryController(),
     new ValidationController(),
     new GithubController(),

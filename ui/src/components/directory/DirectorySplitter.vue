@@ -109,6 +109,7 @@ async function goToSearchResults() {
 .p-splitter {
   height: 100%;
   width: 100%;
+  border-radius: unset;
 }
 
 .splitter-right {

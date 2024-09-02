@@ -1,4 +1,4 @@
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, RDFS,SHACL } from "@im-library/vocabulary";
 import { EntityReferenceNode, FiltersAsIris, TTBundle, TermCode, Namespace, FilterOptions, PropertyDisplay, SetDiffObject } from "@im-library/interfaces";
 import { TTIriRef, SearchResultSummary, DownloadOptions } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
@@ -88,6 +88,16 @@ const EntityService = {
         predicates: predicates.join(",")
       }
     });
+  },
+
+  async getDataModelProperties(iri: string, parent: null| string): Promise<any> {
+    return axios.get(api + "api/entity/public/dataModelProperties", {
+      params: {
+        iri: iri,
+        parent: parent
+      }
+    });
+
   },
 
   async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<any> {

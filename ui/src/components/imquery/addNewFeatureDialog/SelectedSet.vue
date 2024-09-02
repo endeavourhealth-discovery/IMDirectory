@@ -3,20 +3,20 @@
     <ProgressSpinner />
   </div>
   <div v-else-if="canHaveValueList" class="flex w-full flex-col">
-    <InputText type="text" v-model="valueLabel" placeholder="Value label" @change="updateValueLabel" />
+    <InputText v-model="valueLabel" placeholder="Value label" type="text" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
-      <template #empty> Add concepts and/or sets to this list </template>
+      <template #empty> Add concepts and/or sets to this list</template>
       <template #option="{ option }" class="flex flex-row">
         <div class="option-wrapper flex flex-row">
-          <div class="option-content flex flex-row items-baseline gap-1">
-            <Button @click="selectedValueMap.delete(option['@id'])" class="builder-button" :severity="'danger'" icon="fa-solid fa-x" text />
-            <ToggleButton v-model="option.include" onLabel="include" offLabel="exclude" />
-            <InputText v-if="isValueSet(option[RDF.TYPE])" type="text" v-model="option.entailment" disabled />
+          <div class="option-content flex flex-row items-center gap-1">
+            <ToggleButton v-model="option.include" class="flex-shrink-0" offLabel="exclude" onLabel="include" />
+            <InputText v-if="isValueSet(option[RDF.TYPE])" v-model="option.entailment" disabled type="text" />
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
-            <div class="flex-col">
-              <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="p-mx-1 type-icon" />
-              <span @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay">{{ option[RDFS.LABEL] }}</span>
+            <div class="flex-col px-1 pb-1">
+              <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="type-icon mr-2" />
+              <span @mouseleave="hideOverlay" @mouseover="showOverlay($event, option['@id'])">{{ option[RDFS.LABEL] }}</span>
             </div>
+            <Button :severity="'danger'" class="builder-button" icon="fa-solid fa-trash" text @click="selectedValueMap.delete(option['@id'])" />
           </div>
         </div>
       </template>
@@ -25,9 +25,9 @@
   <OverlaySummary ref="OS" />
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { EntityService } from "@/services";
-import { onMounted, watch, Ref, ref, inject } from "vue";
+import { inject, onMounted, ref, Ref, watch } from "vue";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Match, Node, TTIriRef } from "@im-library/interfaces/AutoGen";
@@ -35,7 +35,7 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupOverlay from "@/composables/setupOverlay";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
-import { isConcept, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
@@ -109,7 +109,11 @@ function updatePathValues() {
 }
 
 function convertSelectedEntityToNode(selected: SelectedEntity): Node {
-  const node: Node = { "@id": selected["@id"], name: selected["http://www.w3.org/2000/01/rdf-schema#label"], exclude: !selected.include };
+  const node: Node = {
+    "@id": selected["@id"],
+    name: selected["http://www.w3.org/2000/01/rdf-schema#label"],
+    exclude: !selected.include
+  };
   switch (selected.entailment) {
     case "memberOf":
       node.memberOf = true;

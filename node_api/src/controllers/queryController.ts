@@ -1,6 +1,4 @@
-import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import axios from "axios";
 import { Request } from "express";
@@ -10,12 +8,10 @@ export default class QueryController {
   public path = "/node_api/query";
   public router = router();
   private queryService: QueryService;
-  private entityService: EntityService;
 
   constructor() {
     this.initRoutes();
     this.queryService = new QueryService(axios);
-    this.entityService = new EntityService(axios);
   }
 
   private initRoutes() {
