@@ -84,11 +84,10 @@ watch(darkMode, (newValue, oldValue) => {
 onMounted(async () => {
   loadingStore.updateViewsLoading(true);
   await AuthService.getCurrentAuthenticatedUser();
-  await filterStore.fetchFilterSettings();
   await userStore.getAllFromUserDatabase();
   setThemeOptions();
   if (currentScale.value) changeScale(currentScale.value);
-
+  await filterStore.fetchFilterSettings();
   await setShowBanner();
   loadingStore.updateViewsLoading(false);
 });

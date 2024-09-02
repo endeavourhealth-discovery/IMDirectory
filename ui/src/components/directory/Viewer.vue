@@ -286,9 +286,18 @@ function handleControlClick(iri: string) {
   align-items: center;
 }
 
+#concept-panel-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
+}
+
 #concept-content-dialogs-container {
   flex: 1 1 auto;
   overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .p-tabs {
@@ -301,13 +310,15 @@ function handleControlClick(iri: string) {
 .p-tabpanels {
   flex: 1 1 auto;
   overflow: auto;
-}
-
-.p-panel {
   display: flex;
   flex-flow: column nowrap;
-  justify-content: flex-start;
-  height: 100%;
+}
+
+.p-tabpanels:deep(.p-tabpanel) {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .concept-panel-content {
@@ -336,6 +347,7 @@ function handleControlClick(iri: string) {
 }
 
 #tab-list {
+  flex: 0 0 auto;
   display: flex;
 }
 </style>

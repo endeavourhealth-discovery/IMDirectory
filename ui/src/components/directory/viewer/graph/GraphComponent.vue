@@ -434,7 +434,7 @@ function zoomOut() {
   opacity: 33%;
   padding: 0.25rem !important;
   width: auto !important;
-  background-color: var(--p-surface-b) !important;
+  background-color: var(--p-content-background) !important;
   color: var(--p-text-color);
 }
 
@@ -479,7 +479,7 @@ function zoomOut() {
   width: 120px;
   padding: 2px;
   font: 12px sans-serif;
-  background-color: var(--p-surface-b);
+  background-color: var(--p-dialog-background);
   color: var(--p-text-color);
   border: 0px;
   border-radius: 8px;

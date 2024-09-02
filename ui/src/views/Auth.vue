@@ -17,7 +17,6 @@ import ButtonBar from "@/components/auth/ButtonBar.vue";
   flex: 1 1 auto;
   padding-top: 5vh;
   overflow: auto;
-  background-color: var(--p-surface-50);
 }
 
 .card-button-container {
