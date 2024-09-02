@@ -15,7 +15,7 @@
     </div>
     <div class="header-container">
       <ParentHierarchy
-        :entityIri="entity['@id']"
+        :entityIri="entity?.['@id']"
         @navigateTo="(iri: string) => $emit('navigateTo', iri)"
         :history="history"
         @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
@@ -29,7 +29,7 @@
       />
     </div>
     <div class="datatable-container">
-      <Viewer :entityIri="entity['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
+      <Viewer :entityIri="entity?.['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>
