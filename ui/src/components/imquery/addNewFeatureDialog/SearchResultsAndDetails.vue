@@ -54,11 +54,11 @@
           </div>
         </div>
       </div>
-      <SelectedSet :data-model-iri="dataModelIri" class="bottom-half-component" />
+      <SelectedSet :dataModelIri="dataModelIri" />
       <PathSelect
         :property-iri="propertyIri"
         :selected-path="selectedPath"
-        :data-model-iri="dataModelIri"
+        :dataModelIri="dataModelIri"
         :pathSuggestions="pathSuggestions"
         @onSelectedPath="(path: Match) => emit('update:selectedPath', path)"
       />
@@ -88,7 +88,7 @@ interface Props {
   searchTerm: string;
   updateSearch: boolean;
   imQuery: QueryRequest | undefined;
-  dataModelIri: string;
+  dataModelIri: string | undefined;
   selectedPath: Match | undefined;
   selectedType: string;
   canClearPath?: boolean;
@@ -161,7 +161,7 @@ async function init() {
   loading.value = false;
 }
 
-async function getPathOptions(dataModelIri: string, valueIri: string) {
+async function getPathOptions(dataModelIri: string | undefined, valueIri: string) {
   if (dataModelIri && valueIri) {
     const pathQuery: PathQuery = { source: { "@id": dataModelIri } as TTIriRef, target: { "@id": valueIri } as TTIriRef } as PathQuery;
     const result = await QueryService.pathQuery(pathQuery);

@@ -156,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, Match, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Query, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
@@ -167,6 +167,7 @@ import { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import AddPropertyDialog from "./AddPropertyDialog.vue";
 import AddMatch from "./AddMatch.vue";
+import { QueryService } from "@/services";
 
 interface Props {
   isRootFeature?: boolean;
@@ -181,7 +182,6 @@ const emit = defineEmits({
   deleteMatch: (payload: string) => payload,
   ungroupMatches: (payload: Match) => payload
 });
-const addFeatureMenu = ref();
 const hover: Ref<boolean> = ref(false);
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, getTypeOfMatch } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
@@ -213,11 +213,17 @@ function onDeleteMatch(matchId: string) {
   if (props.editMatch.then && props.editMatch.then["@id"] === matchId) delete props.editMatch.then;
 }
 
-function onPropertyAdd(property: Where) {
-  const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
-  if (!hasProperty) {
-    props.editMatch.where?.push(property);
+async function onPropertyAdd(property: Where) {
+  if (!props.editMatch.where) props.editMatch.where = [];
+  const propertyIndex = props.editMatch.where.findIndex(where => where["@id"] === property["@id"]);
+  if (propertyIndex && propertyIndex !== -1) {
+    props.editMatch.where[propertyIndex] = property;
+  } else {
+    props.editMatch.where.push(property);
   }
+
+  const describedMatch = await QueryService.getQueryDisplayFromQuery({ match: [props.editMatch] } as Query, false);
+  if (describedMatch.match?.[0].where) props.editMatch.where = describedMatch.match?.[0].where;
 }
 
 function onMatchAdd(match: Match) {
@@ -226,9 +232,7 @@ function onMatchAdd(match: Match) {
 }
 
 function onThenAdd(match: Match) {
-  console.log(props.editMatch);
   props.editMatch.then = match;
-  console.log(props.editMatch);
 }
 
 function bracketItems() {

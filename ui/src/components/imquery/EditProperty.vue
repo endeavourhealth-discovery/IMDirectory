@@ -43,15 +43,15 @@
 <script setup lang="ts">
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import { UIProperty } from "@im-library/interfaces";
-import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
-import { cloneDeep } from "lodash-es";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { convertTTPropertyToUIProperty, convertUIPropertyFromDMConcept } from "@im-library/helpers/Transforms";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
+import { cloneDeep } from "lodash-es";
 
 interface Props {
   property: Where;
@@ -63,7 +63,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { showDelete: true });
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
-const computedInstanceOfDisplay: ComputedRef<string | undefined> = computed(() => props.property.is?.map(is => getNameFromRef(is)).join(", "));
 const emit = defineEmits({ deleteProperty: () => true });
 const loading = ref(true);
 
@@ -85,11 +84,11 @@ watch(
 
 async function init() {
   loading.value = true;
-  if (props.dataModelIri && props.property["@id"]) selectedProperty.value = await getProperty(props.dataModelIri, props.property["@id"]);
+  if (props.dataModelIri && props.property?.["@id"]) selectedProperty.value = await getProperty();
   loading.value = false;
 }
 
-async function getProperty(dmIri: string, propIri: string) {
+async function getProperty() {
   const conceptProp = IM.NAMESPACE + "concept";
   const uiProps: UIProperty[] = [];
   const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY, conceptProp]);

@@ -8,13 +8,7 @@
         :dm-iri="dataModelIri"
         :show-variable-options="showVariableOptions"
       />
-      <EditProperty
-        class="w-full self-center"
-        :edit-match="editMatch"
-        :property="editWhere"
-        :data-model-iri="editWhereDMIri || dataModelIri"
-        :show-delete="false"
-      />
+      <EditProperty :edit-match="editMatch" :property="editWhere" :data-model-iri="editWhereDMIri || dataModelIri" :show-delete="false" />
     </div>
     <template #footer>
       <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
@@ -25,13 +19,14 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import { Match, Where } from "@im-library/interfaces/AutoGen";
+import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/treenode";
 import { buildProperty } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import EditProperty from "./EditProperty.vue";
+import { QueryService } from "@/services";
 
 interface Props {
   showDialog: boolean;
@@ -94,7 +89,7 @@ watch(
 );
 
 onMounted(() => {
-  if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
+  if (isObjectHasKeys(props.match, ["where"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
 });
 
 async function save() {
