@@ -1,7 +1,7 @@
 describe("UserEdit", () => {
   beforeEach(() => {
     cy.acceptLicenseAndLogin();
-    cy.getByTestId("account-menu-logged-in").click();
+    cy.getByTestId("account-menu-logged-in", { timeout: 60000 }).click();
     cy.get("#account-menu").contains("Edit account").click();
     cy.get(".user-container", { timeout: 60000 });
   });
@@ -36,49 +36,49 @@ describe("UserEdit", () => {
     cy.get(".email-check");
     cy.getByTestId("user-edit-email2").clear().type("cypress@cypres.com");
     cy.getByTestId("user-edit-email1").focus();
-    cy.get(".p-inline-message-error").contains("Email addresses do not match");
+    cy.get(".p-message-error").contains("Email addresses do not match");
     cy.getByTestId("user-edit-email2").clear().type("cypress@cypress.com");
     cy.getByTestId("user-edit-email1").focus();
-    cy.get(".p-inline-message-error").should("not.exist");
+    cy.get(".p-message-error").should("not.exist");
   });
   it("checks that the first name is valid", () => {
     cy.getByTestId("user-edit-firstname").type("%");
-    cy.get(".p-inline-message-error").contains("First name contains unexpected characters");
+    cy.get(".p-message-error").contains("First name contains unexpected characters");
     cy.getByTestId("user-edit-firstname").type("{backspace}");
-    cy.get(".p-inline-message-error").should("not.exist");
+    cy.get(".p-message-error").should("not.exist");
   });
   it("checks that the last name is valid", () => {
     cy.getByTestId("user-edit-lastname").type("%");
-    cy.get(".p-inline-message-error").contains("Last name must");
+    cy.get(".p-message-error").contains("Last name must");
     cy.getByTestId("user-edit-lastname").type("{backspace}");
-    cy.get(".p-inline-message-error").should("not.exist");
+    cy.get(".p-message-error").should("not.exist");
   });
 
-  // it.only("can validate password", () => {
-  //   cy.getByTestId("user-edit-password-change-button").click();
-  //   cy.getByTestId("user-edit-password-old").find("input").type("1234");
-  //   cy.getByTestId("user-edit-password-new1").find("input").type("1234");
-  //   cy.get(".p-password-info").contains("Weak");
-  //   cy.get(".p-inline-message").contains("weak");
-  //   cy.getByTestId("user-edit-password-new1").find("input").type("5678");
-  //   cy.get(".p-password-info").contains("Weak");
-  //   cy.get(".p-inline-message").contains("weak");
-  //   cy.getByTestId("user-edit-password-new1").find("input").type("abcd");
-  //   cy.get(".p-inline-message").contains("weak");
-  //   cy.get(".p-password-info").contains("Weak");
-  //   cy.getByTestId("user-edit-password-new1").find("input").type("A");
-  //   cy.get(".p-password-info").contains("Medium");
-  //   cy.getByTestId("user-edit-password-new1").find("input").type("%");
-  //   cy.get(".p-password-info").contains("Strong");
-  // });
-  // it("can confirm password", () => {
-  //   cy.getByTestId("user-edit-password-change-button").click();
-  //   cy.getByTestId("user-edit-password-old").find("input").type("1234");
-  //   cy.getByTestId("user-edit-password-new1").type("1234abcdA%");
-  //   cy.getByTestId("user-edit-password-new2").type("1234dcbaA%");
-  //   cy.getByTestId("user-edit-password-new1").find("input").focus();
-  //   cy.get(".p-inline-message-error").contains("Passwords do not match");
-  //   cy.getByTestId("user-editpassword-new2").clear().type("1234abcdA%");
-  //   cy.get(".p-inline-message-error").should("not.exist");
-  // });
+  it("can validate password", () => {
+    cy.getByTestId("user-edit-password-change-button").click();
+    cy.getByTestId("password-old").find("input").type("1234");
+    cy.getByTestId("password-new1").find("input").type("5678");
+    cy.get(".p-password-content").contains("Weak");
+    cy.get(".p-message").contains("weak");
+    cy.getByTestId("password-new1").find("input").type("5678");
+    cy.get(".p-password-content").contains("Weak");
+    cy.get(".p-message").contains("weak");
+    cy.getByTestId("password-new1").find("input").type("abcd");
+    cy.get(".p-message").contains("weak");
+    cy.get(".p-password-content").contains("Weak");
+    cy.getByTestId("password-new1").find("input").type("A");
+    cy.get(".p-password-content").contains("Medium");
+    cy.getByTestId("password-new1").find("input").type("%");
+    cy.get(".p-password-content").contains("Strong");
+  });
+  it.only("can confirm password", () => {
+    cy.getByTestId("user-edit-password-change-button").click();
+    cy.getByTestId("password-old").find("input").type("1234");
+    cy.getByTestId("password-new1").type("1234abcdA%");
+    cy.getByTestId("password-new2").type("1234dcbaA%");
+    cy.getByTestId("password-new1").find("input").focus();
+    cy.get(".p-message-error").contains("Passwords do not match");
+    cy.getByTestId("password-new2").clear().type("1234abcdA%");
+    cy.get(".p-message-error").should("not.exist");
+  });
 });

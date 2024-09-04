@@ -1,5 +1,5 @@
 <template>
-  <Card class="flex flex-col justify-content-sm-around items-center register-card">
+  <Card class="justify-content-sm-around register-card flex flex-col items-center">
     <template #header>
       <avatar-with-selector data-testid="register-avatar-select" :selectedAvatar="selectedAvatar" @avatarSelected="updateAvatar" />
     </template>
@@ -104,7 +104,7 @@
             <Checkbox v-model="privacyPolicyAccepted" :binary="true" />
           </div>
           <div class="flex flex-row justify-center">
-            <Button :disabled="!allVerified" data-testid="register-submit" class="user-submit" type="submit" label="Register" @click="onSubmit" />
+            <Button :disabled="!allVerified" data-testid="register-submit" class="user-submit" label="Register" @click="onSubmit" />
           </div>
         </div>
       </form>

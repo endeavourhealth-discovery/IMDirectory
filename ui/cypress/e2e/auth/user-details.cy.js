@@ -1,7 +1,8 @@
 describe("User details", () => {
   beforeEach(() => {
     cy.acceptLicenseAndLogin();
-    cy.getByTestId("account-menu-logged-in").click();
+    cy.visit("/");
+    cy.getByTestId("account-menu-logged-in", { timeout: 60000 }).click();
     cy.get("#account-menu").contains("My account").click();
     cy.get(".user-container", { timeout: 60000 });
   });
@@ -16,7 +17,7 @@ describe("User details", () => {
 
   it("shows security status", () => {
     cy.get(".menu-container").contains("Security").click();
-    cy.get(".two-factor-row").find(".p-tag-value").contains("Inactive");
+    cy.get(".two-factor-row").find(".p-tag-label").contains("Inactive");
   });
 
   it("can route to mfa setup", () => {

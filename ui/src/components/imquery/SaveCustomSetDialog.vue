@@ -6,7 +6,7 @@
     header="Save custom set"
     :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--p-surface-section)' }"
   >
-    <form @submit="onSubmit" class="flex flex-col gap-2 save-set-form">
+    <form @submit="onSubmit" class="save-set-form flex flex-col gap-2">
       <div class="flex flex-col gap-2" id="save-set-full-iri">
         <span id="save-set-iri-header">Iri</span>
         <InputText :model-value="fullIri" type="text" disabled />
@@ -60,7 +60,7 @@
 
     <template #footer>
       <Button label="Cancel" severity="secondary" @click="onDiscard" text />
-      <Button label="Save" type="submit" text @click="onSubmit" :loading="loading" />
+      <Button label="Save" text @click="onSubmit" :loading="loading" />
     </template>
   </Dialog>
 </template>

@@ -19,7 +19,7 @@
             @update:arePasswordsValid="setIsNewPasswordValid"
           />
           <div class="mt-2 flex flex-row justify-center">
-            <Button :disabled="buttonDisabled" class="user-edit" data-testid="password-edit-submit" label="Change password" type="submit" @click="onSubmit" />
+            <Button :disabled="buttonDisabled" class="user-edit" data-testid="password-edit-submit" label="Change password" @click="onSubmit" />
           </div>
         </form>
       </template>

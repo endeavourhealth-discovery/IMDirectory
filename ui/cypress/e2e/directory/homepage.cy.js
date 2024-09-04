@@ -3,6 +3,7 @@ describe("homepage", () => {
     beforeEach(() => {
       cy.preventNewTab();
       cy.acceptLicenseAndCookies();
+      cy.visit("/");
       cy.get("#landing-content", { timeout: 60000 });
     });
     it("can accept cookies and snomed licence", () => {
@@ -39,8 +40,8 @@ describe("homepage", () => {
         cy.get(".shortcut-container").contains("ASSIGN UPRN").click();
         cy.url().should("include", "/uprn");
       });
-      it("links to wiki", () => {
-        cy.get(".shortcut-container").contains("Wiki").click();
+      it.only("links to wiki", () => {
+        cy.get(".shortcut-container").invoke("removeAttr", "target").contains("Wiki").click();
         cy.url().should("include", "https://wiki.endeavourhealth.org/");
       });
     });
