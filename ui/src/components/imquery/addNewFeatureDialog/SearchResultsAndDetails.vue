@@ -54,7 +54,7 @@
           </div>
         </div>
       </div>
-      <SelectedSet :dataModelIri="dataModelIri" />
+      <SelectedSet :dataModelIri="dataModelIri" :propertyIri="propertyIri" />
       <PathSelect
         :property-iri="propertyIri"
         :selected-path="selectedPath"
@@ -92,7 +92,7 @@ interface Props {
   selectedPath: Match | undefined;
   selectedType: string;
   canClearPath?: boolean;
-  propertyIri?: string;
+  propertyIri: string | undefined;
 }
 
 const emit = defineEmits({

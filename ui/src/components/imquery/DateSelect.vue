@@ -83,7 +83,7 @@ const propertyType: Ref<"is" | "between" | "within" | "isNull" | "notNull" | und
 const valueType: Ref<"date" | "variable" | undefined> = ref("date");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
-const operatorOptions = ["=", ">=", ">", "<="];
+const operatorOptions = ["=", ">=", ">", "<", "<="];
 const numberValue: Ref<number> = ref(0);
 const operator: Ref<Operator | undefined> = ref();
 const unit: Ref<string | undefined> = ref();

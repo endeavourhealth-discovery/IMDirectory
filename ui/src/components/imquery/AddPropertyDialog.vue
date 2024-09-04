@@ -88,6 +88,29 @@ watch(
   }
 );
 
+watch(
+  () => cloneDeep(editMatch.value),
+  async newValue => {
+    if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
+      const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, false);
+      if (describedQuery.match?.[0].where) whereOrMatch.value.where = describedQuery.match?.[0].where;
+      const index = whereOrMatch.value.where?.findIndex(where => where["@id"] === whereOrMatch.value["@id"]);
+      if (whereOrMatch.value.where && index && index !== -1) {
+        editWhere.value = whereOrMatch.value.where[index];
+      }
+    } else if (editMatch.value.where?.length) {
+      const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, false);
+      if (describedQuery.match?.[0].where?.length) {
+        const index = describedQuery.match?.[0].where?.findIndex(where => where["@id"] === whereOrMatch.value["@id"]);
+        if (index && index !== -1) {
+          whereOrMatch.value = describedQuery.match?.[0].where[index];
+          editWhere.value = whereOrMatch.value;
+        }
+      }
+    }
+  }
+);
+
 onMounted(() => {
   if (isObjectHasKeys(props.match, ["where"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
 });
