@@ -1,7 +1,7 @@
 describe("homepage", () => {
   describe("Loggedout", () => {
     beforeEach(() => {
-      cy.preventNewTab();
+      cy.preventRouterNewTab();
       cy.acceptLicenseAndCookies();
       cy.visit("/");
       cy.get("#landing-content", { timeout: 60000 });

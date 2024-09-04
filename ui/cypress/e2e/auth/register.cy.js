@@ -1,6 +1,6 @@
 describe("Register", () => {
   beforeEach(() => {
-    cy.preventNewTab();
+    cy.preventRouterNewTab();
     cy.acceptLicenseAndCookies();
     cy.visit("/");
     cy.get("#topbar", { timeout: 60000 });
@@ -75,7 +75,7 @@ describe("Register", () => {
     cy.get(".p-message-error").should("not.exist");
   });
   it("can show privacy policy", () => {
-    cy.preventNewTab();
+    cy.preventRouterNewTab();
     cy.get(".privacy-container").find("a").contains("privacy policy").invoke("removeAttr", "target").click();
     cy.url().should("include", "/privacy");
   });

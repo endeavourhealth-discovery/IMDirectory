@@ -29,7 +29,7 @@ Cypress.Commands.add("getByTestId", (id, options) => {
   cy.get(`[data-testid=${id}]`, options ? options : {});
 });
 
-Cypress.Commands.add("preventNewTab", () => {
+Cypress.Commands.add("preventRouterNewTab", () => {
   cy.on("window:before:load", win => {
     cy.stub(win, "open")
       .as("windowOpen")
@@ -58,12 +58,12 @@ Cypress.Commands.add("acceptLicenseAndLogin", () => {
 });
 
 Cypress.Commands.add("expandTreeNode", (treeId: string, contains: string) => {
-  cy.get(`#${treeId}`).contains(contains).parents(".p-treenode-selectable").find(".p-tree-toggler").click();
+  cy.get(`#${treeId}`).contains(contains, { timeout: 10000 }).parents(".p-tree-node-selectable").find(".p-tree-node-toggle-button").click();
 });
 
 Cypress.Commands.add("searchAndSelect", (searchTerm: string) => {
   cy.get("[data-testid='search-input']", { timeout: 60000 }).type(searchTerm);
-  cy.get(".p-selectable-row", { timeout: 60000 }).should("have.length.greaterThan", 1).first().click();
+  cy.get(".p-datatable-selectable-row", { timeout: 60000 }).should("have.length.greaterThan", 1).first().click();
   cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 10000 }).contains(searchTerm);
   cy.get("#viewer-tabs", { timeout: 10000 });
 });
@@ -87,7 +87,7 @@ declare global {
       acceptLicenseAndCookies(): Chainable<void>;
       openReleaseNotes(): Chainable<void>;
       getByTestId(id: string, options?: any): Chainable<void>;
-      preventNewTab(): Chainable<void>;
+      preventRouterNewTab(): Chainable<void>;
       login(): Chainable<void>;
       expandTreeNode(treeId: string, contains: string): Chainable<void>;
       searchAndSelect(searchTerm: string): Chainable<void>;

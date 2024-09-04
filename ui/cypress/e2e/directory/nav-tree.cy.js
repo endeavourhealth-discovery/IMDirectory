@@ -1,6 +1,7 @@
 describe("nav tree", () => {
   beforeEach(() => {
     cy.acceptLicenseAndCookies();
+    cy.visit("/");
     cy.get("#hierarchy-tree-bar-container", { timeout: 60000 }).find("li", { timeout: 60000 }).contains("Ontologies");
   });
   it("can expand nodes", () => {
@@ -13,19 +14,19 @@ describe("nav tree", () => {
     cy.expandTreeNode("hierarchy-tree-bar-container", "Clinical finding (finding)");
     cy.get("#hierarchy-tree-bar-container")
       .contains("Clinical finding (finding)")
-      .parents(".p-treenode")
+      .parents(".p-tree-node")
       .first()
-      .find(".p-treenode-children")
-      .find(".p-treenode")
-      .should("have.length.at.most", 21);
+      .find(".p-tree-node-children")
+      .find(".p-tree-node")
+      .should("have.length.at.most", 51);
     cy.get("#hierarchy-tree-bar-container").contains("Load more...").click();
     cy.get("#hierarchy-tree-bar-container")
       .contains("Clinical finding (finding)")
-      .parents(".p-treenode")
+      .parents(".p-tree-node")
       .first()
-      .find(".p-treenode-children")
-      .find(".p-treenode")
-      .should("have.length.at.least", 22);
+      .find(".p-tree-node-children")
+      .find(".p-tree-node")
+      .should("have.length.at.least", 52);
   });
   it("can select a node and route", () => {
     cy.get("#hierarchy-tree-bar-container").contains("Ontologies").click();

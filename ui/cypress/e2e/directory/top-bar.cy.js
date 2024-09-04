@@ -1,6 +1,6 @@
 describe("top bar", () => {
   beforeEach(() => {
-    cy.preventNewTab();
+    cy.preventRouterNewTab();
     cy.acceptLicenseAndCookies();
     cy.get("#topbar", { timeout: 60000 });
   });
