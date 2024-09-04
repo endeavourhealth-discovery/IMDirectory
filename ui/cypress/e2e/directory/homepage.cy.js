@@ -40,7 +40,7 @@ describe("homepage", () => {
         cy.get(".shortcut-container").contains("ASSIGN UPRN").click();
         cy.url().should("include", "/uprn");
       });
-      it.only("links to wiki", () => {
+      it("links to wiki", () => {
         cy.get(".shortcut-container").invoke("removeAttr", "target").contains("Wiki").click();
         cy.url().should("include", "https://wiki.endeavourhealth.org/");
       });

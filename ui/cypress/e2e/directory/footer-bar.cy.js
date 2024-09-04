@@ -26,7 +26,7 @@ describe("footer bar", () => {
     cy.get(".topbar-content > .title > strong").should("have.text", "UPRN");
   });
 
-  it.only("can show cookie settings", () => {
+  it("can show cookie settings", () => {
     cy.get(".footer-icon").click();
     cy.get(".p-drawer").find("h1").should("have.text", "Our use of cookies");
   });

@@ -71,7 +71,7 @@ describe("UserEdit", () => {
     cy.getByTestId("password-new1").find("input").type("%");
     cy.get(".p-password-content").contains("Strong");
   });
-  it.only("can confirm password", () => {
+  it("can confirm password", () => {
     cy.getByTestId("user-edit-password-change-button").click();
     cy.getByTestId("password-old").find("input").type("1234");
     cy.getByTestId("password-new1").type("1234abcdA%");
