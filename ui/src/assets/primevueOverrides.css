@@ -31,3 +31,11 @@
 .p-button-link {
   font-size: unset;
 }
+
+.p-splitter-gutter {
+  z-index: unset;
+}
+
+.p-datatable-thead {
+  z-index: unset;
+}
