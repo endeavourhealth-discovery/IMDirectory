@@ -1,4 +1,5 @@
 <template>
+  {{ property }}
   <Select
     :options="[
       { id: 'is', name: 'is' },
@@ -10,7 +11,7 @@
     optionValue="id"
     optionLabel="name"
     v-model:model-value="propertyType"
-    @change="clearAllProperties"
+    @change="handlePropertyType"
   />
   <div v-if="propertyType === 'is'" class="flex">
     <Select type="text" placeholder="operator" :options="operatorOptions" v-model="operator" @change="populateIsDate" />
@@ -129,8 +130,28 @@ function initValues() {
     propertyType.value = "isNull";
   } else if (props.property.isNotNull) {
     propertyType.value = "notNull";
-  } else {
+  } else if (!propertyType.value) {
     propertyType.value = "is";
+  }
+}
+
+function handlePropertyType() {
+  clearAllProperties();
+  switch (propertyType.value) {
+    case "is":
+      props.property.operator = Operator.eq;
+      operator.value = props.property.operator;
+      break;
+    case "between":
+      props.property.range = { from: { operator: "=", unit: "DATE", value: "" }, to: { operator: "=", unit: "DATE", value: "" } } as Range;
+      break;
+    case "within":
+      props.property.operator = Operator.eq;
+      operator.value = props.property.operator;
+      break;
+
+    default:
+      break;
   }
 }
 
@@ -143,7 +164,6 @@ function populateIsDate() {
   delete props.property.isNull;
   selectedValueB.value = undefined;
   sign.value = undefined;
-
   props.property.operator = operator.value;
   if (valueType.value === "date") {
     props.property.value = getStringFromDate(selectedValueA.value);
