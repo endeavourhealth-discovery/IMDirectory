@@ -93,7 +93,6 @@
                 class="password-edit p-button-secondary"
                 data-testid="user-edit-password-change-button"
                 label="Change password"
-                type="submit"
                 @click="editPasswordClicked(true)"
               />
               <Button
@@ -101,7 +100,6 @@
                 class="password-edit p-button-secondary"
                 data-testid="user-edit-password-change-cancel-button"
                 label="Cancel password edit"
-                type="submit"
                 @click="editPasswordClicked(false)"
               />
               <Button class="form-reset p-button-warning" data-testid="user-edit-reset-changes-button" label="Reset changes" type="button" @click="resetForm" />
@@ -111,7 +109,6 @@
                 class="user-edit"
                 data-testid="user-edit-update-button"
                 label="Update account"
-                type="submit"
                 @click="onSubmit"
               />
             </div>

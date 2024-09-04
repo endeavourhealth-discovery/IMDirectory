@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-row items-center">
-    <Card class="flex flex-col justify-content-sm-around items-center recovery-card">
+    <Card class="justify-content-sm-around recovery-card flex flex-col items-center">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-user" class="icon-header" />
       </template>
       <template #title> Account Recovery: <br /><br />Submit Password Reset Code </template>
       <template #content>
-        <form @submit="onSubmit" class="flex flex-col justify-start recovery-form">
+        <form @submit="onSubmit" class="recovery-form flex flex-col justify-start">
           <div class="field">
             <label for="fieldUsername">Username</label>
             <InputText
@@ -46,7 +46,6 @@
               :disabled="!allVerified"
               data-testid="forgot-password-submit-reset"
               class="user-submit"
-              type="submit"
               label="Reset Password"
               v-on:click.prevent="onSubmit"
             />

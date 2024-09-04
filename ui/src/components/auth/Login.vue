@@ -26,7 +26,7 @@
             <Message v-if="errors.password" severity="error">{{ errors.password }}</Message>
           </div>
           <div class="mt-3 flex flex-row justify-center">
-            <Button :loading="loading" class="user-submit" data-testid="login-submit" label="Login" type="submit" @click="onSubmit" />
+            <Button :loading="loading" class="user-submit" data-testid="login-submit" label="Login" @click="onSubmit" />
           </div>
         </form>
       </template>

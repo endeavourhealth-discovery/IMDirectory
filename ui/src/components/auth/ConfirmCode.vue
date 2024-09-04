@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-row items-center">
-    <Card class="flex flex-col justify-content-sm-around items-center confirm-card">
+    <Card class="justify-content-sm-around confirm-card flex flex-col items-center">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-key" class="icon-header" />
       </template>
@@ -45,7 +45,6 @@
             <Button
               data-testid="confirm-code-submit-button"
               class="user-submit"
-              type="submit"
               label="Submit"
               :disabled="Object.keys(values).length < 2 || Object.keys(errors).length > 0"
               @click="onSubmit"
@@ -58,7 +57,6 @@
           >Not received a code? <br /><Button
             class="p-button-sm code-request"
             severity="secondary"
-            type="submit"
             data-testid="confirm-code-not-received-button"
             label="Request a new code"
             v-on:click.prevent="showDialog = true"
@@ -77,13 +75,7 @@
       </form>
     </div>
     <template #footer>
-      <Button
-        data-testid="confirm-code-resend-code-button"
-        type="submit"
-        label="Request a new code"
-        :disabled="!username || !!errors.username"
-        @click="requestCode"
-      />
+      <Button data-testid="confirm-code-resend-code-button" label="Request a new code" :disabled="!username || !!errors.username" @click="requestCode" />
     </template>
   </Dialog>
 </template>

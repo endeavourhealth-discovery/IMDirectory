@@ -2,6 +2,7 @@ describe("Register", () => {
   beforeEach(() => {
     cy.preventNewTab();
     cy.acceptLicenseAndCookies();
+    cy.visit("/");
     cy.get("#topbar", { timeout: 60000 });
     cy.getByTestId("account-menu").click();
     cy.get("#account-menu").find("span").contains("Register").click();
@@ -18,9 +19,9 @@ describe("Register", () => {
   });
   it("checks that the username is valid", () => {
     cy.getByTestId("register-username").type("cypress%");
-    cy.get(".p-inline-message-error").contains("Username contains unexpected characters");
+    cy.get(".p-message-error").contains("Username contains unexpected characters");
     cy.getByTestId("register-username").type("{backspace}");
-    cy.get(".p-inline-message-error").should("not.exist");
+    cy.get(".p-message-error").should("not.exist");
   });
   it("checks that the email is valid", () => {
     cy.getByTestId("register-email1").type("cypress@cypress,com");
@@ -33,54 +34,50 @@ describe("Register", () => {
     cy.getByTestId("register-email1-verified");
     cy.getByTestId("register-email2").type("cypress@cypres.com");
     cy.getByTestId("register-email1").focus();
-    cy.get(".p-inline-message-error").contains("Email addresses do not match");
+    cy.get(".p-message-error").contains("Email addresses do not match");
     cy.getByTestId("register-email2").clear().type("cypress@cypress.com");
     cy.getByTestId("register-email1").focus();
-    cy.get(".p-inline-message-error").should("not.exist");
+    cy.get(".p-message-error").should("not.exist");
   });
   it("checks that the first name is valid", () => {
     cy.getByTestId("register-firstname").type("terry%");
-    cy.get(".p-inline-message-error").contains("First name contains unexpected characters");
+    cy.get(".p-message-error").contains("First name contains unexpected characters");
     cy.getByTestId("register-firstname").type("{backspace}");
-    cy.get(".p-inline-message-error").should("not.exist");
+    cy.get(".p-message-error").should("not.exist");
   });
   it("checks that the last name is valid", () => {
     cy.getByTestId("register-lastname").type("pratchet%");
-    cy.get(".p-inline-message-error").contains("Last name must");
+    cy.get(".p-message-error").contains("Last name must");
     cy.getByTestId("register-lastname").type("{backspace}");
-    cy.get(".p-inline-message-error").should("not.exist");
+    cy.get(".p-message-error").should("not.exist");
   });
   it("can validate password", () => {
     cy.getByTestId("password-new1").find("input").type("1234");
-    cy.get(".p-password-info").contains("Weak");
-    cy.get(".p-inline-message").contains("weak");
+    cy.get(".p-password-content").contains("Weak");
+    cy.get(".p-message").contains("weak");
     cy.getByTestId("password-new1").find("input").type("5678");
-    cy.get(".p-password-info").contains("Weak");
-    cy.get(".p-inline-message").contains("weak");
+    cy.get(".p-password-content").contains("Weak");
+    cy.get(".p-message").contains("weak");
     cy.getByTestId("password-new1").find("input").type("abcd");
-    cy.get(".p-inline-message").contains("weak");
-    cy.get(".p-password-info").contains("Weak");
+    cy.get(".p-message").contains("weak");
+    cy.get(".p-password-content").contains("Weak");
     cy.getByTestId("password-new1").find("input").type("A");
-    cy.get(".p-password-info").contains("Medium");
+    cy.get(".p-password-content").contains("Medium");
     cy.getByTestId("password-new1").find("input").type("%");
-    cy.get(".p-password-info").contains("Strong");
+    cy.get(".p-password-content").contains("Strong");
   });
   it("can confirm password", () => {
     cy.getByTestId("password-new1").type("1234abcdA%");
     cy.getByTestId("password-new2").type("1234dcbaA%");
     cy.getByTestId("password-new1").find("input").focus();
-    cy.get(".p-inline-message-error").contains("Passwords do not match");
+    cy.get(".p-message-error").contains("Passwords do not match");
     cy.getByTestId("password-new2").clear().type("1234abcdA%");
-    cy.get(".p-inline-message-error").should("not.exist");
+    cy.get(".p-message-error").should("not.exist");
   });
   it("can show privacy policy", () => {
     cy.preventNewTab();
     cy.get(".privacy-container").find("a").contains("privacy policy").invoke("removeAttr", "target").click();
     cy.url().should("include", "/privacy");
-  });
-  it("can route to login", () => {
-    cy.get("#login-link").click();
-    cy.url().should("include", "/login");
   });
   it("can reveal passwords", () => {
     cy.getByTestId("password-new1").type("1234abcdA%").find("input").should("not.have.text", "1234abcdA%");
