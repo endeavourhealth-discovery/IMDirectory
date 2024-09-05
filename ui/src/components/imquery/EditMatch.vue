@@ -147,10 +147,14 @@
     </div>
     <Button
       v-if="!isRootFeature"
+      class="builder-button delete-button"
       severity="danger"
       icon="fa-solid fa-trash"
-      class="builder-button"
+      :outlined="!hover"
+      :class="[!hover && 'hover-button']"
       @click.stop="emit('deleteMatch', props.editMatch['@id']!)"
+      @mouseover.stop="hover = true"
+      @mouseout.stop="hover = false"
     />
   </div>
 </template>
