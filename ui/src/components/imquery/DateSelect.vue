@@ -1,5 +1,4 @@
 <template>
-  {{ property }}
   <Select
     :options="[
       { id: 'is', name: 'is' },
@@ -148,6 +147,14 @@ function handlePropertyType() {
     case "within":
       props.property.operator = Operator.eq;
       operator.value = props.property.operator;
+      break;
+
+    case "isNull":
+      props.property.isNull = true;
+      break;
+
+    case "notNull":
+      props.property.isNotNull = true;
       break;
 
     default:
