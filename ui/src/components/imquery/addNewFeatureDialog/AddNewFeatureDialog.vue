@@ -30,7 +30,7 @@
               :can-clear-path="canClearPath"
               :data-model-iri="dataModelIri"
               :im-query="imQuery"
-              :property-iri="propertyIri"
+              :propertyIri="propertyIri"
               :search-term="searchTerm"
               :selectedIri="treeIri"
               :selectedType="selectedType"

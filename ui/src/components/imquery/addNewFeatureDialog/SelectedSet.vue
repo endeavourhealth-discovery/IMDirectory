@@ -41,6 +41,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   dataModelIri: string | undefined;
+  propertyIri: string | undefined;
 }
 
 const props = defineProps<Props>();
@@ -103,8 +104,13 @@ function getColourStyleFromType(types: TTIriRef[]) {
 }
 
 function updatePathValues() {
-  if (selectedPath.value?.where?.[0]) {
-    selectedPath.value.where[0].is = selectedEntities.value.map(selected => convertSelectedEntityToNode(selected));
+  let index = 0;
+  if (selectedPath.value?.where?.length && selectedPath.value?.where?.length !== 1)
+    index = selectedPath.value?.where?.findIndex(where => where["@id"] === props.propertyIri);
+  if (index != -1 && selectedPath.value?.where?.[index]) {
+    if (selectedPath.value?.where?.[index]) {
+      selectedPath.value.where[index].is = selectedEntities.value.map(selected => convertSelectedEntityToNode(selected));
+    }
   }
 }
 

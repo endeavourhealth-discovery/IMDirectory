@@ -10,7 +10,7 @@
     optionValue="id"
     optionLabel="name"
     v-model:model-value="propertyType"
-    @change="clearAllProperties"
+    @change="handlePropertyType"
   />
   <div v-if="propertyType === 'is'" class="flex">
     <Select type="text" placeholder="operator" :options="operatorOptions" v-model="operator" @change="populateIsDate" />
@@ -83,7 +83,7 @@ const propertyType: Ref<"is" | "between" | "within" | "isNull" | "notNull" | und
 const valueType: Ref<"date" | "variable" | undefined> = ref("date");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
-const operatorOptions = ["=", ">=", ">", "<="];
+const operatorOptions = ["=", ">=", ">", "<", "<="];
 const numberValue: Ref<number> = ref(0);
 const operator: Ref<Operator | undefined> = ref();
 const unit: Ref<string | undefined> = ref();
@@ -129,8 +129,36 @@ function initValues() {
     propertyType.value = "isNull";
   } else if (props.property.isNotNull) {
     propertyType.value = "notNull";
-  } else {
+  } else if (!propertyType.value) {
     propertyType.value = "is";
+  }
+}
+
+function handlePropertyType() {
+  clearAllProperties();
+  switch (propertyType.value) {
+    case "is":
+      props.property.operator = Operator.eq;
+      operator.value = props.property.operator;
+      break;
+    case "between":
+      props.property.range = { from: { operator: "=", unit: "DATE", value: "" }, to: { operator: "=", unit: "DATE", value: "" } } as Range;
+      break;
+    case "within":
+      props.property.operator = Operator.eq;
+      operator.value = props.property.operator;
+      break;
+
+    case "isNull":
+      props.property.isNull = true;
+      break;
+
+    case "notNull":
+      props.property.isNotNull = true;
+      break;
+
+    default:
+      break;
   }
 }
 
@@ -143,7 +171,6 @@ function populateIsDate() {
   delete props.property.isNull;
   selectedValueB.value = undefined;
   sign.value = undefined;
-
   props.property.operator = operator.value;
   if (valueType.value === "date") {
     props.property.value = getStringFromDate(selectedValueA.value);

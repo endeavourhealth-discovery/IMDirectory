@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-08-28 14:33:52.
+// Generated using typescript-generator version 3.2.1263 on 2024-09-05 08:03:41.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -227,8 +227,8 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
     operator?: Operator;
+    unit?: string;
 }
 
 export interface Case {
@@ -261,10 +261,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    descendantsOf?: boolean;
+    ancestorsOf?: boolean;
     memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
-    ancestorsOf?: boolean;
-    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -393,8 +393,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -426,8 +426,6 @@ export interface Where extends PropertyRef {
     valueLabel?: string;
     isNotNull?: boolean;
     displayLabel?: string;
-    null?: boolean;
-    notNull?: boolean;
 }
 
 export interface DownloadOptions {
@@ -668,6 +666,9 @@ export interface GRAPH {
 export interface IM {
 }
 
+export interface IMQ {
+}
+
 export interface IM_FUNCTION {
 }
 
@@ -751,19 +752,19 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
-    code?: string;
     description?: string;
+    status?: TTIriRef;
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {

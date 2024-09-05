@@ -223,7 +223,7 @@ async function onPropertyAdd(property: Where) {
   }
 
   const describedMatch = await QueryService.getQueryDisplayFromQuery({ match: [props.editMatch] } as Query, false);
-  if (describedMatch.match?.[0].where) props.editMatch.where = describedMatch.match?.[0].where;
+  if (describedMatch?.match?.[0]?.where) props.editMatch.where = describedMatch.match?.[0].where;
 }
 
 function onMatchAdd(match: Match) {
