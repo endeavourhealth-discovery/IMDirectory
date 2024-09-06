@@ -42,7 +42,7 @@
       class="flex items-baseline"
       @change="populateWithinDate"
     />
-    <InputNumber v-model:model-value="numberValue" @change="populateWithinDate" />
+    <InputNumber v-model:model-value="numberValue" @update:model-value="populateWithinDate" />
     <!-- TODO: model Date options and get from API -->
     <Select
       :options="[
