@@ -62,7 +62,7 @@
       :property="property"
       :datatype="datatype"
       :property-iri="property['@id']!"
-      @change="populateWithinDate"
+      @update:property-ref="populateWithinDate"
     />
   </div>
 </template>
@@ -202,7 +202,6 @@ function populateWithinDate() {
   props.property.operator = operator.value;
   props.property.value = (sign.value === "-" ? "-" : "") + numberValue.value.toString();
   if (isObjectHasKeys(propertyRef.value)) {
-    props.property.operator = operator.value;
     props.property.relativeTo = propertyRef.value;
   } else {
     props.property.relativeTo = {
