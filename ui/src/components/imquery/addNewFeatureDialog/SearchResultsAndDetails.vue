@@ -54,13 +54,13 @@
           </div>
         </div>
       </div>
-      <SelectedSet :dataModelIri="dataModelIri" :propertyIri="propertyIri" />
+      <SelectedSet :dataModelIri="dataModelIri" :propertyIri="propertyIri" :updated-path-option="updatedPathOption" />
       <PathSelect
         :property-iri="propertyIri"
         :selected-path="selectedPath"
         :dataModelIri="dataModelIri"
         :pathSuggestions="pathSuggestions"
-        @onSelectedPath="(path: Match) => emit('update:selectedPath', path)"
+        @onSelectedPath="onUpdatedPathOption"
       />
     </div>
   </div>
@@ -115,7 +115,7 @@ const toast = useToast();
 const currentPath: Ref<Match | undefined> = ref();
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 const allowMultipleSelect = computed(() => [IM.CONCEPT_SET, IM.CONCEPT].includes(props.selectedType));
-
+const updatedPathOption = ref(false);
 watch(
   () => props.selectedIri,
   () => {
@@ -159,6 +159,11 @@ async function init() {
   pathSuggestions.value = await getPathOptions(props.dataModelIri, detailsIri.value);
   if (!pathSuggestions.value.length && props.selectedPath) pathSuggestions.value = [props.selectedPath];
   loading.value = false;
+}
+
+function onUpdatedPathOption(path: Match) {
+  emit("update:selectedPath", path);
+  updatedPathOption.value = !updatedPathOption.value;
 }
 
 async function getPathOptions(dataModelIri: string | undefined, valueIri: string) {
