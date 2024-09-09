@@ -42,6 +42,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 interface Props {
   dataModelIri: string | undefined;
   propertyIri: string | undefined;
+  updatedPathOption: boolean;
 }
 
 const props = defineProps<Props>();
@@ -68,6 +69,13 @@ const selectedPath = inject("selectedPath") as Ref<Match | undefined>;
 const valueLabel: Ref<string> = ref("");
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 const canHaveValueList: Ref<boolean> = ref(false);
+
+watch(
+  () => props.updatedPathOption,
+  () => {
+    if (canHaveValueList.value) updatePathValues();
+  }
+);
 
 watch(
   () => cloneDeep(selectedPath.value),
