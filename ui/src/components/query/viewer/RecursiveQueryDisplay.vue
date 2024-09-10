@@ -10,6 +10,7 @@
   >
     <span v-if="match.name" v-html="match.name"> </span>
     <span v-else-if="match.description" v-html="match.description"> </span>
+    <span v-else-if="match.displayLabel">{{ match.displayLabel }}</span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
