@@ -1,7 +1,8 @@
 <template>
   <div :class="!propertyIndex && property.description ? 'feature' : ''">
     <span v-if="hasNodeRef(property)" v-html="property.description" @click="onNodeRefClick(property, $event)"></span>
-    <span v-else v-html="property.description"></span>
+    <span v-else-if="property.description" v-html="property.description"></span>
+    <span v-else-if="property.displayLabel" class="display-label">{{ property.displayLabel }} </span>
     <RecursivePropertyDisplay
       v-if="isArrayHasLength(property.where)"
       v-for="(nestedProperty, index) of property.where"
@@ -94,5 +95,9 @@ function getNodeRef(property: Where) {
 .node-ref {
   color: rgb(138, 67, 138) !important;
   cursor: pointer !important;
+}
+
+.display-label {
+  margin-left: 1rem;
 }
 </style>
