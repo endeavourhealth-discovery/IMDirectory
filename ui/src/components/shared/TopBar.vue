@@ -457,6 +457,7 @@ function showReleaseNotes() {
 
 #topbar {
   min-height: 3.5rem;
+  height: 3.5rem;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
@@ -465,7 +466,7 @@ function showReleaseNotes() {
 }
 
 #topbar-start {
-  height: 100%;
+  height: inherit;
   flex: 0 0 auto;
   display: flex;
   flex-flow: row;
@@ -474,14 +475,16 @@ function showReleaseNotes() {
 }
 
 #topbar-content {
-  height: 100%;
+  height: inherit;
   flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
   overflow: auto;
   width: 100%;
 }
 
 #topbar-end {
-  height: 100%;
+  height: inherit;
   flex: 0 1 auto;
   justify-self: end;
   display: flex;

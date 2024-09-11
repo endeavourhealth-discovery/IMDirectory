@@ -415,13 +415,18 @@ router.beforeEach(async (to, from) => {
     const { user } = await AuthService.getCurrentAuthenticatedUser();
     console.log("auth guard user authenticated: " + user ? "true" : "false");
     if (!user) {
-      await directToLogin();
-      return false;
+      if (from.name === "Logout") {
+        await router.push({ name: "LandingPage" });
+        return false;
+      } else {
+        await directToLogin();
+        return false;
+      }
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresReAuth)) {
-    if (from.name !== "Login" && from.name !== "MFALogin") {
+    if (!(from.name === "Login" || from.name === "MFALogin")) {
       console.log("requires re-authentication");
       await directToLogin();
       return false;
