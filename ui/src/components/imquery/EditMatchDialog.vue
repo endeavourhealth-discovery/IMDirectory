@@ -118,6 +118,7 @@ interface Props {
   match: Match | undefined;
   index?: number;
   queryBaseTypeIri: string;
+  hasThen: boolean;
 }
 
 const props = defineProps<Props>();
@@ -258,7 +259,10 @@ function onMatchAdd(match: Match) {
 
 function onThenAdd(match: Match) {
   if (!editMatch.value) editMatch.value = {};
-  editMatch.value.then = match;
+  if (props.hasThen) {
+    const previousThen = cloneDeep(editMatch.value.then);
+    if (previousThen && match) editMatch.value.then = { boolMatch: Bool.and, match: [previousThen, match] };
+  } else editMatch.value.then = match;
 }
 
 function saveVariable() {
