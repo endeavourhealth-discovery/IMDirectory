@@ -151,6 +151,14 @@ const checked = ref(true);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
 const schemesOptions = filterOptions.value.schemes.filter((c: any) => c["@id"] !== IM.NAMESPACE || c["@id"] !== SNOMED.NAMESPACE);
 
+watch(
+  () => props.showDefinition,
+  newValue => {
+    const objIndex = contentOptions.value.findIndex((obj: any) => obj.key == "definition");
+    contentOptions.value[objIndex].include = newValue;
+  }
+);
+
 watch(selectedContents, () => {
   if (contentOptions.value.length !== 0 && selectedFormat.value !== "IMv1") {
     contentOptions.value[1].disabled = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
