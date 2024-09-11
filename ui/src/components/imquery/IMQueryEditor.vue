@@ -29,6 +29,7 @@
             v-model:show-dialog="showDialog"
             :match="selectedMenuItem?.editMatch"
             :query-base-type-iri="selectedBaseType?.iri!"
+            :has-then="!!selectedMenuItem?.editMatch?.then"
             @save-changes="onSaveChanges"
           />
         </div>
