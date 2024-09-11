@@ -71,6 +71,7 @@ function toQuerySearch() {
 
 #topbar-content-container {
   height: 100%;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row;
   justify-content: flex-start;
