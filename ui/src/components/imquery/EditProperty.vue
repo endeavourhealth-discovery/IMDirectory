@@ -89,9 +89,8 @@ async function init() {
 }
 
 async function getProperty() {
-  const conceptProp = IM.NAMESPACE + "concept";
   const uiProps: UIProperty[] = [];
-  const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY, conceptProp]);
+  const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY]);
   if (isArrayHasLength(propertiesEntity[SHACL.PROPERTY]))
     for (const ttprop of propertiesEntity[SHACL.PROPERTY]) {
       const uiProperty = convertTTPropertyToUIProperty(ttprop);
@@ -100,11 +99,6 @@ async function getProperty() {
       }
       uiProps.push(uiProperty);
     }
-
-  if (isArrayHasLength(propertiesEntity[conceptProp])) {
-    const uiProperty = convertUIPropertyFromDMConcept(propertiesEntity[conceptProp][0]["@id"]);
-    uiProps.push(uiProperty);
-  }
 
   const found = uiProps.find(prop => prop.iri === props.property["@id"]);
   if (found) return found;
