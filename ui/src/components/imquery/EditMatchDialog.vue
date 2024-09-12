@@ -109,7 +109,7 @@ import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 import AddMatch from "./AddMatch.vue";
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
 
@@ -257,12 +257,15 @@ function onMatchAdd(match: Match) {
   editMatch.value.match.push(match);
 }
 
-function onThenAdd(match: Match) {
-  if (!editMatch.value) editMatch.value = {};
-  if (props.hasThen) {
-    const previousThen = cloneDeep(editMatch.value.then);
-    if (previousThen && match) editMatch.value.then = { boolMatch: Bool.and, match: [previousThen, match] };
-  } else editMatch.value.then = match;
+async function onThenAdd(match: Match) {
+  const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [match] }, false);
+  if (describedQuery?.match?.length) {
+    if (!editMatch.value) editMatch.value = {};
+    if (props.hasThen || (editMatch.value.then && !editMatch.value.then.match)) {
+      const previousThen = cloneDeep(editMatch.value.then);
+      if (previousThen && match) editMatch.value.then = { boolMatch: Bool.and, match: [previousThen, describedQuery.match[0]] };
+    } else editMatch.value.then = describedQuery.match[0];
+  }
 }
 
 function saveVariable() {

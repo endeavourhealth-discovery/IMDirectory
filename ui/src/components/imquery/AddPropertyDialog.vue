@@ -12,7 +12,7 @@
     </div>
     <template #footer>
       <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
-      <Button type="button" label="Save" @click="save"></Button>
+      <Button type="button" label="Save" :disabled="!selectedProperty" @click="save"></Button>
     </template>
   </Dialog>
 </template>
