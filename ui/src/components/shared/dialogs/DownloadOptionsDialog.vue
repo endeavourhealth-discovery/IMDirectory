@@ -19,6 +19,7 @@
         <div class="card justify-content-left flex">
           <div class="flex flex-col gap-4">
             <div v-for="content of contentOptions" :key="content.key" class="check-container flex items-center">
+              {{ content.disabled }}
               <div v-if="content.include" class="content-item">
                 <Checkbox v-model="selectedContents" :disabled="content.disabled" :inputId="content.key" :value="content.name" name="content" />
                 <label :for="content.key">{{ content.name }}</label>
@@ -174,12 +175,12 @@ watch(selectedFormat, () => {
   checkedLegacy.value = false;
   if (selectedFormat.value) {
     if (selectedFormat.value === "IMv1") {
-      contentOptions.value.forEach((f: any) => (f.disable = true));
+      contentOptions.value.forEach((f: any) => (f.disabled = true));
     } else {
-      contentOptions.value.forEach((f: any) => (f.disable = false));
+      contentOptions.value.forEach((f: any) => (f.disabled = false));
     }
   } else {
-    contentOptions.value.forEach((f: any) => (f.disable = true));
+    contentOptions.value.forEach((f: any) => (f.disabled = true));
   }
 });
 
@@ -187,12 +188,13 @@ function isCoreSelected() {
   if (selectedContents.value.includes("Core")) {
     if (selectedFormat.value !== "xlsx") {
       contentOptions.value[0].disabled = true;
+      contentOptions.value[2].disabled = true;
     }
     contentOptions.value[2].disabled = false;
     contentOptions.value[3].disabled = false;
     coreSelected.value = true;
   } else {
-    contentOptions.value[0].disabled = false;
+    contentOptions.value[0].disabled = selectedFormat.value === "FHIR";
     contentOptions.value[2].disabled = true;
     contentOptions.value[3].disabled = true;
     checked.value = true;
