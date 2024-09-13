@@ -128,10 +128,8 @@ const emit = defineEmits({
   saveChanges: (payload: Match) => payload
 });
 const keepAsVariable: Ref<string> = ref("");
-const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
-const showAddFeature: Ref<boolean> = ref(false);
 const keepAsEdit: Ref<boolean> = ref(false);
 const editMatch: Ref<Match | undefined> = ref();
 const focusedEditMatch: Ref<Match | undefined> = ref();
