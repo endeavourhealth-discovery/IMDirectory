@@ -33,7 +33,7 @@
                   :search-placeholder="'Select range'"
                 />
               </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-nw">
+              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="row-buttons">
                 <span>
                   <ToggleButton
                     v-model="row.required"
@@ -89,20 +89,21 @@
             />
           </tr>
           <template v-for="(row, index) in dmPropertiesInherited" class="property">
-            <tr class="children-container" @mouseout="mouseout" @mouseover="mouseover($event, row)">
+            <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
                 <AutocompleteSearchBar
                   v-model:selected="row.path"
                   :disabled="true"
                   :imQuery="pSuggestions"
                   :root-entities="['http://endhealth.info/im#Properties']"
+                  class="search-bar"
                 />
                 <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
                 <AutocompleteSearchBar v-model:selected="row.range" :disabled="true" />
               </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']">
+              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-nw items-center">
                 <tag v-if="row.inherited && row.inherited.length > 0" severity="info">(Inherited)</tag>
               </td>
             </tr>
@@ -548,6 +549,7 @@ function updateEntity() {
 .property {
   display: flex;
   margin-bottom: 4px;
+  min-height: 49px;
 }
 
 .property > * {
@@ -601,6 +603,8 @@ function updateEntity() {
   padding: 0.5rem;
   margin: 0;
   flex-grow: 1;
+  display: flex;
+  align-items: center;
 }
 
 .table-row-hover {
@@ -610,6 +614,8 @@ function updateEntity() {
   padding: 0.5rem;
   margin: 0;
   flex-grow: 1;
+  display: flex;
+  align-items: center;
 }
 
 table {
@@ -646,9 +652,14 @@ td:first-child {
   min-width: 70%;
   display: flex;
   gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .builder-button {
   min-width: 10rem;
+}
+
+.row-buttons {
+  flex: 0 0 auto;
 }
 </style>
