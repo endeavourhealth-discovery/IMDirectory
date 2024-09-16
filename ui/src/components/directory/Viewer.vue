@@ -35,7 +35,7 @@
             </TabPanel>
             <TabPanel v-if="showTerms" value="1">
               <div class="concept-panel-content" id="term-table-container">
-                <TermCodeTable :terms="terms" />
+                <TermCodeTable :entityIri="entityIri" />
               </div>
             </TabPanel>
             <TabPanel v-if="showMappings" value="2">
@@ -69,12 +69,12 @@
               </div>
             </TabPanel>
             <TabPanel value="8">
-              <div v-if="isObjectHasKeys(concept)" class="concept-panel-content" id="definition-container">
+              <div class="concept-panel-content" id="definition-container">
                 <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel v-if="isProperty(types)" value="9">
-              <div v-if="isObjectHasKeys(concept)" class="concept-panel-content" id="definition-container">
+              <div class="concept-panel-content" id="definition-container">
                 <DataModels :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
@@ -132,8 +132,7 @@ import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 import { DirectService } from "@/services";
 
-import { DefinitionConfig } from "@im-library/interfaces";
-import { SearchTermCode, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel, isFeature, isProperty } from "@im-library/helpers/ConceptTypeMethods";
 import { EntityService } from "@/services";
@@ -142,9 +141,6 @@ import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";
 
 import { useRouter } from "vue-router";
-import setupConcept from "@/composables/setupConcept";
-import setupConfig from "@/composables/setupConfig";
-import setupTerms from "@/composables/setupTerms";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
 
 interface Props {
@@ -163,15 +159,13 @@ const directService = new DirectService();
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
+const concept: Ref<any> = ref({});
 
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
 const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
 
-const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = setupConcept();
-const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = setupConfig();
-const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: Function } = setupTerms();
 const tabMap = reactive(new Map<string, string>());
 
 onMounted(async () => {
@@ -213,10 +207,7 @@ function setTabMap() {
 
 async function init(): Promise<void> {
   loading.value = true;
-  await getConfig();
-  await getConcept(props.entityIri, configs);
-  await getInferred(props.entityIri, concept);
-  await getTerms(props.entityIri);
+  await getConcept(props.entityIri);
   types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
   header.value = concept.value[RDFS.LABEL];
   loading.value = false;
@@ -225,16 +216,9 @@ async function init(): Promise<void> {
   setDefaultTab();
 }
 
-async function getInferred(iri: string, concept: Ref<any>): Promise<void> {
-  const result = await EntityService.getDefinitionBundle(iri);
-  if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
-    const roleGroup = result.entity[IM.ROLE_GROUP];
-    delete result.entity[IM.ROLE_GROUP];
-    const newRoleGroup: any = {};
-    newRoleGroup[IM.ROLE_GROUP] = roleGroup;
-    result.entity[RDFS.SUBCLASS_OF].push(newRoleGroup);
-  }
-  concept.value["inferred"] = result;
+async function getConcept(iri: string) {
+  const predicates = [RDFS.LABEL, IM.DEFINITION, RDF.TYPE];
+  concept.value = await EntityService.getPartialEntity(iri, predicates);
 }
 
 function onOpenTab(predicate: string) {

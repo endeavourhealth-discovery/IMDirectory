@@ -1,6 +1,6 @@
-import { IM, RDFS,SHACL } from "@im-library/vocabulary";
+import { IM, RDFS, SHACL } from "@im-library/vocabulary";
 import { EntityReferenceNode, FiltersAsIris, TTBundle, TermCode, Namespace, FilterOptions, PropertyDisplay, SetDiffObject } from "@im-library/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadOptions } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, DownloadEntityOptions } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/treenode";
@@ -90,14 +90,13 @@ const EntityService = {
     });
   },
 
-  async getDataModelProperties(iri: string, parent: null| string): Promise<any> {
+  async getDataModelProperties(iri: string, parent: null | string): Promise<any> {
     return axios.get(api + "api/entity/public/dataModelProperties", {
       params: {
         iri: iri,
         parent: parent
       }
     });
-
   },
 
   async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<any> {
@@ -406,7 +405,11 @@ const EntityService = {
     });
   },
 
-  async downloadSearchResults(downloadSettings: DownloadOptions) {
+  async downloadEntity(iri: string) {
+    return axios.get(Env.API + "api/entity/public/downloadEntity", { params: { iri: iri }, responseType: "blob", raw: true });
+  },
+
+  async downloadSearchResults(downloadSettings: DownloadByQueryOptions) {
     return axios.post(Env.API + "api/entity/public/downloadSearchResults", downloadSettings, { responseType: "blob", raw: true });
   },
 
