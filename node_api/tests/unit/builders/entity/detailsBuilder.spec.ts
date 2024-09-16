@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { hasDefinition, hasMultiplePredicates, hasParameter, hasProperty } from "./testData";
+import { hasDefinition, hasMap, hasMultiplePredicates, hasParameter, hasProperty } from "./testData";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 
 describe("detailsBuilder", () => {
@@ -14,10 +14,10 @@ describe("detailsBuilder", () => {
       expect(actual).toEqual(hasMultiplePredicates.details);
     });
 
-    /*    test("Builds details for entity that has maps", async () => {
-              const actual = buildDetails(hasMap.entityBundle);
-              expect(actual).toEqual(hasMap.details);
-            });*/
+    test("Builds details for entity that has maps", async () => {
+      const actual = buildDetails(hasMap.entityBundle);
+      expect(actual).toEqual(hasMap.details);
+    });
 
     test("Builds details for entity that has property", async () => {
       const actual = buildDetails(hasProperty.entityBundle);
