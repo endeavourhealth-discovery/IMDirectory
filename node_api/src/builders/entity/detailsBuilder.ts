@@ -38,66 +38,6 @@ function processEntityKey(key: string, treeNode: any, entity: any, predicates: a
   }
 }
 
-function setChildNodeArrayCheck(
-  children: any,
-  key: string,
-  predicates: any,
-  grandchildNode: {
-    children: any[];
-    label: any;
-    key: any;
-  }
-) {
-  if (isArrayHasLength(children[key])) {
-    const arrayNode = {
-      key: children[IM.MAP_ADVICE] + key,
-      label: predicates[key],
-      children: [] as any[]
-    };
-    grandchildNode.children.push(arrayNode);
-    for (const child of children[key]) addIriLink(arrayNode, child);
-  } else {
-    const nonArrayNode = {
-      key: children[IM.MAP_ADVICE] + key,
-      label: predicates[key] + " - " + children[key],
-      children: [] as any[]
-    };
-    grandchildNode.children.push(nonArrayNode);
-  }
-}
-
-function addHasMapNode(treeNode: any, entity: any, predicates: any, key: string) {
-  const newTreeNode = {
-    key: key,
-    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
-    children: [] as any[]
-  };
-  treeNode.children?.push(newTreeNode);
-  if (isArrayHasLength(entity[key])) {
-    for (const child of entity[key]) {
-      for (const childKey in child) {
-        const childNode = {
-          key: childKey,
-          label: predicates[childKey] || entity[childKey]?.path?.[0]?.name || childKey,
-          children: [] as any[]
-        };
-        newTreeNode.children.push(childNode);
-        for (const grandchild of child[childKey]) {
-          const grandchildNode = {
-            key: grandchild[IM.MAP_ADVICE],
-            label: grandchild[IM.MAP_ADVICE],
-            children: [] as any[]
-          };
-          childNode.children.push(grandchildNode);
-          for (const values in grandchild) {
-            setChildNodeArrayCheck(grandchild, values, predicates, grandchildNode);
-          }
-        }
-      }
-    }
-  }
-}
-
 function addValueToLabel(treeNode: any, divider: string, value: any) {
   treeNode.label += divider + value;
 }
@@ -253,6 +193,51 @@ function addProperty(treeNode: any, entity: any, predicates: any, key: string) {
     children: [] as any[]
   };
   treeNode.children?.push(newTreeNode);
+}
+
+function setChildNodeArrayCheck(children: any, key: string, predicates: any, grandchildNode: any) {
+  if (isArrayHasLength(children[key])) {
+    const arrayNode = { key: children[IM.MAP_ADVICE] + key, label: predicates[key], children: [] as any[] };
+    grandchildNode.children.push(arrayNode);
+    for (const child of children[key]) {
+      addIriLink(arrayNode, child);
+    }
+  } else {
+    const nonArrayNode = {
+      key: children[IM.MAP_ADVICE] + key,
+      label: predicates[key] + " - " + children[key],
+      children: [] as any[]
+    };
+    grandchildNode.children.push(nonArrayNode);
+  }
+}
+
+function addHasMapNode(treeNode: any, entity: any, predicates: any, key: string) {
+  const newTreeNode = { key: key, label: predicates[key], children: [] as any[] };
+  treeNode.children?.push(newTreeNode);
+  if (isArrayHasLength(entity[key])) {
+    for (const child of entity[key]) {
+      for (const childKey in child) {
+        const childNode = {
+          key: childKey,
+          label: predicates[childKey] || entity[childKey]?.path?.[0]?.name || childKey,
+          children: [] as any[]
+        };
+        newTreeNode.children.push(childNode);
+        for (const grandchild of child[childKey]) {
+          const grandchildNode = {
+            key: grandchild[IM.MAP_ADVICE],
+            label: grandchild[IM.MAP_ADVICE],
+            children: [] as any[]
+          };
+          childNode.children.push(grandchildNode);
+          for (const values in grandchild) {
+            setChildNodeArrayCheck(grandchild, values, predicates, grandchildNode);
+          }
+        }
+      }
+    }
+  }
 }
 
 function createKeyFromText(text: string) {
