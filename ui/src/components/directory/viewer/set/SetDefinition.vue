@@ -2,32 +2,32 @@
   <div class="set-definition-wrapper">
     <div class="details-container">
       <div class="table-header-bar">
-        <ArrayObjectNamesToStringWithLabel v-if="isContainedIn" label="Contained in" :data="isContainedIn" />
-        <ArrayObjectNamesToStringWithLabel v-if="subsetOf" label="Subset of" :data="subsetOf" />
-        <ArrayObjectNamesToStringWithLabel v-if="subclassOf" label="Subclass of" :data="subclassOf" />
+        <ArrayObjectNamesToStringWithLabel v-if="isContainedIn" :data="isContainedIn" label="Contained in" />
+        <ArrayObjectNamesToStringWithLabel v-if="subsetOf" :data="subsetOf" label="Subset of" />
+        <ArrayObjectNamesToStringWithLabel v-if="subclassOf" :data="subclassOf" label="Subclass of" />
         <div class="buttons-container">
           <template v-if="checkAuthorization()">
-            <Button type="button" label="Publish" @click="publish" :loading="isPublishing" data-testid="publishButton"></Button>
+            <Button :loading="isPublishing" data-testid="publishButton" label="Publish" type="button" @click="publish"></Button>
           </template>
           <Button
-            type="button"
-            label="Download..."
-            @click="displayDialog"
-            aria-haspopup="true"
-            aria-controls="overlay_menu"
             :loading="downloading"
+            aria-controls="overlay_menu"
+            aria-haspopup="true"
             data-testid="downloadButton"
+            label="Download..."
+            type="button"
+            @click="displayDialog"
           />
-          <Button type="button" label="Compare" @click="showCompareSetDialog = true" data-testid="compareButton" outlined />
+          <Button data-testid="compareButton" label="Compare" outlined type="button" @click="showCompareSetDialog = true" />
         </div>
       </div>
     </div>
 
-    <Accordion multiple v-model:value="active">
+    <Accordion v-model:value="active" multiple>
       <AccordionPanel value="0">
         <AccordionHeader>Subsets</AccordionHeader>
         <AccordionContent>
-          <div class="set-accordion-content" id="set-definition-container">
+          <div id="set-definition-container" class="set-accordion-content">
             <SubsetDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
           </div>
         </AccordionContent>
@@ -37,23 +37,23 @@
           <div class="definition-header">
             <span>Definition</span>
             <Button
+              v-tooltip.top="'Copy definition'"
+              class="p-button-outlined concept-button"
+              data-testid="copy-definition-button"
               icon="fa-solid fa-copy"
               severity="secondary"
-              class="p-button-outlined concept-button"
-              v-tooltip.top="'Copy definition'"
-              data-testid="copy-definition-button"
               @click="onCopy"
             />
           </div>
         </AccordionContent>
-        <div class="set-accordion-content" id="set-definition-container">
+        <div id="set-definition-container" class="set-accordion-content">
           <QueryDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </AccordionPanel>
-      <AccordionPanel value="2" header="Direct Members">
+      <AccordionPanel header="Direct Members" value="2">
         <AccordionHeader>Direct Members</AccordionHeader>
         <AccordionContent>
-          <div class="set-accordion-content" id="members-container">
+          <div id="members-container" class="set-accordion-content">
             <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @open-download-dialog="displayDialog" />
           </div>
         </AccordionContent>
@@ -62,23 +62,23 @@
   </div>
   <CompareSetDialog v-model:show-dialog="showCompareSetDialog" :set-iri-a="entityIri" />
   <DownloadByQueryOptionsDialog
+    :show-definition="hasDefinition"
     :showDialog="showOptions"
     @download="download"
     @downloadIMV1="downloadIMV1"
     @close-dialog="showOptions = false"
-    :show-definition="hasDefinition"
   />
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import Members from "./Members.vue";
 import CompareSetDialog from "./CompareSetDialog.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
-import { computed, markRaw, onMounted, Ref, ref, watch } from "vue";
+import { computed, markRaw, onMounted, Ref, ref } from "vue";
 import { EntityService, SetService } from "@/services";
-import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
+import { IM, RDFS } from "@im-library/vocabulary";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
@@ -89,7 +89,6 @@ import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue"
 import { useDialog } from "primevue/usedialog";
 import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@im-library/interfaces";
 
@@ -147,6 +146,7 @@ async function onCopy(event: any) {
 }
 
 async function download(downloadSettings: DownloadSettings): Promise<void> {
+  console.log(downloadSettings);
   const downloadDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Downloading", text: "Preparing your download..." }
@@ -187,7 +187,9 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   let label = "";
   if (isObjectHasKeys(labelResult, [RDFS.LABEL, IM.VERSION])) label = labelResult[RDFS.LABEL] + " v" + labelResult[IM.VERSION];
   else if (isObjectHasKeys(labelResult, [RDFS.LABEL])) label = labelResult[RDFS.LABEL];
-  downloadFile(result, getFileName(label, downloadSettings.selectedFormat));
+  let format = downloadSettings.selectedFormat;
+  if ("FHIR" === downloadSettings.selectedFormat) format = "json";
+  downloadFile(result, getFileName(label, format));
   downloadDialog.close();
 }
 
@@ -254,6 +256,7 @@ function closeDialog() {
 .details-container {
   padding-bottom: 1rem;
 }
+
 .set-accordion-content {
   height: 100%;
 }

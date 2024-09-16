@@ -137,7 +137,7 @@ async function onSaveChanges(editMatch: Match) {
     const describedMatch = await QueryService.getQueryDisplayFromQuery(editMatch, false);
     if (describedMatch.where) selectedMenuItem.value.editMatch.where = describedMatch.where;
     if (describedMatch.match) selectedMenuItem.value.editMatch.match = describedMatch.match;
-    if (describedMatch.then) selectedMenuItem.value.editMatch.then = describedMatch.then;
+    selectedMenuItem.value.editMatch.then = describedMatch.then;
     if (describedMatch.groupBy) selectedMenuItem.value.editMatch.groupBy = describedMatch.groupBy;
     if (describedMatch.orderBy) selectedMenuItem.value.editMatch.orderBy = describedMatch.orderBy;
     if (isObjectHasKeys(describedMatch, ["exclude"])) selectedMenuItem.value.editMatch.exclude = describedMatch.exclude;
