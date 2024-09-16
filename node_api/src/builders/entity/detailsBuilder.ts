@@ -205,8 +205,7 @@ function setChildNodeArrayCheck(children: any, key: string, predicates: any, gra
   } else {
     const nonArrayNode = {
       key: children[IM.MAP_ADVICE] + key,
-      label: predicates[key] + " - " + children[key],
-      children: [] as any[]
+      label: predicates[key] + " - " + children[key]
     };
     grandchildNode.children.push(nonArrayNode);
   }
