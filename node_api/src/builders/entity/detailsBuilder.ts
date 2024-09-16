@@ -30,11 +30,8 @@ function processEntityKey(key: string, treeNode: any, entity: any, predicates: a
   else if (key === SHACL.PARAMETER) addParameter(treeNode, entity, predicates, key);
   else if (key === IM.BINDING) addBinding(treeNode, entity, predicates, key);
   else if (key === IM.DEFINITION) addDefinition(treeNode, entity, predicates, key, types ?? []);
-  else if (key === IM.HAS_MAP) {
-    const defaultNode = { key: key, label: predicates[key], children: [] };
-    treeNode.children.push(defaultNode);
-    addDefault(defaultNode, entity, predicates);
-  } else if (key !== "@id") {
+  else if (key === IM.HAS_MAP) addHasMapNode(treeNode, entity, predicates, key);
+  else if (key !== "@id") {
     const newTreeNode = { key: key, label: predicates[key] ?? key, children: [] };
     treeNode.children?.push(newTreeNode);
     buildTreeDataRecursively(newTreeNode, entity[key], predicates);
@@ -47,7 +44,12 @@ function addValueToLabel(treeNode: any, divider: string, value: any) {
 
 function addIriLink(treeNode: any, item: TTIriRef) {
   if (item["@id"] === IM.LOAD_MORE)
-    treeNode.children?.push({ key: item["@id"], label: item.name, type: "loadMore", data: { predicate: treeNode.key, totalCount: (item as any).totalCount } });
+    treeNode.children?.push({
+      key: item["@id"],
+      label: item.name,
+      type: "loadMore",
+      data: { predicate: treeNode.key, totalCount: (item as any).totalCount }
+    });
   else treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
 }
 
@@ -57,7 +59,11 @@ function addDefinition(treeNode: any, entity: any, predicates: any, key: string,
 }
 
 function addParameter(treeNode: any, entity: any, predicates: any, key: string) {
-  const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
+  const newTreeNode = {
+    key: key,
+    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    children: [] as any[]
+  };
   treeNode.children?.push(newTreeNode);
   if (isArrayHasLength(entity[key])) {
     for (const parameter of entity[key]) {
@@ -101,7 +107,11 @@ function addObject(treeNode: any, entity: any, predicates: any, key: string) {
 }
 
 function addTermCodes(treeNode: any, entity: any, predicates: any, key: string) {
-  const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
+  const newTreeNode = {
+    key: key,
+    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    children: [] as any[]
+  };
   treeNode.children?.push(newTreeNode);
   if (isArrayHasLength(entity[key])) {
     for (const termCode of entity[key]) {
@@ -116,7 +126,11 @@ function addTermCodes(treeNode: any, entity: any, predicates: any, key: string) 
 }
 
 function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) {
-  const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
+  const newTreeNode = {
+    key: key,
+    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    children: [] as any[]
+  };
   treeNode.children?.push(newTreeNode);
   if (isArrayHasLength(entity[key])) {
     for (const roleGroup of entity[key]) {
@@ -128,13 +142,13 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
       newTreeNode.children?.push(propertyNode);
 
       for (const roleKey of Object.keys(roleGroup)) {
-        if (roleKey !== IM.GROUP_NUMBER)
-          propertyNode.children?.push(getRoleValue(predicates,roleGroup,roleKey,key));
+        if (roleKey !== IM.GROUP_NUMBER) propertyNode.children?.push(getRoleValue(predicates, roleGroup, roleKey, key));
       }
     }
   }
 }
-function getRoleValue(predicates: any, roleGroup:any,roleKey: any,key :string) {
+
+function getRoleValue(predicates: any, roleGroup: any, roleKey: any, key: string) {
   const valueNode = {
     key: key + "." + roleKey,
     iri: roleKey,
@@ -143,19 +157,22 @@ function getRoleValue(predicates: any, roleGroup:any,roleKey: any,key :string) {
     data: roleGroup[roleKey],
     children: [] as any[]
   };
-  if (roleGroup[roleKey].length==1) {
+  if (roleGroup[roleKey].length == 1) {
     valueNode.data = roleGroup[roleKey][0];
-  }
-  else {
-      for (const valueChild of roleGroup[roleKey]) {
-        addIriLink(valueNode,valueChild);
-      }
+  } else {
+    for (const valueChild of roleGroup[roleKey]) {
+      addIriLink(valueNode, valueChild);
     }
+  }
   return valueNode;
 }
 
 function addBinding(treeNode: any, entity: any, predicates: any, key: any) {
-  const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
+  const newTreeNode = {
+    key: key,
+    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    children: [] as any[]
+  };
   treeNode.children?.push(newTreeNode);
   if (isArrayHasLength(entity[key])) {
     for (const roleGroup of entity[key]) {
@@ -170,8 +187,56 @@ function addBinding(treeNode: any, entity: any, predicates: any, key: any) {
 }
 
 function addProperty(treeNode: any, entity: any, predicates: any, key: string) {
-  const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
+  const newTreeNode = {
+    key: key,
+    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    children: [] as any[]
+  };
   treeNode.children?.push(newTreeNode);
+}
+
+function setChildNodeArrayCheck(children: any, key: string, predicates: any, grandchildNode: any) {
+  if (isArrayHasLength(children[key])) {
+    const arrayNode = { key: children[IM.MAP_ADVICE] + key, label: predicates[key], children: [] as any[] };
+    grandchildNode.children.push(arrayNode);
+    for (const child of children[key]) {
+      addIriLink(arrayNode, child);
+    }
+  } else {
+    const nonArrayNode = {
+      key: children[IM.MAP_ADVICE] + key,
+      label: predicates[key] + " - " + children[key]
+    };
+    grandchildNode.children.push(nonArrayNode);
+  }
+}
+
+function addHasMapNode(treeNode: any, entity: any, predicates: any, key: string) {
+  const newTreeNode = { key: key, label: predicates[key], children: [] as any[] };
+  treeNode.children?.push(newTreeNode);
+  if (isArrayHasLength(entity[key])) {
+    for (const child of entity[key]) {
+      for (const childKey in child) {
+        const childNode = {
+          key: childKey,
+          label: predicates[childKey] || entity[childKey]?.path?.[0]?.name || childKey,
+          children: [] as any[]
+        };
+        newTreeNode.children.push(childNode);
+        for (const grandchild of child[childKey]) {
+          const grandchildNode = {
+            key: grandchild[IM.MAP_ADVICE],
+            label: grandchild[IM.MAP_ADVICE],
+            children: [] as any[]
+          };
+          childNode.children.push(grandchildNode);
+          for (const values in grandchild) {
+            setChildNodeArrayCheck(grandchild, values, predicates, grandchildNode);
+          }
+        }
+      }
+    }
+  }
 }
 
 function createKeyFromText(text: string) {
