@@ -38,6 +38,15 @@
       :disabled="!editAllowed"
     />
     <Button
+      v-if="show('download')"
+      icon="fa-duotone fa-download"
+      :severity="getSeverity()"
+      :class="getClass()"
+      @click="confirmDownload()"
+      v-tooltip.left="'Download'"
+      data-testid="download-button"
+    />
+    <Button
       v-if="isLoggedIn && show('favourite') && isFavourite(iri)"
       style="color: var(--p-yellow-500)"
       icon="fa-solid fa-star"
@@ -60,17 +69,23 @@
       :loading="loadingFavourites"
     />
     <Button v-if="show('addToList')" label="Add" @click.stop="emit('addToList', iri)" v-tooltip.top="'Add to list'" data-testid="add-button" />
+    <ConfirmDialog></ConfirmDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { DirectService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
+import { useDialog } from "primevue/usedialog";
+import { useConfirm } from "primevue/useconfirm";
+import setupDownloadFile from "@/composables/downloadFile";
+import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 
 const directService = new DirectService();
+const confirm = useConfirm();
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
@@ -82,6 +97,7 @@ const organisations = computed(() => userStore.organisations);
 interface Props {
   buttons: string[];
   iri: string;
+  name: string;
   type?: string;
 }
 
@@ -95,7 +111,11 @@ const emit = defineEmits({
   viewHierarchy: (_payload: string) => true
 });
 
+const dynamicDialog = useDialog();
+const { downloadFile } = setupDownloadFile(window, document);
+
 const loadingFavourites = ref(false);
+const showDownloadOptions = ref(false);
 
 function getClass() {
   const activityRowButton = "p-button-rounded p-button-text p-button-plain activity-row-button ";
@@ -145,6 +165,36 @@ function viewEntity(event: any, iri: string) {
 function toEdit(event: any, iri: string) {
   event.stopPropagation();
   directService.edit(iri, true);
+}
+
+function confirmDownload() {
+  confirm.require({
+    message: 'Are you sure you want to download "' + props.name + '" (' + props.iri + ")?",
+    header: "Download",
+    rejectProps: {
+      label: "Cancel",
+      severity: "secondary",
+      outlined: true
+    },
+    acceptProps: {
+      label: "Download"
+    },
+    accept: async () => {
+      confirm.close();
+      await download();
+    },
+    reject: () => confirm.close()
+  });
+}
+
+async function download(): Promise<void> {
+  const downloadDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Downloading", text: "Preparing your download..." }
+  });
+  const result = await EntityService.downloadEntity(props.iri);
+  if (result) downloadFile(result, props.name + "_" + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + ".json");
+  downloadDialog.close();
 }
 </script>
 

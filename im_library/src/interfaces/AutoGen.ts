@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-09-05 08:03:41.
+// Generated using typescript-generator version 3.2.1263 on 2024-09-12 10:51:47.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -12,6 +12,21 @@ export interface DataModelProperty extends Serializable {
     pattern?: string;
     inheritedFrom?: TTIriRef;
     order?: number;
+}
+
+export interface DownloadEntityOptions {
+    entityIri?: string;
+    format?: string;
+    includeHasSubtypes?: boolean;
+    includeInferred?: boolean;
+    includeProperties?: boolean;
+    includeMembers?: boolean;
+    expandMembers?: boolean;
+    expandSubsets?: boolean;
+    includeTerms?: boolean;
+    includeIsChildOf?: boolean;
+    includeHasChildren?: boolean;
+    includeInactive?: boolean;
 }
 
 export interface BoolGroup extends BuilderComponent {
@@ -261,10 +276,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -428,7 +443,7 @@ export interface Where extends PropertyRef {
     displayLabel?: string;
 }
 
-export interface DownloadOptions {
+export interface DownloadByQueryOptions {
     queryRequest?: QueryRequest;
     eclSearchRequest?: EclSearchRequest;
     totalCount?: number;
@@ -752,19 +767,19 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    type?: TTArray;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
     status?: TTIriRef;
-    prefixes?: TTPrefix[];
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {

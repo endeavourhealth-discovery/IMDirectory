@@ -66,6 +66,7 @@
             <ActionButtons
               :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'favourite'] : ['viewHierarchy', 'view', 'addToList']"
               :iri="data.iri"
+              :name="data.name"
               @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
               @view-hierarchy="(iri: string) => emit('viewHierarchy', iri)"
               @add-to-list="(iri: string) => emit('addToList', iri)"
@@ -76,7 +77,7 @@
     </DataTable>
     <ContextMenu :model="rClickOptions" ref="contextMenu" />
     <OverlaySummary ref="OS" />
-    <DownloadOptionsDialog
+    <DownloadByQueryOptionsDialog
       :show-dialog="showDownloadOptions"
       :show-im1="false"
       :show-definition="false"
@@ -95,7 +96,7 @@ import { DirectService, EclService, EntityService, QueryService } from "@/servic
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import DownloadOptionsDialog from "./dialogs/DownloadOptionsDialog.vue";
+import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
 import BatteryBar from "./BatteryBar.vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
@@ -105,7 +106,7 @@ import { cloneDeep } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { DownloadOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+import { DownloadByQueryOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { DownloadSettings, ExtendedSearchResultSummary, SearchOptions } from "@im-library/interfaces";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { FilterOptions } from "@im-library/interfaces";
@@ -314,7 +315,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
     }
   }
   if (downloadQuery || eclSearchRequest) {
-    const options: DownloadOptions = {
+    const options: DownloadByQueryOptions = {
       queryRequest: downloadQuery,
       eclSearchRequest: eclSearchRequest,
       totalCount: totalCount.value,

@@ -32,7 +32,7 @@
         <Column :exportable="false">
           <template #body="{ data }: any">
             <div class="action-buttons-container">
-              <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" @locate-in-tree="locateInTree" />
+              <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" :name="data.name" @locate-in-tree="locateInTree" />
             </div>
           </template>
         </Column>

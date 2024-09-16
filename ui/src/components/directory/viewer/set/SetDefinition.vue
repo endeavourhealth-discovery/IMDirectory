@@ -61,7 +61,7 @@
     </Accordion>
   </div>
   <CompareSetDialog v-model:show-dialog="showCompareSetDialog" :set-iri-a="entityIri" />
-  <DownloadOptionsDialog
+  <DownloadByQueryOptionsDialog
     :showDialog="showOptions"
     @download="download"
     @downloadIMV1="downloadIMV1"
@@ -74,7 +74,7 @@
 import Members from "./Members.vue";
 import CompareSetDialog from "./CompareSetDialog.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
-import DownloadOptionsDialog from "@/components/shared/dialogs/DownloadOptionsDialog.vue";
+import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
 import { computed, markRaw, onMounted, Ref, ref, watch } from "vue";
 import { EntityService, SetService } from "@/services";
