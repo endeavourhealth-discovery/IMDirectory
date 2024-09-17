@@ -51,7 +51,7 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
     size: 4
   },
   {
-    label: "Models",
+    label: "Health records",
     icon: getFAIconFromType([{ "@id": SHACL.NODESHAPE }]),
     command: () => directService.select(IM.HEALTH_RECORDS),
     color: getColourFromType([{ "@id": SHACL.NODESHAPE }]),
