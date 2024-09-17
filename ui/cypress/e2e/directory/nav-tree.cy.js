@@ -6,7 +6,7 @@ describe("nav tree", () => {
   });
   it("can expand nodes", () => {
     cy.expandTreeNode("hierarchy-tree-bar-container", "Ontologies");
-    cy.get("#hierarchy-tree-bar-container").contains("Discovery Snomed-CT extension concepts");
+    cy.get("#hierarchy-tree-bar-container").contains("SNOMED CT Concept (SNOMED RT+CTV3)");
   });
   it("can load more", () => {
     cy.expandTreeNode("hierarchy-tree-bar-container", "Ontologies");

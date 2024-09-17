@@ -1,5 +1,6 @@
 describe("top bar", () => {
   beforeEach(() => {
+    cy.clearLocalStorage();
     cy.preventRouterNewTab();
     cy.acceptLicenseAndCookies();
     cy.get("#topbar", { timeout: 60000 });
@@ -82,19 +83,19 @@ describe("top bar", () => {
       cy.visit("/#/directory/search");
       cy.getByTestId("apps-button").click();
       cy.get("#apps-menu").find(".shortcut").contains("Directory").click();
-      cy.url().should("equal", "http://localhost:8082/#/");
+      cy.url().should("equal", "http://localhost:8082/#/directory/landingPage");
     });
 
     it("can route to creator", () => {
       cy.getByTestId("apps-button").click();
       cy.get("#apps-menu").find(".shortcut").contains("Creator").click();
-      cy.url().should("equal", "http://localhost:8082/#/creator");
+      cy.url().should("equal", "http://localhost:8082/#/creator/");
     });
 
     it("can route to uprn", () => {
       cy.getByTestId("apps-button").click();
       cy.get("#apps-menu").find(".shortcut").contains("ASSIGN UPRN").click();
-      cy.url().should("equal", "http://localhost:8082/#/uprn");
+      cy.url().should("equal", "http://localhost:8082/#/uprn/");
     });
   });
 
