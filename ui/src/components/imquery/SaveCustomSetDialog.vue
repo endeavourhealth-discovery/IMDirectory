@@ -4,7 +4,7 @@
     v-model:visible="showSaveCustomSetDialog"
     modal
     header="Save custom set"
-    :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--p-surface-section)' }"
+    :style="{ minWidth: '25vw', maxWidth: '50vw' }"
   >
     <form @submit="onSubmit" class="save-set-form flex flex-col gap-2">
       <div class="flex flex-col gap-2" id="save-set-full-iri">

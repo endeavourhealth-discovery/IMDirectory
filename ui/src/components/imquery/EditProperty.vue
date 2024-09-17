@@ -14,6 +14,7 @@
         </div>
         <Button icon="fa-solid fa-chevron-down" severity="secondary" @click="toggleDropdown" />
         <Button label="Edit" @click="showBuildFeatureDialog = true" />
+        <SaveCustomSetDialog v-if="property.is" :set-members="property.is" @on-save="onSaveCustomSet" />
       </InputGroup>
       <Popover ref="dropdown">
         <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
@@ -41,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Where } from "@im-library/interfaces/AutoGen";
+import { Match, Node, Where } from "@im-library/interfaces/AutoGen";
 import { UIProperty } from "@im-library/interfaces";
 import { Ref, onMounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
@@ -52,6 +53,7 @@ import { convertTTPropertyToUIProperty, convertUIPropertyFromDMConcept } from "@
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 import { cloneDeep } from "lodash-es";
+import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 
 interface Props {
   property: Where;
@@ -115,6 +117,11 @@ function truncateName(name: string) {
 
 function toggleDropdown(event: MouseEvent) {
   dropdown.value.toggle(event);
+}
+
+function onSaveCustomSet(newSet: Node) {
+  props.property.is = [newSet];
+  props.property.memberOf = true;
 }
 </script>
 
