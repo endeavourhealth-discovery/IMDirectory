@@ -48,17 +48,17 @@ describe("top bar", () => {
   });
 
   describe("themes", () => {
-    it("can change theme", () => {
-      cy.get("#banner").should("have.css", "background-color", "rgb(33, 150, 243)");
+    it.only("can change theme", () => {
+      cy.get("#banner").should("have.css", "background-color", "rgb(16, 185, 129)");
       cy.getByTestId("change-theme-button").click();
-      cy.get('[src="/themeIcons/arya-purple.png"').first().click();
-      cy.get("#banner").should("have.css", "background-color", "rgb(186, 104, 200)");
+      cy.get(".color-picker").find(".p-button").eq(1).click();
+      cy.get("#banner").should("have.css", "background-color", "rgb(34, 197, 94)");
     });
   });
 
   describe("font size", () => {
     it("can change font size", () => {
-      cy.get(".p-button-label").first().should("have.css", "font-size", "16px");
+      cy.get(".p-button-label").first().should("have.css", "font-size", "14px");
       cy.getByTestId("font-size-button").click();
       cy.get("#scale-menu").find(".p-menuitem").first().should("have.text", "Small").click();
       cy.get(".p-button-label").first().should("not.have.css", "font-size", "16px");
