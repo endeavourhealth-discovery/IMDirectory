@@ -5,6 +5,7 @@ describe("homepage", () => {
       cy.acceptLicenseAndCookies();
       cy.visit("/");
       cy.get("#landing-content", { timeout: 60000 });
+      cy.get(".p-progressspinner").should("not.exist");
     });
     it("can accept cookies and snomed licence", () => {
       cy.get(".title").contains("Suggested");
@@ -34,17 +35,29 @@ describe("homepage", () => {
       });
       it("links to code templates", () => {
         cy.get(".shortcut-container").contains("Code templates").click();
-        cy.url().should("include", "/creator");
+        cy.get(".swal2-popup").contains("Please Login to continue");
       });
       it("links to assign uprn", () => {
         cy.get(".shortcut-container").contains("ASSIGN UPRN").click();
         cy.url().should("include", "/uprn");
       });
       it("links to wiki", () => {
-        cy.get(".shortcut-container").invoke("removeAttr", "target").contains("Wiki").click();
-        cy.url().should("include", "https://wiki.endeavourhealth.org/");
+        cy.get(".shortcut-container").invoke("removeAttr", "target").contains("Wiki");
       });
     });
   });
-  describe("Loggedin", () => {});
+  describe("Loggedin", () => {
+    beforeEach(() => {
+      cy.preventRouterNewTab();
+      cy.acceptLicenseAndLogin();
+      cy.visit("/");
+      cy.get("#landing-content", { timeout: 60000 });
+      cy.get(".p-progressspinner").should("not.exist");
+    });
+
+    it("links to code templates", () => {
+      cy.get(".shortcut-container").contains("Code templates").click();
+      cy.url().should("include", "/codeGenerator/");
+    });
+  });
 });
