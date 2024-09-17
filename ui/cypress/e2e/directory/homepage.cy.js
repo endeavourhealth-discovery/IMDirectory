@@ -20,9 +20,9 @@ describe("homepage", () => {
         cy.get(".shortcut-container").contains("Sets").click();
         cy.url().should("include", "http%3A%2F%2Fendhealth.info%2Fim%23Sets");
       });
-      it("links to models", () => {
-        cy.get(".shortcut-container").contains("Models").click();
-        cy.url().should("include", "http%3A%2F%2Fendhealth.info%2Fim%23DataModels");
+      it("links to health records", () => {
+        cy.get(".shortcut-container").contains("Health records").click();
+        cy.url().should("include", "http%3A%2F%2Fendhealth.info%2Fim%23HealthRecords");
       });
       it("links to queries", () => {
         cy.get(".shortcut-container").contains("Queries").click();
