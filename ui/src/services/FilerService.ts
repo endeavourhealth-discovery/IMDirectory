@@ -49,6 +49,10 @@ const FilerService = {
         withoutTransaction
       }
     });
+  },
+
+  async getTaskProgress(taskId: string): Promise<any> {
+    return axios.get(api + `api/filer/file/document/${taskId}`);
   }
 };
 
