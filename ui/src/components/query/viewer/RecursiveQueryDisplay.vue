@@ -8,9 +8,12 @@
           : ''
     "
   >
-    <span v-if="match.name" v-html="match.name"> </span>
-    <span v-else-if="match.description" v-html="match.description"> </span>
-    <span v-else-if="match.displayLabel">{{ match.displayLabel }}</span>
+    <span>
+      <span v-if="parentMatch?.boolMatch && matchIndex" :class="parentMatch?.boolMatch">{{ parentMatch?.boolMatch }}</span>
+      <span v-if="match.name" v-html="match.name"> </span>
+      <span v-else-if="match.description" v-html="match.description"> </span>
+      <span v-else-if="match.displayLabel">{{ match.displayLabel }}</span>
+    </span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -21,8 +24,9 @@
     />
     <RecursivePropertyDisplay
       v-if="isArrayHasLength(match.where)"
-      v-for="property of match.where"
+      v-for="(property, index) of match.where"
       :property="property"
+      :property-index="index"
       :parent-match="match"
       :full-query="fullQuery"
     />
@@ -30,7 +34,10 @@
     <span v-if="match.then">
       <RecursiveQueryDisplay :match="match.then" :parent-match="match" :full-query="fullQuery" />
     </span>
-    <span v-if="match.variable">{{ "label as " + match.variable }}</span>
+    <span v-if="match.variable">
+      label as
+      <span class="variable">{{ match.variable }}</span>
+    </span>
     <span v-if="isArrayHasLength(match.query)" class="output">output</span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.query)"
@@ -111,5 +118,21 @@ function getNodeRef(propertyOrMatch: Where | Match) {
 
 .output {
   color: mediumslateblue;
+}
+</style>
+
+<style>
+.or {
+  color: blue;
+  padding-right: 0.3rem;
+}
+
+.and {
+  color: orange;
+  padding-right: 0.3rem;
+}
+
+.variable {
+  color: rgb(78, 2, 150) !important;
 }
 </style>

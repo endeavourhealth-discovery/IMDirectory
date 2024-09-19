@@ -1,8 +1,12 @@
 <template>
   <div :class="!propertyIndex && property.description ? 'feature' : ''">
-    <span v-if="hasNodeRef(property)" v-html="property.description" @click="onNodeRefClick(property, $event)"></span>
-    <span v-else-if="property.description" v-html="property.description"></span>
-    <span v-else-if="property.displayLabel" class="display-label">{{ property.displayLabel }} </span>
+    <span class="property-display">
+      <span v-if="propertyIndex" :class="parentMatch?.boolWhere ?? 'and'">{{ parentMatch?.boolWhere ?? "and" }}</span>
+      <span v-if="hasNodeRef(property)" v-html="property.description" @click="onNodeRefClick(property, $event)"></span>
+      <span v-if="property.description" v-html="property.description"></span>
+      <span v-else-if="property.displayLabel">{{ property.displayLabel }} </span>
+    </span>
+
     <RecursivePropertyDisplay
       v-if="isArrayHasLength(property.where)"
       v-for="(nestedProperty, index) of property.where"
@@ -84,10 +88,6 @@ function getNodeRef(property: Where) {
   margin-bottom: 0.1rem;
 }
 
-.variable {
-  color: rgb(78, 2, 150) !important;
-}
-
 .variable-line {
   margin-left: 1rem !important;
 }
@@ -97,7 +97,7 @@ function getNodeRef(property: Where) {
   cursor: pointer !important;
 }
 
-.display-label {
+.property-display {
   margin-left: 1rem;
 }
 </style>
