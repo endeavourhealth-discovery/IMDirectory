@@ -129,6 +129,7 @@ async function onSearch() {
 
 .search-group {
   width: 30%;
+  height: 2.25rem;
 }
 
 .mic {
