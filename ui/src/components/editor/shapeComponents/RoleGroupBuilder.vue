@@ -17,14 +17,14 @@
             }}</span>
             <div class="roleGroupTitle">
               <label>Role Group {{ rgIndex }}</label>
-              <Button class="p-button-rounded p-button-text" icon="fa-solid fa-trash" severity="danger" size="small" @click="deleteRoleGroup(rgIndex)" />
+              <Button class="p-button-danger m-2" icon="fa-solid fa-trash" severity="danger" size="small" @click="deleteRoleGroup(rgIndex)" />
             </div>
             <div v-for="(row, rIndex) in rg">
               <div v-if="!isObjectHasKeys(row.key, ['@id']) || row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow concept-colours">
                 <AutocompleteSearchBar v-model:selected="row.key" :im-query="request" :search-placeholder="'Search properties'" class="roleProperty" />
                 <span style="width: 1rem; text-align: center">:</span>
                 <AutocompleteSearchBar v-model:selected="row.value" :im-query="valueRequest" :search-placeholder="'Search quantifiers'" class="roleProperty" />
-                <Button class="p-button-rounded p-button-text" icon="fa-solid fa-trash" severity="danger" @click="deleteRole(rg, rIndex)" />
+                <Button class="p-button-danger m-2" icon="fa-solid fa-trash" severity="danger" @click="deleteRole(rg, rIndex)" />
               </div>
             </div>
             <div class="buttonGroup role-button">

@@ -1,15 +1,15 @@
 <template>
   <div class="switch-button-container">
     <div class="buttons-container">
-      <Button v-if="show?.minus" icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteClicked" />
+      <Button v-if="show?.minus" class="p-button-danger" icon="fa-solid fa-trash" severity="danger" @click="deleteClicked" />
       <Button v-if="show?.plus" icon="fa-solid fa-plus" label="Add" severity="success" @click="addNextClicked" />
     </div>
     <Menu ref="optionsMenu" :model="menuOptions" :popup="true" />
   </div>
 </template>
 
-<script setup lang="ts">
-import { onMounted, PropType, ref, Ref, watch } from "vue";
+<script lang="ts" setup>
+import { onMounted, ref, Ref, watch } from "vue";
 import { ComponentType } from "@im-library/enums";
 import _ from "lodash-es";
 
