@@ -67,6 +67,12 @@ Cypress.Commands.add("searchAndSelect", (searchTerm: string) => {
   cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 10000 }).contains(searchTerm);
   cy.get("#viewer-tabs", { timeout: 10000 });
 });
+
+Cypress.Commands.add("setLocalStorage", (localStorageMap: Map<string, string>) => {
+  localStorageMap.forEach((value, key) => {
+    window.localStorage.setItem(key, value);
+  });
+});
 //
 //
 // -- This is a parent command --
@@ -93,6 +99,7 @@ declare global {
       searchAndSelect(searchTerm: string): Chainable<void>;
       acceptLicenseAndLogin(): Chainable<void>;
       loginByCognitoApi(username: string, password: string): Chainable<void>;
+      setLocalStorage(localStorageMap: Map<string, string>): Chainable<void>;
     }
   }
 }

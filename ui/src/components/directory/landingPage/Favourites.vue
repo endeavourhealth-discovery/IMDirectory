@@ -3,7 +3,10 @@
     <ProgressSpinner />
   </div>
   <div v-else class="favourites-container">
-    <span class="title"> Favourites </span>
+    <div class="flex flex-row flex-nowrap items-center justify-between">
+      <span class="title"> Favourites </span>
+      <Button @click="confirmClearFavourites" label="Clear favourites" />
+    </div>
     <div class="datatable-container">
       <DataTable
         :value="favourites"
@@ -40,6 +43,7 @@
         </Column>
       </DataTable>
       <OverlaySummary ref="OS" />
+      <ConfirmDialog></ConfirmDialog>
     </div>
   </div>
 </template>
@@ -55,19 +59,22 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import _ from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { DirectService, EntityService } from "@/services";
+import { DirectService, EntityService, UserService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
 import { RDF, RDFS } from "@im-library/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { useConfirm } from "primevue/useconfirm";
 
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
+const confirm = useConfirm();
 const directService = new DirectService();
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const userFavourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
+
 const selected: Ref<any> = ref({});
 const favourites: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
@@ -112,6 +119,29 @@ async function getFavouritesDetails() {
     temp.push(clone);
   }
   favourites.value = temp;
+}
+
+function confirmClearFavourites() {
+  confirm.require({
+    message: "Are you sure you want to clear favourites?",
+    header: "Clear favourites",
+    rejectProps: {
+      label: "Cancel",
+      severity: "secondary",
+      outlined: true
+    },
+    acceptProps: {
+      label: "Clear",
+      severity: "danger"
+    },
+    accept: () => {
+      clearFavourites();
+    }
+  });
+}
+
+async function clearFavourites() {
+  await UserService.updateUserFavourites([]);
 }
 </script>
 

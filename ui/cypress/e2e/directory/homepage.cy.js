@@ -31,6 +31,7 @@ describe("homepage", () => {
       });
       it("links to creator", () => {
         cy.get(".shortcut-container").contains("Creator").click();
+        cy.get(".swal2-popup").contains("Please Login to continue");
         cy.url().should("include", "/creator");
       });
       it("links to code templates", () => {
@@ -39,6 +40,7 @@ describe("homepage", () => {
       });
       it("links to assign uprn", () => {
         cy.get(".shortcut-container").contains("ASSIGN UPRN").click();
+        cy.get(".swal2-popup").contains("Please Login to continue");
         cy.url().should("include", "/uprn");
       });
       it("links to wiki", () => {
@@ -55,9 +57,36 @@ describe("homepage", () => {
       cy.get(".p-progressspinner").should("not.exist");
     });
 
+    it("links to creator", () => {
+      cy.get(".shortcut-container").contains("Creator").click();
+      cy.url().should("include", "/creator/");
+      cy.get("#topbar-content", { timeout: 60000 }).contains("IM Creator");
+    });
+
+    it("links to assign uprn", () => {
+      cy.get(".shortcut-container").contains("ASSIGN UPRN").click();
+      cy.url().should("include", "/uprn");
+      cy.get("#topbar-content", { timeout: 60000 }).contains("ASSIGN-UPRN");
+    });
+
     it("links to code templates", () => {
       cy.get(".shortcut-container").contains("Code templates").click();
       cy.url().should("include", "/codeGenerator/");
+      cy.get("#topbar-content", { timeout: 60000 }).contains("Code Generator");
+    });
+
+    it("shows suggested", () => {
+      cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
+      cy.getByTestId("view-button").click();
+      cy.getByTestId("im-logo").click();
+      cy.get(".activity-container").contains("Scoliosis deformity of spine (disorder)");
+    });
+
+    it.only("shows favourites", () => {
+      cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
+      cy.getByTestId("favourite-button").click();
+      cy.getByTestId("im-logo").click();
+      cy.get(".favourites-container").contains("Scoliosis deformity of spine (disorder)");
     });
   });
 });
