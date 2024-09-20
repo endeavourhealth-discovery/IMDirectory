@@ -63,7 +63,7 @@
                     icon="fa-solid fa-chevron-down"
                     @click="moveDown(index)"
                   />
-                  <Button class="p-button-rounded p-button-text" icon="fa-solid fa-trash" severity="danger" @click="deleteProperty(index, row)" />
+                  <Button class="p-button-danger" icon="fa-solid fa-trash" severity="danger" @click="deleteProperty(index, row)" />
                 </span>
               </td>
             </tr>
