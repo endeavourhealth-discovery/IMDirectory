@@ -25,15 +25,48 @@
         @click="openThemesMenu"
         data-testid="change-theme-button"
       />
-      <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
-        <template #item="{ item }: any">
-          <div class="theme-row p-link">
-            <Image class="theme-icon p-menuitem-icon" v-if="item.image" :src="item.image" alt="icon" width="30" />
-            <span class="p-menuitem-text">{{ item.label }}</span>
-            <span v-if="item.key === currentTheme" class="theme-icon p-menuitem-icon fa-regular fa-check" />
+      <Popover ref="themesMenu" id="themes-menu">
+        <div class="theme-container">
+          <h2>Primary</h2>
+          <div class="color-picker">
+            <Button
+              v-for="color in themeOptions.primaryColours"
+              rounded
+              class="round-button border-none"
+              :class="selectedPrimaryColor === color && 'selected-primary'"
+              :style="'background-color:var(--p-' + color + '-500)'"
+              v-tooltip="color"
+              @click="
+                {
+                  selectedPrimaryColor = color;
+                  changePrimaryColor(color);
+                }
+              "
+            />
           </div>
-        </template>
-      </Menu>
+          <h2>Surface</h2>
+          <div class="color-picker">
+            <Button
+              v-for="color in themeOptions.surfaceColours"
+              rounded
+              class="round-button border-none"
+              :class="selectedSurfaceColor === color && 'selected-surface'"
+              :style="'background-color:var(--p-' + color + '-500)'"
+              v-tooltip="color"
+              @click="
+                {
+                  selectedSurfaceColor = color;
+                  changeSurfaceColor(color);
+                }
+              "
+            />
+          </div>
+          <h2>Presets</h2>
+          <SelectButton v-model="preset" :options="themeOptions.presets" :allowEmpty="false" />
+          <h2>Dark mode</h2>
+          <ToggleSwitch v-model="darkMode" />
+        </div>
+      </Popover>
       <Button
         v-tooltip.bottom="'Scale'"
         icon="fa-duotone fa-text-size"
@@ -46,7 +79,7 @@
       />
       <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
         <template #item="{ item }: any">
-          <div class="scale-row p-link">
+          <div class="scale-row">
             <span class="theme-icon p-menuitem-icon" :class="item.icon" />
             <span class="p-menuitem-text">{{ item.label }}</span>
             <span v-if="item.key === currentScale" class="theme-icon p-menuitem-icon fa-regular fa-check" />
@@ -68,13 +101,13 @@
         @click="openAppsOverlay"
         data-testid="apps-button"
       />
-      <OverlayPanel ref="appsOP" class="app-overlay-panel" id="apps-menu">
-        <div class="flex flex-row flex-wrap gap-2 justify-content-start">
+      <Popover ref="appsOP" class="app-overlay-panel" id="apps-menu">
+        <div class="flex flex-row flex-wrap justify-start gap-2">
           <template v-for="item in appItems">
             <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
           </template>
         </div>
-      </OverlayPanel>
+      </Popover>
       <Button
         v-tooltip.left="'Account'"
         v-if="!isLoggedIn"
@@ -99,12 +132,12 @@
       <Menu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-            <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--text-color)">
+            <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--p-text-color)">
               <span :class="item.icon" />
               <span class="ml-2">{{ item.label }}</span>
             </a>
           </router-link>
-          <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action" style="color: var(--text-color)">
+          <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action" style="color: var(--p-text-color)">
             <span :class="item.icon" />
             <span class="ml-2">{{ item.label }}</span>
           </a>
@@ -112,11 +145,11 @@
       </Menu>
     </div>
     <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
-      <div class="flex flex-column gap-2">
+      <div class="flex flex-col gap-2">
         <label for="template">Template</label>
-        <Dropdown id="template" v-model="template" :options="templates" />
+        <Select id="template" v-model="template" :options="templates" />
       </div>
-      <div class="flex flex-column gap-2">
+      <div class="flex flex-col gap-2">
         <label for="namespace">Namespace/Package</label>
         <InputText id="namespace" type="text" v-model="namespace" autofocus />
       </div>
@@ -129,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, onMounted } from "vue";
+import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, GithubService, UserService, CodeGenService } from "@/services";
@@ -140,8 +173,10 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
-import setupChangeTheme from "@/composables/setupChangeTheme";
 import setupChangeScale from "@/composables/setupChangeScale";
+import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
+import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
+import PrimeVueColors from "@/enums/PrimeVueColors";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -150,11 +185,14 @@ const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const currentTheme = computed(() => userStore.currentTheme);
 const currentScale = computed(() => userStore.currentScale);
+const currentPreset = computed(() => userStore.currentPreset);
+const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
+const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
+const userDarkMode = computed(() => userStore.darkMode);
 
-const { changeTheme } = setupChangeTheme();
 const { changeScale } = setupChangeScale();
+const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
 
 const showCodeDownload = ref(false);
 const namespace = ref();
@@ -166,6 +204,33 @@ const accountItems: Ref<MenuItem[]> = ref([]);
 const adminItems: Ref<MenuItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
+const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: PrimeVueColors[]; presets: PrimeVuePresetThemes[] }> = ref({
+  primaryColours: [
+    PrimeVueColors.EMERALD,
+    PrimeVueColors.GREEN,
+    PrimeVueColors.LIME,
+    PrimeVueColors.RED,
+    PrimeVueColors.ORANGE,
+    PrimeVueColors.AMBER,
+    PrimeVueColors.YELLOW,
+    PrimeVueColors.TEAL,
+    PrimeVueColors.CYAN,
+    PrimeVueColors.SKY,
+    PrimeVueColors.BLUE,
+    PrimeVueColors.INDIGO,
+    PrimeVueColors.VIOLET,
+    PrimeVueColors.PURPLE,
+    PrimeVueColors.FUCHSIA,
+    PrimeVueColors.PINK,
+    PrimeVueColors.ROSE
+  ],
+  surfaceColours: [PrimeVueColors.SLATE, PrimeVueColors.GRAY, PrimeVueColors.ZINC, PrimeVueColors.NEUTRAL, PrimeVueColors.STONE],
+  presets: [PrimeVuePresetThemes.AURA, PrimeVuePresetThemes.LARA, PrimeVuePresetThemes.NORA]
+});
+const preset = ref(themeOptions.value.presets[0]);
+const darkMode = ref(false);
+const selectedPrimaryColor = ref(themeOptions.value.primaryColours[0]);
+const selectedSurfaceColor = ref(themeOptions.value.surfaceColours[0]);
 
 const toast = useToast();
 const adminMenu = ref();
@@ -175,7 +240,19 @@ const userMenu = ref();
 const appsOP = ref();
 const directService = new DirectService();
 
+watch(preset, async newValue => {
+  await changePreset(newValue);
+});
+
+watch(darkMode, async newValue => {
+  await changeDarkMode(newValue);
+});
+
 onMounted(async () => {
+  darkMode.value = userDarkMode.value;
+  if (currentPreset.value) preset.value = currentPreset.value;
+  if (currentPrimaryColor.value) selectedPrimaryColor.value = currentPrimaryColor.value;
+  if (currentSurfaceColor.value) selectedSurfaceColor.value = currentSurfaceColor.value;
   setUserMenuItems();
   setAppMenuItems();
   await setAdminMenuItems();
@@ -261,7 +338,7 @@ function openScaleMenu(event: any): void {
 }
 
 function isLoggedInWithRole(role: string): boolean {
-  return isLoggedIn.value && currentUser.value && currentUser.value.roles.includes(role);
+  return isLoggedIn.value && typeof currentUser.value !== "undefined" && currentUser.value.roles.includes(role);
 }
 
 async function setAdminMenuItems(): Promise<void> {
@@ -292,316 +369,6 @@ async function setAdminMenuItems(): Promise<void> {
   ];
 }
 
-function getThemes() {
-  return [
-    {
-      label: "Arya",
-      items: [
-        {
-          key: "arya-blue",
-          label: "Blue",
-          image: "/themeIcons/arya-blue.png",
-          command: () => changeTheme("arya-blue")
-        },
-        {
-          key: "arya-green",
-          label: "Green",
-          image: "/themeIcons/arya-green.png",
-          command: () => changeTheme("arya-green")
-        },
-        {
-          key: "arya-orange",
-          label: "Orange",
-          image: "/themeIcons/arya-orange.png",
-          command: () => changeTheme("arya-orange")
-        },
-        {
-          key: "arya-purple",
-          label: "Purple",
-          image: "/themeIcons/arya-purple.png",
-          command: () => changeTheme("arya-purple")
-        }
-      ]
-    },
-    {
-      label: "Bootstrap",
-      items: [
-        {
-          key: "bootstrap4-light-blue",
-          label: "Blue",
-          image: "/themeIcons/bootstrap4-light-blue.svg",
-          command: () => changeTheme("bootstrap4-light-blue")
-        },
-        {
-          label: "Purple",
-          image: "/themeIcons/bootstrap4-light-purple.svg",
-          key: "bootstrap4-light-purple",
-          command: () => changeTheme("bootstrap4-light-purple")
-        },
-        {
-          key: "bootstrap4-dark-blue",
-          label: "Blue",
-          image: "/themeIcons/bootstrap4-dark-blue.svg",
-          command: () => changeTheme("bootstrap4-dark-blue")
-        },
-        {
-          key: "bootstrap4-dark-purple",
-          label: "Purple",
-          image: "/themeIcons/bootstrap4-dark-purple.svg",
-          command: () => changeTheme("bootstrap4-dark-purple")
-        }
-      ]
-    },
-    {
-      label: "Fluent UI",
-      items: [
-        {
-          key: "fluent-light",
-          label: "Blue",
-          image: "/themeIcons/fluent-light.png",
-          command: () => changeTheme("fluent-light")
-        }
-      ]
-    },
-    {
-      label: "Lara",
-      items: [
-        {
-          key: "lara-light-indigo",
-          label: "Indigo",
-          image: "/themeIcons/lara-light-indigo.png",
-          command: () => changeTheme("lara-light-indigo")
-        },
-        {
-          key: "lara-light-blue",
-          label: "Blue",
-          image: "/themeIcons/lara-light-blue.png",
-          command: () => changeTheme("lara-light-blue")
-        },
-        {
-          key: "lara-light-purple",
-          label: "Purple",
-          image: "/themeIcons/lara-light-purple.png",
-          command: () => changeTheme("lara-light-purple")
-        },
-        {
-          key: "lara-light-teal",
-          label: "Teal",
-          image: "/themeIcons/lara-light-teal.png",
-          command: () => changeTheme("lara-light-teal")
-        },
-        {
-          key: "lara-dark-indigo",
-          label: "Indigo",
-          image: "/themeIcons/lara-dark-indigo.png",
-          command: () => changeTheme("lara-dark-indigo")
-        },
-        {
-          key: "lara-dark-blue",
-          label: "Blue",
-          image: "/themeIcons/lara-dark-blue.png",
-          command: () => changeTheme("lara-dark-blue")
-        },
-        {
-          key: "lara-dark-purple",
-          label: "Purple",
-          image: "/themeIcons/lara-dark-purple.png",
-          command: () => changeTheme("lara-dark-purple")
-        },
-        {
-          key: "lara-dark-teal",
-          label: "Teal",
-          image: "/themeIcons/lara-dark-teal.png",
-          command: () => changeTheme("lara-dark-teal")
-        }
-      ]
-    },
-    {
-      label: "Material Design",
-      items: [
-        {
-          key: "md-light-indigo",
-          label: "Indigo",
-          image: "/themeIcons/md-light-indigo.svg",
-          command: () => changeTheme("md-light-indigo")
-        },
-        {
-          key: "md-light-deeppurple",
-          label: "Deep Purple",
-          image: "/themeIcons/md-light-deeppurple.svg",
-          command: () => changeTheme("md-light-deeppurple")
-        },
-        {
-          key: "md-dark-indigo",
-          label: "Indigo",
-          image: "/themeIcons/md-dark-indigo.svg",
-          command: () => changeTheme("md-dark-indigo")
-        },
-        {
-          key: "md-dark-deeppurple",
-          label: "Deep Purple",
-          image: "/themeIcons/md-dark-deeppurple.svg",
-          command: () => changeTheme("md-dark-deeppurple")
-        }
-      ]
-    },
-    {
-      label: "Material Design Compact",
-      items: [
-        {
-          key: "mdc-light-indigo",
-          label: "Indigo",
-          image: "/themeIcons/mdc-light-indigo.svg",
-          command: () => changeTheme("mdc-light-indigo")
-        },
-        {
-          key: "mdc-light-deeppurple",
-          label: "Deep Purple",
-          image: "/themeIcons/mdc-light-deeppurple.svg",
-          command: () => changeTheme("mdc-light-deeppurple")
-        },
-        {
-          key: "mdc-dark-indigo",
-          label: "Indigo",
-          image: "/themeIcons/mdc-dark-indigo.svg",
-          command: () => changeTheme("mdc-dark-indigo")
-        },
-        {
-          key: "mdc-dark-deeppurple",
-          label: "Deep Purple",
-          image: "/themeIcons/mdc-dark-deeppurple.svg",
-          command: () => changeTheme("mdc-dark-deeppurple")
-        }
-      ]
-    },
-    {
-      label: "Mira",
-      items: [
-        {
-          key: "mira",
-          label: "Mira",
-          image: "/themeIcons/mira.jpg",
-          command: () => changeTheme("mira")
-        }
-      ]
-    },
-    {
-      label: "Nano",
-      items: [
-        {
-          key: "nano",
-          label: "Nano",
-          image: "/themeIcons/nano.jpg",
-          command: () => changeTheme("nano")
-        }
-      ]
-    },
-    {
-      label: "Saga",
-      items: [
-        {
-          key: "saga-blue",
-          label: "Blue",
-          image: "/themeIcons/saga-blue.png",
-          command: () => changeTheme("saga-blue")
-        },
-        {
-          key: "saga-green",
-          label: "Green",
-          image: "/themeIcons/saga-green.png",
-          command: () => changeTheme("saga-green")
-        },
-        {
-          key: "saga-orange",
-          label: "Orange",
-          image: "/themeIcons/saga-orange.png",
-          command: () => changeTheme("saga-orange")
-        },
-        {
-          key: "saga-purple",
-          label: "Purple",
-          image: "/themeIcons/saga-purple.png",
-          command: () => changeTheme("saga-purple")
-        }
-      ]
-    },
-    {
-      label: "Soho",
-      items: [
-        {
-          key: "soho-light",
-          label: "Light",
-          image: "/themeIcons/soho-light.png",
-          command: () => changeTheme("soho-light")
-        },
-        {
-          key: "soho-dark",
-          label: "Dark",
-          image: "/themeIcons/soho-dark.png",
-          command: () => changeTheme("soho-dark")
-        }
-      ]
-    },
-    {
-      label: "Tailwind",
-      items: [
-        {
-          key: "tailwind-light",
-          label: "Tailwind Light",
-          image: "/themeIcons/tailwind-light.png",
-          command: () => changeTheme("tailwind-light")
-        }
-      ]
-    },
-    {
-      label: "Vela",
-      items: [
-        {
-          key: "vela-blue",
-          label: "Blue",
-          image: "/themeIcons/vela-blue.png",
-          command: () => changeTheme("vela-blue")
-        },
-        {
-          key: "vela-green",
-          label: "Green",
-          image: "/themeIcons/vela-green.png",
-          command: () => changeTheme("vela-green")
-        },
-        {
-          key: "vela-orange",
-          label: "Orange",
-          image: "/themeIcons/vela-orange.png",
-          command: () => changeTheme("vela-orange")
-        },
-        {
-          key: "vela-purple",
-          label: "Purple",
-          image: "/themeIcons/vela-purple.png",
-          command: () => changeTheme("vela-purple")
-        }
-      ]
-    },
-    {
-      label: "Viva",
-      items: [
-        {
-          key: "viva-light",
-          label: "Light",
-          image: "/themeIcons/viva-light.svg",
-          command: () => changeTheme("viva-light")
-        },
-        {
-          key: "viva-dark",
-          label: "Dark",
-          image: "/themeIcons/viva-dark.svg",
-          command: () => changeTheme("viva-dark")
-        }
-      ]
-    }
-  ];
-}
-
 function getScales(): MenuItem[] {
   return [
     {
@@ -611,19 +378,25 @@ function getScales(): MenuItem[] {
           key: "12px",
           label: "Small",
           icon: "fa-regular fa-a fa-xs",
-          command: () => changeScale("12px")
+          command: async () => await changeScale("12px")
         },
         {
           key: "14px",
           label: "Medium",
           icon: "fa-regular fa-a fa-sm",
-          command: () => changeScale("14px")
+          command: async () => await changeScale("14px")
         },
         {
           key: "16px",
           label: "Large",
           icon: "fa-regular fa-a",
-          command: () => changeScale("16px")
+          command: async () => await changeScale("16px")
+        },
+        {
+          key: "18px",
+          label: "XLarge",
+          icon: "fa-regular fa-a",
+          command: async () => await changeScale("18px")
         }
       ]
     }
@@ -632,12 +405,16 @@ function getScales(): MenuItem[] {
 
 async function downloadChanges() {
   toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
-  let blob = await FilerService.downloadDeltas();
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "deltas.zip";
-  link.click();
+  try {
+    let blob = await FilerService.downloadDeltas();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "deltas.zip";
+    link.click();
+  } catch (err) {
+    toast.add({ severity: "error", summary: "Download failed", detail: "File location not found, unable to download deltas", life: 3000 });
+  }
 }
 
 async function downloadCode() {
@@ -658,9 +435,10 @@ async function generateAndDownload() {
 
 function setAppMenuItems() {
   appItems.value = [
-    { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => directService.view(), color: "var(--blue-500)", size: 2 },
-    { label: "Creator", icon: "fa-duotone fa-circle-plus", command: () => directService.create(), color: "var(--orange-500)", size: 2 },
-    { label: "ASSIGN UPRN", icon: "fa-duotone fa-map-location-dot", command: () => directService.uprn(), color: "var(--red-500)", size: 2 }
+    { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => router.push({ name: "LandingPage" }), color: "var(--p-blue-500)", size: 2 },
+    { label: "Creator", icon: "fa-duotone fa-circle-plus", command: () => directService.create(), color: "var(--p-orange-500)", size: 2 },
+    { label: "ASSIGN UPRN", icon: "fa-duotone fa-map-location-dot", command: () => directService.uprn(), color: "var(--p-red-500)", size: 2 }
+    // { label: "Workflow", icon: "fa-duotone fa-list-check", command: () => directService.workflow(), color: "var(--p-green-500)", size: 2 }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }
@@ -679,15 +457,16 @@ function showReleaseNotes() {
 
 #topbar {
   min-height: 3.5rem;
+  height: 3.5rem;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
-  background-color: var(--surface-100);
+  border-bottom: 1px solid var(--p-content-border-color);
 }
 
 #topbar-start {
-  height: 100%;
+  height: inherit;
   flex: 0 0 auto;
   display: flex;
   flex-flow: row;
@@ -696,14 +475,16 @@ function showReleaseNotes() {
 }
 
 #topbar-content {
-  height: 100%;
+  height: inherit;
   flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
   overflow: auto;
   width: 100%;
 }
 
 #topbar-end {
-  height: 100%;
+  height: inherit;
   flex: 0 1 auto;
   justify-self: end;
   display: flex;
@@ -729,10 +510,17 @@ function showReleaseNotes() {
   align-items: center;
   gap: 0.5rem;
   min-height: 30px;
+  cursor: pointer;
 }
 
-.selected {
-  background-color: red;
+.selected-primary {
+  border: solid 2px;
+  @apply border-surface;
+}
+
+.selected-surface {
+  border: solid 2px;
+  @apply border-primary;
 }
 
 .theme-icon {
@@ -747,8 +535,8 @@ function showReleaseNotes() {
 
 <style>
 .topbar-end-button:hover {
-  background-color: var(--text-color) !important;
-  color: var(--surface-a) !important;
+  background-color: var(--p-text-color) !important;
+  color: var(--p-content-background) !important;
 }
 
 .app-overlay-panel {
@@ -765,6 +553,22 @@ function showReleaseNotes() {
 
 #themes-menu {
   overflow: auto;
-  height: 35vh;
+  width: 20vw;
+}
+
+.theme-container {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.color-picker {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 0.25rem;
+}
+
+.round-button {
+  height: 2rem;
+  width: 2rem;
 }
 </style>

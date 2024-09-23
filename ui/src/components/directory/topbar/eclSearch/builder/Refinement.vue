@@ -8,7 +8,7 @@
       @dragstart="onDragStart($event, value, parent)"
       @dragend="onDragEnd(value, parent)"
     />
-    <Dropdown
+    <Select
       style="width: 4.5rem; min-height: 2.3rem"
       v-model="value.property.constraintOperator"
       :options="constraintOperatorOptions"
@@ -16,22 +16,21 @@
       option-value="value"
     >
       <template #value="slotProps">
-        <div v-if="slotProps.value" class="flex align-items-center">
+        <div v-if="slotProps.value" class="flex items-center">
           <div>{{ value.property.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
-        <div class="flex align-items-center" style="min-height: 1rem">
+        <div class="flex items-center" style="min-height: 1rem">
           <div>{{ slotProps.option.label }}</div>
         </div>
       </template>
-    </Dropdown>
+    </Select>
     <div class="property-container">
       <AutocompleteSearchBar
         :disabled="!hasFocus || loadingProperty"
         v-model:selected="selectedProperty"
         :imQuery="imQueryForPropertySearch"
-        :os-query="osQueryForPropertySearch"
         :root-entities="propertyTreeRoots"
         @open-dialog="updatePropertyTreeRoots"
         :class="!isValidProperty && showValidation && 'invalid'"
@@ -39,8 +38,8 @@
       <small v-if="!isValidProperty && showValidation" class="validate-error">Property is invalid for selected expression constraint.</small>
     </div>
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
-    <Dropdown
+    <Select style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
+    <Select
       style="width: 4.5rem; min-height: 2.3rem"
       v-model="value.value.constraintOperator"
       :options="constraintOperatorOptions"
@@ -48,21 +47,20 @@
       option-value="value"
     >
       <template #value="slotProps">
-        <div v-if="slotProps.value" class="flex align-items-center">
+        <div v-if="slotProps.value" class="flex items-center">
           <div>{{ value.value.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
-        <div class="flex align-items-center" style="min-height: 1rem">
+        <div class="flex items-center" style="min-height: 1rem">
           <div>{{ slotProps.option.label }}</div>
         </div>
       </template>
-    </Dropdown>
+    </Select>
     <div class="value-container">
       <AutocompleteSearchBar
         :disabled="!hasProperty || loadingValue || loadingProperty"
         v-model:selected="selectedValue"
-        :osQuery="osQueryForValueSearch"
         :root-entities="valueTreeRoots"
         @open-dialog="updateValueTreeRoots"
         :class="!isValidPropertyValue && showValidation && 'invalid'"
@@ -76,18 +74,19 @@
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { EntityService, FunctionService, QueryService } from "@/services";
-import { IM, SNOMED, QUERY, IM_FUNCTION, RDF } from "@im-library/vocabulary";
+import { EntityService, QueryService } from "@/services";
+import { IM, SNOMED, QUERY, RDF } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
-import { SortDirection, ToastSeverity } from "@im-library/enums";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
+import { ToastSeverity } from "@im-library/enums";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
-import { FunctionRequest, QueryRequest, SearchRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
-import _ from "lodash";
+import _ from "lodash-es";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getNameFromIri } from "@im-library/helpers/TTTransform";
+import { SearchOptions } from "@im-library/interfaces";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   value: {
@@ -107,7 +106,6 @@ const toast = useToast();
 const filterStore = useFilterStore();
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 const propertyRanges: Ref<Set<string>> = ref(new Set<string>());
-const includeTerms = inject("includeTerms") as Ref<boolean>;
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const childLoadingState = inject("childLoadingState") as Ref<any>;
@@ -129,17 +127,9 @@ const constraintOperatorOptions = [
   { label: "^", value: "^" }
 ];
 
-const osQueryForValueSearch: Ref<SearchRequest> = ref({
-  isA: Array.from(propertyRanges.value),
-  statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
-  typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
-  sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
-} as SearchRequest);
+const imQueryForValueSearch: Ref<QueryRequest | undefined> = ref(undefined);
 
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
-const osQueryForPropertySearch: Ref<SearchRequest | undefined> = ref(undefined);
 
 const hasValue = computed(() => {
   if (isObjectHasKeys(props.value.value, ["concept", "constraintOperator"]) && isObjectHasKeys(props.value.value.concept, ["iri"])) return true;
@@ -238,7 +228,15 @@ onMounted(async () => {
 });
 
 function updateQueryForValueSearch() {
-  osQueryForValueSearch.value.isA = Array.from(propertyRanges.value);
+  imQueryForValueSearch.value = {
+    query: { "@id": QUERY.ALLOWABLE_RANGES },
+    argument: [
+      {
+        parameter: "this",
+        valueIri: { "@id": props.value.property.concept?.iri }
+      }
+    ]
+  } as QueryRequest;
 }
 
 function addIfConcept(focus: any[], iris: TTIriRef[]) {
@@ -269,17 +267,14 @@ function updateQueryForPropertySearch() {
         }
       ]
     } as QueryRequest;
-    osQueryForPropertySearch.value = undefined;
   } else if (props.focus.iri === SNOMED.ANY) {
-    osQueryForPropertySearch.value = {
-      isA: ["http://snomed.info/sct#410662002"],
-      statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-      schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
-      typeFilter: [RDF.PROPERTY],
-      sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-      sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
-    } as SearchRequest;
-    imQueryForPropertySearch.value = undefined;
+    const filterOptions = {
+      isAs: ["http://snomed.info/sct#410662002"],
+      status: filterStoreOptions.value.status,
+      schemes: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])),
+      types: [{ "@id": RDF.PROPERTY }]
+    } as SearchOptions;
+    imQueryForPropertySearch.value = buildIMQueryFromFilters(filterOptions);
   } else {
     imQueryForPropertySearch.value = {
       query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
@@ -290,7 +285,6 @@ function updateQueryForPropertySearch() {
         }
       ]
     } as QueryRequest;
-    osQueryForPropertySearch.value = undefined;
   }
 }
 
@@ -333,10 +327,10 @@ async function updateValueTreeRoots(): Promise<void> {
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus && hasProperty.value && props.focus.iri === SNOMED.ANY && osQueryForPropertySearch.value) {
-    const osQuery = _.cloneDeep(osQueryForPropertySearch.value);
-    osQuery.termFilter = selectedProperty.value?.iri;
-    const results = await EntityService.advancedSearch(osQuery);
+  if (props.focus && hasProperty.value && props.focus.iri === SNOMED.ANY) {
+    const imQuery: QueryRequest = _.cloneDeep(imQueryForPropertySearch.value) ?? { query: {} };
+    imQuery.textSearch = selectedProperty.value?.iri;
+    const results = await QueryService.queryIMSearch(imQuery);
     isValidProperty.value = results.entities?.findIndex(r => r.iri === selectedProperty.value?.iri) != -1 ? true : false;
   } else if (props.focus && hasProperty.value && imQueryForPropertySearch.value) {
     const imQuery = _.cloneDeep(imQueryForPropertySearch.value);
@@ -356,8 +350,9 @@ async function updateIsValidProperty(): Promise<void> {
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property",
-          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : props.value.property.concept?.iri}" is not valid for focus "${props
-            .focus?.ecl}"`,
+          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : props.value.property.concept?.iri}" is not valid for focus "${
+            props.focus?.ecl
+          }"`,
           life: 3000
         });
     }
@@ -366,9 +361,9 @@ async function updateIsValidProperty(): Promise<void> {
 
 async function updateIsValidPropertyValue(): Promise<void> {
   if (selectedValue.value && selectedProperty.value) {
-    const osQuery = _.cloneDeep(osQueryForValueSearch.value);
-    osQuery.termFilter = selectedValue.value?.iri;
-    const result = await EntityService.advancedSearch(osQuery);
+    const imQuery: QueryRequest = _.cloneDeep(imQueryForPropertySearch.value) ?? { query: {} };
+    imQuery.textSearch = selectedProperty.value?.iri;
+    const result = await QueryService.queryIMSearch(imQuery);
     isValidPropertyValue.value = result.entities?.findIndex(r => r.iri === selectedValue.value?.iri) != -1 ? true : false;
     if (!isValidPropertyValue.value) {
       toast.add({
@@ -465,16 +460,16 @@ async function updateValue(value: SearchResultSummary | undefined) {
   font-size: 1rem;
   padding: 4px 4px;
   margin: 0;
-  color: var(--text-color);
-  background: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  color: var(--p-text-color);
+  background: var(--p-content-background);
+  border: 1px solid var(--p-textarea-border-color);
   transition:
     background-color 0.2s,
     color 0.2s,
     border-color 0.2s,
     box-shadow 0.2s;
   appearance: none;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   height: 2.2rem;
   display: flex;
   flex-flow: column;
@@ -486,7 +481,7 @@ async function updateValue(value: SearchResultSummary | undefined) {
 }
 
 .inactive {
-  color: var(--text-color-secondary);
+  color: var(--p-text-color-secondary);
 }
 
 .selected-label {
@@ -494,11 +489,11 @@ async function updateValue(value: SearchResultSummary | undefined) {
 }
 
 .p-invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
   overflow: auto;
@@ -506,7 +501,7 @@ async function updateValue(value: SearchResultSummary | undefined) {
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
-  border-radius: 3px;
+  border: 1px solid var(--p-red-500);
+  border-radius: var(--p-textarea-border-radius);
 }
 </style>

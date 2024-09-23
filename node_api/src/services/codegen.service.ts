@@ -2,7 +2,7 @@ import { CodeTemplate } from "@im-library/interfaces";
 import EntityService from "./entity.service";
 import Env from "./env.service";
 import { generateCode } from "@im-library/helpers";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { DataModelProperty, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import AdmZip from "adm-zip";
 import { codify } from "@im-library/helpers/CodeGenerator";
 
@@ -26,7 +26,7 @@ export default class CodeGenService {
     const zip = new AdmZip();
 
     for (const model of models) {
-      const properties = await this.entityService.getDataModelProperties(model["@id"]);
+      const properties = await this.getDataModelProperties(model["@id"]);
       const code = generateCode(templateData, model, properties, namespace);
       zip.addFile(codify(model.name!) + templateData.fileExtension, Buffer.from(code));
     }
@@ -37,7 +37,7 @@ export default class CodeGenService {
   private async getChildrenRecursive(models: TTIriRef[], iri: string) {
     if (models.some(m => m["@id"] === iri)) return;
 
-    const info = await this.entityService.getEntitySummary(iri);
+    const info = await this.getEntitySummary(iri);
     models.push({ "@id": info.iri, name: info.name, description: info.description });
 
     const children = await this.entityService.getEntityChildren(iri);
@@ -47,6 +47,20 @@ export default class CodeGenService {
         await this.getChildrenRecursive(models, child["@id"]);
       }
     }
+  }
+
+  async getEntitySummary(iri: string): Promise<SearchResultSummary> {
+    return (await this.axios.get(Env.API + "api/entity/public/summary", { params: { iri: iri } })).data;
+  }
+
+  async getDataModelProperties(iri: string): Promise<DataModelProperty[]> {
+    return (
+      await this.axios.get(Env.API + "api/entity/public/dataModelProperties", {
+        params: {
+          iri: iri
+        }
+      })
+    ).data;
   }
 
   public async loadTemplate(template: string): Promise<CodeTemplate> {

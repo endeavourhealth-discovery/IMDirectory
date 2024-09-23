@@ -1,30 +1,27 @@
 <template>
   <div>
-    <Dialog
-      v-model:visible="visible"
-      maximizable
-      :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
-    >
+    <Dialog v-model:visible="visible" maximizable :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }" class="edit-match-dialog">
       <template #header>
-        <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
-
-        <Breadcrumb :model="pathItems">
-          <template #item="{ item }">
-            <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
-          </template>
-          <template #separator> / </template>
-        </Breadcrumb>
-        <div v-if="!keepAsEdit" class="variable-display">
-          <div v-if="focusedEditMatch?.variable" class="variable" @click="keepAsEdit = true">as {{ focusedEditMatch?.variable }}</div>
-          <Button v-else icon="fa-solid fa-tag" label="Label as a variable" text @click="keepAsEdit = true" />
-        </div>
-        <div class="variable-edit" v-else>
-          <InputText type="text" placeholder="value" v-model="keepAsVariable" />
-          <Button icon="fa-solid fa-check" @click="saveVariable" />
-          <Button icon="fa-solid fa-trash-can" severity="danger" @click="deleteVariable" />
+        <div class="flex items-center">
+          <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
+          <Breadcrumb :model="pathItems" class="grow">
+            <template #item="{ item }">
+              <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
+            </template>
+            <template #separator> / </template>
+          </Breadcrumb>
+          <div v-if="editMatch" class="variable-edit flex-none">
+            <InputText type="text" placeholder="Name" v-model="editMatch.name" />
+            <InputText type="text" placeholder="Keep as reference" v-model="editMatch.variable" />
+          </div>
         </div>
       </template>
-      <div id="imquery-builder-string-container">
+      <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
+        <ProgressSpinner />
+      </div>
+      <div v-else class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
+        <Textarea v-if="editMatch" type="text" placeholder="Description" v-model="editMatch.description" autoResize rows="3" />
+
         <div id="imquery-builder-container">
           <div id="imquery-build" v-if="focusedEditMatch">
             <EditMatch
@@ -34,24 +31,15 @@
               @on-update-dialog-focus="updateDialogFocus"
             />
             <AddMatch
-              v-model:show-add-feature="showAddFeature"
-              v-model:show-add-population="showAddPopulation"
               v-model:show-build-feature="showBuildFeature"
               v-model:show-build-then-feature="showBuildThenFeature"
               :edit-match="focusedEditMatch"
               :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
+              @add-feature="onMatchAdd"
+              @add-then="onThenAdd"
             />
             <div class="add-button-bar">
               <Button label="Add test" @click="showBuildThenFeature = true" severity="secondary" icon="fa-solid fa-plus" class="add-feature-button" />
-              <Button label="Add population" @click="showAddPopulation = true" severity="help" icon="fa-solid fa-user-group" class="add-feature-button" />
-              <Button label="Add existing feature" @click="showAddFeature = true" severity="success" icon="fa-solid fa-plus" class="add-feature-button" />
-              <Button
-                label="Add new feature"
-                @click="showBuildFeature = true"
-                severity="warning"
-                icon="fa-solid fa-screwdriver-wrench"
-                class="add-feature-button"
-              />
               <Button
                 v-if="!focusedEditMatch?.orderBy"
                 label="Add order by"
@@ -59,45 +47,45 @@
                 icon="fa-solid fa-arrow-down-z-a"
                 class="add-feature-button"
               />
-              <Button
-                label="Add feature group"
-                @click="focusedEditMatch!.match?.push({ boolMatch: Bool.and })"
-                severity="primary"
-                icon="fa-solid fa-layer-group"
-                class="add-feature-button"
-              />
+              <FunctionComponent :function-templates="templates" @add-function-property="onAddFunctionProperty" />
             </div>
           </div>
         </div>
 
         <div class="imquery-output-container">
           <Panel header="Output" toggleable collapsed>
-            <TabView>
-              <TabPanel header="Query JSON">
-                <div class="imquery-string-container">
-                  <pre class="imquery-output-string">{{ focusedEditMatch }}</pre>
-                  <Button
-                    icon="fa-solid fa-copy"
-                    v-tooltip.left="'Copy to clipboard'"
-                    v-clipboard:copy="copyToClipboard()"
-                    v-clipboard:success="onCopy"
-                    v-clipboard:error="onCopyError"
-                  />
-                </div>
-              </TabPanel>
-              <TabPanel header="Description">
-                <div class="imquery-description-container">
-                  <div class="imquery-description"><MatchDisplay v-if="editMatch" class="feature-description" :match="editMatch" /></div>
-                  <Button
-                    icon="fa-solid fa-copy"
-                    v-tooltip.left="'Copy to clipboard'"
-                    v-clipboard:copy="copyToClipboard()"
-                    v-clipboard:success="onCopy"
-                    v-clipboard:error="onCopyError"
-                  />
-                </div>
-              </TabPanel>
-            </TabView>
+            <Tabs value="0">
+              <TabList>
+                <Tab value="0">Query JSON</Tab>
+                <Tab value="1">Description</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel value="0">
+                  <div class="imquery-string-container">
+                    <pre class="imquery-output-string">{{ focusedEditMatch }}</pre>
+                    <Button
+                      icon="fa-solid fa-copy"
+                      v-tooltip.left="'Copy to clipboard'"
+                      v-clipboard:copy="copyToClipboard()"
+                      v-clipboard:success="onCopy"
+                      v-clipboard:error="onCopyError"
+                    />
+                  </div>
+                </TabPanel>
+                <TabPanel value="1">
+                  <div class="imquery-description-container">
+                    <div class="imquery-description"><MatchDisplay v-if="editMatch" class="feature-description" :match="editMatch" /></div>
+                    <Button
+                      icon="fa-solid fa-copy"
+                      v-tooltip.left="'Copy to clipboard'"
+                      v-clipboard:copy="copyToClipboard()"
+                      v-clipboard:success="onCopy"
+                      v-clipboard:error="onCopyError"
+                    />
+                  </div>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </Panel>
         </div>
       </div>
@@ -113,33 +101,35 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Bool, SearchResultSummary } from "@im-library/interfaces/AutoGen";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
+import { Match, Bool, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { Ref, inject, onMounted, provide, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 import AddMatch from "./AddMatch.vue";
+import { EntityService, QueryService } from "@/services";
+import { IM } from "@im-library/vocabulary";
+import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
 
 interface Props {
   showDialog: boolean;
   match: Match | undefined;
-  index: number;
+  index?: number;
   queryBaseTypeIri: string;
+  hasThen: boolean;
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
-  saveChanges: (payload: Match | undefined) => payload
+  saveChanges: (payload: Match) => payload
 });
 const keepAsVariable: Ref<string> = ref("");
-const showAddPopulation: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
-const showAddFeature: Ref<boolean> = ref(false);
 const keepAsEdit: Ref<boolean> = ref(false);
 const editMatch: Ref<Match | undefined> = ref();
 const focusedEditMatch: Ref<Match | undefined> = ref();
@@ -148,6 +138,8 @@ const visible = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEditMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
+const templates: Ref<any> = ref();
+const loading = ref(true);
 
 watch(
   () => cloneDeep(focusedEditMatch.value),
@@ -171,7 +163,10 @@ watch(visible, newValue => {
 
 watch(
   () => cloneDeep(props.match),
-  () => setEditMatch()
+  async () => {
+    templates.value = await getFunctionTemplates();
+    setEditMatch();
+  }
 );
 
 watch(
@@ -179,19 +174,34 @@ watch(
   () => setPathItems()
 );
 
-onMounted(() => {
-  init();
+onMounted(async () => {
+  await init();
 });
 
-function init() {
+async function init() {
+  loading.value = true;
   setEditMatch();
   focusedEditMatchString.value = JSON.stringify(focusedEditMatch.value);
   setPathItems();
   if (focusedEditMatch.value?.variable) keepAsVariable.value = focusedEditMatch.value?.variable;
+  templates.value = await getFunctionTemplates();
+  loading.value = false;
+}
+
+async function getFunctionTemplates() {
+  const iri = props.match?.typeOf?.["@id"] ?? props.queryBaseTypeIri;
+  if (iri) {
+    const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
+    if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
+      const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate["@id"]);
+      const templateEntities = await EntityService.getPartialEntities(iris, []);
+      return templateEntities;
+    }
+  }
 }
 
 function setPathItems() {
-  pathItems.value = [{ label: "Feature " + props.index }];
+  pathItems.value = [{ label: props.index ? "Feature " + props.index : "Feature" }];
 }
 
 function setEditMatch() {
@@ -227,13 +237,33 @@ function updateDialogFocusFromBreadcrumb(id: string | undefined) {
 }
 
 function onSave() {
-  emit("saveChanges", cloneDeep(editMatch.value));
+  const newEditMatch = cloneDeep(editMatch.value);
+  if (newEditMatch && JSON.stringify(newEditMatch) !== JSON.stringify(props.match)) {
+    emit("saveChanges", newEditMatch);
+  }
   visible.value = false;
 }
 
 function onCancel() {
   init();
   visible.value = false;
+}
+
+function onMatchAdd(match: Match) {
+  if (!editMatch.value) editMatch.value = {};
+  if (!editMatch.value.match?.length) editMatch.value.match = [];
+  editMatch.value.match.push(match);
+}
+
+async function onThenAdd(match: Match) {
+  const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [match] }, false);
+  if (describedQuery?.match?.length) {
+    if (!editMatch.value) editMatch.value = {};
+    if (props.hasThen || (editMatch.value.then && !editMatch.value.then.match)) {
+      const previousThen = cloneDeep(editMatch.value.then);
+      if (previousThen && match) editMatch.value.then = { boolMatch: Bool.and, match: [previousThen, describedQuery.match[0]] };
+    } else editMatch.value.then = describedQuery.match[0];
+  }
 }
 
 function saveVariable() {
@@ -254,6 +284,10 @@ function deleteVariable() {
 function udpateVariableMap() {
   if (focusedEditMatch.value?.variable) delete variableMap.value[focusedEditMatch.value.variable];
   variableMap.value[keepAsVariable.value] = focusedEditMatch.value;
+}
+
+function onAddFunctionProperty(property: string, value: any) {
+  if (property === "orderBy") editMatch.value!.orderBy = value;
 }
 </script>
 
@@ -293,9 +327,9 @@ function udpateVariableMap() {
 }
 
 .imquery-output-string {
-  background-color: var(--surface-a);
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
+  background-color: var(--p-content-background);
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   padding: 1rem;
   margin: 0;
   height: 100%;
@@ -319,9 +353,9 @@ function udpateVariableMap() {
 }
 
 .imquery-description {
-  background-color: var(--surface-a);
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
+  background-color: var(--p-content-background);
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   padding: 1rem;
   margin: 0;
   height: 100%;
@@ -351,5 +385,9 @@ function udpateVariableMap() {
 .add-button-bar {
   display: flex;
   column-gap: 0.2rem;
+}
+
+.edit-match-dialog {
+  background-color: var(--p-surface-section);
 }
 </style>

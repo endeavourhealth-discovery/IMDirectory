@@ -9,58 +9,32 @@
       <div v-if="loading" class="loading-container">
         <ProgressSpinner strokeWidth="8" />
       </div>
-      <div v-else class="children-container">
-        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup">
+      <div v-else class="children-container concept-colours">
+        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup concept-colours">
           <div :class="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation ? 'error-message' : ''">
             <span v-if="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation" class="error-message">{{
               invalidGroups.find(o => o.groupIndex === rgIndex).errorMessage
             }}</span>
-            <div class="roleGroupRow">
+            <div class="roleGroupTitle">
               <label>Role Group {{ rgIndex }}</label>
-              <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRoleGroup(rgIndex)" size="small" />
+              <Button class="p-button-danger m-2" icon="fa-solid fa-trash" severity="danger" size="small" @click="deleteRoleGroup(rgIndex)" />
             </div>
             <div v-for="(row, rIndex) in rg">
-              <div v-if="row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow">
-                <AutoComplete
-                  class="roleProperty"
-                  :dropdown="true"
-                  dropdownMode="current"
-                  optionLabel="name"
-                  placeholder="Select property"
-                  v-model="row.key"
-                  :suggestions="propertySuggestions"
-                  @complete="searchProperties"
-                  @drop="propertyDrop($event, row)"
-                  @itemSelect="update"
-                  @dragover.prevent
-                  @dragenter.prevent
-                ></AutoComplete>
+              <div v-if="!isObjectHasKeys(row.key, ['@id']) || row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow concept-colours">
+                <AutocompleteSearchBar v-model:selected="row.key" :im-query="request" :search-placeholder="'Search properties'" class="roleProperty" />
                 <span style="width: 1rem; text-align: center">:</span>
-                <AutoComplete
-                  class="roleVal"
-                  :dropdown="true"
-                  dropdownMode="current"
-                  optionLabel="name"
-                  placeholder="Select quantifier"
-                  v-model="row.value"
-                  :suggestions="valueSuggestions"
-                  @complete="searchValues"
-                  @drop="valueDrop($event, row)"
-                  @itemSelect="update"
-                  @dragover.prevent
-                  @dragenter.prevent
-                ></AutoComplete>
-                <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRole(rg, rIndex)" />
+                <AutocompleteSearchBar v-model:selected="row.value" :im-query="valueRequest" :search-placeholder="'Search quantifiers'" class="roleProperty" />
+                <Button class="p-button-danger m-2" icon="fa-solid fa-trash" severity="danger" @click="deleteRole(rg, rIndex)" />
               </div>
             </div>
             <div class="buttonGroup role-button">
-              <Button icon="fa-solid fa-plus" label="Add role" severity="success" class="p-button" @click="addRole(rg)" />
+              <Button class="p-button" icon="fa-solid fa-plus" label="Add role" severity="success" @click="addRole(rg)" />
             </div>
           </div>
         </div>
-      </div>
-      <div class="buttonGroup">
-        <Button icon="fa-solid fa-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" :disabled="loading" />
+        <div class="buttonGroup">
+          <Button :disabled="loading" class="p-button" icon="fa-solid fa-plus" label="Add Group" severity="success" @click="addRoleGroup" />
+        </div>
       </div>
     </div>
   </div>
@@ -69,24 +43,26 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
+import { SearchOptions } from "@im-library/interfaces";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 defineComponent({
   components: { EntityAutoComplete }
 });
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { EntityService, QueryService } from "@/services";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { Argument, PropertyShape, QueryRequest, SearchRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, QueryRequest, SearchResponse, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
-import _, { isArray } from "lodash";
+import _, { isArray } from "lodash-es";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
-import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useToast } from "primevue/usetoast";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -120,8 +96,6 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 });
 
 const roleGroups: Ref<any[][]> = ref([]);
-const propertySuggestions: Ref<TTIriRef[]> = ref([]);
-const valueSuggestions: Ref<TTIriRef[]> = ref([]);
 const specificValidationErrorMessage: Ref<string | undefined> = ref();
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
@@ -138,6 +112,7 @@ onMounted(async () => {
 watch(
   () => _.cloneDeep(roleGroups.value),
   async () => {
+    await update();
     if (updateValidity) {
       await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
     }
@@ -151,11 +126,16 @@ function addRoleGroup() {
 
 function deleteRoleGroup(index: number) {
   roleGroups.value.splice(index, 1);
+  for (const rg in roleGroups.value) {
+    if (roleGroups.value[rg][0].key["@id"] === IM.GROUP_NUMBER && parseInt(rg) <= index) {
+      roleGroups.value[rg][0].value = roleGroups.value[rg][0].value - 1;
+    }
+  }
   update();
 }
 
 function addRole(rg: any) {
-  rg.push({ key: { "@id": null, name: "" }, value: { "@id": null, name: "" } });
+  rg.push({ key: { "@id": "", name: "" }, value: { "@id": "", name: "" } });
   update();
 }
 
@@ -189,52 +169,37 @@ async function processRole(newData: any[], role: any) {
   }
 }
 
-async function searchProperties(event: AutoCompleteCompleteEvent) {
-  if (event.query.length > 2) {
-    const request: QueryRequest = {
-      textSearch: event.query,
-      query: {
-        activeOnly: true,
-        match: [
+const request: QueryRequest = {
+  query: {
+    activeOnly: true,
+    match: [
+      {
+        instanceOf: [
           {
-            instanceOf: {
-              "@id": SNOMED.ATTRIBUTE
-            }
+            "@id": SNOMED.ATTRIBUTE,
+            descendantsOrSelfOf: true
           }
         ]
       }
-    };
-    const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results && results.entities) {
-      propertySuggestions.value = results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
-    }
+    ]
   }
-}
+};
 
-async function searchValues(event: AutoCompleteCompleteEvent) {
-  if (event.query.length > 2) {
-    const request: QueryRequest = {
-      textSearch: event.query,
-      query: {
-        activeOnly: true,
-        match: [
+const valueRequest: QueryRequest = {
+  query: {
+    activeOnly: true,
+    match: [
+      {
+        where: [
           {
-            where: [
-              {
-                "@id": IM.HAS_SCHEME,
-                is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
-              }
-            ]
+            "@id": IM.HAS_SCHEME,
+            is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
           }
         ]
       }
-    };
-    const results: SearchResponse = await QueryService.queryIMSearch(request);
-    if (results && results.entities) {
-      valueSuggestions.value = results.entities.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
-    }
+    ]
   }
-}
+};
 
 async function propertyDrop(event: any, object: any) {
   const data = event.dataTransfer.getData("conceptIri");
@@ -256,15 +221,14 @@ async function propertyDrop(event: any, object: any) {
 }
 
 async function isValidProperty(iri: string): Promise<boolean> {
-  const osRequest: SearchRequest = {
-    isA: [SNOMED.ATTRIBUTE],
-    termFilter: iri,
-    schemeFilter: [IM.NAMESPACE, SNOMED.NAMESPACE],
-    page: 1,
-    size: 1
-  };
-
-  const results = await EntityService.advancedSearch(osRequest);
+  const filterOptions: SearchOptions = {
+    isA: [{ "@id": SNOMED.ATTRIBUTE }],
+    textSearch: iri,
+    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
+    page: { pageNumber: 1, pageSize: 1 }
+  } as SearchOptions;
+  const imQuery = buildIMQueryFromFilters(filterOptions);
+  const results = await QueryService.queryIMSearch(imQuery);
   if (results.entities) return results.entities.length > 0;
   return false;
 }
@@ -289,21 +253,19 @@ async function valueDrop(event: any, object: any) {
 }
 
 async function isValidValue(iri: string): Promise<boolean> {
-  const osRequest: SearchRequest = {
-    schemeFilter: [SNOMED.NAMESPACE, IM.NAMESPACE],
-    termFilter: iri,
-    page: 1,
-    size: 1
-  };
-
-  const results = await EntityService.advancedSearch(osRequest);
+  const filterOptions: SearchOptions = {
+    textSearch: iri,
+    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
+    page: { pageNumber: 1, pageSize: 1 }
+  } as SearchOptions;
+  const imQuery = buildIMQueryFromFilters(filterOptions);
+  const results = await QueryService.queryIMSearch(imQuery);
   if (results.entities) return results.entities.length > 0;
   return false;
 }
 
 async function update() {
   validateEntity();
-
   updateEntity();
 }
 
@@ -319,19 +281,24 @@ function validateEntity() {
 
 function isGroupValid(group: any[]): boolean {
   invalid.value = false;
-  if (group.length == 0 || (group.length == 1 && group[0].key["@id"] == IM.GROUP_NUMBER)) {
+  if (group.length == 0 || (group.length == 1 && group[0]?.key?.["@id"] == IM.GROUP_NUMBER)) {
     specificValidationErrorMessage.value = "Role groups can not be empty.";
     return false;
   }
   for (const pair of group) {
+    if (!pair.key) {
+      pair.key = { "@id": "", name: "" };
+    }
+    if (!pair.value && pair.value !== 0) {
+      pair.value = { "@id": "", name: "" };
+    }
     if (pair.key["@id"] != IM.GROUP_NUMBER) {
-      if (!pair?.key?.["@id"] || pair.key["@id"] == "") {
+      if (!isObjectHasKeys(pair.key, ["iri"]) && (!pair?.key?.["@id"] || pair.key["@id"] == "")) {
         specificValidationErrorMessage.value = "Missing role property.";
         invalid.value = true;
         return false;
       }
-
-      if (!pair?.value?.["@id"] || pair.value["@id"] == "") {
+      if (!isObjectHasKeys(pair.value, ["iri"]) && (!pair?.value?.["@id"] || "" === pair.value["@id"] || null === pair.value["@id"])) {
         specificValidationErrorMessage.value = "Missing role quantifier.";
         invalid.value = true;
         return false;
@@ -346,12 +313,20 @@ function updateEntity() {
   const groups: any = {};
   groups[IM.ROLE_GROUP] = [];
 
-  for (let i = 0; i < roleGroups.value.length; i++) {
+  for (const rg in roleGroups.value) {
     const group: any = {};
-    group[IM.GROUP_NUMBER] = i;
+    group[IM.GROUP_NUMBER] = rg;
     groups[IM.ROLE_GROUP].push(group);
-    for (const pair of roleGroups.value[i]) {
-      group[pair.key["@id"]] = pair.value;
+    for (const pair of roleGroups.value[rg]) {
+      if (isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
+        group[pair.key.iri] = { "@id": pair.value.iri, name: pair.value.name };
+      } else if (isObjectHasKeys(pair.key, ["iri"]) && !isObjectHasKeys(pair.value, ["iri"])) {
+        group[pair.key.iri] = pair.value;
+      } else if (!isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
+        group[pair.key["@id"]] = { "@id": pair.value.iri, name: pair.value.name };
+      } else if (isObjectHasKeys(pair.key, ["@id"])) {
+        group[pair.key["@id"]] = pair.value;
+      }
     }
   }
   if (!isArrayHasLength(groups[IM.ROLE_GROUP]) && deleteEntityKey) deleteEntityKey(key);
@@ -370,7 +345,7 @@ span.error-message {
 
 div.error-message {
   border: 1px solid red;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
 }
 
 #role-group-builder h2 {
@@ -383,24 +358,43 @@ div.error-message {
 
 .children-container {
   width: 100%;
-  border-radius: 3px;
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
   overflow: auto;
+  padding: 0.5rem;
 }
 
 .roleGroup {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem 0.5rem 0.5rem;
 }
 
 .roleGroupRow {
   display: flex;
   flex-direction: row;
   align-items: center;
+  padding: 0.5rem;
+}
+
+.concept-colours {
+  border: #d2b33f30 1px solid;
+  border-radius: var(--p-textarea-border-radius);
+  background-color: #d2b33f10;
+}
+
+.concept-colours:hover {
+  border: #d2b33f 1px solid;
+}
+
+.roleGroupTitle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 0.5rem 0 0.5rem;
 }
 
 .roleProperty {
@@ -424,11 +418,11 @@ div.error-message {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 .role-button {
-  margin-top: 1rem;
+  margin: 0;
 }
 
 .error-message {

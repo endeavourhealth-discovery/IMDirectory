@@ -16,7 +16,7 @@
           </div>
           <div v-else class="creator-layout-container">
             <template v-for="group of groups">
-              <component :is="processComponentType(group.componentType)" :shape="group" :mode="EditorMode.CREATE" :value="processEntityValue(group)" />
+              <component :is="processComponentType(group.componentType)" :mode="EditorMode.CREATE" :shape="group" :value="processEntityValue(group)" />
             </template>
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
@@ -24,9 +24,9 @@
             <SideBar :editorEntity="editorEntity" />
           </div>
           <Button
+            :label="showSidebar ? 'hide sidebar' : 'show sidebar'"
             class="p-button-rounded p-button-outlined sidebar-toggle"
             severity="info"
-            :label="showSidebar ? 'hide sidebar' : 'show sidebar'"
             @click="onShowSidebar"
           />
         </div>
@@ -34,9 +34,9 @@
           <div class="required-container">
             <span class="required-info">(*) item is required.</span>
           </div>
-          <div class="button-bar" id="creator-button-bar">
-            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
-            <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
+          <div id="creator-button-bar" class="button-bar">
+            <Button data-testid="cancel-button" icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" />
+            <Button class="save-button" icon="fa-solid fa-check" label="Create" severity="success" @click="submit" />
           </div>
         </div>
       </div>
@@ -88,12 +88,12 @@ export default defineComponent({
 });
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import Swal from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";
@@ -111,6 +111,7 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
+
 interface Props {
   type?: TTIriRef;
 }
@@ -208,14 +209,17 @@ onMounted(async () => {
     getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (typeIri) {
+    const typeIriFixed = removeEndSlash(typeIri as string);
     currentStep.value = 1;
-    const typeEntity = await EntityService.getPartialEntity(typeIri as string, [RDFS.LABEL]);
-    editorEntity.value[RDF.TYPE] = [{ "@id": typeIri, name: typeEntity[RDFS.LABEL] }];
-    shape.value = getShape(typeIri as string);
+    const typeEntity = await EntityService.getPartialEntity(typeIriFixed, [RDFS.LABEL]);
+    editorEntity.value[RDF.TYPE] = [{ "@id": typeIriFixed, name: typeEntity[RDFS.LABEL] }];
+    shape.value = getShape(typeIriFixed);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
-      if (propertyIri === IM.DEFINITION) {
-        const newValue = await QueryService.getQueryDisplay(valueIri as string, false);
+      const propertyIriFixed = removeEndSlash(propertyIri as string);
+      const valueIriFixed = removeEndSlash(valueIri as string);
+      if (propertyIriFixed === IM.DEFINITION) {
+        const newValue = await QueryService.getQueryDisplay(valueIriFixed, false);
         editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
         editorEntity.value[IM.DEFINITION] = JSON.stringify({
           match: [
@@ -234,8 +238,8 @@ onMounted(async () => {
           }
         });
       } else {
-        const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDFS.LABEL]);
-        editorEntity.value[propertyIri as string] = [
+        const containingEntity = await EntityService.getPartialEntity(valueIriFixed, [RDFS.LABEL]);
+        editorEntity.value[propertyIriFixed] = [
           {
             "@id": containingEntity["@id"],
             name: containingEntity[RDFS.LABEL]
@@ -248,6 +252,11 @@ onMounted(async () => {
   }
   loading.value = false;
 });
+
+function removeEndSlash(urlProp: string) {
+  if (urlProp.endsWith("/")) return urlProp.slice(0, -1);
+  else return urlProp;
+}
 
 async function showEntityFoundWarning() {
   await Swal.fire({
@@ -326,7 +335,7 @@ function beforeWindowUnload(e: any) {
 }
 
 function fileChanges(entity: any) {
-  FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser.id + "#", IM.UPDATE_ALL);
+  FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser?.id + "#", IM.UPDATE_ALL);
 }
 
 function submit(): void {
@@ -531,7 +540,7 @@ function processEntityValue(property: PropertyShape) {
 }
 
 .sidebar-toggle {
-  position: absolute;
+  position: absolute !important;
   top: 0.5rem;
   right: 0.5rem;
 }
@@ -579,7 +588,7 @@ function processEntityValue(property: PropertyShape) {
 }
 
 .required-info {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 .button-bar {

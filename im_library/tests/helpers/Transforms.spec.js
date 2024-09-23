@@ -143,51 +143,51 @@ describe("bundleToText", () => {
 
   const expected =
     "Where : \n" +
-    '  ( Pathological process : <a target="_blank" href="' +
+    '  ( Pathological process : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>\n' +
-    '    Associated morphology : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</Button>\n' +
+    '    Associated morphology : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</a>\n' +
-    '    Finding site : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</Button>\n' +
+    '    Finding site : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2380622005">Abducens nerve structure</a>\n' +
-    '    Occurrence : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2380622005">Abducens nerve structure</Button>\n' +
+    '    Occurrence : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</a> )\n' +
-    '  ( Pathological process : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</Button> )\n' +
+    '  ( Pathological process : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>\n' +
-    '    Associated morphology : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</Button>\n' +
+    '    Associated morphology : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2331739005">Lateral abnormal curvature</a>\n' +
-    '    Finding site : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2331739005">Lateral abnormal curvature</Button>\n' +
+    '    Finding site : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23289959001">Musculoskeletal structure of spine</a> )\n' +
-    '  ( Pathological process : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23289959001">Musculoskeletal structure of spine</Button> )\n' +
+    '  ( Pathological process : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>\n' +
-    '    Associated morphology : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</Button>\n' +
+    '    Associated morphology : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</a>\n' +
-    '    Finding site : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</Button>\n' +
+    '    Finding site : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23127954009">Skeletal muscle structure</a>\n' +
-    '    Occurrence : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23127954009">Skeletal muscle structure</Button>\n' +
+    '    Occurrence : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</a> )\n' +
-    '  ( Pathological process : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</Button> )\n' +
+    '  ( Pathological process : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>\n' +
-    '    Associated morphology : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</Button>\n' +
+    '    Associated morphology : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</a>\n' +
-    '    Finding site : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</Button>\n' +
+    '    Finding site : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2381745001">Structure of eye proper</a>\n' +
-    '    Occurrence : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2381745001">Structure of eye proper</Button>\n' +
+    '    Occurrence : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</a> )\n';
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</Button> )\n';
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -201,17 +201,19 @@ describe("bundleToText", () => {
 describe("ttValueToString", () => {
   it("handles ttIri", async () => {
     expect(ttValueToString("", { "@id": "testIri", name: "testName" }, "object", 0, true)).toBe(
-      '<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>'
+      '<Button link as="a" target="_blank" href="http://localhost/#/concept/testIri">testName</Button>'
     );
   });
 
   it("handles array", async () => {
-    expect(ttValueToString("", [{ "@id": "testIri" }], "object", 0, true)).toBe('<a target="_blank" href="http://localhost/#/concept/testIri">testIri</a>\n');
+    expect(ttValueToString("", [{ "@id": "testIri" }], "object", 0, true)).toBe(
+      '<Button link as="a" target="_blank" href="http://localhost/#/concept/testIri">testIri</Button>\n'
+    );
   });
 
   it("handles ttNode", async () => {
     expect(ttValueToString("", { nodeIri: { "@id": "testIri" } }, "object", 0, true)).toStrictEqual(
-      'nodeIri : <a target="_blank" href="http://localhost/#/concept/testIri">testIri</a>\n'
+      'nodeIri : <Button link as="a" target="_blank" href="http://localhost/#/concept/testIri">testIri</Button>\n'
     );
   });
 
@@ -223,31 +225,31 @@ describe("ttValueToString", () => {
 describe("ttIriToString", () => {
   it("handles iri with name", () => {
     expect(ttIriToString("", { "@id": "testIri", name: "testName" }, "object", 0, true, false)).toBe(
-      '<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>'
+      '<Button link as="a" target="_blank" href="http://localhost/#/concept/testIri">testName</Button>'
     );
   });
 
   it("handles iri no name", () => {
     expect(ttIriToString("", { "@id": "testIri", name: "" }, "object", 0, true, false)).toBe(
-      '<a target="_blank" href="http://localhost/#/concept/testIri">testIri</a>'
+      '<Button link as="a" target="_blank" href="http://localhost/#/concept/testIri">testIri</Button>'
     );
   });
 
   it("handles not inline", () => {
     expect(ttIriToString("", { "@id": "testIri", name: "testName" }, "object", 2, true, false)).toBe(
-      '    <a target="_blank" href="http://localhost/#/concept/testIri">testName</a>'
+      '    <Button link as="a" target="_blank" href="http://localhost/#/concept/testIri">testName</Button>'
     );
   });
 
   it("handles inline", () => {
     expect(ttIriToString("", { "@id": "testIri", name: "testName" }, "object", 2, true, true)).toBe(
-      '<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>'
+      '<Button link as="a" target="_blank" href="http://localhost/#/concept/testIri">testName</Button>'
     );
   });
 
   it("handles previous array", () => {
     expect(ttIriToString("", { "@id": "testIri", name: "testName" }, "array", 2, true, true)).toBe(
-      '<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>\n'
+      '<Button link as="a" target="_blank" href="http://localhost/#/concept/testIri">testName</Button>\n'
     );
   });
 });
@@ -371,82 +373,82 @@ describe("ttNodeToString ___ isa rolegroup", () => {
   };
   const EXPECTED =
     "http://endhealth.info/im#isA : \n" +
-    '  <a target="_blank" href="' +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2382354003">Multiple system malformation syndrome</a>\n' +
-    '  <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2382354003">Multiple system malformation syndrome</Button>\n' +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2385995004">Autosomal recessive hereditary disorder</a>\n' +
-    '  <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2385995004">Autosomal recessive hereditary disorder</Button>\n' +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2389886004">Congenital anomaly of skeletal muscle</a>\n' +
-    '  <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2389886004">Congenital anomaly of skeletal muscle</Button>\n' +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    "/#/concept/http:%2F%2Fsnomed.info%2Fsct%23128084001\">Duane's syndrome, type 3</a>\n" +
-    '  <a target="_blank" href="' +
+    "/#/concept/http:%2F%2Fsnomed.info%2Fsct%23128084001\">Duane's syndrome, type 3</Button>\n" +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23298382003">Scoliosis deformity of spine</a>\n' +
-    '  <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23298382003">Scoliosis deformity of spine</Button>\n' +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363212003">Hereditary disorder of musculoskeletal system</a>\n' +
-    '  <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363212003">Hereditary disorder of musculoskeletal system</Button>\n' +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363235000">Hereditary disorder of nervous system</a>\n' +
-    '  <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363235000">Hereditary disorder of nervous system</Button>\n' +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363343008">Hereditary disorder of the visual system</a>\n' +
-    '  <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363343008">Hereditary disorder of the visual system</Button>\n' +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23257277002">Combined disorder of muscle AND peripheral nerve</a>\n' +
-    '  <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23257277002">Combined disorder of muscle AND peripheral nerve</Button>\n' +
+    '  <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363070008">Developmental hereditary disorder</a>\n' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363070008">Developmental hereditary disorder</Button>\n' +
     "  Where : \n" +
-    '    ( Pathological process : <a target="_blank" href="' +
+    '    ( Pathological process : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>\n' +
-    '      Associated morphology : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</Button>\n' +
+    '      Associated morphology : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</a>\n' +
-    '      Finding site : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</Button>\n' +
+    '      Finding site : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2380622005">Abducens nerve structure</a>\n' +
-    '      Occurrence : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2380622005">Abducens nerve structure</Button>\n' +
+    '      Occurrence : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</a> )\n' +
-    '    ( Pathological process : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</Button> )\n' +
+    '    ( Pathological process : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>\n' +
-    '      Associated morphology : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</Button>\n' +
+    '      Associated morphology : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2331739005">Lateral abnormal curvature</a>\n' +
-    '      Finding site : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2331739005">Lateral abnormal curvature</Button>\n' +
+    '      Finding site : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23289959001">Musculoskeletal structure of spine</a> )\n' +
-    '    ( Pathological process : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23289959001">Musculoskeletal structure of spine</Button> )\n' +
+    '    ( Pathological process : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>\n' +
-    '      Associated morphology : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</Button>\n' +
+    '      Associated morphology : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</a>\n' +
-    '      Finding site : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</Button>\n' +
+    '      Finding site : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23127954009">Skeletal muscle structure</a>\n' +
-    '      Occurrence : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23127954009">Skeletal muscle structure</Button>\n' +
+    '      Occurrence : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</a> )\n' +
-    '    ( Pathological process : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</Button> )\n' +
+    '    ( Pathological process : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>\n' +
-    '      Associated morphology : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</Button>\n' +
+    '      Associated morphology : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</a>\n' +
-    '      Finding site : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</Button>\n' +
+    '      Finding site : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2381745001">Structure of eye proper</a>\n' +
-    '      Occurrence : <a target="_blank" href="' +
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%2381745001">Structure of eye proper</Button>\n' +
+    '      Occurrence : <Button link as="a" target="_blank" href="' +
     url +
-    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</a> )\n';
+    '/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</Button> )\n';
 
   const PREDICATES = {
     "http://endhealth.info/im#roleGroup": "Where",

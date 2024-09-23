@@ -6,20 +6,12 @@ import ValidationController from "./controllers/validationController";
 import GithubController from "./controllers/githubController";
 import bodyParser from "body-parser";
 import * as dns from "dns";
-import SearchController from "./controllers/searchController";
 import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
-import ParserController from "./controllers/parserController";
 import FhirController from "@/controllers/fhirController";
-import EclController from "@/controllers/eclController";
-import ConfigController from "@/controllers/configController";
-import ProvController from "@/controllers/provController";
-import StatusController from "./controllers/statusController";
 import gracefulShutdown from "http-graceful-shutdown";
 import logger from "./middlewares/logger.middleware";
 import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/morgan.middleware";
-import WorkflowController from "./controllers/workflowController";
-import FunctionController from "./controllers/functionController";
 import CodeGenController from "@/controllers/codeGenController";
 import metricsInterceptor from "@/middlewares/metrics.middleware";
 
@@ -30,20 +22,12 @@ dns.setDefaultResultOrder("ipv4first");
 const app = new App({
   port: 3000,
   controllers: [
-    new StatusController(),
     new QueryController(),
     new ValidationController(),
     new GithubController(),
-    new SearchController(),
     new EntityController(),
     new CognitoController(),
-    new ParserController(),
     new FhirController(),
-    new EclController(),
-    new ConfigController(),
-    new ProvController(),
-    new WorkflowController(),
-    new FunctionController(),
     new CodeGenController()
   ],
   middleWares: [
@@ -54,6 +38,18 @@ const app = new App({
     morganMiddlewareConsole,
     morganMiddlewareFile
   ]
+});
+
+process.on("uncaughtException", err => {
+  console.error("fatal", err);
+  logger.log("fatal", err);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", err => {
+  console.error("fatal", err);
+  logger.log("fatal", err);
+  process.exit(1);
 });
 
 if (import.meta.env.PROD) app.listen();

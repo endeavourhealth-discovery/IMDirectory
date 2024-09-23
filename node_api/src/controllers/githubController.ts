@@ -1,8 +1,8 @@
-import  { NextFunction, Request, Response } from "express";
-import GithubRelease from "@/model/github/GithubRelease";
+import { NextFunction, Request, Response } from "express";
+import { GithubRelease } from "@im-library/interfaces/AutoGen";
 import setGithubConfig from "@/logic/setGithubConfig";
 import { CONFIG } from "@im-library/vocabulary";
-import getGithubConfig from "@/logic/getGithubConfig";
+import getGithubConfig, { getGithubLatest, getGithubReleases } from "@/logic/getGithubConfig";
 import AuthMiddleware from "@/middlewares/auth.middleware";
 import { CustomError } from "@im-library/models";
 import { ErrorType } from "@im-library/enums";
@@ -39,13 +39,7 @@ export default class GithubController {
   private async getLatestRelease(req: Request, res: Response, next: NextFunction, attempt?: number): Promise<GithubRelease> {
     if (attempt && attempt > 1) throw new Error("Maximum retries reached. Failed to get latest release and set releases");
     try {
-      const repo = req.query.repositoryName;
-      if (typeof repo !== "string") throw new Error("Missing parameter 'repositoryName' or parameter is not of type 'string'");
-      if (repo === "IMDirectory") {
-        return await getGithubConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE);
-      } else if (repo === "ImportData") {
-        return await getGithubConfig(CONFIG.IMPORT_DATA_LATEST_RELEASE);
-      } else throw new Error(`Invalid repo name: ${repo}`);
+      return await getGithubLatest();
     } catch (e) {
       if (e instanceof CustomError && (e.errorType === ErrorType.ConfigNotFoundError || e.errorType === ErrorType.InvalidJsonError)) {
         await setGithubConfig();
@@ -59,13 +53,7 @@ export default class GithubController {
   private async getReleases(req: Request, res: Response, next: NextFunction, attempt?: number): Promise<GithubRelease[]> {
     if (attempt && attempt > 1) throw new Error("Maximum retries reached. Failed to get all releases and set releases");
     try {
-      const repo = req.query.repositoryName;
-      if (typeof repo !== "string") throw new Error("Missing parameter 'repositoryName' or parameter is not of type 'string'");
-      if (repo === "IMDirectory") {
-        return await getGithubConfig(CONFIG.IMDIRECTORY_ALL_RELEASES);
-      } else if (repo === "ImportData") {
-        return await getGithubConfig(CONFIG.IMPORT_DATA_ALL_RELEASES);
-      } else throw new Error(`Invalid repo name: ${repo}`);
+      return await getGithubReleases();
     } catch (e) {
       if (e instanceof CustomError && (e.errorType === ErrorType.ConfigNotFoundError || e.errorType === ErrorType.InvalidJsonError)) {
         await setGithubConfig();

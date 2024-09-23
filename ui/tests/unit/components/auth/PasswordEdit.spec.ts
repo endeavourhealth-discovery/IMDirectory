@@ -1,6 +1,6 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
-import InlineMessage from "primevue/inlinemessage";
+import Message from "primevue/message";
 import { flushPromises } from "@vue/test-utils";
 import PasswordEdit from "@/components/auth/PasswordEdit.vue";
 import InputText from "primevue/inputtext";
@@ -53,7 +53,7 @@ describe("PasswordEdit.vue with registeredUser", () => {
     component = render(PasswordEdit, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage }
+        components: { Card, Button, InputText, Message }
       }
     });
   });

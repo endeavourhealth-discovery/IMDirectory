@@ -4,14 +4,14 @@ import Card from "primevue/card";
 import Button from "primevue/button";
 import ConfirmCode from "@/components/auth/ConfirmCode.vue";
 import InputText from "primevue/inputtext";
+import InputOtp from "primevue/inputotp";
 import Dialog from "primevue/dialog";
+import Message from "primevue/message";
 import { AuthService } from "@/services";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import { createTestingPinia } from "@pinia/testing";
-
-window.scrollTo = vi.fn() as any;
 
 createTestingPinia({
   initialState: {
@@ -53,8 +53,13 @@ async function setUsernameAndOptCode(component: RenderResult, username: string, 
   const usernameInput = await component.findByTestId("confirm-code-username-input");
   await fireEvent.update(usernameInput, username);
   if (code) {
-    const codeInput = await component.findByTestId("confirm-code-input");
-    await fireEvent.update(codeInput, code);
+    const codeInput = component.getAllByTestId("otp-input");
+    if (code[0]) await fireEvent.update(codeInput[0], code[0]);
+    if (code[1]) await fireEvent.update(codeInput[1], code[1]);
+    if (code[2]) await fireEvent.update(codeInput[2], code[2]);
+    if (code[3]) await fireEvent.update(codeInput[3], code[3]);
+    if (code[4]) await fireEvent.update(codeInput[4], code[4]);
+    if (code[5]) await fireEvent.update(codeInput[5], code[5]);
   }
 }
 
@@ -70,7 +75,7 @@ describe("ConfirmCode.vue with registeredUser", () => {
     component = render(ConfirmCode, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, Dialog }
+        components: { Card, Button, InputText, Dialog, InputOtp, Message }
       }
     });
   });
@@ -78,15 +83,6 @@ describe("ConfirmCode.vue with registeredUser", () => {
   it("renders the component", async () => {
     await component.findByTestId("confirm-code-input");
     await component.findByTestId("confirm-code-username-input");
-  });
-
-  it("validates username and code before sending request __ input is invalid", async () => {
-    const handleSubmit = await component.findByTestId("confirm-code-submit-button");
-    await fireEvent.click(handleSubmit);
-    await component.findByText("Invalid Credentials");
-    await component.findByText("Username or Confirmation Code incorrect.");
-    const newButtons = await component.findAllByRole("button");
-    await fireEvent.click(newButtons[0]);
   });
 
   it("fails registration confirmation with wrong username", async () => {

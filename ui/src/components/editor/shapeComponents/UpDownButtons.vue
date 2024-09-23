@@ -6,8 +6,6 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-
 interface Props {
   position: number;
   show?: { up: boolean; down: boolean };

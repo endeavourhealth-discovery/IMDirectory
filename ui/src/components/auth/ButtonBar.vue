@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row justify-content-start">
+  <div class="flex flex-row justify-start">
     <Button
       data-testid="button-bar-back-button"
       class="back-button"
@@ -18,7 +18,8 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 function clickedBack(): void {
-  router.back();
+  if (window.history.length > 2) router.back();
+  else router.push({ name: "LandingPage" });
 }
 
 function homeClicked(): void {

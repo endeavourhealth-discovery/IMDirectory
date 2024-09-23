@@ -1,23 +1,22 @@
-import ConfigRepository from "@/repositories/configRepository";
 import GithubService from "@/services/github.service";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { CONFIG } from "@im-library/vocabulary";
-import _ from "lodash";
+import _ from "lodash-es";
 import logger from "@/middlewares/logger.middleware";
+import axios from "axios";
+import Env from "@/services/env.service";
+
+const githubService = new GithubService();
 
 async function setGithubConfig() {
-  const configRepository = new ConfigRepository();
-  const githubService = new GithubService();
-  await setLatestRelease(configRepository, githubService, "IMDirectory", CONFIG.IMDIRECTORY_LATEST_RELEASE);
-  await setLatestRelease(configRepository, githubService, "ImportData", CONFIG.IMPORT_DATA_LATEST_RELEASE);
-  await setAllReleases(configRepository, githubService, "IMDirectory", CONFIG.IMDIRECTORY_ALL_RELEASES);
-  await setAllReleases(configRepository, githubService, "ImportData", CONFIG.IMPORT_DATA_ALL_RELEASES);
+  await setLatestRelease("IMDirectory", CONFIG.IMDIRECTORY_LATEST_RELEASE);
+  await setAllReleases("IMDirectory", CONFIG.IMDIRECTORY_ALL_RELEASES);
 }
 
-async function setLatestRelease(configRepository: ConfigRepository, githubService: GithubService, repoName: string, configName: string) {
+async function setLatestRelease(repoName: string, configName: string) {
   let currentReleaseConfig;
   try {
-    currentReleaseConfig = await configRepository.getConfig(configName);
+    currentReleaseConfig = (await axios.get(Env.API + "api/config/public/githubLatest")).data;
   } catch (err) {
     logger.warn(`missing config item ${configName}`);
   }
@@ -31,17 +30,17 @@ async function setLatestRelease(configRepository: ConfigRepository, githubServic
   if (!latestRelease || !latestRelease.version) throw new Error(`Failed to fetch latest ${repoName} release`);
   else if (currentReleaseConfig && latestRelease) {
     if (!_.isEqual(currentReleaseConfig, latestRelease)) {
-      await configRepository.setConfig(configName, `${repoName} lastest release`, `Latests github release details for ${repoName} repository`, latestRelease);
+      await axios.post(Env.API + "api/config/public/githubLatest", latestRelease);
     }
   } else if (!currentReleaseConfig && latestRelease) {
-    await configRepository.setConfig(configName, `${repoName} lastest release`, `Latests github release details for ${repoName} repository`, latestRelease);
+    await axios.post(Env.API + "api/config/public/githubLatest", latestRelease);
   }
 }
 
-async function setAllReleases(configRepository: ConfigRepository, githubService: GithubService, repoName: string, configName: string) {
+async function setAllReleases(repoName: string, configName: string) {
   let currentReleasesConfig;
   try {
-    currentReleasesConfig = await configRepository.getConfig(configName);
+    currentReleasesConfig = (await axios.get(Env.API + "api/config/public/githubAllReleases")).data;
   } catch (err) {
     logger.warn(`missing config item ${configName}`);
   }
@@ -55,10 +54,10 @@ async function setAllReleases(configRepository: ConfigRepository, githubService:
   if (!latestReleases || !isArrayHasLength(latestReleases)) throw new Error(`Failed to fetch all ${repoName} releases`);
   else if (currentReleasesConfig && latestReleases) {
     if (!_.isEqual(currentReleasesConfig, latestReleases)) {
-      await configRepository.setConfig(configName, `${repoName} releases`, `All github release details for ${repoName} repository`, latestReleases);
+      await axios.post(Env.API + "api/config/public/githubAllReleases", latestReleases);
     }
   } else if (!currentReleasesConfig && latestReleases) {
-    await configRepository.setConfig(configName, `${repoName} releases`, `All github release details for ${repoName} repository`, latestReleases);
+    await axios.post(Env.API + "api/config/public/githubAllReleases", latestReleases);
   }
 }
 

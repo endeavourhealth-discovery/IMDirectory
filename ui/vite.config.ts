@@ -18,8 +18,6 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `
-          @use "./node_modules/primevue/resources/primevue.min.css";
-          @use "./node_modules/primeflex/primeflex.css";
           @import "./src/assets/layout/sass/_mixins.scss";
         `
       }

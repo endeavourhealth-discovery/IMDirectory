@@ -5,6 +5,7 @@
 **/build
 **/coverage
 node
+**/cypress/screenshots
 
 #ignore types
 im_library/types

@@ -1,6 +1,6 @@
 <template>
   <InputText type="text" v-model="propertyDisplay" @click="showDialog" placeholder="relative to" />
-  <Dialog v-model:visible="showTreeSearch" modal header="Select property" :style="{ backgroundColor: 'var(--surface-section)' }">
+  <Dialog v-model:visible="showTreeSearch" modal header="Select property">
     <div class="relative-to-select-dialog">
       <InputText type="text" v-model="searchTerm" />
       <Tree
@@ -9,7 +9,7 @@
         :expanded-keys="expandedKeys"
         :selection-keys="selectedKeys"
         placeholder="Select property"
-        class="md:w-20rem w-full"
+        class="w-full md:w-80"
         selection-mode="single"
         @node-select="onNodeSelect"
       />
@@ -26,10 +26,10 @@
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import setupTree from "@/composables/setupTree";
 import { EntityService } from "@/services";
-import { useQueryStore } from "@/stores/queryStore";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { Where, PropertyRef, Match, Query } from "@im-library/interfaces/AutoGen";
+import { SHACL } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/treenode";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
@@ -41,9 +41,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const queryStore = useQueryStore();
+
 const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
-const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const showTreeSearch: Ref<boolean> = ref(false);
 const searchTerm: Ref<string> = ref("");
 const propertyDisplay: Ref<string | undefined> = ref();
@@ -131,16 +130,8 @@ async function getVariableOptions(searchTerm?: string) {
   for (const key of Object.keys(variableMap.value)) {
     const dataModelIri = getVariableWithType(variableMap.value[key]);
     if (dataModelIri) {
-      const treeNode = await EntityService.getPropertyOptions(dataModelIri, props.datatype, key);
+      const treeNode = await getPropertyOptions(dataModelIri, props.datatype, key);
       if (isObjectHasKeys(treeNode)) options.push(treeNode);
-    }
-  }
-
-  if (queryTypeIri.value) {
-    const option = await EntityService.getPropertyOptions(queryTypeIri.value, props.datatype, getNameFromRef({ "@id": queryTypeIri.value }));
-    if (isObjectHasKeys(option)) {
-      option.children = option.children?.filter(childOption => childOption.data["@id"] !== props.propertyIri);
-      if (isArrayHasLength(option.children)) options.push(option);
     }
   }
 
@@ -152,8 +143,37 @@ async function getVariableOptions(searchTerm?: string) {
   return options;
 }
 
+async function getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
+  const propertiesEntity = await EntityService.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
+  if (!isObjectHasKeys(propertiesEntity, [SHACL.PROPERTY])) return {} as TreeNode;
+  const allProperties: any[] = propertiesEntity[SHACL.PROPERTY];
+  const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === dataTypeIri);
+  if (!isArrayHasLength(validOptions)) return {} as TreeNode;
+
+  const treeNode = {
+    key: key,
+    label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
+    children: [] as TreeNode[],
+    selectable: false
+  } as TreeNode;
+
+  for (const property of validOptions) {
+    treeNode.children?.push({
+      key: key + "/" + property[SHACL.PATH][0]["@id"],
+      label: property[SHACL.PATH][0].name,
+      data: {
+        "@id": property[SHACL.PATH][0]["@id"],
+        nodeRef: key,
+        name: property[SHACL.PATH][0].name
+      }
+    } as TreeNode);
+  }
+
+  return treeNode;
+}
+
 function selectPrepopulatedValue(options: TreeNode[], searchTerm?: string) {
-  selectedNode.value = {};
+  selectedNode.value = undefined;
   if (searchTerm) {
     const splits = searchTerm.split(" -> ");
     if (isArrayHasLength(splits)) {

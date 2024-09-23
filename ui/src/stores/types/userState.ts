@@ -1,12 +1,16 @@
+import PrimeVueColors from "@/enums/PrimeVueColors";
+import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import { Namespace, RecentActivityItem, HistoryItem, FilterOptions, User } from "@im-library/interfaces";
 
 export interface UserState {
   cookiesEssentialAccepted: boolean;
   cookiesOptionalAccepted: boolean;
-  currentTheme: string;
+  currentPreset: PrimeVuePresetThemes | undefined;
+  currentPrimaryColor: PrimeVueColors | undefined;
+  currentSurfaceColor: PrimeVueColors | undefined;
+  darkMode: boolean;
   currentScale: string;
-  currentUser: User;
-  awsUser: any;
+  currentUser: User | undefined;
   favourites: string[];
   history: HistoryItem[];
   recentLocalActivity: RecentActivityItem[];

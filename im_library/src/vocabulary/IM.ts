@@ -8,6 +8,7 @@ export class IM {
   public static readonly VALUE = "@value";
   public static readonly TYPE = "@type";
   public static readonly id = IM.NAMESPACE + "id";
+  public static readonly RELATIONSHIP_TYPE = IM.NAMESPACE+"relationshipType";
   public static readonly CODE = IM.NAMESPACE + "code";
   public static readonly PREFERRED_NAME = IM.NAMESPACE + "preferredName";
   public static readonly HAS_SCHEME = IM.NAMESPACE + "scheme";
@@ -37,6 +38,8 @@ export class IM {
   public static readonly PATH_TO = IM.NAMESPACE + "pathTo";
   public static readonly OPENSEARCH_QUERY = IM.NAMESPACE + "OpenSearchQuery";
   public static readonly DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
+  public static readonly ONTOLOGY_PARENT_FOLDER = IM.NAMESPACE + "HealthModelOntology";
+  public static readonly PROPERTIES_FOLDER = IM.NAMESPACE + "Properties";
   public static readonly TASK = IM.NAMESPACE + "Task";
   public static readonly FIELD_GROUP = IM.NAMESPACE + "FieldGroup";
   public static readonly MATCH_CLAUSE = IM.NAMESPACE + "MatchClause";
@@ -138,9 +141,7 @@ export class IM {
   public static readonly PLABEL = IM.NAMESPACE + "pLabel";
   public static readonly OLABEL = IM.NAMESPACE + "oLabel";
   public static readonly EXAMPLE = IM.NAMESPACE + "example";
-  public static readonly IM1ID = IM.NAMESPACE + "im1Id";
   public static readonly PRIVACY_LEVEL = IM.NAMESPACE + "privacyLevel";
-  public static readonly IM1SCHEME = IM.NAMESPACE + "im1Scheme";
   public static readonly VALUE_SELECT = IM.NAMESPACE + "valueSelect";
   public static readonly VALUE_VARIABLE = IM.NAMESPACE + "valueVariable";
   public static readonly PLACEHOLDER = IM.NAMESPACE + "placeHolder";
@@ -217,4 +218,15 @@ export class IM {
   public static readonly ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
   public static readonly CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
   public static readonly DATAMODEL_CLASSES = IM.NAMESPACE + "DataModelClasses";
+  public static readonly DATE_TIME = IM.NAMESPACE + "DateTime";
+  public static readonly TEMPLATE_NUMERIC_EVENT_ORDER = IM.NAMESPACE + "TEMPLATE_NumericEventOrder";
+  public static readonly ORDER_BY = IM.NAMESPACE + "OrderBy";
+  public static readonly PARAMETER_TEMPLATE = IM.NAMESPACE + "parameterTemplate";
+  public static readonly VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
+  public static readonly DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
+  public static readonly LOAD_MORE = IM.NAMESPACE + "loadMore";
+  public static readonly DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
+  public static readonly NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
+  public static readonly HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
+  public static readonly HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";
 }

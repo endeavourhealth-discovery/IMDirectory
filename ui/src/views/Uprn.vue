@@ -9,21 +9,18 @@
       </template>
     </TopBar>
     <div id="uprn-content">
-      <TabMenu :model="items" id="uprn-menu">
-        <template #item="{ label, item, props }">
-          <router-link v-if="item.route" v-slot="routerProps" :to="item.route" custom>
-            <a :href="sanitizeUrl(routerProps.href)" v-bind="props.action" @click="$event => routerProps.navigate($event)">
-              <span v-bind="props.icon" />
-              <span v-bind="props.label">{{ label }}</span>
-            </a>
-          </router-link>
-          <a v-else :href="sanitizeUrl(item.url)" :target="item.target" v-bind="props.action">
-            <span v-bind="props.icon" />
-            <span v-bind="props.label">{{ label }}</span>
-          </a>
-        </template>
-      </TabMenu>
-      <div v-if="uprnLoading" class="flex flex-row justify-content-center align-items-center loading-container">
+      <Tabs value="0" id="uprn-menu">
+        <TabList>
+          <Tab :value="index.toString()" v-for="(item, index) in items">
+            <router-link v-slot="routerProps" :to="item.route" custom>
+              <a :href="sanitizeUrl(routerProps.href)" @click="$event => routerProps.navigate($event)">
+                <span>{{ item.label }}</span>
+              </a>
+            </router-link>
+          </Tab>
+        </TabList>
+      </Tabs>
+      <div v-if="uprnLoading" class="flex flex-row justify-center items-center loading-container">
         <ProgressSpinner />
       </div>
       <router-view v-else />
@@ -69,7 +66,7 @@ const items = ref([
   overflow: auto;
   display: flex;
   flex-flow: column nowrap;
-  background-color: var(--surface-a);
+  background-color: var(--p-content-background);
 }
 #uprn-menu {
   flex: 0 0 auto;

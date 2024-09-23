@@ -1,3 +1,5 @@
+import "./auth-provider-commands/cognito";
+
 /// <reference types="cypress" />
 // ***********************************************
 // This example commands.ts shows you how to
@@ -10,24 +12,24 @@
 // ***********************************************
 Cypress.Commands.add("acceptLicenseAndCookies", () => {
   cy.visit("/");
-  cy.get("#cookies-sidebar").find("h1").should("have.text", "Our use of cookies");
-  cy.get("[data-testid='accept-all-cookies']").click();
-  cy.get("#cookies-sidebar").should("not.exist");
   cy.get("[data-testid='license-dialog']", { timeout: 60000 }).should("exist");
   cy.get("[data-testid='agree-button']").click();
   cy.get("[data-testid='license-dialog']").should("not.exist");
+  cy.get("#cookies-sidebar").find("h1").should("have.text", "Our use of cookies");
+  cy.get("[data-testid='accept-all-cookies']").click();
+  cy.get("#cookies-sidebar").should("not.exist");
 });
 
 Cypress.Commands.add("openReleaseNotes", () => {
   cy.get(".release-notes-link").click();
-  cy.get(".p-dialog-header").should("have.text", "What's new");
+  cy.get(".p-dialog-content").find(".title", { timeout: 60000 }).should("have.text", "Releases");
 });
 
-Cypress.Commands.add("getByTestId", id => {
-  cy.get(`[data-testid=${id}]`);
+Cypress.Commands.add("getByTestId", (id, options) => {
+  cy.get(`[data-testid=${id}]`, options ? options : {});
 });
 
-Cypress.Commands.add("preventNewTab", () => {
+Cypress.Commands.add("preventRouterNewTab", () => {
   cy.on("window:before:load", win => {
     cy.stub(win, "open")
       .as("windowOpen")
@@ -35,6 +37,35 @@ Cypress.Commands.add("preventNewTab", () => {
         cy.visit(url);
       });
   });
+});
+
+Cypress.Commands.add("login", () => {
+  cy.get("#topbar", { timeout: 60000 });
+  cy.getByTestId("account-menu").click();
+  cy.get("#account-menu").find("span").contains("Login").click();
+  cy.url().should("include", "/user/login");
+  cy.getByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
+  cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.getByTestId("login-submit").click();
+  cy.get(".swal2-popup", { timeout: 60000 }).contains("Login successful");
+  cy.get(".swal2-confirm").click();
+  cy.get("#topbar", { timeout: 60000 });
+});
+
+Cypress.Commands.add("acceptLicenseAndLogin", () => {
+  cy.loginByCognitoApi(Cypress.env("CYPRESS_LOGIN_USERNAME"), Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.acceptLicenseAndCookies();
+});
+
+Cypress.Commands.add("expandTreeNode", (treeId: string, contains: string) => {
+  cy.get(`#${treeId}`).contains(contains, { timeout: 10000 }).parents(".p-tree-node-selectable").find(".p-tree-node-toggle-button").click();
+});
+
+Cypress.Commands.add("searchAndSelect", (searchTerm: string) => {
+  cy.get("[data-testid='search-input']", { timeout: 60000 }).type(searchTerm);
+  cy.get(".p-datatable-selectable-row", { timeout: 60000 }).should("have.length.greaterThan", 1).first().click();
+  cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 10000 }).contains(searchTerm);
+  cy.get("#viewer-tabs", { timeout: 10000 });
 });
 //
 //
@@ -55,8 +86,13 @@ declare global {
     interface Chainable {
       acceptLicenseAndCookies(): Chainable<void>;
       openReleaseNotes(): Chainable<void>;
-      getByTestId(id: string): Chainable<void>;
-      preventNewTab(): Chainable<void>;
+      getByTestId(id: string, options?: any): Chainable<void>;
+      preventRouterNewTab(): Chainable<void>;
+      login(): Chainable<void>;
+      expandTreeNode(treeId: string, contains: string): Chainable<void>;
+      searchAndSelect(searchTerm: string): Chainable<void>;
+      acceptLicenseAndLogin(): Chainable<void>;
+      loginByCognitoApi(username: string, password: string): Chainable<void>;
     }
   }
 }

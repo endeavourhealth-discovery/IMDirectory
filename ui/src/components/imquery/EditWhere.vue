@@ -1,7 +1,14 @@
 <template>
   <div class="property-description-container">
-    <EditProperty v-if="focused && !editWhere?.match" :property="editWhere" :data-model-iri="matchTypeOfIri" @delete-property="$emit('deleteProperty')" />
-    <div v-else class="property-description" v-html="editWhere?.description"></div>
+    <div v-if="editWhere.name && !editWhere.displayLabel && editWhere?.match" v-html="editWhere.name"></div>
+    <EditProperty
+      v-if="focused && !editWhere?.match"
+      :property="editWhere"
+      :data-model-iri="matchTypeOfIri"
+      :edit-match="parentMatch"
+      @delete-property="$emit('deleteProperty')"
+    />
+    <div v-else-if="editWhere.displayLabel" class="property-description">{{ editWhere.displayLabel }}</div>
 
     <div v-if="editWhere?.where" class="where-group">
       <div class="where-list">
@@ -9,7 +16,7 @@
           class="builder-button conjunction-button vertical-button"
           :label="editWhere.boolWhere?.toUpperCase() ?? 'AND'"
           @click="
-            e => {
+            (e: MouseEvent) => {
               e.stopPropagation();
               toggleWhereBool(editWhere);
             }
@@ -21,6 +28,8 @@
           :focused-id="focusedId"
           :match-type-of-iri="matchTypeOfIri"
           :editWhere="nestedWhere"
+          :is-boolean-editor="isBooleanEditor"
+          :parent-match="parentMatch"
           @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
           @delete-property="editWhere.where?.splice(index, 1)"
         />
@@ -30,6 +39,7 @@
       v-if="editWhere?.match"
       :edit-match="editWhere.match"
       :focused-id="focusedId"
+      :is-boolean-editor="isBooleanEditor"
       @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
       @delete-match="onDeleteMatch"
     />
@@ -37,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { Where } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 import EditProperty from "./EditProperty.vue";
@@ -47,6 +57,8 @@ interface Props {
   editWhere: Where;
   focused: boolean;
   focusedId: string | undefined;
+  isBooleanEditor?: boolean;
+  parentMatch: Match;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteProperty: () => true });
@@ -65,7 +77,7 @@ function onDeleteMatch(matchId: string) {
   flex-flow: column;
 }
 .property-description {
-  width: 100%;
+  width: calc(100% - 1rem);
   height: 100%;
   margin-left: 1rem;
 }
@@ -78,5 +90,14 @@ function onDeleteMatch(matchId: string) {
 .where-group {
   display: flex;
   width: 100%;
+}
+
+.builder-button {
+  width: 2rem;
+}
+
+.vertical-button {
+  writing-mode: vertical-lr;
+  transform: scale(-1);
 }
 </style>

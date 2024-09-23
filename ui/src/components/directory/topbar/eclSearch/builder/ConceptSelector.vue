@@ -1,6 +1,6 @@
 <template>
   <div v-if="value.conceptSingle" class="concept-container">
-    <Dropdown
+    <Select
       style="width: 4.5rem; min-height: 2.3rem"
       v-model="value.constraintOperator"
       :options="constraintOperatorOptions"
@@ -8,32 +8,32 @@
       option-value="value"
     >
       <template #value="slotProps">
-        <div v-if="slotProps.value" class="flex align-items-center">
+        <div v-if="slotProps.value" class="flex items-center">
           <div>{{ value.constraintOperator }}</div>
         </div>
       </template>
       <template #option="slotProps">
-        <div class="flex align-items-center" style="min-height: 1rem">
+        <div class="flex items-center" style="min-height: 1rem">
           <div>{{ slotProps.option.label }}</div>
         </div>
       </template>
-    </Dropdown>
-    <AutocompleteSearchBar v-model:selected="selected" :osQuery="osQueryForConceptSearch" :root-entities="['http://snomed.info/sct#138875005']" />
+    </Select>
+    <AutocompleteSearchBar v-model:selected="selected" :im-query="imQueryForConceptSearch" :root-entities="['http://snomed.info/sct#138875005']" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, inject, computed } from "vue";
+import { Ref, ref, onMounted, watch, computed } from "vue";
 import { IM, SNOMED } from "@im-library/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
-import _ from "lodash";
+import _ from "lodash-es";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
-import { SortDirection } from "@im-library/enums";
-import { getNameFromIri } from "@im-library/helpers/TTTransform";
+import { SearchOptions } from "@im-library/interfaces";
+import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   value: {
@@ -82,13 +82,7 @@ const constraintOperatorOptions = [
   }
 ];
 
-const osQueryForConceptSearch: Ref<SearchRequest> = ref({
-  schemeFilter: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])).map(s => s["@id"]),
-  statusFilter: filterStoreOptions.value.status.map(s => s["@id"]),
-  typeFilter: filterStoreOptions.value.types.filter(filterOption => filterOption["@id"] === IM.CONCEPT).map(s => s["@id"]),
-  sortDirection: filterStoreOptions.value.sortDirections[0]?.["@id"] === IM.DESCENDING ? SortDirection.DESC : SortDirection.ASC,
-  sortField: getNameFromIri(filterStoreOptions.value.sortFields[0]?.["@id"])
-} as SearchRequest);
+const imQueryForConceptSearch: Ref<QueryRequest | undefined> = ref();
 
 onMounted(async () => {
   await init();
@@ -101,11 +95,21 @@ watch(selected, (newValue, oldValue) => {
 });
 
 async function init() {
+  buildIMQueryForConceptSearch();
   if (props.value?.conceptSingle) {
     loading.value = true;
     await updateSelectedResult(props.value.conceptSingle);
     loading.value = false;
   }
+}
+
+function buildIMQueryForConceptSearch() {
+  const searchOptions: SearchOptions = {
+    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
+    status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
+    types: [{ "@id": IM.CONCEPT }]
+  };
+  imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }
 
 async function updateSelectedResult(data: SearchResultSummary | { iri: string; name?: string }) {
@@ -155,16 +159,16 @@ function updateConcept(concept: SearchResultSummary | undefined) {
   font-size: 1rem;
   padding: 4px 4px;
   margin: 0;
-  color: var(--text-color);
-  background: var(--surface-a);
-  border: 1px solid var(--surface-border);
+  color: var(--p-text-color);
+  background: var(--p-content-background);
+  border: 1px solid var(--p-textarea-border-color);
   transition:
     background-color 0.2s,
     color 0.2s,
     border-color 0.2s,
     box-shadow 0.2s;
   appearance: none;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   height: 2.7rem;
   display: flex;
   flex-flow: column;
@@ -184,7 +188,7 @@ function updateConcept(concept: SearchResultSummary | undefined) {
 }
 
 .inactive {
-  color: var(--text-color-secondary);
+  color: var(--p-text-color-secondary);
 }
 
 .selected-label {

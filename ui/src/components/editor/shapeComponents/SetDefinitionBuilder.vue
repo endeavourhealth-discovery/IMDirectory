@@ -3,30 +3,36 @@
     <div class="ecl-container">
       <div class="text-copy-container">
         <div id="definition-panel-container">
-          <TabView class="ecl-tabview">
-            <TabPanel class="tabview-panel" header="ECL">
-              <div class="ecl-panel">
-                <Textarea
-                  v-model="ecl"
-                  id="ecl-string-container"
-                  :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
-                  :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
-                  data-testid="ecl-string"
-                  :disabled="loading"
-                  @dragenter.prevent
-                  @dragover.prevent
-                  @drop="dropReceived($event)"
-                />
-                <div class="show-names-container">
-                  <label for="">Show names</label>
-                  <Checkbox v-model="showNames" :binary="true" />
+          <Tabs value="0" class="ecl-tabview">
+            <TabList>
+              <Tab value="0">ECL</Tab>
+              <Tab value="1">Display</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel value="0" class="tabview-panel">
+                <div class="ecl-panel">
+                  <Textarea
+                    v-model="ecl"
+                    id="ecl-string-container"
+                    :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
+                    :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
+                    data-testid="ecl-string"
+                    :disabled="loading"
+                    @dragenter.prevent
+                    @dragover.prevent
+                    @drop="dropReceived($event)"
+                  />
+                  <div class="show-names-container">
+                    <label for="">Show names</label>
+                    <Checkbox v-model="showNames" :binary="true" />
+                  </div>
                 </div>
-              </div>
-            </TabPanel>
-            <TabPanel header="Display">
-              <QueryDisplay :definition="value" />
-            </TabPanel>
-          </TabView>
+              </TabPanel>
+              <TabPanel value="1">
+                <QueryDisplay :definition="value" />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </div>
       </div>
       <div class="button-container">
@@ -59,18 +65,13 @@
 import { onMounted, ref, watch, Ref, PropType, inject, ComputedRef, computed } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
-import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
 import { EditorMode } from "@im-library/enums";
 import { EclService } from "@/services";
-import _, { isArray } from "lodash";
+import _ from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { Match, PropertyShape, Query, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
+import { Match, PropertyShape, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import { IM } from "@im-library/vocabulary";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
@@ -314,7 +315,7 @@ Textarea {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 
 #definition-panel-container:deep(.p-tabview-panels) {
@@ -347,11 +348,11 @@ Textarea {
 }
 
 .subsets-panel:deep(.p-panel-header) {
-  background: var(--surface-a);
+  background: var(--p-content-background);
 }
 
 .ecl-tabview {
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-textarea-border-color);
 }
 
 .ecl-panel {

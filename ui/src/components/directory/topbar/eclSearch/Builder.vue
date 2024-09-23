@@ -19,7 +19,7 @@
       <div class="ecl-builder-dialog-header">
         <strong>ECL Builder:</strong>
         <Button icon="fa-regular fa-circle-question" text rounded @mouseover="toggle" @mouseout="toggle" />
-        <OverlayPanel ref="op">Select or drag and drop for grouping</OverlayPanel>
+        <Popover ref="op">Select or drag and drop for grouping</Popover>
       </div>
     </template>
     <div id="builder-string-container">
@@ -85,7 +85,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { Ref, ref, watch, onMounted, provide, readonly, defineComponent } from "vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import EclService from "@/services/EclService";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
@@ -130,7 +130,8 @@ function toggle(event: any) {
 }
 
 watch(queryString, async () => {
-  isValidEcl.value = await EclService.isValidECL(queryString.value);
+  if (queryString.value) isValidEcl.value = await EclService.isValidECL(queryString.value);
+  else isValidEcl.value = false;
 });
 
 provide("includeTerms", readonly(includeTerms));
@@ -154,7 +155,7 @@ watch(
 watch(
   () => _.cloneDeep(build.value),
   async () => {
-    if (!loading.value) await generateQueryString();
+    if (!loading.value && build.value) await generateQueryString();
   }
 );
 
@@ -354,9 +355,9 @@ function stripIds(idBuild: any) {
 }
 
 .output-string {
-  background-color: var(--surface-a);
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
+  background-color: var(--p-content-background);
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
   padding: 1rem;
   margin: 0;
   height: 100%;

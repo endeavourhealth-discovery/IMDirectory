@@ -1,11 +1,21 @@
 <template>
-  <div class="loading-container flex flex-row justify-content-center align-items-center" v-if="loading">
+  <div class="loading-container flex flex-row items-center justify-center" v-if="loading">
     <ProgressSpinner />
   </div>
   <div v-else id="directory-table-container">
+    <div class="to-search-button-container">
+      <Button
+        link
+        v-if="searchResults?.entities?.length"
+        label="Back to search results"
+        icon="fa-solid fa-arrow-left"
+        class="back-to-search"
+        @click="$emit('goToSearchResults')"
+      />
+    </div>
     <div class="header-container">
       <ParentHierarchy
-        :entityIri="entity['@id']"
+        :entityIri="entity?.['@id']"
         @navigateTo="(iri: string) => $emit('navigateTo', iri)"
         :history="history"
         @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
@@ -19,7 +29,7 @@
       />
     </div>
     <div class="datatable-container">
-      <Viewer :entityIri="entity['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
+      <Viewer :entityIri="entity?.['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>
@@ -31,11 +41,13 @@ import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   selectedIri: string;
   showSelectButton?: boolean;
   history: string[];
+  searchResults?: SearchResponse;
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
 
@@ -43,7 +55,8 @@ const emit = defineEmits({
   navigateTo: (_payload: string) => true,
   locateInTree: (_payload: string) => true,
   "update:history": (_payload: string[]) => true,
-  selectedUpdated: (_payload: string) => true
+  selectedUpdated: (_payload: string) => true,
+  goToSearchResults: () => true
 });
 
 watch(
@@ -85,5 +98,9 @@ async function init() {
 .header-container {
   display: flex;
   flex-flow: column nowrap;
+}
+
+.back-to-search {
+  padding-bottom: 0;
 }
 </style>

@@ -12,6 +12,7 @@
               :url="shortcut.url"
               :color="shortcut.color"
               :size="shortcut.size"
+              :newTab="shortcut.newTab"
             />
           </template>
         </div>
@@ -25,7 +26,7 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import _ from "lodash";
+import _ from "lodash-es";
 import { DirectService } from "@/services";
 import { IM, SHACL } from "@im-library/vocabulary";
 import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
@@ -34,32 +35,32 @@ import Favourites from "@/components/directory/landingPage/Favourites.vue";
 
 const directService = new DirectService();
 
-const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: Function; color: string; size: number }[]> = ref([
+const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: Function; color: string; size: number; newTab?: boolean }[]> = ref([
   {
     label: "Ontology",
     icon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
-    command: () => directService.select(IM.NAMESPACE + "HealthModelOntology", "Folder"),
+    command: () => directService.select(IM.NAMESPACE + "HealthModelOntology"),
     color: getColourFromType([{ "@id": IM.CONCEPT }]),
     size: 4
   },
   {
     label: "Sets",
     icon: getFAIconFromType([{ "@id": IM.SET }]),
-    command: () => directService.select(IM.MODULE_SETS, "Folder"),
+    command: () => directService.select(IM.MODULE_SETS),
     color: getColourFromType([{ "@id": IM.SET }]),
     size: 4
   },
   {
-    label: "Models",
+    label: "Health records",
     icon: getFAIconFromType([{ "@id": SHACL.NODESHAPE }]),
-    command: () => directService.select(IM.NAMESPACE + "DataModels", "Folder"),
+    command: () => directService.select(IM.HEALTH_RECORDS),
     color: getColourFromType([{ "@id": SHACL.NODESHAPE }]),
     size: 4
   },
   {
     label: "Queries",
     icon: getFAIconFromType([{ "@id": IM.QUERY }]),
-    command: () => directService.select(IM.MODULE_QUERIES, "Folder"),
+    command: () => directService.select(IM.MODULE_QUERIES),
     color: getColourFromType([{ "@id": IM.QUERY }]),
     size: 4
   },
@@ -67,29 +68,30 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
     label: "Creator",
     icon: "fa-duotone fa-circle-plus",
     command: () => directService.create(),
-    color: "var(--orange-500)",
+    color: "var(--p-orange-500)",
     size: 4
   },
   {
     label: "Code templates",
     icon: "fa-duotone fa-code",
     command: () => directService.codeGenerator(),
-    color: "var(--teal-500)",
+    color: "var(--p-teal-500)",
     size: 4
   },
   {
     label: "ASSIGN UPRN",
     icon: "fa-duotone fa-map-location-dot",
     command: () => directService.uprn(),
-    color: "var(--red-500)",
+    color: "var(--p-red-500)",
     size: 4
   },
   {
     label: "Wiki",
     icon: "/logos/ship-small.png",
     url: "https://wiki.endeavourhealth.org/index.php?title=Welcome_to_the_Endeavour_Health_knowledge_base",
-    color: "var(--blue-500)",
-    size: 4
+    color: "var(--p-blue-500)",
+    size: 4,
+    newTab: true
   }
 ]);
 </script>

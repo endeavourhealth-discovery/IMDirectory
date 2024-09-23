@@ -1,17 +1,17 @@
 <template>
-  <div class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center logout-card">
+  <div class="flex flex-row items-center">
+    <Card class="justify-content-sm-around logout-card flex flex-col items-center">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-arrow-right-from-bracket" class="icon-header" />
       </template>
       <template #title> Logout </template>
       <template #content>
-        <div class="p-fluid logout-form">
+        <div class="logout-form">
           <div class="field">
             <div class="p-text-left">Current User:</div>
           </div>
           <div class="field">
-            <div v-if="isLoggedIn" class="flex flex-row align-items-center p-text-capitalize">
+            <div v-if="currentUser" class="p-text-capitalize flex flex-row items-center">
               <img
                 data-testid="logout-avatar-image"
                 v-if="isLoggedIn"
@@ -26,8 +26,8 @@
             </div>
             <div v-if="!isLoggedIn" class="p-text-left p-text-capitalize">Guest</div>
           </div>
-          <div class="flex flex-row justify-content-center">
-            <Button data-testid="logout-submit" class="user-submit" type="submit" label="Logout" @click="handleSubmit" />
+          <div class="flex flex-row justify-center">
+            <Button data-testid="logout-submit" class="user-submit" label="Logout" @click="handleSubmit" />
           </div>
         </div>
       </template>
@@ -43,6 +43,7 @@ import { useRouter } from "vue-router";
 import { CustomAlert } from "@im-library/interfaces";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
+import { AuthService } from "@/services";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -61,7 +62,7 @@ function handleSubmit(): void {
     reverseButtons: true
   }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      userStore.logoutCurrentUser().then((res: CustomAlert) => {
+      AuthService.signOut().then((res: CustomAlert) => {
         if (res.status === 200) {
           Swal.fire({
             icon: "success",
@@ -96,6 +97,8 @@ function handleSubmit(): void {
 .logout-form {
   max-width: 25em;
   min-width: 15em;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .logout-card {

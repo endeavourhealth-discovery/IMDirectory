@@ -1,10 +1,11 @@
 import { flushPromises } from "@vue/test-utils";
 import Filters from "@/components/shared/Filters.vue";
 import MultiSelect from "primevue/multiselect";
-import InputSwitch from "primevue/inputswitch";
+import ToggleSwitch from "primevue/toggleswitch";
 import Tooltip from "primevue/tooltip";
 import Button from "primevue/button";
-import Dropdown from "primevue/dropdown";
+import Select from "primevue/select";
+import FloatLabel from "primevue/floatlabel";
 import testData from "./Filters.testData";
 import { render } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
@@ -31,7 +32,7 @@ describe("Filters.vue", () => {
     component = render(Filters, {
       props: { search: mockSearch },
       global: {
-        components: { MultiSelect, InputSwitch, Button, Dropdown },
+        components: { MultiSelect, ToggleSwitch, Button, Select, FloatLabel },
         directives: { Tooltip: Tooltip },
         plugins: [PrimeVue]
       }

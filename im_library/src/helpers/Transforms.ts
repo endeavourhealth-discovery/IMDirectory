@@ -1,5 +1,5 @@
-import { TTBundle } from "../interfaces";
-import { IM, RDF, RDFS } from "../vocabulary";
+import { TTBundle, UIProperty } from "../interfaces";
+import { IM, RDF, RDFS, SHACL } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
 import { TTIriRef } from "../interfaces/AutoGen";
@@ -77,15 +77,15 @@ export function ttIriToString(
   if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
     const escapedUrl = iriToUrl(iri["@id"]);
     if (iri["@id"] === seeMore) {
-      result += `<a href="">`;
+      result += `<Button link as="a" href="">`;
     } else {
-      result += `<a target="_blank" href="${window.location.origin}${appPath}/#/concept/${escapedUrl}">`;
+      result += `<Button link as="a" target="_blank" href="${window.location.origin}${appPath}/#/concept/${escapedUrl}">`;
     }
   }
   if (iri.name) result += removeEndBrackets(iri.name);
   else result += iri["@id"];
   if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
-    result += "</a>";
+    result += "</Button>";
   }
   if (previous === "array") result += "\n";
   return result;
@@ -269,6 +269,34 @@ export function entityToAliasEntity(ttEntity: any) {
   }
 }
 
+export function convertTTPropertyToUIProperty(ttproperty: any, propertyName?: string): UIProperty {
+  const uiProperty = {} as UIProperty;
+  if (ttproperty[SHACL.MAXCOUNT]) uiProperty.maxCount = ttproperty[SHACL.MAXCOUNT];
+  if (ttproperty[SHACL.MINCOUNT]) uiProperty.minCount = ttproperty[SHACL.MINCOUNT];
+  if (isArrayHasLength(ttproperty[SHACL.CLASS])) {
+    uiProperty.propertyType = "class";
+    uiProperty.valueType = ttproperty[SHACL.CLASS]![0]["@id"];
+  }
+  if (isArrayHasLength(ttproperty[SHACL.DATATYPE])) {
+    uiProperty.propertyType = "datatype";
+    uiProperty.valueType = ttproperty[SHACL.DATATYPE]![0]["@id"];
+  }
+  if (isArrayHasLength(ttproperty[SHACL.NODE])) {
+    uiProperty.propertyType = "node";
+    uiProperty.valueType = ttproperty[SHACL.NODE]![0]["@id"];
+  }
+
+  if (isArrayHasLength(ttproperty[SHACL.PATH])) {
+    uiProperty.propertyName = ttproperty[SHACL.PATH]![0].name;
+    uiProperty.iri = ttproperty[SHACL.PATH]![0]["@id"];
+  }
+  return uiProperty;
+}
+
+export function convertUIPropertyFromDMConcept(range: string, propertyName?: string): UIProperty {
+  return { propertyType: "class", valueType: range, propertyName: propertyName ?? "concept", iri: IM.NAMESPACE + "concept" } as UIProperty;
+}
+
 export default {
   bundleToText,
   ttArrayToString,
@@ -277,5 +305,6 @@ export default {
   ttValueToString,
   termToString,
   mapToObject,
-  entityToAliasEntity
+  entityToAliasEntity,
+  convertTTPropertyToUIProperty
 };

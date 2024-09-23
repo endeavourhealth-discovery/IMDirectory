@@ -14,7 +14,7 @@
           <div class="bug-report-form">
             <div class="field">
               <label for="product">Select app where the issue occurred</label>
-              <Dropdown
+              <Select
                 v-model="selectedProduct"
                 :options="productOptions"
                 :class="{ 'p-invalid': productErrorMessage }"
@@ -25,46 +25,41 @@
             </div>
             <div class="field">
               <label for="module">What module of the app were you in when the issue occurred? </label>
-              <Dropdown
-                v-model="selectedModule"
-                :options="moduleOptions"
-                :class="{ 'p-invalid': moduleErrorMessage }"
-                @blur="showErrorMessages.module = true"
-              />
+              <Select v-model="selectedModule" :options="moduleOptions" :class="{ 'p-invalid': moduleErrorMessage }" @blur="showErrorMessages.module = true" />
               <small>Module can be identified in the browser url after the '#' e.g. http://im.endeavourhealth.net/#/<strong>auth</strong></small>
               <small v-if="showErrorMessages.module && moduleErrorMessage" class="p-error">{{ moduleErrorMessage }}</small>
             </div>
             <div class="field">
               <label for="os">What operating system were you using?</label>
-              <Dropdown
+              <Select
                 v-model="selectedOS"
                 :options="osOptions"
-                :class="osErrorMessage && selectedOS !== 'Other' && 'p-invalid'"
+                :class="osErrorMessage && selectedOS !== OperatingSystem.OTHER && 'p-invalid'"
                 @blur="showErrorMessages.os = true"
               />
 
-              <div v-if="selectedOS === 'Other'" class="other-container">
+              <div v-if="selectedOS === OperatingSystem.OTHER" class="other-container">
                 <label for="osOther">Input operating system name</label>
                 <InputText id="osOther" v-model="osOther" :class="osErrorMessage && 'p-invalid'" />
               </div>
-              <small v-if="showErrorMessages.os && osErrorMessage" class="p-error" :class="selectedOS === 'Other' && 'error-indented'">{{
+              <small v-if="showErrorMessages.os && osErrorMessage" class="p-error" :class="selectedOS === OperatingSystem.OTHER && 'error-indented'">{{
                 osErrorMessage
               }}</small>
             </div>
 
             <div class="field">
               <label for="browser">What browser were you using?</label>
-              <Dropdown
+              <Select
                 v-model="selectedBrowser"
                 :options="browserOptions"
-                :class="browserErrorMessage && selectedBrowser !== 'Other' && 'p-invalid'"
+                :class="browserErrorMessage && selectedBrowser !== Browser.OTHER && 'p-invalid'"
                 @blur="showErrorMessages.browser = true"
               />
-              <div v-if="selectedBrowser === 'Other'" class="other-container">
+              <div v-if="selectedBrowser === Browser.OTHER" class="other-container">
                 <label for="browserOther">Input browser name</label>
                 <InputText id="browserOther" v-model="browserOther" :class="browserErrorMessage && 'p-invalid'" />
               </div>
-              <small v-if="showErrorMessages.browser && browserErrorMessage" class="p-error" :class="selectedBrowser === 'Other' && 'error-indented'">{{
+              <small v-if="showErrorMessages.browser && browserErrorMessage" class="p-error" :class="selectedBrowser === Browser.OTHER && 'error-indented'">{{
                 browserErrorMessage
               }}</small>
             </div>
@@ -120,15 +115,13 @@
 import TopBar from "@/components/shared/TopBar.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import { Ref, computed, onMounted, ref, watch } from "vue";
-import { enumToArray } from "@im-library/helpers/Converters";
-import { Module, OperatingSystem, Browser } from "@im-library/enums/bugReport";
-import { BugReport } from "@im-library/interfaces";
-import { BugReportEnums } from "@im-library/enums";
+import { BugReport } from "@im-library/interfaces/AutoGen";
+import { TaskModule, TaskState, TaskType, Browser, OperatingSystem, Status } from "@im-library/enums";
 import { useUserStore } from "@/stores/userStore";
 import WorkflowService from "@/services/WorkflowService";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
-import { stringAscending } from "@im-library/helpers/Sorters";
+import GithubService from "@/services/GithubService";
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
@@ -145,7 +138,7 @@ watch(selectedProduct, newValue => {
   else productErrorMessage.value = "";
 });
 
-const selectedModule: Ref<BugReportEnums.Module | ""> = ref("");
+const selectedModule: Ref<TaskModule | ""> = ref("");
 const moduleErrorMessage = ref("");
 const moduleOptions: Ref<string[]> = ref([]);
 watch(selectedModule, newValue => {
@@ -153,21 +146,21 @@ watch(selectedModule, newValue => {
   else moduleErrorMessage.value = "";
 });
 
-const selectedOS: Ref<BugReportEnums.OperatingSystem | "" | "Other"> = ref("");
+const selectedOS: Ref<OperatingSystem | ""> = ref("");
 const osErrorMessage = ref("");
 const osOptions: Ref<string[]> = ref([]);
 const osOther = ref("");
 watch([selectedOS, osOther], ([newOS, newOther]) => {
-  if (!newOS || (newOS === "Other" && !newOther)) osErrorMessage.value = "Required field";
+  if (!newOS || (newOS === OperatingSystem.OTHER && !newOther)) osErrorMessage.value = "Required field";
   else osErrorMessage.value = "";
 });
 
-const selectedBrowser: Ref<BugReportEnums.Browser | "" | "Other"> = ref("");
+const selectedBrowser: Ref<Browser | ""> = ref("");
 const browserErrorMessage = ref("");
 const browserOptions: Ref<string[]> = ref([]);
 const browserOther = ref("");
 watch([selectedBrowser, browserOther], ([newBrowser, newOther]) => {
-  if (!newBrowser || (newBrowser === "Other" && !newOther)) browserErrorMessage.value = "Required field";
+  if (!newBrowser || (newBrowser === Browser.OTHER && !newOther)) browserErrorMessage.value = "Required field";
   else browserErrorMessage.value = "";
 });
 
@@ -207,16 +200,10 @@ onMounted(() => {
 });
 
 function setOptions() {
-  moduleOptions.value = enumToArray(Module)
-    .map(item => item[0].toUpperCase() + item.slice(1))
-    .sort(stringAscending);
-  osOptions.value = enumToArray(OperatingSystem)
-    .map(item => item[0].toUpperCase() + item.slice(1))
-    .sort(stringAscending);
+  moduleOptions.value = [TaskModule.AUTH, TaskModule.CREATOR, TaskModule.DIRECTORY, TaskModule.EDITOR, TaskModule.QUERY, TaskModule.UPRN];
+  osOptions.value = [OperatingSystem.LINUX, OperatingSystem.MACOS, OperatingSystem.WINDOWS];
   osOptions.value.push("Other");
-  browserOptions.value = enumToArray(Browser)
-    .map(item => item[0].toUpperCase() + item.slice(1))
-    .sort(stringAscending);
+  browserOptions.value = [Browser.CHROME, Browser.EDGE, Browser.FIREFOX, Browser.IE];
   browserOptions.value.push("Other");
 }
 
@@ -226,27 +213,34 @@ async function onSubmit() {
     const bugReport = {} as BugReport;
     bugReport.product = selectedProduct.value;
     if (selectedModule.value) bugReport.module = selectedModule.value;
-    if (selectedOS.value && selectedOS.value !== "Other") bugReport.OS = selectedOS.value;
-    else if (selectedOS.value === "Other") bugReport.OS = osOther.value;
-    if (selectedBrowser && selectedBrowser.value !== "Other") bugReport.browser = selectedBrowser.value;
-    else if (selectedBrowser.value === "Other") bugReport.browser = browserOther.value;
-    bugReport.status = BugReportEnums.Status.NEW;
+    if (selectedOS.value) bugReport.os = selectedOS.value;
+    else if (selectedOS.value && selectedOS.value === OperatingSystem.OTHER) bugReport.osOther = osOther.value;
+    if (selectedBrowser.value) bugReport.browser = selectedBrowser.value;
+    else if (selectedBrowser.value && selectedBrowser.value === Browser.OTHER) bugReport.browserOther = browserOther.value;
+    bugReport.status = Status.NEW;
     bugReport.description = description.value;
     bugReport.reproduceSteps = stepsToReproduce.value;
     bugReport.expectedResult = expectedResult.value;
     bugReport.actualResult = actualResult.value;
-    bugReport.createdBy = user.value.id;
+    if (user.value) bugReport.createdBy = user.value.id;
     if (error.value) bugReport.error = error.value;
-    bugReport.dateCreated = new Date();
-    await WorkflowService.createBugReport(bugReport);
-    Swal.fire({
-      title: "Success",
-      text: "Bug report successfully submitted",
-      icon: "success",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#2196F3"
-    }).then(async () => {
-      await router.push({ path: "/" });
+    const latestResult = await GithubService.getLatestRelease("IMDirectory");
+    if (latestResult) bugReport.version = latestResult.version;
+    bugReport.type = TaskType.BUG_REPORT;
+    bugReport.state = TaskState.TODO;
+    await WorkflowService.createBugReport(bugReport).then(async res => {
+      if (!res) {
+        await Swal.fire({
+          title: "Success",
+          text: "Bug report successfully submitted",
+          icon: "success",
+          confirmButtonText: "Close",
+          confirmButtonColor: "#2196F3"
+        }).then(async () => {
+          loading.value = false;
+          await router.push({ path: "/" });
+        });
+      }
     });
     loading.value = false;
   }
@@ -256,8 +250,8 @@ function allVerified() {
   return (
     selectedProduct.value &&
     selectedModule.value &&
-    ((selectedOS.value && selectedOS.value !== "Other") || (selectedOS.value === "Other" && osOther.value)) &&
-    ((selectedBrowser.value && selectedBrowser.value !== "Other") || (selectedBrowser.value === "Other" && browserOther.value)) &&
+    ((selectedOS.value && selectedOS.value !== OperatingSystem.OTHER) || (selectedOS.value === OperatingSystem.OTHER && osOther.value)) &&
+    ((selectedBrowser.value && selectedBrowser.value !== Browser.OTHER) || (selectedBrowser.value === Browser.OTHER && browserOther.value)) &&
     description.value &&
     stepsToReproduce.value &&
     expectedResult.value &&

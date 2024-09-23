@@ -64,7 +64,7 @@ describe("ArrayObjectNameListboxWithLabel.vue ___ ontology", () => {
     const row = component.getAllByTestId("row-text")[0];
     await fireEvent.click(row);
     expect(mockPush).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenCalledWith({ name: "Folder", params: { selectedIri: "http://snomed.info/sct#12903001" } });
+    expect(mockPush).toHaveBeenCalledWith({ path: "/directory/folder/http%3A%2F%2Fsnomed.info%2Fsct%2312903001" });
   });
 
   it("can hide data", async () => {

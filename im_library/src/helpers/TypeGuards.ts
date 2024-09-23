@@ -1,5 +1,5 @@
-import { BugReport, TTBundle, Workflow } from "../interfaces";
-import { PropertyShape, TTIriRef } from "../interfaces/AutoGen";
+import { TTBundle } from "../interfaces";
+import { PropertyShape, TTIriRef, Task, BugReport } from "../interfaces/AutoGen";
 import { isObjectHasKeys } from "./DataTypeCheckers";
 
 export function isTTIriRef(data: any): data is TTIriRef {
@@ -27,17 +27,16 @@ export function isBoolGroup(data: any): data is { conjunction: string; items: an
   else return false;
 }
 
-export function isWorkflow(data: any): data is Workflow {
-  if (data && (data as Workflow).id && (data as Workflow).createdBy && (data as Workflow).dateCreated && (data as Workflow).state && (data as Workflow).type)
-    return true;
+export function isTask(data: any): data is Task {
+  if (data && (data as Task).id && (data as Task).createdBy && (data as Task).dateCreated && (data as Task).state && (data as Task).type) return true;
   else return false;
 }
 
 export function isBugReport(data: any): data is BugReport {
   if (
     data &&
-    isWorkflow(data) &&
-    (data as BugReport).OS &&
+    isTask(data) &&
+    (data as BugReport).os &&
     (data as BugReport).actualResult &&
     (data as BugReport).expectedResult &&
     (data as BugReport).module &&

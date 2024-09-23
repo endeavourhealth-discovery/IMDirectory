@@ -43,18 +43,16 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType, ComputedRef } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
+import _ from "lodash-es";
 import { ComponentDetails } from "@im-library/interfaces";
-import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@im-library/helpers/EditorBuilderJsonMethods";
-import { isPropertyShape } from "@im-library/helpers/TypeGuards";
-import { QueryService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { SHACL } from "@im-library/vocabulary";
 
 interface Props {
   shape: PropertyShape;
@@ -399,7 +397,7 @@ function hasData() {
 }
 .children-container {
   width: 100%;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
@@ -408,13 +406,13 @@ function hasData() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
   border-radius: 5px;
   padding: 0.25rem;
 }
@@ -431,6 +429,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

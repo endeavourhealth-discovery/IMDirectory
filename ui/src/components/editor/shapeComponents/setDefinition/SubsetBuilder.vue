@@ -15,9 +15,9 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import ArrayBuilder from "../ArrayBuilder.vue";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
-import { COMPONENT, IM, QUERY, RDFS } from "@im-library/vocabulary";
+import { IM, QUERY, RDFS } from "@im-library/vocabulary";
 import { EditorMode } from "@im-library/enums";
-import _ from "lodash";
+import _ from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
 
@@ -153,13 +153,13 @@ function updateEntity() {
 }
 
 .subsets-content:deep(#autocomplete-search) {
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-textarea-border-color);
 }
 
 .title {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--p-text-color);
   padding-top: 0.5rem;
 }
 </style>

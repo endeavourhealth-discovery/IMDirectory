@@ -29,7 +29,6 @@
 
 <script setup lang="ts">
 import { useToast } from "primevue/usetoast";
-import uprnService from "@/services/UprnService";
 import { ref, computed, onMounted, Ref } from "vue";
 import UprnService from "@/services/UprnService";
 import { useUserStore } from "@/stores/userStore";
@@ -47,15 +46,17 @@ onMounted(async () => {
 });
 
 async function getActivity() {
-  loading.value = true;
+  if (currentuser) {
+    loading.value = true;
 
-  const result = await uprnService.activity(currentuser.id);
-  if (result) {
-    showResults.value = true;
-    searchResults.value = result;
+    const result = await UprnService.activity(currentuser.id);
+    if (result) {
+      showResults.value = true;
+      searchResults.value = result;
+    }
+
+    loading.value = false;
   }
-
-  loading.value = false;
 }
 
 async function download(fileUrl: string) {

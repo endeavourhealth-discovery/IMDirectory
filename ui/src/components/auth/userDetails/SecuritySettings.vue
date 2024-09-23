@@ -6,7 +6,7 @@
       <DataView :value="twoFactorMethods" data-key="label">
         <template #header> Two-factor methods </template>
         <template #list="slotProps">
-          <div v-for="(item, index) in slotProps.items" class="col-12">
+          <div v-for="(item, index) in slotProps.items" class="col-span-12">
             <div class="two-factor-row">
               <div class="mfa-row-details">
                 <span>{{ item.label }}</span>
@@ -38,25 +38,30 @@ const twoFactorMethods = ref([
     label: "Authenticator app",
     details: "Use an authentication app or browser extension to get two-factor authentication codes when prompted.",
     icon: "fa-solid fa-mobile",
-    status: getMfaStatus("SOFTWARE_TOKEN_MFA"),
-    key: "SOFTWARE_TOKEN_MFA"
+    status: getMfaStatus("TOTP"),
+    key: "TOTP"
   }
 ]);
 
 function handleMfaActivate(key: string) {
-  if (key === "SOFTWARE_TOKEN_MFA") {
+  if (key === "TOTP") {
     router.push({ name: "MFASetup" });
   }
 }
 
 function handleMfaDelete(key: string) {
-  if (key === "SOFTWARE_TOKEN_MFA") {
+  if (key === "TOTP") {
     router.push({ name: "MFADelete" });
   }
 }
 
 function getMfaStatus(mfaKey: string): boolean {
-  return isObjectHasKeys(currentUser.value, ["mfaStatus"]) && isArrayHasLength(currentUser.value.mfaStatus) && currentUser.value.mfaStatus.includes(mfaKey);
+  return (
+    typeof currentUser.value !== "undefined" &&
+    isObjectHasKeys(currentUser.value, ["mfaStatus"]) &&
+    isArrayHasLength(currentUser.value.mfaStatus) &&
+    currentUser.value.mfaStatus.includes(mfaKey)
+  );
 }
 </script>
 

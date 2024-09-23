@@ -1,25 +1,28 @@
 <template>
-  <div class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center recovery-card">
+  <div class="flex flex-row items-center">
+    <Card class="justify-content-sm-around recovery-card flex flex-col items-center">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-user" class="icon-header" />
       </template>
       <template #title> Account Recovery: <br /><br />Password Reset </template>
       <template #content>
-        <div class="p-fluid recovery-form">
+        <form class="recovery-form" @submit="onSubmit">
           <div class="field">
             <label for="fieldUsername">Username</label>
             <InputText data-testid="forgot-password-username-input" id="fieldUsername" type="text" v-model="username" />
+            <Message v-if="errors.username" severity="error">{{ errors.username }}</Message>
           </div>
-          <div class="flex flex-row justify-content-center">
-            <Button data-testid="forgot-password-user-submit" class="user-submit" type="submit" label="Request Reset Code" v-on:click.prevent="handleSubmit" />
+          <div class="flex flex-row justify-center">
+            <Button data-testid="forgot-password-user-submit" class="user-submit" label="Request Reset Code" v-on:click.prevent="onSubmit" />
           </div>
-        </div>
+        </form>
       </template>
       <template #footer>
         <small>
           Already have a recovery code?
-          <a id="password-submit-link" class="footer-link" @click="router.push({ name: 'ForgotPasswordSubmit' })">Submit Code</a>
+          <Button link as="a" id="password-submit-link" class="footer-link p-0 text-xs" @click="router.push({ name: 'ForgotPasswordSubmit' })"
+            >Submit Code</Button
+          >
         </small>
         <br />
         <br />
@@ -33,25 +36,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
+import * as yup from "yup";
+import { useForm } from "vee-validate";
 
 const router = useRouter();
 const authStore = useAuthStore();
 
-let username = ref("");
+const schema = yup.object({
+  username: yup.string().required("Username is required")
+});
 
-function handleSubmit(): void {
+const { errors, defineField, handleSubmit } = useForm({ validationSchema: schema });
+
+const [username, usernameAttrs] = defineField("username");
+
+const onSubmit = handleSubmit(async () => {
   Swal.fire({
     icon: "warning",
     title: "Warning",
     text: "Reset password for account: " + username.value,
     showCancelButton: true,
-    confirmButtonColor: "var(--primary-color)",
+    confirmButtonColor: "var(--p-primary-color)",
     confirmButtonText: "Reset Password"
   }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
@@ -63,7 +73,8 @@ function handleSubmit(): void {
             text: "Password has been reset for account: " + username.value + ". An email has been sent with a recovery code."
           }).then(() => {
             authStore.updateRegisteredUsername(username.value);
-            router.push({ name: "ForgotPasswordSubmit" });
+            if (res.nextStep === "CONFIRM_RESET_PASSWORD_WITH_CODE") router.push({ name: "ForgotPasswordSubmit" });
+            else router.push({ name: "Login" });
           });
         } else {
           Swal.fire({
@@ -75,7 +86,7 @@ function handleSubmit(): void {
       });
     }
   });
-}
+});
 </script>
 
 <style scoped>
@@ -89,6 +100,13 @@ function handleSubmit(): void {
 
 .recovery-form {
   max-width: 25em;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .footer-link:hover {

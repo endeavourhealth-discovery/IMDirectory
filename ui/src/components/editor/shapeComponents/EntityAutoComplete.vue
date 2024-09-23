@@ -23,9 +23,9 @@
           @drop.prevent
           :class="invalid && showValidation && 'invalid'"
         >
-          <template #item="{ item }: any">
-            <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, item)" @mouseleave="hideOptionsOverlay($event)">
-              <span>{{ item.name }}</span>
+          <template #option="{ option }: any">
+            <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, option)" @mouseleave="hideOptionsOverlay($event)">
+              <span>{{ option.name }}</span>
             </div>
           </template>
         </AutoComplete>
@@ -34,8 +34,8 @@
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
-  <OverlayPanel class="options-op" ref="optionsOP" :dismissable="true" stype="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-    <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
+  <Popover class="options-op" ref="optionsOP" :dismissable="true" stype="width: 50vw" :breakpoints="{ '960px': '75vw' }">
+    <div v-if="hoveredResult.name" class="justify-contents-start result-overlay flex flex-row" style="width: 100%; gap: 1rem">
       <div class="left-side" style="width: 50%">
         <p>
           <strong>Name: </strong>
@@ -65,13 +65,13 @@
         </p>
       </div>
     </div>
-  </OverlayPanel>
+  </Popover>
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch } from "vue";
+import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, Ref, ref, watch } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import _ from "lodash";
+import _ from "lodash-es";
 import { EditorMode } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -79,7 +79,7 @@ import { processArguments } from "@im-library/helpers/EditorMethods";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { byName } from "@im-library/helpers/Sorters";
 import { QueryService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
@@ -280,8 +280,8 @@ function searchOptions(event: any) {
   if (!event.query.trim().length) {
     getAutocompleteOptions();
   } else {
-    autocompleteOptions.value = autocompleteOptions.value.filter(
-      option => option.name?.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
+    autocompleteOptions.value = autocompleteOptions.value.filter(option =>
+      option.name?.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
     );
   }
 }
@@ -367,16 +367,16 @@ function hasData() {
 .label-container {
   width: 100%;
   flex: 1 1 auto;
-  border-radius: 3px;
+  border-radius: var(--p-textarea-border-radius);
   position: relative;
   min-width: 15rem;
 }
 
 .label {
   cursor: pointer;
-  border: 1px solid var(--surface-border);
-  border-radius: 3px;
-  background-color: var(--surface-a);
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: var(--p-textarea-border-radius);
+  background-color: var(--p-content-background);
   padding: 0.25rem;
 }
 
@@ -395,13 +395,13 @@ function hasData() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .autocomplete-option {
@@ -420,6 +420,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

@@ -1,28 +1,42 @@
 import { flushPromises } from "@vue/test-utils";
-import { Auth } from "aws-amplify";
+import * as Auth from "aws-amplify/auth";
 import { AuthService } from "@/services";
 import { describe } from "vitest";
+import { vi } from "vitest";
+import { createTestingPinia } from "@pinia/testing";
+
+vi.mock("aws-amplify/auth", () => ({
+  __esModule: true,
+  signOut: vi.fn(),
+  getCurrentUser: vi.fn(),
+  fetchAuthSession: vi.fn(),
+  fetchMFAPreference: vi.fn(),
+  fetchUserAttributes: vi.fn()
+}));
+
+createTestingPinia();
 
 describe("AuthService", () => {
   describe("signOut", () => {
+    let signOutSpy;
     beforeEach(() => {
       vi.clearAllMocks();
     });
 
     it("returns 200 with auth success", async () => {
-      Auth.signOut = vi.fn().mockResolvedValue({ code: 200 });
+      signOutSpy = vi.spyOn(Auth, "signOut").mockResolvedValue({ code: 200 });
       const result = AuthService.signOut();
       let promiseResult;
       result.then(res => {
         promiseResult = res;
       });
       await flushPromises();
-      expect(Auth.signOut).toHaveBeenCalledTimes(1);
+      expect(signOutSpy).toHaveBeenCalledTimes(1);
       expect(promiseResult).toStrictEqual({ status: 200, message: "Logged out successfully" });
     });
 
     it("returns 400 with auth fail", async () => {
-      Auth.signOut = vi.fn().mockRejectedValue({ code: "Logout", name: "testError", message: "Logout error test" });
+      signOutSpy = vi.spyOn(Auth, "signOut").mockRejectedValue({ code: "Logout", name: "testError", message: "Logout error test" });
       const result = AuthService.signOut();
       let promiseResult;
       let err;
@@ -31,12 +45,16 @@ describe("AuthService", () => {
         promiseResult = res;
       });
       await flushPromises();
-      expect(Auth.signOut).toHaveBeenCalledTimes(1);
+      expect(signOutSpy).toHaveBeenCalledTimes(1);
       expect(promiseResult).toStrictEqual({ status: 400, message: "Error logging out from auth server", error: err });
     });
   });
 
   describe("getCurrentAuthenticatedUser", () => {
+    let getCurrentUserSpy;
+    let fetchAuthSessionSpy;
+    let fetchUserAttributesSpy;
+    let fetchMFAPreferenceSpy;
     beforeEach(() => {
       vi.clearAllMocks();
     });
@@ -53,7 +71,10 @@ describe("AuthService", () => {
           sub: "9gkej864-l39k-9u87-4lau-w7777b3m5g09"
         }
       };
-      Auth.currentAuthenticatedUser = vi.fn().mockResolvedValueOnce(authUser);
+      getCurrentUserSpy = vi.spyOn(Auth, "getCurrentUser").mockResolvedValueOnce({ username: authUser.username, userId: authUser.attributes.sub });
+      fetchAuthSessionSpy = vi.spyOn(Auth, "fetchAuthSession").mockResolvedValueOnce({ tokens: { idToken: "testToken" } });
+      fetchUserAttributesSpy = vi.spyOn(Auth, "fetchUserAttributes").mockResolvedValueOnce(authUser.attributes);
+      fetchMFAPreferenceSpy = vi.spyOn(Auth, "fetchMFAPreference").mockResolvedValueOnce({ preferred: "TOTP" });
       const result = AuthService.getCurrentAuthenticatedUser();
       let promiseResult;
       result.then(res => {
@@ -69,15 +90,29 @@ describe("AuthService", () => {
         password: "",
         avatar: "colour/002-man.png",
         roles: [],
-        mfaStatus: []
+        mfaStatus: ["TOTP"]
       };
 
-      expect(Auth.currentAuthenticatedUser).toHaveBeenCalledTimes(1);
-      expect(promiseResult).toStrictEqual({ status: 200, message: "User authenticated successfully", error: undefined, user: currentUser, userRaw: authUser });
+      expect(getCurrentUserSpy).toHaveBeenCalledTimes(1);
+      expect(promiseResult).toStrictEqual({ status: 200, message: "User authenticated successfully", user: currentUser });
     });
 
     it("returns 400 with auth fail", async () => {
-      Auth.currentAuthenticatedUser = vi.fn().mockRejectedValue({ code: "currentUserFail", message: "get current user error" });
+      const authUser = {
+        username: "devtest",
+        attributes: {
+          "custom:avatar": "colour/002-man.png",
+          "custom:forename": "John",
+          "custom:surname": "Doe",
+          email: "john.doe@ergosoft.co.uk",
+          email_verified: true,
+          sub: "9gkej864-l39k-9u87-4lau-w7777b3m5g09"
+        }
+      };
+      getCurrentUserSpy = vi.spyOn(Auth, "getCurrentUser").mockResolvedValueOnce(false);
+      fetchAuthSessionSpy = vi.spyOn(Auth, "fetchAuthSession").mockResolvedValueOnce({ tokens: { idToken: "testToken" } });
+      fetchUserAttributesSpy = vi.spyOn(Auth, "fetchUserAttributes").mockResolvedValueOnce(authUser.attributes);
+      fetchMFAPreferenceSpy = vi.spyOn(Auth, "fetchMFAPreference").mockResolvedValueOnce({ preferred: "TOTP" });
       const result = AuthService.getCurrentAuthenticatedUser();
       let promiseResult;
       let err;
@@ -86,7 +121,7 @@ describe("AuthService", () => {
         promiseResult = res;
       });
       await flushPromises();
-      expect(Auth.currentAuthenticatedUser).toHaveBeenCalledTimes(1);
+      expect(getCurrentUserSpy).toHaveBeenCalledTimes(1);
       expect(promiseResult).toStrictEqual({ status: 403, message: "Error authenticating current user", error: err });
     });
   });

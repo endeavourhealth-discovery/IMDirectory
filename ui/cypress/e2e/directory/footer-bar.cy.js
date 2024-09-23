@@ -1,7 +1,9 @@
 describe("footer bar", () => {
   beforeEach(() => {
     cy.acceptLicenseAndCookies();
-    cy.get("#footer-bar", { timeout: 60000 });
+    cy.visit("/");
+    cy.get("#topbar", { timeout: 60000 });
+    cy.get("#footer-bar");
   });
 
   it("can show privacy policy", () => {
@@ -26,6 +28,6 @@ describe("footer bar", () => {
 
   it("can show cookie settings", () => {
     cy.get(".footer-icon").click();
-    cy.get(".p-sidebar").find("h1").should("have.text", "Our use of cookies");
+    cy.get(".p-drawer").find("h1").should("have.text", "Our use of cookies");
   });
 });

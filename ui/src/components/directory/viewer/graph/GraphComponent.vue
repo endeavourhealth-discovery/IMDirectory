@@ -3,29 +3,29 @@
     <div id="force-layout-graph">
       <svg id="force-layout-svg">
         <defs id="defs">
-          <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="25" refY="6" orient="auto-start-reverse">
-            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: var(--surface-500)"></path>
+          <marker id="arrow" markerHeight="12" markerUnits="strokeWidth" markerWidth="12" orient="auto-start-reverse" refX="25" refY="6" viewBox="0 0 12 12">
+            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: var(--p-surface-500)"></path>
           </marker>
         </defs>
       </svg>
     </div>
     <div class="custom-control-buttons">
-      <Button class="svg-pan-zoom-control" severity="secondary" icon="fa-solid fa-plus" @click="zoomIn" />
-      <Button class="svg-pan-zoom-control" severity="secondary" label="RESET" @click="resetZoom" />
-      <Button class="svg-pan-zoom-control" severity="secondary" icon="fa-solid fa-minus" @click="zoomOut" />
+      <Button class="svg-pan-zoom-control" icon="fa-solid fa-plus" severity="secondary" @click="zoomIn" />
+      <Button class="svg-pan-zoom-control" label="RESET" severity="secondary" @click="resetZoom" />
+      <Button class="svg-pan-zoom-control" icon="fa-solid fa-minus" severity="secondary" @click="zoomOut" />
     </div>
   </div>
   <ContextMenu ref="menu" :model="contextMenu" />
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
-import _ from "lodash";
+import _ from "lodash-es";
 import { TTGraphData } from "@im-library/interfaces";
 import { GraphExcludePredicates } from "@im-library/config";
-import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";
+import { DataTypeCheckers, GraphTranslator } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
@@ -33,6 +33,7 @@ import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { useDirectoryStore } from "@/stores/directoryStore";
+
 const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -74,11 +75,11 @@ const width = ref(400);
 const force = ref(-5000);
 const radius = ref(16);
 const colour = ref({
-  activeNode: { fill: "var(--surface-100)", stroke: "var(--surface-500)" },
-  inactiveNode: { fill: "var(--primary-200)", stroke: "var(--surface-500)" },
-  centerNode: { fill: "var(--primary-color)", stroke: "var(--text-color)" },
+  activeNode: { fill: "var(--p-surface-100)", stroke: "var(--p-surface-500)" },
+  inactiveNode: { fill: "var(--p-primary-200)", stroke: "var(--p-surface-500)" },
+  centerNode: { fill: "var(--p-primary-color)", stroke: "var(--p-text-color)" },
   font: {},
-  path: { fill: "", stroke: "var(--surface-500)" }
+  path: { fill: "", stroke: "var(--p-surface-500)" }
 });
 const contextMenu: Ref<{ iri: string; label: string; command: (d: any) => void; disabled?: boolean }[]> = ref([]);
 
@@ -211,7 +212,7 @@ function drawGraph() {
     .attr("startOffset", "50%")
     .attr("font-size", () => `${pathFontSize.value}px`)
     .text((d: any) => d.target.data.relToParent)
-    .style("fill", "var(--text-color)");
+    .style("fill", "var(--p-text-color)");
 
   const node = svg
     .append("g")
@@ -252,6 +253,7 @@ function drawGraph() {
       return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.centerNode.fill;
     })
     .style("font-size", () => `${nodeFontSize.value}px`)
+    .style("line-height", nodeFontSize.value * 0.5)
     .on("dblclick", async (d: any): Promise<void> => await dblclick(d))
     .on("click", (d: any) => click(d))
     .on("mouseover", (d: any) => {
@@ -321,7 +323,12 @@ function drawGraph() {
 }
 
 function getFODimensions(_d: any) {
-  return { x: -radius.value / 1.1, y: -radius.value / 1.3, height: (2 * radius.value) / 1.3, width: (2 * radius.value) / 1.1 };
+  return {
+    x: -radius.value / 1.1,
+    y: -radius.value / 1.3,
+    height: (2 * radius.value) / 1.3,
+    width: (2 * radius.value) / 1.1
+  };
 }
 
 function click(d: any) {
@@ -434,13 +441,13 @@ function zoomOut() {
   opacity: 33%;
   padding: 0.25rem !important;
   width: auto !important;
-  background-color: var(--surface-b) !important;
-  color: var(--text-color);
+  background-color: var(--p-content-background) !important;
+  color: var(--p-text-color);
 }
 
 .svg-pan-zoom-control:hover {
   opacity: 100%;
-  color: var(--text-color) !important;
+  color: var(--p-text-color) !important;
 }
 
 #force-layout-svg {
@@ -459,6 +466,7 @@ function zoomOut() {
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
 }
+
 #force-layout-graph:deep(p) {
   margin: 0;
   display: flex;
@@ -479,8 +487,8 @@ function zoomOut() {
   width: 120px;
   padding: 2px;
   font: 12px sans-serif;
-  background-color: var(--surface-b);
-  color: var(--text-color);
+  background-color: var(--p-dialog-background);
+  color: var(--p-text-color);
   border: 0px;
   border-radius: 8px;
   pointer-events: none;

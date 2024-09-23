@@ -3,45 +3,47 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else class="content-container" :class="showValidation && invalid && 'invalid'">
-      <div class="query-editor-container flex flex-column gap-3">
-        <div class="query-editor flex flex-column p-2">
-          <IMQueryEditor v-model:queryDefinition="queryDefinition" />
+    <div v-else :class="showValidation && invalid && 'invalid'" class="content-container">
+      <div class="query-editor-container flex flex-col gap-4">
+        <div class="query-editor flex flex-col p-2">
+          <IMQueryEditor v-model:queryDefinition="queryDefinition" @updateQuery="updateQueryDefinition" />
         </div>
-        <div class="flex flex-row gap-2 justify-content-end">
-          <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
+        <div class="flex flex-row justify-end gap-2">
+          <div>
+            <Button data-testid="sql-button" label="Generate SQL" @click="generateSQL" />
+          </div>
         </div>
       </div>
     </div>
     <div class="validate-error-container"></div>
-    <span class="validate-error" v-if="validationErrorMessage && showValidation"> {{ validationErrorMessage }}</span>
+    <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
 
-    <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
+    <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
       <pre>{{ sql }}</pre>
       <template #footer>
         <Button
-          label="Copy to Clipboard"
-          v-tooltip.left="'Copy to clipboard'"
           v-clipboard:copy="copyToClipboard()"
-          v-clipboard:success="onCopy"
           v-clipboard:error="onCopyError"
+          v-clipboard:success="onCopy"
+          v-tooltip.left="'Copy to clipboard'"
           data-testid="copy-button"
+          label="Copy to Clipboard"
         />
-        <Button label="Close" @click="showSql = false" data-testid="close-button" />
+        <Button data-testid="close-button" label="Close" @click="showSql = false" />
       </template>
     </Dialog>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { EditorMode, ToastSeverity } from "@im-library/enums";
+import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
-import { Ref, inject, onMounted, ref, watch } from "vue";
+import { inject, onMounted, Ref, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { QueryService } from "@/services";
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
@@ -107,6 +109,7 @@ async function init() {
     queryDefinition.value = generateMatchIds(labeledQuery);
   } else queryDefinition.value = generateDefaultQuery();
 }
+
 async function generateSQL() {
   if (queryDefinition.value) {
     sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
@@ -126,6 +129,10 @@ function updateEntity() {
     if (entityUpdate) entityUpdate(imDefinition);
   }
 }
+
+function updateQueryDefinition(test: any) {
+  queryDefinition.value = test;
+}
 </script>
 
 <style>
@@ -138,7 +145,7 @@ function updateEntity() {
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
@@ -153,18 +160,19 @@ function updateEntity() {
 .query-editor {
   height: 60vh;
   overflow-y: auto;
-  border: 1px solid var(--surface-border);
-  background-color: var(--default);
+  border: 1px solid var(--p-textarea-border-color);
+  background-color: var(--p-default);
+  border-radius: var(--p-content-border-radius);
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
   border-radius: 5px;
   padding: 0.25rem;
 }

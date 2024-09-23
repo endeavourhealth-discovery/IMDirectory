@@ -3,7 +3,6 @@ import axios from "axios";
 import { ValueSetContains } from "@smile-cdr/fhirts/dist/FHIR-R4/classes/valueSetContains";
 import Env from "@/services/env.service";
 import { SetContent } from "@im-library/interfaces/AutoGen";
-import EclService from "@/services/ecl.service";
 
 export default class FhirService {
   public async getValueSet(url: string, expand: boolean): Promise<any> {
@@ -76,7 +75,8 @@ export default class FhirService {
     expansion.contains = [];
 
     const contains: ValueSetContains[] = [];
-    const evaluated = await (new EclService(axios).evaluateEcl(data));
+    const eclQuery = (await axios.post(Env.API + "api/ecl/public/queryFromEcl", data)).data;
+    const evaluated = (await axios.post(Env.API + "api/ecl/public/evaluateEcl", { eclQuery: eclQuery })).data;
     if (evaluated.entities) {
       for (const e of evaluated.entities) {
         const valueSetContains = new fhirR4.ValueSetContains();

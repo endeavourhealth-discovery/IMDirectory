@@ -20,7 +20,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { EditorMode } from "@im-library/enums";
-import { PropType, inject, ref, Ref, onMounted } from "vue";
+import { inject, ref, Ref, onMounted } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";

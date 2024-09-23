@@ -1,6 +1,6 @@
 <template>
   <div class="search-container">
-    <IconField iconPosition="right">
+    <IconField class="autocomplete-search" iconPosition="right">
       <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
       <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
       <InputText
@@ -12,22 +12,24 @@
         v-on:keyup.enter="onEnter"
         v-on:keyup="select"
         @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
-        @mouseleave="hideOverlay($event)"
+        @mouseleave="hideOverlay"
         :disabled="disabled"
+        :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
       />
     </IconField>
-    <OverlayPanel ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
+    <Button severity="info" @click="showDialog = true" icon="pi pi-search" v-tooltip="'Advanced search'" />
+    <Popover ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
       </div>
-      <div v-else class="p-fluid results-container">
+      <div v-else class="results-container">
         <Listbox v-if="results?.entities" v-model="selectedLocal" :options="results.entities">
           <template #option="slotProps">
             <div
               class="listbox-item"
               @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
-              @mouseleave="hideOverlay($event)"
-              @click="onListboxOptionClick($event, slotProps.option)"
+              @mouseleave="hideOverlay"
+              @click="onListboxOptionClick(slotProps.option)"
             >
               <span>{{ slotProps.option.name }}</span>
             </div>
@@ -36,20 +38,18 @@
         <div v-else>No results</div>
 
         <div class="advanced-search-container">
-          <Button label="Advanced search" class="advanced-search-button" @click="showDialog = true" />
           <small>
             Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
             {{ results?.count ? results.count : 0 }} results
           </small>
         </div>
       </div>
-    </OverlayPanel>
+    </Popover>
     <DirectorySearchDialog
       v-if="showDialog"
       v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
-      :imQuery="imQuery"
-      :osQuery="osQuery"
+      :imQuery="cloneDeep(imQuery)"
       :root-entities="rootEntities"
       :selected-filter-options="filterOptions"
       :searchTerm="searchText"
@@ -67,26 +67,26 @@ import { ref, Ref, watch, onMounted } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
-import setupSearch from "@/composables/setupSearch";
-import _ from "lodash";
+import { cloneDeep, isEqual } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
+import { EntityService, QueryService } from "@/services";
 
 interface Props {
   selected?: SearchResultSummary;
   imQuery?: QueryRequest;
-  osQuery?: SearchRequest;
   filterOptions?: FilterOptions;
   disabled?: boolean;
   rootEntities?: string[];
   searchPlaceholder?: string;
   quickTypeFiltersAllowed?: string[];
   selectedQuickTypeFilter?: string;
+  allowBrowserAutocomplete?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[] });
+const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowBrowserAutocomplete: false });
 
 const emit = defineEmits({
   "update:selected": (_payload: SearchResultSummary | undefined) => true,
@@ -99,7 +99,8 @@ const searchText = ref("");
 const results: Ref<SearchResponse | undefined> = ref();
 const showDialog = ref(false);
 const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
-const { searchLoading, searchPlaceholder, search } = setupSearch(props.searchPlaceholder);
+const searchLoading: Ref<boolean> = ref(false);
+const searchPlaceholder: Ref<string> = ref(props.searchPlaceholder ?? "Search");
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const selectedIndex: Ref<number> = ref(-1);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
@@ -110,9 +111,9 @@ watch(showDialog, () => {
 });
 
 watch(
-  () => _.cloneDeep(props.selected),
-  (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
+  () => cloneDeep(props.selected),
+  async (newValue, oldValue) => {
+    if (!isEqual(newValue, oldValue)) {
       searchLoading.value = true;
       if (newValue && newValue.name && newValue.name != searchText.value) {
         searchText.value = newValue.name;
@@ -129,7 +130,7 @@ watch(
 watch(
   selectedLocal,
   (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) emit("update:selected", newValue);
+    if (newValue?.iri !== oldValue?.iri) emit("update:selected", newValue);
   },
   { deep: true }
 );
@@ -140,8 +141,9 @@ watch(searchText, newValue => {
   } else if (!searchLoading.value && newValue != props.selected?.name) debounceForSearch();
 });
 
-onMounted(() => {
+onMounted(async () => {
   searchLoading.value = true;
+  if (props.selected && !props.selected.name && props.selected.iri) props.selected.name = await EntityService.getName(props.selected.iri);
   if (props.selected?.name) {
     searchText.value = props.selected.name;
     selectedLocal.value = props.selected;
@@ -152,7 +154,7 @@ onMounted(() => {
 function debounceForSearch(): void {
   clearTimeout(debounce.value);
   debounce.value = window.setTimeout(async () => {
-    results.value = await search(searchText.value, undefined, { pageNumber: 1, pageSize: 10 }, props.osQuery, props.imQuery);
+    results.value = await search();
   }, 600);
   showResultsOverlay(event);
 }
@@ -177,7 +179,19 @@ function select(event: KeyboardEvent) {
 async function onEnter(event: any) {
   if (resultsOP.value) resultsOP.value.show(event);
   if (searchText.value) {
-    results.value = await search(searchText.value, undefined, { pageNumber: 1, pageSize: 10 }, props.osQuery, props.imQuery);
+    results.value = await search();
+  }
+}
+
+async function search() {
+  if (searchText.value && searchText.value.length > 2) {
+    searchLoading.value = true;
+    const imQueryCopy = props.imQuery ? cloneDeep(props.imQuery) : { query: {} };
+    imQueryCopy.textSearch = searchText.value;
+    imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
+    const response = await QueryService.queryIMSearch(imQueryCopy);
+    searchLoading.value = false;
+    return response;
   }
 }
 
@@ -189,9 +203,9 @@ function hideResultsOverlay() {
   if (resultsOP.value) resultsOP.value.hide();
 }
 
-function onListboxOptionClick(event: any, selected: SearchResultSummary) {
+function onListboxOptionClick(selected: SearchResultSummary) {
   selectedLocal.value = selected;
-  hideOverlay(event);
+  hideOverlay();
   hideResultsOverlay();
 }
 </script>
@@ -220,13 +234,23 @@ function onListboxOptionClick(event: any, selected: SearchResultSummary) {
   cursor: pointer;
 }
 
+.advanced-button {
+  width: 12%;
+}
+
 .listening {
   color: red !important;
 }
 
 #autocomplete-search {
   font-size: 1rem;
-  border: none;
+  height: 2.25rem;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.autocomplete-search {
+  font-size: 1rem;
   height: 2.25rem;
   flex: 1 1 auto;
   width: 100%;
@@ -263,5 +287,9 @@ function onListboxOptionClick(event: any, selected: SearchResultSummary) {
   flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
+}
+
+.listbox-item {
+  width: 100%;
 }
 </style>

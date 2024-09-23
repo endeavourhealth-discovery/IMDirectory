@@ -101,7 +101,21 @@ function setupIMQueryBuilderActions() {
     }
   }
 
-  return { toggleWhereBool, toggleMatchBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap, updateEntailment };
+  function getLeafMatch(match: Match) {
+    if (!match.where) return match;
+    const found: Match[] = [];
+    getLeafWhereRecursively(match.where, found, match);
+    if (found.length) return found[0];
+    else return match;
+  }
+
+  function getLeafWhereRecursively(whereList: Where[], found: Match[], currentMatch: Match) {
+    const hasNested = whereList.find(nestedWhere => nestedWhere.match?.where);
+    if (hasNested) getLeafWhereRecursively(hasNested.match?.where!, found, hasNested.match!);
+    else found.push(currentMatch);
+  }
+
+  return { toggleWhereBool, toggleMatchBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap, updateEntailment, getLeafMatch };
 }
 
 export default setupIMQueryBuilderActions;

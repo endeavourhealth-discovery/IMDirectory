@@ -29,6 +29,7 @@ const BugReport = () => import("@/views/BugReport.vue");
 const SnomedLicense = () => import("@/views/SnomedLicense.vue");
 const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
 const Cookies = () => import("@/views/Cookies.vue");
+const Workflow = () => import("@/views/Workflow.vue");
 const Filer = () => import("@/views/Filer.vue");
 const Uprn = () => import("@/views/Uprn.vue");
 const SingleFileLookup = () => import("@/components/uprn/SingleAddressLookup.vue");
@@ -38,7 +39,7 @@ const Query = () => import("@/views/Query.vue");
 const UprnAgreement = () => import("@/views/UprnAgreement.vue");
 
 const CodeGen = () => import("@/views/CodeGen.vue");
-import { EntityService, Env, UserService } from "@/services";
+import { AuthService, EntityService, Env, UserService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 import { nextTick, computed } from "vue";
@@ -223,6 +224,15 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: "/workflow",
+    name: "Workflow",
+    component: Workflow,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true
+    }
+  },
+  {
     path: "/filer",
     name: "Filer",
     component: Filer,
@@ -402,16 +412,21 @@ router.beforeEach(async (to, from) => {
     } else queryStore.updateQueryIri("");
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
-    const res = await userStore.authenticateCurrentUser();
-    console.log("auth guard user authenticated: " + res.authenticated);
-    if (!res.authenticated) {
-      await directToLogin();
-      return false;
+    const { user } = await AuthService.getCurrentAuthenticatedUser();
+    console.log("auth guard user authenticated: " + user ? "true" : "false");
+    if (!user) {
+      if (from.name === "Logout") {
+        await router.push({ name: "LandingPage" });
+        return false;
+      } else {
+        await directToLogin();
+        return false;
+      }
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresReAuth)) {
-    if (from.name !== "Login" && from.name !== "MFALogin") {
+    if (!(from.name === "Login" || from.name === "MFALogin")) {
       console.log("requires re-authentication");
       await directToLogin();
       return false;
@@ -419,9 +434,9 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
-    const res = await userStore.authenticateCurrentUser();
-    console.log("auth guard user authenticated: " + res.authenticated);
-    if (!res.authenticated) {
+    const { status } = await AuthService.getCurrentAuthenticatedUser();
+    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
+    if (status !== 200) {
       await directToLogin();
       return false;
     } else if (!userStore.currentUser?.roles?.includes("create")) {
@@ -430,9 +445,9 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
-    const res = await userStore.authenticateCurrentUser();
-    console.log("auth guard user authenticated: " + res.authenticated);
-    if (!res.authenticated) {
+    const { status } = await AuthService.getCurrentAuthenticatedUser();
+    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
+    if (status !== 200) {
       await directToLogin();
       return false;
     } else if (!userStore.currentUser?.roles?.includes("edit")) {

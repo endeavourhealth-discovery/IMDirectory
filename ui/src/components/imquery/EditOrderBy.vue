@@ -1,15 +1,18 @@
 <template>
-  <div v-if="orderBy.property" class="order-by">
-    <InputText value="Order by" disabled class="w-full md:w-5rem" />
-    <Dropdown v-model="orderBy.property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
-    <Dropdown
+  <div v-if="loading" class="flex">
+    <ProgressSpinner />
+  </div>
+  <div v-else-if="orderBy.property" class="order-by">
+    <InputText value="Order by" disabled class="w-full md:w-20" />
+    <Select v-model="orderBy.property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
+    <Select
       v-model="orderBy.property.direction"
       :options="getDirectionOptions(orderBy.property)"
       optionLabel="name"
       optionValue="value"
       placeholder="Select direction"
     />
-    <InputText value="Limit" disabled class="w-full md:w-5rem" />
+    <InputText value="Limit" disabled class="w-full md:w-20" />
     <InputNumber v-model="orderBy.limit" placeholder="Set limit" class="limit" />
     <Button severity="danger" icon="fa-solid fa-trash" @click="deleteOrderBy" />
   </div>
@@ -18,7 +21,7 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Order, OrderDirection, OrderLimit, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Match, Order, OrderDirection, OrderLimit, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, SHACL, XSD } from "@im-library/vocabulary";
 import { Ref, onMounted, ref, watch } from "vue";
 interface OrderProperty {
@@ -33,7 +36,8 @@ interface Props {
 }
 const props = defineProps<Props>();
 const orderProperties: Ref<OrderProperty[]> = ref([]);
-const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue", XSD.INTEGER];
+const loading = ref(true);
+const orderablePropertyTypes = [IM.DATE_TIME, XSD.INTEGER, XSD.DECIMAL];
 onMounted(async () => await init());
 
 watch(
@@ -42,7 +46,9 @@ watch(
 );
 
 async function init() {
+  loading.value = true;
   if (props.dmIri) orderProperties.value = await getOrderProperties();
+  loading.value = false;
 }
 
 async function getOrderProperties() {
@@ -57,7 +63,6 @@ async function getOrderProperties() {
         orderProperties.push({ name: propName, iri: propId, entityType: propType });
       }
     }
-
   return orderProperties;
 }
 
@@ -65,7 +70,7 @@ function getDirectionOptions(property: OrderDirection) {
   const directionOptions: { name: string; value: Order }[] = [];
   const prop = orderProperties.value.find(op => op.iri == property["@id"]);
   if (prop) {
-    if (prop.entityType[0]["@id"] === IM.NAMESPACE + "DateTime") {
+    if (prop.entityType[0]["@id"] === IM.DATE_TIME) {
       directionOptions.push({ name: "earliest", value: Order.ascending });
       directionOptions.push({ name: "latest", value: Order.descending });
     } else if (prop.entityType[0]["@id"] === XSD.INTEGER) {

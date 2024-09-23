@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row justify-content-center align-items-center loading-container" v-if="loading">
+  <div class="loading-container flex flex-row items-center justify-center" v-if="loading">
     <ProgressSpinner />
   </div>
   <div v-else class="activity-container">
@@ -20,7 +20,7 @@
           <template #body="{ data }: any">
             <div class="activity-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
-              <span class="activity-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+              <span class="activity-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
         </Column>
@@ -32,7 +32,7 @@
         <Column :exportable="false">
           <template #body="{ data }: any">
             <div class="action-buttons-container">
-              <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" @locate-in-tree="locateInTree" />
+              <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" :name="data.name" @locate-in-tree="locateInTree" />
             </div>
           </template>
         </Column>
@@ -50,26 +50,22 @@ import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
 
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { byOrder } from "@im-library/helpers/Sorters";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import _, { isArray } from "lodash";
+import _, { isArray } from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { DirectService, EntityService, ConfigService, UserService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
-import rowClick from "@/composables/rowClick";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { RDF, RDFS } from "@im-library/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
-const { onRowClick }: { onRowClick: Function } = rowClick();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 const directService = new DirectService();
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const recentLocalActivity = computed(() => userStore.recentLocalActivity);
-const currentUser = computed(() => userStore.currentUser);
 const selected: Ref<any> = ref({});
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
@@ -88,7 +84,7 @@ async function init(): Promise<void> {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data.iri, "Folder");
+  directService.select(event.data.iri);
 }
 
 function getActivityTooltipMessage(activity: RecentActivityItem) {
@@ -106,18 +102,12 @@ function locateInTree(iri: string) {
 }
 
 async function getRecentActivityDetails() {
-  let localActivity: RecentActivityItem[] = [];
-  if (isArrayHasLength(recentLocalActivity.value)) localActivity = recentLocalActivity.value;
-  if (currentUser.value) {
-    const results = await UserService.getUserMRU();
-    if (isArrayHasLength(results)) localActivity = results;
-  }
-  const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
+  const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
 
   const temp: RecentActivityItem[] = [];
 
-  for (const rla of localActivity) {
+  for (const rla of recentLocalActivity.value) {
     const clone = { ...rla };
 
     let result = null;
@@ -186,9 +176,5 @@ async function getRecentActivityDetails() {
   align-items: center;
   overflow: auto;
   gap: 0.25rem;
-}
-
-.activity-name {
-  flex: 0 1 auto;
 }
 </style>

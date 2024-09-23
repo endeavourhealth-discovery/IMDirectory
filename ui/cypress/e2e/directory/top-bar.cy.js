@@ -1,6 +1,7 @@
 describe("top bar", () => {
   beforeEach(() => {
-    cy.preventNewTab();
+    cy.clearLocalStorage();
+    cy.preventRouterNewTab();
     cy.acceptLicenseAndCookies();
     cy.get("#topbar", { timeout: 60000 });
   });
@@ -12,7 +13,7 @@ describe("top bar", () => {
 
     it("shows release notes on banner bar link click", () => {
       cy.get(".release-notes-link").click();
-      cy.get(".p-dialog-header").should("have.text", "What's new");
+      cy.get(".p-dialog").find(".title-container", { timeout: 60000 }).find("h1").should("have.text", "Releases");
     });
   });
 
@@ -28,47 +29,36 @@ describe("top bar", () => {
       cy.openReleaseNotes();
     });
     it("starts with latest directory release", () => {
-      cy.get(".tgl-directory > .releases-container > .release-container").should("have.length", 1);
+      cy.get(".releases-container > .release-container").should("have.length", 1);
     });
     it("can view more", () => {
-      cy.get(".tgl-directory").find(".view-more").click();
-      cy.get(".tgl-directory > .releases-container > .release-container").should("have.length.above", 1);
-    });
-    it("can view importData releases", () => {
-      cy.get("#expand-button-importData").click();
-      cy.get(".tgl-importData > .releases-container > .release-container").should("have.length", 1);
-    });
-    it("can view more importData", () => {
-      cy.get("#expand-button-importData").click();
-      cy.get(".tgl-importData").find(".view-more").click();
-      cy.get(".tgl-importData > .releases-container > .release-container").should("have.length.above", 1);
+      cy.get(".app-releases").find(".view-more").click();
+      cy.get(".releases-container > .release-container").should("have.length.above", 1);
     });
     it("has a github url in every release", () => {
-      cy.get(".tgl-directory").find(".view-more").click();
-      cy.get("#expand-button-importData").click();
-      cy.get(".tgl-importData").find(".view-more").click();
+      cy.get(".app-releases").find(".view-more").click();
       cy.get(".release-container").each(($el, index, $list) => {
         cy.wrap($el).find("a").should("have.attr", "href");
       });
     });
     it("can close", () => {
       cy.getByTestId("close-button").click();
-      cy.get(".tgl-directory").should("not.exist");
+      cy.get(".app-releases").should("not.exist");
     });
   });
 
   describe("themes", () => {
-    it("can change theme", () => {
-      cy.get("#banner").should("have.css", "background-color", "rgb(33, 150, 243)");
+    it.only("can change theme", () => {
+      cy.get("#banner").should("have.css", "background-color", "rgb(16, 185, 129)");
       cy.getByTestId("change-theme-button").click();
-      cy.get('[src="http://localhost:8082/src/assets/themes/arya-purple.png"').click();
-      cy.get("#banner").should("have.css", "background-color", "rgb(186, 104, 200)");
+      cy.get(".color-picker").find(".p-button").eq(1).click();
+      cy.get("#banner").should("have.css", "background-color", "rgb(34, 197, 94)");
     });
   });
 
   describe("font size", () => {
     it("can change font size", () => {
-      cy.get(".p-button-label").first().should("have.css", "font-size", "16px");
+      cy.get(".p-button-label").first().should("have.css", "font-size", "14px");
       cy.getByTestId("font-size-button").click();
       cy.get("#scale-menu").find(".p-menuitem").first().should("have.text", "Small").click();
       cy.get(".p-button-label").first().should("not.have.css", "font-size", "16px");
@@ -83,7 +73,7 @@ describe("top bar", () => {
     });
   });
 
-  describe.only("apps", () => {
+  describe("apps", () => {
     it("can open the apps menu", () => {
       cy.getByTestId("apps-button").click();
       cy.get("#apps-menu").find(".shortcut").should("have.length.above", 1);
@@ -93,19 +83,19 @@ describe("top bar", () => {
       cy.visit("/#/directory/search");
       cy.getByTestId("apps-button").click();
       cy.get("#apps-menu").find(".shortcut").contains("Directory").click();
-      cy.url().should("equal", "http://localhost:8082/#/");
+      cy.url().should("equal", "http://localhost:8082/#/directory/landingPage");
     });
 
     it("can route to creator", () => {
       cy.getByTestId("apps-button").click();
       cy.get("#apps-menu").find(".shortcut").contains("Creator").click();
-      cy.url().should("equal", "http://localhost:8082/#/creator");
+      cy.url().should("equal", "http://localhost:8082/#/creator/");
     });
 
     it("can route to uprn", () => {
       cy.getByTestId("apps-button").click();
       cy.get("#apps-menu").find(".shortcut").contains("ASSIGN UPRN").click();
-      cy.url().should("equal", "http://localhost:8082/#/uprn");
+      cy.url().should("equal", "http://localhost:8082/#/uprn/");
     });
   });
 

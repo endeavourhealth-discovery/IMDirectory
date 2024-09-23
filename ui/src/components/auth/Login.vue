@@ -1,53 +1,69 @@
 <template>
-  <div class="flex flex-row align-items-center">
-    <Card class="flex flex-column justify-content-sm-around align-items-center login-card">
+  <div class="flex flex-row items-center">
+    <Card class="justify-content-sm-around login-card flex flex-col items-center">
       <template #header>
-        <IMFontAwesomeIcon icon="fa-solid fa-users" class="icon-header" />
+        <IMFontAwesomeIcon class="icon-header" icon="fa-solid fa-users" />
       </template>
-      <template #title> Login </template>
+      <template #title> Login</template>
       <template #content>
-        <div class="p-fluid login-form">
+        <form class="login-form" @submit="onSubmit">
           <div class="field">
             <label for="fieldUsername">Username</label>
-            <InputText data-testid="login-username" id="fieldUsername" type="text" v-model="username" :placeholder="username" />
+            <InputText id="fieldUsername" v-model="username" :placeholder="username" data-testid="login-username" type="text" />
+            <Message v-if="errors.username" severity="error">{{ errors.username }}</Message>
           </div>
           <div class="field">
             <label for="fieldPassword">Password</label>
-            <div class="text-with-button">
-              <Password v-model="password" :feedback="false" toggleMask data-testid="login-password" id="fieldPassword" />
-            </div>
+            <Password
+              id="fieldPassword"
+              v-model="password"
+              :feedback="false"
+              :pt="{
+                'pc-input': { root: { 'data-testid': 'login-password' } }
+              }"
+              toggleMask
+            />
+            <Message v-if="errors.password" severity="error">{{ errors.password }}</Message>
           </div>
-          <div class="flex flex-row justify-content-center">
-            <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="handleSubmit" :loading="loading" />
+          <div class="mt-3 flex flex-row justify-center">
+            <Button :loading="loading" class="user-submit" data-testid="login-submit" label="Login" @click="onSubmit" />
           </div>
-        </div>
+        </form>
       </template>
       <template #footer>
-        <small>Don't have an account yet? <a id="register-link" class="footer-link" @click="router.push({ name: 'Register' })">Register here</a></small>
+        <small
+          >Don't have an account yet?
+          <Button id="register-link" as="a" class="footer-link p-0 text-xs" link @click="router.push({ name: 'Register' })">Register here </Button>
+        </small>
         <br />
         <br />
-        <small>Already received a confirmation code? <a id="code-link" class="footer-link" @click="router.push({ name: 'ConfirmCode' })">Add it here</a></small>
+        <small
+          >Already received a confirmation code?
+          <Button id="code-link" as="a" class="footer-link p-0 text-xs" link @click="router.push({ name: 'ConfirmCode' })">Add it here </Button>
+        </small>
         <br />
         <br />
         <small>
-          Forgot your password or username? <br /><a id="recover-link" class="footer-link" @click="router.push({ name: 'ForgotPassword' })"> Recover account</a>
+          Forgot your password or username? <br />
+          <Button id="recover-link" as="a" class="footer-link p-0 text-xs" link @click="router.push({ name: 'ForgotPassword' })"> Recover account </Button>
         </small>
       </template>
     </Card>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, onMounted, ref } from "vue";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { Avatars } from "@im-library/constants";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
 import { CustomAlert } from "@im-library/interfaces";
 import Password from "primevue/password";
+import * as yup from "yup";
+import { useForm } from "vee-validate";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -55,9 +71,17 @@ const userStore = useUserStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
 const authReturnPath = computed(() => authStore.authReturnPath);
 
-const username = ref("");
-const password = ref("");
 const loading = ref(false);
+
+const schema = yup.object({
+  username: yup.string().required("Username is required"),
+  password: yup.string().required("Password is required")
+});
+
+const { errors, defineField, handleSubmit } = useForm({ validationSchema: schema });
+
+const [username] = defineField("username");
+const [password] = defineField("password");
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
@@ -66,60 +90,38 @@ onMounted(() => {
 });
 
 async function handle200(res: CustomAlert) {
-  const loggedInUser = res.user;
-  if (loggedInUser) {
-    // check if avatar exists and replace lagacy images with default avatar on signin
-    const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-    if (!result) {
-      loggedInUser.avatar = Avatars[0];
-    }
-    userStore.updateCurrentUser(loggedInUser);
-    userStore.updateAwsUser(res.userRaw);
-    await userStore.getAllFromUserDatabase();
-    authStore.updateRegisteredUsername("");
-    Swal.fire({
-      icon: "success",
-      title: "Success",
-      text: "Login successful",
-      footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
-    }).then(() => {
-      userStore.clearOptionalCookies();
-      if (authReturnPath.value) {
-        router.push({ path: authReturnPath.value });
-      } else {
-        router.push({ name: "LandingPage" });
-      }
-    });
-  }
-}
-
-function handle401(res: CustomAlert) {
+  authStore.updateRegisteredUsername("");
   Swal.fire({
-    icon: "warning",
-    title: "User Unconfirmed",
-    text: "Account has not been confirmed. Please confirm account to continue.",
-    showCloseButton: true,
-    showCancelButton: true,
-    confirmButtonText: "Confirm Account"
-  }).then((result: SweetAlertResult) => {
-    if (result.isConfirmed) {
-      if (res.user) {
-        const loggedInUser = res.user;
-        const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-        if (!result) {
-          loggedInUser.avatar = Avatars[0];
-        }
-        userStore.updateCurrentUser(loggedInUser);
-        userStore.updateAwsUser(res.userRaw);
-      }
-      authStore.updateRegisteredUsername(username.value);
-      router.push({ name: "ConfirmCode" });
+    icon: "success",
+    title: "Success",
+    text: "Login successful",
+    footer: `<p style="color: var(--p-red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
+  }).then(() => {
+    userStore.clearOptionalCookies();
+    if (authReturnPath.value) {
+      router.push({ path: authReturnPath.value });
+    } else {
+      router.push({ name: "LandingPage" });
     }
   });
 }
 
 function handle403(res: CustomAlert) {
-  if (res.message === "NEW_PASSWORD_REQUIRED") {
+  if (res.nextStep === "CONFIRM_SIGN_UP") {
+    Swal.fire({
+      icon: "warning",
+      title: "User Unconfirmed",
+      text: "Account has not been confirmed. Please confirm account to continue.",
+      showCloseButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Confirm Account"
+    }).then((result: SweetAlertResult) => {
+      if (result.isConfirmed) {
+        authStore.updateRegisteredUsername(username.value);
+        router.push({ name: "ConfirmCode" });
+      }
+    });
+  } else if (res.message === "NEW_PASSWORD_REQUIRED" || res.nextStep === "RESET_PASSWORD" || res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
     Swal.fire({
       icon: "warning",
       title: "New password required",
@@ -132,8 +134,7 @@ function handle403(res: CustomAlert) {
         router.push({ name: "ForgotPassword" });
       }
     });
-  } else if (res.message === "MFA_SETUP") {
-    userStore.updateAwsUser(res.userRaw);
+  } else if (res.nextStep === "CONTINUE_SIGN_IN_WITH_TOTP_SETUP") {
     Swal.fire({
       icon: "info",
       title: "Redirecting to 2-factor authentication setup...",
@@ -147,8 +148,7 @@ function handle403(res: CustomAlert) {
     }).then(() => {
       router.push({ name: "MFASetup" });
     });
-  } else if (res.message === "SOFTWARE_TOKEN_MFA") {
-    userStore.updateAwsUser(res.userRaw);
+  } else if (res.nextStep === "CONFIRM_SIGN_IN_WITH_TOTP_CODE") {
     router.push({ name: "MFALogin" });
   } else if (res.message) {
     console.error(res.error);
@@ -169,14 +169,12 @@ function handle403(res: CustomAlert) {
   }
 }
 
-async function handleSubmit(): Promise<void> {
+const onSubmit = async function handleSubmit(): Promise<void> {
   loading.value = true;
   await AuthService.signIn(username.value, password.value)
     .then(async res => {
       if (res.status === 200) {
         await handle200(res);
-      } else if (res.status === 401) {
-        handle401(res);
       } else if (res.status === 403) {
         handle403(res);
       } else {
@@ -198,7 +196,7 @@ async function handleSubmit(): Promise<void> {
       });
     });
   loading.value = false;
-}
+};
 </script>
 
 <style scoped>
@@ -212,6 +210,13 @@ async function handleSubmit(): Promise<void> {
 
 .login-form {
   max-width: 25em;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.field {
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .footer-link:hover {
@@ -226,5 +231,9 @@ async function handleSubmit(): Promise<void> {
 .text-with-button {
   display: flex;
   flex-flow: row nowrap;
+}
+
+.p-password:deep(.p-password-input) {
+  width: 100%;
 }
 </style>

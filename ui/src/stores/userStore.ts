@@ -1,18 +1,21 @@
 import { defineStore } from "pinia";
 import { UserState } from "@/stores/types/userState";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { AuthService, EntityService, UserService } from "@/services";
-import { Avatars } from "@im-library/constants";
-import { CustomAlert, HistoryItem, RecentActivityItem, User } from "@im-library/interfaces";
+import { EntityService, UserService } from "@/services";
+import { HistoryItem, RecentActivityItem } from "@im-library/interfaces";
+import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
+import PrimeVueColors from "@/enums/PrimeVueColors";
 
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
     cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
-    currentTheme: "" as string,
-    currentScale: "16px" as string,
-    currentUser: {} as User,
-    awsUser: {} as any,
+    currentPreset: undefined,
+    currentPrimaryColor: undefined,
+    currentSurfaceColor: undefined,
+    darkMode: false,
+    currentScale: "14px",
+    currentUser: undefined,
     favourites: [] as string[],
     history: [] as HistoryItem[],
     recentLocalActivity: [] as RecentActivityItem[],
@@ -25,7 +28,11 @@ export const useUserStore = defineStore("user", {
   },
   actions: {
     clearAllFromUserDatabase() {
-      this.currentTheme = "saga-blue";
+      this.currentPreset = PrimeVuePresetThemes.AURA;
+      this.currentPrimaryColor = PrimeVueColors.EMERALD;
+      this.currentSurfaceColor = PrimeVueColors.SLATE;
+      this.darkMode = false;
+      this.currentScale = "14px";
       this.favourites = [];
       this.recentLocalActivity = [];
     },
@@ -64,16 +71,58 @@ export const useUserStore = defineStore("user", {
     },
     async getAllFromUserDatabase(): Promise<void> {
       if (this.currentUser) {
-        const themeResult = await UserService.getUserTheme();
-        if (themeResult) this.currentTheme = themeResult;
+        const preset = await UserService.getUserPreset();
+        if (preset) {
+          this.currentPreset = preset;
+          localStorage.setItem("preset", preset);
+        }
+        const primaryColor = await UserService.getUserPrimaryColor();
+        if (primaryColor) {
+          this.currentPrimaryColor = primaryColor;
+          localStorage.setItem("primaryColor", primaryColor);
+        }
+        const surfaceColor = await UserService.getUserSurfaceColor();
+        if (surfaceColor) {
+          this.currentSurfaceColor = surfaceColor;
+          localStorage.setItem("surfaceColor", surfaceColor);
+        }
+        const darkMode = await UserService.getUserDarkMode();
+        if (darkMode) {
+          this.darkMode = darkMode;
+          localStorage.setItem("darkMode", darkMode === true ? "true" : "");
+        }
         const scaleResult = await UserService.getUserScale();
-        if (scaleResult) this.currentScale = scaleResult;
-        await this.initFavourites();
+        if (scaleResult) {
+          this.currentScale = scaleResult;
+          localStorage.setItem("scale", scaleResult);
+        }
+        const favourites = await UserService.getUserFavourites();
+        if (favourites?.length) this.favourites = favourites;
         const recentActivityResult = await UserService.getUserMRU();
         if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
         const organisationResults = await UserService.getUserOrganisations();
         if (organisationResults) this.organisations = organisationResults;
-      }
+      } else this.getAllFromLocalStorage();
+    },
+    getAllFromLocalStorage(): void {
+      const preset = localStorage.getItem("preset");
+      if (preset && Object.values(PrimeVuePresetThemes).includes(preset as PrimeVuePresetThemes)) this.currentPreset = preset as PrimeVuePresetThemes;
+      const darkMode = localStorage.getItem("darkMode");
+      if (darkMode === "true") this.darkMode = true;
+      else this.darkMode = false;
+      const primaryColor = localStorage.getItem("primaryColor");
+      if (primaryColor && Object.values(PrimeVueColors).includes(primaryColor as PrimeVueColors)) this.currentPrimaryColor = primaryColor as PrimeVueColors;
+      const surfaceColor = localStorage.getItem("surfaceColor");
+      if (surfaceColor && Object.values(PrimeVueColors).includes(surfaceColor as PrimeVueColors)) this.currentSurfaceColor = surfaceColor as PrimeVueColors;
+      const scale = localStorage.getItem("scale");
+      if (scale) this.currentScale = scale;
+    },
+    clearAllFromLocalStorage(): void {
+      localStorage.removeItem("preset");
+      localStorage.removeItem("darkMode");
+      localStorage.removeItem("primaryColor");
+      localStorage.removeItem("surfaceColor");
+      localStorage.removeItem("scale");
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
       let activity: RecentActivityItem[] = [];
@@ -107,61 +156,41 @@ export const useUserStore = defineStore("user", {
     },
     async updateFavourites(favourite: string) {
       if (favourite !== "http://endhealth.info/im#Favourites") {
-        const favourites: string[] = this.currentUser ? await UserService.getUserFavourites() : this.favourites;
-        if (!favourites.includes(favourite)) {
-          favourites.push(favourite);
+        if (!this.favourites.includes(favourite)) {
+          this.favourites.push(favourite);
         } else {
-          favourites.splice(favourites.indexOf(favourite), 1);
+          this.favourites.splice(this.favourites.indexOf(favourite), 1);
         }
-        if (this.currentUser) await UserService.updateUserFavourites(favourites);
-        this.favourites = favourites;
+        if (this.currentUser) await UserService.updateUserFavourites(this.favourites);
       }
     },
-    async updateCurrentTheme(theme: string) {
-      if (this.currentUser) await UserService.updateUserTheme(theme);
-      this.currentTheme = theme;
+    async updatePreset(preset: PrimeVuePresetThemes) {
+      this.currentPreset = preset;
+      if (this.currentUser) await UserService.updateUserPreset(preset);
+      localStorage.setItem("preset", preset);
+    },
+    async updatePrimaryColor(color: PrimeVueColors) {
+      this.currentPrimaryColor = color;
+      if (this.currentUser) await UserService.updateUserPrimaryColor(color);
+      localStorage.setItem("primaryColor", color);
+    },
+    async updateSurfaceColor(color: PrimeVueColors) {
+      this.currentSurfaceColor = color;
+      if (this.currentUser) await UserService.updateUserSurfaceColor(color);
+      localStorage.setItem("surfaceColor", color);
+    },
+    async updateDarkMode(bool: boolean) {
+      this.darkMode = bool;
+      if (this.currentUser) await UserService.updateUserDarkMode(bool);
+      localStorage.setItem("darkMode", bool === true ? "true" : "");
     },
     async updateCurrentScale(scale: string) {
-      if (this.currentUser) await UserService.updateUserScale(scale);
       this.currentScale = scale;
+      if (this.currentUser) await UserService.updateUserScale(scale);
+      localStorage.setItem("scale", scale);
     },
     updateCurrentUser(user: any) {
       this.currentUser = user;
-    },
-    updateAwsUser(user: any) {
-      this.awsUser = user;
-    },
-    async logoutCurrentUser() {
-      let result = { status: 500, message: "Logout (userStore) failed" } as CustomAlert;
-      await AuthService.signOut().then(async res => {
-        if (res.status === 200) {
-          useUserStore().updateCurrentUser(null);
-          useUserStore().updateAwsUser(null);
-          useUserStore().clearAllFromUserDatabase();
-          result = res;
-        } else {
-          result = res;
-        }
-      });
-      return result;
-    },
-    async authenticateCurrentUser() {
-      const result = { authenticated: false };
-      await AuthService.getCurrentAuthenticatedUser().then(async res => {
-        if (res.status === 200 && res.user) {
-          const loggedInUser = res.user;
-          const foundAvatar = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-          if (!foundAvatar) {
-            loggedInUser.avatar = Avatars[0];
-          }
-          useUserStore().updateCurrentUser(loggedInUser);
-          useUserStore().updateAwsUser(res.userRaw);
-          result.authenticated = true;
-        } else {
-          this.logoutCurrentUser();
-        }
-      });
-      return result;
     },
     updateSnomedLicenseAccepted(bool: boolean) {
       this.snomedLicenseAccepted = bool;

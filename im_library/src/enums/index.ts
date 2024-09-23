@@ -5,12 +5,10 @@ import { EditorMode } from "./EditorMode";
 import { PasswordStrength } from "./PasswordStrength";
 import { QueryComponentType } from "./QueryComponentType";
 import { SortDirection } from "./SortDirection";
-import { QueryDisplayType } from "./QueryBuilder";
 import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
 import { ErrorType } from "./ErrorType";
-import * as BugReportEnums from "./bugReport/index";
-import * as WorkflowEnums from "./workflow/index";
+import { TaskState, TaskType, TaskModule, Browser, OperatingSystem, Severity, Status, UserRole } from "../interfaces/AutoGen";
 
 export {
   BuilderType,
@@ -20,10 +18,15 @@ export {
   PasswordStrength,
   QueryComponentType,
   SortDirection,
-  QueryDisplayType,
   ToastSeverity,
   TagSeverity,
   ErrorType,
-  BugReportEnums,
-  WorkflowEnums
+  TaskModule,
+  TaskState,
+  TaskType,
+  Browser,
+  OperatingSystem,
+  Severity,
+  Status,
+  UserRole
 };

@@ -59,8 +59,8 @@ function createMatchQuery(match: Match, qry: SqlQuery) {
 }
 
 function convertMatch(match: Match, qry: SqlQuery) {
-  if (match.is) {
-    convertMatchIs(qry, match);
+  if (match.instanceOf) {
+    convertMatchInstanceOf(qry, match);
   } else if (match.boolMatch) {
     if (match.match && match.match.length > 0) convertMatchBoolSubMatch(qry, match);
     else if (match.where && match.where.length > 0) convertMatchProperties(qry, match);
@@ -101,11 +101,11 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
   qry.wheres.push("rn = 1");
 }
 
-function convertMatchIs(qry: SqlQuery, match: Match) {
-  if (!match.is) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
+function convertMatchInstanceOf(qry: SqlQuery, match: Match) {
+  if (!match.instanceOf) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
   const rsltTbl = qry.alias + "_rslt";
   qry.joins.push("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
-  qry.wheres.push(rsltTbl + ".iri = '" + match.is[0]["@id"] + "'");
+  qry.wheres.push(rsltTbl + ".iri = '" + match.instanceOf[0]["@id"] + "'");
 }
 
 function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
@@ -149,14 +149,10 @@ function convertMatchProperties(qry: SqlQuery, match: Match) {
 function convertMatchProperty(qry: SqlQuery, property: Where) {
   if (property.is) {
     convertMatchPropertyIs(qry, property, property.is);
-  } else if (property.isNot) {
-    convertMatchPropertyIs(qry, property, property.isNot, true);
   } else if (property.range) {
     convertMatchPropertyRange(qry, property);
   } else if (property.match) {
     convertMatchPropertySubMatch(qry, property);
-  } else if (property.is) {
-    convertMatchPropertyInSet(qry, property);
   } else if (property.relativeTo) {
     convertMatchPropertyRelative(qry, property);
   } else if (property.value) {

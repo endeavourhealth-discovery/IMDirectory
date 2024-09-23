@@ -8,13 +8,24 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
+import Popover from "primevue/popover";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import testData from "./LandingPage.testData";
 import { EntityService, ConfigService, DirectService, UserService } from "@/services";
 import { flushPromises } from "@vue/test-utils";
 import { it, vi } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
 
-createTestingPinia();
+createTestingPinia({
+  initialState: {
+    user: {
+      currentUser: {
+        username: "Test"
+      },
+      recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }]
+    }
+  }
+});
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -40,11 +51,10 @@ describe("LandingPage.vue", async () => {
     getPartialsSpy = vi.spyOn(EntityService, "getPartialEntities").mockResolvedValue([testData.ENTITY]);
     directToSpy = vi.spyOn(DirectService.prototype, "directTo");
     vi.useFakeTimers().setSystemTime(new Date("2022-09-23T12:18:59.78"));
-    UserService.getUserMRU = async () => [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }];
 
     component = render(LandingPage, {
       global: {
-        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart },
+        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart, IMFontAwesomeIcon, Popover },
         directives: { Tooltip: Tooltip },
         plugins: [PrimeVue],
         stubs: {

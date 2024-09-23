@@ -140,6 +140,6 @@ function processEntityValue(property: PropertyShape) {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

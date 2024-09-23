@@ -1,7 +1,7 @@
 <template>
   <div id="query-display">
     <div v-if="!isObjectHasKeys(query)">No definition found.</div>
-    <div v-else class="query-display-container flex flex-column gap-3">
+    <div v-else class="query-display-container flex flex-col gap-4">
       <div class="flex flex-row gap-2">
         <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
       </div>
@@ -45,15 +45,15 @@ interface Props {
 }
 
 const userStore = useUserStore();
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 const props = defineProps<Props>();
 const query: Ref<Query> = ref({} as Query);
 const sql: Ref<string> = ref("");
 const showSql: Ref<boolean> = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
-const canTestQuery = computed(
-  () => userStore.isLoggedIn && (userStore.currentUser?.roles?.includes("create") || userStore.currentUser?.roles?.includes("edit"))
-);
+const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
 
 watch(
   () => props.definition,
@@ -94,8 +94,7 @@ async function generateSQL() {
 
 .query-display {
   max-height: 100vh;
-  overflow-y: auto;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--p-textarea-border-color);
 }
 
 .rec-query-display {

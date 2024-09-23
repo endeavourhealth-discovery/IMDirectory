@@ -14,9 +14,7 @@ import { ref, watch, onMounted, inject, PropType, Ref, ComputedRef, computed } f
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { QueryService } from "@/services";
-import _ from "lodash";
+import _ from "lodash-es";
 
 interface Props {
   shape: PropertyShape;
@@ -137,7 +135,6 @@ function hasData() {
 
 <style scoped>
 .html-input-container {
-  min-width: 25rem;
   flex: 1 1 auto;
   flex-flow: column nowrap;
 }
@@ -148,11 +145,11 @@ function hasData() {
 }
 
 .invalid {
-  border-color: var(--red-500);
+  border-color: var(--p-red-500);
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
@@ -164,6 +161,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

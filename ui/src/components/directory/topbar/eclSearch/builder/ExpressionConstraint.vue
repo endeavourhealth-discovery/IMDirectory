@@ -136,14 +136,14 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, inject } from "vue";
+import { Ref, ref, onMounted, inject } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
-import _ from "lodash";
+import _ from "lodash-es";
 import { numberAscending } from "@im-library/helpers/Sorters";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 
@@ -232,6 +232,7 @@ function addGroup() {
 function addConcept() {
   props.value.conceptBool = undefined;
   props.value.conceptSingle = { iri: "" };
+  props.value.constraintOperator = "<<";
 }
 
 function deleteItem(index: number) {

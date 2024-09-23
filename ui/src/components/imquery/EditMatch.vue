@@ -1,6 +1,7 @@
 <template>
   <div class="edit-match-wrapper">
     <Button
+      v-if="!isEmptyMatch()"
       :severity="editMatch.exclude ? 'danger' : 'secondary'"
       :outlined="!editMatch.exclude"
       label="NOT"
@@ -17,19 +18,25 @@
       @mouseout.stop="hover = false"
       @click.stop="emit('onUpdateDialogFocus', [getMenuItemFromMatch(props.editMatch)])"
     >
-      <MatchSelector v-if="focusedId === editMatch['@id'] && isFlatMatch(editMatch)" :editMatch="editMatch" />
-      <div v-else v-html="editMatch?.description" />
+      <MatchSelector
+        v-if="focusedId === editMatch['@id'] && isFlatMatch(editMatch)"
+        :editMatch="editMatch"
+        :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+      />
+      <div v-else-if="editMatch.displayLabel">{{ editMatch.displayLabel }}</div>
+      <div v-else-if="editMatch?.name" v-html="editMatch?.name" />
 
       <div v-if="editMatch?.match" class="feature-group">
         <Button
-          class="expanding-button builder-button conjunction-button vertical-button"
+          v-if="isBooleanEditor && editMatch?.match.length > 1"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolMatch?.toUpperCase() ?? 'AND'"
           @click.stop="toggleMatchBool(editMatch)"
         />
         <div class="feature-bracket-group">
           <div class="feature-list">
             <div class="nested-match" v-for="[index, nestedMatch] in editMatch.match.entries()">
-              <span class="left-container">
+              <span class="left-container" v-if="isBooleanEditor">
                 <div class="group-checkbox">
                   <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" @click.stop />
                   <label :for="'group' + index">Select</label>
@@ -46,14 +53,34 @@
               <EditMatch
                 :editMatch="nestedMatch"
                 :focused-id="focusedId"
+                :is-boolean-editor="isBooleanEditor"
                 @on-update-dialog-focus="onNestedUpdateDialogFocus"
                 @delete-match="onDeleteMatch"
                 @ungroup-matches="ungroupMatches"
               />
             </div>
+            <Button
+              type="button"
+              label="Add feature"
+              icon="fa-solid fa-plus"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              severity="success"
+              class="add-feature-button"
+              @click.stop="showBuildFeature = true"
+              :disabled="!selectedBaseType"
+            />
+            <AddMatch
+              v-model:show-build-feature="showBuildFeature"
+              v-model:show-build-then-feature="showBuildThenFeature"
+              :edit-match="editMatch"
+              :match-type-of-iri="selectedBaseType?.iri!"
+              @add-feature="onMatchAdd"
+              @add-then="onThenAdd"
+            />
           </div>
           <Button
-            v-if="!isRootFeature && editMatch?.match?.length > 1"
+            v-if="!isRootFeature && editMatch?.match?.length > 1 && isBooleanEditor"
             class="builder-button group-button"
             severity="warning"
             icon="fa-solid fa-brackets-curly"
@@ -67,7 +94,7 @@
       <div v-if="editMatch?.where" class="where-group">
         <Button
           v-if="editMatch.where.length > 1"
-          class="expanding-button builder-button conjunction-button vertical-button"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolWhere?.toUpperCase() ?? 'AND'"
           @click.stop="toggleWhereBool(editMatch)"
         />
@@ -75,22 +102,26 @@
           <EditWhere
             v-for="[index, nestedWhere] in editMatch.where.entries()"
             :edit-where="nestedWhere"
-            :focused="editMatch['@id'] === focusedId"
+            :focused="!isBooleanEditor && editMatch['@id'] === focusedId"
             :focused-id="focusedId"
             :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+            :is-boolean-editor="isBooleanEditor"
+            :parent-match="editMatch"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
           />
+
           <AddPropertyDialog
             v-model:show-dialog="showAddPropertyDialog"
             :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
             :header="'Add property'"
+            :match="editMatch"
             :show-variable-options="false"
             @on-match-add="onMatchAdd"
             @on-property-add="onPropertyAdd"
           />
           <Button
-            v-if="editMatch['@id'] === focusedId"
+            v-if="!isBooleanEditor && editMatch['@id'] === focusedId"
             label="Add property"
             severity="success"
             icon="fa-solid fa-plus"
@@ -105,41 +136,49 @@
           :editMatch="editMatch.then"
           :focused-id="focusedId"
           :parent-match-type="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+          :is-boolean-editor="isBooleanEditor"
           @on-update-dialog-focus="onNestedUpdateDialogFocus"
           @delete-match="onDeleteMatch"
         />
       </div>
       <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
+      <span v-if="editMatch.variable">label as {{ editMatch.variable }}</span>
     </div>
     <Button
       v-if="!isRootFeature"
+      class="builder-button delete-button"
       severity="danger"
       icon="fa-solid fa-trash"
-      class="builder-button"
+      :outlined="!hover"
+      :class="[!hover && 'hover-button']"
       @click.stop="emit('deleteMatch', props.editMatch['@id']!)"
+      @mouseover.stop="hover = true"
+      @mouseout.stop="hover = false"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Bool, Match, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Query, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { MenuItem } from "primevue/menuitem";
-import AddPropertyDialog from "./AddPropertyDialog.vue";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
-import { cloneDeep } from "lodash";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { cloneDeep } from "lodash-es";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import AddPropertyDialog from "./AddPropertyDialog.vue";
+import AddMatch from "./AddMatch.vue";
+import { QueryService } from "@/services";
 
 interface Props {
   isRootFeature?: boolean;
   editMatch: Match;
-  focusedId: string | undefined;
+  focusedId?: string;
   parentMatchType?: string;
+  isBooleanEditor?: boolean;
 }
 const props = defineProps<Props>();
 const emit = defineEmits({
@@ -148,20 +187,23 @@ const emit = defineEmits({
   ungroupMatches: (payload: Match) => payload
 });
 const hover: Ref<boolean> = ref(false);
-const showAddPropertyDialog: Ref<boolean> = ref(false);
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool, getTypeOfMatch } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
 const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
+const showAddPropertyDialog: Ref<boolean> = ref(false);
+const showBuildFeature: Ref<boolean> = ref(false);
+const showBuildThenFeature: Ref<boolean> = ref(false);
+
 onMounted(() => {
-  if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
+  if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
 });
 
 watch(
   () => cloneDeep(props.editMatch),
   () => {
-    if (fullQuery.value) typeOf.value = getTypeOfMatch(fullQuery.value, props.editMatch["@id"]!);
+    if (fullQuery.value) typeOf.value = typeOf.value = getTypeOf(fullQuery.value);
   }
 );
 
@@ -175,17 +217,26 @@ function onDeleteMatch(matchId: string) {
   if (props.editMatch.then && props.editMatch.then["@id"] === matchId) delete props.editMatch.then;
 }
 
-function onPropertyAdd(property: Where) {
-  const hasProperty = props.editMatch.where?.some(where => where["@id"] === property["@id"]);
-  if (!hasProperty) {
-    props.editMatch.where?.push(property);
-    describeMatch(props.editMatch, 0, false);
+async function onPropertyAdd(property: Where) {
+  if (!props.editMatch.where) props.editMatch.where = [];
+  const propertyIndex = props.editMatch.where.findIndex(where => where["@id"] === property["@id"]);
+  if (propertyIndex && propertyIndex !== -1) {
+    props.editMatch.where[propertyIndex] = property;
+  } else {
+    props.editMatch.where.push(property);
   }
+
+  const describedMatch = await QueryService.getQueryDisplayFromQuery({ match: [props.editMatch] } as Query, false);
+  if (describedMatch?.match?.[0]?.where) props.editMatch.where = describedMatch.match?.[0].where;
 }
 
 function onMatchAdd(match: Match) {
   if (!isArrayHasLength(props.editMatch.match)) props.editMatch.match = [];
   props.editMatch.match?.push(match);
+}
+
+function onThenAdd(match: Match) {
+  props.editMatch.then = match;
 }
 
 function bracketItems() {
@@ -212,15 +263,27 @@ function ungroupMatches(nestedMatch: Match) {
     if (index !== -1) props.editMatch.match?.splice(index!, 1);
   }
 }
+
+function getTypeOf(fullQuery: Match) {
+  return props.editMatch.typeOf?.["@id"] ?? getTypeOfMatch(fullQuery, props.editMatch["@id"]!) ?? props.parentMatchType ?? selectedBaseType.value?.iri;
+}
+
+function isEmptyMatch() {
+  if (!isObjectHasKeys(props.editMatch)) return true;
+  return (
+    JSON.stringify(props.editMatch) === JSON.stringify({ match: [], boolMatch: "and" }) ||
+    JSON.stringify(props.editMatch) === JSON.stringify({ match: [], boolMatch: "and", exclude: false })
+  );
+}
 </script>
 
 <style scoped>
 .edit-match-container {
   width: 99%;
   padding: 0.5rem;
-  border: var(--imquery-editor-border-color) 1px solid;
+  border: var(--p-imquery-editor-border-color) 1px solid;
   border-radius: 5px;
-  background-color: var(--imquery-editor-background-color);
+  background-color: var(--p-imquery-editor-background-color);
   margin: 0.5rem;
   flex: 1;
   cursor: pointer;
@@ -238,13 +301,12 @@ function ungroupMatches(nestedMatch: Match) {
   background-color: #6bb28c10;
   margin: 0.5rem;
   flex: 1;
-  border: var(--imquery-editor-hover-border-color) 1px solid;
+  border: var(--p-imquery-editor-hover-border-color) 1px solid;
 }
 
 .match-description {
   width: 100%;
   height: 100%;
-  margin-left: 0.1rem;
 }
 
 .feature-group,
@@ -253,6 +315,7 @@ function ungroupMatches(nestedMatch: Match) {
   display: flex;
   flex-flow: row;
   align-items: center;
+  gap: 0.2rem;
 }
 
 .feature-list,
@@ -261,6 +324,7 @@ function ungroupMatches(nestedMatch: Match) {
   height: 100%;
   display: flex;
   flex-flow: column;
+  gap: 0.2rem;
 }
 
 .feature-bracket-group {
@@ -285,12 +349,6 @@ function ungroupMatches(nestedMatch: Match) {
   margin-top: 0.5rem;
   margin-left: 1rem;
 }
-
-.add-feature-button {
-  width: 10rem;
-  margin-top: 0.5rem;
-  margin-left: 0.5rem;
-}
 .expanding-button {
   align-self: stretch;
 }
@@ -312,11 +370,25 @@ function ungroupMatches(nestedMatch: Match) {
 .strike-through {
   text-decoration: line-through;
 }
-</style>
 
-<style>
+.builder-button {
+  width: 2rem;
+}
+
+.vertical-button {
+  writing-mode: vertical-lr;
+  transform: scale(-1);
+  align-self: stretch;
+}
+
 .hover-button {
   color: #00000030 !important;
   border-style: dashed !important;
+}
+
+.add-feature-button {
+  width: 10rem;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
 }
 </style>

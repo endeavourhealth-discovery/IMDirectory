@@ -1,5 +1,6 @@
 import { defineConfig } from "cypress";
 import "dotenv/config";
+import awsConfig from "./src/aws-exports";
 
 export default defineConfig({
   e2e: {
@@ -8,8 +9,5 @@ export default defineConfig({
       // implement node event listeners here
     }
   },
-  env: {
-    cypressLoginUserName: process.env.CYPRESS_LOGIN_USERNAME,
-    cypressLoginPassword: process.env.CYPRESS_LOGIN_PASSWORD
-  }
+  env: { CYPRESS_LOGIN_USERNAME: process.env.CYPRESS_LOGIN_USERNAME, CYPRESS_LOGIN_PASSWORD: process.env.CYPRESS_LOGIN_PASSWORD, awsConfig: awsConfig }
 });

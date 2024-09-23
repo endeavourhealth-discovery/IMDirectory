@@ -9,7 +9,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 interface Props {
   segments?: number;
   color?: string;
@@ -18,7 +17,7 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), {
   segments: 6,
-  color: "var(--green-500)"
+  color: "var(--p-green-500)"
 });
 
 function isFilled(index: number) {

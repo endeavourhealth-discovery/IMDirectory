@@ -5,7 +5,7 @@
         <span v-if="shape.showTitle">{{ shape.name }}</span>
         <span v-if="showRequired" class="required">*</span>
       </div>
-      <Dropdown class="text-single-dropdown" :class="invalid && showValidation && 'invalid'" v-model="selectedItem" :options="dropdownOptions" />
+      <Select class="text-single-dropdown" :class="invalid && showValidation && 'invalid'" v-model="selectedItem" :options="dropdownOptions" />
     </span>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
@@ -13,17 +13,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType, ComputedRef, computed } from "vue";
+import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
-import { byName } from "@im-library/helpers/Sorters";
-import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
-import _ from "lodash";
+import { PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+import _ from "lodash-es";
 
 interface Props {
   shape: PropertyShape;
@@ -194,19 +192,19 @@ function hasData() {
   flex: 0 0 auto;
 }
 
-.p-progress-spinner {
+.p-progressspinner {
   width: 2rem;
   height: 2rem;
 }
 
 .validate-error {
-  color: var(--red-500);
+  color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
 
 .invalid {
-  border: 1px solid var(--red-500);
+  border: 1px solid var(--p-red-500);
 }
 
 .title-bar {
@@ -216,6 +214,6 @@ function hasData() {
 }
 
 .required {
-  color: var(--red-500);
+  color: var(--p-red-500);
 }
 </style>

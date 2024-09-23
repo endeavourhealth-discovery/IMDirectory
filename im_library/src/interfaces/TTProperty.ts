@@ -15,9 +15,11 @@ export interface TTProperty {
 }
 
 export interface UIProperty {
+  iri: string;
   propertyName: string;
   propertyType: "class" | "datatype" | "node";
   valueType: string;
   maxCount: number;
   minCount: number;
+  valueLabel: string;
 }

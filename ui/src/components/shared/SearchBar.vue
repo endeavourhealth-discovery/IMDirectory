@@ -1,8 +1,9 @@
 <template>
   <div class="search-container">
-    <IconField iconPosition="right">
-      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
-      <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
+    <InputGroup class="search-group">
+      <InputGroupAddon @click="toggleListen" class="mic">
+        <IMFontAwesomeIcon :icon="listening ? 'fa-duotone fa-microphone-slash' : 'fa-duotone fa-microphone'" />
+      </InputGroupAddon>
       <InputText
         id="autocomplete-search"
         v-model="searchText"
@@ -11,8 +12,10 @@
         data-testid="search-input"
         autofocus
         v-on:keyup.enter="onSearch"
+        :loading="searchLoading"
+        :pt="{ root: { autocomplete: allowAutocomplete ? 'on' : 'off' } }"
       />
-    </IconField>
+    </InputGroup>
     <SplitButton class="search-button p-button-secondary" @click="onSearch" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
       v-if="showFilters"
@@ -23,8 +26,8 @@
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
     />
-    <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
-      <div v-if="showFilters" class="p-fluid results-filter-container">
+    <Popover ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
+      <div v-if="showFilters" class="results-filter-container">
         <Filters
           :search="onSearch"
           data-testid="filters"
@@ -32,7 +35,7 @@
           @selectedFiltersUpdated="emit('selectedFiltersUpdated', $event)"
         />
       </div>
-    </OverlayPanel>
+    </Popover>
   </div>
 </template>
 
@@ -42,17 +45,21 @@ import { ref, watch, onMounted } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import setupSpeechToText from "@/composables/setupSpeechToText";
-import _ from "lodash";
-import setupSearch from "@/composables/setupSearch";
+import _ from "lodash-es";
+import { Ref } from "vue";
+import InputGroupAddon from "primevue/inputgroupaddon";
+import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 
 interface Props {
   searchTerm?: string;
   showFilters: boolean;
   selectedFilterOptions?: FilterOptions;
   selected?: SearchResultSummary;
+  allowAutocomplete?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
-  showFilters: false
+  showFilters: false,
+  allowAutocomplete: true
 });
 
 const emit = defineEmits({
@@ -68,7 +75,8 @@ const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
 ]);
-const { searchPlaceholder, searchLoading, search } = setupSearch();
+const searchPlaceholder: Ref<string> = ref("Search");
+const searchLoading: Ref<boolean> = ref(false);
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const filtersOP = ref();
 const debounce = ref(0);
@@ -114,8 +122,14 @@ async function onSearch() {
   overflow: auto;
 }
 
+.results-filter-container {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
 .search-group {
   width: 30%;
+  height: 2.25rem;
 }
 
 .mic {
@@ -128,7 +142,6 @@ async function onSearch() {
 
 #autocomplete-search {
   font-size: 1rem;
-  border: none;
   height: 2.25rem;
   flex: 1 1 auto;
   width: 100%;
@@ -140,5 +153,9 @@ async function onSearch() {
 
 .search-button {
   height: 2.25rem;
+}
+
+.p-inputicon {
+  color: var(--p-inputtext-color);
 }
 </style>

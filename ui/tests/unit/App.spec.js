@@ -14,6 +14,7 @@ import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { createTestingPinia } from "@pinia/testing";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
+import AuthService from "@/services/AuthService";
 
 createTestingPinia({
   initialState: {
@@ -43,28 +44,18 @@ vi.mock("primevue/usetoast", () => ({
   })
 }));
 
-let changeThemeMock = vi.fn();
-
-vi.mock("@/composables/setupChangeTheme.ts", () => {
-  return {
-    default: () => ({
-      changeTheme: () => changeThemeMock
-    })
-  };
-});
-
 describe("App.vue", () => {
   let component;
   let getLatestReleaseSpy;
   let testLatestRelease = fakerFactory.githubRelease.create();
-  let getUserThemeSpy;
   let getUserScaleSpy;
+  let getCurrentAuthenticatedUserSpy;
 
   beforeEach(async () => {
     vi.resetAllMocks();
     getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
-    getUserThemeSpy = vi.spyOn(UserService, "getUserTheme").mockResolvedValue("saga-orange");
     getUserScaleSpy = vi.spyOn(UserService, "getUserScale").mockResolvedValue("16px");
+    getCurrentAuthenticatedUserSpy = vi.spyOn(AuthService, "getCurrentAuthenticatedUser").mockResolvedValue(true);
     component = render(App, {
       global: {
         components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu, DynamicDialog },
@@ -78,6 +69,6 @@ describe("App.vue", () => {
   });
 
   it("should check auth and update sharedStore history count on mount", async () => {
-    expect(mockUserState.authenticateCurrentUser).toHaveBeenCalledTimes(1);
+    expect(getCurrentAuthenticatedUserSpy).toHaveBeenCalledTimes(1);
   });
 });

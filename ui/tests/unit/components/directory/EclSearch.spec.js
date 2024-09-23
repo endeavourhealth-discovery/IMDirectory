@@ -4,6 +4,7 @@ import { flushPromises } from "@vue/test-utils";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
+import FloatLabel from "primevue/floatlabel";
 import testData from "./EclSearch.testData";
 import { EclService } from "@/services";
 import { expect, it } from "vitest";
@@ -71,7 +72,7 @@ describe("EclSearch.vue", async () => {
 
     component = render(ExpressionConstraintsSearch, {
       global: {
-        components: { Textarea, Button, MultiSelect },
+        components: { Textarea, Button, MultiSelect, FloatLabel },
         directives: {
           tooltip: Tooltip
         },

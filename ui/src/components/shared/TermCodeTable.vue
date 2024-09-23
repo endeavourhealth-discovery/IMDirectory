@@ -10,13 +10,28 @@
 </template>
 
 <script setup lang="ts">
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import setupTerms from "@/composables/setupTerms";
+import { SearchTermCode } from "@im-library/interfaces/AutoGen";
+import { onMounted, Ref, watch } from "vue";
 
 interface Props {
-  terms: { term: string; code: string; status: TTIriRef }[];
+  entityIri: string;
 }
 
 const props = defineProps<Props>();
+
+watch(
+  () => props.entityIri,
+  newValue => {
+    if (newValue) getTerms(newValue);
+  }
+);
+
+const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: Function } = setupTerms();
+
+onMounted(() => {
+  getTerms(props.entityIri);
+});
 </script>
 <style scoped>
 .term-code.table {

@@ -3,31 +3,35 @@
     <label for="passwordOld">Current password</label>
     <div class="input-with-button">
       <Password
-        v-bind="passwordOld"
+        v-model="passwordOld"
+        v-bind="passwordOldAttrs"
         :feedback="false"
         toggleMask
         :input-props="{ autofocus: true }"
-        data-testid="password-edit-password-old-container"
+        data-testid="password-old"
         id="passwordOld"
+        fluid
         :pt="{
-          input: { root: { 'data-testid': testId + 'old' } }
+          'pc-input': { root: { 'data-testid': testId + 'old' } }
         }"
       />
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld.modelValue" severity="info">
+    <Message data-testid="inline-error-message" v-if="errors.passwordOld && !passwordOld" severity="info">
       {{ errors.passwordOld }}
-    </InlineMessage>
+    </Message>
   </div>
   <div class="field">
     <label for="password">New password</label>
     <div class="input-with-button">
       <Password
-        v-bind="password"
+        v-model="password"
+        v-bind="passwordAttrs"
         toggleMask
-        data-testid="password-edit-password-new1-container"
+        fluid
+        data-testid="password-new1"
         id="password"
         :pt="{
-          input: { root: { 'data-testid': testId + 'new1' } }
+          'pc-input': { root: { 'data-testid': testId + 'new1' } }
         }"
         :overlayVisible="true"
         strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
@@ -49,27 +53,27 @@
         </template>
       </Password>
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="errors.password" severity="info">
+    <Message data-testid="inline-error-message" v-if="errors.password" severity="info">
       {{ errors.password }}
-    </InlineMessage>
+    </Message>
   </div>
   <div class="field">
     <label for="password2">Confirm new password</label>
     <div class="input-with-button">
       <Password
-        v-bind="password2"
+        v-model="password2"
+        v-bind="password2Attrs"
         toggleMask
+        fluid
         :feedback="false"
-        data-testid="password-edit-password-new2-container"
+        data-testid="password-new2"
         id="password2"
         :pt="{
-          input: { root: { 'data-testid': testId + 'new2' } }
+          'pc-input': { root: { 'data-testid': testId + 'new2' } }
         }"
       />
     </div>
-    <InlineMessage data-testid="inline-error-message" v-if="!isMatchingPassword && password2.modelValue" severity="error">
-      {{ errors.password2 }}</InlineMessage
-    >
+    <Message data-testid="inline-error-message" v-if="!isMatchingPassword && password2" severity="error"> {{ errors.password2 }}</Message>
   </div>
 </template>
 
@@ -88,7 +92,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { defineComponentBinds, errors } = useForm({
+const { defineField, errors } = useForm({
   validationSchema: yup.object({
     password: yup
       .string()
@@ -103,30 +107,36 @@ const { defineComponentBinds, errors } = useForm({
   })
 });
 
-const passwordOld = defineComponentBinds("passwordOld");
-const password = defineComponentBinds("password");
-const password2 = defineComponentBinds("password2");
+const [passwordOld, passwordOldAttrs] = defineField("passwordOld");
+const [password, passwordAttrs] = defineField("password");
+const [password2, password2Attrs] = defineField("password2");
 
-const isMatchingPassword = computed(() => verifyPasswordsMatch(password.value.modelValue, password2.value.modelValue));
+const isMatchingPassword = computed(() => verifyPasswordsMatch(password.value, password2.value));
 const hasOldPassword = computed(() => {
-  if (props.oldPasswordRequired) return passwordOld.value.modelValue && passwordOld.value.modelValue !== password.value.modelValue;
+  if (props.oldPasswordRequired) return passwordOld.value && passwordOld.value !== password.value;
   else return !props.oldPasswordRequired;
 });
 const arePasswordsValid = computed(() => isValidPassword() && isMatchingPassword.value && hasOldPassword.value);
 
 function isValidPassword(): boolean {
-  return (
-    checkPasswordStrength(password.value.modelValue) === PasswordStrength.medium || checkPasswordStrength(password.value.modelValue) === PasswordStrength.strong
-  );
+  return checkPasswordStrength(password.value) === PasswordStrength.medium || checkPasswordStrength(password.value) === PasswordStrength.strong;
 }
 
 const emit = defineEmits({
+  "update:oldPassword": (_payload: string) => true,
   "update:password": (_payload: string) => true,
   "update:arePasswordsValid": (_payload: boolean) => true
 });
 
 watch(
-  () => password.value.modelValue,
+  () => passwordOld.value,
+  async newValue => {
+    emit("update:oldPassword", newValue);
+  }
+);
+
+watch(
+  () => password.value,
   async newValue => {
     emit("update:password", newValue);
   }
@@ -140,4 +150,18 @@ watch(
 );
 </script>
 
-<style scoped></style>
+<style scoped>
+.field {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+.input-with-button {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row;
+}
+.p-password {
+  width: 100%;
+}
+</style>

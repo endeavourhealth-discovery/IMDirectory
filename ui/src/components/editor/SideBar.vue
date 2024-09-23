@@ -1,15 +1,15 @@
 <template>
   <div class="sidebar">
-    <VueJsonPretty class="json" :path="'res'" :data="editorEntityDisplay" />
+    <VueJsonPretty :data="editorEntityDisplay" :path="'res'" class="json" />
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onMounted, ref, Ref, watch } from "vue";
 import VueJsonPretty from "vue-json-pretty";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
@@ -116,7 +116,7 @@ function downloadRequested(data: { term: string; count: number }) {
   flex: 0 1 auto;
   width: 100%;
   overflow: auto;
-  border: 1px var(--surface-border) solid;
-  border-radius: 3px;
+  border: 1px var(--p-textarea-border-color) solid;
+  border-radius: var(--p-textarea-border-radius);
 }
 </style>

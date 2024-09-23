@@ -4,20 +4,21 @@
     v-model:visible="showSaveCustomSetDialog"
     modal
     header="Save custom set"
-    :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--surface-section)' }"
+    :style="{ minWidth: '25vw', maxWidth: '50vw' }"
   >
-    <form @submit="onSubmit" class="flex flex-column gap-2 save-set-form">
-      <div class="flex flex-column gap-2" id="save-set-full-iri">
+    <form @submit="onSubmit" class="save-set-form flex flex-col gap-2">
+      <div class="flex flex-col gap-2" id="save-set-full-iri">
         <span id="save-set-iri-header">Iri</span>
         <InputText :model-value="fullIri" type="text" disabled />
         <small class="p-error" id="text-error">{{ errors.iri || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-column gap-2" id="save-set-scheme-iri">
+      <div class="flex flex-col gap-2" id="save-set-scheme-iri">
         <span id="save-set-scheme-header">Scheme</span>
-        <Dropdown
+        <Select
           id="scheme"
-          v-bind="scheme"
+          v-model="scheme"
+          v-bind="schemeAttrs"
           type="text"
           :class="{ 'p-invalid': errors.scheme }"
           aria-describedby="text-error"
@@ -30,18 +31,19 @@
         <small class="p-error flex-1" id="text-error">{{ errors.scheme || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-column gap-2" id="save-set-name">
+      <div class="flex flex-col gap-2" id="save-set-name">
         <span id="save-set-name-header">Name</span>
-        <InputText id="name" v-bind="name" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
+        <InputText id="name" v-model="name" v-bind="nameAttrs" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
         <small class="p-error" id="text-error">{{ errors.name || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-column gap-2" id="save-set-type">
+      <div class="flex flex-col gap-2" id="save-set-type">
         <span id="save-set-type-header">Type</span>
 
-        <Dropdown
+        <Select
           id="type"
-          v-bind="type"
+          v-model="type"
+          v-bind="typeAttrs"
           type="text"
           :class="{ 'p-invalid': errors.type }"
           aria-describedby="text-error"
@@ -53,12 +55,12 @@
       </div>
 
       <span id="members-title">Members</span>
-      <Listbox v-model="selectedMember" :options="setMembers" optionLabel="name" class="flex flex-column" />
+      <Listbox v-model="selectedMember" :options="setMembers" optionLabel="name" class="flex flex-col" />
     </form>
 
     <template #footer>
       <Button label="Cancel" severity="secondary" @click="onDiscard" text />
-      <Button label="Save" type="submit" text @click="onSubmit" :loading="loading" />
+      <Button label="Save" text @click="onSubmit" :loading="loading" />
     </template>
   </Dialog>
 </template>
@@ -93,16 +95,16 @@ const schema = yup.object({
 
 const toast = useToast();
 
-const { defineComponentBinds, handleSubmit, resetForm, errors, setFieldValue } = useForm({
+const { defineField, handleSubmit, resetForm, errors, setFieldValue } = useForm({
   validationSchema: schema
 });
 
-const fullIri: ComputedRef<string> = computed(() => `${scheme.value.modelValue ?? ""}${iri.value.modelValue ?? ""}`);
+const fullIri: ComputedRef<string> = computed(() => `${scheme.value ?? ""}${iri.value ?? ""}`);
 
-const scheme = defineComponentBinds("scheme");
-const iri = defineComponentBinds("iri");
-const name = defineComponentBinds("name");
-const type = defineComponentBinds("type");
+const [scheme, schemeAttrs] = defineField("scheme");
+const [iri, iriAttrs] = defineField("iri");
+const [name, nameAttrs] = defineField("name");
+const [type, typeAttrs] = defineField("type");
 
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
@@ -130,7 +132,7 @@ async function init() {
 }
 
 async function isValidIri() {
-  if (!scheme.value.modelValue) return false;
+  if (!scheme.value) return false;
   const exists = await EntityService.iriExists(fullIri.value);
   return !exists;
 }
@@ -150,8 +152,8 @@ async function getSchemeOptions(): Promise<TTIriRef[]> {
 }
 
 function onNameGenIri() {
-  if (name.value && name.value.modelValue) {
-    const nameValue: string = name.value.modelValue;
+  if (name.value && name.value) {
+    const nameValue: string = name.value;
     setFieldValue("iri", nameValue.replaceAll(" ", ""));
   }
 }
@@ -186,7 +188,7 @@ function onDiscard() {
 }
 
 function getIsContainedIn() {
-  switch (type.value.modelValue) {
+  switch (type.value) {
     case IM.CONCEPT_SET:
       return IM.FOLDER_QUERY_CONCEPT_SETS;
     case IM.VALUE_SET:
@@ -199,7 +201,7 @@ function getIsContainedIn() {
 function getDefinition() {
   const matches: Match[] = [];
   for (const member of props.setMembers) {
-    matches.push({ name: member.name, instanceOf: member });
+    matches.push({ name: member.name, instanceOf: [member] });
   }
   const definition = {
     match: [
@@ -215,10 +217,10 @@ function getDefinition() {
 function buildSetEntity() {
   const setEntity = {} as any;
   setEntity["@id"] = fullIri.value;
-  setEntity[RDFS.LABEL] = name.value.modelValue;
-  setEntity[RDF.TYPE] = [{ "@id": type.value.modelValue }];
+  setEntity[RDFS.LABEL] = name.value;
+  setEntity[RDF.TYPE] = [{ "@id": type.value }];
   setEntity[IM.HAS_STATUS] = [{ "@id": IM.DRAFT }];
-  setEntity[IM.HAS_SCHEME] = [{ "@id": scheme.value.modelValue }];
+  setEntity[IM.HAS_SCHEME] = [{ "@id": scheme.value }];
   setEntity[IM.IS_CONTAINED_IN] = [{ "@id": getIsContainedIn() }];
   setEntity[IM.DEFINITION] = getDefinition();
   return setEntity;

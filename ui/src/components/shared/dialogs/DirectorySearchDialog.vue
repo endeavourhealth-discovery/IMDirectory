@@ -4,7 +4,7 @@
     modal
     maximizable
     header="Search"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
+    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
     class="search-dialog"
     @keyup.enter="onEnter"
   >
@@ -14,7 +14,6 @@
           v-model:searchTerm="searchTerm"
           :selected="selected"
           :imQuery="imQuery"
-          :osQuery="osQuery"
           :show-filters="false"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
@@ -42,11 +41,11 @@
             :updateSearch="updateSearch"
             :search-term="searchTerm"
             :im-query="imQuery"
-            :os-query="osQuery"
             :selected-filter-options="selectedFilterOptions"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
             @selected-filters-updated="onSelectedFiltersUpdate"
+            @searchResultsUpdated="updateSearchResults"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -55,7 +54,9 @@
             @navigateTo="navigateTo"
             :showSelectButton="true"
             v-model:history="history"
+            :searchResults
             @selected-updated="updateSelectedFromIri"
+            @go-to-search-results="goToSearchResults"
           />
           <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
           <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
@@ -82,18 +83,18 @@ import NavTree from "@/components/shared/NavTree.vue";
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
-import _, { cloneDeep } from "lodash";
+import _, { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
-import { QueryRequest, SearchResultSummary, SearchResponse, SearchRequest } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { FilterOptions } from "@im-library/interfaces";
+import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
   showDialog: boolean;
   imQuery?: QueryRequest;
-  osQuery?: SearchRequest;
   selected?: SearchResultSummary;
   rootEntities?: string[];
   searchTerm?: string;
@@ -119,6 +120,8 @@ const emit = defineEmits({
   "update:selected": payload => true,
   updateSelectedFilters: (payload: FilterOptions) => true
 });
+
+const sharedStore = useSharedStore();
 
 const updateSearch: Ref<boolean> = ref(false);
 const hasQueryDefinition: Ref<boolean> = ref(false);
@@ -244,16 +247,8 @@ function showQuerySearch() {
 async function getIsSelectableEntity(): Promise<boolean> {
   if (props.imQuery) {
     const imQuery = _.cloneDeep(props.imQuery);
-    imQuery.textSearch = selectedName.value;
-    const imQueryResponse = await QueryService.queryIM(imQuery);
-    if (!isObjectHasKeys(imQueryResponse, ["entities"]) || !isArrayHasLength(imQueryResponse.entities)) return false;
-    return imQueryResponse.entities.some(item => item["@id"] === detailsIri.value);
-  } else if (props.osQuery) {
-    const osQuery = _.cloneDeep(props.osQuery);
-    osQuery.termFilter = selectedName.value;
-    const osQueryResposne = await EntityService.advancedSearch(osQuery);
-    if (!isObjectHasKeys(osQueryResposne, ["entities"]) || !isArrayHasLength(osQueryResposne.entities)) return false;
-    return osQueryResposne.entities!.some(item => item.iri === detailsIri.value);
+    imQuery.askIri = detailsIri.value;
+    return await QueryService.askQuery(imQuery);
   }
   return true;
 }
@@ -271,15 +266,16 @@ function onEnter() {
 }
 
 function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
-  if (props.imQuery) {
-    if (!props.imQuery.query.match) props.imQuery.query.match = [];
-    if (isArrayHasLength(selectedFilters.types)) props.imQuery.query.match.push({ where: [{ "@id": IM.TYPE, is: selectedFilters.types }] });
-    if (isArrayHasLength(selectedFilters.schemes)) props.imQuery.query.match.push({ where: [{ "@id": IM.HAS_SCHEME, is: selectedFilters.schemes }] });
-    if (isArrayHasLength(selectedFilters.status)) props.imQuery.query.match.push({ where: [{ "@id": IM.HAS_STATUS, is: selectedFilters.status }] });
-  } else {
-    emit("updateSelectedFilters", selectedFilters);
-  }
+  emit("updateSelectedFilters", selectedFilters);
   updateSearch.value = !updateSearch.value;
+}
+
+function updateSearchResults(newSearchResults: SearchResponse | undefined) {
+  searchResults.value = newSearchResults;
+}
+
+function goToSearchResults() {
+  activePage.value = 0;
 }
 </script>
 
@@ -312,7 +308,6 @@ function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
 
 .search-bar {
   min-height: 3.5rem;
-  background-color: var(--surface-100);
   display: flex;
   flex-flow: row nowrap;
   align-items: center;

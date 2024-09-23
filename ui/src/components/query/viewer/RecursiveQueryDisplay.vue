@@ -1,7 +1,19 @@
 <template>
-  <div :class="matchIndex && (match.description || match.nodeRef) ? 'feature-indent' : !matchIndex && (match.description || match.nodeRef) ? 'feature' : ''">
-    <span v-if="match.description" v-html="match.description"> </span>
-    <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
+  <div
+    :class="
+      matchIndex && (match.description || match.nodeRef || match.name)
+        ? 'feature-indent'
+        : !matchIndex && (match.description || match.nodeRef || match.name)
+          ? 'feature'
+          : ''
+    "
+  >
+    <span>
+      <span v-if="parentMatch?.boolMatch && matchIndex" :class="parentMatch?.boolMatch">{{ parentMatch?.boolMatch }}</span>
+      <span v-if="match.name" v-html="match.name"> </span>
+      <span v-else-if="match.description" v-html="match.description"> </span>
+      <span v-else-if="match.displayLabel">{{ match.displayLabel }}</span>
+    </span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -12,8 +24,9 @@
     />
     <RecursivePropertyDisplay
       v-if="isArrayHasLength(match.where)"
-      v-for="property of match.where"
+      v-for="(property, index) of match.where"
       :property="property"
+      :property-index="index"
       :parent-match="match"
       :full-query="fullQuery"
     />
@@ -21,7 +34,10 @@
     <span v-if="match.then">
       <RecursiveQueryDisplay :match="match.then" :parent-match="match" :full-query="fullQuery" />
     </span>
-    <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
+    <span v-if="match.variable">
+      label as
+      <span class="variable">{{ match.variable }}</span>
+    </span>
     <span v-if="isArrayHasLength(match.query)" class="output">output</span>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(match.query)"
@@ -40,10 +56,10 @@
     />
   </div>
 
-  <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedNodeRef)" /> </OverlayPanel>
-  <OverlayPanel ref="op1">
+  <Popover ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedNodeRef)" /> </Popover>
+  <Popover ref="op1">
     <ListOverlay :list="list" />
-  </OverlayPanel>
+  </Popover>
 </template>
 
 <script setup lang="ts">
@@ -51,7 +67,6 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Node, Query, Where, Return } from "@im-library/interfaces/AutoGen";
 import { onMounted, Ref, ref } from "vue";
 import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
-import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
 
@@ -86,16 +101,12 @@ function getNodeRef(propertyOrMatch: Where | Match) {
   margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
 }
 
 .feature-indent {
   display: flex;
   flex-flow: column;
-  margin-left: 2rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
+  margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
 }
@@ -107,5 +118,21 @@ function getNodeRef(propertyOrMatch: Where | Match) {
 
 .output {
   color: mediumslateblue;
+}
+</style>
+
+<style>
+.or {
+  color: blue;
+  padding-right: 0.3rem;
+}
+
+.and {
+  color: orange;
+  padding-right: 0.3rem;
+}
+
+.variable {
+  color: rgb(78, 2, 150) !important;
 }
 </style>

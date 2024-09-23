@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row justify-content-center align-items-center loading-container" v-if="loading">
+  <div class="loading-container flex flex-row items-center justify-center" v-if="loading">
     <ProgressSpinner />
   </div>
   <div v-else class="favourites-container">
@@ -15,26 +15,26 @@
         scrollHeight="flex"
         class="p-datatable-sm favourites-datatable"
       >
-        <template #empty> No favourites </template>
+        <template #empty>{{ !currentUser ? "Login to add favourites" : "No favourites" }}</template>
         <Column field="name" header="Name">
           <template #body="{ data }: any">
             <div class="favourite-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
-              <span class="favourite-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+              <span class="favourite-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
         </Column>
         <Column field="type" header="Type">
           <template #body="{ data }: any">
-            <div class="favourite-type-container">
-              <span class="favourite-type" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">{{ data.entityType }}</span>
+            <div class="favourite-type-container flex flex-row">
+              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.entityType }}</span>
             </div>
           </template>
         </Column>
         <Column :exportable="false">
           <template #body="{ data }: any">
             <div class="action-buttons-container">
-              <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" @locate-in-tree="locateInTree" />
+              <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" :name="data.name" @locate-in-tree="locateInTree" />
             </div>
           </template>
         </Column>
@@ -47,24 +47,20 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useUserStore } from "@/stores/userStore";
-import { RecentActivityItem, ExtendedSearchResultSummary } from "@im-library/interfaces";
+import { ExtendedSearchResultSummary } from "@im-library/interfaces";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
 
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { byOrder } from "@im-library/helpers/Sorters";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import _, { isArray } from "lodash";
+import _ from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { DirectService, EntityService, ConfigService, UserService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
-import rowClick from "@/composables/rowClick";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { RDF, RDFS } from "@im-library/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
-const { onRowClick }: { onRowClick: Function } = rowClick();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 const directService = new DirectService();
@@ -90,7 +86,7 @@ async function init(): Promise<void> {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data.iri, "Folder");
+  directService.select(event.data.iri);
 }
 
 function locateInTree(iri: string) {
@@ -98,13 +94,8 @@ function locateInTree(iri: string) {
 }
 
 async function getFavouritesDetails() {
-  let localFavourites: string[] = [];
-  if (currentUser.value) {
-    const results = await UserService.getUserFavourites();
-    if (isArrayHasLength(results)) localFavourites = results;
-  }
-  const results = await EntityService.getPartialEntities(localFavourites, [RDFS.LABEL, RDF.TYPE]);
-  if (!results.length) {
+  const results = await EntityService.getPartialEntities(userFavourites.value, [RDFS.LABEL, RDF.TYPE]);
+  if (!results?.length) {
     favourites.value = [];
     return;
   }
@@ -172,9 +163,5 @@ async function getFavouritesDetails() {
   align-items: center;
   overflow: auto;
   gap: 0.25rem;
-}
-
-.favourite-name {
-  flex: 0 1 auto;
 }
 </style>

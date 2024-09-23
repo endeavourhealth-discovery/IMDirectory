@@ -17,7 +17,7 @@
               <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
             </span>
             <ProgressSpinner v-if="node.loading" />
-            <span @mouseover="showOverlay($event, node.data)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+            <span @mouseover="showOverlay($event, node.data)" @mouseleave="hideOverlay">{{ node.label }}</span>
           </div>
         </template>
       </Tree>
@@ -39,7 +39,7 @@ import { isFolder, isProperty, isRecordModel } from "@im-library/helpers/Concept
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match, TTIriRef, Where } from "@im-library/interfaces/AutoGen";
-import _ from "lodash";
+import _ from "lodash-es";
 import { stringAscending } from "@im-library/helpers/Sorters";
 import setupOverlay from "@/composables/setupOverlay";
 import { getKey, getParentNode } from "@im-library/helpers";
@@ -49,7 +49,7 @@ interface Props {
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
-  selectedProperty: TreeNode;
+  selectedProperty: TreeNode | undefined;
 }
 const props = defineProps<Props>();
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
@@ -290,13 +290,6 @@ async function addBaseEntityToRoot(iri: string) {
   expandedKeys.value[parent.key!] = true;
   await onNodeExpand(parent);
   root.value.push(parent);
-  let linkedDMs = await EntityService.getLinkedDataModels(iri);
-  linkedDMs = linkedDMs.sort(stringAscending);
-  for (const linkedDM of linkedDMs) {
-    const dmName = getNameFromRef({ "@id": linkedDM });
-    const dmNode = createTreeNode(dmName, linkedDM, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
-    root.value.push(dmNode);
-  }
 }
 </script>
 
@@ -335,7 +328,7 @@ async function addBaseEntityToRoot(iri: string) {
   min-width: 2rem;
 }
 
-.tree-row .p-progress-spinner {
+.tree-row .p-progressspinner {
   width: 1.25em !important;
   height: 1.25em !important;
 }
@@ -357,7 +350,6 @@ async function addBaseEntityToRoot(iri: string) {
   display: flex;
   flex-flow: column;
   height: 100%;
-  width: 100%;
   justify-content: space-between;
 }
 </style>
