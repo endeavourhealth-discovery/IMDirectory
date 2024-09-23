@@ -8,13 +8,13 @@
     </div>
     <div v-else id="concept-content-dialogs-container">
       <div id="concept-panel-container">
-        <Tabs v-model:value="activeTab" id="viewer-tabs" :lazy="true" scrollable>
+        <Tabs id="viewer-tabs" v-model:value="activeTab" :lazy="true" scrollable>
           <TabList id="tab-list">
             <Tab value="0">Details</Tab>
             <Tab v-if="showTerms" value="1">Terms</Tab>
             <Tab v-if="showMappings" value="2">Maps</Tab>
             <Tab v-if="isValueSet(types)" value="3">Set</Tab>
-            <Tab v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">ECL</Tab>
+            <Tab v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">ECL </Tab>
             <Tab v-if="isRecordModel(types)" value="5">Data Model</Tab>
             <Tab v-if="isRecordModel(types)" value="6">Properties</Tab>
             <Tab v-if="isQuery(types) || isFeature(types)" value="7">Query</Tab>
@@ -29,82 +29,82 @@
           </TabList>
           <TabPanels>
             <TabPanel value="0">
-              <div class="concept-panel-content" id="details-container">
-                <Details :entityIri="entityIri" @on-open-tab="onOpenTab" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+              <div id="details-container" class="concept-panel-content">
+                <Details :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @on-open-tab="onOpenTab" />
               </div>
             </TabPanel>
             <TabPanel v-if="showTerms" value="1">
-              <div class="concept-panel-content" id="term-table-container">
+              <div id="term-table-container" class="concept-panel-content">
                 <TermCodeTable :entityIri="entityIri" />
               </div>
             </TabPanel>
             <TabPanel v-if="showMappings" value="2">
-              <div class="concept-panel-content" id="mappings-container">
-                <Mappings :entityIri="entityIri" />
+              <div id="mappings-container" class="concept-panel-content">
+                <Mappings :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel v-if="isValueSet(types)" value="3">
-              <div class="concept-panel-content" id="set-container">
+              <div id="set-container" class="concept-panel-content">
                 <SetDefinition :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">
-              <div class="concept-panel-content" id="ecl-container">
+              <div id="ecl-container" class="concept-panel-content">
                 <EclDefinition :definition="concept['http://endhealth.info/im#definition']" />
               </div>
             </TabPanel>
             <TabPanel v-if="isRecordModel(types)" value="5">
-              <div class="concept-panel-content" id="data-model-container">
+              <div id="data-model-container" class="concept-panel-content">
                 <DataModel :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel v-if="isRecordModel(types)" value="6">
-              <div class="concept-panel-content" id="properties-container">
+              <div id="properties-container" class="concept-panel-content">
                 <Properties :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel v-if="isQuery(types) || isFeature(types)" value="7">
-              <div class="concept-panel-content" id="query-container">
+              <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" />
               </div>
             </TabPanel>
             <TabPanel value="8">
-              <div class="concept-panel-content" id="definition-container">
+              <div id="definition-container" class="concept-panel-content">
                 <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel v-if="isProperty(types)" value="9">
-              <div class="concept-panel-content" id="definition-container">
+              <div id="definition-container" class="concept-panel-content">
                 <DataModels :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel value="10">
-              <div class="concept-panel-content" id="usedin-container">
+              <div id="usedin-container" class="concept-panel-content">
                 <UsedIn :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel value="11">
-              <div class="concept-panel-content" id="secondary-tree-container">
+              <div id="secondary-tree-container" class="concept-panel-content">
                 <SecondaryTree :entityIri="entityIri" @row-clicked="(iri: string) => emit('navigateTo', iri)" @row-control-clicked="handleControlClick" />
               </div>
             </TabPanel>
             <TabPanel v-if="showGraph" value="12">
-              <div class="concept-panel-content" id="entity-chart-container">
+              <div id="entity-chart-container" class="concept-panel-content">
                 <EntityChart :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel value="13">
-              <div class="concept-panel-content" id="graph-container">
+              <div id="graph-container" class="concept-panel-content">
                 <Graph :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel value="14">
-              <div class="concept-panel-content" id="json-container">
+              <div id="json-container" class="concept-panel-content">
                 <JSONViewer :entityIri="entityIri" />
               </div>
             </TabPanel>
             <TabPanel value="15">
-              <div class="concept-panel-content" id="provenance-container">
+              <div id="provenance-container" class="concept-panel-content">
                 <Provenance :entityIri="entityIri" />
               </div>
             </TabPanel>
@@ -115,8 +115,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, onMounted, Ref, ref, reactive, watch, nextTick } from "vue";
+<script lang="ts" setup>
+import { computed, nextTick, onMounted, reactive, Ref, ref, watch } from "vue";
 import DataModel from "./viewer/dataModel/DataModel.vue";
 import SetDefinition from "./viewer/set/SetDefinition.vue";
 import Content from "./viewer/Content.vue";
@@ -130,12 +130,11 @@ import JSONViewer from "./viewer/JSONViewer.vue";
 import Provenance from "./viewer/Provenance.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
-import { DirectService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel, isFeature, isProperty } from "@im-library/helpers/ConceptTypeMethods";
-import { EntityService } from "@/services";
+import { isConcept, isFeature, isFolder, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";

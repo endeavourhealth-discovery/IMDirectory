@@ -1,5 +1,5 @@
 <template>
-  <div class="justify-contents-center loading-container flex flex-row items-center" v-if="loading">
+  <div v-if="loading" class="justify-contents-center loading-container flex flex-row items-center">
     <ProgressSpinner />
   </div>
   <div v-else class="justify-contents-center flex flex-auto flex-col items-center">
@@ -37,18 +37,32 @@
               @mouseenter="toggle($event, mapItem, 'opMap')"
               @mouseleave="toggle($event, mapItem, 'opMap')"
             >
-              <td>{{ mapItem.name }}</td>
+              <td>
+                <span class="cursor-pointer" @click="emit('navigateTo', mapItem.iri)">{{ mapItem.name }}</span>
+              </td>
               <td>{{ mapItem.priority }}</td>
             </tr>
           </tbody>
         </table>
       </template>
       <template #matchedFromList="{ node }: any">
-        <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedFromToggle" data-testid="matchedFrom" />
+        <SimpleMaps
+          v-if="node.data.mapItems.length"
+          :data="node.data.mapItems"
+          data-testid="matchedFrom"
+          @navigateTo="(iri: string) => emit('navigateTo', iri)"
+          @toggleOverlay="handleMatchedFromToggle"
+        />
         <span v-else>None</span>
       </template>
       <template #matchedToList="{ node }: any">
-        <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedToToggle" data-testid="matchedTo" />
+        <SimpleMaps
+          v-if="node.data.mapItems.length"
+          :data="node.data.mapItems"
+          data-testid="matchedTo"
+          @navigateTo="(iri: string) => emit('navigateTo', iri)"
+          @toggleOverlay="handleMatchedToToggle"
+        />
         <span v-else>None</span>
       </template>
       <template #default>
@@ -56,7 +70,7 @@
       </template>
     </OrganizationChart>
 
-    <Popover ref="opMap" id="overlay-panel-maps">
+    <Popover id="overlay-panel-maps" ref="opMap">
       <div class="justify-contents-start map-overlay flex flex-col">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
@@ -68,7 +82,7 @@
       </div>
     </Popover>
 
-    <Popover ref="opMatchedFrom" id="overlay-panel-simple-maps">
+    <Popover id="overlay-panel-simple-maps" ref="opMatchedFrom">
       <div class="justify-contents-start simple-maps-overlay flex flex-col" data-testid="matchedFromOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
@@ -77,7 +91,7 @@
       </div>
     </Popover>
 
-    <Popover ref="opMatchedTo" id="overlay-panel-simple-maps">
+    <Popover id="overlay-panel-simple-maps" ref="opMatchedTo">
       <div class="justify-contents-start simple-maps-overlay flex flex-col" data-testid="matchedToOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
@@ -107,10 +121,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
-import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNode, ContextMap } from "@im-library/interfaces";
+import { ChartMapNode, ChartTableNode, ContextMap, MapItem, Namespace, SimpleMap, SimpleMapIri } from "@im-library/interfaces";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
@@ -138,6 +152,8 @@ const contextExpandedRows: Ref<ContextMap[]> = ref([]);
 const opMap = ref(null);
 const opMatchedTo = ref(null);
 const opMatchedFrom = ref(null);
+
+const emit = defineEmits({ navigateTo: (_payload: string) => true });
 
 watch(
   () => props.entityIri,
