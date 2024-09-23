@@ -9,6 +9,8 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
 import Popover from "primevue/popover";
+import ConfirmDialog from "primevue/confirmdialog";
+import ConfirmationService from "primevue/confirmationservice";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import testData from "./LandingPage.testData";
 import { EntityService, ConfigService, DirectService, UserService } from "@/services";
@@ -54,9 +56,9 @@ describe("LandingPage.vue", async () => {
 
     component = render(LandingPage, {
       global: {
-        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart, IMFontAwesomeIcon, Popover },
+        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart, IMFontAwesomeIcon, Popover, ConfirmDialog },
         directives: { Tooltip: Tooltip },
-        plugins: [PrimeVue],
+        plugins: [PrimeVue, ConfirmationService],
         stubs: {
           ActionButtons: true,
           Favourites: true
