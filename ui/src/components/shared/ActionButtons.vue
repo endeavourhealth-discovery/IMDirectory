@@ -69,7 +69,6 @@
       :loading="loadingFavourites"
     />
     <Button v-if="show('addToList')" label="Add" @click.stop="emit('addToList', iri)" v-tooltip.top="'Add to list'" data-testid="add-button" />
-    <ConfirmDialog></ConfirmDialog>
   </div>
 </template>
 

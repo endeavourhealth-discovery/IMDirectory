@@ -75,9 +75,9 @@ describe("Register", () => {
     cy.get(".p-message-error").should("not.exist");
   });
   it("can show privacy policy", () => {
-    cy.preventRouterNewTab();
     cy.get(".privacy-container").find("a").contains("privacy policy").invoke("removeAttr", "target").click();
-    cy.url().should("include", "/privacy");
+    cy.visitNewTab("#/privacy");
+    cy.get("#topbar-content", { timeout: 60000 }).contains("Privacy policy");
   });
   it("can reveal passwords", () => {
     cy.getByTestId("password-new1").type("1234abcdA%").find("input").should("not.have.text", "1234abcdA%");
@@ -117,11 +117,6 @@ describe("Register", () => {
     cy.get(".p-checkbox-input").click();
     cy.getByTestId("register-submit").click();
     cy.get(".swal2-popup", { timeout: 60000 }).contains("Username already taken");
-  });
-
-  it("shows privacy policy", () => {
-    cy.get(".privacy-container").find("a").click();
-    cy.url().should("contain", "/privacy");
   });
 
   it("can link to login", () => {

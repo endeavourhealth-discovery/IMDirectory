@@ -5,7 +5,7 @@
   <div v-else class="favourites-container">
     <div class="flex flex-row flex-nowrap items-center justify-between">
       <span class="title"> Favourites </span>
-      <Button @click="confirmClearFavourites" label="Clear favourites" />
+      <Button @click="confirmClearFavourites" label="Clear favourites" :disabled="!favourites.length" data-testid="clear-favourites-button" />
     </div>
     <div class="datatable-container">
       <DataTable
@@ -43,7 +43,6 @@
         </Column>
       </DataTable>
       <OverlaySummary ref="OS" />
-      <ConfirmDialog></ConfirmDialog>
     </div>
   </div>
 </template>
@@ -74,6 +73,7 @@ const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const userFavourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 const selected: Ref<any> = ref({});
 const favourites: Ref<ExtendedSearchResultSummary[]> = ref([]);
@@ -134,14 +134,14 @@ function confirmClearFavourites() {
       label: "Clear",
       severity: "danger"
     },
-    accept: () => {
-      clearFavourites();
+    accept: async () => {
+      await clearFavourites();
     }
   });
 }
 
 async function clearFavourites() {
-  await UserService.updateUserFavourites([]);
+  await userStore.clearFavourites();
 }
 </script>
 

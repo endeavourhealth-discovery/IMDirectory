@@ -289,7 +289,7 @@ async function verifyEmailIsNotRegistered(email: string): Promise<void> {
 
 function openInNewTab(componentName: string) {
   const routeData = router.resolve({ name: componentName });
-  window.open(routeData.href, "_blank");
+  window.open(routeData.href);
 }
 </script>
 
