@@ -7,7 +7,6 @@
         </div>
       </template>
     </TopBar>
-    <ConfirmDialog />
     <div id="creator-main-container">
       <div class="content-buttons-container">
         <div class="content-sidebar-container">

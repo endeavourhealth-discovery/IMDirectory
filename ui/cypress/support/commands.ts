@@ -31,12 +31,32 @@ Cypress.Commands.add("getByTestId", (id, options) => {
 
 Cypress.Commands.add("preventRouterNewTab", () => {
   cy.on("window:before:load", win => {
-    cy.stub(win, "open")
-      .as("windowOpen")
-      .callsFake(url => {
-        cy.visit(url);
-      });
+    cy.stub(win, "open").as("open");
   });
+});
+
+Cypress.Commands.add("visitNewTab", url => {
+  cy.get("@open").should("have.been.calledOnceWithExactly", url);
+  cy.visit(url);
+});
+
+Cypress.Commands.add("requestWithAuth", (method: "POST" | "GET", url: string, body: any) => {
+  const cognitoKeyPrefixWithUsername = localStorage.getItem("cognitoKeyPrefixWithUsername");
+  let result;
+  cy.request({
+    method: method,
+    url: url,
+    body: body,
+    headers: { Authorization: "Bearer " + window.localStorage.getItem(`${cognitoKeyPrefixWithUsername}.idToken`) }
+  }).then(res => {
+    result = res.body;
+  });
+  return result;
+});
+
+Cypress.Commands.add("clearFavouritesAndSuggested", () => {
+  cy.requestWithAuth("POST", "http://localhost:8082/imapi/api/user/MRU", []);
+  cy.requestWithAuth("POST", "http://localhost:8082/imapi/api/user/favourites", []);
 });
 
 Cypress.Commands.add("login", () => {
@@ -67,6 +87,12 @@ Cypress.Commands.add("searchAndSelect", (searchTerm: string) => {
   cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 10000 }).contains(searchTerm);
   cy.get("#viewer-tabs", { timeout: 10000 });
 });
+
+Cypress.Commands.add("setLocalStorage", (localStorageMap: Map<string, string>) => {
+  localStorageMap.forEach((value, key) => {
+    window.localStorage.setItem(key, value);
+  });
+});
 //
 //
 // -- This is a parent command --
@@ -88,11 +114,15 @@ declare global {
       openReleaseNotes(): Chainable<void>;
       getByTestId(id: string, options?: any): Chainable<void>;
       preventRouterNewTab(): Chainable<void>;
+      visitNewTab(url: string): Chainable<void>;
       login(): Chainable<void>;
       expandTreeNode(treeId: string, contains: string): Chainable<void>;
       searchAndSelect(searchTerm: string): Chainable<void>;
       acceptLicenseAndLogin(): Chainable<void>;
       loginByCognitoApi(username: string, password: string): Chainable<void>;
+      setLocalStorage(localStorageMap: Map<string, string>): Chainable<void>;
+      requestWithAuth(method: "POST" | "GET", url: string, body: any): Chainable<any>;
+      clearFavouritesAndSuggested(): Chainable<void>;
     }
   }
 }

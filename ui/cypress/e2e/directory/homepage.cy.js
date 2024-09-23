@@ -31,6 +31,7 @@ describe("homepage", () => {
       });
       it("links to creator", () => {
         cy.get(".shortcut-container").contains("Creator").click();
+        cy.get(".swal2-popup").contains("Please Login to continue");
         cy.url().should("include", "/creator");
       });
       it("links to code templates", () => {
@@ -39,6 +40,7 @@ describe("homepage", () => {
       });
       it("links to assign uprn", () => {
         cy.get(".shortcut-container").contains("ASSIGN UPRN").click();
+        cy.get(".swal2-popup").contains("Please Login to continue");
         cy.url().should("include", "/uprn");
       });
       it("links to wiki", () => {
@@ -46,18 +48,66 @@ describe("homepage", () => {
       });
     });
   });
-  describe("Loggedin", () => {
+  describe.only("Loggedin", () => {
     beforeEach(() => {
       cy.preventRouterNewTab();
-      cy.acceptLicenseAndLogin();
+      cy.loginByCognitoApi(Cypress.env("CYPRESS_LOGIN_USERNAME"), Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+      cy.clearFavouritesAndSuggested();
+      cy.acceptLicenseAndCookies();
       cy.visit("/");
       cy.get("#landing-content", { timeout: 60000 });
       cy.get(".p-progressspinner").should("not.exist");
     });
 
+    it("links to creator", () => {
+      cy.get(".shortcut-container").contains("Creator").click();
+      cy.visitNewTab("/#/creator/");
+      cy.get("#topbar-content", { timeout: 60000 }).contains("IM Creator");
+    });
+
+    it("links to assign uprn", () => {
+      cy.get(".shortcut-container").contains("ASSIGN UPRN").click();
+      cy.visitNewTab("/#/uprn/");
+      cy.get("#topbar-content", { timeout: 60000 }).contains("ASSIGN-UPRN");
+    });
+
     it("links to code templates", () => {
       cy.get(".shortcut-container").contains("Code templates").click();
-      cy.url().should("include", "/codeGenerator/");
+      cy.get("#topbar-content", { timeout: 60000 }).contains("Code Generator");
+    });
+
+    it("shows suggested", () => {
+      cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
+      cy.getByTestId("view-button").click();
+      cy.getByTestId("im-logo").click();
+      cy.get(".activity-container").contains("Scoliosis deformity of spine (disorder)");
+    });
+
+    it("shows favourites", () => {
+      cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
+      cy.getByTestId("favourite-button").click();
+      cy.getByTestId("im-logo").click();
+      cy.get(".favourites-container").contains("Scoliosis deformity of spine (disorder)");
+    });
+
+    it("can clear suggested", () => {
+      cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
+      cy.getByTestId("view-button").click();
+      cy.getByTestId("im-logo").click();
+      cy.get(".activity-container").contains("Scoliosis deformity of spine (disorder)");
+      cy.getByTestId("clear-suggestions-button").click();
+      cy.get(".p-confirmdialog").find(".p-confirmdialog-accept-button").click();
+      cy.get(".activity-container").contains("No recent activity");
+    });
+
+    it("can clear favourites", () => {
+      cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
+      cy.getByTestId("favourite-button").click();
+      cy.getByTestId("im-logo").click();
+      cy.get(".favourites-container").contains("Scoliosis deformity of spine (disorder)");
+      cy.getByTestId("clear-favourites-button").click();
+      cy.get(".p-confirmdialog").find(".p-confirmdialog-accept-button").click();
+      cy.get(".favourites-container").contains("No favourites");
     });
   });
 });

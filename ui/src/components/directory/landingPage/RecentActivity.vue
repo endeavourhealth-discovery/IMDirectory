@@ -3,7 +3,10 @@
     <ProgressSpinner />
   </div>
   <div v-else class="activity-container">
-    <span class="title"> Suggested </span>
+    <div class="flex flex-row flex-nowrap items-center justify-between">
+      <span class="title"> Suggested </span>
+      <Button @click="confirmClearRecentActivity" label="Clear suggestions" :disabled="!activities.length" data-testid="clear-suggestions-button" />
+    </div>
     <div class="datatable-container">
       <DataTable
         :value="activities"
@@ -54,16 +57,18 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import _, { isArray } from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { DirectService, EntityService } from "@/services";
+import { DirectService, EntityService, UserService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
 import { RDF, RDFS } from "@im-library/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { useConfirm } from "primevue/useconfirm";
 
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 const directService = new DirectService();
 const directoryStore = useDirectoryStore();
+const confirm = useConfirm();
 const userStore = useUserStore();
 const recentLocalActivity = computed(() => userStore.recentLocalActivity);
 const selected: Ref<any> = ref({});
@@ -125,6 +130,29 @@ async function getRecentActivityDetails() {
 
   temp.reverse();
   activities.value = temp;
+}
+
+function confirmClearRecentActivity() {
+  confirm.require({
+    message: "Are you sure you want to clear suggested?",
+    header: "Clear suggested",
+    rejectProps: {
+      label: "Cancel",
+      severity: "secondary",
+      outlined: true
+    },
+    acceptProps: {
+      label: "Clear",
+      severity: "danger"
+    },
+    accept: async () => {
+      await clearRecentActivity();
+    }
+  });
+}
+
+async function clearRecentActivity() {
+  await userStore.clearRecentLocalActivity();
 }
 </script>
 

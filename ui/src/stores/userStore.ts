@@ -154,6 +154,10 @@ export const useUserStore = defineStore("user", {
       if (this.currentUser) await UserService.updateUserMRU(activity);
       this.recentLocalActivity = activity;
     },
+    async clearRecentLocalActivity() {
+      if (this.currentUser) await UserService.updateUserMRU([]);
+      this.recentLocalActivity = [];
+    },
     async updateFavourites(favourite: string) {
       if (favourite !== "http://endhealth.info/im#Favourites") {
         if (!this.favourites.includes(favourite)) {
@@ -163,6 +167,10 @@ export const useUserStore = defineStore("user", {
         }
         if (this.currentUser) await UserService.updateUserFavourites(this.favourites);
       }
+    },
+    async clearFavourites() {
+      if (this.currentUser) await UserService.updateUserFavourites([]);
+      this.favourites = [];
     },
     async updatePreset(preset: PrimeVuePresetThemes) {
       this.currentPreset = preset;

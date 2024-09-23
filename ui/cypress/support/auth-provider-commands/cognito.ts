@@ -39,6 +39,7 @@ Cypress.Commands.add(
       const keyPrefixWithUsername = `${keyPrefix}.${accessTokenSub}`;
 
       const ls = window.localStorage;
+      ls.setItem("cognitoKeyPrefixWithUsername", keyPrefixWithUsername);
       ls.setItem(`${keyPrefixWithUsername}.idToken`, idToken);
       ls.setItem(`${keyPrefixWithUsername}.accessToken`, accessToken);
       ls.setItem(`${keyPrefix}.LastAuthUser`, accessTokenSub);

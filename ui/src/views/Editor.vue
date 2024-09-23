@@ -8,7 +8,6 @@
         </div>
       </template>
     </TopBar>
-    <ConfirmDialog></ConfirmDialog>
     <div id="editor-main-container">
       <div class="content-buttons-container">
         <div class="content-sidebar-container">
@@ -96,7 +95,6 @@ import { useConfirm } from "primevue/useconfirm";
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import _ from "lodash-es";
 import Swal from "sweetalert2";
-import ConfirmDialog from "primevue/confirmdialog";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";
 import "vue-json-pretty/lib/styles.css";
