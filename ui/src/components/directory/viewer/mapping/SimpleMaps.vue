@@ -1,50 +1,52 @@
 <template>
   <div id="simple-maps-table-container">
     <DataTable
-      :value="data"
-      :rowsPerPageOptions="[25, 50, 100]"
+      id="simple-maps-table"
+      :loading="loading"
       :paginator="data.length > rows ? true : false"
       :rows="rows"
-      rowGroupMode="subheader"
-      groupRowsBy="scheme"
-      sortMode="single"
-      sortField="scheme"
-      :sortOrder="1"
-      :scrollable="true"
-      showGridlines
+      :rowsPerPageOptions="[25, 50, 100]"
       :scrollHeight="scrollHeight"
-      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
-      currentPageReportTemplate="Displaying {first} to {last} of {totalRecords} results"
+      :scrollable="true"
+      :sortOrder="1"
+      :value="data"
       class="p-datatable-sm"
-      id="simple-maps-table"
-      @page="scrollToTop"
-      :loading="loading"
+      currentPageReportTemplate="Displaying {first} to {last} of {totalRecords} results"
       data-testid="mapTable"
+      groupRowsBy="scheme"
+      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
+      rowGroupMode="subheader"
+      showGridlines
+      sortField="scheme"
+      sortMode="single"
+      @page="scrollToTop"
     >
       <Column field="scheme" header="Scheme" />
       <Column field="name" header="Name" style="flex: 0 0 65%">
         <template #body="{ data }: any">
           <span
+            class="cursor-pointer"
             data-testid="col-name"
             style="width: 100%; height: 100%; display: flex; align-items: center"
+            @click="select(data.iri)"
             @mouseenter="toggle($event, data)"
             @mouseleave="toggle($event, data)"
-            >{{ data.name }}</span
-          >
+            >{{ data.name }}
+          </span>
         </template>
       </Column>
-      <Column field="code" header="Code" style="flex: 0 0 35%; word-break: break-all" data-testid="col-code" />
+      <Column data-testid="col-code" field="code" header="Code" style="flex: 0 0 35%; word-break: break-all" />
       <template #groupheader="{ data }: any">
-        <span style="font-weight: 700; color: rgba(51, 153, 255, 0.8)" data-testid="col-scheme">
+        <span data-testid="col-scheme" style="font-weight: 700; color: rgba(51, 153, 255, 0.8)">
           {{ data.scheme }}
         </span>
       </template>
-      <template #empty> No simple maps found. </template>
-      <template #loading> Loading data. Please wait... </template>
+      <template #empty> No simple maps found.</template>
+      <template #loading> Loading data. Please wait...</template>
     </DataTable>
   </div>
 </template>
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onMounted, onUnmounted, ref } from "vue";
 import { SimpleMap } from "@im-library/interfaces";
 
@@ -55,7 +57,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  toggleOverlay: (event: any, data: SimpleMap) => true
+  toggleOverlay: (event: any, data: SimpleMap) => true,
+  navigateTo: (_payload: string) => true
 });
 
 const loading = ref(false);
@@ -91,6 +94,10 @@ function scrollToTop(): void {
 
 function toggle(event: any, data: any) {
   emit("toggleOverlay", event, data);
+}
+
+function select(iri: string) {
+  emit("navigateTo", iri);
 }
 </script>
 
