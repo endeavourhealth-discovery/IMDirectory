@@ -26,7 +26,6 @@ async function setLatestRelease(repoName: string, configName: string) {
   } catch (error) {
     throw new Error(`Failed to fetch latest release from github for repo ${repoName}`);
   }
-
   if (!latestRelease || !latestRelease.version) throw new Error(`Failed to fetch latest ${repoName} release`);
   else if (currentReleaseConfig && latestRelease) {
     if (!_.isEqual(currentReleaseConfig, latestRelease)) {
