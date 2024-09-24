@@ -15,7 +15,7 @@ export default class GithubService {
   }
 
   public async getLatestRelease(repo: string) {
-    if (!Env.GIT_TOKEN) return;
+    if (!Env.GIT_TOKEN) throw new Error("Missing github token");
     const result = await this.octokit.request("GET /repos/{owner}/{repo}/releases/latest", { owner: this.owner, repo: repo, type: "private" });
     return this.processRelease(result.data);
   }
