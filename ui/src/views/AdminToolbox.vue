@@ -23,13 +23,23 @@ const loading = ref(false);
 
 async function updateGithubConfig() {
   loading.value = true;
-  await GithubService.updateGithubConfig();
-  Swal.fire({
-    icon: "success",
-    title: "Success",
-    text: "Github config successfully updated",
-    confirmButtonText: "Close"
-  });
+  await GithubService.updateGithubConfig()
+    .then(res => {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Github config successfully updated",
+        confirmButtonText: "Close"
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update github config. Check the console to see the error."
+      });
+    });
   loading.value = false;
 }
 </script>
