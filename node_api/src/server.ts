@@ -3,7 +3,6 @@ import App from "./app";
 import * as dotenv from "dotenv";
 import QueryController from "./controllers/queryController";
 import ValidationController from "./controllers/validationController";
-import GithubController from "./controllers/githubController";
 import bodyParser from "body-parser";
 import * as dns from "dns";
 import EntityController from "./controllers/entityController";
@@ -24,7 +23,6 @@ const app = new App({
   controllers: [
     new QueryController(),
     new ValidationController(),
-    new GithubController(),
     new EntityController(),
     new CognitoController(),
     new FhirController(),
