@@ -14,7 +14,7 @@ const GithubService = {
   },
 
   async updateGithubConfig(): Promise<void> {
-    return axios.get(api + "api/github/updateGithubConfig", { raw: true });
+    return axios.post(api + "api/github/updateGithubConfig", { raw: true });
   }
 };
 
