@@ -18,6 +18,7 @@ const UserEdit = () => import("@/components/auth/UserEdit.vue");
 const MFASetup = () => import("@/components/auth/MFASetup.vue");
 const MFALogin = () => import("@/components/auth/MFALogin.vue");
 const MFADelete = () => import("@/components/auth/MFADelete.vue");
+const AdminToolbox = () => import("@/views/AdminToolbox.vue");
 const Creator = () => import("@/views/Creator.vue");
 const Editor = () => import("@/views/Editor.vue");
 const AccessDenied = () => import("@/views/AccessDenied.vue");
@@ -200,6 +201,12 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresReAuth: true, title: "My account" }
       }
     ]
+  },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: AdminToolbox,
+    meta: { requiresAdmin: true }
   },
   {
     path: "/creator",
@@ -415,6 +422,20 @@ router.beforeEach(async (to, from) => {
     const { user } = await AuthService.getCurrentAuthenticatedUser();
     console.log("auth guard user authenticated: " + user ? "true" : "false");
     if (!user) {
+      if (from.name === "Logout") {
+        await router.push({ name: "LandingPage" });
+        return false;
+      } else {
+        await directToLogin();
+        return false;
+      }
+    }
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresAdmin)) {
+    const { user } = await AuthService.getCurrentAuthenticatedUser();
+    console.log("auth guard user authenticated: " + user ? "true" : "false");
+    if (!user?.roles.includes("IMAdmin")) {
       if (from.name === "Logout") {
         await router.push({ name: "LandingPage" });
         return false;
