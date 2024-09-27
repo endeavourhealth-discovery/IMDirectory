@@ -5,11 +5,11 @@ describe("Query builder", () => {
     cy.getByTestId("apps-button", { timeout: 60000 }).click();
     cy.get("#apps-menu").contains("Creator");
     cy.visit("/#/creator");
-    cy.get("div[class=type-selector]").find("button[class=custom-button]").contains("Cohort Query").click();
+    cy.get(".type-selector]").find(".custom-button]").contains("Cohort Query").click();
   });
 
   it("starts with empty base type", () => {
-    cy.get("#im-query-editor-container").find("input[data-testid=search-input]").should("have.value", "");
+    cy.get("#im-query-editor-container").findByTestId("search-input").should("have.value", "");
   });
 
   //   it("populate base from search input", () => {
@@ -17,12 +17,11 @@ describe("Query builder", () => {
   //   });
 
   it("populate base from search dialog", () => {
-    cy.get("#im-query-editor-container").find("span[class='p-button-icon pi pi-search']").click();
-    cy.get("div[class=p-dialog-content]").find("input[data-testid=search-input]").type("patient");
-    cy.get("div[class=datatable-flex-cell]").contains("Patient").click();
-    cy.wait(1000);
-    cy.get("div[class=p-dialog-footer]").find("button[class='p-button p-component']").contains("Select").click();
-    cy.get("#im-query-editor-container").find("input[data-testid=search-input]").should("have.value", "Patient");
+    cy.get("#im-query-editor-container").findByTestId("autocomplete-search-button").click();
+    cy.get(".p-dialog-content").findByTestId("search-input").type("patient");
+    cy.get(".datatable-flex-cell").contains("Patient").click();
+    cy.get(".p-dialog-footer").findByTestId("search-dialog-select-button", { timeout: 1000 }).contains("Select").click();
+    cy.get("#im-query-editor-container").findByTestId("search-input").should("have.value", "Patient");
   });
 
   it("add feature by searching for a set", () => {

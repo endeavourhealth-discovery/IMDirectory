@@ -68,7 +68,14 @@
         <div v-if="selectedName" v-tooltip.right="detailsIri">Item selected: {{ selectedName }}</div>
         <div class="button-footer">
           <Button label="Cancel" @click="visible = false" text />
-          <Button :disabled="!isSelectableEntity" label="Select" :loading="validationLoading" @click="updateSelectedFromIri(detailsIri)" autofocus />
+          <Button
+            :disabled="!isSelectableEntity"
+            data-testid="search-dialog-select-button"
+            label="Select"
+            :loading="validationLoading"
+            @click="updateSelectedFromIri(detailsIri)"
+            autofocus
+          />
         </div>
       </div>
     </template>

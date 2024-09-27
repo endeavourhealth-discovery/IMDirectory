@@ -29,6 +29,10 @@ Cypress.Commands.add("getByTestId", (id, options) => {
   cy.get(`[data-testid=${id}]`, options ? options : {});
 });
 
+Cypress.Commands.add("findByTestId", (id, options) => {
+  cy.find(`[data-testid=${id}]`, options ? options : {});
+});
+
 Cypress.Commands.add("preventRouterNewTab", () => {
   cy.on("window:before:load", win => {
     cy.stub(win, "open").as("open");
