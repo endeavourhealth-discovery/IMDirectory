@@ -6,83 +6,12 @@ import axios from "axios";
 import { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { OrganizationChartNode } from "primevue/organizationchart";
-const api = Env.API;
+const API = Env.API;
+const MODEL_PATH = "api/entity";
 
 const EntityService = {
-  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<TTIriRef[]> {
-    return axios.get(api + "api/entity/public/expandedMembers", {
-      params: {
-        iri: iri,
-        legacy: legacy,
-        includeSubsets: includeSubsets
-      }
-    });
-  },
-
-  async getSubsets(iri: string): Promise<TTIriRef[]> {
-    return axios.get(api + "api/entity/public/subsets", {
-      params: {
-        iri: iri
-      }
-    });
-  },
-
-  async getSetComparison(iriA?: string, iriB?: string): Promise<SetDiffObject> {
-    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/setDiff", {
-      params: {
-        setIriA: iriA,
-        setIriB: iriB
-      }
-    });
-  },
-
-  async getFullExportSet(
-    iri: string,
-    definition: boolean,
-    core: boolean,
-    legacy: boolean,
-    includeSubsets: boolean,
-    ownRow: boolean,
-    im1id: boolean,
-    format: string,
-    schemes: string[],
-    raw?: boolean
-  ): Promise<any> {
-    return axios.get(api + "api/entity/public/setExport", {
-      params: {
-        iri: iri,
-        definition: definition,
-        core: core,
-        legacy: legacy,
-        includeSubsets: includeSubsets,
-        ownRow: ownRow,
-        im1id: im1id,
-        format: format,
-        schemes: schemes.join(",")
-      },
-      responseType: "blob",
-      raw: raw
-    });
-  },
-
-  async getMatchedFrom(iri: string): Promise<any[]> {
-    return axios.get(api + "api/entity/public/matchedFrom", {
-      params: {
-        iri: iri
-      }
-    });
-  },
-
-  async getMatchedTo(iri: string): Promise<any[]> {
-    return axios.get(api + "api/entity/public/matchedTo", {
-      params: {
-        iri: iri
-      }
-    });
-  },
-
   async getPartialEntity(iri: string, predicates: string[]): Promise<any> {
-    return axios.get(api + "api/entity/public/partial", {
+    return axios.get(API + MODEL_PATH + "/public/partial", {
       params: {
         iri: iri,
         predicates: predicates.join(",")
@@ -90,17 +19,8 @@ const EntityService = {
     });
   },
 
-  async getDataModelProperties(iri: string, parent: null | string): Promise<any> {
-    return axios.get(api + "api/entity/public/dataModelProperties", {
-      params: {
-        iri: iri,
-        parent: parent
-      }
-    });
-  },
-
   async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<any> {
-    return axios.get(api + "api/entity/fullEntity", {
+    return axios.get(API + MODEL_PATH + "/fullEntity", {
       params: {
         iri: iri,
         includeInactiveTermCodes: includeInactiveTermCodes
@@ -109,7 +29,7 @@ const EntityService = {
   },
 
   async getPartialEntityBundle(iri: string, predicates: string[]): Promise<TTBundle> {
-    return axios.get(api + "api/entity/public/partialBundle", {
+    return axios.get(API + MODEL_PATH + "/public/partialBundle", {
       params: {
         iri: iri,
         predicates: predicates.join(",")
@@ -118,11 +38,11 @@ const EntityService = {
   },
 
   async iriExists(iri: string): Promise<boolean> {
-    return axios.get(api + "api/entity/public/iriExists", { params: { iri: iri } });
+    return axios.get(API + MODEL_PATH + "/public/iriExists", { params: { iri: iri } });
   },
 
   async getDefinitionBundle(iri: string): Promise<TTBundle> {
-    return axios.get(api + "api/entity/public/inferredBundle", {
+    return axios.get(API + MODEL_PATH + "/public/inferredBundle", {
       params: {
         iri: iri
       }
@@ -130,19 +50,19 @@ const EntityService = {
   },
 
   async getFolderPath(iri: string): Promise<TTIriRef[]> {
-    return axios.get(api + "api/entity/public/folderPath", {
+    return axios.get(API + MODEL_PATH + "/public/folderPath", {
       params: { iri: iri }
     });
   },
 
   async getEntityParents(iri: string, filters?: FiltersAsIris): Promise<EntityReferenceNode[]> {
-    return axios.get(api + "api/entity/public/parents", {
+    return axios.get(API + MODEL_PATH + "/public/parents", {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") }
     });
   },
 
   async getEntityChildren(iri: string, filters?: FiltersAsIris, controller?: AbortController): Promise<EntityReferenceNode[]> {
-    return axios.get(api + "api/entity/public/children", {
+    return axios.get(API + MODEL_PATH + "/public/children", {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
@@ -155,7 +75,7 @@ const EntityService = {
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: EntityReferenceNode[] }> {
-    return axios.get(api + "api/entity/public/childrenPaged", {
+    return axios.get(API + MODEL_PATH + "/public/childrenPaged", {
       params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
@@ -238,7 +158,7 @@ const EntityService = {
   },
 
   async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<TTIriRef[]> {
-    return axios.get(api + "api/entity/public/usages", {
+    return axios.get(API + MODEL_PATH + "/public/usages", {
       params: {
         iri: iri,
         page: pageIndex,
@@ -248,7 +168,7 @@ const EntityService = {
   },
 
   async getUsagesTotalRecords(iri: string): Promise<number> {
-    return axios.get(api + "api/entity/public/usagesTotalRecords", {
+    return axios.get(API + MODEL_PATH + "/public/usagesTotalRecords", {
       params: {
         iri: iri
       }
@@ -256,41 +176,35 @@ const EntityService = {
   },
 
   async getEntityGraph(iri: string): Promise<OrganizationChartNode> {
-    return axios.get(api + "api/entity/public/graph", { params: { iri: iri } });
-  },
-
-  async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
-    return axios.get(Env.API + "api/entity/public/termCode", {
-      params: { iri: iri, includeInactive: includeInactive }
-    });
+    return axios.get(API + MODEL_PATH + "/public/graph", { params: { iri: iri } });
   },
 
   async getEntitySummary(iri: string): Promise<SearchResultSummary> {
-    return axios.get(api + "api/entity/public/summary", {
+    return axios.get(API + MODEL_PATH + "/public/summary", {
       params: { iri: iri }
     });
   },
 
   async getNamespaces(): Promise<Namespace[]> {
-    return axios.get(api + "api/entity/public/namespaces");
+    return axios.get(API + MODEL_PATH + "/public/namespaces");
   },
 
   async getPartialEntities(typeIris: string[], predicates: string[]): Promise<any[]> {
-    return axios.get(api + "api/entity/public/partials", { params: { iris: typeIris.join(","), predicates: predicates.join(",") } });
+    return axios.get(API + MODEL_PATH + "/public/partials", { params: { iris: typeIris.join(","), predicates: predicates.join(",") } });
   },
 
   async getPathBetweenNodes(descendant: string, ancestor: string): Promise<TTIriRef[]> {
-    return axios.get(api + "api/entity/public/shortestParentHierarchy", {
+    return axios.get(API + MODEL_PATH + "/public/shortestParentHierarchy", {
       params: { descendant: descendant, ancestor: ancestor }
     });
   },
 
   async getNames(iris: string[]): Promise<TTIriRef[]> {
-    return axios.post(api + "api/entity/public/getNames", iris);
+    return axios.post(API + MODEL_PATH + "/public/getNames", iris);
   },
 
   async getEntityAsEntityReferenceNode(iri: string): Promise<EntityReferenceNode> {
-    return axios.get(api + "api/entity/public/asEntityReferenceNode", { params: { iri: iri } });
+    return axios.get(API + MODEL_PATH + "/public/asEntityReferenceNode", { params: { iri: iri } });
   },
 
   async getPartialAndTotalCount(
@@ -301,30 +215,30 @@ const EntityService = {
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<any> {
-    return axios.get(api + "api/entity/public/partialAndTotalCount", {
+    return axios.get(API + MODEL_PATH + "/public/partialAndTotalCount", {
       params: { iri: iri, predicate: predicate, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
   },
 
   async getEntityByPredicateExclusions(iri: string, predicates: string[]): Promise<any> {
-    return axios.get(api + "api/entity/public/entityByPredicateExclusions", {
+    return axios.get(API + MODEL_PATH + "/public/entityByPredicateExclusions", {
       params: { iri: iri, predicates: predicates.join(",") }
     });
   },
 
   async getBundleByPredicateExclusions(iri: string, predicates: string[]): Promise<TTBundle> {
-    return axios.get(api + "api/entity/public/bundleByPredicateExclusions", {
+    return axios.get(API + MODEL_PATH + "/public/bundleByPredicateExclusions", {
       params: { iri: iri, predicates: predicates.join(",") }
     });
   },
 
   async createEntity(entity: any): Promise<any> {
-    return axios.post(api + "api/entity/create", entity);
+    return axios.post(API + MODEL_PATH + "/create", entity);
   },
 
   async updateEntity(entity: any): Promise<any> {
-    return axios.post(api + "api/entity/update", entity);
+    return axios.post(API + MODEL_PATH + "/update", entity);
   },
 
   async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<any[]> {
@@ -347,70 +261,12 @@ const EntityService = {
     });
   },
 
-  async getSuperiorPropertiesPaged(
-    conceptIri: string,
-    pageIndex?: number,
-    pageSize?: number,
-    filters?: FiltersAsIris,
-    controller?: AbortController
-  ): Promise<{ result: any[]; totalCount: number }> {
-    return axios.get(Env.API + "api/entity/public/superiorPropertiesPaged", {
-      params: { conceptIri: conceptIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
-      signal: controller?.signal
-    });
-  },
-
-  async getSuperiorPropertiesBoolFocusPaged(
-    focus: any,
-    pageIndex?: number,
-    pageSize?: number,
-    filters?: FiltersAsIris,
-    controller?: AbortController
-  ): Promise<{ result: any[]; totalCount: number }> {
-    return axios.post(
-      Env.VITE_NODE_API + "node_api/entity/public/superiorPropertiesBoolFocusPaged",
-      { focus: focus, pageIndex: pageIndex, pageSize: pageSize, filters: filters },
-      { signal: controller?.signal }
-    );
-  },
-
-  async getSuperiorPropertyValuesPaged(
-    propertyIri: string,
-    pageIndex?: number,
-    pageSize?: number,
-    filters?: FiltersAsIris,
-    controller?: AbortController
-  ): Promise<{ result: any[]; totalCount: number }> {
-    return axios.get(Env.API + "api/entity/public/superiorPropertyValuesPaged", {
-      params: { propertyIri: propertyIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
-      signal: controller?.signal
-    });
-  },
-
-  async getContextMaps(conceptIri: string): Promise<any[]> {
-    return axios.get(Env.API + "api/entity/public/conceptContextMaps", {
-      params: { iri: conceptIri }
-    });
-  },
-
-  async updateSubsetsFromSuper(entity: any) {
-    return axios.post(Env.API + "api/entity/updateSubsetsFromSuper", entity);
-  },
-
-  async getDataModelsFromProperty(propIri: string): Promise<TTIriRef[]> {
-    return axios.get(Env.API + "api/entity/public/dataModels", {
-      params: {
-        propIri: propIri
-      }
-    });
-  },
-
   async downloadEntity(iri: string) {
-    return axios.get(Env.API + "api/entity/public/downloadEntity", { params: { iri: iri }, responseType: "blob", raw: true });
+    return axios.get(Env.API + MODEL_PATH + "/public/downloadEntity", { params: { iri: iri }, responseType: "blob", raw: true });
   },
 
   async downloadSearchResults(downloadSettings: DownloadByQueryOptions) {
-    return axios.post(Env.API + "api/entity/public/downloadSearchResults", downloadSettings, { responseType: "blob", raw: true });
+    return axios.post(Env.API + MODEL_PATH + "/public/downloadSearchResults", downloadSettings, { responseType: "blob", raw: true });
   },
 
   async getName(iri: string): Promise<string | undefined> {

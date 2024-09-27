@@ -40,7 +40,7 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import _ from "lodash-es";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, SHACL } from "@im-library/vocabulary";
-import { EntityService } from "@/services";
+import { DataModelService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
@@ -94,7 +94,7 @@ function getColourStyleFromType(types: TTIriRef[]) {
 }
 
 async function getDMs(iri: string) {
-  const dataModels = await EntityService.getDataModelsFromProperty(iri);
+  const dataModels = await DataModelService.getDataModelsFromProperty(iri);
   dataModels.forEach((dm: any) => {
     dm.type = [{ "@id": SHACL.NODESHAPE }];
     dm.icon = ["fa-duotone", "fa-diagram-project"];

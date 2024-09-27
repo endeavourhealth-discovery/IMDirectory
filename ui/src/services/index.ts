@@ -12,6 +12,8 @@ import EclService from "./EclService";
 import UserService from "./UserService";
 import FunctionService from "./FunctionService";
 import CodeGenService from "./CodeGenService";
+import DataModelService from "./DataModelService";
+import ConceptService from "./ConceptService";
 
 export {
   AuthService,
@@ -27,5 +29,7 @@ export {
   EclService,
   UserService,
   FunctionService,
-  CodeGenService
+  CodeGenService,
+  DataModelService,
+  ConceptService
 };
