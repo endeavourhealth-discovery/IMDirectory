@@ -5,7 +5,6 @@ import cors from "cors";
 import Env from "@/services/env.service";
 import errorHandler from "./middlewares/errorHandler.middleware";
 import logger from "./middlewares/logger.middleware";
-import initScheduledJobs from "./scheduledJobs";
 
 class App {
   public app: Application;
@@ -34,8 +33,6 @@ class App {
     appInit.controllers.forEach(c => this.app.use(c.path, c.router));
 
     this.app.use(errorHandler);
-
-    initScheduledJobs();
   }
 
   public listen() {

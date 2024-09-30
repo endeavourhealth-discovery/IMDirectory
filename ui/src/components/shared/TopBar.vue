@@ -95,6 +95,13 @@
       />
       <Menu ref="adminMenu" id="admin-menu" :model="adminItems" :popup="true" />
       <Button
+        v-tooltip.left="'Admin tools'"
+        v-if="isAdmin"
+        icon="fa-duotone fa-toolbox"
+        class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
+        @click="openAdminToolbox"
+      />
+      <Button
         v-tooltip.bottom="'Apps'"
         icon="fa-regular fa-grid-2"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
@@ -185,6 +192,7 @@ const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const isAdmin = computed(() => userStore.isAdmin);
 const currentScale = computed(() => userStore.currentScale);
 const currentPreset = computed(() => userStore.currentPreset);
 const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
@@ -445,6 +453,10 @@ function setAppMenuItems() {
 
 function showReleaseNotes() {
   sharedStore.updateShowReleaseNotes(true);
+}
+
+async function openAdminToolbox() {
+  await router.push({ name: "Admin" });
 }
 </script>
 
