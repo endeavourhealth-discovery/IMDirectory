@@ -7,23 +7,23 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else class="children-container" :class="invalid && showValidation && 'invalid'">
+    <div v-else :class="invalid && showValidation && 'invalid'" class="children-container" data-testid="array-builder">
       <template v-for="(item, index) in build" :key="item.id">
         <component
           :is="item.type"
-          :value="item.value"
           :id="item.id"
-          :position="item.position"
-          :showButtons="item.showButtons"
-          :shape="item.shape"
           :mode="mode"
           :nextComponentOptions="getNextComponentOptions()"
-          @deleteClicked="deleteItem"
+          :position="item.position"
+          :shape="item.shape"
+          :showButtons="item.showButtons"
+          :value="item.value"
           @addClicked="addItemWrapper"
-          @updateClicked="updateItemWrapper"
           @addNextOptionsClicked="addItemWrapper"
-          @moveUpClicked="moveItemUp"
+          @deleteClicked="deleteItem"
           @moveDownClicked="moveItemDown"
+          @moveUpClicked="moveItemUp"
+          @updateClicked="updateItemWrapper"
         />
       </template>
     </div>
@@ -42,7 +42,7 @@ export default defineComponent({
 });
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ref, Ref, watch, computed, onMounted, inject, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash-es";
@@ -218,7 +218,15 @@ function processChild(child: any, position: number) {
   );
 }
 
-function setButtons(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
+function setButtons(
+  position: number,
+  isNewItem: boolean
+): {
+  minus: boolean;
+  plus: boolean;
+  up: boolean;
+  down: boolean;
+} {
   if (props.shape.arrayButtons) {
     if (props.shape.arrayButtons.addOnlyIfLast) {
       return addButtonOnlyIfLast(position, isNewItem);
@@ -387,6 +395,7 @@ function hasData() {
   align-items: center;
   overflow: auto;
 }
+
 .loading-container {
   flex: 1 1 auto;
   width: 100%;
@@ -395,6 +404,7 @@ function hasData() {
   display: flex;
   flex-flow: column;
 }
+
 .children-container {
   width: 100%;
   border-radius: var(--p-textarea-border-radius);

@@ -11,7 +11,7 @@
         @mouseout="mouseout"
         @mouseover="mouseover($event, true)"
       >
-        <table>
+        <table data-testid="property-builder">
           <template v-for="(row, index) in dmProperties">
             <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">

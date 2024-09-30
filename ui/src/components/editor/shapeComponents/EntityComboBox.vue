@@ -8,23 +8,24 @@
       <div id="chip-group" class="chip-group">
         <Chip v-if="fixedOption" :label="fixedOption.name" class="fixed-chip" />
         <MultiSelect
-          :disabled="loading"
-          class="multi-select"
-          :class="invalid && showValidation && 'invalid'"
           v-model="selectedEntities"
+          :class="invalid && showValidation && 'invalid'"
+          :disabled="loading"
           :options="dropdownOptions"
-          optionLabel="name"
+          class="multi-select"
+          data-testid="entity-combo-box"
           display="chip"
+          optionLabel="name"
         />
       </div>
-      <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" :style="{ width: '2rem', height: '2rem' }" />
+      <ProgressSpinner v-if="loading" :style="{ width: '2rem', height: '2rem' }" class="loading-icon" stroke-width="8" />
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
+<script lang="ts" setup>
+import { computed, ComputedRef, inject, onMounted, ref, Ref, watch } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
@@ -34,7 +35,7 @@ import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash-es";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   shape: PropertyShape;
@@ -216,6 +217,7 @@ function hasData() {
   display: flex;
   flex-flow: column nowrap;
 }
+
 .multiselect-loading-container {
   display: flex;
   flex-flow: row wrap;

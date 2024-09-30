@@ -2,8 +2,15 @@
   <div class="string-single-display-container">
     <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="input-loading-container">
-      <div class="tooltip-container" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
-        <InputText disabled class="p-inputtext input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
+      <div v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }" class="tooltip-container">
+        <InputText
+          v-model="userInput"
+          :class="invalid && showValidation && 'invalid'"
+          class="p-inputtext input-text"
+          data-testid="text-display"
+          disabled
+          type="text"
+        />
       </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     </div>
@@ -11,11 +18,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted, inject, Ref } from "vue";
+<script lang="ts" setup>
+import { inject, onMounted, ref, Ref, watch } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash-es";
-import { PropertyShape, Argument } from "@im-library/interfaces/AutoGen";
+import { Argument, PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
@@ -201,15 +208,18 @@ function hasData() {
   display: flex;
   flex-flow: column nowrap;
 }
+
 .input-loading-container {
   display: flex;
   flex-flow: row nowrap;
   min-width: 25rem;
   align-items: center;
 }
+
 .loading-icon {
   flex: 0 0 auto;
 }
+
 .p-progressspinner {
   width: 2rem;
   height: 2rem;

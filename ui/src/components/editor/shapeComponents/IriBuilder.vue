@@ -6,16 +6,24 @@
         <span v-if="showRequired" class="required">*</span>
       </div>
       <div class="content-container">
-        <Select :disabled="disableSchemeEdit" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
+        <Select
+          v-model="selectedDropdownOption"
+          :disabled="disableSchemeEdit"
+          :options="dropdownOptions"
+          class="dropdown"
+          data-testid="iri-builder-dropdown"
+          optionLabel="name"
+        />
         <span v-if="includePrefix" class="prefix">{{ prefix }}</span>
         <InputText
+          v-model="userInput"
+          :class="invalid && showValidation && 'invalid'"
           :disabled="disableCodeEdit"
           class="p-inputtext-lg input-text"
-          :class="invalid && showValidation && 'invalid'"
-          v-model="userInput"
+          data-testid="iri-builder-input"
           type="text"
         />
-        <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
+        <ProgressSpinner v-if="loading" class="loading-icon" strokeWidth="8" style="height: 2rem; width: 2rem" />
       </div>
       <span>{{ selectedDropdownOption ? selectedDropdownOption["@id"] : "" }}{{ prefix ? prefix : "" }}{{ userInput }}</span>
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
@@ -23,15 +31,15 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { inject, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
-import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+<script lang="ts" setup>
+import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
+import { PropertyShape, Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
-import { IM, RDF, RDFS, SNOMED, EDITOR, IM_FUNCTION } from "@im-library/vocabulary";
+import { EDITOR, IM, IM_FUNCTION, RDF, RDFS, SNOMED } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import _ from "lodash-es";
@@ -236,7 +244,12 @@ function deconstructInputValue(inputValue: String) {
 async function generateCode(): Promise<string> {
   if (selectedDropdownOption.value && isConcept(editorEntity?.value[RDF.TYPE])) {
     loading.value = true;
-    const result = await FunctionService.runFunction(IM_FUNCTION.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
+    const result = await FunctionService.runFunction(IM_FUNCTION.GENERATE_IRI_CODE, [
+      {
+        parameter: "scheme",
+        valueIri: selectedDropdownOption.value?.["@id"]
+      }
+    ]);
     loading.value = false;
     return result.code;
   }
@@ -302,16 +315,19 @@ function hasData() {
   flex-flow: row nowrap;
   height: fit-content;
 }
+
 .label-content-container {
   width: 100%;
   display: flex;
   flex-flow: column nowrap;
 }
+
 .content-container {
   width: 100%;
   display: flex;
   flex-flow: row nowrap;
 }
+
 .dropdown {
   width: 40%;
 }
@@ -322,6 +338,7 @@ function hasData() {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .input-text {
   width: 60%;
   text-overflow: ellipsis;

@@ -1,24 +1,25 @@
 <template>
   <div class="string-single-select-container">
     <div class="title-bar">
-      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="shape.showTitle">{{ shape.name }} </span>
       <span v-if="showRequired" class="required">*</span>
     </div>
     <InputText
-      class="p-inputtext-lg input-text"
-      :class="invalid && showValidation && 'invalid'"
       v-model="userInput"
+      v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-select-tooltip' }"
+      :class="invalid && showValidation && 'invalid'"
+      class="p-inputtext-lg input-text"
+      data-testid="text-input"
       type="text"
       @drop.prevent
       @dragover.prevent
-      v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-select-tooltip' }"
     />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted, inject, Ref, computed, ComputedRef } from "vue";
+<script lang="ts" setup>
+import { computed, ComputedRef, inject, onMounted, ref, Ref, watch } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
@@ -145,6 +146,7 @@ function hasData() {
   display: flex;
   flex-flow: column nowrap;
 }
+
 .input-text {
   text-overflow: ellipsis;
   overflow: hidden;
