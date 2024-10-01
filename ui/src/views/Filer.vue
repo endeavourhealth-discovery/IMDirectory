@@ -35,19 +35,19 @@ import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { FilerService } from "@/services";
 import { Ref, ref } from "vue";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 const toast = useToast();
 
 const progress = ref(); // Store the progress percentage
 const intervalId: Ref<any> = ref(); // For polling
 const polling = ref(1000);
+
 function pollProgress(taskId: string) {
-  console.log(taskId);
   intervalId.value = setInterval(() => {
     FilerService.getTaskProgress(taskId)
       .then(response => {
-        console.log(response);
         progress.value = response.progress;
-        if (progress.value >= 100) {
+        if (!isObjectHasKeys(response) || progress.value >= 100) {
           clearInterval(intervalId.value);
         }
       })
@@ -61,10 +61,8 @@ async function onAdvancedUpload(event: any) {
   for (const file of event.files) {
     try {
       const ttDocument = await getTTDocument(file);
-
       FilerService.fileDocument(ttDocument, true)
         .then(response => {
-          // Start polling for progress if success
           pollProgress(response.taskId);
         })
         .catch(err => {
