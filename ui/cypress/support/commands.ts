@@ -95,12 +95,12 @@ Cypress.Commands.add("setLocalStorage", (localStorageMap: Map<string, string>) =
 });
 
 Cypress.Commands.add("populateBaseType", () => {
-  cy.get("#im-query-editor-container").find("span[class='p-button-icon pi pi-search']").click();
-  cy.get("div[class=p-dialog-content]").find("input[data-testid=search-input]").type("patient");
-  cy.get("div[class=datatable-flex-cell]").contains("Patient").click();
+  cy.get("#im-query-editor-container").find("[data-testid=autocomplete-search-button]").click();
+  cy.get(".p-dialog-content").find("[data-testid=search-input]").type("patient");
+  cy.get(".datatable-flex-cell").contains("Patient").click();
   cy.wait(1000);
-  cy.get("div[class=p-dialog-footer]").find("button[class='p-button p-component']").contains("Select").click();
-  cy.get("#im-query-editor-container").find("input[data-testid=search-input]").should("have.value", "Patient");
+  cy.get(".p-dialog-footer").find("[data-testid=search-dialog-select-button]").contains("Select").click();
+  cy.get("#im-query-editor-container").find("[data-testid=search-input]").should("have.value", "Patient");
 });
 //
 //
