@@ -8,8 +8,10 @@ export function generateCode(template: CodeTemplate, model: TTIriRef, properties
 
   result.push(replaceClassTokens(template, split.header, namespace, model));
 
-  for (const prop of properties) {
-    result.push(replacePropertyTokens(template, split.property, split.collectionProperty, namespace, model, prop));
+  if (properties && properties.length) {
+    for (const prop of properties) {
+      result.push(replacePropertyTokens(template, split.property, split.collectionProperty, namespace, model, prop));
+    }
   }
 
   result.push(split.footer);
