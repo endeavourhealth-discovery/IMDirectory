@@ -50,9 +50,16 @@
       />
       <div class="flex-0 populate-property-actions flex justify-end gap-2">
         <Button label="Cancel" severity="secondary" @click="visible = false" />
-        <Button v-if="hasQueryOrFeatureSelected" label="Save" @click="addQueryOrFeature" />
-        <Button v-else-if="active === 1 && hasNextStep" :disabled="disableSelect" iconPos="right" label="OK" @click="active = 2" />
-        <Button v-else iconPos="right" label="Save" @click="save" />
+        <Button v-if="hasQueryOrFeatureSelected" label="Save" @click="addQueryOrFeature" data-testid="add-feature-save-query-button" />
+        <Button
+          v-else-if="active === 1 && hasNextStep"
+          :disabled="disableSelect"
+          iconPos="right"
+          label="OK"
+          @click="active = 2"
+          data-testid="add-feature-ok-button"
+        />
+        <Button v-else iconPos="right" label="Save" @click="save" data-testid="add-feature-save-button" />
       </div>
     </div>
   </Dialog>

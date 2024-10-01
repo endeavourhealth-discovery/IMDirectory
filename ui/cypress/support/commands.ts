@@ -29,10 +29,6 @@ Cypress.Commands.add("getByTestId", (id, options) => {
   cy.get(`[data-testid=${id}]`, options ? options : {});
 });
 
-Cypress.Commands.add("findByTestId", (id, options) => {
-  cy.find(`[data-testid=${id}]`, options ? options : {});
-});
-
 Cypress.Commands.add("preventRouterNewTab", () => {
   cy.on("window:before:load", win => {
     cy.stub(win, "open").as("open");
@@ -132,6 +128,7 @@ declare global {
       expandTreeNode(treeId: string, contains: string): Chainable<void>;
       searchAndSelect(searchTerm: string): Chainable<void>;
       acceptLicenseAndLogin(): Chainable<void>;
+      populateBaseType(): Chainable<void>;
       loginByCognitoApi(username: string, password: string): Chainable<void>;
       setLocalStorage(localStorageMap: Map<string, string>): Chainable<void>;
       requestWithAuth(method: "POST" | "GET", url: string, body: any): Chainable<any>;
