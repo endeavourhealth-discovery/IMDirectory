@@ -22,6 +22,7 @@
                   :root-entities="['http://endhealth.info/im#Properties']"
                   :search-placeholder="'Select property'"
                   class="search-bar"
+                  data-testid="property-autocomplete"
                 />
                 <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
@@ -31,6 +32,7 @@
                   :class="row.error === 'Property must have a range' && invalid && showValidation ? 'error-message-container-highlight' : ''"
                   :im-query="rSuggestions"
                   :search-placeholder="'Select range'"
+                  data-testid="range-autocomplete"
                 />
               </td>
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="row-buttons">
@@ -63,7 +65,13 @@
                     icon="fa-solid fa-chevron-down"
                     @click="moveDown(index)"
                   />
-                  <Button class="p-button-danger" icon="fa-solid fa-trash" severity="danger" @click="deleteProperty(index, row)" />
+                  <Button
+                    class="p-button-danger"
+                    data-testid="delete-property-button"
+                    icon="fa-solid fa-trash"
+                    severity="danger"
+                    @click="deleteProperty(index, row)"
+                  />
                 </span>
               </td>
             </tr>
@@ -74,6 +82,7 @@
               :outlined="!hover"
               :severity="hover ? 'success' : 'secondary'"
               class="builder-button"
+              data-testid="add-property-button"
               icon="fa-solid fa-plus"
               label="Add property"
               @click="addProperty"
@@ -83,6 +92,7 @@
               :outlined="!hover"
               :severity="hover ? 'primary' : 'secondary'"
               class="builder-button"
+              data-testid="create-new-property-button"
               icon="fa-solid fa-pencil"
               label="Create new"
               @click="directService.create()"
