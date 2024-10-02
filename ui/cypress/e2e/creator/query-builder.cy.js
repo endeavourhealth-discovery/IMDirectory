@@ -36,6 +36,75 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("Diabetes");
   });
 
+  it.only("add feature by searching for a set (click on Add button)", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("diabetes");
+    cy.get(".datatable-flex-cell")
+      .contains("Diabetes mellitus type 2 or Diabetes mellitus in remission + more...")
+      .parent()
+      .parent()
+      .parent()
+      .find(".p-button")
+      .contains("Add")
+      .click();
+    cy.wait(1000);
+    cy.getByTestId("add-feature-ok-button").contains("OK").click();
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("Diabetes");
+  });
+
+  it("add feature by searching for a set - add two sets", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("diabetes");
+    cy.get(".datatable-flex-cell").contains("Diabetes mellitus type 2 or Diabetes mellitus in remission + more...").click();
+    cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
+    cy.get("[data-testid=back-to-search-results]").click();
+    cy.get(".datatable-flex-cell").contains("Diabetes mellitus in remission (NHS GP value set) | 999025931000230108").click();
+    cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
+    cy.wait(1000);
+    cy.getByTestId("add-feature-ok-button").contains("OK").click();
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("Diabetes");
+    cy.get(".edit-match-container").contains("or");
+  });
+
+  it("add feature by searching for a set - add two sets, then edit and remove one set", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("diabetes");
+    cy.get(".datatable-flex-cell").contains("Diabetes mellitus type 2 or Diabetes mellitus in remission + more...").click();
+    cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
+    cy.get("[data-testid=back-to-search-results]").click();
+    cy.get(".datatable-flex-cell").contains("Diabetes mellitus in remission (NHS GP value set) | 999025931000230108").click();
+    cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
+    cy.wait(1000);
+    cy.getByTestId("add-feature-ok-button").contains("OK").click();
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("Diabetes");
+    cy.get(".edit-match-container").contains("or");
+
+    cy.get(".edit-match-container").contains("Condition").click();
+    cy.get("[data-testid=edit-list-button]").click();
+    cy.get(".p-listbox-option")
+      .contains("Diabetes mellitus type 2 or Diabetes mellitus in remission + more...")
+      .parent()
+      .parent()
+      .find("[data-testid=remove-member-button]")
+      .click();
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.getByTestId("save-feature-button").contains("Save").click();
+    cy.wait(1000);
+    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("in set");
+    cy.contains(".edit-match-container", "Diabetes").should("not.exist");
+    cy.contains(".edit-match-container", "or").should("not.exist");
+  });
+
   it("add feature by searching for a concept", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();

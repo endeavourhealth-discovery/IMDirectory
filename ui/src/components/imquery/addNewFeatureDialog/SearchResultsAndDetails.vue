@@ -26,6 +26,7 @@
               label="Back to search results"
               icon="fa-solid fa-arrow-left"
               class="back-to-search"
+              data-testid="back-to-search-results"
               @click="activePage = 0"
             />
           </div>
