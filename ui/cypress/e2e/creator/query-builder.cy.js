@@ -36,7 +36,7 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("Diabetes");
   });
 
-  it.only("add feature by searching for a set (click on Add button)", () => {
+  it("add feature by searching for a set (click on Add button)", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("diabetes");
@@ -103,6 +103,23 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("in set");
     cy.contains(".edit-match-container", "Diabetes").should("not.exist");
     cy.contains(".edit-match-container", "or").should("not.exist");
+  });
+
+  it.only("add feature by searching for a set and adding a property", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("diabetes");
+    cy.get(".datatable-flex-cell").contains("Diabetes mellitus type 2 or Diabetes mellitus in remission + more...").click();
+    cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
+    cy.wait(1000);
+    cy.getByTestId("add-feature-ok-button").contains("OK").click();
+
+    cy.get(".p-dialog-content").find(".add-property-button").click();
+    cy.get(".p-tree-node-selectable").contains("date").click();
+    cy.get(".p-inputtext").contains("date").siblings().find(".p-date-picker");
+    // cy.getByTestId("add-feature-save-button").contains("Save").click();
+    // cy.get(".edit-match-container").contains("Condition");
+    // cy.get(".edit-match-container").contains("Diabetes");
   });
 
   it("add feature by searching for a concept", () => {
