@@ -11,7 +11,6 @@ import FhirController from "@/controllers/fhirController";
 import gracefulShutdown from "http-graceful-shutdown";
 import logger from "./middlewares/logger.middleware";
 import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/morgan.middleware";
-import CodeGenController from "@/controllers/codeGenController";
 import metricsInterceptor from "@/middlewares/metrics.middleware";
 
 dotenv.config();
@@ -20,14 +19,7 @@ dns.setDefaultResultOrder("ipv4first");
 
 const app = new App({
   port: 3000,
-  controllers: [
-    new QueryController(),
-    new ValidationController(),
-    new EntityController(),
-    new CognitoController(),
-    new FhirController(),
-    new CodeGenController()
-  ],
+  controllers: [new QueryController(), new ValidationController(), new EntityController(), new CognitoController(), new FhirController()],
   middleWares: [
     metricsInterceptor,
     bodyParser.json({ type: "application/json" }),
