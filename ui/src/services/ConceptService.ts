@@ -1,12 +1,11 @@
 import { FiltersAsIris, TermCode } from "@im-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
-const API = Env.API;
-const MODEL_PATH = "api/concept";
+const API_URL = Env.API + "api/concept";
 
 const ConceptService = {
   async getMatchedFrom(iri: string): Promise<any[]> {
-    return axios.get(API + MODEL_PATH + "/public/matchedFrom", {
+    return axios.get(API_URL + "/public/matchedFrom", {
       params: {
         iri: iri
       }
@@ -14,7 +13,7 @@ const ConceptService = {
   },
 
   async getMatchedTo(iri: string): Promise<any[]> {
-    return axios.get(API + MODEL_PATH + "/public/matchedTo", {
+    return axios.get(API_URL + "/public/matchedTo", {
       params: {
         iri: iri
       }
@@ -22,7 +21,7 @@ const ConceptService = {
   },
 
   async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
-    return axios.get(Env.API + MODEL_PATH + "/public/termCode", {
+    return axios.get(API_URL + "/public/termCode", {
       params: { iri: iri, includeInactive: includeInactive }
     });
   },
@@ -34,7 +33,7 @@ const ConceptService = {
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
-    return axios.get(Env.API + MODEL_PATH + "/public/superiorPropertiesPaged", {
+    return axios.get(API_URL + "/public/superiorPropertiesPaged", {
       params: { conceptIri: conceptIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
@@ -61,14 +60,14 @@ const ConceptService = {
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
-    return axios.get(Env.API + MODEL_PATH + "/public/superiorPropertyValuesPaged", {
+    return axios.get(API_URL + "/public/superiorPropertyValuesPaged", {
       params: { propertyIri: propertyIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
   },
 
   async getContextMaps(conceptIri: string): Promise<any[]> {
-    return axios.get(Env.API + MODEL_PATH + "/public/conceptContextMaps", {
+    return axios.get(API_URL + "/public/conceptContextMaps", {
       params: { iri: conceptIri }
     });
   }

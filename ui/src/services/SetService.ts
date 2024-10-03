@@ -2,18 +2,17 @@ import axios from "axios";
 import Env from "./Env";
 import { SetDiffObject } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-const API = Env.API;
-const MODEL_PATH = "api/set";
+const API_URL = Env.API + "api/set";
 
 const SetService = {
   async publish(conceptIri: string) {
-    return axios.get(API + MODEL_PATH + "/publish", {
+    return axios.get(API_URL + "/publish", {
       params: { iri: conceptIri }
     });
   },
 
   async IMV1(conceptIri: string, raw?: boolean) {
-    return axios.get(API + MODEL_PATH + "/public/export", {
+    return axios.get(API_URL + "/public/export", {
       params: { iri: conceptIri },
       responseType: "blob",
       raw: raw
@@ -21,7 +20,7 @@ const SetService = {
   },
 
   async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<TTIriRef[]> {
-    return axios.get(API + MODEL_PATH + "/public/expandedMembers", {
+    return axios.get(API_URL + "/public/expandedMembers", {
       params: {
         iri: iri,
         legacy: legacy,
@@ -31,7 +30,7 @@ const SetService = {
   },
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {
-    return axios.get(API + MODEL_PATH + "/public/subsets", {
+    return axios.get(API_URL + "/public/subsets", {
       params: {
         iri: iri
       }
@@ -59,7 +58,7 @@ const SetService = {
     schemes: string[],
     raw?: boolean
   ): Promise<any> {
-    return axios.get(API + MODEL_PATH + "/public/setExport", {
+    return axios.get(API_URL + "/public/setExport", {
       params: {
         iri: iri,
         definition: definition,
@@ -77,7 +76,7 @@ const SetService = {
   },
 
   async updateSubsetsFromSuper(entity: any) {
-    return axios.post(Env.API + MODEL_PATH + "/updateSubsetsFromSuper", entity);
+    return axios.post(API_URL + "/updateSubsetsFromSuper", entity);
   }
 };
 
