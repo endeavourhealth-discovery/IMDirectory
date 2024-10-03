@@ -31,7 +31,6 @@ const SnomedLicense = () => import("@/views/SnomedLicense.vue");
 const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
 const Cookies = () => import("@/views/Cookies.vue");
 const Workflow = () => import("@/views/Workflow.vue");
-const Filer = () => import("@/views/Filer.vue");
 const Uprn = () => import("@/views/Uprn.vue");
 const SingleFileLookup = () => import("@/components/uprn/SingleAddressLookup.vue");
 const AddressFileWorkflow = () => import("@/components/uprn/AddressFileWorkflow.vue");
@@ -206,7 +205,55 @@ const routes: Array<RouteRecordRaw> = [
     path: "/admin",
     name: "Admin",
     component: AdminToolbox,
-    meta: { requiresAdmin: true }
+    redirect: { name: "AdminHome" },
+    meta: { requiresAdmin: true },
+    children: [
+      {
+        path: "home",
+        name: "AdminHome",
+        component: () => import("@/components/adminToolbox/Home.vue")
+      },
+      {
+        path: "github",
+        name: "UpdateConfig",
+        component: () => import("@/components/adminToolbox/github/UpdateConfig.vue")
+      },
+      {
+        path: "cognito",
+        name: "CognitoManager",
+        component: () => import("@/components/adminToolbox/cognito/CognitoManager.vue"),
+        redirect: { name: "CognitoListUsers" },
+        children: [
+          {
+            path: "listUsers",
+            name: "CognitoListUsers",
+            component: () => import("@/components/adminToolbox/cognito/ListUsers.vue")
+          },
+          {
+            path: "listGroups",
+            name: "CognitoListGroups",
+            component: () => import("@/components/adminToolbox/cognito/ListGroups.vue")
+          },
+          {
+            path: "listUsersInGroup/:group",
+            name: "CognitoUsersInGroup",
+            component: () => import("@/components/adminToolbox/cognito/UsersInGroup.vue"),
+            props: true
+          },
+          {
+            path: "userDetails/:username",
+            name: "CognitoUserDetails",
+            component: () => import("@/components/adminToolbox/cognito/UserDetails.vue"),
+            props: true
+          },
+          {
+            path: "createUser",
+            name: "CognitoCreateUser",
+            component: () => import("@/components/adminToolbox/cognito/CreateUser.vue")
+          }
+        ]
+      }
+    ]
   },
   {
     path: "/creator",
@@ -242,10 +289,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/filer",
     name: "Filer",
-    component: Filer,
+    component: () => import("@/views/Filer.vue"),
     meta: {
-      requiresAuth: true,
       requiresLicense: true,
+      requiresAuth: true,
       title: "Filer"
     }
   },

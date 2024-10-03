@@ -90,17 +90,10 @@
         v-tooltip.bottom="'Upload/Download'"
         icon="fa-duotone fa-arrow-down-up-across-line"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
-        @click="openAdminMenu"
+        @click="openUploadDownloadMenu"
         data-testid="upload-download-button"
       />
-      <Menu ref="adminMenu" id="admin-menu" :model="adminItems" :popup="true" />
-      <Button
-        v-tooltip.left="'Admin tools'"
-        v-if="isAdmin"
-        icon="fa-duotone fa-toolbox"
-        class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
-        @click="openAdminToolbox"
-      />
+      <Menu ref="uploadDownloadMenu" id="uploadDownload-menu" :model="uploadDownloadItems" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
         icon="fa-regular fa-grid-2"
@@ -209,8 +202,9 @@ const template = ref();
 const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
-const adminItems: Ref<MenuItem[]> = ref([]);
-const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number }[]> = ref([]);
+const uploadDownloadItems: Ref<MenuItem[]> = ref([]);
+const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number; visible?: boolean; disabled?: boolean }[]> =
+  ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: PrimeVueColors[]; presets: PrimeVuePresetThemes[] }> = ref({
   primaryColours: [
@@ -241,7 +235,7 @@ const selectedPrimaryColor = ref(themeOptions.value.primaryColours[0]);
 const selectedSurfaceColor = ref(themeOptions.value.surfaceColours[0]);
 
 const toast = useToast();
-const adminMenu = ref();
+const uploadDownloadMenu = ref();
 const themesMenu = ref();
 const scaleMenu = ref();
 const userMenu = ref();
@@ -263,7 +257,7 @@ onMounted(async () => {
   if (currentSurfaceColor.value) selectedSurfaceColor.value = currentSurfaceColor.value;
   setUserMenuItems();
   setAppMenuItems();
-  await setAdminMenuItems();
+  await setUploadDownloadMenuItems();
   await getCurrentVersion();
 });
 
@@ -333,8 +327,8 @@ function setUserMenuItems(): void {
   ];
 }
 
-function openAdminMenu(event: any): void {
-  adminMenu.value.toggle(event);
+function openUploadDownloadMenu(event: any): void {
+  uploadDownloadMenu.value.toggle(event);
 }
 
 function openThemesMenu(event: any): void {
@@ -349,16 +343,16 @@ function isLoggedInWithRole(role: string): boolean {
   return isLoggedIn.value && typeof currentUser.value !== "undefined" && currentUser.value.roles.includes(role);
 }
 
-async function setAdminMenuItems(): Promise<void> {
-  adminItems.value = [
+async function setUploadDownloadMenuItems(): Promise<void> {
+  uploadDownloadItems.value = [
     {
-      label: "Filing Documents",
+      label: "Upload/Download",
       icon: "fa-duotone fa-files",
       items: [
         {
-          label: "Download Changes",
+          label: "Download changes",
           icon: "fa-duotone fa-file-arrow-down",
-          disabled: !isLoggedInWithRole("IMAdmin"),
+          disabled: !isAdmin.value,
           command: () => downloadChanges()
         },
         {
@@ -411,20 +405,6 @@ function getScales(): MenuItem[] {
   ];
 }
 
-async function downloadChanges() {
-  toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
-  try {
-    let blob = await FilerService.downloadDeltas();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "deltas.zip";
-    link.click();
-  } catch (err) {
-    toast.add({ severity: "error", summary: "Download failed", detail: "File location not found, unable to download deltas", life: 3000 });
-  }
-}
-
 async function downloadCode() {
   templates.value = await CodeGenService.getCodeTemplateList();
   showCodeDownload.value = true;
@@ -445,10 +425,33 @@ function setAppMenuItems() {
   appItems.value = [
     { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => router.push({ name: "LandingPage" }), color: "var(--p-blue-500)", size: 2 },
     { label: "Creator", icon: "fa-duotone fa-circle-plus", command: () => directService.create(), color: "var(--p-orange-500)", size: 2 },
-    { label: "ASSIGN UPRN", icon: "fa-duotone fa-map-location-dot", command: () => directService.uprn(), color: "var(--p-red-500)", size: 2 }
+    { label: "ASSIGN UPRN", icon: "fa-duotone fa-map-location-dot", command: () => directService.uprn(), color: "var(--p-red-500)", size: 2 },
     // { label: "Workflow", icon: "fa-duotone fa-list-check", command: () => directService.workflow(), color: "var(--p-green-500)", size: 2 }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
+    {
+      label: "Admin toolbox",
+      icon: "fa-duotone fa-toolbox",
+      command: () => openAdminToolbox(),
+      color: "var(--p-zinc-500)",
+      size: 2,
+      visible: isAdmin.value,
+      disabled: !isAdmin.value
+    }
   ];
+}
+
+async function downloadChanges() {
+  toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
+  try {
+    let blob = await FilerService.downloadDeltas();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "deltas.zip";
+    link.click();
+  } catch (err) {
+    toast.add({ severity: "error", summary: "Download failed", detail: "File location not found, unable to download deltas", life: 3000 });
+  }
 }
 
 function showReleaseNotes() {
