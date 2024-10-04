@@ -104,7 +104,7 @@
       <Popover ref="appsOP" class="app-overlay-panel" id="apps-menu">
         <div class="flex flex-row flex-wrap justify-start gap-2">
           <template v-for="item in appItems">
-            <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" />
+            <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" :visible="item.visible" />
           </template>
         </div>
       </Popover>
@@ -203,8 +203,7 @@ const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
 const uploadDownloadItems: Ref<MenuItem[]> = ref([]);
-const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number; visible?: boolean; disabled?: boolean }[]> =
-  ref([]);
+const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number; visible?: boolean }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: PrimeVueColors[]; presets: PrimeVuePresetThemes[] }> = ref({
   primaryColours: [
@@ -434,8 +433,7 @@ function setAppMenuItems() {
       command: () => openAdminToolbox(),
       color: "var(--p-zinc-500)",
       size: 2,
-      visible: isAdmin.value,
-      disabled: !isAdmin.value
+      visible: isAdmin.value
     }
   ];
 }

@@ -25,7 +25,7 @@ export const useUserStore = defineStore("user", {
   }),
   getters: {
     isLoggedIn: state => isObjectHasKeys(state.currentUser),
-    isAdmin: state => state.currentUser?.roles.includes("IMAdmin")
+    isAdmin: state => (state.currentUser?.roles.includes("IMAdmin") ? true : false)
   },
   actions: {
     clearAllFromUserDatabase() {
