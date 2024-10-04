@@ -261,8 +261,10 @@ function addToSelectedList(iri: string, name: string) {
 
 async function hasFeatureOrQuerySelected() {
   const iri = selectedValueMap.value.keys().next().value;
-  const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
-  return isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
+  if (iri) {
+    const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
+    return isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
+  }
 }
 
 function onSelectedUpdate(summary: SearchResultSummary) {
