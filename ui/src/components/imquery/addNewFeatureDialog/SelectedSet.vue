@@ -16,7 +16,14 @@
               <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="type-icon mr-2" />
               <span @mouseleave="hideOverlay" @mouseover="showOverlay($event, option['@id'])">{{ option[RDFS.LABEL] }}</span>
             </div>
-            <Button :severity="'danger'" class="builder-button" icon="fa-solid fa-trash" text @click="selectedValueMap.delete(option['@id'])" />
+            <Button
+              :severity="'danger'"
+              class="builder-button"
+              data-testid="remove-member-button"
+              icon="fa-solid fa-trash"
+              text
+              @click="selectedValueMap.delete(option['@id'])"
+            />
           </div>
         </div>
       </template>

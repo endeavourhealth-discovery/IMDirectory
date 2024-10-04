@@ -13,7 +13,7 @@
           <div v-else v-for="is of property.is"><Chip :label="truncateName(getNameFromRef(is))" v-tooltip.bottom="getNameFromRef(is)" /></div>
         </div>
         <Button icon="fa-solid fa-chevron-down" severity="secondary" @click="toggleDropdown" />
-        <Button label="Edit" @click="showBuildFeatureDialog = true" />
+        <Button label="Edit" @click="showBuildFeatureDialog = true" data-testid="edit-list-button" />
         <SaveCustomSetDialog v-if="property.is" :set-members="property.is" @on-save="onSaveCustomSet" />
       </InputGroup>
       <Popover ref="dropdown">

@@ -17,7 +17,7 @@
         :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
       />
     </IconField>
-    <Button severity="info" @click="showDialog = true" icon="pi pi-search" v-tooltip="'Advanced search'" />
+    <Button severity="info" @click="showDialog = true" data-testid="autocomplete-search-button" icon="pi pi-search" v-tooltip="'Advanced search'" />
     <Popover ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />

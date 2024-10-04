@@ -93,6 +93,15 @@ Cypress.Commands.add("setLocalStorage", (localStorageMap: Map<string, string>) =
     window.localStorage.setItem(key, value);
   });
 });
+
+Cypress.Commands.add("populateBaseType", () => {
+  cy.get("#im-query-editor-container").find("[data-testid=autocomplete-search-button]").click();
+  cy.get(".p-dialog-content").find("[data-testid=search-input]").type("patient");
+  cy.get(".datatable-flex-cell").contains("Patient").click();
+  cy.wait(1000);
+  cy.get(".p-dialog-footer").find("[data-testid=search-dialog-select-button]").contains("Select").click();
+  cy.get("#im-query-editor-container").find("[data-testid=search-input]").should("have.value", "Patient");
+});
 //
 //
 // -- This is a parent command --
@@ -119,6 +128,7 @@ declare global {
       expandTreeNode(treeId: string, contains: string): Chainable<void>;
       searchAndSelect(searchTerm: string): Chainable<void>;
       acceptLicenseAndLogin(): Chainable<void>;
+      populateBaseType(): Chainable<void>;
       loginByCognitoApi(username: string, password: string): Chainable<void>;
       setLocalStorage(localStorageMap: Map<string, string>): Chainable<void>;
       requestWithAuth(method: "POST" | "GET", url: string, body: any): Chainable<any>;
