@@ -109,6 +109,7 @@ async function addRoleToUser() {
   if (userDetails.value && selectedRole.value) {
     await AdminService.addRoleToUser(userDetails.value.username, selectedRole.value);
     await getUserDetails(userDetails.value.username);
+    showAddRole.value = false;
   }
 }
 

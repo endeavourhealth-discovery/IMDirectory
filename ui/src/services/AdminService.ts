@@ -12,7 +12,7 @@ const AdminService = {
   },
 
   async getUsersInGroup(group: string): Promise<string[]> {
-    return await axios.get(Env.API + "api/admin/cognito/usersInGroup", { params: { group: group } });
+    return await axios.get(Env.API + "api/admin/cognito/group/users", { params: { group: group } });
   },
 
   async getUser(username: string): Promise<User> {
@@ -20,19 +20,19 @@ const AdminService = {
   },
 
   async addRoleToUser(username: string, role: string) {
-    return await axios.post(Env.API + "api/admin/cognito/addUserToGroup", { username: username, groupName: role });
+    return await axios.post(Env.API + "api/admin/cognito/group/user", { username: username, groupName: role });
   },
 
   async removeRoleFromUser(username: string, role: string) {
-    return await axios.post(Env.API + "api/admin/cognito/removeUserFromGroup", { username: username, groupName: role });
+    return await axios.delete(Env.API + "api/admin/cognito/group/user", { data: { username: username, groupName: role } });
   },
 
   async deleteUser(username: string): Promise<void> {
-    return await axios.post(Env.API + "api/admin/cognito/deleteUser", { username: username });
+    return await axios.delete(Env.API + "api/admin/cognito/user", { data: { username: username } });
   },
 
   async createUser(user: User): Promise<User> {
-    return await axios.post(Env.API + "api/admin/cognito/createUser", user);
+    return await axios.post(Env.API + "api/admin/cognito/user", user);
   }
 };
 
