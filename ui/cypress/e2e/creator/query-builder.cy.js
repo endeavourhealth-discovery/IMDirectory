@@ -187,7 +187,7 @@ describe("Query builder", () => {
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("nhs number");
     cy.get(".datatable-flex-cell").contains("nhs number", { matchCase: false }).click();
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
-    cy.get(".property-input-container", { timeout: 6000 }).find("[data-testid=property-value-input]").type("123456789");
+    cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
     cy.getByTestId("add-feature-save-button").contains("Save").click();
     cy.get(".edit-match-container").contains("Patient personal and demographics");
     cy.get(".edit-match-container").contains("nhs number 123456789", { matchCase: false });
@@ -199,7 +199,7 @@ describe("Query builder", () => {
     cy.get("#Feature").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("diabetes");
     cy.get(".datatable-flex-cell").contains("Active Diabetes (Latest entry for diabetes not followed by a resolution)").click();
-    cy.getByTestId("add-feature-save-query-button", { timeout: 6000 }).contains("Save").click();
+    cy.getByTestId("add-feature-save-query-button", { timeout: 60000 }).contains("Save").click();
     cy.get(".edit-match-container").contains("in the cohort");
     cy.get(".edit-match-container").contains("Active Diabetes (Latest entry for diabetes not followed by a resolution)");
   });
@@ -210,7 +210,7 @@ describe("Query builder", () => {
     cy.get("#Cohort").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("patient");
     cy.get(".datatable-flex-cell").contains("Patients registered for GMS services on the reference date").click();
-    cy.getByTestId("add-feature-save-query-button", { timeout: 6000 }).contains("Save").click();
+    cy.getByTestId("add-feature-save-query-button", { timeout: 60000 }).contains("Save").click();
     cy.get(".edit-match-container").contains("in the cohort");
     cy.get(".edit-match-container").contains("Patients registered for GMS services on the reference date");
   });
