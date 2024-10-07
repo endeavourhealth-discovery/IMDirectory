@@ -104,7 +104,7 @@ import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeC
 import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { DirectService, EntityService, FilerService } from "@/services";
+import { DirectService, EntityService, FilerService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
@@ -362,7 +362,7 @@ function submit(): void {
           allowOutsideClick: () => !Swal.isLoading(),
           preConfirm: async () => {
             if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
-              await EntityService.updateSubsetsFromSuper(editorEntity.value);
+              await SetService.updateSubsetsFromSuper(editorEntity.value);
               delete editorEntity.value[IM.HAS_SUBSET];
             }
             const res = await EntityService.createEntity(editorEntity.value);

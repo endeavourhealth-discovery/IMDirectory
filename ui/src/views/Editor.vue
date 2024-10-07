@@ -101,7 +101,7 @@ import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
-import { DirectService, EntityService, Env } from "@/services";
+import { DirectService, EntityService, Env, SetService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
@@ -255,7 +255,7 @@ function submit(): void {
             backdrop: true,
             preConfirm: async () => {
               if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET]) || isObjectHasKeys(editorEntityOriginal.value, [IM.HAS_SUBSET])) {
-                await EntityService.updateSubsetsFromSuper(editorEntity.value);
+                await SetService.updateSubsetsFromSuper(editorEntity.value);
                 delete editorEntity.value[IM.HAS_SUBSET];
               }
               const res = await EntityService.updateEntity(editorEntity.value);

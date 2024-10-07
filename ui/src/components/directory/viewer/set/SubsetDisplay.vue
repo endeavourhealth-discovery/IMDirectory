@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref } from "vue";
-import { EntityService } from "@/services";
+import { SetService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
@@ -37,6 +37,6 @@ const subsets: Ref<TTIriRef[]> = ref([]);
 const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
 
 onMounted(async () => {
-  subsets.value = await EntityService.getSubsets(props.entityIri);
+  subsets.value = await SetService.getSubsets(props.entityIri);
 });
 </script>
