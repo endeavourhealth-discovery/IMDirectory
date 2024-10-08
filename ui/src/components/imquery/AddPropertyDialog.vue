@@ -1,6 +1,6 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
-    <div class="flex">
+    <div class="add-property-dialog flex">
       <QueryNavTree
         class="w-4/12"
         :editMatch="editMatch"
@@ -11,8 +11,8 @@
       <EditProperty :edit-match="editMatch" :property="editWhere" :data-model-iri="editWhereDMIri || dataModelIri" :show-delete="false" />
     </div>
     <template #footer>
-      <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
-      <Button type="button" label="Save" :disabled="!selectedProperty" @click="save"></Button>
+      <Button type="button" label="Cancel" severity="secondary" @click="visible = false" data-testid="add-property-dialog-cancel"></Button>
+      <Button type="button" label="Save" :disabled="!selectedProperty" @click="save" data-testid="add-property-dialog-save"></Button>
     </template>
   </Dialog>
 </template>

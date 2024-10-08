@@ -62,7 +62,7 @@ export default class QueryService {
     if (isObjectHasKeys(response, ["entities"]) && response.entities.length !== 0) {
       return response.entities;
     } else {
-      const propType = (await this.axios.get(Env.API + "entity/public/checkPropertyType", { iri: propIri })).data;
+      const propType = (await this.axios.get(Env.API + "dataModel/public/checkPropertyType", { iri: propIri })).data;
       if (propType === IM.DATAMODEL_OBJECTPROPERTY) {
         queryRequest.query = { "@id": QUERY.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as any;
         const suggestions = await this.queryIM(queryRequest);

@@ -45,7 +45,7 @@ export default class EntityService {
   }
 
   public async getDistillation(refs: TTEntity[]): Promise<TTEntity[]> {
-    const response = await this.axios.post(Env.API + "api/entity/public/distillation", refs);
+    const response = await this.axios.post(Env.API + "api/set/public/distillation", refs);
     return response.data;
   }
 

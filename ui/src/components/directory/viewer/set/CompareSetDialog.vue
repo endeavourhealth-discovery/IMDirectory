@@ -34,7 +34,7 @@
 import { Ref, ref, watch } from "vue";
 import CompareSetSection from "./CompareSetSection.vue";
 import { Concept, SearchResultSummary } from "@im-library/interfaces/AutoGen";
-import { EntityService } from "@/services";
+import { SetService } from "@/services";
 interface Props {
   showDialog: boolean;
   setIriA: string;
@@ -67,7 +67,7 @@ watch(selectedB, async () => await getMembers());
 async function getMembers() {
   loading.value = true;
   if (selectedA.value?.iri || selectedB.value?.iri) {
-    const diffObject = await EntityService.getSetComparison(selectedA.value?.iri, selectedB.value?.iri);
+    const diffObject = await SetService.getSetComparison(selectedA.value?.iri, selectedB.value?.iri);
     membersA.value = diffObject.membersA;
     sharedMembers.value = diffObject.sharedMembers;
     membersB.value = diffObject.membersB;

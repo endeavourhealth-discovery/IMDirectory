@@ -1,4 +1,4 @@
-import { EntityService, Env } from "@/services";
+import { EntityService, ConceptService, Env } from "@/services";
 import axios from "axios";
 
 const api = Env.API;
@@ -54,9 +54,9 @@ describe("EntityService.ts ___ axios success", () => {
   });
 
   it("can get entity term codes", async () => {
-    const result = await EntityService.getEntityTermCodes("testIri");
+    const result = await ConceptService.getEntityTermCodes("testIri");
     expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/termCode", { params: { iri: "testIri" } });
+    expect(axios.get).toHaveBeenCalledWith(api + "api/concept/public/termCode", { params: { iri: "testIri" } });
     expect(result).toBe("axios get return");
   });
 
@@ -91,9 +91,9 @@ describe("EntityService.ts ___ axios success", () => {
   });
 
   it("can getMatchedFrom", async () => {
-    const result = await EntityService.getMatchedFrom("testString");
+    const result = await ConceptService.getMatchedFrom("testString");
     expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/matchedFrom", { params: { iri: "testString" } });
+    expect(axios.get).toHaveBeenCalledWith(api + "api/concept/public/matchedFrom", { params: { iri: "testString" } });
     expect(result).toBe("axios get return");
   });
 });

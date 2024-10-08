@@ -91,8 +91,8 @@
       </div>
       <template #footer>
         <div class="button-footer">
-          <Button label="Cancel" text @click="onCancel" />
-          <Button label="Save" autofocus @click="onSave" />
+          <Button label="Cancel" text @click="onCancel" data-testid="cancel-edit-feature-button" />
+          <Button label="Save" autofocus @click="onSave" data-testid="save-feature-button" />
         </div>
       </template>
     </Dialog>

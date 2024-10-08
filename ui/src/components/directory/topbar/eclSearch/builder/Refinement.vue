@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { EntityService, QueryService } from "@/services";
+import { ConceptService, EntityService, QueryService } from "@/services";
 import { IM, SNOMED, QUERY, RDF } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
@@ -307,10 +307,10 @@ async function updatePropertyTreeRoots(): Promise<void> {
   let roots = ["http://snomed.info/sct#410662002"];
   if (props.focus) {
     if (isAliasIriRef(props.focus) && props.focus.iri !== SNOMED.ANY) {
-      const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
+      const results = await ConceptService.getSuperiorPropertiesPaged(props.focus.iri);
       if (results) roots = results.result.map(item => item["@id"]);
     } else if (isBoolGroup(props.focus)) {
-      const results = await EntityService.getSuperiorPropertiesBoolFocusPaged(props.focus);
+      const results = await ConceptService.getSuperiorPropertiesBoolFocusPaged(props.focus);
       if (results) roots = results.result.map(item => item["@id"]);
     }
   }
@@ -320,7 +320,7 @@ async function updatePropertyTreeRoots(): Promise<void> {
 async function updateValueTreeRoots(): Promise<void> {
   let roots = ["http://snomed.info/sct#138875005"];
   if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== SNOMED.ANY) {
-    const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
+    const results = await ConceptService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
     if (results) roots = results.result.map(item => item["@id"]);
   }
   valueTreeRoots.value = roots;

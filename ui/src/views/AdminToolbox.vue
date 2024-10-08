@@ -7,41 +7,44 @@
         </div>
       </template>
     </TopBar>
-    <div id="toolbox-container" class="flex flex-1 flex-row items-center justify-center">
-      <Button label="Update github config" @click="updateGithubConfig" :loading="loading" />
+    <div id="toolbox-container" class="flex flex-1 flex-row overflow-auto">
+      <Menu :model="adminMenu" class="rounded-none border-b-0 border-t-0" />
+      <router-view />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { GithubService } from "@/services";
 import TopBar from "@/components/shared/TopBar.vue";
-import { ref } from "vue";
-import Swal from "sweetalert2";
+import { Ref, ref } from "vue";
+import { MenuItem } from "primevue/menuitem";
+import { useRouter } from "vue-router";
 
-const loading = ref(false);
+const router = useRouter();
 
-async function updateGithubConfig() {
-  loading.value = true;
-  await GithubService.updateGithubConfig()
-    .then(res => {
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Github config successfully updated",
-        confirmButtonText: "Close"
-      });
-    })
-    .catch(err => {
-      console.error(err);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to update github config. Check the console to see the error."
-      });
-    });
-  loading.value = false;
-}
+const adminMenu: Ref<MenuItem[]> = ref([
+  { label: "Github", items: [{ label: "Update config", icon: "fa-brands fa-github", command: async () => await router.push({ name: "UpdateConfig" }) }] },
+  {
+    label: "Cognito",
+    items: [
+      {
+        label: "List users",
+        icon: "fa-duotone fa-users",
+        command: async () => await router.push({ name: "CognitoListUsers" })
+      },
+      {
+        label: "List groups",
+        icon: "fa-duotone fa-people-group",
+        command: async () => await router.push({ name: "CognitoListGroups" })
+      },
+      {
+        label: "Create user",
+        icon: "fa-duotone fa-user-plus",
+        command: async () => await router.push({ name: "CognitoCreateUser" })
+      }
+    ]
+  }
+]);
 </script>
 
 <style scoped></style>

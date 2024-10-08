@@ -126,7 +126,7 @@ import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
 import { ChartMapNode, ChartTableNode, ContextMap, MapItem, Namespace, SimpleMap, SimpleMapIri } from "@im-library/interfaces";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
-import { EntityService } from "@/services";
+import { ConceptService, EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { Context } from "@im-library/interfaces/Context";
 
@@ -172,12 +172,12 @@ async function updateMappings() {
 
 async function getMappings(): Promise<void> {
   mappings.value = (await EntityService.getPartialEntity(props.entityIri, [IM.HAS_MAP]))[IM.HAS_MAP] ?? [];
-  contextMaps.value = (await EntityService.getContextMaps(props.entityIri)) ?? [];
+  contextMaps.value = (await ConceptService.getContextMaps(props.entityIri)) ?? [];
   data.value = {};
 
   namespaces.value = await EntityService.getNamespaces();
-  matchedFrom.value = await EntityService.getMatchedFrom(props.entityIri);
-  matchedTo.value = await EntityService.getMatchedTo(props.entityIri);
+  matchedFrom.value = await ConceptService.getMatchedFrom(props.entityIri);
+  matchedTo.value = await ConceptService.getMatchedTo(props.entityIri);
 }
 
 function createChartTableNode(

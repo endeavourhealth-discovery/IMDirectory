@@ -163,7 +163,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   }
   let result;
   try {
-    result = await EntityService.getFullExportSet(
+    result = await SetService.getFullExportSet(
       props.entityIri,
       definition,
       core,

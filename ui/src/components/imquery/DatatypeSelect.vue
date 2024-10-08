@@ -13,7 +13,12 @@
         optionLabel="name"
         v-model:model-value="propertyType"
       />
-      <InputText v-if="['is', 'startsWith', 'contains'].includes(propertyType)" type="text" v-model:model-value="property.value" />
+      <InputText
+        v-if="['is', 'startsWith', 'contains'].includes(propertyType)"
+        type="text"
+        v-model:model-value="property.value"
+        data-testid="property-value-input"
+      />
     </div>
 
     <div v-else-if="datatype === XSD.BOOLEAN" class="property-input-container">
@@ -36,9 +41,9 @@
         v-model:model-value="propertyType"
       />
       <div v-if="propertyType === 'is'" class="property-input">
-        <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
-        <InputText type="text" placeholder="value" v-model="property.value" />
-        <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" />
+        <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" data-testid="property-operator-select" />
+        <InputText type="text" placeholder="value" v-model="property.value" data-testid="property-value-input" />
+        <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" data-testid="property-unit-select" />
         <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
       </div>
       <div v-else-if="propertyType === 'range'" class="property-input">

@@ -26,6 +26,7 @@
               label="Back to search results"
               icon="fa-solid fa-arrow-left"
               class="back-to-search"
+              data-testid="back-to-search-results"
               @click="activePage = 0"
             />
           </div>
@@ -260,8 +261,10 @@ function addToSelectedList(iri: string, name: string) {
 
 async function hasFeatureOrQuerySelected() {
   const iri = selectedValueMap.value.keys().next().value;
-  const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
-  return isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
+  if (iri) {
+    const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
+    return isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
+  }
 }
 
 function onSelectedUpdate(summary: SearchResultSummary) {
