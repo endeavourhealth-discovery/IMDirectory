@@ -18,7 +18,7 @@
     <template #header>
       <div class="ecl-builder-dialog-header">
         <strong>ECL Builder:</strong>
-        <Button icon="fa-regular fa-circle-question" text rounded @mouseover="toggle" @mouseout="toggle" />
+        <Button icon="fa-regular fa-circle-question" text rounded @click="toggle" />
         <Popover ref="op">Select or drag and drop for grouping</Popover>
       </div>
     </template>
