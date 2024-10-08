@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHashHistory, RouteLocationNormalized, RouteRecordRaw } from "vue-router";
 const Directory = () => import("@/views/Directory.vue");
 const DirectoryDetails = () => import("@/components/directory/DirectoryDetails.vue");
 const SearchResults = () => import("@/components/shared/SearchResults.vue");
@@ -52,6 +52,19 @@ import { useCreatorStore } from "@/stores/creatorStore";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useLoadingStore } from "@/stores/loadingStore";
 import { useQueryStore } from "@/stores/queryStore";
+import { endRouterLoading, startRouterLoading } from "./methods/loading";
+import { directToLogin } from "./methods/intercepts";
+import { directoryGuard, editorGuard, queryGuard } from "./methods/routeGuards";
+import {
+  requiresAdmin,
+  requiresAuthGuard,
+  requiresCreateRole,
+  requiresEditRole,
+  requiresOrganisation,
+  requiresReAuth,
+  requiresSnomedLicense,
+  requiresUprnAgreement
+} from "./methods/metaGuards";
 
 const APP_TITLE = "IM";
 
@@ -398,146 +411,54 @@ const router = createRouter({
   routes
 });
 
-async function directToLogin() {
-  await Swal.fire({
-    icon: "warning",
-    title: "Please Login to continue",
-    showCancelButton: true,
-    confirmButtonText: "Login",
-    reverseButtons: true
-  }).then((result: SweetAlertResult) => {
-    if (result.isConfirmed) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
-    } else {
-      console.log("redirecting to landing page");
-      router.push({ name: "LandingPage" });
-    }
+async function setBrowserTabTitles(to: RouteLocationNormalized) {
+  const directoryStore = useDirectoryStore();
+  const editorStore = useEditorStore();
+  const queryStore = useQueryStore();
+  let title = (to.meta.title as string) ? (to.meta.title as string) : "";
+  if (to.matched.some((record: any) => record.name === "Directory")) {
+    if (!to.meta.title) title += await directoryStore.getConceptName();
+  }
+  if (to.matched.some((record: any) => record.name === "Editor")) {
+    title += "Editor: " + (await editorStore.getConceptName());
+  }
+  if (to.matched.some((record: any) => record.name === "Query")) {
+    title += "Query";
+    if (to.params.queryIri) title += ": " + (await queryStore.getQueryName());
+  }
+  if (to.matched.some(record => record.name === "Uprn")) {
+    title += "ASSIGN-UPRN";
+  }
+  nextTick(() => {
+    document.title = APP_TITLE + (title ? " - " : "") + title;
   });
 }
 
 router.beforeEach(async (to, from) => {
-  const loadingStore = useLoadingStore();
-  if (routes.findIndex(view => view.name === to.meta.name) != -1) {
-    loadingStore.updateViewsLoading(true);
-  }
-  if (to.matched.some((record: any) => record.name === "Directory") && to.name !== from.name) {
-    loadingStore.updateDirectoryLoading(true);
-  }
-  if (to.matched.some(record => record.name === "Uprn") && to.name !== from.name) {
-    loadingStore.updateUprnLoading(true);
-  }
-  const directoryStore = useDirectoryStore();
+  startRouterLoading(routes, to, from);
   const authStore = useAuthStore();
   const creatorStore = useCreatorStore();
   const editorStore = useEditorStore();
   const userStore = useUserStore();
-  const queryStore = useQueryStore();
 
   const currentPath = to.path;
 
   authStore.updateAuthReturnPath(currentPath);
 
   const iri = to.params.selectedIri;
-  if (to.matched.some((record: any) => record.name === "Directory") && iri) {
-    directoryStore.updateConceptIri(iri as string);
-  }
-  if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
-    if (iri) editorStore.updateEditorIri(iri);
-    try {
-      if (!(await EntityService.iriExists(urlToIri(iri)))) {
-        await router.push({ name: "EntityNotFound", params: { iri: iri } });
-      }
-    } catch (_error) {
-      await router.push({ name: "EntityNotFound", params: { iri: iri } });
-    }
-  }
-  if (to.name?.toString() == "Query") {
-    const queryIri = to.params.queryIri;
-    if (queryIri && typeof queryIri === "string") {
-      queryStore.updateQueryIri(queryIri);
-      try {
-        if (!(await EntityService.iriExists(urlToIri(queryIri)))) {
-          await router.push({ name: "EntityNotFound", params: { iri: queryIri } });
-        }
-      } catch (_error) {
-        await router.push({ name: "EntityNotFound", params: { iri: queryIri } });
-      }
-    } else queryStore.updateQueryIri("");
-  }
-  if (to.matched.some((record: any) => record.meta.requiresAuth)) {
-    const { user } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + user ? "true" : "false");
-    if (!user) {
-      if (from.name === "Logout") {
-        await router.push({ name: "LandingPage" });
-        return false;
-      } else {
-        await directToLogin();
-        return false;
-      }
-    }
-  }
 
-  if (to.matched.some((record: any) => record.meta.requiresAdmin)) {
-    const { user } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + user ? "true" : "false");
-    if (!user?.roles.includes("IMAdmin")) {
-      if (from.name === "Logout") {
-        await router.push({ name: "LandingPage" });
-        return false;
-      } else {
-        await directToLogin();
-        return false;
-      }
-    }
-  }
+  await requiresAuthGuard(to, from, router);
+  await requiresAdmin(to, from, router);
+  await requiresReAuth(to, from, router);
+  await requiresCreateRole(to, from, router);
+  await requiresEditRole(to, from, router);
+  requiresSnomedLicense(to);
+  requiresUprnAgreement(to);
+  await requiresOrganisation(iri, to, router);
 
-  if (to.matched.some((record: any) => record.meta.requiresReAuth)) {
-    if (!(from.name === "Login" || from.name === "MFALogin")) {
-      console.log("requires re-authentication");
-      await directToLogin();
-      return false;
-    }
-  }
-
-  if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
-    const { status } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
-    if (status !== 200) {
-      await directToLogin();
-      return false;
-    } else if (!userStore.currentUser?.roles?.includes("create")) {
-      await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
-    }
-  }
-
-  if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
-    const { status } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
-    if (status !== 200) {
-      await directToLogin();
-      return false;
-    } else if (!userStore.currentUser?.roles?.includes("edit")) {
-      await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
-    }
-  }
-
-  if (to.matched.some((record: any) => record.meta.requiresLicense)) {
-    console.log("snomed license accepted:" + userStore.snomedLicenseAccepted);
-  }
-
-  if (to.matched.some((record: any) => record.meta.requiresUprnAgreement)) {
-    console.log("uprn agreement accepted: " + userStore.uprnAgreementAccepted);
-  }
-
-  if (to.matched.some((record: any) => record.meta.requiresOrganisation)) {
-    let isEditAllowed = false;
-    if (userStore.isLoggedIn) isEditAllowed = await UserService.canUserEdit(iri as string);
-    if (!isEditAllowed) {
-      await router.push({ name: "AccessDenied", params: { requiredAccess: iri.slice(0, iri.indexOf("#") + 1), accessType: "organisation" } });
-    }
-  }
+  directoryGuard(iri, to, from);
+  await editorGuard(iri, to, from, router);
+  await queryGuard(iri, to, from, router);
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {
     await router.push({ name: "Creator" });
@@ -581,32 +502,8 @@ router.beforeEach(async (to, from) => {
 });
 
 router.afterEach(async to => {
-  const directoryStore = useDirectoryStore();
-  const editorStore = useEditorStore();
-  const queryStore = useQueryStore();
-  const loadingStore = useLoadingStore();
-  let title = (to.meta.title as string) ? (to.meta.title as string) : "";
-  if (routes.findIndex(view => view.name === to.meta.name) != -1) {
-    loadingStore.updateViewsLoading(false);
-  }
-  if (to.matched.some((record: any) => record.name === "Directory")) {
-    loadingStore.updateDirectoryLoading(false);
-    if (!to.meta.title) title += await directoryStore.getConceptName();
-  }
-  if (to.matched.some((record: any) => record.name === "Editor")) {
-    title += "Editor: " + (await editorStore.getConceptName());
-  }
-  if (to.matched.some((record: any) => record.name === "Query")) {
-    title += "Query";
-    if (to.params.queryIri) title += ": " + (await queryStore.getQueryName());
-  }
-  if (to.matched.some(record => record.name === "Uprn")) {
-    loadingStore.updateUprnLoading(false);
-    title += "ASSIGN-UPRN";
-  }
-  nextTick(() => {
-    document.title = APP_TITLE + (title ? " - " : "") + title;
-  });
+  setBrowserTabTitles(to);
+  endRouterLoading(routes, to);
 });
 
 export default router;

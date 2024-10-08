@@ -82,7 +82,7 @@
           <Button
             v-if="!isRootFeature && editMatch?.match?.length > 1 && isBooleanEditor"
             class="builder-button group-button"
-            severity="warning"
+            severity="warn"
             icon="fa-solid fa-brackets-curly"
             :outlined="!hover"
             :class="[!hover && 'hover-button', 'strike-through']"
