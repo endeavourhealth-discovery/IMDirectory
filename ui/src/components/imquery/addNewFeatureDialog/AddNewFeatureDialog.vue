@@ -42,12 +42,7 @@
           </div>
         </div>
       </div>
-      <EditMatch
-        v-if="active === 2 && editMatch && getLeafMatch(editMatch)"
-        :edit-match="getLeafMatch(editMatch)"
-        :focused-id="getLeafMatch(editMatch)['@id']"
-        :is-root-feature="true"
-      />
+      <EditMatch v-if="active === 2 && editMatch" :edit-match="editMatch" :focused-id="editMatch['@id']" :is-root-feature="true" />
       <div class="flex-0 populate-property-actions flex justify-end gap-2">
         <Button label="Cancel" severity="secondary" @click="visible = false" />
         <Button v-if="hasQueryOrFeatureSelected" label="Save" @click="addQueryOrFeature" data-testid="add-feature-save-query-button" />

@@ -1,6 +1,12 @@
 <template>
   <div>
-    <Dialog v-model:visible="visible" maximizable :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }" class="edit-match-dialog">
+    <Dialog
+      v-model:visible="visible"
+      maximizable
+      :draggable="false"
+      :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
+      class="edit-match-dialog"
+    >
       <template #header>
         <div class="flex items-center">
           <Button v-if="pathItems && pathItems.length > 1" icon="fa-solid fa-chevron-left" text @click="goBack" />
