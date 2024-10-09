@@ -287,7 +287,7 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("LS123AA");
   });
 
-  it.only("add a direct property of age to patient with a nested property of address.postcode in two steps", () => {
+  it("add a direct property of age to patient with a nested property of address.postcode in two steps", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();
     cy.get("#Property").click();
