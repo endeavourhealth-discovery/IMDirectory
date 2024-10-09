@@ -262,4 +262,54 @@ describe("Query builder", () => {
     cy.getByTestId("save-feature-button").contains("Save").click();
     cy.get(".edit-match-container").contains("date 10 day after the date of Medication");
   });
+
+  it("add a direct property of age to patient with a nested property of address.postcode in one step", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get("#Property").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("nhs number");
+    cy.get(".datatable-flex-cell").contains("nhs number", { matchCase: false }).click();
+    cy.getByTestId("add-feature-ok-button").contains("OK").click();
+    cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
+
+    cy.get(".p-dialog-content").find(".add-property-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-content").contains("Address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("postcode").click();
+    cy.get(".add-property-dialog", { timeout: 60000 }).find("[data-testid=property-value-input]").type("LS123AA");
+    cy.getByTestId("add-property-dialog-save").contains("Save").click();
+
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("nHS Number");
+    cy.get(".edit-match-container").contains("123456789");
+    cy.get(".edit-match-container").contains("address");
+    cy.get(".edit-match-container").contains("postcode");
+    cy.get(".edit-match-container").contains("LS123AA");
+  });
+
+  it.only("add a direct property of age to patient with a nested property of address.postcode in two steps", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get("#Property").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("nhs number");
+    cy.get(".datatable-flex-cell").contains("nhs number", { matchCase: false }).click();
+    cy.getByTestId("add-feature-ok-button").contains("OK").click();
+    cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("nHS Number").click();
+
+    cy.get(".p-dialog-content").find(".add-property-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-content").contains("Address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("postcode").click();
+    cy.get(".add-property-dialog", { timeout: 60000 }).find("[data-testid=property-value-input]").type("LS123AA");
+    cy.getByTestId("add-property-dialog-save").contains("Save").click();
+
+    cy.getByTestId("save-feature-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("nHS Number");
+    cy.get(".edit-match-container").contains("123456789");
+    cy.get(".edit-match-container").contains("address");
+    cy.get(".edit-match-container").contains("postcode");
+    cy.get(".edit-match-container").contains("LS123AA");
+  });
 });
