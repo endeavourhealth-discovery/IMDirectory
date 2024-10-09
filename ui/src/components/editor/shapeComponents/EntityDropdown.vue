@@ -6,10 +6,11 @@
         <span v-if="showRequired" class="required">*</span>
       </div>
       <Select
-        class="entity-single-dropdown"
-        :class="invalid && showValidation && 'invalid'"
         v-model="selectedEntity"
+        :class="invalid && showValidation && 'invalid'"
         :options="dropdownOptions"
+        class="entity-single-dropdown"
+        data-testid="entity-single-dropdown"
         optionLabel="name"
       />
     </span>
@@ -18,17 +19,17 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
+<script lang="ts" setup>
+import { computed, ComputedRef, inject, onMounted, ref, Ref, watch } from "vue";
 import { EditorMode } from "@im-library/enums";
-import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import _ from "lodash-es";
 
 interface Props {

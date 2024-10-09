@@ -4,13 +4,20 @@
       <span v-if="shape.showTitle">{{ shape.name }}</span>
       <span v-if="showRequired" class="required">*</span>
     </div>
-    <Textarea class="p-inputtext-lg input-html" :class="invalid && showValidation && 'invalid'" v-model="userInput" rows="4" @drop.prevent />
+    <Textarea
+      v-model="userInput"
+      :class="invalid && showValidation && 'invalid'"
+      class="p-inputtext-lg input-html"
+      data-testid="html-input"
+      rows="4"
+      @drop.prevent
+    />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType, Ref, ComputedRef, computed } from "vue";
+<script lang="ts" setup>
+import { computed, ComputedRef, inject, onMounted, ref, Ref, watch } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
