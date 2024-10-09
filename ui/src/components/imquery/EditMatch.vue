@@ -25,7 +25,6 @@
       />
       <div v-else-if="editMatch.displayLabel">{{ editMatch.displayLabel }}</div>
       <div v-else-if="editMatch?.name" v-html="editMatch?.name" />
-
       <div v-if="editMatch?.match" class="feature-group">
         <Button
           v-if="isBooleanEditor && editMatch?.match.length > 1"
@@ -203,7 +202,7 @@ onMounted(() => {
 watch(
   () => cloneDeep(props.editMatch),
   () => {
-    if (fullQuery.value) typeOf.value = typeOf.value = getTypeOf(fullQuery.value);
+    if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
   }
 );
 
@@ -225,7 +224,6 @@ async function onPropertyAdd(property: Where) {
   } else {
     props.editMatch.where.push(property);
   }
-
   const describedMatch = await QueryService.getQueryDisplayFromQuery({ match: [props.editMatch] } as Query, false);
   if (describedMatch?.match?.[0]?.where) props.editMatch.where = describedMatch.match?.[0].where;
 }
