@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-09-12 10:51:47.
+// Generated using typescript-generator version 3.2.1263 on 2024-10-07 11:54:07.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -68,6 +68,19 @@ export interface Refinement extends BuilderComponent {
 export interface SubExpressionConstraint {
     concept?: ConceptReference;
     constraintOperator?: string;
+}
+
+export interface GithubAuthorDTO {
+    login?: string;
+}
+
+export interface GithubDTO {
+    tag_name?: string;
+    name?: string;
+    body?: string;
+    created_at?: string;
+    published_at?: string;
+    author?: GithubAuthorDTO;
 }
 
 export interface GithubRelease {
@@ -242,13 +255,15 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
     unit?: string;
+    valueLabel?: string;
+    qualifier?: string;
+    operator?: Operator;
 }
 
 export interface Case {
     when?: When[];
-    else?: ReturnProperty;
+    else?: Return;
 }
 
 export interface ContextMap {
@@ -276,10 +291,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
     descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -290,11 +305,12 @@ export interface FunctionClause extends Value {
 
 export interface IriLD {
     "@id"?: string;
+    qualifier?: string;
     name?: string;
+    description?: string;
 }
 
 export interface Match extends IriLD {
-    description?: string;
     exclude?: boolean;
     nodeRef?: string;
     boolMatch?: Bool;
@@ -303,6 +319,8 @@ export interface Match extends IriLD {
     instanceOf?: Node[];
     where?: Where[];
     match?: Match[];
+    inlineOperator?: string;
+    includeIf?: string;
     graph?: Element;
     orderBy?: OrderLimit;
     optional?: boolean;
@@ -381,8 +399,8 @@ export interface QueryRequest extends ContextMap {
 }
 
 export interface Range {
-    from: Assignable;
-    to: Assignable;
+    from: Value;
+    to: Value;
 }
 
 export interface Return {
@@ -390,12 +408,11 @@ export interface Return {
     function?: FunctionClause;
     property?: ReturnProperty[];
     as?: string;
-    valueRef?: string[];
-    path?: IriLD[];
 }
 
 export interface ReturnProperty {
     "@id"?: string;
+    name?: string;
     function?: FunctionClause;
     as?: string;
     nodeRef?: string;
@@ -408,8 +425,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -422,24 +439,23 @@ export interface Value extends Assignable {
 
 export interface When {
     property?: Where;
-    then?: ReturnProperty;
+    then?: Return;
 }
 
-export interface Where extends PropertyRef {
-    description?: string;
+export interface Where extends PropertyRef, Assignable {
     match?: Match;
     range?: Range;
-    operator?: Operator;
     isNull?: boolean;
-    value?: string;
-    unit?: string;
     relativeTo?: PropertyRef;
     anyRoleGroup?: boolean;
     is?: Node[];
     boolWhere?: Bool;
     where?: Where[];
-    valueLabel?: string;
+    inlineOperator?: string;
     isNotNull?: boolean;
+    /**
+     * @deprecated
+     */
     displayLabel?: string;
 }
 
@@ -771,15 +787,15 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
     status?: TTIriRef;
+    description?: string;
     code?: string;
     prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {

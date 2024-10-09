@@ -201,6 +201,7 @@ export class IM {
   public static readonly ENTITY_TYPE = IM.NAMESPACE + "entityType";
   public static readonly VALUE_DATA = IM.NAMESPACE + "valueData";
   public static readonly VALUE_OBJECT = IM.NAMESPACE + "valueObject";
+  public static readonly PREPOSITION = IM.NAMESPACE + "preposition";
   public static readonly VALUE_IRI = IM.NAMESPACE + "valueIri";
   public static readonly VALUE_IRI_LIST = IM.NAMESPACE + "valueIriList";
   public static readonly VALUE_DATA_LIST = IM.NAMESPACE + "valueDataList";
