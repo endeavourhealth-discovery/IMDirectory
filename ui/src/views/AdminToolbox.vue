@@ -9,18 +9,22 @@
     </TopBar>
     <div id="toolbox-container" class="flex flex-1 flex-row overflow-auto">
       <Menu :model="adminMenu" class="rounded-none border-b-0 border-t-0" />
-      <router-view />
+      <div v-if="adminToolboxLoading" class="flex flex-1 flex-row items-center justify-center"><ProgressSpinner /></div>
+      <router-view v-else />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-import { Ref, ref } from "vue";
+import { computed, Ref, ref } from "vue";
 import { MenuItem } from "primevue/menuitem";
 import { useRouter } from "vue-router";
+import { useLoadingStore } from "@/stores/loadingStore";
 
 const router = useRouter();
+const loadingStore = useLoadingStore();
+const adminToolboxLoading = computed(() => loadingStore.adminToolboxLoading);
 
 const adminMenu: Ref<MenuItem[]> = ref([
   { label: "Github", items: [{ label: "Update config", icon: "fa-brands fa-github", command: async () => await router.push({ name: "UpdateConfig" }) }] },
