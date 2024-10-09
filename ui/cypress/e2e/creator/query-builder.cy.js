@@ -1,4 +1,26 @@
 describe("Query builder", () => {
+  Cypress.Commands.add("populateBaseType", () => {
+    cy.get("#im-query-editor-container").find("[data-testid=autocomplete-search-button]").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("patient");
+    cy.get(".datatable-flex-cell").contains("Patient").click();
+    cy.wait(1000);
+    cy.get(".p-dialog-footer").find("[data-testid=search-dialog-select-button]").contains("Select").click();
+    cy.get("#im-query-editor-container").find("[data-testid=search-input]").should("have.value", "Patient");
+  });
+
+  Cypress.Commands.add("addFeature", (searchTerm, entityToSelect, entityType) => {
+    cy.get(".add-feature-button").contains("Add feature").click();
+    if (entityType) cy.get(entityType).click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type(searchTerm);
+    cy.get(".datatable-flex-cell").contains(entityToSelect).click();
+    cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
+    cy.wait(1000);
+    cy.getByTestId("add-feature-ok-button").contains("OK").click();
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("Medication");
+    cy.get(".edit-match-container").contains("Paracetamol");
+  });
+
   beforeEach(() => {
     cy.preventRouterNewTab();
     cy.acceptLicenseAndLogin();
@@ -213,5 +235,81 @@ describe("Query builder", () => {
     cy.getByTestId("add-feature-save-query-button", { timeout: 60000 }).contains("Save").click();
     cy.get(".edit-match-container").contains("in the cohort");
     cy.get(".edit-match-container").contains("Patients registered for GMS services on the reference date");
+  });
+
+  it("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
+    cy.populateBaseType();
+    cy.addFeature("paracetamol", "Paracetamol 500mg tablets", "#Concept");
+    cy.get(".edit-match-container").contains("Medication").click();
+    cy.get("[placeholder='Keep as reference']").type("med");
+    cy.get(".edit-match-container").contains("label as med");
+    cy.getByTestId("save-feature-button").contains("Save").click();
+    cy.addFeature("adverse reaction paracetamol", "Adverse reaction caused by paracetamol", "#Concept");
+    cy.get(".edit-match-container").contains("Condition").click();
+    cy.get(".add-property-button").click();
+    cy.get(".p-tree-node-selectable").contains("date").click();
+    cy.get(".datatype-select").find(".p-select").first().click({ force: true });
+    cy.get(".p-select-option").contains("within").click();
+    cy.get(".p-togglebutton-label").contains("the next").click();
+    cy.get("[inputmode=numeric]").type("10");
+    cy.get(".p-select").last().click();
+    cy.get(".p-select-option").contains("day(s)").click();
+    cy.get("[placeholder='relative to']").click();
+    cy.get(".relative-to-select-dialog").find(".p-tree-node-toggle-button").click();
+    cy.get(".relative-to-select-dialog").find(".p-tree-node-selectable").contains("date").click();
+    cy.get(".relative-to-select-dialog").parent().parent().find(".p-dialog-footer").find(".p-button").last().contains("Save").click();
+    cy.getByTestId("add-property-dialog-save").contains("Save").click();
+    cy.getByTestId("save-feature-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("date 10 day after the date of Medication");
+  });
+
+  it("add a direct property of age to patient with a nested property of address.postcode in one step", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get("#Property").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("nhs number");
+    cy.get(".datatable-flex-cell").contains("nhs number", { matchCase: false }).click();
+    cy.getByTestId("add-feature-ok-button").contains("OK").click();
+    cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
+
+    cy.get(".p-dialog-content").find(".add-property-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-content").contains("Address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("postcode").click();
+    cy.get(".add-property-dialog", { timeout: 60000 }).find("[data-testid=property-value-input]").type("LS123AA");
+    cy.getByTestId("add-property-dialog-save").contains("Save").click();
+
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("nHS Number");
+    cy.get(".edit-match-container").contains("123456789");
+    cy.get(".edit-match-container").contains("address");
+    cy.get(".edit-match-container").contains("postcode");
+    cy.get(".edit-match-container").contains("LS123AA");
+  });
+
+  it("add a direct property of age to patient with a nested property of address.postcode in two steps", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get("#Property").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("nhs number");
+    cy.get(".datatable-flex-cell").contains("nhs number", { matchCase: false }).click();
+    cy.getByTestId("add-feature-ok-button").contains("OK").click();
+    cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("nHS Number").click();
+
+    cy.get(".p-dialog-content").find(".add-property-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-content").contains("Address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("postcode").click();
+    cy.get(".add-property-dialog", { timeout: 60000 }).find("[data-testid=property-value-input]").type("LS123AA");
+    cy.getByTestId("add-property-dialog-save").contains("Save").click();
+
+    cy.getByTestId("save-feature-button").contains("Save").click();
+    cy.get(".edit-match-container").contains("nHS Number");
+    cy.get(".edit-match-container").contains("123456789");
+    cy.get(".edit-match-container").contains("address");
+    cy.get(".edit-match-container").contains("postcode");
+    cy.get(".edit-match-container").contains("LS123AA");
   });
 });
