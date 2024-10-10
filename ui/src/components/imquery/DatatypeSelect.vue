@@ -32,6 +32,7 @@
       <Select
         :options="[
           { id: 'is', name: 'is' },
+          { id: 'between', name: 'between' },
           { id: 'range', name: 'in range' },
           { id: 'notNull', name: 'is recorded' },
           { id: 'isNull', name: 'is not recorded' }
@@ -46,20 +47,29 @@
         <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" data-testid="property-unit-select" />
         <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
       </div>
+      <div v-else-if="propertyType === 'between'" class="property-input">
+        <div class="property-range" v-if="property?.range?.from">
+          <InputText type="text" placeholder="value" v-model="property.range.from.value" />
+          <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.range.from.unit" />
+        </div>
+        <div class="property-range" v-if="property?.range?.to">
+          <InputText :value="'and'" disabled class="property-input-title" />
+          <InputText type="text" placeholder="value" v-model="property.range.to.value" />
+          <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.range.to.unit" />
+        </div>
+      </div>
       <div v-else-if="propertyType === 'range'" class="property-input">
         <div class="property-range" v-if="property?.range?.from">
           <InputText :value="'From'" disabled class="property-input-title" />
-          <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.from.operator" />
+          <Select type="text" placeholder="operator" :options="operatorOptions.filter(option => option !== '=')" v-model="property.range.from.operator" />
           <InputText type="text" placeholder="value" v-model="property.range.from.value" />
           <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.range.from.unit" />
-          <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
         </div>
         <div class="property-range" v-if="property?.range?.to">
           <InputText :value="'To'" disabled class="property-input-title" />
-          <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.range.to.operator" />
+          <Select type="text" placeholder="operator" :options="operatorOptions.filter(option => option !== '=')" v-model="property.range.to.operator" />
           <InputText type="text" placeholder="value" v-model="property.range.to.value" />
           <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.range.to.unit" />
-          <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
         </div>
       </div>
     </div>
@@ -100,6 +110,12 @@ watch(
         props.property.isNotNull = undefined;
         if (!props.property.range) props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
         break;
+      case "between":
+        props.property.operator = undefined;
+        props.property.isNull = undefined;
+        props.property.isNotNull = undefined;
+        if (!props.property.range) props.property.range = { from: { operator: Operator.gte }, to: { operator: Operator.lte } as Assignable } as Range;
+        break;
       case "startsWith":
         delete props.property.range;
         props.property.isNull = undefined;
@@ -137,8 +153,10 @@ watch(
 );
 
 onMounted(() => {
-  if (isObjectHasKeys(props.property.range)) propertyType.value = "range";
-  else if (props.property.operator === "startsWith" || props.property.operator === "contains") propertyType.value = props.property.operator;
+  if (isObjectHasKeys(props.property.range)) {
+    if (props.property.range?.from.operator === Operator.gte && props.property.range?.to.operator === Operator.lte) propertyType.value = "between";
+    else propertyType.value = "range";
+  } else if (props.property.operator === "startsWith" || props.property.operator === "contains") propertyType.value = props.property.operator;
   else if (props.property.isNull) propertyType.value = "isNull";
   else if (props.property.isNotNull) propertyType.value = "notNull";
   else if (props.datatype !== IM.DATE_TIME) propertyType.value = "is";
