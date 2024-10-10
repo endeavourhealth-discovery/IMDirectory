@@ -29,7 +29,7 @@ describe("Query builder", () => {
     cy.get("#apps-menu").find(".shortcut-container").contains("Creator").click();
     cy.visitNewTab("/#/creator/");
     cy.url().should("include", "/creator");
-    cy.get(".type-selector").find(".custom-button").contains("Cohort Query").click();
+    cy.get(".type-selector", { timeout: 60000 }).find(".custom-button").contains("Cohort Query").click();
   });
 
   it("starts with empty base type", () => {
@@ -208,6 +208,7 @@ describe("Query builder", () => {
     cy.get("#Property").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("nhs number");
     cy.get(".datatable-flex-cell").contains("nhs number", { matchCase: false }).click();
+    cy.wait(10000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
     cy.getByTestId("add-feature-save-button").contains("Save").click();
@@ -269,6 +270,7 @@ describe("Query builder", () => {
     cy.get("#Property").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("nhs number");
     cy.get(".datatable-flex-cell").contains("nhs number", { matchCase: false }).click();
+    cy.wait(10000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
 
@@ -293,6 +295,7 @@ describe("Query builder", () => {
     cy.get("#Property").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("nhs number");
     cy.get(".datatable-flex-cell").contains("nhs number", { matchCase: false }).click();
+    cy.wait(10000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
     cy.getByTestId("add-feature-save-button").contains("Save").click();
