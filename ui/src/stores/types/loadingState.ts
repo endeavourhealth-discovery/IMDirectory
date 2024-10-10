@@ -3,4 +3,6 @@ export interface LoadingState {
   directoryLoading: boolean;
   authLoading: boolean;
   uprnLoading: boolean;
+  adminToolboxLoading: boolean;
+  workflowLoading: boolean;
 }

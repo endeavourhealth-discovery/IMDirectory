@@ -6,8 +6,8 @@
     <p class="error-text">
       <span>The page or resource you were trying to reach is forbidden.</span> <br />
       <span v-if="requiredAccess"
-        >Missing <span v-if="accessType">{{ accessType }}</span> <Tag :value="requiredAccess" severity="warning" :rounded="true" /> permissions required to
-        access this resource.</span
+        >Missing <span v-if="accessType">{{ accessType }}</span> <Tag :value="requiredAccess" severity="warn" :rounded="true" /> permissions required to access
+        this resource.</span
       >
       <br />
       <span>Please contact an admin to request access to this resource.</span>

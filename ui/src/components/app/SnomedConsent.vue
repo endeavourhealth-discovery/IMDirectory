@@ -1,9 +1,9 @@
 <template>
   <Dialog
     header="SNOMED License Agreement"
-    :visible="showDialog"
+    :visible="showSnomedLicense"
     :modal="true"
-    :data-testid="'license-dialog' + showDialog"
+    :data-testid="'license-dialog' + showSnomedLicense"
     :closable="false"
     :close-on-escape="false"
   >
@@ -72,7 +72,7 @@
       </div>
     </div>
     <template #footer>
-      <Button severity="warning" label="Decline" icon="fa-solid fa-xmark" @click="submitDecline" data-testid="decline-button" />
+      <Button severity="warn" label="Decline" icon="fa-solid fa-xmark" @click="submitDecline" data-testid="decline-button" />
       <Button label="Agree" icon="fa-solid fa-check" @click="submitAgree" data-testid="agree-button" />
     </template>
   </Dialog>
@@ -83,19 +83,11 @@ import { computed } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { useUserStore } from "@/stores/userStore";
-import { useRoute } from "vue-router";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const userStore = useUserStore();
-const snomedLicenseAccepted = computed(() => userStore.snomedLicenseAccepted);
-
-const route = useRoute();
-
-const showDialog = computed(() => {
-  if (snomedLicenseAccepted.value === true) {
-    return false;
-  } else if (route.meta.requiresLicense) return true;
-  else return false;
-});
+const sharedStore = useSharedStore();
+const showSnomedLicense = computed(() => sharedStore.showSnomedLicense);
 
 function submitDecline(): void {
   userStore.updateSnomedLicenseAccepted(false);
@@ -104,6 +96,7 @@ function submitDecline(): void {
 
 function submitAgree(): void {
   userStore.updateSnomedLicenseAccepted(true);
+  sharedStore.updateShowSnomedLicense(false);
 }
 </script>
 

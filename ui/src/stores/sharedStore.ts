@@ -6,6 +6,7 @@ export const useSharedStore = defineStore("shared", {
   state: (): SharedState => ({
     showCookieConsent: false,
     showSnomedLicense: false,
+    showUprnConsent: false,
     tagSeverityMatches: [
       { "@id": IM.ACTIVE, severity: "success" },
       { "@id": IM.DRAFT, severity: "warning" },
@@ -25,6 +26,9 @@ export const useSharedStore = defineStore("shared", {
     },
     updateShowSnomedLicense(bool: boolean) {
       this.showSnomedLicense = bool;
+    },
+    updateShowUprnConsent(bool: boolean) {
+      this.showUprnConsent = bool;
     },
     updateShowReleaseNotes(bool: boolean) {
       this.showReleaseNotes = bool;
