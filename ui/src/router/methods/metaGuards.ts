@@ -7,7 +7,6 @@ import { useSharedStore } from "@/stores/sharedStore";
 export async function requiresAuthGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router) {
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
     const { user } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + user ? "true" : "false");
     if (!user) {
       if (from.name === "Logout") {
         await router.push({ name: "LandingPage" });
@@ -23,7 +22,6 @@ export async function requiresAuthGuard(to: RouteLocationNormalized, from: Route
 export async function requiresAdmin(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router) {
   if (to.matched.some((record: any) => record.meta.requiresAdmin)) {
     const { user } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + user ? "true" : "false");
     if (!user?.roles.includes("IMAdmin")) {
       if (from.name === "Logout") {
         await router.push({ name: "LandingPage" });
@@ -50,7 +48,6 @@ export async function requiresCreateRole(to: RouteLocationNormalized, from: Rout
   if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
     const userStore = useUserStore();
     const { status } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
     if (status !== 200) {
       await directToLogin(router);
       return false;
@@ -64,7 +61,6 @@ export async function requiresEditRole(to: RouteLocationNormalized, from: RouteL
   if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
     const userStore = useUserStore();
     const { status } = await AuthService.getCurrentAuthenticatedUser();
-    console.log("auth guard user authenticated: " + (status === 200 ? "true" : "false"));
     if (status !== 200) {
       await directToLogin(router);
       return false;
