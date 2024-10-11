@@ -106,7 +106,7 @@
         <Button
           v-if="parent && !group.length && value?.items?.length > 1"
           class="builder-button group-button"
-          severity="warning"
+          severity="warn"
           icon="fa-solid fa-brackets-curly"
           :outlined="!hover"
           :class="[!hover && 'hover-button', 'strike-through']"

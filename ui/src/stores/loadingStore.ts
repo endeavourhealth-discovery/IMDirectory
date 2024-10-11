@@ -6,7 +6,9 @@ export const useLoadingStore = defineStore("loading", {
     viewsLoading: false,
     directoryLoading: false,
     authLoading: false,
-    uprnLoading: false
+    uprnLoading: false,
+    adminToolboxLoading: false,
+    workflowLoading: false
   }),
   actions: {
     updateViewsLoading(bool: boolean) {
@@ -20,6 +22,12 @@ export const useLoadingStore = defineStore("loading", {
     },
     updateUprnLoading(bool: boolean) {
       this.uprnLoading = bool;
+    },
+    updateAdminToolboxLoading(bool: boolean) {
+      this.adminToolboxLoading = bool;
+    },
+    updateWorkflowLoading(bool: boolean) {
+      this.workflowLoading = bool;
     }
   }
 });

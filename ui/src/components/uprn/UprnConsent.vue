@@ -1,7 +1,7 @@
 <template>
   <Dialog
     header="UPRN License Agreement"
-    :visible="showDialog"
+    :visible="showUprnConsent"
     :modal="true"
     :closable="false"
     :close-on-escape="false"
@@ -82,13 +82,14 @@
       </div>
     </div>
     <template #footer>
-      <Button severity="warning" label="Decline" icon="fa-solid fa-xmark" @click="submitDecline" data-testid="decline-button" />
+      <Button severity="warn" label="Decline" icon="fa-solid fa-xmark" @click="submitDecline" data-testid="decline-button" />
       <Button label="Agree" icon="fa-solid fa-check" @click="submitAgree" data-testid="agree-button" />
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
+import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -99,19 +100,18 @@ const uprnLicenseAccepted = computed(() => userStore.uprnAgreementAccepted);
 const route = useRoute();
 const router = useRouter();
 
-const showDialog = computed(() => {
-  if (uprnLicenseAccepted.value === true) return false;
-  else if (route.meta.requiresUprnAgreement) return true;
-  else return false;
-});
+const sharedStore = useSharedStore();
+const showUprnConsent = computed(() => sharedStore.showUprnConsent);
 
 function submitDecline(): void {
   userStore.updateUprnAgreementAccepted(false);
+  sharedStore.updateShowUprnConsent(false);
   router.push({ path: "/" });
 }
 
 function submitAgree(): void {
   userStore.updateUprnAgreementAccepted(true);
+  sharedStore.updateShowUprnConsent(false);
 }
 </script>
 

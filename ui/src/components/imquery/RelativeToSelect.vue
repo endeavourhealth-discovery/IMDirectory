@@ -15,7 +15,7 @@
       />
     </div>
     <template #footer>
-      <Button label="Clear" severity="warning" @click="clear" text />
+      <Button label="Clear" severity="warn" @click="clear" text />
       <Button label="Cancel" severity="secondary" @click="cancel" text />
       <Button label="Save" @click="save" text />
     </template>

@@ -69,7 +69,7 @@ describe("top bar", () => {
     describe("upload/download", () => {
       it("can open code generator", () => {
         cy.getByTestId("upload-download-button").click();
-        cy.get("#admin-menu").find("span").contains("Download Code").click();
+        cy.get("#upload-download-menu").find("span").contains("Download Code").click();
         cy.get("#code-download-dialog").find(".p-dialog-title").contains("Set namespace/package");
       });
     });
