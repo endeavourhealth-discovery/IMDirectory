@@ -19,12 +19,6 @@ export default class CognitoController {
   }
 
   private initRoutes() {
-    this.router.get("/public/isEmailRegistered", (req, res, next) =>
-      this.isEmailRegistered(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
-
     this.router.get("/public/validateToken", (req, res, next) =>
       this.isTokenValid(req)
         .then(data => res.send(data))
@@ -36,15 +30,6 @@ export default class CognitoController {
         .then(() => res.send())
         .catch(next)
     );
-  }
-
-  async isEmailRegistered(req: Request) {
-    const email = req.query.email;
-    if (!email || typeof email !== "string") {
-      throw new Error("Missing email parameter or email is not of type 'string'");
-    } else {
-      return await this.cognitoService.isEmailRegistered(email);
-    }
   }
 
   async isTokenValid(req: Request) {
