@@ -93,7 +93,7 @@
         @click="openUploadDownloadMenu"
         data-testid="upload-download-button"
       />
-      <Menu ref="uploadDownloadMenu" id="uploadDownload-menu" :model="uploadDownloadItems" :popup="true" />
+      <Menu ref="uploadDownloadMenu" id="upload-download-menu" :model="uploadDownloadItems" :popup="true" />
       <Button
         v-tooltip.bottom="'Apps'"
         icon="fa-regular fa-grid-2"
