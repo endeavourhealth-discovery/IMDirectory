@@ -260,6 +260,8 @@ function updateSelectedIri(iri: string) {
 function onOKButtonClick() {
   if (selectedValueMap.value.size === 0) {
     addDefaultValue.value = true;
+  } else {
+    active.value = 2;
   }
 }
 </script>
