@@ -50,6 +50,7 @@ interface Props {
   dataModelIri: string | undefined;
   propertyIri: string | undefined;
   updatedPathOption: boolean;
+  addDefaultValue?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -77,16 +78,23 @@ const valueLabel: Ref<string> = ref("");
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 const canHaveValueList: Ref<boolean> = ref(false);
 
+const emit = defineEmits({
+  goToNextStep: () => true
+});
+
 watch(
   () => props.updatedPathOption,
-  () => {
-    if (canHaveValueList.value) updatePathValues();
+  async () => {
+    if (canHaveValueList.value) await updatePathValues();
   }
 );
 
 watch(
   () => cloneDeep(selectedPath.value),
-  async newValue => await updateCanHaveValueList(newValue)
+  async (newValue, oldValue) => {
+    await updateCanHaveValueList(newValue);
+    if (newValue !== oldValue && props.addDefaultValue) emit("goToNextStep");
+  }
 );
 
 watch(
@@ -95,7 +103,10 @@ watch(
 );
 watch(
   () => cloneDeep(selectedEntities.value),
-  async () => updatePathValues()
+  async (newValue, oldValue) => {
+    await updatePathValues();
+    if (newValue !== oldValue && props.addDefaultValue) emit("goToNextStep");
+  }
 );
 onMounted(async () => await init());
 
@@ -118,7 +129,7 @@ function getColourStyleFromType(types: TTIriRef[]) {
   return "color: " + getColourFromType(types);
 }
 
-function updatePathValues() {
+async function updatePathValues() {
   let index = 0;
   if (selectedPath.value?.where?.length && selectedPath.value?.where?.length !== 1)
     index = selectedPath.value?.where?.findIndex(where => where["@id"] === props.propertyIri);

@@ -55,7 +55,13 @@
           </div>
         </div>
       </div>
-      <SelectedSet :dataModelIri="dataModelIri" :propertyIri="propertyIri" :updated-path-option="updatedPathOption" />
+      <SelectedSet
+        :add-default-value="props.addDefaultValue"
+        :dataModelIri="dataModelIri"
+        :propertyIri="propertyIri"
+        :updated-path-option="updatedPathOption"
+        @go-to-next-step="emit('goToNextStep')"
+      />
       <PathSelect
         :dataModelIri="dataModelIri"
         :pathSuggestions="pathSuggestions"
@@ -94,7 +100,7 @@ interface Props {
   selectedType: string;
   canClearPath?: boolean;
   propertyIri: string | undefined;
-  addDefaultValue: boolean;
+  addDefaultValue?: boolean;
 }
 
 const emit = defineEmits({
@@ -150,8 +156,10 @@ watch(
 
 watch(
   () => cloneDeep(props.addDefaultValue),
-  () => {
-    if (props.addDefaultValue) onSelect(detailsIri.value);
+  async () => {
+    if (props.addDefaultValue) {
+      await onSelect(detailsIri.value);
+    }
   }
 );
 

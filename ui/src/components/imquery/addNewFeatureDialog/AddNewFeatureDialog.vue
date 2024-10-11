@@ -164,9 +164,6 @@ watch(
   () => cloneDeep(selectedValueMap.value),
   async () => {
     await setHasQueryOrFeatureSelected();
-    if (addDefaultValue.value && selectedValueMap.value.size) {
-      active.value = 2;
-    }
     addDefaultValue.value = false;
   }
 );
