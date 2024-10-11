@@ -27,6 +27,10 @@ const AdminService = {
     return await axios.delete(Env.API + "api/admin/cognito/group/user", { data: { username: username, groupName: role } });
   },
 
+  async resetUserPassword(username: string) {
+    await axios.delete(Env.API + "api/admin/cognito/user/resetPassword", { params: { username: username } });
+  },
+
   async deleteUser(username: string): Promise<void> {
     return await axios.delete(Env.API + "api/admin/cognito/user", { data: { username: username } });
   },
