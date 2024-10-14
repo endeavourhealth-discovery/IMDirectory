@@ -4,7 +4,6 @@
   </div>
   <div v-else-if="canHaveValueList" class="flex w-full flex-col">
     <InputText v-model="valueLabel" placeholder="Value label" type="text" @change="updateValueLabel" />
-    {{ addDefaultValue }}
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #empty> Add concepts and/or sets to this list</template>
       <template #option="{ option }" class="flex flex-row">
