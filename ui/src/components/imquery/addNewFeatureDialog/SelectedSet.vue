@@ -84,7 +84,7 @@ const emit = defineEmits({
 
 watch(
   () => props.updatedPathOption,
-  async () => {
+  () => {
     if (canHaveValueList.value) updatePathValues();
   }
 );
