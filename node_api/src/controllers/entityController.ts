@@ -36,11 +36,6 @@ export default class EntityController {
         .then(data => res.send(data))
         .catch(next)
     );
-    this.router.post("/public/superiorPropertiesBoolFocusPaged", (req, res, next) =>
-      this.getSuperiorPropertiesBoolFocusPaged(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
     this.router.post("/public/validatedEntity", (req, res, next) =>
       this.getValidatedEntitiesBySnomedCodes(req)
         .then(data => res.send(data))
@@ -63,14 +58,6 @@ export default class EntityController {
       req.query.pageIndex as string,
       req.query.pageSize as string
     );
-  }
-
-  async getSuperiorPropertiesBoolFocusPaged(req: Request) {
-    const focus = req.body.focus;
-    const pageIndex = req.body.pageIndex;
-    const pageSize = req.body.pageSize;
-    const filters = req.body.filters;
-    return await this.entityService.getSuperiorPropertiesBoolFocusPaged(focus, pageIndex, pageSize, filters);
   }
 
   async getSetDiff(req: Request) {

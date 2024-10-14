@@ -140,29 +140,6 @@ export default class EntityService {
     return propertyList;
   }
 
-  async getSuperiorPropertiesBoolFocusPaged(focus: any, pageIndex?: number, pageSize?: number, filters?: string[]) {
-    let query;
-    let superiors = { result: [], totalCount: 0 };
-    if (focus.ecl) query = (await axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
-    if (query) {
-      const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
-      const results = (await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest)).data;
-      if (results.entities && isArrayHasLength(results.entities)) {
-        superiors = (
-          await this.axios.get(Env.API + "api/entity/public/superiorPropertiesBoolFocusPaged", {
-            params: {
-              conceptIris: results.entities.map((result: any) => result.iri).join(","),
-              pageIndex: pageIndex,
-              pageSize: pageSize,
-              schemeFilters: filters?.join(",")
-            }
-          })
-        ).data;
-      }
-    }
-    return superiors;
-  }
-
   async getSetDiff(setIriA: string, setIriB: string) {
     let membersA: Concept[] = [];
     let membersB: Concept[] = [];
