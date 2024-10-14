@@ -85,17 +85,14 @@ const emit = defineEmits({
 watch(
   () => props.updatedPathOption,
   async () => {
-    if (canHaveValueList.value) await updatePathValues();
+    if (canHaveValueList.value) updatePathValues();
   }
 );
 
 watch(
   () => cloneDeep(selectedPath.value),
-  async (newValue, oldValue) => {
+  async newValue => {
     await updateCanHaveValueList(newValue);
-    if (newValue !== oldValue && props.addDefaultValue) {
-      emit("goToNextStep");
-    }
   }
 );
 
@@ -110,11 +107,8 @@ watch(
 );
 watch(
   () => cloneDeep(selectedEntities.value),
-  async (newValue, oldValue) => {
-    await updatePathValues();
-    if (newValue !== oldValue && props.addDefaultValue) {
-      emit("goToNextStep");
-    }
+  async () => {
+    updatePathValues();
   }
 );
 onMounted(async () => await init());
@@ -138,7 +132,7 @@ function getColourStyleFromType(types: TTIriRef[]) {
   return "color: " + getColourFromType(types);
 }
 
-async function updatePathValues() {
+function updatePathValues() {
   let index = 0;
   if (selectedPath.value?.where?.length && selectedPath.value?.where?.length !== 1)
     index = selectedPath.value?.where?.findIndex(where => where["@id"] === props.propertyIri);
