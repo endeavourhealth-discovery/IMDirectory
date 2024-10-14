@@ -164,7 +164,6 @@ watch(
   () => cloneDeep(selectedValueMap.value),
   async () => {
     await setHasQueryOrFeatureSelected();
-    addDefaultValue.value = false;
   }
 );
 
@@ -198,6 +197,7 @@ async function setHasQueryOrFeatureSelected() {
     const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
     hasQueryOrFeatureSelected.value = isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
   } else hasQueryOrFeatureSelected.value = false;
+  addDefaultValue.value = false;
 }
 
 async function save() {
