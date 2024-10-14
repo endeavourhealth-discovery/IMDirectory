@@ -1,24 +1,24 @@
 <template>
-  <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
+  <Dialog v-model:visible="visible" :header="header" :style="{ minWidth: '50vw' }" maximizable modal>
     <div class="add-property-dialog flex">
       <QueryNavTree
-        class="w-4/12"
-        :editMatch="editMatch"
         v-model:selected-property="selectedProperty"
         :dm-iri="dataModelIri"
+        :editMatch="editMatch"
         :show-variable-options="showVariableOptions"
+        class="w-4/12"
       />
-      <EditProperty :edit-match="editMatch" :property="editWhere" :data-model-iri="editWhereDMIri || dataModelIri" :show-delete="false" />
+      <EditProperty :data-model-iri="editWhereDMIri || dataModelIri" :edit-match="editMatch" :property="editWhere" :show-delete="false" />
     </div>
     <template #footer>
-      <Button type="button" label="Cancel" severity="secondary" @click="visible = false" data-testid="add-property-dialog-cancel"></Button>
-      <Button type="button" label="Save" :disabled="!selectedProperty" @click="save" data-testid="add-property-dialog-save"></Button>
+      <Button data-testid="add-property-dialog-cancel" label="Cancel" severity="secondary" type="button" @click="visible = false"></Button>
+      <Button :disabled="!selectedProperty" data-testid="add-property-dialog-save" label="Save" type="button" @click="save"></Button>
     </template>
   </Dialog>
 </template>
 
-<script setup lang="ts">
-import { Ref, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { onMounted, Ref, ref, watch } from "vue";
 import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/treenode";
 import { buildProperty } from "@im-library/helpers/QueryBuilder";
@@ -64,19 +64,19 @@ watch(visible, newValue => {
 
 watch(
   () => cloneDeep(props.match),
-  newValue => {
+  () => {
     if (isObjectHasKeys(props.match, ["where"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
   }
 );
 
 watch(
   () => cloneDeep(selectedProperty.value),
-  newValue => handlePropertyUpdate()
+  () => handlePropertyUpdate()
 );
 
 watch(
   () => cloneDeep(editMatch.value),
-  async newValue => await handleEditMatchUpdate()
+  async () => await handleEditMatchUpdate()
 );
 
 onMounted(() => {
@@ -114,6 +114,7 @@ function handlePropertyUpdate() {
     } else {
       editWhere.value = getEditWhere(whereOrMatch.value);
       editWhereDMIri.value = getEditWhereDMIri(whereOrMatch.value);
+      editMatch.value.where = [];
       editMatch.value.where?.push(editWhere.value);
     }
   }

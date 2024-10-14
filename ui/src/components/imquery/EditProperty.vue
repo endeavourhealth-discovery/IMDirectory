@@ -9,11 +9,15 @@
 
       <InputGroup class="flex flex-row flex-nowrap">
         <div class="border-1 border-border-surface flex flex-row rounded border border-solid p-1">
-          <div v-if="property.valueLabel"><Chip :label="property.valueLabel" /></div>
-          <div v-else v-for="is of property.is"><Chip :label="truncateName(getNameFromRef(is))" v-tooltip.bottom="getNameFromRef(is)" /></div>
+          <div v-if="property.valueLabel">
+            <Chip :label="property.valueLabel" />
+          </div>
+          <div v-for="is of property.is" v-else>
+            <Chip v-tooltip.bottom="getNameFromRef(is)" :label="truncateName(getNameFromRef(is))" />
+          </div>
         </div>
         <Button icon="fa-solid fa-chevron-down" severity="secondary" @click="toggleDropdown" />
-        <Button label="Edit" @click="showBuildFeatureDialog = true" data-testid="edit-list-button" />
+        <Button data-testid="edit-list-button" label="Edit" @click="showBuildFeatureDialog = true" />
         <SaveCustomSetDialog v-if="property.is" :set-members="property.is" @on-save="onSaveCustomSet" />
       </InputGroup>
       <Popover ref="dropdown">
@@ -23,33 +27,33 @@
       </Popover>
       <AddNewFeatureDialog
         v-model:show-dialog="showBuildFeatureDialog"
-        :dataModelIri="dataModelIri"
-        :header="'Add new feature'"
-        :show-variable-options="false"
         :can-clear-path="false"
+        :dataModelIri="dataModelIri"
         :has-next-step="false"
+        :header="'Add new feature'"
+        :isList="property.is"
         :match="editMatch"
         :property-iri="selectedProperty.iri"
-        :isList="property.is"
         :show-type-filters="false"
+        :show-variable-options="false"
         @on-match-add="onMatchAdd"
       />
     </div>
 
     <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :datatype="selectedProperty.valueType" :property="property" />
-    <Button v-if="showDelete" @click="$emit('deleteProperty')" severity="danger" icon="fa-solid fa-trash" />
+    <Button v-if="showDelete" icon="fa-solid fa-trash" severity="danger" @click="$emit('deleteProperty')" />
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Match, Node, Where } from "@im-library/interfaces/AutoGen";
 import { UIProperty } from "@im-library/interfaces";
-import { Ref, onMounted, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
-import { IM, SHACL } from "@im-library/vocabulary";
+import { SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { convertTTPropertyToUIProperty, convertUIPropertyFromDMConcept } from "@im-library/helpers/Transforms";
+import { convertTTPropertyToUIProperty } from "@im-library/helpers/Transforms";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 import { cloneDeep } from "lodash-es";
