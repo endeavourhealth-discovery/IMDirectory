@@ -93,19 +93,26 @@ watch(
   () => cloneDeep(selectedPath.value),
   async (newValue, oldValue) => {
     await updateCanHaveValueList(newValue);
-    if (newValue !== oldValue && props.addDefaultValue) emit("goToNextStep");
+    if (newValue !== oldValue && props.addDefaultValue) {
+      emit("goToNextStep");
+    }
   }
 );
 
 watch(
   () => cloneDeep(selectedValueMap.value),
-  async () => await init()
+  async () => {
+    await init();
+    emit("goToNextStep");
+  }
 );
 watch(
   () => cloneDeep(selectedEntities.value),
   async (newValue, oldValue) => {
     await updatePathValues();
-    if (newValue !== oldValue && props.addDefaultValue) emit("goToNextStep");
+    if (newValue !== oldValue && props.addDefaultValue) {
+      emit("goToNextStep");
+    }
   }
 );
 onMounted(async () => await init());
