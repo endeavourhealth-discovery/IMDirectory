@@ -2,14 +2,14 @@
   <div class="edit-match-wrapper">
     <Button
       v-if="!isEmptyMatch()"
-      :severity="editMatch.exclude ? 'danger' : 'secondary'"
-      :outlined="!editMatch.exclude"
-      label="NOT"
-      @click.stop="editMatch!.exclude = !editMatch!.exclude"
-      class="builder-button exclude-button vertical-button not-button"
-      :class="!editMatch.exclude && 'hover-button'"
       v-tooltip="'Exclude'"
+      :class="!editMatch.exclude && 'hover-button'"
+      :outlined="!editMatch.exclude"
+      :severity="editMatch.exclude ? 'danger' : 'secondary'"
+      class="builder-button exclude-button vertical-button not-button"
+      label="NOT"
       size="small"
+      @click.stop="editMatch!.exclude = !editMatch!.exclude"
     />
     <div
       :class="[hover ? 'hover-edit-match-container' : 'edit-match-container']"
@@ -20,33 +20,33 @@
     >
       <MatchSelector
         v-if="focusedId === editMatch['@id'] && isFlatMatch(editMatch)"
-        :editMatch="editMatch"
         :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+        :editMatch="editMatch"
       />
       <div v-else-if="editMatch.displayLabel">{{ editMatch.displayLabel }}</div>
       <div v-else-if="editMatch?.name" v-html="editMatch?.name" />
       <div v-if="editMatch?.match" class="feature-group">
         <Button
           v-if="isBooleanEditor && editMatch?.match.length > 1"
-          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolMatch?.toUpperCase() ?? 'AND'"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           @click.stop="toggleMatchBool(editMatch)"
         />
         <div class="feature-bracket-group">
           <div class="feature-list">
-            <div class="nested-match" v-for="[index, nestedMatch] in editMatch.match.entries()">
-              <span class="left-container" v-if="isBooleanEditor">
+            <div v-for="[index, nestedMatch] in editMatch.match.entries()" class="nested-match">
+              <span v-if="isBooleanEditor" class="left-container">
                 <div class="group-checkbox">
-                  <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" @click.stop />
+                  <Checkbox v-model="group" :inputId="'group' + index" :value="index" name="Group" @click.stop />
                   <label :for="'group' + index">Select</label>
                 </div>
                 <Button
                   v-if="group.includes(index)"
+                  v-tooltip="'Bracket selected items'"
+                  :disabled="!group.length"
                   icon="fa-solid fa-brackets-curly"
                   severity="help"
                   @click.stop="bracketItems()"
-                  :disabled="!group.length"
-                  v-tooltip="'Bracket selected items'"
                 />
               </span>
               <EditMatch
@@ -59,15 +59,15 @@
               />
             </div>
             <Button
-              type="button"
-              label="Add feature"
-              icon="fa-solid fa-plus"
-              aria-haspopup="true"
-              aria-controls="overlay_menu"
-              severity="success"
-              class="add-feature-button"
-              @click.stop="showBuildFeature = true"
               :disabled="!selectedBaseType"
+              aria-controls="overlay_menu"
+              aria-haspopup="true"
+              class="add-feature-button"
+              icon="fa-solid fa-plus"
+              label="Add feature"
+              severity="success"
+              type="button"
+              @click.stop="showBuildFeature = true"
             />
             <AddMatch
               v-model:show-build-feature="showBuildFeature"
@@ -80,31 +80,31 @@
           </div>
           <Button
             v-if="!isRootFeature && editMatch?.match?.length > 1 && isBooleanEditor"
-            class="builder-button group-button"
-            severity="warn"
-            icon="fa-solid fa-brackets-curly"
-            :outlined="!hover"
-            :class="[!hover && 'hover-button', 'strike-through']"
-            @click.stop="emit('ungroupMatches', editMatch)"
             v-tooltip="'Remove brackets'"
+            :class="[!hover && 'hover-button', 'strike-through']"
+            :outlined="!hover"
+            class="builder-button group-button"
+            icon="fa-solid fa-brackets-curly"
+            severity="warning"
+            @click.stop="emit('ungroupMatches', editMatch)"
           />
         </div>
       </div>
       <div v-if="editMatch?.where" class="where-group">
         <Button
           v-if="editMatch.where.length > 1"
-          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           :label="editMatch.boolWhere?.toUpperCase() ?? 'AND'"
+          class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
           @click.stop="toggleWhereBool(editMatch)"
         />
         <div class="where-list">
           <EditWhere
             v-for="[index, nestedWhere] in editMatch.where.entries()"
             :edit-where="nestedWhere"
-            :focused="!isBooleanEditor && editMatch['@id'] === focusedId"
+            :focused="(!isBooleanEditor && editMatch['@id'] === focusedId) || !isObjectHasKeys(editMatch, ['displayLabel'])"
             :focused-id="focusedId"
-            :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
             :is-boolean-editor="isBooleanEditor"
+            :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
             :parent-match="editMatch"
             @on-update-dialog-focus="onNestedUpdateDialogFocus"
             @delete-property="editMatch.where?.splice(index, 1)"
@@ -121,10 +121,10 @@
           />
           <Button
             v-if="!isBooleanEditor && editMatch['@id'] === focusedId"
+            class="add-property-button"
+            icon="fa-solid fa-plus"
             label="Add property"
             severity="success"
-            icon="fa-solid fa-plus"
-            class="add-property-button"
             @click="showAddPropertyDialog = true"
           />
         </div>
@@ -134,23 +134,23 @@
         <EditMatch
           :editMatch="editMatch.then"
           :focused-id="focusedId"
-          :parent-match-type="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
           :is-boolean-editor="isBooleanEditor"
+          :parent-match-type="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
           @on-update-dialog-focus="onNestedUpdateDialogFocus"
           @delete-match="onDeleteMatch"
         />
       </div>
-      <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :editMatch="editMatch" :order-by="editMatch.orderBy" :dm-iri="typeOf" />
+      <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :dm-iri="typeOf" :editMatch="editMatch" :order-by="editMatch.orderBy" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
       <span v-if="editMatch.variable">label as {{ editMatch.variable }}</span>
     </div>
     <Button
       v-if="!isRootFeature"
-      class="builder-button delete-button"
-      severity="danger"
-      icon="fa-solid fa-trash"
-      :outlined="!hover"
       :class="[!hover && 'hover-button']"
+      :outlined="!hover"
+      class="builder-button delete-button"
+      icon="fa-solid fa-trash"
+      severity="danger"
       @click.stop="emit('deleteMatch', props.editMatch['@id']!)"
       @mouseover.stop="hover = true"
       @mouseout.stop="hover = false"
@@ -158,13 +158,13 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Bool, Match, Query, SearchResultSummary, Where } from "@im-library/interfaces/AutoGen";
 import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { MenuItem } from "primevue/menuitem";
-import { Ref, inject, onMounted, ref, watch } from "vue";
+import { inject, onMounted, Ref, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -179,6 +179,7 @@ interface Props {
   parentMatchType?: string;
   isBooleanEditor?: boolean;
 }
+
 const props = defineProps<Props>();
 const emit = defineEmits({
   onUpdateDialogFocus: (payload: MenuItem[]) => payload,
@@ -347,13 +348,16 @@ function isEmptyMatch() {
   margin-top: 0.5rem;
   margin-left: 1rem;
 }
+
 .expanding-button {
   align-self: stretch;
 }
+
 .left-container {
   display: flex;
   align-items: center;
 }
+
 .group-checkbox {
   display: flex;
   flex-flow: column nowrap;
