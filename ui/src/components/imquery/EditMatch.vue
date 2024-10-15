@@ -202,7 +202,7 @@ onMounted(() => {
 
 watch(
   () => cloneDeep(props.editMatch),
-  async () => {
+  () => {
     if (fullQuery.value) typeOf.value = getTypeOf(fullQuery.value);
   }
 );
