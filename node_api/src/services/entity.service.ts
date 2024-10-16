@@ -44,11 +44,6 @@ export default class EntityService {
     return axios.get(Env.API + +"api/entity/public/partials", { params: { iris: typeIris.join(","), predicates: predicates.join(",") } });
   }
 
-  public async getDistillation(refs: TTEntity[]): Promise<TTEntity[]> {
-    const response = await this.axios.post(Env.API + "api/set/public/distillation", refs);
-    return response.data;
-  }
-
   public async getDetailsDisplay(iri: string): Promise<any[]> {
     const excludedPredicates = [IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT];
     const entityPredicates = await this.getPredicates(iri);
@@ -140,29 +135,6 @@ export default class EntityService {
     return propertyList;
   }
 
-  async getSuperiorPropertiesBoolFocusPaged(focus: any, pageIndex?: number, pageSize?: number, filters?: string[]) {
-    let query;
-    let superiors = { result: [], totalCount: 0 };
-    if (focus.ecl) query = (await axios.post(Env.API + "api/ecl/public/queryFromEcl", focus.ecl)).data;
-    if (query) {
-      const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
-      const results = (await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest)).data;
-      if (results.entities && isArrayHasLength(results.entities)) {
-        superiors = (
-          await this.axios.get(Env.API + "api/entity/public/superiorPropertiesBoolFocusPaged", {
-            params: {
-              conceptIris: results.entities.map((result: any) => result.iri).join(","),
-              pageIndex: pageIndex,
-              pageSize: pageSize,
-              schemeFilters: filters?.join(",")
-            }
-          })
-        ).data;
-      }
-    }
-    return superiors;
-  }
-
   async getSetDiff(setIriA: string, setIriB: string) {
     let membersA: Concept[] = [];
     let membersB: Concept[] = [];
@@ -202,39 +174,5 @@ export default class EntityService {
         }
       })
     ).data;
-  }
-
-  async findEntitiesBySnomedCodes(codes: string[]): Promise<any[]> {
-    const iris = codes.map(code => SNOMED.NAMESPACE + code);
-    const result = await this.getPartialEntities(iris, [RDFS.LABEL, IM.CODE]);
-    return result.map(resolved => resolved.data);
-  }
-
-  async findValidatedEntitiesBySnomedCodes(codes: string[]) {
-    const entities = await this.findEntitiesBySnomedCodes(codes);
-    const needed = await this.getDistillation(entities);
-    const response = [] as ValidatedEntity[];
-    for (const entity of entities) {
-      const validatedEntity: ValidatedEntity = { "@id": entity["@id"], name: entity[RDFS.LABEL], code: entity[IM.CODE] };
-      const isInvalid = isObjectHasKeys(entity, ["@id"]) && !isObjectHasKeys(entity, [RDFS.LABEL, IM.CODE]);
-      const index = needed.findIndex(neededEntity => neededEntity["@id"] === validatedEntity["@id"]);
-      const isIncluded = response.some(added => validatedEntity["@id"] === added["@id"]);
-      if (isInvalid) {
-        validatedEntity.validationCode = "Invalid";
-        validatedEntity.validationLabel = "Not an entity";
-      } else if (index !== -1) {
-        needed.splice(index, 1);
-        validatedEntity.validationCode = "Valid";
-      } else {
-        validatedEntity.validationCode = "Child";
-      }
-      if (isIncluded) {
-        validatedEntity.validationCode = "Duplicate";
-      }
-      if (validatedEntity["@id"] && validatedEntity["@id"].includes("#")) validatedEntity.code = validatedEntity["@id"].split("#")[1];
-      response.push(validatedEntity);
-    }
-
-    return response;
   }
 }

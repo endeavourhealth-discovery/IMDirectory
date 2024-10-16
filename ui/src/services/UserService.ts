@@ -67,7 +67,7 @@ const UserService = {
   },
 
   async updateEmailVerified(verified: boolean): Promise<void> {
-    return await axios.post(Env.VITE_NODE_API + "node_api/cognito/updateEmailVerified", { verified: verified });
+    return await axios.post(Env.API + "api/cognito/updateEmailVerified", { value: verified });
   }
 };
 

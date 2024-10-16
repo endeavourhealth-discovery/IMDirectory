@@ -89,7 +89,7 @@ const AuthService = {
   },
 
   async isEmailRegistered(email: string): Promise<boolean> {
-    return axios.get(Env.VITE_NODE_API + "node_api/cognito/public/isEmailRegistered", { params: { email: email } });
+    return axios.get(Env.API + "api/cognito/public/isEmailRegistered", { params: { email: email } });
   },
 
   async confirmRegister(username: string, code: string): Promise<CustomAlert> {

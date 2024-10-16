@@ -43,6 +43,7 @@
             </DataTable>
             <Button label="Add role" @click="showAddRole = true" class="w-fit" />
           </div>
+          <Button label="Reset password" severity="danger" @click="confirmResetPassword(userDetails.username)" />
           <Button label="Delete user" severity="danger" @click="confirmDeleteUser(userDetails.username)" />
         </div>
       </template>
@@ -135,6 +136,34 @@ function confirmDeleteRole(username: string, role: string) {
 
 async function deleteRole(username: string, role: string) {
   await AdminService.removeRoleFromUser(username, role);
+}
+
+function confirmResetPassword(username: string) {
+  confirm.require({
+    message: "Are you sure you want to reset this users password?",
+    header: "Reset password",
+    rejectProps: {
+      label: "Cancel",
+      severity: "secondary",
+      outlined: true
+    },
+    acceptProps: {
+      label: "Reset password",
+      severity: "danger"
+    },
+    accept: async () => {
+      await resetUserPassword(username);
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Password successfully reset"
+      });
+    }
+  });
+}
+
+async function resetUserPassword(username: string) {
+  await AdminService.resetUserPassword(username);
 }
 
 async function confirmDeleteUser(username: string) {

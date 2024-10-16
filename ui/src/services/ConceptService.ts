@@ -44,11 +44,12 @@ const ConceptService = {
     pageIndex?: number,
     pageSize?: number,
     filters?: FiltersAsIris,
-    controller?: AbortController
+    controller?: AbortController,
+    inactive?: boolean
   ): Promise<{ result: any[]; totalCount: number }> {
     return axios.post(
-      Env.VITE_NODE_API + "node_api/entity/public/superiorPropertiesBoolFocusPaged",
-      { focus: focus, pageIndex: pageIndex, pageSize: pageSize, filters: filters },
+      API_URL + "/public/superiorPropertiesBoolFocusPaged",
+      { ecl: focus.ecl, page: pageIndex, size: pageSize, schemeFilters: filters, inactive: inactive },
       { signal: controller?.signal }
     );
   },
