@@ -1,23 +1,24 @@
 <template>
   <div class="search-container">
     <IconField class="autocomplete-search" iconPosition="right">
-      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
+      <InputIcon v-if="!searchLoading && !listening" :class="listening && 'listening'" class="pi pi-microphone mic" @click="toggleListen" />
       <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
       <InputText
         id="autocomplete-search"
         v-model="searchText"
-        :placeholder="searchPlaceholder"
-        data-testid="search-input"
-        autofocus
-        v-on:keyup.enter="onEnter"
-        v-on:keyup="select"
-        @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
-        @mouseleave="hideOverlay"
         :disabled="disabled"
+        :placeholder="searchPlaceholder"
         :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
+        autofocus
+        data-testid="search-input"
+        @input="debounceForSearch"
+        @mouseleave="hideOverlay"
+        @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
+        v-on:keyup="select"
+        v-on:keyup.enter="onEnter"
       />
     </IconField>
-    <Button severity="info" @click="showDialog = true" data-testid="autocomplete-search-button" icon="pi pi-search" v-tooltip="'Advanced search'" />
+    <Button v-tooltip="'Advanced search'" icon="pi pi-search" severity="info" @click="showDialog = true" />
     <Popover ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
@@ -27,9 +28,9 @@
           <template #option="slotProps">
             <div
               class="listbox-item"
-              @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
-              @mouseleave="hideOverlay"
               @click="onListboxOptionClick(slotProps.option)"
+              @mouseleave="hideOverlay"
+              @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
             >
               <span>{{ slotProps.option.name }}</span>
             </div>
@@ -47,27 +48,27 @@
     </Popover>
     <DirectorySearchDialog
       v-if="showDialog"
-      v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
+      v-model:show-dialog="showDialog"
       :imQuery="cloneDeep(imQuery)"
-      :root-entities="rootEntities"
-      :selected-filter-options="filterOptions"
-      :searchTerm="searchText"
       :quick-type-filters-allowed="quickTypeFiltersAllowed"
-      :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
+      :root-entities="rootEntities"
+      :searchTerm="searchText"
+      :selected-filter-options="filterOptions"
       :selected-quick-type-filter="selectedQuickTypeFilter"
+      :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
       @update-selected-filters="(filters: FilterOptions) => $emit('updateSelectedFilters', filters)"
     />
     <OverlaySummary ref="OS" />
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, Ref, watch, onMounted } from "vue";
+<script lang="ts" setup>
+import { onMounted, Ref, ref, watch } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import { cloneDeep, isEqual } from "lodash-es";
@@ -134,12 +135,12 @@ watch(
   },
   { deep: true }
 );
-
+/*
 watch(searchText, newValue => {
   if (!newValue) {
     selectedLocal.value = undefined;
-  } else if (!searchLoading.value && newValue != props.selected?.name) debounceForSearch();
-});
+  } else if (!searchLoading.value && newValue != props.selected?.name) debounceForSearch(event);
+});*/
 
 onMounted(async () => {
   searchLoading.value = true;
@@ -151,12 +152,16 @@ onMounted(async () => {
   searchLoading.value = false;
 });
 
-function debounceForSearch(): void {
-  clearTimeout(debounce.value);
-  debounce.value = window.setTimeout(async () => {
-    results.value = await search();
-  }, 600);
-  showResultsOverlay(event);
+function debounceForSearch(event: any): void {
+  if (!searchText.value) {
+    selectedLocal.value = undefined;
+  } else if (!searchLoading.value && searchText.value != props.selected?.name) {
+    clearTimeout(debounce.value);
+    debounce.value = window.setTimeout(async () => {
+      results.value = await search();
+    }, 600);
+    showResultsOverlay(event);
+  }
 }
 
 function select(event: KeyboardEvent) {
