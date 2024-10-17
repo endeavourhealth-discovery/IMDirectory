@@ -13,7 +13,10 @@
     </Button>
     </span>
     <span v-if="match.includeIf" class="then">{{ match.includeIf }}</span>
-    <span v-if="match.inlineOperator" :class="match.inlineOperator">{{ match.inlineOperator}}</span>
+    <span v-if="operator">
+      <span v-if="index>0" :class="operator">{{ operator}}</span>
+        <span v-else-if="operator===Bool.or" class="either">either</span>
+    </span>
     <span v-if="match.exclude" class="field">NOT</span>
     <span v-if="match.orderBy" class="field" v-html="match.orderBy.description"></span>
         <span v-if="match.path"  class="field" v-html="getFormattedPath(match.path)"> </span>
@@ -26,22 +29,26 @@
         :inline="false"
         :match="nestedQuery"
         :key="index"
+        :index="index"
+        :operator="match.boolMatch"
         :depth="1"
     />
     <RecursiveWhereDisplay
         v-if="isArrayHasLength(match.where)"
         v-for="(nestedWhere,index) in match.where"
-        :property="nestedWhere"
+        :where="nestedWhere"
         :depth = "depth"
         :property-index="index"
         :key="index"
-        :second-property="index === 1"
+        :index="index"
+        :operator="match.boolWhere"
         :expanded="expandSet"
     />
     <RecursiveMatchDisplay
         v-if="match.then"
         :match="match.then"
         :inline="false"
+        :index="0"
         :depth="1"
     />
 
@@ -57,7 +64,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { Match,Assignable,IriLD,Node} from "@im-library/interfaces/AutoGen";
+import { Match,Assignable,IriLD,Node,Bool} from "@im-library/interfaces/AutoGen";
 import { onMounted, Ref, ref,watch,defineProps } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import QueryOverlay from "./QueryOverlay.vue";
@@ -69,6 +76,8 @@ interface Props {
   isVariable? : boolean;
   depth: number;
   inline : boolean;
+  index : number;
+  operator? :Bool;
 }
 
 const props = defineProps<Props>();

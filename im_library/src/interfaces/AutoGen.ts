@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-10-17 12:31:24.
+// Generated using typescript-generator version 3.2.1263 on 2024-10-17 14:23:43.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -323,7 +323,6 @@ export interface Match extends IriLD {
     instanceOf?: Node[];
     where?: Where[];
     match?: Match[];
-    inlineOperator?: string;
     includeIf?: string;
     graph?: Element;
     orderBy?: OrderLimit;
@@ -457,7 +456,6 @@ export interface Where extends PropertyRef, Assignable {
     is?: Node[];
     boolWhere?: Bool;
     where?: Where[];
-    inlineOperator?: string;
     isNotNull?: boolean;
     function?: FunctionClause;
 }

@@ -21,18 +21,20 @@
         :inline="false"
         :match="nestedQuery"
         :key="index"
+        :index="index"
         :depth="1"
+        :operator="query.boolMatch"
         :expanded="false"
         />
       </span>
     <span v-if="matchExpand&&isArrayHasLength(query.where)">
       <RecursiveWhereDisplay
         v-for="(nestedWhere,index) in query.where"
-        :property="nestedWhere"
+        :where="nestedWhere"
         :depth = "1"
-        :property-index="index"
+        :index="index"
         :key="index"
-        :second-property="index === 1"
+        :operator="query.boolWhere"
         :expanded="false"
       />
     </span>

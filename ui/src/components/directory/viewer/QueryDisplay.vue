@@ -17,6 +17,8 @@
               v-for="(nestedQuery, index) of query.match"
               :match="nestedQuery"
               :expanded="false"
+              :index="index"
+              :operator="query.boolMatch"
               />
           <div v-if="isArrayHasLength(query.query)"  style="padding-left: 2rem">
             <Button class="button-chevron" @click="toggle" >

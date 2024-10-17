@@ -5,12 +5,12 @@
        <Button class="button-chevron" @click="toggle" >
       <IMFontAwesomeIcon
           :icon="!matchExpanded ? ['fa-solid','fa-chevron-right'] :  ['fa-solid','fa-chevron-up']"
-          :style="'color: blue'"
+          style="color: var(--p-blue-500)"
           class="mr-2"
           fixed-width
       />
           </Button>
-    <span v-if="match.inlineOperator" :class="match.inlineOperator">{{ match.inlineOperator}}</span>
+    <span v-if="index>0" :class="operator">{{operator}}</span>
     <span>{{match.name}}</span>
     <div v-if="matchExpanded" >
       <span style="padding-left: 2rem;color: grey">details:</span>
@@ -18,6 +18,7 @@
           :inline="false"
           :match="match"
           :depth="1"
+          :index="0"
           :expanded="true"
           />
     </div>
@@ -28,6 +29,7 @@
           :inline="false"
           :match="match"
           :depth="1"
+          :index="0"
           :expanded="true"
       />
     </span>
@@ -37,7 +39,7 @@
 
 
 <script setup lang="ts">
-import { Match} from "@im-library/interfaces/AutoGen";
+import { Match,Bool} from "@im-library/interfaces/AutoGen";
 import { Ref, ref,watch,defineProps } from "vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -45,6 +47,8 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 interface Props {
   match: Match;
   expanded:boolean;
+  operator? : Bool;
+  index:number;
 }
 
 

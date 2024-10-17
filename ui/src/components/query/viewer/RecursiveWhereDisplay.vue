@@ -1,48 +1,55 @@
 <template>
     <span class="property-display">
-
-      <span v-html="getOperator(property.inlineOperator,propertyIndex,secondProperty)"></span>
-      <span v-if="property.name" :class="'field'" v-html="property.name"></span>
-        <span v-if="property.valueLabel||property.qualifier">
-          <span class="'value-field'" v-html="getFormattedValue(property)"></span>
-         <span v-if="property.relativeTo">
-           <span v-if="property.relativeTo.qualifier">
-             <span class="field" v-html="property.relativeTo.qualifier"></span>
+      <span v-if="operator">
+        <span v-if="operator===Bool.and">
+          <span v-if="index===1" style="padding-right: 1rem">with</span>
+       <span v-else>,</span>
+        </span>
+       <span v-else-if="index>1&&operator===Bool.or" :class="operator" v-html="operator"></span>
+      </span>
+      <span v-if="where.name" :class="'field'" v-html="where.name"></span>
+        <span v-if="where.valueLabel||where.qualifier">
+          <span class="value-field" v-html="getFormattedValue(where)"></span>
+         <span v-if="where.relativeTo">
+           <span v-if="where.relativeTo.qualifier">
+             <span class="field" v-html="where.relativeTo.qualifier"></span>
            </span>
-           <span class="node-ref" v-html="property.relativeTo.nodeRef"></span>
+           <span class="node-ref" v-html="where.relativeTo.nodeRef"></span>
          </span>
            <ul v-if="expanded">
-              <li v-for="(item, index) in property.is" :key="index">
-                 <span v-if="item.descendantsOrSelfOf" style="padding-left : 3rem"><<</span>
+              <li v-for="(item, index) in where.is" :key="index">
+                <span style="padding-left : 3rem"></span>
+                 <span v-if="item.descendantsOrSelfOf"><<</span>
                 <span class="field"> {{ item.name }}</span>
                 <span v-if="item.code">({{item.code}})</span>
                </li>
            </ul>
         </span>
-         <span v-if="property.nodeRef" class="node-ref" v-html="property.nodeRef"></span>
+         <span v-if="where.nodeRef" class="node-ref" v-html="where.nodeRef"></span>
 
-      <div v-if="isArrayHasLength(property.where)"
+      <div v-if="isArrayHasLength(where.where)"
            :style="indentationStyle(depth+1)">
-        <span :class="property.operator"> {{property.operator}}</span>
+        <span :class="where.operator"> {{where.operator}}</span>
           <span>(</span>
         <RecursiveWhereDisplay
-          v-if="isArrayHasLength(property.where)"
-          v-for="(nestedProperty, index) of property.where"
-          :property="nestedProperty"
-          :property-index="index"
+          v-if="isArrayHasLength(where.where)"
+          v-for="(nestedProperty, index) of where.where"
+          :where="nestedProperty"
+          :index="index"
+          :operator="where.boolWhere"
           :key="index"
           :depth="depth+1"
-          :second-property="false"
           :expanded="expanded"
         />
          <span>)</span>
     </div>
 
     <RecursiveMatchDisplay
-        v-if="property.match"
-        :match="property.match"
+        v-if="where.match"
+        :match="where.match"
         :depth="depth+1"
         :inline="true"
+        :index="0"
         :expanded="childExpand"
     />
 
@@ -51,16 +58,16 @@
 
 <script setup lang="ts">
 import { isArrayHasLength} from "@im-library/helpers/DataTypeCheckers";
-import { Where,Assignable } from "@im-library/interfaces/AutoGen";
+import { Where,Assignable,Bool } from "@im-library/interfaces/AutoGen";
 import { Ref, ref,watch } from "vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 
 interface Props {
-  property: Where;
-  propertyIndex?: any;
+  where: Where;
+  index: number;
   depth : number;
-  secondProperty: boolean;
   expanded:boolean;
+  operator?: Bool;
 
 
 }
@@ -74,16 +81,6 @@ const clickedProperty: Ref<Where> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
 
 
-function getOperator(operator:any, index:number,secondProperty : boolean){
-  if (index===1&&secondProperty)
-    return "with ";
-  else if (operator==="or"&& index >0)
-    return "or ";
-  else if (index>0)
-    return ", ";
-  else
-    return "";
-}
 
 function getFormattedValue(value: Assignable) {
   let result="";
@@ -101,8 +98,8 @@ function indentationStyle(depth:number) {
     marginLeft: `${depth}rem`
   };
 }
-function onNodeRefClick(property: Where, event: any) {
-  clickedProperty.value = property;
+function onNodeRefClick(where: Where, event: any) {
+  clickedProperty.value = where;
   op.value.toggle(event);
 }
 
@@ -157,8 +154,8 @@ function onNodeRefClick(property: Where, event: any) {
   cursor: pointer !important;
 }
 .or {
-  color: blue;
-  padding-right: 0.3rem;
+  color: var(--p-blue-500);
+  padding-right: 0.2rem;
 }
 
 .and {
