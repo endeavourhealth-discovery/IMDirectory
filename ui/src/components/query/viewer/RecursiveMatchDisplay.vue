@@ -153,7 +153,6 @@ function getFormattedPath(paths: IriLD[]) {
 }
 .then {
   padding-right: 0.2rem;
-  
 }
 .field {
   padding-right : 0.2rem;
