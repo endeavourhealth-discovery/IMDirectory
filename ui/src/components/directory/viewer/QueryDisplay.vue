@@ -9,7 +9,7 @@
         <div class="rec-query-display">
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
-            <span :class="'field'" v-html="query.typeOf.name"></span>
+            <span class="field" v-html="query.typeOf.name"></span>
             <span class="include-title" style="color: green">with the following features</span>
           </div>
           <MatchSummaryDisplay
@@ -22,12 +22,12 @@
             <Button class="button-chevron" @click="toggle" >
               <IMFontAwesomeIcon
                   :icon="!dataSetExpanded ? ['fa-solid','fa-chevron-right'] :  ['fa-solid','fa-chevron-up']"
-                  :style="'color: blue'"
+                  style="color: var(--p-blue-500)"
                   class="mr-2"
                   fixed-width
               />
             </Button>
-              <span style="color:green">The cohort query has the following data set definition</span>
+              <span style="color: var(--p-green-500)">The cohort query has the following data set definition</span>
 
             <span v-if="dataSetExpanded">
 

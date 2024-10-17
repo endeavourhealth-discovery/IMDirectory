@@ -2,8 +2,8 @@
   <span v-if="isArrayHasLength(select.property)">
     <span v-for="(item,index) in select.property">
        <component
-           :is="!inline||index>0 ? 'div' : 'span'" style="padding-left: 4rem">
-         <span v-if="pathLevel===0&&getAs(item) !=null" :class="'field'" >title={{getAs(item)}} ( path=</span>
+           :is="!inline||index>0 ? 'div' : 'span'"   :style="{ paddingLeft: inline ? '0' : '4rem' }">
+         <span v-if="pathLevel===0&&getAs(item) !=null" class="'field'" >title={{getAs(item)}} ( path=</span>
         <span v-if="item.name" >{{item.name}}</span>
         <span v-if="item.return">-></span>
         <RecursiveReturnDisplay

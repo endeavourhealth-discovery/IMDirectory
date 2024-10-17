@@ -2,11 +2,21 @@
   <component
       :is="!inline ? 'div' : 'span'"
       :style="indentationStyle(inline,depth)">
-    <span v-if="match.includeIf" :class="'then'">{{ match.includeIf }}</span>
+    <span v-if="match.hasInlineSet">
+    <Button class="button-chevron" @click="toggle" >
+      <IMFontAwesomeIcon
+          :icon="!expandSet ? ['fa-solid','fa-chevron-right'] :  ['fa-solid','fa-chevron-up']"
+          style="color: var(--p-blue-500)"
+          class="mr-2"
+          fixed-width
+      />
+    </Button>
+    </span>
+    <span v-if="match.includeIf" class="then">{{ match.includeIf }}</span>
     <span v-if="match.inlineOperator" :class="match.inlineOperator">{{ match.inlineOperator}}</span>
-    <span v-if="match.exclude" :class="'field'">NOT</span>
-    <span v-if="match.orderBy" :class="'field'"v-html="match.orderBy.description"></span>
-        <span v-if="match.path"  :class="'field'"v-html="getFormattedPath(match.path)"> </span>
+    <span v-if="match.exclude" class="field">NOT</span>
+    <span v-if="match.orderBy" class="field" v-html="match.orderBy.description"></span>
+        <span v-if="match.path"  class="field" v-html="getFormattedPath(match.path)"> </span>
        <span v-if="match.instanceOf" v-html="getFormattedNodes(match.instanceOf)"></span>
     <span v-if="match.match" >(</span>
 
@@ -26,6 +36,7 @@
         :property-index="index"
         :key="index"
         :second-property="index === 1"
+        :expanded="expandSet"
     />
     <RecursiveMatchDisplay
         v-if="match.then"
@@ -58,7 +69,6 @@ interface Props {
   isVariable? : boolean;
   depth: number;
   inline : boolean;
-
 }
 
 const props = defineProps<Props>();
@@ -66,7 +76,13 @@ const op: Ref<any> = ref();
 const clickedNodeRef: Ref<Match> = ref({} as Match);
 const list: Ref<Match[]> = ref([]);
 const op1: Ref<any> = ref();
+const expandSet= ref(false);
 
+
+
+const toggle = () => {
+  expandSet.value= !expandSet.value;
+};
 
 function indentationStyle(inline:boolean, depth:number){
   return {
@@ -107,6 +123,12 @@ function getFormattedPath(paths: IriLD[]) {
 
 
 <style scoped>
+
+.button-chevron {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
 .feature {
   display: flex;
   flex-flow: column;

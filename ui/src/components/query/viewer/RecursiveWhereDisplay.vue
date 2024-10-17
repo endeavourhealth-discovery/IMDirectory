@@ -1,16 +1,25 @@
 <template>
     <span class="property-display">
+
       <span v-html="getOperator(property.inlineOperator,propertyIndex,secondProperty)"></span>
       <span v-if="property.name" :class="'field'" v-html="property.name"></span>
-       <span v-if="property.qualifier" :class="'value-field'" v-html="property.qualifier"></span>
-        <span v-if="property.valueLabel" v-html="getFormattedValue(property)"></span>
+        <span v-if="property.valueLabel||property.qualifier">
+          <span class="'value-field'" v-html="getFormattedValue(property)"></span>
          <span v-if="property.relativeTo">
            <span v-if="property.relativeTo.qualifier">
-             <span :class="'field'" v-html="property.relativeTo.qualifier"></span>
+             <span class="field" v-html="property.relativeTo.qualifier"></span>
            </span>
-           <span :class="'node-ref'" v-html="property.relativeTo.nodeRef"></span>
+           <span class="node-ref" v-html="property.relativeTo.nodeRef"></span>
          </span>
-         <span v-if="property.nodeRef" :class="'node-ref'" v-html="property.nodeRef"></span>
+           <ul v-if="expanded">
+              <li v-for="(item, index) in property.is" :key="index">
+                 <span v-if="item.descendantsOrSelfOf" style="padding-left : 3rem"><<</span>
+                <span class="field"> {{ item.name }}</span>
+                <span v-if="item.code">({{item.code}})</span>
+               </li>
+           </ul>
+        </span>
+         <span v-if="property.nodeRef" class="node-ref" v-html="property.nodeRef"></span>
 
       <div v-if="isArrayHasLength(property.where)"
            :style="indentationStyle(depth+1)">
@@ -24,6 +33,7 @@
           :key="index"
           :depth="depth+1"
           :second-property="false"
+          :expanded="expanded"
         />
          <span>)</span>
     </div>
@@ -40,11 +50,9 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength} from "@im-library/helpers/DataTypeCheckers";
 import { Where,Assignable } from "@im-library/interfaces/AutoGen";
-import { Ref, ref } from "vue";
-import QueryOverlay from "./QueryOverlay.vue";
-import ListOverlay from "./ListOverlay.vue";
+import { Ref, ref,watch } from "vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 
 interface Props {
@@ -52,6 +60,9 @@ interface Props {
   propertyIndex?: any;
   depth : number;
   secondProperty: boolean;
+  expanded:boolean;
+
+
 }
 
 const props = defineProps<Props>();
@@ -61,6 +72,7 @@ const op1: Ref<any> = ref();
 const childExpand= true;
 const clickedProperty: Ref<Where> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
+
 
 function getOperator(operator:any, index:number,secondProperty : boolean){
   if (index===1&&secondProperty)
@@ -98,6 +110,12 @@ function onNodeRefClick(property: Where, event: any) {
 </script>
 
 <style scoped>
+
+.button-chevron {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
 .feature {
   display: flex;
   flex-flow: column;

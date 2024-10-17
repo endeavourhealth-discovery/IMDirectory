@@ -9,7 +9,7 @@
         <Button class="button-chevron" @click="matchToggle" >
       <IMFontAwesomeIcon
           :icon="!matchExpand ? ['fa-solid','fa-chevron-right'] :  ['fa-solid','fa-chevron-up']"
-          :style="'color: blue'"
+          style="color: var(--p-blue-500)"
           class="mr-2"
           fixed-width
       />
@@ -33,6 +33,7 @@
         :property-index="index"
         :key="index"
         :second-property="index === 1"
+        :expanded="false"
       />
     </span>
     <span v-if="matchExpand&&isArrayHasLength(query.return)">

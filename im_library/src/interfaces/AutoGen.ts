@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-10-07 11:54:07.
+// Generated using typescript-generator version 3.2.1263 on 2024-10-17 12:31:24.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -251,19 +251,22 @@ export interface Argument {
     valueIriList?: TTIriRef[];
     valueDataList?: string[];
     valueObject?: any;
+    valueWherePath?: IriLD[];
+    whereUnits?: boolean;
+    valueMatchPath?: IriLD[];
 }
 
 export interface Assignable {
     value?: string;
+    qualifier?: string;
     unit?: string;
     valueLabel?: string;
-    qualifier?: string;
     operator?: Operator;
 }
 
 export interface Case {
     when?: When[];
-    else?: Return;
+    else?: string;
 }
 
 export interface ContextMap {
@@ -292,13 +295,13 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     descendantsOf?: boolean;
-    memberOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
-    function?: Function;
+    name?: Function;
     argument?: Argument[];
     range?: Range;
 }
@@ -308,6 +311,7 @@ export interface IriLD {
     qualifier?: string;
     name?: string;
     description?: string;
+    inverse?: boolean;
 }
 
 export interface Match extends IriLD {
@@ -329,10 +333,12 @@ export interface Match extends IriLD {
     then?: Match;
     path?: IriLD[];
     displayLabel?: string;
+    hasInlineSet?: boolean;
 }
 
 export interface Node extends Element {
     exclude?: boolean;
+    code?: string;
 }
 
 export interface OrderDirection extends PropertyRef {
@@ -362,7 +368,6 @@ export interface Prefix {
 }
 
 export interface PropertyRef extends Node {
-    inverse?: boolean;
     valueVariable?: string;
 }
 
@@ -425,8 +430,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -438,8 +443,9 @@ export interface Value extends Assignable {
 }
 
 export interface When {
-    property?: Where;
-    then?: Return;
+    where?: Where;
+    then?: string;
+    case_?: Case;
 }
 
 export interface Where extends PropertyRef, Assignable {
@@ -453,10 +459,7 @@ export interface Where extends PropertyRef, Assignable {
     where?: Where[];
     inlineOperator?: string;
     isNotNull?: boolean;
-    /**
-     * @deprecated
-     */
-    displayLabel?: string;
+    function?: FunctionClause;
 }
 
 export interface DownloadByQueryOptions {
@@ -789,8 +792,8 @@ export interface TTEntity extends TTNode, Serializable {
     version?: number;
     status?: TTIriRef;
     description?: string;
-    code?: string;
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface TTContext extends Serializable {
@@ -869,6 +872,7 @@ export const enum Function {
     sum = "sum",
     count = "count",
     average = "average",
+    timeDifference = "timeDifference",
 }
 
 export const enum Operator {
