@@ -13,10 +13,8 @@
     </Button>
     </span>
     <span v-if="match.includeIf" class="then">{{ match.includeIf }}</span>
-    <span v-if="operator">
       <span v-if="index>0" :class="operator">{{ operator}}</span>
       <span v-else-if="operator===Bool.or" class="either">either</span>
-    </span>
     <span v-if="match.exclude" class="field">NOT</span>
     <span v-if="match.orderBy" class="field" v-html="match.orderBy.description"></span>
         <span v-if="match.path"  class="field" v-html="getFormattedPath(match.path)"> </span>
@@ -155,7 +153,7 @@ function getFormattedPath(paths: IriLD[]) {
 }
 .then {
   padding-right: 0.2rem;
-  color : var(--p-blue-500)
+  
 }
 .field {
   padding-right : 0.2rem;

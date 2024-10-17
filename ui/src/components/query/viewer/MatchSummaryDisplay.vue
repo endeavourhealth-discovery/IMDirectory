@@ -18,7 +18,8 @@
           :inline="false"
           :match="match"
           :depth="1"
-          :index="0"
+          :index="index"
+          :operator="operator"
           :expanded="true"
           />
     </div>
@@ -29,7 +30,8 @@
           :inline="false"
           :match="match"
           :depth="1"
-          :index="0"
+          :index="index"
+          :operator="operator"
           :expanded="true"
       />
     </span>

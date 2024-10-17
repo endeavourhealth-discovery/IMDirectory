@@ -10,7 +10,7 @@
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
             <span class="field" v-html="query.typeOf.name"></span>
-            <span class="include-title" style="color: green">with the following features</span>
+            <span class="include-title" style="color: var(--p-green-600">with the following features</span>
           </div>
           <MatchSummaryDisplay
               v-if="isArrayHasLength(query.match)"

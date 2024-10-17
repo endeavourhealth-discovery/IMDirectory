@@ -1,12 +1,8 @@
 <template>
-    <span class="property-display">
-      <span v-if="operator">
-        <span v-if="operator===Bool.and">
-          <span v-if="index===1" style="padding-right: 1rem">with</span>
-       <span v-else>,</span>
-        </span>
-       <span v-else-if="index>1&&operator===Bool.or" :class="operator" v-html="operator"></span>
-      </span>
+  <span v-if="index===0&&operator===Bool.or" class="either">either</span>
+  <span v-else-if="index===1&&!where.where&&operator===Bool.and" style="padding-right: 1rem">with</span>
+  <span v-else-if="index>1&&!where.where&&operator===Bool.and">,</span>
+  <span v-else-if="operator===Bool.or" :class="operator" v-html="operator"></span>
       <span v-if="where.name" class="field" v-html="where.name"></span>
         <span v-if="where.valueLabel||where.qualifier">
           <span class="value-field" v-html="getFormattedValue(where)"></span>
@@ -29,8 +25,9 @@
 
       <div v-if="isArrayHasLength(where.where)"
            :style="indentationStyle(depth+1)">
-        <span :class="where.operator"> {{where.operator}}</span>
+        <span :class="where.operator"> {{operator}}</span>
           <span>(</span>
+        <div>
         <RecursiveWhereDisplay
           v-if="isArrayHasLength(where.where)"
           v-for="(nestedProperty, index) of where.where"
@@ -42,6 +39,7 @@
           :expanded="expanded"
         />
          <span>)</span>
+          </div>
     </div>
 
     <RecursiveMatchDisplay
@@ -52,8 +50,6 @@
         :index="0"
         :expanded="childExpand"
     />
-
-    </span>
 </template>
 
 <script setup lang="ts">
