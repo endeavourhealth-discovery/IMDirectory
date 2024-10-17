@@ -7,7 +7,7 @@
         </span>
        <span v-else-if="index>1&&operator===Bool.or" :class="operator" v-html="operator"></span>
       </span>
-      <span v-if="where.name" :class="'field'" v-html="where.name"></span>
+      <span v-if="where.name" class="field" v-html="where.name"></span>
         <span v-if="where.valueLabel||where.qualifier">
           <span class="value-field" v-html="getFormattedValue(where)"></span>
          <span v-if="where.relativeTo">
@@ -75,9 +75,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const op: Ref<any> = ref();
-const op1: Ref<any> = ref();
 const childExpand= true;
-const clickedProperty: Ref<Where> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
 
 
@@ -88,7 +86,7 @@ function getFormattedValue(value: Assignable) {
     result = value.qualifier+" ";
   }
   if (value.valueLabel) {
-    result = result + "<span style=\"color : rgb(0,102,102);\">" + value.valueLabel + "</span>";
+    result = result  + value.valueLabel;
   }
   return result
 }
@@ -98,36 +96,12 @@ function indentationStyle(depth:number) {
     marginLeft: `${depth}rem`
   };
 }
-function onNodeRefClick(where: Where, event: any) {
-  clickedProperty.value = where;
-  op.value.toggle(event);
-}
+
 
 
 </script>
 
 <style scoped>
-
-.button-chevron {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-.feature {
-  display: flex;
-  flex-flow: column;
-  margin-left: 1rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
-}
-
-.feature-indent {
-  display: flex;
-  flex-flow: column;
-  margin-left: 2rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
-}
 
 .field {
   padding-right : 0.2rem;
@@ -135,26 +109,17 @@ function onNodeRefClick(where: Where, event: any) {
 
 
 .value-field {
-  color : rgb(0, 102, 102);
+  color :var(--p-green-700);
   padding-right : 0.2rem;
 }
 
 
-.node-field {
-  color : rgb(180, 48, 190);
-  padding-right : 0.3rem;
-}
-
-.variable-line {
-  margin-left: 1rem !important;
-}
-
 .node-ref {
-  color: rgb(138, 67, 138) !important;
+  color: var(--p-amber-700) !important;
   cursor: pointer !important;
 }
 .or {
-  color: var(--p-blue-500);
+  color: var(--p-blue-700);
   padding-right: 0.2rem;
 }
 

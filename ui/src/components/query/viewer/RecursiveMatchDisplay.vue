@@ -15,7 +15,7 @@
     <span v-if="match.includeIf" class="then">{{ match.includeIf }}</span>
     <span v-if="operator">
       <span v-if="index>0" :class="operator">{{ operator}}</span>
-        <span v-else-if="operator===Bool.or" class="either">either</span>
+      <span v-else-if="operator===Bool.or" class="either">either</span>
     </span>
     <span v-if="match.exclude" class="field">NOT</span>
     <span v-if="match.orderBy" class="field" v-html="match.orderBy.description"></span>
@@ -54,7 +54,7 @@
 
 
 
-    <div v-if="match.variable" :class="'variable-field'" :style="{ paddingLeft: depth * 3+2 + 'rem' }">
+    <div v-if="match.variable" class="variable-field" :style="{ paddingLeft: depth * 3+2 + 'rem' }">
       <span>named {{match.variable}}</span>
     </div>
     <span v-if="match.match" :style="{ paddingLeft: (depth * 3) + 'rem' }">)</span>
@@ -155,7 +155,7 @@ function getFormattedPath(paths: IriLD[]) {
 }
 .then {
   padding-right: 0.2rem;
-  color : rgb(72,32,92)
+  color : var(--p-blue-500)
 }
 .field {
   padding-right : 0.2rem;
@@ -163,38 +163,30 @@ function getFormattedPath(paths: IriLD[]) {
 
 .variable-field {
   padding-left : 2rem;
-  color : rgb(180, 48, 190);
+  color : var(--p-amber-700);
   padding-right : 0.3rem;
 }
 
 
-.return {
-  color: lightseagreen;
-  padding-left: 0.5rem;
-}
-
-.output {
-  color: mediumslateblue;
-}
 </style>
 
 <style>
 .or {
-  color: blue;
+  color: var(--p-blue-500);
   padding-right: 0.3rem;
 }
 
 .either {
-  color: blue;
+  color: var(--p-blue-500);
   padding-right: 0.3rem;
 }
 
 .and {
-  color: orange;
+  color: var(--p-orange-700);
   padding-right: 0.3rem;
 }
 
 .variable {
-  color: rgb(78, 2, 150) !important;
+  color: var(--p-orange-500) !important;
 }
 </style>
