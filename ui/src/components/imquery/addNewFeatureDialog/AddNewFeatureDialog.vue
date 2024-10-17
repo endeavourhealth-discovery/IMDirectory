@@ -122,8 +122,8 @@ const addDefaultValue = ref(false);
 
 const disableSelect = computed(
   () =>
-    ([IM.CONCEPT_SET, IM.CONCEPT].includes(selectedType.value) && selectedValueMap.value.size < 1 && !selectedPath.value) ||
-    (![IM.CONCEPT_SET, IM.CONCEPT].includes(selectedType.value) && !detailsIri.value)
+    ([IM.CONCEPT_SET, IM.CONCEPT, IM.DATAMODEL_PROPERTY].includes(selectedType.value) && selectedValueMap.value.size < 1 && !selectedPath.value) ||
+    (![IM.CONCEPT_SET, IM.CONCEPT, IM.DATAMODEL_PROPERTY].includes(selectedType.value) && !detailsIri.value)
 );
 const lockTypeFilters = computed(() => {
   if ((selectedType.value === IM.CONCEPT_SET || selectedType.value === IM.CONCEPT) && selectedValueMap.value.size > 0) {
