@@ -101,7 +101,7 @@
           <EditWhere
             v-for="[index, nestedWhere] in editMatch.where.entries()"
             :edit-where="nestedWhere"
-            :focused="(!isBooleanEditor && editMatch['@id'] === focusedId) || !isObjectHasKeys(editMatch, ['displayLabel'])"
+            :focused="(!isBooleanEditor && editMatch['@id'] === focusedId)"
             :focused-id="focusedId"
             :is-boolean-editor="isBooleanEditor"
             :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"

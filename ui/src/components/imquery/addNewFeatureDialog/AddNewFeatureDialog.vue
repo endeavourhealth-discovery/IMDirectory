@@ -67,7 +67,7 @@ import { Match, Node, QueryRequest, TTIriRef } from "@im-library/interfaces/Auto
 import { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF } from "@im-library/vocabulary";
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { addTypeFilterToIMQuery, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import NavTree from "../../shared/NavTree.vue";
@@ -202,9 +202,12 @@ async function setHasQueryOrFeatureSelected() {
 
 async function save() {
   if (editMatch.value) {
-    const editMatchCopy = cloneDeep(editMatch.value);
-    editMatchCopy["@id"] = v4();
-    emit("onMatchAdd", editMatchCopy);
+    const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] }, false);
+    if (describedQuery.match?.[0]) {
+      const editMatchCopy = cloneDeep(describedQuery.match![0]);
+      editMatchCopy["@id"] = v4();
+      emit("onMatchAdd", editMatchCopy);
+    }
   }
   visible.value = false;
 }
