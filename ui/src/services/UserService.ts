@@ -43,7 +43,6 @@ const UserService = {
     return await axios.post(Env.API + "api/user/darkMode", { bool: bool });
   },
   async updateUserScale(scale: string): Promise<string> {
-    console.log(scale);
     return await axios.post(Env.API + "api/user/scale", scale, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserMRU(mru: RecentActivityItem[]): Promise<void> {
