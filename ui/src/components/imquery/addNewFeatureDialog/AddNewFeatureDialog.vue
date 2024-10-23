@@ -27,6 +27,7 @@
           <div class="right-container">
             <SearchResultsAndDetails
               v-model:selected-path="selectedPath"
+              :add-default-value="addDefaultValue"
               :can-clear-path="canClearPath"
               :data-model-iri="dataModelIri"
               :im-query="imQuery"
@@ -45,16 +46,16 @@
       <EditMatch v-if="active === 2 && editMatch" :edit-match="editMatch" :focused-id="editMatch['@id']" :is-root-feature="true" />
       <div class="flex-0 populate-property-actions flex justify-end gap-2">
         <Button label="Cancel" severity="secondary" @click="visible = false" />
-        <Button v-if="hasQueryOrFeatureSelected" label="Save" @click="addQueryOrFeature" data-testid="add-feature-save-query-button" />
+        <Button v-if="hasQueryOrFeatureSelected" data-testid="add-feature-save-query-button" label="Save" @click="addQueryOrFeature" />
         <Button
           v-else-if="active === 1 && hasNextStep"
           :disabled="disableSelect"
+          data-testid="add-feature-ok-button"
           iconPos="right"
           label="OK"
-          @click="active = 2"
-          data-testid="add-feature-ok-button"
+          @click="onOKButtonClick"
         />
-        <Button v-else iconPos="right" label="Save" @click="save" data-testid="add-feature-save-button" />
+        <Button v-else data-testid="add-feature-save-button" iconPos="right" label="Save" @click="save" />
       </div>
     </div>
   </Dialog>
@@ -66,7 +67,7 @@ import { Match, Node, QueryRequest, TTIriRef } from "@im-library/interfaces/Auto
 import { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF } from "@im-library/vocabulary";
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { addTypeFilterToIMQuery, deleteQueryPredicateIfExists } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import NavTree from "../../shared/NavTree.vue";
@@ -117,11 +118,12 @@ const detailsIri = ref("");
 const hasQueryOrFeatureSelected: Ref<boolean> = ref(false);
 const active = ref(1);
 const selectedType = ref("");
+const addDefaultValue = ref(false);
 
 const disableSelect = computed(
   () =>
-    ([IM.CONCEPT_SET, IM.CONCEPT].includes(selectedType.value) && selectedValueMap.value.size < 1 && !selectedPath.value) ||
-    (![IM.CONCEPT_SET, IM.CONCEPT].includes(selectedType.value) && !detailsIri.value)
+    ([IM.CONCEPT_SET, IM.CONCEPT, IM.DATAMODEL_PROPERTY].includes(selectedType.value) && selectedValueMap.value.size < 1 && !selectedPath.value) ||
+    (![IM.CONCEPT_SET, IM.CONCEPT, IM.DATAMODEL_PROPERTY].includes(selectedType.value) && !detailsIri.value)
 );
 const lockTypeFilters = computed(() => {
   if ((selectedType.value === IM.CONCEPT_SET || selectedType.value === IM.CONCEPT) && selectedValueMap.value.size > 0) {
@@ -195,13 +197,17 @@ async function setHasQueryOrFeatureSelected() {
     const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
     hasQueryOrFeatureSelected.value = isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
   } else hasQueryOrFeatureSelected.value = false;
+  addDefaultValue.value = false;
 }
 
 async function save() {
   if (editMatch.value) {
-    const editMatchCopy = cloneDeep(editMatch.value);
-    editMatchCopy["@id"] = v4();
-    emit("onMatchAdd", editMatchCopy);
+    const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] }, false);
+    if (describedQuery.match?.[0]) {
+      const editMatchCopy = cloneDeep(describedQuery.match![0]);
+      editMatchCopy["@id"] = v4();
+      emit("onMatchAdd", editMatchCopy);
+    }
   }
   visible.value = false;
 }
@@ -249,6 +255,14 @@ function onSearch(payload: string) {
 
 function updateSelectedIri(iri: string) {
   detailsIri.value = iri;
+}
+
+function onOKButtonClick() {
+  if (selectedValueMap.value.size === 0) {
+    addDefaultValue.value = true;
+  } else {
+    active.value = 2;
+  }
 }
 </script>
 

@@ -2,10 +2,10 @@
   <div>
     <Dialog
       v-model:visible="visible"
-      maximizable
       :draggable="false"
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
       class="edit-match-dialog"
+      maximizable
     >
       <template #header>
         <div class="flex items-center">
@@ -14,11 +14,11 @@
             <template #item="{ item }">
               <div class="path-item" @click="updateDialogFocusFromBreadcrumb(item.key)">{{ item.label }}</div>
             </template>
-            <template #separator> / </template>
+            <template #separator> /</template>
           </Breadcrumb>
           <div v-if="editMatch" class="variable-edit flex-none">
-            <InputText type="text" placeholder="Name" v-model="editMatch.name" />
-            <InputText type="text" placeholder="Keep as reference" v-model="editMatch.variable" />
+            <InputText v-model="editMatch.name" placeholder="Name" type="text" />
+            <InputText v-model="editMatch.variable" placeholder="Keep as reference" type="text" />
           </div>
         </div>
       </template>
@@ -26,14 +26,14 @@
         <ProgressSpinner />
       </div>
       <div v-else class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
-        <Textarea v-if="editMatch" type="text" placeholder="Description" v-model="editMatch.description" autoResize rows="3" />
+        <Textarea v-if="editMatch" v-model="editMatch.description" autoResize placeholder="Description" rows="3" type="text" />
 
         <div id="imquery-builder-container">
-          <div id="imquery-build" v-if="focusedEditMatch">
+          <div v-if="focusedEditMatch" id="imquery-build">
             <EditMatch
               :edit-match="focusedEditMatch"
-              :is-root-feature="true"
               :focused-id="focusedEditMatch['@id']"
+              :is-root-feature="true"
               @on-update-dialog-focus="updateDialogFocus"
             />
             <AddMatch
@@ -45,13 +45,13 @@
               @add-then="onThenAdd"
             />
             <div class="add-button-bar">
-              <Button label="Add test" @click="showBuildThenFeature = true" severity="secondary" icon="fa-solid fa-plus" class="add-feature-button" />
+              <Button class="add-feature-button" icon="fa-solid fa-plus" label="Add test" severity="secondary" @click="showBuildThenFeature = true" />
               <Button
                 v-if="!focusedEditMatch?.orderBy"
+                class="add-feature-button"
+                icon="fa-solid fa-arrow-down-z-a"
                 label="Add order by"
                 @click="focusedEditMatch!.orderBy = { description: '', limit: 0, partitionBy: {}, property: {} }"
-                icon="fa-solid fa-arrow-down-z-a"
-                class="add-feature-button"
               />
               <FunctionComponent :function-templates="templates" @add-function-property="onAddFunctionProperty" />
             </div>
@@ -59,7 +59,7 @@
         </div>
 
         <div class="imquery-output-container">
-          <Panel header="Output" toggleable collapsed>
+          <Panel collapsed header="Output" toggleable>
             <Tabs value="0">
               <TabList>
                 <Tab value="0">Query JSON</Tab>
@@ -70,23 +70,25 @@
                   <div class="imquery-string-container">
                     <pre class="imquery-output-string">{{ focusedEditMatch }}</pre>
                     <Button
-                      icon="fa-solid fa-copy"
-                      v-tooltip.left="'Copy to clipboard'"
                       v-clipboard:copy="copyToClipboard()"
-                      v-clipboard:success="onCopy"
                       v-clipboard:error="onCopyError"
+                      v-clipboard:success="onCopy"
+                      v-tooltip.left="'Copy to clipboard'"
+                      icon="fa-solid fa-copy"
                     />
                   </div>
                 </TabPanel>
                 <TabPanel value="1">
                   <div class="imquery-description-container">
-                    <div class="imquery-description"><MatchDisplay v-if="editMatch" class="feature-description" :match="editMatch" /></div>
+                    <div class="imquery-description">
+                      <MatchDisplay v-if="editMatch" :match="editMatch" class="feature-description" />
+                    </div>
                     <Button
-                      icon="fa-solid fa-copy"
-                      v-tooltip.left="'Copy to clipboard'"
                       v-clipboard:copy="copyToClipboard()"
-                      v-clipboard:success="onCopy"
                       v-clipboard:error="onCopyError"
+                      v-clipboard:success="onCopy"
+                      v-tooltip.left="'Copy to clipboard'"
+                      icon="fa-solid fa-copy"
                     />
                   </div>
                 </TabPanel>
@@ -97,19 +99,19 @@
       </div>
       <template #footer>
         <div class="button-footer">
-          <Button label="Cancel" text @click="onCancel" data-testid="cancel-edit-feature-button" />
-          <Button label="Save" autofocus @click="onSave" data-testid="save-feature-button" />
+          <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
+          <Button autofocus data-testid="save-feature-button" label="Save" @click="onSave" />
         </div>
       </template>
     </Dialog>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
-import { Match, Bool, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { Ref, inject, onMounted, provide, ref, watch } from "vue";
+import { Bool, Match, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { inject, onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
@@ -267,7 +269,11 @@ async function onThenAdd(match: Match) {
     if (!editMatch.value) editMatch.value = {};
     if (props.hasThen || (editMatch.value.then && !editMatch.value.then.match)) {
       const previousThen = cloneDeep(editMatch.value.then);
-      if (previousThen && match) editMatch.value.then = { boolMatch: Bool.and, match: [previousThen, describedQuery.match[0]] };
+      if (previousThen && match)
+        editMatch.value.then = {
+          boolMatch: Bool.and,
+          match: [previousThen, describedQuery.match[0]]
+        };
     } else editMatch.value.then = describedQuery.match[0];
   }
 }

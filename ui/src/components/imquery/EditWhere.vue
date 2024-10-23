@@ -3,9 +3,9 @@
     <div v-if="editWhere.name && !editWhere.displayLabel && editWhere?.match" v-html="editWhere.name"></div>
     <EditProperty
       v-if="focused && !editWhere?.match"
-      :property="editWhere"
       :data-model-iri="matchTypeOfIri"
       :edit-match="parentMatch"
+      :property="editWhere"
       @delete-property="$emit('deleteProperty')"
     />
     <div v-else-if="editWhere.displayLabel" class="property-description">{{ editWhere.displayLabel }}</div>
@@ -13,8 +13,8 @@
     <div v-if="editWhere?.where" class="where-group">
       <div class="where-list">
         <Button
-          class="builder-button conjunction-button vertical-button"
           :label="editWhere.boolWhere?.toUpperCase() ?? 'AND'"
+          class="builder-button conjunction-button vertical-button"
           @click="
             (e: MouseEvent) => {
               e.stopPropagation();
@@ -24,11 +24,11 @@
         />
         <EditWhere
           v-for="[index, nestedWhere] in editWhere.where.entries()"
+          :editWhere="nestedWhere"
           :focused="focused"
           :focused-id="focusedId"
-          :match-type-of-iri="matchTypeOfIri"
-          :editWhere="nestedWhere"
           :is-boolean-editor="isBooleanEditor"
+          :match-type-of-iri="matchTypeOfIri"
           :parent-match="parentMatch"
           @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
           @delete-property="editWhere.where?.splice(index, 1)"
@@ -46,12 +46,13 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import EditMatch from "./EditMatch.vue";
 import { MenuItem } from "primevue/menuitem";
 import EditProperty from "./EditProperty.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
+
 interface Props {
   matchTypeOfIri: string;
   editWhere: Where;
@@ -60,6 +61,7 @@ interface Props {
   isBooleanEditor?: boolean;
   parentMatch: Match;
 }
+
 const props = defineProps<Props>();
 const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteProperty: () => true });
 const { toggleWhereBool } = setupIMQueryBuilderActions();
@@ -76,6 +78,7 @@ function onDeleteMatch(matchId: string) {
   display: flex;
   flex-flow: column;
 }
+
 .property-description {
   width: calc(100% - 1rem);
   height: 100%;

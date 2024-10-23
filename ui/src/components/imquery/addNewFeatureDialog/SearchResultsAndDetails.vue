@@ -7,26 +7,26 @@
       <div class="top-half-component">
         <SearchResults
           v-if="activePage === 0"
-          :show-filters="false"
-          :updateSearch="updateSearch"
-          :search-term="searchTerm"
           :im-query="imQuery"
           :rows="10"
+          :search-term="searchTerm"
+          :show-filters="false"
           :show-select="allowMultipleSelect"
+          :updateSearch="updateSearch"
+          @addToList="onSelect"
           @selectedUpdated="onSelectedUpdate"
           @viewHierarchy="onViewHierarchy"
-          @addToList="onSelect"
           @search-results-updated="updateSearchResults"
         />
-        <div class="details-tab" v-if="activePage === 1">
+        <div v-if="activePage === 1" class="details-tab">
           <div class="to-search-button-container">
             <Button
-              link
               v-if="searchResults?.entities?.length"
-              label="Back to search results"
-              icon="fa-solid fa-arrow-left"
               class="back-to-search"
               data-testid="back-to-search-results"
+              icon="fa-solid fa-arrow-left"
+              label="Back to search results"
+              link
               @click="activePage = 0"
             />
           </div>
@@ -34,43 +34,49 @@
             v-if="detailsIri && detailsIri !== 'http://endhealth.info/im#Favourites' && detailsEntity"
             :entity="detailsEntity"
             :showSelect="allowMultipleSelect"
+            @addToList="onSelect"
             @locateInTree="(iri: string) => $emit('locateInTree', iri)"
             @viewHierarchy="onViewHierarchy"
-            @addToList="onSelect"
           />
-          <div class="dm-details" v-if="isRecordModel(detailsEntity?.[RDF.TYPE])">
+          <div v-if="isRecordModel(detailsEntity?.[RDF.TYPE])" class="dm-details">
             <div class="view-title"><b>Properties</b></div>
-            <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
+            <DataModel :entityIri="detailsIri" @navigateTo="handleControlClick" />
           </div>
 
-          <div class="entity-details" v-else>
+          <div v-else class="entity-details">
             <div class="view-title"><b>Hierarchy tree</b></div>
             <SecondaryTree
               :entityIri="detailsIri"
               :show-select="allowMultipleSelect"
-              @row-clicked="(iri: string) => (detailsIri = iri)"
               @onSelect="onSelect"
+              @row-clicked="(iri: string) => (detailsIri = iri)"
               @row-control-clicked="handleControlClick"
             />
           </div>
         </div>
       </div>
-      <SelectedSet :dataModelIri="dataModelIri" :propertyIri="propertyIri" :updated-path-option="updatedPathOption" />
+      <SelectedSet
+        :add-default-value="props.addDefaultValue"
+        :dataModelIri="dataModelIri"
+        :propertyIri="propertyIri"
+        :updated-path-option="updatedPathOption"
+        @go-to-next-step="emit('goToNextStep')"
+      />
       <PathSelect
-        :property-iri="propertyIri"
-        :selected-path="selectedPath"
         :dataModelIri="dataModelIri"
         :pathSuggestions="pathSuggestions"
+        :property-iri="propertyIri"
+        :selected-path="selectedPath"
         @onSelectedPath="onUpdatedPathOption"
       />
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { Match, Node, PathQuery, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { Ref, ref, onMounted, watch, inject, computed } from "vue";
+import { computed, inject, onMounted, ref, Ref, watch } from "vue";
 import PathSelect from "./PathSelect.vue";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
@@ -94,6 +100,7 @@ interface Props {
   selectedType: string;
   canClearPath?: boolean;
   propertyIri: string | undefined;
+  addDefaultValue?: boolean;
 }
 
 const emit = defineEmits({
@@ -147,6 +154,19 @@ watch(
   }
 );
 
+watch(
+  () => cloneDeep(props.addDefaultValue),
+  async () => {
+    if (props.addDefaultValue) {
+      await onSelect(detailsIri.value);
+    }
+  }
+);
+
+watch(activePage, newValue => {
+  if (newValue === 0) emit("selectedIri", "");
+});
+
 watch(activePage, newValue => {
   if (newValue === 0) emit("selectedIri", "");
 });
@@ -169,7 +189,10 @@ function onUpdatedPathOption(path: Match) {
 
 async function getPathOptions(dataModelIri: string | undefined, valueIri: string) {
   if (dataModelIri && valueIri) {
-    const pathQuery: PathQuery = { source: { "@id": dataModelIri } as TTIriRef, target: { "@id": valueIri } as TTIriRef } as PathQuery;
+    const pathQuery: PathQuery = {
+      source: { "@id": dataModelIri } as TTIriRef,
+      target: { "@id": valueIri } as TTIriRef
+    } as PathQuery;
     const result = await QueryService.pathQuery(pathQuery);
     if (result?.match?.length) return result.match;
   }
@@ -183,6 +206,7 @@ async function setEntity() {
 }
 
 async function onSelect(iri: string) {
+  console.log("a");
   const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
   if (props.selectedPath && !currentPath.value) currentPath.value = cloneDeep(pathSuggestions.value[0]);
   if (props.selectedPath && currentPath.value) {
@@ -198,7 +222,7 @@ async function onSelect(iri: string) {
       }
     }
 
-    if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE])) {
+    if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]) || isProperty(entity[RDF.TYPE])) {
       if (selectedValueMap.value.size) {
         const has = await hasFeatureOrQuerySelected();
         if (!has) {

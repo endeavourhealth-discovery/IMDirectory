@@ -50,6 +50,7 @@ interface Props {
   dataModelIri: string | undefined;
   propertyIri: string | undefined;
   updatedPathOption: boolean;
+  addDefaultValue?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -77,6 +78,10 @@ const valueLabel: Ref<string> = ref("");
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 const canHaveValueList: Ref<boolean> = ref(false);
 
+const emit = defineEmits({
+  goToNextStep: () => true
+});
+
 watch(
   () => props.updatedPathOption,
   () => {
@@ -86,16 +91,25 @@ watch(
 
 watch(
   () => cloneDeep(selectedPath.value),
-  async newValue => await updateCanHaveValueList(newValue)
+  async newValue => {
+    await updateCanHaveValueList(newValue);
+  }
 );
 
 watch(
   () => cloneDeep(selectedValueMap.value),
-  async () => await init()
+  async () => {
+    if (props.addDefaultValue) {
+      await init();
+      emit("goToNextStep");
+    } else await init();
+  }
 );
 watch(
   () => cloneDeep(selectedEntities.value),
-  async () => updatePathValues()
+  async () => {
+    updatePathValues();
+  }
 );
 onMounted(async () => await init());
 
