@@ -31,19 +31,20 @@ const UserService = {
     return await axios.get(Env.API + "api/user/darkMode");
   },
   async updateUserPreset(preset: PrimeVuePresetThemes): Promise<void> {
-    return await axios.post(Env.API + "api/user/preset", preset, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    return await axios.post(Env.API + "api/user/preset", preset, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserPrimaryColor(color: PrimeVueColors): Promise<void> {
-    return await axios.post(Env.API + "api/user/primaryColor", color, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    return await axios.post(Env.API + "api/user/primaryColor", color, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserSurfaceColor(color: PrimeVueColors): Promise<void> {
-    return await axios.post(Env.API + "api/user/surfaceColor", color, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    return await axios.post(Env.API + "api/user/surfaceColor", color, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserDarkMode(bool: boolean): Promise<void> {
     return await axios.post(Env.API + "api/user/darkMode", { bool: bool });
   },
   async updateUserScale(scale: string): Promise<string> {
-    return await axios.post(Env.API + "api/user/scale", scale, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    console.log(scale);
+    return await axios.post(Env.API + "api/user/scale", scale, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserMRU(mru: RecentActivityItem[]): Promise<void> {
     return await axios.post(Env.API + "api/user/MRU", mru);
