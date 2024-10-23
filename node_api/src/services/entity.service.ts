@@ -61,51 +61,6 @@ export default class EntityService {
     ).data;
   }
 
-  async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
-    const entity = (await this.getPartialEntity(iri, [SHACL.PROPERTY])).data;
-    const propertyList = [] as PropertyDisplay[];
-    if (isObjectHasKeys(entity, [SHACL.PROPERTY]) && isArrayHasLength(entity[SHACL.PROPERTY])) {
-      for (const ttproperty of entity[SHACL.PROPERTY]) {
-        const cardinality = `${ttproperty[SHACL.MINCOUNT] || 0} : ${ttproperty[SHACL.MAXCOUNT] || "*"}`;
-        if (isObjectHasKeys(ttproperty, [SHACL.OR])) {
-          const property = {
-            order: ttproperty[SHACL.ORDER],
-            property: [] as TTIriRef[],
-            type: [] as TTIriRef[],
-            cardinality: cardinality,
-            isOr: true
-          };
-          for (const orProperty of ttproperty[SHACL.OR]) {
-            const type = orProperty[SHACL.CLASS] || orProperty[SHACL.NODE] || orProperty[SHACL.DATATYPE] || [];
-            const name = `${orProperty[SHACL.PATH]?.[0].name}  (${
-              isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"].slice(type[0]["@id"].indexOf("#") + 1)) : ""
-            })`;
-            property.property.push({ "@id": orProperty[SHACL.PATH]?.[0]["@id"], name: name });
-            property.type.push(isArrayHasLength(type) ? type[0] : {});
-          }
-          propertyList.push(property);
-        } else {
-          const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
-          const group = ttproperty?.[SHACL.GROUP]?.[0];
-          const name = `${ttproperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? (type[0].name ? type[0].name : type[0]["@id"]) : ""})`;
-          const property = {
-            order: ttproperty[SHACL.ORDER],
-            property: [{ "@id": ttproperty[SHACL.PATH]?.[0]["@id"], name: name }],
-            type: [isArrayHasLength(type) ? type[0] : ""],
-            cardinality: cardinality,
-            isOr: false
-          } as PropertyDisplay;
-          if (group) {
-            property.group = group;
-          }
-          propertyList.push(property);
-        }
-      }
-    }
-
-    return propertyList;
-  }
-
   async getSetDiff(setIriA: string, setIriB: string) {
     let membersA: Concept[] = [];
     let membersB: Concept[] = [];

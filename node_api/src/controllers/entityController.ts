@@ -16,20 +16,11 @@ export default class EntityController {
   }
 
   private initRoutes() {
-    this.router.get("/public/propertiesDisplay", (req, res, next) =>
-      this.getPropertiesDisplay(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
     this.router.get("/public/setDiff", (req, res, next) =>
       this.getSetDiff(req)
         .then(data => res.send(data))
         .catch(next)
     );
-  }
-
-  async getPropertiesDisplay(req: Request) {
-    return await this.entityService.getPropertiesDisplay(req.query.iri as string);
   }
 
   async getSetDiff(req: Request) {

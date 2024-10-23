@@ -258,7 +258,7 @@ const EntityService = {
   },
 
   async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
-    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertiesDisplay", {
+    return axios.get(API_URL + "/public/propertiesDisplay", {
       params: { iri: iri }
     });
   },
