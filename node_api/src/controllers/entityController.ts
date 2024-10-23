@@ -16,18 +16,8 @@ export default class EntityController {
   }
 
   private initRoutes() {
-    this.router.get("/public/detailsDisplay", (req, res, next) =>
-      this.getDetailsDisplay(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
     this.router.get("/public/propertiesDisplay", (req, res, next) =>
       this.getPropertiesDisplay(req)
-        .then(data => res.send(data))
-        .catch(next)
-    );
-    this.router.get("/public/detailsDisplay/loadMore", (req, res, next) =>
-      this.loadMoreDetailsTab(req)
         .then(data => res.send(data))
         .catch(next)
     );
@@ -40,19 +30,6 @@ export default class EntityController {
 
   async getPropertiesDisplay(req: Request) {
     return await this.entityService.getPropertiesDisplay(req.query.iri as string);
-  }
-
-  async getDetailsDisplay(req: Request) {
-    return await this.entityService.getDetailsDisplay(req.query.iri as string);
-  }
-
-  async loadMoreDetailsTab(req: Request) {
-    return await this.entityService.loadMoreDetailsDisplay(
-      req.query.iri as string,
-      req.query.predicate as string,
-      req.query.pageIndex as string,
-      req.query.pageSize as string
-    );
   }
 
   async getSetDiff(req: Request) {

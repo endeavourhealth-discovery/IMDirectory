@@ -6,6 +6,7 @@ import axios from "axios";
 import { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { OrganizationChartNode } from "primevue/organizationchart";
+import { buildDetails } from "@/helpers/detailsBuilder";
 const API_URL = Env.API + "api/entity";
 
 const EntityService = {
@@ -245,13 +246,15 @@ const EntityService = {
   },
 
   async getEntityDetailsDisplay(iri: string): Promise<TreeNode[]> {
-    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/detailsDisplay", { params: { iri: iri } });
+    const response: TTBundle = await axios.get(API_URL + "/public/detailsDisplay", { params: { iri: iri } });
+    return buildDetails(response);
   },
 
   async loadMoreDetailsDisplay(iri: string, predicate: string, pageIndex: number, pageSize: number): Promise<TreeNode[]> {
-    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/detailsDisplay/loadMore", {
+    const response: TTBundle = await axios.get(API_URL + "/public/detailsDisplay/loadMore", {
       params: { iri: iri, predicate: predicate, pageIndex: pageIndex, pageSize: pageSize }
     });
+    return buildDetails(response);
   },
 
   async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {

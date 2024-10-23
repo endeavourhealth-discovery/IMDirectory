@@ -1,6 +1,5 @@
 import Env from "@/services/env.service";
 import axios from "axios";
-import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { PropertyDisplay, TTBundle, EntityReferenceNode, FiltersAsIris, ValidatedEntity } from "@im-library/interfaces";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -42,34 +41,6 @@ export default class EntityService {
 
   public async getPartialEntities(typeIris: string[], predicates: string[]): Promise<any[]> {
     return axios.get(Env.API + +"api/entity/public/partials", { params: { iris: typeIris.join(","), predicates: predicates.join(",") } });
-  }
-
-  public async getDetailsDisplay(iri: string): Promise<any[]> {
-    const excludedPredicates = [IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT];
-    const entityPredicates = await this.getPredicates(iri);
-    let response: TTBundle = {} as TTBundle;
-    let types: TTIriRef[] = [] as TTIriRef[];
-    if (entityPredicates.includes(IM.HAS_MEMBER)) {
-      response = await this.getBundleByPredicateExclusions(iri, excludedPredicates.concat([IM.HAS_MEMBER]));
-      const partialAndCount = await this.getPartialAndTotalCount(iri, IM.HAS_MEMBER, 1, 10);
-      response.entity[IM.HAS_MEMBER] = (partialAndCount.result as any[]).concat([
-        { name: "Load more", "@id": IM.LOAD_MORE, totalCount: partialAndCount.totalCount as number }
-      ]);
-      response.predicates[IM.HAS_MEMBER] = "has member";
-    } else {
-      response = await this.getBundleByPredicateExclusions(iri, excludedPredicates);
-    }
-    types = response.entity[RDF.TYPE];
-    delete response.entity[RDF.TYPE];
-    return buildDetails(response, types);
-  }
-
-  public async loadMoreDetailsDisplay(iri: string, predicate: string, pageIndex: string, pageSize: string) {
-    const response = await this.getPartialAndTotalCount(iri, predicate, parseInt(pageIndex), parseInt(pageSize));
-    const entity = {} as any;
-    entity[predicate] = response.result;
-    const bundle = { entity: entity, predicates: [] } as TTBundle;
-    return buildDetails(bundle);
   }
 
   public async getPredicates(iri: string): Promise<string[]> {

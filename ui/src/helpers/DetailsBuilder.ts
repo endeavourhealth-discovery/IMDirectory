@@ -3,13 +3,13 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
-export function buildDetails(definition: TTBundle, types?: TTIriRef[]): any[] {
+export function buildDetails(definition: TTBundle): any[] {
   const treeNode = { children: [] as any[] };
-  buildTreeDataRecursively(treeNode, definition.entity, definition.predicates, types);
+  buildTreeDataRecursively(treeNode, definition.entity, definition.predicates);
   return treeNode.children;
 }
 
-function buildTreeDataRecursively(treeNode: any, entity: any, predicates: any, types?: TTIriRef[]) {
+function buildTreeDataRecursively(treeNode: any, entity: any, predicates: any) {
   if (isObjectHasKeys(entity)) {
     for (const key of Object.keys(entity)) {
       processEntityKey(key, treeNode, entity, predicates);
