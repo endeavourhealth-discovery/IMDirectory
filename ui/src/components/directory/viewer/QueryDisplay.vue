@@ -10,38 +10,25 @@
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
             <span class="field" v-html="query.typeOf.name"></span>
-            <span class="include-title" style="color: var(--p-green-600">with the following features</span>
+            <span class="include-title text-green-500">with the following features</span>
           </div>
-          <MatchSummaryDisplay
-              v-if="isArrayHasLength(query.match)"
+          <div v-if="isArrayHasLength(query.match)">
+            <MatchSummaryDisplay
               v-for="(nestedQuery, index) of query.match"
               :match="nestedQuery"
               :expanded="false"
               :index="index"
               :operator="query.boolMatch"
-              />
-          <div v-if="isArrayHasLength(query.query)"  style="padding-left: 2rem">
-            <Button class="button-chevron" @click="toggle" >
-              <IMFontAwesomeIcon
-                  :icon="!dataSetExpanded ? ['fa-solid','fa-chevron-right'] :  ['fa-solid','fa-chevron-up']"
-                  style="color: var(--p-blue-500)"
-                  class="mr-2"
-                  fixed-width
-              />
-            </Button>
-              <span style="color: var(--p-green-500)">The cohort query has the following data set definition</span>
+            />
+          </div>
+          <div v-if="isArrayHasLength(query.query)" class="pl-8">
+            <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" text @click="toggle" />
+            <span class="text-green-500">The cohort query has the following data set definition</span>
 
             <span v-if="dataSetExpanded">
-
-          <RecursiveQueryDisplay v-if="dataSetExpanded"
-              v-for="(nestedQuery, index) of query.query"
-              :query="nestedQuery"
-              :match-expanded="false"
-              :return-expanded="false"
-          />
+              <RecursiveQueryDisplay v-for="nestedQuery of query.query" :query="nestedQuery" :match-expanded="false" :return-expanded="false" />
             </span>
           </div>
-
         </div>
       </div>
     </div>
@@ -68,18 +55,16 @@ import MatchSummaryDisplay from "@/components/query/viewer/MatchSummaryDisplay.v
 import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
 import { QueryService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Query} from "@im-library/interfaces/AutoGen";
+import { Query } from "@im-library/interfaces/AutoGen";
 import { onMounted, watch, Ref, ref, computed } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-
 
 interface Props {
   entityIri?: string;
   definition?: string;
   showSqlButton?: boolean;
 }
-
 
 const dataSetExpanded = ref(false);
 const userStore = useUserStore();
@@ -93,9 +78,6 @@ const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
 const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
 
-const toggle = () => {
-  dataSetExpanded.value= !dataSetExpanded.value;
-};
 watch(
   () => props.definition,
   async newValue => {
@@ -123,15 +105,13 @@ async function generateSQL() {
   if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri);
   showSql.value = true;
 }
+
+function toggle() {
+  dataSetExpanded.value = !dataSetExpanded.value;
+}
 </script>
 
 <style scoped>
-
-.button-chevron {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
 .query-display-container {
   display: flex;
   flex-flow: column nowrap;
@@ -145,7 +125,7 @@ async function generateSQL() {
 }
 
 .field {
-  padding-right : 1rem;
+  padding-right: 1rem;
 }
 
 .rec-query-display {

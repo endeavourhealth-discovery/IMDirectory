@@ -1,6 +1,6 @@
 <template>
   <div class="property-description-container">
-    <div v-if="editWhere.name  && editWhere?.match" v-html="editWhere.name"></div>
+    <div v-if="editWhere.name && editWhere?.match">{{ editWhere.name }}</div>
     <EditProperty
       v-if="focused && !editWhere?.match"
       :property="editWhere"
