@@ -1,6 +1,6 @@
 <template>
   <div class="property-description-container">
-    <div v-if="editWhere.name && !editWhere.displayLabel && editWhere?.match" v-html="editWhere.name"></div>
+    <div v-if="editWhere.name && editWhere?.match">{{ editWhere.name }}</div>
     <EditProperty
       v-if="focused && !editWhere?.match"
       :data-model-iri="matchTypeOfIri"
@@ -8,8 +8,6 @@
       :property="editWhere"
       @delete-property="$emit('deleteProperty')"
     />
-    <div v-else-if="editWhere.displayLabel" class="property-description">{{ editWhere.displayLabel }}</div>
-
     <div v-if="editWhere?.where" class="where-group">
       <div class="where-list">
         <Button
