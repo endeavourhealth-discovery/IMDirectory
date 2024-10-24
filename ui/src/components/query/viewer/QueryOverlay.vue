@@ -1,14 +1,11 @@
 <template>
-  <RecursiveQueryDisplay v-if="'match' === overlayObject.type" :query="overlayObject.data"  :isVariable="true" />
-
+  <RecursiveQueryDisplay v-if="'match' === overlayObject.type" :query="overlayObject.data" :isVariable="true" />
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Query } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
-import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
-import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
 interface Props {
   fullQuery: Query;
   variableName: string;
