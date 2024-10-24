@@ -10,8 +10,8 @@ import "./auth-provider-commands/cognito";
 // commands please read more here:
 // https://on.cypress.io/custom-commands
 // ***********************************************
-Cypress.Commands.add("acceptLicenseAndCookies", () => {
-  cy.visit("/");
+Cypress.Commands.add("acceptLicenseAndCookies", (url?: string) => {
+  cy.visit(url ?? "/");
   cy.get("[data-testid='license-dialog']", { timeout: 60000 }).should("exist");
   cy.get("[data-testid='agree-button']").click();
   cy.get("[data-testid='license-dialog']").should("not.exist");
