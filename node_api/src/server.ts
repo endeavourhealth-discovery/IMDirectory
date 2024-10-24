@@ -5,7 +5,6 @@ import QueryController from "./controllers/queryController";
 import ValidationController from "./controllers/validationController";
 import bodyParser from "body-parser";
 import * as dns from "dns";
-import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
 import FhirController from "@/controllers/fhirController";
 import gracefulShutdown from "http-graceful-shutdown";
@@ -19,7 +18,7 @@ dns.setDefaultResultOrder("ipv4first");
 
 const app = new App({
   port: 3000,
-  controllers: [new QueryController(), new ValidationController(), new EntityController(), new CognitoController(), new FhirController()],
+  controllers: [new QueryController(), new ValidationController(), new CognitoController(), new FhirController()],
   middleWares: [
     metricsInterceptor,
     bodyParser.json({ type: "application/json" }),

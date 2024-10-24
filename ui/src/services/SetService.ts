@@ -38,7 +38,7 @@ const SetService = {
   },
 
   async getSetComparison(iriA?: string, iriB?: string): Promise<SetDiffObject> {
-    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/setDiff", {
+    return axios.get(API_URL + "/public/setDiff", {
       params: {
         setIriA: iriA,
         setIriB: iriB

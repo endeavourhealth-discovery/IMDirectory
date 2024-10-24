@@ -61,35 +61,6 @@ export default class EntityService {
     ).data;
   }
 
-  async getSetDiff(setIriA: string, setIriB: string) {
-    let membersA: Concept[] = [];
-    let membersB: Concept[] = [];
-    if (setIriA) membersA = await this.getFullyExpandedSetMembers(setIriA, false, false);
-    if (setIriB) membersB = await this.getFullyExpandedSetMembers(setIriB, false, false);
-    const membersMap = new Map<string, Concept>();
-    const diff = { membersA: [] as Concept[], sharedMembers: [] as Concept[], membersB: [] as Concept[] };
-
-    for (const member of membersA) {
-      member.name = member.name + " | " + member.code;
-      membersMap.set(member["@id"]!, member);
-    }
-
-    for (const member of membersB) {
-      member.name = member.name + " | " + member.code;
-      if (membersMap.has(member["@id"]!)) {
-        diff.sharedMembers.push(member);
-        membersMap.delete(member["@id"]!);
-      } else {
-        diff.membersB.push(member);
-      }
-    }
-
-    diff.membersA = Array.from(membersMap, ([iri, member]) => member).sort(byName);
-    diff.membersB.sort(byName);
-    diff.sharedMembers.sort(byName);
-    return diff;
-  }
-
   async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<Concept[]> {
     return (
       await axios.get(Env.API + "api/entity/public/expandedMembers", {
