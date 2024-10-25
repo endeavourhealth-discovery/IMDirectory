@@ -12,7 +12,8 @@ export default defineConfig({
         }
         return launchOptions;
       });
-    }
+    },
+    experimentalRunAllSpecs: true
   },
   env: { CYPRESS_LOGIN_USERNAME: process.env.CYPRESS_LOGIN_USERNAME, CYPRESS_LOGIN_PASSWORD: process.env.CYPRESS_LOGIN_PASSWORD, awsConfig: awsConfig },
   reporter: "junit",
