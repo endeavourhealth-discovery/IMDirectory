@@ -1,106 +1,141 @@
 <template>
-  <component id="recursive-match-display" :is="!inline ? 'div' : 'span'" :style="indentationStyle(inline, depth)">
+  <component
+      :is="!inline ? 'div' : 'span'"
+      :style="indentationStyle(inline,depth)">
     <span v-if="match.hasInlineSet">
-      <Button class="button-chevron" text :icon="!expandSet ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" @click="toggle" />
+    <Button class="button-chevron" @click="toggle" >
+      <IMFontAwesomeIcon
+          :icon="!expandSet ? ['fa-solid','fa-chevron-right'] :  ['fa-solid','fa-chevron-up']"
+          style="color: var(--p-blue-500)"
+          class="mr-2"
+          fixed-width
+      />
+    </Button>
     </span>
     <span v-if="match.includeIf" class="then">{{ match.includeIf }}</span>
-    <span v-if="index > 0" :class="operator">{{ operator }}</span>
-    <span v-else-if="operator === Bool.or" class="either">either</span>
+      <span v-if="index>0" :class="operator">{{ operator}}</span>
+      <span v-else-if="operator===Bool.or" class="either">either</span>
     <span v-if="match.exclude" class="field">NOT</span>
-    <span v-if="match.orderBy" class="field">{{ match.orderBy.description }}</span>
-    <span v-if="match.path" class="field" :v-html="getFormattedPath(match.path)"></span>
-    <span v-if="match.instanceOf" :v-html="getFormattedNodes(match.instanceOf)"></span>
-    <span v-if="match.match">(</span>
+    <span v-if="match.orderBy" class="field" v-html="match.orderBy.description"></span>
+        <span v-if="match.path"  class="field" v-html="getFormattedPath(match.path)"> </span>
+       <span v-if="match.instanceOf" v-html="getFormattedNodes(match.instanceOf)"></span>
+    <span v-if="match.match" >(</span>
 
-    <div v-if="isArrayHasLength(match.match)">
-      <RecursiveMatchDisplay
-        v-for="(nestedQuery, index) in match.match"
+    <RecursiveMatchDisplay
+        v-if="isArrayHasLength(match.match)"
+        v-for="(nestedQuery,index) in match.match"
         :inline="false"
         :match="nestedQuery"
         :key="index"
         :index="index"
         :operator="match.boolMatch"
         :depth="1"
-      />
-    </div>
-
-    <div v-if="isArrayHasLength(match.where)">
-      <RecursiveWhereDisplay
-        v-for="(nestedWhere, index) in match.where"
+    />
+    <RecursiveWhereDisplay
+        v-if="isArrayHasLength(match.where)"
+        v-for="(nestedWhere,index) in match.where"
         :where="nestedWhere"
-        :depth="depth"
+        :depth = "depth"
         :property-index="index"
         :key="index"
         :index="index"
         :operator="match.boolWhere"
         :expanded="expandSet"
-      />
-    </div>
+    />
+    <RecursiveMatchDisplay
+        v-if="match.then"
+        :match="match.then"
+        :inline="false"
+        :index="0"
+        :depth="1"
+    />
 
-    <RecursiveMatchDisplay v-if="match.then" :match="match.then" :inline="false" :index="0" :depth="1" />
 
-    <div v-if="match.variable" class="variable-field" :style="{ paddingLeft: depth * 3 + 2 + 'rem' }">
-      <span>named {{ match.variable }}</span>
+
+    <div v-if="match.variable" class="variable-field" :style="{ paddingLeft: depth * 3+2 + 'rem' }">
+      <span>named {{match.variable}}</span>
     </div>
-    <span v-if="match.match" :style="{ paddingLeft: depth * 3 + 'rem' }">)</span>
-  </component>
+    <span v-if="match.match" :style="{ paddingLeft: (depth * 3) + 'rem' }">)</span>
+   </component>
 </template>
+
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Assignable, IriLD, Node, Bool } from "@im-library/interfaces/AutoGen";
-import { onMounted, Ref, ref, watch, defineProps } from "vue";
+import { Match,Assignable,IriLD,Node,Bool} from "@im-library/interfaces/AutoGen";
+import { onMounted, Ref, ref,watch,defineProps } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
+import QueryOverlay from "./QueryOverlay.vue";
+
+
 
 interface Props {
   match: Match;
-  isVariable?: boolean;
+  isVariable? : boolean;
   depth: number;
-  inline: boolean;
-  index: number;
-  operator?: Bool;
+  inline : boolean;
+  index : number;
+  operator? :Bool;
 }
 
 const props = defineProps<Props>();
+const op: Ref<any> = ref();
+const clickedNodeRef: Ref<Match> = ref({} as Match);
+const list: Ref<Match[]> = ref([]);
+const op1: Ref<any> = ref();
+const expandSet= ref(false);
 
-const expandSet = ref(false);
 
-function toggle() {
-  expandSet.value = !expandSet.value;
-}
 
-function indentationStyle(inline: boolean, depth: number) {
+const toggle = () => {
+  expandSet.value= !expandSet.value;
+};
+
+function indentationStyle(inline:boolean, depth:number){
   return {
-    paddingLeft: !inline ? depth * 2 + "rem" : "0rem"
-  };
+    paddingLeft: !inline ? depth * 2 + 'rem' : '0rem'
+  }
 }
 function getFormattedNodes(values: Node[]) {
-  const value = values
-    .map(item => {
-      const parts = [];
-      if (item.qualifier) parts.push("<span>" + item.qualifier + "</span>");
-      if (item.name) parts.push('<span style="color : rgb(0,102,102);">' + item.name + "</span>");
-      return parts.join(" ");
-    })
-    .join(", ");
-  return value;
+  const value= values
+      .map(item => {
+        const parts = [];
+        if (item.qualifier)
+          parts.push("<span>"+item.qualifier+"</span>");
+        if (item.name)
+          parts.push("<span style=\"color : rgb(0,102,102);\">"+item.name+"</span>");
+        return parts.join(' ');
+      })
+      .join(', ');
+    return value;
 }
 
 function getFormattedPath(paths: IriLD[]) {
-  const path = paths
-    .map(item => {
-      const parts = [];
-      if (item.qualifier) parts.push("<span>" + item.qualifier + "</span>");
-      if (item.name) parts.push('<span style="color : rgb(0,102,102);">' + item.description + "</span>");
-      return parts.join(" ");
-    })
-    .join("-> ");
+  const path= paths
+      .map(item => {
+        const parts = [];
+        if (item.qualifier)
+          parts.push("<span>"+item.qualifier+"</span>");
+        if (item.name)
+          parts.push("<span style=\"color : rgb(0,102,102);\">"+item.description+"</span>");
+        return parts.join(' ');
+      })
+      .join('-> ');
   return path;
 }
 // Watch for changes in the prop and update the local copy accordingly
+
+
 </script>
 
+
 <style scoped>
+
+.button-chevron {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
 .feature {
   display: flex;
   flex-flow: column;
@@ -120,31 +155,35 @@ function getFormattedPath(paths: IriLD[]) {
   padding-right: 0.2rem;
 }
 .field {
-  padding-right: 0.2rem;
+  padding-right : 0.2rem;
 }
 
 .variable-field {
-  padding-left: 2rem;
-  color: var(--p-amber-700);
-  padding-right: 0.3rem;
+  padding-left : 2rem;
+  color : var(--p-amber-700);
+  padding-right : 0.3rem;
 }
 
-#recursive-match-display:deep(.or) {
+
+</style>
+
+<style>
+.or {
   color: var(--p-blue-500);
   padding-right: 0.3rem;
 }
 
-#recursive-match-display:deep(.either) {
+.either {
   color: var(--p-blue-500);
   padding-right: 0.3rem;
 }
 
-#recursive-match-display:deep(.and) {
-  color: var(--p-orange-500);
+.and {
+  color: var(--p-orange-700);
   padding-right: 0.3rem;
 }
 
-#recursive-match-display:deep(.variable) {
+.variable {
   color: var(--p-orange-500) !important;
 }
 </style>
