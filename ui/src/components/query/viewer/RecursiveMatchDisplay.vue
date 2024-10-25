@@ -8,8 +8,8 @@
     <span v-else-if="operator === Bool.or" class="either">either</span>
     <span v-if="match.exclude" class="field">NOT</span>
     <span v-if="match.orderBy" class="field">{{ match.orderBy.description }}</span>
-    <span v-if="match.path" class="field" :v-html="getFormattedPath(match.path)"></span>
-    <span v-if="match.instanceOf" :v-html="getFormattedNodes(match.instanceOf)"></span>
+    <span v-if="match.path" class="field" v-html="getFormattedPath(match.path)"></span>
+    <span v-if="match.instanceOf" v-html="getFormattedNodes(match.instanceOf)"></span>
     <span v-if="match.match">(</span>
 
     <div v-if="isArrayHasLength(match.match)">
