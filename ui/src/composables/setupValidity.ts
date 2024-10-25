@@ -1,4 +1,4 @@
-import { QueryService } from "@/services";
+import { EntityService } from "@/services";
 import { deferred } from "@im-library/helpers/Deferred";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
@@ -80,7 +80,7 @@ export function setupValidity(shape?: FormGenerator) {
     let valid = true;
     let message;
     if (isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
-      let customValidationResult = await QueryService.checkValidation(componentShape.validation!["@id"], editorEntity.value);
+      let customValidationResult = await EntityService.checkValidation(componentShape.validation!["@id"], editorEntity.value);
       if (customValidationResult.isValid === false) {
         valid = false;
         message = customValidationResult.message;

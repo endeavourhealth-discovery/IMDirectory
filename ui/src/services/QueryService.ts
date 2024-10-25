@@ -21,10 +21,6 @@ const QueryService = {
     return axios.post(Env.API + "api/query/public/askQueryIM", query, { signal: controller?.signal, raw: raw });
   },
 
-  async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
-    return axios.post(Env.VITE_NODE_API + "node_api/validation/public/validate", data, { params: { iri: validationIri } });
-  },
-
   async getAllowableChildTypes(conceptIri: string): Promise<AllowableChildProperty[]> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableChildTypes", {
       params: { iri: conceptIri }

@@ -274,6 +274,10 @@ const EntityService = {
   async getName(iri: string): Promise<string | undefined> {
     const result = await EntityService.getPartialEntity(iri, [RDFS.LABEL]);
     if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+  },
+
+  async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
+    return axios.post(API_URL + "/public/validate", { validationIri: validationIri, entity: data });
   }
 };
 
