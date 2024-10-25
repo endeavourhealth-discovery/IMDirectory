@@ -38,7 +38,7 @@ export function isConcept(conceptTypes: TTIriRef[]): boolean {
 }
 
 export function isQuery(entityTypes: TTIriRef[]): boolean {
-  return isOfTypes(entityTypes, IM.QUERY, IM.COHORT_QUERY, IM.DATASET_QUERY);
+  return isOfTypes(entityTypes, IM.QUERY, IM.COHORT_QUERY, IM.DATASET_QUERY,SHACL.FUNCTION);
 }
 
 export function isRecordModel(entityTypes: TTIriRef[]): boolean {

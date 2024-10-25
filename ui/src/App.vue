@@ -8,7 +8,7 @@
     <SnomedConsent />
     <div id="main-container">
       <BannerBar v-if="!viewsLoading && showBanner" :latestRelease="latestRelease" />
-      <div v-if="viewsLoading" class="loading-container flex flex-row items-center justify-center">
+      <div v-if="viewsLoading || !finishedOnMounted" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
       <router-view v-else />
@@ -48,6 +48,7 @@ const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
+const finishedOnMounted = ref(false);
 
 const { changeScale } = setupChangeScale();
 const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
@@ -93,6 +94,7 @@ onMounted(async () => {
   await filterStore.fetchFilterSettings();
   await setShowBanner();
   loadingStore.updateViewsLoading(false);
+  finishedOnMounted.value = true;
 });
 
 function setThemeOptions() {

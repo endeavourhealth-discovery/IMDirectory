@@ -52,6 +52,17 @@ const QueryService = {
     });
   },
 
+  async getDisplayFromQueryIri(iri: string, includeLogicDesc: boolean): Promise<Query> {
+    return axios.get(Env.API + "api/query/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
+  },
+
+  async getDisplayFromQuery(query: Query, includeLogicDesc: boolean): Promise<Query> {
+    return axios.post(Env.API + "api/query/public/queryDisplayFromQuery", query, {
+      params: { includeLogicDesc: includeLogicDesc }
+    });
+  },
+
+
   async generateQuerySQL(queryIri: string): Promise<string> {
     return axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri } });
   },

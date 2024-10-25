@@ -40,7 +40,7 @@
           />
           <div v-if="isRecordModel(detailsEntity?.[RDF.TYPE])" class="dm-details">
             <div class="view-title"><b>Properties</b></div>
-            <DataModel :entityIri="detailsIri" @navigateTo="(iri: string) => (detailsIri = iri)" />
+            <DataModel :entityIri="detailsIri" @navigateTo="handleControlClick" />
           </div>
 
           <div v-else class="entity-details">
@@ -206,6 +206,7 @@ async function setEntity() {
 }
 
 async function onSelect(iri: string) {
+  console.log("a");
   const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
   if (props.selectedPath && !currentPath.value) currentPath.value = cloneDeep(pathSuggestions.value[0]);
   if (props.selectedPath && currentPath.value) {
@@ -221,7 +222,7 @@ async function onSelect(iri: string) {
       }
     }
 
-    if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE])) {
+    if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]) || isProperty(entity[RDF.TYPE])) {
       if (selectedValueMap.value.size) {
         const has = await hasFeatureOrQuerySelected();
         if (!has) {
