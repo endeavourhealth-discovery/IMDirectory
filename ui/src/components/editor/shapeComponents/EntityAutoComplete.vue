@@ -71,15 +71,15 @@
 <script setup lang="ts">
 import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, Ref, ref, watch } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import _ from "lodash-es";
+import { cloneDeep, isEqual } from "lodash-es";
 import { EditorMode } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { byName } from "@im-library/helpers/Sorters";
-import { QueryService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { DataModelService, QueryService } from "@/services";
+import { IM, QUERY, RDF, RDFS } from "@im-library/vocabulary";
 import { TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
@@ -96,7 +96,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 watch(
-  () => _.cloneDeep(props.value),
+  () => cloneDeep(props.value),
   async () => {
     await init();
   }
@@ -132,7 +132,7 @@ if (forceValidation) {
 
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
-    () => _.cloneDeep(valueVariableMap),
+    () => cloneDeep(valueVariableMap),
     async (newValue, oldValue) => {
       if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
         if (updateValidity) {
@@ -149,7 +149,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 }
 
 watch(
-  () => _.cloneDeep(valueVariableMap?.value),
+  () => cloneDeep(valueVariableMap?.value),
   async () => {
     await init();
   }
@@ -189,7 +189,7 @@ onBeforeUnmount(() => {
 });
 
 watch(selectedResult, (newValue, oldValue) => {
-  if (newValue && typeof newValue !== "string" && !_.isEqual(newValue, oldValue)) {
+  if (newValue && typeof newValue !== "string" && !isEqual(newValue, oldValue)) {
     itemSelected(newValue);
   }
 });
@@ -255,11 +255,50 @@ async function getAutocompleteOptions() {
     }
   } else {
     if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri!["@id"]) {
-      const range = await QueryService.getPropertyRange(props.shape?.argument![0].valueIri!["@id"]);
+      const range = await getPropertyRange(props.shape?.argument![0].valueIri!["@id"]);
       if (range.length !== 0) {
         autocompleteOptions.value = convertToConceptSummary(range);
       }
     }
+  }
+}
+
+async function getPropertyRange(propIri: string): Promise<any> {
+  const queryRequest = {
+    argument: [
+      {
+        parameter: "this",
+        valueIri: {
+          "@id": propIri
+        }
+      }
+    ],
+    query: {
+      "@id": QUERY.ALLOWABLE_RANGES
+    }
+  } as any as QueryRequest;
+
+  const response = await QueryService.queryIM(queryRequest);
+
+  if (isObjectHasKeys(response, ["entities"]) && response.entities.length !== 0) {
+    return response.entities;
+  } else {
+    const propType = await DataModelService.checkPropertyType(propIri);
+    if (propType === IM.DATAMODEL_OBJECTPROPERTY) {
+      queryRequest.query = { "@id": QUERY.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as any;
+      const suggestions = await QueryService.queryIM(queryRequest);
+      suggestions.entities.push({
+        "@id": IM.CONCEPT,
+        "http://www.w3.org/2000/01/rdf-schema#label": "Terminology concept"
+      });
+      return suggestions.entities;
+    } else if (propType === IM.DATAMODEL_DATAPROPERTY) {
+      queryRequest.query = { "@id": QUERY.DATA_PROPERTY_RANGE_SUGGESTIONS } as any;
+      const dataTypes = await QueryService.queryIM(queryRequest);
+      if (isObjectHasKeys(dataTypes, ["entities"]) && dataTypes.entities.length !== 0) {
+        return dataTypes.entities;
+      }
+    } else return [];
   }
 }
 

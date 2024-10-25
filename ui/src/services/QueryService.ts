@@ -2,6 +2,7 @@ import Env from "./Env";
 import { AllowableChildProperty, QueryResponse } from "@im-library/interfaces";
 import axios from "axios";
 import { Match, PathQuery, Query, QueryRequest, SearchResponse } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const QueryService = {
   async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {
@@ -19,12 +20,6 @@ const QueryService = {
 
   async askQuery(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<boolean> {
     return axios.post(Env.API + "api/query/public/askQueryIM", query, { signal: controller?.signal, raw: raw });
-  },
-
-  async getAllowableChildTypes(conceptIri: string): Promise<AllowableChildProperty[]> {
-    return axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableChildTypes", {
-      params: { iri: conceptIri }
-    });
   },
 
   async getPropertyRange(propIri: string): Promise<any[]> {
@@ -55,8 +50,13 @@ const QueryService = {
     return axios.post(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", query);
   },
 
-  async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<string> {
-    return axios.post(Env.VITE_NODE_API + "node_api/query/public/selection/validate", { iri: selectedIri, queryRequest: queryRequest });
+  async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<boolean> {
+    const queryResponse = await this.queryIM(queryRequest);
+    return (
+      isObjectHasKeys(queryResponse, ["entities"]) &&
+      isArrayHasLength(queryResponse.entities) &&
+      queryResponse.entities.some((entity: any) => entity["@id"] === selectedIri)
+    );
   }
 };
 

@@ -19,6 +19,10 @@ const DataModelService = {
         propIri: propIri
       }
     });
+  },
+
+  async checkPropertyType(iri: string): Promise<String> {
+    return axios.get(API_URL + "/public/checkPropertyType", { params: { iri: iri } });
   }
 };
 if (process.env.NODE_ENV !== "test") Object.freeze(DataModelService);

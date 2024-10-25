@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import _ from "lodash-es";
+import { cloneDeep, isEqual } from "lodash-es";
 import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -75,7 +75,7 @@ if (forceValidation) {
 
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
-    () => _.cloneDeep(valueVariableMap),
+    () => cloneDeep(valueVariableMap),
     async (newValue, oldValue) => {
       if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
         if (updateValidity) {
@@ -92,9 +92,9 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 }
 
 watch(
-  () => _.cloneDeep(props.value),
+  () => cloneDeep(props.value),
   async (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) await init();
+    if (!isEqual(newValue, oldValue)) await init();
   }
 );
 
@@ -117,7 +117,7 @@ const queryRequest: Ref<QueryRequest | undefined> = ref(undefined);
 const rootEntities: Ref<string[]> = ref([]);
 
 watch(selectedResult, (newValue, oldValue) => {
-  if (newValue && !_.isEqual(newValue, oldValue)) updateSelectedResult(newValue);
+  if (newValue && !isEqual(newValue, oldValue)) updateSelectedResult(newValue);
 });
 
 async function init() {

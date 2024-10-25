@@ -2,9 +2,10 @@ import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { AllowableChildProperty } from "@im-library/interfaces";
 import { DirectService, QueryService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, QUERY, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
+import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
 function createNew() {
   const directService = new DirectService();
@@ -18,7 +19,22 @@ function createNew() {
       }
     ];
     let allowableTypes = [] as AllowableChildProperty[];
-    const types = await QueryService.getAllowableChildTypes(node.key as string);
+    const queryRequest = {
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": node.key
+          }
+        }
+      ],
+      query: {
+        "@id": QUERY.ALLOWABLE_CHILD_TYPES
+      }
+    } as any as QueryRequest;
+
+    const response = await QueryService.queryIM(queryRequest);
+    const types = response?.entities ?? [];
     if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
 
     for (let currentType in node.conceptTypes) {
