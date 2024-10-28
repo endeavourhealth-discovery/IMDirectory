@@ -1,6 +1,5 @@
 <template>
   <div class="property-description-container">
-    <div v-if="editWhere.name && editWhere?.match">{{ editWhere.name }}</div>
     <EditProperty
       v-if="focused && !editWhere?.match"
       :data-model-iri="matchTypeOfIri"
@@ -8,6 +7,14 @@
       :property="editWhere"
       @delete-property="$emit('deleteProperty')"
     />
+
+    <div v-else="editWhere.valueLabel" class="property-description">
+      <span>{{ editWhere.name }} {{ editWhere.qualifier }} {{ editWhere.valueLabel }} </span>
+      <span v-if="editWhere.relativeTo">
+        relative to {{ editWhere.relativeTo.qualifier }} {{ editWhere.relativeTo.nodeRef }} {{ editWhere.relativeTo.name }}
+      </span>
+    </div>
+
     <div v-if="editWhere?.where" class="where-group">
       <div class="where-list">
         <Button
