@@ -204,6 +204,13 @@ function handle5xx(error: any) {
         summary: "Error calling OpenSearch",
         detail: error.response.data.debugMessage
       });
+    } else if (error.response.data.code === "ConfigException") {
+      toast.add({
+        severity: "error",
+        summary: "Error retrieving Github releases",
+        detail: error.response.data.debugMessage
+      });
+      router.push({ name: "ServerOffline" });
     } else router.push({ name: "ServerOffline" }).then();
   } else if (error.code === "ERR_CANCELED") {
     return;
