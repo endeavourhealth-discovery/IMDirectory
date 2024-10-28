@@ -7,8 +7,28 @@
       </div>
       <div class="query-display">
         <div class="rec-query-display">
-          <div class="include-title" style="color: green">include if</div>
-          <RecursiveQueryDisplay v-if="query" :match="query" :parent-match="undefined" :full-query="query" />
+          <span v-if="query.name" v-html="query.name"> </span>
+          <div v-if="query.typeOf">
+            <span class="field" v-html="query.typeOf.name"></span>
+            <span class="include-title text-green-500">with the following features</span>
+          </div>
+          <div v-if="isArrayHasLength(query.match)">
+            <MatchSummaryDisplay
+              v-for="(nestedQuery, index) of query.match"
+              :match="nestedQuery"
+              :expanded="false"
+              :index="index"
+              :operator="query.boolMatch"
+            />
+          </div>
+          <div v-if="isArrayHasLength(query.query)" class="pl-8">
+            <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" text @click="toggle" />
+            <span class="text-green-500">The cohort query has the following data set definition</span>
+
+            <span v-if="dataSetExpanded">
+              <RecursiveQueryDisplay v-for="nestedQuery of query.query" :query="nestedQuery" :match-expanded="false" :return-expanded="false" />
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -30,6 +50,8 @@
 </template>
 
 <script setup lang="ts">
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import MatchSummaryDisplay from "@/components/query/viewer/MatchSummaryDisplay.vue";
 import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
 import { QueryService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -44,6 +66,7 @@ interface Props {
   showSqlButton?: boolean;
 }
 
+const dataSetExpanded = ref(false);
 const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -74,13 +97,17 @@ onMounted(async () => {
 });
 
 async function init() {
-  if (props.entityIri) query.value = await QueryService.getQueryDisplay(props.entityIri, true);
-  else if (props.definition) query.value = await QueryService.getQueryDisplayFromQuery(JSON.parse(props.definition), true);
+  if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, true);
+  else if (props.definition) query.value = await QueryService.getDisplayFromQuery(JSON.parse(props.definition), true);
 }
 
 async function generateSQL() {
   if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri);
   showSql.value = true;
+}
+
+function toggle() {
+  dataSetExpanded.value = !dataSetExpanded.value;
 }
 </script>
 
@@ -95,6 +122,10 @@ async function generateSQL() {
 .query-display {
   max-height: 100vh;
   border: 1px solid var(--p-textarea-border-color);
+}
+
+.field {
+  padding-right: 1rem;
 }
 
 .rec-query-display {

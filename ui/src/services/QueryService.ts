@@ -42,6 +42,17 @@ const QueryService = {
     });
   },
 
+  async getDisplayFromQueryIri(iri: string, includeLogicDesc: boolean): Promise<Query> {
+    return axios.get(Env.API + "api/query/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
+  },
+
+  async getDisplayFromQuery(query: Query, includeLogicDesc: boolean): Promise<Query> {
+    return axios.post(Env.API + "api/query/public/queryDisplayFromQuery", query, {
+      params: { includeLogicDesc: includeLogicDesc }
+    });
+  },
+
+
   async generateQuerySQL(queryIri: string): Promise<string> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", { params: { queryIri: queryIri } });
   },

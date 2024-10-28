@@ -35,7 +35,7 @@ export class SHACL {
   public static readonly TARGET_TYPE = SHACL.NAMESPACE + "targetType";
   public static readonly TARGET = SHACL.NAMESPACE + "target";
   public static readonly SPARQL_TARGET = SHACL.NAMESPACE + "SPARQLTarget";
-  public static readonly FUNCTION = SHACL.NAMESPACE + "FunctionClause";
+  public static readonly FUNCTION = SHACL.NAMESPACE + "Function";
   public static readonly RETURN_TYPE = SHACL.NAMESPACE + "returnType";
   public static readonly GROUP = SHACL.NAMESPACE + "group";
   public static readonly NAME = SHACL.NAMESPACE + "name";
