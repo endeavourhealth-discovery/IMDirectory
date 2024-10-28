@@ -2,7 +2,7 @@
   <div class="pl-8" id="match-summary-display">
     <span v-if="match.name">
       <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" @click="toggle" />
-      <span v-if="index > 0" class="operator">{{ operator }}</span>
+      <span v-if="index > 0" :class="operator">{{ operator }}</span>
       <span>{{ match.name }}</span>
       <div v-if="matchExpanded">
         <span class="pl-8 text-gray-500">details:</span>
