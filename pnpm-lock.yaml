@@ -19,7 +19,7 @@ importers:
         version: 9.0.4
       '@vitest/coverage-v8':
         specifier: 1.6.0
-        version: 1.6.0(vitest@1.6.0)
+        version: 1.6.0(vitest@1.6.0(@types/node@18.17.18)(happy-dom@12.10.3))
       cross-env:
         specifier: 7.0.3
         version: 7.0.3
@@ -39,8 +39,8 @@ importers:
         specifier: 5.2.2
         version: 5.2.2
       vite:
-        specifier: 5.2.12
-        version: 5.2.12(@types/node@18.17.18)
+        specifier: 5.2.14
+        version: 5.2.14(@types/node@18.17.18)
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@types/node@18.17.18)(happy-dom@12.10.3)
@@ -1220,8 +1220,8 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
-  vite@5.2.12:
-    resolution: {integrity: sha512-/gC8GxzxMK5ntBwb48pR32GGhENnjtY30G4A0jemunsBkiEZFw60s8InGpN8gkhHEkjnRK1aSAxeQgwvFhUHAA==}
+  vite@5.2.14:
+    resolution: {integrity: sha512-TFQLuwWLPms+NBNlh0D9LZQ+HXW471COABxw/9TEUBrjuHMo9BrYBPrN/SYAwIuVL+rLerycxiLT41t4f5MZpA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -1593,7 +1593,7 @@ snapshots:
 
   '@types/wrap-ansi@3.0.0': {}
 
-  '@vitest/coverage-v8@1.6.0(vitest@1.6.0)':
+  '@vitest/coverage-v8@1.6.0(vitest@1.6.0(@types/node@18.17.18)(happy-dom@12.10.3))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -2191,8 +2191,9 @@ snapshots:
       path-to-regexp: 6.2.2
       strict-event-emitter: 0.5.1
       type-fest: 4.18.3
-      typescript: 5.2.2
       yargs: 17.7.2
+    optionalDependencies:
+      typescript: 5.2.2
 
   mute-stream@1.0.0: {}
 
@@ -2522,7 +2523,7 @@ snapshots:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.1
-      vite: 5.2.12(@types/node@18.17.18)
+      vite: 5.2.14(@types/node@18.17.18)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -2533,18 +2534,17 @@ snapshots:
       - supports-color
       - terser
 
-  vite@5.2.12(@types/node@18.17.18):
+  vite@5.2.14(@types/node@18.17.18):
     dependencies:
-      '@types/node': 18.17.18
       esbuild: 0.20.2
       postcss: 8.4.38
       rollup: 4.18.0
     optionalDependencies:
+      '@types/node': 18.17.18
       fsevents: 2.3.3
 
   vitest@1.6.0(@types/node@18.17.18)(happy-dom@12.10.3):
     dependencies:
-      '@types/node': 18.17.18
       '@vitest/expect': 1.6.0
       '@vitest/runner': 1.6.0
       '@vitest/snapshot': 1.6.0
@@ -2554,7 +2554,6 @@ snapshots:
       chai: 4.4.1
       debug: 4.3.4
       execa: 8.0.1
-      happy-dom: 12.10.3
       local-pkg: 0.5.0
       magic-string: 0.30.10
       pathe: 1.1.2
@@ -2563,9 +2562,12 @@ snapshots:
       strip-literal: 2.1.0
       tinybench: 2.8.0
       tinypool: 0.8.4
-      vite: 5.2.12(@types/node@18.17.18)
+      vite: 5.2.14(@types/node@18.17.18)
       vite-node: 1.6.0(@types/node@18.17.18)
       why-is-node-running: 2.2.2
+    optionalDependencies:
+      '@types/node': 18.17.18
+      happy-dom: 12.10.3
     transitivePeerDependencies:
       - less
       - lightningcss
