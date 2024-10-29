@@ -42,7 +42,7 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupOverlay from "@/composables/setupOverlay";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
-import { isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { isConcept, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
@@ -116,15 +116,18 @@ onMounted(async () => await init());
 async function init() {
   loading.value = true;
   const selectedList = Array.from(selectedValueMap.value.keys());
-  const entities = await EntityService.getPartialEntities(selectedList, [RDF.TYPE, RDFS.LABEL]);
-  for (const entity of entities) {
-    entity.icon = getFAIconFromType(entity[RDF.TYPE]);
-    entity.include = !selectedValueMap.value.get(entity["@id"])?.exclude;
-    if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
-    else entity.entailment = "descendantsOrSelfOf";
+  let entities = await EntityService.getPartialEntities(selectedList, [RDF.TYPE, RDFS.LABEL]);
+  entities = entities.filter(entity => isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]));
+  if (isArrayHasLength(entities)) {
+    for (const entity of entities) {
+      entity.icon = getFAIconFromType(entity[RDF.TYPE]);
+      entity.include = !selectedValueMap.value.get(entity["@id"])?.exclude;
+      if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
+      else entity.entailment = "descendantsOrSelfOf";
+    }
+    selectedEntities.value = entities;
+    if (selectedPath.value?.where?.[0].valueLabel) valueLabel.value = selectedPath.value?.where?.[0].valueLabel;
   }
-  selectedEntities.value = entities;
-  if (selectedPath.value?.where?.[0].valueLabel) valueLabel.value = selectedPath.value?.where?.[0].valueLabel;
   loading.value = false;
 }
 

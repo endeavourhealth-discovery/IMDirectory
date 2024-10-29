@@ -206,7 +206,6 @@ async function setEntity() {
 }
 
 async function onSelect(iri: string) {
-  console.log("a");
   const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
   if (props.selectedPath && !currentPath.value) currentPath.value = cloneDeep(pathSuggestions.value[0]);
   if (props.selectedPath && currentPath.value) {

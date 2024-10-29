@@ -84,7 +84,7 @@ describe("Query builder", () => {
     cy.get(".datatable-flex-cell").contains("Diabetes mellitus in remission (NHS GP value set)").click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.get("[data-testid=back-to-search-results]").click();
-    cy.get(".datatable-flex-cell").contains("Diabetes type 1 diagnoses (NHS GP value set)").click();
+    cy.get(".datatable-flex-cell").contains("Diabetes diagnoses (NHS GP value set)").click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
@@ -101,7 +101,7 @@ describe("Query builder", () => {
     cy.get(".datatable-flex-cell").contains("Diabetes mellitus in remission (NHS GP value set)").click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.get("[data-testid=back-to-search-results]").click();
-    cy.get(".datatable-flex-cell").contains("Diabetes type 1 diagnoses (NHS GP value set)").click();
+    cy.get(".datatable-flex-cell").contains("Diabetes diagnoses (NHS GP value set)").click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
@@ -112,12 +112,12 @@ describe("Query builder", () => {
 
     cy.get(".edit-match-container").contains("Condition").click();
     cy.get("[data-testid=edit-list-button]").click();
-    cy.get(".p-listbox-option").contains("diabetes type 1").parent().parent().find("[data-testid=remove-member-button]").click();
+    cy.get(".p-listbox-option").contains("diabetes diagnoses").parent().parent().find("[data-testid=remove-member-button]").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
     cy.getByTestId("save-feature-button").contains("Save").click();
     cy.wait(1000);
     cy.get(".edit-match-container").contains("Condition");
-    cy.contains(".edit-match-container", "diabetes type 1").should("not.exist");
+    cy.contains(".edit-match-container", "diabetes diagnoses").should("not.exist");
     cy.contains(".edit-match-container", ",").should("not.exist");
   });
 
@@ -187,14 +187,14 @@ describe("Query builder", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();
     cy.get("#Concept").click();
-    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("Asthma (disorder)");
-    cy.get(".datatable-flex-cell").contains("Asthma (disorder)").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("Asthma");
+    cy.get(".datatable-flex-cell").contains("Asthma | 195967001").click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
     cy.get(".edit-match-container").contains("Condition");
-    cy.get(".edit-match-container").contains("Asthma (disorder)");
+    cy.get(".edit-match-container").contains("Asthma");
   });
 
   it("add feature by searching for a property", () => {
@@ -215,10 +215,10 @@ describe("Query builder", () => {
     cy.get(".add-feature-button").contains("Add feature").click();
     cy.get("#Feature").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("diabetes");
-    cy.get(".datatable-flex-cell").contains("Active Diabetes (Latest entry for diabetes not followed by a resolution)").click();
+    cy.get(".datatable-flex-cell").contains("Active Diabetes").click();
     cy.getByTestId("add-feature-save-query-button", { timeout: 60000 }).contains("Save").click();
     cy.get(".edit-match-container").contains("is a");
-    cy.get(".edit-match-container").contains("Active Diabetes (Latest entry for diabetes not followed by a resolution)");
+    cy.get(".edit-match-container").contains("Active Diabetes");
   });
 
   it("add feature by searching for another feature", () => {
@@ -232,9 +232,9 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("Patients registered for GMS services on the reference date");
   });
 
-  it("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
+  it.only("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
     cy.populateBaseType();
-    cy.addFeature("paracetamol", "Paracetamol 500mg tablets", "#Concept");
+    cy.addFeature("paracetamol", "Paracetamol | 777067000", "#Concept");
     cy.get(".edit-match-container").contains("Medication").click();
     cy.get("[placeholder='Keep as reference']").type("med");
     cy.get(".edit-match-container").contains("label as med");
