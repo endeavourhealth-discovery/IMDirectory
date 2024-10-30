@@ -22,12 +22,6 @@ const QueryService = {
     return axios.post(Env.API + "api/query/public/askQueryIM", query, { signal: controller?.signal, raw: raw });
   },
 
-  async getPropertyRange(propIri: string): Promise<any[]> {
-    return axios.get(Env.VITE_NODE_API + "node_api/query/public/propertyRange", {
-      params: { propIri: propIri }
-    });
-  },
-
   async getLabeledQuery(query: Query): Promise<Query> {
     return axios.post(Env.API + "api/query/public/labelQuery", query);
   },
@@ -51,7 +45,6 @@ const QueryService = {
       params: { includeLogicDesc: includeLogicDesc }
     });
   },
-
 
   async generateQuerySQL(queryIri: string): Promise<string> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", { params: { queryIri: queryIri } });
