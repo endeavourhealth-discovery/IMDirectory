@@ -62,7 +62,6 @@ const QueryService = {
     });
   },
 
-
   async generateQuerySQL(queryIri: string): Promise<string> {
     return axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri } });
   },
