@@ -278,9 +278,12 @@ const EntityService = {
 
   async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
     return axios.post(API_URL + "/public/validate", { validationIri: validationIri, entity: data });
+  },
+
+  async getSchemes(): Promise<{ [x: string]: Namespace }> {
+    return axios.get(API_URL + "/public/schemes");
   }
 };
-
 if (process.env.NODE_ENV !== "test") Object.freeze(EntityService);
 
 export default EntityService;
