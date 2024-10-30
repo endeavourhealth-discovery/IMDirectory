@@ -46,7 +46,7 @@
           <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
             <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
-              {{ data.code ? data.name + " | " + data.code : data.name }}
+              {{ (data.code ? data.name + " | " + data.code : data.name) + " [" + schemesWithPrefixes[data.scheme["@id"]]?.prefix + "]" }}
             </span>
           </div>
         </template>
@@ -107,7 +107,7 @@ import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
 import { DownloadByQueryOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
-import { DownloadSettings, ExtendedSearchResultSummary, SearchOptions } from "@im-library/interfaces";
+import { DownloadSettings, ExtendedSearchResultSummary, Namespace, SearchOptions } from "@im-library/interfaces";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { FilterOptions } from "@im-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
@@ -136,6 +136,7 @@ const emit = defineEmits({
 });
 
 onMounted(async () => {
+  schemesWithPrefixes.value = await EntityService.getSchemes();
   if (props.pageSize) {
     rows.value = props.pageSize;
     rowsOriginal.value = props.pageSize;
@@ -150,7 +151,7 @@ const filterStore = useFilterStore();
 const searchLoading: Ref<boolean> = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
-
+const schemesWithPrefixes: Ref<{ [x: string]: Namespace }> = ref({});
 const directService = new DirectService();
 
 const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
