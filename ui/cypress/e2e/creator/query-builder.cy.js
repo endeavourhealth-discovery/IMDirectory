@@ -17,8 +17,6 @@ describe("Query builder", () => {
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Medication");
-    cy.get(".edit-match-container").contains("Paracetamol");
   });
 
   beforeEach(() => {
@@ -232,9 +230,10 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("Patients registered for GMS services on the reference date");
   });
 
-  it.only("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
+  it("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
     cy.populateBaseType();
-    cy.addFeature("paracetamol", "Paracetamol | 777067000", "#Concept");
+    cy.addFeature("paracetamol", "Paracetamol | 777067000 [sct]", "#Concept");
+    cy.get(".edit-match-container").contains("Paracetamol");
     cy.get(".edit-match-container").contains("Medication").click();
     cy.get("[placeholder='Keep as reference']").type("med");
     cy.get(".edit-match-container").contains("label as med");
