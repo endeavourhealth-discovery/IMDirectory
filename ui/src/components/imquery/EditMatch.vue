@@ -23,8 +23,11 @@
         :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
         :editMatch="editMatch"
       />
-      <div v-else-if="editMatch.displayLabel">{{ editMatch.displayLabel }}</div>
-      <div v-else-if="editMatch?.name" v-html="editMatch?.name" />
+      <div v-else-if="editMatch?.typeOf?.name">{{ editMatch.typeOf.name }}</div>
+      <div v-else-if="editMatch?.instanceOf">
+        {{ editMatch.instanceOf.map(instanceOf => instanceOf.qualifier + " " + instanceOf.name).join(",") }}
+      </div>
+      <div v-else-if="editMatch?.name">{{ editMatch?.name }}</div>
       <div v-if="editMatch?.match" class="feature-group">
         <Button
           v-if="isBooleanEditor && editMatch?.match.length > 1"
@@ -101,7 +104,7 @@
           <EditWhere
             v-for="[index, nestedWhere] in editMatch.where.entries()"
             :edit-where="nestedWhere"
-            :focused="(!isBooleanEditor && editMatch['@id'] === focusedId)"
+            :focused="!isBooleanEditor && editMatch['@id'] === focusedId"
             :focused-id="focusedId"
             :is-boolean-editor="isBooleanEditor"
             :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"

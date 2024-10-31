@@ -15,7 +15,7 @@
     "test:coverage": "vitest run --coverage",
     "cypress:run": "cypress run",
     "test:e2e": "cypress open --browser chrome",
-    "test:e2e:ci": "start-server-and-test preview http://localhost:8080 cypress:run",
+    "test:e2e:ci": "start-server-and-test preview http://localhost:8082 cypress:run",
     "lint": "eslint --fix",
     "format": "prettier --write"
   },

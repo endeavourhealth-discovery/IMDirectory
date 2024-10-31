@@ -271,9 +271,12 @@ const EntityService = {
   async getName(iri: string): Promise<string | undefined> {
     const result = await EntityService.getPartialEntity(iri, [RDFS.LABEL]);
     if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+  },
+
+  async getSchemes(): Promise<{ [x: string]: Namespace }> {
+    return axios.get(API_URL + "/public/schemes");
   }
 };
-
 if (process.env.NODE_ENV !== "test") Object.freeze(EntityService);
 
 export default EntityService;
