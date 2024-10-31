@@ -211,7 +211,7 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-    path: "/editor/:selectedIri?",
+    path: "/editor",
     name: "Editor",
     props: true,
     component: () => import("@/views/Editor.vue"),
@@ -220,7 +220,15 @@ const routes: Array<RouteRecordRaw> = [
       requiresLicense: true,
       requiresEditRole: true,
       requiresOrganisation: true
-    }
+    },
+    children: [
+      {
+        path: ":selectedIri?",
+        name: "Editor",
+        component: () => import("@/views/Editor.vue"),
+        meta: { title: "Editor" }
+      }
+    ]
   },
   {
     path: "/workflow",
