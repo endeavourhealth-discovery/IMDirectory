@@ -212,7 +212,6 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/editor",
-    name: "Editor",
     props: true,
     component: () => import("@/views/Editor.vue"),
     meta: {
@@ -225,8 +224,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: ":selectedIri?",
         name: "Editor",
-        component: () => import("@/views/Editor.vue"),
-        meta: { title: "Editor" }
+        component: () => import("@/views/Editor.vue")
       }
     ]
   },
