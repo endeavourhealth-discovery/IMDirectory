@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { timeNow12Hr } from "../../../src/helpers/Datetime/TimeNow12Hr";
+import { timeNow12Hr } from "@/helpers/Datetime/TimeNow12Hr";
 
 describe("TimeNow12Hr", () => {
   beforeEach(() => {

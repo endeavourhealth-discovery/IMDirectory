@@ -1,6 +1,6 @@
-import { ComponentType, EditorMode } from "../../src/enums";
-import { addItem, addNextOptions, generateNewComponent, genNextOptions, updateItem, updatePositions } from "../../src/helpers/EditorBuilderJsonMethods";
-import { fakerFactory } from "../../src/mocks/fakerFactory";
+import { ComponentType, EditorMode } from "@/enums";
+import { addItem, addNextOptions, generateNewComponent, genNextOptions, updateItem, updatePositions } from "@/helpers/EditorBuilderJsonMethods";
+import { fakerFactory } from "@/mocks/fakerFactory";
 
 describe("EditorBuilderJsonMethods", () => {
   describe("generateNewComponent", () => {

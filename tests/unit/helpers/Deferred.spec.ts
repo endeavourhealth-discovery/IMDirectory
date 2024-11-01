@@ -1,4 +1,4 @@
-import { deferred } from "../../src/helpers/Deferred";
+import { deferred } from "@/helpers/Deferred";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { flushPromises } from "@vue/test-utils";
 
