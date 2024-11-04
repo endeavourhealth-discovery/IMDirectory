@@ -213,7 +213,6 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/editor",
     props: true,
-    component: () => import("@/views/Editor.vue"),
     meta: {
       requiresAuth: true,
       requiresLicense: true,
