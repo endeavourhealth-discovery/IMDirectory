@@ -275,14 +275,21 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: "/query/:queryIri?",
+    path: "/query",
     name: "Query",
     component: () => import("@/views/Query.vue"),
     meta: {
       requiresAuth: true,
       requiresLicense: true,
       requiresCreateRole: true
-    }
+    },
+    children: [
+      {
+        path: ":queryIri?",
+        name: "Query",
+        component: () => import("@/views/Query.vue")
+      }
+    ]
   },
   {
     path: "/codeGenerator",
@@ -319,18 +326,28 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: "UPRN agreement" }
   },
   {
-    path: "/401/:requiredAccess?:accessType?",
-    name: "AccessDenied",
-    component: () => import("@/views/AccessDenied.vue"),
+    path: "/401",
     props: true,
-    meta: { title: "Access denied" }
+    meta: { title: "Access denied" },
+    children: [
+      {
+        path: ":requiredAccess?:accessType?",
+        name: "AccessDenied",
+        component: () => import("@/views/AccessDenied.vue")
+      }
+    ]
   },
   {
-    path: "/404/:iri?",
-    name: "EntityNotFound",
-    component: () => import("@/views/EntityNotFound.vue"),
+    path: "/404/",
     props: true,
-    meta: { title: "404" }
+    meta: { title: "404" },
+    children: [
+      {
+        path: ":iri?",
+        name: "EntityNotFound",
+        component: () => import("@/views/EntityNotFound.vue")
+      }
+    ]
   },
   {
     path: "/:pathMatch(.*)*",
