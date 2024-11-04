@@ -24,7 +24,7 @@
       />
     </div>
 
-    <div v-if="isArrayHasLength(match.where)">
+    <span v-if="isArrayHasLength(match.where)">
       <RecursiveWhereDisplay
         v-for="(nestedWhere, index) in match.where"
         :where="nestedWhere"
@@ -33,9 +33,9 @@
         :key="index"
         :index="index"
         :operator="match.boolWhere"
-        :expanded="expandSet"
+        :expandedSet="expandSet"
       />
-    </div>
+    </span>
 
     <RecursiveMatchDisplay v-if="match.then" :match="match.then" :inline="false" :index="0" :depth="1" />
 
@@ -63,7 +63,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const expandSet = ref(false);
+const expandSet: Ref<boolean> = ref(false);
+
 
 function toggle() {
   expandSet.value = !expandSet.value;

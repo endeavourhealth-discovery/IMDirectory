@@ -1,6 +1,6 @@
 <template>
-  <div class="pl-8" id="match-summary-display">
-    <span v-if="match.name">
+
+    <div  id="match-summary-display" v-if="match.name">
       <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" @click="toggle" />
       <span v-if="index > 0" :class="operator">{{ operator }}</span>
       <span>{{ match.name }}</span>
@@ -8,12 +8,11 @@
         <span class="pl-8 text-gray-500">details:</span>
         <RecursiveMatchDisplay :inline="false" :match="match" :depth="1" :index="index" :operator="operator" :expanded="true" />
       </div>
-    </span>
+    </div>
 
     <span v-else>
-      <RecursiveMatchDisplay :inline="false" :match="match" :depth="1" :index="index" :operator="operator" :expanded="true" />
+      <RecursiveMatchDisplay :inline="false" :match="match" :depth="0" :index="index" :operator="operator" :expanded="true" />
     </span>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -44,14 +43,7 @@ watch(
 </script>
 
 <style scoped>
-.return {
-  color: var(--p-teal-500);
-  padding-left: 0.5rem;
-}
 
-.output {
-  color: var(--p-indigo-500);
-}
 
 #match-summary-display:deep(.or) {
   color: var(--p-blue-500);

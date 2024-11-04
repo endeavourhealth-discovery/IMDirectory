@@ -27,7 +27,7 @@
           :index="index"
           :key="index"
           :operator="query.boolWhere"
-          :expanded="false"
+          :expandedSet="false"
         />
       </span>
       <span v-if="matchExpand && isArrayHasLength(query.return)">
