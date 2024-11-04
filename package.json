@@ -27,7 +27,8 @@
     "test:unit:ui": "cd ui && pnpm run test:unit",
     "test:unit:imlibrary": "cd im_library && pnpm run test:unit",
     "test:unit:nodeapi": "cd node_api && pnpm run test:unit",
-    "test:e2e": "cd ui && pnpm test:e2e"
+    "test:e2e": "cd ui && pnpm test:e2e",
+    "test:e2e:ci":  "cd ui && pnpm test:e2e:ci"
   },
   "devDependencies": {
     "@types/lodash-es": "4.17.12",
