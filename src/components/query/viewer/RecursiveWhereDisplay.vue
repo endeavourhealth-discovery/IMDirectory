@@ -12,16 +12,25 @@
       </span>
       <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
     </span>
-    <ul v-if="expanded">
-      <li v-for="(item, index) in where.is" :key="index">
-        <span style="padding-left: 3rem"></span>
-        <span v-if="item.descendantsOrSelfOf"><<</span>
-        <span class="field"> {{ item.name }}</span>
-        <span v-if="item.code">({{ item.code }})</span>
-      </li>
-    </ul>
   </span>
   <span v-if="where.nodeRef" class="node-ref">{{ where.nodeRef }}</span>
+  <span v-if="expandedSet && isArrayHasLength(where.is)">
+    <span>, defined as</span>
+    <div>
+      <span style="list-style-type: none; padding-left: 0">
+        <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
+          <ul>
+            <li class="tight-spacing">
+              <span v-if="item.qualifier" v-html="item.qualifier"></span>
+              <span class="field"> {{ item.name }}</span>
+              <span v-if="item.code">({{ item.code }})</span>
+              <span v-if="item.descendantsOrSelfOf">+subtypes</span>
+            </li>
+          </ul>
+        </span>
+      </span>
+    </div>
+  </span>
 
   <div v-if="isArrayHasLength(where.where)" :style="indentationStyle(depth + 1)">
     <span :class="where.operator"> {{ operator }}</span>
@@ -35,7 +44,7 @@
         :operator="where.boolWhere"
         :key="index"
         :depth="depth + 1"
-        :expanded="expanded"
+        :expandedSet="expandedSet"
       />
       <span>)</span>
     </div>
@@ -49,13 +58,14 @@ import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Where, Assignable, Bool } from "@/interfaces/AutoGen";
 import { Ref, ref, watch } from "vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
+import { IM } from "@/vocabulary/IM";
 
 interface Props {
   where: Where;
   index: number;
   depth: number;
-  expanded: boolean;
   operator?: Bool;
+  expandedSet: boolean;
 }
 
 const props = defineProps<Props>();
@@ -81,6 +91,12 @@ function indentationStyle(depth: number) {
 </script>
 
 <style scoped>
+.tight-spacing {
+  margin-top: -1rem;
+  margin-bottom: 0.5rem;
+  padding-left: 3rem;
+}
+
 .field {
   padding-right: 0.2rem;
 }

@@ -254,37 +254,38 @@ function addIfConcept(focus: any[], iris: TTIriRef[]) {
 }
 
 function updateQueryForPropertySearch() {
-  if (props.focus.type === "BoolGroup" && isArrayHasLength(props.focus.items)) {
-    const iris: TTIriRef[] = [];
-    addIfConcept(props.focus.items, iris);
-    imQueryForPropertySearch.value = {
-      query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
-      argument: [
-        {
-          parameter: "this",
-          valueIriList: iris
-        }
-      ]
-    } as QueryRequest;
-  } else if (props.focus.iri === SNOMED.ANY) {
-    const filterOptions = {
-      isAs: ["http://snomed.info/sct#410662002"],
-      status: filterStoreOptions.value.status,
-      schemes: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])),
-      types: [{ "@id": RDF.PROPERTY }]
-    } as SearchOptions;
-    imQueryForPropertySearch.value = buildIMQueryFromFilters(filterOptions);
-  } else {
-    imQueryForPropertySearch.value = {
-      query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
-      argument: [
-        {
-          parameter: "this",
-          valueIri: { "@id": props.focus.iri }
-        }
-      ]
-    } as QueryRequest;
-  }
+  if (props.focus)
+    if (props.focus.type === "BoolGroup" && isArrayHasLength(props.focus.items)) {
+      const iris: TTIriRef[] = [];
+      addIfConcept(props.focus.items, iris);
+      imQueryForPropertySearch.value = {
+        query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
+        argument: [
+          {
+            parameter: "this",
+            valueIriList: iris
+          }
+        ]
+      } as QueryRequest;
+    } else if (props.focus.iri === SNOMED.ANY) {
+      const filterOptions = {
+        isAs: ["http://snomed.info/sct#410662002"],
+        status: filterStoreOptions.value.status,
+        schemes: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])),
+        types: [{ "@id": RDF.PROPERTY }]
+      } as SearchOptions;
+      imQueryForPropertySearch.value = buildIMQueryFromFilters(filterOptions);
+    } else {
+      imQueryForPropertySearch.value = {
+        query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
+        argument: [
+          {
+            parameter: "this",
+            valueIri: { "@id": props.focus.iri }
+          }
+        ]
+      } as QueryRequest;
+    }
 }
 
 async function updateRanges() {

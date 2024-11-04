@@ -3,55 +3,56 @@ import { AllowableChildProperty, QueryResponse } from "@/interfaces";
 import axios from "axios";
 import { Match, PathQuery, Query, QueryRequest, SearchResponse } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+const API_URL = Env.API + "api/query";
 
 const QueryService = {
   async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {
-    if (controller) return await axios.post(Env.API + "api/query/public/queryIM", query, { signal: controller.signal, raw: raw });
-    else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
+    if (controller) return await axios.post(API_URL + "/public/queryIM", query, { signal: controller.signal, raw: raw });
+    else return await axios.post(API_URL + "/public/queryIM", query, { raw: raw });
   },
 
   async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResponse> {
-    return await axios.post(Env.API + "api/query/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
+    return await axios.post(API_URL + "/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
   },
 
   async pathQuery(pathQuery: PathQuery, controller?: AbortController, raw: boolean = false): Promise<{ match: Match[] }> {
-    return axios.post(Env.API + "api/query/public/pathQuery", pathQuery, { signal: controller?.signal, raw: raw });
+    return axios.post(API_URL + "/public/pathQuery", pathQuery, { signal: controller?.signal, raw: raw });
   },
 
   async askQuery(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<boolean> {
-    return axios.post(Env.API + "api/query/public/askQueryIM", query, { signal: controller?.signal, raw: raw });
+    return axios.post(API_URL + "/public/askQueryIM", query, { signal: controller?.signal, raw: raw });
   },
 
   async getLabeledQuery(query: Query): Promise<Query> {
-    return axios.post(Env.API + "api/query/public/labelQuery", query);
+    return axios.post(API_URL + "/public/labelQuery", query);
   },
 
   async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
-    return axios.get(Env.API + "api/query/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
+    return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
   },
 
   async getQueryDisplayFromQuery(query: Query, includeLogicDesc: boolean): Promise<Query> {
-    return axios.post(Env.API + "api/query/public/queryDisplayFromQuery", query, {
+    return axios.post(API_URL + "/public/queryDisplayFromQuery", query, {
       params: { includeLogicDesc: includeLogicDesc }
     });
   },
 
   async getDisplayFromQueryIri(iri: string, includeLogicDesc: boolean): Promise<Query> {
-    return axios.get(Env.API + "api/query/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
+    return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
   },
 
   async getDisplayFromQuery(query: Query, includeLogicDesc: boolean): Promise<Query> {
-    return axios.post(Env.API + "api/query/public/queryDisplayFromQuery", query, {
+    return axios.post(API_URL + "/public/queryDisplayFromQuery", query, {
       params: { includeLogicDesc: includeLogicDesc }
     });
   },
 
   async generateQuerySQL(queryIri: string): Promise<string> {
-    return axios.get(Env.API + "api/query/public/generateQuerySQL", { params: { queryIri: queryIri } });
+    return axios.get(API_URL + "/public/generateQuerySQL", { params: { queryIri: queryIri } });
   },
 
   async generateQuerySQLfromQuery(query: Query): Promise<string> {
-    return axios.post(Env.API + "api/query/public/generateQuerySQL", query);
+    return axios.post(API_URL + "/public/generateQuerySQL", query);
   },
 
   async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<boolean> {

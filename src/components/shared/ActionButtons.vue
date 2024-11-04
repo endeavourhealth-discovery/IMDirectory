@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { DirectService, EntityService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useSharedStore } from "@/stores/sharedStore";
@@ -89,7 +89,7 @@ const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const editAllowed = computed(() => organisations.value.indexOf(props.iri.split("#")[0] + "#") !== -1);
+const editAllowed = ref(false);
 
 const organisations = computed(() => userStore.organisations);
 
@@ -108,6 +108,10 @@ const emit = defineEmits({
   locateInTree: (_payload: string) => true,
   addToList: (_payload: string) => true,
   viewHierarchy: (_payload: string) => true
+});
+
+onMounted(() => {
+  if (props.iri && props.iri.includes("#")) editAllowed.value = organisations.value.includes(props.iri.split("#")[0] + "#");
 });
 
 const dynamicDialog = useDialog();
