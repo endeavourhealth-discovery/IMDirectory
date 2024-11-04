@@ -338,7 +338,7 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: "/404/",
+    path: "/404",
     props: true,
     meta: { title: "404" },
     children: [
