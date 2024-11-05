@@ -14,6 +14,7 @@ import FunctionService from "./FunctionService";
 import CodeGenService from "./CodeGenService";
 import DataModelService from "./DataModelService";
 import ConceptService from "./ConceptService";
+import GraphDtoService from "./GraphDtoService";
 
 export {
   AuthService,
@@ -31,5 +32,6 @@ export {
   FunctionService,
   CodeGenService,
   DataModelService,
-  ConceptService
+  ConceptService,
+  GraphDtoService
 };

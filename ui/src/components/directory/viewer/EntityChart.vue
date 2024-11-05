@@ -1,8 +1,8 @@
 <template>
-  <div class="loading-container" v-if="loading">
+  <div v-if="loading" class="loading-container">
     <ProgressSpinner />
   </div>
-  <OrganizationChart v-else :value="graph" :collapsible="true" data-testid="orgChart">
+  <OrganizationChart v-else :collapsible="true" :value="graph" data-testid="orgChart">
     <template #NONE>
       <p class="text-centered">None</p>
     </template>
@@ -58,14 +58,15 @@
   </OrganizationChart>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onMounted, Ref, ref, watch } from "vue";
-import { EntityService } from "@/services";
+import { GraphDtoService } from "@/services";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
 interface Props {
   entityIri: string;
 }
+
 const props = defineProps<Props>();
 
 const emit = defineEmits({
@@ -97,7 +98,7 @@ function getTypeFromIri(iri: string): string {
 
 async function getGraph(iri: string): Promise<void> {
   loading.value = true;
-  graph.value = await EntityService.getEntityGraph(iri);
+  graph.value = await GraphDtoService.getEntityGraph(iri);
   loading.value = false;
 }
 </script>

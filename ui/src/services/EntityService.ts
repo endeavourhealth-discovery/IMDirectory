@@ -1,11 +1,11 @@
-import { IM, RDFS, SHACL } from "@im-library/vocabulary";
-import { EntityReferenceNode, FiltersAsIris, TTBundle, TermCode, Namespace, FilterOptions, PropertyDisplay, SetDiffObject } from "@im-library/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, DownloadEntityOptions } from "@im-library/interfaces/AutoGen";
+import { IM, RDFS } from "@im-library/vocabulary";
+import { EntityReferenceNode, FilterOptions, FiltersAsIris, Namespace, PropertyDisplay, TTBundle } from "@im-library/interfaces";
+import { DownloadByQueryOptions, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { OrganizationChartNode } from "primevue/organizationchart";
+
 const API_URL = Env.API + "api/entity";
 
 const EntityService = {
@@ -174,10 +174,6 @@ const EntityService = {
     });
   },
 
-  async getEntityGraph(iri: string): Promise<OrganizationChartNode> {
-    return axios.get(API_URL + "/public/graph", { params: { iri: iri } });
-  },
-
   async getEntitySummary(iri: string): Promise<SearchResultSummary> {
     return axios.get(API_URL + "/public/summary", {
       params: { iri: iri }
@@ -189,7 +185,12 @@ const EntityService = {
   },
 
   async getPartialEntities(typeIris: string[], predicates: string[]): Promise<any[]> {
-    return axios.get(API_URL + "/public/partials", { params: { iris: typeIris.join(","), predicates: predicates.join(",") } });
+    return axios.get(API_URL + "/public/partials", {
+      params: {
+        iris: typeIris.join(","),
+        predicates: predicates.join(",")
+      }
+    });
   },
 
   async getPathBetweenNodes(descendant: string, ancestor: string): Promise<TTIriRef[]> {
@@ -215,7 +216,13 @@ const EntityService = {
     controller?: AbortController
   ): Promise<any> {
     return axios.get(API_URL + "/public/partialAndTotalCount", {
-      params: { iri: iri, predicate: predicate, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
+      params: {
+        iri: iri,
+        predicate: predicate,
+        page: pageIndex,
+        size: pageSize,
+        schemeIris: filters?.schemes.join(",")
+      },
       signal: controller?.signal
     });
   },
@@ -265,7 +272,10 @@ const EntityService = {
   },
 
   async downloadSearchResults(downloadSettings: DownloadByQueryOptions) {
-    return axios.post(API_URL + "/public/downloadSearchResults", downloadSettings, { responseType: "blob", raw: true });
+    return axios.post(API_URL + "/public/downloadSearchResults", downloadSettings, {
+      responseType: "blob",
+      raw: true
+    });
   },
 
   async getName(iri: string): Promise<string | undefined> {
