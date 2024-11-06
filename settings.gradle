@@ -16,6 +16,3 @@ pluginManagement {
 }
 
 rootProject.name = 'IM'
-include(':im_library')
-include(':ui')
-include(':node_api')
