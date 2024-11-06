@@ -1,7 +1,7 @@
 <template>
   <div v-if="value.conceptSingle" class="concept-container">
     <Select
-      style="width: 4.5rem; min-height: 2.3rem"
+      style="width: 5rem; min-height: 2.3rem"
       v-model="value.constraintOperator"
       :options="constraintOperatorOptions"
       option-label="label"

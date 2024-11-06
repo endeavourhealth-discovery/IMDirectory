@@ -15,7 +15,7 @@
     "test:coverage": "vitest run --coverage",
     "cypress:run": "cypress run",
     "test:e2e": "cypress open --browser chrome",
-    "test:e2e:ci": "start-server-and-test preview http://localhost:8082 cypress:run",
+    "test:e2e:ci": "cypress run --browser chrome --headless --reporter junit --reporter-options \"mochaFile=cypress/e2e-results.[hash].xml\"",
     "lint": "eslint --fix",
     "format": "prettier --write",
     "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install"
