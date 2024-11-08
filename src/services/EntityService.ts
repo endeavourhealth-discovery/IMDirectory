@@ -175,10 +175,6 @@ const EntityService = {
     });
   },
 
-  async getEntityGraph(iri: string): Promise<OrganizationChartNode> {
-    return axios.get(API_URL + "/public/graph", { params: { iri: iri } });
-  },
-
   async getEntitySummary(iri: string): Promise<SearchResultSummary> {
     return axios.get(API_URL + "/public/summary", {
       params: { iri: iri }

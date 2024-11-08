@@ -1,4 +1,4 @@
-import { EntityService, ConceptService, Env } from "@/services";
+import {EntityService, ConceptService, Env, GraphDtoService} from "@/services";
 import axios from "axios";
 
 const api = Env.API;
@@ -47,9 +47,9 @@ describe("EntityService.ts ___ axios success", () => {
   });
 
   it("can get entity graph", async () => {
-    const result = await EntityService.getEntityGraph("testIri");
+    const result = await GraphDtoService.getEntityGraph("testIri");
     expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/graph", { params: { iri: "testIri" } });
+    expect(axios.get).toHaveBeenCalledWith(api + "api/graphDto/public/graph", { params: { iri: "testIri" } });
     expect(result).toBe("axios get return");
   });
 
