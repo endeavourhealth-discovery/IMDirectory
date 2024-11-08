@@ -1,5 +1,4 @@
 import AuthService from "./AuthService";
-import ConfigService from "./ConfigService";
 import DirectService from "./DirectService";
 import EntityService from "./EntityService";
 import FilerService from "./FilerService";
@@ -17,7 +16,6 @@ import ConceptService from "./ConceptService";
 
 export {
   AuthService,
-  ConfigService,
   DirectService,
   EntityService,
   FilerService,

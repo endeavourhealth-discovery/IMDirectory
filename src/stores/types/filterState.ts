@@ -5,4 +5,5 @@ export interface FilterState {
   defaultFilterOptions: FilterOptions;
   selectedFilterOptions: FilterOptions;
   hierarchySelectedFilters: Namespace[];
+  coreSchemes: string[];
 }

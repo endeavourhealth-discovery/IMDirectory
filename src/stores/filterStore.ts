@@ -9,12 +9,14 @@ export const useFilterStore = defineStore("filter", {
     filterOptions: {} as FilterOptions,
     defaultFilterOptions: {} as FilterOptions,
     selectedFilterOptions: {} as FilterOptions,
-    hierarchySelectedFilters: [] as Namespace[]
+    hierarchySelectedFilters: [] as Namespace[],
+    coreSchemes: [] as string[]
   }),
   actions: {
     async fetchFilterSettings() {
       const filterOptions = await EntityService.getFilterOptions();
       const filterDefaults = await EntityService.getFilterDefaultOptions();
+      const coreSchemes = await EntityService.getCoreSchemes();
       if (isObjectHasKeys(filterOptions, ["status", "schemes", "types"]) && isObjectHasKeys(filterDefaults, ["status", "schemes", "types"])) {
         this.updateDefaultFilterOptions(filterDefaults);
         this.updateFilterOptions(filterOptions);
@@ -31,6 +33,7 @@ export const useFilterStore = defineStore("filter", {
           includeLegacy: false
         } as FilterOptions);
         this.updateHierarchySelectedFilters(selectedSchemes);
+        this.updateCoreSchemes(coreSchemes);
       }
     },
     updateFilterOptions(filters: any) {
@@ -47,6 +50,9 @@ export const useFilterStore = defineStore("filter", {
 
     updateHierarchySelectedFilters(filters: any) {
       this.hierarchySelectedFilters = filters;
+    },
+    updateCoreSchemes(schemes: string[]) {
+      this.coreSchemes = schemes;
     }
   }
 });

@@ -18,7 +18,7 @@
         </div>
       </template>
     </Select>
-    <AutocompleteSearchBar v-model:selected="selected" :im-query="imQueryForConceptSearch" :root-entities="['http://snomed.info/sct#138875005']" />
+    <AutocompleteSearchBar v-model:selected="selected" :im-query="imQueryForConceptSearch" :root-entities="['http://endhealth.info/im#HealthModelOntology']" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
 </template>
@@ -59,6 +59,7 @@ watch(
 
 const filterStore = useFilterStore();
 const filterStoreOptions = computed(() => filterStore.filterOptions);
+const coreSchemes = computed(() => filterStore.coreSchemes);
 
 const loading = ref(false);
 const selected: Ref<SearchResultSummary | undefined> = ref();
@@ -104,8 +105,11 @@ async function init() {
 }
 
 function buildIMQueryForConceptSearch() {
+  const coreSchemesAsIris = coreSchemes.value.map(iri => {
+    return { "@id": iri };
+  });
   const searchOptions: SearchOptions = {
-    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
+    schemes: coreSchemesAsIris,
     status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
     types: [{ "@id": IM.CONCEPT }]
   };

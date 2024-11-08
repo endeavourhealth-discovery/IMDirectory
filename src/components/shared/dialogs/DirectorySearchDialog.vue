@@ -90,7 +90,7 @@ import NavTree from "@/components/shared/NavTree.vue";
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
-import _, { cloneDeep } from "lodash-es";
+import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
 import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@/vocabulary";
@@ -253,7 +253,7 @@ function showQuerySearch() {
 
 async function getIsSelectableEntity(): Promise<boolean> {
   if (props.imQuery) {
-    const imQuery = _.cloneDeep(props.imQuery);
+    const imQuery = cloneDeep(props.imQuery);
     imQuery.askIri = detailsIri.value;
     return await QueryService.askQuery(imQuery);
   }

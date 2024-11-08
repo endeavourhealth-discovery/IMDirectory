@@ -55,7 +55,7 @@ import { getDisplayFromDate } from "@/helpers/UtilityMethods";
 
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import _, { isArray } from "lodash-es";
+import { cloneDeep, isArray } from "lodash-es";
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { DirectService, EntityService, UserService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
@@ -76,7 +76,7 @@ const activities: Ref<RecentActivityItem[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 
 watch(
-  () => _.cloneDeep(recentLocalActivity.value),
+  () => cloneDeep(recentLocalActivity.value),
   async () => await getRecentActivityDetails()
 );
 
