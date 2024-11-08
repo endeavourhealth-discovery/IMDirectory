@@ -91,7 +91,7 @@ describe("Query builder", () => {
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Observation");
+    cy.get(".edit-match-container").contains("Investigation");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
     cy.get(".edit-match-container").contains(",");
   });
@@ -108,17 +108,17 @@ describe("Query builder", () => {
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Observation");
+    cy.get(".edit-match-container").contains("Investigation");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
     cy.get(".edit-match-container").contains(",");
 
-    cy.get(".edit-match-container").contains("Observation").click();
+    cy.get(".edit-match-container").contains("Investigation").click();
     cy.get("[data-testid=edit-list-button]").click();
     cy.get(".p-listbox-option").contains(diabetesSet2.subString).parent().parent().find("[data-testid=remove-member-button]").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
     cy.getByTestId("save-feature-button").contains("Save").click();
     cy.wait(1000);
-    cy.get(".edit-match-container").contains("Observation");
+    cy.get(".edit-match-container").contains("Investigation");
     cy.contains(".edit-match-container", diabetesSet2.subString).should("not.exist");
     cy.contains(".edit-match-container", ",").should("not.exist");
   });
