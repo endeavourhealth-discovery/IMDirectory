@@ -1,6 +1,6 @@
 import { TTIriRef } from "../interfaces/AutoGen";
 import { TTBundle, TTGraphData } from "../interfaces";
-import { SHACL, OWL, IM, RDFS, SNOMED, XSD } from "../vocabulary";
+import { IM, OWL, RDFS, SHACL, SNOMED, XSD } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
@@ -103,19 +103,21 @@ function addMaps(firstNode: TTGraphData, entity: any, key: string) {
 function addProperties(firstNode: TTGraphData, entity: any, key: string) {
   if (isObjectHasKeys(entity[key][0], [SHACL.GROUP])) {
     entity[key].forEach((nested: any) => {
-      const groupRef: TTIriRef = nested[SHACL.GROUP][0];
-      let groupNode = firstNode.children.find(child => child.iri === groupRef["@id"]);
-      if (!groupNode) {
-        groupNode = {
-          name: groupRef.name,
-          iri: groupRef["@id"],
-          relToParent: "property group",
-          children: [],
-          _children: []
-        } as TTGraphData;
-        firstNode.children.push(groupNode);
+      if (nested[SHACL.GROUP] && nested[SHACL.GROUP].length) {
+        const groupRef: TTIriRef = nested[SHACL.GROUP][0];
+        let groupNode = firstNode.children.find(child => child.iri === groupRef["@id"]);
+        if (!groupNode) {
+          groupNode = {
+            name: groupRef.name,
+            iri: groupRef["@id"],
+            relToParent: "property group",
+            children: [],
+            _children: []
+          } as TTGraphData;
+          firstNode.children.push(groupNode);
+        }
+        addChild(groupNode, getPropertyName(nested), getPropertyIri(nested), nested[SHACL.PATH][0].name);
       }
-      addChild(groupNode, getPropertyName(nested), getPropertyIri(nested), nested[SHACL.PATH][0].name);
     });
   } else {
     entity[key].forEach((nested: any) => {
@@ -159,10 +161,10 @@ function addArray(firstNode: TTGraphData, entity: any, key: string, predicates: 
     if (entity[key].length > 1) {
       if (isObjectHasKeys(nested)) {
         addChild(
-          preNode,
-          nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"]),
-          nested["@id"],
-          nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"])
+            preNode,
+            nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"]),
+            nested["@id"],
+            nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"])
         );
       } else {
         addChild(preNode, nested, "", nested);
