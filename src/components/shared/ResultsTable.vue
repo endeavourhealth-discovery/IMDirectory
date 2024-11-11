@@ -31,8 +31,12 @@
         <template #header>
           <div class="header">
             <div class="results-title">
-              <span>Results</span>
-              <span v-if="totalCount"> {{ " (" + totalCount + ")" }}</span>
+              <span>Results </span>
+              <span v-if="totalCount">
+                <span>(</span>
+                <span data-testid="total-results">{{ totalCount }}</span>
+                <span>)</span>
+              </span>
             </div>
             <Button
               :disabled="!searchResults.length"

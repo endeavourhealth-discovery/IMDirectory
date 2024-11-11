@@ -3,19 +3,43 @@
     <div v-if="showFilters" class="filters-container">
       <div class="p-inputgroup">
         <FloatLabel>
-          <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" optionLabel="name" display="chip" />
+          <MultiSelect
+            id="status"
+            v-model="selectedStatus"
+            @change="filterResults"
+            :options="statusOptions"
+            optionLabel="name"
+            display="chip"
+            data-testid="status-filter"
+          />
           <label for="status">Select status:</label>
         </FloatLabel>
       </div>
       <div class="p-inputgroup">
         <FloatLabel>
-          <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" optionLabel="name" display="chip" />
+          <MultiSelect
+            id="scheme"
+            v-model="selectedSchemes"
+            @change="filterResults"
+            :options="schemeOptions"
+            optionLabel="name"
+            display="chip"
+            data-testid="scheme-filter"
+          />
           <label for="scheme">Select scheme:</label>
         </FloatLabel>
       </div>
       <div class="p-inputgroup">
         <FloatLabel>
-          <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" optionLabel="name" display="chip" />
+          <MultiSelect
+            id="type"
+            v-model="selectedTypes"
+            @change="filterResults"
+            :options="typeOptions"
+            optionLabel="name"
+            display="chip"
+            data-testid="type-filter"
+          />
           <label for="type">Select concept type:</label>
         </FloatLabel>
       </div>
