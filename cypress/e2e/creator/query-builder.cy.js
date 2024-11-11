@@ -1,6 +1,6 @@
 describe("Query builder", () => {
   Cypress.Commands.add("populateBaseType", () => {
-    cy.get("#im-query-editor-container").find("[data-testid=autocomplete-search-button]").click();
+    cy.get("#im-query-editor-container", { timeout: 60000 }).find("[data-testid=autocomplete-search-button]").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("patient");
     cy.get(".datatable-flex-cell").contains("Patient").click();
     cy.wait(1000);
@@ -19,11 +19,11 @@ describe("Query builder", () => {
     cy.getByTestId("add-feature-save-button").contains("Save").click();
   });
 
-  const diabetesSet = { searchTerm: "diabetes", name: "Q code group Type 2 diabetes" };
+  const diabetesSet = { searchTerm: "diabetes", name: "Genetic syndrome diabetes (NHS GP value set)" };
   const diabetesSet2 = {
     searchTerm: "diabetes",
-    name: "Diabetes structured education declined (NHS GP value set)",
-    subString: "diabetes structured education declined"
+    name: "Pre diabetes (NHS GP value set)",
+    subString: "pre diabetes"
   };
   const diabetesFeature = { searchTerm: "diabetes", name: "Active Diabetes" };
   const asthmaConcept = { searchTerm: "asthma", name: "Asthma (disorder) | 195967001" };
@@ -91,7 +91,7 @@ describe("Query builder", () => {
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Investigation");
+    cy.get(".edit-match-container").contains("Condition");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
     cy.get(".edit-match-container").contains(",");
   });
@@ -108,17 +108,17 @@ describe("Query builder", () => {
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Investigation");
+    cy.get(".edit-match-container").contains("Condition");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
     cy.get(".edit-match-container").contains(",");
 
-    cy.get(".edit-match-container").contains("Investigation").click();
+    cy.get(".edit-match-container").contains("Condition").click();
     cy.get("[data-testid=edit-list-button]").click();
     cy.get(".p-listbox-option").contains(diabetesSet2.subString).parent().parent().find("[data-testid=remove-member-button]").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
     cy.getByTestId("save-feature-button").contains("Save").click();
     cy.wait(1000);
-    cy.get(".edit-match-container").contains("Investigation");
+    cy.get(".edit-match-container").contains("Condition");
     cy.contains(".edit-match-container", diabetesSet2.subString).should("not.exist");
     cy.contains(".edit-match-container", ",").should("not.exist");
   });
