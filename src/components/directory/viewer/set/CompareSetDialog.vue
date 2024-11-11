@@ -4,7 +4,7 @@
     modal
     maximizable
     header="Search"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--p-surface-section)' }"
+    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
     class="search-dialog"
   >
     <div class="compare-set-dialog-content">
