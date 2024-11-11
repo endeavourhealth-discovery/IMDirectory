@@ -6,16 +6,13 @@
     </div>
     <div class="term-code-editor-container" :class="invalid && showValidation && 'invalid'">
       <div class="name-container">
-        <label for="term-name">Name</label>
-        <InputText class="p-inputtext-md input-text term-name" v-model="name" type="text" />
+        <InputText class="p-inputtext-md input-text term-name" v-model="name" type="text" placeholder="Name" />
       </div>
       <div class="code-container">
-        <label for="term-code">Code</label>
-        <InputText class="input-text term-code" v-model="code" type="text" />
+        <InputText class="input-text term-code" v-model="code" type="text" placeholder="Code" />
       </div>
       <div class="status-container">
-        <label for="term-status">Status</label>
-        <Select class="dropdown term-status" v-model="status" :options="statusOptions" optionLabel="name" />
+        <Select class="dropdown term-status" v-model="status" :options="statusOptions" optionLabel="name" placeholder="Status" />
       </div>
     </div>
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
@@ -242,5 +239,9 @@ function updateEntity() {
 
 .required {
   color: var(--p-red-500);
+}
+
+.dropdown {
+  height: 2.7rem;
 }
 </style>
