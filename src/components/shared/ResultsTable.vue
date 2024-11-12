@@ -1,6 +1,9 @@
 <template>
   <div id="search-results-main-container">
     <DataTable
+        :pt="{
+        thead: { class: '!z-1' }
+    }"
       :paginator="true"
       :rows="rows"
       :value="searchResults"
@@ -43,7 +46,7 @@
           </div>
         </template>
         <template #body="{ data }: any">
-          <div class="datatable-flex-cell">
+          <div class="datatable-flex-cell" style="'z-index: -1;'">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
             <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
               {{ (data.code ? data.name + " | " + data.code : data.name) + " [" + schemesWithPrefixes[data.scheme["@id"]]?.prefix + "]" }}
