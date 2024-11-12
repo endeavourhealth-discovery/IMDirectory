@@ -46,7 +46,7 @@
           </div>
         </template>
         <template #body="{ data }: any">
-          <div class="datatable-flex-cell" style="'z-index: -1;'">
+          <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
             <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
               {{ (data.code ? data.name + " | " + data.code : data.name) + " [" + schemesWithPrefixes[data.scheme["@id"]]?.prefix + "]" }}
