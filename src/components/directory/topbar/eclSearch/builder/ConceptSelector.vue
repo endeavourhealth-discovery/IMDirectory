@@ -18,7 +18,7 @@
         </div>
       </template>
     </Select>
-    <AutocompleteSearchBar v-model:selected="selected" :im-query="imQueryForConceptSearch" :root-entities="['http://endhealth.info/im#HealthModelOntology']" />
+    <AutocompleteSearchBar v-model:selected="selected" :im-query="imQueryForConceptSearch" :root-entities="[IM.ONTOLOGY_PARENT_FOLDER]" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
 </template>

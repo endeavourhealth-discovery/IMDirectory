@@ -117,7 +117,7 @@ const loadingValue = ref(true);
 const isValidProperty = ref(false);
 const isValidPropertyValue = ref(false);
 const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"]);
-const valueTreeRoots: Ref<string[]> = ref(["http://endhealth.info/im#HealthModelOntology"]);
+const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
 const showValidation = ref(false);
 const operatorOptions = ["=", "!="];
 const constraintOperatorOptions = [
@@ -319,7 +319,7 @@ async function updatePropertyTreeRoots(): Promise<void> {
 }
 
 async function updateValueTreeRoots(): Promise<void> {
-  let roots = ["http://endhealth.info/im#HealthModelOntology"];
+  let roots = [IM.ONTOLOGY_PARENT_FOLDER];
   if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== SNOMED.ANY) {
     const results = await ConceptService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
     if (results) roots = results.result.map(item => item["@id"]);
