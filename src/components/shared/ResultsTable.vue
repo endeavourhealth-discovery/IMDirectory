@@ -1,6 +1,9 @@
 <template>
   <div id="search-results-main-container">
     <DataTable
+        :pt="{
+        thead: { class: '!z-1' }
+    }"
       :paginator="true"
       :rows="rows"
       :value="searchResults"
