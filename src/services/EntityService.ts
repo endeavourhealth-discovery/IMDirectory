@@ -277,7 +277,7 @@ const EntityService = {
     if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
   },
 
-  async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
+  async checkValidation(validationIri: string, data: any): Promise<{ valid: boolean; message: string | undefined }> {
     return axios.post(API_URL + "/public/validate", { validationIri: validationIri, entity: data });
   },
 
