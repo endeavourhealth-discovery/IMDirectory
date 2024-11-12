@@ -24,7 +24,6 @@ import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
 import { cloneDeep } from "lodash-es";
 import { TTGraphData } from "@/interfaces";
-import { GraphExcludePredicates } from "@/config";
 import { DataTypeCheckers, GraphTranslator } from "@/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
@@ -83,7 +82,7 @@ const colour = ref({
 });
 const contextMenu: Ref<{ iri: string; label: string; command: (d: any) => void; disabled?: boolean }[]> = ref([]);
 
-const graphExcludePredicates = GraphExcludePredicates;
+const graphExcludePredicates: Ref<string[]> = ref([]);
 
 const nodeFontSize = computed(() => radius.value / 5);
 const pathFontSize = computed(() => radius.value / 5 + 3);
@@ -92,7 +91,9 @@ const viewBox = computed(() => ["" + -width.value / 2, "" + -height.value / 2, "
 
 const menu = ref();
 
-onMounted(() => {
+onMounted(async () => {
+  const result = await EntityService.getEntityChildren(IM.GRAPH_EXCLUDE_PREDICATES);
+  if (result) graphExcludePredicates.value = result.map(r => r["@id"]);
   window.addEventListener("resize", onResize);
   graphData.value = props.data;
   setRoot();
@@ -132,7 +133,7 @@ async function getContextMenu(d: any) {
     }
     Object.keys(bundle.entity)
       .filter(value => value !== "@id")
-      .filter(value => !graphExcludePredicates.find(gep => gep === value))
+      .filter(value => !graphExcludePredicates.value.find(gep => gep === value))
       .forEach((key: string) => {
         contextMenu.value.push({
           iri: key,

@@ -19,7 +19,6 @@
 import { onMounted, Ref, ref, watch } from "vue";
 import GraphComponent from "./GraphComponent.vue";
 import { TTGraphData, TTBundle } from "@/interfaces";
-import { GraphExcludePredicates } from "@/config";
 import { GraphTranslator, DataTypeCheckers } from "@/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
@@ -49,9 +48,13 @@ const bundle: Ref<TTBundle> = ref({} as TTBundle);
 const options: Ref<{ iri: string; name: string }[]> = ref([]);
 const predicates: Ref<any[]> = ref([]);
 
-const graphExcludePredicates = GraphExcludePredicates;
+const graphExcludePredicates: Ref<string[]> = ref([]);
 
-onMounted(async () => await getEntityBundle(props.entityIri));
+onMounted(async () => {
+  const result = await EntityService.getEntityChildren(IM.GRAPH_EXCLUDE_PREDICATES);
+  if (result) graphExcludePredicates.value = result.map(r => r["@id"]);
+  await getEntityBundle(props.entityIri);
+});
 
 async function updatePredicates() {
   selectedIris.value = [];
@@ -74,9 +77,9 @@ async function getEntityBundle(iri: string) {
   }
   predicatesIris.value = Object.keys(bundle.value.entity).filter(value => value !== "@id");
   predicatesIris.value.forEach(i => {
-    if (!graphExcludePredicates.find(gep => gep === i)) options.value.push({ iri: i, name: bundle.value.predicates[i] });
+    if (!graphExcludePredicates.value.find(gep => gep === i)) options.value.push({ iri: i, name: bundle.value.predicates[i] });
   });
-  selectedPredicates.value = options.value.filter(value => !graphExcludePredicates.find(gep => gep === value.iri));
+  selectedPredicates.value = options.value.filter(value => !graphExcludePredicates.value.find(gep => gep === value.iri));
   selectedPredicates.value.forEach(i => {
     selectedIris.value.push(i.iri);
   });

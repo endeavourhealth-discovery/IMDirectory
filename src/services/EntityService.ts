@@ -157,6 +157,11 @@ const EntityService = {
     } as FilterOptions;
   },
 
+  async getCoreSchemes(): Promise<string[]> {
+    const coreSchemesChildren = await this.getEntityChildren(IM.CORE_SCHEMES);
+    return coreSchemesChildren.map(child => child["@id"]);
+  },
+
   async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<TTIriRef[]> {
     return axios.get(API_URL + "/public/usages", {
       params: {

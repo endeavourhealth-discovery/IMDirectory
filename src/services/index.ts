@@ -1,5 +1,4 @@
 import AuthService from "./AuthService";
-import ConfigService from "./ConfigService";
 import DirectService from "./DirectService";
 import EntityService from "./EntityService";
 import FilerService from "./FilerService";
@@ -18,7 +17,6 @@ import GraphDtoService from "./GraphDtoService";
 
 export {
   AuthService,
-  ConfigService,
   DirectService,
   EntityService,
   FilerService,

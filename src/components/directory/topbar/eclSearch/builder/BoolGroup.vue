@@ -123,7 +123,7 @@
 import { ref, inject, Ref, watch, onMounted, computed, ComputedRef } from "vue";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
-import _, { isArray } from "lodash-es";
+import { cloneDeep, isArray, isEqual } from "lodash-es";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { numberAscending } from "@/helpers/Sorters";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
@@ -142,9 +142,9 @@ const props = withDefaults(defineProps<Props>(), {
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 watch(
-  () => _.cloneDeep(props.value),
+  () => cloneDeep(props.value),
   (newValue, oldValue) => {
-    if (!_.isEqual(newValue, oldValue)) {
+    if (!isEqual(newValue, oldValue)) {
       if (props.value.attributeGroup) attributeGroup.value = true;
     }
   }
@@ -240,8 +240,8 @@ function requestUnGroupItems() {
 }
 
 function unGroupItems(groupedItems: any) {
-  const foundItem = props.value.items.find((item: any) => _.isEqual(item, groupedItems));
-  const foundItemIndex = props.value.items.findIndex((item: any) => _.isEqual(item, groupedItems));
+  const foundItem = props.value.items.find((item: any) => isEqual(item, groupedItems));
+  const foundItemIndex = props.value.items.findIndex((item: any) => isEqual(item, groupedItems));
   if (foundItem) {
     props.value.items.splice(foundItemIndex, 1);
     for (const groupedItem of groupedItems.items) {
