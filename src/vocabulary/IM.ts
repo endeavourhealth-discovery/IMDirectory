@@ -230,4 +230,8 @@ export class IM {
   public static readonly NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
   public static readonly HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
   public static readonly HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";
+  public static readonly CORE_SCHEMES = IM.NAMESPACE + "coreSchemes";
+  public static readonly INFERRED_PREDICATES = IM.NAMESPACE + "inferredPredicates";
+  public static readonly INFERRED_EXCLUDE_PREDICATES = IM.NAMESPACE + "inferredExcludePredicates";
+  public static readonly GRAPH_EXCLUDE_PREDICATES = IM.NAMESPACE + "graphExcludePredicates";
 }

@@ -104,6 +104,7 @@ const props = defineProps<Props>();
 const toast = useToast();
 const filterStore = useFilterStore();
 const filterStoreOptions = computed(() => filterStore.filterOptions);
+const coreSchemes = computed(() => filterStore.coreSchemes);
 const propertyRanges: Ref<Set<string>> = ref(new Set<string>());
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
@@ -116,7 +117,7 @@ const loadingValue = ref(true);
 const isValidProperty = ref(false);
 const isValidPropertyValue = ref(false);
 const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"]);
-const valueTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#138875005"]);
+const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
 const showValidation = ref(false);
 const operatorOptions = ["=", "!="];
 const constraintOperatorOptions = [
@@ -271,7 +272,7 @@ function updateQueryForPropertySearch() {
       const filterOptions = {
         isAs: ["http://snomed.info/sct#410662002"],
         status: filterStoreOptions.value.status,
-        schemes: filterStoreOptions.value.schemes.filter(filterOption => [SNOMED.NAMESPACE, IM.NAMESPACE].includes(filterOption["@id"])),
+        schemes: filterStoreOptions.value.schemes.filter(filterOption => coreSchemes.value.includes(filterOption["@id"])),
         types: [{ "@id": RDF.PROPERTY }]
       } as SearchOptions;
       imQueryForPropertySearch.value = buildIMQueryFromFilters(filterOptions);
@@ -318,7 +319,7 @@ async function updatePropertyTreeRoots(): Promise<void> {
 }
 
 async function updateValueTreeRoots(): Promise<void> {
-  let roots = ["http://snomed.info/sct#138875005"];
+  let roots = [IM.ONTOLOGY_PARENT_FOLDER];
   if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== SNOMED.ANY) {
     const results = await ConceptService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
     if (results) roots = results.result.map(item => item["@id"]);

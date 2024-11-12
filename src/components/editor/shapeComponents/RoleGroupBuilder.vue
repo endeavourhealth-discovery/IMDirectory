@@ -58,7 +58,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@/helpers/TypeGuards";
 import { PropertyShape, QueryRequest, SearchResponse, TTIriRef } from "@/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@/vocabulary";
-import _, { isArray } from "lodash-es";
+import { cloneDeep, isArray } from "lodash-es";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useToast } from "primevue/usetoast";
@@ -110,7 +110,7 @@ onMounted(async () => {
 });
 
 watch(
-  () => _.cloneDeep(roleGroups.value),
+  () => cloneDeep(roleGroups.value),
   async () => {
     await update();
     if (updateValidity) {
