@@ -190,8 +190,8 @@ const EntityService = {
     return axios.get(API_URL + "/public/namespaces");
   },
 
-  async getPartialEntities(typeIris: Set<string>, predicates: Set<string>): Promise<any[]> {
-    return axios.post(API_URL + "/public/partials", { iris: [...typeIris].join(','), predicates: [...predicates].join(',') });
+  async getPartialEntities(typeIris: string[], predicates: string[]): Promise<any[]> {
+    return axios.post(API_URL + "/public/partials", { iris: [...new Set(typeIris)].join(','), predicates: [...new Set(predicates)].join(',') });
   },
 
   async getPathBetweenNodes(descendant: string, ancestor: string): Promise<TTIriRef[]> {
