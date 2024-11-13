@@ -1,5 +1,5 @@
 <template>
-  <div id="tree-container">
+  <div id="tree-container" :class="loading ? 'overflow-hidden' : 'overflow-auto'">
     <Tree v-model:expandedKeys="expandedKeys" :loading="loading" :value="data" icon="loading" @node-expand="onNodeExpand" @node-collapse="onNodeCollapse">
       <template #property="{ node }: any">
         <div class="items-center">
@@ -278,7 +278,6 @@ async function getDataModelPropertiesDisplay(iri: string, parentKey: string, par
   width: 100%;
   height: 100%;
   position: relative;
-  overflow: auto;
 }
 
 .tree-row {

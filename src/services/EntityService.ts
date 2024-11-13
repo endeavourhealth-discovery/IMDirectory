@@ -69,11 +69,11 @@ const EntityService = {
   },
 
   async getPagedChildren(
-    iri: string,
-    pageIndex: number,
-    pageSize: number,
-    filters?: FiltersAsIris,
-    controller?: AbortController
+      iri: string,
+      pageIndex: number,
+      pageSize: number,
+      filters?: FiltersAsIris,
+      controller?: AbortController
   ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: EntityReferenceNode[] }> {
     return axios.get(API_URL + "/public/childrenPaged", {
       params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
@@ -191,7 +191,7 @@ const EntityService = {
   },
 
   async getPartialEntities(typeIris: string[], predicates: string[]): Promise<any[]> {
-    return axios.get(API_URL + "/public/partials", { params: { iris: typeIris.join(","), predicates: predicates.join(",") } });
+    return axios.post(API_URL + "/public/partials", { iris: [...new Set(typeIris)].join(','), predicates: [...new Set(predicates)].join(',') });
   },
 
   async getPathBetweenNodes(descendant: string, ancestor: string): Promise<TTIriRef[]> {
@@ -209,12 +209,12 @@ const EntityService = {
   },
 
   async getPartialAndTotalCount(
-    iri: string,
-    predicate: string,
-    pageIndex: number,
-    pageSize: number,
-    filters?: FiltersAsIris,
-    controller?: AbortController
+      iri: string,
+      predicate: string,
+      pageIndex: number,
+      pageSize: number,
+      filters?: FiltersAsIris,
+      controller?: AbortController
   ): Promise<any> {
     return axios.get(API_URL + "/public/partialAndTotalCount", {
       params: { iri: iri, predicate: predicate, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
