@@ -142,7 +142,7 @@ describe("setupValidity", () => {
       const validationErrorMessage = ref("test");
       const editorEntity = ref({ ...testData.testEntity });
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
-      checkValidationSpy.mockResolvedValue({ isValid: true, message: undefined });
+      checkValidationSpy.mockResolvedValue({ valid: true, message: undefined });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[7].validation).toBeDefined();
       await wrapper.vm.updateValidity(
@@ -163,7 +163,7 @@ describe("setupValidity", () => {
       const validationErrorMessage = ref();
       const editorEntity = ref({ ...testData.testEntity });
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
-      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[7].validation).toBeDefined();
       await wrapper.vm.updateValidity(
@@ -184,7 +184,7 @@ describe("setupValidity", () => {
       const validationErrorMessage = ref("test");
       const editorEntity = ref({ ...testData.testEntity });
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
-      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
       await wrapper.vm.updateValidity(
@@ -206,7 +206,7 @@ describe("setupValidity", () => {
       const editorEntity = ref({ ...testData.testEntity });
       delete editorEntity.value[testData.testShape.property[0].property[0].property[0].path["@id"]];
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
-      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
       await wrapper.vm.updateValidity(
@@ -234,7 +234,7 @@ describe("setupValidity", () => {
       const testShape = { ...testData.testShape.property[0].property[0].property[0] };
       testShape.maxCount = 1;
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
-      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
       await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path["@id"], invalid, validationErrorMessage);
@@ -250,7 +250,7 @@ describe("setupValidity", () => {
       const testShape = { ...testData.testShape.property[0].property[0].property[2] };
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
       valueVariableMap.value.delete("conceptIri");
-      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[2].validation).toBeUndefined();
       await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path["@id"], invalid, validationErrorMessage);
