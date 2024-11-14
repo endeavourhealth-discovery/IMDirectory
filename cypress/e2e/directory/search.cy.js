@@ -20,6 +20,8 @@ describe("Search", () => {
     cy.getByTestId("status-filter").find(".p-multiselect-dropdown").click();
     cy.get(".p-multiselect-overlay").contains("Inactive").click();
     cy.getByTestId("status-filter").find(".p-multiselect-dropdown").click();
+    cy.wait(1000);
+    cy.get("p-datatable-mask").should("not.exist");
     cy.getByTestId("total-results", { timeout: 60000 })
       .invoke("text")
       .then(parseFloat)
@@ -35,6 +37,8 @@ describe("Search", () => {
     cy.getByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
     cy.get(".p-multiselect-overlay").contains("Snomed").click();
     cy.getByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
+    cy.wait(1000);
+    cy.get("p-datatable-mask").should("not.exist");
     cy.getByTestId("total-results", { timeout: 60000 })
       .invoke("text")
       .then(parseFloat)
@@ -50,6 +54,8 @@ describe("Search", () => {
     cy.getByTestId("type-filter").find(".p-multiselect-dropdown").click();
     cy.get(".p-multiselect-overlay").contains("Terminology concept").click();
     cy.getByTestId("type-filter").find(".p-multiselect-dropdown").click();
+    cy.wait(1000);
+    cy.get("p-datatable-mask").should("not.exist");
     cy.getByTestId("total-results", { timeout: 60000 })
       .invoke("text")
       .then(parseFloat)
