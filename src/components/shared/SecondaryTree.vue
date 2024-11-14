@@ -100,8 +100,10 @@ const emit = defineEmits({
   rowSelected: (_payload: TreeNode | undefined) => true
 });
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore, selectedNode } =
-  setupTree(emit);
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore, selectedNode } = setupTree(
+  emit,
+  20
+);
 const { showOverlay, hideOverlay, OS } = setupOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
