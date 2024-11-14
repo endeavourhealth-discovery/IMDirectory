@@ -40,7 +40,7 @@
               <td>
                 <span class="cursor-pointer" @click="emit('navigateTo', mapItem.iri)">{{ mapItem.name }}</span>
               </td>
-              <td>{{ mapItem.priority }}</td>
+              <td data-testid="priority">{{ mapItem.priority }}</td>
             </tr>
           </tbody>
         </table>

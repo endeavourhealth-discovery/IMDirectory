@@ -11,7 +11,10 @@
       :style="'cursor:pointer;'"
       selectionMode="single"
       v-model:selection="selectedProvenance"
+      data-testid="provenance-table"
     >
+      <template #empty> No provenance found. </template>
+      <template #loading> Loading provenance. Please wait. </template>
       <Column field="prov" header="Provenance Id" style="width: 18rem"></Column>
       <Column field="usedEntity" header="Used Entity" style="min-width: 18rem"></Column>
       <Column field="effectiveDate" header="Effective Date" style="min-width: 18rem"></Column>

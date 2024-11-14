@@ -48,7 +48,7 @@ describe("homepage", () => {
       });
     });
   });
-  describe.only("Loggedin", () => {
+  describe("Loggedin", () => {
     beforeEach(() => {
       cy.preventRouterNewTab();
       cy.loginByCognitoApi(Cypress.env("CYPRESS_LOGIN_USERNAME"), Cypress.env("CYPRESS_LOGIN_PASSWORD"));

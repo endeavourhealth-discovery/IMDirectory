@@ -18,7 +18,7 @@
       :lazy="true"
       @page="handlePage($event)"
       :loading="loading"
-      data-testid="table"
+      data-testid="used-in-table"
     >
       <template #empty> No records found. </template>
       <template #loading> Loading data. Please wait. </template>

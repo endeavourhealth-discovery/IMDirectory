@@ -1,7 +1,7 @@
 <template>
   <div class="breadcrumb-container">
-    <div class="padding-container grid grid-cols-12 gap-4">
-      <div class="table-header col-span-10">
+    <div class="padding-container flex justify-between gap-4">
+      <div class="table-header grow">
         <Breadcrumb :home="home" :model="pathItems">
           <template #item="{ item }: { item: any }">
             <div class="p-menuitem" @click="onClick($event, item)">
@@ -12,7 +12,7 @@
         </Breadcrumb>
         <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
       </div>
-      <div class="header-button-group p-buttonset col-span-2">
+      <div class="header-button-group p-buttonset shrink-0">
         <Button icon="fa-regular fa-angle-left" :disabled="!canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
         <Button
           icon="fa-regular fa-angle-right"
