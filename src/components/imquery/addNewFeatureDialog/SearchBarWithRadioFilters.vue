@@ -1,7 +1,17 @@
 <template>
   <SearchBar v-model:searchTerm="searchTerm" :show-filters="false" @to-search="emit('onSearch', searchTerm)" />
-  <div v-if="showTypeFilters" class="type-options flex flex-wrap gap-4">
+  <div v-if="showAllTypeFilters" class="type-options flex flex-wrap gap-4">
     <div v-for="typeOption in typeOptions" :key="typeOption.name" class="flex items-center">
+      <RadioButton v-model="selectedType" :disabled="typeOption.isLocked" :inputId="typeOption.name" name="dynamic" :value="typeOption" />
+      <label :for="typeOption.name" class="gap-1">{{ typeOption.name }}</label>
+    </div>
+  </div>
+  <div v-else class="type-options flex flex-wrap gap-4">
+    <div
+      v-for="typeOption in typeOptions.filter(typeOpt => typeOpt.typeIri === IM.CONCEPT_SET || typeOpt.typeIri === IM.CONCEPT)"
+      :key="typeOption.name"
+      class="flex items-center"
+    >
       <RadioButton v-model="selectedType" :disabled="typeOption.isLocked" :inputId="typeOption.name" name="dynamic" :value="typeOption" />
       <label :for="typeOption.name" class="gap-1">{{ typeOption.name }}</label>
     </div>
@@ -12,7 +22,6 @@
 import SearchBar from "@/components/shared/SearchBar.vue";
 import { IM } from "@/vocabulary";
 import { onMounted, ref, Ref, watch, computed, ComputedRef } from "vue";
-import { cloneDeep } from "lodash-es";
 
 export interface TypeOption {
   name: string;
@@ -22,7 +31,7 @@ export interface TypeOption {
 }
 
 interface Props {
-  showTypeFilters?: boolean;
+  showAllTypeFilters?: boolean;
   lockTypeFilters?: { all: boolean; concept: boolean; conceptSet: boolean; property: boolean; feature: boolean; cohort: boolean };
 }
 
