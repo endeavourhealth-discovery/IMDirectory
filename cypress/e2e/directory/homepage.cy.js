@@ -31,6 +31,7 @@ describe("homepage", () => {
       });
       it("links to creator", () => {
         cy.get(".shortcut-container").contains("Creator").click();
+        cy.visitNewTab("/#/creator/");
         cy.get(".swal2-popup").contains("Please Login to continue");
         cy.url().should("include", "/creator");
       });
@@ -40,6 +41,7 @@ describe("homepage", () => {
       });
       it("links to assign uprn", () => {
         cy.get(".shortcut-container").contains("ASSIGN UPRN").click();
+        cy.visitNewTab("/#/uprn/");
         cy.get(".swal2-popup").contains("Please Login to continue");
         cy.url().should("include", "/uprn");
       });
