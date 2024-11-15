@@ -8,7 +8,7 @@
         <div class="search-bar">
           <SearchBarWithRadioFilters
             :lockTypeFilters="lockTypeFilters"
-            :show-type-filters="showAllTypeFilters"
+            :show-all-type-filters="showAllTypeFilters"
             @on-search="onSearch"
             @on-type-select="onTypeSelect"
           />

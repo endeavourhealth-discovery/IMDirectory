@@ -14,7 +14,7 @@
       :can-clear-path="false"
       :has-next-step="false"
       :isList="editMatch.instanceOf"
-      :show-type-filters="false"
+      :show-all-type-filters="false"
       @on-match-add="onMatchAdd"
     />
   </div>
