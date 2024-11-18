@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-10-30 09:24:55.
+// Generated using typescript-generator version 3.2.1263 on 2024-11-18 09:51:31.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -173,6 +173,7 @@ export interface ModelDocument {
 
 export interface NodeShape extends TTIriRef {
     property?: PropertyShape[];
+    subType?: TTIriRef[];
 }
 
 export interface Page {
@@ -195,6 +196,7 @@ export interface PropertyShape {
     maxCount?: number;
     componentType: TTIriRef;
     path: TTIriRef;
+    datatype?: TTIriRef;
     node?: TTIriRef[];
     validation?: TTIriRef;
     search?: TTIriRef;
@@ -207,14 +209,19 @@ export interface PropertyShape {
     forceIsValue?: boolean;
     builderChild?: boolean;
     showTitle?: boolean;
+    group?: TTIriRef;
     property?: PropertyShape[];
-    datatype?: TTIriRef;
     clazz?: TTIriRef;
     validationErrorMessage?: string;
     function?: TTIriRef;
     valueIri?: TTIriRef;
     expression?: NodeShape;
     arrayButtons?: ArrayButtons;
+    hasValue?: any;
+    hasValueType?: TTIriRef;
+    rangeType?: TTIriRef;
+    definition?: string;
+    type?: TTIriRef[];
 }
 
 export interface SetContent {
@@ -256,9 +263,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: string;
+    qualifier?: string;
     operator?: Operator;
     valueLabel?: string;
-    qualifier?: string;
 }
 
 export interface Case {
@@ -291,9 +298,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
     memberOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -480,7 +487,6 @@ export interface EntityDocument {
     preferredName?: string;
     code?: string;
     alternativeCode?: string;
-    matchTerm?: string[];
     scheme?: TTIriRef;
     entityType?: TTIriRef[];
     status?: TTIriRef;
@@ -787,15 +793,15 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
-    status?: TTIriRef;
     code?: string;
     prefixes?: TTPrefix[];
+    status?: TTIriRef;
+    description?: string;
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {
@@ -863,6 +869,14 @@ export const enum Comparison {
     gt = "gt",
     lte = "lte",
     lt = "lt",
+}
+
+export const enum Entail {
+    descendantsOrSelfOf = "descendantsOrSelfOf",
+    memberOf = "memberOf",
+    descendantsOf = "descendantsOf",
+    ancestorsOf = "ancestorsOf",
+    equal = "equal",
 }
 
 export const enum Function {
