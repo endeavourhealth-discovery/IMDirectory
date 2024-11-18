@@ -52,7 +52,7 @@ describe("ConceptTypeMethods", () => {
   });
 
   describe("getColourFromType", () => {
-    const bgs = palette("tol-rainbow", 8);
+    const bgs = palette("tol-rainbow", 10);
     const bgsFixed = bgs.map(color => "#" + color + "88");
 
     it("returns correct colour for nodeshape", () => {

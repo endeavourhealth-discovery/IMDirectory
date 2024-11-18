@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Match, Assignable, IriLD, Node, Bool } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref, watch, defineProps } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 
 interface Props {
@@ -64,7 +64,6 @@ interface Props {
 const props = defineProps<Props>();
 
 const expandSet: Ref<boolean> = ref(false);
-
 
 function toggle() {
   expandSet.value = !expandSet.value;

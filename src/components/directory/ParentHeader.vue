@@ -48,12 +48,7 @@ import ActionButtons from "@/components/shared/ActionButtons.vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { IM, RDF, RDFS } from "@/vocabulary";
-import { isQuery, isValueSet } from "@/helpers/ConceptTypeMethods";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { Ref, watch, ref, onMounted } from "vue";
-import { EntityService } from "@/services";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { cloneDeep } from "lodash-es";
 
 interface Props {
   entity: any;
@@ -66,25 +61,6 @@ const emit = defineEmits({
   addToList: (_payload: string) => true,
   viewHierarchy: (_payload: string) => true
 });
-const hasQueryDefinition: Ref<boolean> = ref(false);
-
-onMounted(async () => {
-  if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
-});
-
-watch(
-  () => cloneDeep(props.entity),
-  async () => {
-    if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
-  }
-);
-
-async function getHasQueryDefinition(entityIri: string) {
-  const entity = await EntityService.getPartialEntity(entityIri, [RDF.TYPE, IM.DEFINITION]);
-  const hasDefinition = isObjectHasKeys(entity, [RDF.TYPE, IM.DEFINITION]);
-  const isQueryOrSet = isQuery(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]);
-  return hasDefinition && isQueryOrSet;
-}
 
 function getIcon(entity: any) {
   if (entity["@id"] === IM.FAVOURITES) return ["fa-solid", "star"];
