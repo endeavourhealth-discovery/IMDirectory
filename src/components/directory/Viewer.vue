@@ -175,7 +175,7 @@ const concept: Ref<any> = ref({});
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
-const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
+const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, IM.DATASET_QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
 
 const tabMap = reactive(new Map<string, string>());
 
@@ -193,7 +193,7 @@ function setDefaultTab() {
     activeTab.value = tabMap.get("Contents") ?? "0";
   } else if (isRecordModel(types.value)) {
     activeTab.value = tabMap.get("Data Model") ?? "0";
-  } else if (isQuery(types.value) || isFeature(types.value) || isDataSet(types.value)) {
+  } else if (isQuery(types.value)) {
     activeTab.value = tabMap.get("Query") ?? "0";
   } else if (isDataSet(types.value)) {
     activeTab.value = tabMap.get("Data set") ?? "0";
