@@ -41,8 +41,7 @@
         :isList="property.is"
         :match="editMatch"
         :property-iri="selectedProperty.iri"
-        :show-type-filters="false"
-        :show-variable-options="false"
+        :show-all-type-filters="false"
         @on-match-add="onMatchAdd"
       />
     </div>

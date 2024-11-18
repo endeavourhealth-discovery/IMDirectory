@@ -114,7 +114,7 @@ const {
   scrollToHighlighted,
   selectAndExpand,
   nodeHasChild
-} = setupTree(emit);
+} = setupTree(emit, 50);
 const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 
 const loading = ref(true);

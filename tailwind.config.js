@@ -2,11 +2,7 @@
 export default {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
-    extend: {
-      zIndex: {
-        '1': '1'
-      }
-    }
+    extend: {}
   },
   plugins: [require("tailwindcss-primeui")]
 };

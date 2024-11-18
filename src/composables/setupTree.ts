@@ -9,7 +9,7 @@ import { computed, ref, Ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import { useUserStore } from "@/stores/userStore";
 
-function setupTree(emit?: any) {
+function setupTree(emit?: any, customPageSize?: number) {
   const toast = useToast();
   const userStore = useUserStore();
   const favourites = computed(() => userStore.favourites);
@@ -19,7 +19,7 @@ function setupTree(emit?: any) {
   const root: Ref<TreeNode[]> = ref([]);
   const expandedKeys: Ref<any> = ref({});
   const expandedData: Ref<TreeNode[]> = ref([]);
-  const pageSize = ref(50);
+  const pageSize = ref(customPageSize ?? 50);
 
   const directService = new DirectService();
 

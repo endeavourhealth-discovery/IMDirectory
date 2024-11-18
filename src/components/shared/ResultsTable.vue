@@ -1,9 +1,6 @@
 <template>
   <div id="search-results-main-container">
     <DataTable
-        :pt="{
-        thead: { class: '!z-1' }
-    }"
       :paginator="true"
       :rows="rows"
       :value="searchResults"
@@ -28,14 +25,19 @@
           ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink'
           : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'
       "
+      :pt="{ thead: { class: '!z-1' } }"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
           <div class="header">
             <div class="results-title">
-              <span>Results</span>
-              <span v-if="totalCount"> {{ " (" + totalCount + ")" }}</span>
+              <span>Results </span>
+              <span v-if="totalCount">
+                <span>(</span>
+                <span data-testid="total-results">{{ totalCount }}</span>
+                <span>)</span>
+              </span>
             </div>
             <Button
               :disabled="!searchResults.length"
