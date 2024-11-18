@@ -17,15 +17,17 @@
             <Tab v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">ECL </Tab>
             <Tab v-if="isRecordModel(types)" value="5">Data Model</Tab>
             <Tab v-if="isRecordModel(types)" value="6">Properties</Tab>
-            <Tab v-if="isQuery(types) || isFeature(types)" value="7">Query</Tab>
-            <Tab value="8">Contents</Tab>
-            <Tab v-if="isProperty(types)" value="9">Data Models</Tab>
-            <Tab value="10">Used In</Tab>
-            <Tab value="11">Hierarchy Position</Tab>
-            <Tab v-if="showGraph" value="12">Entity Chart</Tab>
-            <Tab value="13">Graph</Tab>
-            <Tab value="14">JSON</Tab>
-            <Tab value="15">Provenance</Tab>
+            <Tab v-if="isQuery(types)" value="7">Query</Tab>
+            <Tab v-if="isDataSet(types)" value="8">Data set</Tab>
+            <Tab v-if="isFeature(types)" value="9">Feature</Tab>
+            <Tab value="10">Contents</Tab>
+            <Tab v-if="isProperty(types)" value="11">Data Models</Tab>
+            <Tab value="12">Used In</Tab>
+            <Tab value="13">Hierarchy Position</Tab>
+            <Tab v-if="showGraph" value="14">Entity Chart</Tab>
+            <Tab value="15">Graph</Tab>
+            <Tab value="16">JSON</Tab>
+            <Tab value="17">Provenance</Tab>
           </TabList>
           <TabPanels>
             <TabPanel value="0">
@@ -63,47 +65,57 @@
                 <Properties :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isQuery(types) || isFeature(types)" value="7">
+            <TabPanel v-if="isQuery(types)" value="7">
               <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" />
               </div>
             </TabPanel>
-            <TabPanel value="8">
+            <TabPanel v-if="isDataSet(types)" value="8">
+              <div id="query-container" class="concept-panel-content">
+                <QueryDisplay :entityIri="entityIri" />
+              </div>
+            </TabPanel>
+            <TabPanel v-if="isFeature(types)" value="9">
+              <div id="query-container" class="concept-panel-content">
+                <QueryDisplay :entityIri="entityIri" />
+              </div>
+            </TabPanel>
+            <TabPanel value="10">
               <div id="definition-container" class="concept-panel-content">
                 <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isProperty(types)" value="9">
+            <TabPanel v-if="isProperty(types)" value="11">
               <div id="definition-container" class="concept-panel-content">
                 <DataModels :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="10">
+            <TabPanel value="12">
               <div id="usedin-container" class="concept-panel-content">
                 <UsedIn :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="11">
+            <TabPanel value="13">
               <div id="secondary-tree-container" class="concept-panel-content">
                 <SecondaryTree :entityIri="entityIri" @row-clicked="(iri: string) => emit('navigateTo', iri)" @row-control-clicked="handleControlClick" />
               </div>
             </TabPanel>
-            <TabPanel v-if="showGraph" value="12">
+            <TabPanel v-if="showGraph" value="14">
               <div id="entity-chart-container" class="concept-panel-content">
                 <EntityChart :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="13">
+            <TabPanel value="15">
               <div id="graph-container" class="concept-panel-content">
                 <Graph :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="14">
+            <TabPanel value="16">
               <div id="json-container" class="concept-panel-content">
                 <JSONViewer :entityIri="entityIri" />
               </div>
             </TabPanel>
-            <TabPanel value="15">
+            <TabPanel value="17">
               <div id="provenance-container" class="concept-panel-content">
                 <Provenance :entityIri="entityIri" />
               </div>
@@ -134,7 +146,7 @@ import { DirectService, EntityService } from "@/services";
 
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isConcept, isFeature, isFolder, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
+import { isConcept, isDataSet, isFeature, isFolder, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";
@@ -181,8 +193,12 @@ function setDefaultTab() {
     activeTab.value = tabMap.get("Contents") ?? "0";
   } else if (isRecordModel(types.value)) {
     activeTab.value = tabMap.get("Data Model") ?? "0";
-  } else if (isQuery(types.value) || isFeature(types.value)) {
+  } else if (isQuery(types.value) || isFeature(types.value) || isDataSet(types.value)) {
     activeTab.value = tabMap.get("Query") ?? "0";
+  } else if (isDataSet(types.value)) {
+    activeTab.value = tabMap.get("Data set") ?? "0";
+  } else if (isFeature(types.value)) {
+    activeTab.value = tabMap.get("Feature") ?? "0";
   } else if (isValueSet(types.value)) {
     activeTab.value = tabMap.get("Set") ?? "0";
   } else if (isProperty(types.value)) {
@@ -226,7 +242,7 @@ function onOpenTab(predicate: string) {
       activeTab.value = tabMap.get("Properties") ?? "0";
       break;
     case IM.DEFINITION:
-      if (isQuery(types.value) ?? isFeature(types.value)) {
+      if (isQuery(types.value) || isFeature(types.value) || isDataSet(types.value)) {
         activeTab.value = tabMap.get("Query") ?? "0";
       } else if (isValueSet(types.value)) {
         activeTab.value = tabMap.get("Set") ?? "0";

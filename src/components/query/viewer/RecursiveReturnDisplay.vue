@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { Return, ReturnProperty } from "@/interfaces/AutoGen";
-import { Ref, ref, watch, defineProps } from "vue";
+import { Ref, ref, watch } from "vue";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 
 interface Props {

@@ -5,7 +5,9 @@
 **/build
 **/coverage
 node
-**/cypress/screenshots
+cypress/screenshots
+cypress/downloads
+cypress/**/**.xml
 
 # local env files
 **/.env.**
