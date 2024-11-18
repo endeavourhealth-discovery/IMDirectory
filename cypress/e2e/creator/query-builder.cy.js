@@ -272,7 +272,14 @@ describe("Query builder", () => {
     cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
 
     cy.get(".p-dialog-content").find(".add-property-button").click();
-    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog")
+      .find(".p-tree-node-selectable")
+      .contains("Place of residence at event")
+      .parent()
+      .parent()
+      .parent()
+      .find(".p-tree-node-toggle-button")
+      .click();
     cy.get(".add-property-dialog").find(".p-tree-node-content").contains("Address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
     cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("postcode").click();
     cy.get(".add-property-dialog", { timeout: 60000 }).find("[data-testid=property-value-input]").type("LS123AA");
@@ -281,7 +288,7 @@ describe("Query builder", () => {
     cy.getByTestId("add-feature-save-button").contains("Save").click();
     cy.get(".edit-match-container").contains("nHS Number");
     cy.get(".edit-match-container").contains("123456789");
-    cy.get(".edit-match-container").contains("address");
+    cy.get(".edit-match-container").contains("Place of residence at event");
     cy.get(".edit-match-container").contains("postcode");
     cy.get(".edit-match-container").contains("LS123AA");
   });
@@ -299,7 +306,14 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("nHS Number").click();
 
     cy.get(".p-dialog-content").find(".add-property-button").click();
-    cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog")
+      .find(".p-tree-node-selectable")
+      .contains("place of residence", { matchCase: false })
+      .parent()
+      .parent()
+      .parent()
+      .find(".p-tree-node-toggle-button")
+      .click();
     cy.get(".add-property-dialog").find(".p-tree-node-content").contains("Address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
     cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("postcode").click();
     cy.get(".add-property-dialog", { timeout: 60000 }).find("[data-testid=property-value-input]").type("LS123AA");
@@ -308,7 +322,7 @@ describe("Query builder", () => {
     cy.getByTestId("save-feature-button").contains("Save").click();
     cy.get(".edit-match-container").contains("nHS Number");
     cy.get(".edit-match-container").contains("123456789");
-    cy.get(".edit-match-container").contains("address");
+    cy.get(".edit-match-container").contains("Place of residence at event");
     cy.get(".edit-match-container").contains("postcode");
     cy.get(".edit-match-container").contains("LS123AA");
   });
