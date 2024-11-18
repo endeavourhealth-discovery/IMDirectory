@@ -80,7 +80,7 @@ import { computed, inject, onMounted, ref, Ref, watch } from "vue";
 import PathSelect from "./PathSelect.vue";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@/vocabulary";
-import { isConcept, isDataSet, isFeature, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
+import { isConcept, isDataSet, isFeature, isProperty, isQuery, isRecordModel, isValueSet, isFunction } from "@/helpers/ConceptTypeMethods";
 import SelectedSet from "./SelectedSet.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
@@ -221,7 +221,7 @@ async function onSelect(iri: string) {
       }
     }
 
-    if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]) || isProperty(entity[RDF.TYPE])) {
+    if (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]) || isProperty(entity[RDF.TYPE]) || isFunction(entity[RDF.TYPE])) {
       if (selectedValueMap.value.size) {
         const has = await hasFeatureOrQuerySelected();
         if (!has) {
@@ -257,7 +257,7 @@ async function onSelect(iri: string) {
   } else {
     await setQueryPath(iri);
     if (isArrayHasLength(pathSuggestions.value) && (isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]))) addToSelectedList(iri, entity[RDFS.LABEL]);
-    else if (isProperty(entity[RDF.TYPE])) {
+    else if (isProperty(entity[RDF.TYPE]) || isFunction(entity[RDF.TYPE])) {
       emit("goToNextStep");
     }
   }

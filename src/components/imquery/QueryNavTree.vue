@@ -35,11 +35,10 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isFolder, isProperty, isRecordModel } from "@/helpers/ConceptTypeMethods";
+import { isFolder, isFunction, isProperty, isRecordModel } from "@/helpers/ConceptTypeMethods";
 import { TTProperty } from "@/interfaces";
 import { getNameFromRef, resolveIri } from "@/helpers/TTTransform";
 import { Match, TTIriRef, Where } from "@/interfaces/AutoGen";
-import { stringAscending } from "@/helpers/Sorters";
 import setupOverlay from "@/composables/setupOverlay";
 import { getKey, getParentNode } from "@/helpers";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
@@ -150,7 +149,7 @@ async function handleTreeNodeExpand(node: any) {
   if (!isArrayHasLength(node.children))
     if (isRecordModel(node.conceptTypes)) {
       await onNodeExpand(node);
-    } else if (isProperty(node.conceptTypes)) {
+    } else if (isProperty(node.conceptTypes) || isFunction(node.conceptTypes)) {
       await onPropertyExpand(node);
     } else {
       await onClassExpand(node);

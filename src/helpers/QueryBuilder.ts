@@ -1,7 +1,7 @@
 import { SHACL } from "../vocabulary";
 import { TreeNode } from "../interfaces";
 import { Match, Node, Operator, Where, Query, SearchResultSummary } from "../interfaces/AutoGen";
-import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
+import { isFolder, isFunction, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import { v4 } from "uuid";
@@ -18,7 +18,7 @@ export function buildProperty(treeNode: TreeNode): Where | Match {
     } else if (isRecordModel(treeNode.conceptTypes)) {
       const parentMatch = { "@id": v4(), typeOf: { "@id": treeNode.data }, where: [cloneDeep(currentMatchOrProperty)] };
       currentMatchOrProperty = parentMatch;
-    } else if (isProperty(treeNode.conceptTypes)) {
+    } else if (isProperty(treeNode.conceptTypes) || isFunction(treeNode.conceptTypes)) {
       const parentProperty: any = { "@id": treeNode.data };
       if (isObjectHasKeys(currentMatchOrProperty)) parentProperty.match = cloneDeep(currentMatchOrProperty);
       currentMatchOrProperty = parentProperty;
