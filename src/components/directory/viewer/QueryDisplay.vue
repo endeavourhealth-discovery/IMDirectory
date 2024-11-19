@@ -21,6 +21,17 @@
               :operator="query.boolMatch"
             />
           </div>
+          <span v-if="isArrayHasLength(query.where)">
+        <RecursiveWhereDisplay
+            v-for="(nestedWhere, index) in query.where"
+            :where="nestedWhere"
+            :depth="1"
+            :index="index"
+            :key="index"
+            :operator="query.boolWhere"
+            :expandedSet="false"
+        />
+      </span>
           <div v-if="isArrayHasLength(query.query)" class="pl-8">
             <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" text @click="toggle" />
             <span class="text-green-500">The cohort query has the following data set definition</span>
@@ -53,6 +64,7 @@
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import MatchSummaryDisplay from "@/components/query/viewer/MatchSummaryDisplay.vue";
 import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
+import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import { QueryService } from "@/services";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { Query } from "@/interfaces/AutoGen";
