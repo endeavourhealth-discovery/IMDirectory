@@ -95,7 +95,6 @@ import { EntityService, QueryService } from "@/services";
 import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isQuery, isValueSet } from "@/helpers/ConceptTypeMethods";
 import { FilterOptions } from "@/interfaces";
 import { useSharedStore } from "@/stores/sharedStore";
 
@@ -131,7 +130,6 @@ const emit = defineEmits({
 const sharedStore = useSharedStore();
 
 const updateSearch: Ref<boolean> = ref(false);
-const hasQueryDefinition: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
@@ -161,7 +159,6 @@ watch(
     if (detailsIri.value) {
       validationLoading.value = true;
       await setSelectedName();
-      hasQueryDefinition.value = await getHasQueryDefinition();
       isSelectableEntity.value = await getIsSelectableEntity();
       validationLoading.value = false;
     }
@@ -258,14 +255,6 @@ async function getIsSelectableEntity(): Promise<boolean> {
     return await QueryService.askQuery(imQuery);
   }
   return true;
-}
-
-async function getHasQueryDefinition() {
-  if (!detailsIri.value) return false;
-  const entity = await EntityService.getPartialEntity(detailsIri.value, [RDF.TYPE, IM.DEFINITION]);
-  const hasDefinition = isObjectHasKeys(entity, [RDF.TYPE, IM.DEFINITION]);
-  const isQueryOrSet = isQuery(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]);
-  return hasDefinition && isQueryOrSet;
 }
 
 function onEnter() {

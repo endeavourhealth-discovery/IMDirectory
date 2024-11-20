@@ -6,7 +6,6 @@
     <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-56" disabled />
     <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
       <span class="self-center"> is </span>
-
       <InputGroup class="flex flex-row flex-nowrap">
         <div class="border-1 border-border-surface flex flex-row rounded border border-solid p-1">
           <div v-if="property.valueLabel">
@@ -20,6 +19,14 @@
         <Button data-testid="edit-list-button" label="Edit" @click="showBuildFeatureDialog = true" />
         <SaveCustomSetDialog v-if="property.is" :set-members="property.is" @on-save="onSaveCustomSet" />
       </InputGroup>
+
+      <InputGroup class="flex flex-row flex-nowrap">
+        <span class="self-center">
+          <Checkbox v-model="property.inverse" inputId="inverse" binary />
+          <label for="inverse" v-tooltip="'Invert the property<-value relationship'"> invert </label>
+        </span>
+      </InputGroup>
+
       <Popover ref="dropdown">
         <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
           <span v-for="is of property.is" class="p-1">{{ getNameFromRef(is) }}</span>
@@ -34,8 +41,7 @@
         :isList="property.is"
         :match="editMatch"
         :property-iri="selectedProperty.iri"
-        :show-type-filters="false"
-        :show-variable-options="false"
+        :show-all-type-filters="false"
         @on-match-add="onMatchAdd"
       />
     </div>

@@ -8,7 +8,7 @@
         <div class="search-bar">
           <SearchBarWithRadioFilters
             :lockTypeFilters="lockTypeFilters"
-            :show-type-filters="showTypeFilters"
+            :show-all-type-filters="showAllTypeFilters"
             @on-search="onSearch"
             @on-type-select="onTypeSelect"
           />
@@ -84,9 +84,8 @@ interface Props {
   canClearPath?: boolean;
   header: string;
   dataModelIri: string | undefined;
-  showVariableOptions: boolean;
   hasNextStep?: boolean;
-  showTypeFilters?: boolean;
+  showAllTypeFilters?: boolean;
   isList?: Node[];
 }
 

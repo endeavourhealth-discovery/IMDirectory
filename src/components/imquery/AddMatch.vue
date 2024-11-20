@@ -6,7 +6,7 @@
     :show-variable-options="false"
     :can-clear-path="true"
     :has-next-step="true"
-    :show-type-filters="true"
+    :show-all-type-filters="true"
     @on-match-add="(_match: Match) => emit('addFeature', _match)"
   />
 
@@ -17,7 +17,7 @@
     :show-variable-options="false"
     :can-clear-path="true"
     :has-next-step="true"
-    :show-type-filters="true"
+    :show-all-type-filters="true"
     @on-match-add="(_match: Match) => emit('addThen', _match)"
   />
 </template>
