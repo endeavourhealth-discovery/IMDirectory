@@ -7,7 +7,7 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else class="children-container" :class="invalid && showValidation && 'invalid'">
+    <div v-else :class="invalid && showValidation && 'invalid'" class="children-container" data-testid="array-builder">
       <template v-for="(item, index) in build" :key="item.id">
         <component
           :is="item.type"

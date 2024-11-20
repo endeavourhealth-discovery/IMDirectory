@@ -11,6 +11,7 @@
         v-model="selectedEntity"
         :options="dropdownOptions"
         optionLabel="name"
+        data-testid="entity-single-dropdown"
       />
     </span>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />

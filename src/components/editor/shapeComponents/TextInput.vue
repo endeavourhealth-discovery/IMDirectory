@@ -12,6 +12,7 @@
       @drop.prevent
       @dragover.prevent
       v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-select-tooltip' }"
+      data-testid="text-input"
     />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>

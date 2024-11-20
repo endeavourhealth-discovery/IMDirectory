@@ -4,7 +4,7 @@
       <span v-if="shape.showTitle">{{ shape.name }}</span>
       <span v-if="showRequired" class="required">*</span>
     </div>
-    <Textarea class="p-inputtext-lg input-html" :class="invalid && showValidation && 'invalid'" v-model="userInput" rows="4" @drop.prevent />
+    <Textarea class="p-inputtext-lg input-html" :class="invalid && showValidation && 'invalid'" v-model="userInput" data-testid="html-input" rows="4" @drop.prevent />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
