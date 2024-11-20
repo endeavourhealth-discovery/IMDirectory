@@ -1,6 +1,7 @@
 <template>
-  <div id="query-display">
-    <div v-if="!isObjectHasKeys(query)">No definition found.</div>
+  <div id="query-display" class="flex flex-1 flex-col">
+    <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
+    <div v-else-if="!isObjectHasKeys(query)">No definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
       <div class="flex flex-row gap-2">
         <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
@@ -75,6 +76,7 @@ const query: Ref<Query> = ref({} as Query);
 const sql: Ref<string> = ref("");
 const showSql: Ref<boolean> = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
+const loading = ref(true);
 
 const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
 
@@ -97,8 +99,10 @@ onMounted(async () => {
 });
 
 async function init() {
+  loading.value = true;
   if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, true);
   else if (props.definition) query.value = await QueryService.getDisplayFromQuery(JSON.parse(props.definition), true);
+  loading.value = false;
 }
 
 async function generateSQL() {
