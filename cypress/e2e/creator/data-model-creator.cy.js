@@ -8,7 +8,7 @@ describe("creator", () => {
     cy.get(".type-buttons-container", { timeout: 60000 }).contains("Data model/Node shape").click();
   });
   describe("data model creator", () => {
-    /*it("can navigate to data model creator", () => {
+    it("can navigate to data model creator", () => {
       cy.get(".creator-layout-container", { timeout: 60000 });
     });
     it("is populated correctly", () => {
@@ -55,7 +55,7 @@ describe("creator", () => {
       cy.get("@subclassOf").find(".entity-search-item-container").should("have.length", 2);
       cy.get("@subclassOf").find('[data-testid="delete-button"]').first().click();
       cy.get("@subclassOf").find(".entity-search-item-container").should("have.length", 1);
-    });*/
+    });
     it("can add, select, and delete properties", () => {
       cy.getByTestId("property-builder").getByTestId("add-property-button").click();
       cy.getByTestId("property-builder").find(".property").as("property");

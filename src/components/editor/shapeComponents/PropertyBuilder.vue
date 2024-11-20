@@ -34,6 +34,7 @@
                   :search-placeholder="'Select range'"
                   data-testid="range-autocomplete"
                 />
+                <div v-if="invalid && showValidation && row.error" class="error-message-text opacity-0">{{ row.error }}</div>
               </td>
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="row-buttons">
                 <span>
@@ -518,7 +519,7 @@ function updateEntity() {
       if (value.path) fullPath = { "@id": value.path.iri, name: value.path.name } as TTIriRef;
       if (value.range) fullRange = { "@id": value.range.iri, name: value.range.name } as TTIriRef;
 
-      p[IM.ORDER] = index;
+      p[SHACL.ORDER] = index;
       p[SHACL.PATH] = [fullPath];
       p[value.rangeType] = [fullRange];
       p[SHACL.MINCOUNT] = value.required ? 1 : 0;
@@ -615,7 +616,7 @@ function updateEntity() {
   margin: 0;
   flex-grow: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
 
 .table-row-hover {
@@ -626,7 +627,7 @@ function updateEntity() {
   margin: 0;
   flex-grow: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
 
 table {
