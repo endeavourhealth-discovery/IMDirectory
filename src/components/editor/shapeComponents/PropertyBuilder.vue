@@ -11,7 +11,7 @@
         @mouseout="mouseout"
         @mouseover="mouseover($event, true)"
       >
-        <table>
+        <table data-testid="property-builder">
           <template v-for="(row, index) in dmProperties">
             <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
@@ -22,6 +22,7 @@
                   :root-entities="['http://endhealth.info/im#Properties']"
                   :search-placeholder="'Select property'"
                   class="search-bar"
+                  data-testid="property-autocomplete"
                 />
                 <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
@@ -31,7 +32,9 @@
                   :class="row.error === 'Property must have a range' && invalid && showValidation ? 'error-message-container-highlight' : ''"
                   :im-query="rSuggestions"
                   :search-placeholder="'Select range'"
+                  data-testid="range-autocomplete"
                 />
+                <div v-if="invalid && showValidation && row.error" class="error-message-text opacity-0">{{ row.error }}</div>
               </td>
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="row-buttons">
                 <span>
@@ -63,7 +66,13 @@
                     icon="fa-solid fa-chevron-down"
                     @click="moveDown(index)"
                   />
-                  <Button class="p-button-danger" icon="fa-solid fa-trash" severity="danger" @click="deleteProperty(index, row)" />
+                  <Button
+                    class="p-button-danger"
+                    icon="fa-solid fa-trash"
+                    severity="danger"
+                    @click="deleteProperty(index, row)"
+                    data-testid="delete-property-button"
+                  />
                 </span>
               </td>
             </tr>
@@ -77,6 +86,7 @@
               icon="fa-solid fa-plus"
               label="Add property"
               @click="addProperty"
+              data-testid="add-property-button"
             />
             <Button
               :class="!hover && 'hover-button'"
@@ -86,6 +96,7 @@
               icon="fa-solid fa-pencil"
               label="Create new"
               @click="directService.create()"
+              data-testid="create-new-property-button"
             />
           </tr>
           <template v-for="(row, index) in dmPropertiesInherited" class="property">
@@ -97,11 +108,12 @@
                   :imQuery="pSuggestions"
                   :root-entities="['http://endhealth.info/im#Properties']"
                   class="search-bar"
+                  data-testid="property-path-search"
                 />
                 <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
-                <AutocompleteSearchBar v-model:selected="row.range" :disabled="true" />
+                <AutocompleteSearchBar v-model:selected="row.range" :disabled="true" data-testid="property-range-search" />
               </td>
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-nw items-center">
                 <tag v-if="row.inherited && row.inherited.length > 0" severity="info">(Inherited)</tag>
@@ -507,7 +519,7 @@ function updateEntity() {
       if (value.path) fullPath = { "@id": value.path.iri, name: value.path.name } as TTIriRef;
       if (value.range) fullRange = { "@id": value.range.iri, name: value.range.name } as TTIriRef;
 
-      p[IM.ORDER] = index;
+      p[SHACL.ORDER] = index;
       p[SHACL.PATH] = [fullPath];
       p[value.rangeType] = [fullRange];
       p[SHACL.MINCOUNT] = value.required ? 1 : 0;
@@ -604,7 +616,7 @@ function updateEntity() {
   margin: 0;
   flex-grow: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
 
 .table-row-hover {
@@ -615,7 +627,7 @@ function updateEntity() {
   margin: 0;
   flex-grow: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
 
 table {

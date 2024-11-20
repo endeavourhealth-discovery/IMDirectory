@@ -15,6 +15,7 @@
           :options="dropdownOptions"
           optionLabel="name"
           display="chip"
+          data-testid="entity-combo-box"
         />
       </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" :style="{ width: '2rem', height: '2rem' }" />

@@ -6,7 +6,14 @@
         <span v-if="showRequired" class="required">*</span>
       </div>
       <div class="content-container">
-        <Select :disabled="disableSchemeEdit" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
+        <Select
+          :disabled="disableSchemeEdit"
+          class="dropdown"
+          v-model="selectedDropdownOption"
+          :options="dropdownOptions"
+          optionLabel="name"
+          data-testid="iri-builder-dropdown"
+        />
         <span v-if="includePrefix" class="prefix">{{ prefix }}</span>
         <InputText
           :disabled="disableCodeEdit"
@@ -14,6 +21,7 @@
           :class="invalid && showValidation && 'invalid'"
           v-model="userInput"
           type="text"
+          data-testid="iri-builder-input"
         />
         <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
       </div>
