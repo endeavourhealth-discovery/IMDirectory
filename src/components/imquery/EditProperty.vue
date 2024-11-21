@@ -18,13 +18,10 @@
         <Button icon="fa-solid fa-chevron-down" severity="secondary" @click="toggleDropdown" />
         <Button data-testid="edit-list-button" label="Edit" @click="showBuildFeatureDialog = true" />
         <SaveCustomSetDialog v-if="property.is" :set-members="property.is" @on-save="onSaveCustomSet" />
-      </InputGroup>
-
-      <InputGroup class="flex flex-row flex-nowrap">
-        <span class="self-center">
+        <InputGroupAddon class="gap-1">
           <Checkbox v-model="property.inverse" inputId="inverse" binary />
           <label for="inverse" v-tooltip="'Invert the property<-value relationship'"> invert </label>
-        </span>
+        </InputGroupAddon>
       </InputGroup>
 
       <Popover ref="dropdown">
