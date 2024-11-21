@@ -14,6 +14,7 @@
       <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
     </span>
   </span>
+    <span v-if="where.valueVariable" class="node-ref">as {{where.valueVariable }}</span>
   <span v-if="where.nodeRef" class="node-ref">{{ where.nodeRef }}</span>
   <span v-if="expandedSet && isArrayHasLength(where.is)">
     <span>, defined as</span>

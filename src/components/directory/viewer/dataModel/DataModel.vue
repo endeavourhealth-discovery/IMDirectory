@@ -27,6 +27,19 @@
           />
           <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
+       </template>
+      <template #parameter="{ node }: any">
+            <div class="items-center">
+              <ProgressSpinner v-if="node.loading" class="progress-spinner" />
+              <IMFontAwesomeIcon
+                  v-if="node.data.typeIcon && !node.loading"
+                  :icon="node.data.typeIcon"
+                  :style="'color:' + node.data.color"
+                  class="mr-2"
+                  fixed-width
+              />
+              <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        </div>
       </template>
     </Tree>
   </div>
@@ -128,6 +141,29 @@ function createGroupNode(property: PropertyShape, index: any, propertyList: Tree
   }
 }
 
+function createParameterNode(property:PropertyShape,propertyNode:TreeNode){
+  if (property.parameter &&property.parameter.length){
+    let params="parameters : ";
+    for (const [index,parameter] of property.parameter.entries()) {
+      if (parameter.type) {
+        const parameterNode = {
+          key: propertyNode.key + "-p" + index.toString(),
+          label: "parameter -> "+parameter.label + ", type :" + parameter.type?.name,
+          children: [] as TreeNode[],
+          selectable: true,
+          loading: false,
+          data: {
+            typeIcon: getFAIconFromType([{"@id": IM.CONCEPT}]),
+            color: getColourFromType([{"@id": IM.CONCEPT}]),
+            iri: parameter.type["@id"]
+          },
+          type: "parameter"
+        } as TreeNode;
+        propertyNode.children!.push(parameterNode);
+      }
+    }
+  }
+}
 
 function createRangeNode(property: PropertyShape,propertyNode: TreeNode){
   const ranges = property.clazz ? [property.clazz] : property.node ? property.node : property.datatype ? [property.datatype] : null;
@@ -170,6 +206,7 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
         } else name = name + " (" + property.hasValue + ")";
       }
     }
+
     const propertyType = property.type as TTIriRef[];
 
     const propertyNode = {
@@ -187,8 +224,9 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
       },
       type: "property"
     } as TreeNode;
-    createRangeNode(property,propertyNode);
 
+    createRangeNode(property,propertyNode);
+    createParameterNode(property,propertyNode);
     propertyList.push(propertyNode);
   }
 }

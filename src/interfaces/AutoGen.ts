@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-11-18 09:51:31.
+// Generated using typescript-generator version 3.2.1263 on 2024-11-21 11:49:34.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -181,6 +181,12 @@ export interface Page {
     pageSize?: number;
 }
 
+export interface ParameterShape {
+    label?: string;
+    type?: TTIriRef;
+    parameterSubType?: TTIriRef[];
+}
+
 export interface ParameterTemplate extends Entity {
     label?: string;
     order?: number;
@@ -214,6 +220,7 @@ export interface PropertyShape {
     clazz?: TTIriRef;
     validationErrorMessage?: string;
     function?: TTIriRef;
+    parameter?: ParameterShape[];
     valueIri?: TTIriRef;
     expression?: NodeShape;
     arrayButtons?: ArrayButtons;
@@ -262,10 +269,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
+    valueLabel?: string;
     unit?: string;
     qualifier?: string;
     operator?: Operator;
-    valueLabel?: string;
 }
 
 export interface Case {
@@ -298,9 +305,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -435,8 +442,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -793,15 +800,15 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    code?: string;
-    prefixes?: TTPrefix[];
     status?: TTIriRef;
     description?: string;
+    prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {
