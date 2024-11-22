@@ -166,7 +166,10 @@ function createParameterNode(property:PropertyShape,propertyNode:TreeNode){
 }
 
 function createRangeNode(property: PropertyShape,propertyNode: TreeNode){
-  const ranges = property.clazz ? [property.clazz] : property.node ? property.node : property.datatype ? [property.datatype] : null;
+  const ranges = property.clazz
+      ? [property.clazz]
+      : property.node || (property.datatype ? [property.datatype] : null);
+
   if (ranges) {
     for (const [index, range] of ranges.entries()) {
       let name = range.name;
@@ -200,15 +203,12 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
     const range = property.clazz ? [property.clazz] : property.node ? property.node : property.datatype ? [property.datatype] : null;
     let name = property.path.name;
     if (property.hasValue) {
-      if (property.hasValueType) {
-        if (property.hasValueType["@id"] === RDFS.RESOURCE) {
-          name = name + " (" + property.hasValue.name + ")";
-        } else name = name + " (" + property.hasValue + ")";
-      }
+      const value = property.hasValueType?.["@id"] === RDFS.RESOURCE
+          ? property.hasValue.name
+          : property.hasValue;
+      name += ` (${value})`;
     }
-
     const propertyType = property.type as TTIriRef[];
-
     const propertyNode = {
       key: parentKey + "-" + index.toString(),
       label: name,
