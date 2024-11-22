@@ -143,6 +143,10 @@ function onMemberRightClick(event: any, option: Concept) {
   overflow: hidden;
 }
 
+.p-listbox:deep(.p-listbox-list) {
+  width: 100%;
+}
+
 .loading-icon {
   flex: 0 0 auto;
 }
