@@ -134,7 +134,7 @@ import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
 import { EditorMode, ToastSeverity } from "@/enums";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS, SHACL, SNOMED } from "@/vocabulary";
+import { IM, RDF, RDFS, SHACL, SNOMED, XSD } from "@/vocabulary";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -212,7 +212,7 @@ const rSuggestions: Ref<QueryRequest | undefined> = ref({
           },
           {
             "@id": IM.HAS_SCHEME,
-            is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
+            is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }, { "@id": XSD.NAMESPACE }]
           }
         ]
       }
