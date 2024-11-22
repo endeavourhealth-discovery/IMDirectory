@@ -42,7 +42,7 @@
 import { onMounted, Ref, ref, watch } from "vue";
 import { DataModelService, EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { TreeNode } from "primevue/treenode";
+import type { TreeNode } from "primevue/treenode";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { RDF, SHACL } from "@/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";

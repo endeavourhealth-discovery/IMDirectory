@@ -115,7 +115,7 @@ import { inject, onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
-import { MenuItem } from "primevue/menuitem";
+import type { MenuItem } from "primevue/menuitem";
 import AddMatch from "./AddMatch.vue";
 import { EntityService, QueryService } from "@/services";
 import { IM } from "@/vocabulary";

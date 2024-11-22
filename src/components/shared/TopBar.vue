@@ -166,7 +166,7 @@ import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, GithubService, UserService, CodeGenService } from "@/services";
-import { MenuItem } from "primevue/menuitem";
+import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";

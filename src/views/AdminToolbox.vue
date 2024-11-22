@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
 import { computed, Ref, ref } from "vue";
-import { MenuItem } from "primevue/menuitem";
+import type { MenuItem } from "primevue/menuitem";
 import { useRouter } from "vue-router";
 import { useLoadingStore } from "@/stores/loadingStore";
 
