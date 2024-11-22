@@ -1,12 +1,25 @@
 <template>
-  <div class="compare-set-section">
+  <div v-if="!loading" class="compare-set-section">
     <div class="section-header">
       <div>{{ header }}</div>
-      <AutoComplete v-if="header !== 'Shared members '" v-model="selectedSet" optionLabel="name" :suggestions="filteredSets" @complete="searchValueSet" />
-      <div v-if="isArrayHasLength(members)">({{ members.length }})</div>
+      <AutocompleteSearchBar
+        v-if="header !== 'Shared members '"
+        v-model:selected="selectedSet"
+        :root-entities="[IM.NAMESPACE + 'Sets']"
+        :im-query="searchQuery"
+      />
+      <div v-if="isArrayHasLength(members)">Total members ({{ members.length }})</div>
     </div>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Listbox v-model="selected" :options="members" optionLabel="name" :virtualScrollerOptions="{ itemSize: 45, delay: 150 }" listStyle="height: 97%" filter>
+    <Listbox
+      v-model="selected"
+      :options="members"
+      optionLabel="name"
+      :virtualScrollerOptions="{ itemSize: 45, delay: 150 }"
+      listStyle="height: 97%"
+      filter
+      filter-placeholder="Filter"
+    >
       <template #option="{ option }: { option: Concept }">
         <div class="member-name" @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay" @contextmenu="onMemberRightClick($event, option)">
           {{ option.name }}
@@ -27,10 +40,11 @@ import { DirectService, EntityService, QueryService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 import { isArrayHasLength, isObject } from "@/helpers/DataTypeCheckers";
 import { FilterOptions, SearchOptions } from "@/interfaces";
-import { Concept, SearchResultSummary } from "@/interfaces/AutoGen";
-import { RDFS } from "@/vocabulary";
+import { Concept, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
+import { IM, RDFS } from "@/vocabulary";
 import { useToast } from "primevue/usetoast";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 interface Props {
   header: string;
   selectedSet?: SearchResultSummary;
@@ -44,14 +58,15 @@ const toast = useToast();
 const directService = new DirectService();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const filterStore = useFilterStore();
-const storeSelectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
-const selectedFilters: Ref<FilterOptions> = ref({ ...storeSelectedFilters.value });
+const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const controller: Ref<AbortController> = ref({} as AbortController);
 const menu = ref();
 
 const selectedSet: Ref<SearchResultSummary | undefined> = ref();
 const filteredSets: Ref<SearchResultSummary[]> = ref([]);
 const selected: Ref<Concept | undefined> = ref();
+const searchQuery: Ref<QueryRequest | undefined> = ref();
+const loading = ref(true);
 const { copyObjectToClipboard } = setupCopyToClipboard();
 
 const rClickItems = ref([
@@ -82,41 +97,31 @@ watch(
 );
 
 onMounted(async () => {
+  loading.value = true;
   await init();
+  loading.value = false;
 });
 
 async function init() {
   if (props.setIri) {
-    const entity = await EntityService.getPartialEntity(props.setIri, [RDFS.LABEL]);
-    selectedSet.value = { iri: entity["@id"], name: entity[RDFS.LABEL] } as SearchResultSummary;
-  }
-}
-
-async function search(searchText: string): Promise<SearchResultSummary[]> {
-  if (searchText && searchText.length > 2) {
-    const filterOptions: SearchOptions = {
-      schemes: selectedFilters.value.schemes,
-      status: selectedFilters.value.status,
-      types: selectedFilters.value.types,
-      textSearch: searchText,
+    const entity = await EntityService.getEntitySummary(props.setIri);
+    if (entity) selectedSet.value = entity;
+    const queryFilterOptions: SearchOptions = {
+      schemes: filterOptions.value.schemes,
+      status: filterOptions.value.status,
+      types: [
+        { "@id": IM.CONCEPT_SET },
+        { "@id": IM.SET },
+        { "@id": IM.QUERY_SET },
+        { "@id": IM.VALUE_SET },
+        { "@id": IM.CONCEPT_SET },
+        { "@id": IM.CONCEPT_SET_GROUP }
+      ],
+      textSearch: entity.name,
       page: { pageNumber: 1, pageSize: 100 }
     };
-
-    const imQuery = buildIMQueryFromFilters(filterOptions);
-
-    if (!isObject(controller.value)) {
-      controller.value.abort();
-    }
-    controller.value = new AbortController();
-    const result = await QueryService.queryIMSearch(imQuery, controller.value);
-    return result.entities ?? [];
+    searchQuery.value = buildIMQueryFromFilters(queryFilterOptions);
   }
-  return [];
-}
-
-async function searchValueSet(event: any) {
-  const searchTerm: string = event.query;
-  filteredSets.value = await search(searchTerm);
 }
 
 function onMemberRightClick(event: any, option: Concept) {
@@ -128,9 +133,8 @@ function onMemberRightClick(event: any, option: Concept) {
 <style scoped>
 .section-header {
   display: flex;
+  flex-flow: column nowrap;
   justify-content: center;
-  align-items: baseline;
-  height: 5%;
 }
 
 .p-listbox {
@@ -144,10 +148,12 @@ function onMemberRightClick(event: any, option: Concept) {
 }
 
 .member-name {
-  display: flex;
+  display: inline-block;
   width: 100%;
   height: 100%;
-  flex-wrap: wrap;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>
 
