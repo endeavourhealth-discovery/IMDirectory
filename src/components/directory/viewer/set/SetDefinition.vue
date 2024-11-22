@@ -13,7 +13,7 @@
             :loading="downloading"
             aria-controls="overlay_menu"
             aria-haspopup="true"
-            data-testid="downloadButton"
+            data-testid="set-download-button"
             label="Download..."
             type="button"
             @click="displayDialog"
