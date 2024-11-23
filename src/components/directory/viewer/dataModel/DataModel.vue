@@ -166,11 +166,16 @@ function createParameterNode(property:PropertyShape,propertyNode:TreeNode){
 }
 
 function createRangeNode(property: PropertyShape,propertyNode: TreeNode){
-  const ranges = property.clazz
-      ? [property.clazz]
-      : property.node || (property.datatype ? [property.datatype] : null);
+  let ranges :TTIriRef[];
+    if (property.clazz)
+      ranges=[property.clazz];
+    else if (property.node)
+      ranges= property.node;
+    else if (property.datatype)
+      ranges= [property.datatype];
+    else ranges=[];
 
-  if (ranges) {
+  if (ranges.length) {
     for (const [index, range] of ranges.entries()) {
       let name = range.name;
       if (property.rangeType) {
@@ -200,7 +205,15 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
   }
   else {
     const cardinality = `${property['minCount'] || 0} : ${property['maxCount'] || "*"}`;
-    const range = property.clazz ? [property.clazz] : property.node ? property.node : property.datatype ? [property.datatype] : null;
+    let ranges :TTIriRef[];
+    if (property.clazz)
+      ranges=[property.clazz];
+    else if (property.node)
+      ranges= property.node;
+    else if (property.datatype)
+      ranges= [property.datatype];
+    else
+      ranges=[];
     let name = property.path.name;
     if (property.hasValue) {
       const value = property.hasValueType?.["@id"] === RDFS.RESOURCE
@@ -216,7 +229,7 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
       selectable: true,
       loading: false,
       data: {
-        rangeType: isArrayHasLength(range) ? range : [],
+        rangeType: isArrayHasLength(ranges) ? ranges : [],
         cardinality: cardinality,
         typeIcon: getFAIconFromType(propertyType),
         color: getColourFromType(propertyType),
