@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-10-30 09:24:55.
+// Generated using typescript-generator version 3.2.1263 on 2024-11-21 11:49:34.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -173,11 +173,18 @@ export interface ModelDocument {
 
 export interface NodeShape extends TTIriRef {
     property?: PropertyShape[];
+    subType?: TTIriRef[];
 }
 
 export interface Page {
     pageNumber?: number;
     pageSize?: number;
+}
+
+export interface ParameterShape {
+    label?: string;
+    type?: TTIriRef;
+    parameterSubType?: TTIriRef[];
 }
 
 export interface ParameterTemplate extends Entity {
@@ -195,6 +202,7 @@ export interface PropertyShape {
     maxCount?: number;
     componentType: TTIriRef;
     path: TTIriRef;
+    datatype?: TTIriRef;
     node?: TTIriRef[];
     validation?: TTIriRef;
     search?: TTIriRef;
@@ -207,14 +215,20 @@ export interface PropertyShape {
     forceIsValue?: boolean;
     builderChild?: boolean;
     showTitle?: boolean;
+    group?: TTIriRef;
     property?: PropertyShape[];
-    datatype?: TTIriRef;
     clazz?: TTIriRef;
     validationErrorMessage?: string;
     function?: TTIriRef;
+    parameter?: ParameterShape[];
     valueIri?: TTIriRef;
     expression?: NodeShape;
     arrayButtons?: ArrayButtons;
+    hasValue?: any;
+    hasValueType?: TTIriRef;
+    rangeType?: TTIriRef;
+    definition?: string;
+    type?: TTIriRef[];
 }
 
 export interface SetContent {
@@ -255,10 +269,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
-    operator?: Operator;
     valueLabel?: string;
+    unit?: string;
     qualifier?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -292,8 +306,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     descendantsOf?: boolean;
-    memberOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -428,8 +442,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    case?: Case;
     return?: Return;
+    case?: Case;
 }
 
 export interface Update extends TTIriRef {
@@ -480,7 +494,6 @@ export interface EntityDocument {
     preferredName?: string;
     code?: string;
     alternativeCode?: string;
-    matchTerm?: string[];
     scheme?: TTIriRef;
     entityType?: TTIriRef[];
     status?: TTIriRef;
@@ -787,10 +800,10 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
     status?: TTIriRef;
-    code?: string;
+    description?: string;
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface TTContext extends Serializable {
@@ -863,6 +876,14 @@ export const enum Comparison {
     gt = "gt",
     lte = "lte",
     lt = "lt",
+}
+
+export const enum Entail {
+    descendantsOrSelfOf = "descendantsOrSelfOf",
+    memberOf = "memberOf",
+    descendantsOf = "descendantsOf",
+    ancestorsOf = "ancestorsOf",
+    equal = "equal",
 }
 
 export const enum Function {

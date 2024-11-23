@@ -9,7 +9,24 @@
     <span v-if="match.exclude" class="field">NOT</span>
     <span v-if="match.orderBy" class="field">{{ match.orderBy.description }}</span>
     <span v-if="match.path" class="field" v-html="getFormattedPath(match.path)"></span>
-    <span v-if="match.instanceOf" v-html="getFormattedNodes(match.instanceOf)"></span>
+    <span v-if="match.instanceOf">
+      <span v-if="match.instanceOf[0].qualifier" v-html="match.instanceOf[0].qualifier"></span>
+      <span style="color : rgb(0,102,102);" v-html="match.instanceOf[0].name"></span>
+      <span v-if="match.instanceOf.length>1">
+        <div>
+        <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
+          <span v-if="index>0">
+          <ul>
+            <li class="tight-spacing">
+              <span class="or">or</span>
+              <span> {{ item.name }}</span>
+            </li>
+          </ul>
+        </span>
+        </span>
+        </div>
+      </span>
+      </span>
     <span v-if="match.match">(</span>
 
     <div v-if="isArrayHasLength(match.match)">
@@ -101,21 +118,12 @@ function getFormattedPath(paths: IriLD[]) {
 </script>
 
 <style scoped>
-.feature {
-  display: flex;
-  flex-flow: column;
-  margin-left: 1rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
+.tight-spacing {
+  margin-top: -1rem;
+  margin-bottom: 0.5rem;
 }
 
-.feature-indent {
-  display: flex;
-  flex-flow: column;
-  margin-left: 1rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
-}
+
 .then {
   padding-right: 0.2rem;
 }

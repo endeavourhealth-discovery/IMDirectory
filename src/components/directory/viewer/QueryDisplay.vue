@@ -22,6 +22,29 @@
               :operator="query.boolMatch"
             />
           </div>
+          <div v-if="isArrayHasLength(query.where)">
+        <RecursiveWhereDisplay
+            v-for="(nestedWhere, index) in query.where"
+            :where="nestedWhere"
+            :depth="1"
+            :index="index"
+            :key="index"
+            :operator="query.boolWhere"
+            :expandedSet="false"
+        />
+      </div>
+          <div v-if="query.function">
+            <span class="field"> Function : {{query.function?.name}}</span>
+            <span v-if="isArrayHasLength(query.function?.argument)"
+                    v-for="(param) in query.function?.argument">
+                     <ul>
+                       <li class="tight-spacing">
+                       <span class="argument">parameter :{{param.parameter}}</span>
+                        <span v-if="param.valueVariable" class="field"> :,argument: {{param.valueVariable  }}</span>
+                      </li>
+                     </ul>
+            </span>
+          </div>
           <div v-if="isArrayHasLength(query.query)" class="pl-8">
             <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" text @click="toggle" />
             <span class="text-green-500">The cohort query has the following data set definition</span>
@@ -54,6 +77,7 @@
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import MatchSummaryDisplay from "@/components/query/viewer/MatchSummaryDisplay.vue";
 import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
+import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import { QueryService } from "@/services";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { Query } from "@/interfaces/AutoGen";
@@ -130,6 +154,10 @@ function toggle() {
 
 .field {
   padding-right: 1rem;
+}
+
+.argument {
+  padding-left: 2rem;
 }
 
 .rec-query-display {
