@@ -54,7 +54,7 @@
 <script lang="ts" setup>
 import { Match, Where } from "@/interfaces/AutoGen";
 import EditMatch from "./EditMatch.vue";
-import { MenuItem } from "primevue/menuitem";
+import type { MenuItem } from "primevue/menuitem";
 import EditProperty from "./EditProperty.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 

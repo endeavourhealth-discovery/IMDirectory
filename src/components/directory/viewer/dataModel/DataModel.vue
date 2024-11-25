@@ -49,7 +49,7 @@
 import { onMounted, Ref, ref, watch } from "vue";
 import { DataModelService, EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { TreeNode } from "primevue/treenode";
+import type { TreeNode } from "primevue/treenode";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM,RDF, RDFS,SHACL } from "@/vocabulary";
 import { PropertyShape,TTIriRef} from "@/interfaces/AutoGen";

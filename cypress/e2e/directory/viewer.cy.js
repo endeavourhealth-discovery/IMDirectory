@@ -196,10 +196,32 @@ describe("viewer", () => {
           cy.get(".p-tablist-next-button").click();
           cy.get("#viewer-tabs").contains("Provenance").click();
         });
-        it.only("has provenance table", () => {
+        it("has provenance table", () => {
           cy.getByTestId("provenance-table").find("tr").should("have.length.above", 0);
         });
       });
+    });
+  });
+  describe("Set", () => {
+    beforeEach(() => {
+      cy.clearFavouritesAndSuggested();
+      const filters = { types: [], status: [], schemes: [{ "@id": "http://endhealth.info/ceg#", name: "CEG (QMUL) graph" }] };
+      cy.searchAndSelectWithFilters("CEG 16+1 Ethnic category", filters);
+    });
+
+    it("starts with set tab open", () => {
+      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("CEG 16+1");
+      cy.get("#viewer-tabs").find(".p-tab-active").contains("Set");
+    });
+
+    it.only("can download set", () => {
+      const currentDate = dateNowReverse("_");
+      const cypressDownloads = Cypress.config("downloadsFolder");
+      cy.getByTestId("set-download-button").click();
+      cy.getByTestId("download-by-query-options-dialog").contains("csv").click();
+      cy.getByTestId("download-by-query-options-dialog").contains("Core").click();
+      cy.getByTestId("download-by-query-options-dialog").contains("Download").click();
+      cy.readFile(path.join(cypressDownloads + "/CEG 16+1 Ethnic category (set group) - " + currentDate + ".csv"));
     });
   });
 });

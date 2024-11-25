@@ -1,3 +1,4 @@
+import { FilterOptions } from "@/interfaces";
 import "./auth-provider-commands/cognito";
 
 /// <reference types="cypress" />
@@ -83,9 +84,38 @@ Cypress.Commands.add("expandTreeNode", (treeId: string, contains: string) => {
 
 Cypress.Commands.add("searchAndSelect", (searchTerm: string) => {
   cy.get("[data-testid='search-input']", { timeout: 60000 }).type(searchTerm);
-  cy.get(".p-datatable-selectable-row", { timeout: 60000 }).should("have.length.greaterThan", 1).first().click();
+  cy.get(".p-datatable-selectable-row", { timeout: 60000 }).should("have.length.gte", 1).first().click();
   cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 10000 }).contains(searchTerm);
   cy.get("#viewer-tabs", { timeout: 10000 });
+});
+
+Cypress.Commands.add("searchAndSelectWithFilters", (searchTerm: string, filters: FilterOptions) => {
+  cy.getByTestId("topbar-search-button").contains("Search").click();
+  if (filters.status.length) {
+    for (const status of filters.status) {
+      if (status.name) {
+        cy.getByTestId("status-filter").find(".p-multiselect-dropdown").click();
+        cy.get(".p-multiselect-overlay").contains(status.name).click();
+      }
+    }
+  }
+  if (filters.schemes.length) {
+    for (const schemes of filters.schemes) {
+      if (schemes.name) {
+        cy.getByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
+        cy.get(".p-multiselect-overlay").contains(schemes.name).click();
+      }
+    }
+  }
+  if (filters.types.length) {
+    for (const type of filters.types) {
+      if (type.name) {
+        cy.getByTestId("type-filter").find(".p-multiselect-dropdown").click();
+        cy.get(".p-multiselect-overlay").contains(type.name).click();
+      }
+    }
+  }
+  cy.searchAndSelect(searchTerm);
 });
 
 Cypress.Commands.add("setLocalStorage", (localStorageMap: Map<string, string>) => {
@@ -125,6 +155,7 @@ declare global {
       setLocalStorage(localStorageMap: Map<string, string>): Chainable<void>;
       requestWithAuth(method: "POST" | "GET", url: string, body: any): Chainable<any>;
       clearFavouritesAndSuggested(): Chainable<void>;
+      searchAndSelectWithFilters(searchTerm: string, filters: FilterOptions): Chainable<void>;
     }
   }
 }

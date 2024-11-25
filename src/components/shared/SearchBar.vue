@@ -16,7 +16,14 @@
         :pt="{ root: { autocomplete: allowAutocomplete ? 'on' : 'off' } }"
       />
     </InputGroup>
-    <SplitButton class="search-button p-button-secondary" @click="onSearch" label="Search" :model="buttonActions" :loading="searchLoading" />
+    <SplitButton
+      class="search-button p-button-secondary"
+      @click="onSearch"
+      label="Search"
+      :model="buttonActions"
+      :loading="searchLoading"
+      data-testid="topbar-search-button"
+    />
     <Button
       v-if="showFilters"
       v-tooltip.bottom="'Filters'"
