@@ -32,7 +32,7 @@ import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisua
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { byKey } from "@/helpers/Sorters";
 import { EntityService } from "@/services";
-import { TreeNode } from "primevue/treenode";
+import type { TreeNode } from "primevue/treenode";
 import { useToast } from "primevue/usetoast";
 
 interface Props {

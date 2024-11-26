@@ -56,7 +56,7 @@ import { byKey } from "@/helpers/Sorters";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@/vocabulary";
 import { useRouter } from "vue-router";
-import { TreeNode } from "primevue/treenode";
+import type { TreeNode } from "primevue/treenode";
 import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";

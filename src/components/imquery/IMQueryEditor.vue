@@ -57,7 +57,7 @@ import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions
 import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import EditMatch from "./EditMatch.vue";
-import { MenuItem } from "primevue/menuitem";
+import type { MenuItem } from "primevue/menuitem";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
 interface Props {

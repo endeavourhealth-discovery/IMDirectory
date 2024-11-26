@@ -1,6 +1,7 @@
 <template>
-  <div id="query-display">
-    <div v-if="!isObjectHasKeys(query)">No definition found.</div>
+  <div id="query-display" class="flex flex-1 flex-col">
+    <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
+    <div v-else-if="!isObjectHasKeys(query)">No definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
       <div class="flex flex-row gap-2">
         <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
@@ -20,6 +21,29 @@
               :index="index"
               :operator="query.boolMatch"
             />
+          </div>
+          <div v-if="isArrayHasLength(query.where)">
+        <RecursiveWhereDisplay
+            v-for="(nestedWhere, index) in query.where"
+            :where="nestedWhere"
+            :depth="1"
+            :index="index"
+            :key="index"
+            :operator="query.boolWhere"
+            :expandedSet="false"
+        />
+      </div>
+          <div v-if="query.function">
+            <span class="field"> Function : {{query.function?.name}}</span>
+            <span v-if="isArrayHasLength(query.function?.argument)"
+                    v-for="(param) in query.function?.argument">
+                     <ul>
+                       <li class="tight-spacing">
+                       <span class="argument">parameter :{{param.parameter}}</span>
+                        <span v-if="param.valueVariable" class="field"> :,argument: {{param.valueVariable  }}</span>
+                      </li>
+                     </ul>
+            </span>
           </div>
           <div v-if="isArrayHasLength(query.query)" class="pl-8">
             <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" text @click="toggle" />
@@ -53,6 +77,7 @@
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import MatchSummaryDisplay from "@/components/query/viewer/MatchSummaryDisplay.vue";
 import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
+import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import { QueryService } from "@/services";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { Query } from "@/interfaces/AutoGen";
@@ -75,6 +100,7 @@ const query: Ref<Query> = ref({} as Query);
 const sql: Ref<string> = ref("");
 const showSql: Ref<boolean> = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
+const loading = ref(true);
 
 const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
 
@@ -97,8 +123,10 @@ onMounted(async () => {
 });
 
 async function init() {
+  loading.value = true;
   if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, true);
   else if (props.definition) query.value = await QueryService.getDisplayFromQuery(JSON.parse(props.definition), true);
+  loading.value = false;
 }
 
 async function generateSQL() {
@@ -126,6 +154,10 @@ function toggle() {
 
 .field {
   padding-right: 1rem;
+}
+
+.argument {
+  padding-left: 2rem;
 }
 
 .rec-query-display {

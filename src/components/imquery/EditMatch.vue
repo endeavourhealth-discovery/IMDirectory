@@ -166,7 +166,7 @@ import { Bool, Match, Query, SearchResultSummary, Where } from "@/interfaces/Aut
 import MatchSelector from "./MatchSelector.vue";
 import EditWhere from "./EditWhere.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
-import { MenuItem } from "primevue/menuitem";
+import type { MenuItem } from "primevue/menuitem";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";

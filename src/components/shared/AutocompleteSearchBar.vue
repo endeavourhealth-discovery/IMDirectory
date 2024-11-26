@@ -9,6 +9,7 @@
         :placeholder="searchPlaceholder"
         data-testid="search-input"
         autofocus
+        @input="debounceForSearch"
         v-on:keyup.enter="onEnter"
         v-on:keyup="select"
         @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
@@ -17,7 +18,14 @@
         :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
       />
     </IconField>
-    <Button severity="info" @click="showDialog = true" data-testid="autocomplete-search-button" icon="pi pi-search" v-tooltip="'Advanced search'" />
+    <Button
+      :disabled="disabled"
+      severity="info"
+      @click="showDialog = true"
+      data-testid="autocomplete-search-button"
+      icon="pi pi-search"
+      v-tooltip="'Advanced search'"
+    />
     <Popover ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
@@ -138,7 +146,7 @@ watch(
 watch(searchText, newValue => {
   if (!newValue) {
     selectedLocal.value = undefined;
-  } else if (!searchLoading.value && newValue != props.selected?.name) debounceForSearch();
+  }
 });
 
 onMounted(async () => {
@@ -151,12 +159,16 @@ onMounted(async () => {
   searchLoading.value = false;
 });
 
-function debounceForSearch(): void {
-  clearTimeout(debounce.value);
-  debounce.value = window.setTimeout(async () => {
-    results.value = await search();
-  }, 600);
-  showResultsOverlay(event);
+function debounceForSearch(event: any): void {
+  if (!searchText.value) {
+    selectedLocal.value = undefined;
+  } else if (!searchLoading.value && searchText.value != props.selected?.name) {
+    clearTimeout(debounce.value);
+    debounce.value = window.setTimeout(async () => {
+      results.value = await search();
+    }, 600);
+    showResultsOverlay(event);
+  }
 }
 
 function select(event: KeyboardEvent) {

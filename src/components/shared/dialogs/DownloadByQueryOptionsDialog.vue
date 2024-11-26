@@ -1,5 +1,12 @@
 <template>
-  <Dialog :closable="false" :close-on-escape="false" :modal="true" :visible="showDialog" header="Please select download options">
+  <Dialog
+    :closable="false"
+    :close-on-escape="false"
+    :modal="true"
+    :visible="showDialog"
+    header="Please select download options"
+    data-testid="download-by-query-options-dialog"
+  >
     <div class="flex-container content-container">
       <div class="item-container">
         <span class="text">Format</span>

@@ -3,7 +3,7 @@ import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { AllowableChildProperty } from "@/interfaces";
 import { DirectService, QueryService } from "@/services";
 import { IM, QUERY, RDF, RDFS, SHACL } from "@/vocabulary";
-import { TreeNode } from "primevue/treenode";
+import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { QueryRequest } from "@/interfaces/AutoGen";
 

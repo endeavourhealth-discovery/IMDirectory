@@ -30,7 +30,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@/helpers/TTTransform";
 import { Where, PropertyRef, Match, Query } from "@/interfaces/AutoGen";
 import { SHACL } from "@/vocabulary";
-import { TreeNode } from "primevue/treenode";
+import type { TreeNode } from "primevue/treenode";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 interface Props {

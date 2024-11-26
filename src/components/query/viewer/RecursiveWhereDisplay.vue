@@ -1,8 +1,9 @@
 <template>
+  <component id="recursive-match-display" :is="operator===Bool.or&&index>0 ? 'div' : 'span'">
   <span v-if="index === 0 && operator === Bool.or" class="either">either</span>
   <span v-else-if="index === 1 && !where.where && operator === Bool.and" style="padding-right: 1rem">with</span>
   <span v-else-if="index > 1 && !where.where && operator === Bool.and">,</span>
-  <span v-else-if="operator === Bool.or" class="operator">{{ operator }}</span>
+  <span v-else-if="operator === Bool.or" :class="operator">{{ operator }}</span>
   <span v-if="where.name" class="field">{{ where.name }}</span>
   <span v-if="where.valueLabel || where.qualifier">
     <span class="value-field" v-html="getFormattedValue(where)"></span>
@@ -13,6 +14,7 @@
       <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
     </span>
   </span>
+    <span v-if="where.valueVariable" class="node-ref">as {{where.valueVariable }}</span>
   <span v-if="where.nodeRef" class="node-ref">{{ where.nodeRef }}</span>
   <span v-if="expandedSet && isArrayHasLength(where.is)">
     <span>, defined as</span>
@@ -32,8 +34,8 @@
     </div>
   </span>
 
-  <div v-if="isArrayHasLength(where.where)" :style="indentationStyle(depth + 1)">
-    <span :class="where.operator"> {{ operator }}</span>
+  <div v-if="isArrayHasLength(where.where)" :style="indentationStyle(true,depth + 1)">
+    <span v-if="index>0" :class="where.operator"> {{ operator }}</span>
     <span>(</span>
     <div>
       <RecursiveWhereDisplay
@@ -51,6 +53,7 @@
   </div>
 
   <RecursiveMatchDisplay v-if="where.match" :match="where.match" :depth="depth + 1" :inline="true" :index="0" :expanded="childExpand" />
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -83,9 +86,11 @@ function getFormattedValue(value: Assignable) {
   return result;
 }
 
-function indentationStyle(depth: number) {
+
+function indentationStyle(newLine:boolean, depth: number) {
+
   return {
-    marginLeft: `${depth}rem`
+    paddingLeft: newLine ? depth * 2 + "rem" : "0rem"
   };
 }
 </script>

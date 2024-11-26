@@ -1,6 +1,6 @@
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { Bool, Match, Query, Where, Node } from "@/interfaces/AutoGen";
-import { MenuItem } from "primevue/menuitem";
+import type { MenuItem } from "primevue/menuitem";
 
 function setupIMQueryBuilderActions() {
   function isFlatMatch(match: Match): boolean {

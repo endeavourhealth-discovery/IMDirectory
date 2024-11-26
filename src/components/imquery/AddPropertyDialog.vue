@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import { onMounted, Ref, ref, watch } from "vue";
 import { Match, Query, Where } from "@/interfaces/AutoGen";
-import { TreeNode } from "primevue/treenode";
+import type { TreeNode } from "primevue/treenode";
 import { buildProperty } from "@/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";

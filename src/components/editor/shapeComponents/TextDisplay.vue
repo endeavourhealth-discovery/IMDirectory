@@ -3,7 +3,14 @@
     <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="input-loading-container">
       <div class="tooltip-container" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
-        <InputText disabled class="p-inputtext input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
+        <InputText
+          disabled
+          class="p-inputtext input-text"
+          :class="invalid && showValidation && 'invalid'"
+          v-model="userInput"
+          type="text"
+          data-testid="text-display"
+        />
       </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     </div>

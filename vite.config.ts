@@ -5,9 +5,6 @@ import * as path from "path";
 
 export default defineConfig({
   plugins: [vue()],
-  define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
-  },
   optimizeDeps: {
     esbuildOptions: {
       plugins: [esbuildCommonjs(["google-palette"])]
@@ -24,7 +21,6 @@ export default defineConfig({
     }
   },
   resolve: {
-    dedupe: ["vue"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "./runtimeConfig": "./runtimeConfig.browser"

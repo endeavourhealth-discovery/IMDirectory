@@ -1,10 +1,10 @@
 import Env from "./Env";
 import axios from "axios";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { TTIriRef, NodeShape} from "@/interfaces/AutoGen";
 const API_URL = Env.API + "api/dataModel";
 
 const DataModelService = {
-  async getDataModelProperties(iri: string, parent: null | string): Promise<any> {
+  async getDataModelProperties(iri: string, parent: null | string): Promise<NodeShape> {
     return axios.get(API_URL + "/public/dataModelProperties", {
       params: {
         iri: iri,

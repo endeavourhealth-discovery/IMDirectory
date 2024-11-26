@@ -83,7 +83,7 @@ import { IM, RDF, RDFS } from "@/vocabulary";
 import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import OverlaySummary from "./OverlaySummary.vue";
-import { TreeNode } from "primevue/treenode";
+import type { TreeNode } from "primevue/treenode";
 import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
