@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-11-21 11:49:34.
+// Generated using typescript-generator version 3.2.1263 on 2024-11-26 13:30:50.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -269,10 +269,12 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    valueLabel?: string;
-    unit?: string;
-    qualifier?: string;
     operator?: Operator;
+    argument?: Argument[];
+    valueLabel?: string;
+    qualifier?: string;
+    unit?: string;
+    valueParameter?: string;
 }
 
 export interface Case {
@@ -305,15 +307,14 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
     name?: Function;
-    argument?: Argument[];
     range?: Range;
 }
 
@@ -442,8 +443,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -457,7 +458,8 @@ export interface Value extends Assignable {
 export interface When {
     where?: Where;
     then?: string;
-    case_?: Case;
+    exists?: boolean;
+    case?: Case;
 }
 
 export interface Where extends PropertyRef, Assignable {
@@ -785,8 +787,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    nativeMethod?: boolean;
     className?: string;
+    nativeMethod?: boolean;
 }
 
 export interface Exception extends Throwable {
@@ -800,9 +802,9 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
+    prefixes?: TTPrefix[];
     status?: TTIriRef;
     description?: string;
-    prefixes?: TTPrefix[];
     code?: string;
 }
 

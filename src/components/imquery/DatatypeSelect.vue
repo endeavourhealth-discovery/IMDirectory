@@ -44,7 +44,7 @@
       <div v-if="propertyType === 'is'" class="property-input">
         <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" data-testid="property-operator-select" />
         <InputText type="text" placeholder="value" v-model="property.value" data-testid="property-value-input" />
-        <Select type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" data-testid="property-unit-select" />
+        <ParameterSelect v-if="property['@id']" :property-iri="property['@id']" @update-parameter-value="updateParameterValue" />
         <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
       </div>
       <div v-else-if="propertyType === 'between'" class="property-input">
@@ -82,10 +82,11 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 import { IM, XSD } from "@/vocabulary";
-import { Assignable, Range, Where, Operator } from "@/interfaces/AutoGen";
+import { Assignable, Range, Where, Operator, TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import DateSelect from "./DateSelect.vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
+import ParameterSelect from "./ParameterSelect.vue";
 interface Props {
   property: Where;
   datatype: string;
@@ -161,6 +162,13 @@ onMounted(() => {
   else if (props.property.isNotNull) propertyType.value = "notNull";
   else if (props.datatype !== IM.DATE_TIME) propertyType.value = "is";
 });
+
+function updateParameterValue(selected: TTIriRef) {
+  console.log("ereere");
+  console.log(selected);
+  // TODO: populate the property with the parameter
+  throw new Error("not implemented yet");
+}
 </script>
 
 <style scoped>
