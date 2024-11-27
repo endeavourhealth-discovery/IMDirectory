@@ -5,11 +5,12 @@ import { EntityService, UserService } from "@/services";
 import { HistoryItem, RecentActivityItem } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
+import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
 
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
-    cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
-    cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
+    cookiesEssentialAccepted: localStorageWithExpiry.getItem("cookiesEssentialAccepted") === true ? true : false,
+    cookiesOptionalAccepted: localStorageWithExpiry.getItem("cookiesOptionalAccepted") === true ? true : false,
     currentPreset: undefined,
     currentPrimaryColor: undefined,
     currentSurfaceColor: undefined,
@@ -19,8 +20,8 @@ export const useUserStore = defineStore("user", {
     favourites: [] as string[],
     history: [] as HistoryItem[],
     recentLocalActivity: [] as RecentActivityItem[],
-    snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false,
-    uprnAgreementAccepted: localStorage.getItem("uprnAgreementAccepted") === "true" ? true : false,
+    snomedLicenseAccepted: localStorageWithExpiry.getItem("snomedLicenseAccepted") === true ? true : false,
+    uprnAgreementAccepted: localStorageWithExpiry.getItem("uprnAgreementAccepted") === true ? true : false,
     organisations: [] as string[]
   }),
   getters: {
@@ -49,11 +50,11 @@ export const useUserStore = defineStore("user", {
     },
     updateCookiesEssentialAccepted(bool: boolean) {
       this.cookiesEssentialAccepted = bool;
-      localStorage.setItem("cookiesEssentialAccepted", String(bool));
+      localStorageWithExpiry.setItem("cookiesEssentialAccepted", bool);
     },
     updateCookiesOptionalAccepted(bool: boolean) {
       this.cookiesOptionalAccepted = bool;
-      localStorage.setItem("cookiesOptionalAccepted", String(bool));
+      localStorageWithExpiry.setItem("cookiesOptionalAccepted", bool);
     },
     async initFavourites() {
       let favourites: string[] = [];
@@ -72,30 +73,26 @@ export const useUserStore = defineStore("user", {
     },
     async getAllFromUserDatabase(): Promise<void> {
       if (this.currentUser) {
+        this.clearAllFromLocalStorage();
         const preset = await UserService.getUserPreset();
         if (preset) {
           this.currentPreset = preset;
-          localStorage.setItem("preset", preset);
         }
         const primaryColor = await UserService.getUserPrimaryColor();
         if (primaryColor) {
           this.currentPrimaryColor = primaryColor;
-          localStorage.setItem("primaryColor", primaryColor);
         }
         const surfaceColor = await UserService.getUserSurfaceColor();
         if (surfaceColor) {
           this.currentSurfaceColor = surfaceColor;
-          localStorage.setItem("surfaceColor", surfaceColor);
         }
         const darkMode = await UserService.getUserDarkMode();
         if (darkMode) {
           this.darkMode = darkMode;
-          localStorage.setItem("darkMode", darkMode === true ? "true" : "");
         }
         const scaleResult = await UserService.getUserScale();
         if (scaleResult) {
           this.currentScale = scaleResult;
-          localStorage.setItem("scale", scaleResult);
         }
         const favourites = await UserService.getUserFavourites();
         if (favourites?.length) this.favourites = favourites;
@@ -106,16 +103,16 @@ export const useUserStore = defineStore("user", {
       } else this.getAllFromLocalStorage();
     },
     getAllFromLocalStorage(): void {
-      const preset = localStorage.getItem("preset");
+      const preset = localStorageWithExpiry.getItem("preset");
       if (preset && Object.values(PrimeVuePresetThemes).includes(preset as PrimeVuePresetThemes)) this.currentPreset = preset as PrimeVuePresetThemes;
-      const darkMode = localStorage.getItem("darkMode");
+      const darkMode = localStorageWithExpiry.getItem("darkMode");
       if (darkMode === "true") this.darkMode = true;
       else this.darkMode = false;
-      const primaryColor = localStorage.getItem("primaryColor");
+      const primaryColor = localStorageWithExpiry.getItem("primaryColor");
       if (primaryColor && Object.values(PrimeVueColors).includes(primaryColor as PrimeVueColors)) this.currentPrimaryColor = primaryColor as PrimeVueColors;
-      const surfaceColor = localStorage.getItem("surfaceColor");
+      const surfaceColor = localStorageWithExpiry.getItem("surfaceColor");
       if (surfaceColor && Object.values(PrimeVueColors).includes(surfaceColor as PrimeVueColors)) this.currentSurfaceColor = surfaceColor as PrimeVueColors;
-      const scale = localStorage.getItem("scale");
+      const scale = localStorageWithExpiry.getItem("scale");
       if (scale) this.currentScale = scale;
     },
     clearAllFromLocalStorage(): void {
@@ -176,38 +173,38 @@ export const useUserStore = defineStore("user", {
     async updatePreset(preset: PrimeVuePresetThemes) {
       this.currentPreset = preset;
       if (this.currentUser) await UserService.updateUserPreset(preset);
-      localStorage.setItem("preset", preset);
+      else localStorageWithExpiry.setItem("preset", preset);
     },
     async updatePrimaryColor(color: PrimeVueColors) {
       this.currentPrimaryColor = color;
       if (this.currentUser) await UserService.updateUserPrimaryColor(color);
-      localStorage.setItem("primaryColor", color);
+      else localStorageWithExpiry.setItem("primaryColor", color);
     },
     async updateSurfaceColor(color: PrimeVueColors) {
       this.currentSurfaceColor = color;
       if (this.currentUser) await UserService.updateUserSurfaceColor(color);
-      localStorage.setItem("surfaceColor", color);
+      else localStorageWithExpiry.setItem("surfaceColor", color);
     },
     async updateDarkMode(bool: boolean) {
       this.darkMode = bool;
       if (this.currentUser) await UserService.updateUserDarkMode(bool);
-      localStorage.setItem("darkMode", bool === true ? "true" : "");
+      else localStorageWithExpiry.setItem("darkMode", bool);
     },
     async updateCurrentScale(scale: string) {
       this.currentScale = scale;
       if (this.currentUser) await UserService.updateUserScale(scale);
-      localStorage.setItem("scale", scale);
+      else localStorageWithExpiry.setItem("scale", scale);
     },
     updateCurrentUser(user: any) {
       this.currentUser = user;
     },
     updateSnomedLicenseAccepted(bool: boolean) {
       this.snomedLicenseAccepted = bool;
-      localStorage.setItem("snomedLicenseAccepted", bool === true ? "true" : "");
+      localStorageWithExpiry.setItem("snomedLicenseAccepted", bool);
     },
     updateUprnAgreementAccepted(bool: boolean) {
       this.uprnAgreementAccepted = bool;
-      localStorage.setItem("uprnAgreementAccepted", bool === true ? "true" : "");
+      localStorageWithExpiry.setItem("uprnAgreementAccepted", bool);
     },
     async updateOrganisations(organisations: string[]) {
       if (this.currentUser) await UserService.updateUserOrganisations(organisations);
