@@ -5,7 +5,7 @@
     </span>
 
     <span v-if="isArrayHasLength(query.match) || isArrayHasLength(query.where) || isArrayHasLength(query.return)">
-      <Button text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" @click="matchToggle" />
+      <Button text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
       <span v-if="query.name">{{ query.name }}</span>
       <span v-if="matchExpand && isArrayHasLength(query.match)">
         <RecursiveMatchDisplay
