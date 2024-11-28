@@ -6,6 +6,7 @@ export class QUERY {
   public static readonly ALLOWABLE_RANGES = QUERY.NAMESPACE + "AllowableRanges";
   public static readonly ALLOWABLE_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "AllowableRangeSuggestions";
   public static readonly GET_DESCENDANTS = QUERY.NAMESPACE + "GetDescendants";
+  public static readonly GET_SUBCLASSES = QUERY.NAMESPACE + "GetSubClasses";
   public static readonly GET_ANCESTORS = QUERY.NAMESPACE + "GetAncestors";
   public static readonly SEARCH_CONTAINED_IN = QUERY.NAMESPACE + "SearchContainedIn";
   public static readonly ALLOWABLE_CHILD_TYPES = QUERY.NAMESPACE + "AllowableChildTypes";
