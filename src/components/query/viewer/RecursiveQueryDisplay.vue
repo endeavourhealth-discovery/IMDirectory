@@ -30,10 +30,14 @@
           :expandedSet="false"
         />
       </span>
-      <span v-if="matchExpand && isArrayHasLength(query.return)">
-        <div class="pl-8 text-green-500">Fields (columns)</div>
-        <RecursiveReturnDisplay v-for="nestedReturn in query.return" :select="nestedReturn" :inline="false" :pathLevel="0" />
-      </span>
+      <div v-if="matchExpand && query.return && isArrayHasLength(query.return)">
+        <ReturnColumns :select="query.return" class="pl-8" />
+        <h3 class="pl-8">Column paths:</h3>
+        <div class="pl-8">
+          <small class="pl-8 text-green-500">*Path [Column title]</small>
+          <RecursiveReturnDisplay v-for="nestedReturn in query.return" :select="nestedReturn" />
+        </div>
+      </div>
     </span>
   </div>
 </template>
@@ -45,6 +49,7 @@ import { onMounted, Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
+import ReturnColumns from "./ReturnColumns.vue";
 
 interface Props {
   query: Query;
