@@ -32,7 +32,7 @@
       </span>
       <div v-if="matchExpand && query.return && isArrayHasLength(query.return)">
         <ReturnColumns :select="query.return" class="pl-8" />
-        <h3 class="pl-8">Column paths:</h3>
+        <h4 class="pl-8">Column paths:</h4>
         <div class="pl-8">
           <small class="pl-8 text-green-500">*Path [Column title]</small>
           <RecursiveReturnDisplay v-for="nestedReturn in query.return" :select="nestedReturn" />

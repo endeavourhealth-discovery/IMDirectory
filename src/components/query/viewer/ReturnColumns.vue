@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Columns:</h3>
+    <h4>Columns:</h4>
     <div class="pl-8">
       <table>
         <tr>
