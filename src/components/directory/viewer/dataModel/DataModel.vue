@@ -52,7 +52,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import type { TreeNode } from "primevue/treenode";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM,RDF, RDFS,SHACL } from "@/vocabulary";
-import { PropertyShape,TTIriRef} from "@/interfaces/AutoGen";
+import { PropertyShape,TTIriRef,PropertyRange} from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
@@ -166,37 +166,61 @@ function createParameterNode(property:PropertyShape,propertyNode:TreeNode){
 }
 
 function createRangeNode(property: PropertyShape,propertyNode: TreeNode){
-  let ranges :TTIriRef[];
-    if (property.clazz)
-      ranges=[property.clazz];
-    else if (property.node)
-      ranges= property.node;
-    else if (property.datatype)
-      ranges= [property.datatype];
-    else ranges=[];
-
-  if (ranges.length) {
-    for (const [index, range] of ranges.entries()) {
-      let name = range.name;
-      if (property.rangeType) {
-        const rangeNode = {
-          key: propertyNode.key + "-" + index.toString(),
-          label: name,
-          children: [] as TreeNode[],
-          selectable: true,
-          loading: false,
-          data: {
-            typeIcon: getFAIconFromType([property.rangeType]),
-            color: getColourFromType([property.rangeType]),
-            iri: range["@id"]
-          },
-          type: "type"
-        } as TreeNode;
-        propertyNode.children!.push(rangeNode);
+  let range :PropertyRange| null= null;
+  let rangeType: TTIriRef| null = null;
+    if (property.clazz) {
+      range = property.clazz;
+      if (property.clazz.type)
+        rangeType= property.clazz.type;
+    }
+    else if (property.node){
+      range = property.node;
+      if (property.node.type)
+        rangeType= property.node.type
+    }
+    else if (property.datatype){
+      range = property.datatype;
+      if (property.datatype.type)
+        rangeType= property.datatype.type
+    }
+    if (range&&rangeType) {
+      const rangeNode = {
+        key: propertyNode.key + "-0",
+        label: range.name,
+        children: [] as TreeNode[],
+        selectable: true,
+        loading: false,
+        data: {
+          typeIcon: getFAIconFromType([rangeType]),
+          color: getColourFromType([rangeType]),
+          iri: range["@id"]
+        },
+        type: "type"
+      } as TreeNode;
+      propertyNode.children!.push(rangeNode);
+      createQualifierNodes(range,rangeNode)
       }
+}
+
+function createQualifierNodes(range:PropertyRange,rangeNode:TreeNode){
+  if (range.qualifier &&range.type){
+    for (const [index,qualifier] of range.qualifier.entries()){
+      const qualifierNode={
+        key: rangeNode.key + "-"+ index,
+        label: qualifier.name,
+        children: [] as TreeNode[],
+        selectable: true,
+        loading: false,
+        data: {
+          typeIcon: getFAIconFromType([range.type]),
+          color: getColourFromType([range.type]),
+          iri: qualifier["@id"]
+        },
+        type: "type"
+      }
+      rangeNode.children!.push(qualifierNode);
     }
   }
-
 }
 
 function createPropertyNode(property: PropertyShape, index: any, propertyList: TreeNode[], parentKey: string) {
@@ -205,15 +229,24 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
   }
   else {
     const cardinality = `${property['minCount'] || 0} : ${property['maxCount'] || "*"}`;
-    let ranges :TTIriRef[];
-    if (property.clazz)
-      ranges=[property.clazz];
-    else if (property.node)
-      ranges= property.node;
-    else if (property.datatype)
-      ranges= [property.datatype];
-    else
-      ranges=[];
+    let range :PropertyRange| null=null;
+    let rangeType: TTIriRef| null=null;
+    if (property.clazz) {
+      range = property.clazz;
+      if (property.clazz.type)
+        rangeType= property.clazz.type;
+    }
+    else if (property.node){
+      range = property.node;
+      if (property.node.type)
+        rangeType= property.node.type
+    }
+    else if (property.datatype){
+      range = property.datatype;
+      if (property.datatype.type)
+        rangeType= property.datatype.type
+    }
+
     let name = property.path.name;
     if (property.hasValue) {
       const value = property.hasValueType?.["@id"] === RDFS.RESOURCE
@@ -222,25 +255,28 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
       name += ` (${value})`;
     }
     const propertyType = property.type as TTIriRef[];
-    const propertyNode = {
-      key: parentKey + "-" + index.toString(),
-      label: name,
-      children: [] as TreeNode[],
-      selectable: true,
-      loading: false,
-      data: {
-        rangeType: isArrayHasLength(ranges) ? ranges : [],
-        cardinality: cardinality,
-        typeIcon: getFAIconFromType(propertyType),
-        color: getColourFromType(propertyType),
-        iri: property.path["@id"]
-      },
-      type: "property"
-    } as TreeNode;
+    if (range &&rangeType){
+        const propertyNode = {
+          key: parentKey + "-" + index.toString(),
+          label: name,
+          children: [] as TreeNode[],
+          selectable: true,
+          loading: false,
+          data: {
+            rangeType: [range],
+            cardinality: cardinality,
+            typeIcon: getFAIconFromType(propertyType),
+            color: getColourFromType(propertyType),
+            iri: property.path["@id"]
+          },
+          type: "property"
+        } as TreeNode;
 
-    createRangeNode(property,propertyNode);
-    createParameterNode(property,propertyNode);
-    propertyList.push(propertyNode);
+        createRangeNode(property, propertyNode);
+        createParameterNode(property, propertyNode);
+        propertyList.push(propertyNode);
+      }
+
   }
 }
 

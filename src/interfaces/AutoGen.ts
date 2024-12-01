@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-11-21 11:49:34.
+// Generated using typescript-generator version 3.2.1263 on 2024-11-28 17:25:02.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -193,6 +193,13 @@ export interface ParameterTemplate extends Entity {
     valueTemplate?: ValueTemplate[];
 }
 
+export interface PropertyRange extends TTIriRef {
+    pattern?: string;
+    intervalUnit?: TTIriRef;
+    qualifier?: PropertyRange[];
+    type?: TTIriRef;
+}
+
 export interface PropertyShape {
     label?: string;
     comment?: string;
@@ -202,8 +209,8 @@ export interface PropertyShape {
     maxCount?: number;
     componentType: TTIriRef;
     path: TTIriRef;
-    datatype?: TTIriRef;
-    node?: TTIriRef[];
+    datatype?: PropertyRange;
+    node?: PropertyRange;
     validation?: TTIriRef;
     search?: TTIriRef;
     select?: TTIriRef[];
@@ -217,7 +224,7 @@ export interface PropertyShape {
     showTitle?: boolean;
     group?: TTIriRef;
     property?: PropertyShape[];
-    clazz?: TTIriRef;
+    clazz?: PropertyRange;
     validationErrorMessage?: string;
     function?: TTIriRef;
     parameter?: ParameterShape[];
@@ -226,7 +233,6 @@ export interface PropertyShape {
     arrayButtons?: ArrayButtons;
     hasValue?: any;
     hasValueType?: TTIriRef;
-    rangeType?: TTIriRef;
     definition?: string;
     type?: TTIriRef[];
 }
@@ -269,9 +275,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    valueLabel?: string;
-    unit?: string;
     qualifier?: string;
+    valueLabel?: string;
+    valueParameter?: string;
+    unit?: TTIriRef;
     operator?: Operator;
 }
 
@@ -305,9 +312,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -442,8 +449,8 @@ export interface ReturnProperty {
     description?: string;
     match?: Match[];
     boolMatch?: Bool;
-    return?: Return;
     case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -457,7 +464,8 @@ export interface Value extends Assignable {
 export interface When {
     where?: Where;
     then?: string;
-    case_?: Case;
+    exists?: boolean;
+    case?: Case;
 }
 
 export interface Where extends PropertyRef, Assignable {
@@ -800,10 +808,10 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     description?: string;
-    prefixes?: TTPrefix[];
+    status?: TTIriRef;
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
