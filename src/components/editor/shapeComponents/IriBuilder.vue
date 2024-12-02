@@ -16,7 +16,6 @@
         />
         <span v-if="includePrefix" class="prefix">{{ prefix }}</span>
         <InputText
-          :disabled="disableCodeEdit"
           class="p-inputtext-lg input-text"
           :class="invalid && showValidation && 'invalid'"
           v-model="userInput"
@@ -99,19 +98,6 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const disableCodeEdit: ComputedRef<boolean> = computed(() => {
-  if (
-    loading.value ||
-    props.mode === "edit" ||
-    (props.mode === "create" &&
-      fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE &&
-      selectedDropdownOption.value &&
-      (selectedDropdownOption.value["@id"] === IM.NAMESPACE || selectedDropdownOption.value["@id"] === SNOMED.NAMESPACE))
-  )
-    return true;
-  else return false;
-});
-
 const disableSchemeEdit: ComputedRef<boolean> = computed(() => {
   if (loading.value || props.mode === "edit") return true;
   else return false;
@@ -185,12 +171,6 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
   }
 });
 
-watch(selectedDropdownOption, async () => {
-  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE) {
-    userInput.value = await generateCode();
-  }
-});
-
 let key = props.shape.path["@id"];
 
 onMounted(async () => {
@@ -200,12 +180,7 @@ onMounted(async () => {
     const prefixArg = props.shape.argument?.find(arg => arg.parameter === "prefix");
     if (prefixArg && prefixArg.valueData) prefix.value = prefixArg.valueData;
   }
-
   setSelectedOption();
-  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE) {
-    userInput.value = await generateCode();
-  }
-
   loading.value = false;
 });
 
@@ -239,16 +214,6 @@ function deconstructInputValue(inputValue: String) {
     selectedDropdownOption.value = found;
     userInput.value = inputValue.substring(found["@id"].length);
   }
-}
-
-async function generateCode(): Promise<string> {
-  if (selectedDropdownOption.value && isConcept(editorEntity?.value[RDF.TYPE])) {
-    loading.value = true;
-    const result = await FunctionService.runFunction(IM_FUNCTION.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
-    loading.value = false;
-    return result.code;
-  }
-  return "";
 }
 
 async function getDropdownOptions() {
