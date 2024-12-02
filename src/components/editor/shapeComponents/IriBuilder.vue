@@ -100,16 +100,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 }
 
 const disableCodeEdit: ComputedRef<boolean> = computed(() => {
-  if (
-    loading.value ||
-    props.mode === "edit" ||
-    (props.mode === "create" &&
-      fullShape?.value?.["@id"] === EDITOR.CONCEPT_SHAPE &&
-      selectedDropdownOption.value &&
-      selectedDropdownOption.value["@id"] === SNOMED.NAMESPACE)
-  )
-    return true;
-  else return false;
+  return loading.value || props.mode === "edit";
 });
 
 const disableSchemeEdit: ComputedRef<boolean> = computed(() => {
