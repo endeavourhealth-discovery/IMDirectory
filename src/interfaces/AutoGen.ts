@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-12-02 15:19:29.
+// Generated using typescript-generator version 3.2.1263 on 2024-12-02 15:46:17.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -120,17 +120,6 @@ export interface ConceptSet extends Entity {
     definition?: Query;
     hasMember?: TTIriRef[];
     usedIn?: TTIriRef[];
-}
-
-export interface DataModelSummary {
-    name?: string;
-    description?: string;
-    status: TTIriRef;
-    scheme: TTIriRef;
-    type: TTIriRef[];
-    intervalUnit?: TTIriRef[];
-    qualifier?: TTIriRef[];
-    iri: string;
 }
 
 export interface Entity {
@@ -627,6 +616,8 @@ export interface SearchResultSummary {
     key?: string[];
     isA?: TTIriRef[];
     termCode?: SearchTermCode[];
+    intervalUnit?: TTIriRef[];
+    qualifier?: TTIriRef[];
     iri: string;
 }
 

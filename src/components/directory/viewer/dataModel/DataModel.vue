@@ -12,7 +12,7 @@
               class="mr-2"
               fixed-width
           />
-          <DMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </template>
       <template #type="{ node }: any">
@@ -25,7 +25,7 @@
               class="mr-2"
               fixed-width
           />
-          <DMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
        </template>
       <template #parameter="{ node }: any">
@@ -38,7 +38,7 @@
                   class="mr-2"
                   fixed-width
               />
-              <DMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+              <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </template>
     </Tree>
@@ -50,7 +50,7 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { DataModelService, EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import type { TreeNode } from "primevue/treenode";
-import DMViewerLink from "@/components/shared/DMViewerLink.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM,RDF, RDFS,SHACL } from "@/vocabulary";
 import { PropertyShape,TTIriRef,PropertyRange} from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
