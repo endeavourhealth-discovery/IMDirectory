@@ -12,7 +12,7 @@
               class="mr-2"
               fixed-width
           />
-          <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <DMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </template>
       <template #type="{ node }: any">
@@ -25,7 +25,7 @@
               class="mr-2"
               fixed-width
           />
-          <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <DMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
        </template>
       <template #parameter="{ node }: any">
@@ -38,7 +38,7 @@
                   class="mr-2"
                   fixed-width
               />
-              <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+              <DMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </template>
     </Tree>
@@ -50,7 +50,7 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { DataModelService, EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import type { TreeNode } from "primevue/treenode";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import DMViewerLink from "@/components/shared/DMViewerLink.vue";
 import { IM,RDF, RDFS,SHACL } from "@/vocabulary";
 import { PropertyShape,TTIriRef,PropertyRange} from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
@@ -198,30 +198,13 @@ function createRangeNode(property: PropertyShape,propertyNode: TreeNode){
         type: "type"
       } as TreeNode;
       propertyNode.children!.push(rangeNode);
-      createQualifierNodes(range,rangeNode)
       }
 }
 
-function createQualifierNodes(range:PropertyRange,rangeNode:TreeNode){
-  if (range.qualifier &&range.type){
-    for (const [index,qualifier] of range.qualifier.entries()){
-      const qualifierNode={
-        key: rangeNode.key + "-"+ index,
-        label: qualifier.name,
-        children: [] as TreeNode[],
-        selectable: true,
-        loading: false,
-        data: {
-          typeIcon: getFAIconFromType([range.type]),
-          color: getColourFromType([range.type]),
-          iri: qualifier["@id"]
-        },
-        type: "type"
-      }
-      rangeNode.children!.push(qualifierNode);
-    }
-  }
-}
+
+
+
+
 
 function createPropertyNode(property: PropertyShape, index: any, propertyList: TreeNode[], parentKey: string) {
   if (property.group){
