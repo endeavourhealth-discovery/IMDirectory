@@ -122,8 +122,8 @@
                   severity="info"
                   v-tooltip.top="getInheritedTooltipName(row.inherited)"
                   class="cursor-pointer align-middle"
-                  ><span>(Inherited <IMFontAwesomeIcon icon="fa-duotone fa-arrow-up-right-from-square" /> )</span></tag
-                >
+                  ><span>(Inherited <IMFontAwesomeIcon icon="fa-duotone fa-arrow-up-right-from-square" /></span
+                ></tag>
               </td>
             </tr>
           </template>
@@ -293,11 +293,7 @@ function processProps() {
 }
 
 function getInheritedTooltipName(inherited: TTIriRef[]) {
-  let inheritedFrom = "";
-  for (const i of inherited) {
-    inheritedFrom = inheritedFrom + i.name;
-  }
-  return inheritedFrom;
+  return inherited[0].name;
 }
 
 function processProperty(newData: any[], newInheritedData: any[], property: any) {
