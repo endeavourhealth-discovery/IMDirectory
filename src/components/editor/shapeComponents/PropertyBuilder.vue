@@ -293,7 +293,7 @@ function processProps() {
 }
 
 function getInheritedTooltipName(inherited: TTIriRef[]) {
-  return inherited[0].name;
+  return inherited.length ? inherited[0].name : "";
 }
 
 function processProperty(newData: any[], newInheritedData: any[], property: any) {
