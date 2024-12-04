@@ -4,7 +4,7 @@
 // Everything else
 
 import { TTIriRef } from "../interfaces/AutoGen";
-import { IM, OWL, RDF, SHACL } from "../vocabulary";
+import { IM, OWL, RDF, RDFS,SHACL } from "../vocabulary";
 
 export function isOfTypes(conceptTypeElements: TTIriRef[], ...types: string[]): boolean {
   if (!conceptTypeElements || !conceptTypeElements.length) {
@@ -42,7 +42,7 @@ export function isQuery(entityTypes: TTIriRef[]): boolean {
 }
 
 export function isRecordModel(entityTypes: TTIriRef[]): boolean {
-  return isOfTypes(entityTypes, SHACL.NODESHAPE);
+  return isOfTypes(entityTypes, SHACL.NODESHAPE,RDFS.DATATYPE);
 }
 
 export function isFolder(entityTypes: TTIriRef[]): boolean {
