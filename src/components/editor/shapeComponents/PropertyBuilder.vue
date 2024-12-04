@@ -122,8 +122,8 @@
                   severity="info"
                   v-tooltip.top="getInheritedTooltipName(row.inherited)"
                   class="cursor-pointer align-middle"
-                  ><span>(Inherited <IMFontAwesomeIcon icon="fa-duotone fa-arrow-up-right-from-square" /></span
-                ></tag>
+                  ><span>(Inherited <IMFontAwesomeIcon icon="fa-duotone fa-arrow-up-right-from-square" /> )</span></tag
+                >
               </td>
             </tr>
           </template>
