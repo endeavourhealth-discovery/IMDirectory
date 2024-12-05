@@ -116,7 +116,14 @@
                 <AutocompleteSearchBar v-model:selected="row.range" :disabled="true" data-testid="property-range-search" />
               </td>
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-nw items-center">
-                <tag v-if="row.inherited && row.inherited.length > 0" severity="info">(Inherited)</tag>
+                <tag
+                  v-if="row.inherited && row.inherited.length > 0"
+                  @click="directService.view(row.inherited[0]['@id'])"
+                  severity="info"
+                  v-tooltip.top="getInheritedTooltipName(row.inherited)"
+                  class="cursor-pointer align-middle"
+                  ><span>(Inherited <IMFontAwesomeIcon icon="fa-duotone fa-arrow-up-right-from-square" /> )</span></tag
+                >
               </td>
             </tr>
           </template>
@@ -128,7 +135,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Property, SearchOptions } from "@/interfaces";
+import { Property, RecentActivityItem, SearchOptions } from "@/interfaces";
 import { PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
@@ -140,6 +147,7 @@ import { useToast } from "primevue/usetoast";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -282,6 +290,10 @@ function processProps() {
   }
   dmProperties.value = newData;
   dmPropertiesInherited.value = newInheritedData;
+}
+
+function getInheritedTooltipName(inherited: TTIriRef[]) {
+  return inherited.length ? inherited[0].name : "";
 }
 
 function processProperty(newData: any[], newInheritedData: any[], property: any) {
@@ -561,7 +573,7 @@ function updateEntity() {
 .property {
   display: flex;
   margin-bottom: 4px;
-  min-height: 49px;
+  height: 49px;
 }
 
 .property > * {

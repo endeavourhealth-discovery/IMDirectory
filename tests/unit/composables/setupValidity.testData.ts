@@ -148,7 +148,7 @@ export default {
                 order: 6,
                 select: [
                   {
-                    "@id": QUERY.GET_DESCENDANTS
+                    "@id": QUERY.GET_SUBCLASSES
                   }
                 ],
                 name: "Status",

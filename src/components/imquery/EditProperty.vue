@@ -31,6 +31,7 @@
       </Popover>
       <AddNewFeatureDialog
         v-model:show-dialog="showBuildFeatureDialog"
+        :show-navigate="false"
         :can-clear-path="false"
         :dataModelIri="dataModelIri"
         :has-next-step="false"

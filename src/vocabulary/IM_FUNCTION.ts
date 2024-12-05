@@ -11,7 +11,6 @@ export class IM_FUNCTION {
   public static readonly IM1_SCHEME_OPTIONS = IM_FUNCTION.NAMESPACE + "IM1SchemeOptions";
   public static readonly SCHEME_FROM_IRI = IM_FUNCTION.NAMESPACE + "SchemeFromIri";
   public static readonly GET_USER_EDITABLE_SCHEMES = IM_FUNCTION.NAMESPACE + "GetUserEditableSchemes";
-  public static readonly GENERATE_IRI_CODE = IM_FUNCTION.NAMESPACE + "GenerateIriCode";
   public static readonly IS_TYPE = IM_FUNCTION.NAMESPACE + "IsType";
   public static readonly ALLOWABLE_PROPERTIES = IM_FUNCTION.NAMESPACE + "AllowableProperties";
   public static readonly ALLOWABLE_RANGES = IM_FUNCTION.NAMESPACE + "AllowableRanges";

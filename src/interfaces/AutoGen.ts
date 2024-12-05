@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-11-26 13:30:50.
+// Generated using typescript-generator version 3.2.1263 on 2024-12-02 15:46:17.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -193,6 +193,13 @@ export interface ParameterTemplate extends Entity {
     valueTemplate?: ValueTemplate[];
 }
 
+export interface PropertyRange extends TTIriRef {
+    pattern?: string;
+    intervalUnit?: TTIriRef;
+    qualifier?: PropertyRange[];
+    type?: TTIriRef;
+}
+
 export interface PropertyShape {
     label?: string;
     comment?: string;
@@ -202,8 +209,8 @@ export interface PropertyShape {
     maxCount?: number;
     componentType: TTIriRef;
     path: TTIriRef;
-    datatype?: TTIriRef;
-    node?: TTIriRef[];
+    datatype?: PropertyRange;
+    node?: PropertyRange;
     validation?: TTIriRef;
     search?: TTIriRef;
     select?: TTIriRef[];
@@ -217,7 +224,7 @@ export interface PropertyShape {
     showTitle?: boolean;
     group?: TTIriRef;
     property?: PropertyShape[];
-    clazz?: TTIriRef;
+    clazz?: PropertyRange;
     validationErrorMessage?: string;
     function?: TTIriRef;
     parameter?: ParameterShape[];
@@ -226,7 +233,6 @@ export interface PropertyShape {
     arrayButtons?: ArrayButtons;
     hasValue?: any;
     hasValueType?: TTIriRef;
-    rangeType?: TTIriRef;
     definition?: string;
     type?: TTIriRef[];
 }
@@ -269,12 +275,11 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
-    argument?: Argument[];
-    valueLabel?: string;
+    unit?: TTIriRef;
     qualifier?: string;
-    unit?: string;
+    operator?: Operator;
     valueParameter?: string;
+    valueLabel?: string;
 }
 
 export interface Case {
@@ -308,8 +313,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -610,6 +615,8 @@ export interface SearchResultSummary {
     key?: string[];
     isA?: TTIriRef[];
     termCode?: SearchTermCode[];
+    intervalUnit?: TTIriRef[];
+    qualifier?: TTIriRef[];
     iri: string;
 }
 
@@ -806,6 +813,7 @@ export interface TTEntity extends TTNode, Serializable {
     status?: TTIriRef;
     description?: string;
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {

@@ -4,20 +4,21 @@ import { useUserStore } from "@/stores/userStore";
 import { EntityService } from "@/services";
 import { RDFS } from "@/vocabulary";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
 
 export const useEditorStore = defineStore("editor", {
   state: (): EditorState => ({
-    editorIri: localStorage.getItem("editorSelectedIri") as string,
-    editorSavedEntity: JSON.parse(localStorage.getItem("editorSavedEntity") ?? "{}") as any,
+    editorIri: localStorageWithExpiry.getItem("editorSelectedIri"),
+    editorSavedEntity: localStorageWithExpiry.getItem("editorSavedEntity") ?? {},
     editorHasChanges: false,
     findInEditorTreeIri: "",
     refreshEditorTree: false,
-    eclEditorSavedString: localStorage.getItem("eclEditorSavedString") ?? ("" as string)
+    eclEditorSavedString: localStorageWithExpiry.getItem("eclEditorSavedString") ?? ""
   }),
   actions: {
     updateEditorIri(iri: string) {
       this.editorIri = iri;
-      if (useUserStore().cookiesOptionalAccepted) localStorage.setItem("editorSelectedIri", iri);
+      if (useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("editorSelectedIri", iri);
     },
     async getConceptName(): Promise<string> {
       if (this.editorIri) {
@@ -28,7 +29,7 @@ export const useEditorStore = defineStore("editor", {
     },
     updateEditorSavedEntity(entity: any) {
       this.editorSavedEntity = entity;
-      if (entity && useUserStore().cookiesOptionalAccepted) localStorage.setItem("editorSavedEntity", JSON.stringify(entity));
+      if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("editorSavedEntity", entity);
       else localStorage.removeItem("editorSavedEntity");
     },
     updateEditorHasChanges(bool: boolean) {
@@ -42,7 +43,7 @@ export const useEditorStore = defineStore("editor", {
     },
     updateEclEditorSavedString(ecl: string) {
       this.eclEditorSavedString = ecl;
-      if (ecl && useUserStore().cookiesOptionalAccepted) localStorage.setItem("eclEditorSavedString", ecl);
+      if (ecl && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("eclEditorSavedString", ecl);
       else localStorage.removeItem("eclEditorSavedString");
     }
   }

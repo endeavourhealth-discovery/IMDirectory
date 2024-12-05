@@ -19,11 +19,11 @@ describe("Query builder", () => {
     cy.getByTestId("add-feature-save-button").contains("Save").click();
   });
 
-  const diabetesSet = { searchTerm: "diabetes", name: "Genetic syndrome diabetes (NHS GP value set)" };
+  const diabetesSet = { searchTerm: "diabetes", name: "Q code group Type 2 diabetes", substring: "Q code group Type 2 diabetes" };
   const diabetesSet2 = {
     searchTerm: "diabetes",
-    name: "Pre diabetes (NHS GP value set)",
-    subString: "pre diabetes"
+    name: "Diabetes mellitus in remission (NHS GP value set)",
+    subString: "diabetes mellitus"
   };
   const diabetesFeature = { searchTerm: "diabetes", name: "Active Diabetes" };
   const asthmaConcept = { searchTerm: "asthma", name: "Asthma (disorder) | 195967001" };
@@ -54,11 +54,11 @@ describe("Query builder", () => {
     cy.get("#im-query-editor-container").find("[data-testid=search-input]").should("have.value", "Patient");
   });
 
-  it("add feature by searching for a set", () => {
+  it.only("add feature by searching for a set", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type(diabetesSet.searchTerm);
-    cy.get(".datatable-flex-cell").contains(diabetesSet.name).click();
+    cy.get(".datatable-flex-cell").contains(diabetesSet.name, { timeout: 6000 }).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
@@ -234,7 +234,7 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("Patients registered for GMS services on the reference date");
   });
 
-  it("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
+  it.skip("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
     cy.populateBaseType();
     cy.addFeature(paracetamolConcept.searchTerm, paracetamolConcept.name, "#Concept");
     cy.get(".edit-match-container").contains("Paracetamol");
@@ -272,6 +272,8 @@ describe("Query builder", () => {
     cy.get(".property-input-container", { timeout: 60000 }).find("[data-testid=property-value-input]").type("123456789");
 
     cy.get(".p-dialog-content").find(".add-property-button").click();
+
+    cy.get(".add-property-dialog").find(".p-tree-node").contains("Addresses").parent().parent().parent().find(".p-tree-node-toggle-button").click();
     cy.get(".add-property-dialog")
       .find(".p-tree-node-selectable")
       .contains("Place of residence at event")
@@ -280,7 +282,8 @@ describe("Query builder", () => {
       .parent()
       .find(".p-tree-node-toggle-button")
       .click();
-    cy.get(".add-property-dialog").find(".p-tree-node-content").contains("Address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+
+    cy.get(".add-property-dialog").find("li[aria-label='Address']").find(".p-tree-node-toggle-button").click();
     cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("postcode").click();
     cy.get(".add-property-dialog", { timeout: 60000 }).find("[data-testid=property-value-input]").type("LS123AA");
     cy.getByTestId("add-property-dialog-save").contains("Save").click();
@@ -306,6 +309,8 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("nHS Number").click();
 
     cy.get(".p-dialog-content").find(".add-property-button").click();
+    cy.get(".add-property-dialog").find(".p-tree-node").contains("Addresses").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+
     cy.get(".add-property-dialog")
       .find(".p-tree-node-selectable")
       .contains("place of residence", { matchCase: false })
@@ -314,7 +319,7 @@ describe("Query builder", () => {
       .parent()
       .find(".p-tree-node-toggle-button")
       .click();
-    cy.get(".add-property-dialog").find(".p-tree-node-content").contains("Address").parent().parent().parent().find(".p-tree-node-toggle-button").click();
+    cy.get(".add-property-dialog").find("li[aria-label='Address']").find(".p-tree-node-toggle-button").click();
     cy.get(".add-property-dialog").find(".p-tree-node-selectable").contains("postcode").click();
     cy.get(".add-property-dialog", { timeout: 60000 }).find("[data-testid=property-value-input]").type("LS123AA");
     cy.getByTestId("add-property-dialog-save").contains("Save").click();

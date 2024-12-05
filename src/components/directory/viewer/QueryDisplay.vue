@@ -23,30 +23,29 @@
             />
           </div>
           <div v-if="isArrayHasLength(query.where)">
-        <RecursiveWhereDisplay
-            v-for="(nestedWhere, index) in query.where"
-            :where="nestedWhere"
-            :depth="1"
-            :index="index"
-            :key="index"
-            :operator="query.boolWhere"
-            :expandedSet="false"
-        />
-      </div>
+            <RecursiveWhereDisplay
+              v-for="(nestedWhere, index) in query.where"
+              :where="nestedWhere"
+              :depth="1"
+              :index="index"
+              :key="index"
+              :operator="query.boolWhere"
+              :expandedSet="false"
+            />
+          </div>
           <div v-if="query.function">
-            <span class="field"> Function : {{query.function?.name}}</span>
-            <span v-if="isArrayHasLength(query.function?.argument)"
-                    v-for="(param) in query.function?.argument">
-                     <ul>
-                       <li class="tight-spacing">
-                       <span class="argument">parameter :{{param.parameter}}</span>
-                        <span v-if="param.valueVariable" class="field"> :,argument: {{param.valueVariable  }}</span>
-                      </li>
-                     </ul>
+            <span class="field"> Function : {{ query.function?.name }}</span>
+            <span v-if="isArrayHasLength(query.function?.argument)" v-for="param in query.function?.argument">
+              <ul>
+                <li class="tight-spacing">
+                  <span class="argument">parameter :{{ param.parameter }}</span>
+                  <span v-if="param.valueVariable" class="field"> :,argument: {{ param.valueVariable }}</span>
+                </li>
+              </ul>
             </span>
           </div>
           <div v-if="isArrayHasLength(query.query)" class="pl-8">
-            <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" text @click="toggle" />
+            <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="toggle" />
             <span class="text-green-500">The cohort query has the following data set definition</span>
 
             <span v-if="dataSetExpanded">

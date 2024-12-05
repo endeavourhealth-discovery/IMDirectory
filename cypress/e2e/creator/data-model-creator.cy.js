@@ -5,7 +5,7 @@ describe("creator", () => {
     cy.acceptLicenseAndLogin();
     cy.get("#shortcuts-container", { timeout: 60000 }).find(".shortcut").contains("Creator").click();
     cy.visitNewTab("/#/creator/");
-    cy.get(".type-buttons-container", { timeout: 60000 }).contains("Data model/Node shape").click();
+    cy.get(".type-buttons-container", { timeout: 60000 }).contains("Type model /Node shape").click();
   });
   describe("data model creator", () => {
     it("can navigate to data model creator", () => {
@@ -49,7 +49,7 @@ describe("creator", () => {
     it("can add and delete subclass of", () => {
       cy.get(".array-builder-container").contains("Subclass of").parent().parent().as("subclassOf");
       cy.get("@subclassOf").find("#autocomplete-search").click();
-      cy.get("@subclassOf").find("#autocomplete-search").type("and");
+      cy.get("@subclassOf").find("#autocomplete-search").type("pat");
       cy.get(".listbox-item").first().click();
       cy.get("@subclassOf").find('[data-testid="add-button"]').click();
       cy.get("@subclassOf").find(".entity-search-item-container").should("have.length", 2);
