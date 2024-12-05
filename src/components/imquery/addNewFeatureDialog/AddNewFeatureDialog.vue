@@ -4,82 +4,80 @@
       <ProgressSpinner />
     </div>
     <div class="select-property-wrapper flex flex-auto flex-col gap-2">
-      <div class="card">
-        <Tabs v-model:value="tabValue" v-if="active === 1">
-          <TabList>
-            <Tab value="0">Search</Tab>
-            <Tab value="1" v-if="showNavigate">Navigate</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel value="0">
-              <div class="directory-search-dialog-content">
-                <div class="search-bar">
-                  <SearchBarWithRadioFilters
-                    :lockTypeFilters="lockTypeFilters"
-                    :show-all-type-filters="showAllTypeFilters"
-                    @on-search="onSearch"
-                    @on-type-select="onTypeSelect"
-                  />
-                </div>
-                <div class="vertical-divider">
-                  <div class="left-container">
-                    <NavTree
-                      v-if="rootEntities != undefined"
-                      :find-in-tree="findInDialogTree"
-                      :root-entities="rootEntities"
-                      :selectedIri="treeIri"
-                      @found-in-tree="findInDialogTree = false"
-                      @row-selected="node => (treeIri = node.data)"
-                    />
-                  </div>
-                  <div class="right-container">
-                    <SearchResultsAndDetails
-                      v-model:selected-path="selectedPath"
-                      :add-default-value="addDefaultValue"
-                      :can-clear-path="canClearPath"
-                      :data-model-iri="dataModelIri"
-                      :im-query="imQuery"
-                      :propertyIri="propertyIri"
-                      :search-term="searchTerm"
-                      :selectedIri="treeIri"
-                      :selectedType="selectedType"
-                      :update-search="updateSearch"
-                      @locate-in-tree="iri => (treeIri = iri)"
-                      @go-to-next-step="active = 2"
-                      @selected-iri="updateSelectedIri"
-                    />
-                  </div>
-                </div>
-              </div>
-            </TabPanel>
-            <TabPanel value="1" v-if="showNavigate">
-              <div class="directory-search-dialog-content">
-                <AddProperty
-                  v-if="props.dataModelIri"
-                  :dataModelIri="props.dataModelIri"
-                  :match="editMatch"
-                  :show-variable-options="false"
-                  @on-match-add="onMatchAdd"
-                  @on-property-add="onPropertyAdd"
+      <Tabs v-model:value="tabValue" v-if="active === 1">
+        <TabList>
+          <Tab value="0">Search</Tab>
+          <Tab value="1" v-if="showNavigate">Navigate</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel value="0">
+            <div class="directory-search-dialog-content">
+              <div class="search-bar">
+                <SearchBarWithRadioFilters
+                  :lockTypeFilters="lockTypeFilters"
+                  :show-all-type-filters="showAllTypeFilters"
+                  @on-search="onSearch"
+                  @on-type-select="onTypeSelect"
                 />
               </div>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-        <EditMatch v-if="active === 2 && editMatch" :edit-match="editMatch" :focused-id="editMatch['@id']" :is-root-feature="true" />
-        <div v-if="tabValue === '0'" class="flex-0 populate-property-actions flex justify-end gap-2">
-          <Button label="Cancel" severity="secondary" @click="visible = false" />
-          <Button v-if="hasQueryOrFeatureSelected" data-testid="add-feature-save-query-button" label="Save" @click="addQueryOrFeature" />
-          <Button
-            v-else-if="active === 1 && hasNextStep"
-            :disabled="disableSelect"
-            data-testid="add-feature-ok-button"
-            iconPos="right"
-            label="OK"
-            @click="onOKButtonClick"
-          />
-          <Button v-else data-testid="add-feature-save-button" iconPos="right" label="Save" @click="save" />
-        </div>
+              <div class="vertical-divider">
+                <div class="left-container">
+                  <NavTree
+                    v-if="rootEntities != undefined"
+                    :find-in-tree="findInDialogTree"
+                    :root-entities="rootEntities"
+                    :selectedIri="treeIri"
+                    @found-in-tree="findInDialogTree = false"
+                    @row-selected="node => (treeIri = node.data)"
+                  />
+                </div>
+                <div class="right-container">
+                  <SearchResultsAndDetails
+                    v-model:selected-path="selectedPath"
+                    :add-default-value="addDefaultValue"
+                    :can-clear-path="canClearPath"
+                    :data-model-iri="dataModelIri"
+                    :im-query="imQuery"
+                    :propertyIri="propertyIri"
+                    :search-term="searchTerm"
+                    :selectedIri="treeIri"
+                    :selectedType="selectedType"
+                    :update-search="updateSearch"
+                    @locate-in-tree="iri => (treeIri = iri)"
+                    @go-to-next-step="active = 2"
+                    @selected-iri="updateSelectedIri"
+                  />
+                </div>
+              </div>
+            </div>
+          </TabPanel>
+          <TabPanel value="1" v-if="showNavigate">
+            <div class="directory-search-dialog-content">
+              <AddProperty
+                v-if="props.dataModelIri"
+                :dataModelIri="props.dataModelIri"
+                :match="editMatch"
+                :show-variable-options="false"
+                @on-match-add="onMatchAdd"
+                @on-property-add="onPropertyAdd"
+              />
+            </div>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+      <EditMatch v-if="active === 2 && editMatch" :edit-match="editMatch" :focused-id="editMatch['@id']" :is-root-feature="true" />
+      <div v-if="tabValue === '0'" class="flex-0 populate-property-actions flex justify-end gap-2">
+        <Button label="Cancel" severity="secondary" @click="visible = false" />
+        <Button v-if="hasQueryOrFeatureSelected" data-testid="add-feature-save-query-button" label="Save" @click="addQueryOrFeature" />
+        <Button
+          v-else-if="active === 1 && hasNextStep"
+          :disabled="disableSelect"
+          data-testid="add-feature-ok-button"
+          iconPos="right"
+          label="OK"
+          @click="onOKButtonClick"
+        />
+        <Button v-else data-testid="add-feature-save-button" iconPos="right" label="Save" @click="save" />
       </div>
     </div>
   </Dialog>
@@ -363,7 +361,7 @@ async function onPropertyAdd(property: Where) {
   overflow: auto;
   display: flex;
   flex-flow: row nowrap;
-  height: calc(100vh - 18rem);
+  height: calc(100vh - 25rem);
 }
 
 .left-container {

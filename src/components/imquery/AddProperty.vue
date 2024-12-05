@@ -1,17 +1,19 @@
 <template>
-  <div class="add-property-dialog flex">
-    <QueryNavTree
-      v-model:selected-property="selectedProperty"
-      :dm-iri="dataModelIri"
-      :editMatch="editMatch"
-      :show-variable-options="showVariableOptions"
-      class="w-4/12"
-    />
-    <EditProperty :data-model-iri="editWhereDMIri || dataModelIri" :edit-match="editMatch" :property="editWhere" :show-delete="false" />
-  </div>
-  <div class="button-bar gap-1">
-    <Button data-testid="add-property-dialog-cancel" label="Cancel" severity="secondary" type="button" @click="emit('onDialogUpdate', false)"></Button>
-    <Button :disabled="!selectedProperty" data-testid="add-property-dialog-save" label="Save" type="button" @click="save"></Button>
+  <div class="add-property-dialog">
+    <div class="add-property-dialog-tree flex">
+      <QueryNavTree
+        v-model:selected-property="selectedProperty"
+        :dm-iri="dataModelIri"
+        :editMatch="editMatch"
+        :show-variable-options="showVariableOptions"
+        class="w-4/12"
+      />
+      <EditProperty :data-model-iri="editWhereDMIri || dataModelIri" :edit-match="editMatch" :property="editWhere" :show-delete="false" />
+    </div>
+    <div class="button-bar gap-1">
+      <Button data-testid="add-property-dialog-cancel" label="Cancel" severity="secondary" type="button" @click="emit('onDialogUpdate', false)"></Button>
+      <Button :disabled="!selectedProperty" data-testid="add-property-dialog-save" label="Save" type="button" @click="save"></Button>
+    </div>
   </div>
 </template>
 
@@ -178,5 +180,16 @@ function getEditWhereDMIriRecursively(where: Where, found: any[]) {
 .button-bar {
   display: flex;
   justify-content: end;
+  align-content: end;
+}
+
+.add-property-dialog {
+  display: flex;
+  flex-flow: column;
+  height: calc(100vh - 18rem);
+}
+
+.add-property-dialog-tree {
+  flex: 1;
 }
 </style>
