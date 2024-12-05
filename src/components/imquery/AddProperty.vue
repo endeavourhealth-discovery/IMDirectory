@@ -1,6 +1,6 @@
 <template>
-  <Dialog v-model:visible="visible" :header="header" :style="{ minWidth: '50vw' }" maximizable modal>
-    <div class="add-property-dialog flex">
+  <div class="add-property-dialog">
+    <div class="add-property-dialog-tree flex">
       <QueryNavTree
         v-model:selected-property="selectedProperty"
         :dm-iri="dataModelIri"
@@ -10,11 +10,11 @@
       />
       <EditProperty :data-model-iri="editWhereDMIri || dataModelIri" :edit-match="editMatch" :property="editWhere" :show-delete="false" />
     </div>
-    <template #footer>
-      <Button data-testid="add-property-dialog-cancel" label="Cancel" severity="secondary" type="button" @click="visible = false"></Button>
+    <div class="button-bar gap-1">
+      <Button data-testid="add-property-dialog-cancel" label="Cancel" severity="secondary" type="button" @click="emit('onDialogUpdate', false)"></Button>
       <Button :disabled="!selectedProperty" data-testid="add-property-dialog-save" label="Save" type="button" @click="save"></Button>
-    </template>
-  </Dialog>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -29,9 +29,7 @@ import EditProperty from "./EditProperty.vue";
 import { QueryService } from "@/services";
 
 interface Props {
-  showDialog: boolean;
   match: Match;
-  header: string;
   dataModelIri: string;
   showVariableOptions: boolean;
 }
@@ -41,26 +39,13 @@ const emit = defineEmits({
   onClose: () => true,
   onPropertyAdd: (_property: Where) => true,
   onMatchAdd: (_match: Match) => true,
-  "update:showDialog": payload => typeof payload === "boolean"
+  onDialogUpdate: payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
 const selectedProperty: Ref<TreeNode | undefined> = ref();
-const visible: Ref<boolean> = ref(false);
 const editWhere: Ref<Where> = ref({});
 const editWhereDMIri: Ref<string> = ref("");
 const whereOrMatch: Ref<Where | Match> = ref({});
-watch(
-  () => props.showDialog,
-  newValue => {
-    visible.value = newValue;
-  }
-);
-
-watch(visible, newValue => {
-  if (!newValue) {
-    emit("update:showDialog", newValue);
-  }
-});
 
 watch(
   () => cloneDeep(props.match),
@@ -124,7 +109,7 @@ async function save() {
   if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
     emit("onMatchAdd", whereOrMatch.value as Match);
   } else emit("onPropertyAdd", whereOrMatch.value as Where);
-  visible.value = false;
+  emit("onDialogUpdate", false);
 }
 
 function getEditWhere(whereMatch: any) {
@@ -190,5 +175,21 @@ function getEditWhereDMIriRecursively(where: Where, found: any[]) {
 
 .p-stepper-panels {
   overflow: auto;
+}
+
+.button-bar {
+  display: flex;
+  justify-content: end;
+  align-content: end;
+}
+
+.add-property-dialog {
+  display: flex;
+  flex-flow: column;
+  height: calc(100vh - 18rem);
+}
+
+.add-property-dialog-tree {
+  flex: 1;
 }
 </style>

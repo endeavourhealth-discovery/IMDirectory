@@ -1,6 +1,7 @@
 <template>
   <AddNewFeatureDialog
     v-model:show-dialog="showBuildFeatureDialog"
+    :show-navigate="true"
     :dataModelIri="matchTypeOfIri"
     :header="'Add new feature'"
     :show-variable-options="false"
@@ -12,6 +13,7 @@
 
   <AddNewFeatureDialog
     v-model:show-dialog="showBuildThenFeatureDialog"
+    :show-navigate="true"
     :dataModelIri="matchTypeOfIri"
     :header="'Add test'"
     :show-variable-options="false"
