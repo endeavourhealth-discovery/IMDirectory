@@ -1,7 +1,7 @@
 <template>
   <component id="recursive-match-display" :is="!inline ? 'div' : 'span'" :style="indentationStyle(inline, depth)">
     <span v-if="match.hasInlineSet">
-      <Button class="button-chevron" text :icon="!expandSet ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" @click="toggle" />
+      <Button class="button-chevron" text :icon="!expandSet ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle" />
     </span>
     <span v-if="match.includeIf" class="then">{{ match.includeIf }}</span>
     <span v-if="index > 0" :class="operator">{{ operator }}</span>
@@ -11,22 +11,22 @@
     <span v-if="match.path" class="field" v-html="getFormattedPath(match.path)"></span>
     <span v-if="match.instanceOf">
       <span v-if="match.instanceOf[0].qualifier" v-html="match.instanceOf[0].qualifier"></span>
-      <span style="color : rgb(0,102,102);" v-html="match.instanceOf[0].name"></span>
-      <span v-if="match.instanceOf.length>1">
+      <span style="color: rgb(0, 102, 102)" v-html="match.instanceOf[0].name"></span>
+      <span v-if="match.instanceOf.length > 1">
         <div>
-        <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
-          <span v-if="index>0">
-          <ul>
-            <li class="tight-spacing">
-              <span class="or">or</span>
-              <span> {{ item.name }}</span>
-            </li>
-          </ul>
-        </span>
-        </span>
+          <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
+            <span v-if="index > 0">
+              <ul>
+                <li class="tight-spacing">
+                  <span class="or">or</span>
+                  <span> {{ item.name }}</span>
+                </li>
+              </ul>
+            </span>
+          </span>
         </div>
       </span>
-      </span>
+    </span>
     <span v-if="match.match">(</span>
 
     <div v-if="isArrayHasLength(match.match)">
@@ -122,7 +122,6 @@ function getFormattedPath(paths: IriLD[]) {
   margin-top: -1rem;
   margin-bottom: 0.5rem;
 }
-
 
 .then {
   padding-right: 0.2rem;

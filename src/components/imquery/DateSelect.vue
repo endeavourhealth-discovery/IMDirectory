@@ -69,10 +69,11 @@
 
 <script setup lang="ts">
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Operator, Where, PropertyRef, Range } from "@/interfaces/AutoGen";
+import {Operator, Where, PropertyRef, Range, TTIriRef} from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import { Ref, onMounted, ref, watch } from "vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
+import { IM} from "@/vocabulary";
 
 interface Props {
   property: Where;
@@ -86,7 +87,7 @@ const selectedValueB: Ref<any> = ref();
 const operatorOptions = ["=", ">=", ">", "<", "<="];
 const numberValue: Ref<number> = ref(0);
 const operator: Ref<Operator | undefined> = ref();
-const unit: Ref<string | undefined> = ref();
+const unit: Ref<TTIriRef | undefined> = ref();
 const propertyRef: Ref<PropertyRef | undefined> = ref({});
 const sign: Ref<"-" | "+" | undefined> = ref();
 
@@ -136,13 +137,18 @@ function initValues() {
 
 function handlePropertyType() {
   clearAllProperties();
+  const dateType= IM.NAMESPACE+"Date";
   switch (propertyType.value) {
     case "is":
       props.property.operator = Operator.eq;
       operator.value = props.property.operator;
       break;
     case "between":
-      props.property.range = { from: { operator: "=", unit: "DATE", value: "" }, to: { operator: "=", unit: "DATE", value: "" } } as Range;
+      props.property.range = {
+        from: { operator: "=",
+            unit: {"@id": dateType}, value: "" },
+        to: { operator: "=", unit: {"@id": dateType},
+          value: "" } } as Range;
       break;
     case "within":
       props.property.operator = Operator.eq;
@@ -187,9 +193,10 @@ function populateBetweenDate() {
   delete props.property.relativeTo;
   delete props.property.isNotNull;
   delete props.property.isNull;
+  const dateType=IM.NAMESPACE+"Date";
 
   if (!isObjectHasKeys(props.property, ["range"]))
-    props.property.range = { from: { operator: "=", unit: "DATE", value: "" }, to: { operator: "=", unit: "DATE", value: "" } } as Range;
+    props.property.range = { from: { operator: "=", unit:{"@id": dateType}, value: "" }, to: { operator: "=", unit: {"@id": dateType}, value: "" } } as Range;
   if (selectedValueA.value) props.property.range!.from.value = getStringFromDate(selectedValueA.value);
   if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);
 }

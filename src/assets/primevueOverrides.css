@@ -30,6 +30,7 @@
 
 .p-button-link {
   font-size: unset;
+  padding: 0;
 }
 
 .p-splitter-gutter {

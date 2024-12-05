@@ -1,52 +1,41 @@
 <template>
-  <span v-if="isArrayHasLength(select.property)">
-    <span v-for="(item, index) in select.property">
-      <component :is="!inline || index > 0 ? 'div' : 'span'" :style="{ paddingLeft: inline ? '0' : '4rem' }">
-        <span v-if="pathLevel === 0 && getAs(item) != null" class="field">title={{ getAs(item) }} ( path=</span>
-        <span v-if="item.name">{{ item.name }}</span>
-        <span v-if="item.return">-></span>
-        <RecursiveReturnDisplay v-if="item.return" :select="item.return" :inline="true" :path-level="pathLevel + 1" />
-        <span v-if="item.as">)</span>
-      </component>
-    </span>
-  </span>
+  <div v-if="isArrayHasLength(select.property)" class="pl-8">
+    <div v-for="(item, index) in select.property">
+      <div class="flex flex-row items-center gap-2">
+        <Button
+          v-if="item.return"
+          class="button-chevron"
+          text
+          :icon="!expandReturn ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'"
+          @click="toggle"
+        />
+        <div v-else class="w-10"></div>
+        <div v-tooltip="item['@id']">{{ item.name }}</div>
+        <div v-if="item.as" class="font-bold">[{{ item.as }}]</div>
+      </div>
+      <div v-if="item.return && expandReturn">
+        <RecursiveReturnDisplay :select="item.return" />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { Return, ReturnProperty } from "@/interfaces/AutoGen";
-import { Ref, ref, watch } from "vue";
+import { Return } from "@/interfaces/AutoGen";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { ref } from "vue";
 
 interface Props {
   select: Return;
-  inline: boolean;
-  pathLevel: number;
 }
 
 const props = defineProps<Props>();
 
-function getAs(property: ReturnProperty): string | null {
-  if (property.as) return property.as;
-  if (property.return) {
-    if (property.return?.property) {
-      for (const subProperty of property.return.property) {
-        const as = getAs(subProperty);
-        if (as != null) return as;
-      }
-    }
-  }
-  return null;
+const expandReturn = ref(true);
+
+function toggle() {
+  expandReturn.value = !expandReturn.value;
 }
 </script>
 
-<style scoped>
-.field {
-  padding-right: 0.2rem;
-}
-.return {
-  color: var(--p-teal-500);
-  padding-left: 0.5rem;
-}
-</style>
-
-<style></style>
+<style scoped></style>
