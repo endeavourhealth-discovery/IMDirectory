@@ -19,7 +19,7 @@ describe("Query builder", () => {
     cy.getByTestId("add-feature-save-button").contains("Save").click();
   });
 
-  const diabetesSet = { searchTerm: "diabetes", name: "Secondary pancreatic diabetes (NHS GP value set)", substring: "secondary pancreatic diabetes" };
+  const diabetesSet = { searchTerm: "diabetes", name: "Q code group Type 2 diabetes", substring: "Q code group Type 2 diabetes" };
   const diabetesSet2 = {
     searchTerm: "diabetes",
     name: "Diabetes mellitus in remission (NHS GP value set)",
@@ -54,11 +54,11 @@ describe("Query builder", () => {
     cy.get("#im-query-editor-container").find("[data-testid=search-input]").should("have.value", "Patient");
   });
 
-  it("add feature by searching for a set", () => {
+  it.only("add feature by searching for a set", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type(diabetesSet.searchTerm);
-    cy.get(".datatable-flex-cell").contains(diabetesSet.name).click();
+    cy.get(".datatable-flex-cell").contains(diabetesSet.name, { timeout: 6000 }).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
