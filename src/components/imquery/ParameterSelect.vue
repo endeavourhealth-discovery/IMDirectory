@@ -52,9 +52,9 @@ onMounted(async () => {
 
 async function getParameters() {
   let options: Option[] = [];
-  const response = await EntityService.getPartialEntity(props.propertyIri, [IM.NAMESPACE + "parameter"]);
-  if (isArrayHasLength(response?.[IM.NAMESPACE + "parameter"])) {
-    const param = response[IM.NAMESPACE + "parameter"][0];
+  const response = await EntityService.getPartialEntity(props.propertyIri, []);
+  if (isArrayHasLength(response?.[IM.PARAMETER])) {
+    const param = response[IM.PARAMETER][0];
     if (param[RDFS.LABEL]) placeholder.value = param[RDFS.LABEL];
     if (isArrayHasLength(param[SHACL.CLASS]) && param[SHACL.CLASS][0]["@id"]) options = await getOptions(param[SHACL.CLASS][0]["@id"]);
   }

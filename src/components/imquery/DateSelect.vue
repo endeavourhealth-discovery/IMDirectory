@@ -14,8 +14,12 @@
   />
   <div v-if="propertyType === 'is'" class="flex">
     <Select type="text" placeholder="operator" :options="operatorOptions" v-model="operator" @change="populateIsDate" />
-    <Select type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" @change="populateIsDate" />
+    <Select type="text" placeholder="value type" :options="['date', 'variable', 'partial date']" v-model="valueType" @change="populateIsDate" />
     <DatePicker v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" @update:model-value="populateIsDate" />
+    <div v-else-if="valueType === 'partial date'">
+      <Select type="text" placeholder="units" :options="intervalOptions" v-model="property.intervalUnit" option-label="name" option-value="value" />
+      <InputText v-model="property.value" :use-grouping="false" />
+    </div>
     <RelativeToSelect
       v-else-if="valueType === 'variable'"
       v-model:propertyRef="propertyRef"
@@ -43,18 +47,13 @@
       @change="populateWithinDate"
     />
     <InputNumber v-model:model-value="numberValue" @update:model-value="populateWithinDate" />
-    <!-- TODO: model Date options and get from API -->
     <Select
-      :options="[
-        { id: 'minute', name: 'minute(s)' },
-        { id: 'hour', name: 'hour(s)' },
-        { id: 'day', name: 'day(s)' },
-        { id: 'month', name: 'month(s)' },
-        { id: 'year', name: 'year(s)' }
-      ]"
-      optionValue="id"
-      optionLabel="name"
-      v-model:model-value="unit"
+      type="text"
+      placeholder="units"
+      :options="comparisonOptions"
+      v-model="property.intervalUnit"
+      option-label="name"
+      option-value="value"
       @change="populateWithinDate"
     />
     <RelativeToSelect
@@ -69,25 +68,27 @@
 
 <script setup lang="ts">
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import {Operator, Where, PropertyRef, Range, TTIriRef} from "@/interfaces/AutoGen";
+import { Operator, Where, PropertyRef, Range, TTIriRef } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import { Ref, onMounted, ref, watch } from "vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
-import { IM} from "@/vocabulary";
+import { IM } from "@/vocabulary";
+import { Option } from "./DatatypeSelect.vue";
 
 interface Props {
   property: Where;
   datatype: string;
+  comparisonOptions: Option[];
+  intervalOptions: Option[];
 }
 const props = defineProps<Props>();
 const propertyType: Ref<"is" | "between" | "within" | "isNull" | "notNull" | undefined> = ref();
-const valueType: Ref<"date" | "variable" | undefined> = ref("date");
+const valueType: Ref<"date" | "variable" | "partial date" | undefined> = ref("date");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
 const operatorOptions = ["=", ">=", ">", "<", "<="];
 const numberValue: Ref<number> = ref(0);
 const operator: Ref<Operator | undefined> = ref();
-const unit: Ref<TTIriRef | undefined> = ref();
 const propertyRef: Ref<PropertyRef | undefined> = ref({});
 const sign: Ref<"-" | "+" | undefined> = ref();
 
@@ -105,12 +106,14 @@ function initValues() {
   if (props.property.relativeTo) propertyRef.value = props.property.relativeTo;
 
   if (props.property.value) {
-    if (isNumber(props.property.value)) {
+    if (isNumber(props.property.value) && props.property.relativeTo) {
       propertyType.value = "within";
       if (props.property.value.includes("-")) sign.value = "-";
       else sign.value = "+";
       numberValue.value = Number(props.property.value.replace("-", ""));
-      unit.value = props.property.unit;
+    } else if (props.property.intervalUnit) {
+      propertyType.value = "is";
+      valueType.value = "partial date";
     } else {
       selectedValueA.value = getDateFromString(props.property.value);
       propertyType.value = "is";
@@ -137,7 +140,7 @@ function initValues() {
 
 function handlePropertyType() {
   clearAllProperties();
-  const dateType= IM.NAMESPACE+"Date";
+  const dateType = IM.NAMESPACE + "Date";
   switch (propertyType.value) {
     case "is":
       props.property.operator = Operator.eq;
@@ -145,10 +148,9 @@ function handlePropertyType() {
       break;
     case "between":
       props.property.range = {
-        from: { operator: "=",
-            unit: {"@id": dateType}, value: "" },
-        to: { operator: "=", unit: {"@id": dateType},
-          value: "" } } as Range;
+        from: { operator: "=", unit: { "@id": dateType }, value: "" },
+        to: { operator: "=", unit: { "@id": dateType }, value: "" }
+      } as Range;
       break;
     case "within":
       props.property.operator = Operator.eq;
@@ -175,6 +177,7 @@ function isNumber(stringNumber: string) {
 function populateIsDate() {
   delete props.property.isNotNull;
   delete props.property.isNull;
+  delete props.property.intervalUnit;
   selectedValueB.value = undefined;
   sign.value = undefined;
   props.property.operator = operator.value;
@@ -189,14 +192,17 @@ function populateBetweenDate() {
   delete props.property.operator;
   operator.value = undefined;
   delete props.property.value;
-  delete props.property.unit;
+  delete props.property.intervalUnit;
   delete props.property.relativeTo;
   delete props.property.isNotNull;
   delete props.property.isNull;
-  const dateType=IM.NAMESPACE+"Date";
+  const dateType = IM.NAMESPACE + "Date";
 
   if (!isObjectHasKeys(props.property, ["range"]))
-    props.property.range = { from: { operator: "=", unit:{"@id": dateType}, value: "" }, to: { operator: "=", unit: {"@id": dateType}, value: "" } } as Range;
+    props.property.range = {
+      from: { operator: "=", intervalUnit: { "@id": dateType }, value: "" },
+      to: { operator: "=", intervalUnit: { "@id": dateType }, value: "" }
+    } as Range;
   if (selectedValueA.value) props.property.range!.from.value = getStringFromDate(selectedValueA.value);
   if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);
 }
@@ -204,8 +210,6 @@ function populateBetweenDate() {
 function populateWithinDate() {
   delete props.property.isNotNull;
   delete props.property.isNull;
-
-  props.property.unit = unit.value;
   props.property.operator = operator.value;
   props.property.value = (sign.value === "-" ? "-" : "") + numberValue.value.toString();
   if (isObjectHasKeys(propertyRef.value)) {
@@ -220,7 +224,7 @@ function populateWithinDate() {
 function clearAllProperties() {
   delete props.property.operator;
   delete props.property.value;
-  delete props.property.unit;
+  delete props.property.intervalUnit;
   delete props.property.relativeTo;
   delete props.property.isNull;
   delete props.property.isNotNull;
@@ -231,7 +235,6 @@ function clearAllProperties() {
   selectedValueB.value = undefined;
   numberValue.value = 0;
   operator.value = undefined;
-  unit.value = undefined;
   propertyRef.value = undefined;
   sign.value = undefined;
 }
@@ -242,16 +245,18 @@ function getStringFromDate(date: Date) {
 }
 
 function getDateFromString(date: string) {
-  let separator = "";
-  if (date.includes("-")) separator = "-";
-  else if (date.includes("/")) separator = "/";
-  const splits = date.split(separator);
-  if (splits.length !== 3) return new Date();
+  if (date) {
+    let separator = "";
+    if (date.includes("-")) separator = "-";
+    else if (date.includes("/")) separator = "/";
+    const splits = date.split(separator);
+    if (splits.length !== 3) return new Date();
 
-  const year = parseInt(splits[2]);
-  const month = parseInt(splits[1]);
-  const day = parseInt(splits[0]);
-  return new Date(year, month - 1, day);
+    const year = parseInt(splits[2]);
+    const month = parseInt(splits[1]);
+    const day = parseInt(splits[0]);
+    return new Date(year, month - 1, day);
+  }
 }
 </script>
 
