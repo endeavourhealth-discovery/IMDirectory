@@ -333,4 +333,55 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("postcode");
     cy.get(".edit-match-container").contains("LS123AA");
   });
+
+  it("add a direct property of age to patient using navigator - set to 8 months old", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get(".p-tab").contains("Navigate").click();
+
+    cy.get(".add-property-dialog-tree")
+      .find(".p-tree-node")
+      .contains("Personal identifiers")
+      .parent()
+      .parent()
+      .parent()
+      .find(".p-tree-node-toggle-button")
+      .click();
+
+    cy.get(".p-dialog-content")
+      .find(".p-tree-node-selectable")
+      .filter((_, el) => el.textContent.trim() === "age")
+      .click();
+    cy.get(".datatype-select", { timeout: 60000 }).find("[data-testid=property-value-input]").type("8");
+    cy.get(".p-select").last().click();
+    cy.get(".p-select-option").contains("Months").click();
+    cy.getByTestId("add-property-dialog-save").contains("Save").click();
+
+    cy.get(".edit-match-container").contains("age 8 months");
+  });
+
+  it("add a direct property of date of birth to patient using navigator - set to year 1975", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get(".p-tab").contains("Navigate").click();
+
+    cy.get(".add-property-dialog-tree")
+      .find(".p-tree-node")
+      .contains("Personal identifiers")
+      .parent()
+      .parent()
+      .parent()
+      .find(".p-tree-node-toggle-button")
+      .click();
+
+    cy.get(".p-dialog-content").find(".p-tree-node-selectable").contains("date of birth").click();
+    cy.get(".value-type", { timeout: 60000 }).click();
+    cy.get(".p-select-option").contains("partial date").click();
+    cy.get(".unit-select", { timeout: 60000 }).click();
+    cy.get(".p-select-option").contains("year").click();
+    cy.get(".p-dialog-content").find("[data-testid=property-value-input]").type("1975");
+    cy.getByTestId("add-property-dialog-save").contains("Save").click();
+
+    cy.get(".edit-match-container").contains("date of birth on 1975 year");
+  });
 });

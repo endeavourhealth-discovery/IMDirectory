@@ -76,11 +76,10 @@
       <div v-if="datatype === IM.DATE_TIME || datatype === IM.DATE || datatype === IM.TIME" class="property-input-container">
         <DateSelect :property="property" :datatype="datatype" :interval-options="intervalOptions" :comparison-options="comparisonOptions" />
       </div>
-      <div v-else-if="datatype === IM.AGE" class="property-input-container">
-        <InputText v-model="property.value" />
+      <div v-else class="property-input-container">
+        <InputText v-model="property.value" data-testid="property-value-input"/>
         <Select type="text" placeholder="units" :options="intervalOptions" v-model="property.intervalUnit" option-label="name" option-value="value" />
       </div>
-      <div v-else>Property type not implemented {{ property }} - {{ datatype }} - {{ IM.DATE }}</div>
     </div>
   </div>
 </template>
