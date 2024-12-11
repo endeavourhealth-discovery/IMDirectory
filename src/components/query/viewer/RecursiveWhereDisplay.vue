@@ -23,7 +23,6 @@
         <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
           <ul>
             <li class="tight-spacing">
-              <span>
                <IMFontAwesomeIcon
                    :icon="getTypeIcon(item)"
                    :style="'color:' + getIconColor(item)"
@@ -33,7 +32,6 @@
                 :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)"
                />
                 <span v-if="item.descendantsOrSelfOf">+subtypes</span>
-              </span>
             </li>
           </ul>
         </span>
