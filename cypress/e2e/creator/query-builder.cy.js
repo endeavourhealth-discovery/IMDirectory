@@ -19,11 +19,11 @@ describe("Query builder", () => {
     cy.getByTestId("add-feature-save-button").contains("Save").click();
   });
 
-  const diabetesSet = { searchTerm: "diabetes", name: "Q code group Type 2 diabetes", substring: "Q code group Type 2 diabetes" };
+  const diabetesSet = { searchTerm: "Q code group Type 2 diabetes", name: "Q code group Type 2 diabetes", substring: "Q code group Type 2 diabetes" };
   const diabetesSet2 = {
-    searchTerm: "diabetes",
-    name: "Diabetes mellitus in remission (NHS GP value set)",
-    subString: "diabetes mellitus"
+    searchTerm: "Codes for diabetes (non-type 1) (primary care value set)",
+    name: "Codes for diabetes (non-type 1) (primary care value set)",
+    subString: "non type 1 diabetes diagnoses simple reference set"
   };
   const diabetesFeature = { searchTerm: "diabetes", name: "Active Diabetes" };
   const asthmaConcept = { searchTerm: "asthma", name: "Asthma (disorder) | 195967001" };
@@ -54,7 +54,7 @@ describe("Query builder", () => {
     cy.get("#im-query-editor-container").find("[data-testid=search-input]").should("have.value", "Patient");
   });
 
-  it.only("add feature by searching for a set", () => {
+  it("add feature by searching for a set", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type(diabetesSet.searchTerm);
@@ -86,6 +86,7 @@ describe("Query builder", () => {
     cy.get(".datatable-flex-cell").contains(diabetesSet.name).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.get("[data-testid=back-to-search-results]").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").clear().type(diabetesSet2.searchTerm);
     cy.get(".datatable-flex-cell").contains(diabetesSet2.name).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
@@ -103,6 +104,7 @@ describe("Query builder", () => {
     cy.get(".datatable-flex-cell").contains(diabetesSet.name).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.get("[data-testid=back-to-search-results]").click();
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").clear().type(diabetesSet2.searchTerm);
     cy.get(".datatable-flex-cell").contains(diabetesSet2.name).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
@@ -166,7 +168,7 @@ describe("Query builder", () => {
   it("add feature by searching for a set and adding a numeric property", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();
-    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("blood pressure");
+    cy.get(".p-dialog-content").find("[data-testid=search-input]").type("Blood pressure (BP) recording codes QOF code cluster version v49");
     cy.get(".datatable-flex-cell").first().click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
