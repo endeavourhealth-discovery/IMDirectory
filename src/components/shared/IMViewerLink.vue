@@ -41,7 +41,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits({
-  navigateTo: (_payload: string) => true
+  navigateTo: (_payload: string) => true,
+  selected: (_payload: string) => true
 });
 
 const vLinkMenu = ref();
@@ -61,10 +62,14 @@ function onNodeContext(event: any) {
 }
 
 async function click(event: MouseEvent) {
-  if (event.metaKey || event.ctrlKey) {
-    directService.view(props.iri);
+  if (props.action === "select") {
+    emit("selected", props.iri);
   } else {
-    directService.select(props.iri);
+    if (event.metaKey || event.ctrlKey) {
+      directService.view(props.iri);
+    } else {
+      directService.select(props.iri);
+    }
   }
 }
 </script>

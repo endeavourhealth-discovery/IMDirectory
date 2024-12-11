@@ -1,6 +1,14 @@
 <template>
   <div id="tree-container">
-    <Tree v-model:expandedKeys="expandedKeys" :loading="loading" :value="data" icon="loading" @node-expand="onNodeExpand" @node-collapse="onNodeCollapse">
+    <Tree
+      v-model:expandedKeys="expandedKeys"
+      :loading="loading"
+      :value="data"
+      icon="loading"
+      @node-expand="onNodeExpand"
+      @node-collapse="onNodeCollapse"
+      v-model:selection-keys="selectedKey"
+    >
       <template #property="{ node }: any">
         <div class="items-center">
           <ProgressSpinner v-if="node.loading" class="progress-spinner" />
@@ -12,12 +20,7 @@
             class="mr-2"
             fixed-width
           />
-          <IMViewerLink
-            :iri="node.data.iri"
-            :label="node.label"
-            @selected="(iri: string) => emit('selected', iri)"
-            @navigateTo="(iri: string) => emit('navigateTo', iri)"
-          />
+          <span @click="emit('selected', node.data.iri)" class="cursor-pointer">{{ node.label ?? node.data.iri }}</span>
         </div>
       </template>
       <template #type="{ node }: any">
@@ -30,12 +33,7 @@
             class="mr-2"
             fixed-width
           />
-          <IMViewerLink
-            :iri="node.data.iri"
-            :label="node.label"
-            @selected="(iri: string) => emit('selected', iri)"
-            @navigateTo="(iri: string) => emit('navigateTo', iri)"
-          />
+          <span @click="emit('selected', node.data.iri)" class="cursor-pointer">{{ node.label ?? node.data.iri }}</span>
         </div>
       </template>
       <template #parameter="{ node }: any">
@@ -48,15 +46,20 @@
             class="mr-2"
             fixed-width
           />
-          <IMViewerLink
-            :iri="node.data.iri"
-            :label="node.label"
-            @selected="(iri: string) => emit('selected', iri)"
-            @navigateTo="(iri: string) => emit('navigateTo', iri)"
+          <Button
+            v-else
+            :label="node.label ?? node.data.iri"
+            class="flex-auto justify-start p-0"
+            link
+            @click="emit('selected', node.data.iri)"
+            @mouseleave="hideOverlay"
+            @mouseover="showOverlay($event, node.data.iri)"
           />
+          <span @click="emit('selected', node.data.iri)" class="cursor-pointer">{{ node.label ?? node.data.iri }}</span>
         </div>
       </template>
     </Tree>
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 
@@ -70,6 +73,8 @@ import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   entityIri: string;
@@ -82,6 +87,8 @@ const emit = defineEmits({
   selected: (_payload: string) => true
 });
 
+const { OS, showOverlay, hideOverlay } = setupOverlay();
+
 watch(
   () => props.entityIri,
   async newValue => await getDataModel(newValue)
@@ -90,6 +97,7 @@ watch(
 const loading = ref(false);
 const data: Ref<TreeNode[]> = ref([]);
 const expandedKeys = ref({} as any);
+const selectedKey: Ref<{ key: string }[]> = ref([]);
 
 onMounted(async () => {
   await getDataModel(props.entityIri);

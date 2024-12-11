@@ -10,4 +10,5 @@ export class EDITOR {
   public static readonly DATA_MODEL_SHAPE = EDITOR.NAMESPACE + "DataModelShape";
   public static readonly COHORT_QUERY_SHAPE = EDITOR.NAMESPACE + "CohortQueryShape";
   public static readonly PROPERTY_SHAPE = EDITOR.NAMESPACE + "PropertyShape";
+  public static readonly DATASET_QUERY_SHAPE = EDITOR.NAMESPACE + "DatasetQueryShape";
 }

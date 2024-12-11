@@ -29,6 +29,7 @@ import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
 import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
 import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
 import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
+import DatasetQueryBuilder from "./DatasetQueryBuilder.vue";
 import { shapeTypes } from "qr-code-styling";
 
 export default defineComponent({
@@ -49,7 +50,8 @@ export default defineComponent({
     TextDropdown,
     EntityDisplay,
     IriBuilder,
-    SubsetBuilder
+    SubsetBuilder,
+    DatasetQueryBuilder
   }
 });
 </script>

@@ -1,7 +1,7 @@
 import Env from "./Env";
 import { AllowableChildProperty, QueryResponse } from "@/interfaces";
 import axios from "axios";
-import { Match, PathQuery, Query, QueryRequest, SearchResponse } from "@/interfaces/AutoGen";
+import { Match, PathQuery, Query, QueryRequest, SearchResponse, TTIriRef } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 const API_URL = Env.API + "api/query";
 
@@ -62,6 +62,10 @@ const QueryService = {
       isArrayHasLength(queryResponse.entities) &&
       queryResponse.entities.some((entity: any) => entity["@id"] === selectedIri)
     );
+  },
+
+  async getReturnType(queryIri: string): Promise<TTIriRef> {
+    return axios.get(API_URL + "/public/returnType", { params: { queryIri: queryIri } });
   }
 };
 

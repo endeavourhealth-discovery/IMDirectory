@@ -28,4 +28,5 @@ export class COMPONENT {
   public static readonly IRI_BUILDER = COMPONENT.NAMESPACE + "iriBuilder";
   public static readonly AUTOCOMPLETE_SEARCH_BAR_WRAPPER = COMPONENT.NAMESPACE + "autocompleteSearchBarWrapper";
   public static readonly SUBSET_BUILDER = COMPONENT.NAMESPACE + "subsetBuilder";
+  public static readonly DATASET_BUILDER = COMPONENT.NAMESPACE + "datasetQueryBuilder";
 }
