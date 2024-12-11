@@ -5,6 +5,7 @@ export interface SharedState {
   tagSeverityMatches: any[];
   showReleaseNotes: boolean;
   showBanner: boolean;
+  showDevBanner: boolean;
   activeProfile: any;
   error: any | undefined;
 }
