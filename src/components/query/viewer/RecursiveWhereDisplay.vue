@@ -24,14 +24,11 @@
           <ul>
             <li class="tight-spacing">
               <span>
-              <span>
                <IMFontAwesomeIcon
                    :icon="getTypeIcon(item)"
                    :style="'color:' + getIconColor(item)"
                />
-              </span>
               <span v-if="item.qualifier" v-html="item.qualifier"></span>
-
                <IMViewerLink v-if="item['@id']"
                 :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)"
                />
