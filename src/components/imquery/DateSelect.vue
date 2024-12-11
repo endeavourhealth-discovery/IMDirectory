@@ -14,11 +14,26 @@
   />
   <div v-if="propertyType === 'is'" class="flex">
     <Select type="text" placeholder="operator" :options="operatorOptions" v-model="operator" @change="populateIsDate" />
-    <Select type="text" placeholder="value type" :options="['date', 'variable', 'partial date']" v-model="valueType" @change="populateIsDate" />
+    <Select
+      class="value-type"
+      type="text"
+      placeholder="value type"
+      :options="['date', 'variable', 'partial date']"
+      v-model="valueType"
+      @change="populateIsDate"
+    />
     <DatePicker v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" @update:model-value="populateIsDate" />
     <div v-else-if="valueType === 'partial date'">
-      <Select type="text" placeholder="units" :options="intervalOptions" v-model="property.intervalUnit" option-label="name" option-value="value" />
-      <InputText v-model="property.value" :use-grouping="false" />
+      <Select
+        class="unit-select"
+        type="text"
+        placeholder="units"
+        :options="intervalOptions"
+        v-model="property.intervalUnit"
+        option-label="name"
+        option-value="value"
+      />
+      <InputText data-testid="property-value-input" v-model="property.value" :use-grouping="false" />
     </div>
     <RelativeToSelect
       v-else-if="valueType === 'variable'"
