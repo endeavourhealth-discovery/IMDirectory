@@ -48,11 +48,11 @@ const QueryService = {
   },
 
   async generateQuerySQL(queryIri: string): Promise<string> {
-    return axios.get(API_URL + "/public/generateQuerySQL", { params: { queryIri: queryIri } });
+    return axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri } });
   },
 
   async generateQuerySQLfromQuery(query: Query): Promise<string> {
-    return axios.post(API_URL + "/public/generateQuerySQL", query);
+    return axios.post(API_URL + "/public/sql", query);
   },
 
   async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<boolean> {

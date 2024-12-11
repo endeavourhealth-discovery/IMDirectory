@@ -15,6 +15,14 @@
           <strong>Description: </strong>
           <span>{{ hoveredResult.description }}</span>
         </p>
+        <p v-if="hoveredResult.intervalUnit">
+          <strong>Units of measure : </strong>
+          <span>{{ getConceptTypes(hoveredResult.intervalUnit) }}</span>
+        </p>
+        <p v-if="hoveredResult.qualifier">
+          <strong>May be qualified by : </strong>
+          <span>{{ getConceptTypes(hoveredResult.qualifier) }}</span>
+        </p>
         <p v-if="hoveredResult.code">
           <strong>Code: </strong>
           <span>{{ hoveredResult.code }}</span>

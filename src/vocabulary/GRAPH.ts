@@ -2,6 +2,7 @@
 
 export class GRAPH {
   public static readonly SMARTLIFE = "http://smartlifehealth.info/smh#";
+  public static readonly QOF = "http://endhealth.info/qof#";
   public static readonly DISCOVERY = "http://endhealth.info/im#";
   public static readonly BNF = "http://endhealth.info/bnf#";
   public static readonly ICD10 = "http://endhealth.info/icd10#";

@@ -4,6 +4,11 @@ export class IM {
   public static readonly DOMAIN = "http://endhealth.info/";
   public static readonly PREFIX = "im";
   public static readonly NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
+  public static readonly DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "descendantsOrSelfOf";
+  public static readonly DESCENDANTS_OF = IM.NAMESPACE + "descendantsOf";
+  public static readonly ANCESTORS_OF = IM.NAMESPACE + "ancestorsOf";
+  public static readonly INCLUDE = IM.NAMESPACE + "include";
+  public static readonly EXCLUDE = IM.NAMESPACE + "exclude";
   public static readonly IRI = "@id";
   public static readonly VALUE = "@value";
   public static readonly TYPE = "@type";
@@ -19,6 +24,7 @@ export class IM {
   public static readonly USAGE_STATS = IM.NAMESPACE + "usageStats";
   public static readonly IN_TASK = IM.NAMESPACE + "inTask";
   public static readonly DEFINITION = IM.NAMESPACE + "definition";
+  public static readonly INSTANCE_OF = IM.NAMESPACE + "instanceOf";
   public static readonly RETURN_TYPE = IM.NAMESPACE + "returnType";
   public static readonly UPDATE_PROCEDURE = IM.NAMESPACE + "updateProcedure";
   public static readonly INVERSE_PATH = IM.NAMESPACE + "inversePath";
@@ -234,4 +240,16 @@ export class IM {
   public static readonly INFERRED_PREDICATES = IM.NAMESPACE + "inferredPredicates";
   public static readonly INFERRED_EXCLUDE_PREDICATES = IM.NAMESPACE + "inferredExcludePredicates";
   public static readonly GRAPH_EXCLUDE_PREDICATES = IM.NAMESPACE + "graphExcludePredicates";
+  public static readonly AGE = IM.NAMESPACE + "Age";
+  public static readonly DATE = IM.NAMESPACE + "Date";
+  public static readonly TIME = IM.NAMESPACE + "Time";
+  public static readonly INTERVAL_UNIT = IM.NAMESPACE + "intervalUnit";
+  public static readonly PARAMETER = IM.NAMESPACE + "parameter";
+  public static readonly YEARS = IM.NAMESPACE + "Years";
+  public static readonly MONTHS = IM.NAMESPACE + "Months";
+  public static readonly DAYS = IM.NAMESPACE + "Days";
+  public static readonly HOURS = IM.NAMESPACE + "Hours";
+  public static readonly MINUTES = IM.NAMESPACE + "Minutes";
+  public static readonly SECONDS = IM.NAMESPACE + "Seconds";
+  public static readonly DATATYPE_QUALIFIER = IM.NAMESPACE + "datatypeQualifier";
 }

@@ -5,7 +5,7 @@ describe("creator", () => {
     cy.acceptLicenseAndLogin();
     cy.get("#shortcuts-container", { timeout: 60000 }).find(".shortcut").contains("Creator").click();
     cy.visitNewTab("/#/creator/");
-    cy.get(".type-buttons-container", { timeout: 60000 }).contains("Data model/Node shape").click();
+    cy.get(".type-buttons-container", { timeout: 60000 }).contains("Type model /Node shape").click();
   });
   describe("data model creator", () => {
     it("can navigate to data model creator", () => {

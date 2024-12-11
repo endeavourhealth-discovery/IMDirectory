@@ -113,15 +113,17 @@
             @delete-property="editMatch.where?.splice(index, 1)"
           />
 
-          <AddPropertyDialog
-            v-model:show-dialog="showAddPropertyDialog"
-            :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
-            :header="'Add property'"
-            :match="editMatch"
-            :show-variable-options="false"
-            @on-match-add="onMatchAdd"
-            @on-property-add="onPropertyAdd"
-          />
+          <Dialog v-model:visible="showAddPropertyDialog" :header="'Add property'" :style="{ minWidth: '50vw' }" maximizable modal>
+            <AddProperty
+              :dataModelIri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
+              :match="editMatch"
+              :show-variable-options="false"
+              @on-match-add="onMatchAdd"
+              @on-property-add="onPropertyAdd"
+              @on-dialog-update="(value: boolean) => (showAddPropertyDialog = value)"
+            />
+          </Dialog>
+
           <Button
             v-if="!isBooleanEditor && editMatch['@id'] === focusedId"
             class="add-property-button"
@@ -171,7 +173,7 @@ import { inject, onMounted, Ref, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import AddPropertyDialog from "./AddPropertyDialog.vue";
+import AddProperty from "./AddProperty.vue";
 import AddMatch from "./AddMatch.vue";
 import { QueryService } from "@/services";
 

@@ -1,6 +1,6 @@
 <template>
   <div id="match-summary-display" v-if="match.name">
-    <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-up'" @click="toggle" />
+    <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle" />
     <span v-if="index > 0" :class="operator">{{ operator }}</span>
     <span>{{ match.name }}</span>
     <div v-if="matchExpanded">
