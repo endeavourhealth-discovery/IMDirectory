@@ -4,10 +4,11 @@ export class IM {
   public static readonly DOMAIN = "http://endhealth.info/";
   public static readonly PREFIX = "im";
   public static readonly NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
-  public static readonly DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "descendantsOrSelfOf";
-  public static readonly DESCENDANTS_OF = IM.NAMESPACE + "descendantsOf";
-  public static readonly ANCESTORS_OF = IM.NAMESPACE + "ancestorsOf";
-  public static readonly INCLUDE = IM.NAMESPACE + "include";
+  public static readonly DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
+  public static readonly DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
+  public static readonly ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
+  public static readonly ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
+  public static readonly ENTAILMENT = IM.NAMESPACE + "entailment";
   public static readonly EXCLUDE = IM.NAMESPACE + "exclude";
   public static readonly IRI = "@id";
   public static readonly VALUE = "@value";
