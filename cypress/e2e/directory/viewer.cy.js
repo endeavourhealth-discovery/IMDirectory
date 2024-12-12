@@ -12,9 +12,12 @@ describe("viewer", () => {
       cy.searchAndSelect("Asthma");
     });
 
-    it("loads", () => {
-      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("Asthma");
+    describe("loads", () => {
+      it("loads", () => {
+        cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("Asthma");
+      });
     });
+
     describe("action buttons", () => {
       it("can find in tree", () => {
         cy.get(".entity-buttons-container").find(".fa-list-tree").click();
