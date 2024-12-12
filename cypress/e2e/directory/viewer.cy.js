@@ -12,9 +12,12 @@ describe("viewer", () => {
       cy.searchAndSelect("Asthma");
     });
 
-    it("loads", () => {
-      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("Asthma");
+    describe("loads", () => {
+      it("loads", () => {
+        cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("Asthma");
+      });
     });
+
     describe("action buttons", () => {
       it("can find in tree", () => {
         cy.get(".entity-buttons-container").find(".fa-list-tree").click();
@@ -214,7 +217,7 @@ describe("viewer", () => {
       cy.get("#viewer-tabs").find(".p-tab-active").contains("Set");
     });
 
-    it.only("can download set", () => {
+    it("can download set", () => {
       const currentDate = dateNowReverse("_");
       const cypressDownloads = Cypress.config("downloadsFolder");
       cy.getByTestId("set-download-button").click();
@@ -222,6 +225,19 @@ describe("viewer", () => {
       cy.getByTestId("download-by-query-options-dialog").contains("Core").click();
       cy.getByTestId("download-by-query-options-dialog").contains("Download").click();
       cy.readFile(path.join(cypressDownloads + "/CEG 16+1 Ethnic category (set group) - " + currentDate + ".csv"));
+    });
+  });
+
+  describe("Query", () => {
+    beforeEach(() => {
+      cy.clearFavouritesAndSuggested();
+      cy.searchAndSelect("Patients 65-70, or diabetes or prediabetes that need invitations for blood pressure measuring");
+    });
+
+    it("starts with query tab open", () => {
+      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("Patients 65-70");
+      cy.get("#viewer-tabs").find(".p-tab-active").contains("Query");
+      cy.get("#query-container").find(".rec-query-display");
     });
   });
 });

@@ -360,6 +360,39 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("age 8 months");
   });
 
+  it("add a direct property of age to patient using navigator - set to range of 6-12 months old", () => {
+    cy.populateBaseType();
+    cy.get(".add-feature-button").contains("Add feature").click();
+    cy.get(".p-tab").contains("Navigate").click();
+
+    cy.get(".add-property-dialog-tree")
+      .find(".p-tree-node")
+      .contains("Personal identifiers")
+      .parent()
+      .parent()
+      .parent()
+      .find(".p-tree-node-toggle-button")
+      .click();
+
+    cy.get(".p-dialog-content")
+      .find(".p-tree-node-selectable")
+      .filter((_, el) => el.textContent.trim() === "age")
+      .click();
+
+    cy.get(".property-type-select", { timeout: 60000 }).click();
+    cy.get(".p-select-option").contains("between").click();
+    cy.getByTestId("property-value-input-from").type("6");
+    cy.getByTestId("from-unit-select").click();
+    cy.get(".p-select-option").contains("Months").click();
+
+    cy.getByTestId("property-value-input-to").type("12");
+    cy.getByTestId("to-unit-select").click();
+    cy.get(".p-select-option").contains("Months").click();
+    cy.getByTestId("add-property-dialog-save").contains("Save").click();
+
+    cy.get(".edit-match-container").contains("age between 6 months (inc.) and 12 months (inc.)");
+  });
+
   it("add a direct property of date of birth to patient using navigator - set to year 1975", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();
