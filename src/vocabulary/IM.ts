@@ -233,7 +233,7 @@ export class IM {
   public static readonly VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
   public static readonly DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
   public static readonly LOAD_MORE = IM.NAMESPACE + "loadMore";
-  public static readonly DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
+  public static readonly DATA_MODEL_PROPERTY_CONCEPT = IM.NAMESPACE + "concept";
   public static readonly NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
   public static readonly HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
   public static readonly HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";

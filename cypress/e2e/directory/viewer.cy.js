@@ -187,6 +187,7 @@ describe("viewer", () => {
           cy.get("#viewer-tabs").contains("JSON").click();
         });
         it("has json with correct iri", () => {
+          cy.wait(1000);
           cy.get("#json-container", { timeout: 60000 }).contains("http://snomed.info/sct#195967001");
         });
       });
