@@ -236,7 +236,7 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("Patients registered for GMS services on the reference date");
   });
 
-  it.skip("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
+  it.only("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
     cy.populateBaseType();
     cy.addFeature(paracetamolConcept.searchTerm, paracetamolConcept.name, "#Concept");
     cy.get(".edit-match-container").contains("Paracetamol");
@@ -253,14 +253,14 @@ describe("Query builder", () => {
     cy.get(".p-togglebutton-label").contains("the next").click();
     cy.get("[inputmode=numeric]").type("10");
     cy.get(".p-select").last().click();
-    cy.get(".p-select-option").contains("day(s)").click();
+    cy.get(".p-select-option").contains("Days").click();
     cy.get("[placeholder='relative to']").click();
     cy.get(".relative-to-select-dialog").find(".p-tree-node-toggle-button").click();
     cy.get(".relative-to-select-dialog").find(".p-tree-node-selectable").contains("date").click();
     cy.get(".relative-to-select-dialog").parent().parent().find(".p-dialog-footer").find(".p-button").last().contains("Save").click();
     cy.getByTestId("add-property-dialog-save").contains("Save").click();
     cy.getByTestId("save-feature-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("date on 10 days relative to date of med date");
+    cy.get(".edit-match-container").contains("date (effective date) on 10 days relative to date (effective date) of med date (effective date)");
   });
 
   it("add a direct property of nhs number to patient with a nested property of address.postcode in one step", () => {
