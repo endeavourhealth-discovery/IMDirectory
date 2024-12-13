@@ -236,7 +236,7 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("Patients registered for GMS services on the reference date");
   });
 
-  it.only("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
+  it("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
     cy.populateBaseType();
     cy.addFeature(paracetamolConcept.searchTerm, paracetamolConcept.name, "#Concept");
     cy.get(".edit-match-container").contains("Paracetamol");
