@@ -15,10 +15,11 @@
     "test:coverage": "vitest run --coverage",
     "cypress:run": "cypress run",
     "test:e2e": "cypress open --browser chrome",
-    "test:e2e:ci": "cypress run --browser chrome --headless --reporter junit --reporter-options \"mochaFile=cypress/e2e-results.[hash].xml\"",
+    "test:e2e:ci": "pnpm stop-only && cypress run --browser chrome --headless --reporter junit --reporter-options \"mochaFile=cypress/e2e-results.[hash].xml\"",
     "lint": "eslint --fix",
     "format": "prettier --write",
-    "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install"
+    "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install",
+    "stop-only": "node stop-only.js"
   },
   "dependencies": {
     "@braintree/sanitize-url": "7.0.2",
@@ -33,6 +34,7 @@
     "core-js": "3.37.1",
     "d3": "7.9.0",
     "dotenv": "16.4.5",
+    "glob": "11.0.0",
     "google-palette": "1.1.1",
     "ip": "2.0.1",
     "json5": "2.2.3",
