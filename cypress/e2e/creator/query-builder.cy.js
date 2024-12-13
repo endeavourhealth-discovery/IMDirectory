@@ -116,14 +116,13 @@ describe("Query builder", () => {
 
     cy.get(".edit-match-container").contains("Condition").click();
     cy.get("[data-testid=edit-list-button]").click();
-    cy.get(".p-listbox-option", { timeout: 60000 }).contains(diabetesSet2.subString).parent().parent();
-    // .find("[data-testid=remove-member-button]").click();
-    // cy.getByTestId("add-feature-save-button").contains("Save").click();
-    // cy.getByTestId("save-feature-button").contains("Save").click();
-    // cy.wait(1000);
-    // cy.get(".edit-match-container").contains("Condition");
-    // cy.contains(".edit-match-container", diabetesSet2.subString).should("not.exist");
-    // cy.contains(".edit-match-container", ",").should("not.exist");
+    cy.get(".p-listbox-option", { timeout: 60000 }).contains(diabetesSet2.subString).parent().parent().find("[data-testid=remove-member-button]").click();
+    cy.getByTestId("add-feature-save-button").contains("Save").click();
+    cy.getByTestId("save-feature-button").contains("Save").click();
+    cy.wait(1000);
+    cy.get(".edit-match-container").contains("Condition");
+    cy.contains(".edit-match-container", diabetesSet2.subString).should("not.exist");
+    cy.contains(".edit-match-container", ",").should("not.exist");
   });
 
   it("add feature by searching for a set and adding a date property", () => {
