@@ -7,6 +7,7 @@
     <CookiesConsent />
     <SnomedConsent />
     <div id="main-container">
+      <DevBanner v-if="showDevBanner && isDevHostingMode" />
       <BannerBar v-if="!viewsLoading && showBanner" :latestRelease="latestRelease" />
       <div v-if="viewsLoading || !finishedOnMounted" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
@@ -23,6 +24,7 @@ import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
 import FooterBar from "./components/app/FooterBar.vue";
+import DevBanner from "./components/app/DevBanner.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
@@ -55,6 +57,8 @@ const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } =
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
+const showDevBanner: ComputedRef<boolean> = computed(() => sharedStore.showDevBanner);
+const isDevHostingMode: ComputedRef<boolean> = computed(() => sharedStore.isDevHostingMode);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
 const currentScale = computed(() => userStore.currentScale);
@@ -126,6 +130,8 @@ async function setupAxiosInterceptors(axios: any) {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {};
       request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
+    } else if (import.meta.env.VITE_HOSTING_MODE !== "production") {
+      await router.push({ name: "Login" });
     }
     return request;
   });

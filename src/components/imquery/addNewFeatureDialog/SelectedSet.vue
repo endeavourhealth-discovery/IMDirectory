@@ -183,7 +183,7 @@ async function updateCanHaveValueList(path: Match | undefined) {
   if (path) {
     const dmIri = path.typeOf?.["@id"] ?? props.dataModelIri;
     const propIri = getLeafMatch(path)?.where?.[0]["@id"];
-    if (propIri === IM.DATA_MODEL_CONCEPT) canHaveValueList.value = true;
+    if (propIri === IM.DATA_MODEL_PROPERTY_CONCEPT) canHaveValueList.value = true;
     else if (dmIri && propIri) {
       const entity = await EntityService.getPartialEntity(dmIri, [SHACL.PROPERTY]);
       const prop = entity[SHACL.PROPERTY]?.find((prop: any) => prop?.[SHACL.PATH]?.[0]["@id"] === propIri);
