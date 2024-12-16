@@ -130,7 +130,7 @@ async function setupAxiosInterceptors(axios: any) {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {};
       request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
-    } else if (import.meta.env.VITE_HOSTING_MODE === "development") {
+    } else if (import.meta.env.VITE_HOSTING_MODE !== "production") {
       await router.push({ name: "Login" });
     }
     return request;
