@@ -1,86 +1,119 @@
 <template>
   <div class="datatype-select">
-    <div v-if="!isClassDataType">
-      <div v-if="datatype === XSD.STRING" class="property-input-container">
-        <Select
-          :options="[
-            { id: 'is', name: 'is' },
-            { id: 'startsWith', name: 'starts with' },
-            { id: 'contains', name: 'contains' },
-            { id: 'notNull', name: 'is recorded' },
-            { id: 'isNull', name: 'is not recorded' }
-          ]"
-          optionValue="id"
-          optionLabel="name"
-          v-model:model-value="propertyType"
-        />
-        <InputText
-          v-if="['is', 'startsWith', 'contains'].includes(propertyType)"
-          type="text"
-          v-model:model-value="property.value"
-          data-testid="property-value-input"
-        />
-      </div>
-      <div v-else-if="datatype === XSD.BOOLEAN" class="property-input-container">
-        <Select :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
-      </div>
-      <div
-        v-else-if="datatype === XSD.LONG || datatype === XSD.INTEGER || datatype === XSD.NUMBER || datatype === XSD.DECIMAL || datatype === IM.NUMERIC_VALUE"
-        class="property-input-container"
-      >
-        <Select
-          :options="[
-            { id: 'is', name: 'is' },
-            { id: 'between', name: 'between' },
-            { id: 'range', name: 'in range' },
-            { id: 'notNull', name: 'is recorded' },
-            { id: 'isNull', name: 'is not recorded' }
-          ]"
-          optionValue="id"
-          optionLabel="name"
-          v-model:model-value="propertyType"
-        />
-        <div v-if="propertyType === 'is'" class="property-input">
-          <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" data-testid="property-operator-select" />
-          <InputText type="text" placeholder="value" v-model="property.value" data-testid="property-value-input" />
-          <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
-        </div>
-        <div v-else-if="propertyType === 'between'" class="property-input">
-          <div class="property-range" v-if="property?.range?.from">
-            <InputText type="text" placeholder="value" v-model="property.range.from.value" />
-            <Select type="text" placeholder="unit" :options="intervalOptions" v-model="property.range.from.intervalUnit" />
-          </div>
-          <div class="property-range" v-if="property?.range?.to">
-            <InputText :value="'and'" disabled class="property-input-title" />
-            <InputText type="text" placeholder="value" v-model="property.range.to.value" />
-            <Select type="text" placeholder="unit" :options="intervalOptions" v-model="property.range.to.intervalUnit" />
-          </div>
-        </div>
-        <div v-else-if="propertyType === 'range'" class="property-input">
-          <div class="property-range" v-if="property?.range?.from">
-            <InputText :value="'From'" disabled class="property-input-title" />
-            <Select type="text" placeholder="operator" :options="operatorOptions.filter(option => option !== '=')" v-model="property.range.from.operator" />
-            <InputText type="text" placeholder="value" v-model="property.range.from.value" />
-            <Select type="text" placeholder="unit" :options="intervalOptions" v-model="property.range.from.intervalUnit" />
-          </div>
-          <div class="property-range" v-if="property?.range?.to">
-            <InputText :value="'To'" disabled class="property-input-title" />
-            <Select type="text" placeholder="operator" :options="operatorOptions.filter(option => option !== '=')" v-model="property.range.to.operator" />
-            <InputText type="text" placeholder="value" v-model="property.range.to.value" />
-            <Select type="text" placeholder="unit" :options="intervalOptions" v-model="property.range.to.intervalUnit" />
-          </div>
-        </div>
-      </div>
+    <div v-if="datatype === XSD.STRING" class="property-input-container">
+      <Select
+        :options="[
+          { id: 'is', name: 'is' },
+          { id: 'startsWith', name: 'starts with' },
+          { id: 'contains', name: 'contains' },
+          { id: 'notNull', name: 'is recorded' },
+          { id: 'isNull', name: 'is not recorded' }
+        ]"
+        optionValue="id"
+        optionLabel="name"
+        v-model:model-value="propertyType"
+      />
+      <InputText
+        v-if="['is', 'startsWith', 'contains'].includes(propertyType)"
+        type="text"
+        v-model:model-value="property.value"
+        data-testid="property-value-input"
+      />
     </div>
-    <div v-else-if="datatypeEntity">
-      <div v-if="datatype === IM.DATE_TIME || datatype === IM.DATE || datatype === IM.TIME" class="property-input-container">
-        <DateSelect :property="property" :datatype="datatype" :interval-options="intervalOptions" :comparison-options="comparisonOptions" />
+    <div v-else-if="datatype === XSD.BOOLEAN" class="property-input-container">
+      <Select :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
+    </div>
+
+    <div v-else-if="datatype === IM.DATE_TIME || datatype === IM.DATE || datatype === IM.TIME" class="property-input-container">
+      <DateSelect :property="property" :datatype="datatype" :interval-options="intervalOptions" :comparison-options="comparisonOptions" />
+    </div>
+    <div v-else class="property-input-container">
+      <Select
+        :options="[
+          { id: 'is', name: 'is' },
+          { id: 'between', name: 'between' },
+          { id: 'range', name: 'in range' },
+          { id: 'notNull', name: 'is recorded' },
+          { id: 'isNull', name: 'is not recorded' }
+        ]"
+        optionValue="id"
+        optionLabel="name"
+        v-model:model-value="propertyType"
+        class="property-type-select"
+      />
+      <div v-if="propertyType === 'is'" class="property-input">
+        <Select type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" data-testid="property-operator-select" />
+        <InputText type="text" placeholder="value" v-model="property.value" data-testid="property-value-input" />
+        <RelativeToSelect :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+        <Select
+          v-if="isClassDataType"
+          type="text"
+          placeholder="units"
+          :options="intervalOptions"
+          v-model="property.intervalUnit"
+          option-label="name"
+          option-value="value"
+        />
       </div>
-      <div v-else-if="datatype === IM.AGE" class="property-input-container">
-        <InputText v-model="property.value" />
-        <Select type="text" placeholder="units" :options="intervalOptions" v-model="property.intervalUnit" option-label="name" option-value="value" />
+      <div v-else-if="propertyType === 'between'" class="property-input">
+        <div class="property-range" v-if="property?.range?.from">
+          <InputText type="text" placeholder="value" v-model="property.range.from.value" data-testid="property-value-input-from" />
+          <Select
+            v-if="isClassDataType"
+            type="text"
+            placeholder="units"
+            :options="intervalOptions"
+            v-model="property.range.from.intervalUnit"
+            option-label="name"
+            option-value="value"
+            data-testid="from-unit-select"
+          />
+        </div>
+        <div class="property-range" v-if="property?.range?.to">
+          <InputText :value="'and'" disabled class="property-input-title" />
+          <InputText type="text" placeholder="value" v-model="property.range.to.value" data-testid="property-value-input-to" />
+          <Select
+            v-if="isClassDataType"
+            type="text"
+            placeholder="units"
+            :options="intervalOptions"
+            v-model="property.range.to.intervalUnit"
+            option-label="name"
+            option-value="value"
+            data-testid="to-unit-select"
+          />
+        </div>
       </div>
-      <div v-else>Property type not implemented {{ property }} - {{ datatype }} - {{ IM.DATE }}</div>
+      <div v-else-if="propertyType === 'range'" class="property-input">
+        <div class="property-range" v-if="property?.range?.from">
+          <InputText :value="'From'" disabled class="property-input-title" />
+          <Select type="text" placeholder="operator" :options="operatorOptions.filter(option => option !== '=')" v-model="property.range.from.operator" />
+          <InputText type="text" placeholder="value" v-model="property.range.from.value" />
+          <Select
+            v-if="isClassDataType"
+            type="text"
+            placeholder="units"
+            :options="intervalOptions"
+            v-model="property.range.from.intervalUnit"
+            option-label="name"
+            option-value="value"
+          />
+        </div>
+        <div class="property-range" v-if="property?.range?.to">
+          <InputText :value="'To'" disabled class="property-input-title" />
+          <Select type="text" placeholder="operator" :options="operatorOptions.filter(option => option !== '=')" v-model="property.range.to.operator" />
+          <InputText type="text" placeholder="value" v-model="property.range.to.value" />
+          <Select
+            v-if="isClassDataType"
+            type="text"
+            placeholder="units"
+            :options="intervalOptions"
+            v-model="property.range.to.intervalUnit"
+            option-label="name"
+            option-value="value"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -134,6 +167,7 @@ watch(
         props.property.operator = undefined;
         props.property.isNull = undefined;
         props.property.isNotNull = undefined;
+        props.property.value = undefined;
         if (!props.property.range) props.property.range = { from: { operator: Operator.gte }, to: { operator: Operator.lte } as Assignable } as Range;
         break;
       case "startsWith":

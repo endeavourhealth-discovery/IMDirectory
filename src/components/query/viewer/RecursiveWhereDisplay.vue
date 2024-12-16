@@ -23,10 +23,15 @@
         <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
           <ul>
             <li class="tight-spacing">
+               <IMFontAwesomeIcon
+                   :icon="getTypeIcon(item)"
+                   :style="'color:' + getIconColor(item)"
+               />
               <span v-if="item.qualifier" v-html="item.qualifier"></span>
-              <span class="field"> {{ item.name }}</span>
-              <span v-if="item.code">({{ item.code }})</span>
-              <span v-if="item.descendantsOrSelfOf">+subtypes</span>
+               <IMViewerLink v-if="item['@id']"
+                :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)"
+               />
+                <span v-if="item.descendantsOrSelfOf">+subtypes</span>
             </li>
           </ul>
         </span>
@@ -58,10 +63,12 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Where, Assignable, Bool } from "@/interfaces/AutoGen";
+import { Where, Assignable, Bool,Node } from "@/interfaces/AutoGen";
 import { Ref, ref, watch } from "vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import { IM } from "@/vocabulary/IM";
+import {getColourFromType, getFAIconFromType} from "@/helpers/ConceptTypeVisuals";
 
 interface Props {
   where: Where;
@@ -72,6 +79,10 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 const childExpand = true;
 
@@ -84,6 +95,22 @@ function getFormattedValue(value: Assignable) {
     result = result + value.valueLabel;
   }
   return result;
+}
+
+function getTypeIcon(is:Node){
+ if (is.memberOf){
+   return getFAIconFromType([{"@id": IM.CONCEPT_SET}])
+ }
+ else
+   return getFAIconFromType([{"@id": IM.CONCEPT}]);
+}
+
+function getIconColor(is:Node){
+  if (is.memberOf){
+    return getColourFromType([{"@id": IM.CONCEPT_SET}])
+  }
+  else
+    return getColourFromType([{"@id": IM.CONCEPT}]);
 }
 
 

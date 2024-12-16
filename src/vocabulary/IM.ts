@@ -4,10 +4,11 @@ export class IM {
   public static readonly DOMAIN = "http://endhealth.info/";
   public static readonly PREFIX = "im";
   public static readonly NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
-  public static readonly DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "descendantsOrSelfOf";
-  public static readonly DESCENDANTS_OF = IM.NAMESPACE + "descendantsOf";
-  public static readonly ANCESTORS_OF = IM.NAMESPACE + "ancestorsOf";
-  public static readonly INCLUDE = IM.NAMESPACE + "include";
+  public static readonly DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
+  public static readonly DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
+  public static readonly ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
+  public static readonly ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
+  public static readonly ENTAILMENT = IM.NAMESPACE + "entailment";
   public static readonly EXCLUDE = IM.NAMESPACE + "exclude";
   public static readonly IRI = "@id";
   public static readonly VALUE = "@value";
@@ -232,7 +233,7 @@ export class IM {
   public static readonly VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
   public static readonly DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
   public static readonly LOAD_MORE = IM.NAMESPACE + "loadMore";
-  public static readonly DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
+  public static readonly DATA_MODEL_PROPERTY_CONCEPT = IM.NAMESPACE + "concept";
   public static readonly NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
   public static readonly HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
   public static readonly HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";
