@@ -111,6 +111,7 @@ interface Props {
   showLegacy?: boolean;
   showIm1Id?: boolean;
   showSubsets?: boolean;
+  showSubsumedBy?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -123,7 +124,8 @@ const props = withDefaults(defineProps<Props>(), {
   showCore: true,
   showLegacy: true,
   showIm1Id: true,
-  showSubsets: true
+  showSubsets: true,
+  showSubsumedBy: true
 });
 
 const emit = defineEmits({
@@ -146,7 +148,8 @@ const contentOptions: Ref<DownloadOption[]> = ref([
   { key: "definition", name: "Definition", disabled: false, include: props.showDefinition },
   { key: "core", name: "Core", disabled: false, include: props.showCore },
   { key: "legacy", name: "Legacy", disabled: false, include: props.showLegacy },
-  { key: "im1Id", name: "IM1Id", disabled: false, include: props.showIm1Id }
+  { key: "im1Id", name: "IM1Id", disabled: false, include: props.showIm1Id },
+  { key: "subsumedBy", name: "Subsumed By", disabled: false, include: props.showSubsumedBy }
 ]);
 const selectedContents: Ref<string[]> = ref([]);
 const selectedFormat = ref("");
@@ -195,14 +198,17 @@ function isCoreSelected() {
     if (selectedFormat.value !== "xlsx") {
       contentOptions.value[0].disabled = true;
       contentOptions.value[2].disabled = true;
+      contentOptions.value[4].disabled = true;
     }
     contentOptions.value[2].disabled = false;
     contentOptions.value[3].disabled = false;
+    contentOptions.value[4].disabled = false;
     coreSelected.value = true;
   } else {
     contentOptions.value[0].disabled = selectedFormat.value === "FHIR";
     contentOptions.value[2].disabled = true;
     contentOptions.value[3].disabled = true;
+    contentOptions.value[4].disabled = true;
     checked.value = true;
     checkedLegacy.value = false;
     selectedSchemes.value = [];

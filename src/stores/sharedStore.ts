@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { SharedState } from "@/stores/types/sharedState";
 import { IM } from "@/vocabulary";
+import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
 
 export const useSharedStore = defineStore("shared", {
   state: (): SharedState => ({
@@ -14,9 +15,15 @@ export const useSharedStore = defineStore("shared", {
     ],
     showReleaseNotes: false,
     showBanner: localStorage.getItem("showBanner") === "true" ? true : false,
+    showDevBanner: localStorageWithExpiry.getItem("showDevBanner") ?? true,
     activeProfile: { uuid: "", activeClausePath: "" },
     error: undefined
   }),
+  getters: {
+    isDevHostingMode() {
+      return import.meta.env.VITE_HOSTING_MODE === "development";
+    }
+  },
   actions: {
     updateShowCookieConsent(bool: boolean) {
       this.showCookieConsent = bool;
@@ -36,6 +43,10 @@ export const useSharedStore = defineStore("shared", {
     updateShowBanner(bool: boolean) {
       this.showBanner = bool;
       localStorage.setItem("showBanner", bool === true ? "true" : "");
+    },
+    updateShowDevBanner(bool: boolean) {
+      this.showDevBanner = bool;
+      localStorageWithExpiry.setItem("showBanner", bool);
     },
     updateTagSeverityMatches(items: any) {
       this.tagSeverityMatches = items;
