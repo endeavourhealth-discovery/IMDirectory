@@ -54,6 +54,7 @@ const SetService = {
     includeSubsets: boolean,
     ownRow: boolean,
     im1id: boolean,
+    subsumedBy: boolean,
     format: string,
     schemes: string[],
     raw?: boolean
@@ -67,6 +68,7 @@ const SetService = {
         includeSubsets: includeSubsets,
         ownRow: ownRow,
         im1id: im1id,
+        subsumedBy: subsumedBy,
         format: format,
         schemes: schemes.join(",")
       },
