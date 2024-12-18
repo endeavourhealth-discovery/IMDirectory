@@ -11,7 +11,10 @@
     <span v-if="match.path" class="field" v-html="getFormattedPath(match.path)"></span>
     <span v-if="match.instanceOf">
       <span v-if="match.instanceOf[0].qualifier" v-html="match.instanceOf[0].qualifier"></span>
-      <span style="color: rgb(0, 102, 102)" v-html="match.instanceOf[0].name"></span>
+       <IMViewerLink v-if="match.instanceOf[0]['@id']"
+                     :iri="match.instanceOf[0]['@id']" :label="match.instanceOf[0].name" @navigateTo="(iri: string) => emit('navigateTo', iri)"
+       />
+
       <span v-if="match.instanceOf.length > 1">
         <div>
           <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
@@ -19,7 +22,9 @@
               <ul>
                 <li class="tight-spacing">
                   <span class="or">or</span>
-                  <span> {{ item.name }}</span>
+                  <IMViewerLink v-if="item['@id']"
+                                :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)"
+                  />
                 </li>
               </ul>
             </span>
@@ -68,7 +73,7 @@ import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Match, Assignable, IriLD, Node, Bool } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref, watch } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
-
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 interface Props {
   match: Match;
   isVariable?: boolean;
@@ -80,6 +85,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 const expandSet: Ref<boolean> = ref(false);
 
 function toggle() {
