@@ -25,7 +25,7 @@ import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
 import FooterBar from "./components/app/FooterBar.vue";
 import DevBanner from "./components/app/DevBanner.vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { AuthService, GithubService } from "@/services";
@@ -45,6 +45,7 @@ setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
 const router = useRouter();
+const route = useRoute();
 const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
@@ -91,12 +92,16 @@ watch(darkMode, (newValue, oldValue) => {
 
 onMounted(async () => {
   loadingStore.updateViewsLoading(true);
-  await AuthService.getCurrentAuthenticatedUser();
-  await userStore.getAllFromUserDatabase();
-  setThemeOptions();
-  if (currentScale.value) changeScale(currentScale.value);
-  await filterStore.fetchFilterSettings();
-  await setShowBanner();
+  const authResult = await AuthService.getCurrentAuthenticatedUser();
+  if (authResult.status === 403 && import.meta.env.VITE_HOSTING_MODE !== "production") {
+    await router.push({ name: "Login" });
+  } else {
+    await userStore.getAllFromUserDatabase();
+    setThemeOptions();
+    if (currentScale.value) changeScale(currentScale.value);
+    await filterStore.fetchFilterSettings();
+    await setShowBanner();
+  }
   loadingStore.updateViewsLoading(false);
   finishedOnMounted.value = true;
 });
@@ -181,8 +186,12 @@ function handle401(error: any) {
   router.push({ name: "AccessDenied" }).then();
 }
 
-function handle403(error: any) {
-  if (error.response.data) {
+async function handle403(error: any) {
+  if (import.meta.env.VITE_HOSTING_MODE !== "production" && error.response.data === "Access forbidden") {
+    if (route.path !== "/user/login") {
+      await router.push({ name: "Login" });
+    } else console.error(error);
+  } else if (error.response.data) {
     toast.add({
       severity: "error",
       summary: "Access denied",
