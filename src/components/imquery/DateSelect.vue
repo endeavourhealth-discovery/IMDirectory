@@ -24,15 +24,7 @@
     />
     <DatePicker v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" @update:model-value="populateIsDate" />
     <div v-else-if="valueType === 'partial date'">
-      <Select
-        class="unit-select"
-        type="text"
-        placeholder="units"
-        :options="intervalOptions"
-        v-model="property.intervalUnit"
-        option-label="name"
-        option-value="value"
-      />
+      <Select class="unit-select" type="text" placeholder="units" :options="intervalOptions" v-model="property.unit" option-label="name" option-value="value" />
       <InputText data-testid="property-value-input" v-model="property.value" :use-grouping="false" />
     </div>
     <RelativeToSelect
@@ -66,7 +58,7 @@
       type="text"
       placeholder="units"
       :options="comparisonOptions"
-      v-model="property.intervalUnit"
+      v-model="property.unit"
       option-label="name"
       option-value="value"
       @change="populateWithinDate"
@@ -126,7 +118,7 @@ function initValues() {
       if (props.property.value.includes("-")) sign.value = "-";
       else sign.value = "+";
       numberValue.value = Number(props.property.value.replace("-", ""));
-    } else if (props.property.intervalUnit) {
+    } else if (props.property.unit) {
       propertyType.value = "is";
       valueType.value = "partial date";
     } else {
@@ -192,7 +184,7 @@ function isNumber(stringNumber: string) {
 function populateIsDate() {
   delete props.property.isNotNull;
   delete props.property.isNull;
-  delete props.property.intervalUnit;
+  delete props.property.unit;
   selectedValueB.value = undefined;
   sign.value = undefined;
   props.property.operator = operator.value;
@@ -207,7 +199,7 @@ function populateBetweenDate() {
   delete props.property.operator;
   operator.value = undefined;
   delete props.property.value;
-  delete props.property.intervalUnit;
+  delete props.property.unit;
   delete props.property.relativeTo;
   delete props.property.isNotNull;
   delete props.property.isNull;
@@ -215,8 +207,8 @@ function populateBetweenDate() {
 
   if (!isObjectHasKeys(props.property, ["range"]))
     props.property.range = {
-      from: { operator: "=", intervalUnit: { "@id": dateType }, value: "" },
-      to: { operator: "=", intervalUnit: { "@id": dateType }, value: "" }
+      from: { operator: "=", unit: { "@id": dateType }, value: "" },
+      to: { operator: "=", unit: { "@id": dateType }, value: "" }
     } as Range;
   if (selectedValueA.value) props.property.range!.from.value = getStringFromDate(selectedValueA.value);
   if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);
@@ -239,7 +231,7 @@ function populateWithinDate() {
 function clearAllProperties() {
   delete props.property.operator;
   delete props.property.value;
-  delete props.property.intervalUnit;
+  delete props.property.unit;
   delete props.property.relativeTo;
   delete props.property.isNull;
   delete props.property.isNotNull;

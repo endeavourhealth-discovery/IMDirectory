@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-12-16 10:46:32.
+// Generated using typescript-generator version 3.2.1263 on 2024-12-19 15:09:31.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -195,11 +195,12 @@ export interface ParameterTemplate extends Entity {
 
 export interface PropertyRange extends TTIriRef {
     pattern?: string;
-    intervalUnit?: TTIriRef;
+    unit?: TTIriRef;
     qualifier?: PropertyRange[];
     type?: TTIriRef;
     units?: TTIriRef;
     operator?: TTIriRef;
+    relativeValue?: boolean;
 }
 
 export interface PropertyShape {
@@ -277,11 +278,11 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    qualifier?: string;
+    unit?: TTIriRef;
     operator?: Operator;
-    intervalUnit?: TTIriRef;
-    valueLabel?: string;
+    qualifier?: string;
     valueParameter?: string;
+    valueLabel?: string;
 }
 
 export interface Case {
@@ -314,10 +315,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -618,7 +619,7 @@ export interface SearchResultSummary {
     key?: string[];
     isA?: TTIriRef[];
     termCode?: SearchTermCode[];
-    intervalUnit?: TTIriRef[];
+    unit?: TTIriRef[];
     qualifier?: TTIriRef[];
     iri: string;
 }
@@ -814,8 +815,8 @@ export interface TTEntity extends TTNode, Serializable {
     version?: number;
     status?: TTIriRef;
     description?: string;
-    prefixes?: TTPrefix[];
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {

@@ -50,7 +50,7 @@
           type="text"
           placeholder="units"
           :options="intervalOptions"
-          v-model="property.intervalUnit"
+          v-model="property.unit"
           option-label="name"
           option-value="value"
         />
@@ -63,7 +63,7 @@
             type="text"
             placeholder="units"
             :options="intervalOptions"
-            v-model="property.range.from.intervalUnit"
+            v-model="property.range.from.unit"
             option-label="name"
             option-value="value"
             data-testid="from-unit-select"
@@ -77,7 +77,7 @@
             type="text"
             placeholder="units"
             :options="intervalOptions"
-            v-model="property.range.to.intervalUnit"
+            v-model="property.range.to.unit"
             option-label="name"
             option-value="value"
             data-testid="to-unit-select"
@@ -94,7 +94,7 @@
             type="text"
             placeholder="units"
             :options="intervalOptions"
-            v-model="property.range.from.intervalUnit"
+            v-model="property.range.from.unit"
             option-label="name"
             option-value="value"
           />
@@ -108,7 +108,7 @@
             type="text"
             placeholder="units"
             :options="intervalOptions"
-            v-model="property.range.to.intervalUnit"
+            v-model="property.range.to.unit"
             option-label="name"
             option-value="value"
           />
@@ -225,11 +225,11 @@ onMounted(async () => {
 async function getDataTypeInfo() {
   if (props.datatype) {
     datatypeEntity.value = await EntityService.getPartialEntity(props.datatype, []);
-    if (isArrayHasLength(datatypeEntity.value[RDF.TYPE]) && isOfTypes(datatypeEntity.value[RDF.TYPE], RDFS.CLASS)) isClassDataType.value = true;
-    else isClassDataType.value = false;
-
-    if (isArrayHasLength(datatypeEntity.value[IM.INTERVAL_UNIT])) {
+    isClassDataType.value = isArrayHasLength(datatypeEntity.value[RDF.TYPE]) && isOfTypes(datatypeEntity.value[RDF.TYPE], RDFS.CLASS);
+    if (isArrayHasLength(datatypeEntity.value[IM.UNIT])) comparisonOptions.value = await getComparisonOptionsFromIri(datatypeEntity.value[IM.UNIT][0]["@id"]);
+    else if (isArrayHasLength(datatypeEntity.value[IM.INTERVAL_UNIT]))
       comparisonOptions.value = await getComparisonOptionsFromIri(datatypeEntity.value[IM.INTERVAL_UNIT][0]["@id"]);
+    if (comparisonOptions.value) {
       if (isArrayHasLength(datatypeEntity.value[IM.DATATYPE_QUALIFIER]))
         intervalOptions.value = (datatypeEntity.value[IM.DATATYPE_QUALIFIER] as TTIriRef[]).map(ttIriRef => {
           return { id: ttIriRef.name, name: ttIriRef.name, value: ttIriRef } as Option;

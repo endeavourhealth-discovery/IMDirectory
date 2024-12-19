@@ -6,6 +6,7 @@ export class IM {
   public static readonly NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
   public static readonly DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
   public static readonly DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
+  public static readonly IS_RELATIVE_VALUE = IM.NAMESPACE + "isRelativeValue";
   public static readonly FULLY_SPECIFIED_NAME = IM.NAMESPACE + "fullySpecifiedName";
   public static readonly ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
   public static readonly ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
@@ -246,6 +247,7 @@ export class IM {
   public static readonly DATE = IM.NAMESPACE + "Date";
   public static readonly TIME = IM.NAMESPACE + "Time";
   public static readonly INTERVAL_UNIT = IM.NAMESPACE + "intervalUnit";
+  public static readonly UNIT = IM.NAMESPACE + "unit";
   public static readonly PARAMETER = IM.NAMESPACE + "parameter";
   public static readonly YEARS = IM.NAMESPACE + "Years";
   public static readonly MONTHS = IM.NAMESPACE + "Months";
