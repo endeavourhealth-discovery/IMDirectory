@@ -176,9 +176,6 @@ describe("Query builder", () => {
     cy.get(".p-listbox").last().find(".p-listbox-option").contains("patient -> Observation . concept").click();
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.get(".p-dialog-content").find(".add-property-button").click();
-
-    //cy.get(".p-tree-node-selectable").contains("value").parent().parent().parent().find(".p-tree-node-toggle-button").click();
-    //cy.get(".p-tree-node-content").contains("numeric value").parent().parent().parent().find(".p-tree-node-toggle-button").click();
     cy.get(".p-tree-node-content").contains("numeric value").parent().parent().parent().parent().find(".p-tree-node-selectable").contains("value").click();
     cy.get(".datatype-select").find("[placeholder=value]").type("140");
     cy.getByTestId("add-property-dialog-save").contains("Save").click();
