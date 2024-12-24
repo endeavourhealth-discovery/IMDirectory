@@ -84,7 +84,7 @@ const nameInput = ref("");
 const codeInput = ref("");
 const fileExtensionInput = ref("");
 const collectionWrapperInput = ref("");
-const datatypeMapInput: Ref<any> = ref([]);
+const datatypeMapInput: Ref<any> = ref([{ code: "", replace: "" }]);
 const templateDropdownList: Ref<any> = ref([]);
 const generatedCode = ref();
 const templateMenu = ref();
@@ -189,9 +189,7 @@ PROPERTIES:
   await convert();
 }
 async function convert() {
-  if (modelData == null)
-    modelData = await EntityService.getPartialEntity("http://endhealth.info/im#GPRegistrationEpisode", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
-
+  if (modelData == null) modelData = await EntityService.getPartialEntity("http://endhealth.info/im#Patient", [RDFS.LABEL, RDFS.COMMENT, SHACL.PROPERTY]);
   const iri: TTIriRef = {
     "@id": modelData["@id"],
     name: modelData[RDFS.LABEL],
@@ -208,7 +206,7 @@ async function saveTemplate() {
     name: nameInput.value,
     extension: fileExtensionInput.value,
     collectionWrapper: collectionWrapperInput.value,
-    datatypeMap: JSON.stringify(datatypeMapInput.value),
+    datatypeMap: Object.fromEntries(datatypeMapInput.value.map((obj: any) => [obj.code, obj.replace] as const)),
     template: codeInput.value
   };
   await CodeGenService.updateCodeTemplate(template);
@@ -233,7 +231,8 @@ async function loadTemplate(name: string) {
     codeInput.value = newTemplate.template ? newTemplate.template : "";
     fileExtensionInput.value = newTemplate.extension ? newTemplate.extension : "";
     collectionWrapperInput.value = newTemplate.collectionWrapper ? newTemplate.collectionWrapper : "";
-    datatypeMapInput.value = newTemplate.datatypeMap ? JSON.parse(newTemplate.datatypeMap) : [{ code: "", replace: "" }];
+    if (newTemplate.datatypeMap) for (let [key, value] of Object.entries(newTemplate.datatypeMap)) datatypeMapInput.value.push({ code: key, replace: value });
+    else datatypeMapInput.value = [{ code: "", replace: "" }];
   }
 }
 
