@@ -16,10 +16,16 @@ export interface TTProperty {
 
 export interface UIProperty {
   iri: string;
-  propertyName: string;
+  name: string;
   propertyType: "class" | "datatype" | "node";
   valueType: string;
   maxCount: number;
   minCount: number;
   valueLabel: string;
+  intervalUnitIri: string;
+  intervalUnitOptions: TTIriRef[];
+  unitIri: string;
+  unitOptions: TTIriRef[];
+  operatorIri: string;
+  operatorOptions: string[];
 }
