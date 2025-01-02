@@ -44,10 +44,12 @@
               </ul>
             </span>
           </div>
+          <div v-if="query.return">
+            <ReturnColumns :select="query.return" :property-expanded="false" class="pl-8" />
+          </div>
           <div v-if="isArrayHasLength(query.query)" class="pl-8">
             <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="toggle" />
             <span class="text-green-500">The cohort query has the following data set definition</span>
-
             <span v-if="dataSetExpanded">
               <RecursiveQueryDisplay v-for="nestedQuery of query.query" :query="nestedQuery" :match-expanded="false" :return-expanded="false" />
             </span>
@@ -83,6 +85,7 @@ import { Query } from "@/interfaces/AutoGen";
 import { onMounted, watch, Ref, ref, computed } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 
 interface Props {
   entityIri?: string;

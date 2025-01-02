@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-12-23 13:10:21.
+// Generated using typescript-generator version 3.2.1263 on 2024-12-29 10:09:01.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -278,11 +278,11 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    valueParameter?: string;
-    valueLabel?: string;
+    operator?: Operator;
     unit?: TTIriRef;
     qualifier?: string;
-    operator?: Operator;
+    valueLabel?: string;
+    valueParameter?: string;
 }
 
 export interface Case {
@@ -315,10 +315,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -355,6 +355,7 @@ export interface Match extends IriLD {
     displayLabel?: string;
     hasInlineSet?: boolean;
     function?: FunctionClause;
+    entailement?: Entail;
 }
 
 export interface Node extends Element {
@@ -391,11 +392,12 @@ export interface Prefix {
 
 export interface PropertyRef extends Node {
     valueVariable?: string;
+    propertyRef?: string;
 }
 
 export interface Query extends Match {
     activeOnly?: boolean;
-    return?: Return[];
+    return?: Return;
     query?: Query[];
     groupBy?: PropertyRef[];
     prefixes?: Prefix[];
@@ -820,8 +822,8 @@ export interface TTEntity extends TTNode, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {
