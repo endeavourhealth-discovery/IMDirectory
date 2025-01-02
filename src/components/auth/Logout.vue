@@ -44,13 +44,16 @@ import { CustomAlert } from "@/interfaces";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
 import { AuthService } from "@/services";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
+const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const authReturnPath = computed(() => authStore.authReturnPath);
+const isPublicMode = computed(() => sharedStore.isPublicMode);
 
 function handleSubmit(): void {
   Swal.fire({
@@ -70,10 +73,14 @@ function handleSubmit(): void {
             text: res.message
           }).then(() => {
             userStore.clearOptionalCookies();
-            if (authReturnPath.value) {
-              router.push({ path: authReturnPath.value });
+            if (isPublicMode.value) {
+              if (authReturnPath.value) {
+                router.push({ path: authReturnPath.value });
+              } else {
+                router.push({ name: "LandingPage" });
+              }
             } else {
-              router.push({ name: "LandingPage" });
+              window.location.reload();
             }
           });
         } else {
