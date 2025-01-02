@@ -17,13 +17,9 @@ export const useSharedStore = defineStore("shared", {
     showBanner: localStorage.getItem("showBanner") === "true" ? true : false,
     showDevBanner: localStorageWithExpiry.getItem("showDevBanner") ?? true,
     activeProfile: { uuid: "", activeClausePath: "" },
-    error: undefined
+    error: undefined,
+    isPublicMode: false
   }),
-  getters: {
-    isDevHostingMode() {
-      return import.meta.env.VITE_HOSTING_MODE === "development";
-    }
-  },
   actions: {
     updateShowCookieConsent(bool: boolean) {
       this.showCookieConsent = bool;
@@ -53,6 +49,9 @@ export const useSharedStore = defineStore("shared", {
     },
     updateError(error: any) {
       this.error = error;
+    },
+    updateIsPublicMode(publicMode: boolean) {
+      this.isPublicMode = publicMode;
     }
   }
 });
