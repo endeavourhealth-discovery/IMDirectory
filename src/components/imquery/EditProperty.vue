@@ -3,7 +3,7 @@
     <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
   </div>
   <div class="ml-1 mt-1 flex flex-row items-center gap-2">
-    <InputText v-if="selectedProperty" v-model="selectedProperty.propertyName" class="w-full md:w-56" disabled />
+    <InputText v-if="selectedProperty" v-model="selectedProperty.name" class="w-full md:w-56" disabled />
     <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
       <span class="self-center"> is </span>
       <InputGroup class="flex flex-row flex-nowrap">
@@ -44,7 +44,7 @@
       />
     </div>
 
-    <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :datatype="selectedProperty.valueType" :property="property" />
+    <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :ui-property="selectedProperty" :property="property" />
     <Button v-if="showDelete" icon="fa-solid fa-trash" severity="danger" @click="$emit('deleteProperty')" />
   </div>
 </template>
@@ -53,11 +53,8 @@
 import { Match, Node, Where } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { onMounted, Ref, ref, watch } from "vue";
-import { EntityService } from "@/services";
+import { DataModelService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
-import { SHACL } from "@/vocabulary";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { convertTTPropertyToUIProperty } from "@/helpers/Transforms";
 import { getNameFromRef } from "@/helpers/TTTransform";
 import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 import { cloneDeep } from "lodash-es";
@@ -94,24 +91,8 @@ watch(
 
 async function init() {
   loading.value = true;
-  if (props.dataModelIri && props.property?.["@id"]) selectedProperty.value = await getProperty();
+  if (props.dataModelIri && props.property?.["@id"]) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, props.property["@id"]);
   loading.value = false;
-}
-
-async function getProperty() {
-  const uiProps: UIProperty[] = [];
-  const propertiesEntity = await EntityService.getPartialEntity(props.dataModelIri, [SHACL.PROPERTY]);
-  if (isArrayHasLength(propertiesEntity[SHACL.PROPERTY]))
-    for (const ttprop of propertiesEntity[SHACL.PROPERTY]) {
-      const uiProperty = convertTTPropertyToUIProperty(ttprop);
-      if (isArrayHasLength(ttprop[SHACL.PATH])) {
-        uiProperty.propertyName = getNameFromRef(ttprop[SHACL.PATH][0]);
-      }
-      uiProps.push(uiProperty);
-    }
-
-  const found = uiProps.find(prop => prop.iri === props.property["@id"]);
-  if (found) return found;
 }
 
 function onMatchAdd(updatedMatch: Match) {

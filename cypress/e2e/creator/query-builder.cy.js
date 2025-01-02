@@ -407,7 +407,7 @@ describe("Query builder", () => {
     cy.get(".p-dialog-content").find(".p-tree-node-selectable").contains("date of birth").click();
     cy.get(".value-type", { timeout: 60000 }).click();
     cy.get(".p-select-option").contains("partial date").click();
-    cy.get(".unit-select", { timeout: 60000 }).click();
+    cy.get(".qualifier-select", { timeout: 60000 }).click();
     cy.get(".p-select-option").contains("year").click();
     cy.get(".p-dialog-content").find("[data-testid=property-value-input]").type("1975");
     cy.getByTestId("add-property-dialog-save").contains("Save").click();

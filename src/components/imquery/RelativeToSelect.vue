@@ -28,10 +28,10 @@ import setupTree from "@/composables/setupTree";
 import { EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import { Where, PropertyRef, Match, Query } from "@/interfaces/AutoGen";
+import { Where, PropertyRef, Query } from "@/interfaces/AutoGen";
 import { SHACL } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
-import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
 
 interface Props {
   propertyIri: string;

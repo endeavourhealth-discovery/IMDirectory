@@ -24,14 +24,22 @@
     />
     <DatePicker v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" @update:model-value="populateIsDate" />
     <div v-else-if="valueType === 'partial date'">
-      <Select class="unit-select" type="text" placeholder="units" :options="intervalOptions" v-model="property.unit" option-label="name" option-value="value" />
+      <Select
+        v-if="uiProperty.qualifierOptions"
+        class="qualifier-select"
+        type="text"
+        placeholder="qualifier"
+        :options="uiProperty.qualifierOptions"
+        v-model="property.unit"
+        option-label="name"
+      />
       <InputText data-testid="property-value-input" v-model="property.value" :use-grouping="false" />
     </div>
     <RelativeToSelect
       v-else-if="valueType === 'variable'"
       v-model:propertyRef="propertyRef"
       :property="property"
-      :datatype="datatype"
+      :datatype="uiProperty.valueType"
       :property-iri="property['@id']!"
       @update:property-ref="populateIsDate"
     />
@@ -55,18 +63,18 @@
     />
     <InputNumber v-model:model-value="numberValue" @update:model-value="populateWithinDate" />
     <Select
+      v-if="uiProperty.intervalUnitOptions"
       type="text"
       placeholder="units"
-      :options="comparisonOptions"
-      v-model="property.unit"
+      :options="uiProperty.intervalUnitOptions"
+      v-model="property.qualifier"
       option-label="name"
-      option-value="value"
       @change="populateWithinDate"
     />
     <RelativeToSelect
       v-model:propertyRef="propertyRef"
       :property="property"
-      :datatype="datatype"
+      :datatype="uiProperty.propertyType"
       :property-iri="property['@id']!"
       @update:property-ref="populateWithinDate"
     />
@@ -81,12 +89,11 @@ import { Ref, onMounted, ref, watch } from "vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
 import { IM } from "@/vocabulary";
 import { Option } from "./DatatypeSelect.vue";
+import { UIProperty } from "@/interfaces";
 
 interface Props {
   property: Where;
-  datatype: string;
-  comparisonOptions: Option[];
-  intervalOptions: Option[];
+  uiProperty: UIProperty;
 }
 const props = defineProps<Props>();
 const propertyType: Ref<"is" | "between" | "within" | "isNull" | "notNull" | undefined> = ref();
