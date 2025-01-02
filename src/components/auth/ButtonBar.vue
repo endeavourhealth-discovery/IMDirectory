@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row justify-start">
+  <div class="flex flex-row justify-start" v-if="isPublicMode">
     <Button
       data-testid="button-bar-back-button"
       class="back-button"
@@ -14,8 +14,12 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import { computed } from "vue";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const router = useRouter();
+const sharedStore = useSharedStore();
+const isPublicMode = computed(() => sharedStore.isPublicMode);
 
 function clickedBack(): void {
   if (window.history.length > 2) router.back();

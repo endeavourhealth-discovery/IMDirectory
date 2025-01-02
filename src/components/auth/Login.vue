@@ -31,7 +31,7 @@
         </form>
       </template>
       <template #footer>
-        <small
+        <small v-if="isPublicMode"
           >Don't have an account yet?
           <Button id="register-link" as="a" class="footer-link p-0 text-xs" link @click="router.push({ name: 'Register' })">Register here </Button>
         </small>
@@ -64,12 +64,15 @@ import { CustomAlert } from "@/interfaces";
 import Password from "primevue/password";
 import * as yup from "yup";
 import { useForm } from "vee-validate";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
+const sharedStore = useSharedStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
 const authReturnPath = computed(() => authStore.authReturnPath);
+const isPublicMode = computed(() => sharedStore.isPublicMode);
 
 const loading = ref(false);
 
