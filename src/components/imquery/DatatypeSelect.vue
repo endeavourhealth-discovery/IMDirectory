@@ -55,7 +55,6 @@
           :options="uiProperty.unitOptions"
           v-model="property.unit"
           option-label="name"
-          option-value="value"
         />
       </div>
       <div v-else-if="propertyType === 'between'" class="property-input">
@@ -68,7 +67,6 @@
             :options="uiProperty.unitOptions"
             v-model="property.range.from.unit"
             option-label="name"
-            option-value="value"
             data-testid="from-unit-select"
           />
         </div>
@@ -82,7 +80,6 @@
             :options="uiProperty.unitOptions"
             v-model="property.range.to.unit"
             option-label="name"
-            option-value="value"
             data-testid="to-unit-select"
           />
         </div>
@@ -99,7 +96,6 @@
             :options="uiProperty.unitOptions"
             v-model="property.range.from.unit"
             option-label="name"
-            option-value="value"
           />
         </div>
         <div class="property-range" v-if="property?.range?.to">
@@ -113,7 +109,6 @@
             :options="uiProperty.unitOptions"
             v-model="property.range.to.unit"
             option-label="name"
-            option-value="value"
           />
         </div>
       </div>

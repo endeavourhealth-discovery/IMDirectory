@@ -28,4 +28,5 @@ export interface UIProperty {
   unitOptions: TTIriRef[];
   operatorIri: string;
   operatorOptions: string[];
+  qualifierOptions: TTIriRef[];
 }

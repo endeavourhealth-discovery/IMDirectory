@@ -25,14 +25,13 @@
     <DatePicker v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" @update:model-value="populateIsDate" />
     <div v-else-if="valueType === 'partial date'">
       <Select
-        v-if="uiProperty.unitOptions"
-        class="unit-select"
+        v-if="uiProperty.qualifierOptions"
+        class="qualifier-select"
         type="text"
-        placeholder="units"
-        :options="uiProperty.unitOptions"
+        placeholder="qualifier"
+        :options="uiProperty.qualifierOptions"
         v-model="property.unit"
         option-label="name"
-        option-value="value"
       />
       <InputText data-testid="property-value-input" v-model="property.value" :use-grouping="false" />
     </div>
@@ -70,7 +69,6 @@
       :options="uiProperty.intervalUnitOptions"
       v-model="property.qualifier"
       option-label="name"
-      option-value="value"
       @change="populateWithinDate"
     />
     <RelativeToSelect
