@@ -1,7 +1,10 @@
 <template>
   <span v-if="isArrayHasLength(select.property)" class="pl-8">
     <div v-for="(item, index) in select.property" class="pl-12">
-        <span v-tooltip="item['@id']" class="pr-2">{{ item.name }}</span>
+       <IMViewerLink v-if="item['@id']"
+                     :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)"
+       />
+
       <span v-if="item.return">
         <span>{</span>
           <RecursiveReturnDisplay :select="item.return" />
@@ -33,7 +36,7 @@
 import {Return, ReturnProperty,When} from "@/interfaces/AutoGen";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
-
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 interface Props {
   select: Return;
@@ -42,6 +45,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 </script>
 
