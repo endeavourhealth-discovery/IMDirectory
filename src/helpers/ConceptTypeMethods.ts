@@ -42,7 +42,7 @@ export function isQuery(entityTypes: TTIriRef[]): boolean {
 }
 
 export function isRecordModel(entityTypes: TTIriRef[]): boolean {
-  return isOfTypes(entityTypes, SHACL.NODESHAPE,RDFS.DATATYPE);
+  return isOfTypes(entityTypes, SHACL.NODESHAPE);
 }
 
 export function isFolder(entityTypes: TTIriRef[]): boolean {

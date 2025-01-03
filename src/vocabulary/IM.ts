@@ -6,6 +6,8 @@ export class IM {
   public static readonly NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
   public static readonly DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
   public static readonly DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
+  public static readonly IS_RELATIVE_VALUE = IM.NAMESPACE + "isRelativeValue";
+  public static readonly FULLY_SPECIFIED_NAME = IM.NAMESPACE + "fullySpecifiedName";
   public static readonly ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
   public static readonly ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
   public static readonly ENTAILMENT = IM.NAMESPACE + "entailment";

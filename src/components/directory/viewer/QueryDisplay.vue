@@ -1,7 +1,7 @@
 <template>
   <div id="query-display" class="flex flex-1 flex-col">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
-    <div v-else-if="!isObjectHasKeys(query)">No definition found.</div>
+    <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
       <div class="flex flex-row gap-2">
         <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>

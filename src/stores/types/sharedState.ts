@@ -8,4 +8,5 @@ export interface SharedState {
   showDevBanner: boolean;
   activeProfile: any;
   error: any | undefined;
+  isPublicMode: boolean;
 }

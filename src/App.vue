@@ -7,7 +7,7 @@
     <CookiesConsent />
     <SnomedConsent />
     <div id="main-container">
-      <DevBanner v-if="showDevBanner && isDevHostingMode" />
+      <DevBanner v-if="showDevBanner && isPublicMode" />
       <BannerBar v-if="!viewsLoading && showBanner" :latestRelease="latestRelease" />
       <div v-if="viewsLoading || !finishedOnMounted" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
@@ -25,12 +25,12 @@ import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
 import FooterBar from "./components/app/FooterBar.vue";
 import DevBanner from "./components/app/DevBanner.vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { AuthService, GithubService } from "@/services";
 import { fetchAuthSession } from "aws-amplify/auth";
-import axios from "axios";
+import axios, { AxiosRequestHeaders, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
@@ -45,6 +45,7 @@ setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
 const router = useRouter();
+const route = useRoute();
 const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
@@ -58,7 +59,7 @@ const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } =
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const showDevBanner: ComputedRef<boolean> = computed(() => sharedStore.showDevBanner);
-const isDevHostingMode: ComputedRef<boolean> = computed(() => sharedStore.isDevHostingMode);
+const isPublicMode: ComputedRef<boolean> = computed(() => sharedStore.isPublicMode);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
 const currentScale = computed(() => userStore.currentScale);
@@ -90,13 +91,20 @@ watch(darkMode, (newValue, oldValue) => {
 });
 
 onMounted(async () => {
+  sharedStore.updateIsPublicMode(await AuthService.isPublicMode());
+
   loadingStore.updateViewsLoading(true);
   await AuthService.getCurrentAuthenticatedUser();
-  await userStore.getAllFromUserDatabase();
-  setThemeOptions();
-  if (currentScale.value) changeScale(currentScale.value);
-  await filterStore.fetchFilterSettings();
-  await setShowBanner();
+
+  if (sharedStore.isPublicMode || isLoggedIn.value) {
+    await userStore.getAllFromUserDatabase();
+    setThemeOptions();
+    if (currentScale.value) await changeScale(currentScale.value);
+    await filterStore.fetchFilterSettings();
+    await setShowBanner();
+  } else {
+    await router.push({ name: "Login" });
+  }
   loadingStore.updateViewsLoading(false);
   finishedOnMounted.value = true;
 });
@@ -126,11 +134,11 @@ function getLocalVersion(repoName: string): string | null {
 }
 
 async function setupAxiosInterceptors(axios: any) {
-  axios.interceptors.request.use(async (request: any) => {
+  axios.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
     if (isLoggedIn.value) {
-      if (!request.headers) request.headers = {};
+      if (!request.headers) request.headers = {} as AxiosRequestHeaders;
       request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
-    } else if (import.meta.env.VITE_HOSTING_MODE !== "production") {
+    } else if (!isLoggedIn.value && !sharedStore.isPublicMode && !request.url?.endsWith("isPublicMode")) {
       await router.push({ name: "Login" });
     }
     return request;
@@ -181,8 +189,12 @@ function handle401(error: any) {
   router.push({ name: "AccessDenied" }).then();
 }
 
-function handle403(error: any) {
-  if (error.response.data) {
+async function handle403(error: any) {
+  if (!isPublicMode.value && error.response.data === "Access forbidden") {
+    if (route.path !== "/user/login") {
+      await router.push({ name: "Login" });
+    } else console.error(error);
+  } else if (error.response.data) {
     toast.add({
       severity: "error",
       summary: "Access denied",
