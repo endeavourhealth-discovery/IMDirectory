@@ -69,9 +69,8 @@ export class IM {
   public static readonly IS_CHILD_OF = IM.NAMESPACE + "isChildOf";
   public static readonly PREVIOUS_ENTITY_OF = IM.NAMESPACE + "previousEntityOf";
   public static readonly SUBSUMED_BY = IM.NAMESPACE + "subsumedBy";
-  public static readonly USUALLY_SUBSUMED_BY = IM.NAMESPACE + "usuallySubsumedBy";
+  public static readonly MAY_BE_SUBSUMED_BY = IM.NAMESPACE + "mayBeSubsumedBy";
   public static readonly APPROXIMATE_SUBSUMED_BY = IM.NAMESPACE + "approximateSubsumedBy";
-  public static readonly MULTIPLE_SUBSUMED_BY = IM.NAMESPACE + "multipleSubsumedBy";
   public static readonly LOCAL_SUBCLASS_OF = IM.NAMESPACE + "localSubClassOf";
   public static readonly HAS_CONFIG = IM.NAMESPACE + "hasConfig";
   public static readonly PROPERTY_GROUP = IM.NAMESPACE + "propertyGroup";
