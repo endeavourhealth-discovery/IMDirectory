@@ -25,7 +25,7 @@ describe("viewer", () => {
         const cypressDownloads = Cypress.config("downloadsFolder");
         cy.getByTestId("download-button").click();
         cy.get(".p-confirmdialog").find(".p-confirmdialog-accept-button").click();
-        cy.readFile(path.join(cypressDownloads + "/asthma (disorder)_" + currentDate + ".json"));
+        cy.readFile(path.join(cypressDownloads + "/Asthma (disorder)_" + currentDate + ".json"));
       });
       it("can favourite", () => {
         cy.clearFavouritesAndSuggested();

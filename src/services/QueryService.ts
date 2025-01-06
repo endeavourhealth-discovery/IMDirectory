@@ -24,7 +24,7 @@ const QueryService = {
   },
 
   async getLabeledQuery(query: Query): Promise<Query> {
-    return axios.post(API_URL + "/public/labelQuery", query);
+    return this.getQueryDisplayFromQuery(query,true);
   },
 
   async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {

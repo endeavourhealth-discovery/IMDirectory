@@ -1,7 +1,7 @@
 <template>
   <div id="query-display" class="flex flex-1 flex-col">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
-    <div v-else-if="!isObjectHasKeys(query)">No definition found.</div>
+    <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
       <div class="flex flex-row gap-2">
         <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
@@ -44,10 +44,12 @@
               </ul>
             </span>
           </div>
+          <div v-if="query.return">
+            <ReturnColumns :select="query.return" :property-expanded="false" class="pl-8" />
+          </div>
           <div v-if="isArrayHasLength(query.query)" class="pl-8">
             <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="toggle" />
             <span class="text-green-500">The cohort query has the following data set definition</span>
-
             <span v-if="dataSetExpanded">
               <RecursiveQueryDisplay v-for="nestedQuery of query.query" :query="nestedQuery" :match-expanded="false" :return-expanded="false" />
             </span>
@@ -83,6 +85,7 @@ import { Query } from "@/interfaces/AutoGen";
 import { onMounted, watch, Ref, ref, computed } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 
 interface Props {
   entityIri?: string;

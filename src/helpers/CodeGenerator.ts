@@ -74,9 +74,8 @@ function replaceTokens(template: CodeTemplate, subTemplate: string, namespace: s
 
   if (prop && prop.property && prop.property.name && prop.type && prop.type) {
     const isArray = !prop.maxExclusive;
-
     if (!template.datatypeMap[prop.type["@id"]] && prop.type.name) {
-      const basePropertyType = prop.type.name;
+      const basePropertyType = codify(toTitleCase(prop.type.name)).replaceAll(" ", "");
       const propertyType =
         isArray && template.collectionWrapper ? replaceVariants(template.collectionWrapper, "BASE DATA TYPE", basePropertyType) : basePropertyType;
 
@@ -143,7 +142,7 @@ function toCamelCase(str: string): string {
 
 function toTitleCase(str: string): string {
   return str.replace(/\w\S*/g, function (txt) {
-    return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
+    return txt.charAt(0).toUpperCase() + toCamelCase(txt.substring(1));
   });
 }
 

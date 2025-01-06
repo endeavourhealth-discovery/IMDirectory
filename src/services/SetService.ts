@@ -18,16 +18,19 @@ const SetService = {
       raw: raw
     });
   },
-
-  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<TTIriRef[]> {
-    return axios.get(API_URL + "/public/expandedMembers", {
-      params: {
-        iri: iri,
-        legacy: legacy,
-        includeSubsets: includeSubsets
-      }
+  async getMembers(
+      iri: string,
+      entailments: boolean,
+      pageIndex: number,
+      pageSize: number,
+      controller?: AbortController
+  ): Promise<any> {
+    return axios.get(API_URL + "/public/members", {
+      params: { iri: iri,  entailments: entailments,page: pageIndex, size: pageSize },
+      signal: controller?.signal
     });
   },
+
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {
     return axios.get(API_URL + "/public/subsets", {
@@ -54,6 +57,7 @@ const SetService = {
     includeSubsets: boolean,
     ownRow: boolean,
     im1id: boolean,
+    subsumedBy: boolean,
     format: string,
     schemes: string[],
     raw?: boolean
@@ -67,6 +71,7 @@ const SetService = {
         includeSubsets: includeSubsets,
         ownRow: ownRow,
         im1id: im1id,
+        subsumedBy: subsumedBy,
         format: format,
         schemes: schemes.join(",")
       },

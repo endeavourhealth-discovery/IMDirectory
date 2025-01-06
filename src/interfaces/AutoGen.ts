@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-12-13 09:10:15.
+// Generated using typescript-generator version 3.2.1263 on 2024-12-29 10:09:01.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -198,6 +198,9 @@ export interface PropertyRange extends TTIriRef {
     intervalUnit?: TTIriRef;
     qualifier?: PropertyRange[];
     type?: TTIriRef;
+    units?: TTIriRef;
+    operator?: TTIriRef;
+    relativeValue?: boolean;
 }
 
 export interface PropertyShape {
@@ -276,10 +279,10 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     operator?: Operator;
-    intervalUnit?: TTIriRef;
+    unit?: TTIriRef;
     qualifier?: string;
-    valueParameter?: string;
     valueLabel?: string;
+    valueParameter?: string;
 }
 
 export interface Case {
@@ -313,6 +316,7 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
+
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
@@ -352,6 +356,7 @@ export interface Match extends IriLD {
     displayLabel?: string;
     hasInlineSet?: boolean;
     function?: FunctionClause;
+    entailement?: Entail;
 }
 
 export interface Node extends Element {
@@ -388,11 +393,12 @@ export interface Prefix {
 
 export interface PropertyRef extends Node {
     valueVariable?: string;
+    propertyRef?: string;
 }
 
 export interface Query extends Match {
     activeOnly?: boolean;
-    return?: Return[];
+    return?: Return;
     query?: Query[];
     groupBy?: PropertyRef[];
     prefixes?: Prefix[];
@@ -812,13 +818,13 @@ export interface TTEntity extends TTNode, Serializable {
     version?: number;
     status?: TTIriRef;
     description?: string;
-    code?: string;
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {

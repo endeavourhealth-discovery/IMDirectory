@@ -35,7 +35,7 @@
       <AccordionPanel value="1">
         <AccordionContent>
           <div class="definition-header">
-            <span>Definition</span>
+            <span>Expression based definition (ECL) </span>
             <Button
               v-tooltip.top="'Copy definition'"
               class="p-button-outlined concept-button"
@@ -51,7 +51,7 @@
         </div>
       </AccordionPanel>
       <AccordionPanel header="Direct Members" value="2">
-        <AccordionHeader>Direct Members</AccordionHeader>
+        <AccordionHeader>Direct or entailed members</AccordionHeader>
         <AccordionContent>
           <div id="members-container" class="set-accordion-content">
             <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @open-download-dialog="displayDialog" />
@@ -124,7 +124,7 @@ const hasDefinition = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITIO
 
 onMounted(async () => {
   active.value = ["0", "1", "2"];
-  entity.value = await EntityService.getPartialEntity(props.entityIri, [IM.IS_SUBSET_OF, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.DEFINITION, IM.HAS_MEMBER]);
+  entity.value = await EntityService.getPartialEntity(props.entityIri, [IM.IS_SUBSET_OF, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.DEFINITION]);
   if (entity.value[IM.IS_SUBSET_OF]) {
     subsetOf.value = entity.value[IM.IS_SUBSET_OF];
   }
@@ -155,6 +155,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   const core = downloadSettings.selectedContents.includes("Core");
   const legacy = downloadSettings.selectedContents.includes("Legacy");
   const im1id = downloadSettings.selectedContents.includes("IM1Id");
+  const subsumedBy = downloadSettings.selectedContents.includes("Subsumed By");
   showOptions.value = false;
 
   const schemes = [] as string[];
@@ -171,6 +172,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
       downloadSettings.includeSubsets,
       downloadSettings.legacyInline,
       im1id,
+      subsumedBy,
       downloadSettings.selectedFormat,
       schemes,
       true

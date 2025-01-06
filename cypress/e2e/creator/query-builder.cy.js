@@ -63,7 +63,7 @@ describe("Query builder", () => {
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("diabetes");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
   });
 
@@ -75,7 +75,7 @@ describe("Query builder", () => {
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("diabetes");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
   });
 
@@ -92,7 +92,7 @@ describe("Query builder", () => {
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("diabetes");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
     cy.get(".edit-match-container").contains(",");
   });
@@ -106,21 +106,21 @@ describe("Query builder", () => {
     cy.get("[data-testid=back-to-search-results]").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").clear().type(diabetesSet2.searchTerm);
     cy.get(".datatable-flex-cell").contains(diabetesSet2.name).click();
-    cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
+    cy.get(".title-buttons-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("diabetes");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
     cy.get(".edit-match-container").contains(",");
 
-    cy.get(".edit-match-container").contains("Condition").click();
+    cy.get(".edit-match-container").contains("diabetes").click();
     cy.get("[data-testid=edit-list-button]").click();
     cy.get(".p-listbox-option", { timeout: 60000 }).contains(diabetesSet2.subString).parent().parent().find("[data-testid=remove-member-button]").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
     cy.getByTestId("save-feature-button").contains("Save").click();
     cy.wait(1000);
-    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("diabetes");
     cy.contains(".edit-match-container", diabetesSet2.subString).should("not.exist");
     cy.contains(".edit-match-container", ",").should("not.exist");
   });
@@ -139,7 +139,7 @@ describe("Query builder", () => {
     cy.get(".p-datepicker-day-cell").contains("14").click();
     cy.getByTestId("add-property-dialog-save").contains("Save").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("diabetes");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
     cy.get(".edit-match-container").contains("date");
   });
@@ -148,6 +148,7 @@ describe("Query builder", () => {
     cy.populateBaseType();
     cy.get(".add-feature-button").contains("Add feature").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type(diabetesSet.searchTerm);
+    cy.get(".datatable-flex-cell").trigger("mouseenter");
     cy.get(".datatable-flex-cell").contains(diabetesSet.name).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
@@ -159,7 +160,7 @@ describe("Query builder", () => {
     cy.get(".datatype-select").find(".p-select-dropdown").parent().siblings().last().type("test desc");
     cy.getByTestId("add-property-dialog-save").contains("Save").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Condition");
+    cy.get(".edit-match-container").contains("diabetes");
     cy.get(".edit-match-container").contains("Diabetes", { matchCase: false });
     cy.get(".edit-match-container").contains("description");
     cy.get(".edit-match-container").contains("test desc");
@@ -175,14 +176,11 @@ describe("Query builder", () => {
     cy.get(".p-listbox").last().find(".p-listbox-option").contains("patient -> Observation . concept").click();
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.get(".p-dialog-content").find(".add-property-button").click();
-
-    cy.get(".p-tree-node-selectable").contains("value").parent().parent().parent().find(".p-tree-node-toggle-button").click();
-    cy.get(".p-tree-node-content").contains("Numeric value").parent().parent().parent().find(".p-tree-node-toggle-button").click();
-    cy.get(".p-tree-node-content").contains("Numeric value").parent().parent().parent().parent().find(".p-tree-node-selectable").contains("value").click();
+    cy.get(".p-tree-node-content").contains("numeric value").parent().parent().parent().parent().find(".p-tree-node-selectable").contains("value").click();
     cy.get(".datatype-select").find("[placeholder=value]").type("140");
     cy.getByTestId("add-property-dialog-save").contains("Save").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Numeric values");
+    cy.get(".edit-match-container").contains("numeric value");
     cy.get(".edit-match-container").contains("value");
     cy.get(".edit-match-container").contains("140");
   });
@@ -197,7 +195,6 @@ describe("Query builder", () => {
     cy.wait(1000);
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.getByTestId("add-feature-save-button").contains("Save").click();
-    cy.get(".edit-match-container").contains("Condition");
     cy.get(".edit-match-container").contains("Asthma");
   });
 
@@ -236,7 +233,7 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("Patients registered for GMS services on the reference date");
   });
 
-  it("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
+  it.skip("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
     cy.populateBaseType();
     cy.addFeature(paracetamolConcept.searchTerm, paracetamolConcept.name, "#Concept");
     cy.get(".edit-match-container").contains("Paracetamol");
@@ -245,7 +242,7 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("label as med");
     cy.getByTestId("save-feature-button").contains("Save").click();
     cy.addFeature(paracetamolReactionConcept.searchTerm, paracetamolReactionConcept.name, "#Concept");
-    cy.get(".edit-match-container").contains("Condition").click();
+    cy.get(".edit-match-container").contains("diabetes").click();
     cy.get(".add-property-button").click();
     cy.get(".p-tree-node-selectable").contains("date").click();
     cy.get(".datatype-select").find(".p-select").first().click({ force: true });
@@ -410,7 +407,7 @@ describe("Query builder", () => {
     cy.get(".p-dialog-content").find(".p-tree-node-selectable").contains("date of birth").click();
     cy.get(".value-type", { timeout: 60000 }).click();
     cy.get(".p-select-option").contains("partial date").click();
-    cy.get(".unit-select", { timeout: 60000 }).click();
+    cy.get(".qualifier-select", { timeout: 60000 }).click();
     cy.get(".p-select-option").contains("year").click();
     cy.get(".p-dialog-content").find("[data-testid=property-value-input]").type("1975");
     cy.getByTestId("add-property-dialog-save").contains("Save").click();

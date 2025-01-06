@@ -155,13 +155,45 @@ function createGroupNode(property: PropertyShape, index: any, propertyList: Tree
   }
 }
 
-function createParameterNode(property: PropertyShape, propertyNode: TreeNode) {
+function createQualifierNode(property: PropertyShape, rangeNode: TreeNode) {
+  if (property.datatype) {
+    if (property.datatype.qualifier) {
+      let qualifiers = "qualifiers ->";
+      qualifiers = qualifiers + property.datatype.qualifier.map(item => item.name).join(", ");
+      setQualifierNode(qualifiers, rangeNode, property.datatype["@id"], 0);
+    }
+    if (property.datatype.units) {
+      setQualifierNode("units : " + property.datatype.units.name, rangeNode, property.datatype["@id"], 1);
+    }
+    if (property.datatype.operator) {
+      setQualifierNode("operators : <,>,<=,>=", rangeNode, property.datatype["@id"], 2);
+    }
+  }
+}
+function setQualifierNode(qualifiers: string, rangeNode: TreeNode, iri: string, index: number) {
+  const qualifierNode = {
+    key: rangeNode.key + "-q" + index,
+    label: qualifiers,
+    children: [] as TreeNode[],
+    selectable: true,
+    loading: false,
+    data: {
+      typeIcon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
+      color: getColourFromType([{ "@id": IM.CONCEPT }]),
+      iri: iri
+    },
+    type: "type"
+  } as TreeNode;
+  rangeNode.children!.push(qualifierNode);
+}
+
+function createParameterNode(property: PropertyShape, rangeNode: TreeNode) {
   if (property.parameter && property.parameter.length) {
     let params = "parameters : ";
     for (const [index, parameter] of property.parameter.entries()) {
       if (parameter.type) {
         const parameterNode = {
-          key: propertyNode.key + "-p" + index.toString(),
+          key: rangeNode.key + "-p" + index.toString(),
           label: "parameter -> " + parameter.label + ", type :" + parameter.type?.name,
           children: [] as TreeNode[],
           selectable: true,
@@ -171,9 +203,9 @@ function createParameterNode(property: PropertyShape, propertyNode: TreeNode) {
             color: getColourFromType([{ "@id": IM.CONCEPT }]),
             iri: parameter.type["@id"]
           },
-          type: "parameter"
+          type: "type"
         } as TreeNode;
-        propertyNode.children!.push(parameterNode);
+        rangeNode.children!.push(parameterNode);
       }
     }
   }
@@ -207,6 +239,8 @@ function createRangeNode(property: PropertyShape, propertyNode: TreeNode) {
       type: "type"
     } as TreeNode;
     propertyNode.children!.push(rangeNode);
+    createParameterNode(property, rangeNode);
+    createQualifierNode(property, rangeNode);
   }
 }
 
@@ -252,7 +286,6 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
       } as TreeNode;
 
       createRangeNode(property, propertyNode);
-      createParameterNode(property, propertyNode);
       propertyList.push(propertyNode);
     }
   }

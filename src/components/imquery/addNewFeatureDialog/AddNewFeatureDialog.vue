@@ -60,6 +60,7 @@
                 :show-variable-options="false"
                 @on-match-add="onMatchAdd"
                 @on-property-add="onPropertyAdd"
+                @on-dialog-update="visible = false"
               />
             </div>
           </TabPanel>

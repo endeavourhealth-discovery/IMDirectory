@@ -21,15 +21,17 @@
       @page="getPage($event)"
     >
       <template #empty>
-        No direct members found.
-        <div v-if="hasDefintion">
-          <Button label="Download to see query defintion results" class="p-button-link" @click="emit('openDownloadDialog')" />
+        No direct or entailed members found.
+        <div v-if="hasDefinition">
+          <Button label="Download to see query definition results" class="p-button-link" @click="emit('openDownloadDialog')" />
         </div>
       </template>
       <template #loading> Loading data. Please wait... </template>
       <Column field="member" header="Name">
         <template #body="{ data }: any">
-          <IMViewerLink :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <span v-if="data.exclude" class="exclude">Exclude</span>
+          <IMViewerLink  :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <span class="entailment" v-html="getEntailment(data)"></span>
         </template>
       </Column>
     </DataTable>
@@ -38,8 +40,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { EntityService } from "@/services";
+import { Node } from "@/interfaces/AutoGen";
+import { EntityService, SetService } from "@/services";
 import { IM } from "@/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
@@ -54,10 +56,11 @@ const props = defineProps<Props>();
 const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true, openDownloadDialog: () => true });
 const toast = useToast();
 
-const hasDefintion: Ref<boolean> = ref(false);
+const hasDefinition: Ref<boolean> = ref(false);
 
 const loading = ref(false);
-const members: Ref<TTIriRef[]> = ref([]);
+const members: Ref<Node[]> = ref([]);
+
 
 const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
@@ -83,28 +86,39 @@ async function init() {
 
 async function setHasDefinition() {
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
-  hasDefintion.value = isObjectHasKeys(entity, [IM.DEFINITION]);
+  hasDefinition.value = isObjectHasKeys(entity, [IM.DEFINITION]);
 }
 
 async function getMembers(): Promise<void> {
   loading.value = true;
-  const paged = await EntityService.getPartialAndTotalCount(props.entityIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
+  const paged = await SetService.getMembers(props.entityIri,true, currentPage.value + 1, pageSize.value);
   members.value = paged.result;
   totalCount.value = paged.totalCount;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
   loading.value = false;
 }
 
+
+
 async function getPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  let pagedNewMembers = await EntityService.getPartialAndTotalCount(props.entityIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
+  let pagedNewMembers = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
   members.value = pagedNewMembers.result;
   loading.value = false;
 }
-</script>
 
+function getEntailment(data : any){
+  if (data.descendantsOrSelfOf)
+    return "(+ subtypes)";
+  if (data.descendantsOf)
+    return "(subtypes of only)";
+  if (data.ancestorsOf)
+    return "(+ supertypes)";
+  return "";
+}
+</script>
 <style scoped>
 #members-table-container {
   height: 100%;
@@ -129,6 +143,10 @@ async function getPage(event: any) {
 #members-table-container:deep(.p-datatable-wrapper) {
   height: auto;
   flex: 0 1 auto;
+}
+#members-table-container:deep(.exclude) {
+  color: var(--p-red-500);
+  padding-right: 0.3rem;
 }
 
 .html-container ::v-deep(p) {
@@ -167,5 +185,9 @@ async function getPage(event: any) {
 }
 .custom-button span:hover:after {
   width: 100%;
+}
+
+.entailment {
+  padding-left: 0.2rem;
 }
 </style>
