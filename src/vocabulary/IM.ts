@@ -28,6 +28,7 @@ export class IM {
   public static readonly IN_TASK = IM.NAMESPACE + "inTask";
   public static readonly DEFINITION = IM.NAMESPACE + "definition";
   public static readonly INSTANCE_OF = IM.NAMESPACE + "instanceOf";
+  public static readonly TYPE_OF = IM.NAMESPACE + "typeOf";
   public static readonly RETURN_TYPE = IM.NAMESPACE + "returnType";
   public static readonly UPDATE_PROCEDURE = IM.NAMESPACE + "updateProcedure";
   public static readonly INVERSE_PATH = IM.NAMESPACE + "inversePath";
