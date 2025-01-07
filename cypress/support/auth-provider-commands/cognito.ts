@@ -18,7 +18,7 @@ Amplify.configure({
     passwordPolicyCharacters: []
   },
   aws_cognito_verification_mechanisms: ["EMAIL"]
-});
+} as any);
 
 const fetchJwts = async (username: string, password: string) => {
   // const options = { authFlowType: "USER_PASSWORD_AUTH" as const };
