@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import { PropertyDisplay } from "@/interfaces";
-import { DirectService, EntityService } from "@/services";
+import { DataModelService, DirectService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
 interface Props {
@@ -119,7 +119,7 @@ onMounted(async () => {
 
 async function getDataModelProps(iri: string): Promise<void> {
   loading.value = true;
-  const results = await EntityService.getPropertiesDisplay(iri);
+  const results = await DataModelService.getPropertiesDisplay(iri);
   if (results && results.length !== 0) {
     results.forEach((result: PropertyDisplay) => {
       if (result.isOr) {

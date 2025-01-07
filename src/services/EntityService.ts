@@ -1,12 +1,12 @@
-import { IM, RDFS, SHACL } from "@/vocabulary";
-import { EntityReferenceNode, FiltersAsIris, TTBundle, TermCode, Namespace, FilterOptions, PropertyDisplay, SetDiffObject } from "@/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, DownloadEntityOptions } from "@/interfaces/AutoGen";
+import { IM, RDFS } from "@/vocabulary";
+import { EntityReferenceNode, FiltersAsIris, TTBundle, Namespace, FilterOptions, PropertyDisplay } from "@/interfaces";
+import { TTIriRef, SearchResultSummary, DownloadByQueryOptions } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { OrganizationChartNode } from "primevue/organizationchart";
 import { buildDetails } from "@/helpers/DetailsBuilder";
+import { OrganizationChartNode } from "primevue/organizationchart";
 const API_URL = Env.API + "api/entity";
 
 const EntityService = {
@@ -39,14 +39,6 @@ const EntityService = {
 
   async iriExists(iri: string): Promise<boolean> {
     return axios.get(API_URL + "/public/iriExists", { params: { iri: iri } });
-  },
-
-  async getDefinitionBundle(iri: string): Promise<TTBundle> {
-    return axios.get(API_URL + "/public/inferredBundle", {
-      params: {
-        iri: iri
-      }
-    });
   },
 
   async getFolderPath(iri: string): Promise<TTIriRef[]> {
@@ -258,12 +250,6 @@ const EntityService = {
     return buildDetails(response);
   },
 
-  async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
-    return axios.get(API_URL + "/public/propertiesDisplay", {
-      params: { iri: iri }
-    });
-  },
-
   async downloadEntity(iri: string) {
     return axios.get(API_URL + "/public/downloadEntity", { params: { iri: iri }, responseType: "blob", raw: true });
   },
@@ -283,6 +269,16 @@ const EntityService = {
 
   async getSchemes(): Promise<{ [x: string]: Namespace }> {
     return axios.get(API_URL + "/public/schemes");
+  },
+
+  async getEntityGraph(iri: string): Promise<OrganizationChartNode> {
+    return axios.get(API_URL + "/public/graph", { params: { iri: iri } });
+  },
+
+  async getProvHistory(iri: string): Promise<TTIriRef[]> {
+    return axios.get(API_URL + "/public/history", {
+      params: { iri: iri }
+    });
   }
 };
 if (process.env.NODE_ENV !== "test") Object.freeze(EntityService);

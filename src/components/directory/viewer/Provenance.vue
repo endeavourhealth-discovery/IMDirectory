@@ -63,14 +63,14 @@
         </div>
       </div>
       <Panel class="provItem" header="JSON" toggleable collapsed>
-        <JSONViewer :entity-iri="jsonDisplay"></JSONViewer>
+        <JSONViewer :entity-iri="jsonDisplay" />
       </Panel>
     </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { EntityService, ProvService } from "@/services";
+import { EntityService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import { onMounted, ref, Ref, watch } from "vue";
 import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
@@ -114,7 +114,7 @@ onMounted(async () => {
 
 watch(selectedProvenance, async () => {
   if (selectedProvenance.value && isObjectHasKeys(selectedProvenance.value, ["prov"])) {
-    const result = await ProvService.getProvHistory(props.entityIri);
+    const result = await EntityService.getProvHistory(props.entityIri);
     let matchIri = "";
     result.forEach((p: any) => {
       if (p["@id"] === selectedProvenance.value.prov && p[IM.PROVENANCE_USED]) {
@@ -136,7 +136,7 @@ watch(selectedProvenance, async () => {
 
 async function getProvHistory(iri: string) {
   loading.value = true;
-  const result = await ProvService.getProvHistory(iri);
+  const result = await EntityService.getProvHistory(iri);
   result.forEach((p: any) =>
     provenances.value.push({
       prov: p["@id"],
