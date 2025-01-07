@@ -231,6 +231,7 @@ async function loadTemplate(name: string) {
     codeInput.value = newTemplate.template ? newTemplate.template : "";
     fileExtensionInput.value = newTemplate.extension ? newTemplate.extension : "";
     collectionWrapperInput.value = newTemplate.collectionWrapper ? newTemplate.collectionWrapper : "";
+    datatypeMapInput.value = [];
     if (newTemplate.datatypeMap) for (let [key, value] of Object.entries(newTemplate.datatypeMap)) datatypeMapInput.value.push({ code: key, replace: value });
     else datatypeMapInput.value = [{ code: "", replace: "" }];
   }
