@@ -49,6 +49,10 @@ function processAwsUser(cognitoUser: GetCurrentUserOutput, userAttributes: Fetch
 }
 
 const AuthService = {
+  async getConfig(): Promise<any> {
+    return axios.get(Env.API + "api/cognito/public/config");
+  },
+
   async register(userToRegister: User): Promise<CustomAlert> {
     try {
       const { isSignUpComplete, nextStep, userId }: SignUpOutput = await signUp({

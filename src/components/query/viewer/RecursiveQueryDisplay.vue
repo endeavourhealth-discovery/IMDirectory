@@ -1,11 +1,13 @@
 <template>
   <div :style="{ paddingLeft: '1rem' }">
+    <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
+    <Button text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
     <span v-if="!query.match && !query.where && !query.return">
       <span v-if="query.name" style="padding-left: 2rem">{{ query.name }}</span>
     </span>
 
-    <span v-if="isArrayHasLength(query.match) || isArrayHasLength(query.where) || isArrayHasLength(query.return)">
-      <Button text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
+    <span v-if="isArrayHasLength(query.match) || isArrayHasLength(query.where) || query.return">
+
       <span v-if="query.name">{{ query.name }}</span>
       <span v-if="matchExpand && isArrayHasLength(query.match)">
         <RecursiveMatchDisplay
@@ -30,13 +32,8 @@
           :expandedSet="false"
         />
       </span>
-      <div v-if="matchExpand && query.return && isArrayHasLength(query.return)">
-        <ReturnColumns :select="query.return" class="pl-8" />
-        <h4 class="pl-8">Column paths:</h4>
-        <div class="pl-8">
-          <small class="pl-8 text-green-500">*Path [Column title]</small>
-          <RecursiveReturnDisplay v-for="nestedReturn in query.return" :select="nestedReturn" />
-        </div>
+      <div v-if="matchExpand && query.return">
+        <ReturnColumns :select="query.return" :property-expanded="false" class="pl-8" />
       </div>
     </span>
   </div>
@@ -50,6 +47,7 @@ import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 import ReturnColumns from "./ReturnColumns.vue";
+import {QueryService} from "@/services";
 
 interface Props {
   query: Query;
@@ -59,9 +57,22 @@ interface Props {
 
 const props = defineProps<Props>();
 const matchExpand = ref(props.matchExpanded);
+const loading = ref(false);
 
-function matchToggle() {
+async function matchToggle() {
+  await expandQuery();
   matchExpand.value = !matchExpand.value;
+}
+
+async function expandQuery() {
+  loading.value = true;
+  if (props.query["@id"]) {
+    const definedQuery = await QueryService.getDisplayFromQueryIri(props.query["@id"]!, true);
+    props.query.match= definedQuery.match;
+    props.query.where= definedQuery.where;
+    props.query.return= definedQuery.return;
+  }
+  loading.value = false;
 }
 </script>
 

@@ -1,6 +1,5 @@
 import { defineConfig } from "cypress";
 import "dotenv/config";
-import awsConfig from "./src/aws-exports";
 
 export default defineConfig({
   e2e: {
@@ -15,7 +14,7 @@ export default defineConfig({
     },
     experimentalRunAllSpecs: true
   },
-  env: { CYPRESS_LOGIN_USERNAME: process.env.CYPRESS_LOGIN_USERNAME, CYPRESS_LOGIN_PASSWORD: process.env.CYPRESS_LOGIN_PASSWORD, awsConfig: awsConfig },
+  env: { CYPRESS_LOGIN_USERNAME: process.env.CYPRESS_LOGIN_USERNAME, CYPRESS_LOGIN_PASSWORD: process.env.CYPRESS_LOGIN_PASSWORD },
   reporter: "junit",
   reporterOptions: {
     mochaFile: "cypress/e2e-tests.xml"

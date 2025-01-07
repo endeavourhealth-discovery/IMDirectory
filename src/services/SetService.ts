@@ -31,15 +31,6 @@ const SetService = {
     });
   },
 
-  async getFullyExpandedSetMembers(iri: string, legacy: boolean, includeSubsets: boolean): Promise<TTIriRef[]> {
-    return axios.get(API_URL + "/public/expandedMembers", {
-      params: {
-        iri: iri,
-        legacy: legacy,
-        includeSubsets: includeSubsets
-      }
-    });
-  },
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {
     return axios.get(API_URL + "/public/subsets", {

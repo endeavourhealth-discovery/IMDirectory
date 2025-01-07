@@ -1,5 +1,5 @@
 <template>
-  <component id="recursive-match-display" :is="operator===Bool.or&&index>0 ? 'div' : 'span'">
+  <component id="recursive-where-display" :is="operator===Bool.or&&index>0 ? 'div' : 'span'">
   <span v-if="index === 0 && operator === Bool.or" class="either">either</span>
   <span v-else-if="index === 1 && !where.where && operator === Bool.and" style="padding-right: 1rem">with</span>
   <span v-else-if="index > 1 && !where.where && operator === Bool.and">,</span>
