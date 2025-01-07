@@ -113,11 +113,12 @@ import InputOtp from "primevue/inputotp";
 import { VueShowdownPlugin } from "vue-showdown";
 
 import { Amplify } from "aws-amplify";
-import awsconfig from "./aws-exports";
 import { createPinia } from "pinia";
 import { useSharedStore } from "@/stores/sharedStore";
+import { AuthService } from "@/services";
 
-Amplify.configure(awsconfig);
+const awsconfig = await AuthService.getConfig();
+Amplify.configure(awsconfig.data);
 
 // msw initialising
 if (import.meta.env.MODE === "mock") {
