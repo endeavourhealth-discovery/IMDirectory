@@ -16,10 +16,10 @@
 
 <script setup lang="ts">
 import * as d3 from "d3";
-import { createVNode, onMounted, reactive, ref, Ref, watch } from "vue";
+import { onMounted, reactive, ref, Ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@/interfaces";
 import { cloneDeep } from "lodash-es";
-import { EntityService } from "@/services";
+import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { TTIriRef } from "@/interfaces/AutoGen";
 
@@ -66,7 +66,7 @@ async function getMultiselectMenu(d: any) {
   multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
   let result = [] as PropertyDisplay[];
   if (node.type === "group") {
-    result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.parents[0].id) : [];
+    result = !node.id.startsWith(twinNode) ? await DataModelService.getPropertiesDisplay(node.parents[0].id) : [];
   } else if (node.type === "property") {
     const ranges = (Array.from(new Set(node.range?.map(JSON.stringify))) as any).map(JSON.parse);
     ranges?.forEach((range: any) => {
@@ -76,7 +76,7 @@ async function getMultiselectMenu(d: any) {
       } as PropertyDisplay);
     });
   } else {
-    result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.id) : [];
+    result = !node.id.startsWith(twinNode) ? await DataModelService.getPropertiesDisplay(node.id) : [];
   }
   if (result && result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
@@ -234,7 +234,7 @@ function hideNode(node: any, parentId: any) {
 }
 
 async function setSelected(iri: any) {
-  const result = await EntityService.getPropertiesDisplay(iri);
+  const result = await DataModelService.getPropertiesDisplay(iri);
   if (result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
       if (r.group) {

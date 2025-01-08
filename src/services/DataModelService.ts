@@ -1,7 +1,7 @@
 import Env from "./Env";
 import axios from "axios";
 import { TTIriRef, NodeShape } from "@/interfaces/AutoGen";
-import { UIProperty } from "@/interfaces";
+import { PropertyDisplay, UIProperty } from "@/interfaces";
 const API_URL = Env.API + "api/dataModel";
 
 const DataModelService = {
@@ -28,6 +28,12 @@ const DataModelService = {
 
   async getUIProperty(dmIri: string, propIri: string): Promise<UIProperty> {
     return axios.get(API_URL + "/public/UIPropertyForQB", { params: { dmIri: dmIri, propIri: propIri } });
+  },
+
+  async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
+    return axios.get(API_URL + "/public/propertiesDisplay", {
+      params: { iri: iri }
+    });
   }
 };
 if (process.env.NODE_ENV !== "test") Object.freeze(DataModelService);
