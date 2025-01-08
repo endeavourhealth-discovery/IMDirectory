@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import {EntityService, GraphDtoService} from "@/services";
+import { EntityService } from "@/services";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
 interface Props {
@@ -97,7 +97,7 @@ function getTypeFromIri(iri: string): string {
 
 async function getGraph(iri: string): Promise<void> {
   loading.value = true;
-  graph.value = await GraphDtoService.getEntityGraph(iri);
+  graph.value = await EntityService.getEntityGraph(iri);
   loading.value = false;
 }
 </script>

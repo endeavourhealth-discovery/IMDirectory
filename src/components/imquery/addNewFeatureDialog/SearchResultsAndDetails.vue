@@ -40,7 +40,7 @@
           />
           <div v-if="isRecordModel(detailsEntity?.[RDF.TYPE])" class="dm-details">
             <div class="view-title"><b>Properties</b></div>
-            <DataModel :entityIri="detailsIri" @navigateTo="handleControlClick" />
+            <DataModel :entityIri="detailsIri" :entityName="detailsEntity[RDFS.LABEL]" @navigateTo="handleControlClick" />
           </div>
 
           <div v-else class="entity-details">
