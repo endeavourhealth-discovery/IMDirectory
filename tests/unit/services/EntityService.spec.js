@@ -47,9 +47,9 @@ describe("EntityService.ts ___ axios success", () => {
   });
 
   it("can get entity graph", async () => {
-    const result = await GraphDtoService.getEntityGraph("testIri");
+    const result = await EntityService.getEntityGraph("testIri");
     expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/graphDto/public/graph", { params: { iri: "testIri" } });
+    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/graph", { params: { iri: "testIri" } });
     expect(result).toBe("axios get return");
   });
 
@@ -66,13 +66,6 @@ describe("EntityService.ts ___ axios success", () => {
     expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/partialBundle", {
       params: { iri: "testIri", predicates: "testPredicate1,testPredicate2" }
     });
-    expect(result).toBe("axios get return");
-  });
-
-  it("can getInferredBundle", async () => {
-    const result = await EntityService.getDefinitionBundle("testIri");
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/inferredBundle", { params: { iri: "testIri" } });
     expect(result).toBe("axios get return");
   });
 
