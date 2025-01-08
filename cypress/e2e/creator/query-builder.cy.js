@@ -233,7 +233,7 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("Patients registered for GMS services on the reference date");
   });
 
-  it.skip("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
+  it("add feature to find patients who had headache within 3 days after a medication of paracetamol", () => {
     cy.populateBaseType();
     cy.addFeature(paracetamolConcept.searchTerm, paracetamolConcept.name, "#Concept");
     cy.get(".edit-match-container").contains("Paracetamol");
@@ -242,7 +242,7 @@ describe("Query builder", () => {
     cy.get(".edit-match-container").contains("label as med");
     cy.getByTestId("save-feature-button").contains("Save").click();
     cy.addFeature(paracetamolReactionConcept.searchTerm, paracetamolReactionConcept.name, "#Concept");
-    cy.get(".edit-match-container").contains("diabetes").click();
+    cy.get(".edit-match-container").contains(paracetamolReactionConcept.name).click();
     cy.get(".add-property-button").click();
     cy.get(".p-tree-node-selectable").contains("date").click();
     cy.get(".datatype-select").find(".p-select").first().click({ force: true });

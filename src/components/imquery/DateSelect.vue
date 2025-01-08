@@ -67,14 +67,14 @@
       type="text"
       placeholder="units"
       :options="uiProperty.intervalUnitOptions"
-      v-model="property.qualifier"
+      v-model="property.unit"
       option-label="name"
       @change="populateWithinDate"
     />
     <RelativeToSelect
       v-model:propertyRef="propertyRef"
       :property="property"
-      :datatype="uiProperty.propertyType"
+      :datatype="uiProperty.valueType"
       :property-iri="property['@id']!"
       @update:property-ref="populateWithinDate"
     />
