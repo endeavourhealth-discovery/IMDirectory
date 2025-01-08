@@ -7,8 +7,8 @@ const DatasetService = {
   async searchAllowableDataModelProperties(iri: string, parent: null | string): Promise<SearchResultSummary[]> {
     return axios.get(API_URL + "/public/searchAllowableDataModelProperties", {
       params: {
-        iri: iri,
-        parent: parent
+        datamodelIri: iri,
+        searchTerm: parent
       }
     });
   }

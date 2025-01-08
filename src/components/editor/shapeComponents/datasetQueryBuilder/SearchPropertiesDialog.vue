@@ -23,21 +23,24 @@
       <div v-if="loading">
         <ProgressSpinner />
       </div>
-      <div v-else>
+      <div v-else class="flex flex-row">
         <DataModelTreeSelector :entity-iri="props.baseQueryReturnType['@id']" />
+        <DataTable :paginator="true" :rows="rows" :value="searchResults" v-model:selection="selected" />
       </div>
     </div>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { DataModelService } from "@/services";
+import { DataModelService, QueryService } from "@/services";
 import { onMounted, Ref, ref, watch } from "vue";
 import DataModelTreeSelector from "./DataModelTreeSelector.vue";
-import { Query, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
+import { Query, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import DatasetService from "@/services/DatasetService";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { ExtendedSearchResultSummary } from "@/interfaces";
+import { QUERY } from "@/vocabulary";
 
 interface Props {
   showDialog: boolean;
@@ -65,6 +68,8 @@ const searchLoading: Ref<boolean> = ref(false);
 const searchPlaceholder: Ref<string> = ref("Search");
 const debounce = ref(0);
 const searchResults: Ref<SearchResultSummary[]> = ref([]);
+const rows = ref(50);
+const selected: Ref<ExtendedSearchResultSummary | undefined> = ref();
 
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 

@@ -10,7 +10,7 @@
       v-model:selection-keys="selectedKey"
     >
       <template #property="{ node }: any">
-        <div class="items-center">
+        <div class="items-center" @mouseover="event => showOverlay(event, node.data.iri)" @mouseleave="hideOverlay">
           <ProgressSpinner v-if="node.loading" class="progress-spinner" />
           <IMFontAwesomeIcon
             v-if="node.data.typeIcon && !node.loading"
@@ -24,7 +24,7 @@
         </div>
       </template>
       <template #type="{ node }: any">
-        <div class="items-center">
+        <div class="items-center" @mouseover="event => showOverlay(event, node.data.iri)" @mouseleave="hideOverlay">
           <ProgressSpinner v-if="node.loading" class="progress-spinner" />
           <IMFontAwesomeIcon
             v-if="node.data.typeIcon && !node.loading"
@@ -37,7 +37,7 @@
         </div>
       </template>
       <template #parameter="{ node }: any">
-        <div class="items-center">
+        <div class="items-center" @mouseover="event => showOverlay(event, node.data.iri)" @mouseleave="hideOverlay">
           <ProgressSpinner v-if="node.loading" class="progress-spinner" />
           <IMFontAwesomeIcon
             v-if="node.data.typeIcon && !node.loading"
