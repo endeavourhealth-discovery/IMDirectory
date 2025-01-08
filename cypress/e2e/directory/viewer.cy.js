@@ -174,6 +174,7 @@ describe("viewer", () => {
       });
       describe("graph tab", () => {
         beforeEach(() => {
+          cy.get(".p-tablist-next-button").click();
           cy.get(".p-tablist-tab-list").find(".p-tab").contains("Graph").click();
         });
         it("loads d3 graph for entity", () => {
@@ -182,6 +183,7 @@ describe("viewer", () => {
       });
       describe("json tab", () => {
         beforeEach(() => {
+          cy.get(".p-tablist-next-button").click();
           cy.get(".p-tablist-next-button").click();
           cy.get(".p-tablist-next-button").click();
           cy.get("#viewer-tabs").contains("JSON").click();
