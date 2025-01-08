@@ -23,7 +23,7 @@ const sharedStore = useSharedStore();
 
 function closeBanner() {
   if (props.latestRelease?.version) localStorage.setItem("IMDirectoryVersion", props.latestRelease.version);
-  sharedStore.updateShowBanner(false);
+  sharedStore.updateShowReleaseBanner(false);
 }
 
 function showReleaseNotes() {

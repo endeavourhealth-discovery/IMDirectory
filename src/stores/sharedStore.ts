@@ -14,11 +14,12 @@ export const useSharedStore = defineStore("shared", {
       { "@id": IM.INACTIVE, severity: "danger" }
     ],
     showReleaseNotes: false,
-    showBanner: localStorage.getItem("showBanner") === "true" ? true : false,
+    showReleaseBanner: localStorage.getItem("showReleaseBanner") === "true" ? true : false,
     showDevBanner: localStorageWithExpiry.getItem("showDevBanner") ?? true,
     activeProfile: { uuid: "", activeClausePath: "" },
     error: undefined,
-    isPublicMode: false
+    isPublicMode: false,
+    isDevMode: false
   }),
   actions: {
     updateShowCookieConsent(bool: boolean) {
@@ -36,13 +37,13 @@ export const useSharedStore = defineStore("shared", {
     updateShowReleaseNotes(bool: boolean) {
       this.showReleaseNotes = bool;
     },
-    updateShowBanner(bool: boolean) {
-      this.showBanner = bool;
-      localStorage.setItem("showBanner", bool === true ? "true" : "");
+    updateShowReleaseBanner(bool: boolean) {
+      this.showReleaseBanner = bool;
+      localStorage.setItem("showReleaseBanner", bool === true ? "true" : "");
     },
     updateShowDevBanner(bool: boolean) {
       this.showDevBanner = bool;
-      localStorageWithExpiry.setItem("showBanner", bool);
+      localStorageWithExpiry.setItem("showDevBanner", bool);
     },
     updateTagSeverityMatches(items: any) {
       this.tagSeverityMatches = items;
@@ -52,6 +53,9 @@ export const useSharedStore = defineStore("shared", {
     },
     updateIsPublicMode(publicMode: boolean) {
       this.isPublicMode = publicMode;
+    },
+    updateIsDevMode(devMode: boolean) {
+      this.isDevMode = devMode;
     }
   }
 });

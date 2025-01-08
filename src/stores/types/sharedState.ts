@@ -4,9 +4,10 @@ export interface SharedState {
   showUprnConsent: boolean;
   tagSeverityMatches: any[];
   showReleaseNotes: boolean;
-  showBanner: boolean;
+  showReleaseBanner: boolean;
   showDevBanner: boolean;
   activeProfile: any;
   error: any | undefined;
   isPublicMode: boolean;
+  isDevMode: boolean;
 }

@@ -312,10 +312,6 @@ const AuthService = {
 
   async verifyMFAToken(token: string) {
     await verifyTOTPSetup({ code: token });
-  },
-
-  async isPublicMode(): Promise<boolean> {
-    return axios.get(Env.API + "api/status/public/isPublicMode");
   }
 };
 
