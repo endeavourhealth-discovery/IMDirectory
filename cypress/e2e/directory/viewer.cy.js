@@ -185,7 +185,6 @@ describe("viewer", () => {
         beforeEach(() => {
           cy.get(".p-tablist-next-button").click();
           cy.get(".p-tablist-next-button").click();
-          cy.get(".p-tablist-next-button").click();
           cy.get("#viewer-tabs").contains("JSON").click();
         });
         it("has json with correct iri", () => {
