@@ -175,7 +175,7 @@ describe("viewer", () => {
       describe("graph tab", () => {
         beforeEach(() => {
           cy.get(".p-tablist-next-button").click();
-          cy.get(".p-tablist-tab-list").find(".p-tab").contains("Graph").click();
+          cy.get(".p-tablist-tab-list").find(".p-tab").contains("Graph").click({ scrollBehavior: false });
         });
         it("loads d3 graph for entity", () => {
           cy.get("#graph-container").contains("Asthma (disorder)");
@@ -185,7 +185,7 @@ describe("viewer", () => {
         beforeEach(() => {
           cy.get(".p-tablist-next-button").click();
           cy.get(".p-tablist-next-button").click();
-          cy.get("#viewer-tabs").contains("JSON").click();
+          cy.get("#viewer-tabs").contains("JSON").click({ scrollBehavior: false });
         });
         it("has json with correct iri", () => {
           cy.wait(1000);
@@ -196,7 +196,7 @@ describe("viewer", () => {
         beforeEach(() => {
           cy.get(".p-tablist-next-button").click();
           cy.get(".p-tablist-next-button").click();
-          cy.get("#viewer-tabs").contains("Provenance").click();
+          cy.get("#viewer-tabs").contains("Provenance").click({ scrollBehavior: false });
         });
         it("has provenance table", () => {
           cy.getByTestId("provenance-table").find("tr").should("have.length.above", 0);
