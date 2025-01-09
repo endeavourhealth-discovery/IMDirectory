@@ -14,20 +14,21 @@
             <Tab v-if="showTerms" value="1">Terms</Tab>
             <Tab v-if="showMappings" value="2">Maps</Tab>
             <Tab v-if="isValueSet(types)" value="3">Set</Tab>
-            <Tab v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">ECL </Tab>
-            <Tab v-if="isRecordModel(types)" value="5">Data Model</Tab>
-            <Tab v-if="isRecordModel(types)" value="6">Properties</Tab>
-            <Tab v-if="isQuery(types)" value="7">Query</Tab>
-            <Tab v-if="isDataSet(types)" value="8">Data set</Tab>
-            <Tab v-if="isFeature(types)" value="9">Feature</Tab>
-            <Tab value="10">Contents</Tab>
-            <Tab v-if="isProperty(types)" value="11">Data Models</Tab>
-            <Tab value="12">Used In</Tab>
-            <Tab value="13">Hierarchy Position</Tab>
-            <Tab v-if="showGraph" value="14">Entity Chart</Tab>
-            <Tab value="15">Graph</Tab>
-            <Tab value="16">JSON</Tab>
-            <Tab value="17">Provenance</Tab>
+            <Tab v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">ECL</Tab>
+            <Tab v-if="isConcept(types)" value="5">Expression</Tab>
+            <Tab v-if="isRecordModel(types)" value="6">Data Model</Tab>
+            <Tab v-if="isRecordModel(types)" value="7">Properties</Tab>
+            <Tab v-if="isQuery(types)" value="8">Query</Tab>
+            <Tab v-if="isDataSet(types)" value="9">Data set</Tab>
+            <Tab v-if="isFeature(types)" value="10">Feature</Tab>
+            <Tab value="11">Contents</Tab>
+            <Tab v-if="isProperty(types)" value="12">Data Models</Tab>
+            <Tab value="13">Used In</Tab>
+            <Tab value="14">Hierarchy Position</Tab>
+            <Tab v-if="showGraph" value="15">Entity Chart</Tab>
+            <Tab value="16">Graph</Tab>
+            <Tab value="17">JSON</Tab>
+            <Tab value="18">Provenance</Tab>
           </TabList>
           <TabPanels>
             <TabPanel value="0">
@@ -55,67 +56,70 @@
                 <EclDefinition :definition="concept['http://endhealth.info/im#definition']" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isRecordModel(types)" value="5">
+            <TabPanel v-if="isConcept(types)" value="5">
+              <ExpressionDisplay :concept="concept" />
+            </TabPanel>
+            <TabPanel v-if="isRecordModel(types)" value="6">
               <div id="data-model-container" class="concept-panel-content">
                 <DataModel :entityIri="entityIri" :entityName="concept[RDFS.LABEL]" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isRecordModel(types)" value="6">
+            <TabPanel v-if="isRecordModel(types)" value="7">
               <div id="properties-container" class="concept-panel-content">
                 <Properties :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isQuery(types)" value="7">
+            <TabPanel v-if="isQuery(types)" value="8">
               <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isDataSet(types)" value="8">
+            <TabPanel v-if="isDataSet(types)" value="9">
               <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isFeature(types)" value="9">
+            <TabPanel v-if="isFeature(types)" value="10">
               <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" />
               </div>
             </TabPanel>
-            <TabPanel value="10">
+            <TabPanel value="11">
               <div id="definition-container" class="concept-panel-content">
                 <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isProperty(types)" value="11">
+            <TabPanel v-if="isProperty(types)" value="12">
               <div id="definition-container" class="concept-panel-content">
                 <DataModels :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="12">
+            <TabPanel value="13">
               <div id="usedin-container" class="concept-panel-content">
                 <UsedIn :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="13">
+            <TabPanel value="14">
               <div id="secondary-tree-container" class="concept-panel-content">
                 <SecondaryTree :entityIri="entityIri" @row-clicked="(iri: string) => emit('navigateTo', iri)" @row-control-clicked="handleControlClick" />
               </div>
             </TabPanel>
-            <TabPanel v-if="showGraph" value="14">
+            <TabPanel v-if="showGraph" value="15">
               <div id="entity-chart-container" class="concept-panel-content">
                 <EntityChart :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="15">
+            <TabPanel value="16">
               <div id="graph-container" class="concept-panel-content">
                 <Graph :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="16">
+            <TabPanel value="17">
               <div id="json-container" class="concept-panel-content">
                 <JSONViewer :entityIri="entityIri" />
               </div>
             </TabPanel>
-            <TabPanel value="17">
+            <TabPanel value="18">
               <div id="provenance-container" class="concept-panel-content">
                 <Provenance :entityIri="entityIri" />
               </div>
@@ -153,6 +157,7 @@ import DataModels from "./viewer/DataModels.vue";
 
 import { useRouter } from "vue-router";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
+import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
 
 interface Props {
   entityIri: string;
@@ -232,7 +237,7 @@ async function init(): Promise<void> {
 }
 
 async function getConcept(iri: string) {
-  const predicates = [RDFS.LABEL, IM.DEFINITION, RDF.TYPE];
+  const predicates = [RDFS.LABEL, IM.DEFINITION, RDF.TYPE, IM.CODE, RDFS.SUBCLASS_OF, IM.ROLE_GROUP, IM.DEFINITIONAL_STATUS];
   concept.value = await EntityService.getPartialEntity(iri, predicates);
 }
 
