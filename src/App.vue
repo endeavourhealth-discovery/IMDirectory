@@ -7,13 +7,13 @@
     <CookiesConsent />
     <SnomedConsent />
     <div id="main-container">
-      <DevBanner v-if="showDevBanner && isPublicMode" />
-      <ReleaseBannerBar v-if="!viewsLoading && showReleaseBanner" :latestRelease="latestRelease" />
+      <DevBanner v-if="showDevBanner && isPublicMode && finishedOnMounted" />
+      <ReleaseBannerBar v-if="!viewsLoading && showReleaseBanner && finishedOnMounted" :latestRelease="latestRelease" />
       <div v-if="viewsLoading || !finishedOnMounted" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
       <router-view v-else />
-      <FooterBar />
+      <FooterBar v-if="finishedOnMounted" />
     </div>
   </div>
 </template>
