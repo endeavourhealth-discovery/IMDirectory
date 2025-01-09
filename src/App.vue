@@ -7,13 +7,13 @@
     <CookiesConsent />
     <SnomedConsent />
     <div id="main-container">
-      <DevBanner v-if="showDevBanner && isPublicMode" />
-      <BannerBar v-if="!viewsLoading && showBanner" :latestRelease="latestRelease" />
+      <DevBanner v-if="showDevBanner && isPublicMode && finishedOnMounted" />
+      <ReleaseBannerBar v-if="!viewsLoading && showReleaseBanner && finishedOnMounted" :latestRelease="latestRelease" />
       <div v-if="viewsLoading || !finishedOnMounted" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
       <router-view v-else />
-      <FooterBar />
+      <FooterBar v-if="finishedOnMounted" />
     </div>
   </div>
 </template>
@@ -22,13 +22,13 @@
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
-import BannerBar from "./components/app/BannerBar.vue";
+import ReleaseBannerBar from "./components/app/ReleaseBannerBar.vue";
 import FooterBar from "./components/app/FooterBar.vue";
 import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { AuthService, GithubService } from "@/services";
+import { AuthService, GithubService, StatusService } from "@/services";
 import { fetchAuthSession } from "aws-amplify/auth";
 import axios, { AxiosRequestHeaders, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
@@ -57,7 +57,7 @@ const { changeScale } = setupChangeScale();
 const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
-const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
+const showReleaseBanner: ComputedRef<boolean> = computed(() => sharedStore.showReleaseBanner);
 const showDevBanner: ComputedRef<boolean> = computed(() => sharedStore.showDevBanner);
 const isPublicMode: ComputedRef<boolean> = computed(() => sharedStore.isPublicMode);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -91,17 +91,18 @@ watch(darkMode, (newValue, oldValue) => {
 });
 
 onMounted(async () => {
-  sharedStore.updateIsPublicMode(await AuthService.isPublicMode());
+  sharedStore.updateIsPublicMode(await StatusService.isPublicMode());
+  sharedStore.updateIsDevMode(await StatusService.isDevMode());
 
   loadingStore.updateViewsLoading(true);
   await AuthService.getCurrentAuthenticatedUser();
 
-  if (sharedStore.isPublicMode || isLoggedIn.value) {
+  if (isPublicMode || isLoggedIn.value) {
     await userStore.getAllFromUserDatabase();
     setThemeOptions();
     if (currentScale.value) await changeScale(currentScale.value);
     await filterStore.fetchFilterSettings();
-    await setShowBanner();
+    await setShowReleaseBanner();
   } else {
     await router.push({ name: "Login" });
   }
@@ -116,17 +117,17 @@ function setThemeOptions() {
   if (darkMode.value) changeDarkMode(darkMode.value);
 }
 
-async function setShowBanner() {
+async function setShowReleaseBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
   latestRelease.value = await GithubService.getLatestRelease("IMDirectory");
   let currentVersion = "v0.0.0";
   if (latestRelease.value?.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
-    sharedStore.updateShowBanner(true);
+    sharedStore.updateShowReleaseBanner(true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
     localStorage.removeItem("IMDirectoryVersion");
-    sharedStore.updateShowBanner(true);
-  } else sharedStore.updateShowBanner(false);
+    sharedStore.updateShowReleaseBanner(true);
+  } else sharedStore.updateShowReleaseBanner(false);
 }
 
 function getLocalVersion(repoName: string): string | null {

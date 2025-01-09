@@ -12,6 +12,7 @@ import FunctionService from "./FunctionService";
 import CodeGenService from "./CodeGenService";
 import DataModelService from "./DataModelService";
 import ConceptService from "./ConceptService";
+import StatusService from "./StatusService";
 
 export {
   AuthService,
@@ -27,5 +28,6 @@ export {
   FunctionService,
   CodeGenService,
   DataModelService,
-  ConceptService
+  ConceptService,
+  StatusService
 };

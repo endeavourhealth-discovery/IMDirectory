@@ -150,7 +150,7 @@ const EntityService = {
   },
 
   async getCoreSchemes(): Promise<string[]> {
-    const coreSchemesChildren = await this.getEntityChildren(IM.CORE_SCHEMES);
+    const coreSchemesChildren = (await this.getEntityChildren(IM.CORE_SCHEMES)) ?? [];
     return coreSchemesChildren.map(child => child["@id"]);
   },
 
