@@ -40,7 +40,13 @@
       <Column :exportable="false" style="justify-content: flex-end">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" :name="data.name" @locate-in-tree="locateInTree" />
+            <ActionButtons
+              v-if="data.iri"
+              :buttons="['findInTree', 'view', 'edit', 'favourite']"
+              :iri="data['@id']"
+              :name="data.name"
+              @locate-in-tree="locateInTree"
+            />
           </div>
         </template>
       </Column>

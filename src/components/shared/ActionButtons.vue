@@ -96,7 +96,7 @@ const organisations = computed(() => userStore.organisations);
 interface Props {
   buttons: string[];
   iri: string;
-  name: string;
+  name?: string;
   type?: string;
 }
 
