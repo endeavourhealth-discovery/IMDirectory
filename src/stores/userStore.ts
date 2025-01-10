@@ -72,32 +72,27 @@ export const useUserStore = defineStore("user", {
       this.favourites = favourites;
     },
     async getAllFromUserDatabase(): Promise<void> {
+      await this.initFavourites();
       if (this.currentUser) {
         this.clearAllFromLocalStorage();
         const preset = await UserService.getUserPreset();
-        if (preset) {
-          this.currentPreset = preset;
-        }
+        if (preset) this.currentPreset = preset;
+
         const primaryColor = await UserService.getUserPrimaryColor();
-        if (primaryColor) {
-          this.currentPrimaryColor = primaryColor;
-        }
+        if (primaryColor) this.currentPrimaryColor = primaryColor;
+
         const surfaceColor = await UserService.getUserSurfaceColor();
-        if (surfaceColor) {
-          this.currentSurfaceColor = surfaceColor;
-        }
+        if (surfaceColor) this.currentSurfaceColor = surfaceColor;
+
         const darkMode = await UserService.getUserDarkMode();
-        if (darkMode) {
-          this.darkMode = darkMode;
-        }
+        if (darkMode) this.darkMode = darkMode;
+
         const scaleResult = await UserService.getUserScale();
-        if (scaleResult) {
-          this.currentScale = scaleResult;
-        }
-        const favourites = await UserService.getUserFavourites();
-        if (favourites?.length) this.favourites = favourites;
+        if (scaleResult) this.currentScale = scaleResult;
+
         const recentActivityResult = await UserService.getUserMRU();
         if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
+
         const organisationResults = await UserService.getUserOrganisations();
         if (organisationResults) this.organisations = organisationResults;
       } else this.getAllFromLocalStorage();
