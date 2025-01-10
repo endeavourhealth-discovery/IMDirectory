@@ -19,7 +19,16 @@ describe("state", () => {
     const sharedStore = useSharedStore();
     const userStore = useUserStore();
     expect(Object.keys(sharedStore)).toEqual(
-      expect.arrayContaining(["showCookieConsent", "showSnomedLicense", "tagSeverityMatches", "showReleaseNotes", "showBanner", "activeProfile"])
+      expect.arrayContaining([
+        "showCookieConsent",
+        "showSnomedLicense",
+        "tagSeverityMatches",
+        "showReleaseNotes",
+        "showReleaseBanner",
+        "showDevBanner",
+        "activeProfile",
+        "isDevMode"
+      ])
     );
     expect(userStore.snomedLicenseAccepted).toBe(false);
   });
