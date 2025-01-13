@@ -1,5 +1,4 @@
 import { dateNowReverse } from "@/helpers/Datetime/DateNowReverse";
-import path from "path";
 
 describe("viewer", () => {
   beforeEach(() => {
@@ -25,7 +24,7 @@ describe("viewer", () => {
         const cypressDownloads = Cypress.config("downloadsFolder");
         cy.getByTestId("download-button").click();
         cy.get(".p-confirmdialog").find(".p-confirmdialog-accept-button").click();
-        cy.readFile(path.join(cypressDownloads + "/Asthma (disorder)_" + currentDate + ".json"));
+        cy.readFile(cypressDownloads + "/Asthma (disorder)_" + currentDate + ".json");
       });
       it("can favourite", () => {
         cy.clearFavouritesAndSuggested();
@@ -223,7 +222,7 @@ describe("viewer", () => {
       cy.getByTestId("download-by-query-options-dialog").contains("csv").click();
       cy.getByTestId("download-by-query-options-dialog").contains("Core").click();
       cy.getByTestId("download-by-query-options-dialog").contains("Download").click();
-      cy.readFile(path.join(cypressDownloads + "/CEG 16+1 Ethnic category (set group) - " + currentDate + ".csv"));
+      cy.readFile(cypressDownloads + "/CEG 16+1 Ethnic category (set group) - " + currentDate + ".csv");
     });
   });
 });
