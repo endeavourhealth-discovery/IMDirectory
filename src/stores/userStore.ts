@@ -71,9 +71,25 @@ export const useUserStore = defineStore("user", {
       if (this.currentUser) await UserService.updateUserFavourites(favourites);
       this.favourites = favourites;
     },
-    async getAllFromUserDatabase(): Promise<void> {
-      await this.initFavourites();
+    async initRecentActivity() {
+      let mru: RecentActivityItem[] = [];
       if (this.currentUser) {
+        const result = await UserService.getUserMRU();
+        if (result) mru = result;
+      } else mru = this.recentLocalActivity ? this.recentLocalActivity : [];
+      for (let index = 0; index < mru.length; index++) {
+        if (mru[index].iri) {
+          const iriExists = await EntityService.iriExists(mru[index].iri);
+          if (!iriExists) mru.splice(index, 1);
+        }
+      }
+      if (this.currentUser) await UserService.updateUserMRU(mru);
+      this.recentLocalActivity = mru;
+    },
+    async getAllFromUserDatabase(): Promise<void> {
+      if (this.currentUser) {
+        await this.initFavourites();
+        await this.initRecentActivity();
         this.clearAllFromLocalStorage();
         const preset = await UserService.getUserPreset();
         if (preset) this.currentPreset = preset;
@@ -89,9 +105,6 @@ export const useUserStore = defineStore("user", {
 
         const scaleResult = await UserService.getUserScale();
         if (scaleResult) this.currentScale = scaleResult;
-
-        const recentActivityResult = await UserService.getUserMRU();
-        if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
 
         const organisationResults = await UserService.getUserOrganisations();
         if (organisationResults) this.organisations = organisationResults;
