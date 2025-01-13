@@ -117,7 +117,7 @@ function getFormattedPath(paths: IriLD[]) {
     .map(item => {
       const parts = [];
       if (item.qualifier) parts.push("<span>" + item.qualifier + "</span>");
-      if (item.name) parts.push('<span style="color : rgb(0,102,102);">' + item.description + "</span>");
+      if (item.name) parts.push('<span style="color : rgb(0,102,102);">' + item.name + "</span>");
       return parts.join(" ");
     })
     .join("-> ");
