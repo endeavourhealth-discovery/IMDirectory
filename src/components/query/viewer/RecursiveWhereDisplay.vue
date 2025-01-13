@@ -1,8 +1,13 @@
 <template>
   <component id="recursive-where-display" :is="operator===Bool.or&&index>0 ? 'div' : 'span'">
   <span v-if="index === 0 && operator === Bool.or" class="either">either</span>
-  <span v-else-if="index === 1 && !where.where && operator === Bool.and" style="padding-right: 1rem">with</span>
-  <span v-else-if="index > 1 && !where.where && operator === Bool.and">,</span>
+  <span v-else-if="index === 1 && !where.where && operator === Bool.and"
+        :style="{
+    paddingRight: '1rem',
+    paddingLeft: expandedSet ? '3rem' : '0rem'
+  }"
+  > with</span>
+  <span v-else-if="index > 1 && !where.where && operator === Bool.and"> ,and </span>
   <span v-else-if="operator === Bool.or" :class="operator">{{ operator }}</span>
   <span v-if="where.name" class="field">{{ where.name }}</span>
   <span v-if="where.valueLabel || where.qualifier">
