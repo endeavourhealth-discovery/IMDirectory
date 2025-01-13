@@ -63,6 +63,8 @@
     "yup": "1.4.0"
   },
   "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^21.0.3",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.4",
     "@faker-js/faker": "8.4.1",
     "@mswjs/data": "0.16.1",
     "@originjs/vite-plugin-commonjs": "1.0.3",
