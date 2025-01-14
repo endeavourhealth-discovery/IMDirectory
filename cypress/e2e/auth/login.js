@@ -1,4 +1,14 @@
-import { When, Then, Step } from "@badeball/cypress-cucumber-preprocessor";
+import { When, Then, Step, Given } from "@badeball/cypress-cucumber-preprocessor";
+
+Given("the server is in private mode", () => {
+  cy.intercept("GET", "imapi/api/status/public/isPublicMode", req => {
+    req.alias = "isPublicMode";
+    req.reply({
+      statusCode: 200,
+      body: false
+    });
+  });
+});
 
 When("I visit the home page", function () {
   cy.visit("/");
@@ -15,6 +25,10 @@ When("I click on the account menu", function () {
 
 When("I click on the login option", function () {
   cy.get("#account-menu").find("span").contains("Login").click();
+});
+
+When("I navigate to a concept page", () => {
+  cy.visit("/#/directory/folder/http%3A%2F%2Fsnomed.info%2Fsct%23195967001");
 });
 
 When("I navigate to the login page", function () {
@@ -50,7 +64,8 @@ Then("I should see login option", () => {
 });
 
 Then("I should see the login page", () => {
-  cy.url().should("include", "/user/login");
+  cy.get('[data-testid="login-submit"]').should("exist");
+  // cy.url().should("include", "/user/login");
 });
 
 Then("I should see the login confirmation", () => {
@@ -76,4 +91,9 @@ Then("I should be able to navigate to enter a confirmation code", () => {
 Then("I should be able to navigate to recover my account", () => {
   cy.get("#recover-link").click();
   cy.url().should("include", "/user/password-recovery");
+});
+
+Then("the home and back buttons are not available", () => {
+  cy.get('[data-testid="button-bar-home-button"]').should("not.exist");
+  cy.get('[data-testid="button-bar-back-button"]').should("not.exist");
 });
