@@ -42,3 +42,21 @@ Feature: login
     When I navigate to the login page
     Then I should be able to navigate to recover my account
 
+  Scenario: Private mode home page
+    Given the server is in private mode
+    When I visit the home page
+    And I accept the license and cookies
+    Then I should see the login page
+
+  Scenario: Private mode direct url
+    Given the server is in private mode
+    When I accept the license and cookies
+    And I navigate to a concept page
+    Then I should see the login page
+
+  Scenario: Private mode hidden navigation
+    Given the server is in private mode
+    When I visit the home page
+    And I accept the license and cookies
+    Then I should see the login page
+    And the home and back buttons are not available
