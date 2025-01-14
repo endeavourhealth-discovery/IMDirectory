@@ -56,40 +56,8 @@ export const useUserStore = defineStore("user", {
       this.cookiesOptionalAccepted = bool;
       localStorageWithExpiry.setItem("cookiesOptionalAccepted", bool);
     },
-    async initFavourites() {
-      let favourites: string[] = [];
-      if (this.currentUser) {
-        const result = await UserService.getUserFavourites();
-        if (result) favourites = result;
-      } else favourites = this.favourites ? this.favourites : [];
-      for (let index = 0; index < favourites.length; index++) {
-        const iriExists = await EntityService.iriExists(favourites[index]);
-        if (!iriExists) {
-          favourites.splice(index, 1);
-        }
-      }
-      if (this.currentUser) await UserService.updateUserFavourites(favourites);
-      this.favourites = favourites;
-    },
-    async initRecentActivity() {
-      let mru: RecentActivityItem[] = [];
-      if (this.currentUser) {
-        const result = await UserService.getUserMRU();
-        if (result) mru = result;
-      } else mru = this.recentLocalActivity ? this.recentLocalActivity : [];
-      for (let index = 0; index < mru.length; index++) {
-        if (mru[index].iri) {
-          const iriExists = await EntityService.iriExists(mru[index].iri);
-          if (!iriExists) mru.splice(index, 1);
-        }
-      }
-      if (this.currentUser) await UserService.updateUserMRU(mru);
-      this.recentLocalActivity = mru;
-    },
     async getAllFromUserDatabase(): Promise<void> {
       if (this.currentUser) {
-        await this.initFavourites();
-        await this.initRecentActivity();
         this.clearAllFromLocalStorage();
         const preset = await UserService.getUserPreset();
         if (preset) this.currentPreset = preset;
@@ -108,6 +76,12 @@ export const useUserStore = defineStore("user", {
 
         const organisationResults = await UserService.getUserOrganisations();
         if (organisationResults) this.organisations = organisationResults;
+
+        const favouritesResult = await UserService.getUserFavourites();
+        if (favouritesResult) this.favourites = favouritesResult;
+
+        const mruResult = await UserService.getUserMRU();
+        if (mruResult) this.recentLocalActivity = mruResult;
       } else this.getAllFromLocalStorage();
     },
     getAllFromLocalStorage(): void {
