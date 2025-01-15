@@ -16,6 +16,7 @@ assignees: ''
 
 ### Acceptance Criteria
 ```gherkin
+Scenario: [summary]
 Given [some context]
 When [certain action is taken]
 Then [the outcome of action is observed]
