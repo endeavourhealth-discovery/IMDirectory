@@ -186,7 +186,10 @@ const AuthService = {
         "custom:surname": userToUpdate.lastName,
         "custom:avatar": userToUpdate.avatar
       };
-      await updateUserAttributes({ userAttributes: atts });
+      const result = await updateUserAttributes({ userAttributes: atts });
+      if (!result.email.isUpdated) {
+        if (result.email.nextStep.updateAttributeStep === "CONFIRM_ATTRIBUTE_WITH_CODE") return { status: 403, message: "Confirm with email code" };
+      }
       await this.getCurrentAuthenticatedUser();
       return { status: 200, message: "User updated successfully" };
     } catch (err: any) {

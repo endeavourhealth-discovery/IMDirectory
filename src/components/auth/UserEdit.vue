@@ -59,10 +59,11 @@
                   @blur="updateFocused('email1', false)"
                   @focus="updateFocused('email1', true)"
                 />
-                <IMFontAwesomeIcon v-if="!errors.email1" class="email-check" icon="fa-regular fa-circle-check" />
-                <IMFontAwesomeIcon v-if="errors.email1 && email1" class="email-times" icon="fa-regular fa-circle-xmark" />
+                <IMFontAwesomeIcon v-if="!errors.email1 && emailIsNotRegistered" class="email-check" icon="fa-regular fa-circle-check" />
+                <IMFontAwesomeIcon v-if="(errors.email1 && email1) || !emailIsNotRegistered" class="email-times" icon="fa-regular fa-circle-xmark" />
               </div>
-              <Message v-if="errors.email1" severity="error"> {{ errors.email1 }}</Message>
+              <Message v-if="!emailIsNotRegistered && email1 && !errors.email1" severity="error">Email address is already registered</Message>
+              <Message v-if="emailIsNotRegistered && errors.email1" severity="error">{{ errors.email1 }}</Message>
             </div>
             <div class="field">
               <label for="email2">Confirm email address</label>
@@ -104,7 +105,7 @@
               />
               <Button class="form-reset p-button-warning" data-testid="user-edit-reset-changes-button" label="Reset changes" type="button" @click="resetForm" />
               <Button
-                :disabled="setButtonDisabled()"
+                :disabled="buttonDisabled"
                 :loading="loading"
                 class="user-edit"
                 data-testid="user-edit-update-button"
@@ -122,7 +123,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, Ref } from "vue";
+import { computed, onMounted, ref, Ref, watch } from "vue";
 import Swal, { SweetAlertIcon, SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
@@ -144,6 +145,8 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
+const allVerified = computed(() => isObjectHasKeys(errors) && emailIsNotRegistered.value);
+
 const passwordOld = ref("");
 const password = ref("");
 const isNewPasswordValid = ref(false);
@@ -153,6 +156,8 @@ const showPasswordEdit = ref(false);
 const focused: Ref<Map<string, boolean>> = ref(new Map());
 const loading = ref(false);
 const activeItem = ref(0);
+const emailIsNotRegistered = ref(true);
+const buttonDisabled = ref(true);
 const menuItems = ref([
   {
     label: "Personal details",
@@ -216,6 +221,10 @@ const [lastName, lastNameAttrs]: any = defineField("lastName");
 const [email1, email1Attrs]: any = defineField("email1");
 const [email2, email2Attrs]: any = defineField("email2");
 
+watch([firstName, lastName, email1, email2], async () => {
+  setButtonDisabled();
+});
+
 function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);
 }
@@ -262,18 +271,16 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
   AuthService.updateUser(updatedUser).then(res => {
     if (res.status === 200) {
       if (!handlePasswordChange) {
-        if (oldEmail !== res.user?.email) {
-          handleEmailChange(res);
-        } else {
-          swalert("success", "Success", "Account details updated successfully.").then(async () => {
-            userStore.updateCurrentUser(res.user);
-            await userStore.getAllFromUserDatabase();
-            router.push({ name: "UserDetails" });
-          });
-        }
+        swalert("success", "Success", "Account details updated successfully.").then(async () => {
+          userStore.updateCurrentUser(res.user);
+          await userStore.getAllFromUserDatabase();
+          router.push({ name: "UserDetails" });
+        });
       } else {
         submitPasswordChange(res);
       }
+    } else if (res.status === 403 && res.message === "Confirm with email code") {
+      handleEmailChange();
     } else {
       swalert("error", "Error", res.message);
     }
@@ -281,12 +288,12 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
   loading.value = false;
 }
 
-function handleEmailChange(res: CustomAlert) {
+function handleEmailChange() {
   Swal.fire({
     title: "Verify your changes",
     text: "Enter the 6-digit code sent to you by no-reply@verificationemail.com.",
     input: "text",
-    showCancelButton: false,
+    showCancelButton: true,
     allowOutsideClick: false,
     allowEscapeKey: false,
     inputValidator: (value: string) => {
@@ -301,11 +308,15 @@ function handleEmailChange(res: CustomAlert) {
             router.push({ name: "UserDetails" });
           });
         } else {
-          swalert("error", "Error", "Email verification failed, but user details updated successfully. " + res.message);
+          swalert("error", "Error", "Email verification failed, but user details updated successfully. " + res.message).then(() => {
+            setFromCurrentUser();
+          });
         }
       });
     } else {
-      swalert("error", "Error", "Email verification failed, but user details updated successfully. ");
+      swalert("error", "Error", "Email verification failed, but user details updated successfully. ").then(() => {
+        setFromCurrentUser();
+      });
     }
   });
 }
@@ -322,22 +333,30 @@ function submitPasswordChange(res: CustomAlert) {
 }
 
 const onSubmit = handleSubmit(async () => {
-  if (userFieldsVerified() && isNewPasswordValid.value) {
+  if ((await userFieldsVerified()) && isNewPasswordValid.value) {
     handleFieldsVerified(true);
   } else if (showPasswordEdit.value) {
     const message = "Password cannot be updated. Please check all fields are valid.";
     swalert("error", "Error", message);
   } else if (!checkForChanges()) {
     swalert("warning", "Nothing to update", "Your account details have not been updated.");
-  } else if (userFieldsVerified()) {
+  } else if (await userFieldsVerified()) {
     handleFieldsVerified(false);
   } else {
     swalert("error", "Error", "Error with user form");
   }
 });
 
-function userFieldsVerified(): boolean {
-  return !isObjectHasKeys(errors.value);
+async function userFieldsVerified(): Promise<boolean> {
+  if (currentUser.value?.email != email1.value) {
+    await verifyEmailIsNotRegistered(email1.value);
+  } else emailIsNotRegistered.value = true;
+  return !isObjectHasKeys(errors.value) && emailIsNotRegistered.value;
+}
+
+async function verifyEmailIsNotRegistered(email: string) {
+  if (email && !errors.value.email1) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
+  else emailIsNotRegistered.value = true;
 }
 
 function resetForm(): void {
@@ -372,10 +391,12 @@ function updateAvatar(newValue: string): void {
   selectedAvatar.value = newValue;
 }
 
-function setButtonDisabled(): boolean {
-  if (userFieldsVerified() && !showPasswordEdit.value && checkForChanges()) {
-    return false;
-  } else return !(userFieldsVerified() && isNewPasswordValid.value);
+async function setButtonDisabled(): Promise<void> {
+  if ((await userFieldsVerified()) && !showPasswordEdit.value && checkForChanges()) {
+    buttonDisabled.value = false;
+  } else if (!((await userFieldsVerified()) && isNewPasswordValid.value)) {
+    buttonDisabled.value = true;
+  }
 }
 
 function checkForChanges(): boolean {
