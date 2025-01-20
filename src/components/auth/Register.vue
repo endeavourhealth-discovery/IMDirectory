@@ -96,7 +96,7 @@
               @blur="updateFocused('lastName', false)"
               :class="errors.lastName && lastName && !focused.get('lastName') && 'p-invalid'"
             />
-            <Message v-if="errors.lastName" severity="error"> {{ errors.lastName }}</Message>
+            <Message v-if="errors.lastName" severity="error" class="error-message"> {{ errors.lastName }}</Message>
           </div>
           <PasswordInputs test-id="register-password-" @update:password="setNewPassword" @update:arePasswordsValid="setIsNewPasswordValid" />
           <div class="privacy-container">
@@ -309,7 +309,7 @@ function openInNewTab(componentName: string) {
 .register-form {
   display: flex;
   flex-flow: column nowrap;
-  max-width: 32em;
+  width: 28rem;
 }
 
 .field {
@@ -336,5 +336,9 @@ function openInNewTab(componentName: string) {
 .input-with-button {
   display: flex;
   flex-flow: row nowrap;
+}
+
+.error-message {
+  max-width: 32rem;
 }
 </style>
