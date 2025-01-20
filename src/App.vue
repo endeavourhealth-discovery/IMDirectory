@@ -61,7 +61,6 @@ const showReleaseBanner: ComputedRef<boolean> = computed(() => sharedStore.showR
 const showDevBanner: ComputedRef<boolean> = computed(() => sharedStore.showDevBanner);
 const isPublicMode: ComputedRef<boolean> = computed(() => sharedStore.isPublicMode);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const currentUser = computed(() => userStore.currentUser);
 const currentScale = computed(() => userStore.currentScale);
 const currentPreset = computed(() => userStore.currentPreset);
 const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
@@ -91,13 +90,14 @@ watch(darkMode, (newValue, oldValue) => {
 });
 
 onMounted(async () => {
+  await AuthService.getCurrentAuthenticatedUser();
+
   sharedStore.updateIsPublicMode(await StatusService.isPublicMode());
   sharedStore.updateIsDevMode(await StatusService.isDevMode());
 
   loadingStore.updateViewsLoading(true);
-  await AuthService.getCurrentAuthenticatedUser();
 
-  if (isPublicMode || isLoggedIn.value) {
+  if (isPublicMode.value || isLoggedIn.value) {
     await userStore.getAllFromUserDatabase();
     setThemeOptions();
     if (currentScale.value) await changeScale(currentScale.value);
