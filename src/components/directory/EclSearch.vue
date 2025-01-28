@@ -1,5 +1,5 @@
 <template>
-  <div id="query-search-container">
+  <div id="ecl-search-container">
     <h3 class="title">Expression constraints language search</h3>
     <h5 class="info">ECL expression:</h5>
     <div class="text-copy-container">
@@ -31,7 +31,7 @@
         @click="onSearch()"
         class="p-button-primary"
         :disabled="!eclQueryString.length || eclError"
-        data-testid="search-button"
+        data-testid="ecl-search-button"
       />
     </div>
     <div class="filters-container">
@@ -152,7 +152,7 @@ function setFilterDefaults() {
 </script>
 
 <style scoped>
-#query-search-container {
+#ecl-search-container {
   height: 100%;
   width: 100%;
   display: flex;

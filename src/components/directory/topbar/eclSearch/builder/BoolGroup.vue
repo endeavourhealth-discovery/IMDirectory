@@ -1,7 +1,13 @@
 <template>
   <div class="not-bool-container">
     <Button
-      v-if="isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept' && index && index > 0"
+      v-if="
+        isArrayHasLength(value.items) &&
+        value.items.length &&
+        (value.items[0].type === 'ExpressionConstraint' || value.items[0].type === 'BoolGroup') &&
+        index &&
+        index > 0
+      "
       :severity="value.exclude ? 'danger' : 'secondary'"
       :outlined="!value.exclude"
       label="NOT"
@@ -10,6 +16,7 @@
       :class="!value.exclude && 'hover-button'"
       v-tooltip="'Exclude'"
       size="small"
+      data-testid="bool-not-button"
     />
     <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
       <div
@@ -43,6 +50,7 @@
               </div>
               <Button
                 v-if="group.includes(index)"
+                data-testid="group-button"
                 icon="fa-solid fa-brackets-curly"
                 severity="help"
                 @click="processGroup()"
@@ -80,6 +88,7 @@
             icon="fa-solid fa-filter"
             label="Add refinement"
             class="add-button"
+            data-testid="add-refinement-button"
             :severity="hover ? 'success' : 'secondary'"
             :outlined="!hover"
             :class="!hover && 'hover-button'"
@@ -91,6 +100,7 @@
             icon="fa-solid fa-plus"
             label="Add concept"
             class="add-button"
+            data-testid="add-concept-button"
             :severity="hover ? 'success' : 'secondary'"
             :outlined="!hover"
             :class="!hover && 'hover-button'"
