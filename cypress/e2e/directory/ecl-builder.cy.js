@@ -9,7 +9,7 @@ describe("Ecl search", () => {
     cy.get("#ecl-search-container").find(".title").contains("Expression constraints language search");
   });
 
-  describe.only("ecl builder", () => {
+  describe("ecl builder", () => {
     beforeEach(() => {
       cy.getByTestId("topbar-search-button").find(".p-splitbutton-dropdown").click();
       cy.get(".p-tieredmenu-overlay").contains("ECL").click();
