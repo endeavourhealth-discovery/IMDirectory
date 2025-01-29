@@ -68,6 +68,14 @@
               @mouseover="mouseover"
               @mouseout="mouseout"
             />
+            <component
+              v-else-if="item.type === 'Refinement' && props.value.items.length > 1 && props.value.items[index - 1].type === 'BoolGroup'"
+              :is="getComponent(item.type)"
+              :value="item"
+              :parent="props.value"
+              :focus="props.value.items[index - 1]"
+              :index="index"
+            />
             <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
             <div class="add-group">
               <Button
@@ -83,7 +91,7 @@
         </template>
         <div class="add-attribute-container">
           <Button
-            v-if="props.focus"
+            v-if="props.focus || (value?.items?.length > 0 && value.items[value.items.length - 1].type === 'BoolGroup')"
             type="button"
             icon="fa-solid fa-filter"
             label="Add refinement"
@@ -95,7 +103,7 @@
             @click="addRefinement()"
           />
           <Button
-            v-else
+            v-if="!props.focus"
             type="button"
             icon="fa-solid fa-plus"
             label="Add concept"
@@ -233,7 +241,9 @@ function processGroup() {
 }
 
 function addRefinement() {
-  if (!props.focus) {
+  if (props.focus || (props.value?.items?.length > 0 && props.value?.items[props.value?.items?.length - 1].type === "BoolGroup")) {
+    add({ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } });
+  } else {
     const anyConcept = {
       type: "ExpressionConstraint",
       constraintOperator: "<<",
@@ -242,7 +252,7 @@ function addRefinement() {
       items: [{ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } }]
     };
     add(anyConcept);
-  } else add({ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } });
+  }
 }
 
 function requestUnGroupItems() {
