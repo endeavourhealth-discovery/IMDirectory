@@ -45,7 +45,7 @@ describe("Ecl search", () => {
       cy.get(".p-datatable-selectable-row").should("have.length.greaterThan", 1);
     });
 
-    it.only("can build allergyToPenicillinsOrCephasporinsWithCausativeLactams", () => {
+    it("can build allergyToPenicillinsOrCephasporinsWithCausativeLactams", () => {
       cy.getByTestId("builder-button").click();
       cy.get("#ecl-builder-dialog").get("button").contains("Add concept").click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").type("Allergy to penicillin");
