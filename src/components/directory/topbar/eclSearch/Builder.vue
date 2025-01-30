@@ -195,6 +195,7 @@ async function generateQueryString() {
     try {
       const buildClone = cloneDeep(build.value);
       stripIds(buildClone);
+      stripValidation(buildClone);
       const query = await EclService.getQueryFromEclBuilder(buildClone, true);
       queryString.value = await EclService.getECLFromQuery(query, includeTerms.value);
       eclStringError.value = { error: false, message: "" };
@@ -307,6 +308,15 @@ function stripIds(idBuild: any) {
           stripIds(item);
         }
       }
+    }
+  }
+}
+
+function stripValidation(build: any) {
+  delete build.validation;
+  if (build.items?.length) {
+    for (const item of build.items) {
+      stripValidation(item);
     }
   }
 }

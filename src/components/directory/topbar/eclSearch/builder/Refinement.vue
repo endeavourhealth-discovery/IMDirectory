@@ -362,8 +362,8 @@ async function updateIsValidProperty(): Promise<void> {
 
 async function updateIsValidPropertyValue(): Promise<void> {
   if (selectedValue.value && selectedProperty.value) {
-    const imQuery: QueryRequest = cloneDeep(imQueryForPropertySearch.value) ?? { query: {} };
-    imQuery.textSearch = selectedProperty.value?.iri;
+    const imQuery: QueryRequest = cloneDeep(imQueryForValueSearch.value) ?? { query: {} };
+    imQuery.textSearch = selectedValue.value?.iri;
     const result = await QueryService.queryIMSearch(imQuery);
     isValidPropertyValue.value = result.entities?.findIndex(r => r.iri === selectedValue.value?.iri) != -1 ? true : false;
     if (!isValidPropertyValue.value) {
