@@ -63,10 +63,10 @@
     />
     <InputNumber v-model:model-value="numberValue" @update:model-value="populateWithinDate" />
     <Select
-      v-if="uiProperty.intervalUnitOptions"
+      v-if="uiProperty.unitOptions"
       type="text"
       placeholder="units"
-      :options="uiProperty.intervalUnitOptions"
+      :options="uiProperty.unitOptions"
       v-model="property.unit"
       option-label="name"
       @change="populateWithinDate"
