@@ -152,6 +152,7 @@ describe("Query builder", () => {
     cy.get(".datatable-flex-cell").contains(diabetesSet.name).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
+    cy.get(".p-listbox").last().find(".p-listbox-option").contains("patient -> Condition . concept").click();
     cy.getByTestId("add-feature-ok-button").contains("OK").click();
     cy.get(".p-dialog-content").find(".add-property-button").click();
     cy.get(".p-tree-node-selectable").contains("description").click();

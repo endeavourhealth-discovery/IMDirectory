@@ -92,7 +92,7 @@ Cypress.Commands.add("searchAndSelect", (searchTerm: string) => {
 
 Cypress.Commands.add("searchAndSelectWithFilters", (searchTerm: string, filters: FilterOptions) => {
   cy.getByTestId("topbar-search-button").contains("Search").click();
-  if (filters.status.length) {
+  if (filters?.status.length) {
     for (const status of filters.status) {
       if (status.name) {
         cy.getByTestId("status-filter").find(".p-multiselect-dropdown").click();
@@ -100,7 +100,7 @@ Cypress.Commands.add("searchAndSelectWithFilters", (searchTerm: string, filters:
       }
     }
   }
-  if (filters.schemes.length) {
+  if (filters?.schemes.length) {
     for (const schemes of filters.schemes) {
       if (schemes.name) {
         cy.getByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
@@ -108,7 +108,7 @@ Cypress.Commands.add("searchAndSelectWithFilters", (searchTerm: string, filters:
       }
     }
   }
-  if (filters.types.length) {
+  if (filters?.types.length) {
     for (const type of filters.types) {
       if (type.name) {
         cy.getByTestId("type-filter").find(".p-multiselect-dropdown").click();

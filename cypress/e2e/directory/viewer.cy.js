@@ -206,12 +206,11 @@ describe("viewer", () => {
   describe("Set", () => {
     beforeEach(() => {
       cy.clearFavouritesAndSuggested();
-      const filters = { types: [], status: [], schemes: [{ "@id": "http://endhealth.info/ceg#", name: "CEG (QMUL) graph" }] };
-      cy.searchAndSelectWithFilters("CEG 16+1 Ethnic category", filters);
+      cy.searchAndSelect("Autism Spectrum Disorders (Data model value set)");
     });
 
     it("starts with set tab open", () => {
-      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("CEG 16+1");
+      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("Autism Spectrum Disorders (Data model value set)");
       cy.get("#viewer-tabs").find(".p-tab-active").contains("Set");
     });
 
@@ -222,7 +221,7 @@ describe("viewer", () => {
       cy.getByTestId("download-by-query-options-dialog").contains("csv").click();
       cy.getByTestId("download-by-query-options-dialog").contains("Core").click();
       cy.getByTestId("download-by-query-options-dialog").contains("Download").click();
-      cy.readFile(cypressDownloads + "/CEG 16+1 Ethnic category (set group) - " + currentDate + ".csv");
+      cy.readFile(cypressDownloads + "/Autism Spectrum Disorders (Data model value set) - " + currentDate + ".csv");
     });
   });
 });
