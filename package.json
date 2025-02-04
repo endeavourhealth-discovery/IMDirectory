@@ -110,5 +110,23 @@
   "msw": {
     "workerDirectory": "public"
   },
-  "types": "./types"
+  "types": "./types",
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "@badeball/cypress-cucumber-preprocessor",
+      "core-js",
+      "cypress",
+      "esbuild",
+      "msw",
+      "vue-demi"
+    ],
+    "onlyBuiltDependencies": [
+      "@badeball/cypress-cucumber-preprocessor",
+      "core-js",
+      "cypress",
+      "esbuild",
+      "msw",
+      "vue-demi"
+    ]
+  }
 }
