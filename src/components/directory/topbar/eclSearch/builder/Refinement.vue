@@ -61,6 +61,7 @@
       <AutocompleteSearchBar
         :disabled="!hasProperty || loadingValue || loadingProperty"
         v-model:selected="selectedValue"
+        :imQuery="imQueryForValueSearch"
         :root-entities="valueTreeRoots"
         @open-dialog="updateValueTreeRoots"
         :class="!isValidPropertyValue && showValidation && 'invalid'"
@@ -363,7 +364,7 @@ async function updateIsValidProperty(): Promise<void> {
 async function updateIsValidPropertyValue(): Promise<void> {
   if (selectedValue.value && selectedProperty.value) {
     const imQuery: QueryRequest = cloneDeep(imQueryForValueSearch.value) ?? { query: {} };
-    imQuery.textSearch = selectedValue.value?.iri;
+    imQuery.textSearch = selectedValue.value?.name;
     const result = await QueryService.queryIMSearch(imQuery);
     isValidPropertyValue.value = result.entities?.findIndex(r => r.iri === selectedValue.value?.iri) != -1 ? true : false;
     if (!isValidPropertyValue.value) {

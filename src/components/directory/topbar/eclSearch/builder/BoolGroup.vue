@@ -45,7 +45,7 @@
           <div class="component-container">
             <span class="left-container">
               <div class="group-checkbox">
-                <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+                <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" data-testid="group-checkbox" />
                 <label :for="'group' + index">Select</label>
               </div>
               <Button
@@ -115,7 +115,7 @@
             @click="addConcept()"
           />
           <div v-if="canBeAttributeGroup" class="attribute-group-checkbox">
-            <Checkbox v-model="attributeGroup" :binary="true" />
+            <Checkbox v-model="attributeGroup" :binary="true" data-testid="attribute-checkbox" />
             <label>Attribute group</label>
           </div>
         </div>
@@ -172,11 +172,16 @@ const childLoadingState = inject("childLoadingState") as Ref<any>;
 const emit = defineEmits({ unGroupItems: _payload => true });
 
 const canBeAttributeGroup: ComputedRef<boolean> = computed(
-  () => props.parent && isArray(props.value.items) && props.value.items.length > 1 && props.value.items.every((i: any) => i.type === "Refinement")
+  () => props.parent && isArray(props.value.items) && props.value.items.length >= 1 && props.value.items.every((i: any) => i.type === "Refinement")
 );
 
 const group: Ref<number[]> = ref([]);
 const attributeGroup = ref(false);
+
+watch(attributeGroup, () => {
+  if (props.value.attributeGroup === undefined && attributeGroup.value) props.value.attributeGroup = attributeGroup.value;
+  else delete props.value.attributeGroup;
+});
 
 onMounted(() => {
   if (props.value.attributeGroup) attributeGroup.value = true;
@@ -396,5 +401,12 @@ function unGroupItems(groupedItems: any) {
 
 .not-button {
   margin: 6px 0 6px 6px;
+}
+
+.attribute-checkbox {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
 }
 </style>
