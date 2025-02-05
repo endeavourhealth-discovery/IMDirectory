@@ -260,7 +260,7 @@ function generateValidation(): any[] {
 }
 
 function flattenBuild(build: any, flattenedBuild: any[]) {
-  if (isArrayHasLength(build.items))
+  if (isArrayHasLength(build.items)) {
     build.items.forEach((item: any) => {
       if (item.type === "Refinement") {
         item.validation = { deferred: deferred(6000), valid: false };
@@ -268,6 +268,15 @@ function flattenBuild(build: any, flattenedBuild: any[]) {
       }
       flattenBuild(item, flattenedBuild);
     });
+  } else if (isArrayHasLength(build.refinementItems)) {
+    build.refinementItems.forEach((item: any) => {
+      if (item.type === "Refinement") {
+        item.validation = { deferred: deferred(6000), valid: false };
+        flattenedBuild.push(item);
+      }
+      flattenBuild(item, flattenedBuild);
+    });
+  }
 }
 
 function createInitialLoadingState(initialBuild: any, depth: number, position: number) {
@@ -316,6 +325,10 @@ function stripValidation(build: any) {
   delete build.validation;
   if (build.items?.length) {
     for (const item of build.items) {
+      stripValidation(item);
+    }
+  } else if (build.refinementItems?.length) {
+    for (const item of build.refinementItems) {
       stripValidation(item);
     }
   }

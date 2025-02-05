@@ -68,6 +68,7 @@
             aria-haspopup="true"
             aria-controls="add-filter"
             v-tooltip="'Add refinement'"
+            data-testid="add-refinement-button"
           />
         </div>
 
@@ -79,7 +80,7 @@
             <div v-for="(item, index) in value.refinementItems" class="refinement-container">
               <span class="left-container">
                 <div class="group-checkbox">
-                  <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+                  <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" data-testid="group-checkbox" />
                   <label :for="'group' + index">Select</label>
                 </div>
                 <Button
@@ -89,6 +90,7 @@
                   @click="processGroup()"
                   :disabled="!group.length"
                   v-tooltip="'Bracket selected items'"
+                  data-testid="group-button"
                 />
               </span>
               <component
