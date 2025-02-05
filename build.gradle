@@ -18,6 +18,7 @@ sonar {
         property 'sonar.token', sonarLogin
         property 'sonar.host.url', 'https://sonarcloud.io'
         property 'sonar.projectKey', 'endeavourhealth-discovery_IM'
+        property 'sonar.projectName', 'Directory'
         property 'sonar.sources', 'src'
         property 'sonar.exclusions', '**/index.ts,**/*.d.ts,**/node_modules/**'
         property 'sonar.tests', 'tests'

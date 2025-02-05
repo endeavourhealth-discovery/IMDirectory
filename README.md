@@ -1,75 +1,98 @@
 # IMDirectory
 
-![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMViewer/version.svg)
-![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMViewer/build.svg)
-![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMViewer/unit-test.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IMViewer&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IMViewer)
+![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/version.svg)
+![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/build.svg)
+![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/unit-test.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IMDirectory&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IMDirectory)
 
 ## Project setup
 
 **The proxy expects the IMAPI to be running on localhost:8080**
 
+### node, npm, pnpm
+
+IMDirectory uses [node](https://nodejs.org/en), [npm](https://www.npmjs.com/) and [pnpm](https://pnpm.io/). Current recommended compatable versions are:
+
+| Package | Version |
+| ------- | ------- |
+| node    | 18.17.0 |
+| npm     | 9.6.7   |
+| pnpm    | 9.11.0  |
+
 ### Fontawesome
 
-Information Model (v2) optionally uses FontAwesome Pro. To use FontAwesome Pro add a valid [FONT-AWESOME-PACKAGE-TOKEN](https://fontawesome.com/sessions/sign-in?next=%2Faccount%23pro-package-tokens) to the npm config prior to running the install script:
+IMDirectory uses [FontAwesome Pro](https://fontawesome.com/). The project is setup to connect to a self-hosted version of fontawesome pro. This setup is contained in the root file
 
-Terminal
-
-```console
-npm config set "@fortawesome:registry" https://npm.fontawesome.com/
-npm config set "//npm.fontawesome.com/:_authToken" FONT-AWESOME-PACKAGE-TOKEN
-```
-
-And add the environment variable `VITE_FONT_AWESOME_PACKAGE_TOKEN` within your .env files for the ui package
+> index.html
 
 ### Install
 
 ```console
-npm install
+pnpm install
 ```
 
 #### Environment variables
 
-In project root add files
+In project root add file
 
-> .env.development.local
+> .env
 
-> .env.production.local
+File should contain:
 
-> .env.test.local
-
-Files should contain:
-
-    VITE_API={url for IMApi} [local default: http://localhost:8080/]
-
-    VITE_DIRECTORY_URL={url for IMDirectory} [local default: http://localhost:8082]
-
-    VITE_AUTH_URL={url for IMAuth} [local default: http://localhost:8082]
+    CYPRESS_LOGIN_USERNAME="username for IMDirectory account cypress will use"
+    CYPRESS_LOGIN_PASSWORD="password for IMDirectory account cypress will use"
+    VITE_HOSTING_MODE="public" || "private"
 
 ### Compiles and hot-reloads for development
 
 ```console
-npm run dev
+pnpm dev
 ```
 
 ### Compiles and minifies for production
 
 ```console
-npm run build
+pnpm build
 ```
 
 ### Preview production build
 
 ```console
-npm run serve
+npm preview
 ```
 
 ### Lints and fixes files
 
+Lint using esLint
+
 ```console
-npm run lint
+pnpm lint
+```
+
+Format using prettier
+
+```console
+pnpm lint
+```
+
+### Testing
+
+Unit test using vitest
+
+```console
+pnpm test:unit
+```
+
+E2E test using cypress
+
+```console
+pnpm test:e2e
 ```
 
 ### Customize configuration
+
+For customisation the config is in the root folder file
+
+> vite.config.ts
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
