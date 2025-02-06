@@ -56,7 +56,7 @@
       sortMode="single"
       sortField="group.name"
       :sortOrder="1"
-      class="myTable"
+      class="display-table"
     >
       <template #groupheader="{ data }: any">
         <span v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</span>
@@ -206,7 +206,7 @@ div.link {
   justify-content: space-between;
 }
 
-.myTable:deep(.p-datatable-header-cell) {
+.display-table:deep(.p-datatable-header-cell) {
   display: none;
 }
 
