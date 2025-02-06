@@ -1,6 +1,6 @@
 <template>
   <div id="properties-table-container" class="properties-table-wrapper">
-    <div v-if="properties.length && groupedProperties.length">No records found</div>
+    <div v-if="!properties.length && !groupedProperties.length && !loading">No records found</div>
     <DataTable
       :value="properties"
       :scrollable="true"
@@ -14,6 +14,7 @@
       sortMode="single"
       sortField="group.name"
       :sortOrder="1"
+      class="ungrouped-display-table"
     >
       <template #loading> Loading data. Please wait... </template>
       <template #header>
@@ -56,7 +57,7 @@
       sortMode="single"
       sortField="group.name"
       :sortOrder="1"
-      class="display-table"
+      class="grouped-display-table"
     >
       <template #groupheader="{ data }: any">
         <span v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</span>
@@ -169,24 +170,25 @@ function navigate(event: MouseEvent, iri: any): void {
 
 function exportCSV(): void {
   let csvValue;
-  const hasGroup = isArrayHasLength(properties.value) && isObjectHasKeys(properties.value[0], ["group"]);
   let allProperties = properties.value.concat(groupedProperties.value);
-  csvValue = hasGroup
-    ? allProperties.map(property => {
+  if (isArrayHasLength(allProperties)) {
+    csvValue = allProperties.map(property => {
+      if (isObjectHasKeys(property, ["group"])) {
         return {
           group: { name: property.group["@id"] },
           property: property.property[0]["@id"],
           type: property.type[0]["@id"],
           cardinality: property.cardinality
         };
-      })
-    : allProperties.map(property => {
+      } else {
         return {
           property: property.property[0]["@id"],
           type: property.type[0]["@id"],
           cardinality: property.cardinality
         };
-      });
+      }
+    });
+  }
   propertiesTable.value.exportCSV({}, csvValue);
 }
 </script>
@@ -206,7 +208,11 @@ div.link {
   justify-content: space-between;
 }
 
-.display-table:deep(.p-datatable-header-cell) {
+.grouped-display-table:deep(.p-datatable-header-cell) {
+  display: none;
+}
+
+.ungrouped-display-table:deep(.p-datatable-empty-message) {
   display: none;
 }
 
