@@ -6,11 +6,9 @@
       :scrollable="true"
       ref="propertiesTable"
       :loading="loading"
-      data-testid="table"
+      data-testid="ungrouped-display-table"
       rowGroupMode="subheader"
       groupRowsBy="group.name"
-      :expandableRowGroups="true"
-      v-model:expandedRowGroups="expandedRowGroups"
       sortMode="single"
       sortField="group.name"
       :sortOrder="1"
@@ -49,7 +47,7 @@
       :value="groupedProperties"
       ref="propertiesTable"
       :loading="loading"
-      data-testid="table"
+      data-testid="grouped-display-table"
       rowGroupMode="subheader"
       groupRowsBy="group.name"
       :expandableRowGroups="true"
@@ -110,7 +108,7 @@ const loading = ref(false);
 const properties: Ref<any[]> = ref([]);
 const groupedProperties: Ref<any[]> = ref([]);
 const propertiesTable = ref();
-const expandedRowGroups: Ref<any[]> = ref([null]);
+const expandedRowGroups: Ref<any[]> = ref([]);
 
 watch(
   () => props.entityIri,
