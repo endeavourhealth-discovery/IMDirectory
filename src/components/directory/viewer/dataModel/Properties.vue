@@ -1,22 +1,19 @@
 <template>
   <div id="properties-table-container" class="properties-table-wrapper">
+    <div v-if="!properties.length && !groupedProperties.length && !loading">No records found</div>
     <DataTable
-      v-if="isArrayHasLength(properties) && isObjectHasKeys(properties[0], ['group'])"
       :value="properties"
       :scrollable="true"
       ref="propertiesTable"
       :loading="loading"
-      scroll-height="flex"
-      data-testid="table"
+      data-testid="ungrouped-display-table"
       rowGroupMode="subheader"
       groupRowsBy="group.name"
-      :expandableRowGroups="true"
-      v-model:expandedRowGroups="expandedRowGroups"
       sortMode="single"
       sortField="group.name"
       :sortOrder="1"
+      class="ungrouped-display-table"
     >
-      <template #empty> No records found </template>
       <template #loading> Loading data. Please wait... </template>
       <template #header>
         <div class="table-header">
@@ -24,14 +21,6 @@
           <Button label="Download" @click="exportCSV()" />
         </div>
       </template>
-
-      <template #groupheader="{ data }: any">
-        <span v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</span>
-      </template>
-
-      <Column field="group.name" header="Group">
-        <template #body="{ data }: any"> {{ data.group.name }}</template>
-      </Column>
 
       <Column field="property" header="Name">
         <template #body="{ data }: any">
@@ -53,16 +42,28 @@
         </template>
       </Column>
     </DataTable>
-
-    <DataTable v-else :value="properties" :scrollable="true" ref="propertiesTable" :loading="loading" scroll-height="flex" data-testid="table">
-      <template #empty> No records found </template>
-      <template #loading> Loading data. Please wait... </template>
-      <template #header>
-        <div class="table-header">
-          Data model properties
-          <Button label="Download" @click="exportCSV()" />
-        </div>
+    <DataTable
+      v-if="isArrayHasLength(groupedProperties) && isObjectHasKeys(groupedProperties[0], ['group'])"
+      :value="groupedProperties"
+      ref="propertiesTable"
+      :loading="loading"
+      data-testid="grouped-display-table"
+      rowGroupMode="subheader"
+      groupRowsBy="group.name"
+      :expandableRowGroups="true"
+      v-model:expandedRowGroups="expandedRowGroups"
+      sortMode="single"
+      sortField="group.name"
+      :sortOrder="1"
+      class="grouped-display-table"
+    >
+      <template #groupheader="{ data }: any">
+        <span v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</span>
       </template>
+
+      <Column field="group.name" header="Group">
+        <template #body="{ data }: any"> {{ data.group.name }}</template>
+      </Column>
 
       <Column field="property" header="Name">
         <template #body="{ data }: any">
@@ -105,8 +106,9 @@ const directService = new DirectService();
 
 const loading = ref(false);
 const properties: Ref<any[]> = ref([]);
+const groupedProperties: Ref<any[]> = ref([]);
 const propertiesTable = ref();
-const expandedRowGroups = ref();
+const expandedRowGroups: Ref<any[]> = ref([]);
 
 watch(
   () => props.entityIri,
@@ -126,9 +128,10 @@ async function getDataModelProps(iri: string): Promise<void> {
         results[results.indexOf(result)] = getProperty(result);
       }
       result.property[0].name = result.property[0].name?.slice(0, result.property[0].name?.indexOf("(")) as string;
+      if (isObjectHasKeys(result, ["group"])) groupedProperties.value.push(result);
+      else properties.value.push(result);
     });
   }
-  properties.value = results;
   loading.value = false;
 }
 
@@ -165,24 +168,25 @@ function navigate(event: MouseEvent, iri: any): void {
 
 function exportCSV(): void {
   let csvValue;
-  const hasGroup = isArrayHasLength(properties.value) && isObjectHasKeys(properties.value[0], ["group"]);
-
-  csvValue = hasGroup
-    ? properties.value.map(property => {
+  let allProperties = properties.value.concat(groupedProperties.value);
+  if (isArrayHasLength(allProperties)) {
+    csvValue = allProperties.map(property => {
+      if (isObjectHasKeys(property, ["group"])) {
         return {
           group: { name: property.group["@id"] },
           property: property.property[0]["@id"],
           type: property.type[0]["@id"],
           cardinality: property.cardinality
         };
-      })
-    : properties.value.map(property => {
+      } else {
         return {
           property: property.property[0]["@id"],
           type: property.type[0]["@id"],
           cardinality: property.cardinality
         };
-      });
+      }
+    });
+  }
   propertiesTable.value.exportCSV({}, csvValue);
 }
 </script>
@@ -200,6 +204,11 @@ div.link {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.grouped-display-table:deep(.p-datatable-header-cell),
+.ungrouped-display-table:deep(.p-datatable-empty-message) {
+  display: none;
 }
 
 .properties-table-wrapper {
