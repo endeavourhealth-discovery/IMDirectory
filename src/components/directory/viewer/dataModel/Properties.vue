@@ -208,10 +208,7 @@ div.link {
   justify-content: space-between;
 }
 
-.grouped-display-table:deep(.p-datatable-header-cell) {
-  display: none;
-}
-
+.grouped-display-table:deep(.p-datatable-header-cell),
 .ungrouped-display-table:deep(.p-datatable-empty-message) {
   display: none;
 }
