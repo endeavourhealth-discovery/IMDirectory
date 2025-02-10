@@ -7,7 +7,7 @@
     <CookiesConsent />
     <SnomedConsent />
     <div id="main-container">
-      <DevBanner v-if="showDevBanner && isPublicMode && finishedOnMounted" />
+      <DevBanner v-if="isDevMode && showDevBanner && finishedOnMounted" />
       <ReleaseBannerBar v-if="!viewsLoading && showReleaseBanner && finishedOnMounted" :latestRelease="latestRelease" />
       <div v-if="viewsLoading || !finishedOnMounted" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
@@ -60,6 +60,7 @@ const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showRe
 const showReleaseBanner: ComputedRef<boolean> = computed(() => sharedStore.showReleaseBanner);
 const showDevBanner: ComputedRef<boolean> = computed(() => sharedStore.showDevBanner);
 const isPublicMode: ComputedRef<boolean> = computed(() => sharedStore.isPublicMode);
+const isDevMode: ComputedRef<boolean> = computed(() => sharedStore.isDevMode);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentScale = computed(() => userStore.currentScale);
 const currentPreset = computed(() => userStore.currentPreset);
