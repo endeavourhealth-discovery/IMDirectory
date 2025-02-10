@@ -5,10 +5,9 @@
 **/build
 **/coverage
 node
-**/cypress/screenshots
-
-#ignore types
-im_library/types
+cypress/screenshots
+cypress/downloads
+cypress/**/**.xml
 
 # local env files
 **/.env.**
@@ -29,13 +28,13 @@ pnpm-debug.log*
 *.sw?
 
 #amplify
-ui/amplify/\#current-cloud-backend
-ui/amplify/.config/local-*
-ui/amplify/logs
-ui/amplify/mock-data
-ui/amplify/backend/amplify-meta.json
-ui/amplify/backend/awscloudformation
-ui/amplify/backend/.temp
+amplify/\#current-cloud-backend
+amplify/.config/local-*
+amplify/logs
+amplify/mock-data
+amplify/backend/amplify-meta.json
+amplify/backend/awscloudformation
+amplify/backend/.temp
 awsconfiguration.json
 amplifyconfiguration.json
 amplify-build-config.json
