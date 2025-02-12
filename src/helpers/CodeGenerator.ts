@@ -32,9 +32,16 @@ function splitTemplate(template: string) {
 
   const header = template.substring(0, ps.s);
   const footer = template.substring(pe.s + pe.l);
-  const property = template.substring(ps.s + ps.l, as.s > 0 ? as.s : pe.s);
   const array = as.s > 0 ? template.substring(as.s + as.l, ae.s) : "";
-
+  let property = [];
+  if (array.length) {
+    const splitProperty = template.substring(ps.s + ps.l, pe.s).split(array);
+    for (let p of splitProperty) {
+      property.push(p.replace(arrayTemp, "").replace(arrayTempEnd, ""));
+    }
+  } else {
+    property.push(template.substring(ps.s + ps.l, pe.s));
+  }
   return {
     header: header,
     footer: footer,
@@ -49,7 +56,7 @@ function replaceClassTokens(template: CodeTemplate, header: string, namespace: s
 
 function replacePropertyTokens(
   template: CodeTemplate,
-  property: string,
+  property: string[],
   collectionProperty: string,
   namespace: string,
   model: TTIriRef,
@@ -57,8 +64,9 @@ function replacePropertyTokens(
 ): string {
   const isArray = !prop.maxExclusive;
 
-  let t = property;
+  let t = property[0];
   if (isArray) t += collectionProperty;
+  if (property.length > 1) t += property[1];
 
   return replaceTokens(template, t, namespace, model, prop);
 }
