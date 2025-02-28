@@ -5,7 +5,7 @@
     <template #option="{ option }: { option: Match }">
       <div class="flex items-center" id="query-path-options" v-if="isArrayHasLength(option.where)">
         <div v-if="option.path && option.typeOf">
-          {{ option.path?.[0].name }} -> {{ option.typeOf?.name }} . {{ propertyIri ? getNameFromIri(propertyIri) : option.where?.[0]?.name }}
+          {{ option.path?.name }} -> {{ option.typeOf?.name }} . {{ propertyIri ? getNameFromIri(propertyIri) : option.where?.[0]?.name }}
         </div>
         <div v-else-if="dataModelIri">
           {{ toTitleCase(getNameFromIri(dataModelIri)) }} -> {{ propertyIri ? getNameFromIri(propertyIri) : option.where?.[0]?.name }}

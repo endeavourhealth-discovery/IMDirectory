@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Operator, Where, PropertyRef, Range, TTIriRef } from "@/interfaces/AutoGen";
+import { Operator, Where, Range, TTIriRef } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import { Ref, onMounted, ref, watch } from "vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
@@ -103,7 +103,7 @@ const selectedValueB: Ref<any> = ref();
 const operatorOptions = ["=", ">=", ">", "<", "<="];
 const numberValue: Ref<number> = ref(0);
 const operator: Ref<Operator | undefined> = ref();
-const propertyRef: Ref<PropertyRef | undefined> = ref({});
+const propertyRef: Ref<Where | undefined> = ref({});
 const sign: Ref<"-" | "+" | undefined> = ref();
 
 onMounted(() => {

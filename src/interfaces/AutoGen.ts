@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-12-29 10:09:01.
+// Generated using typescript-generator version 3.2.1263 on 2025-02-24 14:23:32.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -109,11 +109,12 @@ export interface Binding {
 export interface Concept extends Entity {
     subClassOf?: TTIriRef[];
     code?: string;
-    im1Id?: string[];
+    im1Id?: string;
     matchedFrom?: Concept[];
     usage?: number;
     codeId?: string;
     alternativeCode?: string;
+    subsumedBy?: TTIriRef[];
 }
 
 export interface ConceptSet extends Entity {
@@ -278,11 +279,11 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
+    qualifier?: string;
     operator?: Operator;
     unit?: TTIriRef;
-    qualifier?: string;
-    valueLabel?: string;
     valueParameter?: string;
+    valueLabel?: string;
 }
 
 export interface Case {
@@ -315,11 +316,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-
-    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -328,17 +328,35 @@ export interface FunctionClause extends Value {
     range?: Range;
 }
 
+export interface GraphNode {
+    path?: Path;
+    variable?: string;
+}
+
+export interface GroupBy extends IriLD {
+    nodeRef?: string;
+    valueRef?: string;
+    propertyRef?: string;
+}
+
+export interface Instance extends IriLD {
+    entailment?: TTIriRef;
+}
+
 export interface IriLD {
     "@id"?: string;
     qualifier?: string;
     name?: string;
     description?: string;
-    inverse?: boolean;
 }
 
-export interface Match extends IriLD {
+export interface Match extends IriLD, GraphNode {
+    ifTrue?: RuleAction;
+    ifFalse?: RuleAction;
     exclude?: boolean;
     nodeRef?: string;
+    header?: string;
+    preface?: string;
     boolMatch?: Bool;
     boolWhere?: Bool;
     typeOf?: Node;
@@ -350,22 +368,33 @@ export interface Match extends IriLD {
     orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
-    variable?: string;
-    then?: Match;
-    path?: IriLD[];
     displayLabel?: string;
     hasInlineSet?: boolean;
     function?: FunctionClause;
-    entailement?: Entail;
+    entailment?: Entail;
+    hasRules?: boolean;
+    hasLinked?: boolean;
+    union?: boolean;
+    rule?: boolean;
+    hasTest?: boolean;
+    test?: boolean;
+    isSubsetOf?: IriLD[];
+    then?: Match;
+    return?: Return;
+    returx?: Return;
+    isUnion?: boolean;
+    isRule?: boolean;
+    isTest?: boolean;
 }
 
-export interface Node extends Element {
+export interface Node extends Element, GraphNode {
     type?: string;
     exclude?: boolean;
     code?: string;
+    inverse?: boolean;
 }
 
-export interface OrderDirection extends PropertyRef {
+export interface OrderDirection extends RelativeTo {
     direction?: Order;
 }
 
@@ -373,7 +402,11 @@ export interface OrderLimit {
     property?: OrderDirection;
     limit?: number;
     description?: string;
-    partitionBy?: PropertyRef;
+}
+
+export interface Path extends Element {
+    node?: Node;
+    inverse?: boolean;
 }
 
 export interface PathDocument {
@@ -391,16 +424,10 @@ export interface Prefix {
     namespace?: string;
 }
 
-export interface PropertyRef extends Node {
-    valueVariable?: string;
-    propertyRef?: string;
-}
-
 export interface Query extends Match {
     activeOnly?: boolean;
-    return?: Return;
     query?: Query[];
-    groupBy?: PropertyRef[];
+    groupBy?: GroupBy[];
     prefixes?: Prefix[];
     imQuery?: boolean;
     parentResult?: any;
@@ -431,6 +458,11 @@ export interface QueryRequest extends ContextMap {
 export interface Range {
     from: Value;
     to: Value;
+}
+
+export interface RelativeTo extends Node {
+    valueVariable?: string;
+    propertyRef?: string;
 }
 
 export interface Return {
@@ -474,17 +506,20 @@ export interface When {
     case?: Case;
 }
 
-export interface Where extends PropertyRef, Assignable {
+export interface Where extends Element, Assignable {
     match?: Match;
     range?: Range;
     isNull?: boolean;
-    relativeTo?: PropertyRef;
+    relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
     is?: Node[];
+    not?: boolean;
     boolWhere?: Bool;
     where?: Where[];
     isNotNull?: boolean;
     function?: FunctionClause;
+    inverse?: boolean;
+    valueVariable?: string;
 }
 
 export interface DownloadByQueryOptions {
@@ -627,7 +662,7 @@ export interface SearchResultSummary {
     iri: string;
 }
 
-export interface SearchTermCode {
+export interface SearchTermCode extends Comparable<SearchTermCode> {
     term?: string;
     code?: string;
     status?: TTIriRef;
@@ -801,8 +836,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    className?: string;
     nativeMethod?: boolean;
+    className?: string;
 }
 
 export interface Exception extends Throwable {
@@ -812,19 +847,19 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    type?: TTArray;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     description?: string;
-    prefixes?: TTPrefix[];
+    status?: TTIriRef;
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {
@@ -845,6 +880,9 @@ export interface TTPrefix {
 export interface TTNode extends TTValue, Serializable {
     predicateMap?: { [index: string]: TTArray };
     "@id"?: string;
+}
+
+export interface Comparable<T> {
 }
 
 export const enum ComponentType {
@@ -894,6 +932,12 @@ export const enum Comparison {
     lt = "lt",
 }
 
+export const enum DisplayMode {
+    ORIGINAL = "ORIGINAL",
+    RULES = "RULES",
+    LOGICAL = "LOGICAL",
+}
+
 export const enum Entail {
     descendantsOrSelfOf = "descendantsOrSelfOf",
     memberOf = "memberOf",
@@ -932,6 +976,18 @@ export const enum OrderableDate {
 export const enum OrderableNumber {
     highest = "highest",
     lowest = "lowest",
+}
+
+export const enum QueryType {
+    POP = "POP",
+    LIST = "LIST",
+    AGGREGATE_REPORT = "AGGREGATE_REPORT",
+}
+
+export const enum RuleAction {
+    SELECT = "SELECT",
+    REJECT = "REJECT",
+    NEXT = "NEXT",
 }
 
 export const enum VarType {

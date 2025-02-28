@@ -2,11 +2,7 @@
   <div v-if="columnNames.length>0">
     <h4>Columns:</h4>
     <div class="pl-8">
-      <table>
-        <tr>
-          <th v-for="columnName in columnNames" scope="col" v-html="columnName"></th>
-        </tr>
-      </table>
+          <span v-html="columnNames.join(', ')"/>
     </div>
     <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle" />
     <span>GraphQL</span>

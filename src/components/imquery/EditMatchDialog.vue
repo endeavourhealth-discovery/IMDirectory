@@ -51,7 +51,7 @@
                 class="add-feature-button"
                 icon="fa-solid fa-arrow-down-z-a"
                 label="Add order by"
-                @click="focusedEditMatch!.orderBy = { description: '', limit: 0, partitionBy: {}, property: {} }"
+                @click="focusedEditMatch!.orderBy = { description: '', limit: 0,  property: {} }"
               />
               <FunctionComponent :function-templates="templates" @add-function-property="onAddFunctionProperty" />
             </div>

@@ -1,7 +1,7 @@
 import Env from "./Env";
 import { AllowableChildProperty, QueryResponse } from "@/interfaces";
 import axios from "axios";
-import { Match, PathQuery, Query, QueryRequest, SearchResponse } from "@/interfaces/AutoGen";
+import { DisplayMode, Match, PathQuery, Query, QueryRequest, SearchResponse } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 const API_URL = Env.API + "api/query";
 
@@ -24,7 +24,7 @@ const QueryService = {
   },
 
   async getLabeledQuery(query: Query): Promise<Query> {
-    return this.getQueryDisplayFromQuery(query,true);
+    return this.getQueryDisplayFromQuery(query, true);
   },
 
   async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
@@ -37,13 +37,13 @@ const QueryService = {
     });
   },
 
-  async getDisplayFromQueryIri(iri: string, includeLogicDesc: boolean): Promise<Query> {
-    return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
+  async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
+    return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
   },
 
-  async getDisplayFromQuery(query: Query, includeLogicDesc: boolean): Promise<Query> {
+  async getDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
     return axios.post(API_URL + "/public/queryDisplayFromQuery", query, {
-      params: { includeLogicDesc: includeLogicDesc }
+      params: { displayMode: displayMode }
     });
   },
 
