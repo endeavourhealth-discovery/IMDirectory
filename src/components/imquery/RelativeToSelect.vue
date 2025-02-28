@@ -28,7 +28,7 @@ import setupTree from "@/composables/setupTree";
 import { EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import { Where, PropertyRef, Query } from "@/interfaces/AutoGen";
+import { Where, Query } from "@/interfaces/AutoGen";
 import { SHACL } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { Ref, inject, onMounted, ref, watch } from "vue";
@@ -37,7 +37,7 @@ interface Props {
   propertyIri: string;
   property: Where;
   datatype: string;
-  propertyRef?: PropertyRef;
+  propertyRef?: Where;
 }
 
 const props = defineProps<Props>();
@@ -207,7 +207,7 @@ function getVariableWithType(value: any) {
   }
 }
 
-function getVariableSearchInputDisplay(propertyRef: PropertyRef) {
+function getVariableSearchInputDisplay(propertyRef: Where) {
   if (!isObjectHasKeys(propertyRef, ["nodeRef"])) return getNameFromRef(propertyRef);
   return propertyRef.nodeRef + " -> " + getNameFromRef(propertyRef);
 }

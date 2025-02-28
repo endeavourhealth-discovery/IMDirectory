@@ -7,7 +7,6 @@
     </span>
 
     <span v-if="isArrayHasLength(query.match) || isArrayHasLength(query.where) || query.return">
-
       <span v-if="query.name">{{ query.name }}</span>
       <span v-if="matchExpand && isArrayHasLength(query.match)">
         <RecursiveMatchDisplay
@@ -15,10 +14,11 @@
           :inline="false"
           :match="nestedQuery"
           :key="index"
-          :index="index"
+          :clause-index="index"
           :depth="1"
           :operator="query.boolMatch"
           :expanded="false"
+          :parent-match="query"
         />
       </span>
       <span v-if="matchExpand && isArrayHasLength(query.where)">
@@ -41,13 +41,13 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Query, Match } from "@/interfaces/AutoGen";
+import { Query, Match, DisplayMode } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 import ReturnColumns from "./ReturnColumns.vue";
-import {QueryService} from "@/services";
+import { QueryService } from "@/services";
 
 interface Props {
   query: Query;
@@ -67,10 +67,10 @@ async function matchToggle() {
 async function expandQuery() {
   loading.value = true;
   if (props.query["@id"]) {
-    const definedQuery = await QueryService.getDisplayFromQueryIri(props.query["@id"]!, true);
-    props.query.match= definedQuery.match;
-    props.query.where= definedQuery.where;
-    props.query.return= definedQuery.return;
+    const definedQuery = await QueryService.getDisplayFromQueryIri(props.query["@id"]!, DisplayMode.ORIGINAL);
+    props.query.match = definedQuery.match;
+    props.query.where = definedQuery.where;
+    props.query.return = definedQuery.return;
   }
   loading.value = false;
 }
