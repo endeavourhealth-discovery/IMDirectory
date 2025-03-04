@@ -62,7 +62,9 @@
             />
           </div>
           <h2>Presets</h2>
-          <SelectButton v-model="preset" :options="themeOptions.presets" :allowEmpty="false" />
+          <div class="flex flex-row flex-wrap">
+             <SelectButton v-model="preset" :options="themeOptions.presets" :allowEmpty="false" />
+            </div>
           <h2>Dark mode</h2>
           <ToggleSwitch v-model="darkMode" />
         </div>
@@ -226,7 +228,7 @@ const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: Prim
     PrimeVueColors.ROSE
   ],
   surfaceColours: [PrimeVueColors.SLATE, PrimeVueColors.GRAY, PrimeVueColors.ZINC, PrimeVueColors.NEUTRAL, PrimeVueColors.STONE],
-  presets: [PrimeVuePresetThemes.AURA, PrimeVuePresetThemes.LARA, PrimeVuePresetThemes.NORA]
+  presets: [PrimeVuePresetThemes.AURA, PrimeVuePresetThemes.LARA, PrimeVuePresetThemes.NORA, PrimeVuePresetThemes.MATERIAL]
 });
 const preset = ref(themeOptions.value.presets[0]);
 const darkMode = ref(false);
@@ -462,6 +464,7 @@ async function openAdminToolbox() {
 </script>
 
 <style scoped>
+@reference "tailwindcss-primeui";
 .im-logo {
   cursor: pointer;
   margin: 0 0.5rem;
@@ -566,7 +569,6 @@ async function openAdminToolbox() {
 
 #themes-menu {
   overflow: auto;
-  width: 20vw;
 }
 
 .theme-container {
@@ -578,6 +580,7 @@ async function openAdminToolbox() {
   display: flex;
   flex-flow: row wrap;
   gap: 0.25rem;
+  width: 18rem
 }
 
 .round-button {

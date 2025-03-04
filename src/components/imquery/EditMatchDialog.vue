@@ -345,7 +345,7 @@ function onAddFunctionProperty(property: string, value: any) {
   padding: 1rem;
   margin: 0;
   height: 100%;
-  flex-grow: 100;
+  grow: 100;
   overflow-y: auto;
   tab-size: 4;
 }
@@ -371,7 +371,7 @@ function onAddFunctionProperty(property: string, value: any) {
   padding: 1rem;
   margin: 0;
   height: 100%;
-  flex-grow: 100;
+  grow: 100;
   overflow-y: auto;
   tab-size: 4;
 }

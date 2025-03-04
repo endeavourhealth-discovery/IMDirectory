@@ -219,8 +219,10 @@ function init() {
 async function setHasQueryOrFeatureSelected() {
   if (selectedValueMap.value.size) {
     const iri = selectedValueMap.value.keys().next().value;
-    const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
+
+   if (iri){ const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
     hasQueryOrFeatureSelected.value = isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
+   }
   } else hasQueryOrFeatureSelected.value = false;
   addDefaultValue.value = false;
 }

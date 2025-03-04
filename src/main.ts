@@ -2,7 +2,7 @@ import { createApp, ComponentPublicInstance } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import PrimeVue from "primevue/config";
-import Aura from "@primevue/themes/aura";
+import Aura from "@primeuix/themes/aura";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
 import axios from "axios";
@@ -22,6 +22,8 @@ declare module "vue-router" {
     transitionDelay?: string;
   }
 }
+
+import "./assets/tailwind.css"
 
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
@@ -133,7 +135,7 @@ const app = createApp(App)
   .use(PrimeVue, {
     ripple: true,
     local: { dateFormat: "dd/mm/yyyy" },
-    theme: { preset: Aura, options: { darkModeSelector: ".my-app-dark", cssLayer: { name: "primevue", order: "tailwind-base, primevue, tailwind-utilities" } } }
+    theme: { preset: Aura, options: { darkModeSelector: ".my-app-dark", cssLayer: { name: "primevue", order: "theme, base, primevue" } } }
   })
   .use(ConfirmationService)
   .use(ToastService)

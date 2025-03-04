@@ -285,7 +285,7 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: ":queryIri?",
-        name: "Query",
+        name: "Query viewer",
         component: () => import("@/views/Query.vue")
       }
     ]

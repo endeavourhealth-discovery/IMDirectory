@@ -35,7 +35,7 @@
                 :class="errors.code && code && !focused.get('code') && 'p-invalid'"
                 @focus="updateFocused('code', true)"
                 @blur="updateFocused('code', false)"
-                :pt="{ 'pc-input': { root: { 'data-testid': 'otp-input' } } }"
+                :pt="{ 'pc-input-text': { root: { 'data-testid': 'otp-input' } } }"
               />
             </div>
             <Message v-if="errors.code && !focused.get('code')" severity="error">{{ errors.code }}</Message>

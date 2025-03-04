@@ -9,7 +9,7 @@
     <div id="main-container">
       <DevBanner v-if="isDevMode && showDevBanner && finishedOnMounted" />
       <ReleaseBannerBar v-if="!viewsLoading && showReleaseBanner && finishedOnMounted" :latestRelease="latestRelease" />
-      <div v-if="viewsLoading || !finishedOnMounted" class="loading-container flex flex-row items-center justify-center">
+      <div v-if="viewsLoading || !finishedOnMounted" class="flex-auto w-full flex flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
       <router-view v-else />
@@ -266,11 +266,10 @@ function setupExternalErrorHandler() {
 </script>
 
 <style lang="scss">
+@use "@/assets/layout/sass/_main.scss";
 @import "primeicons/primeicons.css";
 @import "@/assets/layout/flags/flags.css";
-@import "@/assets/layout/sass/_main.scss";
 @import "sweetalert2/dist/sweetalert2.min.css";
-@import "@/assets/tailwind.css";
 @import "@/assets/primevueOverrides.css";
 </style>
 

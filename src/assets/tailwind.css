@@ -1,12 +1,17 @@
-@layer tailwind-base, primevue, tailwind-utilities;
+  @import "tailwindcss";
 
-@layer tailwind-base {
-  @tailwind base;
-}
+  @import "tailwindcss-primeui";
 
-@layer tailwind-utilities {
-  @tailwind components;
-  @tailwind utilities;
+@custom-variant dark (&:where(.my-app-dark, .my-app-dark *));
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
 }
 
 @layer base {
@@ -14,22 +19,22 @@
     @apply text-base;
   }
 
-  @screen sm {
+  @media (width >= theme(--breakpoint-sm)) {
     body {
       @apply text-sm;
     }
   }
-  @screen md {
+  @media (width >= theme(--breakpoint-md)) {
     body {
       @apply text-base;
     }
   }
-  @screen lg {
+  @media (width >= theme(--breakpoint-lg)) {
     body {
       @apply text-lg;
     }
   }
-  @screen xl {
+  @media (width >= theme(--breakpoint-xl)) {
     body {
       @apply text-xl;
     }

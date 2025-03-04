@@ -2,24 +2,16 @@ import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import { esbuildCommonjs } from "@originjs/vite-plugin-commonjs";
 import * as path from "path";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   optimizeDeps: {
     esbuildOptions: {
       plugins: [esbuildCommonjs(["google-palette"])]
     }
   },
   build: { target: "esnext" },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `
-          @import "./src/assets/layout/sass/_mixins.scss";
-        `
-      }
-    }
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

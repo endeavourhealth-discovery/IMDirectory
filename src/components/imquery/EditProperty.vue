@@ -7,7 +7,7 @@
     <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
       <span class="self-center"> is </span>
       <InputGroup class="flex flex-row flex-nowrap">
-        <div class="border-1 border-border-surface flex flex-row rounded border border-solid p-1">
+        <div class=" border-border-surface flex flex-row rounded-sm border border-solid p-1">
           <div v-if="property.valueLabel">
             <Chip :label="property.valueLabel" />
           </div>
