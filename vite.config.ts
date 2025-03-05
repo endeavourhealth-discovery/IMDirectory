@@ -3,9 +3,11 @@ import vue from "@vitejs/plugin-vue";
 import { esbuildCommonjs } from "@originjs/vite-plugin-commonjs";
 import * as path from "path";
 import tailwindcss from "@tailwindcss/vite";
+import Components from "unplugin-vue-components/vite";
+import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [vue(), tailwindcss(), Components({ resolvers: [PrimeVueResolver()], dts: true, directoryAsNamespace: true, collapseSamePrefixes: true })],
   optimizeDeps: {
     esbuildOptions: {
       plugins: [esbuildCommonjs(["google-palette"])]

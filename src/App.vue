@@ -9,7 +9,7 @@
     <div id="main-container">
       <DevBanner v-if="isDevMode && showDevBanner && finishedOnMounted" />
       <ReleaseBannerBar v-if="!viewsLoading && showReleaseBanner && finishedOnMounted" :latestRelease="latestRelease" />
-      <div v-if="viewsLoading || !finishedOnMounted" class="flex-auto w-full flex flex-row items-center justify-center">
+      <div v-if="viewsLoading || !finishedOnMounted" class="flex w-full flex-auto flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
       <router-view v-else />
@@ -23,7 +23,6 @@ import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import ReleaseBannerBar from "./components/app/ReleaseBannerBar.vue";
-import FooterBar from "./components/app/FooterBar.vue";
 import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
@@ -40,6 +39,7 @@ import setupChangeScale from "@/composables/setupChangeScale";
 import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
+import FooterBar from "./components/app/FooterBar.vue";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();

@@ -22,6 +22,14 @@
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "outDir": "./dist/types"
   },
-  "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.js", "./cypress/**/*.cy.js", "./cypress/**/*.cy.ts", "./cypress/support/**/*.ts"],
+  "include": [
+    "./src/**/*.vue",
+    "./src/**/*.ts",
+    "./src/**/*.js",
+    "./cypress/**/*.cy.js",
+    "./cypress/**/*.cy.ts",
+    "./cypress/support/**/*.ts",
+    "components.d.ts"
+  ],
   "exclude": ["node_modules", "./tests/**/*.spec.js", "./tests/**/*.spec.ts"]
 }
