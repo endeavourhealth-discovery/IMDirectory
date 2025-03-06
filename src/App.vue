@@ -59,8 +59,8 @@ const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } =
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showReleaseBanner: ComputedRef<boolean> = computed(() => sharedStore.showReleaseBanner);
 const showDevBanner: ComputedRef<boolean> = computed(() => sharedStore.showDevBanner);
-const isPublicMode: ComputedRef<boolean> = computed(() => sharedStore.isPublicMode);
-const isDevMode: ComputedRef<boolean> = computed(() => sharedStore.isDevMode);
+const isPublicMode: ComputedRef<boolean | undefined> = computed(() => sharedStore.isPublicMode);
+const isDevMode: ComputedRef<boolean | undefined> = computed(() => sharedStore.isDevMode);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentScale = computed(() => userStore.currentScale);
 const currentPreset = computed(() => userStore.currentPreset);

@@ -18,8 +18,8 @@ export const useSharedStore = defineStore("shared", {
     showDevBanner: localStorageWithExpiry.getItem("showDevBanner") ?? true,
     activeProfile: { uuid: "", activeClausePath: "" },
     error: undefined,
-    isPublicMode: false,
-    isDevMode: false
+    isPublicMode: undefined,
+    isDevMode: undefined
   }),
   actions: {
     updateShowCookieConsent(bool: boolean) {
