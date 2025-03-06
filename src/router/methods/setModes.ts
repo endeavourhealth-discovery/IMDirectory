@@ -1,12 +1,17 @@
 import { StatusService } from "@/services";
 import { useSharedStore } from "@/stores/sharedStore";
+import { computed } from "vue";
 
 export async function setModes() {
   const sharedStore = useSharedStore();
-  if (sharedStore.isPublicMode === undefined) {
-    sharedStore.updateIsPublicMode(await StatusService.isPublicMode());
+  const isPublicMode = computed(() => sharedStore.isPublicMode);
+  const isDevMode = computed(() => sharedStore.isDevMode);
+  if (typeof isPublicMode.value === "undefined") {
+    const publicMode = await StatusService.isPublicMode();
+    if (typeof publicMode !== "undefined") sharedStore.updateIsPublicMode(publicMode);
   }
-  if (sharedStore.isDevMode === undefined) {
-    sharedStore.updateIsDevMode(await StatusService.isDevMode());
+  if (typeof isDevMode.value === "undefined") {
+    const devMode = await StatusService.isDevMode();
+    if (typeof devMode !== "undefined") sharedStore.updateIsDevMode(devMode);
   }
 }

@@ -32,7 +32,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-  await setModes();
+  if (to.name !== "Login") await setModes();
   startRouterLoading(routes, to, from);
   const authStore = useAuthStore();
   const currentPath = to.path;

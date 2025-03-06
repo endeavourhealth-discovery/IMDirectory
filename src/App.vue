@@ -40,6 +40,7 @@ import setupChangeScale from "@/composables/setupChangeScale";
 import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
+import { setModes } from "./router/methods/setModes";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -93,8 +94,7 @@ watch(darkMode, (newValue, oldValue) => {
 onMounted(async () => {
   await AuthService.getCurrentAuthenticatedUser();
 
-  sharedStore.updateIsPublicMode(await StatusService.isPublicMode());
-  sharedStore.updateIsDevMode(await StatusService.isDevMode());
+  await setModes();
 
   loadingStore.updateViewsLoading(true);
 
@@ -140,7 +140,7 @@ async function setupAxiosInterceptors(axios: any) {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
       request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
-    } else if (!isLoggedIn.value && !sharedStore.isPublicMode && !request.url?.endsWith("isPublicMode")) {
+    } else if (!isLoggedIn.value && isPublicMode.value === false && !(request.url?.endsWith("isPublicMode") || request.url?.endsWith("isDevMode"))) {
       await router.push({ name: "Login" });
     }
     return request;
