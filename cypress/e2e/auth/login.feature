@@ -1,19 +1,16 @@
 Feature: login
   Scenario: Admin menu
-      Given the server is in public mode
     When I visit the home page
     And I accept the license and cookies
     Then I see the account menu
 
   Scenario: Login option
-      Given the server is in public mode
     When I visit the home page
     And I accept the license and cookies
     And I click on the account menu
     Then I see login option
 
   Scenario: Login page
-      Given the server is in public mode
     When I visit the home page
     And I accept the license and cookies
     And I click on the account menu
@@ -21,7 +18,6 @@ Feature: login
     Then I see the login page
 
   Scenario: Login
-      Given the server is in public mode
     When I navigate to the login page
     And I enter a valid username
     And I enter a valid password
@@ -29,24 +25,20 @@ Feature: login
     Then I see the login confirmation
 
   Scenario: Reveal password
-      Given the server is in public mode
     When I navigate to the login page
     And I enter a valid password
     And I click reveal password
     Then I see the password
 
   Scenario: Register new account
-      Given the server is in public mode
     When I navigate to the login page
     Then I be able to navigate to register an account
 
   Scenario: enter confirmation code
-      Given the server is in public mode
     When I navigate to the login page
     Then I be able to navigate to enter a confirmation code
 
   Scenario: Recover account
-      Given the server is in public mode
     When I navigate to the login page
     Then I be able to navigate to recover my account
 
@@ -80,6 +72,5 @@ Feature: login
     Then I see the home page
 
     Scenario: Public mode directly visit entity url
-    Given the server is in public mode
     When I visit an entity url
         Then I see the entity viewer

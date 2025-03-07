@@ -125,6 +125,16 @@ Cypress.Commands.add("setLocalStorage", (localStorageMap: Map<string, string>) =
   });
 });
 
+Cypress.Commands.add("setHostingMode", (isPublicMode: boolean) => {
+  cy.intercept("GET", "imapi/api/status/public/isPublicMode", req => {
+    req.alias = "isPublicMode";
+    req.reply({
+      statusCode: 200,
+      body: isPublicMode
+    });
+  });
+});
+
 //
 //
 // -- This is a parent command --
@@ -157,6 +167,7 @@ declare global {
       requestWithAuth(method: "POST" | "GET", url: string, body: any): Chainable<any>;
       clearFavouritesAndSuggested(): Chainable<void>;
       searchAndSelectWithFilters(searchTerm: string, filters: FilterOptions): Chainable<void>;
+      setHostingMode(isPublicMode: boolean): Chainable<void>;
     }
   }
 }
