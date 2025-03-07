@@ -10,8 +10,22 @@ Given("the server is in private mode", () => {
   });
 });
 
+Given("the server is in public mode", () => {
+  cy.intercept("GET", "imapi/api/status/public/isPublicMode", req => {
+    req.alias = "isPublicMode";
+    req.reply({
+      statusCode: 200,
+      body: true
+    });
+  });
+});
+
 When("I visit the home page", () => {
   cy.visit("/");
+});
+
+When("I visit an entity url", () => {
+  cy.acceptLicenseAndCookies("http://localhost:8082/#/directory/folder/http:%2F%2Fapiqcodes.org%2Fqcodes%23QPredict_331");
 });
 
 When("I accept the license and cookies", () => {
@@ -107,4 +121,8 @@ Then("I be able to navigate to recover my account", () => {
 Then("the home and back buttons are not available", () => {
   cy.get('[data-testid="button-bar-home-button"]').should("not.exist");
   cy.get('[data-testid="button-bar-back-button"]').should("not.exist");
+});
+
+Then("I see the entity viewer", () => {
+  cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("QRISK3 2024");
 });
