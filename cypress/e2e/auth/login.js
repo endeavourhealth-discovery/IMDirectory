@@ -1,23 +1,11 @@
 import { When, Then, Step, Given } from "@badeball/cypress-cucumber-preprocessor";
 
 Given("the server is in private mode", () => {
-  cy.intercept("GET", "imapi/api/status/public/isPublicMode", req => {
-    req.alias = "isPublicMode";
-    req.reply({
-      statusCode: 200,
-      body: false
-    });
-  });
+  cy.setHostingMode(false);
 });
 
 Given("the server is in public mode", () => {
-  cy.intercept("GET", "imapi/api/status/public/isPublicMode", req => {
-    req.alias = "isPublicMode";
-    req.reply({
-      statusCode: 200,
-      body: true
-    });
-  });
+  cy.setHostingMode(true);
 });
 
 When("I visit the home page", () => {
