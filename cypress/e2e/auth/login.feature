@@ -70,3 +70,7 @@ Feature: login
     When I visit the home page
     And I refresh the page
     Then I see the home page
+
+    Scenario: Public mode directly visit entity url
+    When I visit an entity url
+        Then I see the entity viewer

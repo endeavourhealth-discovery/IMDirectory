@@ -24,6 +24,7 @@ import {
 } from "./methods/metaGuards";
 import { setBrowserTabTitles } from "./methods/browserTabTitles";
 import routes from "./methods/routes";
+import { setModes } from "./methods/setModes";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -31,6 +32,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
+  if (to.name !== "Login") await setModes();
   startRouterLoading(routes, to, from);
   const authStore = useAuthStore();
   const currentPath = to.path;

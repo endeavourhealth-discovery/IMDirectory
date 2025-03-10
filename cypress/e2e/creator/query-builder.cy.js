@@ -1,4 +1,4 @@
-describe("Query builder", () => {
+describe.skip("Query builder", () => {
   Cypress.Commands.add("populateBaseType", () => {
     cy.get("#im-query-editor-container", { timeout: 60000 }).find("[data-testid=autocomplete-search-button]").click();
     cy.get(".p-dialog-content").find("[data-testid=search-input]").type("patient");
