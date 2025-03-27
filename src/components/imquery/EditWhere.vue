@@ -5,10 +5,11 @@
       :data-model-iri="matchTypeOfIri"
       :edit-match="parentMatch"
       :property="editWhere"
-      @delete-property="$emit('deleteProperty')"
+      @on-edit-property="edit"
+      @delete-property="$emit('onDeleteWhere', editWhere!)"
     />
 
-    <div v-else="editWhere.valueLabel" class="property-description">
+    <div v-else-if="editWhere.valueLabel" class="property-description">
       <span>{{ editWhere.name }} {{ editWhere.qualifier }} {{ editWhere.valueLabel }} </span>
       <span v-if="editWhere.relativeTo">
         relative to {{ editWhere.relativeTo.qualifier }} {{ editWhere.relativeTo.nodeRef }} {{ editWhere.relativeTo.name }}
@@ -18,7 +19,7 @@
     <div v-if="editWhere?.where" class="where-group">
       <div class="where-list">
         <Button
-          :label="editWhere.boolWhere?.toUpperCase() ?? 'AND'"
+          :label="editWhere.bool?.toUpperCase() ?? 'AND'"
           class="builder-button conjunction-button vertical-button"
           @click="
             (e: MouseEvent) => {
@@ -29,25 +30,18 @@
         />
         <EditWhere
           v-for="[index, nestedWhere] in editWhere.where.entries()"
+          :key="index"
           :editWhere="nestedWhere"
           :focused="focused"
           :focused-id="focusedId"
           :is-boolean-editor="isBooleanEditor"
           :match-type-of-iri="matchTypeOfIri"
           :parent-match="parentMatch"
-          @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
+          @on-edit-where="edit"
           @delete-property="editWhere.where?.splice(index, 1)"
         />
       </div>
     </div>
-    <EditMatch
-      v-if="editWhere?.match"
-      :edit-match="editWhere.match"
-      :focused-id="focusedId"
-      :is-boolean-editor="isBooleanEditor"
-      @on-update-dialog-focus="(items: MenuItem[]) => $emit('onUpdateDialogFocus', items)"
-      @delete-match="onDeleteMatch"
-    />
   </div>
 </template>
 
@@ -60,7 +54,6 @@ import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions
 
 interface Props {
   matchTypeOfIri: string;
-  editWhere: Where;
   focused: boolean;
   focusedId: string | undefined;
   isBooleanEditor?: boolean;
@@ -68,11 +61,15 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({ onUpdateDialogFocus: (payload: MenuItem[]) => payload, deleteProperty: () => true });
+const editWhere = defineModel<Where>("editWhere", { default: {} });
 const { toggleWhereBool } = setupIMQueryBuilderActions();
+const emit = defineEmits<{
+  onEditWhere: [payload: Where];
+  onDeleteWhere: [payload: Where];
+}>();
 
-function onDeleteMatch(matchId: string) {
-  if (props.editWhere.match && props.editWhere.match["@id"] === matchId) delete props.editWhere.match;
+function edit(where: Where) {
+  emit("onEditWhere", where);
 }
 </script>
 

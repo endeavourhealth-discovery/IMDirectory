@@ -4,13 +4,13 @@
       <IMViewerLink v-if="item['@id']" :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
       <span v-if="item.return">
         <span>{</span>
-        <RecursiveReturnDisplay :select="item.return" />
+        <RecursiveReturnEditor :select="item.return" />
         <span>}</span>
       </span>
       <span v-if="item.case">
         <span v-for="(when, whenIndex) in item.case.when" :key="whenIndex">
           <span>if</span>
-          <RecursiveWhereDisplay
+          <RecursiveWhereEditor
             v-if="when.where"
             :where="when.where"
             :depth="1"
@@ -35,6 +35,7 @@ import { Return, ReturnProperty, When } from "@/interfaces/AutoGen";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import RecursiveWhereEditor from "@/components/imquery/RecursiveWhereEditor.vue";
 
 interface Props {
   select: Return;

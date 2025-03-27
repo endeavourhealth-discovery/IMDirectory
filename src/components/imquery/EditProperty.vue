@@ -11,7 +11,7 @@
           <div v-if="property.valueLabel">
             <Chip :label="property.valueLabel" />
           </div>
-          <div v-for="is of property.is" v-else>
+          <div v-for="is of property.is" :key="getNameFromRef(is)" v-else>
             <Chip v-tooltip.bottom="getNameFromRef(is)" :label="truncateName(getNameFromRef(is))" />
           </div>
         </div>
@@ -26,25 +26,12 @@
 
       <Popover ref="dropdown">
         <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
-          <span v-for="is of property.is" class="p-1">{{ getNameFromRef(is) }}</span>
+          <span v-for="is of property.is" :key="getNameFromRef(is)" class="p-1">{{ getNameFromRef(is) }}</span>
         </div>
       </Popover>
-      <AddNewFeatureDialog
-        v-model:show-dialog="showBuildFeatureDialog"
-        :show-navigate="false"
-        :can-clear-path="false"
-        :dataModelIri="dataModelIri"
-        :has-next-step="false"
-        :header="'Add new feature'"
-        :isList="property.is"
-        :match="editMatch"
-        :property-iri="selectedProperty.iri"
-        :show-all-type-filters="false"
-        @on-match-add="onMatchAdd"
-      />
     </div>
 
-    <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :ui-property="selectedProperty" :property="property" />
+    <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :ui-property="selectedProperty" :property="property!" />
     <Button v-if="showDelete" icon="fa-solid fa-trash" severity="danger" @click="$emit('deleteProperty')" />
   </div>
 </template>
@@ -61,7 +48,6 @@ import { cloneDeep } from "lodash-es";
 import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 
 interface Props {
-  property: Where;
   dataModelIri: string;
   showDelete?: boolean;
   editMatch: Match;
@@ -72,7 +58,7 @@ const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
 const emit = defineEmits({ deleteProperty: () => true });
 const loading = ref(true);
-
+const property = defineModel<Where>("property", { default: {} });
 const dropdown = ref();
 
 onMounted(async () => {
@@ -80,7 +66,7 @@ onMounted(async () => {
 });
 
 watch(
-  () => cloneDeep(props.property),
+  () => cloneDeep(property),
   async () => await init()
 );
 
@@ -91,12 +77,8 @@ watch(
 
 async function init() {
   loading.value = true;
-  if (props.dataModelIri && props.property?.["@id"]) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, props.property["@id"]);
+  if (props.dataModelIri && property!.value["@id"]) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, property!.value["@id"]);
   loading.value = false;
-}
-
-function onMatchAdd(updatedMatch: Match) {
-  props.editMatch.where = updatedMatch.where;
 }
 
 function truncateName(name: string) {
@@ -109,8 +91,8 @@ function toggleDropdown(event: MouseEvent) {
 }
 
 function onSaveCustomSet(newSet: Node) {
-  props.property.is = [newSet];
-  props.property.memberOf = true;
+  property.value.is = [newSet];
+  property.value.memberOf = true;
 }
 </script>
 

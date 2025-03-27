@@ -65,10 +65,11 @@ const EntityService = {
     pageIndex: number,
     pageSize: number,
     filters?: FiltersAsIris,
-    controller?: AbortController
+    controller?: AbortController,
+    typeFilter?: string[] | undefined
   ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: EntityReferenceNode[] }> {
     return axios.get(API_URL + "/public/childrenPaged", {
-      params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
+      params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(","), typeFilter: typeFilter?.join(",") },
       signal: controller?.signal
     });
   },

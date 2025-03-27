@@ -114,7 +114,8 @@ function setupTree(emit?: any, customPageSize?: number) {
     node.loading = false;
   }
 
-  async function onNodeExpand(node: any) {
+  async function onNodeExpand(node: any, typeFilter?: string[] | undefined) {
+    if (!node.data) return;
     if (isObjectHasKeys(node)) {
       node.loading = true;
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
@@ -125,11 +126,12 @@ function setupTree(emit?: any, customPageSize?: number) {
           if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type, false, node));
         }
       } else {
-        const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
+        const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value, undefined, undefined, typeFilter);
         children.result.forEach((child: any) => {
           if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
         });
         if (
+          node.children.length > 0 &&
           children.totalCount >= pageSize.value &&
           node.children.length !== children.totalCount &&
           node.children[node.children.length - 1].data !== "loadMore"

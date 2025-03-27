@@ -38,7 +38,7 @@
         <span>(</span>
         <span v-for="(nestedProperty, index) of where.where" :key="index">
           <span>
-            <RecursiveWhereDisplay
+            <RecursiveWhereEditor
               :where="nestedProperty"
               :index="index"
               :operator="where.bool"
@@ -60,7 +60,6 @@ import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Where, Assignable, Bool, Node } from "@/interfaces/AutoGen";
 import { Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import { IM } from "@/vocabulary/IM";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 

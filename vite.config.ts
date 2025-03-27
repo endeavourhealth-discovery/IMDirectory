@@ -36,6 +36,9 @@ export default defineConfig({
   },
   server: {
     port: 8082,
+    hmr: {
+      overlay: false
+    },
     proxy: {
       "/imapi": {
         target: "http://127.0.0.1:8080",

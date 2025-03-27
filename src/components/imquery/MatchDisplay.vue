@@ -13,20 +13,14 @@
     <div v-if="match" class="match-description-container">
       <div v-if="match.description" class="match-description" v-html="match.description"></div>
       <div v-if="match.match" class="feature-group">
-        <Button
-          class="builder-button conjunction-button vertical-button"
-          :label="match.boolMatch?.toUpperCase() ?? 'AND'"
-          severity="secondary"
-          disabled
-          outlined
-        />
+        <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled outlined />
         <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display" /></div>
       </div>
       <div v-if="match.where" class="where-group">
         <Button
           v-if="match.where.length > 1"
           class="builder-button conjunction-button vertical-button"
-          :label="match.boolWhere?.toUpperCase() ?? 'AND'"
+          :label="match.bool?.toUpperCase() ?? 'AND'"
           severity="secondary"
           disabled
           outlined
@@ -34,10 +28,6 @@
         <div class="where-list"><WhereDisplay v-for="nestedWhere in match.where" :where="nestedWhere" /></div>
       </div>
       <div v-if="match.orderBy" v-html="match.orderBy.description" />
-      <div v-if="match.then">
-        <div class="then-title">Then</div>
-        <MatchDisplay :match="match.then" />
-      </div>
       <div v-if="match.variable" class="variable-display">
         <div class="saved-as">saved as</div>
         <div class="variable">{{ match.variable }}</div>

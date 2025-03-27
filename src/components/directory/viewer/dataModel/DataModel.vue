@@ -47,11 +47,11 @@
 
 <script lang="ts" setup>
 import { onMounted, Ref, ref, watch } from "vue";
-import { DataModelService, EntityService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { DataModelService } from "@/services";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import type { TreeNode } from "primevue/treenode";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { IM, RDFS } from "@/vocabulary";
+import { IM, RDFS, RDF } from "@/vocabulary";
 import { PropertyShape, TTIriRef, PropertyRange } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -100,6 +100,9 @@ async function onNodeExpand(node: TreeNode) {
           child.loading = false;
         }
       }
+      if (node.children[0].children && node.children[0].children.length) {
+        node.children = node.children[0].children;
+      }
     }
   }
 }
@@ -114,7 +117,7 @@ function onNodeCollapse(node: TreeNode) {
 
 function createGroupNode(property: PropertyShape, index: any, propertyList: TreeNode[], parentKey: string) {
   if (property.group) {
-    let name = property.group.name;
+    const name = property.group.name;
 
     const groupNode = {
       key: parentKey + "-" + index.toString(),
@@ -173,7 +176,6 @@ function setQualifierNode(qualifiers: string, rangeNode: TreeNode, iri: string, 
 
 function createParameterNode(property: PropertyShape, rangeNode: TreeNode) {
   if (property.parameter && property.parameter.length) {
-    let params = "parameters : ";
     for (const [index, parameter] of property.parameter.entries()) {
       if (parameter.type) {
         const parameterNode = {
@@ -251,7 +253,7 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
       const value = property.hasValueType?.["@id"] === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
       name += ` (${value})`;
     }
-    const propertyType = property.type as TTIriRef[];
+    const propertyType = { "@id": RDF.PROPERTY } as TTIriRef;
     if (range && rangeType) {
       const propertyNode = {
         key: parentKey + "-" + index.toString(),
@@ -262,8 +264,8 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
         data: {
           rangeType: [range],
           cardinality: cardinality,
-          typeIcon: getFAIconFromType(propertyType),
-          color: getColourFromType(propertyType),
+          typeIcon: getFAIconFromType([propertyType]),
+          color: getColourFromType([propertyType]),
           iri: property.path["@id"]
         },
         type: "property"
@@ -276,7 +278,7 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
 }
 
 async function getDataModelPropertiesDisplay(iri: string, parentKey: string, parent: null | string): Promise<TreeNode[]> {
-  const entity = await DataModelService.getDataModelProperties(iri, parent);
+  const entity = await DataModelService.getDataModelProperties(iri);
   const propertyList = [] as TreeNode[];
   if (entity.property && isArrayHasLength(entity.property)) {
     for (const [index, property] of entity.property.entries()) {

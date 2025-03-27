@@ -61,7 +61,7 @@ describe("Register", () => {
     cy.getByTestId("password-new1").find("input").type("abcd");
     cy.get(".p-message").contains("weak");
     cy.get(".p-password-content").contains("Weak");
-    cy.getByTestId("password-new1").find("input").type("A");
+    cy.getByTestId("password-new1").find("input").type("Afsdfsdf");
     cy.get(".p-password-content").contains("Medium");
     cy.getByTestId("password-new1").find("input").type("%");
     cy.get(".p-password-content").contains("Strong");

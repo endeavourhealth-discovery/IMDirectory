@@ -20,85 +20,33 @@
             <span class="include-title text-black-500">with the following features</span>
           </div>
 
-          <span v-if="isArrayHasLength(query.isSubsetOf)">
-            <span class="field">Must be in</span>
-            <span v-for="(parent, index) of query.isSubsetOf" :key="index">
-              <span v-if="index > 0">,</span>
-              <span style="margin-left: 1em">
-                <IMViewerLink v-if="parent['@id']" :iri="parent['@id']" :label="parent.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
-              </span>
-            </span>
-          </span>
-          <span v-if="isArrayHasLength(query.match)">
-            <span v-for="(nestedMatch, index) of query.match" :key="index">
-              <RecursiveMatchDisplay
-                :match="nestedMatch"
-                :clauseIndex="index"
-                :depth="1"
-                :inline="false"
-                :parent-match="query"
-                :expanded="nestedMatch.name === undefined"
-              />
-            </span>
-          </span>
-          <div v-if="isArrayHasLength(query.where)">
-            <RecursiveWhereDisplay
-              v-for="(nestedWhere, index) in query.where"
-              :where="nestedWhere"
-              :depth="1"
-              :index="index"
-              :key="index"
-              :operator="query.boolWhere"
-              :expandedSet="false"
-            />
-          </div>
-          <div v-if="query.function">
-            <span class="field"> Function : {{ query.function?.name }}</span>
-            <span v-if="isArrayHasLength(query.function?.argument)">
-              <span v-for="(param, index) in query.function?.argument" :key="index">
-                <ul>
-                  <li class="tight-spacing">
-                    <span class="argument">parameter :{{ param.parameter }}</span>
-                    <span v-if="param.valueVariable" class="field"> :,argument: {{ param.valueVariable }}</span>
-                  </li>
-                </ul>
-              </span>
-            </span>
-          </div>
-          <div v-if="query.return">
-            <ReturnColumns :select="query.return" :property-expanded="false" class="pl-8" />
-          </div>
-          <div v-if="isArrayHasLength(query.query)" class="pl-8">
-            <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="toggle" />
-            <span class="text-green-500">The cohort query has the following data set definition</span>
-            <span v-if="dataSetExpanded">
-              <RecursiveQueryDisplay
-                v-for="(nestedQuery, index) of query.query"
-                :key="index"
-                :query="nestedQuery"
-                :match-expanded="false"
-                :return-expanded="false"
-              />
-            </span>
-          </div>
-          <div v-if="query.return">
-            <ReturnColumns :select="query.return" :property-expanded="false" class="pl-8" />
-          </div>
-        </div>
-        <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
-          <pre>{{ sql }}</pre>
-          <template #footer>
-            <Button
-              label="Copy to Clipboard"
-              v-tooltip.left="'Copy to clipboard'"
-              v-clipboard:copy="copyToClipboard()"
-              v-clipboard:success="onCopy"
-              v-clipboard:error="onCopyError"
-              data-testid="copy-button"
-            />
-            <Button label="Close" @click="showSql = false" data-testid="close-button" />
+          <RecursiveMatchDisplay
+            :match="query"
+            :clauseIndex="-1"
+            :depth="0"
+            :inline="false"
+            :parent-match="query"
+            :bracketed="false"
+            :expanded="query.name === undefined"
+          />
+          <template v-if="query.query">
+            <RecursiveQueryDisplay v-for="(subQuery, index) in query.query" :key="index" :query="subQuery" :match-expanded="false" :return-expanded="false" />
           </template>
-        </Dialog>
+          <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
+            <pre>{{ sql }}</pre>
+            <template #footer>
+              <Button
+                label="Copy to Clipboard"
+                v-tooltip.left="'Copy to clipboard'"
+                v-clipboard:copy="copyToClipboard()"
+                v-clipboard:success="onCopy"
+                v-clipboard:error="onCopyError"
+                data-testid="copy-button"
+              />
+              <Button label="Close" @click="showSql = false" data-testid="close-button" />
+            </template>
+          </Dialog>
+        </div>
       </div>
     </div>
   </div>
@@ -116,11 +64,13 @@ import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { getParentNode } from "@/helpers";
 
 interface Props {
   entityIri?: string;
   definition?: string;
   showSqlButton?: boolean;
+  queryDefinition?: Query;
 }
 
 const dataSetExpanded = ref(false);
@@ -162,8 +112,9 @@ onMounted(async () => {
 });
 
 async function getQuery() {
-  if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, displayMode.value);
-  else if (props.definition) query.value = await QueryService.getDisplayFromQuery(JSON.parse(props.definition), displayMode.value);
+  if (props.queryDefinition) {
+    query.value = await QueryService.getQueryDisplayFromQuery(props.queryDefinition, displayMode.value);
+  } else if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, displayMode.value);
 }
 
 async function init() {
