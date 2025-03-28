@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="10.378" tests="2" failures="0">
-  <testsuite name="Root Suite" timestamp="2024-10-31T17:28:59" tests="0" file="cypress\e2e\directory\viewer.cy.js" time="0.000" failures="0">
+<testsuites name="Mocha Tests" time="40.992" tests="9" failures="0">
+  <testsuite name="Root Suite" timestamp="2025-03-28T09:54:26" tests="0" file="cypress\e2e\auth\user-edit.cy.js" time="0.000" failures="0">
   </testsuite>
-  <testsuite name="viewer" timestamp="2024-10-31T17:28:59" tests="0" time="0.000" failures="0">
-  </testsuite>
-  <testsuite name="Concept" timestamp="2024-10-31T17:28:59" tests="2" time="10.375" failures="0">
-    <testcase name="viewer Concept loads" time="4.923" classname="loads">
+  <testsuite name="UserEdit" timestamp="2025-03-28T09:54:26" tests="9" time="40.973" failures="0">
+    <testcase name="UserEdit starts with data" time="4.730" classname="starts with data">
     </testcase>
-    <testcase name="viewer Concept can find in tree" time="5.175" classname="can find in tree">
+    <testcase name="UserEdit update button is disabled when fields are empty" time="4.031" classname="update button is disabled when fields are empty">
+    </testcase>
+    <testcase name="UserEdit can select avatar" time="4.288" classname="can select avatar">
+    </testcase>
+    <testcase name="UserEdit checks that the email is valid" time="4.415" classname="checks that the email is valid">
+    </testcase>
+    <testcase name="UserEdit checks confirm email is valid" time="5.316" classname="checks confirm email is valid">
+    </testcase>
+    <testcase name="UserEdit checks that the first name is valid" time="3.936" classname="checks that the first name is valid">
+    </testcase>
+    <testcase name="UserEdit checks that the last name is valid" time="3.826" classname="checks that the last name is valid">
+    </testcase>
+    <testcase name="UserEdit can validate password" time="4.607" classname="can validate password">
+    </testcase>
+    <testcase name="UserEdit can confirm password" time="5.376" classname="can confirm password">
     </testcase>
   </testsuite>
 </testsuites>

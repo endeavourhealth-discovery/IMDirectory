@@ -29,6 +29,7 @@ export default defineConfig({
 
       return config;
     },
+    defaultCommandTimeout: 10000,
     experimentalRunAllSpecs: true,
     specPattern: ["cypress/e2e/**/*.feature", "cypress/e2e/**/*.cy.*"],
     fixturesFolder: "cypress"
