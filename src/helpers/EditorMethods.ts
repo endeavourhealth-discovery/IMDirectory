@@ -50,6 +50,7 @@ function getNameFromIri(iri: string) {
   return iri;
 }
 
+
 function extractComponentFromIri(type: TTIriRef) {
   let name = getNameFromIri(type["@id"]);
   if (name.includes("_")) return name.split("_")[1];

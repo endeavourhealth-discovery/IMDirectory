@@ -25,6 +25,7 @@
           <NavTree
             :selectedIri="treeIri"
             :root-entities="rootEntities"
+            :typeFilter="typeFilter"
             :find-in-tree="findInDialogTree"
             @found-in-tree="findInDialogTree = false"
             @row-selected="showDetails"
@@ -83,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref } from "vue";
+import { ref, onMounted, watch, Ref, computed } from "vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
@@ -143,8 +144,8 @@ watch(visible, newValue => {
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
-const searchTerm = ref("");
-
+const searchTerm = ref(props.searchTerm ?? "");
+const typeFilter = computed(() => props.selectedFilterOptions?.types.map(item => item["@id"]));
 watch(
   () => treeIri.value,
   () => {

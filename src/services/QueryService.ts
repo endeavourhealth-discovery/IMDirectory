@@ -23,30 +23,22 @@ const QueryService = {
     return axios.post(API_URL + "/public/askQueryIM", query, { signal: controller?.signal, raw: raw });
   },
 
-  async getLabeledQuery(query: Query): Promise<Query> {
-    return this.getQueryDisplayFromQuery(query, true);
-  },
-
   async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
     return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
   },
 
-  async getQueryDisplayFromQuery(query: Query, includeLogicDesc: boolean): Promise<Query> {
-    return axios.post(API_URL + "/public/queryDisplayFromQuery", query, {
-      params: { includeLogicDesc: includeLogicDesc }
-    });
+  async getQueryDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
+    return axios.post(API_URL + "/public/queryDisplayFromQuery", query, { params: { displayMode } });
   },
+
 
   async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
     return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
   },
 
-  async getDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
-    return axios.post(API_URL + "/public/queryDisplayFromQuery", query, {
-      params: { displayMode: displayMode }
-    });
+  async getDefaultQuery(): Promise<Query> {
+    return axios.get(API_URL + "/public/defaultQuery");
   },
-
   async generateQuerySQL(queryIri: string): Promise<string> {
     return axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri } });
   },

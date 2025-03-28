@@ -3,7 +3,7 @@
     <TopBar>
       <template #content>
         <div class="topbar-content">
-          <span class="title"><strong>IM Creator</strong></span>
+          <span class="title"><strong>IM Entity Creator</strong></span>
         </div>
       </template>
     </TopBar>

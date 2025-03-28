@@ -2,6 +2,7 @@
   <div>
     <Dialog
       v-model:visible="visible"
+      modal
       :draggable="false"
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
       class="edit-match-dialog"
@@ -26,24 +27,10 @@
         <ProgressSpinner />
       </div>
       <div v-else class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
-        <Textarea v-if="editMatch" v-model="editMatch.description" autoResize placeholder="Description" rows="3" type="text" />
-
+        <Textarea v-if="editMatch" v-model="matchJson" autoResize placeholder="Description" rows="3" type="text" />
         <div id="imquery-builder-container">
-          <div v-if="focusedEditMatch" id="imquery-build">
-            <EditMatch
-              :edit-match="focusedEditMatch"
-              :focused-id="focusedEditMatch['@id']"
-              :is-root-feature="true"
-              @on-update-dialog-focus="updateDialogFocus"
-            />
-            <AddMatch
-              v-model:show-build-feature="showBuildFeature"
-              v-model:show-build-then-feature="showBuildThenFeature"
-              :edit-match="focusedEditMatch"
-              :match-type-of-iri="focusedEditMatch.typeOf?.['@id'] ?? queryBaseTypeIri"
-              @add-feature="onMatchAdd"
-              @add-then="onThenAdd"
-            />
+          <div id="imquery-build">
+            <EditMatch v-model:match="editMatch" :focused-id="editMatch['@id']" :is-root-feature="true" @on-update-dialog-focus="updateDialogFocus" />
             <div class="add-button-bar">
               <Button class="add-feature-button" icon="fa-solid fa-plus" label="Add test" severity="secondary" @click="showBuildThenFeature = true" />
               <Button
@@ -51,7 +38,7 @@
                 class="add-feature-button"
                 icon="fa-solid fa-arrow-down-z-a"
                 label="Add order by"
-                @click="focusedEditMatch!.orderBy = { description: '', limit: 0,  property: {} }"
+                @click="focusedEditMatch!.orderBy = { description: '', limit: 0, property: {} }"
               />
               <FunctionComponent :function-templates="templates" @add-function-property="onAddFunctionProperty" />
             </div>
@@ -110,23 +97,19 @@
 <script lang="ts" setup>
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
-import { Bool, Match, TTIriRef } from "@/interfaces/AutoGen";
-import { inject, onMounted, Ref, ref, watch } from "vue";
+import { DisplayMode, Match, TTIriRef } from "@/interfaces/AutoGen";
+import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
 import type { MenuItem } from "primevue/menuitem";
-import AddMatch from "./AddMatch.vue";
 import { EntityService, QueryService } from "@/services";
 import { IM } from "@/vocabulary";
 import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
 
 interface Props {
-  showDialog: boolean;
-  match: Match | undefined;
   index?: number;
-  queryBaseTypeIri: string;
-  hasThen: boolean;
+  match: Match;
 }
 
 const props = defineProps<Props>();
@@ -139,41 +122,20 @@ const keepAsVariable: Ref<string> = ref("");
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const keepAsEdit: Ref<boolean> = ref(false);
-const editMatch: Ref<Match | undefined> = ref();
 const focusedEditMatch: Ref<Match | undefined> = ref();
 const focusedEditMatchString: Ref<string> = ref("");
-const visible = ref(false);
+const visible = defineModel<boolean>("showDialog");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEditMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const templates: Ref<any> = ref();
 const loading = ref(true);
-
+const editMatch: Ref<Match> = ref(cloneDeep(props.match));
+const matchJson = computed(() => JSON.stringify(editMatch));
 watch(
   () => cloneDeep(focusedEditMatch.value),
   newValue => {
     focusedEditMatchString.value = JSON.stringify(newValue);
-  }
-);
-
-watch(
-  () => props.showDialog,
-  newValue => {
-    visible.value = newValue;
-  }
-);
-
-watch(visible, newValue => {
-  if (!newValue) {
-    emit("update:showDialog", newValue);
-  }
-});
-
-watch(
-  () => cloneDeep(props.match),
-  async () => {
-    templates.value = await getFunctionTemplates();
-    setEditMatch();
   }
 );
 
@@ -183,21 +145,20 @@ watch(
 );
 
 onMounted(async () => {
+  console.log("IMQUERY EDIT DIALOG MOUNTED with " + props.match.typeOf?.["@id"]);
   await init();
 });
 
 async function init() {
   loading.value = true;
-  setEditMatch();
-  focusedEditMatchString.value = JSON.stringify(focusedEditMatch.value);
+  editMatch.value = cloneDeep(props.match);
   setPathItems();
-  if (focusedEditMatch.value?.variable) keepAsVariable.value = focusedEditMatch.value?.variable;
   templates.value = await getFunctionTemplates();
   loading.value = false;
 }
 
 async function getFunctionTemplates() {
-  const iri = props.match?.typeOf?.["@id"] ?? props.queryBaseTypeIri;
+  const iri = editMatch.value?.typeOf?.["@id"];
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
     if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
@@ -212,15 +173,9 @@ function setPathItems() {
   pathItems.value = [{ label: props.index ? "Feature " + props.index : "Feature" }];
 }
 
-function setEditMatch() {
-  if (isObjectHasKeys(props.match)) editMatch.value = cloneDeep(props.match);
-  focusedEditMatch.value = editMatch.value;
-}
-
-function updateDialogFocus(items: MenuItem[]) {
-  if (!isArrayHasLength(items) || items[items.length - 1].editMatch?.["@id"] === focusedEditMatch.value?.["@id"]) return;
-  pathItems.value = items;
-  focusedEditMatch.value = items[items.length - 1].editMatch;
+function updateDialogFocus(match: Match) {
+  editMatch.value = match;
+  onSave();
 }
 
 function goBack() {
@@ -246,7 +201,7 @@ function updateDialogFocusFromBreadcrumb(id: string | undefined) {
 
 function onSave() {
   const newEditMatch = cloneDeep(editMatch.value);
-  if (newEditMatch && JSON.stringify(newEditMatch) !== JSON.stringify(props.match)) {
+  if (newEditMatch && JSON.stringify(newEditMatch) !== JSON.stringify(editMatch.value)) {
     emit("saveChanges", newEditMatch);
   }
   visible.value = false;
@@ -261,21 +216,6 @@ function onMatchAdd(match: Match) {
   if (!editMatch.value) editMatch.value = {};
   if (!editMatch.value.match?.length) editMatch.value.match = [];
   editMatch.value.match.push(match);
-}
-
-async function onThenAdd(match: Match) {
-  const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [match] }, false);
-  if (describedQuery?.match?.length) {
-    if (!editMatch.value) editMatch.value = {};
-    if (props.hasThen || (editMatch.value.then && !editMatch.value.then.match)) {
-      const previousThen = cloneDeep(editMatch.value.then);
-      if (previousThen && match)
-        editMatch.value.then = {
-          boolMatch: Bool.and,
-          match: [previousThen, describedQuery.match[0]]
-        };
-    } else editMatch.value.then = describedQuery.match[0];
-  }
 }
 
 function saveVariable() {

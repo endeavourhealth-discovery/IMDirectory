@@ -4,7 +4,7 @@
     <MatchDisplay v-if="where?.match" :match="where.match" />
     <div v-if="where?.where" class="where-group">
       <div v-if="where.where.length > 1" class="vertical-button-container">
-        <Button text class="builder-button conjunction-button vertical-button" :label="where.boolWhere?.toUpperCase() ?? 'AND'" severity="secondary" disabled />
+        <Button text class="builder-button conjunction-button vertical-button" :label="where.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled />
       </div>
       <div class="where-list"><WhereDisplay v-for="nestedWhere in where.where" :where="nestedWhere" /></div>
     </div>

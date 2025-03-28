@@ -5,19 +5,19 @@ import type { MenuItem } from "primevue/menuitem";
 function setupIMQueryBuilderActions() {
   function isFlatMatch(match: Match): boolean {
     const nestedWhereHasMatch = match.where ? match.where.some(nestedWhere => nestedWhere.match) : false;
-    return !nestedWhereHasMatch && !match.match && !match.then && !match.where;
+    return !nestedWhereHasMatch && !match.match && !match.where;
   }
 
   function toggleMatchBool(object: Match) {
-    if (object.boolMatch === Bool.and) object.boolMatch = Bool.or;
-    else if (object.boolMatch === Bool.or) object.boolMatch = Bool.and;
-    else object.boolMatch = Bool.or;
+    if (object.bool === Bool.and) object.bool = Bool.or;
+    else if (object.bool === Bool.or) object.bool = Bool.and;
+    else object.bool = Bool.or;
   }
 
   function toggleWhereBool(object: Match | Where) {
-    if (object.boolWhere === Bool.and) object.boolWhere = Bool.or;
-    else if (object.boolWhere === Bool.or) object.boolWhere = Bool.and;
-    else object.boolWhere = Bool.or;
+    if (object.bool === Bool.and) object.bool = Bool.or;
+    else if (object.bool === Bool.or) object.bool = Bool.and;
+    else object.bool = Bool.or;
   }
 
   function getMenuItemFromMatch(match: Match): MenuItem {
@@ -39,8 +39,6 @@ function setupIMQueryBuilderActions() {
       for (const nestedMatch of match.match) {
         searchForTypeOfRecursively(nestedMatch, id, match, typeOf, fullQuery);
       }
-    } else if (match.then) {
-      searchForTypeOfRecursively(match.then, id, match, typeOf, fullQuery);
     }
   }
 
@@ -62,8 +60,6 @@ function setupIMQueryBuilderActions() {
       for (const property of match.where!) {
         addVariableRefFromProperty(map, property);
       }
-
-    if (match.then) addVariableRefFromMatch(map, match.then);
   }
 
   function addVariableRefFromProperty(map: { [key: string]: any }, property: Where) {

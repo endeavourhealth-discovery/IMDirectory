@@ -52,6 +52,12 @@ describe("Register", () => {
     cy.get(".p-message-error").should("not.exist");
   });
   it("can validate password", () => {
+    cy.getByTestId("password-new1").find("input").type("1234abcA");
+    cy.get(".p-password-content").contains("Medium");
+    cy.getByTestId("password-new1").find("input").clear();
+    cy.getByTestId("password-new1").find("input").type("1234abcA%");
+    cy.get(".p-password-content").contains("Strong");
+    cy.getByTestId("password-new1").find("input").clear();
     cy.getByTestId("password-new1").find("input").type("1234");
     cy.get(".p-password-content").contains("Weak");
     cy.get(".p-message").contains("weak");
@@ -61,10 +67,6 @@ describe("Register", () => {
     cy.getByTestId("password-new1").find("input").type("abcd");
     cy.get(".p-message").contains("weak");
     cy.get(".p-password-content").contains("Weak");
-    cy.getByTestId("password-new1").find("input").type("A");
-    cy.get(".p-password-content").contains("Medium");
-    cy.getByTestId("password-new1").find("input").type("%");
-    cy.get(".p-password-content").contains("Strong");
   });
   it("can confirm password", () => {
     cy.getByTestId("password-new1").type("1234abcdA%");

@@ -64,7 +64,7 @@ describe("homepage", () => {
     it("links to creator", () => {
       cy.get(".shortcut-container").contains("Creator").click();
       cy.visitNewTab("/#/creator/");
-      cy.get("#topbar-content", { timeout: 60000 }).contains("IM Creator");
+      cy.get("#topbar-content", { timeout: 60000 }).contains("IM Entity Creator");
     });
 
     it("links to assign uprn", () => {

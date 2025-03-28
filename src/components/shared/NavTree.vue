@@ -8,7 +8,7 @@
       class="tree-root"
       selectionMode="single"
       @node-select="onNodeSelect"
-      @node-expand="onNodeExpand"
+      @node-expand="expandNode"
       @node-collapse="onNodeCollapse"
     >
       <template #default="{ node }: any">
@@ -72,6 +72,7 @@ interface Props {
   rootEntities?: string[];
   selectedIri?: string;
   findInTree?: boolean;
+  typeFilter?: string[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -116,7 +117,6 @@ const {
   nodeHasChild
 } = setupTree(emit, 50);
 const { getCreateOptions }: { getCreateOptions: Function } = createNew();
-
 const loading = ref(true);
 const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const overlayLocation: Ref<MouseEvent | undefined> = ref();
@@ -170,7 +170,7 @@ onBeforeUnmount(() => {
 document.addEventListener("visibilitychange", function () {
   if (!document.hidden) {
     expandedKeys.value = {};
-    for (let newNode in expandedData.value) {
+    for (const newNode in expandedData.value) {
       onNodeExpand(expandedData.value[newNode]);
     }
   }
@@ -182,6 +182,10 @@ async function init() {
   else await addParentFoldersToRoot();
   if (props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
   loading.value = false;
+}
+
+function expandNode(node: any) {
+  onNodeExpand(node, props.typeFilter);
 }
 
 async function addParentFoldersToRoot() {

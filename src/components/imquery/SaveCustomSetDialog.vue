@@ -202,7 +202,7 @@ function getDefinition() {
     match: [
       {
         match: matches,
-        boolMatch: "or"
+        bool: "or"
       }
     ] as Match[]
   };

@@ -19,7 +19,7 @@
 
 <script lang="ts" setup>
 import { onMounted, Ref, ref, watch } from "vue";
-import { Match, Query, Where } from "@/interfaces/AutoGen";
+import { DisplayMode, Match, Query, Where } from "@/interfaces/AutoGen";
 import type { TreeNode } from "primevue/treenode";
 import { buildProperty } from "@/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";
@@ -70,14 +70,14 @@ onMounted(() => {
 
 async function handleEditMatchUpdate() {
   if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
-    const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, false);
+    const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, DisplayMode.ORIGINAL);
     if (describedQuery.match?.[0].where) whereOrMatch.value.where = describedQuery.match?.[0].where;
     const index = whereOrMatch.value.where?.findIndex(where => where["@id"] === whereOrMatch.value["@id"]);
     if (whereOrMatch.value.where && index && index !== -1) {
       editWhere.value = whereOrMatch.value.where[index];
     }
   } else if (editMatch.value.where?.length) {
-    const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, false);
+    const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, DisplayMode.ORIGINAL);
     if (describedQuery.match?.[0].where?.length) {
       const index = describedQuery.match?.[0].where?.findIndex(where => where["@id"] === whereOrMatch.value["@id"]);
       if (index && index !== -1) {

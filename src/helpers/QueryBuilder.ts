@@ -76,8 +76,6 @@ export function generateMatchIdsRecursively(match: Match) {
       generateMatchIdsRecursively(nestedMatch);
     }
 
-  if (isObjectHasKeys(match, ["then"]) && isObjectHasKeys(match.then)) generateMatchIdsRecursively(match.then!);
-
   if (isArrayHasLength(match.where))
     for (const property of match.where!) {
       if (isObjectHasKeys(property, ["match"])) generateMatchIdsRecursively(property.match!);

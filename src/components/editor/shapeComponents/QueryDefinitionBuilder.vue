@@ -6,7 +6,7 @@
     <div v-else :class="showValidation && invalid && 'invalid'" class="content-container">
       <div class="query-editor-container flex flex-col gap-4">
         <div class="query-editor flex flex-col p-2">
-          <IMQueryEditor v-model:queryDefinition="queryDefinition" @updateQuery="updateQueryDefinition" />
+          <IMQueryEditor v-if="queryDefinition" v-model:queryDefinition="queryDefinition" @updateQuery="updateQueryDefinition" />
         </div>
         <div class="flex flex-row justify-end gap-2">
           <div>
@@ -39,7 +39,7 @@
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode } from "@/enums";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Match, PropertyShape, Query } from "@/interfaces/AutoGen";
+import { DisplayMode, Match, PropertyShape, Query } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -105,9 +105,11 @@ onMounted(async () => {
 async function init() {
   if (props.value) {
     const definition = JSON.parse(props.value);
-    const labeledQuery = await QueryService.getLabeledQuery(definition);
+    const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.ORIGINAL);
     queryDefinition.value = generateMatchIds(labeledQuery);
-  } else queryDefinition.value = generateDefaultQuery();
+  } else {
+    queryDefinition.value = await generateDefaultQuery();
+  }
 }
 
 async function generateSQL() {
@@ -117,8 +119,8 @@ async function generateSQL() {
   }
 }
 
-function generateDefaultQuery() {
-  return { match: [] as Match[] } as Query;
+async function generateDefaultQuery() {
+  return await QueryService.getDefaultQuery();
 }
 
 function updateEntity() {

@@ -16,8 +16,14 @@ function createNew() {
         label: "New",
         icon: "fas fa-fw fa-plus",
         items: [] as any[]
+      },
+      {
+        label: "Edit",
+        icon: "fa-duotone fa-pen-to-square",
+        command: {}
       }
     ];
+    selectionWrapperCopy[1].command = () => directService.edit(node.data, true);
     let allowableTypes = [] as AllowableChildProperty[];
     const queryRequest = {
       argument: [
@@ -64,11 +70,6 @@ function createNew() {
     }
 
     if (!isArrayHasLength(allowableTypes)) {
-      selectionWrapperCopy[0].items.push({
-        label: "No options",
-        icon: "fa-solid fa-ban",
-        disabled: true
-      });
       return selectionWrapperCopy;
     }
 
@@ -90,7 +91,7 @@ function createNew() {
       } else {
         item.command = () => directService.create(item.data.type, item.data.property, node.data);
       }
-      selectionWrapperCopy[0].items.push(item);
+      if (selectionWrapperCopy[0].items) selectionWrapperCopy[0].items.push(item);
     }
     return selectionWrapperCopy;
   }

@@ -5,11 +5,10 @@ import { PropertyDisplay, UIProperty } from "@/interfaces";
 const API_URL = Env.API + "api/dataModel";
 
 const DataModelService = {
-  async getDataModelProperties(iri: string, parent: null | string): Promise<NodeShape> {
+  async getDataModelProperties(iri: string): Promise<NodeShape> {
     return axios.get(API_URL + "/public/dataModelProperties", {
       params: {
-        iri: iri,
-        parent: parent
+        iri: iri
       }
     });
   },
@@ -22,7 +21,7 @@ const DataModelService = {
     });
   },
 
-  async checkPropertyType(iri: string): Promise<String> {
+  async checkPropertyType(iri: string): Promise<string> {
     return axios.get(API_URL + "/public/checkPropertyType", { params: { iri: iri } });
   },
 

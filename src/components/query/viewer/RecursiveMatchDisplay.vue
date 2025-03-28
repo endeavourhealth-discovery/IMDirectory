@@ -1,26 +1,32 @@
 <template>
-  <component id="recursive-match-display" :is="inline ? 'span' : 'div'" :style="offset">
+  <div id="recursive-match-display" :style="{ paddingLeft: depth + 'rem' }">
     <span v-if="match.rule">
       <span class="rule">Rule {{ clauseIndex + 1 }}</span>
     </span>
     <span class="paragraph">
       <span v-if="parentMatch.union" class="number">{{ clauseIndex + 1 }}</span>
       <span class="text">
-        <span v-if="parentMatch.boolMatch">
+        <span v-if="match.nodeRef">
+          <span class="field">From</span>
+          <span class="node-ref">{{ match.nodeRef }}</span>
+          <span class="field">test that</span>
+        </span>
+        <span v-if="parentMatch.bool">
           <span v-if="clauseIndex > 0 && !match.rule">
-            <span :class="parentMatch.boolMatch">{{ parentMatch.boolMatch }}</span>
+            <span v-if="parentMatch.bool === 'and' && !match.nodeRef" :class="parentMatch.bool">{{ parentMatch.bool }}</span>
+            <span v-else-if="!match.nodeRef" :class="parentMatch.bool">{{ parentMatch.bool }}</span>
           </span>
-          <span v-else-if="parentMatch.boolMatch === 'or'">
+          <span v-else-if="parentMatch.bool === 'or'">
             <span class="either">Either</span>
           </span>
         </span>
         <span v-if="match.exclude">
-          <span v-if="parentMatch.boolMatch && parentMatch.boolMatch === 'and'">
+          <span v-if="parentMatch.bool && parentMatch.bool === 'and'">
             <span class="not">(exclude if) </span>
           </span>
           <span v-else class="not">or exclude if </span>
         </span>
-        <span v-if="match.match && !match.union">(</span>
+
         <span v-if="match.union">
           <span class="field">Select one of the following</span>
           <span v-if="match.return">
@@ -28,16 +34,13 @@
             <span class="node">{{ match.return?.as }})</span>
           </span>
         </span>
-        <span v-if="match.test">
-          <span v-if="match.nodeRef">
-            <span class="field">From</span>
-            <span class="node">{{ match.nodeRef }},</span>
-            <span class="field">test that</span>
-          </span>
-          <span v-else-if="!match.exclude" class="field">Test that:</span>
-        </span>
         <span v-if="match.orderBy">{{ match.orderBy.description }}</span>
-        <span v-if="match.path" class="field" v-html="getFormattedPath(match.path)"></span>
+        <span v-if="match.path">
+          <span class="field" v-html="getFormattedPath(match.path)"></span>
+          <span v-if="match.path.where">
+            <RecursiveWhereDisplay :where="match.path.where" :index="0" :depth="depth" :expanded-set="false" :inline="true" />
+          </span>
+        </span>
         <span v-if="match.instanceOf">
           <span v-if="match.instanceOf[0].qualifier" v-html="match.instanceOf[0].qualifier"></span>
           <IMViewerLink
@@ -62,13 +65,13 @@
           </span>
         </span>
         <span v-if="isArrayHasLength(match.match)">
+          <span v-if="clauseIndex > -1 && !match.rule">(</span>
           <span v-for="(nestedQuery, index) in match.match" :key="`nestedQuery-${index}`">
             <RecursiveMatchDisplay
-              :inline="index === 0 && !!props.parentMatch && !!props.parentMatch.union"
               :match="nestedQuery"
               :key="`nestedQueryDisplay-${index}`"
               :clause-index="index"
-              :parent-operator="match.boolMatch"
+              :parent-operator="match.bool"
               :depth="depth + 1"
               :parent-match="match"
               :bracketed="index === match.match!.length - 1"
@@ -79,15 +82,22 @@
           <RecursiveWhereDisplay
             v-for="(nestedWhere, index) in match.where"
             :where="nestedWhere"
-            :depth="depth"
+            :depth="depth + (match.nodeRef ? 1 : 0)"
             :property-index="index"
             :key="index"
             :index="index"
-            :operator="match.boolWhere"
+            :operator="match.bool"
             :expandedSet="expandSet"
+            :inline="!nestedWhere.where"
           />
         </span>
-        <span v-if="bracketed">)</span>
+        <span v-if="match.return">
+          <span v-if="match.return.as">
+            <span class="field">. Label as</span>
+            <span class="node-ref">{{ match.return.as }}</span>
+          </span>
+        </span>
+        <span v-if="bracketed && depth > 1">)</span>
       </span>
     </span>
     <div v-if="match.rule">
@@ -96,7 +106,7 @@
       <span class="field">if false</span>
       <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
     </div>
-  </component>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -109,7 +119,6 @@ interface Props {
   match: Match;
   isVariable?: boolean;
   depth: number;
-  inline: boolean;
   clauseIndex: number;
   parentMatch: Match;
   propertyIndex?: number;
@@ -125,12 +134,6 @@ const emit = defineEmits({
 });
 const expandSet: Ref<boolean> = ref(false);
 
-const offset = computed(() => {
-  return {
-    marginLeft: props.inline ? 0.5 + "em" : props.depth - 0.5 + "em"
-  };
-});
-
 function toggle() {
   expandSet.value = !expandSet.value;
 }
@@ -143,11 +146,16 @@ function getReturnProperties(ret: Return): string {
     : "";
 }
 
+function indentationStyle(depth: number) {
+  return {
+    paddingRight: depth * 2 + "rem"
+  };
+}
+
 function getFormattedPath(path: Path): string {
   let formatted = "";
   if (path.qualifier) formatted = "<span>" + path.qualifier + "</span>";
   if (path.name) formatted = formatted + '<span style="color : rgb(0,102,102);">' + path.name + "</span>";
-  if (path.node && path.node.path) return formatted + getFormattedPath(path.node.path);
   return formatted;
 }
 // Watch for changes in the prop and update the local copy accordingly
@@ -169,6 +177,9 @@ function getFormattedPath(path: Path): string {
   margin-top: -1rem;
   margin-bottom: 0.5rem;
 }
+.indent {
+  padding-right: 2rem;
+}
 
 .then {
   padding-right: 0.2rem;
@@ -189,6 +200,12 @@ function getFormattedPath(path: Path): string {
 #recursive-match-display:deep(.or) {
   color: var(--p-blue-500);
   padding-right: 1.2rem;
+}
+
+.node-ref {
+  color: var(--p-amber-700) !important;
+  padding-right: 0.2rem;
+  cursor: pointer !important;
 }
 
 #recursive-match-display:deep(.either) {
