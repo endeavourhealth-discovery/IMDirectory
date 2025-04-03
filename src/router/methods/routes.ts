@@ -291,6 +291,15 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: "/queryRunner",
+    name: "QueryRunner",
+    component: () => import("@/views/QueryRunner.vue"),
+    meta: {
+      requiresLicense: true,
+      requiresAuth: true
+    }
+  },
+  {
     path: "/codeGenerator",
     name: "CodeGenerator",
     component: () => import("@/views/CodeGen.vue"),
