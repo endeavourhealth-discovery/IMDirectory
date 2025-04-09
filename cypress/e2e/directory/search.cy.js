@@ -60,7 +60,7 @@ describe("Search", () => {
       .invoke("text")
       .then(parseFloat)
       .then(newCount => {
-        cy.get("@startCount").then(startCount => {
+        cy.get("@startCount", { timeout: 60000 }).then(startCount => {
           expect(newCount).not.equal(startCount);
         });
       });

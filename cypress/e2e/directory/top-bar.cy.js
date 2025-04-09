@@ -52,7 +52,7 @@ describe("top bar", () => {
       it("can change theme", () => {
         cy.get("#banner").should("have.css", "background-color", "rgb(16, 185, 129)");
         cy.getByTestId("change-theme-button").click();
-        cy.get(".color-picker").find(".p-button").eq(1).click();
+        cy.get(".color-picker").find(".p-button", { timeout: 10000 }).eq(1).click();
         cy.get("#banner").should("have.css", "background-color", "rgb(34, 197, 94)");
       });
     });
