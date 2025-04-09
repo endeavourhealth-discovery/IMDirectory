@@ -19,7 +19,7 @@
               v-model="password"
               :feedback="false"
               :pt="{
-                'pc-input': { root: { 'data-testid': 'login-password' } }
+                pcInputText: { root: { 'data-testid': 'login-password' } }
               }"
               toggleMask
             />

@@ -50,6 +50,7 @@ describe("creator", () => {
       cy.get(".array-builder-container").contains("Subclass of").parent().parent().as("subclassOf");
       cy.get("@subclassOf").find("#autocomplete-search").click();
       cy.get("@subclassOf").find("#autocomplete-search").type("pat");
+      cy.wait(6000);
       cy.get(".listbox-item").first().click();
       cy.get("@subclassOf").find('[data-testid="add-button"]').click();
       cy.get("@subclassOf").find(".entity-search-item-container").should("have.length", 2);
