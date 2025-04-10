@@ -1,7 +1,7 @@
 import Env from "./Env";
 import { AllowableChildProperty, QueryResponse } from "@/interfaces";
 import axios from "axios";
-import { DisplayMode, Match, PathQuery, Query, QueryRequest, SearchResponse } from "@/interfaces/AutoGen";
+import { DBEntry, DisplayMode, Match, PathQuery, Query, QueryExecutorStatus, QueryRequest, RequeueQueryRequest, SearchResponse } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 const API_URL = Env.API + "api/query";
 
@@ -31,7 +31,6 @@ const QueryService = {
     return axios.post(API_URL + "/public/queryDisplayFromQuery", query, { params: { displayMode } });
   },
 
-
   async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
     return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
   },
@@ -54,6 +53,48 @@ const QueryService = {
       isArrayHasLength(queryResponse.entities) &&
       queryResponse.entities.some((entity: any) => entity["@id"] === selectedIri)
     );
+  },
+
+  async addQueryToRunnerQueue(queryRequest: QueryRequest): Promise<void> {
+    return axios.post(API_URL + "/addToQueue", queryRequest);
+  },
+
+  async getQueryQueue(): Promise<DBEntry[]> {
+    return [
+      {
+        queryIri: "testIri",
+        queryName: "TestName",
+        id: "testPid",
+        userId: "testUserId",
+        userName: "Test User",
+        queuedAt: new Date(),
+        startedAt: undefined,
+        finishedAt: undefined,
+        killedAt: undefined,
+        status: QueryExecutorStatus.QUEUED
+      }
+    ];
+    // return axios.get(API_URL + "/userQueryQueue");
+  },
+
+  async getQueryQueueByStatus(status: string): Promise<DBEntry[]> {
+    return axios.get(API_URL + "/userQueryQueueByStatus", {
+      params: { status: status }
+    });
+  },
+
+  async deleteFromQueryQueue(id: string): Promise<void> {
+    return axios.delete(API_URL + "/deleteFromQueue", {
+      params: { id: id }
+    });
+  },
+
+  async cancelQuery(id: string): Promise<void> {
+    return axios.post(API_URL + "/cancelQuery", id);
+  },
+
+  async requeueQuery(request: RequeueQueryRequest): Promise<void> {
+    return axios.post(API_URL + "/requeueQuery", request);
   }
 };
 

@@ -30,7 +30,7 @@ function highlightSql(sql: string) {
 </script>
 
 <style scoped>
-.sql-contaier {
+.sql-container {
   background-color: #f5f5f5;
   padding: 10px;
   border-radius: 5px;

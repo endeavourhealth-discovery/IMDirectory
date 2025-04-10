@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-03-26 11:48:22.
+// Generated using typescript-generator version 3.2.1263 on 2025-04-10 15:13:53.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -238,6 +238,7 @@ export interface PropertyShape {
     hasValue?: any;
     hasValueType?: TTIriRef;
     definition?: string;
+    type?: TTIriRef[];
 }
 
 export interface SetContent {
@@ -278,9 +279,9 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: TTIriRef;
-    qualifier?: string;
     operator?: Operator;
+    qualifier?: string;
+    unit?: TTIriRef;
     valueLabel?: string;
     valueParameter?: string;
 }
@@ -315,10 +316,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -356,15 +357,19 @@ export interface Match extends IriLD, GraphNode {
     nodeRef?: string;
     header?: string;
     preface?: string;
+    boolMatch?: Bool;
+    boolWhere?: Bool;
     typeOf?: Node;
     instanceOf?: Node[];
     where?: Where[];
     match?: Match[];
-    bool?: Bool;
+    includeIf?: string;
     graph?: Element;
     orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
+    displayLabel?: string;
+    hasInlineSet?: boolean;
     function?: FunctionClause;
     entailment?: Entail;
     hasRules?: boolean;
@@ -373,11 +378,13 @@ export interface Match extends IriLD, GraphNode {
     rule?: boolean;
     hasTest?: boolean;
     test?: boolean;
+    isSubsetOf?: IriLD[];
+    then?: Match;
     return?: Return;
     returx?: Return;
-    isTest?: boolean;
     isUnion?: boolean;
     isRule?: boolean;
+    isTest?: boolean;
 }
 
 export interface Node extends Element, GraphNode {
@@ -398,8 +405,8 @@ export interface OrderLimit {
 }
 
 export interface Path extends Element {
+    node?: Node;
     inverse?: boolean;
-    where?: Where;
 }
 
 export interface PathDocument {
@@ -459,6 +466,11 @@ export interface RelativeTo extends Node {
     propertyRef?: string;
 }
 
+export interface RequeueQueryRequest {
+    queueId?: string;
+    queryRequest?: QueryRequest;
+}
+
 export interface Return {
     nodeRef?: string;
     function?: FunctionClause;
@@ -501,21 +513,35 @@ export interface When {
 }
 
 export interface Where extends Element, Assignable {
-    bool?: Bool;
     match?: Match;
     range?: Range;
     isNull?: boolean;
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
-    typeOf?: Node;
     is?: Node[];
     not?: boolean;
+    boolWhere?: Bool;
     where?: Where[];
     isNotNull?: boolean;
     function?: FunctionClause;
-    valueVariable?: string;
-    path?: Path;
     inverse?: boolean;
+    valueVariable?: string;
+}
+
+export interface DBEntry {
+    id?: string;
+    queryIri?: string;
+    queryName?: string;
+    queryRequest?: QueryRequest;
+    userId?: string;
+    userName?: string;
+    queuedAt?: Date;
+    startedAt?: Date;
+    pid?: number;
+    finishedAt?: Date;
+    killedAt?: Date;
+    status?: QueryExecutorStatus;
+    queryResult?: string;
 }
 
 export interface DownloadByQueryOptions {
@@ -653,7 +679,7 @@ export interface SearchResultSummary {
     key?: string[];
     isA?: TTIriRef[];
     termCode?: SearchTermCode[];
-    unit?: TTIriRef[];
+    intervalUnit?: TTIriRef[];
     qualifier?: TTIriRef[];
     iri: string;
 }
@@ -843,14 +869,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
     description?: string;
-    code?: string;
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface TTContext extends Serializable {
@@ -1064,4 +1090,12 @@ export const enum TaskType {
     BUG_REPORT = "BUG_REPORT",
     ROLE_REQUEST = "ROLE_REQUEST",
     ENTITY_APPROVAL = "ENTITY_APPROVAL",
+}
+
+export const enum QueryExecutorStatus {
+    QUEUED = "QUEUED",
+    RUNNING = "RUNNING",
+    COMPLETED = "COMPLETED",
+    CANCELLED = "CANCELLED",
+    ERRORED = "ERRORED",
 }
