@@ -3,12 +3,14 @@
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
-      <Tabs id="viewer-tabs" v-model:value="logicalDisplayTab" :lazy="true" @update:value="displayToggle">
+      <!-- <Tabs id="viewer-tabs" v-model:value="logicalDisplayTab" :lazy="true" @update:value="displayToggle">
         <TabList id="tab-list">
           <Tab value="0">Rule view</Tab>
           <Tab value="1">Logical view</Tab>
+          <Tab value="2">SQL view</Tab>
         </TabList>
-      </Tabs>
+      </Tabs> -->
+      <SelectButton v-model="logicalDisplayTab" :options="logicalDisplayOptions" />
       <div class="flex flex-row gap-2">
         <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
       </div>
@@ -33,7 +35,7 @@
             <RecursiveQueryDisplay v-for="(subQuery, index) in query.query" :key="index" :query="subQuery" :match-expanded="false" :return-expanded="false" />
           </template>
           <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
-            <pre>{{ sql }}</pre>
+            <SQLDisplay :sql="sql" />
             <template #footer>
               <Button
                 label="Copy to Clipboard"
@@ -65,6 +67,7 @@ import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { getParentNode } from "@/helpers";
+import SQLDisplay from "./SQLDisplay.vue";
 
 interface Props {
   entityIri?: string;
@@ -86,6 +89,10 @@ const loading = ref(true);
 const ruleView: Ref<boolean> = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const logicalDisplayTab: Ref<string> = ref("0");
+watch(logicalDisplayTab, () => {
+  displayToggle();
+});
+const logicalDisplayOptions: Ref<string[]> = ref(["Rule view", "Logical view"]);
 
 const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
 
@@ -121,8 +128,8 @@ async function init() {
   loading.value = true;
   await getQuery();
   if (query.value.hasRules) {
-    logicalDisplayTab.value = "0";
-  } else logicalDisplayTab.value = "1";
+    logicalDisplayTab.value = "Rule view";
+  } else logicalDisplayTab.value = "Logical view";
   loading.value = false;
 }
 
