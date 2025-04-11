@@ -48,5 +48,18 @@ export default defineConfig({
         rewrite: p => p.replace(/^\/imapi/, "")
       }
     }
+  },
+  preview: {
+    port: 8082,
+    cors: true,
+    proxy: {
+      "/imapi": {
+        target: "http://127.0.0.1:8080",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+        rewrite: p => p.replace(/^\/imapi/, "")
+      }
+    }
   }
 });
