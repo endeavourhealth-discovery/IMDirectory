@@ -14,21 +14,24 @@ export function directoryGuard(iri: string | string[], to: RouteLocationNormaliz
   }
 }
 
-export async function editorGuard(iri: string | string[], to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router) {
+export async function editorGuard(iri: string | string[], to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
     const editorStore = useEditorStore();
     if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
         await router.push({ name: "EntityNotFound", params: { iri: iri } });
+        return true;
       }
     } catch (_error) {
       await router.push({ name: "EntityNotFound", params: { iri: iri } });
+      return true;
     }
   }
+  return false;
 }
 
-export async function queryGuard(iri: string | string[], to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router) {
+export async function queryGuard(iri: string | string[], to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.name?.toString() == "Query") {
     const queryStore = useQueryStore();
     const queryIri = to.params.queryIri;
@@ -37,12 +40,15 @@ export async function queryGuard(iri: string | string[], to: RouteLocationNormal
       try {
         if (!(await EntityService.iriExists(urlToIri(queryIri)))) {
           await router.push({ name: "EntityNotFound", params: { iri: queryIri } });
+          return true;
         }
       } catch (_error) {
         await router.push({ name: "EntityNotFound", params: { iri: queryIri } });
+        return true;
       }
     } else queryStore.updateQueryIri("");
   }
+  return false;
 }
 
 export async function pageNotFoundFromCreator(to: RouteLocationNormalized, router: Router) {
