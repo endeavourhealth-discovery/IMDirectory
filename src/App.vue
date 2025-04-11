@@ -268,12 +268,12 @@ function setupExternalErrorHandler() {
 </script>
 
 <style lang="scss">
+@use "assets/layout/sass/_main.scss";
 @import "primeicons/primeicons.css";
-@import "@/assets/layout/flags/flags.css";
-@import "@/assets/layout/sass/_main.scss";
+@import "assets/layout/flags/flags.css";
 @import "sweetalert2/dist/sweetalert2.min.css";
-@import "@/assets/tailwind.css";
-@import "@/assets/primevueOverrides.css";
+@import "assets/tailwind.css";
+@import "assets/primevueOverrides.css";
 </style>
 
 <style scoped>

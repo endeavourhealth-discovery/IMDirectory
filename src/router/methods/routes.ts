@@ -275,7 +275,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/query",
-    name: "Query",
+    name: "Queries",
     component: () => import("@/views/Query.vue"),
     meta: {
       requiresAuth: true,
