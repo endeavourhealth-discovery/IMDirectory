@@ -12,7 +12,7 @@
       <div v-if="viewsLoading || !finishedOnMounted" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
-      <div v-else id="router-main" class="h-full w-full overflow-auto">
+      <div v-else id="router-main" class="flex h-full w-full overflow-auto">
         <router-view />
       </div>
       <FooterBar v-if="finishedOnMounted" />
