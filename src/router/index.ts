@@ -39,34 +39,25 @@ router.beforeEach(async (to, from) => {
   authStore.updateAuthReturnPath(currentPath);
   const iri = to.params.selectedIri;
   let routedByGuard = false;
-  if (!routedByGuard) {
-    routedByGuard = await requiresAuthGuard(to, from, router);
-  }
-  if (!routedByGuard) {
-    routedByGuard = await requiresAdmin(to, from, router);
-  }
-  if (!routedByGuard) {
-    routedByGuard = await requiresReAuth(to, from, router);
-  }
-  if (!routedByGuard) {
-    routedByGuard = await requiresCreateRole(to, from, router);
-  }
-  if (!routedByGuard) {
-    routedByGuard = await requiresEditRole(to, from, router);
-  }
+  routedByGuard = await requiresAuthGuard(to, from, router);
+  if (routedByGuard) return false;
+  routedByGuard = await requiresAdmin(to, from, router);
+  if (routedByGuard) return false;
+  routedByGuard = await requiresReAuth(to, from, router);
+  if (routedByGuard) return false;
+  routedByGuard = await requiresCreateRole(to, from, router);
+  if (routedByGuard) return false;
+  routedByGuard = await requiresEditRole(to, from, router);
+  if (routedByGuard) return false;
   requiresSnomedLicense(to);
   requiresUprnAgreement(to);
-  if (!routedByGuard) {
-    routedByGuard = await requiresOrganisation(iri, to, router);
-  }
-
+  routedByGuard = await requiresOrganisation(iri, to, router);
+  if (routedByGuard) return false;
   directoryGuard(iri, to, from);
-  if (!routedByGuard) {
-    routedByGuard = await editorGuard(iri, to, from, router);
-  }
-  if (!routedByGuard) {
-    routedByGuard = await queryGuard(iri, to, from, router);
-  }
+  routedByGuard = await editorGuard(iri, to, from, router);
+  if (routedByGuard) return false;
+  routedByGuard = await queryGuard(iri, to, from, router);
+  if (routedByGuard) return false;
   await pageNotFoundFromCreator(to, router);
   await pageNotFoundFromEditor(to, router);
   await viewerIriExistsGuard(to, router);
