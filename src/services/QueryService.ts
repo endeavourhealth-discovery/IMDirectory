@@ -59,27 +59,36 @@ const QueryService = {
     return axios.post(API_URL + "/addToQueue", queryRequest);
   },
 
-  async getQueryQueue(): Promise<DBEntry[]> {
-    return [
-      {
-        queryIri: "testIri",
-        queryName: "TestName",
-        id: "testPid",
-        userId: "testUserId",
-        userName: "Test User",
-        queuedAt: new Date(),
-        startedAt: undefined,
-        finishedAt: undefined,
-        killedAt: undefined,
-        status: QueryExecutorStatus.QUEUED
-      }
-    ];
-    // return axios.get(API_URL + "/userQueryQueue");
+  async getQueryQueue(page: number, size: number): Promise<{ totalCount: number; result: DBEntry[]; currentPage: number; pageSize: number }> {
+    return {
+      totalCount: 1,
+      result: [
+        {
+          queryIri: "testIri",
+          queryName: "TestName",
+          id: "testPid",
+          userId: "testUserId",
+          userName: "Test User",
+          queuedAt: new Date(),
+          startedAt: undefined,
+          finishedAt: undefined,
+          killedAt: undefined,
+          status: QueryExecutorStatus.QUEUED
+        }
+      ],
+      currentPage: 1,
+      pageSize: 25
+    };
+    // return axios.get(API_URL + "/userQueryQueue", {params:{page:page,size:size}});
   },
 
-  async getQueryQueueByStatus(status: string): Promise<DBEntry[]> {
+  async getQueryQueueByStatus(
+    status: string,
+    page: number,
+    size: number
+  ): Promise<{ result: DBEntry[]; totalCount: number; pageSize: number; currentPage: number }> {
     return axios.get(API_URL + "/userQueryQueueByStatus", {
-      params: { status: status }
+      params: { status: status, page: page, size: size }
     });
   },
 

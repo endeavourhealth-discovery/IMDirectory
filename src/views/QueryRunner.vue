@@ -9,7 +9,20 @@
     </TopBar>
     <div class="h-[calc(100% - 3.5rem)] overflow-auto">
       <div class="bg-(--p-content-background) flex h-full flex-auto flex-col flex-nowrap overflow-auto">
-        <DataTable :value="queryQueueItems">
+        <DataTable
+          :value="queryQueueItems"
+          :paginator="true"
+          :rows="rows"
+          :scrollable="true"
+          scrollHeight="flex"
+          :autoLayout="true"
+          @page="onPage($event)"
+          :lazy="true"
+          :totalRecords="totalCount"
+          :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
+          :loading="searchLoading"
+          :paginatorTemplate="'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'"
+        >
           <template #empty>None</template>
           <Column field="id" header="ID"></Column>
           <Column field="queryIri" header="Iri"></Column>
@@ -71,6 +84,11 @@ const router = useRouter();
 
 const queryQueueItems: Ref<DBEntry[]> = ref([]);
 const loading = ref(true);
+const searchLoading = ref(false);
+const totalCount = ref(0);
+const page = ref(0);
+const rows = ref(25);
+const rowsOriginal = ref(25);
 
 onMounted(async () => {
   await init();
@@ -78,8 +96,16 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  queryQueueItems.value = await QueryService.getQueryQueue();
+  await search();
   loading.value = false;
+}
+
+async function search() {
+  searchLoading.value = true;
+  const results = await QueryService.getQueryQueue(page.value, rows.value);
+  totalCount.value = results.totalCount;
+  queryQueueItems.value = results.result;
+  searchLoading.value = false;
 }
 
 function getStatusSeverity(status: QueryExecutorStatus): "secondary" | "success" | "info" | "warn" | "danger" | "contrast" {
@@ -122,6 +148,18 @@ async function requeueQuery(queryId: string) {
 
 function getById(queryId: string): DBEntry | undefined {
   return queryQueueItems.value.find(item => item.id === queryId);
+}
+
+async function onPage(event: any) {
+  page.value = event.page;
+  rows.value = event.rows;
+  await search();
+  scrollToTop();
+}
+
+function scrollToTop() {
+  const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
+  scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 </script>
 
