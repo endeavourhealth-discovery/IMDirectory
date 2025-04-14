@@ -7,4 +7,5 @@ export class CODE_TEMPLATE {
   public static readonly WRAPPER = CODE_TEMPLATE.NAMESPACE + "wrapper";
   public static readonly DATATYPE_MAP = CODE_TEMPLATE.NAMESPACE + "datatypeMap";
   public static readonly EXTENSION = CODE_TEMPLATE.NAMESPACE + "extension";
+  public static readonly INCLUDE_COMPLEX_TYPES = CODE_TEMPLATE.NAMESPACE + "includeComplexTypes";
 }
