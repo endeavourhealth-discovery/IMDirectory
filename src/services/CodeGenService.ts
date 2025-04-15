@@ -1,5 +1,7 @@
 import Env from "./Env";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
+import { CodeTemplate } from "@/interfaces";
+import { DataModelProperty, TTIriRef } from "@/interfaces/AutoGen";
 
 const CodeGenService = {
   async getCodeTemplateList(): Promise<any[]> {
@@ -15,13 +17,21 @@ const CodeGenService = {
   async updateCodeTemplate(template: any): Promise<string> {
     return await axios.post(Env.API + "api/codeGen/public/codeTemplate", template);
   },
-  async generateCode(namespace: string, template: string): Promise<any> {
+  async generateCodeForAllModels(namespace: string, template: string): Promise<any> {
     return axios.get(Env.API + "api/codeGen/public/generateCode", {
       params: {
         template,
         namespace
       },
       responseType: "blob"
+    });
+  },
+  async generateCodeForModel(template: CodeTemplate, modelIri: string, namespace: string): Promise<string> {
+    return axios.post(Env.API + "api/codeGen/public/generateCodePreview", template, {
+      params: {
+        iri: modelIri,
+        namespace
+      }
     });
   }
 };

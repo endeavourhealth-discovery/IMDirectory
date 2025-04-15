@@ -412,7 +412,7 @@ async function downloadCode() {
 async function generateAndDownload() {
   showCodeDownload.value = false;
   toast.add({ severity: "info", summary: "Preparing download", detail: "Generating files for download...", life: 3000 });
-  let blob = await CodeGenService.generateCode(namespace.value, template.value);
+  let blob = await CodeGenService.generateCodeForAllModels(namespace.value, template.value);
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
