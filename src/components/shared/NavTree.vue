@@ -2,12 +2,11 @@
   <div id="hierarchy-tree-bar-container" class="flex flex-col justify-start">
     <Tree
       v-model:expandedKeys="expandedKeys"
-      v-model:selectionKeys="selectedKeys"
+      :selectionKeys="selectedKeys"
       :loading="loading"
       :value="root"
       class="tree-root"
       selectionMode="single"
-      @node-select="onNodeSelect"
       @node-expand="expandNode"
       @node-collapse="onNodeCollapse"
     >
@@ -17,7 +16,7 @@
           :draggable="allowDragAndDrop"
           class="tree-row"
           @contextmenu="onNodeContext($event, node)"
-          @dblclick="emit('rowDblClicked', node)"
+          @click="customOnClick($event, node, false, true)"
           @dragstart="dragStart($event, node.data)"
           @mouseleave="hideOverlay"
           @mouseover="displayOverlay($event, node)"
@@ -114,7 +113,8 @@ const {
   findPathToNode,
   scrollToHighlighted,
   selectAndExpand,
-  nodeHasChild
+  nodeHasChild,
+  customOnClick
 } = setupTree(emit, 50);
 const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 const loading = ref(true);

@@ -76,15 +76,23 @@ function setupTree(emit?: any, customPageSize?: number) {
     if (!(node.data === "loadMore" || node.data === IM.FAVOURITES)) directService.view(node.key);
   }
 
-  function customOnClick(event: MouseEvent, node: TreeNode, useEmits?: boolean) {
+  function customOnClick(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
     if (useEmits) {
       if (!emit) throw new Error("setupTree requires vue emits for custom clicks");
       if (checkForControlClick(event)) emit("rowControlClicked", node.data);
       else emit("rowClicked", node.data);
     } else {
       if (checkForControlClick(event)) directService.view(node.data);
-      else directService.select(node.data);
+      else {
+        if (updateSelectedKeys) {
+          selectedKeys.value = {};
+          selectedKeys.value[node.data] = true;
+        }
+        directService.select(node.data);
+      }
     }
+
+    console.log(selectedKeys.value);
   }
 
   function checkForControlClick(event: MouseEvent): boolean {
