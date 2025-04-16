@@ -1,6 +1,8 @@
 export interface CodeTemplate {
-  fileExtension: string;
+  name: string;
+  extension: string;
   collectionWrapper: string;
   datatypeMap: any;
   template: string;
+  complexTypes: boolean;
 }

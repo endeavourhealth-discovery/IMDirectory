@@ -63,7 +63,7 @@
           <div>
             <h3>Code template</h3>
           </div>
-          <Textarea class="text-area" v-model="codeInput" @drop.prevent />
+          <Textarea class="text-area text-base/snug" v-model="codeInput" @drop.prevent />
         </div>
       </div>
       <div class="half-width generated-code-container">
@@ -71,7 +71,7 @@
           <div class="title-bar">
             <h3>Output Preview (Allergy Intolerance model)</h3>
           </div>
-          <Textarea disabled class="text-area" v-model="generatedCode" @drop.prevent spellcheck="false" />
+          <Textarea disabled class="text-area text-base/snug" v-model="generatedCode" @drop.prevent spellcheck="false" />
         </div>
       </div>
     </div>
@@ -81,13 +81,9 @@
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
 import { onMounted, Ref, ref, watch } from "vue";
-import EntityService from "@/services/EntityService";
-import { DataModelProperty, TTIriRef } from "../interfaces/AutoGen";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { RDFS, SHACL, XSD } from "@/vocabulary";
-import { cloneDeep } from "lodash-es";
+import { XSD } from "@/vocabulary";
+import { cloneDeep, debounce } from "lodash-es";
 import CodeGenService from "@/services/CodeGenService";
-import { generateCode } from "@/helpers";
 import { CodeTemplate } from "@/interfaces";
 import { useToast } from "primevue/usetoast";
 
@@ -99,17 +95,19 @@ const fileExtensionInput = ref("");
 const collectionWrapperInput = ref("");
 const datatypeMapInput: Ref<any> = ref([{ code: "", replace: "" }]);
 const templateDropdownList: Ref<any> = ref([]);
-const generatedCode = ref();
+const generatedCode = ref("");
 const templateMenu = ref();
 const complexTypes = ref(false);
-let modelData: any = null;
+
+const convert = debounce(() => {
+  generateCodeWithTemplate("http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction");
+}, 500);
 
 onMounted(async () => {
   await init();
 });
 
 watch([codeInput, collectionWrapperInput, nameInput, complexTypes], () => {
-  console.log("Something changed!");
   convert();
 });
 
@@ -124,7 +122,7 @@ watch(
         datatypeMapInput.value.push({ code: "", replace: "" });
       }
     });
-    await convert();
+    convert();
   }
 );
 
@@ -143,18 +141,23 @@ async function getTemplateList() {
 }
 
 async function setDefaultTemplate() {
-  if (templateDropdownList.value.length > 0) {
-    await loadTemplate(templateDropdownList.value[0].label);
-  } else {
-    fileExtensionInput.value = ".txt";
-    complexTypes.value = false;
-    codeInput.value = `WELCOME TO THE CODE GENERATOR!
+  if (templateDropdownList.value.length > 0) await loadTemplate("Documentation");
+
+  if (codeInput.value.length == 0) getDefaultTemplate();
+
+  convert();
+}
+
+function getDefaultTemplate() {
+  fileExtensionInput.value = ".txt";
+  complexTypes.value = false;
+  codeInput.value = `********************* WELCOME TO THE CODE GENERATOR! *********************
 
 This application allows you to create a simple text-based template and apply it to the Data Models within IM. It's initial aim was to generate Classes/Structures for use in various programming languages, but may also be used to generate documentation or data definitions such as JSON or XML.
 
 The templates work via the use of placeholder variables, contained within "\${}".  There are model based variables...
 
-  * NAMESPACE
+  * NAME SPACE
   * MODEL NAME
   * MODEL COMMENT
 
@@ -163,7 +166,7 @@ The templates work via the use of placeholder variables, contained within "\${}"
   * PROPERTY NAME
   * DATA TYPE
 
-The variable name casing can also be used to automatically apply various formatting functions, for example...
+The variable name casing and spacing can also be used to automatically infer various formatting functions, for example...
 
 MODEL NAME - Original (unaltered) name : \${MODEL NAME}
 Model Name - Title-case name           : \${Model Name}
@@ -176,69 +179,53 @@ modelname  - Lower-case codified name  : \${modelname}
 
 The property variables should be contained inside a "<template>...</template>", with the "#property" keyword, as shown below.
 
-There is an additional "#array" template available to allow special cases for array (collection) properties.  Also note the "Collection wrapper" setting above which allows you to set the language specific array/collection format based on the base data type, for example...
+There is an additional "#array" template available to allow special cases for array (collection) properties.  Also note the "Collection wrapper" setting above which allows you to set the language specific array/collection format based on the base data type, again with implied formatting, for example...
 
-List<\${BASE DATA TYPE}> : List<String>
-\${BASE DATA TYPE}[]     : String[]
+List<\${BASE DATA TYPE}> : List<PatientAddress>
+\${baseDataType}[]     : patientAddress[]
 
-To aid in the correct development of a template, the right-hand side live-preview shows the template applied to the "\${MODEL NAME}" data model.
+To aid in the correct development of a template, he right-hand side live-preview shows the template applied to the "\${MODEL NAME}" data model.
 
 Here is a more complete example of the variables in use...
 
 --------------------------------------------------------
-
-NAMESPACE    : \${NAMESPACE}
+NAMESPACE    : \${NAME SPACE}
 MODEL NAME   : \${MODEL NAME}
 MODEL COMMENT: \${MODEL COMMENT}
 
-PROPERTIES:
-<template #property>
-  PROPERTY NAME: \${propertyName}
-  PROPERTY TYPE: \${DataType}
-  <template #array>    ** THIS IS AN ARRAY **
-  </template #array>
-</template #property>`;
-    collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
-    datatypeMapInput.value = [{ code: XSD.STRING, replace: "String" }];
-    nameInput.value = "Documentation";
-  }
-  await convert();
-}
-async function convert() {
-  if (modelData == null)
-    modelData = await EntityService.getPartialEntity("http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction", [
-      RDFS.LABEL,
-      RDFS.COMMENT,
-      SHACL.PROPERTY
-    ]);
-  const iri: TTIriRef = {
-    "@id": modelData["@id"],
-    name: modelData[RDFS.LABEL],
-    description: modelData[RDFS.COMMENT]
-  };
+PROPERTIES:<template #property>
 
-  const newProperties = await getProperties(modelData);
+  NAME: \${PropertyName} -  TYPE: \${DataType} <template #array>(This is a collection)  </template #array>
+</template #property>
 
-  generateCodeWithTemplate(codeInput.value, iri, newProperties);
+--------------------------------------------------------
+`;
+  collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
+  datatypeMapInput.value = [{ code: XSD.STRING, replace: "String" }];
+  nameInput.value = "Documentation";
 }
 
 async function saveTemplate() {
-  const template = {
+  const template = getTemplate();
+  await CodeGenService.updateCodeTemplate(template);
+  toast.add({
+    severity: "success",
+    summary: "Template saved",
+    detail: "Successfully saved template " + nameInput.value,
+    life: 3000
+  });
+  await getTemplateList();
+}
+
+function getTemplate(): CodeTemplate {
+  return {
     name: nameInput.value,
     extension: fileExtensionInput.value,
     complexTypes: complexTypes.value,
     collectionWrapper: collectionWrapperInput.value,
     datatypeMap: Object.fromEntries(datatypeMapInput.value.map((obj: any) => [obj.code, obj.replace] as const)),
     template: codeInput.value
-  };
-  await CodeGenService.updateCodeTemplate(template);
-  toast.add({
-    severity: "success",
-    summary: "Template saved",
-    detail: "Successfully saved template " + template.name,
-    life: 3000
-  });
-  await getTemplateList();
+  } as CodeTemplate;
 }
 
 function toggleLoad(event: any) {
@@ -260,44 +247,11 @@ async function loadTemplate(name: string) {
   }
 }
 
-async function getProperties(entity: any): Promise<DataModelProperty[]> {
-  const newProperties: DataModelProperty[] = [];
-  for (let prop in entity[SHACL.PROPERTY]) {
-    const maxExclusive = entity[SHACL.PROPERTY][prop][SHACL.MAXCOUNT] === 1 ? entity[SHACL.PROPERTY][prop][SHACL.MAXCOUNT] : "";
-
-    let datatype;
-
-    if (isArrayHasLength(entity[SHACL.PROPERTY][prop][SHACL.DATATYPE])) datatype = entity[SHACL.PROPERTY][prop][SHACL.DATATYPE][0];
-    else if (complexTypes.value) datatype = entity[SHACL.PROPERTY][prop][SHACL.PATH][0];
-
-    if (datatype) {
-      let newProperty: DataModelProperty = {
-        property: {
-          "@id": entity[SHACL.PROPERTY][prop][SHACL.PATH][0]["@id"],
-          name: entity[SHACL.PROPERTY][prop][SHACL.PATH][0].name,
-          description: entity[SHACL.PROPERTY][prop][SHACL.PATH][0].description
-        },
-        type: datatype,
-        maxExclusive: maxExclusive
-      };
-      newProperties.push(newProperty);
-    }
-  }
-  return newProperties;
-}
-
-function generateCodeWithTemplate(template: string, iri: TTIriRef, properties: DataModelProperty[]) {
+async function generateCodeWithTemplate(iri: string) {
   const map: any = {};
   datatypeMapInput.value.forEach((m: any) => (map[m.code] = m.replace));
 
-  const codeTemplate: CodeTemplate = {
-    fileExtension: fileExtensionInput.value,
-    collectionWrapper: collectionWrapperInput.value,
-    template: template,
-    datatypeMap: map
-  };
-
-  generatedCode.value = generateCode(codeTemplate, iri, properties, "org.endavourhealth.im");
+  generatedCode.value = await CodeGenService.generateCodeForModel(getTemplate(), iri, "org.endavourhealth.im");
 }
 </script>
 
