@@ -13,6 +13,7 @@
       sortField="group.name"
       :sortOrder="1"
       class="ungrouped-display-table"
+      :exportFilename="entityName + ' properties'"
     >
       <template #loading> Loading data. Please wait... </template>
       <template #header>
@@ -95,6 +96,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
 interface Props {
   entityIri: string;
+  entityName: string;
 }
 const props = defineProps<Props>();
 
