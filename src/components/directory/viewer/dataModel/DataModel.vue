@@ -100,7 +100,7 @@ async function onNodeExpand(node: TreeNode) {
           child.loading = false;
         }
       }
-      if (node.children[0].children && node.children[0].children.length) {
+      if (node.children[0].children && node.children[0].children.length && node.children[0].type === "type") {
         node.children = node.children[0].children;
       }
     }
