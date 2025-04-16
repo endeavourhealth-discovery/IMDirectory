@@ -141,18 +141,23 @@ async function getTemplateList() {
 }
 
 async function setDefaultTemplate() {
-  if (templateDropdownList.value.length > 0) {
-    await loadTemplate(templateDropdownList.value[0].label);
-  } else {
-    fileExtensionInput.value = ".txt";
-    complexTypes.value = false;
-    codeInput.value = `WELCOME TO THE CODE GENERATOR!
+  if (templateDropdownList.value.length > 0) await loadTemplate("Documentation");
+
+  if (codeInput.value.length == 0) getDefaultTemplate();
+
+  convert();
+}
+
+function getDefaultTemplate() {
+  fileExtensionInput.value = ".txt";
+  complexTypes.value = false;
+  codeInput.value = `********************* WELCOME TO THE CODE GENERATOR! *********************
 
 This application allows you to create a simple text-based template and apply it to the Data Models within IM. It's initial aim was to generate Classes/Structures for use in various programming languages, but may also be used to generate documentation or data definitions such as JSON or XML.
 
 The templates work via the use of placeholder variables, contained within "\${}".  There are model based variables...
 
-  * NAMESPACE
+  * NAME SPACE
   * MODEL NAME
   * MODEL COMMENT
 
@@ -161,7 +166,7 @@ The templates work via the use of placeholder variables, contained within "\${}"
   * PROPERTY NAME
   * DATA TYPE
 
-The variable name casing can also be used to automatically apply various formatting functions, for example...
+The variable name casing and spacing can also be used to automatically infer various formatting functions, for example...
 
 MODEL NAME - Original (unaltered) name : \${MODEL NAME}
 Model Name - Title-case name           : \${Model Name}
@@ -174,33 +179,30 @@ modelname  - Lower-case codified name  : \${modelname}
 
 The property variables should be contained inside a "<template>...</template>", with the "#property" keyword, as shown below.
 
-There is an additional "#array" template available to allow special cases for array (collection) properties.  Also note the "Collection wrapper" setting above which allows you to set the language specific array/collection format based on the base data type, for example...
+There is an additional "#array" template available to allow special cases for array (collection) properties.  Also note the "Collection wrapper" setting above which allows you to set the language specific array/collection format based on the base data type, again with implied formatting, for example...
 
-List<\${BASE DATA TYPE}> : List<String>
-\${BASE DATA TYPE}[]     : String[]
+List<\${BASE DATA TYPE}> : List<PatientAddress>
+\${baseDataType}[]     : patientAddress[]
 
-To aid in the correct development of a template, the right-hand side live-preview shows the template applied to the "\${MODEL NAME}" data model.
+To aid in the correct development of a template, he right-hand side live-preview shows the template applied to the "\${MODEL NAME}" data model.
 
 Here is a more complete example of the variables in use...
 
 --------------------------------------------------------
-
-NAMESPACE    : \${NAMESPACE}
+NAMESPACE    : \${NAME SPACE}
 MODEL NAME   : \${MODEL NAME}
 MODEL COMMENT: \${MODEL COMMENT}
 
-PROPERTIES:
-<template #property>
-  PROPERTY NAME: \${propertyName}
-  PROPERTY TYPE: \${DataType}
-  <template #array>    ** THIS IS AN ARRAY **
-  </template #array>
-</template #property>`;
-    collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
-    datatypeMapInput.value = [{ code: XSD.STRING, replace: "String" }];
-    nameInput.value = "Documentation";
-  }
-  convert();
+PROPERTIES:<template #property>
+
+  NAME: \${PropertyName} -  TYPE: \${DataType} <template #array>(This is a collection)  </template #array>
+</template #property>
+
+--------------------------------------------------------
+`;
+  collectionWrapperInput.value = "List<${BASE DATA TYPE}>";
+  datatypeMapInput.value = [{ code: XSD.STRING, replace: "String" }];
+  nameInput.value = "Documentation";
 }
 
 async function saveTemplate() {
