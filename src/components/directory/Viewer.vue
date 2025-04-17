@@ -66,7 +66,7 @@
             </TabPanel>
             <TabPanel v-if="isRecordModel(types)" value="7">
               <div id="properties-container" class="concept-panel-content">
-                <Properties :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                <Properties :entityIri="entityIri" :entityName="concept[RDFS.LABEL]" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel v-if="isQuery(types)" value="8">

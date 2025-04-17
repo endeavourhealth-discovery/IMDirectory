@@ -2,12 +2,11 @@
   <div id="hierarchy-tree-bar-container" class="flex flex-col justify-start">
     <Tree
       v-model:expandedKeys="expandedKeys"
-      v-model:selectionKeys="selectedKeys"
+      :selectionKeys="selectedKeys"
       :loading="loading"
       :value="root"
       class="tree-root"
       selectionMode="single"
-      @node-select="onNodeSelect"
       @node-expand="expandNode"
       @node-collapse="onNodeCollapse"
     >
@@ -17,7 +16,7 @@
           :draggable="allowDragAndDrop"
           class="tree-row"
           @contextmenu="onNodeContext($event, node)"
-          @dblclick="emit('rowDblClicked', node)"
+          @click="onNodeSelect($event, node, false, true)"
           @dragstart="dragStart($event, node.data)"
           @mouseleave="hideOverlay"
           @mouseover="displayOverlay($event, node)"
@@ -114,7 +113,8 @@ const {
   findPathToNode,
   scrollToHighlighted,
   selectAndExpand,
-  nodeHasChild
+  nodeHasChild,
+  customOnClick
 } = setupTree(emit, 50);
 const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 const loading = ref(true);
@@ -388,13 +388,10 @@ async function displayOverlay(event: any, node: any): Promise<void> {
   }
 }
 
-function onNodeSelect(node: any): void {
+function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
   if (node.data === "loadMore") {
     if (!node.loading) loadMore(node);
-  } else {
-    selectedNode.value = node;
-    emit("rowSelected", node);
-  }
+  } else customOnClick(event, node, useEmits, updateSelectedKeys);
 }
 
 function dragStart(event: any, data: any) {
