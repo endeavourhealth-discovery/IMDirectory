@@ -16,7 +16,7 @@
           :draggable="allowDragAndDrop"
           class="tree-row"
           @contextmenu="onNodeContext($event, node)"
-          @click="customOnClick($event, node, false, true)"
+          @click="onNodeSelect($event, node, false, true)"
           @dragstart="dragStart($event, node.data)"
           @mouseleave="hideOverlay"
           @mouseover="displayOverlay($event, node)"
@@ -388,13 +388,10 @@ async function displayOverlay(event: any, node: any): Promise<void> {
   }
 }
 
-function onNodeSelect(node: any): void {
+function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
   if (node.data === "loadMore") {
     if (!node.loading) loadMore(node);
-  } else {
-    selectedNode.value = node;
-    emit("rowSelected", node);
-  }
+  } else customOnClick(event, node, useEmits, updateSelectedKeys);
 }
 
 function dragStart(event: any, data: any) {
