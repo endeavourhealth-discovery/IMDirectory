@@ -119,11 +119,7 @@ function getEditWhere(whereMatch: any) {
 }
 
 function getEditWhereRecursively(where: Where, found: any[]) {
-  if (where.match?.where) {
-    for (const nestedWhere of where.match?.where) {
-      getEditWhereRecursively(nestedWhere, found);
-    }
-  } else found.push(where);
+  found.push(where);
 }
 
 function getEditWhereDMIri(whereMatch: any) {
@@ -133,14 +129,7 @@ function getEditWhereDMIri(whereMatch: any) {
   return "";
 }
 
-function getEditWhereDMIriRecursively(where: Where, found: any[]) {
-  if (where.match?.where) {
-    found[0] = where.match.typeOf?.["@id"];
-    for (const nestedWhere of where.match?.where) {
-      getEditWhereRecursively(nestedWhere, found);
-    }
-  }
-}
+function getEditWhereDMIriRecursively(where: Where, found: any[]) {}
 </script>
 
 <style scoped>

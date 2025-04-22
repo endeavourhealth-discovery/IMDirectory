@@ -1,9 +1,15 @@
 <template>
   <div class="horizontal-row-container">
-    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
-    <div v-for="(component, index) in components" class="component-container" :style="'width:' + widths[index]">
-      <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
-    </div>
+    <Tabs v-model:value="activeTab" :lazy="true" scrollable>
+      <TabList>
+        <Tab v-for="(component, index) in components" :key="component.name" :value="String(index)">{{ component.name }}</Tab>
+      </TabList>
+      <TabPanels>
+        <TabPanel v-for="(component, index) in components" :key="index" :header="component.label || component.name" :value="String(index)" class="p-p-4">
+          <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
   </div>
 </template>
 
@@ -25,6 +31,9 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@/helpers/EditorMethods";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { PropertyShape } from "@/interfaces/AutoGen";
+import { MenuItem } from "primevue/menuitem";
+import Tabs from "primevue/tabs";
+import TabPanel from "primevue/tabpanel";
 
 interface Props {
   shape: PropertyShape;
@@ -34,11 +43,12 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
+const activeTab = ref("0");
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
 
 const components: Ref<any[]> = ref([]);
 const widths: Ref<string[]> = ref([]);
+const tabs: Ref<MenuItem[]> = ref([]);
 
 onMounted(() => {
   setComponents();
@@ -46,7 +56,10 @@ onMounted(() => {
 });
 
 function setComponents() {
-  if (isObjectHasKeys(props.shape, ["property"])) components.value = props.shape.property!;
+  if (isObjectHasKeys(props.shape, ["property"])) {
+    components.value = props.shape.property!;
+    tabs.value = components.value.map(c => ({ label: c.name }));
+  }
 }
 
 function setWidths() {

@@ -4,8 +4,7 @@ import type { MenuItem } from "primevue/menuitem";
 
 function setupIMQueryBuilderActions() {
   function isFlatMatch(match: Match): boolean {
-    const nestedWhereHasMatch = match.where ? match.where.some(nestedWhere => nestedWhere.match) : false;
-    return !nestedWhereHasMatch && !match.match && !match.where;
+    return !match.match && !match.where;
   }
 
   function toggleMatchBool(object: Match) {
@@ -65,8 +64,6 @@ function setupIMQueryBuilderActions() {
   function addVariableRefFromProperty(map: { [key: string]: any }, property: Where) {
     if (property.variable) map[property.variable] = property;
 
-    if (isObjectHasKeys(property, ["match"])) addVariableRefFromMatch(map, property.match!);
-
     if (isArrayHasLength(property.where))
       for (const nestedProperty of property.where!) {
         addVariableRefFromProperty(map, nestedProperty);
@@ -106,9 +103,7 @@ function setupIMQueryBuilderActions() {
   }
 
   function getLeafWhereRecursively(whereList: Where[], found: Match[], currentMatch: Match) {
-    const hasNested = whereList.find(nestedWhere => nestedWhere.match?.where);
-    if (hasNested) getLeafWhereRecursively(hasNested.match?.where!, found, hasNested.match!);
-    else found.push(currentMatch);
+    found.push(currentMatch);
   }
 
   return { toggleWhereBool, toggleMatchBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap, updateEntailment, getLeafMatch };

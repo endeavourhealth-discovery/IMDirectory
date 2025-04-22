@@ -9,7 +9,7 @@
     <span v-if="isArrayHasLength(query.match) || isArrayHasLength(query.where) || query.return">
       <span v-if="query.name">{{ query.name }}</span>
       <span v-if="matchExpand && isArrayHasLength(query.match)">
-        <RecursiveMatchEditor
+        <EditMatch
           v-for="(nestedQuery, index) in query.match"
           :inline="false"
           :match="nestedQuery"
@@ -45,7 +45,7 @@ import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Query, Match, DisplayMode } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref } from "vue";
 import RecursiveWhereEditor from "./RecursiveWhereEditor.vue";
-import RecursiveMatchEditor from "./RecursiveMatchEditor.vue";
+import EditMatch from "./EditMatch.vue";
 import RecursiveReturnEditor from "./RecursiveReturnEditor.vue";
 import ReturnColumns from "./ReturnColumns.vue";
 import { QueryService } from "@/services";

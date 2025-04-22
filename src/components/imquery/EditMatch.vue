@@ -141,9 +141,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Bool, DisplayMode, Match, Query, SearchResultSummary, Where } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Match, SearchResultSummary, Where } from "@/interfaces/AutoGen";
 import EditWhere from "./EditWhere.vue";
-import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
+import setupIMMatchBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import type { MenuItem } from "primevue/menuitem";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
@@ -167,23 +167,23 @@ const emit = defineEmits({
   ungroupMatches: (payload: Match) => payload
 });
 const hover: Ref<boolean> = ref(false);
-const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
+const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMMatchBuilderActions();
 const group: Ref<number[]> = ref([]);
 const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
-const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
+const fullMatch = inject("fullMatch") as Ref<Match | undefined>;
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const editMatch = ref(cloneDeep(props.match));
 onMounted(() => {
-  if (fullQuery.value) typeOf.value = fullQuery.value!.typeOf!["@id"]!;
+  if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!["@id"]!;
 });
 
 watch(
   () => cloneDeep(editMatch),
   () => {
-    if (fullQuery.value) typeOf.value = fullQuery.value!.typeOf!["@id"]!;
+    if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!["@id"]!;
   }
 );
 
@@ -203,7 +203,7 @@ async function onPropertyAdd(property: Where) {
   } else {
     editMatch.value.where.push(property);
   }
-  const describedMatch = await QueryService.getQueryDisplayFromQuery({ match: [editMatch] } as Query, DisplayMode.ORIGINAL);
+  const describedMatch = await QueryService.getQueryDisplayFromQuery({ match: [editMatch] } as Match, DisplayMode.ORIGINAL);
   if (describedMatch?.match?.[0]?.where) editMatch.value.where = describedMatch.match?.[0].where;
 }
 
@@ -250,9 +250,9 @@ function isEmptyMatch() {
 .edit-match-container {
   width: 99%;
   padding: 0.5rem;
-  border: var(--p-imquery-editor-border-color) 1px solid;
+  border: var(--p-immatch-editor-border-color) 1px solid;
   border-radius: 5px;
-  background-color: var(--p-imquery-editor-background-color);
+  background-color: var(--p-immatch-editor-background-color);
   margin: 0.5rem;
   flex: 1;
   cursor: pointer;
@@ -270,7 +270,7 @@ function isEmptyMatch() {
   background-color: #6bb28c10;
   margin: 0.5rem;
   flex: 1;
-  border: var(--p-imquery-editor-hover-border-color) 1px solid;
+  border: var(--p-immatch-editor-hover-border-color) 1px solid;
 }
 
 .match-description {

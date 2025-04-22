@@ -1,4 +1,4 @@
-import { Match, Order, Query, QueryRequest, SearchBinding, TTIriRef, Where } from "@/interfaces/AutoGen";
+import { Match, OrderDirection, Query, QueryRequest, SearchBinding, TTIriRef, Where } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
@@ -40,11 +40,16 @@ export function addIsaToIMQuery(isAs: TTIriRef[], imQuery: QueryRequest) {
 }
 
 export function addSortingToIMQuery(sortingField: TTIriRef, sortDirection: TTIriRef, imQuery: QueryRequest) {
-  if (!imQuery.query.orderBy) imQuery.query.orderBy = {};
-  if (isObjectHasKeys(sortingField)) imQuery.query.orderBy.property = sortingField;
-  else imQuery.query.orderBy.property = {};
-  if (isObjectHasKeys(sortDirection)) imQuery.query.orderBy.property.direction = sortDirection["@id"] === IM.ASCENDING ? Order.ascending : Order.descending;
-  else imQuery.query.orderBy.property.direction = Order.descending;
+  if (!imQuery.query.orderBy) {
+    imQuery.query.orderBy = {};
+    imQuery.query.orderBy.property = [];
+  }
+  const orderDirection = {
+    "@id": sortingField["@id"],
+    name: sortingField.name ? sortingField.name : "",
+    direction: sortDirection["@id"] === IM.ASCENDING ? "ascending" : "descending"
+  } as OrderDirection;
+  imQuery.query.orderBy.property?.push(orderDirection);
 }
 
 export function addMemberOfToIMQuery(memberOfs: TTIriRef[], imQuery: QueryRequest) {
@@ -58,21 +63,19 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
 
   for (const searchBinding of searchBindings) {
     const match: Match = {
+      path: [
+        {
+          "@id": IM.BINDING
+        }
+      ],
       where: [
         {
-          "@id": IM.BINDING,
-          match: {
-            where: [
-              {
-                "@id": SHACL.PATH,
-                is: [{ "@id": searchBinding.path?.["@id"] }]
-              },
-              {
-                "@id": SHACL.NODE,
-                is: [{ "@id": searchBinding.node?.["@id"] }]
-              }
-            ]
-          }
+          "@id": SHACL.PATH,
+          is: [{ "@id": searchBinding.path?.["@id"] }]
+        },
+        {
+          "@id": SHACL.NODE,
+          is: [{ "@id": searchBinding.node?.["@id"] }]
         }
       ]
     };

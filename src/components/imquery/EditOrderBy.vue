@@ -3,15 +3,11 @@
     <ProgressSpinner />
   </div>
   <div v-else-if="orderBy.property" class="order-by">
-    <InputText value="Order by" disabled class="w-full md:w-20" />
-    <Select v-model="orderBy.property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
-    <Select
-      v-model="orderBy.property.direction"
-      :options="getDirectionOptions(orderBy.property)"
-      optionLabel="name"
-      optionValue="value"
-      placeholder="Select direction"
-    />
+    <span v-for="(property, index) in orderBy.property" :key="index">
+      <InputText value="Order by" disabled class="w-full md:w-20" />
+      <Select v-model="property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
+      <Select v-model="property.direction" :options="getDirectionOptions(property)" optionLabel="name" optionValue="value" placeholder="Select direction" />
+    </span>
     <InputText value="Limit" disabled class="w-full md:w-20" />
     <InputNumber v-model="orderBy.limit" placeholder="Set limit" class="limit" />
     <Button severity="danger" icon="fa-solid fa-trash" @click="deleteOrderBy" />
@@ -21,7 +17,7 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Match, Order, OrderDirection, OrderLimit, TTIriRef } from "@/interfaces/AutoGen";
+import { Query, Order, OrderDirection, OrderLimit, TTIriRef } from "@/interfaces/AutoGen";
 import { IM, SHACL, XSD } from "@/vocabulary";
 import { Ref, onMounted, ref, watch } from "vue";
 interface OrderProperty {
@@ -30,11 +26,11 @@ interface OrderProperty {
   entityType: TTIriRef[];
 }
 interface Props {
-  editMatch: Match;
-  orderBy: OrderLimit;
   dmIri: string;
 }
 const props = defineProps<Props>();
+const orderBy = defineModel<OrderLimit>("orderBy", { default: {} });
+const editQuery = defineModel<Query>("editQuery", { default: {} });
 const orderProperties: Ref<OrderProperty[]> = ref([]);
 const loading = ref(true);
 const orderablePropertyTypes = [IM.DATE_TIME, XSD.INTEGER, XSD.DECIMAL];
@@ -84,7 +80,7 @@ function getDirectionOptions(property: OrderDirection) {
   return directionOptions;
 }
 function deleteOrderBy() {
-  delete props.editMatch.orderBy;
+  delete editQuery.value.orderBy;
 }
 </script>
 

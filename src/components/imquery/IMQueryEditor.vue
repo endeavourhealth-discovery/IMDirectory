@@ -7,10 +7,12 @@
       <span class="type-of-title">Type:</span>
       <span>{{ queryDefinition?.typeOf?.name }}</span>
     </div>
-    <RecursiveMatchEditor
+    <RecursiveMatchDisplay
       v-model:match="queryDefinition!"
-      v-model:parentMatch="editQueryDefinition"
+      v-model:parentMatch="rootQuery"
+      :edit-mode="true"
       :clauseIndex="-1"
+      :propertyIndex="-1"
       :depth="0"
       :inline="false"
       :bracketed="false"
@@ -28,7 +30,7 @@ import { cloneDeep } from "lodash-es";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
-import RecursiveMatchEditor from "@/components/imquery/RecursiveMatchEditor.vue";
+import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 
 interface Props {
   queryDefinition?: Query;
@@ -41,7 +43,7 @@ const emit = defineEmits({
 const props = defineProps<Props>();
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const editQueryDefinition: Ref<Match> = ref({});
-
+const rootQuery: Ref<Match> = ref({});
 const imQueryForBaseType: Ref<QueryRequest | undefined> = ref();
 const variableMap: Ref<{ [key: string]: any }> = ref({});
 

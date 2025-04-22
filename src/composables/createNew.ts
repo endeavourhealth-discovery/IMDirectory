@@ -43,7 +43,7 @@ function createNew() {
     const types = response?.entities ?? [];
     if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
 
-    for (let currentType in node.conceptTypes) {
+    for (const currentType in node.conceptTypes) {
       switch (node.conceptTypes[currentType]["@id"]) {
         case IM.FOLDER:
           if (allowableTypes.findIndex(i => i["@id"] === IM.FOLDER) === -1)
@@ -61,8 +61,8 @@ function createNew() {
         case SHACL.NODESHAPE:
           allowableTypes = getChildType(SHACL.NODESHAPE, "Data Model/Node Shape", RDFS.SUBCLASS_OF);
           break;
-        case IM.COHORT_QUERY:
-          allowableTypes = getChildType(IM.COHORT_QUERY, "Cohort Query", IM.DEFINITION);
+        case IM.QUERY:
+          allowableTypes = getChildType(IM.QUERY, "Cohort Query", IM.DEFINITION);
           break;
         default:
           break;

@@ -1,7 +1,7 @@
 <template>
   <div class="property-description-container">
     <EditProperty
-      v-if="focused && !editWhere?.match"
+      v-if="focused"
       :data-model-iri="matchTypeOfIri"
       :edit-match="parentMatch"
       :property="editWhere"
@@ -47,8 +47,6 @@
 
 <script lang="ts" setup>
 import { Match, Where } from "@/interfaces/AutoGen";
-import EditMatch from "./EditMatch.vue";
-import type { MenuItem } from "primevue/menuitem";
 import EditProperty from "./EditProperty.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 

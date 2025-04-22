@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-03-26 11:48:22.
+// Generated using typescript-generator version 3.2.1263 on 2025-04-18 15:07:19.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -238,6 +238,9 @@ export interface PropertyShape {
     hasValue?: any;
     hasValueType?: TTIriRef;
     definition?: string;
+    ascending?: string;
+    descending?: string;
+    orderable?: boolean;
 }
 
 export interface SetContent {
@@ -278,11 +281,11 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: TTIriRef;
-    qualifier?: string;
-    operator?: Operator;
     valueLabel?: string;
+    unit?: TTIriRef;
     valueParameter?: string;
+    operator?: Operator;
+    qualifier?: string;
 }
 
 export interface Case {
@@ -315,21 +318,16 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    memberOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
+    memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
     name?: Function;
     argument?: Argument[];
     range?: Range;
-}
-
-export interface GraphNode {
-    path?: Path;
-    variable?: string;
 }
 
 export interface GroupBy extends IriLD {
@@ -349,38 +347,42 @@ export interface IriLD {
     description?: string;
 }
 
-export interface Match extends IriLD, GraphNode {
+export interface Match extends IriLD {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     exclude?: boolean;
     nodeRef?: string;
     header?: string;
     preface?: string;
+    bool?: Bool;
     typeOf?: Node;
     instanceOf?: Node[];
     where?: Where[];
     match?: Match[];
-    bool?: Bool;
+    includeIf?: string;
     graph?: Element;
     orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
+    variable?: string;
+    parameter?: string;
+    path?: Path[];
     function?: FunctionClause;
     entailment?: Entail;
+    baseRule?: boolean;
     hasRules?: boolean;
     hasLinked?: boolean;
     union?: boolean;
     rule?: boolean;
-    hasTest?: boolean;
-    test?: boolean;
+    inverse?: boolean;
+    then?: Match;
     return?: Return;
     returx?: Return;
-    isTest?: boolean;
-    isUnion?: boolean;
     isRule?: boolean;
+    isUnion?: boolean;
 }
 
-export interface Node extends Element, GraphNode {
+export interface Node extends Element {
     type?: string;
     exclude?: boolean;
     code?: string;
@@ -392,14 +394,16 @@ export interface OrderDirection extends RelativeTo {
 }
 
 export interface OrderLimit {
-    property?: OrderDirection;
+    property?: OrderDirection[];
     limit?: number;
     description?: string;
 }
 
 export interface Path extends Element {
     inverse?: boolean;
-    where?: Where;
+    optional?: boolean;
+    typeOf?: Node;
+    path?: Path[];
 }
 
 export interface PathDocument {
@@ -419,9 +423,9 @@ export interface Prefix {
 
 export interface Query extends Match {
     activeOnly?: boolean;
-    query?: Query[];
     groupBy?: GroupBy[];
     prefixes?: Prefix[];
+    dataSet?: Query[];
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
@@ -464,6 +468,8 @@ export interface Return {
     function?: FunctionClause;
     property?: ReturnProperty[];
     as?: string;
+    valueRef?: string;
+    propertyRef?: string;
 }
 
 export interface ReturnProperty {
@@ -502,7 +508,6 @@ export interface When {
 
 export interface Where extends Element, Assignable {
     bool?: Bool;
-    match?: Match;
     range?: Range;
     isNull?: boolean;
     relativeTo?: RelativeTo;
@@ -514,8 +519,9 @@ export interface Where extends Element, Assignable {
     isNotNull?: boolean;
     function?: FunctionClause;
     valueVariable?: string;
-    path?: Path;
     inverse?: boolean;
+    roleGroup?: boolean;
+    isRoleGroup?: boolean;
 }
 
 export interface DownloadByQueryOptions {
@@ -849,8 +855,8 @@ export interface TTEntity extends TTNode, Serializable {
     version?: number;
     status?: TTIriRef;
     description?: string;
-    code?: string;
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface TTContext extends Serializable {
@@ -947,6 +953,7 @@ export const enum Function {
     count = "count",
     average = "average",
     timeDifference = "timeDifference",
+    concatenate = "concatenate",
 }
 
 export const enum Operator {

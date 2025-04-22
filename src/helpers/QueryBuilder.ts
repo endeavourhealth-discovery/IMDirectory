@@ -59,8 +59,8 @@ export function generateMatchIds(query: Query) {
       generateMatchIdsRecursively(match);
     }
 
-  if (isArrayHasLength(queryWithMatchIds.query))
-    for (const subQuery of queryWithMatchIds.query!) {
+  if (isArrayHasLength(queryWithMatchIds.dataSet))
+    for (const subQuery of queryWithMatchIds.dataSet!) {
       if (isArrayHasLength(subQuery.match))
         for (const match of subQuery.match!) {
           generateMatchIdsRecursively(match);
@@ -74,10 +74,5 @@ export function generateMatchIdsRecursively(match: Match) {
   if (isArrayHasLength(match.match))
     for (const nestedMatch of match.match!) {
       generateMatchIdsRecursively(nestedMatch);
-    }
-
-  if (isArrayHasLength(match.where))
-    for (const property of match.where!) {
-      if (isObjectHasKeys(property, ["match"])) generateMatchIdsRecursively(property.match!);
     }
 }

@@ -274,8 +274,6 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
 }
 
 function getVariableTypesFromProperty(property: Where, types: string[]) {
-  if (isObjectHasKeys(property, ["match"])) getVariableTypesFromMatch(property.match!, types);
-
   if (isArrayHasLength(property.where))
     for (const nestedProperty of property.where!) {
       getVariableTypesFromProperty(nestedProperty, types);

@@ -6,12 +6,7 @@
     <div v-else :class="showValidation && invalid && 'invalid'" class="content-container">
       <div class="query-editor-container flex flex-col gap-4">
         <div class="query-editor flex flex-col p-2">
-          <IMQueryEditor v-if="queryDefinition" v-model:queryDefinition="queryDefinition" @updateQuery="updateQueryDefinition" />
-        </div>
-        <div class="flex flex-row justify-end gap-2">
-          <div>
-            <Button data-testid="sql-button" label="Generate SQL" @click="generateSQL" />
-          </div>
+          <QueryDisplay :entiryIri="iri" :showSqlButton="false" :queryDefinition="queryDefinition" :editMode="true" />
         </div>
       </div>
     </div>
@@ -28,7 +23,7 @@
           v-tooltip.left="'Copy to clipboard'"
           data-testid="copy-button"
           label="Copy to Clipboard"
-        />
+        ></Button>
         <Button data-testid="close-button" label="Close" @click="showSql = false" />
       </template>
     </Dialog>
@@ -47,16 +42,18 @@ import { cloneDeep } from "lodash-es";
 import { QueryService } from "@/services";
 import { generateMatchIds } from "@/helpers/QueryBuilder";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import IMQueryEditor from "@/components/imquery/IMQueryEditor.vue";
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
+import DisplayAnything from "@/components/editor/shapeComponents/DisplayAnything.vue";
 
 interface Props {
-  shape: PropertyShape;
   mode: EditorMode;
+  shape: PropertyShape;
   value?: any;
 }
 
 const props = defineProps<Props>();
 
+const iri = "http://endhealth.info/im#CohortDefinition";
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -160,9 +157,8 @@ function updateQueryDefinition(test: any) {
 }
 
 .query-editor {
-  height: 60vh;
   overflow-y: auto;
-  border: 1px solid var(--p-textarea-border-color);
+  border: 1px solid;
   background-color: var(--p-default);
   border-radius: var(--p-content-border-radius);
 }

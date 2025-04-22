@@ -146,12 +146,13 @@ const formatOptions: Ref<DownloadOption[]> = ref([
 ]);
 const contentOptions: Ref<DownloadOption[]> = ref([
   { key: "definition", name: "Definition", disabled: false, include: props.showDefinition },
-  { key: "core", name: "Core", disabled: false, include: props.showCore },
+  { key: "core", name: "Core", disabled: false, include: props.showCore, cannotUncheck: true },
   { key: "legacy", name: "Legacy", disabled: false, include: props.showLegacy },
   { key: "im1Id", name: "IM1Id", disabled: false, include: props.showIm1Id },
-  { key: "subsumedBy", name: "Subsumed By", disabled: false, include: props.showSubsumedBy }
+  { key: "subsumedBy", name: "+Replaced concepts", disabled: false, include: props.showSubsumedBy }
 ]);
-const selectedContents: Ref<string[]> = ref([]);
+
+const selectedContents: Ref<string[]> = ref(["Core", "+Replaced concepts"]);
 const selectedFormat = ref("");
 const displayLegacyOptions = ref(false);
 const coreSelected = ref(false);
@@ -179,7 +180,6 @@ watch(selectedContents, () => {
 });
 
 watch(selectedFormat, () => {
-  selectedContents.value = [];
   checked.value = true;
   checkedLegacy.value = false;
   if (selectedFormat.value) {
