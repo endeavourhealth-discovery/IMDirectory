@@ -13,6 +13,7 @@
       <SelectButton v-model="logicalDisplayTab" :options="logicalDisplayOptions" />
       <div class="flex flex-row gap-2">
         <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
+        <div><Button label="Run query" @click="runQuery" /></div>
       </div>
       <div class="query-display">
         <div class="rec-query-display">
@@ -68,6 +69,8 @@ import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { getParentNode } from "@/helpers";
 import SQLDisplay from "./SQLDisplay.vue";
+import { useConfirm } from "primevue/useconfirm";
+import { useRouter } from "vue-router";
 
 interface Props {
   entityIri?: string;
@@ -75,6 +78,9 @@ interface Props {
   showSqlButton?: boolean;
   queryDefinition?: Query;
 }
+
+const confirm = useConfirm();
+const router = useRouter();
 
 const dataSetExpanded = ref(false);
 const userStore = useUserStore();
@@ -150,6 +156,24 @@ async function displayToggle() {
 async function generateSQL() {
   if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri);
   showSql.value = true;
+}
+
+function runQuery() {
+  confirm.require({
+    message: "Are you sure you want to run this query '" + query.value.name + "'?",
+    header: "Run query",
+    icon: "pi pi-exclamation-triangle",
+    rejectProps: {
+      label: "No",
+      severity: "secondary",
+      outlined: true
+    },
+    acceptProps: {
+      label: "Yes"
+    },
+    accept: async () => router.push({ name: "QueryRunner" }),
+    reject: () => confirm.close()
+  });
 }
 
 function toggle() {

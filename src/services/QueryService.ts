@@ -104,6 +104,18 @@ const QueryService = {
 
   async requeueQuery(request: RequeueQueryRequest): Promise<void> {
     return axios.post(API_URL + "/requeueQuery", request);
+  },
+
+  async getQueryResultsPaged(request: QueryRequest): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: string[] }> {
+    return axios.post(API_URL + "/getQueryResultsPaged", request);
+  },
+
+  async getQueryResults(request: QueryRequest): Promise<string[]> {
+    return axios.post(API_URL + "/getQueryResults", request);
+  },
+
+  async killActiveQuery(): Promise<void> {
+    return axios.post(API_URL + "/killActiveQuery");
   }
 };
 

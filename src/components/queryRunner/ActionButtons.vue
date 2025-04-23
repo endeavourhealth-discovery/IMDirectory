@@ -106,7 +106,7 @@ function deleteQuery() {
 }
 
 function viewQueryResults() {
-  emit("viewQueryResults", props.queryQueueItem.id);
+  emit("viewQueryResults", props.queryQueueItem);
 }
 
 function requeueQuery() {

@@ -68,11 +68,13 @@
         </DataTable>
       </div>
     </div>
+    <QueryResults :queryItem="selectedQuery" v-model:showDialog="showQueryResults" />
   </div>
 </template>
 
 <script setup lang="ts">
 import ActionButtons from "@/components/queryRunner/ActionButtons.vue";
+import QueryResults from "@/components/queryRunner/QueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import { DBEntry, QueryExecutorStatus } from "@/interfaces/AutoGen";
 import { DirectService, QueryService } from "@/services";
@@ -89,6 +91,8 @@ const totalCount = ref(0);
 const page = ref(0);
 const rows = ref(25);
 const rowsOriginal = ref(25);
+const selectedQuery: Ref<DBEntry | undefined> = ref();
+const showQueryResults = ref(false);
 
 onMounted(async () => {
   await init();
@@ -133,8 +137,9 @@ function goToQuery(queryIri: string) {
   directService.view(queryIri);
 }
 
-async function viewQueryResults(queryId: string) {
-  await router.push({ name: "QueryResults", params: { id: queryId } });
+async function viewQueryResults(queryItem: DBEntry) {
+  selectedQuery.value = queryItem;
+  showQueryResults.value = true;
 }
 
 async function deleteQuery(queryId: string) {
