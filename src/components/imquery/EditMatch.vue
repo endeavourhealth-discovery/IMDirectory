@@ -161,11 +161,11 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({
-  onUpdateDialogFocus: (payload: Match) => payload,
-  deleteMatch: (payload: string) => payload,
-  ungroupMatches: (payload: Match) => payload
-});
+const emit = defineEmits<{
+  onUpdateDialogFocus: [payload: Match];
+  deleteMatch: [payload: string];
+  ungroupMatches: [payload: Match];
+}>();
 const hover: Ref<boolean> = ref(false);
 const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);

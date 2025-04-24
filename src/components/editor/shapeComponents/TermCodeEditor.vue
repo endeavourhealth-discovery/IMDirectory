@@ -36,9 +36,9 @@ interface Props {
   position: number;
 }
 
-const emit = defineEmits({
-  updateClicked: _payload => true
-});
+const emit = defineEmits<{
+  updateClicked: [payload: any];
+}>();
 const props = defineProps<Props>();
 watch(
   () => cloneDeep(props.value),

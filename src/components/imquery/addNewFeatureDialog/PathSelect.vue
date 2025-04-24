@@ -34,9 +34,9 @@ const props = defineProps<Props>();
 const visible: Ref<boolean> = ref(false);
 const localSelectedPath: Ref<Match | undefined> = ref();
 
-const emit = defineEmits({
-  onSelectedPath: (payload: Match) => payload
-});
+const emit = defineEmits<{
+  onSelectedPath: [payload: Match];
+}>();
 
 watch(
   () => props.selectedPath,

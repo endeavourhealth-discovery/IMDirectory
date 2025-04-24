@@ -57,7 +57,6 @@ import InputGroupAddon from "primevue/inputgroupaddon";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 
 interface Props {
-  searchTerm?: string;
   showFilters: boolean;
   selectedFilterOptions?: FilterOptions;
   selected?: SearchResultSummary;
@@ -68,13 +67,14 @@ const props = withDefaults(defineProps<Props>(), {
   allowAutocomplete: true
 });
 
-const emit = defineEmits({
-  "update:searchTerm": _payload => true,
-  selectedFiltersUpdated: (_payload: FilterOptions) => true,
-  toSearch: () => true,
-  toEclSearch: () => true,
-  toQuerySearch: () => true
-});
+const emit = defineEmits<{
+  selectedFiltersUpdated: [payload: FilterOptions];
+  toSearch: [];
+  toEclSearch: [];
+  toQuerySearch: [];
+}>();
+
+const modelSearchTerm = defineModel<string | undefined>("searchTerm");
 
 const searchText = ref("");
 const buttonActions = ref([
@@ -88,12 +88,12 @@ const filtersOP = ref();
 const debounce = ref(0);
 
 watch(searchText, async () => {
-  emit("update:searchTerm", searchText.value);
+  modelSearchTerm.value = searchText.value;
   debounceForSearch();
 });
 
 onMounted(() => {
-  if (props.searchTerm) searchText.value = props.searchTerm;
+  if (modelSearchTerm.value) searchText.value = modelSearchTerm.value;
 });
 
 function openFiltersOverlay(event: any) {

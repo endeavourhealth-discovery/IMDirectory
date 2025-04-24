@@ -34,9 +34,9 @@ interface Props {
   queryDefinition?: Query;
 }
 
-const emit = defineEmits({
-  updateQuery: (_payload: Query) => true
-});
+const emit = defineEmits<{
+  updateQuery: [payload: Query];
+}>();
 
 const props = defineProps<Props>();
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();

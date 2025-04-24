@@ -93,12 +93,12 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  rowClicked: (_payload: string) => true,
-  rowControlClicked: (_payload: string) => true,
-  onSelect: (_payload: string) => true,
-  rowSelected: (_payload: TreeNode | undefined) => true
-});
+const emit = defineEmits<{
+  rowClicked: [payload: string];
+  rowControlClicked: [payload: string];
+  onSelect: [payload: string];
+  rowSelected: [payload: TreeNode | undefined];
+}>();
 
 const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore, selectedNode } = setupTree(
   emit,

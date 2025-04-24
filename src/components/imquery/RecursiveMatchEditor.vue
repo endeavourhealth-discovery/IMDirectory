@@ -156,9 +156,9 @@ interface Props {
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parentMatch = defineModel<Match>("parentMatch", { default: {} });
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 const expandSet: Ref<boolean> = ref(false);
 const booleanMenu = ref();
 const booleanMenuTrigger = ref();

@@ -103,14 +103,14 @@ const props = withDefaults(defineProps<Props>(), {
   rows: 25
 });
 
-const emit = defineEmits({
-  selectedUpdated: (_payload: SearchResultSummary) => true,
-  locateInTree: (_payload: string) => true,
-  selectedFiltersUpdated: (_payload: FilterOptions) => true,
-  searchResultsUpdated: (_payload: SearchResponse | undefined) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+const emit = defineEmits<{
+  selectedUpdated: [payload: SearchResultSummary];
+  locateInTree: [payload: string];
+  selectedFiltersUpdated: [payload: FilterOptions];
+  searchResultsUpdated: [payload: SearchResponse | undefined];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
 
 const filterStore = useFilterStore();
 const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);

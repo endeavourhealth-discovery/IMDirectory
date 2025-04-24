@@ -1,6 +1,6 @@
 <template>
   <Dialog
-    v-model:visible="visible"
+    v-model:visible="modelShowDialog"
     modal
     maximizable
     header="Search"
@@ -68,7 +68,7 @@
       <div class="im-dialog-footer" v-if="detailsIri">
         <div v-if="selectedName" v-tooltip.right="detailsIri">Item selected: {{ selectedName }}</div>
         <div class="button-footer">
-          <Button label="Cancel" @click="visible = false" text />
+          <Button label="Cancel" @click="modelShowDialog = false" text />
           <Button
             :disabled="!isSelectableEntity"
             data-testid="search-dialog-select-button"
@@ -100,9 +100,7 @@ import { FilterOptions } from "@/interfaces";
 import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
-  showDialog: boolean;
   imQuery?: QueryRequest;
-  selected?: SearchResultSummary;
   rootEntities?: string[];
   searchTerm?: string;
   selectedFilterOptions?: FilterOptions;
@@ -115,18 +113,19 @@ const props = withDefaults(defineProps<Props>(), {
   showFilters: false
 });
 watch(
-  () => props.showDialog,
+  () => modelShowDialog.value,
   newValue => {
     if (newValue === true) initSelection();
-    visible.value = newValue;
+    else resetDialog();
   }
 );
 
-const emit = defineEmits({
-  "update:showDialog": payload => typeof payload === "boolean",
-  "update:selected": payload => true,
-  updateSelectedFilters: (payload: FilterOptions) => true
-});
+const emit = defineEmits<{
+  updateSelectedFilters: [payload: FilterOptions];
+}>();
+
+const modelShowDialog = defineModel<boolean>("showDialog", { required: true });
+const modelSelected = defineModel<SearchResultSummary | undefined>("selected");
 
 const sharedStore = useSharedStore();
 
@@ -134,13 +133,6 @@ const updateSearch: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
-const visible = ref(false);
-watch(visible, newValue => {
-  if (!newValue) {
-    emit("update:showDialog", newValue);
-    resetDialog();
-  }
-});
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
@@ -176,12 +168,11 @@ watch(searchResults, newValue => {
 });
 
 watch(
-  () => cloneDeep(props.selected),
+  () => cloneDeep(modelSelected.value),
   () => initSelection()
 );
 
 onMounted(() => {
-  visible.value = props.showDialog;
   searchTerm.value = props.searchTerm ?? "";
   initSelection();
 });
@@ -201,9 +192,9 @@ async function setSelectedName() {
 }
 
 function initSelection() {
-  if (props.selected && props.selected.iri) {
-    navigateTo(props.selected.iri);
-    locateInTree(props.selected.iri);
+  if (modelSelected.value && modelSelected.value.iri) {
+    navigateTo(modelSelected.value.iri);
+    locateInTree(modelSelected.value.iri);
   }
 }
 
@@ -214,8 +205,8 @@ function updateSelected(data: SearchResultSummary) {
 
 async function updateSelectedFromIri(iri: string) {
   const entity = await EntityService.getEntitySummary(iri);
-  emit("update:selected", entity);
-  visible.value = false;
+  modelSelected.value = entity;
+  modelShowDialog.value = false;
 }
 
 function locateInTree(iri: string) {

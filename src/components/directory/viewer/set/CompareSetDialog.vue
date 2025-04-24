@@ -1,6 +1,6 @@
 <template>
   <Dialog
-    v-model:visible="visible"
+    v-model:visible="modelShowDialog"
     modal
     maximizable
     header="Search"
@@ -27,7 +27,7 @@
       />
     </div>
 
-    <template #footer class="compare-set-dialog-footer"> <Button label="OK" @click="visible = false" /> </template>
+    <template #footer class="compare-set-dialog-footer"> <Button label="OK" @click="modelShowDialog = false" /> </template>
   </Dialog>
 </template>
 <script setup lang="ts">
@@ -36,30 +36,18 @@ import CompareSetSection from "./CompareSetSection.vue";
 import { Concept, SearchResultSummary } from "@/interfaces/AutoGen";
 import { SetService } from "@/services";
 interface Props {
-  showDialog: boolean;
   setIriA: string;
 }
 const props = defineProps<Props>();
 
-const visible = ref(false);
+const modelShowDialog = defineModel<boolean>("showDialog", { required: true });
+
 const sharedMembers: Ref<Concept[]> = ref([]);
 const membersA: Ref<Concept[]> = ref([]);
 const membersB: Ref<Concept[]> = ref([]);
 const selectedA: Ref<SearchResultSummary | undefined> = ref();
 const selectedB: Ref<SearchResultSummary | undefined> = ref();
 const loading = ref(false);
-watch(
-  () => props.showDialog,
-  async newValue => {
-    visible.value = newValue;
-  }
-);
-watch(visible, newValue => {
-  if (!newValue) {
-    emit("update:showDialog", newValue);
-  }
-});
-const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean" });
 
 watch(selectedA, async () => await getMembers());
 watch(selectedB, async () => await getMembers());

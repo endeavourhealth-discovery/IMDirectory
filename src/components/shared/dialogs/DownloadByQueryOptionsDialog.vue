@@ -128,11 +128,11 @@ const props = withDefaults(defineProps<Props>(), {
   showSubsumedBy: true
 });
 
-const emit = defineEmits({
-  closeDialog: () => true,
-  download: (_payload: DownloadSettings) => true,
-  downloadIMV1: (_payload: DownloadSettings) => true
-});
+const emit = defineEmits<{
+  closeDialog: [];
+  download: [payload: DownloadSettings];
+  downloadIMV1: [payload: DownloadSettings];
+}>();
 
 const filterStore = useFilterStore();
 const filterOptions = computed(() => filterStore.filterOptions);

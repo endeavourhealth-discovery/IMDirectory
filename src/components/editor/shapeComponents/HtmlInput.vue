@@ -4,7 +4,14 @@
       <span v-if="shape.showTitle">{{ shape.name }}</span>
       <span v-if="showRequired" class="required">*</span>
     </div>
-    <Textarea class="p-inputtext-lg input-html" :class="invalid && showValidation && 'invalid'" v-model="userInput" data-testid="html-input" rows="4" @drop.prevent />
+    <Textarea
+      class="p-inputtext-lg input-html"
+      :class="invalid && showValidation && 'invalid'"
+      v-model="userInput"
+      data-testid="html-input"
+      rows="4"
+      @drop.prevent
+    />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
@@ -27,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
   value: ""
 });
 
-const emit = defineEmits({ updateClicked: (_payload: string) => true });
+const emit = defineEmits<{ updateClicked: [payload: string] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;

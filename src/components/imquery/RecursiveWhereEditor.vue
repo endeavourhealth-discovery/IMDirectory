@@ -74,9 +74,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const isExpanded = ref(props.expandedSet);
 const childExpand = true;

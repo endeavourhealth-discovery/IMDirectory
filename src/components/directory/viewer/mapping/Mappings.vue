@@ -153,7 +153,7 @@ const opMap = ref(null);
 const opMatchedTo = ref(null);
 const opMatchedFrom = ref(null);
 
-const emit = defineEmits({ navigateTo: (_payload: string) => true });
+const emit = defineEmits<{ navigateTo: [payload: string] }>();
 
 watch(
   () => props.entityIri,
@@ -348,12 +348,12 @@ function toggle(event: any, data: MapItem, refId: string): void {
   if (x) x.value.toggle(event);
 }
 
-function handleMatchedFromToggle(event: any, data: any) {
-  toggle(event, data, "opMatchedFrom");
+function handleMatchedFromToggle(args: { event: any; data: any }) {
+  toggle(args.event, args.data, "opMatchedFrom");
 }
 
-function handleMatchedToToggle(event: any, data: any) {
-  toggle(event, data, "opMatchedTo");
+function handleMatchedToToggle(args: { event: any; data: any }) {
+  toggle(args.event, args.data, "opMatchedTo");
 }
 </script>
 

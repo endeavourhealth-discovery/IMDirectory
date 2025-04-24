@@ -31,9 +31,9 @@ interface Option {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  updateParameterValue: (_payload: TTIriRef) => true
-});
+const emit = defineEmits<{
+  updateParameterValue: [payload: TTIriRef];
+}>();
 
 const paramOptions: Ref<Option[]> = ref([]);
 const selectedParam = ref();

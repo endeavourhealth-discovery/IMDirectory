@@ -23,10 +23,10 @@ const props = withDefaults(defineProps<Props>(), {
   show: { minus: true, plus: true } as any
 });
 
-const emit = defineEmits({
-  addNextClicked: (_payload: any) => true,
-  deleteClicked: () => true
-});
+const emit = defineEmits<{
+  addNextClicked: [payload: { type: ComponentType; name: string } | undefined];
+  deleteClicked: [];
+}>();
 
 let menuOptions: Ref<any[]> = ref([]);
 let selected: Ref<{ type: ComponentType; name: string } | undefined> = ref();

@@ -103,12 +103,12 @@ interface Props {
   addDefaultValue?: boolean;
 }
 
-const emit = defineEmits({
-  locateInTree: (payload: string) => payload,
-  "update:selectedPath": (payload: Match) => payload,
-  goToNextStep: () => true,
-  selectedIri: (payload: string) => payload
-});
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  "update:selectedPath": [payload: Match];
+  goToNextStep: [];
+  selectedIri: [payload: string];
+}>();
 const props = defineProps<Props>();
 
 const directService = new DirectService();

@@ -35,12 +35,12 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({
-  onClose: () => true,
-  onPropertyAdd: (_property: Where) => true,
-  onMatchAdd: (_match: Match) => true,
-  onDialogUpdate: payload => typeof payload === "boolean"
-});
+const emit = defineEmits<{
+  onClose: [];
+  onPropertyAdd: [payload: Where];
+  onMatchAdd: [payload: Match];
+  onDialogUpdate: [payload: boolean];
+}>();
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
 const selectedProperty: Ref<TreeNode | undefined> = ref();
 const editWhere: Ref<Where> = ref({});

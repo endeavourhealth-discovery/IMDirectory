@@ -169,7 +169,7 @@ watch(
 );
 const childLoadingState = inject("childLoadingState") as Ref<any>;
 
-const emit = defineEmits({ unGroupItems: _payload => true });
+const emit = defineEmits<{ unGroupItems: [payload: any] }>();
 
 const canBeAttributeGroup: ComputedRef<boolean> = computed(
   () => props.parent && isArray(props.value.items) && props.value.items.length >= 1 && props.value.items.every((i: any) => i.type === "Refinement")

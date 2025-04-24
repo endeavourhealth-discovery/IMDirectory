@@ -34,7 +34,10 @@ interface Props {
 const props = defineProps<Props>();
 const subsets: Ref<TTIriRef[]> = ref([]);
 
-const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
+const emit = defineEmits<{
+  onOpenTab: [payload: string];
+  navigateTo: [payload: string];
+}>();
 
 onMounted(async () => {
   subsets.value = await SetService.getSubsets(props.entityIri);

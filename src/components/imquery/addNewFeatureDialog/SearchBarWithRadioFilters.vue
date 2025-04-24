@@ -42,7 +42,10 @@ const props = withDefaults(defineProps<Props>(), {
   }
 });
 
-const emit = defineEmits({ onTypeSelect: (payload: TypeOption) => payload, onSearch: (payload: string) => payload });
+const emit = defineEmits<{
+  onTypeSelect: [payload: TypeOption];
+  onSearch: [payload: string];
+}>();
 
 const searchTerm: Ref<string> = ref("");
 const typeOptions: ComputedRef<TypeOption[]> = computed(() => [

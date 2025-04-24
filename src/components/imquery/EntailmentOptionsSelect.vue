@@ -12,7 +12,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const selectedOption: Ref<string> = ref("");
-const emit = defineEmits({ updateEntailment: (_payload: string) => true });
+const emit = defineEmits<{ updateEntailment: [payload: string] }>();
 
 const options = [
   { id: "memberOf", name: "member of" },
