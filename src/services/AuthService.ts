@@ -256,7 +256,7 @@ const AuthService = {
       }
       const userStore = useUserStore();
       userStore.updateCurrentUser(authenticatedUser);
-      await userStore.getAllFromUserDatabase();
+      if (userStore.$state.currentUser?.id !== authenticatedUser.id) await userStore.getAllFromUserDatabase();
       return { status: 200, message: "User authenticated successfully", user: authenticatedUser };
     } catch (err: any) {
       return { status: 403, message: "Error authenticating current user", error: err };

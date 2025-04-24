@@ -4,8 +4,12 @@ import axios from "axios";
 import { RecentActivityItem } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
+import { UserData } from "@/interfaces/UserData";
 
 const UserService = {
+  async getUserData(): Promise<UserData> {
+    return await axios.get(Env.API + "api/user/data");
+  },
   async getUserScale(): Promise<string> {
     return await axios.get(Env.API + "api/user/scale");
   },
