@@ -51,15 +51,12 @@ import { cloneDeep } from "lodash-es";
 import { Ref, ref } from "vue";
 
 interface Props {
-  showDialog: boolean;
   queryItem: DBEntry | undefined;
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  "update:showDialog": payload => typeof payload === "boolean"
-});
+const showDialog = defineModel<boolean>("showDialog");
 
 const loading = ref(false);
 const downloadLoading = ref(false);
@@ -70,7 +67,7 @@ const originalSize = ref(25);
 const totalCount = ref(0);
 
 function closeDialog() {
-  emit("update:showDialog", false);
+  showDialog.value = false;
 }
 
 async function downloadQueryResults() {
