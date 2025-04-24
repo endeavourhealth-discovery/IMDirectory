@@ -254,4 +254,12 @@ export class IM {
   public static readonly MINUTES = IM.NAMESPACE + "Minutes";
   public static readonly SECONDS = IM.NAMESPACE + "Seconds";
   public static readonly DATATYPE_QUALIFIER = IM.NAMESPACE + "datatypeQualifier";
+  public static readonly TYPE_FILTER_OPTIONS = IM.NAMESPACE + "TypeFilterOptions";
+  public static readonly SORT_FIELD_FILTER_OPTIONS = IM.NAMESPACE + "SortFieldFilterOptions";
+  public static readonly SORT_DIRECTION_FILTER_OPTIONS = IM.NAMESPACE + "SortDirectionFilterOptions";
+  public static readonly SCHEME_FILTER_DEFAULTS = IM.NAMESPACE + "SchemeFilterDefaultOptions";
+  public static readonly STATUS_FILTER_DEFAULTS = IM.NAMESPACE + "StatusFilterDefaultOptions";
+  public static readonly TYPE_FILTER_DEFAULTS = IM.NAMESPACE + "TypeFilterDefaultOptions";
+  public static readonly SORT_FIELD_FILTER_DEFAULTS = IM.NAMESPACE + "SortFieldFilterDefaultOptions";
+  public static readonly SORT_DIRECTION_FILTER_DEFAULTS = IM.NAMESPACE + "SortDirectionFilterDefaultOptions";
 }
