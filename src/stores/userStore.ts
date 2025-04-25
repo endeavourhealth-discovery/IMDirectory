@@ -59,29 +59,14 @@ export const useUserStore = defineStore("user", {
     async getAllFromUserDatabase(): Promise<void> {
       if (this.currentUser) {
         this.clearAllFromLocalStorage();
-        const preset = await UserService.getUserPreset();
-        if (preset) this.currentPreset = preset;
-
-        const primaryColor = await UserService.getUserPrimaryColor();
-        if (primaryColor) this.currentPrimaryColor = primaryColor;
-
-        const surfaceColor = await UserService.getUserSurfaceColor();
-        if (surfaceColor) this.currentSurfaceColor = surfaceColor;
-
-        const darkMode = await UserService.getUserDarkMode();
-        if (darkMode) this.darkMode = darkMode;
-
-        const scaleResult = await UserService.getUserScale();
-        if (scaleResult) this.currentScale = scaleResult;
-
-        const organisationResults = await UserService.getUserOrganisations();
-        if (organisationResults) this.organisations = organisationResults;
-
-        const favouritesResult = await UserService.getUserFavourites();
-        if (favouritesResult) this.favourites = favouritesResult;
-
-        const mruResult = await UserService.getUserMRU();
-        if (mruResult) this.recentLocalActivity = mruResult;
+        const data = await UserService.getUserData();
+        if (data.preset) this.currentPreset = data.preset;
+        if (data.primaryColor) this.currentPrimaryColor = data.primaryColor;
+        if (data.darkMode) this.darkMode = data.darkMode;
+        if (data.scale) this.currentScale = data.scale;
+        if (data.organisations) this.organisations = data.organisations;
+        if (data.favourites) this.favourites = data.favourites;
+        if (data.mru) this.recentLocalActivity = data.mru;
       } else this.getAllFromLocalStorage();
     },
     getAllFromLocalStorage(): void {
