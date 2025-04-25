@@ -252,11 +252,6 @@ function validateEntities() {
   width: 100%;
 }
 
-.p-dialog-content {
-  display: block;
-  margin: auto;
-}
-
 .upload-container,
 .code-list-container {
   display: flex;

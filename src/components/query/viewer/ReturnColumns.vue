@@ -58,11 +58,3 @@ function getColumnNamesFromReturn(select: Return) {
   }
 }
 </script>
-
-<style scoped>
-th,
-td {
-  border: 1px solid var(--p-content-border-color);
-  padding: 8px 10px;
-}
-</style>

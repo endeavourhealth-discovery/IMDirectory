@@ -303,11 +303,6 @@ function hidePopup(): void {
   border-top: 1px solid var(--p-textarea-border-color);
 }
 
-.p-progressspinner {
-  width: 1.25em !important;
-  height: 1.25em !important;
-}
-
 #secondary-tree-bar-container ::v-deep(.p-treenode-selectable) {
   cursor: default !important;
 }

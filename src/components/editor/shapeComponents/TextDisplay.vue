@@ -221,9 +221,7 @@ function hasData() {
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
-</style>
 
-<style>
 .string-single-display-tooltip .p-tooltip-text {
   width: fit-content;
   word-wrap: break-word;

@@ -212,20 +212,6 @@ function onAddFunctionProperty(property: string, value: any) {
 </script>
 
 <style scoped>
-.edit-match-dialog-content {
-  display: flex;
-  flex-flow: row;
-}
-
-#imquery-builder-string-container {
-  flex: 1 1 auto;
-  width: 100%;
-  overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
-  gap: 1rem;
-}
-
 #imquery-builder-container {
   width: 100%;
   flex: 1 1 auto;
@@ -290,16 +276,6 @@ function onAddFunctionProperty(property: string, value: any) {
 
 .variable-edit {
   padding-left: 1rem;
-}
-
-.variable {
-  padding-left: 1rem;
-  cursor: pointer;
-}
-
-.variable-display {
-  align-items: baseline;
-  display: flex;
 }
 
 .add-button-bar {

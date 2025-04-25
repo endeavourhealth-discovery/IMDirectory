@@ -76,40 +76,11 @@ function hideDetails() {
   white-space: nowrap;
 }
 
-.steps-json-container {
-  flex: 1 1 auto;
-  width: 100%;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  overflow: auto;
-  position: relative;
-}
-
-.steps-content {
-  flex: 1 1 auto;
-  width: 100%;
-  overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  background-color: #ffffff;
-}
-
-.p-steps {
-  width: 100%;
-}
-
 .main-container {
   display: flex;
 }
 
 .main-view {
   flex: 75%;
-}
-
-.details-view {
-  flex: 25%;
 }
 </style>

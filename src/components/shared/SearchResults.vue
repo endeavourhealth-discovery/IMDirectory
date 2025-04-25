@@ -228,8 +228,4 @@ label {
   padding-left: 0.5rem;
   margin: 0;
 }
-
-.p-multiselect {
-  width: 100%;
-}
 </style>

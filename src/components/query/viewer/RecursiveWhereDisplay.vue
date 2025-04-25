@@ -133,17 +133,4 @@ function indentationStyle(inLine: boolean, depth: number) {
   color: var(--p-amber-700) !important;
   cursor: pointer !important;
 }
-.or {
-  color: var(--p-blue-700);
-  padding-right: 0.2rem;
-}
-
-.and {
-  color: var(--p-orange-700);
-  padding-right: 0.3rem;
-}
-
-.property-display {
-  margin-left: 0.2rem;
-}
 </style>

@@ -311,21 +311,13 @@ async function onSaveChanges(editMatch: Match) {
 </script>
 
 <style scoped>
-.numbered {
-  list-style: none; /* Remove default numbering */
-  margin-left: 2em; /* Creates space for manual numbering */
-  text-indent: -2em; /* Pulls the number back to the left */
-}
 .number {
   font-weight: bold;
 }
 .text {
   display: inline;
 }
-.tight-spacing {
-  margin-top: -1rem;
-  margin-bottom: 0.5rem;
-}
+
 .relative-inline-block {
   padding-left: 2rem;
 }
@@ -343,50 +335,10 @@ async function onSaveChanges(editMatch: Match) {
   font-style: italic;
   padding-right: 0.3rem;
 }
-#recursive-match-display:deep(.or) {
-  color: var(--p-blue-500);
-  padding-right: 1.2rem;
-}
 
 .node-ref {
   color: var(--p-amber-700) !important;
   padding-right: 0.2rem;
   cursor: pointer !important;
-}
-
-#recursive-match-display:deep(.either) {
-  color: var(--p-blue-500);
-  padding-right: 0.3rem;
-}
-
-#recursive-match-display:deep(.and) {
-  color: var(--p-orange-500);
-  padding-right: 0.3rem;
-}
-#recursive-match-display:deep(.not) {
-  color: var(--p-red-500) !important;
-  padding-right: 0.2rem;
-}
-#recursive-match-display:deep(.variable) {
-  color: var(--p-orange-500) !important;
-}
-
-.edit-button {
-  color: var(--p-purple-500) !important;
-}
-
-#recursive-match-display:deep(.SELECT) {
-  color: var(--p-green-500);
-  padding-right: 1.2rem;
-}
-
-#recursive-match-display:deep(.REJECT) {
-  color: var(--p-red-500);
-  padding-right: 1.2rem;
-}
-
-#recursive-match-display:deep(.NEXT) {
-  color: var(--p-purple-500);
-  padding-right: 1.2rem;
 }
 </style>

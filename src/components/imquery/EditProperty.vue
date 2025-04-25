@@ -99,30 +99,3 @@ function onSaveCustomSet(newSet: Node) {
   property.value.memberOf = true;
 }
 </script>
-
-<style scoped>
-.property-label {
-  padding: 0.1rem;
-}
-
-.button-bar {
-  display: flex;
-  justify-content: end;
-}
-
-.button-bar-button {
-  margin: 0.5rem;
-}
-
-.property {
-  display: flex;
-}
-
-.concept-select {
-  width: 100%;
-}
-
-.is-title {
-  padding: 1rem;
-}
-</style>

@@ -172,9 +172,7 @@ function hasData() {
 .required {
   color: var(--p-red-500);
 }
-</style>
 
-<style>
 .string-single-select-tooltip .p-tooltip-text {
   width: fit-content;
   word-wrap: break-word;

@@ -298,24 +298,6 @@ async function addBaseEntityToRoot(iri: string) {
   flex-flow: column nowrap;
 }
 
-.loading-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.p-tree .p-tree-container .p-treenode .p-treenode-content {
-  padding: 0rem !important;
-  transition: box-shadow 3600s 3600s !important;
-}
-
-.p-tree-toggler {
-  margin-right: 0 !important;
-}
-
 .tree-root {
   height: 100%;
   overflow: auto;
@@ -326,7 +308,7 @@ async function addBaseEntityToRoot(iri: string) {
   min-width: 2rem;
 }
 
-.tree-row .p-progressspinner {
+.tree-row {
   width: 1.25em !important;
   height: 1.25em !important;
 }

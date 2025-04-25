@@ -161,28 +161,6 @@ function setFilterDefaults() {
   align-items: center;
 }
 
-#query-builder-container {
-  width: 100%;
-  flex-grow: 100;
-  overflow: auto;
-}
-
-#query-build {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-  margin: 0 0 1rem 0;
-}
-
-#next-option-container {
-  width: 100%;
-  display: flex;
-  flex-flow: row;
-  justify-content: center;
-}
-
 #query-string-container {
   width: 100%;
   height: 10rem;
@@ -206,11 +184,6 @@ function setFilterDefaults() {
   width: 100%;
   flex: 0 1 auto;
   overflow: auto;
-}
-
-.result-summary {
-  width: 100%;
-  padding-left: 8px;
 }
 
 .error-message {

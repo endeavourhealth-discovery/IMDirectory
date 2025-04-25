@@ -229,10 +229,6 @@ function onListboxOptionClick(selected: SearchResultSummary) {
 </script>
 
 <style scoped>
-#filter-button {
-  height: 2.25rem;
-}
-
 .search-container {
   flex: 1 0 auto;
   padding: 0 0.2rem;
@@ -244,20 +240,8 @@ function onListboxOptionClick(selected: SearchResultSummary) {
   overflow: auto;
 }
 
-.search-group {
-  flex: 1 1 auto;
-}
-
 .mic {
   cursor: pointer;
-}
-
-.advanced-button {
-  width: 12%;
-}
-
-.listening {
-  color: red !important;
 }
 
 #autocomplete-search {
@@ -274,14 +258,6 @@ function onListboxOptionClick(selected: SearchResultSummary) {
   width: 100%;
 }
 
-.fa-icon {
-  padding-right: 0.25rem;
-}
-
-.search-button {
-  height: 2.25rem;
-}
-
 .results-container {
   display: flex;
   flex-flow: column nowrap;
@@ -293,10 +269,6 @@ function onListboxOptionClick(selected: SearchResultSummary) {
   flex-flow: row;
   align-items: baseline;
   justify-content: space-between;
-}
-
-.advanced-search-button {
-  width: fit-content;
 }
 
 .loading-container {

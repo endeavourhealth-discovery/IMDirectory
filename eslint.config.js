@@ -14,8 +14,8 @@ export default defineConfig([
     extends: [
       eslint.configs.recommended,
       ...typescriptEslint.configs.recommended,
-      ...pluginVue.configs["flat/essential"]
-      // ...eslintPluginVueScopedCSS.configs["flat/recommended"],
+      ...pluginVue.configs["flat/essential"],
+      ...eslintPluginVueScopedCSS.configs["flat/recommended"]
       // pluginCypress.configs.recommended,
       // css.configs.recommended,
       // pluginPrettier

@@ -502,14 +502,6 @@ async function openAdminToolbox() {
   gap: 0.25rem;
 }
 
-.theme-row {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .scale-row {
   display: flex;
   flex-flow: row;
@@ -520,16 +512,6 @@ async function openAdminToolbox() {
   cursor: pointer;
 }
 
-.selected-primary {
-  border: solid 2px;
-  @apply border-surface;
-}
-
-.selected-surface {
-  border: solid 2px;
-  @apply border-primary;
-}
-
 .theme-icon {
   margin-left: 1rem;
   display: flex;
@@ -538,9 +520,7 @@ async function openAdminToolbox() {
   align-items: center;
   padding: 0.125rem 0;
 }
-</style>
 
-<style>
 .topbar-end-button:hover {
   background-color: var(--p-text-color) !important;
   color: var(--p-content-background) !important;
@@ -548,14 +528,6 @@ async function openAdminToolbox() {
 
 .app-overlay-panel {
   z-index: 1;
-}
-
-.p-submenu-list {
-  left: -100%;
-}
-
-.p-tooltip {
-  z-index: 999;
 }
 
 #themes-menu {

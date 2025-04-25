@@ -83,28 +83,3 @@ async function getOptions(iri: string) {
   return options;
 }
 </script>
-
-<style scoped>
-.property-input-container {
-  display: flex;
-  flex-flow: row;
-  align-items: baseline;
-}
-
-.property-input {
-  display: flex;
-  flex-flow: row;
-  align-items: baseline;
-  flex-wrap: wrap;
-}
-
-.property-input-title {
-  width: 4rem;
-}
-
-.property-range {
-  display: flex;
-  flex-flow: row;
-  align-items: baseline;
-}
-</style>

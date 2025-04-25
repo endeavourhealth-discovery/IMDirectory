@@ -230,14 +230,6 @@ function createPropertyNode(index: string, property: PropertyShape, parent: Tree
   padding-right: 1rem;
 }
 
-.tree-row {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 0.25rem;
-}
-
 .progress-spinner {
   width: 1.25em !important;
   height: 1.25em !important;

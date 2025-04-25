@@ -83,23 +83,10 @@ async function getMembers() {
   flex-flow: row;
   justify-content: center;
 }
-.compare-set-dialog-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: nowrap;
-}
-
 .comparison-section {
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
   height: 100%;
-}
-</style>
-<style>
-.p-dialog-content {
-  flex: 1 1 auto;
-  display: flex;
 }
 </style>

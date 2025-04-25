@@ -26,7 +26,7 @@ function isFilled(index: number) {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .battery-bar {
   display: flex;
   flex-flow: row nowrap;

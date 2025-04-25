@@ -382,12 +382,6 @@ table {
   border: 2px solid var(--p-textarea-border-color);
 }
 
-.p-organizationchart {
-  height: 100%;
-  width: 100%;
-  overflow: auto;
-}
-
 .loading-container {
   display: flex;
   flex-flow: row;

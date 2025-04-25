@@ -215,7 +215,7 @@ function variableToReadable(variable: string) {
 }
 </script>
 
-<style>
+<style scoped>
 tbody {
   overflow-y: auto;
 }
@@ -238,12 +238,6 @@ tbody {
 }
 
 .search-container {
-  display: flex;
-  flex-flow: row nowrap;
-  gap: 0.5rem;
-}
-
-.commercial-container {
   display: flex;
   flex-flow: row nowrap;
   gap: 0.5rem;
@@ -284,9 +278,5 @@ tbody {
   flex-flow: column nowrap;
   justify-content: center;
   align-items: center;
-}
-
-.invalid {
-  color: var(--p-red-500);
 }
 </style>

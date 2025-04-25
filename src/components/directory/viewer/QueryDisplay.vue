@@ -150,20 +150,6 @@ async function generateSQL() {
   padding-right: 1rem;
 }
 
-.argument {
-  padding-left: 2rem;
-}
-
-.rec-query-display {
-  padding: 1rem;
-}
-.refresh-link {
-  color: #007bff; /* Blue for visibility */
-  font-weight: bold;
-  text-decoration: underline;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
 #tab-list {
   flex: 0 0 auto;
   display: flex;

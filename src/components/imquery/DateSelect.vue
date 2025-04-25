@@ -274,9 +274,6 @@ function getDateFromString(date: string) {
 </script>
 
 <style scoped>
-.property-input-title {
-  width: 5rem;
-}
 .property-input-title-and {
   width: 3rem;
 }

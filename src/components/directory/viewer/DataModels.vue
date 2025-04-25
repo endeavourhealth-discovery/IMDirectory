@@ -128,24 +128,9 @@ function locateInTree(iri: string) {
   padding-right: 0.5rem;
 }
 
-.row-button:hover {
-  background-color: var(--p-textarea-border-color) !important;
-  color: var(--p-content-background) !important;
-}
-
-.row-button-fav:hover {
-  background-color: var(--p-yellow-500) !important;
-  color: var(--p-content-background) !important;
-}
-
 .content-wrapper {
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
-}
-
-.scrollbar {
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 </style>

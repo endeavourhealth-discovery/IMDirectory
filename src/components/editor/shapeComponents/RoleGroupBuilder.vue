@@ -257,10 +257,6 @@ function updateEntity() {
 </script>
 
 <style scoped>
-.vertical-layout-container {
-  margin: 0;
-}
-
 span.error-message {
   color: red;
 }
@@ -320,11 +316,6 @@ div.error-message {
 }
 
 .roleProperty {
-  display: flex;
-  flex: 1;
-}
-
-.roleVal {
   display: flex;
   flex: 1;
 }

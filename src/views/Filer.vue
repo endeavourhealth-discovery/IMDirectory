@@ -96,22 +96,4 @@ async function getTTDocument(file: any) {
   font-size: 2rem;
   white-space: nowrap;
 }
-
-#main-container {
-  width: 100vw;
-  height: 100vh;
-  max-height: 100vh;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  overflow: auto;
-}
-
-.main-view {
-  flex: 75%;
-}
-
-.details-view {
-  flex: 25%;
-}
 </style>

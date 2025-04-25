@@ -135,16 +135,6 @@ function onMemberRightClick(event: any, option: Concept) {
   justify-content: center;
 }
 
-.p-listbox {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.p-listbox:deep(.p-listbox-list) {
-  width: 100%;
-}
-
 .loading-icon {
   flex: 0 0 auto;
 }
@@ -156,12 +146,5 @@ function onMemberRightClick(event: any, option: Concept) {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-</style>
-
-<style>
-.p-listbox-item {
-  width: 100%;
-  height: 100%;
 }
 </style>

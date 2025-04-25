@@ -43,17 +43,6 @@ function setEditorEntityDisplay() {
   gap: 0.5rem;
 }
 
-.p-tabview {
-  height: 97%;
-  display: flex;
-  flex-flow: column nowrap;
-}
-
-.p-tabview:deep(.p-tabview-panels) {
-  flex: 1 1 auto;
-  overflow: auto;
-}
-
 .json:deep(.vjs-value__string) {
   word-break: break-all;
 }

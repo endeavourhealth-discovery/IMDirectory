@@ -169,24 +169,6 @@ async function findPathToNode(iri: string) {
   flex-flow: column nowrap;
 }
 
-.loading-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.p-tree .p-tree-container .p-treenode .p-treenode-content {
-  padding: 0rem !important;
-  transition: box-shadow 3600s 3600s !important;
-}
-
-.p-tree-toggler {
-  margin-right: 0 !important;
-}
-
 .tree-root {
   height: 100%;
   overflow: auto;
@@ -197,37 +179,15 @@ async function findPathToNode(iri: string) {
   min-width: 2rem;
 }
 
-.tree-row .p-progressspinner {
+.tree-row {
   width: 1.25em !important;
   height: 1.25em !important;
-}
-
-.tree-row {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: flex-start;
   gap: 0.25rem;
-}
-
-#parent-button-bar {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.toggle-buttons-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.tree-locked-button,
-.tree-lock-button,
-.home-button,
-.next-parent-button {
-  width: fit-content !important;
+  padding: 0rem !important;
+  transition: box-shadow 3600s 3600s !important;
 }
 </style>

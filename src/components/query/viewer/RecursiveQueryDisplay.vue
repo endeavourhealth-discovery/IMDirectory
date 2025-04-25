@@ -75,20 +75,3 @@ async function expandQuery() {
   loading.value = false;
 }
 </script>
-
-<style scoped>
-.button-chevron {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.return {
-  color: var(--p-teal-500);
-  padding-left: 0.5rem;
-}
-
-.output {
-  color: var(--p-indigo-500);
-}
-</style>

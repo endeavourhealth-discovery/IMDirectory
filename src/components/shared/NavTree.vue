@@ -441,27 +441,6 @@ function dragStart(event: any, data: any) {
   gap: 0.25rem;
 }
 
-#parent-button-bar {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.toggle-buttons-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.tree-locked-button,
-.tree-lock-button,
-.home-button,
-.next-parent-button {
-  width: fit-content !important;
-}
-
 #hierarchy-tree-bar-container::v-deep(.p-tree-toggler) {
   height: 1.25rem !important;
   margin: 0 0 0 0 !important;

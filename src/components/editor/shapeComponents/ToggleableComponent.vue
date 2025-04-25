@@ -123,11 +123,6 @@ function processEntityValue(property: PropertyShape | undefined) {
   border-color: var(--p-red-500);
 }
 
-.label {
-  font-size: 1rem;
-  color: var(--p-text-color);
-}
-
 .title {
   width: 100%;
   text-align: center;

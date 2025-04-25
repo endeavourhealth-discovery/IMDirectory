@@ -156,37 +156,6 @@ function addNextClicked(item: any): void {
   overflow: auto;
 }
 
-.label-container {
-  flex: 1 1 auto;
-  padding: 1rem;
-  border-radius: var(--p-textarea-border-radius);
-  position: relative;
-  min-width: 15rem;
-}
-
-.label {
-  cursor: pointer;
-  border: 1px solid var(--p-textarea-border-color);
-  border-radius: var(--p-textarea-border-radius);
-  background-color: var(--p-content-background);
-  padding: 0.25rem;
-}
-
-.float-text {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 0.75rem;
-  color: var(--p-text-color);
-}
-
-.search-input {
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .indented-add-button {
   margin-top: 0.5rem;
 }

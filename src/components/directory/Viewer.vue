@@ -261,22 +261,11 @@ function handleControlClick(iri: string) {
 }
 </script>
 <style scoped>
-#info-side-bar-wrapper {
-  transition: 0.5s;
-  flex: 0 0 40%;
-  height: 100%;
-}
-
 #concept-main-container {
   height: 100%;
   width: 100%;
   display: flex;
   flex-flow: column nowrap;
-}
-
-#concept-empty-container {
-  height: 100%;
-  width: 100%;
 }
 
 .loading-container {
@@ -302,45 +291,11 @@ function handleControlClick(iri: string) {
   flex-flow: column nowrap;
 }
 
-.p-tabs {
-  height: 100%;
-  display: flex;
-  flex-flow: column nowrap;
-  overflow: auto;
-}
-
-.p-tabpanels {
-  flex: 1 1 auto;
-  overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
-}
-
-.p-tabpanels:deep(.p-tabpanel) {
-  flex: 1 1 auto;
-  overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
-}
-
 .concept-panel-content {
   height: 100%;
   overflow: auto;
   background-color: var(--p-content-background);
   display: flex;
-}
-
-.copy-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.icons-container {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
 }
 
 #concept-panel-container:deep(.p-tabview-panels) {

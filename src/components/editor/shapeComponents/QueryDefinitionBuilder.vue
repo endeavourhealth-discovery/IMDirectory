@@ -135,7 +135,7 @@ function updateQueryDefinition(test: any) {
 }
 </script>
 
-<style>
+<style scoped>
 #cohort-query-definition-editor {
   height: 100%;
   width: 100%;

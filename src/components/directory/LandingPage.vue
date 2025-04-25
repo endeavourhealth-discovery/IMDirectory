@@ -111,16 +111,6 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
   overflow: auto;
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.p-card {
-  box-shadow: none;
-}
-
 #shortcuts-container {
   display: flex;
   flex-flow: column nowrap;

@@ -103,12 +103,4 @@ function getColour(entity: any) {
 .type-icon {
   padding-right: 0.5rem;
 }
-
-.concept-buttons-container {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-}
 </style>

@@ -34,10 +34,6 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-.term-code.table {
-  height: 100%;
-  width: 100%;
-}
 .termcode-table-container {
   display: flex;
   flex-flow: column nowrap;

@@ -322,10 +322,3 @@ function goToSearchResults() {
   justify-content: flex-end;
 }
 </style>
-
-<style>
-.p-dialog-content {
-  flex: 1 1 auto;
-  display: flex;
-}
-</style>

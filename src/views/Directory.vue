@@ -78,22 +78,8 @@ function toQuerySearch() {
   align-items: center;
 }
 
-body {
-  overflow: hidden;
-}
-
-.loading-container {
-  width: 100%;
-  height: 100%;
-}
-
 #app-content-container {
   flex: 1 1 auto;
   overflow: auto;
-}
-
-#topbar-container {
-  height: 4rem;
-  width: 100vw;
 }
 </style>

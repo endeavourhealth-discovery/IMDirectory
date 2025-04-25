@@ -109,14 +109,6 @@ function setProperties(shape: PropertyShape) {
   gap: 1rem;
 }
 
-.float-text {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 0.75rem;
-  color: var(--p-text-color);
-}
-
 .title-bar {
   display: flex;
   flex-flow: row nowrap;

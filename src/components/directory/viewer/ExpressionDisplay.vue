@@ -93,13 +93,4 @@ async function generateExpression() {
   font-weight: 700;
   font-size: 13px;
 }
-
-.loading-container {
-  display: flex;
-  flex-flow: row;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 20rem;
-}
 </style>

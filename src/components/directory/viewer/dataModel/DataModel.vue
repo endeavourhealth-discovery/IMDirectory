@@ -295,14 +295,6 @@ async function getDataModelPropertiesDisplay(iri: string, parentKey: string): Pr
   overflow: auto;
 }
 
-.tree-row {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 0.25rem;
-}
-
 .progress-spinner {
   width: 1.25em !important;
   height: 1.25em !important;

@@ -216,44 +216,4 @@ p {
   list-style-position: inside;
   padding-left: 1rem;
 }
-
-@keyframes my-fadein {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes my-fadeout {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.my-fadein {
-  animation: my-fadein 150ms linear;
-}
-
-.my-fadeout {
-  animation: my-fadeout 150ms linear;
-}
-
-.showdown-component:deep(ul) {
-  margin: 0;
-}
-
-.showdown-component:deep(h2) {
-  margin: 0.5rem;
-}
-</style>
-<style>
-.p-dialog-content {
-  display: flex;
-  flex-flow: column nowrap;
-}
 </style>

@@ -332,10 +332,6 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
 </script>
 
 <style scoped>
-label {
-  font-size: 1rem !important;
-}
-
 #search-results-main-container {
   height: 100%;
   flex: 1 1 auto;

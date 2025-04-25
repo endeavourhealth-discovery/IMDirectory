@@ -140,10 +140,6 @@ function getEntailment(data: any) {
   padding-right: 0.3rem;
 }
 
-.html-container ::v-deep(p) {
-  margin-bottom: 0 !important;
-}
-
 .custom-button span {
   flex: 1 1 auto;
   display: block;

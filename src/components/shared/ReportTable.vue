@@ -78,9 +78,4 @@ function getReportTableData(): void {
   height: 100%;
   width: 100%;
 }
-
-.loading-container {
-  width: 100%;
-  height: 100%;
-}
 </style>

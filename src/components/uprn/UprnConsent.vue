@@ -129,9 +129,4 @@ function submitAgree(): void {
   border: 1px solid;
   padding: 0.5rem;
 }
-
-.license-disclaimer {
-  flex: 0 0 auto;
-  width: 100%;
-}
 </style>

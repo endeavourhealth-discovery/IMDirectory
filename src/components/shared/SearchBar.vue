@@ -142,10 +142,6 @@ async function onSearch() {
   cursor: pointer;
 }
 
-.listening {
-  color: red !important;
-}
-
 #autocomplete-search {
   font-size: 1rem;
   height: 2.25rem;
@@ -153,15 +149,7 @@ async function onSearch() {
   width: 100%;
 }
 
-.fa-icon {
-  padding-right: 0.25rem;
-}
-
 .search-button {
   height: 2.25rem;
-}
-
-.p-inputicon {
-  color: var(--p-inputtext-color);
 }
 </style>

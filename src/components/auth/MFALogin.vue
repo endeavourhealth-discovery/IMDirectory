@@ -133,7 +133,7 @@ async function handleSubmitMFA() {
     await AuthService.mfaSignIn(code.value)
       .then(async res => {
         if (res.status === 200) {
-          await handle200(res);
+          await handle200();
         } else if (res.status === 403) {
           handle403(res);
         } else {

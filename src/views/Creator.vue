@@ -412,20 +412,6 @@ function processEntityValue(property: PropertyShape) {
 }
 </script>
 
-<style>
-.p-dropdown-label {
-  font-size: 1rem;
-}
-
-.p-dropdown {
-  height: 2.7rem;
-}
-
-.p-inputtext {
-  font-size: 1rem;
-}
-</style>
-
 <style scoped>
 #topbar-creator-container {
   height: 100%;
@@ -467,10 +453,6 @@ function processEntityValue(property: PropertyShape) {
   align-items: center;
 }
 
-.p-steps {
-  width: 90%;
-}
-
 .sidebar-container {
   width: 50vw;
   height: 100%;
@@ -478,20 +460,6 @@ function processEntityValue(property: PropertyShape) {
   flex-flow: column nowrap;
   justify-content: flex-start;
   padding-top: 3rem;
-}
-
-.sidebar-header-container {
-  padding: 0.5rem;
-  height: 3rem;
-  flex: 0 0 auto;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.sidebar-header {
-  font-size: 1.5rem;
 }
 
 .sidebar-toggle {
@@ -521,10 +489,6 @@ function processEntityValue(property: PropertyShape) {
   flex-flow: row;
   justify-content: center;
   align-items: center;
-}
-
-.p-steps {
-  padding-top: 1rem;
 }
 
 #creator-footer-bar {

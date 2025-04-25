@@ -99,15 +99,6 @@ function handleCancel() {
   max-width: 30rem;
 }
 
-.code-input {
-  display: flex;
-  flex-flow: column nowrap;
-}
-
-.invalid-text {
-  color: var(--p-red-500);
-}
-
 .buttons-container {
   width: 100%;
   display: flex;

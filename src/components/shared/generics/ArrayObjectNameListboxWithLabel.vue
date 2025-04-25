@@ -106,30 +106,4 @@ function expandAtStartup() {
 .array-listbox {
   margin: 0.5rem 0 0 0;
 }
-
-@keyframes my-fadein {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes my-fadeout {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.my-fadein {
-  animation: my-fadein 150ms linear;
-}
-
-.my-fadeout {
-  animation: my-fadeout 150ms linear;
-}
 </style>

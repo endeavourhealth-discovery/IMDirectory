@@ -43,8 +43,4 @@ const arrayToString = computed(() => {
   margin: 0;
   padding: 0.25rem 0.5rem 0 0;
 }
-
-.break-text {
-  word-break: break-all;
-}
 </style>

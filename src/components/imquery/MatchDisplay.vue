@@ -85,11 +85,6 @@ defineProps<{
   gap: 0.2rem;
 }
 
-.then-title {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-
 .match-display {
   width: 100%;
   height: 100%;
@@ -103,10 +98,6 @@ defineProps<{
 
 .saved-as {
   padding-right: 0.5rem;
-}
-
-.bool-display {
-  align-items: center;
 }
 
 .builder-button {

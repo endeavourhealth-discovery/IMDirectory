@@ -331,20 +331,6 @@ function closeEditor() {
 }
 </script>
 
-<style>
-.p-dropdown-label {
-  font-size: 1rem;
-}
-
-.p-dropdown {
-  height: 2.7rem;
-}
-
-.p-inputtext {
-  font-size: 1rem;
-}
-</style>
-
 <style scoped>
 #topbar-editor-container {
   flex: 1 1 auto;
@@ -404,10 +390,6 @@ function closeEditor() {
   align-items: center;
 }
 
-.placeholder {
-  height: 100%;
-}
-
 .title {
   font-size: 2rem;
   white-space: nowrap;
@@ -459,22 +441,9 @@ function closeEditor() {
   flex: 0 1 auto;
 }
 
-.p-divider {
-  height: calc(100% - 2rem) !important;
-  min-height: unset !important;
-  align-self: center;
-}
-
 .sidebar-toggle {
   position: absolute !important;
   top: 5px;
   right: 5px;
-}
-
-#summary-editor-container {
-  display: flex;
-  flex-flow: column;
-  justify-content: flex-start;
-  align-items: center;
 }
 </style>

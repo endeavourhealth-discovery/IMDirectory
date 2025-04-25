@@ -169,7 +169,7 @@ const onSubmit = async function handleSubmit(): Promise<void> {
   await AuthService.signIn(username.value, password.value)
     .then(async res => {
       if (res.status === 200) {
-        await handle200(res);
+        await handle200();
       } else if (res.status === 403) {
         handle403(res);
       } else {
@@ -221,14 +221,5 @@ const onSubmit = async function handleSubmit(): Promise<void> {
 .icon-header {
   font-size: 5rem;
   margin-top: 1em;
-}
-
-.text-with-button {
-  display: flex;
-  flex-flow: row nowrap;
-}
-
-.p-password:deep(.p-password-input) {
-  width: 100%;
 }
 </style>

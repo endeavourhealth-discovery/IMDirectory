@@ -363,11 +363,6 @@ function stripValidation(build: any) {
   overflow: auto;
 }
 
-#query-build > .nested-div,
-.nested-div-hover {
-  min-width: calc(100% - 1rem);
-}
-
 #build-string-container {
   width: 100%;
   flex: 0 1 auto;
