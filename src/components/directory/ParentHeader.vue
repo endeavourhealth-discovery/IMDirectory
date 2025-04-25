@@ -50,17 +50,17 @@ import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
-interface Props {
+defineProps<{
   entity: any;
   showSelect?: boolean;
-}
-const props = defineProps<Props>();
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  navigateTo: (_payload: string) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+}>();
+
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  navigateTo: [payload: string];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
 
 function getIcon(entity: any) {
   if (entity["@id"] === IM.FAVOURITES) return ["fa-solid", "star"];

@@ -73,7 +73,7 @@ const schema = yup.object({
   password: yup.string().required("Password is required")
 });
 
-const { errors, defineField, handleSubmit } = useForm({ validationSchema: schema });
+const { errors, defineField } = useForm({ validationSchema: schema });
 
 const [username] = defineField("username");
 const [password] = defineField("password");
@@ -84,7 +84,7 @@ onMounted(() => {
   }
 });
 
-async function handle200(res: CustomAlert) {
+async function handle200() {
   authStore.updateRegisteredUsername("");
   Swal.fire({
     icon: "success",

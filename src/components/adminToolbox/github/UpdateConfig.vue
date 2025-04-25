@@ -14,7 +14,7 @@ const loading = ref(false);
 async function updateGithubConfig() {
   loading.value = true;
   await GithubService.updateGithubConfig()
-    .then(res => {
+    .then(() => {
       Swal.fire({
         icon: "success",
         title: "Success",

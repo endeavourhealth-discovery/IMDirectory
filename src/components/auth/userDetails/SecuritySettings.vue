@@ -6,7 +6,7 @@
       <DataView :value="twoFactorMethods" data-key="label">
         <template #header> Two-factor methods </template>
         <template #list="slotProps">
-          <div v-for="(item, index) in slotProps.items" class="col-span-12">
+          <div v-for="(item, index) in slotProps.items" class="col-span-12" v-bind:key="index">
             <div class="two-factor-row">
               <div class="mfa-row-details">
                 <span>{{ item.label }}</span>

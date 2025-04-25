@@ -32,12 +32,10 @@ import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
 import Swal from "sweetalert2";
 import { AuthService } from "@/services";
-import { useUserStore } from "@/stores/userStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const helpDialog = useDialog();
-const userStore = useUserStore();
 
 const styles = getComputedStyle(document.body);
 const primaryColor = styles.getPropertyValue("--primary-color");

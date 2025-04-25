@@ -41,7 +41,6 @@ const authStore = useAuthStore();
 
 const isValidCode = computed(() => /\d{6}/.test(code.value));
 const authReturnPath = computed(() => authStore.authReturnPath);
-const currentUser = computed(() => userStore.currentUser);
 
 const code = ref("");
 const loading = ref(false);
@@ -66,7 +65,7 @@ function showHelpDialog() {
   });
 }
 
-async function handle200(res: CustomAlert) {
+async function handle200() {
   Swal.fire({
     icon: "success",
     title: "Success",

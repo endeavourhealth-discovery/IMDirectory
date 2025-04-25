@@ -30,7 +30,7 @@ import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { AuthService, GithubService, StatusService } from "@/services";
+import { AuthService, GithubService } from "@/services";
 import { fetchAuthSession } from "aws-amplify/auth";
 import axios, { AxiosRequestHeaders, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";

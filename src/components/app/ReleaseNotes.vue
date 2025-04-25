@@ -14,12 +14,19 @@
           </div>
           <div v-else-if="!releases.length"><span>None</span></div>
           <div v-else class="releases-container">
-            <div v-for="release in releases" class="release-container">
+            <div v-for="(release, relIdx) in releases" class="release-container" v-bind:key="relIdx">
               <h1 class="version">{{ release.version }}</h1>
               <p class="publish-date">publish date: {{ release.publishedDate }}</p>
               <div class="release-notes-container">
                 <span v-if="!release.releaseNotes.length">No details</span>
-                <VueShowdown v-else class="showdown-component" v-for="note in release.releaseNotes" :markdown="note" flavor="github" />
+                <VueShowdown
+                  v-else
+                  class="showdown-component"
+                  v-for="(note, noteIdx) in release.releaseNotes"
+                  :markdown="note"
+                  flavor="github"
+                  v-bind:key="noteIdx"
+                />
               </div>
               <Button link as="a" class="github-link" :href="sanitizeUrl(release.url)">{{ release.url }}</Button>
             </div>
@@ -44,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, reactive, nextTick } from "vue";
+import { onMounted, Ref, ref, nextTick } from "vue";
 import { GithubService } from "@/services";
 import { GithubRelease } from "@/interfaces";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";

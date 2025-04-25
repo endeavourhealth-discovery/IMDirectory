@@ -51,13 +51,13 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true,
-  locateInTree: (_payload: string) => true,
-  "update:history": (_payload: string[]) => true,
-  selectedUpdated: (_payload: string) => true,
-  goToSearchResults: () => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+  locateInTree: [payload: string];
+  "update:history": [payload: string[]];
+  selectedUpdated: [payload: string];
+  goToSearchResults: [];
+}>();
 
 watch(
   () => props.selectedIri,

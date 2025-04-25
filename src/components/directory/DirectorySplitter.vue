@@ -52,15 +52,15 @@ import { useLoadingStore } from "@/stores/loadingStore";
 import { FilterOptions } from "@/interfaces";
 import { SearchResponse } from "@/interfaces/AutoGen";
 
-interface Props {
+defineProps<{
   searchTerm: string;
   updateSearch: boolean;
   selectedFilterOptions: FilterOptions;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({ selectedFiltersUpdated: (_payload: FilterOptions) => true });
+const emit = defineEmits<{
+  selectedFiltersUpdated: [payload: FilterOptions];
+}>();
 
 const router = useRouter();
 const loadingStore = useLoadingStore();

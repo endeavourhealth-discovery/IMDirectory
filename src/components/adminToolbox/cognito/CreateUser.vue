@@ -121,9 +121,9 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import AdminService from "@/services/AdminService";
 
-const emit = defineEmits({
-  userCreated: (_payload: User) => true
-});
+defineEmits<{
+  userCreated: [payload: User];
+}>();
 
 const router = useRouter();
 
@@ -195,7 +195,7 @@ const onSubmit = handleSubmit(async () => {
       mfaStatus: []
     } as User;
     AdminService.createUser(user)
-      .then(res => {
+      .then(() => {
         Swal.fire({
           icon: "success",
           title: "Success",

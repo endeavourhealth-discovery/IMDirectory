@@ -7,7 +7,7 @@
       <div v-else class="header-content-container">
         <span class="text">Select entity type:</span>
         <div class="type-buttons-container">
-          <button v-for="option in typeOptions" class="custom-button" @click="typeSelected(option)">
+          <button v-for="(option, idx) in typeOptions" class="custom-button" @click="typeSelected(option)" v-bind:key="idx">
             <span>{{ option.name }}</span>
           </button>
         </div>
@@ -26,7 +26,7 @@ import editorShapes from "@/constants/editorShapes";
 
 interface Props {
   showTypeSelector?: boolean;
-  updateShowTypeSelector: Function;
+  updateShowTypeSelector: (value: boolean) => void;
 }
 const props = withDefaults(defineProps<Props>(), {
   showTypeSelector: false

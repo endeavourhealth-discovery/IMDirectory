@@ -4,7 +4,7 @@ import { TTIriRef, SearchResultSummary, DownloadByQueryOptions } from "@/interfa
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { buildDetails } from "@/helpers/DetailsBuilder";
 import { OrganizationChartNode } from "primevue/organizationchart";
 const API_URL = Env.API + "api/entity";
