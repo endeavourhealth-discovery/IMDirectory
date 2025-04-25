@@ -47,26 +47,24 @@
 
 <script lang="ts" setup>
 import { Match, Where } from "@/interfaces/AutoGen";
-import EditMatch from "./EditMatch.vue";
-import type { MenuItem } from "primevue/menuitem";
 import EditProperty from "./EditProperty.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 
-interface Props {
+defineProps<{
   matchTypeOfIri: string;
   focused: boolean;
   focusedId: string | undefined;
   isBooleanEditor?: boolean;
   parentMatch: Match;
-}
+}>();
 
-const props = defineProps<Props>();
-const editWhere = defineModel<Where>("editWhere", { default: {} });
-const { toggleWhereBool } = setupIMQueryBuilderActions();
 const emit = defineEmits<{
   onEditWhere: [payload: Where];
   onDeleteWhere: [payload: Where];
 }>();
+
+const editWhere = defineModel<Where>("editWhere", { default: {} });
+const { toggleWhereBool } = setupIMQueryBuilderActions();
 
 function edit(where: Where) {
   emit("onEditWhere", where);

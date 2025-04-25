@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, Ref } from "vue";
+import { computed, onMounted, ref, Ref } from "vue";
 import { RDFS, OWL } from "@/vocabulary";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
@@ -48,7 +48,7 @@ onMounted(() => {
 });
 
 function getReportTableData(): void {
-  if (!isCorrectInputData) return;
+  if (!isCorrectInputData.value) return;
   loading.value = true;
   for (const entry of props.inputData!) {
     if (isObjectHasKeys(entry, [RDFS.LABEL, OWL.HAS_VALUE])) {

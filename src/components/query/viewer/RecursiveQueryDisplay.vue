@@ -42,11 +42,10 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Query, Match, DisplayMode } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref } from "vue";
+import { Query, DisplayMode } from "@/interfaces/AutoGen";
+import { ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
-import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 import ReturnColumns from "./ReturnColumns.vue";
 import { QueryService } from "@/services";
 

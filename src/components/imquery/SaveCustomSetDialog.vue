@@ -28,7 +28,7 @@
 
       <div class="flex flex-col gap-2" id="save-set-name">
         <span id="save-set-name-header">Name</span>
-        <InputText id="name" v-model="name" v-bind="nameAttrs" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
+        <InputText id="name" v-model="setName" v-bind="nameAttrs" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
         <small class="p-error" id="text-error">{{ errors.name || "&nbsp;" }}</small>
       </div>
 
@@ -37,7 +37,7 @@
 
         <Select
           id="type"
-          v-model="type"
+          v-model="setType"
           v-bind="typeAttrs"
           type="text"
           :class="{ 'p-invalid': errors.type }"
@@ -65,7 +65,7 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { useForm } from "vee-validate";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { Node, TTIriRef, Match } from "@/interfaces/AutoGen";
-import { EntityService, FilerService, FunctionService, QueryService } from "@/services";
+import { EntityService, FilerService, FunctionService } from "@/services";
 import { IM, RDF, RDFS, IM_FUNCTION } from "@/vocabulary";
 import { useToast } from "primevue/usetoast";
 import * as yup from "yup";
@@ -97,9 +97,9 @@ const { defineField, handleSubmit, resetForm, errors, setFieldValue } = useForm(
 const fullIri: ComputedRef<string> = computed(() => `${scheme.value ?? ""}${iri.value ?? ""}`);
 
 const [scheme, schemeAttrs] = defineField("scheme");
-const [iri, iriAttrs] = defineField("iri");
-const [name, nameAttrs] = defineField("name");
-const [type, typeAttrs] = defineField("type");
+const [iri] = defineField("iri");
+const [setName, nameAttrs] = defineField("name");
+const [setType, typeAttrs] = defineField("type");
 
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
@@ -112,7 +112,7 @@ watch(
 );
 
 watch(
-  () => name.value,
+  () => setName.value,
   () => onNameGenIri()
 );
 
@@ -147,8 +147,8 @@ async function getSchemeOptions(): Promise<TTIriRef[]> {
 }
 
 function onNameGenIri() {
-  if (name.value && name.value) {
-    const nameValue: string = name.value;
+  if (setName.value && setName.value) {
+    const nameValue: string = setName.value;
     setFieldValue("iri", nameValue.replaceAll(" ", ""));
   }
 }
@@ -183,7 +183,7 @@ function onDiscard() {
 }
 
 function getIsContainedIn() {
-  switch (type.value) {
+  switch (setType.value) {
     case IM.CONCEPT_SET:
       return IM.FOLDER_QUERY_CONCEPT_SETS;
     case IM.VALUE_SET:
@@ -212,8 +212,8 @@ function getDefinition() {
 function buildSetEntity() {
   const setEntity = {} as any;
   setEntity["@id"] = fullIri.value;
-  setEntity[RDFS.LABEL] = name.value;
-  setEntity[RDF.TYPE] = [{ "@id": type.value }];
+  setEntity[RDFS.LABEL] = setName.value;
+  setEntity[RDF.TYPE] = [{ "@id": setType.value }];
   setEntity[IM.HAS_STATUS] = [{ "@id": IM.DRAFT }];
   setEntity[IM.HAS_SCHEME] = [{ "@id": scheme.value }];
   setEntity[IM.IS_CONTAINED_IN] = [{ "@id": getIsContainedIn() }];

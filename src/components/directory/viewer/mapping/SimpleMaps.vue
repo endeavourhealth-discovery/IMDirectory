@@ -50,16 +50,14 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import { SimpleMap } from "@/interfaces";
 
-interface Props {
+defineProps<{
   data: [];
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  toggleOverlay: (event: any, data: SimpleMap) => true,
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  toggleOverlay: [event: any, data: SimpleMap];
+  navigateTo: [payload: string];
+}>();
 
 const loading = ref(false);
 const scrollHeight = ref("500px");

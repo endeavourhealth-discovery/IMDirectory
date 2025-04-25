@@ -56,16 +56,14 @@ import { PropertyShape, TTIriRef, PropertyRange } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
   entityName: string;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 watch(
   () => props.entityIri,
@@ -82,7 +80,7 @@ onMounted(async () => {
 
 async function getDataModel(iri: string) {
   loading.value = true;
-  const children = await getDataModelPropertiesDisplay(iri, "0", null);
+  const children = await getDataModelPropertiesDisplay(iri, "0");
   data.value.push({ key: "0", label: props.entityName ?? iri, children: children, type: "root", data: { iri: iri } } as TreeNode);
   await onNodeExpand(data.value[0]);
   if (data.value[0].key) expandedKeys.value = { [data.value[0].key]: true };
@@ -95,7 +93,7 @@ async function onNodeExpand(node: TreeNode) {
       for (const child of node.children) {
         if (child.children && !child.children.length) {
           child.loading = true;
-          const children = await getDataModelPropertiesDisplay(child.data.iri, child.key!, props.entityIri);
+          const children = await getDataModelPropertiesDisplay(child.data.iri, child.key!);
           if (children.length) child.children = children;
           child.loading = false;
         }
@@ -277,7 +275,7 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
   }
 }
 
-async function getDataModelPropertiesDisplay(iri: string, parentKey: string, parent: null | string): Promise<TreeNode[]> {
+async function getDataModelPropertiesDisplay(iri: string, parentKey: string): Promise<TreeNode[]> {
   const entity = await DataModelService.getDataModelProperties(iri);
   const propertyList = [] as TreeNode[];
   if (entity.property && isArrayHasLength(entity.property)) {

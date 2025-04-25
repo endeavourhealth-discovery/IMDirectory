@@ -111,7 +111,7 @@ import { cloneDeep } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { DownloadByQueryOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest, Query } from "@/interfaces/AutoGen";
+import { DownloadByQueryOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest } from "@/interfaces/AutoGen";
 import { DownloadSettings, ExtendedSearchResultSummary, Namespace, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions } from "@/interfaces";
@@ -131,14 +131,14 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  rowSelected: (_payload: SearchResultSummary) => true,
-  locateInTree: (_payload: string) => true,
-  "update:loading": _payload => true,
-  searchResultsUpdated: (_payload: SearchResponse | undefined) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+const emit = defineEmits<{
+  rowSelected: [payload: SearchResultSummary];
+  locateInTree: [payload: string];
+  "update:loading": [loading: boolean];
+  searchResultsUpdated: [payload: SearchResponse | undefined];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
 
 onMounted(async () => {
   schemesWithPrefixes.value = await EntityService.getSchemes();
@@ -186,9 +186,6 @@ const rClickOptions: Ref<any[]> = ref([
     command: () => updateFavourites()
   }
 ]);
-const delay = ref(200);
-const clicks = ref(0);
-const timer: Ref<NodeJS.Timeout> = ref({} as NodeJS.Timeout);
 const showDownloadOptions = ref(false);
 
 const { OS, showOverlay, hideOverlay } = setupOverlay();

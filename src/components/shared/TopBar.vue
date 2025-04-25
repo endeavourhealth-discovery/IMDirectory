@@ -30,35 +30,37 @@
           <h2>Primary</h2>
           <div class="color-picker">
             <Button
-              v-for="color in themeOptions.primaryColours"
+              v-for="(color, index) in themeOptions.primaryColours"
               rounded
               class="round-button border-none"
               :class="selectedPrimaryColor === color && 'selected-primary'"
               :style="'background-color:var(--p-' + color + '-500)'"
               v-tooltip="color"
               @click="
-                {
+                () => {
                   selectedPrimaryColor = color;
                   changePrimaryColor(color);
                 }
               "
+              v-bind:key="index"
             />
           </div>
           <h2>Surface</h2>
           <div class="color-picker">
             <Button
-              v-for="color in themeOptions.surfaceColours"
+              v-for="(color, index) in themeOptions.surfaceColours"
               rounded
               class="round-button border-none"
               :class="selectedSurfaceColor === color && 'selected-surface'"
               :style="'background-color:var(--p-' + color + '-500)'"
               v-tooltip="color"
               @click="
-                {
+                () => {
                   selectedSurfaceColor = color;
                   changeSurfaceColor(color);
                 }
               "
+              v-bind:key="index"
             />
           </div>
           <h2>Presets</h2>
@@ -103,7 +105,7 @@
       />
       <Popover ref="appsOP" class="app-overlay-panel" id="apps-menu">
         <div class="flex flex-row flex-wrap justify-start gap-2">
-          <template v-for="item in appItems">
+          <template v-for="(item, index) in appItems" v-bind:key="index">
             <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" :visible="item.visible" />
           </template>
         </div>
@@ -165,13 +167,11 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, Env, FilerService, GithubService, UserService, CodeGenService } from "@/services";
+import { DirectService, FilerService, GithubService, CodeGenService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
-import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import setupChangeScale from "@/composables/setupChangeScale";
 import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
@@ -179,9 +179,7 @@ import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 
 const router = useRouter();
-const authStore = useAuthStore();
 const userStore = useUserStore();
-const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -199,11 +197,10 @@ const showCodeDownload = ref(false);
 const namespace = ref();
 const templates: Ref<string[]> = ref([]);
 const template = ref();
-const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
 const uploadDownloadItems: Ref<MenuItem[]> = ref([]);
-const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number; visible?: boolean }[]> = ref([]);
+const appItems: Ref<{ icon: string; command?: () => void; url?: string; label: string; color: string; size: number; visible?: boolean }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: PrimeVueColors[]; presets: PrimeVuePresetThemes[] }> = ref({
   primaryColours: [
@@ -267,10 +264,6 @@ async function getCurrentVersion() {
 
 function toLandingPage() {
   router.push("/");
-}
-
-function open(item: { icon: string; command: Function; label: string }) {
-  item.command();
 }
 
 function getItems(): MenuItem[] {
@@ -447,6 +440,7 @@ async function downloadChanges() {
     link.href = url;
     link.download = "deltas.zip";
     link.click();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
     toast.add({ severity: "error", summary: "Download failed", detail: "File location not found, unable to download deltas", life: 3000 });
   }

@@ -30,18 +30,16 @@ import { onMounted, ref, Ref, watch, computed } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import { TTIriRef } from "@/interfaces/AutoGen";
-import { useSharedStore } from "@/stores/sharedStore";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
   history: string[];
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true,
-  "update:history": (_payload: string[]) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+  "update:history": [payload: string[]];
+}>();
 
 const canGoBack = computed(() => props.history.length && props.history.indexOf(props.entityIri) !== 0);
 const canGoForward = computed(() => props.history.length && props.history.indexOf(props.entityIri) < props.history.length - 1);

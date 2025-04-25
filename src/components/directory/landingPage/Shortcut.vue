@@ -31,13 +31,13 @@ interface Props {
   icon: string | string[];
   label: string;
   url?: string;
-  command?: Function;
+  command?: () => void;
   color: string;
   size: number;
   newTab?: boolean;
   visible?: boolean;
 }
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   newTab: false,
   visible: true
 });

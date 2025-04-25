@@ -6,13 +6,15 @@ const localStorageWithExpiry = {
     if (lsItem) {
       try {
         const result = JSON.parse(lsItem);
-        if ((isObjectHasKeys(result), ["data", "expireTime"])) {
+        if (isObjectHasKeys(result, ["data", "expireTime"])) {
           if (result.expireTime <= Date.now()) {
             window.localStorage.removeItem(key);
             return null;
           }
           return result.data;
         }
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         window.localStorage.removeItem(key);
       }

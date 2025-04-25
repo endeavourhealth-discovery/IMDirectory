@@ -1,5 +1,5 @@
 import { CreateComponentPublicInstance } from "vue";
-import { RouteLocationNormalizedLoaded, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
+import { RouteLocationNormalizedLoaded, Router, useRoute, useRouter } from "vue-router";
 import { RecentActivityItem } from "@/interfaces";
 import Env from "./Env";
 import { useUserStore } from "@/stores/userStore";

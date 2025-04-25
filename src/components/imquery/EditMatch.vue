@@ -144,7 +144,6 @@
 import { Bool, DisplayMode, Match, Query, SearchResultSummary, Where } from "@/interfaces/AutoGen";
 import EditWhere from "./EditWhere.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
-import type { MenuItem } from "primevue/menuitem";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import EditOrderBy from "./EditOrderBy.vue";
 import { cloneDeep } from "lodash-es";
@@ -167,14 +166,13 @@ const emit = defineEmits({
   ungroupMatches: (payload: Match) => payload
 });
 const hover: Ref<boolean> = ref(false);
-const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
+const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
 const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;
 const fullQuery = inject("fullQuery") as Ref<Match | undefined>;
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
-const showBuildThenFeature: Ref<boolean> = ref(false);
 const editMatch = ref(cloneDeep(props.match));
 onMounted(() => {
   if (fullQuery.value) typeOf.value = fullQuery.value!.typeOf!["@id"]!;

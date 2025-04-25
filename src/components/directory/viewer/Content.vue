@@ -72,20 +72,17 @@ import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
-const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
@@ -140,7 +137,9 @@ async function init() {
       command: () => updateFavourites(selected.value["@id"])
     });
   }
-  !conceptIsFavourite.value ? await getChildren(props.entityIri) : await getFavourites();
+  if (conceptIsFavourite.value) await getChildren(props.entityIri);
+  else await getFavourites();
+
   loading.value = false;
 }
 

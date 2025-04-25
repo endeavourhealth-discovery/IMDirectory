@@ -95,39 +95,33 @@
 </template>
 
 <script lang="ts" setup>
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
-import { DisplayMode, Match, TTIriRef } from "@/interfaces/AutoGen";
-import { computed, inject, onMounted, Ref, ref, watch } from "vue";
+import { Match, TTIriRef } from "@/interfaces/AutoGen";
+import { computed, onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import MatchDisplay from "./MatchDisplay.vue";
 import EditMatch from "./EditMatch.vue";
 import type { MenuItem } from "primevue/menuitem";
-import { EntityService, QueryService } from "@/services";
+import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
 
-interface Props {
+const props = defineProps<{
   index?: number;
   match: Match;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  "update:showDialog": payload => typeof payload === "boolean",
-  saveChanges: (payload: Match) => payload
-});
-const keepAsVariable: Ref<string> = ref("");
-const showBuildFeature: Ref<boolean> = ref(false);
+const emit = defineEmits<{
+  "update:showDialog": [payload: string];
+  saveChanges: [payload: Match];
+}>();
 const showBuildThenFeature: Ref<boolean> = ref(false);
-const keepAsEdit: Ref<boolean> = ref(false);
 const focusedEditMatch: Ref<Match | undefined> = ref();
 const focusedEditMatchString: Ref<string> = ref("");
 const visible = defineModel<boolean>("showDialog");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(focusedEditMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
-const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const templates: Ref<any> = ref();
 const loading = ref(true);
 const editMatch: Ref<Match> = ref(cloneDeep(props.match));
@@ -210,32 +204,6 @@ function onSave() {
 function onCancel() {
   init();
   visible.value = false;
-}
-
-function onMatchAdd(match: Match) {
-  if (!editMatch.value) editMatch.value = {};
-  if (!editMatch.value.match?.length) editMatch.value.match = [];
-  editMatch.value.match.push(match);
-}
-
-function saveVariable() {
-  udpateVariableMap();
-  if (focusedEditMatch.value) focusedEditMatch.value.variable = keepAsVariable.value;
-  keepAsEdit.value = false;
-}
-
-function deleteVariable() {
-  if (focusedEditMatch.value?.variable) {
-    delete variableMap.value[focusedEditMatch.value.variable];
-    delete focusedEditMatch.value.variable;
-  }
-  keepAsVariable.value = "";
-  keepAsEdit.value = false;
-}
-
-function udpateVariableMap() {
-  if (focusedEditMatch.value?.variable) delete variableMap.value[focusedEditMatch.value.variable];
-  variableMap.value[keepAsVariable.value] = focusedEditMatch.value;
 }
 
 function onAddFunctionProperty(property: string, value: any) {

@@ -35,14 +35,14 @@ import { EntityService } from "@/services";
 import type { TreeNode } from "primevue/treenode";
 import { useToast } from "primevue/usetoast";
 
-interface Props {
+const props = defineProps<{
   quantifier?: TTIriRef;
   isAs: string[];
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({ treeNodeSelected: (_payload: TTIriRef) => true });
+const emit = defineEmits<{
+  treeNodeSelected: [payload: TTIriRef];
+}>();
 
 const toast = useToast();
 

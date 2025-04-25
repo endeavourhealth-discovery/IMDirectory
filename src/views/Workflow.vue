@@ -26,7 +26,7 @@ import { ref, onMounted, Ref, computed } from "vue";
 import SideBar from "@/components/workflow/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import WorkflowService from "@/services/WorkflowService";
-import { Task, WorkflowResponse } from "@/interfaces/AutoGen";
+import { Task /*, WorkflowResponse */ } from "@/interfaces/AutoGen";
 import { useLoadingStore } from "@/stores/loadingStore";
 
 const loadingStore = useLoadingStore();
@@ -34,10 +34,10 @@ const workflowLoading = computed(() => loadingStore.workflowLoading);
 
 const showInfo = ref(false);
 const selectedConceptIri = ref("");
-const myWorkflows: Ref<WorkflowResponse | undefined> = ref();
-const unassignedTasks: Ref<WorkflowResponse | undefined> = ref();
+//const myWorkflows: Ref<WorkflowResponse | undefined> = ref();
+//const unassignedTasks: Ref<WorkflowResponse | undefined> = ref();
 const task: Ref<Task | undefined> = ref();
-const assignedWorkflows: Ref<Task[]> = ref([]);
+//const assignedWorkflows: Ref<Task[]> = ref([]);
 
 onMounted(async () => {
   // myWorkflows.value = await WorkflowService.getTasksByCreatedBy();
@@ -57,9 +57,11 @@ function showDetails(selectedIri: string) {
   showInfo.value = true;
 }
 
+/*
 function hideDetails() {
   showInfo.value = false;
 }
+*/
 </script>
 
 <style scoped lang="scss">

@@ -63,14 +63,13 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const loading = ref(false);
 const graph: Ref<OrganizationChartNode> = ref({} as OrganizationChartNode);

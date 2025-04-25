@@ -12,7 +12,7 @@
         @mouseover="mouseover($event, true)"
       >
         <table data-testid="property-builder">
-          <template v-for="(row, index) in dmProperties">
+          <template v-for="(row, index) in dmProperties" v-bind:key="index">
             <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
                 <AutocompleteSearchBar
@@ -70,7 +70,7 @@
                     class="p-button-danger"
                     icon="fa-solid fa-trash"
                     severity="danger"
-                    @click="deleteProperty(index, row)"
+                    @click="deleteProperty(index)"
                     data-testid="delete-property-button"
                   />
                 </span>
@@ -99,7 +99,7 @@
               data-testid="create-new-property-button"
             />
           </tr>
-          <template v-for="(row, index) in dmPropertiesInherited" class="property">
+          <template v-for="(row, index) in dmPropertiesInherited" v-bind:key="index">
             <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
                 <AutocompleteSearchBar
@@ -135,18 +135,16 @@
 </template>
 
 <script lang="ts" setup>
-import { Property, RecentActivityItem, SearchOptions } from "@/interfaces";
+import { Property } from "@/interfaces";
 import { PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
-import { EditorMode, ToastSeverity } from "@/enums";
+import { EditorMode } from "@/enums";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL, SNOMED, XSD } from "@/vocabulary";
-import { DirectService, EntityService, QueryService } from "@/services";
-import { useToast } from "primevue/usetoast";
+import { DirectService, EntityService } from "@/services";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 interface Props {
@@ -166,18 +164,16 @@ interface SimpleProp {
   error: string | undefined;
 }
 
-const toast = useToast();
 const props = defineProps<Props>();
 const directService = new DirectService();
 
 const showValidation = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
-const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -282,7 +278,6 @@ function mouseout(event: Event) {
 function processProps() {
   const newData: any[] = [];
   const newInheritedData: any[] = [];
-  const newSearchData: any[] = [];
   if (props.value && isArrayHasLength(props.value)) {
     for (const p of props.value) {
       processProperty(newData, newInheritedData, p);
@@ -389,7 +384,7 @@ function addProperty() {
   update();
 }
 
-function deleteProperty(index: number, row: any) {
+function deleteProperty(index: number) {
   if (index >= 0 && index < dmProperties.value.length) {
     const newData = [];
     newData.push(...dmProperties.value);
@@ -426,64 +421,6 @@ function moveDown(index: number) {
   }
 }
 
-// Path functions
-
-async function pathDrop(object: any, event: DragEvent) {
-  if (event.dataTransfer) {
-    const data = event.dataTransfer.getData("conceptIri");
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidPath(conceptIri)) {
-      object.path = { "@id": conceptIri, name: conceptName } as TTIriRef;
-      await update();
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set path",
-        detail: "'" + conceptName + "' is not a valid property path",
-        life: 3000
-      });
-    }
-  }
-}
-
-async function isValidPath(iri: string): Promise<boolean> {
-  const filterOptions: SearchOptions = {
-    textSearch: iri,
-    isA: [{ "@id": RDF.PROPERTY }],
-    page: { pageNumber: 1, pageSize: 1 }
-  } as SearchOptions;
-  const imQuery = buildIMQueryFromFilters(filterOptions);
-  const results = await QueryService.queryIMSearch(imQuery);
-
-  if (results.entities) return results.entities.length > 0;
-  return false;
-}
-
-// Range functions
-
-async function rangeDrop(object: any, event: DragEvent) {
-  if (event.dataTransfer) {
-    const data = event.dataTransfer.getData("conceptIri");
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidRange(conceptIri)) {
-      object.range = { "@id": conceptIri, name: conceptName } as TTIriRef;
-      object.rangeType = await getRangeType(conceptIri);
-      await update();
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set range",
-        detail: "'" + conceptName + "' is not a valid property range",
-        life: 3000
-      });
-    }
-  }
-}
-
 async function getRangeType(iri: string) {
   const partial = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
   const types: TTIriRef[] = partial?.[RDF.TYPE];
@@ -493,19 +430,6 @@ async function getRangeType(iri: string) {
     else if (types.some(t => t["@id"] == RDFS.DATATYPE)) return SHACL.DATATYPE;
     else return SHACL.NODE;
   }
-}
-
-async function isValidRange(iri: string): Promise<boolean> {
-  const filterOptions: SearchOptions = {
-    textSearch: iri,
-    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
-    page: { pageNumber: 1, pageSize: 1 }
-  } as SearchOptions;
-  const imQuery = buildIMQueryFromFilters(filterOptions);
-  const results = await QueryService.queryIMSearch(imQuery);
-
-  if (results.entities) return results.entities.length > 0;
-  return false;
 }
 
 // Update/validation

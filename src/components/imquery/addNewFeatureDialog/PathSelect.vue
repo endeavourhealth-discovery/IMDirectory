@@ -19,7 +19,7 @@
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { toTitleCase } from "@/helpers/StringManipulators";
 import { getNameFromIri } from "@/helpers/TTTransform";
-import { Match, TTIriRef } from "@/interfaces/AutoGen";
+import { Match } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import { ref, watch } from "vue";
 import { Ref } from "vue";

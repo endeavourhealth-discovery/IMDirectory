@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Match, Node, Path, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
+import { Match, Node, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
 import { Ref, ref, watch } from "vue";
 import MatchTypeSelector from "./MatchTypeSelector.vue";
 import { TreeNode } from "primevue/treenode";
@@ -46,7 +46,7 @@ const emit = defineEmits<{
 
 watch(
   selectedCohort,
-  (newValue, oldValue) => {
+  newValue => {
     const match = {
       typeOf: props.baseType,
       instanceOf: [{ "@id": newValue?.iri, name: newValue?.name, memberOf: true }]

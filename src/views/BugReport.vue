@@ -213,10 +213,13 @@ async function onSubmit() {
     const bugReport = {} as BugReport;
     bugReport.product = selectedProduct.value;
     if (selectedModule.value) bugReport.module = selectedModule.value;
+
     if (selectedOS.value) bugReport.os = selectedOS.value;
-    else if (selectedOS.value && selectedOS.value === OperatingSystem.OTHER) bugReport.osOther = osOther.value;
+    if (selectedOS.value && selectedOS.value === OperatingSystem.OTHER) bugReport.osOther = osOther.value;
+
     if (selectedBrowser.value) bugReport.browser = selectedBrowser.value;
-    else if (selectedBrowser.value && selectedBrowser.value === Browser.OTHER) bugReport.browserOther = browserOther.value;
+    if (selectedBrowser.value && selectedBrowser.value === Browser.OTHER) bugReport.browserOther = browserOther.value;
+
     bugReport.status = Status.NEW;
     bugReport.description = description.value;
     bugReport.reproduceSteps = stepsToReproduce.value;

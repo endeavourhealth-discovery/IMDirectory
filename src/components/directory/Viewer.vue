@@ -154,8 +154,6 @@ import { isConcept, isDataSet, isFeature, isFolder, isOfTypes, isProperty, isQue
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";
-
-import { useRouter } from "vue-router";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
 
@@ -165,11 +163,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
-const router = useRouter();
 const directService = new DirectService();
 
 const loading = ref(true);

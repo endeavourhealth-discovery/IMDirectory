@@ -94,15 +94,14 @@ import { PropertyDisplay } from "@/interfaces";
 import { DataModelService, DirectService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
   entityName: string;
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const directService = new DirectService();
 

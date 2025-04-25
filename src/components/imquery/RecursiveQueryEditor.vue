@@ -42,21 +42,18 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Query, Match, DisplayMode } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref } from "vue";
+import { Query, DisplayMode } from "@/interfaces/AutoGen";
+import { ref } from "vue";
 import RecursiveWhereEditor from "./RecursiveWhereEditor.vue";
 import RecursiveMatchEditor from "./RecursiveMatchEditor.vue";
-import RecursiveReturnEditor from "./RecursiveReturnEditor.vue";
 import ReturnColumns from "./ReturnColumns.vue";
 import { QueryService } from "@/services";
 
-interface Props {
+const props = defineProps<{
   query: Query;
   matchExpanded: boolean;
   returnExpanded: boolean;
-}
-
-const props = defineProps<Props>();
+}>();
 const matchExpand = ref(props.matchExpanded);
 const loading = ref(false);
 

@@ -70,8 +70,6 @@
 
 <script lang="ts">
 import BoolGroup from "./builder/BoolGroup.vue";
-import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
-import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
 import { deferred } from "@/helpers";
@@ -79,7 +77,7 @@ import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 export default defineComponent({
-  components: { BoolGroup, ExpressionConstraint, Refinement }
+  components: { BoolGroup }
 });
 </script>
 

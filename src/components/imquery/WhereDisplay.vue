@@ -6,7 +6,7 @@
       <div v-if="where.where.length > 1" class="vertical-button-container">
         <Button text class="builder-button conjunction-button vertical-button" :label="where.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled />
       </div>
-      <div class="where-list"><WhereDisplay v-for="nestedWhere in where.where" :where="nestedWhere" /></div>
+      <div class="where-list"><WhereDisplay v-for="(nestedWhere, index) in where.where" :where="nestedWhere" v-bind:key="index" /></div>
     </div>
     <div class="property-description" v-html="where?.description"></div>
   </div>
@@ -16,11 +16,10 @@
 import { Where } from "@/interfaces/AutoGen";
 import MatchDisplay from "./MatchDisplay.vue";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
-interface Props {
+defineProps<{
   where: Where;
-}
-const props = defineProps<Props>();
-const { toggleWhereBool } = setupIMQueryBuilderActions();
+}>();
+setupIMQueryBuilderActions();
 </script>
 
 <style scoped>

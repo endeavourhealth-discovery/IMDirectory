@@ -11,7 +11,7 @@ interface Props {
   show?: { up: boolean; down: boolean };
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   show: { up: true, down: true } as any
 });
 
@@ -20,7 +20,7 @@ const emit = defineEmits({
   moveDownClicked: () => true
 });
 
-function moveUpClicked(event: any) {
+function moveUpClicked() {
   emit("moveUpClicked");
 }
 

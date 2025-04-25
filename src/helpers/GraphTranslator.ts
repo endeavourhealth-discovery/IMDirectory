@@ -64,7 +64,7 @@ function getNameFromIri(iri: string): string {
 }
 
 function addMaps(firstNode: TTGraphData, entity: any, key: string) {
-  let preNode = {
+  const preNode = {
     name: "middle-node-" + key,
     iri: "",
     relToParent: "mapped to",
@@ -129,7 +129,7 @@ function addProperties(firstNode: TTGraphData, entity: any, key: string) {
 function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: any) {
   entity[key].forEach((nested: any) => {
     const groupID = nested[IM.GROUP_NUMBER];
-    let preNode = {
+    const preNode = {
       name: "middle-node-" + groupID,
       iri: "",
       relToParent: "Group Number " + groupID,
@@ -150,7 +150,7 @@ function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: 
 }
 
 function addArray(firstNode: TTGraphData, entity: any, key: string, predicates: any) {
-  let preNode = {
+  const preNode = {
     name: "middle-node-" + key,
     iri: "",
     relToParent: predicates[key],
@@ -161,10 +161,10 @@ function addArray(firstNode: TTGraphData, entity: any, key: string, predicates: 
     if (entity[key].length > 1) {
       if (isObjectHasKeys(nested)) {
         addChild(
-            preNode,
-            nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"]),
-            nested["@id"],
-            nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"])
+          preNode,
+          nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"]),
+          nested["@id"],
+          nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"])
         );
       } else {
         addChild(preNode, nested, "", nested);

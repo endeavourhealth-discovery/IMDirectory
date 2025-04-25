@@ -53,7 +53,7 @@ const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const fullQuery = inject("fullQuery") as Ref<Query>;
 const { getTypeOfMatch } = setupIMQueryBuilderActions();
 
-const emit = defineEmits({ "update:propertyRef": payload => true });
+const emit = defineEmits<{ "update:propertyRef": [treeData: any] }>();
 
 onMounted(async () => {
   await initValues();

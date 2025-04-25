@@ -14,6 +14,7 @@ function setupCopyToClipboard(valueToCopy?: Ref<string>, onCopyMessage?: string,
     try {
       navigator.clipboard.writeText(JSON.stringify(object));
       onCopy();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       onCopyError();
     }

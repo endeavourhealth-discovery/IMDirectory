@@ -43,20 +43,24 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { DataModelService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 import { cloneDeep } from "lodash-es";
 import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 
-interface Props {
-  dataModelIri: string;
-  showDelete?: boolean;
-  editMatch: Match;
-}
+const props = withDefaults(
+  defineProps<{
+    dataModelIri: string;
+    showDelete?: boolean;
+    editMatch: Match;
+  }>(),
+  { showDelete: true }
+);
 
-const props = withDefaults(defineProps<Props>(), { showDelete: true });
+defineEmits<{
+  deleteProperty: [];
+}>();
+
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
-const emit = defineEmits({ deleteProperty: () => true });
 const loading = ref(true);
 const property = defineModel<Where>("property", { default: {} });
 const dropdown = ref();

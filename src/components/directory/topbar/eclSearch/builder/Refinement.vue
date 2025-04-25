@@ -94,7 +94,7 @@ interface Props {
     operator: string;
     property: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
     value: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
-    validation?: { deferred: { promise: Promise<any>; reject: Function; resolve: Function }; valid: boolean };
+    validation?: { deferred: { promise: Promise<any>; reject: () => void; resolve: () => void }; valid: boolean };
     id?: string;
   };
   parent?: any;
@@ -110,7 +110,7 @@ const propertyRanges: Ref<Set<string>> = ref(new Set<string>());
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const childLoadingState = inject("childLoadingState") as Ref<any>;
-const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const selectedProperty: Ref<SearchResultSummary | undefined> = ref();
 const selectedValue: Ref<SearchResultSummary | undefined> = ref();
 const loadingProperty = ref(true);
@@ -182,7 +182,7 @@ watch(forceValidation, async () => {
   if (props.value.validation) {
     if (isValidProperty.value && isValidPropertyValue.value) props.value.validation.valid = true;
     else props.value.validation.valid = false;
-    props.value.validation.deferred.resolve("resolved");
+    props.value.validation.deferred.resolve();
   }
 });
 
@@ -225,7 +225,7 @@ onMounted(async () => {
   updateQueryForPropertySearch();
   loadingProperty.value = false;
   loadingValue.value = false;
-  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
+  if (props.value.id && Object.hasOwn(childLoadingState.value, props.value.id)) childLoadingState.value[props.value.id] = true;
 });
 
 function updateQueryForValueSearch() {

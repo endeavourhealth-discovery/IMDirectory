@@ -55,7 +55,7 @@ import UprnService from "@/services/UprnService";
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
 import { UprnSearchResponse } from "@/interfaces";
-import { isArrayHasLength, isObjectHasKeys, isObject } from "@/helpers/DataTypeCheckers";
+import { isObject } from "@/helpers/DataTypeCheckers";
 
 const toast = useToast();
 

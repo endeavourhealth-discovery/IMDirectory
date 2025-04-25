@@ -44,14 +44,13 @@ import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisua
 import setupOverlay from "@/composables/setupOverlay";
 import { DirectService } from "@/services";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const directService = new DirectService();
 

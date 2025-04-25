@@ -128,11 +128,11 @@ const props = withDefaults(defineProps<Props>(), {
   showSubsumedBy: true
 });
 
-const emit = defineEmits({
-  closeDialog: () => true,
-  download: (_payload: DownloadSettings) => true,
-  downloadIMV1: (_payload: DownloadSettings) => true
-});
+const emit = defineEmits<{
+  closeDialog: [];
+  download: [downloadSettings: DownloadSettings];
+  downloadIMV1: [downloadSettings: DownloadSettings];
+}>();
 
 const filterStore = useFilterStore();
 const filterOptions = computed(() => filterStore.filterOptions);
@@ -171,7 +171,7 @@ watch(
 
 watch(selectedContents, () => {
   if (contentOptions.value.length !== 0 && selectedFormat.value !== "IMv1") {
-    contentOptions.value[1].disabled = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
+    contentOptions.value[1].disabled = selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx";
     isCoreSelected();
     isLegacySelected();
   }

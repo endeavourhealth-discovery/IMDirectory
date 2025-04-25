@@ -8,7 +8,7 @@ import { TTIriRef } from "@/interfaces/AutoGen";
 import { EditorMode } from "@/enums";
 import { isEqual } from "lodash-es";
 
-export function setupEditorEntity(mode: EditorMode, updateType: Function) {
+export function setupEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]) => void) {
   const editorStore = useEditorStore();
   const creatorStore = useCreatorStore();
   const editorEntityOriginal: Ref<any> = ref({});
@@ -17,7 +17,6 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
 
   const editorIri = computed(() => editorStore.editorIri).value;
   const editorSavedEntity = computed(() => editorStore.editorSavedEntity).value;
-  const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
   const hasType = computed<boolean>(() => {
     return isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]);
   });

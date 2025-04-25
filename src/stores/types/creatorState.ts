@@ -1,4 +1,4 @@
 export interface CreatorState {
-    creatorSavedEntity: any;
-    creatorHasChanges: boolean;
+  creatorSavedEntity: any;
+  creatorHasChanges: boolean;
 }

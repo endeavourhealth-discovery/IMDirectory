@@ -51,15 +51,16 @@ import { IM, SHACL } from "@/vocabulary";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { isArray } from "lodash-es";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
+const emit = defineEmits<{
+  onOpenTab: [payload: string];
+  navigateTo: [payload: string];
+}>();
 
 const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
-const OS: Ref<any> = ref();
 const definition: Ref<any> = ref();
 const expandedKeys: Ref<any> = ref({});
 const selectedKeys: Ref<any> = ref({});

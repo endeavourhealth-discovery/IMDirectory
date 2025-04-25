@@ -54,15 +54,13 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { byKey } from "@/helpers/Sorters";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@/vocabulary";
-import { useRouter } from "vue-router";
 import type { TreeNode } from "primevue/treenode";
 import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
-import { SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
+import { TTIriRef } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { cloneDeep } from "lodash-es";
 
 interface Props {
@@ -80,48 +78,27 @@ const props = withDefaults(defineProps<Props>(), {
   allowDragAndDrop: false
 });
 
-const emit = defineEmits({
-  rowSelected: payload => true,
-  rowDblClicked: payload => true,
-  foundInTree: () => true
-});
+const emit = defineEmits<{
+  rowSelected: [row: any];
+  rowDblClicked: [];
+  foundInTree: [];
+}>();
 
-const router = useRouter();
 const toast = useToast();
-const confirm = useConfirm();
+const confirmDlg = useConfirm();
 const userStore = useUserStore();
-const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const favourites = computed(() => userStore.favourites);
 
-const {
-  root,
-  selectedKeys,
-  selectedNode,
-  expandedKeys,
-  expandedData,
-  pageSize,
-  createTreeNode,
-  createLoadMoreNode,
-  loadMore,
-  loadMoreChildren,
-  locateChildInLoadMore,
-  onNodeExpand,
-  onNodeCollapse,
-  findPathToNode,
-  scrollToHighlighted,
-  selectAndExpand,
-  nodeHasChild,
-  customOnClick
-} = setupTree(emit, 50);
-const { getCreateOptions }: { getCreateOptions: Function } = createNew();
+const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
+  setupTree(emit, 50);
+const { getCreateOptions }: { getCreateOptions: (newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode) => Promise<any[]> } = createNew();
 const loading = ref(true);
-const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const overlayLocation: Ref<MouseEvent | undefined> = ref();
 const items: Ref<any[]> = ref([]);
-const newFolder: Ref<null | TreeNode> = ref(null);
+const newFolder: Ref<TreeNode | null> = ref(null);
 const newFolderName = ref("");
 
 const creating = ref(false);
@@ -257,7 +234,7 @@ async function onNodeContext(event: any, node: any) {
 
 function confirmMove(node: TreeNode) {
   if (selectedNode.value && isObjectHasKeys(selectedNode.value)) {
-    confirm.require({
+    confirmDlg.require({
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
       icon: "fa-solid fa-triangle-exclamation",
@@ -300,7 +277,7 @@ async function moveConcept(target: TreeNode) {
 
 function confirmAdd(node: TreeNode) {
   if (selectedNode.value && isObjectHasKeys(selectedNode.value)) {
-    confirm.require({
+    confirmDlg.require({
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
       icon: "fa-solid fa-triangle-exclamation",
@@ -368,6 +345,7 @@ async function createFolder() {
         )
       );
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     toast.add({
       severity: "error",

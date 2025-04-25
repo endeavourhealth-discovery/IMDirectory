@@ -35,12 +35,14 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({
-  onClose: () => true,
-  onPropertyAdd: (_property: Where) => true,
-  onMatchAdd: (_match: Match) => true,
-  onDialogUpdate: payload => typeof payload === "boolean"
-});
+
+const emit = defineEmits<{
+  onClose: [];
+  onPropertyAdd: [property: Where];
+  onMatchAdd: [match: Match];
+  onDialogUpdate: [payload: boolean];
+}>();
+
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
 const selectedProperty: Ref<TreeNode | undefined> = ref();
 const editWhere: Ref<Where> = ref({});
@@ -120,7 +122,7 @@ function getEditWhere(whereMatch: any) {
 
 function getEditWhereRecursively(where: Where, found: any[]) {
   if (where.match?.where) {
-    for (const nestedWhere of where.match?.where) {
+    for (const nestedWhere of where.match.where) {
       getEditWhereRecursively(nestedWhere, found);
     }
   } else found.push(where);
@@ -136,7 +138,7 @@ function getEditWhereDMIri(whereMatch: any) {
 function getEditWhereDMIriRecursively(where: Where, found: any[]) {
   if (where.match?.where) {
     found[0] = where.match.typeOf?.["@id"];
-    for (const nestedWhere of where.match?.where) {
+    for (const nestedWhere of where.match.where) {
       getEditWhereRecursively(nestedWhere, found);
     }
   }

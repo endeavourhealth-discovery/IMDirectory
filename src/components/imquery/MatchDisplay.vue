@@ -14,7 +14,9 @@
       <div v-if="match.description" class="match-description" v-html="match.description"></div>
       <div v-if="match.match" class="feature-group">
         <Button class="builder-button conjunction-button vertical-button" :label="match.bool?.toUpperCase() ?? 'AND'" severity="secondary" disabled outlined />
-        <div class="feature-list"><MatchDisplay v-for="nestedMatch in match.match" :match="nestedMatch" class="match-display" /></div>
+        <div class="feature-list">
+          <MatchDisplay v-for="(nestedMatch, index) in match.match" :match="nestedMatch" class="match-display" v-bind:key="index" />
+        </div>
       </div>
       <div v-if="match.where" class="where-group">
         <Button
@@ -25,7 +27,7 @@
           disabled
           outlined
         />
-        <div class="where-list"><WhereDisplay v-for="nestedWhere in match.where" :where="nestedWhere" /></div>
+        <div class="where-list"><WhereDisplay v-for="(nestedWhere, index) in match.where" :where="nestedWhere" v-bind:key="index" /></div>
       </div>
       <div v-if="match.orderBy" v-html="match.orderBy.description" />
       <div v-if="match.variable" class="variable-display">
@@ -39,14 +41,10 @@
 <script setup lang="ts">
 import { Match } from "@/interfaces/AutoGen";
 import WhereDisplay from "./WhereDisplay.vue";
-import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 
-interface Props {
+defineProps<{
   match: Match;
-}
-const props = defineProps<Props>();
-
-const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
+}>();
 </script>
 
 <style scoped>

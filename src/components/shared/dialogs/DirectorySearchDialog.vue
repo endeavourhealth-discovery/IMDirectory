@@ -54,7 +54,7 @@
             @locateInTree="locateInTree"
             @navigateTo="navigateTo"
             :showSelectButton="true"
-            v-model:history="history"
+            v-model:history="directoryHistory"
             :searchResults
             @selected-updated="updateSelectedFromIri"
             @go-to-search-results="goToSearchResults"
@@ -94,10 +94,9 @@ import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
 import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS } from "@/vocabulary";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { RDFS } from "@/vocabulary";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions } from "@/interfaces";
-import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
   showDialog: boolean;
@@ -122,13 +121,11 @@ watch(
   }
 );
 
-const emit = defineEmits({
-  "update:showDialog": payload => typeof payload === "boolean",
-  "update:selected": payload => true,
-  updateSelectedFilters: (payload: FilterOptions) => true
-});
-
-const sharedStore = useSharedStore();
+const emit = defineEmits<{
+  "update:showDialog": [payload: boolean];
+  "update:selected": [selected: SearchResultSummary];
+  updateSelectedFilters: [filterOptions: FilterOptions];
+}>();
 
 const updateSearch: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
@@ -166,11 +163,11 @@ watch(
   }
 );
 
-const history: Ref<string[]> = ref([]);
+const directoryHistory: Ref<string[]> = ref([]);
 const activePage = ref(0);
 const selectedName = ref("");
 
-watch(searchResults, newValue => {
+watch(searchResults, () => {
   detailsIri.value = "";
   activePage.value = 0;
 });
@@ -237,7 +234,7 @@ function resetDialog() {
   searchLoading.value = false;
   treeIri.value = "";
   detailsIri.value = "";
-  history.value = [];
+  directoryHistory.value = [];
   activePage.value = 0;
 }
 

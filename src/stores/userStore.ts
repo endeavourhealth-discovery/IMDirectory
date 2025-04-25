@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { UserState } from "@/stores/types/userState";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { EntityService, UserService } from "@/services";
+import { UserService } from "@/services";
 import { HistoryItem, RecentActivityItem } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";

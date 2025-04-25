@@ -1,21 +1,20 @@
 <template>
-  <div v-if="columnNames.length>0">
+  <div v-if="columnNames.length > 0">
     <h4>Columns:</h4>
     <div class="pl-8">
-          <span v-html="columnNames.join(', ')"/>
+      <span v-html="columnNames.join(', ')" />
     </div>
     <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle" />
     <span>GraphQL</span>
     <span v-if="propertyExpand">
-       <RecursiveReturnDisplay :select="select"/>
+      <RecursiveReturnDisplay :select="select" />
     </span>
-
   </div>
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import {Return, ReturnProperty} from "@/interfaces/AutoGen";
+import { Return } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep, isEqual } from "lodash-es";
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
@@ -25,11 +24,11 @@ interface Props {
   propertyExpanded: boolean;
 }
 const props = defineProps<Props>();
-const propertyExpand = ref(props.propertyExpanded);;
+const propertyExpand = ref(props.propertyExpanded);
 
 const columnNames: Ref<string[]> = ref([]);
 onMounted(() => {
-    getColumnNamesFromReturn(props.select);
+  getColumnNamesFromReturn(props.select);
 });
 
 function toggle() {
@@ -45,18 +44,15 @@ watch(
   }
 );
 
-
 function getColumnNamesFromReturn(select: Return) {
-  if (select.as)
-    columnNames.value.push(select.as);
+  if (select.as) columnNames.value.push(select.as);
   if (select.property && isArrayHasLength(select.property)) {
     for (const property of select.property) {
       if (property.as) {
         columnNames.value.push(property.as);
       }
       if (property.return) {
-        if (property.name)
-          getColumnNamesFromReturn(property.return);
+        if (property.name) getColumnNamesFromReturn(property.return);
       }
     }
   }

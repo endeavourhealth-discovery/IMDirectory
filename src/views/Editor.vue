@@ -15,7 +15,7 @@
             <ProgressSpinner />
           </div>
           <div v-else class="editor-layout-container">
-            <template v-for="group of groups">
+            <template v-for="(group, index) of groups" v-bind:key="index">
               <component :is="processComponentType(group.componentType)" :mode="EditorMode.EDIT" :shape="group" :value="processEntityValue(group)" />
             </template>
           </div>
@@ -86,12 +86,11 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, Ref, watch, nextTick } from "vue";
+import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, watch } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { useRouter, useRoute } from "vue-router";
-import { useConfirm } from "primevue/useconfirm";
+import { useRouter } from "vue-router";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import Swal from "sweetalert2";
@@ -99,17 +98,15 @@ import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";
 import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM, RDF, SHACL } from "@/vocabulary";
-import { DirectService, EntityService, Env, SetService } from "@/services";
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { IM, RDF } from "@/vocabulary";
+import { DirectService, EntityService, SetService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { processComponentType } from "@/helpers/EditorMethods";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 
 const router = useRouter();
-const route = useRoute();
-const confirm = useConfirm();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const dynamicDialog = useDialog();
@@ -118,20 +115,9 @@ onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
 
-const {
-  editorEntity,
-  editorEntityOriginal,
-  fetchEntity,
-  processEntity,
-  editorIri,
-  editorSavedEntity,
-  entityName,
-  findPrimaryType,
-  updateEntity,
-  deleteEntityKey,
-  checkForChanges
-} = setupEditorEntity(EditorMode.EDIT, updateType);
-const { shape, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const { editorEntity, editorEntityOriginal, fetchEntity, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
+  setupEditorEntity(EditorMode.EDIT, updateType);
+const { shape, getShapesCombined, groups, processShape } = setupEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -214,7 +200,7 @@ function removeEroneousKeys() {
       if (isObjectHasKeys(property, ["path"])) shapeKeys.push(property.path!["@id"]);
     });
   });
-  for (const [key, value] of Object.entries(editorEntity.value)) {
+  for (const key of Object.keys(editorEntity.value)) {
     if (!shapeKeys.includes(key)) {
       delete editorEntity.value[key];
     }
@@ -305,7 +291,7 @@ function submit(): void {
         });
       }
     })
-    .catch(err => {
+    .catch(() => {
       forceValidation.value = false;
       verificationDialog.close();
       Swal.fire({
@@ -316,24 +302,6 @@ function submit(): void {
         confirmButtonColor: "#689F38"
       });
     });
-}
-
-function refreshEditor() {
-  Swal.fire({
-    icon: "warning",
-    title: "Warning",
-    text: "This action will reset all progress. Are you sure you want to proceed?",
-    showCancelButton: true,
-    confirmButtonText: "Reset",
-    reverseButtons: true,
-    confirmButtonColor: "#FBC02D",
-    cancelButtonColor: "#607D8B",
-    customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: any) => {
-    if (result.isConfirmed) {
-      editorEntity.value = { ...editorEntityOriginal.value };
-    }
-  });
 }
 
 function processEntityValue(property: PropertyShape) {

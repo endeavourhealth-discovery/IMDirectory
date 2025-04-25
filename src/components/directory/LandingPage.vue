@@ -4,7 +4,7 @@
       <div id="shortcuts-container">
         <h2>Quick links</h2>
         <div class="shortcuts">
-          <template v-for="shortcut of shortcuts">
+          <template v-for="(shortcut, index) of shortcuts" v-bind:key="index">
             <Shortcut
               :icon="shortcut.icon"
               :label="shortcut.label"
@@ -34,7 +34,7 @@ import Favourites from "@/components/directory/landingPage/Favourites.vue";
 
 const directService = new DirectService();
 
-const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: Function; color: string; size: number; newTab?: boolean }[]> = ref([
+const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: () => void; color: string; size: number; newTab?: boolean }[]> = ref([
   {
     label: "Ontology",
     icon: getFAIconFromType([{ "@id": IM.CONCEPT }]),

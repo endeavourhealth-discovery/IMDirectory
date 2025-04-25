@@ -27,7 +27,7 @@
 </template>
 
 <script async setup lang="ts">
-import { Ref, inject, onMounted, onUnmounted, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
@@ -43,19 +43,19 @@ import setupOverlay from "@/composables/setupOverlay";
 import { getKey, getParentNode } from "@/helpers";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
-interface Props {
+const props = defineProps<{
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
   selectedProperty: TreeNode | undefined;
-}
-const props = defineProps<Props>();
+}>();
+
+const emit = defineEmits<{
+  "update:selectedProperty": [payload: TreeNode];
+}>();
+
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const selectedNode = ref();
-const emit = defineEmits({
-  "update:selectedProperty": (_payload: TreeNode) => true
-});
-
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild, selectedKeys } = setupTree();
 const { OS, showOverlay, hideOverlay } = setupOverlay();

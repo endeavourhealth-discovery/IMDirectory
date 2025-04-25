@@ -14,7 +14,7 @@
             <ProgressSpinner />
           </div>
           <div v-else class="creator-layout-container">
-            <template v-for="group of groups">
+            <template v-for="(group, index) of groups" v-bind:key="index">
               <component :is="processComponentType(group.componentType)" :mode="EditorMode.CREATE" :shape="group" :value="processEntityValue(group)" />
             </template>
           </div>
@@ -88,7 +88,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, nextTick, ComputedRef } from "vue";
+import { onUnmounted, onMounted, computed, ref, Ref, watch, provide, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
@@ -96,19 +96,16 @@ import { cloneDeep } from "lodash-es";
 import Swal from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";
-import { useConfirm } from "primevue/useconfirm";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
-import { isObjectHasKeys, isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { debounce } from "@/helpers/UtilityMethods";
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { EditorMode } from "@/enums";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { DirectService, EntityService, FilerService, SetService } from "@/services";
+import { IM, RDF, RDFS } from "@/vocabulary";
+import { DirectService, EntityService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import { useUserStore } from "@/stores/userStore";
 import { processComponentType } from "@/helpers/EditorMethods";
 
 interface Props {
@@ -119,15 +116,11 @@ const props = defineProps<Props>();
 
 const route = useRoute();
 const router = useRouter();
-const confirm = useConfirm();
 const dynamicDialog = useDialog();
 const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
-const userStore = useUserStore();
 const directService = new DirectService();
-
-const currentUser = computed(() => userStore.currentUser).value;
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
@@ -140,21 +133,11 @@ function onShowSidebar() {
   editorStore.updateFindInEditorTreeIri("");
 }
 
-const {
-  editorEntity,
-  editorEntityOriginal,
-  fetchEntity,
-  processEntity,
-  editorIri,
-  editorSavedEntity,
-  entityName,
-  hasType,
-  findPrimaryType,
-  updateEntity,
-  deleteEntityKey,
-  checkForChanges
-} = setupEditorEntity(EditorMode.CREATE, updateType);
-const { shape, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const { editorEntity, editorEntityOriginal, processEntity, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } = setupEditorEntity(
+  EditorMode.CREATE,
+  updateType
+);
+const { shape, getShape, getShapesCombined, groups, processShape } = setupEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -173,7 +156,6 @@ const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = se
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
 const showSidebar: Ref<boolean> = ref(false);
-const targetShape: Ref<TTIriRef | undefined> = ref();
 const showTypeSelector = ref(false);
 const forceValidation = ref(false);
 
@@ -301,7 +283,7 @@ async function showEntityFoundWarning() {
 
 watch(
   () => cloneDeep(editorEntity.value),
-  (newValue: any) => {
+  () => {
     if (checkForChanges()) {
       window.addEventListener("beforeunload", beforeWindowUnload);
     } else {
@@ -309,10 +291,6 @@ watch(
     }
   }
 );
-
-const debouncedFiler = debounce((entity: any) => {
-  fileChanges(entity);
-}, 500);
 
 function updateShowTypeSelector(bool: boolean) {
   showTypeSelector.value = bool;
@@ -331,10 +309,6 @@ function beforeWindowUnload(e: any) {
     e.preventDefault();
     e.returnValue = "";
   }
-}
-
-function fileChanges(entity: any) {
-  FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser?.id + "#", IM.UPDATE_ALL);
 }
 
 function submit(): void {
@@ -401,7 +375,7 @@ function submit(): void {
         });
       }
     })
-    .catch(err => {
+    .catch(() => {
       Swal.fire({
         icon: "error",
         title: "Timeout",
@@ -426,24 +400,6 @@ function closeCreator() {
   }).then((result: any) => {
     if (result.isConfirmed) {
       router.push({ name: "LandingPage" });
-    }
-  });
-}
-
-function refreshCreator() {
-  Swal.fire({
-    icon: "warning",
-    title: "Warning",
-    text: "This action will reset all progress. Are you sure you want to proceed?",
-    showCancelButton: true,
-    confirmButtonText: "Reset",
-    reverseButtons: true,
-    confirmButtonColor: "#FBC02D",
-    cancelButtonColor: "#607D8B",
-    customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: any) => {
-    if (result.isConfirmed) {
-      editorEntity.value = { ...editorEntityOriginal.value };
     }
   });
 }

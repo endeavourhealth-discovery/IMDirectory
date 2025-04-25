@@ -1,5 +1,5 @@
 export function dateNowReverse(deliminator: string = "/") {
-  let newDate = new Date();
+  const newDate = new Date();
   return (
     newDate.getFullYear() +
     deliminator +

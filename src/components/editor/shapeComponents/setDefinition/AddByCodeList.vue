@@ -18,10 +18,10 @@
           :maxFileSize="1000000"
         >
           <template #content>
-            <template v-for="file of uploadedFiles">
+            <template v-for="(file, fileIdx) of uploadedFiles" v-bind:key="fileIdx">
               <span>{{ file.name }} - {{ file.size }} bytes</span>
               <ul>
-                <li v-for="row of file.data">{{ row }}</li>
+                <li v-for="(row, rowIdx) of file.data" v-bind:key="rowIdx">{{ row }}</li>
               </ul>
             </template>
           </template>
@@ -68,17 +68,15 @@ import { DSVRowArray } from "d3";
 import { entityToAliasEntity } from "@/helpers/Transforms";
 import { ValidatedEntity } from "@/interfaces";
 
-interface Props {
+const props = defineProps<{
   showAddByList: boolean;
   showAddByFile: boolean;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  addCodeList: (_payload: any) => true,
-  closeDialog: () => true
-});
+const emit = defineEmits<{
+  addCodeList: [payload: any];
+  closeDialog: [];
+}>();
 
 class TextProcessingError extends Error {
   constructor() {
@@ -102,7 +100,7 @@ const hasValidEntities: ComputedRef<boolean> = computed(() => validateEntities()
 const entities: Ref<ValidatedEntity[]> = ref([]);
 const showResultTable: Ref<boolean> = ref(false);
 const showDialog = computed(() => props.showAddByList || props.showAddByFile);
-const uploadedFiles: Ref<{ name: string; size: string; data: DSVRowArray<string> }[]> = ref([]);
+const uploadedFiles: Ref<{ name: string; size: string; data: DSVRowArray }[]> = ref([]);
 const headers: Ref<{ data: string; label: string }[]> = ref([]);
 const selectedColumn: Ref<{ data: string; label: string }> = ref({} as { data: string; label: string });
 const processing: Ref<boolean> = ref(false);

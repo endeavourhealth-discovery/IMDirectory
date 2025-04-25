@@ -153,7 +153,9 @@ const opMap = ref(null);
 const opMatchedTo = ref(null);
 const opMatchedFrom = ref(null);
 
-const emit = defineEmits({ navigateTo: (_payload: string) => true });
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 watch(
   () => props.entityIri,

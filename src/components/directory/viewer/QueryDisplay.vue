@@ -53,45 +53,32 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
-import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import { QueryService } from "@/services";
 import { DisplayMode, Query } from "@/interfaces/AutoGen";
-import { computed, onMounted, ref, Ref, watch } from "vue";
-import { useUserStore } from "@/stores/userStore";
+import { onMounted, ref, Ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getParentNode } from "@/helpers";
 
-interface Props {
+const props = defineProps<{
   entityIri?: string;
   definition?: string;
   showSqlButton?: boolean;
   queryDefinition?: Query;
-}
+}>();
 
-const dataSetExpanded = ref(false);
-const userStore = useUserStore();
-const currentUser = computed(() => userStore.currentUser);
-const isLoggedIn = computed(() => userStore.isLoggedIn);
-const props = defineProps<Props>();
+defineEmits<{
+  navigateTo: [payload: string];
+}>();
+
 const query: Ref<Query> = ref({} as Query);
 const sql: Ref<string> = ref("");
 const showSql: Ref<boolean> = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 const loading = ref(true);
-const ruleView: Ref<boolean> = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const logicalDisplayTab: Ref<string> = ref("0");
-
-const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
-
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
 
 watch(
   () => props.definition,
@@ -143,10 +130,6 @@ async function displayToggle() {
 async function generateSQL() {
   if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri);
   showSql.value = true;
-}
-
-function toggle() {
-  dataSetExpanded.value = !dataSetExpanded.value;
 }
 </script>
 

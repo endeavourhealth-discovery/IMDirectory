@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, computed } from "vue";
-import { IM, SNOMED } from "@/vocabulary";
+import { IM } from "@/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
 import { EntityService } from "@/services";
@@ -58,7 +58,6 @@ watch(
 );
 
 const filterStore = useFilterStore();
-const filterStoreOptions = computed(() => filterStore.filterOptions);
 const coreSchemes = computed(() => filterStore.coreSchemes);
 
 const loading = ref(false);

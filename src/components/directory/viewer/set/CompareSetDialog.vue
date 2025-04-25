@@ -27,7 +27,7 @@
       />
     </div>
 
-    <template #footer class="compare-set-dialog-footer"> <Button label="OK" @click="visible = false" /> </template>
+    <template #footer> <Button label="OK" @click="visible = false" /> </template>
   </Dialog>
 </template>
 <script setup lang="ts">

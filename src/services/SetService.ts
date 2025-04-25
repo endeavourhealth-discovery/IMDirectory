@@ -18,19 +18,12 @@ const SetService = {
       raw: raw
     });
   },
-  async getMembers(
-      iri: string,
-      entailments: boolean,
-      pageIndex: number,
-      pageSize: number,
-      controller?: AbortController
-  ): Promise<any> {
+  async getMembers(iri: string, entailments: boolean, pageIndex: number, pageSize: number, controller?: AbortController): Promise<any> {
     return axios.get(API_URL + "/public/members", {
-      params: { iri: iri,  entailments: entailments,page: pageIndex, size: pageSize },
+      params: { iri: iri, entailments: entailments, page: pageIndex, size: pageSize },
       signal: controller?.signal
     });
   },
-
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {
     return axios.get(API_URL + "/public/subsets", {

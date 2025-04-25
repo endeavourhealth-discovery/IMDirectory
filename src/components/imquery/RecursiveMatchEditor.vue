@@ -136,7 +136,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Bool, DisplayMode, Match, Path, Query, Return } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Match, Path, Query } from "@/interfaces/AutoGen";
 import { computed, Ref, ref } from "vue";
 import RecursiveWhereEditor from "./RecursiveWhereEditor.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -144,21 +144,19 @@ import AddFeature from "@/components/imquery/AddFeature.vue";
 import { QueryService } from "@/services";
 import EditMatchDialog from "@/components/imquery/EditMatchDialog.vue";
 
-interface Props {
+defineProps<{
   isVariable?: boolean;
   depth: number;
   clauseIndex: number;
   propertyIndex?: number;
   expanded?: boolean;
   canExpand?: boolean;
-}
-
-const props = defineProps<Props>();
+}>();
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 const match = defineModel<Match>("match", { default: {} });
 const parentMatch = defineModel<Match>("parentMatch", { default: {} });
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
 const expandSet: Ref<boolean> = ref(false);
 const booleanMenu = ref();
 const booleanMenuTrigger = ref();
@@ -167,32 +165,9 @@ const editMenuTrigger = ref();
 const addFeature: Ref<boolean> = ref(false);
 const editFeature: Ref<boolean> = ref(false);
 const selectedMatch: Ref<Match> = ref({});
-function toggle() {
-  expandSet.value = !expandSet.value;
-}
+
 function getBooleanOperator(operator: Bool | undefined) {
   return operator === "and" ? "and" : "either or";
-  /*
-  if (!operator) return "Must have all of the following";
-  else if (operator === "and") return "Must have all of the following:";
-  else if (operator === "or") return "Must have at least one  of the following:";
-  return "";
-
-   */
-}
-
-function getReturnProperties(ret: Return): string {
-  return ret.property
-    ? ret.property
-        .map(p => p.name?.replace(/\s*\(.*?\)/, "")) // Remove bracketed term
-        .join(", ") // Join names with a comma and space
-    : "";
-}
-
-function indentationStyle(depth: number) {
-  return {
-    paddingRight: depth * 2 + "rem"
-  };
 }
 
 function getFormattedPath(path: Path): string {

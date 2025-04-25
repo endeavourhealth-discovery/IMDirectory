@@ -19,10 +19,10 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import JSONEditor from "./JSONEditor.vue";
 
-const emit = defineEmits({
-  "update:showDialog": payload => typeof payload === "boolean",
-  save: payload => true
-});
+const emit = defineEmits<{
+  "update:showDialog": [payload: boolean];
+  save: [data: any];
+}>();
 
 interface Props {
   showDialog: boolean;

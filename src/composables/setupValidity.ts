@@ -80,13 +80,13 @@ export function setupValidity(shape?: FormGenerator) {
     let valid = true;
     let message;
     if (isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
-      let customValidationResult = await EntityService.checkValidation(componentShape.validation!["@id"], editorEntity.value);
+      const customValidationResult = await EntityService.checkValidation(componentShape.validation!["@id"], editorEntity.value);
       if (customValidationResult.valid === false) {
         valid = false;
         message = customValidationResult.message;
       }
     }
-    let defaultValidationResult = defaultValidation(componentShape, editorEntity, valueVariableMap, key);
+    const defaultValidationResult = defaultValidation(componentShape, editorEntity, valueVariableMap, key);
     if (defaultValidationResult.isValid === false) {
       valid = false;
       message = defaultValidationResult.message;

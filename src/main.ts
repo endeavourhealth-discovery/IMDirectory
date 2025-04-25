@@ -5,7 +5,6 @@ import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
-import axios from "axios";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -231,7 +230,7 @@ if (window.Cypress) {
   window.__app__ = app;
 }
 
-const vm = app.mount("#app");
+app.mount("#app");
 
 // Vue application exceptions
 app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | null, info: string) => {

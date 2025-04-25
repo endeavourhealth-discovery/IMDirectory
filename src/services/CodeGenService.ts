@@ -1,7 +1,6 @@
 import Env from "./Env";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { CodeTemplate } from "@/interfaces";
-import { DataModelProperty, TTIriRef } from "@/interfaces/AutoGen";
 
 const CodeGenService = {
   async getCodeTemplateList(): Promise<any[]> {

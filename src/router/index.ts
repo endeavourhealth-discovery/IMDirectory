@@ -38,7 +38,7 @@ router.beforeEach(async (to, from) => {
   const currentPath = to.path;
   authStore.updateAuthReturnPath(currentPath);
   const iri = to.params.selectedIri;
-  let routedByGuard = false;
+  let routedByGuard: boolean;
   routedByGuard = await requiresAuthGuard(to, from, router);
   if (routedByGuard) return false;
   routedByGuard = await requiresAdmin(to, from, router);
@@ -53,10 +53,10 @@ router.beforeEach(async (to, from) => {
   requiresUprnAgreement(to);
   routedByGuard = await requiresOrganisation(iri, to, router);
   if (routedByGuard) return false;
-  directoryGuard(iri, to, from);
-  routedByGuard = await editorGuard(iri, to, from, router);
+  directoryGuard(iri, to);
+  routedByGuard = await editorGuard(iri, to, router);
   if (routedByGuard) return false;
-  routedByGuard = await queryGuard(iri, to, from, router);
+  routedByGuard = await queryGuard(to, router);
   if (routedByGuard) return false;
   await pageNotFoundFromCreator(to, router);
   await pageNotFoundFromEditor(to, router);
@@ -66,8 +66,8 @@ router.beforeEach(async (to, from) => {
 });
 
 router.afterEach(async to => {
-  setBrowserTabTitles(to);
-  endRouterLoading(routes, to);
+  await setBrowserTabTitles(to);
+  endRouterLoading();
 });
 
 export default router;

@@ -35,34 +35,29 @@ import { QueryService, EntityService } from "@/services";
 import { RDFS } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, QueryRequest } from "@/interfaces/AutoGen";
-import { useEditorStore } from "@/stores/editorStore";
 import { useToast } from "primevue/usetoast";
 
 const toast = useToast();
-const editorStore = useEditorStore();
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
   value?: TTIriRef;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  updateClicked: (_payload: TTIriRef | undefined) => true
-});
+const emit = defineEmits<{
+  updateClicked: [payload: TTIriRef | undefined];
+}>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -112,7 +107,6 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   else return false;
 });
 
-const loading = ref(false);
 const selectedResult: Ref<SearchResultSummary | undefined> = ref();
 const key = ref("");
 const invalid = ref(false);

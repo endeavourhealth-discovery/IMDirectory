@@ -27,7 +27,7 @@ watch(
   }
 );
 
-const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: Function } = setupTerms();
+const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: (iri: string) => void } = setupTerms();
 
 onMounted(() => {
   getTerms(props.entityIri);

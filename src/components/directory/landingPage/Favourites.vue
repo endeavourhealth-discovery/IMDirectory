@@ -64,7 +64,7 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
 import { TTIriRef } from "@/interfaces/AutoGen";
-import { DirectService, EntityService, UserService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
 import { RDF, RDFS } from "@/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
@@ -79,7 +79,6 @@ const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const userFavourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
-const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 const selected: Ref<any> = ref({});
 const favourites: Ref<ExtendedSearchResultSummary[]> = ref([]);

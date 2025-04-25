@@ -18,9 +18,9 @@ import { Match } from "@/interfaces/AutoGen";
 import { isEqual } from "lodash-es";
 import { onMounted, ref, watch } from "vue";
 
-const emit = defineEmits({
-  "update:data": payload => true
-});
+const emit = defineEmits<{
+  "update:data": [json: any];
+}>();
 
 interface Props {
   data: Match;

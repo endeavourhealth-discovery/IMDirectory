@@ -25,14 +25,13 @@ import { IM } from "@/vocabulary";
 const { translateFromEntityBundle } = GraphTranslator;
 const { isObjectHasKeys } = DataTypeCheckers;
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 watch(
   () => props.entityIri,
@@ -46,7 +45,6 @@ const selectedIris: Ref<string[]> = ref([]);
 const predicatesIris: Ref<string[]> = ref([]);
 const bundle: Ref<TTBundle> = ref({} as TTBundle);
 const options: Ref<{ iri: string; name: string }[]> = ref([]);
-const predicates: Ref<any[]> = ref([]);
 
 const graphExcludePredicates: Ref<string[]> = ref([]);
 

@@ -111,11 +111,12 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Match, Return, Path, Bool } from "@/interfaces/AutoGen";
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { Match, Path } from "@/interfaces/AutoGen";
+import { Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-interface Props {
+
+defineProps<{
   match: Match;
   isVariable?: boolean;
   depth: number;
@@ -125,32 +126,12 @@ interface Props {
   expanded?: boolean;
   canExpand?: boolean;
   bracketed?: boolean;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 const expandSet: Ref<boolean> = ref(false);
-
-function toggle() {
-  expandSet.value = !expandSet.value;
-}
-
-function getReturnProperties(ret: Return): string {
-  return ret.property
-    ? ret.property
-        .map(p => p.name?.replace(/\s*\(.*?\)/, "")) // Remove bracketed term
-        .join(", ") // Join names with a comma and space
-    : "";
-}
-
-function indentationStyle(depth: number) {
-  return {
-    paddingRight: depth * 2 + "rem"
-  };
-}
 
 function getFormattedPath(path: Path): string {
   let formatted = "";

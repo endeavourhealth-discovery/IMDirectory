@@ -36,34 +36,34 @@ import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import setupOverlay from "@/composables/setupOverlay";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
-import { DirectService, EntityService, QueryService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
-import { isArrayHasLength, isObject } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions, SearchOptions } from "@/interfaces";
 import { Concept, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
-import { IM, RDFS } from "@/vocabulary";
-import { useToast } from "primevue/usetoast";
+import { IM } from "@/vocabulary";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-interface Props {
+
+const props = defineProps<{
   header: string;
-  selectedSet?: SearchResultSummary;
+  //  selectedSet?: SearchResultSummary;
   members: Concept[];
   setIri?: string;
-  loading: boolean;
-}
-const props = defineProps<Props>();
+  //  loading: boolean;
+}>();
 
-const toast = useToast();
+const emit = defineEmits<{
+  "update:selectedSet": [payload: any];
+}>();
+
 const directService = new DirectService();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
-const controller: Ref<AbortController> = ref({} as AbortController);
 const menu = ref();
 
 const selectedSet: Ref<SearchResultSummary | undefined> = ref();
-const filteredSets: Ref<SearchResultSummary[]> = ref([]);
 const selected: Ref<Concept | undefined> = ref();
 const searchQuery: Ref<QueryRequest | undefined> = ref();
 const loading = ref(true);
@@ -89,11 +89,9 @@ const rClickItems = ref([
   }
 ]);
 
-const emit = defineEmits({ "update:selectedSet": _payload => true });
-
 watch(
   () => selectedSet.value?.iri,
-  async newValue => emit("update:selectedSet", selectedSet.value)
+  async () => emit("update:selectedSet", selectedSet.value)
 );
 
 onMounted(async () => {

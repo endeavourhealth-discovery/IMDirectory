@@ -66,12 +66,10 @@ export const handlersFaker = [
     });
     return HttpResponse.json(entity);
   }),
-  http.get(apiUrl + "entity/public/parents", async ({ params }) => {
-    const { iri } = params;
+  http.get(apiUrl + "entity/public/parents", async () => {
     return HttpResponse.json([fakerFactory.entitySummary.create(), fakerFactory.entitySummary.create()]);
   }),
-  http.get(apiUrl + "entity/public/childrenPaged", async ({ params }) => {
-    const { iri } = params;
+  http.get(apiUrl + "entity/public/childrenPaged", async () => {
     const children = [
       fakerFactory.entitySummary.create(),
       fakerFactory.entitySummary.create(),

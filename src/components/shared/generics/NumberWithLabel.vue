@@ -6,8 +6,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
 interface Props {
   label: string;
   data: any;
@@ -15,15 +13,9 @@ interface Props {
   id?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   size: "100%",
   id: "number-with-label"
-});
-
-const asString = computed(() => {
-  if (!props.data) return "None";
-  if (typeof props.data === "number") return props.data.toString();
-  else return props.data;
 });
 </script>
 

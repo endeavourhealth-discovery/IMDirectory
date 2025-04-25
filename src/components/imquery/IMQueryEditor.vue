@@ -21,7 +21,6 @@
 
 <script lang="ts" setup>
 import { onMounted, provide, Ref, ref, watch } from "vue";
-import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import { Match, Node, Query, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
 import { IM, SHACL } from "@/vocabulary";
 import { cloneDeep } from "lodash-es";
@@ -30,15 +29,14 @@ import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import RecursiveMatchEditor from "@/components/imquery/RecursiveMatchEditor.vue";
 
-interface Props {
+const props = defineProps<{
   queryDefinition?: Query;
-}
+}>();
 
-const emit = defineEmits({
-  updateQuery: (_payload: Query) => true
-});
+defineEmits<{
+  updateQuery: [payload: Query];
+}>();
 
-const props = defineProps<Props>();
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const editQueryDefinition: Ref<Match> = ref({});
 

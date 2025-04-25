@@ -1,5 +1,5 @@
 import Env from "./Env";
-import { AllowableChildProperty, QueryResponse } from "@/interfaces";
+import { QueryResponse } from "@/interfaces";
 import axios from "axios";
 import { DisplayMode, Match, PathQuery, Query, QueryRequest, SearchResponse } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
@@ -30,7 +30,6 @@ const QueryService = {
   async getQueryDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
     return axios.post(API_URL + "/public/queryDisplayFromQuery", query, { params: { displayMode } });
   },
-
 
   async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
     return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });

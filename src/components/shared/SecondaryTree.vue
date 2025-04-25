@@ -75,12 +75,10 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
-import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { ConceptAggregate, EntityReferenceNode, TreeParent } from "@/interfaces";
-import { TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@/vocabulary";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import OverlaySummary from "./OverlaySummary.vue";
 import type { TreeNode } from "primevue/treenode";
@@ -93,17 +91,14 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  rowClicked: (_payload: string) => true,
-  rowControlClicked: (_payload: string) => true,
-  onSelect: (_payload: string) => true,
-  rowSelected: (_payload: TreeNode | undefined) => true
-});
+const emit = defineEmits<{
+  rowClicked: [payload: string];
+  rowControlClicked: [payload: string];
+  onSelect: [payload: string];
+  rowSelected: [payload: TreeNode | undefined];
+}>();
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore, selectedNode } = setupTree(
-  emit,
-  20
-);
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore } = setupTree(emit, 20);
 const { showOverlay, hideOverlay, OS } = setupOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
@@ -202,10 +197,6 @@ function setParents(parentHierarchy: EntityReferenceNode[], parentPosition: numb
     currentParent.value = null;
     alternateParents.value = [] as TreeParent[];
   }
-}
-
-function containsChild(nodeChildren: TreeNode[], child: EntityReferenceNode): boolean {
-  return nodeChildren.some(nodeChild => nodeChild.data === child["@id"]);
 }
 
 async function expandParents(parentPosition: number): Promise<void> {

@@ -6,7 +6,7 @@
     <InputText v-model="valueLabel" placeholder="Value label" type="text" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #empty> Add concepts and/or sets to this list</template>
-      <template #option="{ option }" class="flex flex-row">
+      <template #option="{ option }">
         <div class="option-wrapper flex flex-row">
           <div class="option-content flex flex-row items-center gap-1">
             <ToggleButton v-model="option.include" class="flex-shrink-0" offLabel="exclude" onLabel="include" />

@@ -95,6 +95,10 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false
 });
 
+const emit = defineEmits<{
+  updateClicked: [payload: TTIriRef];
+}>();
+
 watch(
   () => cloneDeep(props.value),
   async () => {
@@ -102,19 +106,14 @@ watch(
   }
 );
 
-const emit = defineEmits({
-  updateClicked: (_payload: TTIriRef) => true
-});
-
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -139,7 +138,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
           if (props.shape.builderChild) {
             hasData();
           } else {
-            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
           }
           showValidation.value = true;
         }
@@ -341,7 +340,7 @@ async function itemSelected(value: SearchResultSummary) {
       emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }
     updateValueVariableMap(value);
-  } else if (!props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  } else if (!props.shape.builderChild && deleteEntityKey) deleteEntityKey(key.value);
 }
 
 function updateValueVariableMap(data: SearchResultSummary) {

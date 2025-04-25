@@ -107,7 +107,7 @@ function setupIMQueryBuilderActions() {
 
   function getLeafWhereRecursively(whereList: Where[], found: Match[], currentMatch: Match) {
     const hasNested = whereList.find(nestedWhere => nestedWhere.match?.where);
-    if (hasNested) getLeafWhereRecursively(hasNested.match?.where!, found, hasNested.match!);
+    if (hasNested) getLeafWhereRecursively(hasNested.match!.where!, found, hasNested.match!);
     else found.push(currentMatch);
   }
 

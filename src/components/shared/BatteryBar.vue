@@ -1,9 +1,10 @@
 <template>
   <div class="battery-bar">
     <div
-      v-for="(index, segement) in Array.from(Array(segments).keys())"
+      v-for="(segement, index) in Array.from(Array(segments).keys())"
       class="bar-segment"
       :style="{ backgroundColor: isFilled(index) ? color : 'lightgray' }"
+      v-bind:key="index"
     ></div>
   </div>
 </template>

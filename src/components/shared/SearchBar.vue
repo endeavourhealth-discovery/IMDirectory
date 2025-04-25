@@ -68,13 +68,13 @@ const props = withDefaults(defineProps<Props>(), {
   allowAutocomplete: true
 });
 
-const emit = defineEmits({
-  "update:searchTerm": _payload => true,
-  selectedFiltersUpdated: (_payload: FilterOptions) => true,
-  toSearch: () => true,
-  toEclSearch: () => true,
-  toQuerySearch: () => true
-});
+const emit = defineEmits<{
+  "update:searchTerm": [payload: string];
+  selectedFiltersUpdated: [payload: FilterOptions];
+  toSearch: [];
+  toEclSearch: [];
+  toQuerySearch: [];
+}>();
 
 const searchText = ref("");
 const buttonActions = ref([
@@ -83,7 +83,7 @@ const buttonActions = ref([
 ]);
 const searchPlaceholder: Ref<string> = ref("Search");
 const searchLoading: Ref<boolean> = ref(false);
-const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
+const { listening, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const filtersOP = ref();
 const debounce = ref(0);
 

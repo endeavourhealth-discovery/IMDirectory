@@ -32,7 +32,7 @@
       }"
       @hide="onClose()"
     >
-      <div v-for="(value, key) in provItem" class="prov-item">
+      <div v-for="(value, key) in provItem" class="prov-item" v-bind:key="key">
         <label v-html="getLabel(key)"></label>
         <div v-if="!Array.isArray(value) && getLabel(key)">{{ value }}</div>
         <div v-if="Array.isArray(value) && getLabel(key)">
@@ -157,10 +157,6 @@ function onClose() {
 
 function getLabel(key: any) {
   return labels.value[key];
-}
-
-function getGroupKeyName(key: string) {
-  return EntityService.getPartialEntity(key, [RDFS.LABEL]);
 }
 </script>
 

@@ -92,19 +92,20 @@ import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
+}>();
+
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const dynamicDialog = useDialog();
-
-const props = defineProps<Props>();
 const toast = useToast();
 const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();
 const active: Ref<string[]> = ref([]);
-const emit = defineEmits({ navigateTo: (_payload: string) => true });
 const showCompareSetDialog = ref(false);
 
 const { downloadFile } = setupDownloadFile(window, document);
@@ -195,7 +196,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   downloadDialog.close();
 }
 
-async function downloadIMV1(downloadOptions: DownloadSettings): Promise<void> {
+async function downloadIMV1(): Promise<void> {
   const downloadDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Downloading", text: "Preparing your download..." }
@@ -247,10 +248,6 @@ function publish() {
 
 function displayDialog() {
   showOptions.value = true;
-}
-
-function closeDialog() {
-  showOptions.value = false;
 }
 </script>
 

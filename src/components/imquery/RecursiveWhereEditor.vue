@@ -58,28 +58,25 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Where, Assignable, Bool, Node } from "@/interfaces/AutoGen";
-import { Ref, ref, watch } from "vue";
+import { ref } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM } from "@/vocabulary/IM";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
-interface Props {
+const props = defineProps<{
   where: Where;
   index: number;
   depth: number;
   operator?: Bool;
   expandedSet: boolean;
   inline: boolean;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const isExpanded = ref(props.expandedSet);
-const childExpand = true;
 
 function toggle() {
   isExpanded.value = !isExpanded.value;

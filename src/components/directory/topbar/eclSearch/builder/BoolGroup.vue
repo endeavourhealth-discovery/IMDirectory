@@ -19,18 +19,7 @@
       data-testid="bool-not-button"
     />
     <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
-      <div
-        v-if="value?.items?.length > 1"
-        class="conjunction"
-        @drop="onDrop($event, value, parent, index)"
-        @dragover="
-          {
-            onDragOver($event);
-            mouseover($event);
-          }
-        "
-        @dragleave="mouseout"
-      >
+      <div v-if="value?.items?.length > 1" class="conjunction" @drop="onDrop($event, value, parent, index)" @dragover="mouseover" @dragleave="mouseout">
         <Button
           class="p-button-secondary p-button-outlined builder-button conjunction-button vertical-button"
           :label="value.conjunction"
@@ -41,7 +30,7 @@
         />
       </div>
       <div class="children">
-        <template v-for="(item, index) in value.items">
+        <template v-for="(item, index) in value.items" v-bind:key="index">
           <div class="component-container">
             <span class="left-container">
               <div class="group-checkbox">
@@ -157,8 +146,13 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   rootBool: false
 });
+
+const emit = defineEmits<{
+  unGroupItems: [groupedItems: any];
+}>();
+
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
 watch(
   () => cloneDeep(props.value),
   (newValue, oldValue) => {
@@ -168,8 +162,6 @@ watch(
   }
 );
 const childLoadingState = inject("childLoadingState") as Ref<any>;
-
-const emit = defineEmits({ unGroupItems: _payload => true });
 
 const canBeAttributeGroup: ComputedRef<boolean> = computed(
   () => props.parent && isArray(props.value.items) && props.value.items.length >= 1 && props.value.items.every((i: any) => i.type === "Refinement")
@@ -185,7 +177,7 @@ watch(attributeGroup, () => {
 
 onMounted(() => {
   if (props.value.attributeGroup) attributeGroup.value = true;
-  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
+  if (props.value.id && Object.hasOwn(childLoadingState.value, props.value.id)) childLoadingState.value[props.value.id] = true;
 });
 
 const hover = ref();
@@ -199,7 +191,7 @@ function mouseout(event: any) {
   hover.value = false;
 }
 
-function toggleBool(event: any) {
+function toggleBool() {
   props.value.conjunction = props.value.conjunction === "and" ? "or" : "and";
 }
 

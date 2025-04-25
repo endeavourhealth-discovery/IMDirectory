@@ -21,7 +21,7 @@ export function addStatusFilterToIMQuery(status: TTIriRef[], imQuery: QueryReque
   imQuery.query.match!.push(statusMatch);
 }
 
-export function addTypeFilterToIMQuery(types: TTIriRef[], imQuery: QueryRequest, withSubTypes?: boolean) {
+export function addTypeFilterToIMQuery(types: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
   const typeMatch: Match = { where: [{ "@id": RDF.TYPE, is: types }] };
   imQuery.query.match!.push(typeMatch);

@@ -86,7 +86,7 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     wasDraggedAndDropped.value = true;
   }
 
-  function merge(draggedItem: any, dropzoneItem: any, parent: any, index?: number) {
+  function merge(draggedItem: any, dropzoneItem: any, parent: any) {
     const newBoolGroup = { type: "BoolGroup", conjunction: "or", items: [] as any[] };
     newBoolGroup.items = draggedItem.items.concat(dropzoneItem.items);
     if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items)) {

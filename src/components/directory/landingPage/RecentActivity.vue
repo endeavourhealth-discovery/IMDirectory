@@ -63,7 +63,7 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep, isArray } from "lodash-es";
 import { TTIriRef } from "@/interfaces/AutoGen";
-import { DirectService, EntityService, UserService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
 import { RDF, RDFS } from "@/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";

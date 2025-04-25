@@ -17,12 +17,7 @@
       @mouseover="mouseover"
       @mouseout="mouseout"
       @drop="onDrop($event, value, parent, index)"
-      @dragover="
-        {
-          onDragOver($event);
-          mouseover($event);
-        }
-      "
+      @dragover="mouseover"
       @dragleave="mouseout"
     >
       <Button
@@ -77,7 +72,7 @@
             <Button class="builder-button conjunction-button vertical-button" :label="value.conjunction ?? 'or'" @click="toggleBool" />
           </div>
           <div class="refinements">
-            <div v-for="(item, index) in value.refinementItems" class="refinement-container">
+            <div v-for="(item, index) in value.refinementItems" class="refinement-container" v-bind:key="index">
               <span class="left-container">
                 <div class="group-checkbox">
                   <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" data-testid="group-checkbox" />
@@ -165,31 +160,14 @@ interface Props {
 }
 const props = defineProps<Props>();
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop } = setupECLBuilderActions(wasDraggedAndDropped);
 const childLoadingState = inject("childLoadingState") as Ref<any>;
 
-const addMenu = ref();
 const loading = ref(false);
 const group: Ref<number[]> = ref([]);
 
-const addItems = ref([
-  {
-    label: "Add",
-    items: [
-      {
-        label: "Refinement",
-        command: () => addRefinement()
-      },
-      {
-        label: "Group",
-        command: () => addGroup()
-      }
-    ]
-  }
-]);
-
 onMounted(() => {
-  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
+  if (props.value.id && Object.hasOwn(childLoadingState.value, props.value.id)) childLoadingState.value[props.value.id] = true;
 });
 
 const hover = ref();
@@ -203,7 +181,7 @@ function mouseout(event: Event) {
   hover.value = false;
 }
 
-function toggleBool(event: Event) {
+function toggleBool() {
   props.value.conjunction = props.value.conjunction === "and" ? "or" : "and";
 }
 
@@ -217,10 +195,6 @@ function add(item: any) {
   } else {
     props.value.refinementItems.push(item);
   }
-}
-
-function toggleAdd(event: any) {
-  addMenu.value.toggle(event);
 }
 
 function addRefinement() {

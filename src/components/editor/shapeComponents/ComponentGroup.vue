@@ -5,7 +5,7 @@
       <h2 v-if="showRequired" class="required">*</h2>
     </div>
     <div class="label-container">
-      <div v-for="(property, index) in properties" class="component-container">
+      <div v-for="(property, index) in properties" class="component-container" v-bind:key="index">
         <component :is="processComponentType(property.componentType)" :shape="property" :value="processEntityValue(property)" :mode="mode" />
       </div>
     </div>

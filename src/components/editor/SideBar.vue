@@ -5,27 +5,17 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, Ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import VueJsonPretty from "vue-json-pretty";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IM } from "@/vocabulary";
 import { cloneDeep } from "lodash-es";
-import { SearchResponse, SearchResultSummary } from "@/interfaces/AutoGen";
 
-interface Props {
+const props = defineProps<{
   editorEntity: any;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const searchResults: Ref<SearchResponse | undefined> = ref();
-const searchLoading = ref(false);
-const activeIndex = ref(0);
-const selectedResult: Ref<SearchResultSummary | undefined> = ref();
-const findInTreeIri = ref("");
 const editorEntityDisplay = ref();
-const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
-const download: Ref<{ term: string; count: number } | undefined> = ref();
 
 watch(
   () => cloneDeep(props.editorEntity),
@@ -41,42 +31,6 @@ function setEditorEntityDisplay() {
   if (isObjectHasKeys(editorEntityDisplay.value, [IM.DEFINITION]) && typeof editorEntityDisplay.value[IM.DEFINITION] === "string") {
     editorEntityDisplay.value[IM.DEFINITION] = JSON.parse(editorEntityDisplay.value[IM.DEFINITION]);
   }
-}
-
-function openSearchPanel() {
-  activeIndex.value = 1;
-}
-
-function openTreePanel() {
-  activeIndex.value = 0;
-}
-
-function updateSearchLoading(data: boolean) {
-  searchLoading.value = data;
-}
-
-function updateSearchResults(data: SearchResponse) {
-  searchResults.value = data;
-  openSearchPanel();
-}
-
-function handleSearchResultSelected(data: SearchResultSummary) {
-  selectedResult.value = data;
-  findInTreeIri.value = data.iri;
-  openTreePanel();
-}
-
-function locateInTree(event: any, iri: string) {
-  findInTreeIri.value = iri;
-  if (activeIndex.value !== 0) openTreePanel();
-}
-
-function lazyLoadRequested(event: any) {
-  loadMore.value = event;
-}
-
-function downloadRequested(data: { term: string; count: number }) {
-  download.value = data;
 }
 </script>
 

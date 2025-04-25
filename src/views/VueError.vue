@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();

@@ -44,9 +44,9 @@ const props = withDefaults(defineProps<Props>(), {
   data: {} as any
 });
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const toast = useToast();
 const directoryStore = useDirectoryStore();
@@ -86,7 +86,6 @@ const graphExcludePredicates: Ref<string[]> = ref([]);
 
 const nodeFontSize = computed(() => radius.value / 5);
 const pathFontSize = computed(() => radius.value / 5 + 3);
-const maxLength = computed(() => radius.value / 2);
 const viewBox = computed(() => ["" + -width.value / 2, "" + -height.value / 2, "" + width.value, "" + height.value]);
 
 const menu = ref();
@@ -245,10 +244,10 @@ function drawGraph() {
     .data(nodes)
     .enter()
     .append("foreignObject")
-    .attr("x", (d: any) => getFODimensions(d).x)
-    .attr("y", (d: any) => getFODimensions(d).y)
-    .attr("width", (d: any) => getFODimensions(d).width)
-    .attr("height", (d: any) => getFODimensions(d).height)
+    .attr("x", () => getFODimensions().x)
+    .attr("y", () => getFODimensions().y)
+    .attr("width", () => getFODimensions().width)
+    .attr("height", () => getFODimensions().height)
     .attr("color", (d: any) => {
       if (d.depth === 0) return colour.value.activeNode.fill;
       return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.centerNode.fill;
@@ -271,7 +270,7 @@ function drawGraph() {
           .style("top", (d.target.getBoundingClientRect().top + d.target.getBoundingClientRect().bottom) / 2 - graphContainer.getBoundingClientRect().y + "px");
       }
     })
-    .on("mouseout", (_d: any) => {
+    .on("mouseout", () => {
       div.transition().duration(500).style("opacity", 0);
     })
     .on("contextmenu", e => {
@@ -323,7 +322,7 @@ function drawGraph() {
   });
 }
 
-function getFODimensions(_d: any) {
+function getFODimensions() {
   return {
     x: -radius.value / 1.1,
     y: -radius.value / 1.3,
@@ -375,7 +374,7 @@ async function dblclick(d: any) {
 }
 
 function drag(simulation: any) {
-  function dragstarted(event: any, _d: any) {
+  function dragstarted(event: any) {
     if (!event.active) simulation.alphaTarget(0.3).restart();
   }
 
@@ -384,7 +383,7 @@ function drag(simulation: any) {
     d.fy = event.y;
   }
 
-  function dragended(event: any, _d: any) {
+  function dragended(event: any) {
     if (!event.active) simulation.alphaTarget(0);
   }
 
