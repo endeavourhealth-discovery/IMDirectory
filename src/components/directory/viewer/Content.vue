@@ -137,8 +137,8 @@ async function init() {
       command: () => updateFavourites(selected.value["@id"])
     });
   }
-  if (conceptIsFavourite.value) await getChildren(props.entityIri);
-  else await getFavourites();
+  if (conceptIsFavourite.value) await getFavourites();
+  else await getChildren(props.entityIri);
 
   loading.value = false;
 }
