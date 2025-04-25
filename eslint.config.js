@@ -15,10 +15,10 @@ export default defineConfig([
       eslint.configs.recommended,
       ...typescriptEslint.configs.recommended,
       ...pluginVue.configs["flat/essential"],
-      ...eslintPluginVueScopedCSS.configs["flat/recommended"]
-      // pluginCypress.configs.recommended,
-      // css.configs.recommended,
-      // pluginPrettier
+      ...eslintPluginVueScopedCSS.configs["flat/recommended"],
+      pluginCypress.configs.recommended,
+      css.configs.recommended,
+      pluginPrettier
     ],
     languageOptions: {
       globals: {
