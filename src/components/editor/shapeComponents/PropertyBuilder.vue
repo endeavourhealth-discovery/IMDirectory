@@ -626,7 +626,7 @@ function updateEntity() {
   border-style: solid none solid none;
   padding: 0.5rem;
   margin: 0;
-  flex-grow: 1;
+  grow: 1;
   display: flex;
   flex-direction: column;
 }
@@ -637,7 +637,7 @@ function updateEntity() {
   border-style: solid none solid none;
   padding: 0.5rem;
   margin: 0;
-  flex-grow: 1;
+  grow: 1;
   display: flex;
   flex-direction: column;
 }

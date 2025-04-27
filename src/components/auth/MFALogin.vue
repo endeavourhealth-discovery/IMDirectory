@@ -8,7 +8,7 @@
       <template #content>
         <div class="mfa-login-content">
           <p>Enter the code from your authenticator app to continue.</p>
-          <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
+          <Button icon="fa-solid fa-circle-question" rounded-sm severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
           <div class="code-input">
             <label for="mfa-code">Code</label>
             <InputText id="mfa-code" v-model="code" v-on:keyup.enter="handleSubmitMFA" autofocus />

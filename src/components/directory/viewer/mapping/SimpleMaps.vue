@@ -115,6 +115,6 @@ function select(iri: string) {
 }
 
 #simple-maps-table-container ::v-deep(.p-datatable-wrapper) {
-  flex-grow: 6;
+  grow: 6;
 }
 </style>

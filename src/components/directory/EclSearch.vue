@@ -163,7 +163,7 @@ function setFilterDefaults() {
 
 #query-builder-container {
   width: 100%;
-  flex-grow: 100;
+  grow: 100;
   overflow: auto;
 }
 
@@ -187,7 +187,7 @@ function setFilterDefaults() {
   width: 100%;
   height: 10rem;
   overflow: auto;
-  flex-grow: 100;
+  grow: 100;
 }
 
 .info {
