@@ -1,4 +1,4 @@
-import { defineConfig } from "eslint/config";
+import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
 import eslint from "@eslint/js";
 import typescriptEslint from "typescript-eslint";
@@ -9,6 +9,7 @@ import eslintPluginVueScopedCSS from "eslint-plugin-vue-scoped-css";
 import css from "@eslint/css";
 
 export default defineConfig([
+  globalIgnores(["src/components/imquery/**/*"]),
   {
     files: ["src/**/*"],
     extends: [
@@ -36,10 +37,7 @@ export default defineConfig([
       "no-unused-vars": "off",
       "no-use-before-define": "off",
       "no-debugger": "off",
-      "@typescript-eslint/no-var-requires": 0,
-      "@typescript-eslint/no-explicit-any": "off",
       "vue/multi-word-component-names": "off",
-      "vue/no-mutating-props": "off",
       "no-redeclare": "off"
     }
   }
