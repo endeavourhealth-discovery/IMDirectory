@@ -1,7 +1,8 @@
 enum PrimeVuePresetThemes {
   AURA = "Aura",
   LARA = "Lara",
-  NORA = "Nora"
+  NORA = "Nora",
+  MATERIAL = "Material"
 }
 
 export default PrimeVuePresetThemes;

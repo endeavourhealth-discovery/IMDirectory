@@ -1,5 +1,5 @@
 <template>
-  <RecursiveQueryDisplay v-if="'match' === overlayObject.type" :query="overlayObject.data" :isVariable="true" />
+  <RecursiveQueryDisplay v-if="'match' === overlayObject.type" :query="overlayObject.data" :matchExpanded="false" :returnExpanded=false />
 </template>
 
 <script setup lang="ts">

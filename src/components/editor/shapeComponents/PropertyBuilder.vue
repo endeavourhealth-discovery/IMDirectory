@@ -12,6 +12,7 @@
         @mouseover="mouseover($event, true)"
       >
         <table data-testid="property-builder">
+          <tbody>
           <template v-for="(row, index) in dmProperties">
             <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
               <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
@@ -127,6 +128,7 @@
               </td>
             </tr>
           </template>
+        </tbody>
         </table>
       </div>
       <span v-if="invalid && showValidation" class="error-message-text">{{ validationErrorMessage }}</span>
