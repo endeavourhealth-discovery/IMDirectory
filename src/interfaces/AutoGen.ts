@@ -1,1067 +1,1236 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-03-26 11:48:22.
+// Generated using typescript-generator version 3.2.1263 on 2025-04-29 14:42:12.
 
 export interface DataModelProperty extends Serializable {
-    property?: TTIriRef;
-    type?: TTIriRef;
-    minInclusive?: string;
-    minExclusive?: string;
-    maxInclusive?: string;
-    maxExclusive?: string;
-    pattern?: string;
-    inheritedFrom?: TTIriRef;
-    order?: number;
+  property?: TTIriRef;
+  type?: TTIriRef;
+  minInclusive?: string;
+  minExclusive?: string;
+  maxInclusive?: string;
+  maxExclusive?: string;
+  pattern?: string;
+  inheritedFrom?: TTIriRef;
+  order?: number;
 }
 
 export interface DownloadEntityOptions {
-    entityIri?: string;
-    format?: string;
-    includeHasSubtypes?: boolean;
-    includeInferred?: boolean;
-    includeProperties?: boolean;
-    includeMembers?: boolean;
-    expandMembers?: boolean;
-    expandSubsets?: boolean;
-    includeTerms?: boolean;
-    includeIsChildOf?: boolean;
-    includeHasChildren?: boolean;
-    includeInactive?: boolean;
+  entityIri?: string;
+  format?: string;
+  includeHasSubtypes?: boolean;
+  includeInferred?: boolean;
+  includeProperties?: boolean;
+  includeMembers?: boolean;
+  expandMembers?: boolean;
+  expandSubsets?: boolean;
+  includeTerms?: boolean;
+  includeIsChildOf?: boolean;
+  includeHasChildren?: boolean;
+  includeInactive?: boolean;
+}
+
+export interface Pageable<T> {
+  totalCount?: number;
+  currentPage?: number;
+  pageSize?: number;
+  result?: T[];
+}
+
+export interface BooleanBody {
+  bool?: boolean;
+}
+
+export interface CodeGenDto {
+  name?: string;
+  extension?: string;
+  collectionWrapper?: string;
+  datatypeMap?: { [index: string]: string };
+  template?: string;
+  complexTypes?: boolean;
+}
+
+export interface DownloadDto extends Serializable {
+  summary?: TTEntity;
+  hasSubTypes?: EntityReferenceNode[];
+  inferred?: TTNode;
+  axioms?: TTNode;
+  members?: ExportSet;
+  dataModelProperties?: DataModelProperty[];
+  terms?: SearchTermCode[];
+  isChildOf?: TTArray;
+  hasChildren?: TTArray;
+}
+
+export interface EntityDefinitionDto {
+  iri?: string;
+  name?: string;
+  description?: string;
+  status?: string;
+  types?: TTIriRef[];
+  isa?: TTIriRef[];
+  subtypes?: TTIriRef[];
+}
+
+export interface FieldDto {
+  name?: string;
+  firstType?: string;
+  secondType?: string;
+}
+
+export interface FilterOptionsDto {
+  status?: TTIriRef[];
+  schemes?: TTIriRef[];
+  types?: TTIriRef[];
+  sortFields?: TTIriRef[];
+  sortDirections?: TTIriRef[];
+}
+
+export interface GraphDto {
+  key?: string;
+  type?: GraphType;
+  name?: string;
+  iri?: string;
+  propertyType?: string;
+  valueTypeIri?: string;
+  valueTypeName?: string;
+  inheritedFromIri?: string;
+  inheritedFromName?: string;
+  min?: string;
+  max?: string;
+  children?: GraphDto[];
+  leafNodes?: GraphDto[];
+}
+
+export interface InstanceDTO {
+  entity?: TTEntity;
+  predicates?: TTIriRef[];
+}
+
+export interface ParentDto extends TTIriRef {
+  parents?: ParentDto[];
+}
+
+export interface RecentActivityItemDto {
+  iri?: string;
+  name?: string;
+  type?: string;
+  dateTime?: Date;
+  action?: string;
+  color?: string;
+  icon?: string[];
+}
+
+export interface ScaleDto {
+  scaleValue?: string;
+}
+
+export interface SemanticProperty extends Serializable {
+  property?: TTIriRef;
+  type?: TTIriRef;
+}
+
+export interface SimpleMap {
+  name?: string;
+  code?: string;
+  scheme?: string;
+  "@id"?: string;
+}
+
+export interface ThemeDto {
+  themeValue?: string;
+}
+
+export interface UIProperty {
+  iri?: string;
+  name?: string;
+  propertyType?: string;
+  valueType?: string;
+  maxCount?: number;
+  number?: number;
+  valueLabel?: string;
+  intervalUnitIri?: string;
+  intervalUnitOptions?: TTIriRef[];
+  unitIri?: string;
+  unitOptions?: TTIriRef[];
+  operatorIri?: string;
+  operatorOptions?: string[];
+  qualifierOptions?: TTIriRef[];
+}
+
+export interface UnassignedEntity {
+  iri?: string;
+  name?: string;
+  suggestions?: TTIriRef[];
+}
+
+export interface UserDataDto {
+  preset?: string;
+  primaryColor?: string;
+  darkMode?: boolean;
+  scale?: string;
+  organisations?: string[];
+  favourites?: string[];
+  mru?: RecentActivityItemDto[];
 }
 
 export interface BoolGroup extends BuilderComponent {
-    conjunction?: Bool;
-    items?: BuilderComponent[];
-    attributeGroup?: boolean;
-    exclude?: boolean;
+  conjunction?: Bool;
+  items?: BuilderComponent[];
+  attributeGroup?: boolean;
+  exclude?: boolean;
 }
 
 export interface BuilderComponent extends BuilderValue {
-    type?: string;
+  type?: string;
 }
 
-export interface BuilderValue {
-}
+export interface BuilderValue {}
 
 export interface ConceptReference {
-    iri?: string;
-    name?: string;
+  iri?: string;
+  name?: string;
 }
 
-export interface EclBuilderException extends Exception {
-}
+export interface EclBuilderException extends Exception {}
 
 export interface ExpressionConstraint extends BuilderComponent {
-    constraintOperator?: string;
-    conjunction?: Bool;
-    conceptSingle?: ConceptReference;
-    conceptBool?: BoolGroup;
-    refinementItems?: BuilderComponent[];
+  constraintOperator?: string;
+  conjunction?: Bool;
+  conceptSingle?: ConceptReference;
+  conceptBool?: BoolGroup;
+  refinementItems?: BuilderComponent[];
 }
 
 export interface Refinement extends BuilderComponent {
-    operator?: string;
-    property?: SubExpressionConstraint;
-    value?: SubExpressionConstraint;
+  operator?: string;
+  property?: SubExpressionConstraint;
+  value?: SubExpressionConstraint;
 }
 
 export interface SubExpressionConstraint {
-    concept?: ConceptReference;
-    constraintOperator?: string;
+  concept?: ConceptReference;
+  constraintOperator?: string;
 }
 
 export interface GithubAuthorDTO {
-    login?: string;
+  login?: string;
 }
 
 export interface GithubDTO {
-    tag_name?: string;
-    name?: string;
-    body?: string;
-    created_at?: string;
-    published_at?: string;
-    author?: GithubAuthorDTO;
+  tag_name?: string;
+  name?: string;
+  body?: string;
+  created_at?: string;
+  published_at?: string;
+  author?: GithubAuthorDTO;
 }
 
 export interface GithubRelease {
-    version?: string;
-    title?: string;
-    createdDate?: string;
-    publishedDate?: string;
-    releaseNotes?: string[];
-    author?: string;
-    url?: string;
+  version?: string;
+  title?: string;
+  createdDate?: string;
+  publishedDate?: string;
+  releaseNotes?: string[];
+  author?: string;
+  url?: string;
 }
 
 export interface ArrayButtons {
-    up?: boolean;
-    down?: boolean;
-    plus?: boolean;
-    minus?: boolean;
-    addOnlyIfLast?: boolean;
+  up?: boolean;
+  down?: boolean;
+  plus?: boolean;
+  minus?: boolean;
+  addOnlyIfLast?: boolean;
 }
 
 export interface Binding {
-    predicateBinding?: { [index: string]: string };
-    predicateObject?: { [index: string]: Binding };
+  predicateBinding?: { [index: string]: string };
+  predicateObject?: { [index: string]: Binding };
 }
 
 export interface Concept extends Entity {
-    subClassOf?: TTIriRef[];
-    code?: string;
-    im1Id?: string;
-    matchedFrom?: Concept[];
-    usage?: number;
-    codeId?: string;
-    alternativeCode?: string;
-    subsumedBy?: TTIriRef[];
+  subClassOf?: TTIriRef[];
+  code?: string;
+  im1Id?: string;
+  matchedFrom?: Concept[];
+  usage?: number;
+  codeId?: string;
+  alternativeCode?: string;
+  subsumedBy?: TTIriRef[];
 }
 
 export interface ConceptSet extends Entity {
-    definition?: Query;
-    hasMember?: TTIriRef[];
-    usedIn?: TTIriRef[];
+  definition?: Query;
+  hasMember?: TTIriRef[];
+  usedIn?: TTIriRef[];
 }
 
 export interface Entity {
-    "@id"?: string;
-    status?: TTIriRef;
-    scheme?: TTIriRef;
-    isContainedIn?: TTEntity[];
-    entityType?: TTIriRef[];
-    name?: string;
-    description?: string;
+  "@id"?: string;
+  status?: TTIriRef;
+  scheme?: TTIriRef;
+  isContainedIn?: TTEntity[];
+  entityType?: TTIriRef[];
+  name?: string;
+  description?: string;
 }
 
 export interface FormGenerator {
-    "@id"?: string;
-    status?: TTIriRef;
-    label?: string;
-    comment?: string;
-    targetShape?: TTIriRef;
-    type?: TTIriRef[];
-    isContainedIn?: TTEntity[];
-    subClassOf?: TTIriRef[];
-    scheme?: TTIriRef;
-    iri?: string;
-    property?: PropertyShape[];
+  "@id"?: string;
+  status?: TTIriRef;
+  label?: string;
+  comment?: string;
+  targetShape?: TTIriRef;
+  type?: TTIriRef[];
+  isContainedIn?: TTEntity[];
+  subClassOf?: TTIriRef[];
+  scheme?: TTIriRef;
+  iri?: string;
+  property?: PropertyShape[];
 }
 
 export interface FunctionRequest {
-    functionIri?: string;
-    arguments?: Argument[];
-    page?: Page;
+  functionIri?: string;
+  arguments?: Argument[];
+  page?: Page;
 }
 
 export interface FunctionTemplate extends Entity {
-    function?: TTIriRef;
-    parameterTemplate?: ParameterTemplate[];
+  function?: TTIriRef;
+  parameterTemplate?: ParameterTemplate[];
 }
 
 export interface MapFunction extends TTIriRef {
-    argument?: Argument[];
-    conceptMap?: { [index: string]: string };
-    defaultValue?: TTIriRef;
+  argument?: Argument[];
+  conceptMap?: { [index: string]: string };
+  defaultValue?: TTIriRef;
 }
 
 export interface ModelDocument {
-    "@context"?: TTContext;
-    query?: QueryEntity[];
-    folder?: Entity[];
-    conceptSet?: ConceptSet[];
-    function?: MapFunction[];
+  "@context"?: TTContext;
+  query?: QueryEntity[];
+  folder?: Entity[];
+  conceptSet?: ConceptSet[];
+  function?: MapFunction[];
 }
 
 export interface NodeShape extends TTIriRef {
-    property?: PropertyShape[];
-    subType?: TTIriRef[];
+  property?: PropertyShape[];
+  subType?: TTIriRef[];
 }
 
 export interface Page {
-    pageNumber?: number;
-    pageSize?: number;
+  pageNumber?: number;
+  pageSize?: number;
 }
 
 export interface ParameterShape {
-    label?: string;
-    type?: TTIriRef;
-    parameterSubType?: TTIriRef[];
+  label?: string;
+  type?: TTIriRef;
+  parameterSubType?: TTIriRef[];
 }
 
 export interface ParameterTemplate extends Entity {
-    label?: string;
-    order?: number;
-    valueTemplate?: ValueTemplate[];
+  label?: string;
+  order?: number;
+  valueTemplate?: ValueTemplate[];
 }
 
 export interface PropertyRange extends TTIriRef {
-    pattern?: string;
-    intervalUnit?: TTIriRef;
-    qualifier?: PropertyRange[];
-    type?: TTIriRef;
-    units?: TTIriRef;
-    operator?: TTIriRef;
-    relativeValue?: boolean;
+  pattern?: string;
+  intervalUnit?: TTIriRef;
+  qualifier?: PropertyRange[];
+  type?: TTIriRef;
+  units?: TTIriRef;
+  operator?: TTIriRef;
+  relativeValue?: boolean;
 }
 
 export interface PropertyShape {
-    label?: string;
-    comment?: string;
-    name?: string;
-    order: number;
-    minCount?: number;
-    maxCount?: number;
-    componentType: TTIriRef;
-    path: TTIriRef;
-    datatype?: PropertyRange;
-    node?: PropertyRange;
-    validation?: TTIriRef;
-    search?: TTIriRef;
-    select?: TTIriRef[];
-    argument?: Argument[];
-    valueVariable?: string;
-    isIri?: TTIriRef;
-    isTextValue?: string;
-    isNumericValue?: string;
-    forceIsValue?: boolean;
-    builderChild?: boolean;
-    showTitle?: boolean;
-    group?: TTIriRef;
-    property?: PropertyShape[];
-    clazz?: PropertyRange;
-    validationErrorMessage?: string;
-    function?: TTIriRef;
-    parameter?: ParameterShape[];
-    valueIri?: TTIriRef;
-    expression?: NodeShape;
-    arrayButtons?: ArrayButtons;
-    hasValue?: any;
-    hasValueType?: TTIriRef;
-    definition?: string;
+  label?: string;
+  comment?: string;
+  name?: string;
+  order: number;
+  minCount?: number;
+  maxCount?: number;
+  componentType: TTIriRef;
+  path: TTIriRef;
+  datatype?: PropertyRange;
+  node?: PropertyRange;
+  validation?: TTIriRef;
+  search?: TTIriRef;
+  select?: TTIriRef[];
+  argument?: Argument[];
+  valueVariable?: string;
+  isIri?: TTIriRef;
+  isTextValue?: string;
+  isNumericValue?: string;
+  forceIsValue?: boolean;
+  builderChild?: boolean;
+  showTitle?: boolean;
+  group?: TTIriRef;
+  property?: PropertyShape[];
+  clazz?: PropertyRange;
+  validationErrorMessage?: string;
+  function?: TTIriRef;
+  parameter?: ParameterShape[];
+  valueIri?: TTIriRef;
+  expression?: NodeShape;
+  arrayButtons?: ArrayButtons;
+  hasValue?: any;
+  hasValueType?: TTIriRef;
+  definition?: string;
 }
 
 export interface SetContent {
-    name?: string;
-    description?: string;
-    status?: string;
-    version?: number;
-    setDefinition?: string;
-    subsets?: string[];
-    concepts?: Concept[];
+  name?: string;
+  description?: string;
+  status?: string;
+  version?: number;
+  setDefinition?: string;
+  subsets?: string[];
+  concepts?: Concept[];
 }
 
 export interface TransformRequest {
-    transformMap?: TTIriRef;
-    sourceFormat?: string;
-    targetFormat?: string;
-    source?: { [index: string]: any[] };
+  transformMap?: TTIriRef;
+  sourceFormat?: string;
+  targetFormat?: string;
+  source?: { [index: string]: any[] };
 }
 
 export interface ValueTemplate extends Entity {
-    label?: string;
-    parameter?: string;
-    order?: number;
-    valueType?: TTIriRef;
-    defaultValue?: any;
-    valueOption?: any[];
+  label?: string;
+  parameter?: string;
+  order?: number;
+  valueType?: TTIriRef;
+  defaultValue?: any;
+  valueOption?: any[];
 }
 
 export interface Argument {
-    parameter?: string;
-    valueData?: string;
-    valueVariable?: string;
-    valueIri?: TTIriRef;
-    valueIriList?: TTIriRef[];
-    valueDataList?: string[];
-    valueObject?: any;
+  parameter?: string;
+  valueData?: string;
+  valueVariable?: string;
+  valueIri?: TTIriRef;
+  valueIriList?: TTIriRef[];
+  valueDataList?: string[];
+  valueObject?: any;
 }
 
 export interface Assignable {
-    value?: string;
-    unit?: TTIriRef;
-    qualifier?: string;
-    operator?: Operator;
-    valueLabel?: string;
-    valueParameter?: string;
+  value?: string;
+  unit?: TTIriRef;
+  valueLabel?: string;
+  valueParameter?: string;
+  operator?: Operator;
+  qualifier?: string;
 }
 
 export interface Case {
-    when?: When[];
-    else?: string;
+  when?: When[];
+  else?: string;
 }
 
 export interface ContextMap {
-    context?: { [index: string]: string };
+  context?: { [index: string]: string };
 }
 
 export interface Delete {
-    property?: Where;
-    subject?: Element;
-    inverse?: boolean;
-    predicate?: Element;
-    object?: Element;
-    delete?: Delete[];
+  property?: Where;
+  subject?: Element;
+  inverse?: boolean;
+  predicate?: Element;
+  object?: Element;
+  delete?: Delete[];
 }
 
 export interface Element extends IriLD, Entailment {
-    parameter?: string;
-    variable?: string;
-    ancestorsOrSelfOf?: boolean;
-    childOrSelfOf?: boolean;
-    childOf?: boolean;
-    parentOrSelfOf?: boolean;
-    parentOf?: boolean;
-    nodeRef?: string;
+  parameter?: string;
+  variable?: string;
+  ancestorsOrSelfOf?: boolean;
+  childOrSelfOf?: boolean;
+  childOf?: boolean;
+  parentOrSelfOf?: boolean;
+  parentOf?: boolean;
+  nodeRef?: string;
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    memberOf?: boolean;
-    ancestorsOf?: boolean;
-    descendantsOf?: boolean;
+  memberOf?: boolean;
+  descendantsOrSelfOf?: boolean;
+  ancestorsOf?: boolean;
+  descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
-    name?: Function;
-    argument?: Argument[];
-    range?: Range;
+  name?: Function;
+  argument?: Argument[];
+  range?: Range;
 }
 
 export interface GraphNode {
-    path?: Path;
-    variable?: string;
+  path?: Path;
+  variable?: string;
 }
 
 export interface GroupBy extends IriLD {
-    nodeRef?: string;
-    valueRef?: string;
-    propertyRef?: string;
+  nodeRef?: string;
+  valueRef?: string;
+  propertyRef?: string;
 }
 
 export interface Instance extends IriLD {
-    entailment?: TTIriRef;
+  entailment?: TTIriRef;
 }
 
 export interface IriLD {
-    "@id"?: string;
-    qualifier?: string;
-    name?: string;
-    description?: string;
+  "@id"?: string;
+  qualifier?: string;
+  name?: string;
+  description?: string;
 }
 
 export interface Match extends IriLD, GraphNode {
-    ifTrue?: RuleAction;
-    ifFalse?: RuleAction;
-    exclude?: boolean;
-    nodeRef?: string;
-    header?: string;
-    preface?: string;
-    typeOf?: Node;
-    instanceOf?: Node[];
-    where?: Where[];
-    match?: Match[];
-    bool?: Bool;
-    graph?: Element;
-    orderBy?: OrderLimit;
-    optional?: boolean;
-    aggregate?: FunctionClause;
-    function?: FunctionClause;
-    entailment?: Entail;
-    hasRules?: boolean;
-    hasLinked?: boolean;
-    union?: boolean;
-    rule?: boolean;
-    hasTest?: boolean;
-    test?: boolean;
-    return?: Return;
-    returx?: Return;
-    isTest?: boolean;
-    isUnion?: boolean;
-    isRule?: boolean;
+  ifTrue?: RuleAction;
+  ifFalse?: RuleAction;
+  exclude?: boolean;
+  nodeRef?: string;
+  header?: string;
+  preface?: string;
+  typeOf?: Node;
+  instanceOf?: Node[];
+  where?: Where[];
+  match?: Match[];
+  bool?: Bool;
+  graph?: Element;
+  orderBy?: OrderLimit;
+  optional?: boolean;
+  aggregate?: FunctionClause;
+  function?: FunctionClause;
+  entailment?: Entail;
+  hasRules?: boolean;
+  hasLinked?: boolean;
+  union?: boolean;
+  rule?: boolean;
+  hasTest?: boolean;
+  test?: boolean;
+  return?: Return;
+  returx?: Return;
+  isUnion?: boolean;
+  isRule?: boolean;
+  isTest?: boolean;
 }
 
 export interface Node extends Element, GraphNode {
-    type?: string;
-    exclude?: boolean;
-    code?: string;
-    inverse?: boolean;
+  type?: string;
+  exclude?: boolean;
+  code?: string;
+  inverse?: boolean;
 }
 
 export interface OrderDirection extends RelativeTo {
-    direction?: Order;
+  direction?: Order;
 }
 
 export interface OrderLimit {
-    property?: OrderDirection;
-    limit?: number;
-    description?: string;
+  property?: OrderDirection;
+  limit?: number;
+  description?: string;
 }
 
 export interface Path extends Element {
-    inverse?: boolean;
-    where?: Where;
+  inverse?: boolean;
+  where?: Where;
 }
 
 export interface PathDocument {
-    match?: Match[];
+  match?: Match[];
 }
 
 export interface PathQuery extends TTIriRef {
-    source?: TTIriRef;
-    target?: TTIriRef;
-    depth?: number;
+  source?: TTIriRef;
+  target?: TTIriRef;
+  depth?: number;
 }
 
 export interface Prefix {
-    prefix?: string;
-    namespace?: string;
+  prefix?: string;
+  namespace?: string;
 }
 
 export interface Query extends Match {
-    activeOnly?: boolean;
-    query?: Query[];
-    groupBy?: GroupBy[];
-    prefixes?: Prefix[];
-    imQuery?: boolean;
-    parentResult?: any;
-    persistentIri?: TTIriRef;
+  activeOnly?: boolean;
+  query?: Query[];
+  groupBy?: GroupBy[];
+  prefixes?: Prefix[];
+  imQuery?: boolean;
+  parentResult?: any;
+  persistentIri?: TTIriRef;
 }
 
 export interface QueryEntity extends Entity {
-    definition?: Query;
+  definition?: Query;
 }
 
-export interface QueryException extends Exception {
-}
+export interface QueryException extends Exception {}
 
 export interface QueryRequest extends ContextMap {
-    "@context"?: { [index: string]: string };
-    textSearch?: string;
-    argument?: Argument[];
-    referenceDate?: string;
-    query: Query;
-    pathQuery?: PathQuery;
-    update?: Update;
-    name?: string;
-    page?: Page;
-    askIri?: string;
-    timings?: { [index: string]: string }[];
-    cohort?: TTIriRef[];
+  "@context"?: { [index: string]: string };
+  textSearch?: string;
+  argument?: Argument[];
+  referenceDate?: string;
+  query: Query;
+  pathQuery?: PathQuery;
+  update?: Update;
+  name?: string;
+  page?: Page;
+  askIri?: string;
+  timings?: { [index: string]: string }[];
+  cohort?: TTIriRef[];
 }
 
 export interface Range {
-    from: Value;
-    to: Value;
+  from: Value;
+  to: Value;
 }
 
 export interface RelativeTo extends Node {
-    valueVariable?: string;
-    propertyRef?: string;
+  valueVariable?: string;
+  propertyRef?: string;
 }
 
 export interface Return {
-    nodeRef?: string;
-    function?: FunctionClause;
-    property?: ReturnProperty[];
-    as?: string;
+  nodeRef?: string;
+  function?: FunctionClause;
+  property?: ReturnProperty[];
+  as?: string;
 }
 
 export interface ReturnProperty {
-    "@id"?: string;
-    name?: string;
-    function?: FunctionClause;
-    as?: string;
-    nodeRef?: string;
-    propertyRef?: string;
-    value?: string;
-    valueRef?: string;
-    inverse?: boolean;
-    unit?: string;
-    dataType?: TTIriRef;
-    description?: string;
-    match?: Match[];
-    boolMatch?: Bool;
-    case?: Case;
-    return?: Return;
+  "@id"?: string;
+  name?: string;
+  function?: FunctionClause;
+  as?: string;
+  nodeRef?: string;
+  propertyRef?: string;
+  value?: string;
+  valueRef?: string;
+  inverse?: boolean;
+  unit?: string;
+  dataType?: TTIriRef;
+  description?: string;
+  match?: Match[];
+  boolMatch?: Bool;
+  case?: Case;
+  return?: Return;
 }
 
 export interface Update extends TTIriRef {
-    match?: Match[];
-    delete?: Delete[];
+  match?: Match[];
+  delete?: Delete[];
 }
 
-export interface Value extends Assignable {
-}
+export interface Value extends Assignable {}
 
 export interface When {
-    where?: Where;
-    then?: string;
-    exists?: boolean;
-    case?: Case;
+  where?: Where;
+  then?: string;
+  exists?: boolean;
+  case?: Case;
 }
 
 export interface Where extends Element, Assignable {
-    bool?: Bool;
-    match?: Match;
-    range?: Range;
-    isNull?: boolean;
-    relativeTo?: RelativeTo;
-    anyRoleGroup?: boolean;
-    typeOf?: Node;
-    is?: Node[];
-    not?: boolean;
-    where?: Where[];
-    isNotNull?: boolean;
-    function?: FunctionClause;
-    valueVariable?: string;
-    path?: Path;
-    inverse?: boolean;
+  bool?: Bool;
+  match?: Match;
+  range?: Range;
+  isNull?: boolean;
+  relativeTo?: RelativeTo;
+  anyRoleGroup?: boolean;
+  typeOf?: Node;
+  is?: Node[];
+  not?: boolean;
+  where?: Where[];
+  isNotNull?: boolean;
+  function?: FunctionClause;
+  valueVariable?: string;
+  path?: Path;
+  inverse?: boolean;
 }
 
 export interface DownloadByQueryOptions {
-    queryRequest?: QueryRequest;
-    eclSearchRequest?: EclSearchRequest;
-    totalCount?: number;
-    format?: string;
-    includeDefinition?: boolean;
-    includeCore?: boolean;
-    includeLegacy?: boolean;
-    includeSubsets?: boolean;
-    subsetsOnOwnRow?: boolean;
-    im1id?: boolean;
+  queryRequest?: QueryRequest;
+  eclSearchRequest?: EclSearchRequest;
+  totalCount?: number;
+  format?: string;
+  includeDefinition?: boolean;
+  includeCore?: boolean;
+  includeLegacy?: boolean;
+  includeSubsets?: boolean;
+  subsetsOnOwnRow?: boolean;
+  im1id?: boolean;
 }
 
 export interface EntityDocument {
-    id?: number;
-    iri?: string;
-    name?: string;
-    length?: number;
-    preferredName?: string;
-    code?: string;
-    alternativeCode?: string;
-    scheme?: TTIriRef;
-    entityType?: TTIriRef[];
-    status?: TTIriRef;
-    termCode?: SearchTermCode[];
-    usageTotal?: number;
-    match?: string;
-    isA?: TTIriRef[];
-    memberOf?: TTIriRef[];
-    subsumptionCount?: number;
-    binding?: string[];
-    isDescendentOf?: TTIriRef[];
+  id?: number;
+  iri?: string;
+  name?: string;
+  length?: number;
+  preferredName?: string;
+  code?: string;
+  alternativeCode?: string;
+  scheme?: TTIriRef;
+  entityType?: TTIriRef[];
+  status?: TTIriRef;
+  termCode?: SearchTermCode[];
+  usageTotal?: number;
+  match?: string;
+  isA?: TTIriRef[];
+  memberOf?: TTIriRef[];
+  subsumptionCount?: number;
+  binding?: string[];
+  isDescendentOf?: TTIriRef[];
 }
 
 export interface Filter {
-    field?: string;
-    iriValue?: TTIriRef[];
-    and?: Filter[];
-    not?: boolean;
-    textValue?: string[];
-    startsWithTerm?: boolean;
+  field?: string;
+  iriValue?: TTIriRef[];
+  and?: Filter[];
+  not?: boolean;
+  textValue?: string[];
+  startsWithTerm?: boolean;
 }
 
 export interface OrderBy {
-    field?: string;
-    direction?: Order;
-    iriValue?: TTIriRef[];
-    and?: OrderBy[];
-    textValue?: string[];
-    not?: boolean;
-    startsWithTerm?: boolean;
+  field?: string;
+  direction?: Order;
+  iriValue?: TTIriRef[];
+  and?: OrderBy[];
+  textValue?: string[];
+  not?: boolean;
+  startsWithTerm?: boolean;
 }
 
 export interface SearchBinding {
-    path?: TTIriRef;
-    node?: TTIriRef;
+  path?: TTIriRef;
+  node?: TTIriRef;
 }
 
 /**
  * Structure containing search request parameters and filters
  */
 export interface SearchRequest {
-    /**
-     * Plain text, space separated list of terms
-     */
-    termFilter?: string;
-    index?: string;
-    /**
-     * List of entity status IRI's
-     */
-    statusFilter?: string[];
-    /**
-     * List of entity type IRI's
-     */
-    typeFilter?: string[];
-    /**
-     * List of code scheme IRI's
-     */
-    schemeFilter?: string[];
-    /**
-     * List of binding node and path IRI's
-     */
-    bindingFilter?: SearchBinding[];
-    /**
-     * Marks the results if they are descendants of any of these entities, but does not filter by them
-     */
-    markIfDescendentOf?: string[];
-    /**
-     * List of IRIs that must be supertypes of the matches
-     */
-    isA?: string[];
-    /**
-     * List of set IRIs that the match must be a member of
-     */
-    memberOf?: string[];
-    /**
-     * The search result page number to retrieve
-     */
-    page?: number;
-    /**
-     * The number of results to retrieve per page
-     */
-    size?: number;
-    from?: number;
-    /**
-     * list of fields or property paths from search result summary to return 
-     */
-    select?: string[];
-    orderBy?: OrderBy[];
-    filter?: Filter[];
-    timings?: { [index: string]: string }[];
+  /**
+   * Plain text, space separated list of terms
+   */
+  termFilter?: string;
+  index?: string;
+  /**
+   * List of entity status IRI's
+   */
+  statusFilter?: string[];
+  /**
+   * List of entity type IRI's
+   */
+  typeFilter?: string[];
+  /**
+   * List of code scheme IRI's
+   */
+  schemeFilter?: string[];
+  /**
+   * List of binding node and path IRI's
+   */
+  bindingFilter?: SearchBinding[];
+  /**
+   * Marks the results if they are descendants of any of these entities, but does not filter by them
+   */
+  markIfDescendentOf?: string[];
+  /**
+   * List of IRIs that must be supertypes of the matches
+   */
+  isA?: string[];
+  /**
+   * List of set IRIs that the match must be a member of
+   */
+  memberOf?: string[];
+  /**
+   * The search result page number to retrieve
+   */
+  page?: number;
+  /**
+   * The number of results to retrieve per page
+   */
+  size?: number;
+  from?: number;
+  /**
+   * list of fields or property paths from search result summary to return
+   */
+  select?: string[];
+  orderBy?: OrderBy[];
+  filter?: Filter[];
+  timings?: { [index: string]: string }[];
 }
 
 export interface SearchResponse {
-    page?: number;
-    count?: number;
-    totalCount?: number;
-    highestUsage?: number;
-    term?: string;
-    entities?: SearchResultSummary[];
+  page?: number;
+  count?: number;
+  totalCount?: number;
+  highestUsage?: number;
+  term?: string;
+  entities?: SearchResultSummary[];
 }
 
 export interface SearchResultSummary {
-    name?: string;
-    code?: string;
-    description?: string;
-    status: TTIriRef;
-    scheme: TTIriRef;
-    entityType: TTIriRef[];
-    usageTotal?: number;
-    match?: string;
-    preferredName?: string;
-    key?: string[];
-    isA?: TTIriRef[];
-    termCode?: SearchTermCode[];
-    unit?: TTIriRef[];
-    qualifier?: TTIriRef[];
-    iri: string;
+  name?: string;
+  code?: string;
+  description?: string;
+  status: TTIriRef;
+  scheme: TTIriRef;
+  entityType: TTIriRef[];
+  usageTotal?: number;
+  match?: string;
+  preferredName?: string;
+  key?: string[];
+  isA?: TTIriRef[];
+  termCode?: SearchTermCode[];
+  unit?: TTIriRef[];
+  qualifier?: TTIriRef[];
+  iri: string;
 }
 
 export interface SearchTermCode extends Comparable<SearchTermCode> {
-    term?: string;
-    code?: string;
-    status?: TTIriRef;
+  term?: string;
+  code?: string;
+  status?: TTIriRef;
 }
 
 export interface EclSearchRequest {
-    eclQuery?: Query;
-    includeLegacy?: boolean;
-    limit?: number;
-    statusFilter?: TTIriRef[];
-    page?: number;
-    size?: number;
-    select?: string[];
+  eclQuery?: Query;
+  includeLegacy?: boolean;
+  limit?: number;
+  statusFilter?: TTIriRef[];
+  page?: number;
+  size?: number;
+  select?: string[];
+}
+
+export interface TTDocument extends TTNode {
+  graph?: TTIriRef;
+  context?: TTContext;
+  entities?: TTEntity[];
+  crud?: TTIriRef;
+  predicates?: { [index: string]: string };
+  prefixes?: TTPrefix[];
+}
+
+export interface TTEntity extends TTNode, Serializable {
+  context?: TTContext;
+  crud?: TTIriRef;
+  graph?: TTIriRef;
+  type?: TTArray;
+  name?: string;
+  scheme?: TTIriRef;
+  version?: number;
+  status?: TTIriRef;
+  description?: string;
+  code?: string;
+  prefixes?: TTPrefix[];
+}
+
+export interface EntityValidationRequest {
+  entity?: TTEntity;
+  validationIri?: string;
 }
 
 export interface BugReport extends Task {
-    product?: string;
-    version?: string;
-    module?: TaskModule;
-    os?: OperatingSystem;
-    osOther?: string;
-    browser?: Browser;
-    browserOther?: string;
-    severity?: Severity;
-    status?: Status;
-    error?: string;
-    description?: string;
-    reproduceSteps?: string;
-    expectedResult?: string;
-    actualResult?: string;
+  product?: string;
+  version?: string;
+  module?: TaskModule;
+  os?: OperatingSystem;
+  osOther?: string;
+  browser?: Browser;
+  browserOther?: string;
+  severity?: Severity;
+  status?: Status;
+  error?: string;
+  description?: string;
+  reproduceSteps?: string;
+  expectedResult?: string;
+  actualResult?: string;
 }
 
 export interface EntityApproval extends Task {
-    approvalType?: ApprovalType;
+  approvalType?: ApprovalType;
 }
 
 export interface RoleRequest extends Task {
-    role?: UserRole;
+  role?: UserRole;
 }
 
 export interface Task {
-    id?: TTIriRef;
-    createdBy?: string;
-    type?: TaskType;
-    state?: TaskState;
-    assignedTo?: string;
-    dateCreated?: Date;
-    history?: TaskHistory[];
+  id?: TTIriRef;
+  createdBy?: string;
+  type?: TaskType;
+  state?: TaskState;
+  assignedTo?: string;
+  dateCreated?: Date;
+  history?: TaskHistory[];
 }
 
 /**
  * Structure containing search request parameters and filters
  */
 export interface WorkflowRequest {
-    page?: number;
-    size?: number;
-    userId?: string;
+  page?: number;
+  size?: number;
+  userId?: string;
 }
 
 export interface WorkflowResponse {
-    page?: number;
-    count?: number;
-    tasks?: Task[];
+  page?: number;
+  count?: number;
+  tasks?: Task[];
 }
 
 export interface TaskHistory {
-    predicate?: string;
-    originalObject?: string;
-    newObject?: string;
-    changeDate?: Date;
-    modifiedBy?: string;
-    dateTime?: Date;
+  predicate?: string;
+  originalObject?: string;
+  newObject?: string;
+  changeDate?: Date;
+  modifiedBy?: string;
+  dateTime?: Date;
 }
 
-export interface BNF {
-}
+export interface BNF {}
 
-export interface CODE_TEMPLATE {
-}
+export interface CODE_TEMPLATE {}
 
-export interface COMPONENT {
-}
+export interface COMPONENT {}
 
-export interface CONFIG {
-}
+export interface CONFIG {}
 
-export interface EDITOR {
-}
+export interface EDITOR {}
 
-export interface FHIR {
-}
+export interface FHIR {}
 
-export interface GRAPH {
-}
+export interface GRAPH {}
 
-export interface IM {
-}
+export interface IM {}
 
-export interface IMQ {
-}
+export interface IMQ {}
 
-export interface IM_FUNCTION {
-}
+export interface IM_FUNCTION {}
 
-export interface MAP {
-}
+export interface MAP {}
 
-export interface ODS {
-}
+export interface ODS {}
 
-export interface ORG {
-}
+export interface ORG {}
 
-export interface OWL {
-}
+export interface OWL {}
 
-export interface PRSB {
-}
+export interface PRSB {}
 
-export interface QR {
-}
+export interface QR {}
 
-export interface QUERY {
-}
+export interface QUERY {}
 
-export interface RDF {
-}
+export interface RDF {}
 
-export interface RDFS {
-}
+export interface RDFS {}
 
-export interface SHACL {
-}
+export interface SHACL {}
 
-export interface SNOMED {
-}
+export interface SNOMED {}
 
-export interface USER {
-}
+export interface USER {}
 
-export interface VALIDATION {
-}
+export interface VALIDATION {}
 
-export interface WORKFLOW {
-}
+export interface WORKFLOW {}
 
-export interface XSD {
-}
+export interface XSD {}
 
 export interface TTIriRef extends TTValue, Serializable {
-    name?: string;
-    description?: string;
-    "@id": string;
+  name?: string;
+  description?: string;
+  "@id": string;
 }
 
-export interface Serializable {
-}
+export interface Serializable {}
 
-export interface Throwable extends Serializable {
-    cause?: Throwable;
-    stackTrace?: StackTraceElement[];
-    message?: string;
-    suppressed?: Throwable[];
-    localizedMessage?: string;
-}
-
-export interface StackTraceElement extends Serializable {
-    classLoaderName?: string;
-    moduleName?: string;
-    moduleVersion?: string;
-    methodName?: string;
-    fileName?: string;
-    lineNumber?: number;
-    nativeMethod?: boolean;
-    className?: string;
-}
-
-export interface Exception extends Throwable {
-}
-
-export interface TTEntity extends TTNode, Serializable {
-    context?: TTContext;
-    crud?: TTIriRef;
-    graph?: TTIriRef;
-    name?: string;
-    type?: TTArray;
-    scheme?: TTIriRef;
-    version?: number;
-    status?: TTIriRef;
-    description?: string;
-    code?: string;
-    prefixes?: TTPrefix[];
-}
-
-export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
-    nameSpaces?: TTPrefix[];
-}
-
-export interface TTValue extends Serializable {
-    order?: number;
-}
-
-export interface TTArray extends Serializable {
-    elements?: TTValue[];
-    list?: boolean;
-}
-
-export interface TTPrefix {
-    iri?: string;
-    prefix?: string;
-    name?: string;
+export interface EntityReferenceNode extends TTIriRef, Serializable {
+  parents?: EntityReferenceNode[];
+  children?: EntityReferenceNode[];
+  moduleId?: string;
+  hasChildren?: boolean;
+  hasGrandChildren?: boolean;
+  type?: TTArray;
+  orderNumber?: number;
 }
 
 export interface TTNode extends TTValue, Serializable {
-    predicateMap?: { [index: string]: TTArray };
-    "@id"?: string;
+  predicateMap?: { [index: string]: TTArray };
+  "@id"?: string;
 }
 
-export interface Comparable<T> {
+export interface ExportSet extends Serializable {
+  valueSet?: TTIriRef;
+  members?: SetMember[];
+  limited?: boolean;
 }
+
+export interface TTArray extends Serializable {
+  elements?: TTValue[];
+  list?: boolean;
+}
+
+export interface Throwable extends Serializable {
+  cause?: Throwable;
+  stackTrace?: StackTraceElement[];
+  message?: string;
+  suppressed?: Throwable[];
+  localizedMessage?: string;
+}
+
+export interface StackTraceElement extends Serializable {
+  classLoaderName?: string;
+  moduleName?: string;
+  moduleVersion?: string;
+  methodName?: string;
+  fileName?: string;
+  lineNumber?: number;
+  className?: string;
+  nativeMethod?: boolean;
+}
+
+export interface Exception extends Throwable {}
+
+export interface TTContext extends Serializable {
+  prefixes?: TTPrefix[];
+  nameSpaces?: TTPrefix[];
+}
+
+export interface TTPrefix {
+  iri?: string;
+  prefix?: string;
+  name?: string;
+}
+
+export interface TTValue extends Serializable {
+  order?: number;
+}
+
+export interface SetMember extends Serializable {
+  entity?: TTIriRef;
+  code?: string;
+  scheme?: TTIriRef;
+  label?: string;
+  type?: MemberType;
+  directParent?: TTIriRef;
+}
+
+export interface Comparable<T> {}
 
 export const enum ComponentType {
-    BOOL_GROUP = "BOOL_GROUP",
-    CONCEPT = "CONCEPT",
-    REFINEMENT = "REFINEMENT",
+  BOOL_GROUP = "BOOL_GROUP",
+  CONCEPT = "CONCEPT",
+  REFINEMENT = "REFINEMENT"
 }
 
 export const enum EclType {
-    exclusion = "exclusion",
-    refined = "refined",
-    compound = "compound",
-    compoundRefined = "compoundRefined",
-    simple = "simple",
+  exclusion = "exclusion",
+  refined = "refined",
+  compound = "compound",
+  compoundRefined = "compoundRefined",
+  simple = "simple"
 }
 
 export const enum ListMode {
-    ALL = "ALL",
-    FIRST = "FIRST",
-    REST = "REST",
+  ALL = "ALL",
+  FIRST = "FIRST",
+  REST = "REST"
 }
 
 export const enum TargetUpdateMode {
-    REPLACE = "REPLACE",
-    APPEND = "APPEND",
-    ADDTOLIST = "ADDTOLIST",
+  REPLACE = "REPLACE",
+  APPEND = "APPEND",
+  ADDTOLIST = "ADDTOLIST"
 }
 
 export const enum Aggregate {
-    SUM = "SUM",
-    COUNT = "COUNT",
-    AVERAGE = "AVERAGE",
-    MIN = "MIN",
-    MAX = "MAX",
+  SUM = "SUM",
+  COUNT = "COUNT",
+  AVERAGE = "AVERAGE",
+  MIN = "MIN",
+  MAX = "MAX"
 }
 
 export const enum Bool {
-    and = "and",
-    or = "or",
+  and = "and",
+  or = "or"
 }
 
 export const enum Comparison {
-    eq = "eq",
-    gte = "gte",
-    gt = "gt",
-    lte = "lte",
-    lt = "lt",
+  eq = "eq",
+  gte = "gte",
+  gt = "gt",
+  lte = "lte",
+  lt = "lt"
 }
 
 export const enum DisplayMode {
-    ORIGINAL = "ORIGINAL",
-    RULES = "RULES",
-    LOGICAL = "LOGICAL",
+  ORIGINAL = "ORIGINAL",
+  RULES = "RULES",
+  LOGICAL = "LOGICAL"
 }
 
 export const enum Entail {
-    descendantsOrSelfOf = "descendantsOrSelfOf",
-    memberOf = "memberOf",
-    descendantsOf = "descendantsOf",
-    ancestorsOf = "ancestorsOf",
-    equal = "equal",
+  descendantsOrSelfOf = "descendantsOrSelfOf",
+  memberOf = "memberOf",
+  descendantsOf = "descendantsOf",
+  ancestorsOf = "ancestorsOf",
+  equal = "equal"
 }
 
 export const enum Function {
-    sum = "sum",
-    count = "count",
-    average = "average",
-    timeDifference = "timeDifference",
+  sum = "sum",
+  count = "count",
+  average = "average",
+  timeDifference = "timeDifference"
 }
 
 export const enum Operator {
-    eq = "=",
-    gte = ">=",
-    gt = ">",
-    lte = "<=",
-    lt = "<",
-    start = "startsWith",
-    contains = "contains",
+  eq = "=",
+  gte = ">=",
+  gt = ">",
+  lte = "<=",
+  lt = "<",
+  start = "startsWith",
+  contains = "contains"
 }
 
 export const enum Order {
-    ascending = "ascending",
-    descending = "descending",
+  ascending = "ascending",
+  descending = "descending"
 }
 
 export const enum OrderableDate {
-    latest = "latest",
-    earliest = "earliest",
+  latest = "latest",
+  earliest = "earliest"
 }
 
 export const enum OrderableNumber {
-    highest = "highest",
-    lowest = "lowest",
+  highest = "highest",
+  lowest = "lowest"
 }
 
 export const enum QueryType {
-    POP = "POP",
-    LIST = "LIST",
-    AGGREGATE_REPORT = "AGGREGATE_REPORT",
+  POP = "POP",
+  LIST = "LIST",
+  AGGREGATE_REPORT = "AGGREGATE_REPORT"
 }
 
 export const enum RuleAction {
-    SELECT = "SELECT",
-    REJECT = "REJECT",
-    NEXT = "NEXT",
+  SELECT = "SELECT",
+  REJECT = "REJECT",
+  NEXT = "NEXT"
 }
 
 export const enum VarType {
-    NODE = "NODE",
-    PATH = "PATH",
-    LITERAL = "LITERAL",
+  NODE = "NODE",
+  PATH = "PATH",
+  LITERAL = "LITERAL"
 }
 
 export const enum Browser {
-    CHROME = "CHROME",
-    FIREFOX = "FIREFOX",
-    EDGE = "EDGE",
-    IE = "IE",
-    OTHER = "OTHER",
+  CHROME = "CHROME",
+  FIREFOX = "FIREFOX",
+  EDGE = "EDGE",
+  IE = "IE",
+  OTHER = "OTHER"
 }
 
 export const enum OperatingSystem {
-    WINDOWS = "WINDOWS",
-    MACOS = "MACOS",
-    LINUX = "LINUX",
-    OTHER = "OTHER",
+  WINDOWS = "WINDOWS",
+  MACOS = "MACOS",
+  LINUX = "LINUX",
+  OTHER = "OTHER"
 }
 
 export const enum Severity {
-    CRITICAL = "CRITICAL",
-    MAJOR = "MAJOR",
-    MINOR = "MINOR",
-    TRIVIAL = "TRIVIAL",
-    ENHANCEMENT = "ENHANCEMENT",
-    UNASSIGNED = "UNASSIGNED",
+  CRITICAL = "CRITICAL",
+  MAJOR = "MAJOR",
+  MINOR = "MINOR",
+  TRIVIAL = "TRIVIAL",
+  ENHANCEMENT = "ENHANCEMENT",
+  UNASSIGNED = "UNASSIGNED"
 }
 
 export const enum Status {
-    NEW = "NEW",
-    FIXED = "FIXED",
-    ASSIGNED = "ASSIGNED",
-    VERIFIED = "VERIFIED",
-    REOPENED = "REOPENED",
-    WONT_FIX = "WONT_FIX",
+  NEW = "NEW",
+  FIXED = "FIXED",
+  ASSIGNED = "ASSIGNED",
+  VERIFIED = "VERIFIED",
+  REOPENED = "REOPENED",
+  WONT_FIX = "WONT_FIX"
 }
 
 export const enum TaskModule {
-    DIRECTORY = "DIRECTORY",
-    QUERY = "QUERY",
-    CREATOR = "CREATOR",
-    EDITOR = "EDITOR",
-    UPRN = "UPRN",
-    AUTH = "AUTH",
+  DIRECTORY = "DIRECTORY",
+  QUERY = "QUERY",
+  CREATOR = "CREATOR",
+  EDITOR = "EDITOR",
+  UPRN = "UPRN",
+  AUTH = "AUTH"
 }
 
 export const enum ApprovalType {
-    EDIT = "EDIT",
-    CREATE = "CREATE",
+  EDIT = "EDIT",
+  CREATE = "CREATE"
 }
 
 export const enum UserRole {
-    ADMIN = "ADMIN",
-    DEVELOPER = "DEVELOPER",
-    PUBLISHER = "PUBLISHER",
-    CREATOR = "CREATOR",
-    EDITOR = "EDITOR",
-    TASK_MANAGER = "TASK_MANAGER",
-    AUTHORISER = "AUTHORISER",
-    APPROVER = "APPROVER",
+  ADMIN = "ADMIN",
+  DEVELOPER = "DEVELOPER",
+  PUBLISHER = "PUBLISHER",
+  CREATOR = "CREATOR",
+  EDITOR = "EDITOR",
+  TASK_MANAGER = "TASK_MANAGER",
+  AUTHORISER = "AUTHORISER",
+  APPROVER = "APPROVER"
 }
 
 export const enum TaskState {
-    TODO = "TODO",
-    IN_PROGRESS = "IN_PROGRESS",
-    APPROVED = "APPROVED",
-    COMPLETE = "COMPLETE",
-    REJECTED = "REJECTED",
-    CANCELLED = "CANCELLED",
-    UNDER_REVIEW = "UNDER_REVIEW",
+  TODO = "TODO",
+  IN_PROGRESS = "IN_PROGRESS",
+  APPROVED = "APPROVED",
+  COMPLETE = "COMPLETE",
+  REJECTED = "REJECTED",
+  CANCELLED = "CANCELLED",
+  UNDER_REVIEW = "UNDER_REVIEW"
 }
 
 export const enum TaskType {
-    BUG_REPORT = "BUG_REPORT",
-    ROLE_REQUEST = "ROLE_REQUEST",
-    ENTITY_APPROVAL = "ENTITY_APPROVAL",
+  BUG_REPORT = "BUG_REPORT",
+  ROLE_REQUEST = "ROLE_REQUEST",
+  ENTITY_APPROVAL = "ENTITY_APPROVAL"
+}
+
+export const enum GraphType {
+  NONE = "NONE",
+  WRAPPER = "WRAPPER",
+  PROPERTIES = "PROPERTIES",
+  SUBTYPE = "SUBTYPE",
+  ISA = "ISA"
+}
+
+export const enum MemberType {
+  INCLUDED_DESC = "INCLUDED_DESC",
+  EXCLUDED = "EXCLUDED",
+  SUBSET = "SUBSET",
+  EXPANDED = "EXPANDED",
+  COMPLEX = "COMPLEX",
+  INCLUDED_SELF = "INCLUDED_SELF",
+  IS_SUBSET_OF = "IS_SUBSET_OF"
 }

@@ -1,6 +1,8 @@
+import { TTEntity } from "@/interfaces/ExtentedAutoGen";
+
 export interface EditorState {
   editorIri: string;
-  editorSavedEntity: any;
+  editorSavedEntity: TTEntity | undefined;
   editorHasChanges: boolean;
   findInEditorTreeIri: string;
   refreshEditorTree: boolean;

@@ -1,16 +1,17 @@
 import { IM, RDFS } from "@/vocabulary";
-import { EntityReferenceNode, FiltersAsIris, TTBundle, Namespace, FilterOptions } from "@/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadByQueryOptions } from "@/interfaces/AutoGen";
+import { EntityReferenceNode, FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
+import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { buildDetails } from "@/helpers/DetailsBuilder";
 import { OrganizationChartNode } from "primevue/organizationchart";
+import { TTBundle, TTEntity } from "@/interfaces/ExtentedAutoGen";
 const API_URL = Env.API + "api/entity";
 
 const EntityService = {
-  async getPartialEntity(iri: string, predicates: string[]): Promise<any> {
+  async getPartialEntity(iri: string, predicates: string[]): Promise<TTEntity> {
     return axios.get(API_URL + "/public/partial", {
       params: {
         iri: iri,
@@ -19,7 +20,7 @@ const EntityService = {
     });
   },
 
-  async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<any> {
+  async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<TTEntity> {
     return axios.get(API_URL + "/fullEntity", {
       params: {
         iri: iri,
@@ -115,7 +116,7 @@ const EntityService = {
     return axios.get(API_URL + "/public/namespaces");
   },
 
-  async getPartialEntities(typeIris: string[], predicates: string[]): Promise<any[]> {
+  async getPartialEntities(typeIris: string[], predicates: string[]): Promise<TTEntity[]> {
     return axios.post(API_URL + "/public/partials", { iris: [...new Set(typeIris)].join(","), predicates: [...new Set(predicates)].join(",") });
   },
 
@@ -140,14 +141,14 @@ const EntityService = {
     pageSize: number,
     filters?: FiltersAsIris,
     controller?: AbortController
-  ): Promise<any> {
+  ): Promise<Pageable<TTIriRef>> {
     return axios.get(API_URL + "/public/partialAndTotalCount", {
       params: { iri: iri, predicate: predicate, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
   },
 
-  async getEntityByPredicateExclusions(iri: string, predicates: string[]): Promise<any> {
+  async getEntityByPredicateExclusions(iri: string, predicates: string[]): Promise<TTEntity> {
     return axios.get(API_URL + "/public/entityByPredicateExclusions", {
       params: { iri: iri, predicates: predicates.join(",") }
     });
@@ -159,15 +160,15 @@ const EntityService = {
     });
   },
 
-  async createEntity(entity: any): Promise<any> {
+  async createEntity(entity: TTEntity): Promise<TTEntity> {
     return axios.post(API_URL + "/create", entity);
   },
 
-  async updateEntity(entity: any): Promise<any> {
+  async updateEntity(entity: TTEntity): Promise<TTEntity> {
     return axios.post(API_URL + "/update", entity);
   },
 
-  async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<any[]> {
+  async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<ValidatedEntity[]> {
     return axios.post(API_URL + "/public/validatedEntity", codes);
   },
 
@@ -196,7 +197,7 @@ const EntityService = {
     if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
   },
 
-  async checkValidation(validationIri: string, data: any): Promise<{ valid: boolean; message: string | undefined }> {
+  async checkValidation(validationIri: string, data: EntityValidationRequest): Promise<{ valid: boolean; message: string | undefined }> {
     return axios.post(API_URL + "/public/validate", { validationIri: validationIri, entity: data });
   },
 

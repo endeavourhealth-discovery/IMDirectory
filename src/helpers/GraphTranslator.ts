@@ -1,7 +1,8 @@
 import { TTIriRef } from "../interfaces/AutoGen";
-import { TTBundle, TTGraphData } from "../interfaces";
+import { TTGraphData } from "../interfaces";
 import { IM, OWL, RDFS, SHACL, SNOMED, XSD } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { TTBundle } from "@/interfaces/ExtentedAutoGen";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
   const { entity, predicates } = bundle;

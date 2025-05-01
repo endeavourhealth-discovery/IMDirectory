@@ -23,7 +23,7 @@ export function setupEditorEntity(mode: EditorMode, updateType: (types: TTIriRef
 
   async function fetchEntity(): Promise<void> {
     if (mode === EditorMode.EDIT && editorIri) {
-      if (isObjectHasKeys(editorSavedEntity, ["@id"]) && editorSavedEntity[IM.ID] === editorIri) {
+      if (editorSavedEntity && isObjectHasKeys(editorSavedEntity, ["@id"]) && editorSavedEntity[IM.ID] === editorIri) {
         editorEntity.value = editorSavedEntity;
         return;
       }

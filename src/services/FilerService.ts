@@ -1,5 +1,7 @@
+import { TTDocument } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
+import { TTEntity } from "@/interfaces/ExtentedAutoGen";
 const api = Env.API;
 const FilerService = {
   moveFolder(entity: string, oldFolder: string, newFolder: string): Promise<void> {
@@ -30,11 +32,11 @@ const FilerService = {
     });
   },
 
-  async downloadDeltas(): Promise<any> {
+  async downloadDeltas(): Promise<Blob> {
     return axios.get(api + "api/filer/deltas/download", { responseType: "blob" });
   },
 
-  async fileEntity(entity: any, graph: string, crud: string): Promise<void> {
+  async fileEntity(entity: TTEntity, graph: string, crud: string): Promise<void> {
     return axios.post(api + "api/filer/file/entity", entity, {
       params: {
         graph,
@@ -43,15 +45,11 @@ const FilerService = {
     });
   },
 
-  async fileDocument(document: any, withoutTransaction?: any): Promise<any> {
-    return axios.post(api + "api/filer/file/document", document, {
-      params: {
-        withoutTransaction
-      }
-    });
+  async fileDocument(document: TTDocument): Promise<{ [x: string]: string }> {
+    return axios.post(api + "api/filer/file/document", document);
   },
 
-  async getTaskProgress(taskId: string): Promise<any> {
+  async getTaskProgress(taskId: string): Promise<{ [x: string]: number }> {
     return axios.get(api + `api/filer/file/document/${taskId}`);
   }
 };

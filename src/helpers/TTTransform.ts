@@ -1,15 +1,16 @@
 import { IM, SNOMED } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { TTIriRef } from "../interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtentedAutoGen";
 
-export function transformTT(ttEntity: any, map?: any) {
+export function transformTT(ttEntity: TTEntity, map?: any) {
   if (!isObjectHasKeys(ttEntity)) return {};
   ttEntity = transformIris(ttEntity);
   transformObjectRecursively(ttEntity, map);
   return ttEntity;
 }
 
-function transformObjectRecursively(ttEntity: any, map?: any) {
+function transformObjectRecursively(ttEntity: TTEntity, map?: any) {
   for (const key of Object.keys(ttEntity)) {
     if (key.startsWith("http")) {
       const property = isObjectHasKeys(map, [key]) ? map[key] : getNameFromIri(key);
@@ -27,7 +28,7 @@ function transformObjectRecursively(ttEntity: any, map?: any) {
   }
 }
 
-function transformIris(ttEntity: any) {
+function transformIris(ttEntity: TTEntity) {
   const regex = /@id/gm;
   const stringEntity = JSON.stringify(ttEntity);
   return JSON.parse(stringEntity.replace(regex, "iri"));

@@ -261,7 +261,7 @@ function setupExternalErrorHandler() {
         summary: "An error occurred",
         detail: e.reason
       });
-    sharedStore.updateError(e);
+    sharedStore.updateError(e as unknown as string);
     router.push({ name: "VueError" });
   });
 }

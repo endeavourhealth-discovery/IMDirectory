@@ -127,7 +127,7 @@ async function getContextMenu(d: any) {
       bundle.entity[IM.HAS_MEMBER] = hasMember.result;
       bundle.predicates[IM.HAS_MEMBER] = "has member";
     }
-    if (hasMember.totalCount >= 10) {
+    if (hasMember.totalCount && hasMember.totalCount >= 10) {
       bundle.entity[IM.HAS_MEMBER] = bundle.entity[IM.HAS_MEMBER].concat({ "@id": "seeMore", name: "see more..." });
     }
     Object.keys(bundle.entity)

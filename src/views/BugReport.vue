@@ -231,19 +231,17 @@ async function onSubmit() {
     if (latestResult) bugReport.version = latestResult.version;
     bugReport.type = TaskType.BUG_REPORT;
     bugReport.state = TaskState.TODO;
-    await WorkflowService.createBugReport(bugReport).then(async res => {
-      if (!res) {
-        await Swal.fire({
-          title: "Success",
-          text: "Bug report successfully submitted",
-          icon: "success",
-          confirmButtonText: "Close",
-          confirmButtonColor: "#2196F3"
-        }).then(async () => {
-          loading.value = false;
-          await router.push({ path: "/" });
-        });
-      }
+    await WorkflowService.createBugReport(bugReport).then(async () => {
+      await Swal.fire({
+        title: "Success",
+        text: "Bug report successfully submitted",
+        icon: "success",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#2196F3"
+      }).then(async () => {
+        loading.value = false;
+        await router.push({ path: "/" });
+      });
     });
     loading.value = false;
   }

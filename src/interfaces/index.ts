@@ -22,7 +22,6 @@ import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
 import { TermCode } from "./TermCode";
 import { TreeParent } from "./TreeParent";
-import { TTBundle } from "./TTBundle";
 import TTGraphData from "./TTGraphData";
 import { UPRN } from "./Uprn";
 import { UprnSearchResponse } from "./UprnSearchResponse";
@@ -76,7 +75,6 @@ export {
   type SimpleMapIri,
   type TermCode,
   type TreeParent,
-  type TTBundle,
   type TTGraphData,
   type UPRN,
   type UprnSearchResponse,

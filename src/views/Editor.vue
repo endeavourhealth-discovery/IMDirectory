@@ -93,7 +93,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRouter } from "vue-router";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
-import Swal from "sweetalert2";
+import Swal, { SweetAlertResult } from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";
 import "vue-json-pretty/lib/styles.css";
@@ -195,8 +195,8 @@ function updateType(types: TTIriRef[]) {
 
 function removeEroneousKeys() {
   const shapeKeys = [] as string[];
-  groups.value.forEach((group: any) => {
-    group.property.forEach((property: PropertyShape) => {
+  groups.value.forEach((group: PropertyShape) => {
+    group.property?.forEach((property: PropertyShape) => {
       if (isObjectHasKeys(property, ["path"])) shapeKeys.push(property.path!["@id"]);
     });
   });
@@ -207,7 +207,7 @@ function removeEroneousKeys() {
   }
 }
 
-function beforeWindowUnload(e: any) {
+function beforeWindowUnload(e: BeforeUnloadEvent) {
   if (checkForChanges()) {
     e.preventDefault();
     e.returnValue = "";
@@ -250,7 +250,7 @@ function submit(): void {
                 return res;
               } else Swal.showValidationMessage("Error saving entity to server.");
             }
-          }).then(async (result: any) => {
+          }).then(async (result: SweetAlertResult) => {
             if (result.isConfirmed) {
               Swal.fire({
                 title: "Success",
@@ -261,7 +261,7 @@ function submit(): void {
                 confirmButtonText: "Open in Viewer",
                 confirmButtonColor: "#2196F3",
                 cancelButtonColor: "#607D8B"
-              }).then(async (result: any) => {
+              }).then(async (result: SweetAlertResult) => {
                 if (result.isConfirmed) {
                   directService.view(editorEntity.value[IM.ID]);
                 } else {
@@ -322,7 +322,7 @@ function closeEditor() {
     confirmButtonColor: "#D32F2F",
     cancelButtonColor: "#607D8B",
     customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: any) => {
+  }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
       if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
       else router.go(-1);

@@ -32,23 +32,23 @@ export const useFilterStore = defineStore("filter", {
           types: selectedTypes,
           includeLegacy: false
         } as FilterOptions);
-        this.updateHierarchySelectedFilters(selectedSchemes);
+        this.updateHierarchySelectedFilters(selectedSchemes as unknown as Namespace[]);
         this.updateCoreSchemes(coreSchemes);
       }
     },
-    updateFilterOptions(filters: any) {
+    updateFilterOptions(filters: FilterOptions) {
       this.filterOptions = filters;
     },
 
-    updateDefaultFilterOptions(filters: any) {
+    updateDefaultFilterOptions(filters: FilterOptions) {
       this.defaultFilterOptions = filters;
     },
 
-    updateSelectedFilterOptions(filters: any) {
+    updateSelectedFilterOptions(filters: FilterOptions) {
       this.selectedFilterOptions = filters;
     },
 
-    updateHierarchySelectedFilters(filters: any) {
+    updateHierarchySelectedFilters(filters: Namespace[]) {
       this.hierarchySelectedFilters = filters;
     },
     updateCoreSchemes(schemes: string[]) {

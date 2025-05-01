@@ -18,10 +18,11 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import GraphComponent from "./GraphComponent.vue";
-import { TTGraphData, TTBundle } from "@/interfaces";
+import { TTGraphData } from "@/interfaces";
 import { GraphTranslator, DataTypeCheckers } from "@/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
+import { TTBundle } from "@/interfaces/ExtentedAutoGen";
 const { translateFromEntityBundle } = GraphTranslator;
 const { isObjectHasKeys } = DataTypeCheckers;
 
@@ -70,7 +71,7 @@ async function getEntityBundle(iri: string) {
     bundle.value.entity[IM.HAS_MEMBER] = hasMember.result;
     bundle.value.predicates[IM.HAS_MEMBER] = "has member";
   }
-  if (hasMember.totalCount >= 10) {
+  if (hasMember.totalCount && hasMember.totalCount >= 10) {
     bundle.value.entity[IM.HAS_MEMBER] = bundle.value.entity[IM.HAS_MEMBER].concat({ "@id": "seeMore", name: "see more..." });
   }
   predicatesIris.value = Object.keys(bundle.value.entity).filter(value => value !== "@id");

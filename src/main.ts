@@ -111,13 +111,13 @@ import InputOtp from "primevue/inputotp";
 
 import { VueShowdownPlugin } from "vue-showdown";
 
-import { Amplify } from "aws-amplify";
+import { Amplify, ResourcesConfig } from "aws-amplify";
 import { createPinia } from "pinia";
 import { useSharedStore } from "@/stores/sharedStore";
 import { AuthService } from "@/services";
 
 const awsconfig = await AuthService.getConfig();
-Amplify.configure(awsconfig.data);
+Amplify.configure(awsconfig.data as ResourcesConfig);
 
 // msw initialising
 if (import.meta.env.MODE === "mock") {
@@ -241,6 +241,6 @@ app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | nu
     detail: err
   });
 
-  sharedStore.updateError(err);
+  sharedStore.updateError(err as string);
   router.push({ name: "VueError" });
 };

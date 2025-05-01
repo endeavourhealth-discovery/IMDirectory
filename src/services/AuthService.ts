@@ -27,7 +27,7 @@ import {
   updatePassword,
   updateUserAttributes
 } from "aws-amplify/auth";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import Env from "./Env";
 import { useUserStore } from "@/stores/userStore";
 import { Avatars } from "@/constants";
@@ -49,7 +49,7 @@ function processAwsUser(cognitoUser: GetCurrentUserOutput, userAttributes: Fetch
 }
 
 const AuthService = {
-  async getConfig(): Promise<any> {
+  async getConfig(): Promise<AxiosResponse<string>> {
     return axios.get(Env.API + "api/cognito/public/config");
   },
 
@@ -79,7 +79,7 @@ const AuthService = {
         default:
           throw new Error(`Unhandled signup next step: ${nextStep}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof AuthError) {
         if (err.name === "UsernameExistsException") {
           return { status: 409, message: "Username already exists", error: err };
@@ -111,8 +111,8 @@ const AuthService = {
         case "CONFIRM_SIGN_UP":
           return { status: 403, message: "Additional step required", nextStep: nextStep.signUpStep };
       }
-    } catch (err: any) {
-      return { status: 403, message: "Failed register confirmation", error: err };
+    } catch (err: unknown) {
+      return { status: 403, message: "Failed register confirmation", error: err as string as string };
     }
   },
 
@@ -137,12 +137,12 @@ const AuthService = {
         default:
           throw new Error(`Unhandled signin next step: ${nextStep}`);
       }
-    } catch (err: any) {
-      if (err.message === "Temporary password has expired and must be reset by an administrator.") {
-        return { status: 403, message: err.message, error: err };
+    } catch (err: unknown) {
+      if ((err as Error).message === "Temporary password has expired and must be reset by an administrator.") {
+        return { status: 403, message: (err as Error).message, error: err as Error };
       }
-      if (err.name === "UserAlreadyAuthenticatedException") return { status: 200, message: "Login successful" };
-      return { status: 403, message: "Login failed. Check username and password are correct", error: err };
+      if ((err as Error).name === "UserAlreadyAuthenticatedException") return { status: 200, message: "Login successful" };
+      return { status: 403, message: "Login failed. Check username and password are correct", error: err as string };
     }
   },
 
@@ -155,8 +155,8 @@ const AuthService = {
     try {
       await resendSignUpCode({ username: username });
       return { status: 200, message: "Code resent successfully" };
-    } catch (err: any) {
-      return { status: 400, message: err.message, error: err };
+    } catch (err: unknown) {
+      return { status: 400, message: (err as Error).message, error: err as string };
     }
   },
 
@@ -168,8 +168,8 @@ const AuthService = {
       userStore.clearAllFromUserDatabase();
       userStore.clearAllFromLocalStorage();
       return { status: 200, message: "Logged out successfully" };
-    } catch (err: any) {
-      return { status: 400, message: "Error logging out from auth server", error: err };
+    } catch (err: unknown) {
+      return { status: 400, message: "Error logging out from auth server", error: err as string };
     }
   },
 
@@ -193,7 +193,7 @@ const AuthService = {
       await this.getCurrentAuthenticatedUser();
       return { status: 200, message: "User updated successfully" };
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err: any) {
+    } catch (err: unknown) {
       return { status: 500, message: "Error authenticating current user" };
     }
   },
@@ -202,8 +202,8 @@ const AuthService = {
     try {
       await confirmUserAttribute({ userAttributeKey: "email", confirmationCode: code });
       return { status: 200, message: "Email verified successfully" };
-    } catch (err: any) {
-      return { status: 500, message: "Error verifying email", error: err };
+    } catch (err: unknown) {
+      return { status: 500, message: "Error verifying email", error: err as string };
     }
   },
 
@@ -211,8 +211,8 @@ const AuthService = {
     try {
       await updatePassword({ oldPassword: oldPassword, newPassword: newPassword });
       return { status: 200, message: "Password successfully changed" };
-    } catch (err: any) {
-      return { status: 400, message: err.message, error: err };
+    } catch (err: unknown) {
+      return { status: 400, message: (err as Error).message, error: err as string };
     }
   },
 
@@ -227,8 +227,8 @@ const AuthService = {
         default:
           throw new Error(`Unhandled reset password next step: ${nextStep}`);
       }
-    } catch (err: any) {
-      return { status: 400, message: "Error resetting password from server", error: err };
+    } catch (err: unknown) {
+      return { status: 400, message: "Error resetting password from server", error: err as string };
     }
   },
 
@@ -236,11 +236,11 @@ const AuthService = {
     try {
       await confirmResetPassword({ username: username, confirmationCode: code, newPassword: newPassword });
       return { status: 200, message: "Password reset successfully" };
-    } catch (err: any) {
-      if (err.code === "ExpiredCodeException") {
-        return { status: 403, message: "Code has expired", error: err };
+    } catch (err: unknown) {
+      if ((err as { code: string }).code === "ExpiredCodeException") {
+        return { status: 403, message: "Code has expired", error: err as string };
       }
-      return { status: 400, message: "Error submitting password-reset credentials", error: err };
+      return { status: 400, message: "Error submitting password-reset credentials", error: err as string };
     }
   },
 
@@ -259,8 +259,8 @@ const AuthService = {
       userStore.updateCurrentUser(authenticatedUser);
       if (userStore.currentUser?.id !== authenticatedUser.id) await userStore.getAllFromUserDatabase();
       return { status: 200, message: "User authenticated successfully", user: authenticatedUser };
-    } catch (err: any) {
-      return { status: 403, message: "Error authenticating current user", error: err };
+    } catch (err: unknown) {
+      return { status: 403, message: "Error authenticating current user", error: err as string };
     }
   },
 
@@ -288,8 +288,8 @@ const AuthService = {
         default:
           throw new Error(`Unhandled mfa signin next step: ${nextStep}`);
       }
-    } catch (err: any) {
-      return { status: 403, message: "Error authenticating current user", error: err };
+    } catch (err: unknown) {
+      return { status: 403, message: "Error authenticating current user", error: err as string };
     }
   },
 
@@ -309,8 +309,8 @@ const AuthService = {
           await updateMFAPreference({ sms: "ENABLED", totp: "PREFERRED" });
           break;
       }
-    } catch (error: any) {
-      throw new Error("Failed to set user mfa preference", error);
+    } catch (error: unknown) {
+      throw new Error("Failed to set user mfa preference", error as ErrorOptions);
     }
   },
 

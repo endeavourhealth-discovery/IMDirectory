@@ -24,21 +24,21 @@
       </template>
 
       <Column field="property" header="Name">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <div class="link" @click="navigate($event, data.property[0]['@id'])" data-testid="name">
             {{ data.property[0].name || data.property[0]["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <div class="link" @click="navigate($event, data.type[0]['@id'])">
             {{ data.type[0].name || data.type[0]["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="cardinality" header="Cardinality">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           {{ data.cardinality }}
         </template>
       </Column>
@@ -87,12 +87,15 @@
       </Column>
     </DataTable>
   </div>
+  {{ properties }} -
+  <div>{{ groupedProperties }}</div>
 </template>
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import { PropertyDisplay } from "@/interfaces";
 import { DataModelService, DirectService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { ColumnNode } from "primevue/column";
 
 const props = defineProps<{
   entityIri: string;
@@ -106,8 +109,8 @@ defineEmits<{
 const directService = new DirectService();
 
 const loading = ref(false);
-const properties: Ref<any[]> = ref([]);
-const groupedProperties: Ref<any[]> = ref([]);
+const properties: Ref<PropertyDisplay[]> = ref([]);
+const groupedProperties: Ref<PropertyDisplay[]> = ref([]);
 const propertiesTable = ref();
 const expandedRowGroups: Ref<any[]> = ref([]);
 
@@ -174,15 +177,15 @@ function exportCSV(): void {
     csvValue = allProperties.map(property => {
       if (isObjectHasKeys(property, ["group"])) {
         return {
-          group: { name: property.group["@id"] },
+          group: { name: property?.group?.["@id"] },
           property: property.property[0]["@id"],
-          type: property.type[0]["@id"],
+          type: property?.type?.[0]["@id"],
           cardinality: property.cardinality
         };
       } else {
         return {
           property: property.property[0]["@id"],
-          type: property.type[0]["@id"],
+          type: property.type?.[0]["@id"],
           cardinality: property.cardinality
         };
       }

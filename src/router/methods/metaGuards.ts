@@ -5,7 +5,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
 export async function requiresAuthGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
-  if (to.matched.some((record: any) => record.meta.requiresAuth)) {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
     const { user } = await AuthService.getCurrentAuthenticatedUser();
     if (!user) {
       if (from.name === "Logout") {

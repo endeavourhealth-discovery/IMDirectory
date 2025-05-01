@@ -68,7 +68,7 @@ function processEntityValue(property: PropertyShape) {
   if (props.value && isObjectHasKeys(props.value) && isPropertyShape(property) && isObjectHasKeys(props.value, [property.path["@id"]])) {
     return props.value[property.path["@id"]];
   }
-  if (isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
+  if (editorEntity && isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
     return editorEntity[property.path["@id"]];
   }
   return undefined;

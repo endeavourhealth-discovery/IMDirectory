@@ -96,7 +96,7 @@ function setChecked() {
 
 function processEntityValue(property: PropertyShape | undefined) {
   if (!property) throw new Error("Property is undefined");
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
+  if (editorEntity && isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
     return editorEntity[property.path!["@id"]];
   }
   return undefined;

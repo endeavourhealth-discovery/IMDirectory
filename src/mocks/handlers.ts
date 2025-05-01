@@ -18,8 +18,8 @@ export const handlers = [
       );
   }),
   http.post(apiUrl + "query/public/entityQuery", async ({ request }) => {
-    const body: any = await request.json();
-    const { queryIri, argument } = body;
+    const body = await request.json();
+    const { queryIri, argument } = body as { [x: string]: { [x: string]: string } };
     if (queryIri["@id"] === "http://endhealth.info/im#Query_GetIsas") {
       if (argument.this === "http://endhealth.info/im#Status")
         return HttpResponse.json([
@@ -38,7 +38,7 @@ export const handlers = [
   }),
   http.post(apiUrl + "function/public/callFunction", async ({ request }) => {
     const body: any = await request.json();
-    const { functionIri } = body;
+    const { functionIri, argument } = body as { [x: string]: string };
     if (functionIri === "http://endhealth.info/im#GetAdditionalAllowableTypes") return HttpResponse.json([]);
     else
       return new HttpResponse(
@@ -54,7 +54,7 @@ export const handlersFaker = [
   http.get(apiUrl + "entity/public/partial", async ({ params }) => {
     console.log("using msw");
     const { iri, predicatesArray } = params;
-    const entityValue = {} as any;
+    const entityValue = {} as { [x: string]: string | readonly string[] | undefined | null };
     if (iri) entityValue["@id"] = iri;
     if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax"))
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax"] = null;

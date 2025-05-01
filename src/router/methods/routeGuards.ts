@@ -8,7 +8,7 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { RouteLocationNormalized, Router } from "vue-router";
 
 export function directoryGuard(iri: string | string[], to: RouteLocationNormalized) {
-  if (to.matched.some((record: any) => record.name === "Directory") && iri) {
+  if (to.matched.some(record => record.name === "Directory") && iri) {
     const directoryStore = useDirectoryStore();
     directoryStore.updateConceptIri(iri as string);
   }

@@ -93,7 +93,7 @@ import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { cloneDeep } from "lodash-es";
-import Swal from "sweetalert2";
+import Swal, { SweetAlertResult } from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";
 import { useRoute, useRouter } from "vue-router";
@@ -244,9 +244,9 @@ async function showEntityFoundWarning() {
     title: "Unsaved creator entity found",
     html:
       "<span>Local saved entity found. Would you like to continue creating this entity?</span><br/><br/><span>iri: " +
-      creatorSavedEntity.value["@id"] +
+      creatorSavedEntity.value?.["@id"] +
       "</span><br/><span>name: " +
-      creatorSavedEntity.value[RDFS.LABEL] +
+      creatorSavedEntity.value?.[RDFS.LABEL] +
       "</span>",
     showCloseButton: false,
     showCancelButton: true,
@@ -263,7 +263,7 @@ async function showEntityFoundWarning() {
     } else {
       await Swal.fire({
         title: "Delete saved entity",
-        text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value["@id"] + ". Are you sure you want to continue?",
+        text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value?.["@id"] + ". Are you sure you want to continue?",
         showCloseButton: false,
         showCancelButton: true,
         cancelButtonText: "Cancel",
@@ -304,7 +304,7 @@ function updateType(types: TTIriRef[]) {
   loading.value = false;
 }
 
-function beforeWindowUnload(e: any) {
+function beforeWindowUnload(e: BeforeUnloadEvent) {
   if (checkForChanges()) {
     e.preventDefault();
     e.returnValue = "";
@@ -345,7 +345,7 @@ function submit(): void {
               return res;
             } else Swal.showValidationMessage("Error creating entity from server.");
           }
-        }).then((result: any) => {
+        }).then((result: SweetAlertResult) => {
           if (result.isConfirmed) {
             Swal.fire({
               title: "Success",
@@ -356,7 +356,7 @@ function submit(): void {
               confirmButtonText: "Open in Viewer",
               confirmButtonColor: "#2196F3",
               cancelButtonColor: "#607D8B"
-            }).then((result: any) => {
+            }).then((result: SweetAlertResult) => {
               if (result.isConfirmed) {
                 directService.view(editorEntity.value[IM.ID]);
               } else {
@@ -397,7 +397,7 @@ function closeCreator() {
     confirmButtonColor: "#D32F2F",
     cancelButtonColor: "#607D8B",
     customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: any) => {
+  }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
       router.push({ name: "LandingPage" });
     }

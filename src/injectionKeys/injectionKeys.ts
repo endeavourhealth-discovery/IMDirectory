@@ -1,10 +1,11 @@
 import { FormGenerator, PropertyShape } from "@/interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtentedAutoGen";
 import type { InjectionKey, Ref } from "vue";
 const editorValidity = Symbol("editorValidity") as InjectionKey<{
   validity: Ref<{ key: string; valid: boolean }[]>;
   updateValidity: (
     componentShape: PropertyShape,
-    editorEntity: Ref<any>,
+    editorEntity: Ref<TTEntity>,
     valueVariableMap: Ref<Map<string, any>>,
     key: string,
     invalid: Ref<boolean>,
@@ -13,7 +14,7 @@ const editorValidity = Symbol("editorValidity") as InjectionKey<{
   removeValidity: (data: { key: string; valid: boolean; message?: string }) => void;
   checkValidity: (
     componentShape: PropertyShape,
-    editorEntity: Ref<any>,
+    editorEntity: Ref<TTEntity>,
     valueVariableMap: Ref<Map<string, any>>,
     key: string,
     invalid: Ref<boolean>,
@@ -21,8 +22,8 @@ const editorValidity = Symbol("editorValidity") as InjectionKey<{
   ) => Promise<void>;
 }>;
 const editorEntity = Symbol("editorEntity") as InjectionKey<{
-  editorEntity: Ref<any>;
-  updateEntity: (data: any) => void;
+  editorEntity: Ref<TTEntity>;
+  updateEntity: (data: TTEntity) => void;
   deleteEntityKey: (data: string) => void;
 }>;
 const valueVariableMap = Symbol("valueVariableMap") as InjectionKey<{

@@ -115,7 +115,7 @@ async function getFavouritesDetails() {
   for (const result of results) {
     let clone: ExtendedSearchResultSummary = {} as ExtendedSearchResultSummary;
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "@id"])) {
-      clone.iri = result["@id"];
+      if (result["@id"]) clone.iri = result["@id"];
       clone.name = result[RDFS.LABEL];
       clone.entityType = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
       clone.icon = getFAIconFromType(result[RDF.TYPE]);

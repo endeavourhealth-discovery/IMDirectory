@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { CreatorState } from "@/stores/types/creatorState";
 import { useUserStore } from "@/stores/userStore";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
+import { TTEntity } from "@/interfaces/ExtentedAutoGen";
 
 export const useCreatorStore = defineStore("creator", {
   state: (): CreatorState => ({
@@ -9,7 +10,7 @@ export const useCreatorStore = defineStore("creator", {
     creatorHasChanges: false
   }),
   actions: {
-    updateCreatorSavedEntity(entity: any) {
+    updateCreatorSavedEntity(entity: TTEntity | undefined) {
       if (useUserStore().cookiesOptionalAccepted) {
         this.creatorSavedEntity = entity;
         if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("creatorSavedEntity", entity);

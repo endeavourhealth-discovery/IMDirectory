@@ -58,9 +58,9 @@ const emit = defineEmits<{
 
 const hasDefinition: Ref<boolean> = ref(false);
 const loading = ref(false);
-const members: Ref<Node[]> = ref([]);
+const members: Ref<Node[] | undefined> = ref([]);
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
-const totalCount = ref(0);
+const totalCount: Ref<number | undefined> = ref(0);
 const currentPage = ref(0);
 const pageSize = ref(25);
 
@@ -98,7 +98,7 @@ async function getPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  let pagedNewMembers = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
+  const pagedNewMembers = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
   members.value = pagedNewMembers.result;
   loading.value = false;
 }

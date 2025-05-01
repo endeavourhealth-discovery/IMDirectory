@@ -1,6 +1,6 @@
-export function debounce(fn: (...params: any[]) => void, ms = 300) {
+export function debounce(fn: (...params: unknown[]) => void, ms = 300) {
   let timeoutId: ReturnType<typeof setTimeout>;
-  return function (this: any, ...args: any[]) {
+  return function (this: any, ...args: unknown[]) {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => fn.apply(this, args), ms);
   };

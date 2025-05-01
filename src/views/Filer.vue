@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-import FileUpload from "primevue/fileupload";
+import FileUpload, { FileUploadUploadEvent } from "primevue/fileupload";
 import { useToast } from "primevue/usetoast";
 import { IM } from "@/vocabulary";
 import * as d3 from "d3";
@@ -36,14 +36,15 @@ import { ToastSeverity } from "@/enums";
 import { FilerService } from "@/services";
 import { Ref, ref } from "vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { TTDocument } from "@/interfaces/AutoGen";
 const toast = useToast();
 
 const progress = ref(); // Store the progress percentage
-const intervalId: Ref<any> = ref(); // For polling
+const intervalId: Ref<number | undefined> = ref(); // For polling
 const polling = ref(1000);
 
 function pollProgress(taskId: string) {
-  intervalId.value = setInterval(() => {
+  intervalId.value = window.setInterval(() => {
     FilerService.getTaskProgress(taskId)
       .then(response => {
         progress.value = response.progress;
@@ -57,26 +58,27 @@ function pollProgress(taskId: string) {
   }, polling.value);
 }
 
-async function onAdvancedUpload(event: any) {
-  for (const file of event.files) {
-    try {
-      const ttDocument = await getTTDocument(file);
-      FilerService.fileDocument(ttDocument, true)
-        .then(response => {
-          pollProgress(response.taskId);
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    } catch (error) {
-      toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));
+async function onAdvancedUpload(event: FileUploadUploadEvent) {
+  if (Array.isArray(event.files))
+    for (const file of event.files) {
+      try {
+        const ttDocument = await getTTDocument(file);
+        FilerService.fileDocument(ttDocument)
+          .then(response => {
+            pollProgress(response.taskId);
+          })
+          .catch(err => {
+            console.error(err);
+          });
+      } catch (error) {
+        toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));
+      }
     }
-  }
 }
 
-async function getTTDocument(file: any) {
+async function getTTDocument(file: File) {
   const url = URL.createObjectURL(file);
-  const ttDocument: any = await d3.json(url);
+  const ttDocument = (await d3.json(url)) as TTDocument;
   ttDocument.crud = {
     "@id": IM.UPDATE_ALL
   };

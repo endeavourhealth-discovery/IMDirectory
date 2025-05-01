@@ -1,8 +1,8 @@
-import { TTBundle } from "../interfaces";
 import { IM, RDF, RDFS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
 import { TTIriRef } from "../interfaces/AutoGen";
+import { TTBundle } from "@/interfaces/ExtentedAutoGen";
 
 // min 2 characters
 const indentSize = "  ";

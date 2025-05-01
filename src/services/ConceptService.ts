@@ -1,10 +1,11 @@
-import { FiltersAsIris, TermCode } from "@/interfaces";
+import { EntityReferenceNode, FiltersAsIris, SimpleMap, TermCode } from "@/interfaces";
 import Env from "./Env";
 import axios from "axios";
+import { Pageable } from "@/interfaces/AutoGen";
 const API_URL = Env.API + "api/concept";
 
 const ConceptService = {
-  async getMatchedFrom(iri: string): Promise<any[]> {
+  async getMatchedFrom(iri: string): Promise<SimpleMap[]> {
     return axios.get(API_URL + "/public/matchedFrom", {
       params: {
         iri: iri
@@ -12,7 +13,7 @@ const ConceptService = {
     });
   },
 
-  async getMatchedTo(iri: string): Promise<any[]> {
+  async getMatchedTo(iri: string): Promise<SimpleMap[]> {
     return axios.get(API_URL + "/public/matchedTo", {
       params: {
         iri: iri
@@ -32,7 +33,7 @@ const ConceptService = {
     pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
-  ): Promise<{ result: any[]; totalCount: number }> {
+  ): Promise<Pageable<EntityReferenceNode>> {
     return axios.get(API_URL + "/public/superiorPropertiesPaged", {
       params: { conceptIri: conceptIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
@@ -40,13 +41,18 @@ const ConceptService = {
   },
 
   async getSuperiorPropertiesBoolFocusPaged(
-    focus: any,
+    focus: {
+      conjunction: string;
+      items: any[];
+      type: string;
+      ecl?: string;
+    },
     pageIndex?: number,
     pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController,
     inactive?: boolean
-  ): Promise<{ result: any[]; totalCount: number }> {
+  ): Promise<Pageable<EntityReferenceNode>> {
     return axios.post(
       API_URL + "/public/superiorPropertiesBoolFocusPaged",
       { ecl: focus.ecl, page: pageIndex, size: pageSize, schemeFilters: filters, inactive: inactive },
@@ -60,7 +66,7 @@ const ConceptService = {
     pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
-  ): Promise<{ result: any[]; totalCount: number }> {
+  ): Promise<Pageable<EntityReferenceNode>> {
     return axios.get(API_URL + "/public/superiorPropertyValuesPaged", {
       params: { propertyIri: propertyIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal

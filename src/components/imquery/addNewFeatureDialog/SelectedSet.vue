@@ -45,6 +45,7 @@ import { cloneDeep } from "lodash-es";
 import { isConcept, isValueSet } from "@/helpers/ConceptTypeMethods";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { TTEntity } from "@/interfaces/ExtentedAutoGen";
 
 interface Props {
   dataModelIri: string | undefined;
@@ -57,10 +58,7 @@ const props = defineProps<Props>();
 const { getLeafMatch } = setupIMQueryBuilderActions();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
-interface SelectedEntity {
-  "@id": string;
-  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": TTIriRef[];
-  "http://www.w3.org/2000/01/rdf-schema#label": string;
+interface SelectedEntity extends TTEntity {
   icon: string[];
   include: boolean;
   entailment: "memberOf" | "descendantsOf" | "descendantsOrSelfOf" | "ancestorsOf";
@@ -121,11 +119,11 @@ async function init() {
   if (isArrayHasLength(entities)) {
     for (const entity of entities) {
       entity.icon = getFAIconFromType(entity[RDF.TYPE]);
-      entity.include = !selectedValueMap.value.get(entity["@id"])?.exclude;
+      if (entity["@id"]) entity.include = !selectedValueMap.value.get(entity["@id"])?.exclude;
       if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
       else entity.entailment = "descendantsOrSelfOf";
     }
-    selectedEntities.value = entities;
+    selectedEntities.value = entities as SelectedEntity[];
     if (selectedPath.value?.where?.[0].valueLabel) valueLabel.value = selectedPath.value?.where?.[0].valueLabel;
   }
   loading.value = false;
