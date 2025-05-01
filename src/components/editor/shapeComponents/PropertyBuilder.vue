@@ -146,6 +146,7 @@ import { DirectService, EntityService } from "@/services";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   shape: PropertyShape;
@@ -263,9 +264,9 @@ onMounted(async () => {
   loading.value = false;
 });
 
-const hover = ref();
+const hover: Ref<boolean | SimpleProp | undefined> = ref();
 
-function mouseover(event: Event, row: any) {
+function mouseover(event: Event, row: boolean | SimpleProp) {
   event.stopPropagation();
   hover.value = row;
 }
@@ -276,8 +277,8 @@ function mouseout(event: Event) {
 }
 
 function processProps() {
-  const newData: any[] = [];
-  const newInheritedData: any[] = [];
+  const newData: SimpleProp[] = [];
+  const newInheritedData: SimpleProp[] = [];
   if (props.value && isArrayHasLength(props.value)) {
     for (const p of props.value) {
       processProperty(newData, newInheritedData, p);
@@ -291,7 +292,7 @@ function getInheritedTooltipName(inherited: TTIriRef[]) {
   return inherited.length ? inherited[0].name : "";
 }
 
-function processProperty(newData: any[], newInheritedData: any[], property: any) {
+function processProperty(newData: SimpleProp[], newInheritedData: SimpleProp[], property: Property) {
   let rangeType;
   if (property[SHACL.DATATYPE]) {
     rangeType = SHACL.DATATYPE;
@@ -348,7 +349,7 @@ function processProperty(newData: any[], newInheritedData: any[], property: any)
   } else newData.push(row);
 }
 
-function propertyError(row: any) {
+function propertyError(row: SimpleProp) {
   if (!row?.path?.iri) {
     return "Property must have a path";
   } else if (!row?.range?.iri) {
@@ -445,10 +446,10 @@ async function validateEntity() {
 
 function updateEntity() {
   if (entityUpdate) {
-    const deltas: any[] = [];
+    const deltas: TTEntity[] = [];
     const dmAllProperties = dmProperties.value.concat(dmPropertiesInherited.value);
     dmAllProperties.forEach((value, index) => {
-      const p: any = {};
+      const p: TTEntity = {};
       let fullPath = {} as TTIriRef;
       let fullRange = {} as TTIriRef;
 

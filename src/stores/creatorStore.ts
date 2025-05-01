@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { CreatorState } from "@/stores/types/creatorState";
 import { useUserStore } from "@/stores/userStore";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
-import { TTEntity } from "@/interfaces/ExtentedAutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 export const useCreatorStore = defineStore("creator", {
   state: (): CreatorState => ({

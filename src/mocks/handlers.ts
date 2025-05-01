@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw";
 import { IM } from "@/vocabulary";
 import { fakerFactory } from "@/mocks/fakerFactory";
 import { isArray } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const apiUrl = "http://localhost:8082/imapi/api/";
 
@@ -37,8 +38,8 @@ export const handlers = [
       );
   }),
   http.post(apiUrl + "function/public/callFunction", async ({ request }) => {
-    const body: any = await request.json();
-    const { functionIri, argument } = body as { [x: string]: string };
+    const body = await request.json();
+    const { functionIri } = body as { [x: string]: string };
     if (functionIri === "http://endhealth.info/im#GetAdditionalAllowableTypes") return HttpResponse.json([]);
     else
       return new HttpResponse(
@@ -60,7 +61,7 @@ export const handlersFaker = [
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax"] = null;
     if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"] = null;
-    const entity = fakerFactory.entity.create(entityValue) as any;
+    const entity = fakerFactory.entity.create(entityValue) as TTEntity;
     Object.keys(entity).forEach((key: string) => {
       if (!entity[key]) delete entity[key];
     });

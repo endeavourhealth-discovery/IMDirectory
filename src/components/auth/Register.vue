@@ -150,7 +150,7 @@ const emailIsNotRegistered = ref(true);
 const privacyPolicyAccepted = ref(false);
 const allVerified = computed(() => isObjectHasKeys(errors) && isNewPasswordValid.value && emailIsNotRegistered.value && privacyPolicyAccepted.value);
 
-const schema: any = yup.object({
+const schema = yup.object({
   username: yup
     .string()
     .required("Username is required")

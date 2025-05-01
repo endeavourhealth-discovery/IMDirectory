@@ -1,4 +1,4 @@
-import { TTBundle } from "@/interfaces/ExtentedAutoGen";
+import { TTBundle } from "@/interfaces/ExtendedAutoGen";
 import { PropertyShape, TTIriRef, Task, BugReport } from "../interfaces/AutoGen";
 import { isObjectHasKeys } from "./DataTypeCheckers";
 

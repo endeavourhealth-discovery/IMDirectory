@@ -1,7 +1,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IM, RDFS, SHACL } from "@/vocabulary";
 import { TTIriRef } from "@/interfaces/AutoGen";
-import { TTBundle } from "@/interfaces/ExtentedAutoGen";
+import { TTBundle } from "@/interfaces/ExtendedAutoGen";
 
 export function buildDetails(definition: TTBundle): any[] {
   const treeNode = { children: [] as any[] };

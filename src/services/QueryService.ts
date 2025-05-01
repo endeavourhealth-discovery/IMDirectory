@@ -3,7 +3,7 @@ import { QueryResponse } from "@/interfaces";
 import axios from "axios";
 import { DisplayMode, Match, PathQuery, Query, QueryRequest, SearchResponse } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { TTEntity } from "@/interfaces/ExtentedAutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/query";
 
 const QueryService = {

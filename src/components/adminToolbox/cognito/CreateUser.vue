@@ -131,7 +131,7 @@ const focused: Ref<Map<string, boolean>> = ref(new Map());
 const emailIsNotRegistered = ref(true);
 const allVerified = computed(() => isObjectHasKeys(errors) && emailIsNotRegistered.value);
 
-const schema: any = yup.object({
+const schema = yup.object({
   username: yup
     .string()
     .required("Username is required")

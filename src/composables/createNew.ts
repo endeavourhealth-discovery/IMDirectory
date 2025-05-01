@@ -37,7 +37,7 @@ function createNew() {
       query: {
         "@id": QUERY.ALLOWABLE_CHILD_TYPES
       }
-    } as any as QueryRequest;
+    } as QueryRequest;
 
     const response = await QueryService.queryIM(queryRequest);
     const types = response?.entities ?? [];

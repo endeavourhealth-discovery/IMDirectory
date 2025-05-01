@@ -1,7 +1,7 @@
 import { TTDocument } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
-import { TTEntity } from "@/interfaces/ExtentedAutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const api = Env.API;
 const FilerService = {
   moveFolder(entity: string, oldFolder: string, newFolder: string): Promise<void> {

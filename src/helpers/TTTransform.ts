@@ -1,19 +1,20 @@
 import { IM, SNOMED } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { TTIriRef } from "../interfaces/AutoGen";
-import { TTEntity } from "@/interfaces/ExtentedAutoGen";
+import { Node, TTIriRef } from "../interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { GenericObject } from "@/interfaces/GenericObject";
 
-export function transformTT(ttEntity: TTEntity, map?: any) {
-  if (!isObjectHasKeys(ttEntity)) return {};
+export function transformTT(ttEntity: TTEntity, map?: GenericObject) {
+  if (!isObjectHasKeys(ttEntity)) return {} as TTEntity;
   ttEntity = transformIris(ttEntity);
   transformObjectRecursively(ttEntity, map);
   return ttEntity;
 }
 
-function transformObjectRecursively(ttEntity: TTEntity, map?: any) {
+function transformObjectRecursively(ttEntity: TTEntity, map?: GenericObject) {
   for (const key of Object.keys(ttEntity)) {
     if (key.startsWith("http")) {
-      const property = isObjectHasKeys(map, [key]) ? map[key] : getNameFromIri(key);
+      const property = isObjectHasKeys(map, [key]) ? map?.[key] : getNameFromIri(key);
       ttEntity[property] = ttEntity[key];
       delete ttEntity[key];
 
@@ -55,8 +56,8 @@ export function getNameListFromIriList(iris: TTIriRef[]): string {
 }
 
 export function getNameFromRef(ref: any): string {
-  if (isObjectHasKeys(ref, ["name"])) return ref.name;
-  else if (isObjectHasKeys(ref, ["@id"])) return getNameFromIri(ref["@id"]);
+  if (ref.name && isObjectHasKeys(ref, ["name"])) return ref.name;
+  else if (ref["@id"] && isObjectHasKeys(ref, ["@id"])) return getNameFromIri(ref["@id"]);
   else if (isObjectHasKeys(ref, ["typeOf"])) return getNameFromIri(ref["typeOf"]["@id"]);
   else if (isObjectHasKeys(ref, ["parameter"])) return ref["parameter"];
   return "";
@@ -64,7 +65,7 @@ export function getNameFromRef(ref: any): string {
 
 export function resolveIri(iri: string) {
   if (!iri) return undefined;
-  const prefixes: any = { im: IM.NAMESPACE, sn: SNOMED.NAMESPACE };
+  const prefixes: GenericObject = { im: IM.NAMESPACE, sn: SNOMED.NAMESPACE };
   if (iri.includes("#") || iri.includes("urn:uuid:")) {
     return iri;
   } else if (iri.includes(":")) {

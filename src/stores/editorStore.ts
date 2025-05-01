@@ -5,7 +5,7 @@ import { EntityService } from "@/services";
 import { RDFS } from "@/vocabulary";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
-import { TTEntity } from "@/interfaces/ExtentedAutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 export const useEditorStore = defineStore("editor", {
   state: (): EditorState => ({

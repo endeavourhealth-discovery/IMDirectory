@@ -170,7 +170,7 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     const queryRequest = {} as QueryRequest;
     const query = {} as Query;
     query["@id"] = props.shape.select![0]["@id"];
-    queryRequest.argument = replacedArgs;
+    queryRequest.argument = [replacedArgs];
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)

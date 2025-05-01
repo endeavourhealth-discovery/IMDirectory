@@ -32,7 +32,7 @@ import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { AuthService, GithubService } from "@/services";
 import { fetchAuthSession } from "aws-amplify/auth";
-import axios, { AxiosRequestHeaders, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
@@ -137,7 +137,7 @@ function getLocalVersion(repoName: string): string | null {
   return localStorage.getItem(repoName + "Version");
 }
 
-async function setupAxiosInterceptors(axios: any) {
+async function setupAxiosInterceptors(axios: AxiosInstance) {
   axios.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
@@ -149,7 +149,7 @@ async function setupAxiosInterceptors(axios: any) {
   });
 
   axios.interceptors.response.use(
-    async (response: any) => {
+    async (response: AxiosResponse) => {
       return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
     },
     async (error: any) => {
@@ -181,30 +181,30 @@ async function setupAxiosInterceptors(axios: any) {
   );
 }
 
-function handle401(error: any) {
+function handle401(error: AxiosError) {
   toast.add({
     severity: "error",
     summary: "Access denied",
     detail:
       "Insufficient clearance to access " +
-      error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
+      error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1) +
       ". Please contact an admin to change your account security clearance if you require access to this resource."
   });
   router.push({ name: "AccessDenied" }).then();
 }
 
 async function handle403(error: any) {
-  if (!isPublicMode.value && error.response.data === "Access forbidden") {
+  if (!isPublicMode.value && error.response?.data === "Access forbidden") {
     if (route.path !== "/user/login") {
       await router.push({ name: "Login" });
     } else console.error(error);
-  } else if (error.response.data) {
+  } else if (error.response?.data) {
     toast.add({
       severity: "error",
       summary: "Access denied",
       detail: error.response.data.debugMessage
     });
-  } else if (error.config.url) {
+  } else if (error?.config?.url) {
     toast.add({
       severity: "error",
       summary: "Access denied",

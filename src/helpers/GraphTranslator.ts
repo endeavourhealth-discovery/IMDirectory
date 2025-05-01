@@ -1,8 +1,9 @@
 import { TTIriRef } from "../interfaces/AutoGen";
-import { TTGraphData } from "../interfaces";
+import { TTGraphData, TTProperty } from "../interfaces";
 import { IM, OWL, RDFS, SHACL, SNOMED, XSD } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { TTBundle } from "@/interfaces/ExtentedAutoGen";
+import { TTBundle, TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
   const { entity, predicates } = bundle;
@@ -18,7 +19,7 @@ export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: 
   return firstNode;
 }
 
-function getPropertyIri(nested: any): string {
+function getPropertyIri(nested: TTProperty): string {
   if (isObjectHasKeys(nested, [SHACL.CLASS])) {
     return nested[SHACL.CLASS][0]["@id"];
   }
@@ -35,7 +36,7 @@ function getPropertyIri(nested: any): string {
   return "undefined";
 }
 
-function getPropertyName(nested: any): string {
+function getPropertyName(nested: TTProperty): string {
   if (isObjectHasKeys(nested, [SHACL.CLASS])) {
     return nested[SHACL.CLASS][0].name || getNameFromIri(nested[SHACL.CLASS][0]["@id"]);
   }
@@ -64,7 +65,7 @@ function getNameFromIri(iri: string): string {
   return "undefined";
 }
 
-function addMaps(firstNode: TTGraphData, entity: any, key: string) {
+function addMaps(firstNode: TTGraphData, entity: TTEntity, key: string) {
   const preNode = {
     name: "middle-node-" + key,
     iri: "",
@@ -101,7 +102,7 @@ function addMaps(firstNode: TTGraphData, entity: any, key: string) {
   }
 }
 
-function addProperties(firstNode: TTGraphData, entity: any, key: string) {
+function addProperties(firstNode: TTGraphData, entity: TTEntity, key: string) {
   if (isObjectHasKeys(entity[key][0], [SHACL.GROUP])) {
     entity[key].forEach((nested: any) => {
       if (nested[SHACL.GROUP] && nested[SHACL.GROUP].length) {
@@ -127,7 +128,7 @@ function addProperties(firstNode: TTGraphData, entity: any, key: string) {
   }
 }
 
-function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: any) {
+function addRoles(firstNode: TTGraphData, entity: TTEntity, key: string, predicates: GenericObject) {
   entity[key].forEach((nested: any) => {
     const groupID = nested[IM.GROUP_NUMBER];
     const preNode = {
@@ -150,7 +151,7 @@ function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: 
   });
 }
 
-function addArray(firstNode: TTGraphData, entity: any, key: string, predicates: any) {
+function addArray(firstNode: TTGraphData, entity: TTEntity, key: string, predicates: GenericObject) {
   const preNode = {
     name: "middle-node-" + key,
     iri: "",
@@ -195,7 +196,7 @@ function addChild(parent: any, name: string, iri: string, relToParent: string) {
   }
 }
 
-function addNodes(entity: any, keys: string[], firstNode: TTGraphData, predicates: any): void {
+function addNodes(entity: TTEntity, keys: string[], firstNode: TTGraphData, predicates: any): void {
   if (isObjectHasKeys(entity)) {
     keys.forEach(key => {
       if (isArrayHasLength(entity[key])) {

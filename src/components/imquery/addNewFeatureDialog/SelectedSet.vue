@@ -45,7 +45,7 @@ import { cloneDeep } from "lodash-es";
 import { isConcept, isValueSet } from "@/helpers/ConceptTypeMethods";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { TTEntity } from "@/interfaces/ExtentedAutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   dataModelIri: string | undefined;

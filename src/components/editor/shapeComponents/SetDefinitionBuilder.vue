@@ -190,7 +190,7 @@ async function processProps() {
   }
 }
 
-function toggleMenuOptions(event: any) {
+function toggleMenuOptions(event: MouseEvent) {
   importMenu.value.toggle(event);
 }
 
@@ -227,7 +227,7 @@ function processCodeList(data: SearchResultSummary[]) {
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as any;
+    const result = {} as { [x: string]: string };
     if (eclAsQuery.value) {
       result[key] = JSON.stringify(eclAsQuery.value);
     }
@@ -247,8 +247,8 @@ function updateError(errorUpdate: { error: boolean; message: string }): void {
   eclErrorMessage.value = errorUpdate.message;
 }
 
-async function dropReceived(event: any) {
-  const data = event.dataTransfer.getData("conceptIri");
+async function dropReceived(event: DragEvent) {
+  const data = event.dataTransfer?.getData("conceptIri");
   if (data) {
     ecl.value = JSON.parse(data);
   }

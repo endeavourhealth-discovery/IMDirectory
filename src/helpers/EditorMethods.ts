@@ -1,3 +1,4 @@
+import { GenericObject } from "@/interfaces/GenericObject";
 import { ComponentType } from "../enums";
 import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
 import { enumToArray } from "./Converters";
@@ -7,7 +8,7 @@ import { isTTIriRef } from "./TypeGuards";
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
   property.argument?.forEach(arg => {
-    const argResult: any = {};
+    const argResult = {} as Argument;
     for (const [key, value] of Object.entries(arg)) {
       if (key === "valueVariable") {
         let foundValueVariable: any = null;
@@ -26,7 +27,7 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
         else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
         else argResult[key] = foundValueVariable;
       } else {
-        argResult[key] = value;
+        (argResult as GenericObject)[key] = value;
       }
     }
     result.push(argResult);
@@ -56,7 +57,7 @@ function extractComponentFromIri(type: TTIriRef) {
   else throw new Error("Iri is not of type ComponentType: " + type["@id"]);
 }
 
-export function processComponentType(type: TTIriRef | undefined): any {
+export function processComponentType(type: TTIriRef | undefined) {
   if (!type) throw new Error("Invalid component type: undefined");
   const typeName = extractComponentFromIri(type);
   const componentList = enumToArray(ComponentType);

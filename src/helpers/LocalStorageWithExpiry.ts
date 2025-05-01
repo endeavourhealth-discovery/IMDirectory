@@ -1,3 +1,4 @@
+import { GenericObject } from "@/interfaces/GenericObject";
 import { isObjectHasKeys } from "./DataTypeCheckers";
 
 const localStorageWithExpiry = {
@@ -24,7 +25,7 @@ const localStorageWithExpiry = {
   },
   setItem(key: string, data: any, maxAge: number = 30 * 24 * 60 * 60 * 1000) {
     // default maxAge 30 days
-    const result: { data: any; expireTime: number } = {
+    const result: { data: GenericObject; expireTime: number } = {
       data: data,
       expireTime: Date.now() + maxAge
     };

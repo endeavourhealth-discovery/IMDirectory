@@ -1,6 +1,15 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-04-29 14:42:12.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-01 11:28:47.
+
+export interface ConceptContextMap {
+  id?: string;
+  node?: string;
+  value?: string;
+  regex?: string;
+  property?: string;
+  context?: Context[];
+}
 
 export interface DataModelProperty extends Serializable {
   property?: TTIriRef;
@@ -420,11 +429,11 @@ export interface Argument {
 
 export interface Assignable {
   value?: string;
-  unit?: TTIriRef;
   valueLabel?: string;
-  valueParameter?: string;
-  operator?: Operator;
+  unit?: TTIriRef;
   qualifier?: string;
+  operator?: Operator;
+  valueParameter?: string;
 }
 
 export interface Case {
@@ -458,9 +467,9 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
   memberOf?: boolean;
-  descendantsOrSelfOf?: boolean;
   ancestorsOf?: boolean;
   descendantsOf?: boolean;
+  descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -518,8 +527,8 @@ export interface Match extends IriLD, GraphNode {
   return?: Return;
   returx?: Return;
   isUnion?: boolean;
-  isRule?: boolean;
   isTest?: boolean;
+  isRule?: boolean;
 }
 
 export interface Node extends Element, GraphNode {
@@ -950,6 +959,14 @@ export interface VALIDATION {}
 export interface WORKFLOW {}
 
 export interface XSD {}
+
+export interface Context {
+  publisher?: string;
+  system?: string;
+  schema?: string;
+  table?: string;
+  field?: string;
+}
 
 export interface TTIriRef extends TTValue, Serializable {
   name?: string;

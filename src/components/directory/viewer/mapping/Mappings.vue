@@ -124,11 +124,12 @@
 <script lang="ts" setup>
 import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
-import { ChartMapNode, ChartTableNode, ContextMap, MapItem, Namespace, SimpleMap, SimpleMapIri } from "@/interfaces";
+import { ChartMapNode, ChartTableNode, MapItem, Namespace, SimpleMap, SimpleMapIri } from "@/interfaces";
 import { DataTypeCheckers, Sorters } from "@/helpers";
 import { ConceptService, EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import { Context } from "@/interfaces/Context";
+import { ConceptContextMap } from "@/interfaces/AutoGen";
 
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPriority, byScheme } = Sorters;
@@ -140,14 +141,14 @@ interface Props {
 const props = defineProps<Props>();
 
 const mappings: Ref<any[]> = ref([]);
-const contextMaps: Ref<ContextMap[]> = ref([]);
+const contextMaps: Ref<ConceptContextMap[]> = ref([]);
 const data: Ref = ref({});
 const hoveredResult: Ref = ref({});
 const matchedFrom: Ref<SimpleMap[]> = ref([]);
 const matchedTo: Ref<SimpleMap[]> = ref([]);
 const namespaces: Ref<Namespace[]> = ref([]);
 const loading = ref(false);
-const contextExpandedRows: Ref<ContextMap[]> = ref([]);
+const contextExpandedRows: Ref<ConceptContextMap[]> = ref([]);
 
 const opMap = ref(null);
 const opMatchedTo = ref(null);

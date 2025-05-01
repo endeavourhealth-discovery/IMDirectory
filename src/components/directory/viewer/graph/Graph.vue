@@ -22,7 +22,7 @@ import { TTGraphData } from "@/interfaces";
 import { GraphTranslator, DataTypeCheckers } from "@/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
-import { TTBundle } from "@/interfaces/ExtentedAutoGen";
+import { TTBundle } from "@/interfaces/ExtendedAutoGen";
 const { translateFromEntityBundle } = GraphTranslator;
 const { isObjectHasKeys } = DataTypeCheckers;
 

@@ -2,7 +2,7 @@ import axios from "axios";
 import Env from "./Env";
 import { SetDiffObject } from "@/interfaces";
 import { Node, Pageable, TTIriRef } from "@/interfaces/AutoGen";
-import { TTEntity } from "@/interfaces/ExtentedAutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/set";
 
 const SetService = {

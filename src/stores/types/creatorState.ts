@@ -1,4 +1,4 @@
-import { TTEntity } from "@/interfaces/ExtentedAutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 export interface CreatorState {
   creatorSavedEntity: TTEntity | undefined;

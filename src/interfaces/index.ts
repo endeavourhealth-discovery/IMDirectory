@@ -39,7 +39,6 @@ import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { TTProperty, UIProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
-import { ContextMap } from "./ContextMap";
 import { SelectedMatch } from "./SelectedMatch";
 import { MailOptions } from "./MailOptions";
 import { QueryResponse } from "./QueryResponse";
@@ -93,7 +92,6 @@ export {
   type TTProperty,
   type UIProperty,
   type TreeNode,
-  type ContextMap,
   type SelectedMatch,
   type MailOptions,
   type QueryResponse,

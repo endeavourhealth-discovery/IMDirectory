@@ -7,7 +7,7 @@ import type { TreeNode } from "primevue/treenode";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { buildDetails } from "@/helpers/DetailsBuilder";
 import { OrganizationChartNode } from "primevue/organizationchart";
-import { TTBundle, TTEntity } from "@/interfaces/ExtentedAutoGen";
+import { TTBundle, TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/entity";
 
 const EntityService = {

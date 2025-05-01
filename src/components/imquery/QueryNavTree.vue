@@ -33,7 +33,6 @@ import { IM, RDF, SHACL } from "@/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
-import type { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { isFolder, isFunction, isProperty, isRecordModel } from "@/helpers/ConceptTypeMethods";
 import { TTProperty } from "@/interfaces";
@@ -42,6 +41,8 @@ import { Match, TTIriRef, Where } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { getKey, getParentNode } from "@/helpers";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { TreeNode as LocalTreeNode } from "@/interfaces/TreeNode";
+import type { TreeNode } from "primevue/treenode";
 
 const props = defineProps<{
   editMatch: Match;
@@ -129,7 +130,7 @@ function createTreeNode(
     leaf: !hasChildren,
     loading: false,
     children: [] as TreeNode[],
-    parent: getParentNode(parent as any),
+    parent: getParentNode(parent as unknown as LocalTreeNode),
     order: order,
     selectable: selectable,
     hasVariable: hasVariable
