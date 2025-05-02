@@ -10,6 +10,7 @@
         </div>
         <div class="flex flex-row justify-end gap-2">
           <div>
+            <Button data-testid="test-query-button" label="Test run query" @click="testRunQuery" />
             <Button data-testid="sql-button" label="Generate SQL" @click="generateSQL" />
           </div>
         </div>
@@ -32,6 +33,7 @@
         <Button data-testid="close-button" label="Close" @click="showSql = false" />
       </template>
     </Dialog>
+    <TestQueryResults :show-dialog="showTestQueryResults" :test-query-results="queryTestResults" />
   </div>
 </template>
 
@@ -39,7 +41,7 @@
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode } from "@/enums";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { DisplayMode, Match, PropertyShape, Query } from "@/interfaces/AutoGen";
+import { DBEntry, DisplayMode, Match, PropertyShape, Query } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -48,6 +50,8 @@ import { QueryService } from "@/services";
 import { generateMatchIds } from "@/helpers/QueryBuilder";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import IMQueryEditor from "@/components/imquery/IMQueryEditor.vue";
+import QueryResults from "@/components/queryRunner/QueryResults.vue";
+import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -81,6 +85,8 @@ const invalid = ref(false);
 const showValidation = ref(false);
 const showSql: Ref<boolean> = ref(false);
 const sql: Ref<string> = ref("");
+const queryTestResults: Ref<string[]> = ref([]);
+const showTestQueryResults = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
 const key = props.shape.path["@id"];
@@ -134,6 +140,13 @@ function updateEntity() {
 
 function updateQueryDefinition(test: any) {
   queryDefinition.value = test;
+}
+
+async function testRunQuery() {
+  if (queryDefinition.value) {
+    queryTestResults.value = await QueryService.testRunQuery(queryDefinition.value);
+  } else queryTestResults.value = [];
+  showTestQueryResults.value = true;
 }
 </script>
 
