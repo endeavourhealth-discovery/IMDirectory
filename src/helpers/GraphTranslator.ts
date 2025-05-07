@@ -74,17 +74,7 @@ function addMaps(firstNode: TTGraphData, entity: any, key: string) {
   entity[key].forEach((nested: any) => {
     Object.keys(nested).forEach(predicate => {
       nested[predicate].forEach((element: any) => {
-        if (isObjectHasKeys(element, [IM.MAPPED_TO])) {
-          element[IM.MAPPED_TO].forEach((mappedTo: any) => {
-            preNode.children.push({
-              name: mappedTo.name,
-              iri: mappedTo["@id"],
-              relToParent: mappedTo.name,
-              children: [],
-              _children: []
-            });
-          });
-        }
+        addMap(element, preNode);
       });
     });
   });
@@ -97,6 +87,20 @@ function addMaps(firstNode: TTGraphData, entity: any, key: string) {
     if (!firstNode.children.some((c: any) => c.relToParent === preNode.children[0].relToParent)) {
       firstNode.children.push(preNode.children[0]);
     }
+  }
+}
+
+function addMap(element: any, preNode: TTGraphData) {
+  if (isObjectHasKeys(element, [IM.MAPPED_TO])) {
+    element[IM.MAPPED_TO].forEach((mappedTo: any) => {
+      preNode.children.push({
+        name: mappedTo.name,
+        iri: mappedTo["@id"],
+        relToParent: mappedTo.name,
+        children: [],
+        _children: []
+      });
+    });
   }
 }
 
@@ -161,10 +165,10 @@ function addArray(firstNode: TTGraphData, entity: any, key: string, predicates: 
     if (entity[key].length > 1) {
       if (isObjectHasKeys(nested)) {
         addChild(
-            preNode,
-            nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"]),
-            nested["@id"],
-            nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"])
+          preNode,
+          nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"]),
+          nested["@id"],
+          nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"])
         );
       } else {
         addChild(preNode, nested, "", nested);

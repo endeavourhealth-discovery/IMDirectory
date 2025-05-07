@@ -96,34 +96,42 @@ function deleteMatchPredicateIfExists(match: Match, parent: Match[], predicateIr
     }
     return true;
   } else if (match.match) {
-    let deleteRequired = false;
-    for (const subMatch of match.match) {
-      const isDeleteRequired = deleteMatchPredicateIfExists(subMatch, match.match, predicateIri, match.match.length > 1);
-      if (isDeleteRequired) {
-        if (match.match.length > 1) {
-          match.match.splice(match.match.indexOf(subMatch), 1);
-        } else if (topLevel) match.match.splice(parent.indexOf(subMatch), 1);
-        else deleteRequired = true;
-      }
-    }
-    return deleteRequired;
+    return deleteMatch(match.match, parent, predicateIri, topLevel);
   } else if (match.where) {
-    let deleteRequired = false;
-    for (const where of match.where) {
-      const isDeleteRequired = deleteWherePredicateIfExists(where, match.where, predicateIri);
-      if (isDeleteRequired) {
-        if (match.where.length > 1) {
-          match.where.splice(
-            match.where.findIndex(w => w["@id"] === where["@id"]),
-            1
-          );
-        } else if (topLevel) {
-          parent.splice(parent.indexOf(match), 1);
-        } else deleteRequired = true;
-      }
-    }
-    return deleteRequired;
+    return deleteWhere(match.where, parent, match, predicateIri, topLevel);
   } else return false;
+}
+
+function deleteMatch(match: Match[], parent: Match[], predicateIri: string, topLevel: boolean) {
+  let deleteRequired = false;
+  for (const subMatch of match) {
+    const isDeleteRequired = deleteMatchPredicateIfExists(subMatch, match, predicateIri, match.length > 1);
+    if (isDeleteRequired) {
+      if (match.length > 1) {
+        match.splice(match.indexOf(subMatch), 1);
+      } else if (topLevel) match.splice(parent.indexOf(subMatch), 1);
+      else deleteRequired = true;
+    }
+  }
+  return deleteRequired;
+}
+
+function deleteWhere(wheres: Where[], parent: Match[], match: Match, predicateIri: string, topLevel: boolean): boolean {
+  let deleteRequired = false;
+  for (const where of wheres) {
+    const isDeleteRequired = deleteWherePredicateIfExists(where, wheres, predicateIri);
+    if (isDeleteRequired) {
+      if (wheres.length > 1) {
+        wheres.splice(
+          wheres.findIndex(w => w["@id"] === where["@id"]),
+          1
+        );
+      } else if (topLevel) {
+        parent.splice(parent.indexOf(match), 1);
+      } else deleteRequired = true;
+    }
+  }
+  return deleteRequired;
 }
 
 function deleteWherePredicateIfExists(where: Where, parent: Where[], predicateIri: string): boolean {

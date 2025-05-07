@@ -70,34 +70,46 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
   function updateEntity(data: any) {
     let wasUpdated = false;
     if (isArrayHasLength(data)) {
-      data.forEach((item: any) => {
-        if (isObjectHasKeys(item)) {
-          for (const [key, value] of Object.entries(item)) {
-            editorEntity.value[key] = value;
-            wasUpdated = true;
-          }
-        }
-      });
+      wasUpdated = updateArrayEntity(data);
     } else if (isObjectHasKeys(data)) {
-      if (isObjectHasKeys(data, [RDF.TYPE])) {
-        if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
-          updateType(data[RDF.TYPE]);
-          wasUpdated = true;
-        } else if (JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
-          updateType(data[RDF.TYPE]);
-          wasUpdated = true;
-        }
-      } else {
-        for (const [key, value] of Object.entries(data)) {
-          editorEntity.value[key] = value;
-          wasUpdated = true;
-        }
-      }
+      wasUpdated = updateObjectEntity(data);
     }
     if (wasUpdated) {
       if (mode === EditorMode.CREATE) creatorStore.updateCreatorSavedEntity(editorEntity.value);
       else editorStore.updateEditorSavedEntity(editorEntity.value);
     }
+  }
+
+  function updateArrayEntity(data: any[]): boolean {
+    let wasUpdated = false;
+    data.forEach((item: any) => {
+      if (isObjectHasKeys(item)) {
+        for (const [key, value] of Object.entries(item)) {
+          editorEntity.value[key] = value;
+          wasUpdated = true;
+        }
+      }
+    });
+    return wasUpdated;
+  }
+
+  function updateObjectEntity(data: any): boolean {
+    let wasUpdated = false;
+    if (isObjectHasKeys(data, [RDF.TYPE])) {
+      if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
+        updateType(data[RDF.TYPE]);
+        wasUpdated = true;
+      } else if (JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
+        updateType(data[RDF.TYPE]);
+        wasUpdated = true;
+      }
+    } else {
+      for (const [key, value] of Object.entries(data)) {
+        editorEntity.value[key] = value;
+        wasUpdated = true;
+      }
+    }
+    return wasUpdated;
   }
 
   function deleteEntityKey(data: string) {
