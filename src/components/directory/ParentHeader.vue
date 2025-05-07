@@ -13,6 +13,7 @@
       </div>
       <div class="entity-buttons-container">
         <ActionButtons
+          v-if="entity['@id']"
           :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'download', 'favourite'] : ['findInTree', 'view', 'addToList']"
           :iri="entity['@id']"
           :name="entity[RDFS.LABEL]"
@@ -49,9 +50,10 @@ import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 defineProps<{
-  entity: any;
+  entity: TTEntity;
   showSelect?: boolean;
 }>();
 
@@ -62,12 +64,12 @@ const emit = defineEmits<{
   viewHierarchy: [payload: string];
 }>();
 
-function getIcon(entity: any) {
+function getIcon(entity: TTEntity) {
   if (entity["@id"] === IM.FAVOURITES) return ["fa-solid", "star"];
   return getFAIconFromType(entity[RDF.TYPE]);
 }
 
-function getColour(entity: any) {
+function getColour(entity: TTEntity) {
   return "color: " + getColourFromType(entity[RDF.TYPE]);
 }
 </script>

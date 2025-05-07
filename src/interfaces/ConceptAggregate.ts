@@ -1,8 +1,7 @@
-import { EntityReferenceNode } from "./EntityReferenceNode";
 import { TTEntity } from "./ExtendedAutoGen";
 
 export interface ConceptAggregate {
-  children: EntityReferenceNode[];
+  children: TTEntity[];
   concept: TTEntity;
-  parents: EntityReferenceNode[];
+  parents: TTEntity[];
 }

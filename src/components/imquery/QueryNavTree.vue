@@ -200,7 +200,7 @@ async function onNodeExpand(node: TreeNode) {
   // add subTypes
   const subTypes = await EntityService.getEntityChildren(iri);
   for (const subType of subTypes) {
-    const subTypeNode = createTreeNode(subType.name, subType["@id"], subType.type, true, false, node);
+    const subTypeNode = createTreeNode(subType.name, subType["@id"], subType.type as TTIriRef[], true, false, node);
     subTypeNode.inheritedProps = [...node.children!];
     node.children!.push(subTypeNode);
   }

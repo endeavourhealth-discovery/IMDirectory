@@ -74,6 +74,7 @@ import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 const emit = defineEmits<{
   locateInTree: [payload: string];
@@ -92,7 +93,7 @@ const eclErrorMessage = ref("");
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
 const eclQuery: Ref<EclSearchRequest | undefined> = ref();
-const keysPressed = {} as any;
+const keysPressed: GenericObject = {};
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
 
@@ -110,12 +111,12 @@ onMounted(() => {
   if (savedEcl.value) eclQueryString.value = savedEcl.value;
 });
 
-async function onKeyDown(event: any) {
+async function onKeyDown(event: KeyboardEvent) {
   keysPressed[event.key] = true;
   if (keysPressed["Control"] && keysPressed["Enter"] && eclQueryString.value.length && !eclError.value) await onSearch();
 }
 
-function onKeyUp(event: any) {
+function onKeyUp(event: KeyboardEvent) {
   delete keysPressed[event.key];
 }
 
@@ -147,7 +148,7 @@ async function onSearch(): Promise<void> {
 }
 
 function setFilterDefaults() {
-  selectedStatus.value = statusOptions.value.filter((option: any) => option["@id"] === IM.ACTIVE);
+  selectedStatus.value = statusOptions.value.filter(option => option["@id"] === IM.ACTIVE);
 }
 </script>
 

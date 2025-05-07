@@ -25,23 +25,23 @@
       <template #empty> No records found. </template>
 
       <Column field="name" header="Name">
-        <template #body="{ data }: any">
+        <template #body="{ data }: { data: ExtendedEntityReferenceNode }">
           <div>
-            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type as TTIriRef[])" class="p-mx-1 type-icon" />
             <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay">{{ data.name }}</span>
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
-        <template #body="{ data }: any">
-          <span>{{ getTypesDisplay(data.type) }}</span>
+        <template #body="{ data }: { data: ExtendedEntityReferenceNode }">
+          <span v-if="data.type">{{ getTypesDisplay(data.type as TTIriRef[]) }}</span>
         </template>
       </Column>
       <Column :exportable="false" style="justify-content: flex-end">
-        <template #body="{ data }: any">
+        <template #body="{ data }: { data: ExtendedEntityReferenceNode }">
           <div class="buttons-container">
             <ActionButtons
-              v-if="data.iri"
+              v-if="data['@id']"
               :buttons="['findInTree', 'view', 'edit', 'favourite']"
               :iri="data['@id']"
               :name="data.name"
@@ -60,7 +60,7 @@
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { cloneDeep } from "lodash-es";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { EntityReferenceNode, TTIriRef } from "@/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import { EntityService, DirectService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
@@ -71,6 +71,8 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { MenuItem } from "primevue/menuitem";
+import { ExtendedEntityReferenceNode } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   entityIri: string;
@@ -102,9 +104,9 @@ watch(
 const conceptIsFavourite = computed(() => props.entityIri === IM.FAVOURITES);
 
 const loading = ref(false);
-const children: Ref<any[]> = ref([]);
-const selected: Ref<any> = ref({});
-const rClickOptions: Ref<any[]> = ref([
+const children: Ref<ExtendedEntityReferenceNode[]> = ref([]);
+const selected: Ref<ExtendedEntityReferenceNode> = ref({} as ExtendedEntityReferenceNode);
+const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Open",
     icon: "fa-solid fa-folder-open",
@@ -145,10 +147,9 @@ async function init() {
 
 async function getFavourites() {
   const result = await EntityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
-  children.value = result.map((child: any) => {
-    return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
+  children.value = result.map(child => {
+    return { "@id": child["@id"] as string, name: child[RDFS.LABEL], type: child[RDF.TYPE], icon: getFAIconFromType(child[RDF.TYPE]) };
   });
-  children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
   totalCount.value = children.value.length;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
 }
@@ -163,9 +164,10 @@ function getColourStyleFromType(types: TTIriRef[]) {
 
 async function getChildren(iri: string) {
   const result = await EntityService.getPagedChildren(iri, currentPage.value + 1, pageSize.value);
-  children.value = result.result;
+  children.value = result.result.map(child => {
+    return { "@id": child["@id"] as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
+  });
   totalCount.value = result.totalCount;
-  children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
 }
 
@@ -179,8 +181,8 @@ function updateRClickOptions() {
   if (isLoggedIn.value) rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
 }
 
-function onRowContextMenu(data: any) {
-  selected.value = data.data;
+function onRowContextMenu(event: MouseEvent, data: { data: ExtendedEntityReferenceNode }) {
+  selected.value = data.data as ExtendedEntityReferenceNode;
   updateRClickOptions();
   menu.value.show(event);
 }
@@ -189,17 +191,18 @@ function updateFavourites(iri: string) {
   userStore.updateFavourites(iri);
 }
 
-function onRowSelect(event: any) {
+function onRowSelect(event: { data: ExtendedEntityReferenceNode }) {
   emit("navigateTo", event.data["@id"]);
 }
 
-async function onPage(event: any) {
+async function onPage(event: { rows: number; page: number }) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
   const result = await EntityService.getPagedChildren(props.entityIri, currentPage.value + 1, pageSize.value);
-  children.value = result.result;
-  children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
+  children.value = result.result.map(child => {
+    return { "@id": child["@id"] as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
+  });
   scrollToTop();
   loading.value = false;
 }

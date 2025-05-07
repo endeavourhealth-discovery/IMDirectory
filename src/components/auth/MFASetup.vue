@@ -44,9 +44,44 @@ const textColor = styles.getPropertyValue("--text-color");
 
 const isValidCode = computed(() => /\d{6}/.test(code.value));
 
+interface Options {
+  width: number;
+  height: number;
+  type: DrawType;
+  data: string;
+  image: string;
+  margin: number;
+  qrOptions: {
+    typeNumber: TypeNumber;
+    mode: Mode;
+    errorCorrectionLevel: ErrorCorrectionLevel;
+  };
+  imageOptions: {
+    hideBackgroundDots: boolean;
+    imageSize: number;
+    margin: number;
+    crossOrigin: string;
+  };
+  dotsOptions: {
+    color: string;
+    type: DotType;
+  };
+  backgroundOptions: {
+    color: string;
+  };
+  cornersSquareOptions: {
+    color: string;
+    type: CornerSquareType;
+  };
+  cornersDotOptions: {
+    color: string;
+    type: CornerDotType;
+  };
+}
+
 const code = ref("");
 
-const options: Ref<any> = ref();
+const options: Ref<Options | undefined> = ref();
 const loading = ref(false);
 const loadingQRCode = ref(false);
 
@@ -139,8 +174,8 @@ async function handleSubmitMFA() {
         title: "Success",
         text: "2-factor authentication successfully setup for this account."
       }).then(() => router.push({ name: "UserDetails" }));
-    } catch (err: any) {
-      throw new Error("Error setting up mfa", err);
+    } catch (err: unknown) {
+      throw new Error("Error setting up mfa", { cause: err });
     }
     loading.value = false;
   }

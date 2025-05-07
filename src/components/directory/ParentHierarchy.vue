@@ -3,7 +3,7 @@
     <div class="padding-container flex justify-between gap-4">
       <div class="table-header grow">
         <Breadcrumb :home="home" :model="pathItems">
-          <template #item="{ item }: { item: any }">
+          <template #item="{ item }: { item: MenuItem }">
             <div class="p-menuitem" @click="onClick($event, item)">
               <span v-if="item.icon" :class="item.icon"></span>
               <span v-if="item.label" class="p-menuitem-text">{{ item.label }}</span>
@@ -30,6 +30,7 @@ import { onMounted, ref, Ref, watch, computed } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import { TTIriRef } from "@/interfaces/AutoGen";
+import { MenuItem } from "primevue/menuitem";
 
 const props = defineProps<{
   entityIri: string;
@@ -49,20 +50,20 @@ watch(
   () => init()
 );
 
-const pathItems: Ref<any[]> = ref([]);
-const pathOptions: Ref<any[]> = ref([]);
+const pathItems: Ref<MenuItem[]> = ref([]);
+const pathOptions: Ref<MenuItem[]> = ref([]);
 const folderPath: Ref<TTIriRef[]> = ref([]);
 
 const home = {
   icon: "fa-duotone fa-house-chimney",
-  command: (data: any) => emit("navigateTo", data)
+  command: () => emit("navigateTo", "home")
 };
 
 const pathOverlayMenu = ref();
 
 onMounted(() => init());
 
-function openPathOverlaymenu(event: any) {
+function openPathOverlaymenu(event: Event | undefined) {
   pathOverlayMenu.value.toggle(event);
 }
 
@@ -105,7 +106,7 @@ async function getPath() {
   }
 }
 
-function onClick(event: any, item: any) {
+function onClick(event: MouseEvent, item: MenuItem) {
   if (item.command) item.command({ originalEvent: event, item: item });
 }
 </script>

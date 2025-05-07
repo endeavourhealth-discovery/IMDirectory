@@ -123,7 +123,7 @@ watch(
 const wasDraggedAndDropped = ref(false);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 const op = ref();
-function toggle(event: any) {
+function toggle(event: MouseEvent) {
   op.value.toggle(event);
 }
 

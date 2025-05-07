@@ -20,7 +20,7 @@
       >
         <template #empty> No recent activity </template>
         <Column field="name" header="Name">
-          <template #body="{ data }: any">
+          <template #body="{ data }: { data: RecentActivityItem }">
             <div class="activity-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
               <span class="activity-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
@@ -28,12 +28,12 @@
           </template>
         </Column>
         <Column field="latestActivity" header="Latest activity">
-          <template #body="{ data }: any">
+          <template #body="{ data }: { data: RecentActivityItem }">
             <span class="activity-message" v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</span>
           </template>
         </Column>
         <Column :exportable="false">
-          <template #body="{ data }: any">
+          <template #body="{ data }: { data: RecentActivityItem }">
             <div class="action-buttons-container">
               <ActionButtons
                 v-if="data.iri"
@@ -77,7 +77,7 @@ const directoryStore = useDirectoryStore();
 const confirm = useConfirm();
 const userStore = useUserStore();
 const recentLocalActivity = computed(() => userStore.recentLocalActivity);
-const selected: Ref<any> = ref({});
+const selected: Ref<RecentActivityItem> = ref({} as RecentActivityItem);
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 
@@ -94,7 +94,7 @@ async function init(): Promise<void> {
   loading.value = false;
 }
 
-function onRowSelect(event: any) {
+function onRowSelect(event: { data: RecentActivityItem }) {
   directService.select(event.data.iri);
 }
 
@@ -122,7 +122,7 @@ async function getRecentActivityDetails() {
     const clone = { ...rla };
 
     let result = null;
-    if (results && isArray(results)) result = results.find((r: any) => r["@id"] === rla.iri);
+    if (results && isArray(results)) result = results.find(r => r["@id"] === rla.iri);
 
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
       clone.name = result[RDFS.LABEL];

@@ -170,7 +170,8 @@ async function addParentFoldersToRoot() {
   if (isArrayHasLength(IMChildren)) {
     for (let IMchild of IMChildren) {
       const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
-      if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
+      if (!hasNode)
+        root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type as TTIriRef[], IMchild.hasGrandChildren, null, IMchild.orderNumber));
     }
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
@@ -190,7 +191,7 @@ async function addRootEntitiesToTree() {
     const itemSummary = await EntityService.getEntityAsEntityReferenceNode(item);
     if (itemSummary) {
       const hasNode = !!root.value.find(node => node.data === itemSummary["@id"]);
-      if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary["@id"], itemSummary.type, itemSummary.hasGrandChildren, null));
+      if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary["@id"], itemSummary.type as TTIriRef[], itemSummary.hasGrandChildren, null));
     }
   }
   root.value.sort(byKey);

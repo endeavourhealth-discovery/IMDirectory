@@ -7,7 +7,6 @@ import { DashboardLayout } from "./DashboardLayout";
 import { Dataset } from "./Dataset";
 import { DefinitionConfig } from "./DefinitionConfig";
 import { ECLComponentDetails } from "./ECLComponentDetails";
-import { EntityReferenceNode } from "./EntityReferenceNode";
 import { ExportValueSet } from "./ExportValueSet";
 import { FiltersAsIris } from "./FiltersAsIris";
 import GraphData from "./GraphData";
@@ -59,7 +58,6 @@ export {
   type Dataset,
   type DefinitionConfig,
   type ECLComponentDetails,
-  type EntityReferenceNode,
   type ExportValueSet,
   type FiltersAsIris,
   type GraphData,

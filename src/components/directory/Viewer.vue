@@ -156,6 +156,7 @@ import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   entityIri: string;
@@ -172,7 +173,7 @@ const directService = new DirectService();
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
-const concept: Ref<any> = ref({});
+const concept: Ref<TTEntity> = ref({});
 
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));

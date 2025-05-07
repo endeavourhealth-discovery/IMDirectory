@@ -1,13 +1,13 @@
 import { IM, RDFS } from "@/vocabulary";
-import { EntityReferenceNode, FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest } from "@/interfaces/AutoGen";
+import { FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
+import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest, EntityReferenceNode } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { buildDetails } from "@/helpers/DetailsBuilder";
 import { OrganizationChartNode } from "primevue/organizationchart";
-import { TTBundle, TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { ExtendedEntityReferenceNode, TTBundle, TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/entity";
 
 const EntityService = {
@@ -48,13 +48,13 @@ const EntityService = {
     });
   },
 
-  async getEntityParents(iri: string, filters?: FiltersAsIris): Promise<EntityReferenceNode[]> {
+  async getEntityParents(iri: string, filters?: FiltersAsIris): Promise<ExtendedEntityReferenceNode[]> {
     return axios.get(API_URL + "/public/parents", {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") }
     });
   },
 
-  async getEntityChildren(iri: string, filters?: FiltersAsIris, controller?: AbortController): Promise<EntityReferenceNode[]> {
+  async getEntityChildren(iri: string, filters?: FiltersAsIris, controller?: AbortController): Promise<ExtendedEntityReferenceNode[]> {
     return axios.get(API_URL + "/public/children", {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
@@ -68,7 +68,7 @@ const EntityService = {
     filters?: FiltersAsIris,
     controller?: AbortController,
     typeFilter?: string[] | undefined
-  ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: EntityReferenceNode[] }> {
+  ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: TTEntity[] }> {
     return axios.get(API_URL + "/public/childrenPaged", {
       params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(","), typeFilter: typeFilter?.join(",") },
       signal: controller?.signal

@@ -26,8 +26,7 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { EntityReferenceNode } from "@/interfaces";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { EntityReferenceNode, TTIriRef } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { byKey } from "@/helpers/Sorters";
@@ -63,12 +62,15 @@ async function addIsAsToRoot() {
   for (const isA of props.isAs) {
     const asNode = await EntityService.getEntityAsEntityReferenceNode(isA);
     const hasNode = !!root.value.find(node => node.data === asNode["@id"]);
-    if (!hasNode) root.value.push(createTreeNode(asNode.name, asNode["@id"], asNode.type, asNode.hasGrandChildren));
+    if (!hasNode) {
+      const treeNode = createTreeNode(asNode.name as string, asNode["@id"], asNode.type as TTIriRef[], asNode.hasGrandChildren);
+      if (treeNode) root.value.push(treeNode);
+    }
   }
   root.value.sort(byKey);
 }
 
-function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
+function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean | undefined): TreeNode | undefined {
   return {
     key: conceptName,
     label: conceptName,
@@ -77,7 +79,7 @@ function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: T
     data: conceptIri,
     leaf: !hasChildren,
     loading: false,
-    children: [] as TreeNode[]
+    children: []
   };
 }
 
@@ -91,7 +93,8 @@ async function onNodeExpand(node: any) {
     node.loading = true;
     const children = await EntityService.getEntityChildren(node.data);
     children.forEach(child => {
-      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+      if (!nodeHasChild(node, child))
+        node.children.push(createTreeNode(child.name as string, child["@id"], child.type as TTIriRef[], child.hasChildren as boolean));
     });
     node.loading = false;
   }

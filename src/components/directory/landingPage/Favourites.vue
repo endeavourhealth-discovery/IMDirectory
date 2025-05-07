@@ -20,7 +20,7 @@
       >
         <template #empty>{{ !currentUser ? "Login to add favourites" : "No favourites" }}</template>
         <Column field="name" header="Name">
-          <template #body="{ data }: any">
+          <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="favourite-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
               <span class="favourite-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
@@ -28,14 +28,14 @@
           </template>
         </Column>
         <Column field="type" header="Type">
-          <template #body="{ data }: any">
+          <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="favourite-type-container flex flex-row">
               <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.entityType }}</span>
             </div>
           </template>
         </Column>
         <Column :exportable="false">
-          <template #body="{ data }: any">
+          <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="action-buttons-container">
               <ActionButtons
                 v-if="data.iri"
@@ -70,6 +70,7 @@ import { RDF, RDFS } from "@/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { useConfirm } from "primevue/useconfirm";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
@@ -80,7 +81,7 @@ const userStore = useUserStore();
 const userFavourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
 
-const selected: Ref<any> = ref({});
+const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
 const favourites: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 
@@ -97,7 +98,7 @@ async function init(): Promise<void> {
   loading.value = false;
 }
 
-function onRowSelect(event: any) {
+function onRowSelect(event: { data: ExtendedSearchResultSummary }) {
   directService.select(event.data.iri);
 }
 
@@ -111,9 +112,9 @@ async function getFavouritesDetails() {
     favourites.value = [];
     return;
   }
-  const temp: any[] = [];
+  const temp: ExtendedSearchResultSummary[] = [];
   for (const result of results) {
-    let clone: ExtendedSearchResultSummary = {} as ExtendedSearchResultSummary;
+    const clone: ExtendedSearchResultSummary = {} as ExtendedSearchResultSummary;
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "@id"])) {
       if (result["@id"]) clone.iri = result["@id"];
       clone.name = result[RDFS.LABEL];

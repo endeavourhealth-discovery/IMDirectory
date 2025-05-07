@@ -1,7 +1,7 @@
-import { EntityReferenceNode, FiltersAsIris, SimpleMap, TermCode } from "@/interfaces";
+import { FiltersAsIris, SimpleMap, TermCode } from "@/interfaces";
 import Env from "./Env";
 import axios from "axios";
-import { ConceptContextMap, Pageable } from "@/interfaces/AutoGen";
+import { ConceptContextMap, EntityReferenceNode, Pageable } from "@/interfaces/AutoGen";
 const API_URL = Env.API + "api/concept";
 
 const ConceptService = {

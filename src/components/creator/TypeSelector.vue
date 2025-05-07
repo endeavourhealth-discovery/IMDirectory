@@ -18,11 +18,12 @@
 
 <script setup lang="ts">
 import { ref, Ref, onMounted, inject } from "vue";
-import { EntityReferenceNode } from "@/interfaces";
 import { EntityService } from "@/services";
 import { RDF } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import editorShapes from "@/constants/editorShapes";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { EntityReferenceNode } from "@/interfaces/AutoGen";
 
 interface Props {
   showTypeSelector?: boolean;
@@ -49,7 +50,7 @@ async function setOptions() {
 }
 
 function typeSelected(data: EntityReferenceNode) {
-  const result = {} as any;
+  const result: TTEntity = {};
   result[RDF.TYPE] = [{ "@id": data["@id"], name: data.name }];
   if (entityUpdate) entityUpdate(result);
   props.updateShowTypeSelector(false);

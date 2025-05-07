@@ -76,13 +76,15 @@
 import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { ConceptAggregate, EntityReferenceNode, TreeParent } from "@/interfaces";
+import { ConceptAggregate, TreeParent } from "@/interfaces";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import { EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import OverlaySummary from "./OverlaySummary.vue";
 import type { TreeNode } from "primevue/treenode";
 import setupOverlay from "@/composables/setupOverlay";
+import { TTIriRef } from "@/interfaces/AutoGen";
+import { ExtendedEntityReferenceNode } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   entityIri: string;
@@ -117,7 +119,12 @@ watch(
     alternateParents.value = [];
     expandedKeys.value = {};
     await getConceptAggregate(newValue);
-    await createTree(conceptAggregate.value.concept, conceptAggregate.value.parents, conceptAggregate.value.children, parentPosition.value);
+    await createTree(
+      conceptAggregate.value.concept,
+      conceptAggregate.value.parents as ExtendedEntityReferenceNode[],
+      conceptAggregate.value.children as ExtendedEntityReferenceNode[],
+      parentPosition.value
+    );
   }
 );
 
@@ -127,7 +134,12 @@ watch(loading, newValue => {
 
 onMounted(async () => {
   await getConceptAggregate(props.entityIri);
-  await createTree(conceptAggregate.value.concept, conceptAggregate.value.parents, conceptAggregate.value.children, 0);
+  await createTree(
+    conceptAggregate.value.concept,
+    conceptAggregate.value.parents as ExtendedEntityReferenceNode[],
+    conceptAggregate.value.children as ExtendedEntityReferenceNode[],
+    0
+  );
 });
 
 onBeforeUnmount(() => {
@@ -148,11 +160,16 @@ async function getConceptAggregate(iri: string): Promise<void> {
   loading.value = false;
 }
 
-async function createTree(concept: any, parentHierarchy: EntityReferenceNode[], children: EntityReferenceNode[], parentPosition: number): Promise<void> {
+async function createTree(
+  concept: any,
+  parentHierarchy: ExtendedEntityReferenceNode[],
+  children: ExtendedEntityReferenceNode[],
+  parentPosition: number
+): Promise<void> {
   loading.value = true;
   const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept[IM.IRI], concept[RDF.TYPE], concept.hasChildren, null, undefined);
-  children.forEach((child: EntityReferenceNode) => {
-    selectedConcept.children?.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, selectedConcept, child.orderNumber));
+  children.forEach(child => {
+    selectedConcept.children?.push(createTreeNode(child.name, child["@id"], child.type as TTIriRef[], child.hasChildren, selectedConcept, child.orderNumber));
   });
   if (totalCount.value >= pageSize.value) {
     selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
@@ -167,7 +184,7 @@ async function createTree(concept: any, parentHierarchy: EntityReferenceNode[], 
   loading.value = false;
 }
 
-function setParents(parentHierarchy: EntityReferenceNode[], parentPosition: number): void {
+function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPosition: number): void {
   if (isArrayHasLength(parentHierarchy)) {
     if (parentHierarchy.length === 1) {
       currentParent.value = {
