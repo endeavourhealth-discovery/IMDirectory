@@ -206,9 +206,10 @@ const AuthService = {
     }
   },
 
-  async changePassword(oldPassword: string, newPassword: string): Promise<CustomAlert> {
+  async changePassword(oldPassword: string, newPassword: string, nextSteps?: string): Promise<CustomAlert> {
     try {
-      await updatePassword({ oldPassword: oldPassword, newPassword: newPassword });
+      if (nextSteps === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") await confirmSignIn({ challengeResponse: nextSteps });
+      else await updatePassword({ oldPassword: oldPassword, newPassword: newPassword });
       return { status: 200, message: "Password successfully changed" };
     } catch (err: any) {
       return { status: 400, message: err.message, error: err };

@@ -126,7 +126,7 @@ function handle403(res: CustomAlert) {
       confirmButtonText: "Reset password"
     }).then((result: SweetAlertResult) => {
       if (result.isConfirmed) {
-        router.push({ name: "ForgotPassword" });
+        router.push({ name: "PasswordEdit", params: { nextStep: res.nextStep } });
       }
     });
   } else if (res.nextStep === "CONTINUE_SIGN_IN_WITH_TOTP_SETUP") {

@@ -37,6 +37,12 @@ import { useUserStore } from "@/stores/userStore";
 import { useForm } from "vee-validate";
 import PasswordInputs from "@/components/auth/PasswordInputs.vue";
 
+interface Props {
+  nextSteps?: string;
+}
+
+const props = defineProps<Props>();
+
 const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
@@ -69,7 +75,7 @@ function setButtonDisabled(): boolean {
 
 const onSubmit = handleSubmit(async () => {
   if (isNewPasswordValid.value) {
-    AuthService.changePassword(passwordOld.value, password.value).then(res => {
+    AuthService.changePassword(passwordOld.value, password.value, props.nextSteps).then(res => {
       if (res.status === 200) {
         Swal.fire({
           icon: "success",

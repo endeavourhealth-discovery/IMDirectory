@@ -100,7 +100,8 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: "my-account/password-edit:returnUrl?",
+        path: "my-account/password-edit:returnUrl?:nextSteps?",
+        props: true,
         name: "PasswordEdit",
         component: () => import("@/components/auth/PasswordEdit.vue"),
         meta: {
