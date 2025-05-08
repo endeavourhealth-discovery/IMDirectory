@@ -76,12 +76,20 @@ import { onMounted, ref, Ref, watch } from "vue";
 import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
+interface Provenane {
+  prov: string;
+  usedEntity: string;
+  effectiveDate: string;
+  activityType: string;
+  agent: string;
+}
+
 interface Props {
   entityIri: string;
 }
 const props = defineProps<Props>();
 
-const provenances: Ref<any[]> = ref([]);
+const provenances: Ref<Provenane[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const visible = ref(false);
 

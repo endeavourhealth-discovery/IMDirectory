@@ -55,6 +55,7 @@ import { IM, RDFS, RDF } from "@/vocabulary";
 import { PropertyShape, TTIriRef, PropertyRange } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 const props = defineProps<{
   entityIri: string;
@@ -72,7 +73,7 @@ watch(
 
 const loading = ref(false);
 const data: Ref<TreeNode[]> = ref([]);
-const expandedKeys = ref({} as any);
+const expandedKeys: Ref<GenericObject> = ref({});
 
 onMounted(async () => {
   await getDataModel(props.entityIri);
@@ -113,7 +114,7 @@ function onNodeCollapse(node: TreeNode) {
   }
 }
 
-function createGroupNode(property: PropertyShape, index: any, propertyList: TreeNode[], parentKey: string) {
+function createGroupNode(property: PropertyShape, index: number, propertyList: TreeNode[], parentKey: string) {
   if (property.group) {
     const name = property.group.name;
 
@@ -228,7 +229,7 @@ function createRangeNode(property: PropertyShape, propertyNode: TreeNode) {
   }
 }
 
-function createPropertyNode(property: PropertyShape, index: any, propertyList: TreeNode[], parentKey: string) {
+function createPropertyNode(property: PropertyShape, index: number, propertyList: TreeNode[], parentKey: string) {
   if (property.group) {
     createGroupNode(property, index, propertyList, parentKey);
   } else {

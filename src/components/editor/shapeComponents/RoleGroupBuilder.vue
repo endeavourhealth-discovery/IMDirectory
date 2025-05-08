@@ -51,6 +51,7 @@ import { cloneDeep, isArray } from "lodash-es";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -58,6 +59,10 @@ const props = defineProps<{
   value?: any;
 }>();
 
+interface Role {
+  key: { "@id": string; name: string };
+  value: { "@id": string; name: string };
+}
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
@@ -119,12 +124,12 @@ function deleteRoleGroup(index: number) {
   update();
 }
 
-function addRole(rg: any) {
+function addRole(rg: Role[]) {
   rg.push({ key: { "@id": "", name: "" }, value: { "@id": "", name: "" } });
   update();
 }
 
-function deleteRole(rg: any, index: number) {
+function deleteRole(rg: Role[], index: number) {
   rg.splice(index, 1);
   update();
 }
@@ -141,7 +146,7 @@ async function processProps() {
   loading.value = false;
 }
 
-async function processRole(newData: any[], role: any) {
+async function processRole(newData: any[], role: Role) {
   const grp: any[] = [];
   newData.push(grp);
   if (isObjectHasKeys(role, [IM.GROUP_NUMBER])) {
@@ -201,7 +206,7 @@ function validateEntity() {
   });
 }
 
-function isGroupValid(group: any[]): boolean {
+function isGroupValid(group: Role[]): boolean {
   invalid.value = false;
   if (group.length == 0 || (group.length == 1 && group[0]?.key?.["@id"] == IM.GROUP_NUMBER)) {
     specificValidationErrorMessage.value = "Role groups can not be empty.";
@@ -232,7 +237,7 @@ function isGroupValid(group: any[]): boolean {
 }
 
 function updateEntity() {
-  const groups: any = {};
+  const groups: TTEntity = {};
   groups[IM.ROLE_GROUP] = [];
 
   for (const rg in roleGroups.value) {

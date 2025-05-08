@@ -69,6 +69,7 @@ describe("viewer", () => {
             });
         });
         it("can collapse all details nodes", () => {
+          cy.wait(1000);
           cy.getByTestId("expand-details-button").click();
           cy.getByTestId("collapse-details-button").click();
           cy.get(".details-container").get(".p-tree-node-children").should("not.exist");
@@ -210,7 +211,9 @@ describe("viewer", () => {
     });
 
     it("starts with set tab open", () => {
-      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("Autism Spectrum Disorders (Data model value set)");
+      cy.get("#directory-table-container", { timeout: 60000 })
+        .find(".parent-header-container", { timeout: 60000 })
+        .contains("Autism Spectrum Disorders (Data model value set)");
       cy.get("#viewer-tabs").find(".p-tab-active").contains("Set");
     });
 

@@ -160,7 +160,7 @@ onMounted(async () => {
   searchLoading.value = false;
 });
 
-function debounceForSearch(event: any): void {
+function debounceForSearch(event: Event): void {
   if (!searchText.value) {
     selectedLocal.value = undefined;
   } else if (!searchLoading.value && searchText.value != props.selected?.name) {
@@ -172,7 +172,7 @@ function debounceForSearch(event: any): void {
   }
 }
 
-async function doSearch(event: any) {
+async function doSearch(event: Event) {
   results.value = await search();
   await showResultsOverlay(event);
 }
@@ -194,7 +194,7 @@ function select(event: KeyboardEvent) {
     }
 }
 
-async function onEnter(event: any) {
+async function onEnter(event: KeyboardEvent) {
   if (resultsOP.value) resultsOP.value.show(event);
   if (searchText.value) {
     results.value = await search();
@@ -213,7 +213,7 @@ async function search() {
   }
 }
 
-async function showResultsOverlay(event: any) {
+async function showResultsOverlay(event: Event) {
   if (resultsOP.value) resultsOP.value.show(event, event.target);
 }
 

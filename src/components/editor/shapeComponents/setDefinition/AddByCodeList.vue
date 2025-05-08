@@ -67,6 +67,7 @@ import * as d3 from "d3";
 import { DSVRowArray } from "d3";
 import { entityToAliasEntity } from "@/helpers/Transforms";
 import { ValidatedEntity } from "@/interfaces";
+import { FileUploadUploadEvent } from "primevue/fileupload";
 
 const props = defineProps<{
   showAddByList: boolean;
@@ -100,15 +101,15 @@ const hasValidEntities: ComputedRef<boolean> = computed(() => validateEntities()
 const entities: Ref<ValidatedEntity[]> = ref([]);
 const showResultTable: Ref<boolean> = ref(false);
 const showDialog = computed(() => props.showAddByList || props.showAddByFile);
-const uploadedFiles: Ref<{ name: string; size: string; data: DSVRowArray }[]> = ref([]);
+const uploadedFiles: Ref<{ name: string; size: number; data: DSVRowArray }[]> = ref([]);
 const headers: Ref<{ data: string; label: string }[]> = ref([]);
 const selectedColumn: Ref<{ data: string; label: string }> = ref({} as { data: string; label: string });
 const processing: Ref<boolean> = ref(false);
 
-async function onAdvancedUpload(event: any) {
+async function onAdvancedUpload(event: FileUploadUploadEvent) {
   headers.value = [];
   uploadedFiles.value = [];
-  const file = event.files[0];
+  const file = (event.files as File[])[0];
   const url = URL.createObjectURL(file);
   let rowArray: DSVRowArray = {} as DSVRowArray;
   if ((file.name as string).endsWith(".csv")) rowArray = await d3.csv(url);

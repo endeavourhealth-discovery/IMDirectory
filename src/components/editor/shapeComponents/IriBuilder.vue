@@ -43,6 +43,7 @@ import { IM, RDFS } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import { cloneDeep, isEqual } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -237,7 +238,7 @@ async function getDropdownOptions() {
 }
 
 function updateEntity(data: string) {
-  const result = {} as any;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

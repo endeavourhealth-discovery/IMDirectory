@@ -84,7 +84,7 @@ import OverlaySummary from "./OverlaySummary.vue";
 import type { TreeNode } from "primevue/treenode";
 import setupOverlay from "@/composables/setupOverlay";
 import { TTIriRef } from "@/interfaces/AutoGen";
-import { ExtendedEntityReferenceNode } from "@/interfaces/ExtendedAutoGen";
+import { ExtendedEntityReferenceNode, TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   entityIri: string;
@@ -161,13 +161,13 @@ async function getConceptAggregate(iri: string): Promise<void> {
 }
 
 async function createTree(
-  concept: any,
+  concept: TTEntity,
   parentHierarchy: ExtendedEntityReferenceNode[],
   children: ExtendedEntityReferenceNode[],
   parentPosition: number
 ): Promise<void> {
   loading.value = true;
-  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept[IM.IRI], concept[RDF.TYPE], concept.hasChildren, null, undefined);
+  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept["@id"] as string, concept[RDF.TYPE], concept.hasChildren, null, undefined);
   children.forEach(child => {
     selectedConcept.children?.push(createTreeNode(child.name, child["@id"], child.type as TTIriRef[], child.hasChildren, selectedConcept, child.orderNumber));
   });
@@ -233,11 +233,11 @@ async function expandParents(parentPosition: number): Promise<void> {
   loading.value = false;
 }
 
-function createExpandedParentTree(parents: any, parentPosition: number): TreeNode {
+function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parentPosition: number): TreeNode {
   let parentNode = {} as TreeNode;
   for (let i = 0; i < parents.length; i++) {
     if (i === parentPosition) {
-      parentNode = createTreeNode(parents[i].name, parents[i]["@id"], parents[i].type, true, null, undefined);
+      parentNode = createTreeNode(parents[i].name, parents[i]["@id"], parents[i].type as TTIriRef[], true, null, undefined);
       if (parentNode.children && parentNode.key) {
         parentNode.children.push(root.value[0]);
         if (!isObjectHasKeys(expandedKeys.value, [parentNode.key])) {
@@ -280,7 +280,7 @@ async function setExpandedParentParents(): Promise<void> {
   }
 }
 
-async function onNodeSelect(node: any): Promise<void> {
+async function onNodeSelect(node: TreeNode): Promise<void> {
   if (node.data === "loadMore") {
     if (!node.loading) await loadMore(node);
   }

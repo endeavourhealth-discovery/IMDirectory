@@ -10,9 +10,10 @@ import VueJsonPretty from "vue-json-pretty";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IM } from "@/vocabulary";
 import { cloneDeep } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
-  editorEntity: any;
+  editorEntity: TTEntity;
 }>();
 
 const editorEntityDisplay = ref();

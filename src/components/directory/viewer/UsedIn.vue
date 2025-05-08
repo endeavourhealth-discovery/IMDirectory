@@ -43,6 +43,14 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupOverlay from "@/composables/setupOverlay";
 import { DirectService } from "@/services";
+import { DataTableRowSelectEvent } from "primevue/datatable";
+
+interface Usage {
+  "@id": string;
+  name: string;
+  icon: string[];
+  colour: string;
+}
 
 const props = defineProps<{
   entityIri: string;
@@ -54,7 +62,7 @@ defineEmits<{
 
 const directService = new DirectService();
 
-const usages: Ref<any[]> = ref([]);
+const usages: Ref<Usage[]> = ref([]);
 const loading = ref(false);
 const selected: Ref = ref({});
 const recordsTotal = ref(0);
@@ -80,8 +88,9 @@ async function init() {
   await getRecordsSize(props.entityIri);
 }
 
-function onRowSelect(event: any) {
-  if (event.originalEvent.metaKey || event.originalEvent.ctrlKey) {
+function onRowSelect(event: DataTableRowSelectEvent<Usage>) {
+  const mouseEvent = event.originalEvent as MouseEvent;
+  if (mouseEvent.metaKey || mouseEvent.ctrlKey) {
     directService.view(event.data["@id"]);
   } else {
     directService.select(event.data["@id"]);
@@ -90,13 +99,13 @@ function onRowSelect(event: any) {
 
 async function getUsages(iri: string, pageIndex: number, pageSize: number): Promise<void> {
   const result = await EntityService.getEntityUsages(iri, pageIndex, pageSize);
-  usages.value = result.map((usage: any) => {
+  usages.value = result.map(usage => {
     return {
       "@id": usage["@id"],
       name: usage[RDFS.LABEL],
       icon: getFAIconFromType(usage[RDF.TYPE]),
       colour: getColourFromType(usage[RDF.TYPE])
-    };
+    } as Usage;
   });
 }
 

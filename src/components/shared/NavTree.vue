@@ -10,7 +10,7 @@
       @node-expand="expandNode"
       @node-collapse="onNodeCollapse"
     >
-      <template #default="{ node }: any">
+      <template #default="{ node }">
         <div
           :class="allowDragAndDrop && 'grabbable'"
           :draggable="allowDragAndDrop"
@@ -62,6 +62,7 @@ import createNew from "@/composables/createNew";
 import { TTIriRef } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { cloneDeep } from "lodash-es";
+import { MenuItem } from "primevue/menuitem";
 
 interface Props {
   allowDragAndDrop?: boolean;
@@ -94,10 +95,11 @@ const favourites = computed(() => userStore.favourites);
 
 const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
   setupTree(emit, 50);
-const { getCreateOptions }: { getCreateOptions: (newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode) => Promise<any[]> } = createNew();
+const { getCreateOptions }: { getCreateOptions: (newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode) => Promise<MenuItem[]> } =
+  createNew();
 const loading = ref(true);
 const overlayLocation: Ref<MouseEvent | undefined> = ref();
-const items: Ref<any[]> = ref([]);
+const items: Ref<MenuItem[]> = ref([]);
 const newFolder: Ref<TreeNode | null> = ref(null);
 const newFolderName = ref("");
 
@@ -161,7 +163,7 @@ async function init() {
   loading.value = false;
 }
 
-function expandNode(node: any) {
+function expandNode(node: TreeNode) {
   onNodeExpand(node, props.typeFilter);
 }
 
@@ -197,7 +199,7 @@ async function addRootEntitiesToTree() {
   root.value.sort(byKey);
 }
 
-async function onNodeContext(event: any, node: any) {
+async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
 
@@ -361,7 +363,7 @@ async function createFolder() {
   }
 }
 
-async function displayOverlay(event: any, node: any): Promise<void> {
+async function displayOverlay(event: MouseEvent, node: TreeNode): Promise<void> {
   if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
     showOverlay(event, node.key);
   }
@@ -373,11 +375,11 @@ function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, upd
   } else customOnClick(event, node, useEmits, updateSelectedKeys);
 }
 
-function dragStart(event: any, data: any) {
+function dragStart(event: DragEvent, data: TreeNode) {
   if (props.allowDragAndDrop) {
-    event.dataTransfer.setData("conceptIri", JSON.stringify(data));
-    event.dataTransfer.effectAllowed = "copy";
-    event.dataTransfer.dropEffect = "copy";
+    event.dataTransfer?.setData("conceptIri", JSON.stringify(data));
+    event.dataTransfer!.effectAllowed = "copy";
+    event.dataTransfer!.dropEffect = "copy";
     hideOverlay();
   }
 }

@@ -464,7 +464,7 @@ function updateEntity() {
       p[IM.INHERITED_FROM] = value.inherited;
       deltas.push(p);
     });
-    const update: any = {};
+    const update: TTEntity = {};
     update[key] = deltas;
 
     entityUpdate(update);

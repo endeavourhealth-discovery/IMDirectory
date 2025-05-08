@@ -96,7 +96,7 @@ onMounted(() => {
   if (props.searchTerm) searchText.value = props.searchTerm;
 });
 
-function openFiltersOverlay(event: any) {
+function openFiltersOverlay(event: MouseEvent) {
   filtersOP.value.toggle(event);
 }
 

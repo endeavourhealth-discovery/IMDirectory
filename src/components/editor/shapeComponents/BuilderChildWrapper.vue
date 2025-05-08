@@ -71,7 +71,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits({
   updateClicked: (_payload: ComponentDetails) => true,
-  addNextOptionsClicked: (_payload: any) => true,
+  addNextOptionsClicked: (_payload: { position: number; selectedType: string }) => true,
   deleteClicked: (_payload: any) => true,
   addClicked: (_payload: any) => true,
   moveUpClicked: (_payload: any) => true,
@@ -121,7 +121,7 @@ function downClicked(): void {
   emit("moveDownClicked", createEntity());
 }
 
-function addNextClicked(item: any): void {
+function addNextClicked(item: { type: ComponentType; name: string }): void {
   emit("addNextOptionsClicked", {
     position: props.position + 1,
     selectedType: item.type

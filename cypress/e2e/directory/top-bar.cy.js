@@ -82,6 +82,7 @@ describe("top bar", () => {
 
       it("can route to directory", () => {
         cy.visit("/#/directory/search");
+        cy.wait(1000);
         cy.getByTestId("apps-button").click();
         cy.get("#apps-menu").find(".shortcut").contains("Directory").click();
         cy.url().should("equal", "http://localhost:8082/#/directory/landingPage");

@@ -1,6 +1,6 @@
 import { IM, SNOMED } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { Node, TTIriRef } from "../interfaces/AutoGen";
+import { TTIriRef } from "../interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { GenericObject } from "@/interfaces/GenericObject";
 
@@ -55,7 +55,7 @@ export function getNameListFromIriList(iris: TTIriRef[]): string {
   return result.join(", ");
 }
 
-export function getNameFromRef(ref: any): string {
+export function getNameFromRef(ref: GenericObject): string {
   if (ref.name && isObjectHasKeys(ref, ["name"])) return ref.name;
   else if (ref["@id"] && isObjectHasKeys(ref, ["@id"])) return getNameFromIri(ref["@id"]);
   else if (isObjectHasKeys(ref, ["typeOf"])) return getNameFromIri(ref["typeOf"]["@id"]);

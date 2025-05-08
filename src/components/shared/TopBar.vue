@@ -80,7 +80,7 @@
         data-testid="font-size-button"
       />
       <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
-        <template #item="{ item }: any">
+        <template #item="{ item }">
           <div class="scale-row">
             <span class="theme-icon p-menuitem-icon" :class="item.icon" />
             <span class="p-menuitem-text">{{ item.label }}</span>
@@ -274,11 +274,11 @@ function getItems(): MenuItem[] {
   }
 }
 
-function openUserMenu(event: any): void {
+function openUserMenu(event: MouseEvent): void {
   userMenu.value.toggle(event);
 }
 
-function openAppsOverlay(event: any) {
+function openAppsOverlay(event: MouseEvent) {
   appsOP.value.toggle(event);
 }
 
@@ -319,15 +319,15 @@ function setUserMenuItems(): void {
   ];
 }
 
-function openUploadDownloadMenu(event: any): void {
+function openUploadDownloadMenu(event: MouseEvent): void {
   uploadDownloadMenu.value.toggle(event);
 }
 
-function openThemesMenu(event: any): void {
+function openThemesMenu(event: MouseEvent): void {
   themesMenu.value.toggle(event);
 }
 
-function openScaleMenu(event: any): void {
+function openScaleMenu(event: MouseEvent): void {
   scaleMenu.value.toggle(event);
 }
 

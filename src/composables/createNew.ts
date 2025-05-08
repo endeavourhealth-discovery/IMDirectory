@@ -6,6 +6,7 @@ import { IM, QUERY, RDFS, SHACL } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { QueryRequest } from "@/interfaces/AutoGen";
+import { MenuItem } from "primevue/menuitem";
 
 function createNew() {
   const directService = new DirectService();
@@ -15,7 +16,7 @@ function createNew() {
       {
         label: "New",
         icon: "fas fa-fw fa-plus",
-        items: [] as any[]
+        items: [] as MenuItem[]
       },
       {
         label: "Edit",

@@ -45,6 +45,7 @@ import { EntityService, SetService } from "@/services";
 import { IM } from "@/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { DataTablePageEvent } from "primevue/datatable";
 
 const props = defineProps<{
   entityIri: string;
@@ -94,7 +95,7 @@ async function getMembers(): Promise<void> {
   loading.value = false;
 }
 
-async function getPage(event: any) {
+async function getPage(event: DataTablePageEvent) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
@@ -103,7 +104,7 @@ async function getPage(event: any) {
   loading.value = false;
 }
 
-function getEntailment(data: any) {
+function getEntailment(data: Node) {
   if (data.descendantsOrSelfOf) return "(+ subtypes)";
   if (data.descendantsOf) return "(subtypes of only)";
   if (data.ancestorsOf) return "(+ supertypes)";

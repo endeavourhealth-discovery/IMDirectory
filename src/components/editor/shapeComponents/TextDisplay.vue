@@ -27,6 +27,7 @@ import { EditorMode } from "@/enums";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { processArguments } from "@/helpers/EditorMethods";
 import { FunctionService } from "@/services";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -152,7 +153,7 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
 }
 
 function updateEntity(data: string) {
-  const result = {} as any;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

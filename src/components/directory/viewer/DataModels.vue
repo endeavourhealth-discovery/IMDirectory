@@ -53,6 +53,7 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";
 import { getColourFromType } from "@/helpers/ConceptTypeVisuals";
+import { DataTableRowSelectEvent } from "primevue/datatable";
 
 const props = defineProps<{
   entityIri: string;
@@ -61,6 +62,11 @@ const props = defineProps<{
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
+
+interface UIDataModel extends TTIriRef {
+  type?: TTIriRef[];
+  icon?: string[];
+}
 
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
@@ -81,7 +87,7 @@ watch(
 
 const conceptIsFavourite = computed(() => props.entityIri === IM.FAVOURITES);
 const loading = ref(false);
-const dataModels: Ref<any[]> = ref([]);
+const dataModels: Ref<UIDataModel[]> = ref([]);
 
 onMounted(async () => await init());
 
@@ -97,16 +103,21 @@ function getColourStyleFromType(types: TTIriRef[]) {
   return "color: " + getColourFromType(types);
 }
 
-async function getDMs(iri: string) {
+async function getDMs(iri: string): Promise<UIDataModel[]> {
   const dataModels = await DataModelService.getDataModelsFromProperty(iri);
-  dataModels.forEach((dm: any) => {
-    dm.type = [{ "@id": SHACL.NODESHAPE }];
-    dm.icon = ["fa-duotone", "fa-diagram-project"];
+  return dataModels.map(dm => {
+    return {
+      "@id": dm["@id"],
+      name: dm.name,
+      description: dm.description,
+      order: dm.order,
+      type: [{ "@id": SHACL.NODESHAPE }],
+      icon: ["fa-duotone", "fa-diagram-project"]
+    };
   });
-  return dataModels;
 }
 
-function onRowSelect(event: any) {
+function onRowSelect(event: DataTableRowSelectEvent<UIDataModel>) {
   emit("navigateTo", event.data["@id"]);
 }
 

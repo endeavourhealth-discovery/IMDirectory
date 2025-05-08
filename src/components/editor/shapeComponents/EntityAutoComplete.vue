@@ -23,7 +23,7 @@
           @drop.prevent
           :class="invalid && showValidation && 'invalid'"
         >
-          <template #option="{ option }: any">
+          <template #option="{ option }">
             <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, option)" @mouseleave="hideOptionsOverlay($event)">
               <span>{{ option.name }}</span>
             </div>
@@ -82,6 +82,8 @@ import { DataModelService, QueryService } from "@/services";
 import { IM, QUERY, RDF, RDFS } from "@/vocabulary";
 import { TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "@/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   shape: PropertyShape;
@@ -262,7 +264,7 @@ async function getAutocompleteOptions() {
   }
 }
 
-async function getPropertyRange(propIri: string): Promise<any> {
+async function getPropertyRange(propIri: string): Promise<any[]> {
   const queryRequest = {
     argument: [
       {
@@ -275,7 +277,7 @@ async function getPropertyRange(propIri: string): Promise<any> {
     query: {
       "@id": QUERY.ALLOWABLE_RANGES
     }
-  } as any as QueryRequest;
+  } as QueryRequest;
 
   const response = await QueryService.queryIM(queryRequest);
 
@@ -284,7 +286,7 @@ async function getPropertyRange(propIri: string): Promise<any> {
   } else {
     const propType = await DataModelService.checkPropertyType(propIri);
     if (propType === IM.DATAMODEL_OBJECTPROPERTY) {
-      queryRequest.query = { "@id": QUERY.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as any;
+      queryRequest.query = { "@id": QUERY.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as Query;
       const suggestions = await QueryService.queryIM(queryRequest);
       suggestions.entities.push({
         "@id": IM.CONCEPT,
@@ -292,12 +294,13 @@ async function getPropertyRange(propIri: string): Promise<any> {
       });
       return suggestions.entities;
     } else if (propType === IM.DATAMODEL_DATAPROPERTY) {
-      queryRequest.query = { "@id": QUERY.DATA_PROPERTY_RANGE_SUGGESTIONS } as any;
+      queryRequest.query = { "@id": QUERY.DATA_PROPERTY_RANGE_SUGGESTIONS } as Query;
       const dataTypes = await QueryService.queryIM(queryRequest);
       if (isObjectHasKeys(dataTypes, ["entities"]) && dataTypes.entities.length !== 0) {
         return dataTypes.entities;
       }
-    } else return [];
+    }
+    return [];
   }
 }
 
@@ -314,7 +317,7 @@ function convertToConceptSummary(results: any[]) {
   });
 }
 
-function searchOptions(event: any) {
+function searchOptions(event: AutoCompleteCompleteEvent) {
   if (!event.query.trim().length) {
     getAutocompleteOptions();
   } else {
@@ -355,12 +358,12 @@ function summaryToTTIriRef(summary: SearchResultSummary): TTIriRef {
 }
 
 function updateEntity(value: SearchResultSummary) {
-  const result = {} as any;
+  const result = {} as TTEntity;
   result[key.value] = summaryToTTIriRef(value);
   if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }
 
-function showOptionsOverlay(event: any, data?: any) {
+function showOptionsOverlay(event: MouseEvent, data?: SearchResultSummary) {
   if (data) {
     optionsOverlayLocation.value = event;
     optionsOP.value.show(optionsOverlayLocation.value);
@@ -368,7 +371,7 @@ function showOptionsOverlay(event: any, data?: any) {
   }
 }
 
-function hideOptionsOverlay(event: any): void {
+function hideOptionsOverlay(event: MouseEvent): void {
   optionsOP.value.hide(event);
   optionsOverlayLocation.value = {};
 }

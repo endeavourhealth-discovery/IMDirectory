@@ -10,7 +10,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="{ node }: any">
+      <template #default="{ node }">
         <div class="tree-row">
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
@@ -33,6 +33,7 @@ import { byKey } from "@/helpers/Sorters";
 import { EntityService } from "@/services";
 import type { TreeNode } from "primevue/treenode";
 import { useToast } from "primevue/usetoast";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 const props = defineProps<{
   quantifier?: TTIriRef;
@@ -45,11 +46,11 @@ const emit = defineEmits<{
 
 const toast = useToast();
 
-const selected: Ref<any> = ref({});
+const selected: Ref<GenericObject> = ref({});
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
 const root: Ref<TreeNode[]> = ref([]);
 const loading = ref(true);
-const expandedKeys: Ref<any> = ref({});
+const expandedKeys: Ref<GenericObject> = ref({});
 
 onMounted(async () => {
   loading.value = true;
@@ -70,7 +71,7 @@ async function addIsAsToRoot() {
   root.value.sort(byKey);
 }
 
-function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean | undefined): TreeNode | undefined {
+function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean | undefined): TreeNode {
   return {
     key: conceptName,
     label: conceptName,
@@ -83,18 +84,17 @@ function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: T
   };
 }
 
-function onNodeSelect(node: any): void {
+function onNodeSelect(node: TreeNode): void {
   selectedNode.value = node;
   emit("treeNodeSelected", { "@id": node.data, name: node.label } as TTIriRef);
 }
 
-async function onNodeExpand(node: any) {
+async function onNodeExpand(node: TreeNode) {
   if (isObjectHasKeys(node)) {
     node.loading = true;
     const children = await EntityService.getEntityChildren(node.data);
     children.forEach(child => {
-      if (!nodeHasChild(node, child))
-        node.children.push(createTreeNode(child.name as string, child["@id"], child.type as TTIriRef[], child.hasChildren as boolean));
+      if (!nodeHasChild(node, child)) node.children?.push(createTreeNode(child.name, child["@id"], child.type as TTIriRef[], child.hasChildren));
     });
     node.loading = false;
   }
@@ -113,7 +113,7 @@ function selectKey(selectedKey: string) {
 
 async function findPathToNode(iri: string) {
   loading.value = true;
-  let path = [] as any[];
+  let path: TTIriRef[] = [];
   for (const isA of props.isAs) {
     const result = await EntityService.getPathBetweenNodes(iri, isA);
     if (isArrayHasLength(result)) path = result;

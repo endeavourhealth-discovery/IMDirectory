@@ -54,7 +54,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  "update:selectedSet": [payload: any];
+  "update:selectedSet": [payload: SearchResultSummary | undefined];
 }>();
 
 const directService = new DirectService();
@@ -122,7 +122,7 @@ async function init() {
   }
 }
 
-function onMemberRightClick(event: any, option: Concept) {
+function onMemberRightClick(event: MouseEvent, option: Concept) {
   selected.value = option;
   menu.value.show(event);
 }

@@ -47,7 +47,7 @@
             />
           </div>
         </template>
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
             <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
@@ -57,7 +57,7 @@
         </template>
       </Column>
       <Column field="usageTotal" header="Weighting">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <BatteryBar
             :highest-value="highestUsage"
             :current-value="data.usageTotal ?? 0"
@@ -66,7 +66,7 @@
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <div class="buttons-container">
             <ActionButtons
               :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'favourite'] : ['viewHierarchy', 'view', 'addToList']"
@@ -117,6 +117,8 @@ import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions } from "@/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { MenuItem } from "primevue/menuitem";
+import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 
 interface Props {
   searchTerm?: string;
@@ -166,16 +168,16 @@ const highestUsage = ref(0);
 const page = ref(0);
 const rows = ref(25);
 const rowsOriginal = ref(25);
-const rClickOptions: Ref<any[]> = ref([
+const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Select",
     icon: "fa-solid fa-sitemap",
-    command: () => directService.select((selected.value as any).iri)
+    command: () => directService.select(selected.value.iri)
   },
   {
     label: "View in new tab",
     icon: "fa-solid fa-arrow-up-right-from-square",
-    command: () => directService.view((selected.value as any).iri)
+    command: () => directService.view(selected.value.iri)
   },
   {
     separator: true
@@ -237,7 +239,7 @@ async function search(pageNumber: number, pageSize: number) {
   return response;
 }
 
-function updateFavourites(row?: any) {
+function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
   if (row) selected.value = row.data;
   userStore.updateFavourites(selected.value.iri);
 }
@@ -250,9 +252,9 @@ function isFavourite(iri: string) {
 function processSearchResults(searchResponse: SearchResponse | undefined): void {
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
     searchResults.value = searchResponse.entities.map(result => {
-      const copy: any = cloneDeep(result);
+      const copy = cloneDeep(result) as ExtendedSearchResultSummary;
       copy.icon = getFAIconFromType(result.entityType);
-      copy.colour = getColourFromType(result.entityType);
+      copy.color = getColourFromType(result.entityType);
       copy.typeNames = getNamesAsStringFromTypes(result.entityType);
       copy.favourite = isFavourite(result.iri);
       return copy;
@@ -266,7 +268,7 @@ function updateRClickOptions() {
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
 }
 
-async function onPage(event: any) {
+async function onPage(event: DataTablePageEvent) {
   page.value = event.page;
   rows.value = event.rows;
   await onSearch();
@@ -278,14 +280,15 @@ function scrollToTop() {
   scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
-function onRowContextMenu(event: any) {
+function onRowContextMenu(event: { originalEvent: MouseEvent; data: ExtendedSearchResultSummary }) {
   selected.value = event.data;
   updateRClickOptions();
   contextMenu.value.show(event.originalEvent);
 }
 
-function onRowSelect(event: any) {
-  if (event.originalEvent.metaKey || event.originalEvent.ctrlKey) {
+function onRowSelect(event: DataTableRowSelectEvent<ExtendedSearchResultSummary>) {
+  const mouseEvent = event.originalEvent as MouseEvent;
+  if (mouseEvent.metaKey || mouseEvent.ctrlKey) {
     directService.view(event.data.iri);
   } else {
     const found = searchResults.value.find(result => event.data.iri === result.iri);

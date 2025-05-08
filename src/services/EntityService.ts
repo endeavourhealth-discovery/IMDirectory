@@ -88,7 +88,7 @@ const EntityService = {
     return coreSchemesChildren.map(child => child["@id"]);
   },
 
-  async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<TTIriRef[]> {
+  async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<TTEntity[]> {
     return axios.get(API_URL + "/public/usages", {
       params: {
         iri: iri,

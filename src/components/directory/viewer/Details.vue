@@ -50,6 +50,7 @@ import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@/vocabulary";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { isArray } from "lodash-es";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 const props = defineProps<{
   entityIri: string;
@@ -62,8 +63,8 @@ const emit = defineEmits<{
 
 const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
 const definition: Ref<any> = ref();
-const expandedKeys: Ref<any> = ref({});
-const selectedKeys: Ref<any> = ref({});
+const expandedKeys: Ref<GenericObject> = ref({});
+const selectedKeys: Ref<GenericObject> = ref({});
 const predicatePageIndexMap: Ref<Map<string, { pageIndex: number; node: TreeNode }>> = ref(new Map<string, { pageIndex: number; node: TreeNode }>());
 
 watch(

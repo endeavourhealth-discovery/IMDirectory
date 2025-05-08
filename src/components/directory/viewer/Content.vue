@@ -60,7 +60,7 @@
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { cloneDeep } from "lodash-es";
-import { EntityReferenceNode, TTIriRef } from "@/interfaces/AutoGen";
+import { TTIriRef } from "@/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import { EntityService, DirectService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";

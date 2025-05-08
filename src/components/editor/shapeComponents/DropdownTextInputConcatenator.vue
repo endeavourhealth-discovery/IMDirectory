@@ -154,7 +154,7 @@ async function getDropdownOptions() {
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)
-      return result.entities.map((item: any) => {
+      return result.entities.map(item => {
         return { "@id": item["@id"], name: item[RDFS.LABEL] };
       });
     else return [];

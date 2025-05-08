@@ -95,7 +95,7 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { PropertyDisplay } from "@/interfaces";
 import { DataModelService, DirectService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { ColumnNode } from "primevue/column";
+import { DataTableExpandedRows } from "primevue/datatable";
 
 const props = defineProps<{
   entityIri: string;
@@ -112,7 +112,7 @@ const loading = ref(false);
 const properties: Ref<PropertyDisplay[]> = ref([]);
 const groupedProperties: Ref<PropertyDisplay[]> = ref([]);
 const propertiesTable = ref();
-const expandedRowGroups: Ref<any[]> = ref([]);
+const expandedRowGroups: Ref<DataTableExpandedRows[]> = ref([]);
 
 watch(
   () => props.entityIri,
@@ -148,8 +148,8 @@ function getProperty(result: PropertyDisplay): PropertyDisplay {
     propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
     propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name?.slice(0, p.name?.indexOf("(")) as string}`;
   });
-  const ranges = (Array.from(new Set((result.type as any)?.map(JSON.stringify))) as any).map(JSON.parse);
-  ranges.forEach((t: any) => {
+  const ranges = Array.from(new Set(result.type?.map(type => JSON.stringify(type)))).map(item => JSON.parse(item));
+  ranges.forEach(t => {
     typeId = `${typeId}${typeId !== "" ? "OR" : ""}${t["@id"]}`;
     typeName = `${typeName} ${typeName !== "" ? "OR" : ""} ${t.name as string}`;
   });
@@ -160,7 +160,7 @@ function getProperty(result: PropertyDisplay): PropertyDisplay {
   } as PropertyDisplay;
 }
 
-function navigate(event: MouseEvent, iri: any): void {
+function navigate(event: MouseEvent, iri: string): void {
   if (!iri.includes("OR")) {
     if (event.metaKey || event.ctrlKey) {
       directService.view(iri);

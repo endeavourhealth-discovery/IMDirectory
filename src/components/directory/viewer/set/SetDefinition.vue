@@ -91,6 +91,7 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   entityIri: string;
@@ -117,7 +118,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const downloading = ref(false);
 const isPublishing = ref(false);
 const showOptions = ref(false);
-const entity: Ref<any> = ref({});
+const entity: Ref<TTEntity> = ref({});
 
 const { copyObjectToClipboard } = setupCopyToClipboard();
 
@@ -137,7 +138,7 @@ onMounted(async () => {
   }
 });
 
-async function onCopy(event: any) {
+async function onCopy(event: MouseEvent) {
   event.stopPropagation();
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   if (isObjectHasKeys(entity, [IM.DEFINITION])) {

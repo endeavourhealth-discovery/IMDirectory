@@ -36,6 +36,7 @@ import { RDFS } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, QueryRequest } from "@/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const toast = useToast();
 
@@ -169,7 +170,7 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
 
 function updateEntity() {
   if (selectedResult.value) {
-    const result = {} as any;
+    const result = {} as TTEntity;
     result[key.value] = convertToTTIriRef(selectedResult.value);
     if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
     else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
@@ -183,8 +184,8 @@ function updateValueVariableMap(data: TTIriRef | undefined) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-async function dropReceived(event: any) {
-  const data = event.dataTransfer.getData("conceptIri");
+async function dropReceived(event: DragEvent) {
+  const data = event.dataTransfer?.getData("conceptIri");
   if (data) {
     const conceptIri = JSON.parse(data);
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];

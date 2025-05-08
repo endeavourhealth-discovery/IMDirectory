@@ -20,6 +20,7 @@ import { EditorMode } from "@/enums";
 import { cloneDeep, isEqual } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   value?: TTIriRef[];
@@ -115,7 +116,7 @@ function updateInclusions(data: any) {
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as any;
+    const result = {} as TTEntity;
     if (isArrayHasLength(inclusions.value)) {
       result[key] = cloneDeep(inclusions.value);
     }

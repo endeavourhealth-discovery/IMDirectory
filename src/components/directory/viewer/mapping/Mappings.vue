@@ -130,6 +130,7 @@ import { ConceptService, EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import { Context } from "@/interfaces/Context";
 import { ConceptContextMap } from "@/interfaces/AutoGen";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPriority, byScheme } = Sorters;
@@ -140,7 +141,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const mappings: Ref<any[]> = ref([]);
+const mappings: Ref<GenericObject[]> = ref([]);
 const contextMaps: Ref<ConceptContextMap[]> = ref([]);
 const data: Ref = ref({});
 const hoveredResult: Ref = ref({});
@@ -231,10 +232,10 @@ function createChartMapNode(item: string, location: string, positionInLevel: num
   }
 }
 
-function generateChildNodes(mapObject: any, location: string, positionInLevel: number): ChartMapNode[] | ChartTableNode[] {
+function generateChildNodes(mapObject: GenericObject[], location: string, positionInLevel: number): ChartMapNode[] | ChartTableNode[] {
   if (isObjectHasKeys(mapObject[0], [IM.MAPPED_TO])) {
     const mappedList = [] as MapItem[];
-    mapObject.forEach((item: any) => {
+    mapObject.forEach(item => {
       mappedList.push({
         name: item[IM.MAPPED_TO][0].name,
         iri: item[IM.MAPPED_TO][0]["@id"],
@@ -260,7 +261,7 @@ function generateChildNodes(mapObject: any, location: string, positionInLevel: n
   }
 }
 
-function createChartStructure(mappingObject: any): ChartMapNode | [] {
+function createChartStructure(mappingObject: GenericObject[]): ChartMapNode | [] {
   const parentNode = {
     key: "0",
     type: "hasMap",
@@ -334,7 +335,7 @@ function getSimpleMapsNamespaces(): void {
   }
 }
 
-function toggle(event: any, data: MapItem, refId: string): void {
+function toggle(event: MouseEvent, data: MapItem | SimpleMap, refId: string): void {
   hoveredResult.value = data;
   let x: any;
   switch (refId) {
@@ -351,11 +352,11 @@ function toggle(event: any, data: MapItem, refId: string): void {
   if (x) x.value.toggle(event);
 }
 
-function handleMatchedFromToggle(event: any, data: any) {
+function handleMatchedFromToggle(event: MouseEvent, data: SimpleMap) {
   toggle(event, data, "opMatchedFrom");
 }
 
-function handleMatchedToToggle(event: any, data: any) {
+function handleMatchedToToggle(event: MouseEvent, data: SimpleMap) {
   toggle(event, data, "opMatchedTo");
 }
 </script>

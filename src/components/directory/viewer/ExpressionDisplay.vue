@@ -22,9 +22,10 @@ import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { onMounted, ref } from "vue";
 import { IM, RDFS } from "@/vocabulary";
 import { EntityService } from "@/services";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
-  concept: any;
+  concept: TTEntity;
 }
 
 const props = defineProps<Props>();
