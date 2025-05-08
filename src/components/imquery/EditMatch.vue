@@ -28,7 +28,7 @@
           v-if="isBooleanEditor && editMatch?.match.length > 1"
           :label="editMatch.bool?.toUpperCase() ?? 'AND'"
           class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
-          @click.stop="toggleMatchBool(editMatch)"
+          @click.stop="toggleBool(editMatch)"
         />
         <div class="feature-bracket-group">
           <div class="feature-list">
@@ -85,7 +85,7 @@
           v-if="editMatch.where.length > 1"
           :label="editMatch.bool?.toUpperCase() ?? 'AND'"
           class="p-button-secondary p-button-outlined expanding-button builder-button conjunction-button vertical-button"
-          @click.stop="toggleWhereBool(editMatch)"
+          @click.stop="toggleBool(editMatch)"
         />
         <div class="where-list">
           <EditWhere
@@ -167,7 +167,7 @@ const emit = defineEmits({
   ungroupMatches: (payload: Match) => payload
 });
 const hover: Ref<boolean> = ref(false);
-const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
+const { getMenuItemFromMatch, isFlatMatch, toggleBool } = setupIMQueryBuilderActions();
 const group: Ref<number[]> = ref([]);
 const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;

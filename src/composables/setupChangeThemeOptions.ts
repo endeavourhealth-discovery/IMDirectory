@@ -44,7 +44,7 @@ function setupChangeThemeOptions() {
 
   async function changeDarkMode(bool: boolean) {
     const element = document.querySelector("html");
-    const darkMode = element?.classList.contains("my-app-dark") ? true : false;
+    const darkMode = element?.classList.contains("my-app-dark");
     if (element && bool !== darkMode) element.classList.toggle("my-app-dark");
     if (userStore.darkMode !== bool) await userStore.updateDarkMode(bool);
   }

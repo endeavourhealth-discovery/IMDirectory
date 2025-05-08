@@ -8,20 +8,14 @@ function setupIMQueryBuilderActions() {
     return !nestedWhereHasMatch && !match.match && !match.where;
   }
 
-  function toggleMatchBool(object: Match) {
-    if (object.bool === Bool.and) object.bool = Bool.or;
-    else if (object.bool === Bool.or) object.bool = Bool.and;
-    else object.bool = Bool.or;
-  }
-
-  function toggleWhereBool(object: Match | Where) {
+  function toggleBool(object: Match | Where) {
     if (object.bool === Bool.and) object.bool = Bool.or;
     else if (object.bool === Bool.or) object.bool = Bool.and;
     else object.bool = Bool.or;
   }
 
   function getMenuItemFromMatch(match: Match): MenuItem {
-    return { label: match.typeOf?.name || match.description || "Feature", key: match["@id"], editMatch: match };
+    return { label: match.typeOf?.name ?? match.description ?? "Feature", key: match["@id"], editMatch: match };
   }
 
   function getTypeOfMatch(query: Query, id: string): string {
@@ -32,9 +26,9 @@ function setupIMQueryBuilderActions() {
 
   function searchForTypeOfRecursively(match: Match, id: string, parent: Match | undefined, typeOf: string[], fullQuery: Query) {
     if (match["@id"] === id) {
-      if (match.typeOf && match.typeOf?.["@id"]) typeOf.push(match.typeOf?.["@id"]);
-      else if (parent && parent.typeOf && parent.typeOf?.["@id"]) typeOf.push(parent.typeOf?.["@id"]);
-      else if (parent && parent["@id"]) searchForTypeOfRecursively(fullQuery, parent!["@id"], undefined, typeOf, fullQuery);
+      if (match.typeOf?.["@id"]) typeOf.push(match.typeOf?.["@id"]);
+      else if (parent?.typeOf?.["@id"]) typeOf.push(parent.typeOf?.["@id"]);
+      else if (parent?.["@id"]) searchForTypeOfRecursively(fullQuery, parent["@id"], undefined, typeOf, fullQuery);
     } else if (match.match) {
       for (const nestedMatch of match.match) {
         searchForTypeOfRecursively(nestedMatch, id, match, typeOf, fullQuery);
@@ -111,7 +105,7 @@ function setupIMQueryBuilderActions() {
     else found.push(currentMatch);
   }
 
-  return { toggleWhereBool, toggleMatchBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap, updateEntailment, getLeafMatch };
+  return { toggleBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap, updateEntailment, getLeafMatch };
 }
 
 export default setupIMQueryBuilderActions;

@@ -39,14 +39,11 @@
 <script setup lang="ts">
 import { Match } from "@/interfaces/AutoGen";
 import WhereDisplay from "./WhereDisplay.vue";
-import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 
 interface Props {
   match: Match;
 }
 const props = defineProps<Props>();
-
-const { toggleMatchBool, toggleWhereBool } = setupIMQueryBuilderActions();
 </script>
 
 <style scoped>

@@ -17,7 +17,6 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
 
   const editorIri = computed(() => editorStore.editorIri).value;
   const editorSavedEntity = computed(() => editorStore.editorSavedEntity).value;
-  const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
   const hasType = computed<boolean>(() => {
     return isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]);
   });
@@ -39,7 +38,7 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
   }
 
   function processEntity(entity: any) {
-    const result = { ...entity } as any;
+    const result = { ...entity };
     if (isObjectHasKeys(result, ["@id"])) {
       result[IM.ID] = result["@id"];
       delete result["@id"];
@@ -96,10 +95,7 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
   function updateObjectEntity(data: any): boolean {
     let wasUpdated = false;
     if (isObjectHasKeys(data, [RDF.TYPE])) {
-      if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
-        updateType(data[RDF.TYPE]);
-        wasUpdated = true;
-      } else if (JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
+      if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE]) || JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
         updateType(data[RDF.TYPE]);
         wasUpdated = true;
       }

@@ -14,7 +14,7 @@ export function setupValidity(shape?: FormGenerator) {
   constructValidationCheckStatus(shape);
   function constructValidationCheckStatus(shape?: FormGenerator) {
     validationCheckStatus.value = [];
-    if (shape && shape.property) {
+    if (shape?.property) {
       for (const property of shape.property) {
         addPropertyToValidationCheckStatus(property);
       }

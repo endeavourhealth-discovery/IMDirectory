@@ -20,7 +20,6 @@ interface Props {
   where: Where;
 }
 const props = defineProps<Props>();
-const { toggleWhereBool } = setupIMQueryBuilderActions();
 </script>
 
 <style scoped>

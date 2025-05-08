@@ -81,16 +81,13 @@ function setupTree(emit?: any, customPageSize?: number) {
       if (!emit) throw new Error("setupTree requires vue emits for custom clicks");
       if (checkForControlClick(event)) emit("rowControlClicked", node.data);
       else emit("rowClicked", node.data);
-    } else {
-      if (checkForControlClick(event)) directService.view(node.data);
-      else {
-        if (updateSelectedKeys) {
-          selectedKeys.value = {};
-          selectedKeys.value[node.data] = true;
-        }
-        directService.select(node.data);
-      }
+    } else if (checkForControlClick(event)) {
+      directService.view(node.data);
+    } else if (updateSelectedKeys) {
+      selectedKeys.value = {};
+      selectedKeys.value[node.data] = true;
     }
+    directService.select(node.data);
 
     console.log(selectedKeys.value);
   }
@@ -232,7 +229,7 @@ function setupTree(emit?: any, customPageSize?: number) {
   }
 
   async function locateChildInLoadMore(n: TreeNode, path: TTIriRef[]): Promise<TreeNode | undefined> {
-    if (n.children && n.children.find(c => c.data === "loadMore")) {
+    if (n.children?.find(c => c.data === "loadMore")) {
       const found = n.children.find(c => path.find(p => p["@id"] === c.data));
       if (found) {
         return n.children.find(c => path.find(p => p["@id"] === c.data));

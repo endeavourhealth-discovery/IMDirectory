@@ -24,7 +24,7 @@
           @click="
             (e: MouseEvent) => {
               e.stopPropagation();
-              toggleWhereBool(editWhere);
+              toggleBool(editWhere);
             }
           "
         />
@@ -62,7 +62,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const editWhere = defineModel<Where>("editWhere", { default: {} });
-const { toggleWhereBool } = setupIMQueryBuilderActions();
+const { toggleBool } = setupIMQueryBuilderActions();
 const emit = defineEmits<{
   onEditWhere: [payload: Where];
   onDeleteWhere: [payload: Where];

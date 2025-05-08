@@ -14,8 +14,7 @@ export function setupValueVariableMap() {
     if (valueVariables && isArrayHasLength(valueVariables)) {
       for (const variable of valueVariables as string[]) {
         if (newVVMap.value.has(variable) && newVVMap.value.get(variable)) {
-          if (oldVVMap.value.has(variable) && oldVVMap.value.get(variable) !== newVVMap.value.get(variable)) return true;
-          else if (!oldVVMap.value.has(variable)) return true;
+          if ((oldVVMap.value.has(variable) && oldVVMap.value.get(variable) !== newVVMap.value.get(variable)) || !oldVVMap.value.has(variable)) return true;
         }
       }
     }
