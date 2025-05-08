@@ -100,8 +100,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: "my-account/password-edit:returnUrl?:nextSteps?",
-        props: true,
+        path: "my-account/password-edit:returnUrl?",
         name: "PasswordEdit",
         component: () => import("@/components/auth/PasswordEdit.vue"),
         meta: {
@@ -144,6 +143,13 @@ const routes: Array<RouteRecordRaw> = [
         name: "MFADelete",
         component: () => import("@/components/auth/MFADelete.vue"),
         meta: { requiresReAuth: true, title: "My account" }
+      },
+      {
+        path: "changeTemporaryPassword:tempPassword?",
+        props: true,
+        name: "ChangeTemporaryPassword",
+        component: () => import("@/components/auth/ChangeTemporaryPassword.vue"),
+        meta: { title: "Reset password" }
       }
     ]
   },
