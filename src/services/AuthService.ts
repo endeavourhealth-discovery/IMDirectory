@@ -55,7 +55,7 @@ const AuthService = {
 
   async register(userToRegister: User): Promise<CustomAlert> {
     try {
-      const { isSignUpComplete, nextStep, userId }: SignUpOutput = await signUp({
+      const { isSignUpComplete, nextStep }: SignUpOutput = await signUp({
         username: userToRegister.username,
         password: userToRegister.password,
         options: {
@@ -98,7 +98,7 @@ const AuthService = {
 
   async confirmRegister(username: string, code: string): Promise<CustomAlert> {
     try {
-      const { isSignUpComplete, userId, nextStep } = await confirmSignUp({ username: username, confirmationCode: code });
+      const { isSignUpComplete, nextStep } = await confirmSignUp({ username: username, confirmationCode: code });
       switch (nextStep.signUpStep) {
         case "DONE": {
           if (isSignUpComplete) {
@@ -193,7 +193,7 @@ const AuthService = {
       await this.getCurrentAuthenticatedUser();
       return { status: 200, message: "User updated successfully" };
     } catch (err: any) {
-      return { status: 500, message: "Error authenticating current user" };
+      return { status: 500, message: "Error authenticating current user", error: err };
     }
   },
 
@@ -217,7 +217,7 @@ const AuthService = {
 
   async forgotPassword(username: string): Promise<CustomAlert> {
     try {
-      const { isPasswordReset, nextStep } = await resetPassword({ username: username });
+      const { nextStep } = await resetPassword({ username: username });
       switch (nextStep.resetPasswordStep) {
         case "DONE":
           return { status: 200, message: "Password has been reset" };

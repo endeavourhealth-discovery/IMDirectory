@@ -1,19 +1,17 @@
-import { CreateComponentPublicInstance } from "vue";
-import { RouteLocationNormalizedLoaded, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
+import { ComponentPublicInstance } from "vue";
+import { RouteLocationNormalizedLoaded, Router, useRoute, useRouter } from "vue-router";
 import { RecentActivityItem } from "@/interfaces";
 import Env from "./Env";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
 export default class DirectService {
-  private directoryStore;
-  private userStore;
-  private _message: string;
-  private router: Router;
-  private route: RouteLocationNormalizedLoaded;
+  private readonly directoryStore;
+  private readonly userStore;
+  private readonly _message: string;
+  private readonly router: Router;
 
   constructor() {
-    this.route = useRoute();
     this.router = useRouter();
     this.directoryStore = useDirectoryStore();
     this.userStore = useUserStore();
@@ -28,7 +26,7 @@ export default class DirectService {
       this.userStore.updateRecentLocalActivity({ iri: options.iri, dateTime: new Date(), action: options.action } as RecentActivityItem);
     }
     if (!options.newTab) {
-      if (options.iri) this.directoryStore.updateConceptIri(options.iri!);
+      if (options.iri) this.directoryStore.updateConceptIri(options.iri);
       this.router.push({
         path: "/" + pathUrl
       });
@@ -37,7 +35,7 @@ export default class DirectService {
     }
   }
 
-  public directWithConfirmation(iri: string, action: string, component: CreateComponentPublicInstance<any>, appRoute: string) {
+  public directWithConfirmation(iri: string, action: string, component: ComponentPublicInstance<any>, appRoute: string) {
     component.$confirm.require({
       message: this._message,
       header: "Confirmation",

@@ -1,7 +1,7 @@
 import axios from "axios";
 import Env from "./Env";
 import { SetDiffObject } from "@/interfaces";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { SetExportRequest, TTIriRef } from "@/interfaces/AutoGen";
 const API_URL = Env.API + "api/set";
 
 const SetService = {
@@ -18,19 +18,12 @@ const SetService = {
       raw: raw
     });
   },
-  async getMembers(
-      iri: string,
-      entailments: boolean,
-      pageIndex: number,
-      pageSize: number,
-      controller?: AbortController
-  ): Promise<any> {
+  async getMembers(iri: string, entailments: boolean, pageIndex: number, pageSize: number, controller?: AbortController): Promise<any> {
     return axios.get(API_URL + "/public/members", {
-      params: { iri: iri,  entailments: entailments,page: pageIndex, size: pageSize },
+      params: { iri: iri, entailments: entailments, page: pageIndex, size: pageSize },
       signal: controller?.signal
     });
   },
-
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {
     return axios.get(API_URL + "/public/subsets", {
@@ -49,32 +42,8 @@ const SetService = {
     });
   },
 
-  async getFullExportSet(
-    iri: string,
-    definition: boolean,
-    core: boolean,
-    legacy: boolean,
-    includeSubsets: boolean,
-    ownRow: boolean,
-    im1id: boolean,
-    subsumedBy: boolean,
-    format: string,
-    schemes: string[],
-    raw?: boolean
-  ): Promise<any> {
-    return axios.get(API_URL + "/public/setExport", {
-      params: {
-        iri: iri,
-        definition: definition,
-        core: core,
-        legacy: legacy,
-        includeSubsets: includeSubsets,
-        ownRow: ownRow,
-        im1id: im1id,
-        subsumedBy: subsumedBy,
-        format: format,
-        schemes: schemes.join(",")
-      },
+  async getFullExportSet(setRequest: SetExportRequest, raw?: boolean): Promise<any> {
+    return axios.post(API_URL + "/public/setExport", setRequest, {
       responseType: "blob",
       raw: raw
     });

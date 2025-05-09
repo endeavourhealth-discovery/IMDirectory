@@ -6,9 +6,9 @@ import { Query, SearchResultSummary, EclSearchRequest, BoolGroup } from "@/inter
 
 const EclService = {
   async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<{ count: number; entities: SearchResultSummary[]; page: number }> {
-    const results = (await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest, {
+    const results: { count: number; entities: any[]; page: number } = await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest, {
       signal: controller?.signal
-    })) as { count: number; entities: any[]; page: number };
+    });
     if (isObjectHasKeys(results, ["entities"])) results.entities.forEach((result: any) => entityToAliasEntity(result));
     return results;
   },

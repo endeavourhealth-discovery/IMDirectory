@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-03-26 11:48:22.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-09 20:12:02.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -158,6 +158,9 @@ export interface FunctionTemplate extends Entity {
     parameterTemplate?: ParameterTemplate[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface MapFunction extends TTIriRef {
     argument?: Argument[];
     conceptMap?: { [index: string]: string };
@@ -172,6 +175,9 @@ export interface ModelDocument {
     function?: MapFunction[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface NodeShape extends TTIriRef {
     property?: PropertyShape[];
     subType?: TTIriRef[];
@@ -194,6 +200,9 @@ export interface ParameterTemplate extends Entity {
     valueTemplate?: ValueTemplate[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface PropertyRange extends TTIriRef {
     pattern?: string;
     intervalUnit?: TTIriRef;
@@ -279,10 +288,10 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: TTIriRef;
-    qualifier?: string;
-    operator?: Operator;
     valueLabel?: string;
     valueParameter?: string;
+    qualifier?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -315,8 +324,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
 }
@@ -406,6 +415,9 @@ export interface PathDocument {
     match?: Match[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface PathQuery extends TTIriRef {
     source?: TTIriRef;
     target?: TTIriRef;
@@ -485,6 +497,9 @@ export interface ReturnProperty {
     return?: Return;
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface Update extends TTIriRef {
     match?: Match[];
     delete?: Delete[];
@@ -674,6 +689,23 @@ export interface EclSearchRequest {
     select?: string[];
 }
 
+export interface SetExportRequest {
+    ownRow?: boolean;
+    format?: string;
+    options?: SetOptions;
+}
+
+export interface SetOptions {
+    setIri?: string;
+    schemes?: string[];
+    includeIM1id?: boolean;
+    subsumptions?: string[];
+    includeDefinition?: boolean;
+    includeCore?: boolean;
+    includeLegacy?: boolean;
+    includeSubsets?: boolean;
+}
+
 export interface BugReport extends Task {
     product?: string;
     version?: string;
@@ -808,6 +840,9 @@ export interface WORKFLOW {
 export interface XSD {
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface TTIriRef extends TTValue, Serializable {
     name?: string;
     description?: string;
@@ -832,8 +867,8 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    nativeMethod?: boolean;
     className?: string;
+    nativeMethod?: boolean;
 }
 
 export interface Exception extends Throwable {
@@ -843,23 +878,22 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    status?: TTIriRef;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     description?: string;
     code?: string;
     prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface TTValue extends Serializable {
-    order?: number;
 }
 
 export interface TTArray extends Serializable {
