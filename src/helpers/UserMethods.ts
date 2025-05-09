@@ -25,9 +25,8 @@ export function verifyIsUsername(name: string): boolean {
 }
 
 export function checkPasswordStrength(password: string): PasswordStrength {
-  const strongCheck = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
-  const mediumCheck = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/;
-  const weakCheck = /^(?=.{8,})/;
+  const strongCheck = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])(?=.{8,})/;
+  const mediumCheck = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.{8,})/;
   if (strongCheck.test(password)) {
     return PasswordStrength.strong;
   } else if (mediumCheck.test(password)) {

@@ -20,9 +20,9 @@ function processArgument(property: PropertyShape, key: string, value: any, argRe
   if (key === "valueVariable") {
     let foundValueVariable: any = null;
     if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
-    if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
+    if (property.builderChild && valueVariableMap?.has(value + property.order)) {
       foundValueVariable = valueVariableMap.get(value + property.order);
-    } else if (valueVariableMap && valueVariableMap.has(value)) {
+    } else if (valueVariableMap?.has(value)) {
       foundValueVariable = valueVariableMap.get(value);
     }
     if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item))) argResult["valueIriList"] = foundValueVariable;

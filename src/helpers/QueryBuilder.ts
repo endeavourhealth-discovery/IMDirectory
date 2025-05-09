@@ -1,6 +1,6 @@
 import { SHACL } from "../vocabulary";
 import { TreeNode } from "../interfaces";
-import { Match, Node, Operator, Where, Query, SearchResultSummary } from "../interfaces/AutoGen";
+import { Match, Operator, Where, Query } from "../interfaces/AutoGen";
 import { isFolder, isFunction, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
@@ -36,7 +36,7 @@ function populateFlatListOfNodesRecursively(flatList: TreeNode[], treeNode: Tree
 
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
   if (treeNode.property) return treeNode.property;
-  const property = { "@id": treeNode.data } as Where;
+  const property: Where = { "@id": treeNode.data } as Where;
   // string - is ""
   // boolean - is true
   // long - is true
@@ -49,7 +49,7 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
     property.is = [];
   }
   (property as any).key = treeNode.key;
-  return property as Where;
+  return property;
 }
 
 export function generateMatchIds(query: Query) {
@@ -70,7 +70,7 @@ export function generateMatchIds(query: Query) {
 }
 
 export function generateMatchIdsRecursively(match: Match) {
-  if (!match["@id"]) match["@id"] = v4();
+  match["@id"] ??= v4();
   if (isArrayHasLength(match.match))
     for (const nestedMatch of match.match!) {
       generateMatchIdsRecursively(nestedMatch);

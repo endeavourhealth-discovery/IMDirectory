@@ -40,7 +40,7 @@ export function addIsaToIMQuery(isAs: TTIriRef[], imQuery: QueryRequest) {
 }
 
 export function addSortingToIMQuery(sortingField: TTIriRef, sortDirection: TTIriRef, imQuery: QueryRequest) {
-  if (!imQuery.query.orderBy) imQuery.query.orderBy = {};
+  imQuery.query.orderBy ??= {};
   if (isObjectHasKeys(sortingField)) imQuery.query.orderBy.property = sortingField;
   else imQuery.query.orderBy.property = {};
   if (isObjectHasKeys(sortDirection)) imQuery.query.orderBy.property.direction = sortDirection["@id"] === IM.ASCENDING ? Order.ascending : Order.descending;

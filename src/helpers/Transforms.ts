@@ -1,5 +1,5 @@
-import { TTBundle, UIProperty } from "../interfaces";
-import { IM, RDF, RDFS, SHACL } from "../vocabulary";
+import { TTBundle } from "../interfaces";
+import { IM, RDF, RDFS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
 import { TTIriRef } from "../interfaces/AutoGen";
@@ -74,7 +74,7 @@ export function ttIriToString(
   const pad = indentSize.repeat(indent);
   let result = "";
   if (!inline) result += pad;
-  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
+  if (withHyperlinks && !blockedUrlIris?.includes(iri["@id"])) {
     const escapedUrl = iriToUrl(iri["@id"]);
     if (iri["@id"] === seeMore) {
       result += `<Button link as="a" href="">`;
@@ -84,7 +84,7 @@ export function ttIriToString(
   }
   if (iri.name) result += removeEndBrackets(iri.name);
   else result += iri["@id"];
-  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
+  if (withHyperlinks && !blockedUrlIris?.includes(iri["@id"])) {
     result += "</Button>";
   }
   if (previous === "array") result += "\n";
@@ -192,7 +192,7 @@ function processNodeArray(value: any[], key: string, appPath: string, indent: nu
 }
 
 function getObjectName(key: string, iriMap: any, pad: string, prefix: string) {
-  if (iriMap && iriMap[key]) return pad + prefix + removeEndBrackets(iriMap[key]) + " : ";
+  if (iriMap?.[key]) return pad + prefix + removeEndBrackets(iriMap[key]) + " : ";
   else return pad + prefix + removeEndBrackets(key) + " : ";
 }
 
