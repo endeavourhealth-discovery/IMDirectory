@@ -153,10 +153,12 @@ const contentOptions: Ref<DownloadOption[]> = ref([
 ]);
 
 const selectedContents: Ref<string[]> = ref(["Core", "+Replaced concepts"]);
-const selectedFormat = ref("");
+const selectedFormat = ref("tsv");
 const displayLegacyOptions = ref(false);
 const coreSelected = ref(false);
-const isOptionsSelected = ref(false);
+const isOptionsSelected = computed(() => {
+  return (selectedContents.value.length !== 0 && selectedFormat.value != null) || selectedFormat.value === "IMv1";
+});
 const checkedLegacy = ref(false);
 const checked = ref(true);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
@@ -176,7 +178,6 @@ watch(selectedContents, () => {
     isCoreSelected();
     isLegacySelected();
   }
-  isOptionsSelected.value = (selectedContents.value.length !== 0 && selectedFormat.value != null) || selectedFormat.value === "IMv1";
 });
 
 watch(selectedFormat, () => {
