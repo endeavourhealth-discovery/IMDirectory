@@ -33,7 +33,7 @@
             v-if="!rootBool"
             class="operator-selector"
             :modelValue="parentOperator"
-            :options="booleanMatchOptions"
+            :options="getBooleanMatchOptions(parent!, parentOperator as Bool)"
             option-label="label"
             option-value="value"
             @update:modelValue="val => toggleBool(val as Bool)"
@@ -173,16 +173,13 @@
 <script setup lang="ts">
 import { Ref, ref, onMounted, inject, computed } from "vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
-import Refinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
 import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
-import { isEqual } from "lodash-es";
-import { numberAscending } from "@/helpers/Sorters";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Match, Bool, Where } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { booleanMatchOptions } from "@/helpers/IMQueryBuilder";
+import { getBooleanMatchOptions } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   index: number;
@@ -195,7 +192,6 @@ const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const operators = ["and", "or", "not"] as const;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
-const childLoadingState = inject("childLoadingState") as Ref<any>;
 
 const addMenu = ref();
 const loading = ref(false);
@@ -238,7 +234,7 @@ function toggleAdd(event: any) {
 
 function addRefinement() {
   const where = { descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where;
-  match.value.where= where;
+  match.value.where = where;
 }
 
 function addGroup() {}
@@ -265,7 +261,6 @@ function addConceptToGroup() {
   }
 }
 
-
 function toggleBool(bool: Bool) {
   if (!props.parentOperator || !parent.value) return;
   const from = props.parentOperator as Bool;
@@ -279,11 +274,15 @@ function toggleBool(bool: Bool) {
       parent.value.not.push(match.value);
     }
     return;
-  } else {
-    if (parent.value[from]) {
-      (parent.value as any)[to] = parent.value[from];
-      delete parent.value[from];
-    }
+  }
+  if (from === Bool.not) {
+    if (parent.value.or) parent.value.or.push(match.value);
+    else if (parent.value.and) parent.value.and.push(match.value);
+    parent.value.not!.splice(props.index, 1);
+    if (parent.value.not!.length === 0) delete parent.value.not;
+  } else if (parent.value[from]) {
+    (parent.value as any)[to] = parent.value[from];
+    delete parent.value[from];
   }
 }
 

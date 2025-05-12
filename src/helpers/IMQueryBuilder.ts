@@ -1,14 +1,14 @@
-import { Match, OrderDirection, Node, Query, QueryRequest, SearchBinding, TTIriRef, Where, Element } from "@/interfaces/AutoGen";
+import { Match, OrderDirection, Node, Query, QueryRequest, SearchBinding, TTIriRef, Where, Element, Bool } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
-  if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.STATUS, filterOptions.status, imQuery);
-  if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery);
-  if (isArrayHasLength(filterOptions.schemes)) addFilterToIMQuery(IM.HAS_SCHEME, filterOptions.schemes, imQuery);
-  if (isArrayHasLength(filterOptions.isA)) addFilterToIMQuery(IM.IS_A, filterOptions.isA!, imQuery);
+  if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.HAS_STATUS, filterOptions.status, imQuery.query);
+  if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery.query);
+  if (isArrayHasLength(filterOptions.schemes)) addFilterToIMQuery(IM.HAS_SCHEME, filterOptions.schemes, imQuery.query);
+  if (isArrayHasLength(filterOptions.isA)) addFilterToIMQuery(IM.IS_A, filterOptions.isA!, imQuery.query);
   if (isArrayHasLength(filterOptions.binding)) addBindingsToIMQuery(filterOptions.binding!, imQuery);
   if (filterOptions.page) imQuery.page = filterOptions.page;
   if (filterOptions.textSearch) imQuery.textSearch = filterOptions.textSearch;
@@ -38,23 +38,47 @@ export const booleanWhereOptions = [
   }
 ];
 
-export const booleanMatchOptions = [
-  {
-    label: "Or",
-    value: "or",
-    tooltip: "At least on of this group must be true"
-  },
-  {
-    label: "And",
-    value: "and",
-    tooltip: "All of this group must be true"
-  },
-  {
-    label: "Minus",
-    value: "not",
-    tooltip: "Exclude this item or  group "
+export function getBooleanMatchOptions(parent: Match, operator: Bool): any {
+  const options = [];
+  if (operator === Bool.or) {
+    options.push({
+      label: "And",
+      value: "and",
+      tooltip: "All of this group must be true"
+    });
+    if (parent.or && parent.or.length > 1)
+      options.push({
+        label: "Minus",
+        value: "not",
+        tooltip: "Exclude this item or  group "
+      });
+  } else if (operator === Bool.and) {
+    options.push({
+      label: "Or",
+      value: "or",
+      tooltip: "At least on of this group must be true"
+    });
+    if (parent.and && parent.and.length > 1)
+      options.push({
+        label: "Minus",
+        value: "not",
+        tooltip: "Exclude this item or  group "
+      });
+  } else if (operator === Bool.not) {
+    if (parent.and)
+      options.push({
+        label: "Or",
+        value: "or",
+        tooltip: "At least on of this group must be true"
+      });
   }
-];
+  if (parent.or)
+    options.push({
+      label: "And",
+      value: "and",
+      tooltip: "All of this group must be true"
+    });
+}
 
 export const constraintOperatorOptions = [
   {
