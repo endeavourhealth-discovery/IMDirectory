@@ -50,9 +50,8 @@ function getNameFromIri(iri: string) {
   return iri;
 }
 
-
 function extractComponentFromIri(type: TTIriRef) {
-  let name = getNameFromIri(type["@id"]);
+  const name = getNameFromIri(type["@id"]);
   if (name.includes("_")) return name.split("_")[1];
   else throw new Error("Iri is not of type ComponentType: " + type["@id"]);
 }
