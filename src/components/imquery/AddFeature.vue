@@ -77,7 +77,7 @@ async function createMatch(node: TreeNode) {
   if (node.data.pathMatch) {
     match = node.data.pathMatch;
   }
-  match.where = [{ "@id": node.data.iri, name: node.label }];
+  match.where = { "@id": node.data.iri, name: node.label };
   emit("onAddMatch", match);
 }
 </script>

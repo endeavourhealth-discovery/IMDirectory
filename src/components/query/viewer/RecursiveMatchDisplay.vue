@@ -1,113 +1,101 @@
 <template>
-  <div id="recursive-match-display">
-    <div class="tree-node-line">
-      <span v-if="match.match"></span>
-      <span v-if="match.rule">
-        <span class="rule">Rule {{ clauseIndex }}</span>
-      </span>
-
-      <span v-if="parentMatch?.union" class="number">{{ clauseIndex + 1 }}</span>
-      <ClauseEditorMenus v-if="editMode" :editor="editMenu" v-model:match="match" v-model:parentMatch="parentMatch" />
-      <span v-if="from">
-        <span class="field">Then include if</span>
-      </span>
-
-      <span v-if="match.exclude">
-        <span v-if="parentMatch.bool && parentMatch.bool === 'and'">
-          <span class="not">(exclude if) </span>
-        </span>
-        <span v-else class="not">or exclude if </span>
-      </span>
-
-      <span v-if="match.instanceOf">
-        <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
-        <IMViewerLink
-          v-if="match.instanceOf[0]['@id']"
-          :iri="match.instanceOf[0]['@id']"
-          :label="match.instanceOf[0].name"
-          @navigateTo="(iri: string) => emit('navigateTo', iri)"
-        />
-        <span v-if="match.instanceOf.length > 1">
-          <div>
-            <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
-              <span v-if="index > 0">
-                <ul>
-                  <li class="tight-spacing">
-                    <span class="or">or</span>
-                    <IMViewerLink v-if="item['@id']" :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
-                  </li>
-                </ul>
-              </span>
+  <div id="recursive-match-display" class="tree-node-line">
+    <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
+      <span class="rule">Rule {{ clauseIndex }}</span>
+    </span>
+    <span v-if="parentMatch?.union" class="number">{{ clauseIndex + 1 }}</span>
+    <ClauseEditorMenus v-if="editMode" :editor="editMenu" v-model:match="match" v-model:parentMatch="parentMatch" />
+    <span v-if="from">
+      <span class="field">Then include if</span>
+    </span>
+    <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
+    <span v-if="match.instanceOf">
+      <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
+      <IMViewerLink
+        v-if="match.instanceOf[0]['@id']"
+        :iri="match.instanceOf[0]['@id']"
+        :label="match.instanceOf[0].name"
+        @navigateTo="(iri: string) => emit('navigateTo', iri)"
+      />
+      <span v-if="match.instanceOf.length > 1">
+        <div>
+          <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
+            <span v-if="index > 0">
+              <ul>
+                <li class="tight-spacing">
+                  <span class="or">or</span>
+                  <IMViewerLink v-if="item['@id']" :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                </li>
+              </ul>
             </span>
-          </div>
-        </span>
+          </span>
+        </div>
       </span>
-      <span v-if="isArrayHasLength(match.match)">
-        <span :class="match.bool">{{ getOperatorText(match?.bool) }}</span>
-        <span v-if="clauseIndex > -1">(</span>
+    </span>
+    <span class="field">{{ getFormattedPath(match) }}</span>
+    <span v-for="operator in operators" :key="operator">
+      <span v-if="match[operator]">
+        <span v-if="match[operator]!.length > 1" :class="operator">
+          <span>{{ getOperatorText(operator) }}</span>
+        </span>
         <div class="tree-node-wrapper">
-          <span v-for="(nestedQuery, index) in match.match" :key="`nestedQuery-${index}`">
+          <span v-for="(nestedQuery, index) in match[operator]" :key="index">
             <RecursiveMatchDisplay
               :match="nestedQuery"
               :key="`nestedQueryDisplay-${index}`"
               :clause-index="index"
               :property-index="index"
-              :parent-operator="match.bool"
+              :parentOperator="operator as Bool"
               :depth="depth + 1"
               :parent-match="match"
-              :bracketed="index === match.match!.length - 1"
+              :bracketed="index === match[operator]!.length - 1"
               :edit-mode="editMode"
               :eclQuery="eclQuery"
             />
           </span>
         </div>
       </span>
-      <span v-if="match.orderBy">{{ match.orderBy.description }}</span>
-      <span v-if="match.path">
-        <span class="field">{{ getFormattedPath(match) }}</span>
-      </span>
+    </span>
+    <span v-if="match.orderBy">{{ match.orderBy.description }}</span>
 
-      <span v-if="isArrayHasLength(match.where)">
-        <RecursiveWhereDisplay
-          v-for="(nestedWhere, index) in match.where"
-          :where="nestedWhere"
-          :depth="depth + (match.nodeRef ? 1 : 0)"
-          :property-index="index"
-          :key="index"
-          :index="index"
-          :operator="match.bool"
-          :expandedSet="expandSet"
-          :inline="!nestedWhere.where"
-          :eclQuery="eclQuery"
-        />
-      </span>
-      <span v-if="match.union">
-        <span class="field">Select one of the following</span>
-      </span>
+    <span v-if="match.where">
+      <RecursiveWhereDisplay
+        :where="match.where"
+        :depth="depth + (match.nodeRef ? 1 : 0)"
+        :property-index="0"
+        :key="0"
+        :index="0"
+        :expandedSet="expandSet"
+        :inline="!match.where.and && !match.where.or"
+        :eclQuery="eclQuery"
+      />
+    </span>
+    <span v-if="match.union">
+      <span class="field">Select one of the following</span>
+    </span>
 
-      <span v-if="match.return && !match.then">
-        <span class="field">(as</span>
-        <span class="as">{{ match.return?.as }})</span>
-      </span>
-      <span v-if="match.then">
-        <RecursiveMatchDisplay
-          :match="match.then"
-          :clause-index="0"
-          :property-index="0"
-          :parent-operator="match.bool"
-          :depth="depth + 1"
-          :parent-match="match"
-          :edit-mode="editMode"
-          :from="match"
-          :eclQuery="eclQuery"
-        />
-      </span>
-      <div v-if="match.rule">
-        <span class="field">if true</span>
-        <span :class="match.ifTrue">{{ match.ifTrue }},</span>
-        <span class="field">if false</span>
-        <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
-      </div>
+    <span v-if="match.return && !match.then">
+      <span class="field">(as</span>
+      <span class="as">{{ match.return?.as }})</span>
+    </span>
+    <span v-if="match.then">
+      <RecursiveMatchDisplay
+        :match="match.then"
+        :clause-index="0"
+        :property-index="0"
+        :parent-operator="Bool.and"
+        :depth="depth + 1"
+        :parent-match="match"
+        :edit-mode="editMode"
+        :from="match"
+        :eclQuery="eclQuery"
+      />
+    </span>
+    <div v-if="parentOperator === Bool.rule && clauseIndex > 0">
+      <span class="field">if true</span>
+      <span :class="match.ifTrue">{{ match.ifTrue }},</span>
+      <span class="field">if false</span>
+      <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
     </div>
   </div>
 </template>
@@ -115,10 +103,11 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Match, Return, Bool } from "@/interfaces/AutoGen";
-import { computed, Ref, ref, watch } from "vue";
+import { computed, Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import ClauseEditorMenus from "@/components/imquery/ClauseEditorMenus.vue";
+import { getOperatorText } from "@/helpers/IMQueryBuilder";
 interface Props {
   isVariable?: boolean;
   depth: number;
@@ -129,6 +118,7 @@ interface Props {
   editMode?: boolean;
   from?: Match;
   eclQuery?: boolean;
+  parentOperator?: Bool;
 }
 
 const props = defineProps<Props>();
@@ -137,20 +127,12 @@ const parentMatch = defineModel<Match>("parentMatch", { default: {} });
 const emit = defineEmits({
   navigateTo: (_payload: string) => true
 });
-const editMenu = match.value.match && !match.value.instanceOf ? "booleanEditor" : "matchEditor";
+const editMenu = (match.value.and || match.value.or) && !match.value.instanceOf ? "booleanEditor" : "matchEditor";
 const expandSet: Ref<boolean> = ref(false);
+const operators = ["and", "or", "not"] as const;
 
 function toggle() {
   expandSet.value = !expandSet.value;
-}
-function getOperatorText(operator: Bool | undefined): string {
-  if (operator === "or") {
-    return "At least one of the following";
-  } else if (operator === "and") {
-    return "All of the following";
-  } else {
-    return " ";
-  }
 }
 
 function getReturnProperties(ret: Return): string {

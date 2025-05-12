@@ -56,7 +56,11 @@ const { populateVariableMap } = setupIMQueryBuilderActions();
 watch(
   () => cloneDeep(selectedBaseType.value),
   (newValue, oldValue) => {
-    if (newValue?.iri !== oldValue?.iri && oldValue?.iri && editQueryDefinition.value.typeOf?.["@id"]) editQueryDefinition.value.match = [];
+    if (newValue?.iri !== oldValue?.iri && oldValue?.iri && editQueryDefinition.value.typeOf?.["@id"]) {
+      editQueryDefinition.value.or = [];
+      editQueryDefinition.value.and = [];
+      editQueryDefinition.value.not = [];
+    }
     if (selectedBaseType.value) editQueryDefinition.value.typeOf = { "@id": selectedBaseType.value.iri } as Node;
   }
 );

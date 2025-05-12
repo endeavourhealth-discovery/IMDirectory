@@ -40,7 +40,6 @@ import { inject, onMounted, Ref, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { cloneDeep } from "lodash-es";
 import { QueryService } from "@/services";
-import { generateMatchIds } from "@/helpers/QueryBuilder";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import DisplayAnything from "@/components/editor/shapeComponents/DisplayAnything.vue";
@@ -87,7 +86,7 @@ watch(
   async newValue => {
     updateEntity();
     if (updateValidity && valueVariableMap) {
-      if (newValue && isArrayHasLength(newValue.match)) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (newValue) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
       showValidation.value = true;
     }
   }
@@ -103,7 +102,7 @@ async function init() {
   if (props.value) {
     const definition = JSON.parse(props.value);
     const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.ORIGINAL);
-    queryDefinition.value = generateMatchIds(labeledQuery);
+    queryDefinition.value = labeledQuery;
   } else {
     queryDefinition.value = await generateDefaultQuery();
   }
@@ -121,7 +120,7 @@ async function generateDefaultQuery() {
 }
 
 function updateEntity() {
-  if (queryDefinition.value && !isArrayHasLength(queryDefinition.value.match) && deleteEntityKey) deleteEntityKey(key);
+  if (queryDefinition.value && deleteEntityKey) deleteEntityKey(key);
   else {
     const imDefinition: any = {};
     imDefinition[IM.DEFINITION] = JSON.stringify(cloneDeep(queryDefinition.value));

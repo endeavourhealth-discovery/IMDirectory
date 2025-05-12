@@ -63,21 +63,10 @@ const editMenuItems = computed(() => {
     label: "Delete this feature",
     command: () => deleteMatch()
   });
-  if (parentMatch.value && parentMatch.value.bool) {
-    items.push({
-      label: `Add nested ${parentMatch.value.bool === "and" ? "'or'" : "'and'"}`,
-      command: () => createNewGroup()
-    });
-    items.push({
-      label: `Ungroup this feature`,
-      command: () => unGroup()
-    });
-  } else {
-    items.push({
-      label: `Create nested group "}`,
-      command: () => createNewGroup()
-    });
-  }
+  items.push({
+    label: `Create nested group "}`,
+    command: () => createNewGroup()
+  });
   items.push({
     label: `Move this feature`,
     command: () => moveMatch()
@@ -91,23 +80,29 @@ const toggleEditMenu = (event: MouseEvent) => {
 
 const booleanMenuItems = computed(() => {
   const items = [];
-  if (match.value.bool === "or") {
+  if (match.value.or) {
     items.push({
       label: "Must have all of the following (and)",
       command: () => changeBooleanOperator()
     });
   }
 
-  if (match.value.bool === "and") {
+  if (match.value.and) {
     items.push({
       label: "Must have at least one of the following (or)",
       command: () => changeBooleanOperator()
     });
   }
-  if (!match.value.match) {
+  if (!match.value.or && !match.value.and) {
     items.push({
-      label: `Create nested ${parentMatch?.value.bool === "and" ? "or" : "and"}`,
-      command: () => createNestedMatch()
+      label: `Create nested ${parentMatch?.value.and ? "or" : "and"}`,
+      command: () => createNestedMatch(parentMatch?.value.and ? Bool.or : Bool.and)
+    });
+  }
+  if (!match.value.not) {
+    items.push({
+      label: `Create nested not"}`,
+      command: () => createNestedMatch(Bool.not)
     });
   }
 
@@ -115,7 +110,6 @@ const booleanMenuItems = computed(() => {
     label: "Add feature to this group",
     command: () => addSubMatch()
   });
-
   return items;
 });
 const toggleBooleanMenu = (event: MouseEvent) => {
@@ -126,24 +120,9 @@ function unGroup() {}
 function moveMatch() {}
 
 function changeBooleanOperator() {
-  match.value.bool = match.value.bool === Bool.and ? Bool.or : Bool.and;
-  if (parentMatch.value && parentMatch.value.bool) {
-    if (parentMatch.value.bool === match.value.bool) {
-      if (parentMatch.value && parentMatch.value.match) {
-        const childIndex = parentMatch.value.match.findIndex(m => m === match.value);
-        if (childIndex !== -1) {
-          parentMatch.value.match.splice(childIndex, 1, ...(match.value.match ?? []));
-          for (let i = 0; i < parentMatch.value.match.length; i++) {
-            const subMatch = parentMatch.value.match[i];
-            if (subMatch.match && subMatch.bool && subMatch.bool === parentMatch.value.bool) {
-              parentMatch.value.match.splice(i, 1, ...(subMatch.match ?? []));
-              i--;
-            }
-          }
-        }
-      }
-    }
-  }
+  const oldBool = match.value.and ? Bool.and : Bool.or;
+  const newBool = match.value.and ? Bool.or : Bool.and;
+  match.value[newBool] = match.value[oldBool];
 }
 function editMatch() {
   editFeature.value = true;
@@ -154,27 +133,21 @@ function addMatch() {
 }
 async function addNewMatch(newMatch: Match) {
   addFeature.value = false;
+  const boolGroup = parentMatch.value.or ? Bool.or : parentMatch.value.and ? Bool.and : parentMatch.value.not ? Bool.not : Bool.and;
   const describedMatch = await QueryService.getQueryDisplayFromQuery(newMatch as Match, DisplayMode.ORIGINAL);
-  if (!parentMatch.value.match) parentMatch.value.match = [];
-  parentMatch.value.match.push(describedMatch);
-  if (parentMatch.value.match.length > 1 && !parentMatch.value.bool) parentMatch.value.bool = Bool.and;
+  if (!parentMatch.value[boolGroup]) parentMatch.value[boolGroup] = [];
+  parentMatch.value[boolGroup]!.push(describedMatch);
   selectedMatch.value = describedMatch;
   editFeature.value = true;
 }
 async function addInstanceOf(newMatch: Match) {
-  addFeature.value = false;
-  if (!parentMatch?.value.match) parentMatch.value.match = [];
-  const describedMatch = await QueryService.getQueryDisplayFromQuery(newMatch as Match, DisplayMode.ORIGINAL);
-  parentMatch.value.match.push(describedMatch);
-  if (parentMatch.value.match.length > 1 && !parentMatch.value.bool) parentMatch.value.bool = Bool.and;
+  addNewMatch(newMatch);
 }
+
 function addSubMatch() {}
-function createNestedMatch() {
+function createNestedMatch(operator: Bool) {
   const nestedMatch = {} as Match;
-  nestedMatch.bool = match.value.bool;
-  nestedMatch.match = match.value.match;
-  match.value.match = [nestedMatch];
-  match.value.bool = match.value.bool === Bool.and ? Bool.or : Bool.and;
+  match.value[operator] = [nestedMatch];
 }
 function deleteNodeRef() {
   match.value.nodeRef = undefined;

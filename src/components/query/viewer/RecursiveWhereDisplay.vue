@@ -43,19 +43,19 @@
           <span v-if="item.descendantsOrSelfOf">+subtypes</span>
         </span>
       </span>
-      <span v-if="isArrayHasLength(where.where)">
+      <span v-for="(matches, type) in boolGroup" :key="type">
         <span>(</span>
-        <span v-for="(nestedProperty, index) of where.where" :key="index">
+        <span v-for="(nestedProperty, index) in matches" :key="index">
           <span>
             <RecursiveWhereDisplay
               :where="nestedProperty"
               :index="index"
-              :operator="where.bool"
+              :operator="type as Bool"
               :key="index"
               :depth="depth + 1"
               :expandedSet="expandedSet"
               :inline="false"
-              :bracketed="index === where.where!.length - 1"
+              :bracketed="index === where[type]!.length - 1"
             />
           </span>
         </span>
@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Where, Assignable, Bool, Node } from "@/interfaces/AutoGen";
-import { Ref, ref, watch } from "vue";
+import { computed, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import { IM } from "@/vocabulary/IM";
@@ -95,6 +95,13 @@ const emit = defineEmits({
 const isExpanded = ref(props.expandedSet);
 const childExpand = true;
 const { OS, showOverlay, hideOverlay } = setupOverlay();
+const boolGroup = computed(() => {
+  return {
+    ...(props.where.and ? { and: props.where.and } : {}),
+    ...(props.where.or ? { or: props.where.or } : {})
+  };
+});
+
 function toggle() {
   isExpanded.value = !isExpanded.value;
 }
@@ -110,25 +117,13 @@ function getOperator(operator: Bool | undefined, index: number): string {
     if (index > 0) {
       return "and";
     } else {
-      if (props.where.where) return "and";
-      else return "";
+      return "";
     }
   } else {
     if (index < 0) return "and";
     else return "";
   }
 }
-function getFormattedValue(value: Assignable) {
-  let result = "";
-  if (value.qualifier) {
-    result = value.qualifier + " ";
-  }
-  if (value.valueLabel) {
-    result = result + value.valueLabel;
-  }
-  return result;
-}
-
 function getTypeIcon(is: Node) {
   if (is.memberOf) {
     return getFAIconFromType([{ "@id": IM.CONCEPT_SET }]);

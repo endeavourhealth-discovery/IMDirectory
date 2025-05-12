@@ -17,21 +17,25 @@
             <span class="field" v-html="query.typeOf.name"></span>
             <span class="include-title text-black-500">with the following features</span>
           </div>
-          <span v-if="query.match" class="tree-node-wrapper">
-            <RecursiveMatchDisplay
-              v-for="(match, index) in query.match"
-              :key="`match-${index}`"
-              :match="match"
-              :clauseIndex="index"
-              :depth="0"
-              :inline="false"
-              :parent-match="query"
-              :bracketed="false"
-              :expanded="false"
-              :editMode="editMode"
-            />
+          <span v-if="query.rule">
+            <div class="tree-node-wrapper">
+              <span v-for="(nestedQuery, index) in query.rule" :key="index">
+                <RecursiveMatchDisplay
+                  :match="nestedQuery"
+                  :key="`nestedQueryDisplay-${index}`"
+                  :clause-index="index"
+                  :property-index="index"
+                  :parentOperator="Bool.rule"
+                  :depth="0"
+                  :parent-match="query"
+                  :bracketed="false"
+                  :edit-mode="editMode"
+                  :eclQuery="eclQuery"
+                />
+              </span>
+            </div>
           </span>
-          <span v-else-if="query.instanceOf">
+          <span v-else>
             <RecursiveMatchDisplay
               :match="query"
               :clauseIndex="-1"
@@ -41,21 +45,6 @@
               :bracketed="false"
               :editMode="editMode"
               :expanded="query.name === undefined"
-            />
-          </span>
-          <span v-if="isArrayHasLength(query.where)">
-            <RecursiveWhereDisplay
-              v-for="(nestedWhere, index) in query.where"
-              :where="nestedWhere"
-              :depth="0"
-              :property-index="index"
-              :key="index"
-              :index="index"
-              :operator="query.bool"
-              :expandedSet="false"
-              :editMode="editMode"
-              :inline="!nestedWhere.where"
-              :eclQuery="eclQuery"
             />
           </span>
           <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
@@ -95,11 +84,12 @@ import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDispl
 import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import { QueryService } from "@/services";
-import { DisplayMode, Query } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Query } from "@/interfaces/AutoGen";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { IM } from "@/vocabulary";
+import { getOperatorText } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   entityIri?: string;
@@ -120,14 +110,20 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const activeTab = ref("0");
-
+const operators = ["rule", "and", "or", "not"] as const;
 const sql: Ref<string> = ref("");
 const showSql: Ref<boolean> = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 const loading = ref(true);
 const ruleView: Ref<boolean> = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
-
+const boolGroup = computed(() => {
+  return {
+    ...(query.value.and ? { and: query.value.and } : {}),
+    ...(query.value.or ? { or: query.value.or } : {}),
+    ...(query.value.not ? { not: query.value.not } : {})
+  };
+});
 const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
 
 const emit = defineEmits({
@@ -167,7 +163,7 @@ async function getQuery() {
 async function init() {
   loading.value = true;
   await getQuery();
-  if (query.value.hasRules) {
+  if (query.value.rule) {
     activeTab.value = "0";
   } else activeTab.value = "1";
   loading.value = false;

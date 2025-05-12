@@ -1,192 +1,148 @@
 <template>
-  <div class="not-bool-container">
-    <Button
-      v-if="
-        isArrayHasLength(value.items) &&
-        value.items.length &&
-        (value.items[0].type === 'ExpressionConstraint' || value.items[0].type === 'BoolGroup') &&
-        index &&
-        index > 0
-      "
-      :severity="value.exclude ? 'danger' : 'secondary'"
-      :outlined="!value.exclude"
-      label="NOT"
-      @click="toggleExclude"
-      class="builder-button exclude-button vertical-button not-button"
-      :class="!value.exclude && 'hover-button'"
-      v-tooltip="'Exclude'"
-      size="small"
-      data-testid="bool-not-button"
-    />
-    <div :class="[hover ? 'nested-div-hover' : 'nested-div']" class="bool-group-content" @mouseover="mouseover" @mouseout="mouseout">
-      <div
-        v-if="value?.items?.length > 1"
-        class="conjunction"
-        @drop="onDrop($event, value, parent, index)"
-        @dragover="
-          {
-            onDragOver($event);
-            mouseover($event);
-          }
-        "
-        @dragleave="mouseout"
-      >
-        <Button
-          class="p-button-secondary p-button-outlined builder-button conjunction-button vertical-button"
-          :label="value.conjunction"
-          @click="toggleBool"
-          draggable="true"
-          @dragstart="onDragStart($event, value, parent)"
-          @dragend="onDragEnd(value, parent)"
-        />
-      </div>
-      <div class="children">
-        <template v-for="(item, index) in value.items">
-          <div class="component-container">
-            <span class="left-container">
-              <div class="group-checkbox">
-                <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" data-testid="group-checkbox" />
-                <label :for="'group' + index">Select</label>
+  <div class="children">
+    <template v-for="operator in operators" :key="operator">
+      <span v-if="match[operator]">
+        <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
+          <div
+            v-if="match.and || match.or"
+            class="conjunction"
+            @drop="onDrop($event, match, parent, index)"
+            @dragover="
+              onDragOver($event);
+              mouseover($event);
+            "
+            @dragleave="mouseout"
+          />
+          <Button
+            class="p-button-secondary p-button-outlined conjunction-button"
+            :label="getOperatorText(operator)"
+            @click="toggleBool"
+            v-tooltip="getOperatorToggle(operator)"
+            draggable="true"
+            @dragstart="onDragStart($event, match, parent)"
+            @dragend="onDragEnd(match, parent)"
+          />
+          <div v-for="(item, index) in match[operator]" :key="index">
+            <div class="component-container">
+              <span class="left-container">
+                <div class="group-checkbox">
+                  <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" data-testid="group-checkbox" />
+                  <label :for="'group' + index">Select</label>
+                </div>
+                <Button
+                  v-if="group.includes(index)"
+                  data-testid="group-button"
+                  icon="fa-solid fa-brackets-curly"
+                  severity="help"
+                  @click="processGroup()"
+                  :disabled="!group.length"
+                  v-tooltip="'Bracket selected items'"
+                />
+              </span>
+              <ConceptSelector v-model:node="item.instanceOf![0]" :parent="parent" />
+              <div class="add-group">
+                <Button
+                  @click="deleteItem(index)"
+                  class="builder-button"
+                  :severity="hover ? 'danger' : 'secondary'"
+                  :outlined="!hover"
+                  :class="!hover && 'hover-button'"
+                  icon="fa-solid fa-trash"
+                />
               </div>
-              <Button
-                v-if="group.includes(index)"
-                data-testid="group-button"
-                icon="fa-solid fa-brackets-curly"
-                severity="help"
-                @click="processGroup()"
-                :disabled="!group.length"
-                v-tooltip="'Bracket selected items'"
-              />
-            </span>
-            <BoolGroup
-              v-if="item.type === 'BoolGroup'"
-              :value="item"
-              :parent="props.value"
-              :focus="props.focus"
-              @unGroupItems="unGroupItems"
-              :index="index"
-              @mouseover="mouseover"
-              @mouseout="mouseout"
-            />
-            <component
-              v-else-if="item.type === 'Refinement' && props.value.items.length > 1 && props.value.items[index - 1].type === 'BoolGroup'"
-              :is="getComponent(item.type)"
-              :value="item"
-              :parent="props.value"
-              :focus="props.value.items[index - 1]"
-              :index="index"
-            />
-            <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
-            <div class="add-group">
-              <Button
-                @click="deleteItem(index)"
-                class="builder-button"
-                :severity="hover ? 'danger' : 'secondary'"
-                :outlined="!hover"
-                :class="!hover && 'hover-button'"
-                icon="fa-solid fa-trash"
-              />
             </div>
           </div>
-        </template>
-        <div class="add-attribute-container">
-          <Button
-            v-if="props.focus || (value?.items?.length > 0 && value.items[value.items.length - 1].type === 'BoolGroup')"
-            type="button"
-            icon="fa-solid fa-filter"
-            label="Add refinement"
-            class="add-button"
-            data-testid="add-refinement-button"
-            :severity="hover ? 'success' : 'secondary'"
-            :outlined="!hover"
-            :class="!hover && 'hover-button'"
-            @click="addRefinement()"
-          />
-          <Button
-            v-if="!props.focus"
-            type="button"
-            icon="fa-solid fa-plus"
-            label="Add concept"
-            class="add-button"
-            data-testid="add-concept-button"
-            :severity="hover ? 'success' : 'secondary'"
-            :outlined="!hover"
-            :class="!hover && 'hover-button'"
-            @click="addConcept()"
-          />
-          <div v-if="canBeAttributeGroup" class="attribute-group-checkbox">
-            <Checkbox v-model="attributeGroup" :binary="true" data-testid="attribute-checkbox" />
-            <label>Attribute group</label>
-          </div>
         </div>
-      </div>
-      <div class="add-group">
-        <Button
-          v-if="parent && !group.length && value?.items?.length > 1"
-          class="builder-button group-button"
-          severity="warn"
-          icon="fa-solid fa-brackets-curly"
-          :outlined="!hover"
-          :class="[!hover && 'hover-button', 'strike-through']"
-          @click="requestUnGroupItems()"
-          :disabled="!group.length && !(value?.items?.length > 1)"
-          v-tooltip="'Remove brackets'"
-        />
+      </span>
+    </template>
+    <div class="add-attribute-container">
+      <Button
+        v-if="props.focus || match.or || match.and"
+        type="button"
+        icon="fa-solid fa-filter"
+        label="Add refinement"
+        class="add-button"
+        data-testid="add-refinement-button"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        @click="addRefinement()"
+      />
+      <Button
+        v-if="!props.focus"
+        type="button"
+        icon="fa-solid fa-plus"
+        label="Add concept"
+        class="add-button"
+        data-testid="add-concept-button"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        @click="addConcept()"
+      />
+      <div v-if="canBeAttributeGroup" class="attribute-group-checkbox">
+        <Checkbox v-model="attributeGroup" :binary="true" data-testid="attribute-checkbox" />
+        <label>Attribute group</label>
       </div>
     </div>
+    <span v-if="match.where">
+      <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
+        <span>Where {{ getOperatorText("and") }}</span>
+      </div>
+    </span>
+  </div>
+  <div class="add-group">
+    <Button
+      v-if="parent && !group.length && childLength(match) > 1"
+      class="builder-button group-button"
+      severity="warn"
+      icon="fa-solid fa-brackets-curly"
+      :outlined="!hover"
+      :class="[!hover && 'hover-button', 'strike-through']"
+      @click="requestUnGroupItems()"
+      :disabled="!group.length"
+      v-tooltip="'Remove brackets'"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref, watch, onMounted, computed, ComputedRef } from "vue";
+import { ref, inject, Ref, computed, ComputedRef } from "vue";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
-import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
-import { cloneDeep, isArray, isEqual } from "lodash-es";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { numberAscending } from "@/helpers/Sorters";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-
+import { Match, Bool, SearchResultSummary } from "@/interfaces/AutoGen";
+import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
+import { getOperatorText, getOperatorToggle } from "@/helpers/IMQueryBuilder";
+import { IM } from "@/vocabulary";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import ConceptSelector from "@/components/directory/topbar/eclSearch/builder/ConceptSelector.vue";
 interface Props {
-  value: any;
-  parent?: any;
   focus?: any;
   rootBool?: boolean;
   index?: number;
+  operator?: Bool;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   rootBool: false
 });
+const match = defineModel<Match>("match", { default: {} });
+const parent = defineModel<Match>("parent", { default: {} });
+const operators = ["and", "or", "not"] as const;
+const attributeGroup: Ref<boolean> = ref(false);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
-watch(
-  () => cloneDeep(props.value),
-  (newValue, oldValue) => {
-    if (!isEqual(newValue, oldValue)) {
-      if (props.value.attributeGroup) attributeGroup.value = true;
-    }
-  }
-);
+
 const childLoadingState = inject("childLoadingState") as Ref<any>;
 
 const emit = defineEmits({ unGroupItems: _payload => true });
 
-const canBeAttributeGroup: ComputedRef<boolean> = computed(
-  () => props.parent && isArray(props.value.items) && props.value.items.length >= 1 && props.value.items.every((i: any) => i.type === "Refinement")
-);
+const canBeAttributeGroup: ComputedRef<boolean> = computed(() => {
+  if (match.value.where) return true;
+  else return false;
+});
 
 const group: Ref<number[]> = ref([]);
-const attributeGroup = ref(false);
-
-watch(attributeGroup, () => {
-  if (props.value.attributeGroup === undefined && attributeGroup.value) props.value.attributeGroup = attributeGroup.value;
-  else delete props.value.attributeGroup;
-});
-
-onMounted(() => {
-  if (props.value.attributeGroup) attributeGroup.value = true;
-  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
-});
 
 const hover = ref();
 function mouseover(event: any) {
@@ -194,85 +150,100 @@ function mouseover(event: any) {
   hover.value = true;
 }
 
+function childLength(match: Match): number {
+  if (!match.or && !match.and) return 0;
+  if (match.or) return match.or.length;
+  else return match.and!.length;
+}
+
 function mouseout(event: any) {
   event.stopPropagation();
   hover.value = false;
 }
 
-function toggleBool(event: any) {
-  props.value.conjunction = props.value.conjunction === "and" ? "or" : "and";
+function toggleExclude() {
+  if (parent.value) {
+    if (parent.value.or) {
+      parent.value.or.push(...parent.value.not!);
+    } else if (parent.value.and) {
+      parent.value.and.push(...parent.value.not!);
+    }
+    delete parent.value.not;
+  }
 }
 
-function toggleExclude() {
-  props.value.exclude = !props.value.exclude;
+function toggleBool(event: any) {
+  if (match.value.and) {
+    match.value.or = match.value.and;
+    delete match.value.and;
+  } else if (match.value.or) {
+    match.value.and = match.value.or;
+    delete match.value.or;
+  }
 }
 
 function add(item: any) {
-  if (!props.value.items) {
-    props.value.items = [item];
+  if (match.value.or) {
+    match.value.or.push(item);
+  } else if (match.value.and) {
+    match.value.and.push(item);
   } else {
-    props.value.items.push(item);
+    match.value.or = [];
+    match.value.or.push(item);
   }
 }
 
 function addConcept() {
-  add({ type: "ExpressionConstraint", constraintOperator: "<<", conjunction: "and", conceptSingle: { iri: "" } });
+  const item = {
+    instanceOf: [{ descendantsOrSelfOf: true }]
+  } as Match;
+  add(item);
 }
 
 function deleteItem(index: number) {
-  props.value.items.splice(index, 1);
-}
-
-function getComponent(componentName: string) {
-  switch (componentName) {
-    case "ExpressionConstraint":
-      return ExpressionConstraint;
-    case "Refinement":
-      return Refinement;
+  if (match.value.or) {
+    match.value.or.splice(index, 1);
+  } else if (match.value.and) {
+    match.value.and.splice(index, 1);
   }
 }
 
 function processGroup() {
-  if (group.value.length) {
-    const conjunction = props.parent?.conjunction === "or" ? "and" : "or";
+  if (group.value.length > 1 && !props.rootBool) {
+    const conjunction = props.operator === Bool.and ? "and" : "or";
     const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: conjunction, items: [] };
-    for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
-      const item = props.value.items.splice(index, 1)[0];
-      newGroup.items.push(item);
+    const newMatch = {} as Match;
+    if (props.operator === Bool.and) {
+      newMatch.or = [];
+      for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
+        newMatch.or.push(parent.value.and![index]);
+      }
+    } else if (props.operator === Bool.or) {
+      newMatch.and = [];
+      for (const index of group.value.toSorted((a, b) => a - b).toReversed()) {
+        newMatch.and.push(parent.value.or![index]);
+      }
     }
-    props.value.items.splice(group.value.toSorted(numberAscending)[0], 0, newGroup);
   }
-  group.value = [];
 }
 
 function addRefinement() {
-  if (props.focus || (props.value?.items?.length > 0 && props.value?.items[props.value?.items?.length - 1].type === "BoolGroup")) {
-    add({ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } });
-  } else {
-    const anyConcept = {
-      type: "ExpressionConstraint",
-      constraintOperator: "<<",
-      conceptSingle: { iri: "any", name: "ANY", code: "any" },
-      conjunction: "and",
-      items: [{ type: "Refinement", property: { constraintOperator: "<<" }, operator: "=", value: { constraintOperator: "<<" } }]
-    };
-    add(anyConcept);
-  }
+  match.value.where = {
+    descendantsOrSelfOf: true,
+    is: [
+      {
+        descendantsOrSelfOf: true
+      }
+    ]
+  };
 }
 
 function requestUnGroupItems() {
-  emit("unGroupItems", props.value);
+  emit("unGroupItems", match.value);
 }
 
 function unGroupItems(groupedItems: any) {
-  const foundItem = props.value.items.find((item: any) => isEqual(item, groupedItems));
-  const foundItemIndex = props.value.items.findIndex((item: any) => isEqual(item, groupedItems));
-  if (foundItem) {
-    props.value.items.splice(foundItemIndex, 1);
-    for (const groupedItem of groupedItems.items) {
-      props.value.items.splice(foundItemIndex, 0, groupedItem);
-    }
-  }
+  console.log("unGroupItems", groupedItems);
 }
 </script>
 
@@ -374,9 +345,10 @@ function unGroupItems(groupedItems: any) {
 }
 
 .component-container {
-  flex: 0 1 auto;
+  flex: 1 0 auto;
   display: flex;
   flex-flow: row nowrap;
+  width: 100%;
 }
 
 .builder-button {

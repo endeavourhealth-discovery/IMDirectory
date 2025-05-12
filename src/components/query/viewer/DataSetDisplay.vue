@@ -3,37 +3,39 @@
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <span v-if="dataSet.name">{{ dataSet.name }}</span>
     <ClauseEditorMenus v-if="editMode" editor="queryEditor" v-model:query="dataSet" v-model:parentQuery="parentQuery" class="relative inline-block" />
-
     <span v-if="dataSet.return">
       <span v-if="dataSet.return.as">Group : {{ dataSet.return.as }}</span>
     </span>
-    <Button v-if="dataSet.match || dataSet.return" text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
-    <span v-if="matchExpand && (isArrayHasLength(dataSet.match) || isArrayHasLength(dataSet.where))">
+    <Button
+      v-if="hasCriteria(dataSet) || dataSet.return"
+      text
+      :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'"
+      @click="matchToggle"
+    />
+    <span v-if="matchExpand && hasCriteria(dataSet)">
       <span>If :</span>
       <RecursiveMatchDisplay
-        v-for="(nestedQuery, index) in dataSet.match"
         :inline="false"
-        :match="nestedQuery"
+        :match="dataSet"
         :key="index"
         :clause-index="index"
         :property-index="index"
         :depth="1"
-        :operator="dataSet.bool"
+        :operator="Bool.and"
         :expanded="false"
         :parent-match="query"
       />
-      <span v-if="isArrayHasLength(dataSet.where)">
+      <span v-if="dataSet.where">
         <RecursiveWhereDisplay
-          v-for="(nestedWhere, index) in dataSet.where"
-          :where="nestedWhere"
+          :where="dataSet.where"
           :depth="0"
           :property-index="index"
           :key="index"
           :index="index"
-          :operator="dataSet.bool"
+          :operator="Bool.and"
           :expandedSet="false"
           :editMode="editMode"
-          :inline="!nestedWhere.where"
+          :inline="!dataSet.where.and && !dataSet.where.or"
         />
       </span>
     </span>
@@ -46,7 +48,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { DisplayMode, Query } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Query } from "@/interfaces/AutoGen";
 import { onMounted, watch, ref, toRaw } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
@@ -71,6 +73,13 @@ const dataSet = ref({ ...props.query });
 
 async function matchToggle() {
   matchExpand.value = !matchExpand.value;
+}
+
+function hasCriteria(query: Query): boolean {
+  if (query.instanceOf || query.and || query.or || query.where) {
+    return true;
+  }
+  return false;
 }
 
 onMounted(async () => {

@@ -99,7 +99,7 @@ import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import EditMatch from "./EditMatch.vue";
 import type { MenuItem } from "primevue/menuitem";
-import { EntityService} from "@/services";
+import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
 
@@ -184,12 +184,6 @@ function onSave() {
 function onCancel() {
   init();
   visible.value = false;
-}
-
-function onMatchAdd(match: Match) {
-  if (!editMatch.value) editMatch.value = {};
-  if (!editMatch.value.match?.length) editMatch.value.match = [];
-  editMatch.value.match.push(match);
 }
 
 function saveVariable() {
