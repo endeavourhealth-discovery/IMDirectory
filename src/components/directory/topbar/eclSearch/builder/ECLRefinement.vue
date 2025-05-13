@@ -21,7 +21,7 @@
                   :options="getBooleanOptions(parent!, parentOperator as Bool)"
                   option-label="label"
                   option-value="value"
-                  @update:modelValue="val => toggleBool(val)"
+                  @update:modelValue="val => toggleBool(parent!, where, parentOperator as Bool, val as Bool, index)"
                 />
               </div>
               <div v-for="(item, index) in where[operator]" :key="index">
@@ -54,7 +54,7 @@
           :options="getBooleanOptions(parent!, parentOperator as Bool)"
           option-label="label"
           option-value="value"
-          @update:modelValue="val => toggleBool(val)"
+          @update:modelValue="val => toggleBool(parent!, where, parentOperator as Bool, val as Bool, index)"
         />
       </div>
       <div class="group-checkbox">
@@ -141,7 +141,7 @@ import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef } from 
 import { useFilterStore } from "@/stores/filterStore";
 import { cloneDeep, isEqual } from "lodash-es";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getBooleanOptions } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions, toggleBool } from "@/helpers/IMQueryBuilder";
 
 import { SearchOptions } from "@/interfaces";
 import {
@@ -279,18 +279,6 @@ function mouseover(event: any) {
 function mouseout(event: any) {
   event.stopPropagation();
   hover.value = false;
-}
-
-function toggleBool(bool: Bool) {
-  if (!props.parentOperator || !parent.value) return;
-  const from = props.parentOperator as Bool;
-  const to = bool as Bool;
-  const boolGroup = parent.value as Record<Bool, unknown>;
-  if (from === to) return;
-  if (boolGroup[from]) {
-    (boolGroup as any)[to] = boolGroup[from];
-    delete boolGroup[from];
-  }
 }
 
 function updatePropertyConstraint(e: { value: string }) {

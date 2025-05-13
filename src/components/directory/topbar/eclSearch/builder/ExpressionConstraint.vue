@@ -36,7 +36,7 @@
             :options="getBooleanOptions(parent!, parentOperator as Bool)"
             option-label="label"
             option-value="value"
-            @update:modelValue="val => toggleBool(val as Bool)"
+            @update:modelValue="val => toggleBool(parent!, match, parentOperator as Bool, val as Bool, index)"
           />
           <span class="left-container">
             <div v-if="parent && (parent[parentOperator as keyof typeof parent] as Match[]).length > 2" class="group-checkbox">
@@ -179,7 +179,7 @@ import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Match, Bool, Where } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { getBooleanOptions } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions, toggleBool } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   index: number;
@@ -258,31 +258,6 @@ function addConceptToGroup() {
       boolMatch[bool]!.push(concept);
       parent.value = boolMatch;
     }
-  }
-}
-
-function toggleBool(bool: Bool) {
-  if (!props.parentOperator || !parent.value) return;
-  const from = props.parentOperator as Bool;
-  const to = bool as keyof Match;
-  if (from === to) return;
-  if (to === Bool.not) {
-    const sourceArray = parent.value[from];
-    if (Array.isArray(sourceArray) && sourceArray.length > 1) {
-      sourceArray.splice(props.index, 1);
-      parent.value.not = parent.value.not || [];
-      parent.value.not.push(match.value);
-    }
-    return;
-  }
-  if (from === Bool.not) {
-    if (parent.value.or) parent.value.or.push(match.value);
-    else if (parent.value.and) parent.value.and.push(match.value);
-    parent.value.not!.splice(props.index, 1);
-    if (parent.value.not!.length === 0) delete parent.value.not;
-  } else if (parent.value[from]) {
-    (parent.value as any)[to] = parent.value[from];
-    delete parent.value[from];
   }
 }
 

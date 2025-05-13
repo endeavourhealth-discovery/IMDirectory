@@ -38,6 +38,31 @@ export const booleanWhereOptions = [
   }
 ];
 
+export function toggleBool(parent: BoolGroup<Match | Where | undefined>, child: BoolGroup<Match | Where>, oldBool: Bool, newBool: Bool, index: number) {
+  if (!parent) return;
+  const from = oldBool as keyof typeof parent;
+  const to = newBool as keyof typeof parent;
+  if (from === to) return;
+  if (to === Bool.not) {
+    const sourceArray = parent[from];
+    if (Array.isArray(sourceArray) && sourceArray.length > 1) {
+      sourceArray.splice(index, 1);
+      parent.not = parent.not || [];
+      parent.not.push(child);
+    }
+    return;
+  }
+  if (from === Bool.not) {
+    if (parent.or) parent.or.push(child);
+    else if (parent.and) parent.and.push(child);
+    parent.not!.splice(index, 1);
+    if (parent.not!.length === 0) delete parent.not;
+  } else if (parent[from]) {
+    parent[to] = parent[from];
+    delete parent[from];
+  }
+}
+
 export function getBooleanOptions(parent: BoolGroup<Match | Where>, operator: Bool): any[] {
   const options = [];
   options.push({
