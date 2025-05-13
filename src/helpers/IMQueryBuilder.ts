@@ -1,4 +1,4 @@
-import { Match, OrderDirection, Node, Query, QueryRequest, SearchBinding, TTIriRef, Where, Element, Bool } from "@/interfaces/AutoGen";
+import { Match, OrderDirection, BoolGroup, Node, Query, QueryRequest, SearchBinding, TTIriRef, Where, Element, Bool } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
@@ -38,46 +38,26 @@ export const booleanWhereOptions = [
   }
 ];
 
-export function getBooleanMatchOptions(parent: Match, operator: Bool): any {
+export function getBooleanOptions(parent: BoolGroup<Match | Where>, operator: Bool): any[] {
   const options = [];
-  if (operator === Bool.or) {
+  options.push({
+    label: "And",
+    value: "and",
+    tooltip: "All of this group must be true"
+  });
+  options.push({
+    label: "Or",
+    value: "or",
+    tooltip: "At least on of this group must be true"
+  });
+  if (parent[operator as keyof typeof parent] && parent[operator as keyof typeof parent]!.length > 1)
     options.push({
-      label: "And",
-      value: "and",
-      tooltip: "All of this group must be true"
+      label: "Minus",
+      value: "not",
+      tooltip: "Exclude this item or  group "
     });
-    if (parent.or && parent.or.length > 1)
-      options.push({
-        label: "Minus",
-        value: "not",
-        tooltip: "Exclude this item or  group "
-      });
-  } else if (operator === Bool.and) {
-    options.push({
-      label: "Or",
-      value: "or",
-      tooltip: "At least on of this group must be true"
-    });
-    if (parent.and && parent.and.length > 1)
-      options.push({
-        label: "Minus",
-        value: "not",
-        tooltip: "Exclude this item or  group "
-      });
-  } else if (operator === Bool.not) {
-    if (parent.and)
-      options.push({
-        label: "Or",
-        value: "or",
-        tooltip: "At least on of this group must be true"
-      });
-  }
-  if (parent.or)
-    options.push({
-      label: "And",
-      value: "and",
-      tooltip: "All of this group must be true"
-    });
+
+  return options;
 }
 
 export const constraintOperatorOptions = [

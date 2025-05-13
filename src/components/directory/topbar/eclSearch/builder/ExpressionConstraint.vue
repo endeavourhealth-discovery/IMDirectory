@@ -33,13 +33,13 @@
             v-if="!rootBool"
             class="operator-selector"
             :modelValue="parentOperator"
-            :options="getBooleanMatchOptions(parent!, parentOperator as Bool)"
+            :options="getBooleanOptions(parent!, parentOperator as Bool)"
             option-label="label"
             option-value="value"
             @update:modelValue="val => toggleBool(val as Bool)"
           />
           <span class="left-container">
-            <div class="group-checkbox">
+            <div v-if="parent && (parent[parentOperator as keyof typeof parent] as Match[]).length > 2" class="group-checkbox">
               <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" data-testid="group-checkbox" />
               <label :for="'group' + index">Select</label>
             </div>
@@ -179,7 +179,7 @@ import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Match, Bool, Where } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { getBooleanMatchOptions } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   index: number;

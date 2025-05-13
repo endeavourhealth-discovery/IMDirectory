@@ -18,7 +18,7 @@
                 <Select
                   class="operator-selector"
                   :modelValue="parentOperator"
-                  :options="booleanWhereOptions"
+                  :options="getBooleanOptions(parent!, parentOperator as Bool)"
                   option-label="label"
                   option-value="value"
                   @update:modelValue="val => toggleBool(val)"
@@ -51,7 +51,7 @@
         <Select
           class="operator-selector"
           :modelValue="parentOperator"
-          :options="booleanWhereOptions"
+          :options="getBooleanOptions(parent!, parentOperator as Bool)"
           option-label="label"
           option-value="value"
           @update:modelValue="val => toggleBool(val)"
@@ -141,7 +141,7 @@ import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef } from 
 import { useFilterStore } from "@/stores/filterStore";
 import { cloneDeep, isEqual } from "lodash-es";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { booleanWhereOptions } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions } from "@/helpers/IMQueryBuilder";
 
 import { SearchOptions } from "@/interfaces";
 import {
@@ -205,8 +205,6 @@ const hasProperty = computed(() => {
 const emit = defineEmits<{
   (e: "update:parentOperator", value: string): void;
 }>();
-
-
 
 watch(
   () => cloneDeep(where.value),

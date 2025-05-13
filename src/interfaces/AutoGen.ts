@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-11 11:36:07.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-13 10:55:06.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -117,6 +117,9 @@ export interface FunctionTemplate extends Entity {
     parameterTemplate?: ParameterTemplate[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface MapFunction extends TTIriRef {
     argument?: Argument[];
     conceptMap?: { [index: string]: string };
@@ -131,6 +134,9 @@ export interface ModelDocument {
     function?: MapFunction[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface NodeShape extends TTIriRef {
     property?: PropertyShape[];
     subType?: TTIriRef[];
@@ -153,6 +159,9 @@ export interface ParameterTemplate extends Entity {
     valueTemplate?: ValueTemplate[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface PropertyRange extends TTIriRef {
     pattern?: string;
     intervalUnit?: TTIriRef;
@@ -240,11 +249,17 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    qualifier?: string;
-    operator?: Operator;
     valueParameter?: string;
-    valueLabel?: string;
+    qualifier?: string;
     unit?: TTIriRef;
+    operator?: Operator;
+    valueLabel?: string;
+}
+
+export interface BoolGroup<T> {
+    and?: T[];
+    not?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -277,10 +292,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -306,7 +321,7 @@ export interface IriLD {
     description?: string;
 }
 
-export interface Match extends IriLD {
+export interface Match extends IriLD, BoolGroup<Match> {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -365,6 +380,9 @@ export interface PathDocument {
     match?: Match[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface PathQuery extends TTIriRef {
     source?: TTIriRef;
     target?: TTIriRef;
@@ -446,6 +464,9 @@ export interface ReturnProperty {
     return?: Return;
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface Update extends TTIriRef {
     match?: Match[];
     delete?: Delete[];
@@ -461,14 +482,15 @@ export interface When {
     case?: Case;
 }
 
-export interface Where extends Element, Assignable {
+export interface Where extends Element, Assignable, BoolGroup<Where> {
     range?: Range;
     isNull?: boolean;
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
     typeOf?: Node;
     is?: Node[];
-    not?: boolean;
+    notIs?: Node[];
+    not?: Where[];
     isNotNull?: boolean;
     function?: FunctionClause;
     valueVariable?: string;
@@ -767,6 +789,9 @@ export interface WORKFLOW {
 export interface XSD {
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface TTIriRef extends TTValue, Serializable {
     name?: string;
     description?: string;
@@ -780,12 +805,12 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    type?: TTArray;
-    status?: TTIriRef;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
+    status?: TTIriRef;
     code?: string;
     prefixes?: TTPrefix[];
 }
@@ -818,7 +843,6 @@ export interface Exception extends Throwable {
 }
 
 export interface TTValue extends Serializable {
-    order?: number;
 }
 
 export interface TTArray extends Serializable {
