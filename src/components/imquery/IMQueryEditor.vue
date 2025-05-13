@@ -52,8 +52,8 @@ const { populateVariableMap } = setupIMQueryBuilderActions();
 watch(
   () => cloneDeep(selectedBaseType.value),
   (newValue, oldValue) => {
-    if (newValue?.iri !== oldValue?.iri && oldValue?.iri && editQueryDefinition.value.typeOf?.["@id"]) editQueryDefinition.value.match = [];
-    if (selectedBaseType.value) editQueryDefinition.value.typeOf = { "@id": selectedBaseType.value.iri } as Node;
+    if (newValue?.iri !== oldValue?.iri && oldValue?.iri && editQueryDefinition.value.typeOf?.iri) editQueryDefinition.value.match = [];
+    if (selectedBaseType.value) editQueryDefinition.value.typeOf = { iri: selectedBaseType.value.iri } as Node;
   }
 );
 
@@ -63,7 +63,7 @@ onMounted(async () => {
     editQueryDefinition.value = cloneDeep(props.queryDefinition);
     if (editQueryDefinition.value.typeOf)
       selectedBaseType.value = {
-        iri: editQueryDefinition.value.typeOf?.["@id"],
+        iri: editQueryDefinition.value.typeOf?.iri,
         name: editQueryDefinition.value.typeOf?.name
       } as SearchResultSummary;
 
@@ -75,8 +75,8 @@ onMounted(async () => {
 
 function buildImQueryForBaseType() {
   const searchOptions: SearchOptions = {
-    status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
-    types: [{ "@id": SHACL.NODESHAPE }]
+    status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
+    types: [{ iri: SHACL.NODESHAPE }]
   } as SearchOptions;
   imQueryForBaseType.value = buildIMQueryFromFilters(searchOptions);
 }

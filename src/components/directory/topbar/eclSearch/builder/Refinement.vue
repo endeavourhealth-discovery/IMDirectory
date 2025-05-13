@@ -230,11 +230,11 @@ onMounted(async () => {
 
 function updateQueryForValueSearch() {
   imQueryForValueSearch.value = {
-    query: { "@id": QUERY.ALLOWABLE_RANGES },
+    query: { iri: QUERY.ALLOWABLE_RANGES },
     argument: [
       {
         parameter: "this",
-        valueIri: { "@id": props.value.property.concept?.iri }
+        valueIri: { iri: props.value.property.concept?.iri }
       }
     ]
   } as QueryRequest;
@@ -244,7 +244,7 @@ function addIfConcept(focus: any[], iris: TTIriRef[]) {
   for (const item of focus) {
     if (item.type === "ExpressionConstraint") {
       if (item.conceptSingle) {
-        iris.push({ "@id": item.conceptSingle.iri });
+        iris.push({ iri: item.conceptSingle.iri });
       } else if (item.conceptBool) {
         addIfConcept(item.conceptBoolItem.items, iris);
       }
@@ -261,7 +261,7 @@ function updateQueryForPropertySearch() {
       const iris: TTIriRef[] = [];
       addIfConcept(props.focus.items, iris);
       imQueryForPropertySearch.value = {
-        query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
+        query: { iri: QUERY.ALLOWABLE_PROPERTIES },
         argument: [
           {
             parameter: "this",
@@ -273,17 +273,17 @@ function updateQueryForPropertySearch() {
       const filterOptions = {
         isAs: ["http://snomed.info/sct#410662002"],
         status: filterStoreOptions.value.status,
-        schemes: filterStoreOptions.value.schemes.filter(filterOption => coreSchemes.value.includes(filterOption["@id"])),
-        types: [{ "@id": RDF.PROPERTY }]
+        schemes: filterStoreOptions.value.schemes.filter(filterOption => coreSchemes.value.includes(filterOption.iri)),
+        types: [{ iri: RDF.PROPERTY }]
       } as SearchOptions;
       imQueryForPropertySearch.value = buildIMQueryFromFilters(filterOptions);
     } else {
       imQueryForPropertySearch.value = {
-        query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
+        query: { iri: QUERY.ALLOWABLE_PROPERTIES },
         argument: [
           {
             parameter: "this",
-            valueIri: { "@id": props.focus.iri }
+            valueIri: { iri: props.focus.iri }
           }
         ]
       } as QueryRequest;
@@ -293,14 +293,14 @@ function updateQueryForPropertySearch() {
 async function updateRanges() {
   if (selectedProperty.value?.iri) {
     const rangesQueryRequest: QueryRequest = {
-      query: { "@id": QUERY.ALLOWABLE_RANGES },
-      argument: [{ parameter: "this", valueIri: { "@id": selectedProperty.value?.iri } }]
+      query: { iri: QUERY.ALLOWABLE_RANGES },
+      argument: [{ parameter: "this", valueIri: { iri: selectedProperty.value?.iri } }]
     } as QueryRequest;
 
     const response = await QueryService.queryIM(rangesQueryRequest);
     if (isArrayHasLength(response.entities))
       for (const range of response.entities) {
-        propertyRanges.value.add(range["@id"]);
+        propertyRanges.value.add(range.iri);
       }
   }
 }
@@ -310,10 +310,10 @@ async function updatePropertyTreeRoots(): Promise<void> {
   if (props.focus) {
     if (isAliasIriRef(props.focus) && props.focus.iri !== SNOMED.ANY) {
       const results = await ConceptService.getSuperiorPropertiesPaged(props.focus.iri);
-      if (results?.result) roots = results.result.map(item => item["@id"]);
+      if (results?.result) roots = results.result.map(item => item.iri);
     } else if (isBoolGroup(props.focus)) {
       const results = await ConceptService.getSuperiorPropertiesBoolFocusPaged(props.focus);
-      if (results?.result) roots = results.result.map(item => item["@id"]);
+      if (results?.result) roots = results.result.map(item => item.iri);
     }
   }
   propertyTreeRoots.value = roots;
@@ -323,7 +323,7 @@ async function updateValueTreeRoots(): Promise<void> {
   let roots = [IM.ONTOLOGY_PARENT_FOLDER];
   if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== SNOMED.ANY) {
     const results = await ConceptService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
-    if (results?.result) roots = results.result.map(item => item["@id"]);
+    if (results?.result) roots = results.result.map(item => item.iri);
   }
   valueTreeRoots.value = roots;
 }

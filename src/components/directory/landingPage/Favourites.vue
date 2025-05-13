@@ -115,8 +115,8 @@ async function getFavouritesDetails() {
   const temp: ExtendedSearchResultSummary[] = [];
   for (const result of results) {
     const clone: ExtendedSearchResultSummary = {} as ExtendedSearchResultSummary;
-    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "@id"])) {
-      if (result["@id"]) clone.iri = result["@id"];
+    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "iri"])) {
+      if (result.iri) clone.iri = result.iri;
       clone.name = result[RDFS.LABEL];
       clone.entityType = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
       clone.icon = getFAIconFromType(result[RDF.TYPE]);

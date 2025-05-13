@@ -105,12 +105,12 @@ async function init() {
 
 function buildIMQueryForConceptSearch() {
   const coreSchemesAsIris = coreSchemes.value.map(iri => {
-    return { "@id": iri };
+    return { iri: iri };
   });
   const searchOptions: SearchOptions = {
     schemes: coreSchemesAsIris,
-    status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
-    types: [{ "@id": IM.CONCEPT }]
+    status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
+    types: [{ iri: IM.CONCEPT }]
   };
   imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }

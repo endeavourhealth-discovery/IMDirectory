@@ -142,7 +142,7 @@ const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
 const searchTerm = ref(props.searchTerm ?? "");
-const typeFilter = computed(() => props.selectedFilterOptions?.types.map(item => item["@id"]));
+const typeFilter = computed(() => props.selectedFilterOptions?.types.map(item => item.iri));
 watch(
   () => treeIri.value,
   () => {

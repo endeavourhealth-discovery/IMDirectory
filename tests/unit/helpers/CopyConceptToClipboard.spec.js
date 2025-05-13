@@ -11,7 +11,7 @@ describe("CopyConceptToClipboard", () => {
     },
     {
       label: "Iri",
-      predicate: "@id",
+      predicate: "iri",
       type: "TextWithLabel",
       size: "50%",
       order: 1
@@ -91,9 +91,9 @@ describe("CopyConceptToClipboard", () => {
   describe("copyConceptToClipboard", () => {
     it("can copy concept to clipboard", async () => {
       const concept = {
-        "@id": "http://snomed.info/sct#47518006",
+        iri: "http://snomed.info/sct#47518006",
         "http://endhealth.info/im#status": {
-          "@id": "http://endhealth.info/im#Active",
+          iri: "http://endhealth.info/im#Active",
           name: "Active"
         },
         "http://www.w3.org/2000/01/rdf-schema#label": "Scoliosis caused by radiation (disorder)"
@@ -105,9 +105,9 @@ describe("CopyConceptToClipboard", () => {
 
     it("can copy concept to clipboard ___ empty arrays", async () => {
       const concept = {
-        "@id": "http://snomed.info/sct#47518006",
+        iri: "http://snomed.info/sct#47518006",
         "http://endhealth.info/im#status": {
-          "@id": "http://endhealth.info/im#Active",
+          iri: "http://endhealth.info/im#Active",
           name: "Active"
         },
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [],
@@ -125,12 +125,12 @@ describe("CopyConceptToClipboard", () => {
         name: "Scoliosis deformity of spine (disorder)",
         iri: "http://snomed.info/sct#298382003",
         code: "298382003",
-        status: { name: "Active", "@id": "http://endhealth.info/im#Active" },
+        status: { name: "Active", iri: "http://endhealth.info/im#Active" },
         scheme: {
           name: "Snomed-CT code",
-          "@id": "http://endhealth.info/im#SnomedCodeScheme"
+          iri: "http://endhealth.info/im#SnomedCodeScheme"
         },
-        entityType: [{ name: "Class", "@id": "http://www.w3.org/2002/07/owl#Class" }],
+        entityType: [{ name: "Class", iri: "http://www.w3.org/2002/07/owl#Class" }],
         isDescendentOf: [],
         weighting: 0,
         match: "Scoliosis"
@@ -146,10 +146,10 @@ describe("CopyConceptToClipboard", () => {
         name: "Scoliosis deformity of spine (disorder)",
         iri: "http://snomed.info/sct#298382003",
         code: "298382003",
-        status: { name: "Active", "@id": "http://endhealth.info/im#Active" },
+        status: { name: "Active", iri: "http://endhealth.info/im#Active" },
         scheme: {
           name: "Snomed-CT code",
-          "@id": "http://endhealth.info/im#SnomedCodeScheme"
+          iri: "http://endhealth.info/im#SnomedCodeScheme"
         },
         entityType: [],
         isDescendentOf: [],
@@ -166,7 +166,7 @@ describe("CopyConceptToClipboard", () => {
   describe("ConceptObjectToCopyString", () => {
     it("can convert conceptObjectToCopyString ___ object 0 1", () => {
       expect(
-        conceptObjectToCopyString("http://endhealth.info/im#status", { "@id": "http://endhealth.info/im#Active", name: "Active" }, 0, 1, CONFIG)
+        conceptObjectToCopyString("http://endhealth.info/im#status", { iri: "http://endhealth.info/im#Active", name: "Active" }, 0, 1, CONFIG)
       ).toStrictEqual({
         label: "Status",
         value: "Status: Active"
@@ -175,7 +175,7 @@ describe("CopyConceptToClipboard", () => {
 
     it("can convert conceptObjectToCopyString ___ object 1 4", () => {
       expect(
-        conceptObjectToCopyString("http://endhealth.info/im#status", { "@id": "http://endhealth.info/im#Active", name: "Active" }, 1, 4, CONFIG)
+        conceptObjectToCopyString("http://endhealth.info/im#status", { iri: "http://endhealth.info/im#Active", name: "Active" }, 1, 4, CONFIG)
       ).toStrictEqual({
         label: "Status",
         value: "Status: Active,\n"
@@ -193,11 +193,11 @@ describe("CopyConceptToClipboard", () => {
               type: [
                 {
                   name: "Organisation  (record type)",
-                  "@id": "http://endhealth.info/im#Organisation"
+                  iri: "http://endhealth.info/im#Organisation"
                 },
-                { name: "Class", "@id": "http://www.w3.org/2002/07/owl#Class" }
+                { name: "Class", iri: "http://www.w3.org/2002/07/owl#Class" }
               ],
-              "@id": "http://snomed.info/sct#111266001"
+              iri: "http://snomed.info/sct#111266001"
             },
             {
               name: "Acrodysplasia scoliosis (disorder)",
@@ -205,11 +205,11 @@ describe("CopyConceptToClipboard", () => {
               type: [
                 {
                   name: "Address (record type)",
-                  "@id": "http://endhealth.info/im#Address"
+                  iri: "http://endhealth.info/im#Address"
                 },
-                { name: "Class", "@id": "http://www.w3.org/2002/07/owl#Class" }
+                { name: "Class", iri: "http://www.w3.org/2002/07/owl#Class" }
               ],
-              "@id": "http://snomed.info/sct#773773006"
+              iri: "http://snomed.info/sct#773773006"
             }
           ],
           0,
@@ -234,11 +234,11 @@ describe("CopyConceptToClipboard", () => {
             type: [
               {
                 name: "Organisation  (record type)",
-                "@id": "http://endhealth.info/im#Organisation"
+                iri: "http://endhealth.info/im#Organisation"
               },
-              { name: "Class", "@id": "http://www.w3.org/2002/07/owl#Class" }
+              { name: "Class", iri: "http://www.w3.org/2002/07/owl#Class" }
             ],
-            "@id": "http://snomed.info/sct#111266001"
+            iri: "http://snomed.info/sct#111266001"
           },
           {
             property: { name: "Acrodysplasia scoliosis (disorder)" },
@@ -246,11 +246,11 @@ describe("CopyConceptToClipboard", () => {
             type: [
               {
                 name: "Address (record type)",
-                "@id": "http://endhealth.info/im#Address"
+                iri: "http://endhealth.info/im#Address"
               },
-              { name: "Class", "@id": "http://www.w3.org/2002/07/owl#Class" }
+              { name: "Class", iri: "http://www.w3.org/2002/07/owl#Class" }
             ],
-            "@id": "http://snomed.info/sct#773773006"
+            iri: "http://snomed.info/sct#773773006"
           }
         ],
         0,

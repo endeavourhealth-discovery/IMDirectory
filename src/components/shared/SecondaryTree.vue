@@ -167,9 +167,9 @@ async function createTree(
   parentPosition: number
 ): Promise<void> {
   loading.value = true;
-  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept["@id"] as string, concept[RDF.TYPE], concept.hasChildren, null, undefined);
+  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri as string, concept[RDF.TYPE], concept.hasChildren, null, undefined);
   children.forEach(child => {
-    selectedConcept.children?.push(createTreeNode(child.name, child["@id"], child.type as TTIriRef[], child.hasChildren, selectedConcept, child.orderNumber));
+    selectedConcept.children?.push(createTreeNode(child.name, child.iri, child.type as TTIriRef[], child.hasChildren, selectedConcept, child.orderNumber));
   });
   if (totalCount.value >= pageSize.value) {
     selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
@@ -189,7 +189,7 @@ function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPositi
     if (parentHierarchy.length === 1) {
       currentParent.value = {
         name: parentHierarchy[parentPosition].name,
-        iri: parentHierarchy[parentPosition]["@id"],
+        iri: parentHierarchy[parentPosition].iri,
         listPosition: 0
       };
       alternateParents.value = [] as TreeParent[];
@@ -198,13 +198,13 @@ function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPositi
         if (i === parentPosition) {
           currentParent.value = {
             name: parentHierarchy[parentPosition].name,
-            iri: parentHierarchy[parentPosition]["@id"],
+            iri: parentHierarchy[parentPosition].iri,
             listPosition: i
           };
         } else {
           alternateParents.value.push({
             name: parentHierarchy[i].name,
-            iri: parentHierarchy[i]["@id"],
+            iri: parentHierarchy[i].iri,
             listPosition: i
           });
         }
@@ -237,7 +237,7 @@ function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parent
   let parentNode = {} as TreeNode;
   for (let i = 0; i < parents.length; i++) {
     if (i === parentPosition) {
-      parentNode = createTreeNode(parents[i].name, parents[i]["@id"], parents[i].type as TTIriRef[], true, null, undefined);
+      parentNode = createTreeNode(parents[i].name, parents[i].iri, parents[i].type as TTIriRef[], true, null, undefined);
       if (parentNode.children && parentNode.key) {
         parentNode.children.push(root.value[0]);
         if (!isObjectHasKeys(expandedKeys.value, [parentNode.key])) {
@@ -258,7 +258,7 @@ async function setExpandedParentParents(): Promise<void> {
     parentPosition.value = 0;
     currentParent.value = {
       name: result[0].name,
-      iri: result[0]["@id"],
+      iri: result[0].iri,
       listPosition: 0
     };
   } else {
@@ -266,13 +266,13 @@ async function setExpandedParentParents(): Promise<void> {
       if (i === 0) {
         currentParent.value = {
           name: result[i].name,
-          iri: result[i]["@id"],
+          iri: result[i].iri,
           listPosition: i
         };
       } else {
         alternateParents.value.push({
           name: result[i].name,
-          iri: result[i]["@id"],
+          iri: result[i].iri,
           listPosition: i
         });
       }

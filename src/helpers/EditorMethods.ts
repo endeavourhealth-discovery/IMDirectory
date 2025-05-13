@@ -39,7 +39,7 @@ export function getTreeQueryIri(select: TTIriRef[]) {
   if (!isArrayHasLength(select) || select.length < 2) {
     return undefined;
   }
-  return select[1]["@id"];
+  return select[1].iri;
 }
 
 function getNameFromIri(iri: string) {
@@ -52,9 +52,9 @@ function getNameFromIri(iri: string) {
 }
 
 function extractComponentFromIri(type: TTIriRef) {
-  const name = getNameFromIri(type["@id"]);
+  const name = getNameFromIri(type.iri);
   if (name.includes("_")) return name.split("_")[1];
-  else throw new Error("Iri is not of type ComponentType: " + type["@id"]);
+  else throw new Error("Iri is not of type ComponentType: " + type.iri);
 }
 
 export function processComponentType(type: TTIriRef | undefined) {
@@ -63,7 +63,7 @@ export function processComponentType(type: TTIriRef | undefined) {
   const componentList = enumToArray(ComponentType);
   const found = componentList.find(c => c.toLowerCase() === typeName.toLowerCase());
   if (found) return found;
-  else throw new Error("Invalid component type encountered while processing component types: " + type["@id"]);
+  else throw new Error("Invalid component type encountered while processing component types: " + type.iri);
 }
 
 export default { processArguments, processComponentType, getTreeQueryIri };

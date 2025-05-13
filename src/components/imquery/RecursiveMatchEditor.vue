@@ -1,7 +1,7 @@
 <template>
   <div id="recursive-match-edit" :style="{ paddingLeft: depth + 'rem' }" class="flex items-start">
     <AddFeature v-if="addFeature" v-model:addFeature="addFeature" :base-type="parentMatch.typeOf!" @onAddMatch="addNewMatch" @on-add-cohort="addInstanceOf" />
-    <EditMatchDialog v-model:show-dialog="editFeature" :match="selectedMatch" :query-base-type-iri="match.typeOf!['@id']" @save-changes="onSaveChanges" />
+    <EditMatchDialog v-model:show-dialog="editFeature" :match="selectedMatch" :query-base-type-iri="match.typeOf!.iri" @save-changes="onSaveChanges" />
     <span v-if="depth > 0 && !match.rule && !match.match" class="mr-2 mt-1">•</span>
     <span v-if="match.rule">
       <span class="rule">Rule {{ clauseIndex + 1 }}</span>
@@ -40,7 +40,7 @@
         <span v-if="match.instanceOf">
           <span v-for="(instanceOf, index) in match.instanceOf" :key="`instanceOf-${index}`">
             <span v-if="instanceOf.qualifier" v-html="instanceOf.qualifier"></span>
-            <IMViewerLink v-if="instanceOf['@id']" :iri="instanceOf['@id']" :label="instanceOf.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+            <IMViewerLink v-if="instanceOf.iri" :iri="instanceOf.iri" :label="instanceOf.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
           </span>
         </span>
         <span v-if="!match.match && !match.where" class="relative-inline-block">

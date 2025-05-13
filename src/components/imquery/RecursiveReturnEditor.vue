@@ -1,7 +1,7 @@
 <template>
   <span v-if="isArrayHasLength(select.property)" class="pl-8">
     <div v-for="(item, index) in select.property" :key="index" class="pl-12">
-      <IMViewerLink v-if="item['@id']" :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+      <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
       <span v-if="item.return">
         <span>{</span>
         <RecursiveReturnEditor :select="item.return" />

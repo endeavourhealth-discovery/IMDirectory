@@ -3,19 +3,19 @@
     <div class="title-buttons-container">
       <div class="title-container">
         <h2 v-if="!showSelect" class="title">
-          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
+          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity.iri" class="p-mx-1 type-icon" />
           <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
         </h2>
         <h2 v-else class="title">
-          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
+          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity.iri" class="p-mx-1 type-icon" />
           <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
         </h2>
       </div>
       <div class="entity-buttons-container">
         <ActionButtons
-          v-if="entity['@id']"
+          v-if="entity.iri"
           :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'download', 'favourite'] : ['findInTree', 'view', 'addToList']"
-          :iri="entity['@id']"
+          :iri="entity.iri"
           :name="entity[RDFS.LABEL]"
           :type="'entityButton'"
           @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="flex flex-row">
-      <TextWithLabel label="Iri" :data="entity['@id']" v-if="!!entity['@id']" />
+      <TextWithLabel label="Iri" :data="entity.iri" v-if="!!entity.iri" />
       <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
     </div>
     <div class="flex flex-row justify-start">
@@ -65,7 +65,7 @@ const emit = defineEmits<{
 }>();
 
 function getIcon(entity: TTEntity) {
-  if (entity["@id"] === IM.FAVOURITES) return ["fa-solid", "star"];
+  if (entity.iri === IM.FAVOURITES) return ["fa-solid", "star"];
   return getFAIconFromType(entity[RDF.TYPE]);
 }
 

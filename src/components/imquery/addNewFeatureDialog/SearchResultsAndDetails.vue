@@ -140,7 +140,7 @@ watch(
       if (pathSuggestions.value.length && !props.selectedPath) emit("update:selectedPath", pathSuggestions.value[0]);
       else if (props.selectedPath && isProperty(detailsEntity.value?.[RDF.TYPE])) emit("update:selectedPath", pathSuggestions.value[0]);
       else if (isQuery(detailsEntity.value?.[RDF.TYPE]) || isFeature(detailsEntity.value?.[RDF.TYPE]) || isDataSet(detailsEntity.value?.[RDF.TYPE]))
-        addToSelectedList(detailsEntity.value["@id"], detailsEntity.value[RDFS.LABEL]);
+        addToSelectedList(detailsEntity.value.iri, detailsEntity.value[RDFS.LABEL]);
     }
     activePage.value = 1;
     emit("selectedIri", newValue);
@@ -190,8 +190,8 @@ function onUpdatedPathOption(path: Match) {
 async function getPathOptions(dataModelIri: string | undefined, valueIri: string) {
   if (dataModelIri && valueIri) {
     const pathQuery: PathQuery = {
-      source: { "@id": dataModelIri } as TTIriRef,
-      target: { "@id": valueIri } as TTIriRef
+      source: { iri: dataModelIri } as TTIriRef,
+      target: { iri: valueIri } as TTIriRef
     } as PathQuery;
     const result = await QueryService.pathQuery(pathQuery);
     if (result?.match?.length) return result.match;
@@ -279,7 +279,7 @@ async function setQueryPath(iri: string) {
 }
 
 function addToSelectedList(iri: string, name: string) {
-  selectedValueMap.value.set(iri, { "@id": iri, name: name });
+  selectedValueMap.value.set(iri, { iri: iri, name: name });
 }
 
 async function hasFeatureOrQuerySelected() {

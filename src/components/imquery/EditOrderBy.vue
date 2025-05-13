@@ -4,7 +4,7 @@
   </div>
   <div v-else-if="orderBy.property" class="order-by">
     <InputText value="Order by" disabled class="w-full md:w-20" />
-    <Select v-model="orderBy.property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
+    <Select v-model="orderBy.property.iri" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
     <Select
       v-model="orderBy.property.direction"
       :options="getDirectionOptions(orderBy.property)"
@@ -57,8 +57,8 @@ async function getOrderProperties() {
   if (isObjectHasKeys(entity, [SHACL.PROPERTY]))
     for (const prop of entity[SHACL.PROPERTY]) {
       const propType = prop[SHACL.DATATYPE] ?? prop[SHACL.CLASS] ?? prop[SHACL.NODE];
-      if (orderablePropertyTypes.includes(propType[0]["@id"])) {
-        const propId = prop[SHACL.PATH][0]["@id"];
+      if (orderablePropertyTypes.includes(propType[0].iri)) {
+        const propId = prop[SHACL.PATH][0].iri;
         const propName = prop[SHACL.PATH][0].name;
         orderProperties.push({ name: propName, iri: propId, entityType: propType });
       }
@@ -68,12 +68,12 @@ async function getOrderProperties() {
 
 function getDirectionOptions(property: OrderDirection) {
   const directionOptions: { name: string; value: Order }[] = [];
-  const prop = orderProperties.value.find(op => op.iri == property["@id"]);
+  const prop = orderProperties.value.find(op => op.iri == property.iri);
   if (prop) {
-    if (prop.entityType[0]["@id"] === IM.DATE_TIME) {
+    if (prop.entityType[0].iri === IM.DATE_TIME) {
       directionOptions.push({ name: "earliest", value: Order.ascending });
       directionOptions.push({ name: "latest", value: Order.descending });
-    } else if (prop.entityType[0]["@id"] === XSD.INTEGER) {
+    } else if (prop.entityType[0].iri === XSD.INTEGER) {
       directionOptions.push({ name: "lowest", value: Order.ascending });
       directionOptions.push({ name: "highest", value: Order.descending });
     } else {

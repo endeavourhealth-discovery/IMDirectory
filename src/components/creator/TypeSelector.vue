@@ -45,13 +45,13 @@ onMounted(async () => {
 async function setOptions() {
   loading.value = true;
   const entityTypes = await EntityService.getEntityChildren("http://endhealth.info/im#EntityTypes");
-  typeOptions.value = entityTypes.filter(entityType => editorShapes.some(shape => shape.targetShape?.["@id"] === entityType["@id"]));
+  typeOptions.value = entityTypes.filter(entityType => editorShapes.some(shape => shape.targetShape?.iri === entityType.iri));
   loading.value = false;
 }
 
 function typeSelected(data: EntityReferenceNode) {
   const result: TTEntity = {};
-  result[RDF.TYPE] = [{ "@id": data["@id"], name: data.name }];
+  result[RDF.TYPE] = [{ iri: data.iri, name: data.name }];
   if (entityUpdate) entityUpdate(result);
   props.updateShowTypeSelector(false);
 }

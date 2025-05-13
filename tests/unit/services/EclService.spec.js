@@ -14,11 +14,11 @@ describe("EclService ___ axios success", () => {
     const fakerResults = [fakerFactory.conceptSummary.create()];
     axios.post.mockResolvedValue({ entities: fakerResults, count: fakerResults.length, page: 1 });
     const controller = new AbortController();
-    const result = await EclService.ECLSearch({ eclQuery: { from: { "@id": "testString" } }, includeLegacy: false, limit: 1000 }, controller);
+    const result = await EclService.ECLSearch({ eclQuery: { from: { iri: "testString" } }, includeLegacy: false, limit: 1000 }, controller);
     expect(axios.post).toBeCalledTimes(1);
     expect(axios.post).toHaveBeenCalledWith(
       Env.API + "api/ecl/public/eclSearch",
-      { eclQuery: { from: { "@id": "testString" } }, includeLegacy: false, limit: 1000 },
+      { eclQuery: { from: { iri: "testString" } }, includeLegacy: false, limit: 1000 },
       {
         signal: controller.signal
       }

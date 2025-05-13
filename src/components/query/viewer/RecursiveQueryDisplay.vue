@@ -66,8 +66,8 @@ async function matchToggle() {
 
 async function expandQuery() {
   loading.value = true;
-  if (props.query["@id"]) {
-    const definedQuery = await QueryService.getDisplayFromQueryIri(props.query["@id"]!, DisplayMode.ORIGINAL);
+  if (props.query.iri) {
+    const definedQuery = await QueryService.getDisplayFromQueryIri(props.query.iri!, DisplayMode.ORIGINAL);
     props.query.match = definedQuery.match;
     props.query.where = definedQuery.where;
     props.query.return = definedQuery.return;

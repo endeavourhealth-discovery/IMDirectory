@@ -238,7 +238,7 @@ function generateChildNodes(mapObject: GenericObject[], location: string, positi
     mapObject.forEach(item => {
       mappedList.push({
         name: item[IM.MAPPED_TO][0].name,
-        iri: item[IM.MAPPED_TO][0]["@id"],
+        iri: item[IM.MAPPED_TO][0].iri,
         priority: item[IM.MAP_PRIORITY],
         assuranceLevel: item[IM.ASSURANCE_LEVEL][0].name
       });
@@ -303,7 +303,7 @@ function generateSimpleMapsNodes(simpleMaps: SimpleMap[], location: string, posi
   simpleMaps.forEach((mapItem: SimpleMap) => {
     simpleMapsList.push({
       name: mapItem.name,
-      iri: mapItem["@id"],
+      iri: mapItem.iri,
       scheme: mapItem.scheme,
       code: mapItem.code
     });
@@ -315,7 +315,7 @@ function generateSimpleMapsNodes(simpleMaps: SimpleMap[], location: string, posi
 function getSimpleMapsNamespaces(): void {
   if (isArrayHasLength(matchedFrom.value) && isArrayHasLength(namespaces.value)) {
     matchedFrom.value.forEach((mapItem: SimpleMap) => {
-      const found = namespaces.value.find((namespace: Namespace) => namespace.iri.toLowerCase() === (mapItem["@id"].split("#")[0] + "#").toLowerCase());
+      const found = namespaces.value.find((namespace: Namespace) => namespace.iri.toLowerCase() === (mapItem.iri.split("#")[0] + "#").toLowerCase());
       if (found && isObjectHasKeys(found, ["name"])) {
         mapItem.scheme = found.name;
       } else {
@@ -325,7 +325,7 @@ function getSimpleMapsNamespaces(): void {
   }
   if (isArrayHasLength(matchedTo.value) && isArrayHasLength(namespaces.value)) {
     matchedTo.value.forEach((mapItem: SimpleMap) => {
-      const found = namespaces.value.find((namespace: Namespace) => namespace.iri.toLowerCase() === (mapItem["@id"].split("#")[0] + "#").toLowerCase());
+      const found = namespaces.value.find((namespace: Namespace) => namespace.iri.toLowerCase() === (mapItem.iri.split("#")[0] + "#").toLowerCase());
       if (found && isObjectHasKeys(found, ["name"])) {
         mapItem.scheme = found.name;
       } else {

@@ -81,7 +81,7 @@ watch(
 
 async function init() {
   loading.value = true;
-  if (props.dataModelIri && property!.value["@id"]) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, property!.value["@id"]);
+  if (props.dataModelIri && property!.value.iri) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, property!.value.iri);
   loading.value = false;
 }
 

@@ -23,7 +23,7 @@ export function setupEditorEntity(mode: EditorMode, updateType: (types: TTIriRef
 
   async function fetchEntity(): Promise<void> {
     if (mode === EditorMode.EDIT && editorIri) {
-      if (editorSavedEntity && isObjectHasKeys(editorSavedEntity, ["@id"]) && editorSavedEntity[IM.ID] === editorIri) {
+      if (editorSavedEntity && isObjectHasKeys(editorSavedEntity, ["iri"]) && editorSavedEntity[IM.ID] === editorIri) {
         editorEntity.value = editorSavedEntity;
         return;
       }
@@ -39,9 +39,9 @@ export function setupEditorEntity(mode: EditorMode, updateType: (types: TTIriRef
 
   function processEntity(entity: any) {
     const result = { ...entity } as any;
-    if (isObjectHasKeys(result, ["@id"])) {
-      result[IM.ID] = result["@id"];
-      delete result["@id"];
+    if (isObjectHasKeys(result, ["iri"])) {
+      result[IM.ID] = result.iri;
+      delete result.iri;
     }
     return result;
   }
@@ -59,8 +59,8 @@ export function setupEditorEntity(mode: EditorMode, updateType: (types: TTIriRef
       if (found) return found;
     }
     if (editorEntity.value[RDF.TYPE].length === 1) return editorEntity.value[RDF.TYPE][0];
-    if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE) !== -1) {
-      const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE);
+    if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type.iri === SHACL.NODESHAPE) !== -1) {
+      const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type.iri === SHACL.NODESHAPE);
       if (found) return found;
     }
     return editorEntity.value[RDF.TYPE][0];

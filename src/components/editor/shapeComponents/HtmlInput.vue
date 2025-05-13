@@ -85,7 +85,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   else return false;
 });
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();

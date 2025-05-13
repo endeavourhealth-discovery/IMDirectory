@@ -25,7 +25,7 @@
                 <li class="tight-spacing">
                   <IMFontAwesomeIcon :icon="getTypeIcon(item)" :style="'color:' + getIconColor(item)" />
                   <span v-if="item.qualifier" v-html="item.qualifier"></span>
-                  <IMViewerLink v-if="item['@id']" :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                  <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
                   <span v-if="item.descendantsOrSelfOf">+subtypes</span>
                 </li>
               </ul>
@@ -94,14 +94,14 @@ function getFormattedValue(value: Assignable) {
 
 function getTypeIcon(is: Node) {
   if (is.memberOf) {
-    return getFAIconFromType([{ "@id": IM.CONCEPT_SET }]);
-  } else return getFAIconFromType([{ "@id": IM.CONCEPT }]);
+    return getFAIconFromType([{ iri: IM.CONCEPT_SET }]);
+  } else return getFAIconFromType([{ iri: IM.CONCEPT }]);
 }
 
 function getIconColor(is: Node) {
   if (is.memberOf) {
-    return getColourFromType([{ "@id": IM.CONCEPT_SET }]);
-  } else return getColourFromType([{ "@id": IM.CONCEPT }]);
+    return getColourFromType([{ iri: IM.CONCEPT_SET }]);
+  } else return getColourFromType([{ iri: IM.CONCEPT }]);
 }
 
 function indentationStyle(inLine: boolean, depth: number) {

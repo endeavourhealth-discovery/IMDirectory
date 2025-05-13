@@ -22,7 +22,7 @@
       :options="data"
       listStyle="max-height: 12rem;overflow: auto;"
       v-model="selected"
-      @change="directService.select(selected['@id'])"
+      @change="directService.select(selected.iri)"
       selectionMessage="Selected"
       emptySelectionMessage="None"
       emptyMessage="None"
@@ -31,7 +31,7 @@
     >
       <template #option="{ option }: any">
         <div class="data-name" data-testid="row-text">
-          {{ option?.name || option?.["@id"] }}
+          {{ option?.name || option?.iri }}
         </div>
       </template>
     </Listbox>

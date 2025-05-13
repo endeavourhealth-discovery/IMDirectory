@@ -114,7 +114,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   else return false;
 });
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 const loading = ref(true);
 const invalid = ref(false);
@@ -136,7 +136,7 @@ onMounted(async () => {
 watch([() => cloneDeep(props.value), () => cloneDeep(props.shape)], ([newPropsValue, newPropsShape], [oldPropsValue, oldPropsShape]) => {
   // updateBuildLength();
   if (!isEqual(newPropsValue, oldPropsValue) && build.value.length) updateBuildPropsValue();
-  if (!isEqual(newPropsShape.path["@id"], oldPropsShape.path["@id"])) init();
+  if (!isEqual(newPropsShape.path.iri, oldPropsShape.path.iri)) init();
 });
 
 watch(
@@ -171,7 +171,7 @@ const finishedChildLoading = computed(
 );
 
 function init() {
-  key = props.shape.path["@id"];
+  key = props.shape.path.iri;
   createBuild();
 }
 
@@ -320,12 +320,12 @@ function moveItemUp(item: ComponentDetails) {
   if (item.position === 0) return;
   const found = build.value.find(o => o.position === item.position);
   if (found && found.showButtons) {
-    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+    if (props.shape.path.iri === SHACL.PROPERTY) {
       found.showButtons.plus = false;
     }
     build.value.splice(item.position, 1);
     build.value.splice(item.position - 1, 0, found);
-    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+    if (props.shape.path.iri === SHACL.PROPERTY) {
       const i = build.value.length - 1;
       const lastItem = build.value[i];
       if (lastItem.showButtons) {
@@ -340,7 +340,7 @@ function moveItemDown(item: ComponentDetails) {
   if (item.position === build.value.length - 1) return;
   const found = build.value.find(o => o.position === item.position);
   if (found) {
-    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+    if (props.shape.path.iri === SHACL.PROPERTY) {
       const i = build.value.length - 1;
       const lastItem = build.value[i];
       if (lastItem.showButtons) {
@@ -349,7 +349,7 @@ function moveItemDown(item: ComponentDetails) {
     }
     build.value.splice(item.position, 1);
     build.value.splice(item.position + 1, 0, found);
-    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+    if (props.shape.path.iri === SHACL.PROPERTY) {
       const i = build.value.length - 1;
       const lastItem = build.value[i];
       if (lastItem.showButtons) {

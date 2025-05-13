@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-01 11:28:47.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-12 11:16:01.
 
 export interface ConceptContextMap {
   id?: string;
@@ -115,6 +115,9 @@ export interface InstanceDTO {
   predicates?: TTIriRef[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface ParentDto extends TTIriRef {
   parents?: ParentDto[];
 }
@@ -142,7 +145,7 @@ export interface SimpleMap {
   name?: string;
   code?: string;
   scheme?: string;
-  "@id"?: string;
+  iri?: string;
 }
 
 export interface ThemeDto {
@@ -275,7 +278,7 @@ export interface ConceptSet extends Entity {
 }
 
 export interface Entity {
-  "@id"?: string;
+  iri?: string;
   status?: TTIriRef;
   scheme?: TTIriRef;
   isContainedIn?: TTEntity[];
@@ -285,7 +288,7 @@ export interface Entity {
 }
 
 export interface FormGenerator {
-  "@id"?: string;
+  iri?: string;
   status?: TTIriRef;
   label?: string;
   comment?: string;
@@ -294,8 +297,8 @@ export interface FormGenerator {
   isContainedIn?: TTEntity[];
   subClassOf?: TTIriRef[];
   scheme?: TTIriRef;
-  iri?: string;
   property?: PropertyShape[];
+  id?: string;
 }
 
 export interface FunctionRequest {
@@ -309,6 +312,9 @@ export interface FunctionTemplate extends Entity {
   parameterTemplate?: ParameterTemplate[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface MapFunction extends TTIriRef {
   argument?: Argument[];
   conceptMap?: { [index: string]: string };
@@ -316,13 +322,16 @@ export interface MapFunction extends TTIriRef {
 }
 
 export interface ModelDocument {
-  "@context"?: TTContext;
+  context?: TTContext;
   query?: QueryEntity[];
   folder?: Entity[];
   conceptSet?: ConceptSet[];
   function?: MapFunction[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface NodeShape extends TTIriRef {
   property?: PropertyShape[];
   subType?: TTIriRef[];
@@ -345,6 +354,9 @@ export interface ParameterTemplate extends Entity {
   valueTemplate?: ValueTemplate[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface PropertyRange extends TTIriRef {
   pattern?: string;
   intervalUnit?: TTIriRef;
@@ -430,8 +442,8 @@ export interface Argument {
 export interface Assignable {
   value?: string;
   valueLabel?: string;
-  unit?: TTIriRef;
   qualifier?: string;
+  unit?: TTIriRef;
   operator?: Operator;
   valueParameter?: string;
 }
@@ -466,10 +478,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-  memberOf?: boolean;
-  ancestorsOf?: boolean;
-  descendantsOf?: boolean;
   descendantsOrSelfOf?: boolean;
+  memberOf?: boolean;
+  descendantsOf?: boolean;
+  ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -494,7 +506,7 @@ export interface Instance extends IriLD {
 }
 
 export interface IriLD {
-  "@id"?: string;
+  iri?: string;
   qualifier?: string;
   name?: string;
   description?: string;
@@ -526,9 +538,9 @@ export interface Match extends IriLD, GraphNode {
   test?: boolean;
   return?: Return;
   returx?: Return;
-  isUnion?: boolean;
-  isTest?: boolean;
   isRule?: boolean;
+  isTest?: boolean;
+  isUnion?: boolean;
 }
 
 export interface Node extends Element, GraphNode {
@@ -557,6 +569,9 @@ export interface PathDocument {
   match?: Match[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface PathQuery extends TTIriRef {
   source?: TTIriRef;
   target?: TTIriRef;
@@ -585,7 +600,6 @@ export interface QueryEntity extends Entity {
 export interface QueryException extends Exception {}
 
 export interface QueryRequest extends ContextMap {
-  "@context"?: { [index: string]: string };
   textSearch?: string;
   argument?: Argument[];
   referenceDate?: string;
@@ -617,7 +631,7 @@ export interface Return {
 }
 
 export interface ReturnProperty {
-  "@id"?: string;
+  iri?: string;
   name?: string;
   function?: FunctionClause;
   as?: string;
@@ -635,6 +649,9 @@ export interface ReturnProperty {
   return?: Return;
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface Update extends TTIriRef {
   match?: Match[];
   delete?: Delete[];
@@ -665,6 +682,7 @@ export interface Where extends Element, Assignable {
   valueVariable?: string;
   path?: Path;
   inverse?: boolean;
+  id?: string;
 }
 
 export interface DownloadByQueryOptions {
@@ -840,8 +858,8 @@ export interface TTEntity extends TTNode, Serializable {
   name?: string;
   scheme?: TTIriRef;
   version?: number;
-  status?: TTIriRef;
   description?: string;
+  status?: TTIriRef;
   code?: string;
   prefixes?: TTPrefix[];
 }
@@ -968,14 +986,20 @@ export interface Context {
   field?: string;
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface TTIriRef extends TTValue, Serializable {
   name?: string;
   description?: string;
-  "@id": string;
+  iri: string;
 }
 
 export interface Serializable {}
 
+/**
+ * Class representing an IRI
+ */
 export interface EntityReferenceNode extends TTIriRef, Serializable {
   parents?: EntityReferenceNode[];
   children?: EntityReferenceNode[];
@@ -987,8 +1011,8 @@ export interface EntityReferenceNode extends TTIriRef, Serializable {
 }
 
 export interface TTNode extends TTValue, Serializable {
+  iri?: string;
   predicateMap?: { [index: string]: TTArray };
-  "@id"?: string;
 }
 
 export interface ExportSet extends Serializable {
@@ -1034,9 +1058,7 @@ export interface TTPrefix {
   name?: string;
 }
 
-export interface TTValue extends Serializable {
-  order?: number;
-}
+export interface TTValue extends Serializable {}
 
 export interface SetMember extends Serializable {
   entity?: TTIriRef;

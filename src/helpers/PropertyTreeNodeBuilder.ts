@@ -26,7 +26,7 @@ export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
 
 export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
   // "http://www.w3.org/ns/shacl#datatype" "http://www.w3.org/ns/shacl#class" "http://www.w3.org/ns/shacl#node"
-  const imtype = { "@id": RDF.PROPERTY } as TTIriRef;
+  const imtype = { iri: RDF.PROPERTY } as TTIriRef;
   let type;
   if (isObjectHasKeys(property, [SHACL.DATATYPE])) type = "datatype";
   else if (isObjectHasKeys(property, [SHACL.CLASS])) type = "class";
@@ -35,7 +35,7 @@ export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
   return {
     key: getKey(parent),
     label: getNameFromRef(property[SHACL.PATH][0]),
-    iri: property[SHACL.PATH][0]["@id"],
+    iri: property[SHACL.PATH][0].iri,
     data: property,
     type: type,
     icon: getFAIconFromType([imtype]),
@@ -52,7 +52,7 @@ function getKey(parent: TreeNode | undefined) {
 
 function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNodes: TreeNode[]) {
   const group = property[SHACL.GROUP]![0];
-  const treeNode = groupMap.get(group["@id"]);
+  const treeNode = groupMap.get(group.iri);
   if (treeNode) {
     const propertyTreeNode = buildPropertyTreeNode(property, treeNode);
     addDataModel(property, propertyTreeNode);
@@ -65,7 +65,7 @@ function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNod
     if (!isArrayHasLength(newGroup.children)) newGroup.children = [];
     newGroup.children?.push(propertyTreeNode);
     treeNodes.push(newGroup);
-    groupMap.set(group["@id"], newGroup);
+    groupMap.set(group.iri, newGroup);
   }
 }
 
@@ -77,12 +77,12 @@ function addDataModel(property: TTProperty, propertyTreeNode: TreeNode) {
 }
 
 function buildDataModelTreeNode(property: TTProperty, parent: TreeNode) {
-  const imtype = { "@id": SHACL.NODESHAPE } as TTIriRef;
+  const imtype = { iri: SHACL.NODESHAPE } as TTIriRef;
 
   return {
     key: getKey(parent),
     label: property[SHACL.NODE]![0].name,
-    iri: property[SHACL.PATH][0]["@id"],
+    iri: property[SHACL.PATH][0].iri,
     data: property,
     conceptTypes: [imtype],
     type: "dataModel",

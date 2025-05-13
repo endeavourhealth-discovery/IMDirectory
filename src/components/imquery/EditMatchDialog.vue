@@ -30,7 +30,7 @@
         <Textarea v-if="editMatch" v-model="matchJson" autoResize placeholder="Description" rows="3" type="text" />
         <div id="imquery-builder-container">
           <div id="imquery-build">
-            <EditMatch v-model:match="editMatch" :focused-id="editMatch['@id']" :is-root-feature="true" @on-update-dialog-focus="updateDialogFocus" />
+            <EditMatch v-model:match="editMatch" :focused-id="editMatch.iri" :is-root-feature="true" @on-update-dialog-focus="updateDialogFocus" />
             <div class="add-button-bar">
               <Button class="add-feature-button" icon="fa-solid fa-plus" label="Add test" severity="secondary" @click="showBuildThenFeature = true" />
               <Button
@@ -139,7 +139,7 @@ watch(
 );
 
 onMounted(async () => {
-  console.log("IMQUERY EDIT DIALOG MOUNTED with " + props.match.typeOf?.["@id"]);
+  console.log("IMQUERY EDIT DIALOG MOUNTED with " + props.match.typeOf?.iri);
   await init();
 });
 
@@ -152,11 +152,11 @@ async function init() {
 }
 
 async function getFunctionTemplates() {
-  const iri = editMatch.value?.typeOf?.["@id"];
+  const iri = editMatch.value?.typeOf?.iri;
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
     if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
-      const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate["@id"]);
+      const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate.iri);
       const templateEntities = await EntityService.getPartialEntities(iris, []);
       return templateEntities;
     }
@@ -179,7 +179,7 @@ function goBack() {
 
 function updateDialogFocusFromBreadcrumb(id: string | undefined) {
   if (!id) return;
-  if (id === focusedEditMatch.value?.["@id"]) return;
+  if (id === focusedEditMatch.value?.iri) return;
   let index = pathItems.value.length - 1;
   let found = false;
   while (!found && index > -1) {

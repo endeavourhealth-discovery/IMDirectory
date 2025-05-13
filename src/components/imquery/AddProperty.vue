@@ -74,14 +74,14 @@ async function handleEditMatchUpdate() {
   if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
     const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, DisplayMode.ORIGINAL);
     if (describedQuery.match?.[0].where) whereOrMatch.value.where = describedQuery.match?.[0].where;
-    const index = whereOrMatch.value.where?.findIndex(where => where["@id"] === whereOrMatch.value["@id"]);
+    const index = whereOrMatch.value.where?.findIndex(where => where.iri === whereOrMatch.value.iri);
     if (whereOrMatch.value.where && index && index !== -1) {
       editWhere.value = whereOrMatch.value.where[index];
     }
   } else if (editMatch.value.where?.length) {
     const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, DisplayMode.ORIGINAL);
     if (describedQuery.match?.[0].where?.length) {
-      const index = describedQuery.match?.[0].where?.findIndex(where => where["@id"] === whereOrMatch.value["@id"]);
+      const index = describedQuery.match?.[0].where?.findIndex(where => where.iri === whereOrMatch.value.iri);
       if (index && index !== -1) {
         whereOrMatch.value = describedQuery.match?.[0].where[index];
         editWhere.value = whereOrMatch.value;
@@ -97,7 +97,7 @@ function handlePropertyUpdate() {
       editWhere.value = getEditWhere(whereOrMatch.value.where![0]!);
       const dmIriFromProperty = getEditWhereDMIri(whereOrMatch.value.where![0]!);
       if (dmIriFromProperty) editWhereDMIri.value = dmIriFromProperty;
-      else editWhereDMIri.value = (whereOrMatch.value as Match).typeOf?.["@id"] ?? "";
+      else editWhereDMIri.value = (whereOrMatch.value as Match).typeOf?.iri ?? "";
     } else {
       editWhere.value = getEditWhere(whereOrMatch.value);
       editWhereDMIri.value = getEditWhereDMIri(whereOrMatch.value);
@@ -137,7 +137,7 @@ function getEditWhereDMIri(whereMatch: any) {
 
 function getEditWhereDMIriRecursively(where: Where, found: any[]) {
   if (where.match?.where) {
-    found[0] = where.match.typeOf?.["@id"];
+    found[0] = where.match.typeOf?.iri;
     for (const nestedWhere of where.match.where) {
       getEditWhereRecursively(nestedWhere, found);
     }

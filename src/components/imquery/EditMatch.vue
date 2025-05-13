@@ -32,7 +32,7 @@
         />
         <div class="feature-bracket-group">
           <div class="feature-list">
-            <div v-for="[index, nestedMatch] in editMatch.match.entries()" :key="nestedMatch['@id'] || index" class="nested-match">
+            <div v-for="[index, nestedMatch] in editMatch.match.entries()" :key="nestedMatch.iri || index" class="nested-match">
               <span v-if="isBooleanEditor" class="left-container">
                 <div class="group-checkbox">
                   <Checkbox v-model="group" :inputId="'group' + index" :value="index" name="Group" @click.stop />
@@ -90,9 +90,9 @@
         <div class="where-list">
           <EditWhere
             v-for="[index, nestedWhere] in editMatch.where.entries()"
-            :key="nestedWhere['@id'] || index"
+            :key="nestedWhere.iri || index"
             :edit-where="nestedWhere"
-            :focused="!isBooleanEditor && editMatch['@id'] === focusedId"
+            :focused="!isBooleanEditor && editMatch.iri === focusedId"
             :focused-id="focusedId"
             :is-boolean-editor="isBooleanEditor"
             :match-type-of-iri="typeOf ?? props.parentMatchType ?? selectedBaseType?.iri"
@@ -113,7 +113,7 @@
           </Dialog>
 
           <Button
-            v-if="!isBooleanEditor && editMatch['@id'] === focusedId"
+            v-if="!isBooleanEditor && editMatch.iri === focusedId"
             class="add-property-button"
             icon="fa-solid fa-plus"
             label="Add property"
@@ -122,7 +122,7 @@
           />
         </div>
       </div>
-      <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :dm-iri="typeOf" :editMatch="editMatch" :order-by="editMatch.orderBy" />
+      <EditOrderBy v-if="focusedId === editMatch.iri && editMatch.orderBy" :dm-iri="typeOf" :editMatch="editMatch" :order-by="editMatch.orderBy" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
       <span v-if="editMatch.variable">label as {{ editMatch.variable }}</span>
     </div>
@@ -133,7 +133,7 @@
       class="builder-button delete-button"
       icon="fa-solid fa-trash"
       severity="danger"
-      @click.stop="emit('deleteMatch', editMatch['@id']!)"
+      @click.stop="emit('deleteMatch', editMatch.iri!)"
       @mouseover.stop="hover = true"
       @mouseout.stop="hover = false"
     />
@@ -175,13 +175,13 @@ const showAddPropertyDialog: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
 const editMatch = ref(cloneDeep(props.match));
 onMounted(() => {
-  if (fullQuery.value) typeOf.value = fullQuery.value!.typeOf!["@id"]!;
+  if (fullQuery.value) typeOf.value = fullQuery.value!.typeOf!.iri!;
 });
 
 watch(
   () => cloneDeep(editMatch),
   () => {
-    if (fullQuery.value) typeOf.value = fullQuery.value!.typeOf!["@id"]!;
+    if (fullQuery.value) typeOf.value = fullQuery.value!.typeOf!.iri!;
   }
 );
 
@@ -190,12 +190,12 @@ function onNestedUpdateDialogFocus(match: Match) {
 }
 
 function onDeleteMatch(matchId: string) {
-  if (editMatch.value.match) editMatch.value.match = editMatch.value.match?.filter(nestedMatch => nestedMatch["@id"] !== matchId);
+  if (editMatch.value.match) editMatch.value.match = editMatch.value.match?.filter(nestedMatch => nestedMatch.iri !== matchId);
 }
 
 async function onPropertyAdd(property: Where) {
   if (!editMatch.value.where) editMatch.value.where = [];
-  const propertyIndex = editMatch.value.where.findIndex(where => where["@id"] === property["@id"]);
+  const propertyIndex = editMatch.value.where.findIndex(where => where.iri === property.iri);
   if (propertyIndex && propertyIndex !== -1) {
     editMatch.value.where[propertyIndex] = property;
   } else {
@@ -230,7 +230,7 @@ function ungroupMatches(nestedMatch: Match) {
       editMatch.value.match?.push(match);
     }
 
-    const index = editMatch.value.match?.findIndex(match => nestedMatch["@id"] === match["@id"]);
+    const index = editMatch.value.match?.findIndex(match => nestedMatch.iri === match.iri);
     if (index !== -1) editMatch.value.match?.splice(index!, 1);
   }
 }

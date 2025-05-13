@@ -85,7 +85,7 @@ const EntityService = {
 
   async getCoreSchemes(): Promise<string[]> {
     const coreSchemesChildren = (await this.getEntityChildren(IM.CORE_SCHEMES)) ?? [];
-    return coreSchemesChildren.map(child => child["@id"]);
+    return coreSchemesChildren.map(child => child.iri);
   },
 
   async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<TTEntity[]> {

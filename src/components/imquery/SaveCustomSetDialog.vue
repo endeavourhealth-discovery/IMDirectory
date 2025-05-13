@@ -19,7 +19,7 @@
           aria-describedby="text-error"
           :options="schemeOptions"
           option-label="name"
-          option-value="@id"
+          option-value="iri"
           placeholder="Scheme"
           class="flex-1"
         />
@@ -44,7 +44,7 @@
           aria-describedby="text-error"
           :options="typeOptions"
           option-label="name"
-          option-value="@id"
+          option-value="iri"
         />
         <small class="p-error" id="text-error">{{ errors.type || "&nbsp;" }}</small>
       </div>
@@ -136,7 +136,7 @@ async function getTypeOptions(): Promise<TTIriRef[]> {
   const setTypes = await EntityService.getEntityChildren(IM.SET);
   return setTypes.map(setType => {
     return {
-      "@id": setType["@id"],
+      iri: setType.iri,
       name: setType.name
     };
   });
@@ -154,7 +154,7 @@ function onNameGenIri() {
 }
 
 function selectDefaults() {
-  if (isArrayHasLength(schemeOptions.value)) setFieldValue("scheme", schemeOptions.value[0]["@id"]);
+  if (isArrayHasLength(schemeOptions.value)) setFieldValue("scheme", schemeOptions.value[0].iri);
   else setFieldValue("scheme", IM.NAMESPACE);
 
   setFieldValue("type", IM.CONCEPT_SET);
@@ -165,7 +165,7 @@ const onSubmit = handleSubmit(async () => {
   const setEntity = buildSetEntity();
   try {
     await FilerService.fileEntity(setEntity, IM.NAMESPACE, IM.ADD_QUADS);
-    const createdEntity = await EntityService.getFullEntity(setEntity["@id"]);
+    const createdEntity = await EntityService.getFullEntity(setEntity.iri);
     if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.HAS_SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
       toast.add({ severity: "success", summary: "Created", detail: "Created " + createdEntity[RDFS.LABEL], life: 3000 });
   } catch (e: any) {
@@ -174,7 +174,7 @@ const onSubmit = handleSubmit(async () => {
   }
   loading.value = false;
   showSaveCustomSetDialog.value = false;
-  emit("onSave", { "@id": setEntity["@id"], name: setEntity[RDFS.LABEL] });
+  emit("onSave", { iri: setEntity.iri, name: setEntity[RDFS.LABEL] });
 });
 
 function onDiscard() {
@@ -211,12 +211,12 @@ function getDefinition() {
 
 function buildSetEntity() {
   const setEntity = {} as any;
-  setEntity["@id"] = fullIri.value;
+  setEntity.iri = fullIri.value;
   setEntity[RDFS.LABEL] = setName.value;
-  setEntity[RDF.TYPE] = [{ "@id": setType.value }];
-  setEntity[IM.HAS_STATUS] = [{ "@id": IM.DRAFT }];
-  setEntity[IM.HAS_SCHEME] = [{ "@id": scheme.value }];
-  setEntity[IM.IS_CONTAINED_IN] = [{ "@id": getIsContainedIn() }];
+  setEntity[RDF.TYPE] = [{ iri: setType.value }];
+  setEntity[IM.HAS_STATUS] = [{ iri: IM.DRAFT }];
+  setEntity[IM.HAS_SCHEME] = [{ iri: scheme.value }];
+  setEntity[IM.IS_CONTAINED_IN] = [{ iri: getIsContainedIn() }];
   setEntity[IM.DEFINITION] = getDefinition();
   return setEntity;
 }

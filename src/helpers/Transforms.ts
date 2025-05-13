@@ -30,7 +30,7 @@ export function bundleToText(
   seeMore = conceptIri;
   let predicates = bundle.predicates;
   predicates = addDefaultPredicates(predicates, defaultPredicatenames);
-  delete bundle.entity["@id"];
+  delete bundle.entity.iri;
   delete bundle.entity[IM.IS_A];
   let result = "";
   result += ttValueToString(appPath, bundle.entity, "object", indent, withHyperlinks, predicates, blockedUrlIris);
@@ -55,7 +55,7 @@ export function ttValueToString(
   iriMap?: GenericObject,
   blockedUrlIris?: string[]
 ): string {
-  if (isObjectHasKeys(node, ["@id"])) {
+  if (isObjectHasKeys(node, ["iri"])) {
     return ttIriToString(appPath, node, previousType, indent, withHyperlinks, false, blockedUrlIris);
   } else if (isObjectHasKeys(node, [RDFS.LABEL, IM.CODE])) {
     return termToString(node, indent);
@@ -84,17 +84,17 @@ export function ttIriToString(
   const pad = indentSize.repeat(indent);
   let result = "";
   if (!inline) result += pad;
-  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
-    const escapedUrl = iriToUrl(iri["@id"]);
-    if (iri["@id"] === seeMore) {
+  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri.iri))) {
+    const escapedUrl = iriToUrl(iri.iri);
+    if (iri.iri === seeMore) {
       result += `<Button link as="a" href="">`;
     } else {
       result += `<Button link as="a" target="_blank" href="${window.location.origin}${appPath}/#/concept/${escapedUrl}">`;
     }
   }
   if (iri.name) result += removeEndBrackets(iri.name);
-  else result += iri["@id"];
-  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
+  else result += iri.iri;
+  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri.iri))) {
     result += "</Button>";
   }
   if (previous === "array") result += "\n";
@@ -167,7 +167,7 @@ function processNode(
   blockedUrlIris?: string[]
 ): string {
   let result = "";
-  if (isObjectHasKeys(value, ["@id"])) {
+  if (isObjectHasKeys(value, ["iri"])) {
     result += getObjectName(key, iriMap, stringAdditions.pad, stringAdditions.prefix);
     result += ttIriToString(appPath, value, "object", indent, stringAdditions.withHyperlinks, true, blockedUrlIris);
     result += stringAdditions.suffix;
@@ -198,7 +198,7 @@ function processNodeArray(
   blockedUrlIris?: string[]
 ) {
   let result = "";
-  if (value.length === 1 && isObjectHasKeys(value[0], ["@id"])) {
+  if (value.length === 1 && isObjectHasKeys(value[0], ["iri"])) {
     result += getObjectName(key, iriMap, stringAdditions.pad, stringAdditions.prefix);
     result += ttIriToString(appPath, value[0] as TTIriRef, "object", indent, stringAdditions.withHyperlinks, true, blockedUrlIris);
     result += stringAdditions.suffix;
@@ -268,9 +268,9 @@ export function mapToObject(args: Argument[]) {
 }
 
 export function entityToAliasEntity(ttEntity: TTEntity) {
-  if (isObjectHasKeys(ttEntity, ["@id"])) {
-    ttEntity.iri = ttEntity["@id"];
-    delete ttEntity["@id"];
+  if (isObjectHasKeys(ttEntity, ["iri"])) {
+    ttEntity.iri = ttEntity.iri;
+    delete ttEntity.iri;
   }
   if (isObjectHasKeys(ttEntity, [RDFS.LABEL])) {
     ttEntity.name = ttEntity[RDFS.LABEL];

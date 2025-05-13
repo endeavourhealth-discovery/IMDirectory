@@ -20,7 +20,7 @@
               <Button class="p-button-danger m-2" icon="fa-solid fa-trash" severity="danger" size="small" @click="deleteRoleGroup(rgIndex)" />
             </div>
             <div v-for="(row, rIndex) in rg" v-bind:key="rIndex">
-              <div v-if="!isObjectHasKeys(row.key, ['@id']) || row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow concept-colours">
+              <div v-if="!isObjectHasKeys(row.key, ['iri']) || row.key.iri != IM.GROUP_NUMBER" class="roleGroupRow concept-colours">
                 <AutocompleteSearchBar v-model:selected="row.key" :im-query="request" :search-placeholder="'Search properties'" class="roleProperty" />
                 <span style="width: 1rem; text-align: center">:</span>
                 <AutocompleteSearchBar v-model:selected="row.value" :im-query="valueRequest" :search-placeholder="'Search quantifiers'" class="roleProperty" />
@@ -60,8 +60,8 @@ const props = defineProps<{
 }>();
 
 interface Role {
-  key: { "@id": string; name: string };
-  value: { "@id": string; name: string };
+  key: { iri: string; name: string };
+  value: { iri: string; name: string };
 }
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
@@ -93,7 +93,7 @@ const invalidGroups: Ref<any[]> = ref([]);
 const showValidation = ref(false);
 const loading = ref(true);
 
-const key = props.shape.path["@id"];
+const key = props.shape.path.iri;
 
 onMounted(async () => {
   await processProps();
@@ -104,20 +104,20 @@ watch(
   async () => {
     await update();
     if (updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+      await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path.iri, invalid, validationErrorMessage);
     }
   }
 );
 
 function addRoleGroup() {
-  roleGroups.value.push([{ key: { "@id": IM.GROUP_NUMBER, name: "Group Number" }, value: roleGroups.value.length }]);
+  roleGroups.value.push([{ key: { iri: IM.GROUP_NUMBER, name: "Group Number" }, value: roleGroups.value.length }]);
   update();
 }
 
 function deleteRoleGroup(index: number) {
   roleGroups.value.splice(index, 1);
   for (const rg in roleGroups.value) {
-    if (roleGroups.value[rg][0].key["@id"] === IM.GROUP_NUMBER && parseInt(rg) <= index) {
+    if (roleGroups.value[rg][0].key.iri === IM.GROUP_NUMBER && parseInt(rg) <= index) {
       roleGroups.value[rg][0].value = roleGroups.value[rg][0].value - 1;
     }
   }
@@ -125,7 +125,7 @@ function deleteRoleGroup(index: number) {
 }
 
 function addRole(rg: Role[]) {
-  rg.push({ key: { "@id": "", name: "" }, value: { "@id": "", name: "" } });
+  rg.push({ key: { iri: "", name: "" }, value: { iri: "", name: "" } });
   update();
 }
 
@@ -153,7 +153,7 @@ async function processRole(newData: any[], role: Role) {
     for (const [key, value] of Object.entries(role)) {
       if (key !== IM.GROUP_NUMBER && isArray(value) && value.every(item => isTTIriRef(item))) {
         const keyName = await EntityService.getPartialEntity(key, [RDFS.LABEL]);
-        grp.push({ key: { "@id": key, name: keyName[RDFS.LABEL] ?? "" }, value: value[0] });
+        grp.push({ key: { iri: key, name: keyName[RDFS.LABEL] ?? "" }, value: value[0] });
       }
     }
   }
@@ -166,7 +166,7 @@ const request: QueryRequest = {
       {
         instanceOf: [
           {
-            "@id": SNOMED.ATTRIBUTE,
+            iri: SNOMED.ATTRIBUTE,
             descendantsOrSelfOf: true
           }
         ]
@@ -182,8 +182,8 @@ const valueRequest: QueryRequest = {
       {
         where: [
           {
-            "@id": IM.HAS_SCHEME,
-            is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
+            iri: IM.HAS_SCHEME,
+            is: [{ iri: SNOMED.NAMESPACE }, { iri: IM.NAMESPACE }]
           }
         ]
       }
@@ -208,24 +208,24 @@ function validateEntity() {
 
 function isGroupValid(group: Role[]): boolean {
   invalid.value = false;
-  if (group.length == 0 || (group.length == 1 && group[0]?.key?.["@id"] == IM.GROUP_NUMBER)) {
+  if (group.length == 0 || (group.length == 1 && group[0]?.key?.iri == IM.GROUP_NUMBER)) {
     specificValidationErrorMessage.value = "Role groups can not be empty.";
     return false;
   }
   for (const pair of group) {
     if (!pair.key) {
-      pair.key = { "@id": "", name: "" };
+      pair.key = { iri: "", name: "" };
     }
     if (!pair.value && pair.value !== 0) {
-      pair.value = { "@id": "", name: "" };
+      pair.value = { iri: "", name: "" };
     }
-    if (pair.key["@id"] != IM.GROUP_NUMBER) {
-      if (!isObjectHasKeys(pair.key, ["iri"]) && (!pair?.key?.["@id"] || pair.key["@id"] == "")) {
+    if (pair.key.iri != IM.GROUP_NUMBER) {
+      if (!isObjectHasKeys(pair.key, ["iri"]) && (!pair?.key?.iri || pair.key.iri == "")) {
         specificValidationErrorMessage.value = "Missing role property.";
         invalid.value = true;
         return false;
       }
-      if (!isObjectHasKeys(pair.value, ["iri"]) && (!pair?.value?.["@id"] || "" === pair.value["@id"] || null === pair.value["@id"])) {
+      if (!isObjectHasKeys(pair.value, ["iri"]) && (!pair?.value?.iri || "" === pair.value.iri || null === pair.value.iri)) {
         specificValidationErrorMessage.value = "Missing role quantifier.";
         invalid.value = true;
         return false;
@@ -246,13 +246,13 @@ function updateEntity() {
     groups[IM.ROLE_GROUP].push(group);
     for (const pair of roleGroups.value[rg]) {
       if (isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
-        group[pair.key.iri] = { "@id": pair.value.iri, name: pair.value.name };
+        group[pair.key.iri] = { iri: pair.value.iri, name: pair.value.name };
       } else if (isObjectHasKeys(pair.key, ["iri"]) && !isObjectHasKeys(pair.value, ["iri"])) {
         group[pair.key.iri] = pair.value;
       } else if (!isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
-        group[pair.key["@id"]] = { "@id": pair.value.iri, name: pair.value.name };
-      } else if (isObjectHasKeys(pair.key, ["@id"])) {
-        group[pair.key["@id"]] = pair.value;
+        group[pair.key.iri] = { iri: pair.value.iri, name: pair.value.name };
+      } else if (isObjectHasKeys(pair.key, ["iri"])) {
+        group[pair.key.iri] = pair.value;
       }
     }
   }

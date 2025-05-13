@@ -30,7 +30,7 @@
       <Column field="member" header="Name">
         <template #body="{ data }: any">
           <span v-if="data.exclude" class="exclude">Exclude</span>
-          <IMViewerLink :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :action="'select'" :iri="data.iri" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
           <span class="entailment" v-html="getEntailment(data)"></span>
         </template>
       </Column>

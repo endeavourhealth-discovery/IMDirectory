@@ -92,7 +92,7 @@ async function getPath() {
   folderPath.value = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();
   if (!folderPath.value.length) folderPath.value = await EntityService.getFolderPath(props.entityIri);
   pathItems.value = folderPath.value.map((iriRef: TTIriRef) => {
-    return { label: iriRef.name, command: () => emit("navigateTo", iriRef["@id"]) };
+    return { label: iriRef.name, command: () => emit("navigateTo", iriRef.iri) };
   });
   if (pathItems.value.length > 2) {
     const filteredOutPathItems = pathItems.value.splice(1, pathItems.value.length - 2);

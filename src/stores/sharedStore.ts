@@ -10,9 +10,9 @@ export const useSharedStore = defineStore("shared", {
     showSnomedLicense: false,
     showUprnConsent: false,
     tagSeverityMatches: [
-      { "@id": IM.ACTIVE, severity: TagSeverity.SUCCESS },
-      { "@id": IM.DRAFT, severity: TagSeverity.WARNING },
-      { "@id": IM.INACTIVE, severity: TagSeverity.DANGER }
+      { iri: IM.ACTIVE, severity: TagSeverity.SUCCESS },
+      { iri: IM.DRAFT, severity: TagSeverity.WARNING },
+      { iri: IM.INACTIVE, severity: TagSeverity.DANGER }
     ],
     showReleaseNotes: false,
     showReleaseBanner: localStorage.getItem("showReleaseBanner") === "true" ? true : false,
@@ -46,7 +46,7 @@ export const useSharedStore = defineStore("shared", {
       this.showDevBanner = bool;
       localStorageWithExpiry.setItem("showDevBanner", bool);
     },
-    updateTagSeverityMatches(items: { "@id": string; severity: TagSeverity }[]) {
+    updateTagSeverityMatches(items: { iri: string; severity: TagSeverity }[]) {
       this.tagSeverityMatches = items;
     },
     updateError(error: string) {

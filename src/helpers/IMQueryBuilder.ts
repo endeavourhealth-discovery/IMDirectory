@@ -17,25 +17,25 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
 
 export function addStatusFilterToIMQuery(status: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const statusMatch: Match = { where: [{ "@id": IM.HAS_STATUS, is: status }] };
+  const statusMatch: Match = { where: [{ iri: IM.HAS_STATUS, is: status }] };
   imQuery.query.match!.push(statusMatch);
 }
 
 export function addTypeFilterToIMQuery(types: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const typeMatch: Match = { where: [{ "@id": RDF.TYPE, is: types }] };
+  const typeMatch: Match = { where: [{ iri: RDF.TYPE, is: types }] };
   imQuery.query.match!.push(typeMatch);
 }
 
 export function addSchemeFilterToIMQuery(schemes: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const schemeMatch: Match = { where: [{ "@id": IM.HAS_SCHEME, is: schemes }] };
+  const schemeMatch: Match = { where: [{ iri: IM.HAS_SCHEME, is: schemes }] };
   imQuery.query.match!.push(schemeMatch);
 }
 
 export function addIsaToIMQuery(isAs: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const isAMatch: Match = { where: [{ "@id": IM.IS_A, is: isAs }] };
+  const isAMatch: Match = { where: [{ iri: IM.IS_A, is: isAs }] };
   imQuery.query.match!.push(isAMatch);
 }
 
@@ -43,13 +43,13 @@ export function addSortingToIMQuery(sortingField: TTIriRef, sortDirection: TTIri
   if (!imQuery.query.orderBy) imQuery.query.orderBy = {};
   if (isObjectHasKeys(sortingField)) imQuery.query.orderBy.property = sortingField;
   else imQuery.query.orderBy.property = {};
-  if (isObjectHasKeys(sortDirection)) imQuery.query.orderBy.property.direction = sortDirection["@id"] === IM.ASCENDING ? Order.ascending : Order.descending;
+  if (isObjectHasKeys(sortDirection)) imQuery.query.orderBy.property.direction = sortDirection.iri === IM.ASCENDING ? Order.ascending : Order.descending;
   else imQuery.query.orderBy.property.direction = Order.descending;
 }
 
 export function addMemberOfToIMQuery(memberOfs: TTIriRef[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.match)) imQuery.query.match = [];
-  const memberOfMatch: Match = { where: [{ "@id": IM.IS_MEMBER_OF, is: memberOfs }] };
+  const memberOfMatch: Match = { where: [{ iri: IM.IS_MEMBER_OF, is: memberOfs }] };
   imQuery.query.match!.push(memberOfMatch);
 }
 
@@ -60,16 +60,16 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
     const match: Match = {
       where: [
         {
-          "@id": IM.BINDING,
+          iri: IM.BINDING,
           match: {
             where: [
               {
-                "@id": SHACL.PATH,
-                is: [{ "@id": searchBinding.path?.["@id"] }]
+                iri: SHACL.PATH,
+                is: [{ iri: searchBinding.path?.iri }]
               },
               {
-                "@id": SHACL.NODE,
-                is: [{ "@id": searchBinding.node?.["@id"] }]
+                iri: SHACL.NODE,
+                is: [{ iri: searchBinding.node?.iri }]
               }
             ]
           }
@@ -89,7 +89,7 @@ export function deleteQueryPredicateIfExists(query: Query, predicateIri: string)
 }
 
 function deleteMatchPredicateIfExists(match: Match, parent: Match[], predicateIri: string, topLevel: boolean): boolean {
-  if (match["@id"] === predicateIri) {
+  if (match.iri === predicateIri) {
     if (topLevel) {
       parent.splice(parent.indexOf(match), 1);
       return false;
@@ -114,7 +114,7 @@ function deleteMatchPredicateIfExists(match: Match, parent: Match[], predicateIr
       if (isDeleteRequired) {
         if (match.where.length > 1) {
           match.where.splice(
-            match.where.findIndex(w => w["@id"] === where["@id"]),
+            match.where.findIndex(w => w.iri === where.iri),
             1
           );
         } else if (topLevel) {
@@ -127,5 +127,5 @@ function deleteMatchPredicateIfExists(match: Match, parent: Match[], predicateIr
 }
 
 function deleteWherePredicateIfExists(where: Where, parent: Where[], predicateIri: string): boolean {
-  return where["@id"] === predicateIri;
+  return where.iri === predicateIri;
 }

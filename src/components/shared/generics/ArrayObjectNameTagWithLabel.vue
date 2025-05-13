@@ -2,7 +2,7 @@
   <div class="container" :style="{ width: size }" :id="id">
     <strong class="label" data-testid="label">{{ label }}: </strong>
     <div v-if="isArrayObject" class="tag-container">
-      <Tag v-for="item of data" :key="item['@id']" :value="item.name" :severity="getSeverity(item)" class="data-tag" data-testid="data-tag" />
+      <Tag v-for="item of data" :key="item.iri" :value="item.name" :severity="getSeverity(item)" class="data-tag" data-testid="data-tag" />
     </div>
     <span v-else class="tag-container">None</span>
   </div>
@@ -34,7 +34,7 @@ const sharedStore = useSharedStore();
 const tagSeverityMatches = computed(() => sharedStore.tagSeverityMatches);
 
 const isArrayObject = computed(() => {
-  if (props.data && isArrayHasLength(props.data) && isObjectHasKeys(props.data[0], ["@id"])) {
+  if (props.data && isArrayHasLength(props.data) && isObjectHasKeys(props.data[0], ["iri"])) {
     return true;
   } else {
     return false;
@@ -45,7 +45,7 @@ function getSeverity(item: TTIriRef): TagSeverity {
   let result = TagSeverity.INFO;
   if (!tagSeverityMatches.value) throw new Error("Missing vuex sharedStore property 'tagSeverityMatches'");
   if (item && isObjectHasKeys(item, ["name"])) {
-    const found = tagSeverityMatches.value.find((severity: { "@id": string; severity: string }) => severity["@id"] === item["@id"]);
+    const found = tagSeverityMatches.value.find((severity: { iri: string; severity: string }) => severity.iri === item.iri);
     if (found) result = found.severity;
     else log.warn("TagWithLabel missing case for severity");
   }

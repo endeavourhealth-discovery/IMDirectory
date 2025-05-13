@@ -116,14 +116,14 @@ watch(selectedResult, (newValue, oldValue) => {
 });
 
 async function init() {
-  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
+  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!.iri;
   if (isObjectHasKeys(props.shape, ["select"]) && isArrayHasLength(props.shape.select) && props.shape.select) {
-    queryRequest.value = { query: { "@id": props.shape.select[0]["@id"] } };
+    queryRequest.value = { query: { iri: props.shape.select[0].iri } };
   } else queryRequest.value = undefined;
   if (isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
     queryRequest.value.argument = [];
     for (const arg of props.shape.argument) {
-      if (arg.parameter === "rootEntities" && arg.valueIriList) rootEntities.value = arg.valueIriList.map(i => i["@id"]);
+      if (arg.parameter === "rootEntities" && arg.valueIriList) rootEntities.value = arg.valueIriList.map(i => i.iri);
       else queryRequest.value.argument.push(arg);
     }
     queryRequest.value.argument = props.shape.argument;
@@ -136,18 +136,18 @@ async function init() {
 }
 
 function convertToTTIriRef(data: SearchResultSummary): TTIriRef | undefined {
-  if (data.iri && data.name) return { "@id": data.iri, name: data.name } as TTIriRef;
+  if (data.iri && data.name) return { iri: data.iri, name: data.name } as TTIriRef;
   else return undefined;
 }
 
 async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
   if (!isObjectHasKeys(data)) {
     selectedResult.value = {} as SearchResultSummary;
-  } else if (isObjectHasKeys(data, ["@id"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef)["@id"]) {
-    const asSummary = await EntityService.getEntitySummary((data as TTIriRef)["@id"]);
+  } else if (isObjectHasKeys(data, ["iri"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef).iri) {
+    const asSummary = await EntityService.getEntitySummary((data as TTIriRef).iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else if (isTTIriRef(data)) {
-    const asSummary = await EntityService.getEntitySummary(data["@id"]);
+    const asSummary = await EntityService.getEntitySummary(data.iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else {
     selectedResult.value = data;
@@ -188,7 +188,7 @@ async function dropReceived(event: DragEvent) {
   if (data) {
     const conceptIri = JSON.parse(data);
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-    const iriRef = { "@id": conceptIri, name: conceptName } as TTIriRef;
+    const iriRef = { iri: conceptIri, name: conceptName } as TTIriRef;
     if (!queryRequest.value) await updateSelectedResult(iriRef);
     else if (await QueryService.validateSelectionWithQuery(conceptIri, queryRequest.value)) {
       await updateSelectedResult(iriRef);

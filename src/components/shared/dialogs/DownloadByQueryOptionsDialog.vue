@@ -159,7 +159,7 @@ const isOptionsSelected = ref(false);
 const checkedLegacy = ref(false);
 const checked = ref(true);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
-const schemesOptions = filterOptions.value.schemes.filter(c => c["@id"] !== IM.NAMESPACE || c["@id"] !== SNOMED.NAMESPACE);
+const schemesOptions = filterOptions.value.schemes.filter(c => c.iri !== IM.NAMESPACE || c.iri !== SNOMED.NAMESPACE);
 
 watch(
   () => props.showDefinition,

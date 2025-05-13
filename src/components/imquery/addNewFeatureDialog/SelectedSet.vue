@@ -14,7 +14,7 @@
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
             <div class="flex-col px-1 pb-1">
               <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="type-icon mr-2" />
-              <span @mouseleave="hideOverlay" @mouseover="showOverlay($event, option['@id'])">{{ option[RDFS.LABEL] }}</span>
+              <span @mouseleave="hideOverlay" @mouseover="showOverlay($event, option.iri)">{{ option[RDFS.LABEL] }}</span>
             </div>
             <Button
               :severity="'danger'"
@@ -22,7 +22,7 @@
               data-testid="remove-member-button"
               icon="fa-solid fa-trash"
               text
-              @click="selectedValueMap.delete(option['@id'])"
+              @click="selectedValueMap.delete(option.iri)"
             />
           </div>
         </div>
@@ -119,7 +119,7 @@ async function init() {
   if (isArrayHasLength(entities)) {
     for (const entity of entities) {
       entity.icon = getFAIconFromType(entity[RDF.TYPE]);
-      if (entity["@id"]) entity.include = !selectedValueMap.value.get(entity["@id"])?.exclude;
+      if (entity.iri) entity.include = !selectedValueMap.value.get(entity.iri)?.exclude;
       if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
       else entity.entailment = "descendantsOrSelfOf";
     }
@@ -136,7 +136,7 @@ function getColourStyleFromType(types: TTIriRef[]) {
 function updatePathValues() {
   let index = 0;
   if (selectedPath.value?.where?.length && selectedPath.value?.where?.length !== 1)
-    index = selectedPath.value?.where?.findIndex(where => where["@id"] === props.propertyIri);
+    index = selectedPath.value?.where?.findIndex(where => where.iri === props.propertyIri);
   if (index != -1 && selectedPath.value?.where?.[index]) {
     if (selectedPath.value?.where?.[index]) {
       selectedPath.value.where[index].is = selectedEntities.value.map(selected => convertSelectedEntityToNode(selected));
@@ -146,7 +146,7 @@ function updatePathValues() {
 
 function convertSelectedEntityToNode(selected: SelectedEntity): Node {
   const node: Node = {
-    "@id": selected["@id"],
+    iri: selected.iri,
     name: selected["http://www.w3.org/2000/01/rdf-schema#label"],
     exclude: !selected.include
   };
@@ -179,12 +179,12 @@ function updateValueLabel() {
 
 async function updateCanHaveValueList(path: Match | undefined) {
   if (path) {
-    const dmIri = path.typeOf?.["@id"] ?? props.dataModelIri;
-    const propIri = getLeafMatch(path)?.where?.[0]["@id"];
+    const dmIri = path.typeOf?.iri ?? props.dataModelIri;
+    const propIri = getLeafMatch(path)?.where?.[0].iri;
     if (propIri === IM.DATA_MODEL_PROPERTY_CONCEPT) canHaveValueList.value = true;
     else if (dmIri && propIri) {
       const entity = await EntityService.getPartialEntity(dmIri, [SHACL.PROPERTY]);
-      const prop = entity[SHACL.PROPERTY]?.find((prop: any) => prop?.[SHACL.PATH]?.[0]["@id"] === propIri);
+      const prop = entity[SHACL.PROPERTY]?.find((prop: any) => prop?.[SHACL.PATH]?.[0].iri === propIri);
       canHaveValueList.value = prop && isArrayHasLength(prop[SHACL.CLASS]);
     } else canHaveValueList.value = false;
   } else canHaveValueList.value = false;

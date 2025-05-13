@@ -1,12 +1,12 @@
 <template>
   <div v-for="(template, index) of functionTemplates" v-bind:key="index">
-    <div v-if="template['@id'] === IM.TEMPLATE_NUMERIC_EVENT_ORDER">
-      <div v-if="template[IM.FUNCTION_DEFINITION]?.[0]?.['@id'] === IM.ORDER_BY" class="flex gap-1">
+    <div v-if="template.iri === IM.TEMPLATE_NUMERIC_EVENT_ORDER">
+      <div v-if="template[IM.FUNCTION_DEFINITION]?.[0]?.iri === IM.ORDER_BY" class="flex gap-1">
         <Button
           v-for="(paramTemplate, bIdx) of template[IM.PARAMETER_TEMPLATE]"
           :label="'Get ' + paramTemplate[RDFS.LABEL]"
           severity="info"
-          @click="onClick(template[IM.FUNCTION_DEFINITION]?.[0]?.['@id'], paramTemplate[SHACL.ORDER], paramTemplate[IM.VALUE_TEMPLATE])"
+          @click="onClick(template[IM.FUNCTION_DEFINITION]?.[0]?.iri, paramTemplate[SHACL.ORDER], paramTemplate[IM.VALUE_TEMPLATE])"
           v-bind:key="bIdx"
         />
       </div>
@@ -34,7 +34,7 @@ function onClick(templateFunctionIri: string, limit: number, valueTemplates: any
       const orderBy: OrderLimit = {
         limit: limit,
         property: {
-          "@id": property[IM.DEFAULT_VALUE]?.[0]?.["@id"],
+          iri: property[IM.DEFAULT_VALUE]?.[0]?.iri,
           direction: direction[IM.DEFAULT_VALUE] === Order.ascending ? Order.ascending : Order.descending
         }
       };

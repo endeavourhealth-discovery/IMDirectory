@@ -104,7 +104,7 @@ function emitFilterUpdate() {
 function resetStatus() {
   if (storeFilterOptions.value && storeDefaultFilterOptions.value) {
     selectedStatus.value = storeFilterOptions.value.status.filter(item =>
-      storeDefaultFilterOptions.value?.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+      storeDefaultFilterOptions.value?.status.map(defaultOption => defaultOption.iri).includes(item.iri)
     );
   }
   emitFilterUpdate();
@@ -113,7 +113,7 @@ function resetStatus() {
 function resetSchemes() {
   if (storeFilterOptions.value && storeDefaultFilterOptions.value) {
     selectedSchemes.value = storeFilterOptions.value.schemes.filter(item =>
-      storeDefaultFilterOptions.value?.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+      storeDefaultFilterOptions.value?.schemes.map(defaultOption => defaultOption.iri).includes(item.iri)
     );
   }
   emitFilterUpdate();
@@ -122,7 +122,7 @@ function resetSchemes() {
 function resetTypes() {
   if (storeFilterOptions.value && storeDefaultFilterOptions.value) {
     selectedTypes.value = storeFilterOptions.value.types.filter(item =>
-      storeDefaultFilterOptions.value?.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+      storeDefaultFilterOptions.value?.types.map(defaultOption => defaultOption.iri).includes(item.iri)
     );
   }
   emitFilterUpdate();
@@ -161,10 +161,10 @@ function setDefaults() {
 }
 
 function setLegacy(include: boolean): void {
-  const emisScheme = selectedSchemes.value.findIndex(scheme => scheme["@id"] === GRAPH.EMIS);
+  const emisScheme = selectedSchemes.value.findIndex(scheme => scheme.iri === GRAPH.EMIS);
   if (include) {
     if (emisScheme === -1) {
-      const found = storeFilterOptions.value?.schemes.find(scheme => scheme["@id"] === GRAPH.EMIS);
+      const found = storeFilterOptions.value?.schemes.find(scheme => scheme.iri === GRAPH.EMIS);
       if (found) selectedSchemes.value.push(found);
     }
   } else {
