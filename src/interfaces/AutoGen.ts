@@ -1,15 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-01 11:28:47.
-
-export interface ConceptContextMap {
-  id?: string;
-  node?: string;
-  value?: string;
-  regex?: string;
-  property?: string;
-  context?: Context[];
-}
+// Generated using typescript-generator version 3.2.1263 on 2025-05-11 11:36:07.
 
 export interface DataModelProperty extends Serializable {
   property?: TTIriRef;
@@ -36,189 +27,6 @@ export interface DownloadEntityOptions {
   includeIsChildOf?: boolean;
   includeHasChildren?: boolean;
   includeInactive?: boolean;
-}
-
-export interface Pageable<T> {
-  totalCount?: number;
-  currentPage?: number;
-  pageSize?: number;
-  result?: T[];
-}
-
-export interface BooleanBody {
-  bool?: boolean;
-}
-
-export interface CodeGenDto {
-  name?: string;
-  extension?: string;
-  collectionWrapper?: string;
-  datatypeMap?: { [index: string]: string };
-  template?: string;
-  complexTypes?: boolean;
-}
-
-export interface DownloadDto extends Serializable {
-  summary?: TTEntity;
-  hasSubTypes?: EntityReferenceNode[];
-  inferred?: TTNode;
-  axioms?: TTNode;
-  members?: ExportSet;
-  dataModelProperties?: DataModelProperty[];
-  terms?: SearchTermCode[];
-  isChildOf?: TTArray;
-  hasChildren?: TTArray;
-}
-
-export interface EntityDefinitionDto {
-  iri?: string;
-  name?: string;
-  description?: string;
-  status?: string;
-  types?: TTIriRef[];
-  isa?: TTIriRef[];
-  subtypes?: TTIriRef[];
-}
-
-export interface FieldDto {
-  name?: string;
-  firstType?: string;
-  secondType?: string;
-}
-
-export interface FilterOptionsDto {
-  status?: TTIriRef[];
-  schemes?: TTIriRef[];
-  types?: TTIriRef[];
-  sortFields?: TTIriRef[];
-  sortDirections?: TTIriRef[];
-}
-
-export interface GraphDto {
-  key?: string;
-  type?: GraphType;
-  name?: string;
-  iri?: string;
-  propertyType?: string;
-  valueTypeIri?: string;
-  valueTypeName?: string;
-  inheritedFromIri?: string;
-  inheritedFromName?: string;
-  min?: string;
-  max?: string;
-  children?: GraphDto[];
-  leafNodes?: GraphDto[];
-}
-
-export interface InstanceDTO {
-  entity?: TTEntity;
-  predicates?: TTIriRef[];
-}
-
-export interface ParentDto extends TTIriRef {
-  parents?: ParentDto[];
-}
-
-export interface RecentActivityItemDto {
-  iri?: string;
-  name?: string;
-  type?: string;
-  dateTime?: Date;
-  action?: string;
-  color?: string;
-  icon?: string[];
-}
-
-export interface ScaleDto {
-  scaleValue?: string;
-}
-
-export interface SemanticProperty extends Serializable {
-  property?: TTIriRef;
-  type?: TTIriRef;
-}
-
-export interface SimpleMap {
-  name?: string;
-  code?: string;
-  scheme?: string;
-  "@id"?: string;
-}
-
-export interface ThemeDto {
-  themeValue?: string;
-}
-
-export interface UIProperty {
-  iri?: string;
-  name?: string;
-  propertyType?: string;
-  valueType?: string;
-  maxCount?: number;
-  number?: number;
-  valueLabel?: string;
-  intervalUnitIri?: string;
-  intervalUnitOptions?: TTIriRef[];
-  unitIri?: string;
-  unitOptions?: TTIriRef[];
-  operatorIri?: string;
-  operatorOptions?: string[];
-  qualifierOptions?: TTIriRef[];
-}
-
-export interface UnassignedEntity {
-  iri?: string;
-  name?: string;
-  suggestions?: TTIriRef[];
-}
-
-export interface UserDataDto {
-  preset?: string;
-  primaryColor?: string;
-  darkMode?: boolean;
-  scale?: string;
-  organisations?: string[];
-  favourites?: string[];
-  mru?: RecentActivityItemDto[];
-}
-
-export interface BoolGroup extends BuilderComponent {
-  conjunction?: Bool;
-  items?: BuilderComponent[];
-  attributeGroup?: boolean;
-  exclude?: boolean;
-}
-
-export interface BuilderComponent extends BuilderValue {
-  type?: string;
-}
-
-export interface BuilderValue {}
-
-export interface ConceptReference {
-  iri?: string;
-  name?: string;
-}
-
-export interface EclBuilderException extends Exception {}
-
-export interface ExpressionConstraint extends BuilderComponent {
-  constraintOperator?: string;
-  conjunction?: Bool;
-  conceptSingle?: ConceptReference;
-  conceptBool?: BoolGroup;
-  refinementItems?: BuilderComponent[];
-}
-
-export interface Refinement extends BuilderComponent {
-  operator?: string;
-  property?: SubExpressionConstraint;
-  value?: SubExpressionConstraint;
-}
-
-export interface SubExpressionConstraint {
-  concept?: ConceptReference;
-  constraintOperator?: string;
 }
 
 export interface GithubAuthorDTO {
@@ -356,39 +164,42 @@ export interface PropertyRange extends TTIriRef {
 }
 
 export interface PropertyShape {
-  label?: string;
-  comment?: string;
-  name?: string;
-  order: number;
-  minCount?: number;
-  maxCount?: number;
-  componentType: TTIriRef;
-  path: TTIriRef;
-  datatype?: PropertyRange;
-  node?: PropertyRange;
-  validation?: TTIriRef;
-  search?: TTIriRef;
-  select?: TTIriRef[];
-  argument?: Argument[];
-  valueVariable?: string;
-  isIri?: TTIriRef;
-  isTextValue?: string;
-  isNumericValue?: string;
-  forceIsValue?: boolean;
-  builderChild?: boolean;
-  showTitle?: boolean;
-  group?: TTIriRef;
-  property?: PropertyShape[];
-  clazz?: PropertyRange;
-  validationErrorMessage?: string;
-  function?: TTIriRef;
-  parameter?: ParameterShape[];
-  valueIri?: TTIriRef;
-  expression?: NodeShape;
-  arrayButtons?: ArrayButtons;
-  hasValue?: any;
-  hasValueType?: TTIriRef;
-  definition?: string;
+    label?: string;
+    comment?: string;
+    name?: string;
+    order: number;
+    minCount?: number;
+    maxCount?: number;
+    componentType: TTIriRef;
+    path: TTIriRef;
+    datatype?: PropertyRange;
+    node?: PropertyRange;
+    validation?: TTIriRef;
+    search?: TTIriRef;
+    select?: TTIriRef[];
+    argument?: Argument[];
+    valueVariable?: string;
+    isIri?: TTIriRef;
+    isTextValue?: string;
+    isNumericValue?: string;
+    forceIsValue?: boolean;
+    builderChild?: boolean;
+    showTitle?: boolean;
+    group?: TTIriRef;
+    property?: PropertyShape[];
+    clazz?: PropertyRange;
+    validationErrorMessage?: string;
+    function?: TTIriRef;
+    parameter?: ParameterShape[];
+    valueIri?: TTIriRef;
+    expression?: NodeShape;
+    arrayButtons?: ArrayButtons;
+    hasValue?: any;
+    hasValueType?: TTIriRef;
+    definition?: string;
+    ascending?: string;
+    descending?: string;
+    orderable?: boolean;
 }
 
 export interface SetContent {
@@ -428,12 +239,12 @@ export interface Argument {
 }
 
 export interface Assignable {
-  value?: string;
-  valueLabel?: string;
-  unit?: TTIriRef;
-  qualifier?: string;
-  operator?: Operator;
-  valueParameter?: string;
+    value?: string;
+    qualifier?: string;
+    operator?: Operator;
+    valueParameter?: string;
+    valueLabel?: string;
+    unit?: TTIriRef;
 }
 
 export interface Case {
@@ -466,21 +277,16 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-  memberOf?: boolean;
-  ancestorsOf?: boolean;
-  descendantsOf?: boolean;
-  descendantsOrSelfOf?: boolean;
+    descendantsOf?: boolean;
+    ancestorsOf?: boolean;
+    memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
   name?: Function;
   argument?: Argument[];
   range?: Range;
-}
-
-export interface GraphNode {
-  path?: Path;
-  variable?: string;
 }
 
 export interface GroupBy extends IriLD {
@@ -500,42 +306,42 @@ export interface IriLD {
   description?: string;
 }
 
-export interface Match extends IriLD, GraphNode {
-  ifTrue?: RuleAction;
-  ifFalse?: RuleAction;
-  exclude?: boolean;
-  nodeRef?: string;
-  header?: string;
-  preface?: string;
-  typeOf?: Node;
-  instanceOf?: Node[];
-  where?: Where[];
-  match?: Match[];
-  bool?: Bool;
-  graph?: Element;
-  orderBy?: OrderLimit;
-  optional?: boolean;
-  aggregate?: FunctionClause;
-  function?: FunctionClause;
-  entailment?: Entail;
-  hasRules?: boolean;
-  hasLinked?: boolean;
-  union?: boolean;
-  rule?: boolean;
-  hasTest?: boolean;
-  test?: boolean;
-  return?: Return;
-  returx?: Return;
-  isUnion?: boolean;
-  isTest?: boolean;
-  isRule?: boolean;
+export interface Match extends IriLD {
+    ifTrue?: RuleAction;
+    ifFalse?: RuleAction;
+    nodeRef?: string;
+    typeOf?: Node;
+    instanceOf?: Node[];
+    and?: Match[];
+    or?: Match[];
+    not?: Match[];
+    where?: Where;
+    graph?: Element;
+    orderBy?: OrderLimit;
+    optional?: boolean;
+    aggregate?: FunctionClause;
+    variable?: string;
+    parameter?: string;
+    path?: Path[];
+    function?: FunctionClause;
+    entailment?: Entail;
+    baseRule?: boolean;
+    hasLinked?: boolean;
+    union?: boolean;
+    ruleNumber?: number;
+    inverse?: boolean;
+    then?: Match;
+    rule?: Match[];
+    return?: Return;
+    returx?: Return;
+    isUnion?: boolean;
 }
 
-export interface Node extends Element, GraphNode {
-  type?: string;
-  exclude?: boolean;
-  code?: string;
-  inverse?: boolean;
+export interface Node extends Element {
+    type?: string;
+    exclude?: boolean;
+    code?: string;
+    inverse?: boolean;
 }
 
 export interface OrderDirection extends RelativeTo {
@@ -543,14 +349,16 @@ export interface OrderDirection extends RelativeTo {
 }
 
 export interface OrderLimit {
-  property?: OrderDirection;
-  limit?: number;
-  description?: string;
+    property?: OrderDirection[];
+    limit?: number;
+    description?: string;
 }
 
 export interface Path extends Element {
-  inverse?: boolean;
-  where?: Where;
+    inverse?: boolean;
+    optional?: boolean;
+    typeOf?: Node;
+    path?: Path[];
 }
 
 export interface PathDocument {
@@ -569,13 +377,13 @@ export interface Prefix {
 }
 
 export interface Query extends Match {
-  activeOnly?: boolean;
-  query?: Query[];
-  groupBy?: GroupBy[];
-  prefixes?: Prefix[];
-  imQuery?: boolean;
-  parentResult?: any;
-  persistentIri?: TTIriRef;
+    activeOnly?: boolean;
+    groupBy?: GroupBy[];
+    prefixes?: Prefix[];
+    dataSet?: Query[];
+    imQuery?: boolean;
+    parentResult?: any;
+    persistentIri?: TTIriRef;
 }
 
 export interface QueryEntity extends Entity {
@@ -610,10 +418,12 @@ export interface RelativeTo extends Node {
 }
 
 export interface Return {
-  nodeRef?: string;
-  function?: FunctionClause;
-  property?: ReturnProperty[];
-  as?: string;
+    nodeRef?: string;
+    function?: FunctionClause;
+    property?: ReturnProperty[];
+    as?: string;
+    valueRef?: string;
+    propertyRef?: string;
 }
 
 export interface ReturnProperty {
@@ -650,21 +460,19 @@ export interface When {
 }
 
 export interface Where extends Element, Assignable {
-  bool?: Bool;
-  match?: Match;
-  range?: Range;
-  isNull?: boolean;
-  relativeTo?: RelativeTo;
-  anyRoleGroup?: boolean;
-  typeOf?: Node;
-  is?: Node[];
-  not?: boolean;
-  where?: Where[];
-  isNotNull?: boolean;
-  function?: FunctionClause;
-  valueVariable?: string;
-  path?: Path;
-  inverse?: boolean;
+    range?: Range;
+    isNull?: boolean;
+    relativeTo?: RelativeTo;
+    anyRoleGroup?: boolean;
+    typeOf?: Node;
+    is?: Node[];
+    not?: boolean;
+    isNotNull?: boolean;
+    function?: FunctionClause;
+    valueVariable?: string;
+    inverse?: boolean;
+    or?: Where[];
+    and?: Where[];
 }
 
 export interface DownloadByQueryOptions {
@@ -969,37 +777,31 @@ export interface Context {
 }
 
 export interface TTIriRef extends TTValue, Serializable {
-  name?: string;
-  description?: string;
-  "@id": string;
+    name?: string;
+    description?: string;
+    "@id": string;
 }
 
-export interface Serializable {}
-
-export interface EntityReferenceNode extends TTIriRef, Serializable {
-  parents?: EntityReferenceNode[];
-  children?: EntityReferenceNode[];
-  moduleId?: string;
-  hasChildren?: boolean;
-  hasGrandChildren?: boolean;
-  type?: TTArray;
-  orderNumber?: number;
+export interface Serializable {
 }
 
-export interface TTNode extends TTValue, Serializable {
-  predicateMap?: { [index: string]: TTArray };
-  "@id"?: string;
+export interface TTEntity extends TTNode, Serializable {
+    context?: TTContext;
+    crud?: TTIriRef;
+    graph?: TTIriRef;
+    type?: TTArray;
+    status?: TTIriRef;
+    name?: string;
+    scheme?: TTIriRef;
+    version?: number;
+    description?: string;
+    code?: string;
+    prefixes?: TTPrefix[];
 }
 
-export interface ExportSet extends Serializable {
-  valueSet?: TTIriRef;
-  members?: SetMember[];
-  limited?: boolean;
-}
-
-export interface TTArray extends Serializable {
-  elements?: TTValue[];
-  list?: boolean;
+export interface TTContext extends Serializable {
+    prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1011,21 +813,26 @@ export interface Throwable extends Serializable {
 }
 
 export interface StackTraceElement extends Serializable {
-  classLoaderName?: string;
-  moduleName?: string;
-  moduleVersion?: string;
-  methodName?: string;
-  fileName?: string;
-  lineNumber?: number;
-  className?: string;
-  nativeMethod?: boolean;
+    classLoaderName?: string;
+    moduleName?: string;
+    moduleVersion?: string;
+    methodName?: string;
+    fileName?: string;
+    lineNumber?: number;
+    className?: string;
+    nativeMethod?: boolean;
 }
 
-export interface Exception extends Throwable {}
+export interface Exception extends Throwable {
+}
 
-export interface TTContext extends Serializable {
-  prefixes?: TTPrefix[];
-  nameSpaces?: TTPrefix[];
+export interface TTValue extends Serializable {
+    order?: number;
+}
+
+export interface TTArray extends Serializable {
+    elements?: TTValue[];
+    list?: boolean;
 }
 
 export interface TTPrefix {
@@ -1047,20 +854,7 @@ export interface SetMember extends Serializable {
   directParent?: TTIriRef;
 }
 
-export interface Comparable<T> {}
-
-export const enum ComponentType {
-  BOOL_GROUP = "BOOL_GROUP",
-  CONCEPT = "CONCEPT",
-  REFINEMENT = "REFINEMENT"
-}
-
-export const enum EclType {
-  exclusion = "exclusion",
-  refined = "refined",
-  compound = "compound",
-  compoundRefined = "compoundRefined",
-  simple = "simple"
+export interface Comparable<T> {
 }
 
 export const enum ListMode {
@@ -1084,8 +878,10 @@ export const enum Aggregate {
 }
 
 export const enum Bool {
-  and = "and",
-  or = "or"
+    and = "and",
+    or = "or",
+    not = "not",
+    rule = "rule",
 }
 
 export const enum Comparison {
@@ -1097,9 +893,15 @@ export const enum Comparison {
 }
 
 export const enum DisplayMode {
-  ORIGINAL = "ORIGINAL",
-  RULES = "RULES",
-  LOGICAL = "LOGICAL"
+    ORIGINAL = "ORIGINAL",
+    RULES = "RULES",
+    LOGICAL = "LOGICAL",
+}
+
+export const enum EclType {
+    refined = "refined",
+    compound = "compound",
+    simple = "simple",
 }
 
 export const enum Entail {
@@ -1111,10 +913,11 @@ export const enum Entail {
 }
 
 export const enum Function {
-  sum = "sum",
-  count = "count",
-  average = "average",
-  timeDifference = "timeDifference"
+    sum = "sum",
+    count = "count",
+    average = "average",
+    timeDifference = "timeDifference",
+    concatenate = "concatenate",
 }
 
 export const enum Operator {

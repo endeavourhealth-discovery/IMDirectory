@@ -51,33 +51,3 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
   (property as any).key = treeNode.key;
   return property as Where;
 }
-
-export function generateMatchIds(query: Query) {
-  const queryWithMatchIds = { ...query };
-  if (isArrayHasLength(queryWithMatchIds.match))
-    for (const match of queryWithMatchIds.match!) {
-      generateMatchIdsRecursively(match);
-    }
-
-  if (isArrayHasLength(queryWithMatchIds.query))
-    for (const subQuery of queryWithMatchIds.query!) {
-      if (isArrayHasLength(subQuery.match))
-        for (const match of subQuery.match!) {
-          generateMatchIdsRecursively(match);
-        }
-    }
-  return queryWithMatchIds;
-}
-
-export function generateMatchIdsRecursively(match: Match) {
-  if (!match["@id"]) match["@id"] = v4();
-  if (isArrayHasLength(match.match))
-    for (const nestedMatch of match.match!) {
-      generateMatchIdsRecursively(nestedMatch);
-    }
-
-  if (isArrayHasLength(match.where))
-    for (const property of match.where!) {
-      if (isObjectHasKeys(property, ["match"])) generateMatchIdsRecursively(property.match!);
-    }
-}

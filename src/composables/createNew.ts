@@ -62,8 +62,8 @@ function createNew() {
         case SHACL.NODESHAPE:
           allowableTypes = getChildType(SHACL.NODESHAPE, "Data Model/Node Shape", RDFS.SUBCLASS_OF);
           break;
-        case IM.COHORT_QUERY:
-          allowableTypes = getChildType(IM.COHORT_QUERY, "Cohort Query", IM.DEFINITION);
+        case IM.QUERY:
+          allowableTypes = getChildType(IM.QUERY, "Cohort Query", IM.DEFINITION);
           break;
         default:
           break;

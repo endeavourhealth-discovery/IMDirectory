@@ -1,6 +1,6 @@
 import { IM, RDFS } from "@/vocabulary";
-import { FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest, EntityReferenceNode } from "@/interfaces/AutoGen";
+import { EntityReferenceNode, FiltersAsIris, TTBundle, Namespace, FilterOptions, PropertyDisplay } from "@/interfaces";
+import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, TTEntity } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
@@ -25,6 +25,14 @@ const EntityService = {
       params: {
         iri: iri,
         includeInactiveTermCodes: includeInactiveTermCodes
+      }
+    });
+  },
+
+  async getEntityTypes(iri: string): Promise<string[]> {
+    return axios.get(API_URL + "/entityTypes", {
+      params: {
+        iri: iri
       }
     });
   },

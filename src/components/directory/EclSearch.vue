@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
-import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
+import Builder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
 import { EclSearchRequest, TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { EclService } from "@/services";

@@ -47,7 +47,7 @@
           </div>
         </AccordionContent>
         <div id="set-definition-container" class="set-accordion-content">
-          <QueryDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <QueryDisplay :entityIri="props.entityIri" :eclQuery="true" :entity-type="IM.VALUESET" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </AccordionPanel>
       <AccordionPanel header="Direct Members" value="2">
