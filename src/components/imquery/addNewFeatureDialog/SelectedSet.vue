@@ -122,7 +122,7 @@ async function init() {
       if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
       else entity.entailment = "descendantsOrSelfOf";
     }
-    selectedEntities.value = entities;
+    selectedEntities.value = entities as SelectedEntity[];
     if (selectedPath.value?.where?.[0].valueLabel) valueLabel.value = selectedPath.value?.where?.[0].valueLabel;
   }
   loading.value = false;

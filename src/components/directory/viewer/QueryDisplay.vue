@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
@@ -91,7 +91,7 @@ import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { IM } from "@/vocabulary";
 import { getOperatorText } from "@/helpers/IMQueryBuilder";
 
-const props = defineProps<{
+interface Props {
   entityIri?: string;
   definition?: string;
   showSqlButton?: boolean;
@@ -115,6 +115,7 @@ const sql: Ref<string> = ref("");
 const showSql: Ref<boolean> = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 const loading = ref(true);
+const ruleView: Ref<boolean> = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const boolGroup = computed(() => {
   return {

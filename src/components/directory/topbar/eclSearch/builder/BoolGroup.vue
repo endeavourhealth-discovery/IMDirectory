@@ -146,15 +146,6 @@ const canBeAttributeGroup: ComputedRef<boolean> = computed(() => {
 });
 
 const group: Ref<number[]> = ref([]);
-watch(attributeGroup, () => {
-  if (props.value.attributeGroup === undefined && attributeGroup.value) props.value.attributeGroup = attributeGroup.value;
-  else delete props.value.attributeGroup;
-});
-
-onMounted(() => {
-  if (props.value.attributeGroup) attributeGroup.value = true;
-  if (props.value.id && Object.hasOwn(childLoadingState.value, props.value.id)) childLoadingState.value[props.value.id] = true;
-});
 
 const hover = ref();
 function mouseover(event: any) {

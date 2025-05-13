@@ -92,7 +92,7 @@
 </template>
 
 <script lang="ts" setup>
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import { Match, TTIriRef } from "@/interfaces/AutoGen";
 import { computed, inject, onMounted, Ref, ref, watch } from "vue";
@@ -103,21 +103,26 @@ import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
 
-const props = defineProps<{
+interface Props {
   index?: number;
   match: Match;
-}>();
+}
 
-const emit = defineEmits<{
-  "update:showDialog": [payload: string];
-  saveChanges: [payload: Match];
-}>();
+const props = defineProps<Props>();
+
+const emit = defineEmits({
+  "update:showDialog": payload => typeof payload === "boolean",
+  saveChanges: (payload: Match) => payload
+});
+const keepAsVariable: Ref<string> = ref("");
+const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const keepAsEdit: Ref<boolean> = ref(false);
 const editMatchString: Ref<string> = ref("");
 const visible = defineModel<boolean>("visible");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
+const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const templates: Ref<any> = ref();
 const loading = ref(true);
 const editMatch: Ref<Match> = ref(cloneDeep(props.match));
@@ -289,6 +294,16 @@ function onAddFunctionProperty(property: string, value: any) {
 
 .variable-edit {
   padding-left: 1rem;
+}
+
+.variable {
+  padding-left: 1rem;
+  cursor: pointer;
+}
+
+.variable-display {
+  align-items: baseline;
+  display: flex;
 }
 
 .add-button-bar {
