@@ -121,10 +121,10 @@ function downClicked(): void {
   emit("moveDownClicked", createEntity());
 }
 
-function addNextClicked(item: { type: ComponentType; name: string }): void {
+function addNextClicked(item: { type: ComponentType; name: string } | undefined): void {
   emit("addNextOptionsClicked", {
     position: props.position + 1,
-    selectedType: item.type
+    selectedType: item?.type
   });
 }
 </script>

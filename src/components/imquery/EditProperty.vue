@@ -55,10 +55,6 @@ const props = withDefaults(
   { showDelete: true }
 );
 
-defineEmits<{
-  deleteProperty: [];
-}>();
-
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
 const emit = defineEmits<{ deleteProperty: [] }>();
