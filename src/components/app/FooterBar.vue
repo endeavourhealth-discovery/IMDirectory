@@ -15,18 +15,32 @@
       <Button link as="router-link" label="Snomed agreement" to="/snomedLicense" class="footer-link" />
       <Button link as="router-link" label="Uprn agreement" to="/uprn-agreement" class="footer-link" />
     </div>
-    <div id="footer-end"></div>
+    <div id="footer-end">
+      <IMFontAwesomeIcon
+        icon="fa-duotone fa-bugs"
+        :style="'--fa-primary-color: var(--p-primary-color); --fa-secondary-color: var(--p-content-color)'"
+        class="footer-icon"
+        v-tooltip.left="'Report bug'"
+        @click="reportBug"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useSharedStore } from "@/stores/sharedStore";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { useRouter } from "vue-router";
 
 const sharedStore = useSharedStore();
+const router = useRouter();
 
 function showCookieSettings() {
   sharedStore.updateShowCookieConsent(true);
+}
+
+async function reportBug() {
+  await router.push({ name: "BugReport" });
 }
 </script>
 
