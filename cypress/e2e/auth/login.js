@@ -51,7 +51,7 @@ When("I enter a valid username", () => {
 });
 
 When("I enter a valid password", () => {
-  cy.get("#login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
 });
 
 When("I click on the login button", () => {

@@ -18,7 +18,7 @@
     <template #header>
       <div class="ecl-builder-dialog-header">
         <strong>ECL Builder:</strong>
-        <Button icon="fa-regular fa-circle-question" text rounded @click="toggle" />
+        <Button icon="fa-regular fa-circle-question" text rounded-sm @click="toggle" />
         <Popover ref="op">Select or drag and drop for grouping</Popover>
       </div>
     </template>
@@ -393,7 +393,7 @@ function stripValidation(build: any) {
   padding: 1rem;
   margin: 0;
   height: 100%;
-  flex-grow: 100;
+  grow: 100;
   overflow-y: auto;
   tab-size: 4;
 }

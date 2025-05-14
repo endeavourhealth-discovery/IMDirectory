@@ -8,7 +8,7 @@
       <template #content>
         <div class="mfa-setup-content">
           <p>Scan the qr code with your prefered authenticator app to setup 2-factor authentication for your account.</p>
-          <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
+          <Button icon="fa-solid fa-circle-question" rounded-sm severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
           <ProgressSpinner v-if="loadingQRCode" />
           <div id="qr-code" ref="qrCodeElement"></div>
           <div class="code-input">
@@ -94,7 +94,7 @@ function generateOptions(dataUrl: string) {
     },
     dotsOptions: {
       color: primaryColor,
-      type: "rounded" as DotType
+      type: "rounded-sm" as DotType
     },
     backgroundOptions: {
       color: backgroundColor
