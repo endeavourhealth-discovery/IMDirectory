@@ -38,9 +38,7 @@ import { GenericObject } from "@/interfaces/GenericObject";
 const props = defineProps<{
   quantifier?: TTIriRef;
   isAs: string[];
-}
-
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{ treeNodeSelected: [payload: TTIriRef] }>();
 

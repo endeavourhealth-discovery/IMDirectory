@@ -12,8 +12,8 @@
     <span v-if="match.instanceOf">
       <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
       <IMViewerLink
-        v-if="match.instanceOf[0]['@id']"
-        :iri="match.instanceOf[0]['@id']"
+        v-if="match.instanceOf[0].iri"
+        :iri="match.instanceOf[0].iri"
         :label="match.instanceOf[0].name"
         @navigateTo="(iri: string) => emit('navigateTo', iri)"
       />
@@ -24,7 +24,7 @@
               <ul>
                 <li class="tight-spacing">
                   <span class="or">or</span>
-                  <IMViewerLink v-if="item['@id']" :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                  <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
                 </li>
               </ul>
             </span>

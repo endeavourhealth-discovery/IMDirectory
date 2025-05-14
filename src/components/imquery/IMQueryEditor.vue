@@ -33,13 +33,12 @@ import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDispl
 
 const props = defineProps<{
   queryDefinition?: Query;
-}
+}>();
 
 const emit = defineEmits<{
   updateQuery: [payload: Query];
 }>();
 
-const props = defineProps<Props>();
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const editQueryDefinition: Ref<Match> = ref({});
 const rootQuery: Ref<Match> = ref({});
@@ -55,12 +54,12 @@ const { populateVariableMap } = setupIMQueryBuilderActions();
 watch(
   () => cloneDeep(selectedBaseType.value),
   (newValue, oldValue) => {
-    if (newValue?.iri !== oldValue?.iri && oldValue?.iri && editQueryDefinition.value.typeOf?.["@id"]) {
+    if (newValue?.iri !== oldValue?.iri && oldValue?.iri && editQueryDefinition.value.typeOf?.iri) {
       editQueryDefinition.value.or = [];
       editQueryDefinition.value.and = [];
       editQueryDefinition.value.not = [];
     }
-    if (selectedBaseType.value) editQueryDefinition.value.typeOf = { "@id": selectedBaseType.value.iri } as Node;
+    if (selectedBaseType.value) editQueryDefinition.value.typeOf = { iri: selectedBaseType.value.iri } as Node;
   }
 );
 

@@ -28,10 +28,8 @@ const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
-  value?: String;
-}
-
-const props = defineProps<Props>();
+  value?: string;
+}>();
 
 const emit = defineEmits<{ updateClicked: [payload: String] }>();
 

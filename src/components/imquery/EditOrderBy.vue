@@ -5,7 +5,7 @@
   <div v-else-if="orderBy.property" class="order-by">
     <span v-for="(property, index) in orderBy.property" :key="index">
       <InputText value="Order by" disabled class="w-full md:w-20" />
-      <Select v-model="property['@id']" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
+      <Select v-model="property.iri" :options="orderProperties" optionLabel="name" optionValue="iri" placeholder="Select property" />
       <Select v-model="property.direction" :options="getDirectionOptions(property)" optionLabel="name" optionValue="value" placeholder="Select direction" />
     </span>
     <InputText value="Limit" disabled class="w-full md:w-20" />

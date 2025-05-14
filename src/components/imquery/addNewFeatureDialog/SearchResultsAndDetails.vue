@@ -140,7 +140,7 @@ watch(
       if (pathSuggestions.value.length && !props.selectedPath) emit("update:selectedPath", pathSuggestions.value[0]);
       else if (props.selectedPath && isProperty(detailsEntity.value?.[RDF.TYPE])) emit("update:selectedPath", pathSuggestions.value[0]);
       else if (isQuery(detailsEntity.value?.[RDF.TYPE]) || isFeature(detailsEntity.value?.[RDF.TYPE]))
-        addToSelectedList(detailsEntity.value["@id"], detailsEntity.value[RDFS.LABEL]);
+        addToSelectedList(detailsEntity.value.iri, detailsEntity.value[RDFS.LABEL]);
     }
     activePage.value = 1;
     emit("selectedIri", newValue);

@@ -2,7 +2,7 @@ import { entityToAliasEntity } from "@/helpers/Transforms";
 import axios from "axios";
 import Env from "./Env";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Query, SearchResultSummary, EclSearchRequest } from "@/interfaces/AutoGen";
+import { Query, SearchResultSummary, EclSearchRequest, SearchResponse } from "@/interfaces/AutoGen";
 
 const EclService = {
   async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<SearchResponse> {

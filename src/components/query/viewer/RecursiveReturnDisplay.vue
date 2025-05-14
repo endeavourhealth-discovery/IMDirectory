@@ -38,9 +38,7 @@ import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 defineProps<{
   select: Return;
-}
-
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
   navigateTo: [payload: string];

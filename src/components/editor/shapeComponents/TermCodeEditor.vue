@@ -28,6 +28,8 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IM, RDFS } from "@/vocabulary";
 import { useFilterStore } from "@/stores/filterStore";
 import { cloneDeep } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 interface Props {
   shape: PropertyShape;
@@ -49,8 +51,8 @@ watch(
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity as Ref<TTEntity>;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap as Ref<Map<string, GenericObject>>;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
@@ -63,8 +65,8 @@ if (forceValidation) {
       if (props.shape.builderChild) {
         isValidTermCode();
       } else {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
-        if (updateValidationCheckStatus) updateValidationCheckStatus(props.shape.path["@id"]);
+        await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path.iri, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(props.shape.path.iri);
       }
       showValidation.value = true;
     }
@@ -80,7 +82,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
           if (props.shape.builderChild) {
             isValidTermCode();
           } else {
-            await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+            await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path.iri, invalid, validationErrorMessage);
           }
           showValidation.value = true;
         }
@@ -123,7 +125,7 @@ watch([name, code, status], async ([newName, newCode, newStatus], [oldName, oldC
     if (props.shape.builderChild) {
       isValidTermCode();
     } else {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+      await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path.iri, invalid, validationErrorMessage);
     }
     showValidation.value = true;
   }
@@ -139,9 +141,9 @@ function processProps() {
     if (
       isObjectHasKeys(props.value, [IM.HAS_STATUS]) &&
       isArrayHasLength(props.value[IM.HAS_STATUS]) &&
-      isObjectHasKeys(props.value[IM.HAS_STATUS][0], ["@id"])
+      isObjectHasKeys(props.value[IM.HAS_STATUS][0], ["iri"])
     ) {
-      if (statusOptions.value.findIndex(so => so["@id"] === props.value[IM.HAS_STATUS][0]["@id"]) != -1) status.value = props.value[IM.HAS_STATUS][0];
+      if (statusOptions.value.findIndex(so => so.iri === props.value[IM.HAS_STATUS][0].iri) != -1) status.value = props.value[IM.HAS_STATUS][0];
     }
     if (isObjectHasKeys(props.value, [RDFS.LABEL])) name.value = props.value[RDFS.LABEL];
   }
@@ -163,7 +165,7 @@ function isValidTermCode() {
       invalid.value = true;
       validationErrorMessage.value += "Missing code. ";
     }
-    if (statusOptions.value.findIndex(so => so["@id"] === status.value?.["@id"]) === -1) {
+    if (statusOptions.value.findIndex(so => so.iri === status.value?.iri) === -1) {
       invalid.value = true;
       validationErrorMessage.value += "Missing status. ";
     }
@@ -184,8 +186,8 @@ function updateEntity() {
     }
 
     const result = {} as any;
-    result[props.shape.path["@id"]] = newTermCode;
-    if (!code.value && !status.value && !name.value && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(props.shape.path["@id"]);
+    result[props.shape.path.iri] = newTermCode;
+    if (!code.value && !status.value && !name.value && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(props.shape.path.iri);
     else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
     else emit("updateClicked", newTermCode);
   }

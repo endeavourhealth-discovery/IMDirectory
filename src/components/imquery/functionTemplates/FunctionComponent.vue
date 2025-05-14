@@ -35,7 +35,7 @@ function onClick(templateFunctionIri: string, limit: number, valueTemplates: any
         limit: limit,
         property: [
           {
-            "@id": property[IM.DEFAULT_VALUE]?.[0]?.["@id"],
+            iri: property[IM.DEFAULT_VALUE]?.[0]?.iri,
             direction: direction[IM.DEFAULT_VALUE] === Order.ascending ? Order.ascending : Order.descending
           }
         ]

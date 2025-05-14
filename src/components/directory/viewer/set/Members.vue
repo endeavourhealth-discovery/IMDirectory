@@ -28,9 +28,9 @@
       </template>
       <template #loading> Loading data. Please wait... </template>
       <Column field="member" header="Name">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <span v-if="data.exclude" class="exclude">Exclude</span>
-          <IMViewerLink :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :action="'select'" :iri="data.iri" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
           <span class="entailment" v-html="getEntailment(data)"></span>
         </template>
       </Column>
@@ -46,6 +46,7 @@ import { IM } from "@/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { DataTablePageEvent } from "primevue/datatable";
+import { useToast } from "primevue/usetoast";
 
 const props = defineProps<{
   entityIri: string;
@@ -60,7 +61,7 @@ const toast = useToast();
 
 const hasDefinition: Ref<boolean> = ref(false);
 const loading = ref(false);
-const members: Ref<Node[]> = ref([]);
+const members: Ref<Node[] | undefined> = ref([]);
 
 const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");

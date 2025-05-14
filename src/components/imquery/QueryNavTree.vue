@@ -48,8 +48,7 @@ const props = defineProps<{
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
-}
-const props = defineProps<Props>();
+}>();
 const modelSelectedProperty = defineModel<TreeNode | undefined>("selectedProperty");
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const selectedNode = ref();
@@ -74,7 +73,7 @@ async function init() {
 
 async function populateCheckBoxes(match: Match) {
   if (match.where) {
-    if (match.where["@id"]) selectByIri(match.where, match.where["@id"], root.value);
+    if (match.where.iri) selectByIri(match.where, match.where.iri, root.value);
   }
 }
 
@@ -183,8 +182,8 @@ async function onNodeExpand(node: TreeNode) {
       if (!groupNode) {
         groupNode = createTreeNode(
           getNameFromRef(groupRef),
-          groupRef["@id"],
-          [{ "@id": IM.FOLDER }],
+          groupRef.iri,
+          [{ iri: IM.FOLDER }],
           true,
           false,
           node,

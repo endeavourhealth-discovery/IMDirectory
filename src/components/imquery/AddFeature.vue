@@ -37,11 +37,7 @@ const props = defineProps<Props>();
 const showCohortSelector = ref(false);
 const showMatchTypeSelector = ref(true);
 const selectedCohort: Ref<SearchResultSummary | undefined> = ref();
-<<<<<<< HEAD
-const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ iri: IM.COHORT_QUERY }], status: [], schemes: [] });
-=======
-const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ "@id": IM.QUERY }], status: [], schemes: [] });
->>>>>>> rich/eslint
+const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ iri: IM.QUERY }], status: [], schemes: [] });
 const queryRequest: Ref<QueryRequest | undefined> = ref();
 const rootCohortFolder = [IM.NAMESPACE + "Q_Queries"];
 const emit = defineEmits<{

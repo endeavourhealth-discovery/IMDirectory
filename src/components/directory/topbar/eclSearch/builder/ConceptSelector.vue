@@ -76,7 +76,7 @@ watch(selected, (newValue, oldValue) => {
 
 async function init() {
   buildIMQueryForConceptSearch();
-  selected.value.iri = node.value["@id"];
+  selected.value.iri = node.value.iri;
   selected.value.name = node.value.name;
   constraintOperator.value = getConstraintOperator(node.value);
 }
@@ -99,7 +99,7 @@ function buildIMQueryForConceptSearch() {
 
 function updateConcept(concept: SearchResultSummary) {
   if (concept) {
-    node.value["@id"] = concept.iri;
+    node.value.iri = concept.iri;
     node.value.name = concept.name;
   }
 }

@@ -34,9 +34,7 @@ const props = defineProps<{
   mode: EditorMode;
   position?: number;
   value?: string;
-}
-
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{ updateClicked: [payload: string] }>();
 

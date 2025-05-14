@@ -50,8 +50,7 @@ const props = defineProps<{
   members: Concept[];
   setIri?: string;
   loading: boolean;
-}
-const props = defineProps<Props>();
+}>();
 
 const modelSelectedSet = defineModel<SearchResultSummary | undefined>("selectedSet");
 
@@ -104,14 +103,7 @@ async function init() {
     const queryFilterOptions: SearchOptions = {
       schemes: filterOptions.value.schemes,
       status: filterOptions.value.status,
-      types: [
-        { iri: IM.CONCEPT_SET },
-        { iri: IM.SET },
-        { iri: IM.QUERY_SET },
-        { iri: IM.VALUE_SET },
-        { iri: IM.CONCEPT_SET },
-        { iri: IM.CONCEPT_SET_GROUP }
-      ],
+      types: [{ iri: IM.CONCEPT_SET }, { iri: IM.SET }, { iri: IM.QUERY_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT_SET }, { iri: IM.CONCEPT_SET_GROUP }],
       textSearch: entity.name,
       page: { pageNumber: 1, pageSize: 100 }
     };

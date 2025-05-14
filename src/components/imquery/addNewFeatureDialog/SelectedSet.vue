@@ -123,7 +123,7 @@ async function init() {
       else entity.entailment = "descendantsOrSelfOf";
     }
     selectedEntities.value = entities as SelectedEntity[];
-    if (selectedPath.value?.where?.[0].valueLabel) valueLabel.value = selectedPath.value?.where?.[0].valueLabel;
+    if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where.valueLabel;
   }
   loading.value = false;
 }

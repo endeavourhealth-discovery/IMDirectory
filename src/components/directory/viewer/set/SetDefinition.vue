@@ -95,9 +95,7 @@ import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   entityIri: string;
-}
-
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{ navigateTo: [payload: string] }>();
 

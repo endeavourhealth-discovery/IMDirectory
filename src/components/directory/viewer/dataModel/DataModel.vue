@@ -165,8 +165,8 @@ function createOrderableNode(property: PropertyShape, rangeNode: TreeNode) {
       selectable: false,
       loading: false,
       data: {
-        typeIcon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
-        color: getColourFromType([{ "@id": IM.CONCEPT }]),
+        typeIcon: getFAIconFromType([{ iri: IM.CONCEPT }]),
+        color: getColourFromType([{ iri: IM.CONCEPT }]),
         iri: "im:orderable"
       },
       type: "type"

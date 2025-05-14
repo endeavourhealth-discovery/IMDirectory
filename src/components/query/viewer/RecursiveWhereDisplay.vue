@@ -39,7 +39,7 @@
         <span>=</span>
         <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
           <span v-if="index > 0" class="field">or</span>
-          <IMViewerLink v-if="item['@id']" :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
           <span v-if="item.descendantsOrSelfOf">+subtypes</span>
         </span>
       </span>

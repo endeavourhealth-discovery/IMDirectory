@@ -54,7 +54,10 @@ import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";
 import { getColourFromType } from "@/helpers/ConceptTypeVisuals";
 import { DataTableRowSelectEvent } from "primevue/datatable";
-
+interface UIDataModel extends TTIriRef {
+  type?: TTIriRef[];
+  icon?: string[];
+}
 const props = defineProps<{
   entityIri: string;
 }>();

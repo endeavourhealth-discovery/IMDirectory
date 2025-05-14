@@ -144,14 +144,14 @@ async function createFeatureTree() {
   data.value.push(createNode("0", "Add a cohort as feature", "cohort", "cohort", IM.QUERY, "", null, null));
   data.value.push(createNode("1", "Add " + props.baseType.name + " features", "features", "folder", IM.FOLDER, "", null, null));
   data.value[0].selectable = true;
-  await createPropertyTree(props.baseType["@id"]!, data.value[1], false);
+  await createPropertyTree(props.baseType.iri!, data.value[1], false);
   expandedKeys.value = { 1: true };
   loading.value = false;
 }
 
 function isBase(property: PropertyShape): boolean {
   if (property.node) {
-    if (property.node["@id"] === props.baseType["@id"]) {
+    if (property.node.iri === props.baseType.iri) {
       return true;
     } else {
       return false;
@@ -229,7 +229,7 @@ function createPropertyNode(index: string, property: PropertyShape, parent: Tree
   const propertyNode = createNode(index, name!, property.path.iri, "property", RDF.PROPERTY, rangeType, parent, pathMatch);
   propertyNode.selectable = true;
   if (property.node) {
-    propertyNode.data.range = property.node["@id"];
+    propertyNode.data.range = property.node.iri;
     propertyNode.data.rangeName = property.node.name;
   }
   return propertyNode;

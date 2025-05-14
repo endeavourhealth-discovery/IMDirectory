@@ -72,9 +72,7 @@ import { FileUploadUploadEvent } from "primevue/fileupload";
 const props = defineProps<{
   showAddByList: boolean;
   showAddByFile: boolean;
-}
-
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
   addCodeList: [payload: any];

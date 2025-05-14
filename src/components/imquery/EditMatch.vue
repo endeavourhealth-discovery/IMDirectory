@@ -135,13 +135,13 @@ function getOperatorText(operator: string): string {
   }
 }
 onMounted(() => {
-  if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!["@id"]!;
+  if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!.iri!;
 });
 
 watch(
   () => cloneDeep(editMatch),
   () => {
-    if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!["@id"]!;
+    if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!.iri!;
   }
 );
 

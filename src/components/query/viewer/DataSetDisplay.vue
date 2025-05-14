@@ -87,16 +87,16 @@ onMounted(async () => {
 });
 async function init() {
   if (!dataSet.value.return) {
-    if (dataSet.value["@id"]) {
-      dataSet.value = await QueryService.getDisplayFromQueryIri(dataSet.value["@id"], DisplayMode.ORIGINAL);
+    if (dataSet.value.iri) {
+      dataSet.value = await QueryService.getDisplayFromQueryIri(dataSet.value.iri, DisplayMode.ORIGINAL);
     } else dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
   }
 }
 watch(
   () => props.query,
   async () => {
-    if (!props.query.return && props.query["@id"]) {
-      dataSet.value = await QueryService.getDisplayFromQueryIri(props.query["@id"], DisplayMode.ORIGINAL);
+    if (!props.query.return && props.query.iri) {
+      dataSet.value = await QueryService.getDisplayFromQueryIri(props.query.iri, DisplayMode.ORIGINAL);
     }
   },
   { immediate: true, deep: true }

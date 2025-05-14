@@ -34,8 +34,7 @@ import { MenuItem } from "primevue/menuitem";
 
 const props = defineProps<{
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
   navigateTo: [payload: string];

@@ -11,7 +11,7 @@ const CohortQueryShape: FormGenerator = {
   label: "Editor - Cohort query shape",
   comment: "Form editor for a cohort query",
   targetShape: {
-    "@id": IM.QUERY
+    iri: IM.QUERY
   },
   property: [
     {
@@ -20,7 +20,7 @@ const CohortQueryShape: FormGenerator = {
       name: "splitter",
       path: { iri: IM.CONCEPT },
       maxCount: 1,
-      componentType: { "@id": COMPONENT.TAB_LAYOUT },
+      componentType: { iri: COMPONENT.TAB_LAYOUT },
       property: [
         {
           label: "Property group - query definition builder",
@@ -39,14 +39,14 @@ const CohortQueryShape: FormGenerator = {
               order: 1,
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.QUERY_DEFINITION_BUILDER
+                iri: COMPONENT.QUERY_DEFINITION_BUILDER
               },
               validation: {
-                "@id": VALIDATION.IS_DEFINITION
+                iri: VALIDATION.IS_DEFINITION
               },
               validationErrorMessage: "Query definition is not valid",
               path: {
-                "@id": IM.DEFINITION
+                iri: IM.DEFINITION
               }
             }
           ]
@@ -64,24 +64,24 @@ const CohortQueryShape: FormGenerator = {
           ],
           maxCount: 1,
           path: {
-            "@id": RDF.TYPE
+            iri: RDF.TYPE
           },
           componentType: {
-            "@id": COMPONENT.VERTICAL_LAYOUT
+            iri: COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
               order: 1,
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.QUERY_DEFINITION_BUILDER
+                iri: COMPONENT.QUERY_DEFINITION_BUILDER
               },
               validation: {
-                "@id": VALIDATION.IS_DEFINITION
+                iri: VALIDATION.IS_DEFINITION
               },
               validationErrorMessage: "Query definition is not valid",
               path: {
-                "@id": IM.DEFINITION
+                iri: IM.DEFINITION
               }
             }
           ]
@@ -93,10 +93,10 @@ const CohortQueryShape: FormGenerator = {
           order: 1,
           maxCount: 1,
           path: {
-            "@id": RDF.TYPE
+            iri: RDF.TYPE
           },
           componentType: {
-            "@id": COMPONENT.VERTICAL_LAYOUT
+            iri: COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
@@ -241,7 +241,7 @@ const CohortQueryShape: FormGenerator = {
                   argument: [
                     {
                       valueIri: {
-                        "@id": IM.QUERY
+                        iri: IM.QUERY
                       },
                       parameter: "value"
                     }
