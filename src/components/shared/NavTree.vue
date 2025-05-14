@@ -80,11 +80,11 @@ const props = withDefaults(defineProps<Props>(), {
   allowDragAndDrop: false
 });
 
-const emit = defineEmits({
-  rowSelected: payload => true,
-  rowDblClicked: payload => true,
-  foundInTree: () => true
-});
+const emit = defineEmits<{
+  rowSelected: [payload: any];
+  rowDblClicked: [payload: any];
+  foundInTree: [];
+}>();
 
 const router = useRouter();
 const toast = useToast();

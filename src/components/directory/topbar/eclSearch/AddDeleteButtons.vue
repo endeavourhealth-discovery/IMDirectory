@@ -22,10 +22,10 @@ const props = withDefaults(defineProps<Props>(), {
   show: { minus: true, plus: true } as any
 });
 
-const emit = defineEmits({
-  addNextClicked: (_payload: ECLComponent) => true,
-  deleteClicked: () => true
-});
+const emit = defineEmits<{
+  addNextClicked: [payload: ECLComponent];
+  deleteClicked: [];
+}>();
 
 const menuOptions: Ref<any[]> = ref([]);
 const selected: Ref<ECLComponent | null> = ref(null);

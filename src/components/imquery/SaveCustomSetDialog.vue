@@ -75,7 +75,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const emit = defineEmits({ onSave: (payload: Node) => payload });
+const emit = defineEmits<{ onSave: [payload: Node] }>();
 
 const schema = yup.object({
   scheme: yup.string().required().label("Scheme").default(IM.NAMESPACE),
@@ -199,12 +199,7 @@ function getDefinition() {
     matches.push({ name: member.name, instanceOf: [member] });
   }
   const definition = {
-    match: [
-      {
-        match: matches,
-        bool: "or"
-      }
-    ] as Match[]
+    or: matches
   };
   return JSON.stringify(definition);
 }

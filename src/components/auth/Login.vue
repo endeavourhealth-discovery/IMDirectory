@@ -116,7 +116,20 @@ function handle403(res: CustomAlert) {
         router.push({ name: "ConfirmCode" });
       }
     });
-  } else if (res.message === "NEW_PASSWORD_REQUIRED" || res.nextStep === "RESET_PASSWORD" || res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
+  } else if (res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
+    Swal.fire({
+      icon: "warning",
+      title: "New password required",
+      text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+      showCloseButton: false,
+      showCancelButton: false,
+      confirmButtonText: "Change password"
+    }).then(async (result: SweetAlertResult) => {
+      if (result.isConfirmed) {
+        await router.push({ name: "ChangeTemporaryPassword", params: { tempPassword: password.value } });
+      }
+    });
+  } else if (res.message === "NEW_PASSWORD_REQUIRED" || res.nextStep === "RESET_PASSWORD") {
     Swal.fire({
       icon: "warning",
       title: "New password required",

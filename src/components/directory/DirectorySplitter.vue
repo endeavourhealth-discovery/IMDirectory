@@ -60,7 +60,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({ selectedFiltersUpdated: (_payload: FilterOptions) => true });
+const emit = defineEmits<{ selectedFiltersUpdated: [payload: FilterOptions] }>();
 
 const router = useRouter();
 const loadingStore = useLoadingStore();

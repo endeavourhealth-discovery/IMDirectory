@@ -63,9 +63,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 watch(
   () => props.entityIri,
@@ -157,6 +157,24 @@ function createQualifierNode(property: PropertyShape, rangeNode: TreeNode) {
     }
   }
 }
+function createOrderableNode(property: PropertyShape, rangeNode: TreeNode) {
+  if (property.orderable) {
+    const orderableNode = {
+      key: rangeNode.key + "-orderable",
+      label: "Orderable ( " + property.ascending + " / " + property.descending + ")",
+      children: [] as TreeNode[],
+      selectable: false,
+      loading: false,
+      data: {
+        typeIcon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
+        color: getColourFromType([{ "@id": IM.CONCEPT }]),
+        iri: "im:orderable"
+      },
+      type: "type"
+    } as TreeNode;
+    rangeNode.children!.push(orderableNode);
+  }
+}
 function setQualifierNode(qualifiers: string, rangeNode: TreeNode, iri: string, index: number) {
   const qualifierNode = {
     key: rangeNode.key + "-q" + index,
@@ -227,6 +245,7 @@ function createRangeNode(property: PropertyShape, propertyNode: TreeNode) {
     propertyNode.children!.push(rangeNode);
     createParameterNode(property, rangeNode);
     createQualifierNode(property, rangeNode);
+    createOrderableNode(property, rangeNode);
   }
 }
 

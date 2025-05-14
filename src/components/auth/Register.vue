@@ -135,9 +135,9 @@ import { useForm } from "vee-validate";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 
-const emit = defineEmits({
-  userCreated: (_payload: User) => true
-});
+const emit = defineEmits<{
+  userCreated: [payload: User];
+}>();
 
 const authStore = useAuthStore();
 const router = useRouter();

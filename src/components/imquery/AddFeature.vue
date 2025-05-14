@@ -1,4 +1,5 @@
 <template>
+  <pre>addFeature={{ addFeature }},show=MatchType {{ showMatchTypeSelector }}</pre>
   <MatchTypeSelector
     v-if="showMatchTypeSelector"
     v-model:visible="showMatchTypeSelector"
@@ -18,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Match, Node, Path, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
+import { Match, Node, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
 import { Ref, ref, watch } from "vue";
 import MatchTypeSelector from "./MatchTypeSelector.vue";
 import { TreeNode } from "primevue/treenode";
@@ -36,7 +37,7 @@ const props = defineProps<Props>();
 const showCohortSelector = ref(false);
 const showMatchTypeSelector = ref(true);
 const selectedCohort: Ref<SearchResultSummary | undefined> = ref();
-const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ "@id": IM.COHORT_QUERY }], status: [], schemes: [] });
+const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ "@id": IM.QUERY }], status: [], schemes: [] });
 const queryRequest: Ref<QueryRequest | undefined> = ref();
 const rootCohortFolder = [IM.NAMESPACE + "Q_Queries"];
 const emit = defineEmits<{
@@ -68,6 +69,7 @@ const onMatchTypeSelected = async (node: any) => {
 
 const cancel = () => {
   addFeature.value = false;
+  showMatchTypeSelector.value = true;
 };
 
 async function createMatch(node: TreeNode) {
@@ -75,7 +77,7 @@ async function createMatch(node: TreeNode) {
   if (node.data.pathMatch) {
     match = node.data.pathMatch;
   }
-  match.where = [{ "@id": node.data.iri, name: node.label }];
+  match.where = { "@id": node.data.iri, name: node.label };
   emit("onAddMatch", match);
 }
 </script>

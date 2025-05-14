@@ -15,10 +15,10 @@ const props = withDefaults(defineProps<Props>(), {
   show: { up: true, down: true } as any
 });
 
-const emit = defineEmits({
-  moveUpClicked: () => true,
-  moveDownClicked: () => true
-});
+const emit = defineEmits<{
+  moveUpClicked: [];
+  moveDownClicked: [];
+}>();
 
 function moveUpClicked(event: any) {
   emit("moveUpClicked");

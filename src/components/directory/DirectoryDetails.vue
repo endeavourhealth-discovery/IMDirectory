@@ -17,7 +17,7 @@
       <ParentHierarchy
         :entityIri="entity?.['@id']"
         @navigateTo="(iri: string) => $emit('navigateTo', iri)"
-        :history="history"
+        :history="modelHistory"
         @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
       />
       <ParentHeader
@@ -46,18 +46,18 @@ import { SearchResponse } from "@/interfaces/AutoGen";
 interface Props {
   selectedIri: string;
   showSelectButton?: boolean;
-  history: string[];
   searchResults?: SearchResponse;
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true,
-  locateInTree: (_payload: string) => true,
-  "update:history": (_payload: string[]) => true,
-  selectedUpdated: (_payload: string) => true,
-  goToSearchResults: () => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+  locateInTree: [payload: string];
+  selectedUpdated: [payload: string];
+  goToSearchResults: [];
+}>();
+
+const modelHistory = defineModel<string[]>("history", { required: true });
 
 watch(
   () => props.selectedIri,

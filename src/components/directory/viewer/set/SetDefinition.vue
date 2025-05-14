@@ -47,7 +47,7 @@
           </div>
         </AccordionContent>
         <div id="set-definition-container" class="set-accordion-content">
-          <QueryDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <QueryDisplay :entityIri="props.entityIri" :eclQuery="true" :entity-type="IM.VALUESET" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </AccordionPanel>
       <AccordionPanel header="Direct Members" value="2">
@@ -96,15 +96,17 @@ interface Props {
   entityIri: string;
 }
 
+const props = defineProps<Props>();
+
+const emit = defineEmits<{ navigateTo: [payload: string] }>();
+
+const toast = useToast();
 const dynamicDialog = useDialog();
 
-const props = defineProps<Props>();
-const toast = useToast();
 const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();
 const active: Ref<string[]> = ref([]);
-const emit = defineEmits({ navigateTo: (_payload: string) => true });
 const showCompareSetDialog = ref(false);
 
 const { downloadFile } = setupDownloadFile(window, document);

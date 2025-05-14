@@ -56,7 +56,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
+const emit = defineEmits<{ onOpenTab: [payload: string]; navigateTo: [payload: string] }>();
 
 const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
 const OS: Ref<any> = ref();

@@ -21,9 +21,9 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  addFunctionProperty: (_property: string, _value: any) => true
-});
+const emit = defineEmits<{
+  addFunctionProperty: [payload: { property: string; value: any }];
+}>();
 
 function onClick(templateFunctionIri: string, limit: number, valueTemplates: any) {
   if (templateFunctionIri === IM.ORDER_BY) {
@@ -32,12 +32,14 @@ function onClick(templateFunctionIri: string, limit: number, valueTemplates: any
     if (direction && property) {
       const orderBy: OrderLimit = {
         limit: limit,
-        property: {
-          "@id": property[IM.DEFAULT_VALUE]?.[0]?.["@id"],
-          direction: direction[IM.DEFAULT_VALUE] === Order.ascending ? Order.ascending : Order.descending
-        }
+        property: [
+          {
+            "@id": property[IM.DEFAULT_VALUE]?.[0]?.["@id"],
+            direction: direction[IM.DEFAULT_VALUE] === Order.ascending ? Order.ascending : Order.descending
+          }
+        ]
       };
-      emit("addFunctionProperty", "orderBy", orderBy);
+      emit("addFunctionProperty", { property: "orderBy", value: orderBy });
     }
   }
 }

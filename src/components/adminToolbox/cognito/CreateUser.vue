@@ -121,9 +121,9 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import AdminService from "@/services/AdminService";
 
-const emit = defineEmits({
-  userCreated: (_payload: User) => true
-});
+const emit = defineEmits<{
+  userCreated: [payload: User];
+}>();
 
 const router = useRouter();
 

@@ -25,7 +25,8 @@ import {
   verifyTOTPSetup,
   updateMFAPreference,
   updatePassword,
-  updateUserAttributes
+  updateUserAttributes,
+  ConfirmSignInInput
 } from "aws-amplify/auth";
 import axios from "axios";
 import Env from "./Env";
@@ -241,6 +242,29 @@ const AuthService = {
       }
       return { status: 400, message: "Error submitting password-reset credentials", error: err };
     }
+  },
+
+  async changeTemporaryPassword(newPassword: string, firstName: string, lastName: string): Promise<CustomAlert> {
+    try {
+      await confirmSignIn({ challengeResponse: newPassword });
+      await this.setFirstNameAndLastName(firstName, lastName);
+      await this.getCurrentAuthenticatedUser();
+      return { status: 200, message: "Password changed successfully" };
+    } catch (err: any) {
+      return { status: 400, message: "Error changing temporary password", error: err };
+    }
+  },
+
+  async setFirstNameAndLastName(firstName: string, lastName: string) {
+    const cognitoUser = await getCurrentUser();
+    const userAttributes = await fetchUserAttributes();
+    const tokens = await fetchAuthSession();
+    const mfa = await fetchMFAPreference();
+    userAttributes["custom:forename"] = firstName;
+    userAttributes["custom:surname"] = lastName;
+    const authenticatedUser = processAwsUser(cognitoUser, userAttributes, tokens, mfa);
+    authenticatedUser.avatar = Avatars[0];
+    await this.updateUser(authenticatedUser);
   },
 
   async getCurrentAuthenticatedUser(): Promise<CustomAlert> {

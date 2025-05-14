@@ -19,7 +19,6 @@
             <Tab v-if="isRecordModel(types)" value="6">Data Model</Tab>
             <Tab v-if="isRecordModel(types)" value="7">Properties</Tab>
             <Tab v-if="isQuery(types)" value="8">Query</Tab>
-            <Tab v-if="isDataSet(types)" value="9">Data set</Tab>
             <Tab v-if="isFeature(types)" value="10">Feature</Tab>
             <Tab value="11">Contents</Tab>
             <Tab v-if="isProperty(types)" value="12">Data Models</Tab>
@@ -71,12 +70,7 @@
             </TabPanel>
             <TabPanel v-if="isQuery(types)" value="8">
               <div id="query-container" class="concept-panel-content">
-                <QueryDisplay :entityIri="entityIri" />
-              </div>
-            </TabPanel>
-            <TabPanel v-if="isDataSet(types)" value="9">
-              <div id="query-container" class="concept-panel-content">
-                <QueryDisplay :entityIri="entityIri" />
+                <QueryDisplay :entityIri="entityIri" :show-dataset="true" />
               </div>
             </TabPanel>
             <TabPanel v-if="isFeature(types)" value="10">
@@ -150,7 +144,7 @@ import { DirectService, EntityService } from "@/services";
 
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isConcept, isDataSet, isFeature, isFolder, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
+import { isConcept, isFeature, isFolder, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";
@@ -165,9 +159,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const router = useRouter();
 const directService = new DirectService();
@@ -180,7 +174,7 @@ const concept: Ref<any> = ref({});
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
-const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, IM.DATASET_QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
+const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
 
 const tabMap = reactive(new Map<string, string>());
 
@@ -200,8 +194,6 @@ function setDefaultTab() {
     activeTab.value = tabMap.get("Data Model") ?? "0";
   } else if (isQuery(types.value)) {
     activeTab.value = tabMap.get("Query") ?? "0";
-  } else if (isDataSet(types.value)) {
-    activeTab.value = tabMap.get("Data set") ?? "0";
   } else if (isFeature(types.value)) {
     activeTab.value = tabMap.get("Feature") ?? "0";
   } else if (isValueSet(types.value)) {
@@ -247,7 +239,7 @@ function onOpenTab(predicate: string) {
       activeTab.value = tabMap.get("Properties") ?? "0";
       break;
     case IM.DEFINITION:
-      if (isQuery(types.value) || isFeature(types.value) || isDataSet(types.value)) {
+      if (isQuery(types.value) || isFeature(types.value)) {
         activeTab.value = tabMap.get("Query") ?? "0";
       } else if (isValueSet(types.value)) {
         activeTab.value = tabMap.get("Set") ?? "0";

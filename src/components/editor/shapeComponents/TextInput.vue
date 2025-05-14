@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<Props>(), {
   value: ""
 });
 
-const emit = defineEmits({ updateClicked: (_payload: string) => true });
+const emit = defineEmits<{ updateClicked: [payload: string] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;

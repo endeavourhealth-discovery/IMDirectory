@@ -65,8 +65,8 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
-import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
-import { EclSearchRequest, TTIriRef, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
+import Builder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
+import { EclSearchRequest, TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { EclService } from "@/services";
 import { byName } from "@/helpers/Sorters";
@@ -75,10 +75,10 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  selectedUpdated: (_payload: SearchResultSummary) => true
-});
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  selectedUpdated: [payload: SearchResultSummary];
+}>();
 
 const filterStore = useFilterStore();
 const editorStore = useEditorStore();

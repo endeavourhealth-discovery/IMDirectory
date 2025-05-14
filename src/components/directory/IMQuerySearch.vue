@@ -41,10 +41,10 @@ import Textarea from "primevue/textarea";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import ResultsTable from "../shared/ResultsTable.vue";
 
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  selectedUpdated: (_payload: SearchResultSummary) => true
-});
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  selectedUpdated: [payload: SearchResultSummary];
+}>();
 
 const toast = useToast();
 const imQueryString = ref("");
