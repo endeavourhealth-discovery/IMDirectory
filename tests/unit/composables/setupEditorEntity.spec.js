@@ -11,10 +11,12 @@ import { useCreatorStore } from "@/stores/creatorStore";
 
 describe("fetchEntity", () => {
   let getFullEntitySpy;
+  let getEntityTypesSpy;
   let mockUpdateType;
   beforeEach(async () => {
     vi.resetAllMocks();
     getFullEntitySpy = vi.spyOn(EntityService, "getFullEntity");
+    getEntityTypesSpy = vi.spyOn(EntityService, "getEntityTypes");
     mockUpdateType = vi.fn();
   });
 
@@ -30,6 +32,7 @@ describe("fetchEntity", () => {
   it("gets full entity by iri and process entity", async () => {
     const testEntity = fakerFactory.entity.create();
     getFullEntitySpy.mockResolvedValue(testEntity);
+    getEntityTypesSpy.mockResolvedValue([]);
     const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType], { editor: { editorIri: "testIri" } });
 
     await wrapper.vm.fetchEntity();

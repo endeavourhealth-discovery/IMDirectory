@@ -13,7 +13,7 @@
     }"
     id="ecl-builder-dialog"
     :contentStyle="{ flexGrow: '100', display: 'flex' }"
-    :auto-z-index="false"
+    :auto-z-index="true"
   >
     <template #header>
       <div class="ecl-builder-dialog-header">
@@ -24,14 +24,14 @@
     </template>
     <div id="builder-string-container">
       <div id="query-builder-container">
-        <div id="query-build">
-          <ProgressSpinner v-if="loading" />
-          <BoolGroup v-else :value="build" :rootBool="true" />
-        </div>
-        <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading">
+        <ProgressSpinner v-if="loading" />
+        <ExpressionConstraint v-model:match="build" :rootBool="true" :index="0" :parentOperator="'and'" />
+
+        <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.instanceOf && !loading">
           *Move pointer over panel above to add concepts, refinements and groups.
         </small>
       </div>
+
       <div id="build-string-container">
         <Panel header="Output" toggleable collapsed>
           <div class="field-checkbox">
@@ -69,23 +69,20 @@
 </template>
 
 <script lang="ts">
-import BoolGroup from "./builder/BoolGroup.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
 import { deferred } from "@/helpers";
 import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-
-export default defineComponent({
-  components: { BoolGroup }
-});
+import { Match } from "@/interfaces/AutoGen";
 </script>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted, provide, readonly, defineComponent } from "vue";
+import { Ref, ref, watch, onMounted, provide, readonly } from "vue";
 import { cloneDeep } from "lodash-es";
 import EclService from "@/services/EclService";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 
 interface Props {
   showDialog?: boolean;
@@ -101,7 +98,7 @@ const emit = defineEmits({
 
 const dynamicDialog = useDialog();
 
-const build: Ref<any> = ref({ type: "BoolGroup", operator: "or" });
+const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
@@ -123,7 +120,7 @@ watch(
 const wasDraggedAndDropped = ref(false);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 const op = ref();
-function toggle(event: MouseEvent) {
+function toggle(event: any) {
   op.value.toggle(event);
 }
 
@@ -160,14 +157,17 @@ watch(
 watch(includeTerms, async () => await generateQueryString());
 
 function createDefaultBuild() {
-  build.value = { type: "BoolGroup", conjunction: "or" };
+  build.value = {};
 }
 
 async function createBuildFromEclString(ecl: string) {
+  if (ecl === "") {
+    createDefaultBuild();
+    return;
+  }
   try {
     loading.value = true;
-    const query = await EclService.getQueryFromECL(ecl, true);
-    build.value = await EclService.getEclBuilderFromQuery(query, true);
+    build.value = await EclService.getQueryFromECL(ecl, true);
     eclConversionError.value = { error: false, message: "" };
     createInitialLoadingState(build.value, 0, 0);
   } catch (err: any) {
@@ -194,9 +194,11 @@ async function generateQueryString() {
       const buildClone = cloneDeep(build.value);
       stripIds(buildClone);
       stripValidation(buildClone);
-      const query = await EclService.getQueryFromEclBuilder(buildClone, true);
-      queryString.value = await EclService.getECLFromQuery(query, includeTerms.value);
-      eclStringError.value = { error: false, message: "" };
+      queryString.value = "";
+      if (build.value && Object.keys(build.value).length > 0) {
+        queryString.value = await EclService.getECLFromQuery(build.value, includeTerms.value);
+        eclStringError.value = { error: false, message: "" };
+      }
     } catch (err: any) {
       eclStringError.value = { error: true, message: err.message };
     }
@@ -334,9 +336,17 @@ function stripValidation(build: any) {
 </script>
 
 <style scoped>
+#ecl-builder-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
 #builder-string-container {
   flex: 1 1 auto;
   width: 100%;
+  height: 100%;
   overflow: auto;
   display: flex;
   flex-flow: column nowrap;
@@ -345,10 +355,11 @@ function stripValidation(build: any) {
 
 #query-builder-container {
   width: 100%;
+  height: 100%; /* ← ADD THIS */
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
 }
 
 #query-build {
@@ -361,6 +372,11 @@ function stripValidation(build: any) {
   flex: 1 1 auto;
   font-size: 12px;
   overflow: auto;
+}
+
+#query-build > .nested-div,
+.nested-div-hover {
+  min-width: calc(100% - 1rem);
 }
 
 #build-string-container {
@@ -395,5 +411,26 @@ function stripValidation(build: any) {
   align-items: baseline;
   justify-content: space-between;
   font-size: larger;
+}
+
+.nested-div {
+  padding: 0.5rem;
+  border: #488bc230 1px solid;
+  border-radius: 5px;
+  background-color: #488bc210;
+  margin: 0.5rem;
+}
+
+.nested-div:deep(.hover-button) {
+  color: #00000030 !important;
+  border-style: dashed !important;
+}
+
+.nested-div-hover {
+  padding: 0.5rem;
+  border-radius: 5px;
+  background-color: #488bc210;
+  margin: 0.5rem;
+  border: #488bc2 1px solid;
 }
 </style>

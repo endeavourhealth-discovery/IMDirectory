@@ -33,10 +33,12 @@ function onClick(templateFunctionIri: string, limit: number, valueTemplates: any
     if (direction && property) {
       const orderBy: OrderLimit = {
         limit: limit,
-        property: {
-          iri: property[IM.DEFAULT_VALUE]?.[0]?.iri,
-          direction: direction[IM.DEFAULT_VALUE] === Order.ascending ? Order.ascending : Order.descending
-        }
+        property: [
+          {
+            "@id": property[IM.DEFAULT_VALUE]?.[0]?.["@id"],
+            direction: direction[IM.DEFAULT_VALUE] === Order.ascending ? Order.ascending : Order.descending
+          }
+        ]
       };
       emit("addFunctionProperty", "orderBy", orderBy);
     }

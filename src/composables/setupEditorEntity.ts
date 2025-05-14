@@ -27,7 +27,11 @@ export function setupEditorEntity(mode: EditorMode, updateType: (types: TTIriRef
         editorEntity.value = editorSavedEntity;
         return;
       }
-      const fullEntity = await EntityService.getFullEntity(editorIri, true);
+      const entityTypes = await EntityService.getEntityTypes(editorIri);
+      let fullEntity = null;
+      if (entityTypes.includes(IM.CONCEPT_SET) || entityTypes.includes(IM.VALUESET)) {
+        fullEntity = await EntityService.getEntityByPredicateExclusions(editorIri, [IM.HAS_MEMBER]);
+      } else fullEntity = await EntityService.getFullEntity(editorIri, true);
       if (isObjectHasKeys(fullEntity)) {
         const processedEntity = processEntity(fullEntity);
         editorEntityOriginal.value = processedEntity;

@@ -172,7 +172,7 @@ function debounceForSearch(event: Event): void {
   }
 }
 
-async function doSearch(event: Event) {
+async function doSearch(event: any) {
   results.value = await search();
   await showResultsOverlay(event);
 }
@@ -213,7 +213,7 @@ async function search() {
   }
 }
 
-async function showResultsOverlay(event: Event) {
+async function showResultsOverlay(event: any) {
   if (resultsOP.value) resultsOP.value.show(event, event.target);
 }
 

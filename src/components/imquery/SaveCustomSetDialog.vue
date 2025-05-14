@@ -199,12 +199,7 @@ function getDefinition() {
     matches.push({ name: member.name, instanceOf: [member] });
   }
   const definition = {
-    match: [
-      {
-        match: matches,
-        bool: "or"
-      }
-    ] as Match[]
+    or: matches
   };
   return JSON.stringify(definition);
 }

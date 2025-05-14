@@ -62,8 +62,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, Ref, inject } from "vue";
-import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
+import { onMounted, ref, watch, Ref, PropType, inject, ComputedRef, computed } from "vue";
+import Builder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 import { EditorMode } from "@/enums";
 import { EclService } from "@/services";

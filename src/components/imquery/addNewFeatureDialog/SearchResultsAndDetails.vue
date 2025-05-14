@@ -80,7 +80,7 @@ import { computed, inject, onMounted, ref, Ref, watch } from "vue";
 import PathSelect from "./PathSelect.vue";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@/vocabulary";
-import { isConcept, isDataSet, isFeature, isProperty, isQuery, isRecordModel, isValueSet, isFunction } from "@/helpers/ConceptTypeMethods";
+import { isConcept, isFeature, isProperty, isQuery, isRecordModel, isValueSet, isFunction } from "@/helpers/ConceptTypeMethods";
 import SelectedSet from "./SelectedSet.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
@@ -139,8 +139,8 @@ watch(
       pathSuggestions.value = await getPathOptions(props.dataModelIri, detailsIri.value);
       if (pathSuggestions.value.length && !props.selectedPath) emit("update:selectedPath", pathSuggestions.value[0]);
       else if (props.selectedPath && isProperty(detailsEntity.value?.[RDF.TYPE])) emit("update:selectedPath", pathSuggestions.value[0]);
-      else if (isQuery(detailsEntity.value?.[RDF.TYPE]) || isFeature(detailsEntity.value?.[RDF.TYPE]) || isDataSet(detailsEntity.value?.[RDF.TYPE]))
-        addToSelectedList(detailsEntity.value.iri, detailsEntity.value[RDFS.LABEL]);
+      else if (isQuery(detailsEntity.value?.[RDF.TYPE]) || isFeature(detailsEntity.value?.[RDF.TYPE]))
+        addToSelectedList(detailsEntity.value["@id"], detailsEntity.value[RDFS.LABEL]);
     }
     activePage.value = 1;
     emit("selectedIri", newValue);
@@ -242,7 +242,7 @@ async function onSelect(iri: string) {
         life: 3000
       });
     }
-  } else if (isFeature(entity[RDF.TYPE]) || isQuery(entity[RDF.TYPE]) || isDataSet(entity[RDF.TYPE])) {
+  } else if (isFeature(entity[RDF.TYPE]) || isQuery(entity[RDF.TYPE])) {
     if (selectedValueMap.value.size) {
       const has = await hasFeatureOrQuerySelected();
       if (has) addToSelectedList(iri, entity[RDFS.LABEL]);
@@ -286,7 +286,7 @@ async function hasFeatureOrQuerySelected() {
   const iri = selectedValueMap.value.keys().next().value;
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
-    return isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]) || isDataSet(entity[RDF.TYPE]);
+    return isQuery(entity[RDF.TYPE]) || isFeature(entity[RDF.TYPE]);
   }
 }
 

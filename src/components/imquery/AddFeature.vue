@@ -1,4 +1,5 @@
 <template>
+  <pre>addFeature={{ addFeature }},show=MatchType {{ showMatchTypeSelector }}</pre>
   <MatchTypeSelector
     v-if="showMatchTypeSelector"
     v-model:visible="showMatchTypeSelector"
@@ -36,7 +37,11 @@ const props = defineProps<Props>();
 const showCohortSelector = ref(false);
 const showMatchTypeSelector = ref(true);
 const selectedCohort: Ref<SearchResultSummary | undefined> = ref();
+<<<<<<< HEAD
 const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ iri: IM.COHORT_QUERY }], status: [], schemes: [] });
+=======
+const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ "@id": IM.QUERY }], status: [], schemes: [] });
+>>>>>>> rich/eslint
 const queryRequest: Ref<QueryRequest | undefined> = ref();
 const rootCohortFolder = [IM.NAMESPACE + "Q_Queries"];
 const emit = defineEmits<{
@@ -68,6 +73,7 @@ const onMatchTypeSelected = async (node: any) => {
 
 const cancel = () => {
   addFeature.value = false;
+  showMatchTypeSelector.value = true;
 };
 
 async function createMatch(node: TreeNode) {
@@ -75,7 +81,7 @@ async function createMatch(node: TreeNode) {
   if (node.data.pathMatch) {
     match = node.data.pathMatch;
   }
-  match.where = [{ iri: node.data.iri, name: node.label }];
+  match.where = { iri: node.data.iri, name: node.label };
   emit("onAddMatch", match);
 }
 </script>

@@ -162,14 +162,10 @@ async function processRole(newData: any[], role: Role) {
 const request: QueryRequest = {
   query: {
     activeOnly: true,
-    match: [
+    instanceOf: [
       {
-        instanceOf: [
-          {
-            iri: SNOMED.ATTRIBUTE,
-            descendantsOrSelfOf: true
-          }
-        ]
+        iri: SNOMED.ATTRIBUTE,
+        descendantsOrSelfOf: true
       }
     ]
   }
@@ -178,16 +174,10 @@ const request: QueryRequest = {
 const valueRequest: QueryRequest = {
   query: {
     activeOnly: true,
-    match: [
-      {
-        where: [
-          {
-            iri: IM.HAS_SCHEME,
-            is: [{ iri: SNOMED.NAMESPACE }, { iri: IM.NAMESPACE }]
-          }
-        ]
-      }
-    ]
+    where: {
+      iri: IM.HAS_SCHEME,
+      is: [{ iri: SNOMED.NAMESPACE }, { iri: IM.NAMESPACE }]
+    }
   }
 };
 

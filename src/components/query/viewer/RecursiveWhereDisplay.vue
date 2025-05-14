@@ -1,22 +1,24 @@
 <template>
   <component id="recursive-where-display" :is="inline ? 'span' : 'div'">
     <span :style="indentationStyle(inline, depth)">
-      <span v-if="index === 0 && operator === Bool.or" class="either">either</span>
-      <span v-else-if="index > 0 && operator === Bool.or" class="either">or</span>
-      <span v-else-if="index === 1 && !where.where && operator === Bool.and" class="field">with</span>
-      <span v-else-if="index > 1 && !where.where && operator === 'and'"> ,and </span>
-      <span v-if="where.name" class="field">{{ where.name }}</span>
-      <span v-if="where.valueLabel || where.qualifier">
-        <span class="value-field" v-html="getFormattedValue(where)"></span>
-        <span v-if="where.relativeTo">
-          <span v-if="where.relativeTo.qualifier">
-            <span class="field">{{ where.relativeTo.qualifier }}</span>
-          </span>
-          <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
-        </span>
+      <span :class="operator">
+        <span>{{ getOperator(operator, index) }}</span>
       </span>
-      <Button v-if="where.is" class="button-chevron" text :icon="!isExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle" />
-      <span v-if="isExpanded && isArrayHasLength(where.is)">
+      <span v-if="where.name" class="field">{{ where.name }}</span>
+      <span v-if="(where.valueLabel || where.qualifier) && !eclQuery">
+        <span v-if="where.qualifier" class="field">{{ where.qualifier }}</span>
+        <span v-if="where.valueLabel && where.is" @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0">
+          {{ where.valueLabel }}</span
+        >
+        <span v-else-if="where.valueLabel" class="field">{{ where.valueLabel }}</span>
+      </span>
+      <span v-if="where.relativeTo">
+        <span v-if="where.relativeTo.qualifier">
+          <span class="field">{{ where.relativeTo.qualifier }}</span>
+        </span>
+        <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
+      </span>
+      <span v-if="(isExpanded || eclQuery) && isArrayHasLength(where.is)">
         <span>, defined as</span>
         <div>
           <span style="list-style-type: none; padding-left: 0">
@@ -33,24 +35,32 @@
           </span>
         </div>
       </span>
-
-      <span v-if="isArrayHasLength(where.where)" :style="indentationStyle(true, depth + 1)">
+      <span v-else-if="where.is && eclQuery">
+        <span>=</span>
+        <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
+          <span v-if="index > 0" class="field">or</span>
+          <IMViewerLink v-if="item['@id']" :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <span v-if="item.descendantsOrSelfOf">+subtypes</span>
+        </span>
+      </span>
+      <span v-for="(matches, type) in boolGroup" :key="type">
         <span>(</span>
-        <span v-for="(nestedProperty, index) of where.where" :key="index">
+        <span v-for="(nestedProperty, index) in matches" :key="index">
           <span>
             <RecursiveWhereDisplay
               :where="nestedProperty"
               :index="index"
-              :operator="where.bool"
+              :operator="type as Bool"
               :key="index"
               :depth="depth + 1"
               :expandedSet="expandedSet"
-              :inline="!nestedProperty.where"
+              :inline="false"
+              :bracketed="index === where[type]!.length - 1"
             />
           </span>
         </span>
-        <span>)</span>
       </span>
+      <span v-if="bracketed">)</span>
     </span>
   </component>
 </template>
@@ -58,10 +68,11 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Where, Assignable, Bool, Node } from "@/interfaces/AutoGen";
-import { ref } from "vue";
+import { computed, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM } from "@/vocabulary/IM";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   where: Where;
@@ -70,6 +81,8 @@ interface Props {
   operator?: Bool;
   expandedSet: boolean;
   inline: boolean;
+  bracketed?: boolean;
+  eclQuery?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -79,21 +92,37 @@ const emit = defineEmits<{
 }>();
 
 const isExpanded = ref(props.expandedSet);
+const childExpand = true;
+const { OS, showOverlay, hideOverlay } = setupOverlay();
+const boolGroup = computed(() => {
+  return {
+    ...(props.where.and ? { and: props.where.and } : {}),
+    ...(props.where.or ? { or: props.where.or } : {})
+  };
+});
 
 function toggle() {
   isExpanded.value = !isExpanded.value;
 }
-function getFormattedValue(value: Assignable) {
-  let result = "";
-  if (value.qualifier) {
-    result = value.qualifier + " ";
-  }
-  if (value.valueLabel) {
-    result = result + value.valueLabel;
-  }
-  return result;
-}
 
+function getOperator(operator: Bool | undefined, index: number): string {
+  if (operator === "or") {
+    if (index === 0) {
+      return "Either";
+    } else {
+      return "or";
+    }
+  } else if (operator === "and") {
+    if (index > 0) {
+      return "and";
+    } else {
+      return "";
+    }
+  } else {
+    if (index < 0) return "and";
+    else return "";
+  }
+}
 function getTypeIcon(is: Node) {
   if (is.memberOf) {
     return getFAIconFromType([{ iri: IM.CONCEPT_SET }]);
@@ -132,5 +161,28 @@ function indentationStyle(inLine: boolean, depth: number) {
 .node-ref {
   color: var(--p-amber-700) !important;
   cursor: pointer !important;
+}
+.or {
+  color: var(--p-blue-700);
+  padding-right: 0.2rem;
+}
+.op {
+  padding-right: 1rem;
+}
+
+.and {
+  color: var(--p-orange-700);
+  padding-right: 0.3rem;
+}
+
+.property-display {
+  margin-left: 0.2rem;
+}
+.hover-label {
+  color: var(--p-green-700);
+  cursor: pointer;
+}
+.hover-label:hover {
+  text-decoration: underline;
 }
 </style>

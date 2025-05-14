@@ -48,6 +48,7 @@
 <script lang="ts">
 import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
 import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
+import TabLayout from "@/components/editor/shapeComponents/TabLayout.vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
 import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
@@ -69,6 +70,7 @@ export default defineComponent({
   components: {
     HorizontalLayout,
     VerticalLayout,
+    TabLayout,
     ArrayBuilder,
     EntityAutoComplete,
     EntityComboBox,

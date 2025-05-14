@@ -18,7 +18,8 @@ export const useAuthStore = defineStore("auth", {
           path.startsWith("/user/password-recovery") ||
           path.startsWith("/user/confirm-code") ||
           path.startsWith("/user/logout") ||
-          path.startsWith("/user/mfa-login")
+          path.startsWith("/user/mfa-login") ||
+          path.startsWith("/user/changeTemporaryPassword")
         )
       )
         this.authReturnPath = path;

@@ -55,7 +55,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const { getLeafMatch } = setupIMQueryBuilderActions();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 interface SelectedEntity extends TTEntity {
@@ -133,16 +132,7 @@ function getColourStyleFromType(types: TTIriRef[]) {
   return "color: " + getColourFromType(types);
 }
 
-function updatePathValues() {
-  let index = 0;
-  if (selectedPath.value?.where?.length && selectedPath.value?.where?.length !== 1)
-    index = selectedPath.value?.where?.findIndex(where => where.iri === props.propertyIri);
-  if (index != -1 && selectedPath.value?.where?.[index]) {
-    if (selectedPath.value?.where?.[index]) {
-      selectedPath.value.where[index].is = selectedEntities.value.map(selected => convertSelectedEntityToNode(selected));
-    }
-  }
-}
+function updatePathValues() {}
 
 function convertSelectedEntityToNode(selected: SelectedEntity): Node {
   const node: Node = {
@@ -171,24 +161,9 @@ function convertSelectedEntityToNode(selected: SelectedEntity): Node {
   return node;
 }
 
-function updateValueLabel() {
-  if (selectedPath.value?.where?.[0]) {
-    selectedPath.value.where[0].valueLabel = valueLabel.value;
-  }
-}
+function updateValueLabel() {}
 
-async function updateCanHaveValueList(path: Match | undefined) {
-  if (path) {
-    const dmIri = path.typeOf?.iri ?? props.dataModelIri;
-    const propIri = getLeafMatch(path)?.where?.[0].iri;
-    if (propIri === IM.DATA_MODEL_PROPERTY_CONCEPT) canHaveValueList.value = true;
-    else if (dmIri && propIri) {
-      const entity = await EntityService.getPartialEntity(dmIri, [SHACL.PROPERTY]);
-      const prop = entity[SHACL.PROPERTY]?.find((prop: any) => prop?.[SHACL.PATH]?.[0].iri === propIri);
-      canHaveValueList.value = prop && isArrayHasLength(prop[SHACL.CLASS]);
-    } else canHaveValueList.value = false;
-  } else canHaveValueList.value = false;
-}
+async function updateCanHaveValueList(path: Match | undefined) {}
 </script>
 
 <style scoped></style>
