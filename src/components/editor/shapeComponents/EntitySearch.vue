@@ -45,7 +45,9 @@ const props = defineProps<{
   mode: EditorMode;
   position?: number;
   value?: TTIriRef;
-}>();
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   updateClicked: [payload: TTIriRef | undefined];

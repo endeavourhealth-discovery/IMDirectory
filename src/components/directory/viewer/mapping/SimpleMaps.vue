@@ -55,7 +55,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  toggleOverlay: [event: MouseEvent, data: SimpleMap];
+  toggleOverlay: [payload: { event: any; data: SimpleMap }];
   navigateTo: [payload: string];
 }>();
 
@@ -90,8 +90,8 @@ function scrollToTop(): void {
   }
 }
 
-function toggle(event: MouseEvent, data: SimpleMap) {
-  emit("toggleOverlay", event, data);
+function toggle(event: any, data: any) {
+  emit("toggleOverlay", { event: event, data: data });
 }
 
 function select(iri: string) {

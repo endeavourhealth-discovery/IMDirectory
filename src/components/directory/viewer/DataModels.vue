@@ -63,11 +63,6 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-interface UIDataModel extends TTIriRef {
-  type?: TTIriRef[];
-  icon?: string[];
-}
-
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);

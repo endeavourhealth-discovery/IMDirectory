@@ -61,6 +61,7 @@ defineEmits<{
 
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
+const emit = defineEmits<{ deleteProperty: [] }>();
 const loading = ref(true);
 const property = defineModel<Where>("property", { default: {} });
 const dropdown = ref();

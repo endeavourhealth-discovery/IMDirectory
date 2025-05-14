@@ -30,7 +30,7 @@
       <Column field="member" header="Name">
         <template #body="{ data }: any">
           <span v-if="data.exclude" class="exclude">Exclude</span>
-          <IMViewerLink :action="'select'" :iri="data.iri" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
           <span class="entailment" v-html="getEntailment(data)"></span>
         </template>
       </Column>
@@ -56,10 +56,13 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
   openDownloadDialog: [];
 }>();
+const toast = useToast();
 
 const hasDefinition: Ref<boolean> = ref(false);
 const loading = ref(false);
-const members: Ref<Node[] | undefined> = ref([]);
+const members: Ref<Node[]> = ref([]);
+
+const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
 const totalCount: Ref<number | undefined> = ref(0);
 const currentPage = ref(0);
@@ -95,7 +98,7 @@ async function getMembers(): Promise<void> {
   loading.value = false;
 }
 
-async function getPage(event: DataTablePageEvent) {
+async function getPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
@@ -104,7 +107,7 @@ async function getPage(event: DataTablePageEvent) {
   loading.value = false;
 }
 
-function getEntailment(data: Node) {
+function getEntailment(data: any) {
   if (data.descendantsOrSelfOf) return "(+ subtypes)";
   if (data.descendantsOf) return "(subtypes of only)";
   if (data.ancestorsOf) return "(+ supertypes)";

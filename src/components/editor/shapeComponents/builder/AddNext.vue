@@ -21,7 +21,9 @@ const props = defineProps<{
   value: NextComponentSummary;
   position: number;
   last: boolean;
-}>();
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   addClicked: [payload: { selectedType: ComponentType; position: number }];

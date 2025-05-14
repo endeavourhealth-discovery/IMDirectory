@@ -48,15 +48,12 @@ const props = defineProps<{
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
-  selectedProperty: TreeNode | undefined;
-}>();
-
-const emit = defineEmits<{
-  "update:selectedProperty": [payload: TreeNode];
-}>();
-
+}
+const props = defineProps<Props>();
+const modelSelectedProperty = defineModel<TreeNode | undefined>("selectedProperty");
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const selectedNode = ref();
+
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild, selectedKeys } = setupTree();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
@@ -141,7 +138,7 @@ function select(node: TreeNode) {
 
 function onSelect(node: any) {
   select(node);
-  emit("update:selectedProperty", selectedNode.value);
+  modelSelectedProperty.value = selectedNode.value;
 }
 
 async function handleTreeNodeExpand(node: any) {
@@ -184,7 +181,16 @@ async function onNodeExpand(node: TreeNode) {
       const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
       let groupNode = node.children?.find(child => child.data === groupRef.iri);
       if (!groupNode) {
-        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef.iri, [{ iri: IM.FOLDER }], true, false, node, undefined);
+        groupNode = createTreeNode(
+          getNameFromRef(groupRef),
+          groupRef["@id"],
+          [{ "@id": IM.FOLDER }],
+          true,
+          false,
+          node,
+          undefined,
+          prop["http://www.w3.org/ns/shacl#order"]
+        );
         node.children?.push(groupNode);
       }
       const propertyNode = buildTreeNodeFromTTProperty(prop, groupNode);

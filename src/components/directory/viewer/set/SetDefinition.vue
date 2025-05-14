@@ -95,14 +95,15 @@ import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   entityIri: string;
-}>();
+}
 
-const emit = defineEmits<{
-  navigateTo: [payload: string];
-}>();
+const props = defineProps<Props>();
 
-const dynamicDialog = useDialog();
+const emit = defineEmits<{ navigateTo: [payload: string] }>();
+
 const toast = useToast();
+const dynamicDialog = useDialog();
+
 const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();

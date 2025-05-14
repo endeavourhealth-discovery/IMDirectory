@@ -4,7 +4,7 @@
       <div>{{ header }}</div>
       <AutocompleteSearchBar
         v-if="header !== 'Shared members '"
-        v-model:selected="selectedSet"
+        v-model:selected="modelSelectedSet"
         :root-entities="[IM.NAMESPACE + 'Sets']"
         :im-query="searchQuery"
       />
@@ -47,11 +47,13 @@ import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue
 
 const props = defineProps<{
   header: string;
-  //  selectedSet?: SearchResultSummary;
   members: Concept[];
   setIri?: string;
-  //  loading: boolean;
-}>();
+  loading: boolean;
+}
+const props = defineProps<Props>();
+
+const modelSelectedSet = defineModel<SearchResultSummary | undefined>("selectedSet");
 
 const emit = defineEmits<{
   "update:selectedSet": [payload: SearchResultSummary | undefined];
@@ -63,7 +65,7 @@ const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const menu = ref();
 
-const selectedSet: Ref<SearchResultSummary | undefined> = ref();
+const filteredSets: Ref<SearchResultSummary[]> = ref([]);
 const selected: Ref<Concept | undefined> = ref();
 const searchQuery: Ref<QueryRequest | undefined> = ref();
 const loading = ref(true);
@@ -89,11 +91,6 @@ const rClickItems = ref([
   }
 ]);
 
-watch(
-  () => selectedSet.value?.iri,
-  async () => emit("update:selectedSet", selectedSet.value)
-);
-
 onMounted(async () => {
   loading.value = true;
   await init();
@@ -103,7 +100,7 @@ onMounted(async () => {
 async function init() {
   if (props.setIri) {
     const entity = await EntityService.getEntitySummary(props.setIri);
-    if (entity) selectedSet.value = entity;
+    if (entity) modelSelectedSet.value = entity;
     const queryFilterOptions: SearchOptions = {
       schemes: filterOptions.value.schemes,
       status: filterOptions.value.status,

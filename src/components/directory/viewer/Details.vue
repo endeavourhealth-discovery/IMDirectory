@@ -56,10 +56,7 @@ const props = defineProps<{
   entityIri: string;
 }>();
 
-const emit = defineEmits<{
-  onOpenTab: [payload: string];
-  navigateTo: [payload: string];
-}>();
+const emit = defineEmits<{ onOpenTab: [payload: string]; navigateTo: [payload: string] }>();
 
 const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
 const definition: Ref<any> = ref();

@@ -15,6 +15,7 @@ const emit = defineEmits<{
 }>();
 
 const selectedOption: Ref<string> = ref("");
+const emit = defineEmits<{ updateEntailment: [payload: string] }>();
 
 const options = [
   { id: "memberOf", name: "member of" },

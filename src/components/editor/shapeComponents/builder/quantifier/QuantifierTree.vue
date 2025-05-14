@@ -38,11 +38,11 @@ import { GenericObject } from "@/interfaces/GenericObject";
 const props = defineProps<{
   quantifier?: TTIriRef;
   isAs: string[];
-}>();
+}
 
-const emit = defineEmits<{
-  treeNodeSelected: [payload: TTIriRef];
-}>();
+const props = defineProps<Props>();
+
+const emit = defineEmits<{ treeNodeSelected: [payload: TTIriRef] }>();
 
 const toast = useToast();
 

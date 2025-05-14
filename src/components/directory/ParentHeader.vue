@@ -55,7 +55,8 @@ import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 defineProps<{
   entity: TTEntity;
   showSelect?: boolean;
-}>();
+}
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   locateInTree: [payload: string];

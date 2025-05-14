@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-13 11:01:44.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-13 10:55:06.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -249,11 +249,17 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    valueLabel?: string;
     valueParameter?: string;
-    unit?: TTIriRef;
     qualifier?: string;
+    unit?: TTIriRef;
     operator?: Operator;
+    valueLabel?: string;
+}
+
+export interface BoolGroup<T> {
+    and?: T[];
+    not?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -287,9 +293,9 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -315,7 +321,7 @@ export interface IriLD {
     description?: string;
 }
 
-export interface Match extends IriLD {
+export interface Match extends IriLD, BoolGroup<Match> {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -476,14 +482,15 @@ export interface When {
     case?: Case;
 }
 
-export interface Where extends Element, Assignable {
+export interface Where extends Element, Assignable, BoolGroup<Where> {
     range?: Range;
     isNull?: boolean;
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
     typeOf?: Node;
     is?: Node[];
-    not?: boolean;
+    notIs?: Node[];
+    not?: Where[];
     isNotNull?: boolean;
     function?: FunctionClause;
     valueVariable?: string;
@@ -804,6 +811,8 @@ export interface TTEntity extends TTNode, Serializable {
     version?: number;
     status?: TTIriRef;
     description?: string;
+    status?: TTIriRef;
+    code?: string;
     prefixes?: TTPrefix[];
     code?: string;
 }

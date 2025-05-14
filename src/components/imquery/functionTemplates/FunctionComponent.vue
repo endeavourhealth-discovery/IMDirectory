@@ -17,13 +17,13 @@
 <script setup lang="ts">
 import { Order, OrderLimit } from "@/interfaces/AutoGen";
 import { IM, RDFS, SHACL } from "@/vocabulary";
-
-defineProps<{
+interface Props {
   functionTemplates: any;
-}>();
+}
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  addFunctionProperty: [property: string, _value: any];
+  addFunctionProperty: [payload: { property: string; value: any }];
 }>();
 
 function onClick(templateFunctionIri: string, limit: number, valueTemplates: any) {
@@ -40,7 +40,7 @@ function onClick(templateFunctionIri: string, limit: number, valueTemplates: any
           }
         ]
       };
-      emit("addFunctionProperty", "orderBy", orderBy);
+      emit("addFunctionProperty", { property: "orderBy", value: orderBy });
     }
   }
 }

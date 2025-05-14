@@ -28,12 +28,12 @@ const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
-  value?: string;
-}>();
+  value?: String;
+}
 
-const emit = defineEmits<{
-  updateClicked: [payload: string];
-}>();
+const props = defineProps<Props>();
+
+const emit = defineEmits<{ updateClicked: [payload: String] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;

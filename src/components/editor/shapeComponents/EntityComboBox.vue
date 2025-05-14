@@ -42,11 +42,11 @@ const props = defineProps<{
   mode: EditorMode;
   position?: number;
   value?: TTIriRef[];
-}>();
+}
 
-const emit = defineEmits<{
-  updateClicked: [payload: TTIriRef[]];
-}>();
+const props = defineProps<Props>();
+
+const emit = defineEmits<{ updateClicked: [payload: TTIriRef[]] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;

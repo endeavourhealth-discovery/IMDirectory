@@ -140,6 +140,8 @@ const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuil
 
 const childLoadingState = inject("childLoadingState") as Ref<any>;
 
+const emit = defineEmits<{ unGroupItems: [payload: any] }>();
+
 const canBeAttributeGroup: ComputedRef<boolean> = computed(() => {
   if (match.value.where) return true;
   else return false;

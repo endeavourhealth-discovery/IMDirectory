@@ -50,12 +50,13 @@ const props = defineProps<{
   mode: EditorMode;
   position?: number;
   value?: string;
-}>();
+}
 
-const emit = defineEmits<{
-  updateClicked: [payload: string];
-}>();
+const props = defineProps<Props>();
 
+const emit = defineEmits<{ updateClicked: [payload: string] }>();
+
+const fullShape = inject(injectionKeys.fullShape);
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;

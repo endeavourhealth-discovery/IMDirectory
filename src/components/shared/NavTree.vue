@@ -80,8 +80,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  rowSelected: [row: any];
-  rowDblClicked: [];
+  rowSelected: [payload: any];
+  rowDblClicked: [payload: any];
   foundInTree: [];
 }>();
 
