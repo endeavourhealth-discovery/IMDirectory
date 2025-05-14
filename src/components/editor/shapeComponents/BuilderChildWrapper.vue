@@ -69,15 +69,15 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  updateClicked: (_payload: ComponentDetails) => true,
-  addNextOptionsClicked: (_payload: any) => true,
-  deleteClicked: (_payload: any) => true,
-  addClicked: (_payload: any) => true,
-  moveUpClicked: (_payload: any) => true,
-  moveDownClicked: (_payload: any) => true,
-  verifyChild: (_payload: { valid: boolean; validateErrorMessage: string | undefined; position: number }) => true
-});
+const emit = defineEmits<{
+  updateClicked: [payload: ComponentDetails];
+  addNextOptionsClicked: [payload: any];
+  deleteClicked: [payload: any];
+  addClicked: [payload: any];
+  moveUpClicked: [payload: any];
+  moveDownClicked: [payload: any];
+  verifyChild: [payload: { valid: boolean; validateErrorMessage: string | undefined; position: number }];
+}>();
 
 function createEntity(data?: any): ComponentDetails {
   if (data)

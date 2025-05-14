@@ -30,7 +30,7 @@
       <Column field="member" header="Name">
         <template #body="{ data }: any">
           <span v-if="data.exclude" class="exclude">Exclude</span>
-          <IMViewerLink  :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
           <span class="entailment" v-html="getEntailment(data)"></span>
         </template>
       </Column>
@@ -53,14 +53,17 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true, openDownloadDialog: () => true });
+const emit = defineEmits<{
+  onOpenTab: [payload: string];
+  navigateTo: [payload: string];
+  openDownloadDialog: [];
+}>();
 const toast = useToast();
 
 const hasDefinition: Ref<boolean> = ref(false);
 
 const loading = ref(false);
 const members: Ref<Node[]> = ref([]);
-
 
 const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
@@ -91,14 +94,12 @@ async function setHasDefinition() {
 
 async function getMembers(): Promise<void> {
   loading.value = true;
-  const paged = await SetService.getMembers(props.entityIri,true, currentPage.value + 1, pageSize.value);
+  const paged = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
   members.value = paged.result;
   totalCount.value = paged.totalCount;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
   loading.value = false;
 }
-
-
 
 async function getPage(event: any) {
   loading.value = true;
@@ -109,13 +110,10 @@ async function getPage(event: any) {
   loading.value = false;
 }
 
-function getEntailment(data : any){
-  if (data.descendantsOrSelfOf)
-    return "(+ subtypes)";
-  if (data.descendantsOf)
-    return "(subtypes of only)";
-  if (data.ancestorsOf)
-    return "(+ supertypes)";
+function getEntailment(data: any) {
+  if (data.descendantsOrSelfOf) return "(+ subtypes)";
+  if (data.descendantsOf) return "(subtypes of only)";
+  if (data.ancestorsOf) return "(+ supertypes)";
   return "";
 }
 </script>

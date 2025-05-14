@@ -75,10 +75,10 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  selectedUpdated: (_payload: SearchResultSummary) => true
-});
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  selectedUpdated: [payload: SearchResultSummary];
+}>();
 
 const filterStore = useFilterStore();
 const editorStore = useEditorStore();

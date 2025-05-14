@@ -44,9 +44,9 @@ const props = withDefaults(defineProps<Props>(), {
   data: {} as any
 });
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const toast = useToast();
 const directoryStore = useDirectoryStore();

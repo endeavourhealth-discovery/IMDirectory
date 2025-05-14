@@ -42,7 +42,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({ treeNodeSelected: (_payload: TTIriRef) => true });
+const emit = defineEmits<{ treeNodeSelected: [payload: TTIriRef] }>();
 
 const toast = useToast();
 

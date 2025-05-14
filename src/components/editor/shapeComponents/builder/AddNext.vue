@@ -25,10 +25,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  addClicked: (_payload: { selectedType: ComponentType; position: number }) => true,
-  deleteClicked: (_payload: ComponentDetails) => true
-});
+const emit = defineEmits<{
+  addClicked: [payload: { selectedType: ComponentType; position: number }];
+  deleteClicked: [payload: ComponentDetails];
+}>();
 
 let options: Ref<ComponentType[]> = ref([]);
 

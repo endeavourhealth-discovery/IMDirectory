@@ -56,10 +56,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  toggleOverlay: (event: any, data: SimpleMap) => true,
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  toggleOverlay: [payload: { event: any; data: SimpleMap }];
+  navigateTo: [payload: string];
+}>();
 
 const loading = ref(false);
 const scrollHeight = ref("500px");
@@ -93,7 +93,7 @@ function scrollToTop(): void {
 }
 
 function toggle(event: any, data: any) {
-  emit("toggleOverlay", event, data);
+  emit("toggleOverlay", { event: event, data: data });
 }
 
 function select(iri: string) {

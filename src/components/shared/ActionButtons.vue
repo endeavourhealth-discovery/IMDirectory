@@ -104,11 +104,11 @@ const props = withDefaults(defineProps<Props>(), {
   type: "activityRowButton"
 });
 
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
 
 onMounted(() => {
   if (props.iri && props.iri.includes("#")) editAllowed.value = organisations.value.includes(props.iri.split("#")[0] + "#");

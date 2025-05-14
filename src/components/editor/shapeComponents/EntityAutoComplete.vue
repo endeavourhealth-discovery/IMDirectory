@@ -102,9 +102,9 @@ watch(
   }
 );
 
-const emit = defineEmits({
-  updateClicked: (_payload: TTIriRef) => true
-});
+const emit = defineEmits<{
+  updateClicked: [payload: TTIriRef];
+}>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;

@@ -1,7 +1,7 @@
 <template>
   <div>
     <Dialog
-      :visible="visible"
+      :visible="modelShowDialog"
       modal
       :draggable="false"
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
@@ -110,16 +110,15 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  "update:showDialog": payload => typeof payload === "boolean",
-  saveChanges: (payload: Match) => payload
-});
+const emit = defineEmits<{
+  saveChanges: [payload: Match];
+}>();
 const keepAsVariable: Ref<string> = ref("");
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const keepAsEdit: Ref<boolean> = ref(false);
 const editMatchString: Ref<string> = ref("");
-const visible = defineModel<boolean>("visible");
+const modelShowDialog = defineModel<boolean>("visible");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
@@ -178,12 +177,12 @@ function onSave() {
   if (newEditMatch && JSON.stringify(newEditMatch) !== JSON.stringify(editMatch.value)) {
     emit("saveChanges", newEditMatch);
   }
-  visible.value = false;
+  modelShowDialog.value = false;
 }
 
 function onCancel() {
   init();
-  visible.value = false;
+  modelShowDialog.value = false;
 }
 
 function saveVariable() {
@@ -206,8 +205,8 @@ function udpateVariableMap() {
   variableMap.value[keepAsVariable.value] = editMatch.value;
 }
 
-function onAddFunctionProperty(property: string, value: any) {
-  if (property === "orderBy") editMatch.value!.orderBy = value;
+function onAddFunctionProperty(args: { property: string; value: any }) {
+  if (args.property === "orderBy") editMatch.value!.orderBy = args.value;
 }
 </script>
 

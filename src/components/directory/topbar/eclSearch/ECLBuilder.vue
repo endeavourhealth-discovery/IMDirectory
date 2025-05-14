@@ -90,11 +90,11 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  eclSubmitted: (_payload: string) => true,
-  eclConversionError: (_payload: { error: boolean; message: string }) => true,
-  closeDialog: () => true
-});
+const emit = defineEmits<{
+  eclSubmitted: [payload: string];
+  eclConversionError: [payload: { error: boolean; message: string }];
+  closeDialog: [];
+}>();
 
 const dynamicDialog = useDialog();
 

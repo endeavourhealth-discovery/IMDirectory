@@ -77,9 +77,9 @@ const valueLabel: Ref<string> = ref("");
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 const canHaveValueList: Ref<boolean> = ref(false);
 
-const emit = defineEmits({
-  goToNextStep: () => true
-});
+const emit = defineEmits<{
+  goToNextStep: [];
+}>();
 
 watch(
   () => props.updatedPathOption,

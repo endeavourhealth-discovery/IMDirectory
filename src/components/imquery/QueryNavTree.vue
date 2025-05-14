@@ -47,14 +47,11 @@ interface Props {
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
-  selectedProperty: TreeNode | undefined;
 }
 const props = defineProps<Props>();
+const modelSelectedProperty = defineModel<TreeNode | undefined>("selectedProperty");
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const selectedNode = ref();
-const emit = defineEmits({
-  "update:selectedProperty": (_payload: TreeNode) => true
-});
 
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild, selectedKeys } = setupTree();
@@ -140,7 +137,7 @@ function select(node: TreeNode) {
 
 function onSelect(node: any) {
   select(node);
-  emit("update:selectedProperty", selectedNode.value);
+  modelSelectedProperty.value = selectedNode.value;
 }
 
 async function handleTreeNodeExpand(node: any) {

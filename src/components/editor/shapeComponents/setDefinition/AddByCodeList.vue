@@ -75,10 +75,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  addCodeList: (_payload: any) => true,
-  closeDialog: () => true
-});
+const emit = defineEmits<{
+  addCodeList: [payload: any];
+  closeDialog: [];
+}>();
 
 class TextProcessingError extends Error {
   constructor() {

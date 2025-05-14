@@ -45,9 +45,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  updateClicked: (_payload: TTIriRef | undefined) => true
-});
+const emit = defineEmits<{
+  updateClicked: [payload: TTIriRef | undefined];
+}>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;

@@ -1,10 +1,10 @@
 <template>
-  <Dialog v-model:visible="visible" modal maximizable :header="'JSON Viewer'" :style="{ width: '75vw' }">
+  <Dialog v-model:visible="modelShowDialog" modal maximizable :header="'JSON Viewer'" :style="{ width: '75vw' }">
     <VueJsonPretty v-if="!editMode" class="json" :path="'res'" :data="data" />
     <JSONEditor v-else-if="editMode" v-model:data="editData" />
     <template v-if="!editMode" #footer>
       <Button label="Edit" @click="editMode = true" text severity="help" />
-      <Button label="OK" @click="visible = false" text />
+      <Button label="OK" @click="modelShowDialog = false" text />
     </template>
     <template v-else-if="editMode" #footer>
       <Button label="Cancel" @click="editMode = false" text severity="secondary" />
@@ -19,17 +19,17 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import JSONEditor from "./JSONEditor.vue";
 
-const emit = defineEmits({
-  "update:showDialog": payload => typeof payload === "boolean",
-  save: payload => true
-});
+const emit = defineEmits<{
+  save: [payload: any];
+}>();
 
 interface Props {
-  showDialog: boolean;
   data: any;
 }
 const props = defineProps<Props>();
-const visible = ref(false);
+
+const modelShowDialog = defineModel<boolean>("showDialog");
+
 const editMode = ref(false);
 const editData = ref();
 
@@ -40,18 +40,11 @@ onMounted(() => {
 watch(editMode, () => init());
 
 watch(
-  () => props.showDialog,
+  () => modelShowDialog.value,
   newValue => {
     editMode.value = false;
-    visible.value = newValue;
   }
 );
-
-watch(visible, newValue => {
-  if (!newValue) {
-    emit("update:showDialog", newValue);
-  }
-});
 
 function init() {
   editData.value = { ...props.data };

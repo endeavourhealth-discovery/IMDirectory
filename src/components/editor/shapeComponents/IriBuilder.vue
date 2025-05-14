@@ -54,7 +54,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({ updateClicked: (_payload: string) => true });
+const emit = defineEmits<{ updateClicked: [payload: string] }>();
 
 const fullShape = inject(injectionKeys.fullShape);
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;

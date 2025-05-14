@@ -122,11 +122,11 @@ function isValidPassword(): boolean {
   return checkPasswordStrength(password.value) === PasswordStrength.medium || checkPasswordStrength(password.value) === PasswordStrength.strong;
 }
 
-const emit = defineEmits({
-  "update:oldPassword": (_payload: string) => true,
-  "update:password": (_payload: string) => true,
-  "update:arePasswordsValid": (_payload: boolean) => true
-});
+const emit = defineEmits<{
+  "update:oldPassword": [payload: string];
+  "update:password": [payload: string];
+  "update:arePasswordsValid": [payload: boolean];
+}>();
 
 watch(
   () => passwordOld.value,

@@ -96,11 +96,11 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowBrowserAutocomplete: false });
 
-const emit = defineEmits({
-  "update:selected": (_payload: SearchResultSummary | undefined) => true,
-  openDialog: () => true,
-  updateSelectedFilters: (_payload: FilterOptions) => true
-});
+const emit = defineEmits<{
+  "update:selected": [payload: SearchResultSummary | undefined];
+  openDialog: [];
+  updateSelectedFilters: [payload: FilterOptions];
+}>();
 
 const resultsOP = ref();
 const searchText = ref("");
