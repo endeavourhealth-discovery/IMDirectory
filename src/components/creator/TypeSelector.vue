@@ -22,8 +22,7 @@ import { EntityService } from "@/services";
 import { RDF } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import editorShapes from "@/constants/editorShapes";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import { EntityReferenceNode } from "@/interfaces/AutoGen";
+import { ExtendedEntityReferenceNode, TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   showTypeSelector?: boolean;
@@ -36,7 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 
 let loading = ref(false);
-let typeOptions: Ref<EntityReferenceNode[]> = ref([]);
+let typeOptions: Ref<ExtendedEntityReferenceNode[]> = ref([]);
 
 onMounted(async () => {
   await setOptions();
@@ -49,7 +48,7 @@ async function setOptions() {
   loading.value = false;
 }
 
-function typeSelected(data: EntityReferenceNode) {
+function typeSelected(data: ExtendedEntityReferenceNode) {
   const result: TTEntity = {};
   result[RDF.TYPE] = [{ "@id": data["@id"], name: data.name }];
   if (entityUpdate) entityUpdate(result);

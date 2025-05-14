@@ -110,7 +110,7 @@ async function getDMs(iri: string): Promise<UIDataModel[]> {
       "@id": dm["@id"],
       name: dm.name,
       description: dm.description,
-      order: dm.order,
+      order: (dm as any).order,
       type: [{ "@id": SHACL.NODESHAPE }],
       icon: ["fa-duotone", "fa-diagram-project"]
     };

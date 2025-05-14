@@ -390,10 +390,10 @@ async function updatePropertyTreeRoots(): Promise<void> {
   if (props.focus) {
     if (isAliasIriRef(props.focus) && props.focus.iri !== SNOMED.ANY) {
       const results = await ConceptService.getSuperiorPropertiesPaged(props.focus.iri);
-      if (results) roots = results.result.map(item => item["@id"]);
+      if (results.result) roots = results.result.map(item => item["@id"]);
     } else if (isBoolGroup(props.focus)) {
       const results = await ConceptService.getSuperiorPropertiesBoolFocusPaged(props.focus);
-      if (results) roots = results.result.map(item => item["@id"]);
+      if (results.result) roots = results.result.map(item => item["@id"]);
     }
   }
   propertyTreeRoots.value = roots;
@@ -403,7 +403,7 @@ async function updateValueTreeRoots(): Promise<void> {
   let roots = [IM.ONTOLOGY_PARENT_FOLDER];
   if (where.value["@id"] && where.value["@id"] !== SNOMED.ANY) {
     const results = await ConceptService.getSuperiorPropertyValuesPaged(where.value["@id"]);
-    if (results) roots = results.result.map(item => item["@id"]);
+    if (results.result) roots = results.result.map(item => item["@id"]);
   }
   valueTreeRoots.value = roots;
 }
