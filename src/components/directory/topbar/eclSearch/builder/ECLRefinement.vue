@@ -1,74 +1,130 @@
 <template>
-  <div class="refinement-content-container" @drop="onDrop($event, value, parent)" @dragover="onDragOver($event)">
-    <Button
-      icon="drag-icon fa-solid fa-grip-vertical"
-      severity="secondary"
-      text
-      draggable="true"
-      @dragstart="onDragStart($event, value, parent)"
-      @dragend="onDragEnd(value, parent)"
-    />
-    <Select
-      style="width: 4.5rem; min-height: 2.3rem"
-      v-model="value.property.constraintOperator"
-      :options="constraintOperatorOptions"
-      option-label="label"
-      option-value="value"
-    >
-      <template #value="slotProps">
-        <div v-if="slotProps.value" class="flex items-center">
-          <div>{{ value.property.constraintOperator }}</div>
-        </div>
-      </template>
-      <template #option="slotProps">
-        <div class="flex items-center" style="min-height: 1rem">
-          <div>{{ slotProps.option.label }}</div>
-        </div>
-      </template>
-    </Select>
-    <div class="property-container">
-      <AutocompleteSearchBar
-        :disabled="!hasFocus || loadingProperty"
-        v-model:selected="selectedProperty"
-        :imQuery="imQueryForPropertySearch"
-        :root-entities="propertyTreeRoots"
-        @open-dialog="updatePropertyTreeRoots"
-        :class="!isValidProperty && showValidation && 'invalid'"
+  <div class="nested-ecl-where">
+    <span v-if="where.or || where.and">
+      <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
+        <span v-for="operator in operators" :key="operator">
+          <span v-if="where[operator]">
+            <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
+              <div
+                class="conjunction"
+                @drop="onDrop($event, where, parent, index)"
+                @dragover="
+                  onDragOver($event);
+                  mouseover($event);
+                "
+                @dragleave="mouseout"
+              />
+              <div class="top-operator">
+                <Select
+                  class="operator-selector"
+                  :modelValue="parentOperator"
+                  :options="getBooleanOptions(parent!, parentOperator as Bool)"
+                  option-label="label"
+                  option-value="value"
+                  @update:modelValue="val => toggleBool(parent!, where, parentOperator as Bool, val as Bool, index)"
+                />
+              </div>
+              <div v-for="(item, index) in where[operator]" :key="index">
+                <ECLRefinement
+                  v-model:where="where[operator]![index]!"
+                  v-model:parent="where"
+                  :focus="props.focus"
+                  :index="index"
+                  v-model:parentOperator="operator as Bool"
+                />
+              </div>
+            </div>
+          </span>
+        </span>
+      </div>
+    </span>
+    <div v-else class="refinement-content-container" @drop="onDrop($event, where, parent)" @dragover="onDragOver($event)">
+      <Button
+        icon="drag-icon fa-solid fa-grip-vertical"
+        severity="secondary"
+        text
+        draggable="true"
+        @dragstart="onDragStart($event, where, parent)"
+        @dragend="onDragEnd(where, parent)"
       />
-      <small v-if="!isValidProperty && showValidation" class="validate-error">Property is invalid for selected expression constraint.</small>
+      <div class="group-checkbox">
+        <Select
+          class="operator-selector"
+          :modelValue="parentOperator"
+          :options="getBooleanOptions(parent!, parentOperator as Bool)"
+          option-label="label"
+          option-value="value"
+          @update:modelValue="val => toggleBool(parent!, where, parentOperator as Bool, val as Bool, index)"
+        />
+      </div>
+      <div class="group-checkbox">
+        <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" data-testid="group-checkbox" />
+        <label :for="'group' + index">Select</label>
+      </div>
+      <Select
+        style="width: 4.5rem; min-height: 2.3rem"
+        v-model="propertyConstraintOperator"
+        :options="constraintOperatorOptions"
+        option-label="label"
+        option-value="value"
+        @change="updatePropertyConstraint"
+      >
+        <template #value="slotProps">
+          <div v-if="slotProps.value" class="flex items-center">
+            <div>{{ propertyConstraintOperator }}</div>
+          </div>
+        </template>
+        <template #option="slotProps">
+          <div class="flex items-center" style="min-height: 1rem">
+            <div>{{ slotProps.option.label }}</div>
+          </div>
+        </template>
+      </Select>
+      <div class="property-container">
+        <AutocompleteSearchBar
+          :disabled="!hasFocus || loadingProperty"
+          v-model:selected="selectedProperty"
+          :imQuery="imQueryForPropertySearch"
+          :root-entities="propertyTreeRoots"
+          @open-dialog="updatePropertyTreeRoots"
+          :class="!isValidProperty && showValidation && 'invalid'"
+        />
+        <small v-if="!isValidProperty && showValidation" class="validate-error">Property is invalid for selected expression constraint.</small>
+      </div>
+      <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
+      <Select style="width: 5rem" v-model="inNotIn" :options="operatorOptions" />
+      <Select
+        style="width: 4.5rem; min-height: 2.3rem"
+        v-model="valueConstraintOperator"
+        :options="constraintOperatorOptions"
+        option-label="label"
+        option-value="value"
+        @change="updateValueConstraint"
+      >
+        <template #value="slotProps">
+          <div v-if="slotProps.value" class="flex items-center">
+            <div>{{ valueConstraintOperator }}</div>
+          </div>
+        </template>
+        <template #option="slotProps">
+          <div class="flex items-center" style="min-height: 1rem">
+            <div>{{ slotProps.option.label }}</div>
+          </div>
+        </template>
+      </Select>
+      <div class="value-container">
+        <AutocompleteSearchBar
+          :disabled="!hasProperty || loadingValue || loadingProperty"
+          v-model:selected="selectedValue"
+          :imQuery="imQueryForValueSearch"
+          :root-entities="valueTreeRoots"
+          @open-dialog="updateValueTreeRoots"
+          :class="!isValidPropertyValue && showValidation && 'invalid'"
+        />
+        <small v-if="!isValidPropertyValue && showValidation" class="validate-error">Item is invalid for selected property.</small>
+      </div>
+      <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     </div>
-    <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
-    <Select style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
-    <Select
-      style="width: 4.5rem; min-height: 2.3rem"
-      v-model="value.value.constraintOperator"
-      :options="constraintOperatorOptions"
-      option-label="label"
-      option-value="value"
-    >
-      <template #value="slotProps">
-        <div v-if="slotProps.value" class="flex items-center">
-          <div>{{ value.value.constraintOperator }}</div>
-        </div>
-      </template>
-      <template #option="slotProps">
-        <div class="flex items-center" style="min-height: 1rem">
-          <div>{{ slotProps.option.label }}</div>
-        </div>
-      </template>
-    </Select>
-    <div class="value-container">
-      <AutocompleteSearchBar
-        :disabled="!hasProperty || loadingValue || loadingProperty"
-        v-model:selected="selectedValue"
-        :imQuery="imQueryForValueSearch"
-        :root-entities="valueTreeRoots"
-        @open-dialog="updateValueTreeRoots"
-        :class="!isValidPropertyValue && showValidation && 'invalid'"
-      />
-      <small v-if="!isValidPropertyValue && showValidation" class="validate-error">Item is invalid for selected property.</small>
-    </div>
-    <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
   </div>
 </template>
 
@@ -81,35 +137,41 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
 import { ToastSeverity } from "@/enums";
 import { isAliasIriRef, isBoolGroup } from "@/helpers/TypeGuards";
-import { QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
+import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import { cloneDeep, isEqual } from "lodash-es";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
+import { getBooleanOptions, toggleBool } from "@/helpers/IMQueryBuilder";
+
 import { SearchOptions } from "@/interfaces";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import {
+  buildIMQueryFromFilters,
+  setConstraintOperator,
+  constraintOperatorOptions,
+  getOperatorToggle,
+  getOperatorText,
+  getConstraintOperator
+} from "@/helpers/IMQueryBuilder";
+
+import Button from "primevue/button";
 
 interface Props {
-  value: {
-    type: string;
-    operator: string;
-    property: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
-    value: { concept?: { iri: string; name?: string } | SearchResultSummary; constraintOperator: string };
-    validation?: { deferred: { promise: Promise<any>; reject: Function; resolve: Function }; valid: boolean };
-    id?: string;
-  };
-  parent?: any;
   focus?: any;
+  index: number;
+  parentOperator?: string;
 }
 const props = defineProps<Props>();
-
+const where = defineModel<Where>("where", { default: {} });
+const parent = defineModel<Where | Match>("parent");
 const toast = useToast();
 const filterStore = useFilterStore();
+const group: Ref<number[]> = ref([]);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 const coreSchemes = computed(() => filterStore.coreSchemes);
 const propertyRanges: Ref<Set<string>> = ref(new Set<string>());
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const childLoadingState = inject("childLoadingState") as Ref<any>;
+const operators = ["and", "or"] as const;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 const selectedProperty: Ref<SearchResultSummary | undefined> = ref();
 const selectedValue: Ref<SearchResultSummary | undefined> = ref();
@@ -121,43 +183,34 @@ const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"
 const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
 const showValidation = ref(false);
 const operatorOptions = ["=", "!="];
-const constraintOperatorOptions = [
-  { label: " ", value: "" },
-  { label: "<<", value: "<<" },
-  { label: "<", value: "<" },
-  { label: "^", value: "^" }
-];
-
-const imQueryForValueSearch: Ref<QueryRequest | undefined> = ref(undefined);
-
-const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
-
-const hasValue = computed(() => {
-  if (isObjectHasKeys(props.value.value, ["concept", "constraintOperator"]) && isObjectHasKeys(props.value.value.concept, ["iri"])) return true;
-  else return false;
+const hover = ref();
+const propertyConstraintOperator: Ref<string | undefined> = ref<"<<">();
+const valueConstraintOperator: Ref<string | undefined> = ref<"<<">();
+const inNotIn = computed(() => {
+  if (where.value.not) return "!=";
+  else return "=";
 });
-
+const imQueryForValueSearch: Ref<QueryRequest | undefined> = ref(undefined);
+const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
+const hasValue = computed(() => {
+  return where.value.is;
+});
 const hasFocus = computed(() => {
   if (isObjectHasKeys(props, ["focus"]) && ((isAliasIriRef(props.focus) && props.focus.iri) || isBoolGroup(props.focus))) return true;
   else return false;
 });
-
 const hasProperty = computed(() => {
-  if (isObjectHasKeys(props.value.property, ["concept", "constraintOperator"]) && isObjectHasKeys(props.value.property.concept, ["iri"])) return true;
-  else return false;
+  return where.value["@id"];
 });
+const emit = defineEmits<{
+  (e: "update:parentOperator", value: string): void;
+}>();
 
 watch(
-  () => cloneDeep(props.value),
+  () => cloneDeep(where.value),
   async (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       if (!oldValue) await processProps();
-      else {
-        if (newValue?.property?.concept?.iri !== oldValue?.property?.concept?.iri) await processProps();
-        else if (!newValue.property.concept) selectedProperty.value = undefined;
-        if (newValue?.value?.concept?.iri !== oldValue?.value?.concept?.iri) await processProps();
-        else if (!newValue.value.concept) selectedValue.value = undefined;
-      }
     }
   }
 );
@@ -179,11 +232,6 @@ watch(forceValidation, async () => {
   await updateIsValidProperty();
   await updateIsValidPropertyValue();
   showValidation.value = true;
-  if (props.value.validation) {
-    if (isValidProperty.value && isValidPropertyValue.value) props.value.validation.valid = true;
-    else props.value.validation.valid = false;
-    props.value.validation.deferred.resolve("resolved");
-  }
 });
 
 watch(selectedProperty, async (newValue, oldValue) => {
@@ -204,15 +252,14 @@ watch(selectedValue, async (newValue, oldValue) => {
   }
 });
 
-watch([() => cloneDeep(props.focus), () => cloneDeep(props.value.property.concept)], async () => {
+watch([() => cloneDeep(props.focus), () => cloneDeep(where.value)], async () => {
   loadingProperty.value = true;
   updateQueryForPropertySearch();
   loadingProperty.value = false;
 });
 
-watch([selectedProperty, () => cloneDeep(props.value.value.concept)], async () => {
+watch([selectedProperty, () => cloneDeep(where.value)], async () => {
   loadingValue.value = true;
-  await updateRanges();
   updateQueryForValueSearch();
   loadingValue.value = false;
 });
@@ -221,23 +268,44 @@ onMounted(async () => {
   loadingProperty.value = true;
   loadingValue.value = true;
   await processProps();
-  updateQueryForValueSearch();
-  updateQueryForPropertySearch();
   loadingProperty.value = false;
   loadingValue.value = false;
-  if (props.value.id && childLoadingState.value.hasOwnProperty(props.value.id)) childLoadingState.value[props.value.id] = true;
 });
+function mouseover(event: any) {
+  event.stopPropagation();
+  hover.value = true;
+}
+
+function mouseout(event: any) {
+  event.stopPropagation();
+  hover.value = false;
+}
+
+function updatePropertyConstraint(e: { value: string }) {
+  setConstraintOperator(where.value, e.value);
+}
+function getWhereOperatorText(operator: string) {
+  if (props.index > 0) return "And " + getOperatorText(operator);
+  else return getOperatorText(operator);
+}
+
+function updateValueConstraint(e: { value: string }) {
+  if (!where.value.is) where.value.is = [{}];
+  setConstraintOperator(where.value.is[0], e.value);
+}
 
 function updateQueryForValueSearch() {
-  imQueryForValueSearch.value = {
-    query: { "@id": QUERY.ALLOWABLE_RANGES },
-    argument: [
-      {
-        parameter: "this",
-        valueIri: { "@id": props.value.property.concept?.iri }
-      }
-    ]
-  } as QueryRequest;
+  if (where.value.is) {
+    imQueryForValueSearch.value = {
+      query: { "@id": QUERY.ALLOWABLE_RANGES },
+      argument: [
+        {
+          parameter: "this",
+          valueIri: { "@id": where.value.is[0]["@id"] }
+        }
+      ]
+    } as QueryRequest;
+  }
 }
 
 function addIfConcept(focus: any[], iris: TTIriRef[]) {
@@ -321,29 +389,29 @@ async function updatePropertyTreeRoots(): Promise<void> {
 
 async function updateValueTreeRoots(): Promise<void> {
   let roots = [IM.ONTOLOGY_PARENT_FOLDER];
-  if (props.value?.property?.concept?.iri && props.value.property.concept.iri !== SNOMED.ANY) {
-    const results = await ConceptService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
+  if (where.value["@id"] && where.value["@id"] !== SNOMED.ANY) {
+    const results = await ConceptService.getSuperiorPropertyValuesPaged(where.value["@id"]);
     if (results) roots = results.result.map(item => item["@id"]);
   }
   valueTreeRoots.value = roots;
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus && hasProperty.value && props.focus.iri === SNOMED.ANY) {
+  if (where.value["@id"] && where.value["@id"] === SNOMED.ANY) {
     const imQuery: QueryRequest = cloneDeep(imQueryForPropertySearch.value) ?? { query: {} };
     imQuery.textSearch = selectedProperty.value?.iri;
     const results = await QueryService.queryIMSearch(imQuery);
     isValidProperty.value = results.entities?.findIndex(r => r.iri === selectedProperty.value?.iri) != -1 ? true : false;
   } else if (props.focus && hasProperty.value && imQueryForPropertySearch.value) {
     const imQuery = cloneDeep(imQueryForPropertySearch.value);
-    imQuery.askIri = props.value.property.concept?.iri;
+    imQuery.askIri = where.value["@id"];
     isValidProperty.value = await QueryService.askQuery(imQuery);
     if (!isValidProperty.value) {
       if (isAliasIriRef(props.focus))
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property",
-          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : props.value.property.concept?.iri}" is not valid for concept "${
+          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value["@id"]}" is not valid for concept "${
             props.focus?.name ? props.focus.name : props.focus?.iri
           }"`,
           life: 3000
@@ -352,9 +420,7 @@ async function updateIsValidProperty(): Promise<void> {
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property",
-          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : props.value.property.concept?.iri}" is not valid for focus "${
-            props.focus?.ecl
-          }"`,
+          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value["@id"]}" is not valid for focus "${props.focus?.ecl}"`,
           life: 3000
         });
     }
@@ -362,7 +428,7 @@ async function updateIsValidProperty(): Promise<void> {
 }
 
 async function updateIsValidPropertyValue(): Promise<void> {
-  if (selectedValue.value && selectedProperty.value) {
+  if (where.value.is) {
     const imQuery: QueryRequest = cloneDeep(imQueryForValueSearch.value) ?? { query: {} };
     imQuery.textSearch = selectedValue.value?.name;
     const result = await QueryService.queryIMSearch(imQuery);
@@ -371,8 +437,7 @@ async function updateIsValidPropertyValue(): Promise<void> {
       toast.add({
         severity: ToastSeverity.ERROR,
         summary: "Invalid property value",
-        detail: `Value "${props.value.value.concept?.name ? props.value.value.concept.name : props.value.value.concept?.iri}" is not valid for property "${
-          props.value.property.concept?.name ? props.value.property.concept?.name : props.value.property.concept?.iri
+        detail: `Value "${where.value.is[0].name}" is not valid for property for this concept";
         }"`,
         life: 3000
       });
@@ -381,49 +446,51 @@ async function updateIsValidPropertyValue(): Promise<void> {
 }
 
 async function processProps() {
-  if (hasProperty.value && hasFocus.value) {
-    await processPropertyProp();
-  }
-  if (hasValue.value && hasProperty.value) {
-    await processValueProp();
-  }
+  await processPropertyProp();
+  await processValueProp();
 }
 
 async function processPropertyProp() {
-  if (isObjectHasKeys(props.value.property.concept, ["entityType"])) selectedProperty.value = props.value.property.concept as SearchResultSummary;
-  else if (props.value.property.concept?.iri) {
-    const propertySummary = (selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri));
-    if (isObjectHasKeys(propertySummary)) selectedProperty.value = propertySummary;
-    else {
-      selectedProperty.value = undefined;
-      throw new Error("Property iri does not exist");
-    }
+  if (where.value["@id"]) {
+    selectedProperty.value = { iri: where.value["@id"], name: where.value.name } as SearchResultSummary;
+    propertyConstraintOperator.value = getConstraintOperator(where.value);
   } else {
     selectedProperty.value = undefined;
+    propertyConstraintOperator.value = "<<";
   }
 }
 
 async function processValueProp() {
-  if (isObjectHasKeys(props.value.value.concept, ["entityType"])) selectedValue.value = props.value.value.concept as SearchResultSummary;
-  else if (props.value.value.concept) {
-    const valueSummary = (selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri));
-    if (isObjectHasKeys(valueSummary)) {
-      selectedValue.value = valueSummary;
-    } else {
-      selectedValue.value = undefined;
-      throw new Error("Value iri does not exist");
-    }
+  if (where.value.is && where.value.is[0]["@id"]) {
+    selectedValue.value = { iri: where.value.is[0]["@id"], name: where.value.is[0].name } as SearchResultSummary;
+    valueConstraintOperator.value = getConstraintOperator(where.value.is[0]);
+  } else {
+    selectedValue.value = undefined;
+    valueConstraintOperator.value = "<<";
   }
 }
 
 async function updateProperty(property: SearchResultSummary | undefined) {
-  if (!property) props.value.property.concept = undefined;
-  else props.value.property.concept = { iri: property.iri };
+  if (!property) {
+    delete where.value["@id"];
+    delete where.value.name;
+  } else {
+    where.value["@id"] = property.iri;
+    where.value.name = property.name;
+  }
 }
 
 async function updateValue(value: SearchResultSummary | undefined) {
-  if (!value) props.value.value.concept = undefined;
-  else props.value.value.concept = { iri: value.iri };
+  if (!value) {
+    delete where.value.is;
+  } else {
+    where.value.is = [
+      {
+        "@id": value.iri,
+        name: value.name
+      }
+    ];
+  }
 }
 </script>
 
@@ -505,5 +572,40 @@ async function updateValue(value: SearchResultSummary | undefined) {
 .invalid {
   border: 1px solid var(--p-red-500);
   border-radius: var(--p-textarea-border-radius);
+}
+.group-checkbox {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+.group-checkbox label {
+  font-size: 1rem;
+  line-height: 1.25rem;
+  font-weight: normal;
+}
+
+.operator-selector {
+  font-size: 0.85rem;
+}
+
+.nested-ecl-where {
+  width: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-width: 0;
+  padding: 0.5rem;
+  border: #488bc230 1px solid;
+  border-radius: 5px;
+  background-color: #488bc210;
+  margin: 0.5rem;
+  font-size: 1rem;
+}
+
+.top-operator {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
 }
 </style>

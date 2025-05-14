@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-03-26 11:48:22.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-13 10:55:06.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -27,47 +27,6 @@ export interface DownloadEntityOptions {
     includeIsChildOf?: boolean;
     includeHasChildren?: boolean;
     includeInactive?: boolean;
-}
-
-export interface BoolGroup extends BuilderComponent {
-    conjunction?: Bool;
-    items?: BuilderComponent[];
-    attributeGroup?: boolean;
-    exclude?: boolean;
-}
-
-export interface BuilderComponent extends BuilderValue {
-    type?: string;
-}
-
-export interface BuilderValue {
-}
-
-export interface ConceptReference {
-    iri?: string;
-    name?: string;
-}
-
-export interface EclBuilderException extends Exception {
-}
-
-export interface ExpressionConstraint extends BuilderComponent {
-    constraintOperator?: string;
-    conjunction?: Bool;
-    conceptSingle?: ConceptReference;
-    conceptBool?: BoolGroup;
-    refinementItems?: BuilderComponent[];
-}
-
-export interface Refinement extends BuilderComponent {
-    operator?: string;
-    property?: SubExpressionConstraint;
-    value?: SubExpressionConstraint;
-}
-
-export interface SubExpressionConstraint {
-    concept?: ConceptReference;
-    constraintOperator?: string;
 }
 
 export interface GithubAuthorDTO {
@@ -158,6 +117,9 @@ export interface FunctionTemplate extends Entity {
     parameterTemplate?: ParameterTemplate[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface MapFunction extends TTIriRef {
     argument?: Argument[];
     conceptMap?: { [index: string]: string };
@@ -172,6 +134,9 @@ export interface ModelDocument {
     function?: MapFunction[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface NodeShape extends TTIriRef {
     property?: PropertyShape[];
     subType?: TTIriRef[];
@@ -194,6 +159,9 @@ export interface ParameterTemplate extends Entity {
     valueTemplate?: ValueTemplate[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface PropertyRange extends TTIriRef {
     pattern?: string;
     intervalUnit?: TTIriRef;
@@ -238,6 +206,9 @@ export interface PropertyShape {
     hasValue?: any;
     hasValueType?: TTIriRef;
     definition?: string;
+    ascending?: string;
+    descending?: string;
+    orderable?: boolean;
 }
 
 export interface SetContent {
@@ -278,11 +249,17 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: TTIriRef;
+    valueParameter?: string;
     qualifier?: string;
+    unit?: TTIriRef;
     operator?: Operator;
     valueLabel?: string;
-    valueParameter?: string;
+}
+
+export interface BoolGroup<T> {
+    and?: T[];
+    not?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -315,8 +292,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
 }
@@ -325,11 +302,6 @@ export interface FunctionClause extends Value {
     name?: Function;
     argument?: Argument[];
     range?: Range;
-}
-
-export interface GraphNode {
-    path?: Path;
-    variable?: string;
 }
 
 export interface GroupBy extends IriLD {
@@ -349,38 +321,38 @@ export interface IriLD {
     description?: string;
 }
 
-export interface Match extends IriLD, GraphNode {
+export interface Match extends IriLD, BoolGroup<Match> {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
-    exclude?: boolean;
     nodeRef?: string;
-    header?: string;
-    preface?: string;
     typeOf?: Node;
     instanceOf?: Node[];
-    where?: Where[];
-    match?: Match[];
-    bool?: Bool;
+    and?: Match[];
+    or?: Match[];
+    not?: Match[];
+    where?: Where;
     graph?: Element;
     orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
+    variable?: string;
+    parameter?: string;
+    path?: Path[];
     function?: FunctionClause;
     entailment?: Entail;
-    hasRules?: boolean;
+    baseRule?: boolean;
     hasLinked?: boolean;
     union?: boolean;
-    rule?: boolean;
-    hasTest?: boolean;
-    test?: boolean;
+    ruleNumber?: number;
+    inverse?: boolean;
+    then?: Match;
+    rule?: Match[];
     return?: Return;
     returx?: Return;
-    isTest?: boolean;
     isUnion?: boolean;
-    isRule?: boolean;
 }
 
-export interface Node extends Element, GraphNode {
+export interface Node extends Element {
     type?: string;
     exclude?: boolean;
     code?: string;
@@ -392,20 +364,25 @@ export interface OrderDirection extends RelativeTo {
 }
 
 export interface OrderLimit {
-    property?: OrderDirection;
+    property?: OrderDirection[];
     limit?: number;
     description?: string;
 }
 
 export interface Path extends Element {
     inverse?: boolean;
-    where?: Where;
+    optional?: boolean;
+    typeOf?: Node;
+    path?: Path[];
 }
 
 export interface PathDocument {
     match?: Match[];
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface PathQuery extends TTIriRef {
     source?: TTIriRef;
     target?: TTIriRef;
@@ -419,9 +396,9 @@ export interface Prefix {
 
 export interface Query extends Match {
     activeOnly?: boolean;
-    query?: Query[];
     groupBy?: GroupBy[];
     prefixes?: Prefix[];
+    dataSet?: Query[];
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
@@ -464,6 +441,8 @@ export interface Return {
     function?: FunctionClause;
     property?: ReturnProperty[];
     as?: string;
+    valueRef?: string;
+    propertyRef?: string;
 }
 
 export interface ReturnProperty {
@@ -485,6 +464,9 @@ export interface ReturnProperty {
     return?: Return;
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface Update extends TTIriRef {
     match?: Match[];
     delete?: Delete[];
@@ -500,22 +482,21 @@ export interface When {
     case?: Case;
 }
 
-export interface Where extends Element, Assignable {
-    bool?: Bool;
-    match?: Match;
+export interface Where extends Element, Assignable, BoolGroup<Where> {
     range?: Range;
     isNull?: boolean;
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
     typeOf?: Node;
     is?: Node[];
-    not?: boolean;
-    where?: Where[];
+    notIs?: Node[];
+    not?: Where[];
     isNotNull?: boolean;
     function?: FunctionClause;
     valueVariable?: string;
-    path?: Path;
     inverse?: boolean;
+    or?: Where[];
+    and?: Where[];
 }
 
 export interface DownloadByQueryOptions {
@@ -808,6 +789,9 @@ export interface WORKFLOW {
 export interface XSD {
 }
 
+/**
+ * Class representing an IRI
+ */
 export interface TTIriRef extends TTValue, Serializable {
     name?: string;
     description?: string;
@@ -815,6 +799,25 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface Serializable {
+}
+
+export interface TTEntity extends TTNode, Serializable {
+    context?: TTContext;
+    crud?: TTIriRef;
+    graph?: TTIriRef;
+    name?: string;
+    type?: TTArray;
+    scheme?: TTIriRef;
+    version?: number;
+    description?: string;
+    status?: TTIriRef;
+    code?: string;
+    prefixes?: TTPrefix[];
+}
+
+export interface TTContext extends Serializable {
+    prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -832,34 +835,14 @@ export interface StackTraceElement extends Serializable {
     methodName?: string;
     fileName?: string;
     lineNumber?: number;
-    nativeMethod?: boolean;
     className?: string;
+    nativeMethod?: boolean;
 }
 
 export interface Exception extends Throwable {
 }
 
-export interface TTEntity extends TTNode, Serializable {
-    context?: TTContext;
-    crud?: TTIriRef;
-    graph?: TTIriRef;
-    name?: string;
-    type?: TTArray;
-    scheme?: TTIriRef;
-    version?: number;
-    status?: TTIriRef;
-    description?: string;
-    code?: string;
-    prefixes?: TTPrefix[];
-}
-
-export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
-    nameSpaces?: TTPrefix[];
-}
-
 export interface TTValue extends Serializable {
-    order?: number;
 }
 
 export interface TTArray extends Serializable {
@@ -879,20 +862,6 @@ export interface TTNode extends TTValue, Serializable {
 }
 
 export interface Comparable<T> {
-}
-
-export const enum ComponentType {
-    BOOL_GROUP = "BOOL_GROUP",
-    CONCEPT = "CONCEPT",
-    REFINEMENT = "REFINEMENT",
-}
-
-export const enum EclType {
-    exclusion = "exclusion",
-    refined = "refined",
-    compound = "compound",
-    compoundRefined = "compoundRefined",
-    simple = "simple",
 }
 
 export const enum ListMode {
@@ -918,6 +887,8 @@ export const enum Aggregate {
 export const enum Bool {
     and = "and",
     or = "or",
+    not = "not",
+    rule = "rule",
 }
 
 export const enum Comparison {
@@ -934,6 +905,12 @@ export const enum DisplayMode {
     LOGICAL = "LOGICAL",
 }
 
+export const enum EclType {
+    refined = "refined",
+    compound = "compound",
+    simple = "simple",
+}
+
 export const enum Entail {
     descendantsOrSelfOf = "descendantsOrSelfOf",
     memberOf = "memberOf",
@@ -947,6 +924,7 @@ export const enum Function {
     count = "count",
     average = "average",
     timeDifference = "timeDifference",
+    concatenate = "concatenate",
 }
 
 export const enum Operator {

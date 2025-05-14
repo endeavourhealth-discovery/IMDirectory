@@ -70,6 +70,7 @@ describe("viewer", () => {
         });
         it("can collapse all details nodes", () => {
           cy.getByTestId("expand-details-button").click();
+          cy.get(".details-container").find(".p-tree-node-children").should("exist");
           cy.getByTestId("collapse-details-button").click();
           cy.get(".details-container").get(".p-tree-node-children").should("not.exist");
         });
@@ -187,8 +188,7 @@ describe("viewer", () => {
           cy.get("#viewer-tabs").contains("JSON").click({ scrollBehavior: false });
         });
         it("has json with correct iri", () => {
-          cy.wait(1000);
-          cy.get("#json-container", { timeout: 60000 }).contains("http://snomed.info/sct#195967001");
+          cy.get("#json-container", { timeout: 60000 }).should("contain.text", "http://snomed.info/sct#195967001");
         });
       });
       describe("provenance tab", () => {
@@ -210,7 +210,9 @@ describe("viewer", () => {
     });
 
     it("starts with set tab open", () => {
-      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("Autism Spectrum Disorders (Data model value set)");
+      cy.get("#directory-table-container", { timeout: 60000 })
+        .find(".parent-header-container", { timeout: 60000 })
+        .contains("Autism Spectrum Disorders (Data model value set)");
       cy.get("#viewer-tabs").find(".p-tab-active").contains("Set");
     });
 

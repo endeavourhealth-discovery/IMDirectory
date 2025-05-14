@@ -1,6 +1,6 @@
 import { IM, RDFS } from "@/vocabulary";
 import { EntityReferenceNode, FiltersAsIris, TTBundle, Namespace, FilterOptions, PropertyDisplay } from "@/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadByQueryOptions } from "@/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, TTEntity } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
@@ -24,6 +24,14 @@ const EntityService = {
       params: {
         iri: iri,
         includeInactiveTermCodes: includeInactiveTermCodes
+      }
+    });
+  },
+
+  async getEntityTypes(iri: string): Promise<string[]> {
+    return axios.get(API_URL + "/entityTypes", {
+      params: {
+        iri: iri
       }
     });
   },
@@ -75,79 +83,11 @@ const EntityService = {
   },
 
   async getFilterOptions(): Promise<FilterOptions> {
-    let schemeOptions: TTIriRef[] = [];
-    const schemeResults = await this.getEntityChildren(IM.GRAPH);
-    if (isArrayHasLength(schemeResults)) {
-      schemeOptions = schemeResults.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      });
-    }
-
-    let statusOptions: TTIriRef[] = [];
-    const statusResults = await this.getEntityChildren(IM.STATUS);
-    if (isArrayHasLength(statusResults)) {
-      statusOptions = statusResults.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      });
-    }
-
-    let typeOptions: TTIriRef[] = [];
-    const typeResults = await this.getEntityChildren(IM.NAMESPACE + "TypeFilterOptions");
-    if (isArrayHasLength(typeResults)) {
-      typeOptions = typeResults.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      });
-    }
-
-    let sortFieldOptions: TTIriRef[] = [];
-    const sortFieldResults = await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterOptions");
-    if (isArrayHasLength(sortFieldResults)) {
-      sortFieldOptions = sortFieldResults.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      });
-    }
-
-    let sortDirectionOptions: TTIriRef[] = [];
-    const sortDirectionResults = await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterOptions");
-    if (isArrayHasLength(sortDirectionResults)) {
-      sortDirectionOptions = sortDirectionResults.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      });
-    }
-
-    return {
-      status: statusOptions,
-      schemes: schemeOptions,
-      types: typeOptions,
-      sortFields: sortFieldOptions,
-      sortDirections: sortDirectionOptions
-    } as FilterOptions;
+    return axios.get(API_URL + "/public/filterOptions");
   },
 
   async getFilterDefaultOptions(): Promise<FilterOptions> {
-    const schemeDefaultOptions = (await this.getEntityChildren(IM.NAMESPACE + "SchemeFilterDefaultOptions")) ?? [];
-    const statusDefaultOptions = (await this.getEntityChildren(IM.NAMESPACE + "StatusFilterDefaultOptions")) ?? [];
-    const typeDefaultOptions = (await this.getEntityChildren(IM.NAMESPACE + "TypeFilterDefaultOptions")) ?? [];
-    const sortDefaultFieldOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterDefaultOptions")) ?? [];
-    const sortDefaultDirectionOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterDefaultOptions")) ?? [];
-
-    return {
-      status: statusDefaultOptions.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      }),
-      schemes: schemeDefaultOptions.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      }),
-      types: typeDefaultOptions.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      }),
-      sortFields: sortDefaultFieldOptions.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      }),
-      sortDirections: sortDefaultDirectionOptions.map(option => {
-        return { "@id": option["@id"], name: option.name } as TTIriRef;
-      })
-    } as FilterOptions;
+    return axios.get(API_URL + "/public/filterDefaults");
   },
 
   async getCoreSchemes(): Promise<string[]> {

@@ -6,7 +6,7 @@
     <InputText v-model="valueLabel" placeholder="Value label" type="text" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #empty> Add concepts and/or sets to this list</template>
-      <template #option="{ option }" class="flex flex-row">
+      <template #option="{ option }">
         <div class="option-wrapper flex flex-row">
           <div class="option-content flex flex-row items-center gap-1">
             <ToggleButton v-model="option.include" class="flex-shrink-0" offLabel="exclude" onLabel="include" />
@@ -54,7 +54,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const { getLeafMatch } = setupIMQueryBuilderActions();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 interface SelectedEntity {
@@ -126,7 +125,7 @@ async function init() {
       else entity.entailment = "descendantsOrSelfOf";
     }
     selectedEntities.value = entities;
-    if (selectedPath.value?.where?.[0].valueLabel) valueLabel.value = selectedPath.value?.where?.[0].valueLabel;
+    if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where?.valueLabel;
   }
   loading.value = false;
 }
@@ -135,16 +134,7 @@ function getColourStyleFromType(types: TTIriRef[]) {
   return "color: " + getColourFromType(types);
 }
 
-function updatePathValues() {
-  let index = 0;
-  if (selectedPath.value?.where?.length && selectedPath.value?.where?.length !== 1)
-    index = selectedPath.value?.where?.findIndex(where => where["@id"] === props.propertyIri);
-  if (index != -1 && selectedPath.value?.where?.[index]) {
-    if (selectedPath.value?.where?.[index]) {
-      selectedPath.value.where[index].is = selectedEntities.value.map(selected => convertSelectedEntityToNode(selected));
-    }
-  }
-}
+function updatePathValues() {}
 
 function convertSelectedEntityToNode(selected: SelectedEntity): Node {
   const node: Node = {
@@ -173,24 +163,9 @@ function convertSelectedEntityToNode(selected: SelectedEntity): Node {
   return node;
 }
 
-function updateValueLabel() {
-  if (selectedPath.value?.where?.[0]) {
-    selectedPath.value.where[0].valueLabel = valueLabel.value;
-  }
-}
+function updateValueLabel() {}
 
-async function updateCanHaveValueList(path: Match | undefined) {
-  if (path) {
-    const dmIri = path.typeOf?.["@id"] ?? props.dataModelIri;
-    const propIri = getLeafMatch(path)?.where?.[0]["@id"];
-    if (propIri === IM.DATA_MODEL_PROPERTY_CONCEPT) canHaveValueList.value = true;
-    else if (dmIri && propIri) {
-      const entity = await EntityService.getPartialEntity(dmIri, [SHACL.PROPERTY]);
-      const prop = entity[SHACL.PROPERTY]?.find((prop: any) => prop?.[SHACL.PATH]?.[0]["@id"] === propIri);
-      canHaveValueList.value = prop && isArrayHasLength(prop[SHACL.CLASS]);
-    } else canHaveValueList.value = false;
-  } else canHaveValueList.value = false;
-}
+async function updateCanHaveValueList(path: Match | undefined) {}
 </script>
 
 <style scoped></style>

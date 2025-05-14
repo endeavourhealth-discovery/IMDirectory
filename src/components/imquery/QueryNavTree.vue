@@ -72,14 +72,12 @@ async function init() {
 }
 
 async function populateCheckBoxes(match: Match) {
-  if (isArrayHasLength(match.where)) {
-    for (const property of match.where!) {
-      selectByIri(property, property["@id"]!, root.value);
-    }
+  if (match.where) {
+    if (match.where["@id"]) selectByIri(match.where, match.where["@id"], root.value);
   }
 }
 
-async function selectByIri(property: Where, iri: string, nodes: TreeNode[]) {
+async function selectByIri(property: Where, iri: string | undefined, nodes: TreeNode[]) {
   let found = nodes.find(node => node.data === iri);
   if (found) {
     found.property = property;
@@ -182,7 +180,16 @@ async function onNodeExpand(node: TreeNode) {
       const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
       let groupNode = node.children?.find(child => child.data === groupRef["@id"]);
       if (!groupNode) {
-        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, false, node, undefined, groupRef.order);
+        groupNode = createTreeNode(
+          getNameFromRef(groupRef),
+          groupRef["@id"],
+          [{ "@id": IM.FOLDER }],
+          true,
+          false,
+          node,
+          undefined,
+          prop["http://www.w3.org/ns/shacl#order"]
+        );
         node.children?.push(groupNode);
       }
       const propertyNode = buildTreeNodeFromTTProperty(prop, groupNode);
@@ -254,15 +261,14 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
   const type = isObjectHasKeys(match.typeOf, ["@id"]) ? resolveIri(match.typeOf!["@id"]!) : resolveIri("");
 
   if (type && !types.includes(type)) types.push(type);
-  if (isArrayHasLength(match.match))
-    for (const nestedMatch of match.match!) {
-      getVariableTypesFromMatch(nestedMatch, types);
-    }
+  for (const bool of ["and", "or", "not"] as const) {
+    if (isArrayHasLength(match[bool]))
+      for (const nestedMatch of match[bool]!) {
+        getVariableTypesFromMatch(nestedMatch, types);
+      }
+  }
 
-  if (isArrayHasLength(match.where))
-    for (const property of match.where!) {
-      getVariableTypesFromProperty(property, types);
-    }
+  if (match.where) getVariableTypesFromProperty(match.where, types);
 
   if (match.nodeRef && variableMap.value[match.nodeRef]) {
     const nodeRefMatch = variableMap.value[match.nodeRef];
@@ -271,12 +277,16 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
 }
 
 function getVariableTypesFromProperty(property: Where, types: string[]) {
-  if (isObjectHasKeys(property, ["match"])) getVariableTypesFromMatch(property.match!, types);
-
-  if (isArrayHasLength(property.where))
-    for (const nestedProperty of property.where!) {
+  if (isArrayHasLength(property.and)) {
+    for (const nestedProperty of property.and!) {
       getVariableTypesFromProperty(nestedProperty, types);
     }
+  }
+  if (isArrayHasLength(property.or)) {
+    for (const nestedProperty of property.or!) {
+      getVariableTypesFromProperty(nestedProperty, types);
+    }
+  }
 }
 
 async function addBaseEntityToRoot(iri: string) {
