@@ -109,7 +109,6 @@ const emit = defineEmits<{
   ungroupMatches: [payload: Match];
 }>();
 const hover: Ref<boolean> = ref(false);
-const { getMenuItemFromMatch, isFlatMatch, toggleMatchBool, toggleWhereBool } = setupIMMatchBuilderActions();
 const group: Ref<number[]> = ref([]);
 const typeOf: Ref<string> = ref("");
 const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary | undefined>;

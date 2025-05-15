@@ -1,7 +1,7 @@
 import axios from "axios";
 import Env from "./Env";
 import { SetDiffObject } from "@/interfaces";
-import { Node, Pageable, TTIriRef } from "@/interfaces/AutoGen";
+import { Node, Pageable, SetExportRequest, TTIriRef } from "@/interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/set";
 
@@ -43,32 +43,8 @@ const SetService = {
     });
   },
 
-  async getFullExportSet(
-    iri: string,
-    definition: boolean,
-    core: boolean,
-    legacy: boolean,
-    includeSubsets: boolean,
-    ownRow: boolean,
-    im1id: boolean,
-    subsumedBy: boolean,
-    format: string,
-    schemes: string[],
-    raw?: boolean
-  ): Promise<Blob> {
-    return axios.get(API_URL + "/public/setExport", {
-      params: {
-        iri: iri,
-        definition: definition,
-        core: core,
-        legacy: legacy,
-        includeSubsets: includeSubsets,
-        ownRow: ownRow,
-        im1id: im1id,
-        subsumedBy: subsumedBy,
-        format: format,
-        schemes: schemes.join(",")
-      },
+  async getFullExportSet(setRequest: SetExportRequest, raw?: boolean): Promise<Blob> {
+    return axios.post(API_URL + "/public/setExport", setRequest, {
       responseType: "blob",
       raw: raw
     });

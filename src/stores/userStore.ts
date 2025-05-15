@@ -57,17 +57,19 @@ export const useUserStore = defineStore("user", {
       localStorageWithExpiry.setItem("cookiesOptionalAccepted", bool);
     },
     async getAllFromUserDatabase(): Promise<void> {
-      if (this.currentUser) {
-        this.clearAllFromLocalStorage();
-        const data = await UserService.getUserData();
-        if (data.preset) this.currentPreset = data.preset;
-        if (data.primaryColor) this.currentPrimaryColor = data.primaryColor;
-        if (data.darkMode) this.darkMode = data.darkMode;
-        if (data.scale) this.currentScale = data.scale;
-        if (data.organisations) this.organisations = data.organisations;
-        if (data.favourites) this.favourites = data.favourites;
-        if (data.mru) this.recentLocalActivity = data.mru;
-      } else this.getAllFromLocalStorage();
+      if (!this.currentUser) {
+        this.getAllFromLocalStorage();
+        return;
+      }
+      this.clearAllFromLocalStorage();
+      const data = await UserService.getUserData();
+      if (data.preset) this.currentPreset = data.preset;
+      if (data.primaryColor) this.currentPrimaryColor = data.primaryColor;
+      if (data.darkMode) this.darkMode = data.darkMode;
+      if (data.scale) this.currentScale = data.scale;
+      if (data.organisations) this.organisations = data.organisations;
+      if (data.favourites) this.favourites = data.favourites;
+      if (data.mru) this.recentLocalActivity = data.mru;
     },
     getAllFromLocalStorage(): void {
       const preset = localStorageWithExpiry.getItem("preset");

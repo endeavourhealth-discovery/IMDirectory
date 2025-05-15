@@ -28,7 +28,7 @@ export const testTreeNode = {
   data: testProperty,
   type: "class",
   icon: ["fa-duotone", "fa-pen-to-square"],
-  leaf: true,
+  leaf: false,
   parent: undefined,
   children: []
 };

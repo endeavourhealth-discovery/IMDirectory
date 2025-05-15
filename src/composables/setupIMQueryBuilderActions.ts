@@ -28,7 +28,7 @@ function setupIMQueryBuilderActions() {
   }
 
   function getMenuItemFromMatch(match: Match): MenuItem {
-    return { label: match.typeOf?.name || match.description || "Feature", key: match["@id"], editMatch: match };
+    return { label: match.typeOf?.name ?? match.description ?? "Feature", key: match["@id"], editMatch: match };
   }
 
   function getTypeOfMatch(query: Query, id: string): string {

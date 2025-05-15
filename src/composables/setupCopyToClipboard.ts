@@ -16,6 +16,7 @@ function setupCopyToClipboard(valueToCopy?: Ref<string>, onCopyMessage?: string,
       onCopy();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      console.log(`Error copying to clipboard ${error}`);
       onCopyError();
     }
     return valueToCopy?.value;
