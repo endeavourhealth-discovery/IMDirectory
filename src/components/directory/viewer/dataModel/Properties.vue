@@ -102,7 +102,7 @@ const props = defineProps<{
   entityName: string;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   navigateTo: [payload: string];
 }>();
 

@@ -131,7 +131,7 @@
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { ConceptService, EntityService, QueryService } from "@/services";
+import { ConceptService, QueryService } from "@/services";
 import { IM, SNOMED, QUERY, RDF } from "@/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
@@ -144,14 +144,7 @@ import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { getBooleanOptions, toggleBool } from "@/helpers/IMQueryBuilder";
 
 import { SearchOptions } from "@/interfaces";
-import {
-  buildIMQueryFromFilters,
-  setConstraintOperator,
-  constraintOperatorOptions,
-  getOperatorToggle,
-  getOperatorText,
-  getConstraintOperator
-} from "@/helpers/IMQueryBuilder";
+import { buildIMQueryFromFilters, setConstraintOperator, constraintOperatorOptions, getConstraintOperator } from "@/helpers/IMQueryBuilder";
 
 import Button from "primevue/button";
 
@@ -168,11 +161,10 @@ const filterStore = useFilterStore();
 const group: Ref<number[]> = ref([]);
 const filterStoreOptions = computed(() => filterStore.filterOptions);
 const coreSchemes = computed(() => filterStore.coreSchemes);
-const propertyRanges: Ref<Set<string>> = ref(new Set<string>());
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const operators = ["and", "or"] as const;
-const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const selectedProperty: Ref<SearchResultSummary | undefined> = ref();
 const selectedValue: Ref<SearchResultSummary | undefined> = ref();
 const loadingProperty = ref(true);
@@ -192,9 +184,6 @@ const inNotIn = computed(() => {
 });
 const imQueryForValueSearch: Ref<QueryRequest | undefined> = ref(undefined);
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
-const hasValue = computed(() => {
-  return where.value.is;
-});
 const hasFocus = computed(() => {
   if (isObjectHasKeys(props, ["focus"]) && ((isAliasIriRef(props.focus) && props.focus.iri) || isBoolGroup(props.focus))) return true;
   else return false;
@@ -202,7 +191,7 @@ const hasFocus = computed(() => {
 const hasProperty = computed(() => {
   return where.value["@id"];
 });
-const emit = defineEmits<{
+defineEmits<{
   (e: "update:parentOperator", value: string): void;
 }>();
 
@@ -284,10 +273,6 @@ function mouseout(event: any) {
 function updatePropertyConstraint(e: { value: string }) {
   setConstraintOperator(where.value, e.value);
 }
-function getWhereOperatorText(operator: string) {
-  if (props.index > 0) return "And " + getOperatorText(operator);
-  else return getOperatorText(operator);
-}
 
 function updateValueConstraint(e: { value: string }) {
   if (!where.value.is) where.value.is = [{}];
@@ -356,21 +341,6 @@ function updateQueryForPropertySearch() {
         ]
       } as QueryRequest;
     }
-}
-
-async function updateRanges() {
-  if (selectedProperty.value?.iri) {
-    const rangesQueryRequest: QueryRequest = {
-      query: { "@id": QUERY.ALLOWABLE_RANGES },
-      argument: [{ parameter: "this", valueIri: { "@id": selectedProperty.value?.iri } }]
-    } as QueryRequest;
-
-    const response = await QueryService.queryIM(rangesQueryRequest);
-    if (isArrayHasLength(response.entities))
-      for (const range of response.entities) {
-        propertyRanges.value.add(range["@id"]);
-      }
-  }
 }
 
 async function updatePropertyTreeRoots(): Promise<void> {

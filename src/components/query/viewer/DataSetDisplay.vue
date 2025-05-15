@@ -102,25 +102,27 @@ watch(
 </script>
 
 <style scoped>
-//.button-chevron {
-//  background-color: transparent;
-//  border: none;
-//  cursor: pointer;
-//}
-//.field {
-//  padding-right: 0.2rem;
-//}
-//.rule {
-//  font-weight: bold;
-//  padding-right: 1rem;
-//}
-//
-//.return {
-//  color: var(--p-teal-500);
-//  padding-left: 0.5rem;
-//}
-//
-//.output {
-//  color: var(--p-indigo-500);
-//}
+/*
+.button-chevron {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+.field {
+  padding-right: 0.2rem;
+}
+.rule {
+  font-weight: bold;
+  padding-right: 1rem;
+}
+
+.return {
+  color: var(--p-teal-500);
+  padding-left: 0.5rem;
+}
+
+.output {
+  color: var(--p-indigo-500);
+}
+*/
 </style>

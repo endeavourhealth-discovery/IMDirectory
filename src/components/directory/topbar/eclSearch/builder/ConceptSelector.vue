@@ -34,19 +34,16 @@
 import { Ref, ref, onMounted, watch, computed } from "vue";
 import { IM } from "@/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { QueryRequest, SearchResultSummary, Node, Match } from "@/interfaces/AutoGen";
-import { EntityService } from "@/services";
+import { QueryRequest, SearchResultSummary, Node } from "@/interfaces/AutoGen";
 import { cloneDeep, isEqual } from "lodash-es";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters, constraintOperatorOptions, getConstraintOperator, setConstraintOperator } from "@/helpers/IMQueryBuilder";
-import Tooltip from "primevue/tooltip";
 
 interface Props {
   parent?: any;
 }
-const props = defineProps<Props>();
+defineProps<Props>();
 const node = defineModel<Node>("node", { default: {} });
 watch(
   () => cloneDeep(node.value),
@@ -113,12 +110,6 @@ function updateConcept(concept: SearchResultSummary) {
   justify-content: flex-start;
   align-items: center;
 }
-.constraint-operator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
 
 .loading-icon {
   flex: 0 0 auto;
@@ -126,65 +117,8 @@ function updateConcept(concept: SearchResultSummary) {
   width: 1.5rem;
 }
 
-.tree-button {
-  height: 2.357rem !important;
-  width: 2.357rem !important;
-  padding: 0.5rem !important;
-}
-
-.auto-complete {
-  flex: 1 0 auto;
-  display: flex;
-  flex-flow: column nowrap;
-  overflow: auto;
-}
 .auto-complete-container {
   flex: 1 1 0%;
   min-width: 0;
-}
-
-.search-text {
-  flex: 1 1 auto;
-  min-width: 10rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 1rem;
-  padding: 4px 4px;
-  margin: 0;
-  color: var(--p-text-color);
-  background: var(--p-content-background);
-  border: 1px solid var(--p-textarea-border-color);
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s;
-  appearance: none;
-  border-radius: var(--p-textarea-border-radius);
-  height: 2.7rem;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-}
-
-.any-checkbox-container {
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.5rem 0 0;
-}
-
-.clickable {
-  cursor: pointer;
-}
-
-.inactive {
-  color: var(--p-text-color-secondary);
-}
-
-.selected-label {
-  padding-left: 0.5rem;
 }
 </style>
