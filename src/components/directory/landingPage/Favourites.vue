@@ -70,7 +70,6 @@ import { RDF, RDFS } from "@/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { useConfirm } from "primevue/useconfirm";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
