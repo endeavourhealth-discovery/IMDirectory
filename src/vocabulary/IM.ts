@@ -2,7 +2,7 @@
 
 export class IM {
   public static readonly DOMAIN = "http://endhealth.info/";
-  public static readonly HAS_SUBTYPES = IM.DOMAIN + "hasSubtypes";
+  public static readonly HAS_SUBTYPES = IM.DOMAIN+"hasSubtypes";
   public static readonly PREFIX = "im";
   public static readonly NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
   public static readonly HAS_VALUESET = IM.NAMESPACE + "hasValueSet";
@@ -19,11 +19,11 @@ export class IM {
   public static readonly VALUE = "@value";
   public static readonly TYPE = "@type";
   public static readonly id = IM.NAMESPACE + "id";
-  public static readonly RELATIONSHIP_TYPE = IM.NAMESPACE + "relationshipType";
+  public static readonly RELATIONSHIP_TYPE = IM.NAMESPACE+"relationshipType";
   public static readonly CODE = IM.NAMESPACE + "code";
   public static readonly PREFERRED_NAME = IM.NAMESPACE + "preferredName";
   public static readonly HAS_SCHEME = IM.NAMESPACE + "scheme";
-  public static readonly BINDING = IM.NAMESPACE + "binding";
+  public static readonly BINDING = IM.NAMESPACE+"binding";
   public static readonly HAS_STATUS = IM.NAMESPACE + "status";
   public static readonly STATUS = IM.NAMESPACE + "Status";
   public static readonly CONTENT_TYPE = IM.NAMESPACE + "contentType";
