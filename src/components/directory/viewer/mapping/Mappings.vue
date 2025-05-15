@@ -155,9 +155,7 @@ const opMap = ref(null);
 const opMatchedTo = ref(null);
 const opMatchedFrom = ref(null);
 
-const emit = defineEmits<{
-  navigateTo: [payload: string];
-}>();
+const emit = defineEmits<{ navigateTo: [payload: string] }>();
 
 watch(
   () => props.entityIri,
@@ -352,12 +350,12 @@ function toggle(event: MouseEvent, data: MapItem | SimpleMap, refId: string): vo
   if (x) x.value.toggle(event);
 }
 
-function handleMatchedFromToggle(event: MouseEvent, data: SimpleMap) {
-  toggle(event, data, "opMatchedFrom");
+function handleMatchedFromToggle(args: { event: MouseEvent; data: SimpleMap }) {
+  toggle(args.event, args.data, "opMatchedFrom");
 }
 
-function handleMatchedToToggle(event: MouseEvent, data: SimpleMap) {
-  toggle(event, data, "opMatchedTo");
+function handleMatchedToToggle(args: { event: MouseEvent; data: SimpleMap }) {
+  toggle(args.event, args.data, "opMatchedTo");
 }
 </script>
 

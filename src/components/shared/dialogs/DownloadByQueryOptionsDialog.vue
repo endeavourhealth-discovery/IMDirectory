@@ -130,8 +130,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   closeDialog: [];
-  download: [downloadSettings: DownloadSettings];
-  downloadIMV1: [downloadSettings: DownloadSettings];
+  download: [payload: DownloadSettings];
+  downloadIMV1: [payload: DownloadSettings];
 }>();
 
 const filterStore = useFilterStore();

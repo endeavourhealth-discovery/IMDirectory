@@ -25,7 +25,7 @@
           ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink'
           : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'
       "
-      :pt="{ thead: { class: '!z-1' } }"
+      :pt="{ thead: { class: 'z-1!' } }"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
@@ -126,7 +126,6 @@ interface Props {
   imQuery?: QueryRequest;
   eclQuery?: EclSearchRequest;
   pageSize?: number;
-  loading?: boolean;
   disablePageDropdown?: boolean;
   showSelect?: boolean;
 }
@@ -136,11 +135,12 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   rowSelected: [payload: SearchResultSummary];
   locateInTree: [payload: string];
-  "update:loading": [loading: boolean];
   searchResultsUpdated: [payload: SearchResponse | undefined];
   addToList: [payload: string];
   viewHierarchy: [payload: string];
 }>();
+
+const modelLoading = defineModel<boolean | undefined>("loading");
 
 onMounted(async () => {
   schemesWithPrefixes.value = await EntityService.getSchemes();
@@ -201,7 +201,7 @@ watch(
 
 watch(
   () => searchLoading.value,
-  () => emit("update:loading", searchLoading.value)
+  () => (modelLoading.value = searchLoading.value)
 );
 
 async function onSearch() {

@@ -34,16 +34,16 @@ import { MenuItem } from "primevue/menuitem";
 
 const props = defineProps<{
   entityIri: string;
-  history: string[];
 }>();
 
 const emit = defineEmits<{
   navigateTo: [payload: string];
-  "update:history": [payload: string[]];
 }>();
 
-const canGoBack = computed(() => props.history.length && props.history.indexOf(props.entityIri) !== 0);
-const canGoForward = computed(() => props.history.length && props.history.indexOf(props.entityIri) < props.history.length - 1);
+const modelHistory = defineModel<string[]>("history", { required: true });
+
+const canGoBack = computed(() => modelHistory.value.length && modelHistory.value.indexOf(props.entityIri) !== 0);
+const canGoForward = computed(() => modelHistory.value.length && modelHistory.value.indexOf(props.entityIri) < modelHistory.value.length - 1);
 
 watch(
   () => props.entityIri,
@@ -68,18 +68,18 @@ function openPathOverlaymenu(event: Event | undefined) {
 }
 
 function goBack() {
-  if (canGoBack.value) emit("navigateTo", props.history[props.history.indexOf(props.entityIri) - 1]);
+  if (canGoBack.value) emit("navigateTo", modelHistory.value[modelHistory.value.indexOf(props.entityIri) - 1]);
 }
 
 function goForward() {
-  if (canGoForward.value) emit("navigateTo", props.history[props.history.indexOf(props.entityIri) + 1]);
+  if (canGoForward.value) emit("navigateTo", modelHistory.value[modelHistory.value.indexOf(props.entityIri) + 1]);
 }
 
 function init() {
   if (props.entityIri) {
-    const newHistory: string[] = [...props.history];
+    const newHistory: string[] = [...modelHistory.value];
     if (!newHistory.includes(props.entityIri)) newHistory.push(props.entityIri);
-    emit("update:history", newHistory);
+    modelHistory.value = newHistory;
     getPath();
   }
 }

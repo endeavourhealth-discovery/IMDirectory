@@ -1,4 +1,4 @@
-import { Match, OrderDirection, Node, Query, QueryRequest, SearchBinding, TTIriRef, Where, Element, Bool } from "@/interfaces/AutoGen";
+import { Match, OrderDirection, BoolGroup, Node, Query, QueryRequest, SearchBinding, TTIriRef, Where, Element, Bool } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
@@ -38,46 +38,51 @@ export const booleanWhereOptions = [
   }
 ];
 
-export function getBooleanMatchOptions(parent: Match, operator: Bool): any {
-  const options = [];
-  if (operator === Bool.or) {
-    options.push({
-      label: "And",
-      value: "and",
-      tooltip: "All of this group must be true"
-    });
-    if (parent.or && parent.or.length > 1)
-      options.push({
-        label: "Minus",
-        value: "not",
-        tooltip: "Exclude this item or  group "
-      });
-  } else if (operator === Bool.and) {
-    options.push({
-      label: "Or",
-      value: "or",
-      tooltip: "At least on of this group must be true"
-    });
-    if (parent.and && parent.and.length > 1)
-      options.push({
-        label: "Minus",
-        value: "not",
-        tooltip: "Exclude this item or  group "
-      });
-  } else if (operator === Bool.not) {
-    if (parent.and)
-      options.push({
-        label: "Or",
-        value: "or",
-        tooltip: "At least on of this group must be true"
-      });
+export function toggleBool(parent: BoolGroup<Match | Where | undefined>, child: BoolGroup<Match | Where>, oldBool: Bool, newBool: Bool, index: number) {
+  if (!parent) return;
+  const from = oldBool as keyof typeof parent;
+  const to = newBool as keyof typeof parent;
+  if (from === to) return;
+  if (to === Bool.not) {
+    const sourceArray = parent[from];
+    if (Array.isArray(sourceArray) && sourceArray.length > 1) {
+      sourceArray.splice(index, 1);
+      parent.not = parent.not || [];
+      parent.not.push(child);
+    }
+    return;
   }
-  if (parent.or)
+  if (from === Bool.not) {
+    if (parent.or) parent.or.push(child);
+    else if (parent.and) parent.and.push(child);
+    parent.not!.splice(index, 1);
+    if (parent.not!.length === 0) delete parent.not;
+  } else if (parent[from]) {
+    parent[to] = parent[from];
+    delete parent[from];
+  }
+}
+
+export function getBooleanOptions(parent: BoolGroup<Match | Where>, operator: Bool): any[] {
+  const options = [];
+  options.push({
+    label: "And",
+    value: "and",
+    tooltip: "All of this group must be true"
+  });
+  options.push({
+    label: "Or",
+    value: "or",
+    tooltip: "At least on of this group must be true"
+  });
+  if (parent[operator as keyof typeof parent] && parent[operator as keyof typeof parent]!.length > 1)
     options.push({
-      label: "And",
-      value: "and",
-      tooltip: "All of this group must be true"
+      label: "Minus",
+      value: "not",
+      tooltip: "Exclude this item or  group "
     });
+
+  return options;
 }
 
 export const constraintOperatorOptions = [

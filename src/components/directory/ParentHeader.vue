@@ -56,7 +56,6 @@ defineProps<{
   entity: TTEntity;
   showSelect?: boolean;
 }>();
-
 const emit = defineEmits<{
   locateInTree: [payload: string];
   navigateTo: [payload: string];

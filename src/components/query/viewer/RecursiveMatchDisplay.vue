@@ -124,9 +124,9 @@ interface Props {
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parentMatch = defineModel<Match>("parentMatch", { default: {} });
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 const editMenu = (match.value.and || match.value.or) && !match.value.instanceOf ? "booleanEditor" : "matchEditor";
 const expandSet: Ref<boolean> = ref(false);
 const operators = ["and", "or", "not"] as const;

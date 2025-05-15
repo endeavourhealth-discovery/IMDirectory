@@ -97,12 +97,11 @@ const props = defineProps<{
   entityIri: string;
 }>();
 
-const emit = defineEmits<{
-  navigateTo: [payload: string];
-}>();
+const emit = defineEmits<{ navigateTo: [payload: string] }>();
 
-const dynamicDialog = useDialog();
 const toast = useToast();
+const dynamicDialog = useDialog();
+
 const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();

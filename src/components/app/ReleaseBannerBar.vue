@@ -5,7 +5,7 @@
         >{{ latestRelease.title }} <span @click="showReleaseNotes" class="release-notes-link">View notes</span></span
       >
     </div>
-    <Button icon="fa-solid fa-xmark" text rounded aria-label="Cancel" class="close-button" @click="closeBanner" />
+    <Button icon="fa-solid fa-xmark" text rounded-sm aria-label="Cancel" class="close-button" @click="closeBanner" />
   </div>
 </template>
 

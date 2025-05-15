@@ -9,7 +9,7 @@
       <template #option="{ option }">
         <div class="option-wrapper flex flex-row">
           <div class="option-content flex flex-row items-center gap-1">
-            <ToggleButton v-model="option.include" class="flex-shrink-0" offLabel="exclude" onLabel="include" />
+            <ToggleButton v-model="option.include" class="shrink-0" offLabel="exclude" onLabel="include" />
             <InputText v-if="isValueSet(option[RDF.TYPE])" v-model="option.entailment" disabled type="text" />
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
             <div class="flex-col px-1 pb-1">
@@ -75,9 +75,9 @@ const valueLabel: Ref<string> = ref("");
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 const canHaveValueList: Ref<boolean> = ref(false);
 
-const emit = defineEmits({
-  goToNextStep: () => true
-});
+const emit = defineEmits<{
+  goToNextStep: [];
+}>();
 
 watch(
   () => props.updatedPathOption,

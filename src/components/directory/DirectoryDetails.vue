@@ -18,7 +18,7 @@
         v-if="entity['@id']"
         :entityIri="entity?.['@id']"
         @navigateTo="(iri: string) => $emit('navigateTo', iri)"
-        :history="history"
+        :history="modelHistory"
         @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
       />
       <ParentHeader
@@ -48,7 +48,6 @@ import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 interface Props {
   selectedIri: string;
   showSelectButton?: boolean;
-  history: string[];
   searchResults?: SearchResponse;
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
@@ -56,10 +55,11 @@ const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
 const emit = defineEmits<{
   navigateTo: [payload: string];
   locateInTree: [payload: string];
-  "update:history": [payload: string[]];
   selectedUpdated: [payload: string];
   goToSearchResults: [];
 }>();
+
+const modelHistory = defineModel<string[]>("history", { required: true });
 
 watch(
   () => props.selectedIri,

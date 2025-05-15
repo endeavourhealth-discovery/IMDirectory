@@ -1,15 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-14 17:03:32.
-
-export interface ConceptContextMap {
-    id?: string;
-    node?: string;
-    value?: string;
-    regex?: string;
-    property?: string;
-    context?: Context[];
-}
+// Generated using typescript-generator version 3.2.1263 on 2025-05-13 10:55:06.
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -287,17 +278,17 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
+    valueParameter?: string;
     qualifier?: string;
     unit?: TTIriRef;
-    valueParameter?: string;
+    operator?: Operator;
     valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
+    and?: T[];
     not?: T[];
     or?: T[];
-    and?: T[];
 }
 
 export interface Case {
@@ -330,10 +321,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
-    memberOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -841,14 +832,6 @@ export interface WORKFLOW {
 export interface XSD {
 }
 
-export interface Context {
-    publisher?: string;
-    system?: string;
-    schema?: string;
-    table?: string;
-    field?: string;
-}
-
 /**
  * Class representing an IRI
  */
@@ -870,9 +853,8 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    type?: TTArray;
-    version?: number;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     description?: string;
     status?: TTIriRef;
@@ -905,6 +887,14 @@ export interface StackTraceElement extends Serializable {
 }
 
 export interface Exception extends Throwable {
+}
+
+export interface TTValue extends Serializable {
+}
+
+export interface TTArray extends Serializable {
+    elements?: TTValue[];
+    list?: boolean;
 }
 
 export interface TTPrefix {

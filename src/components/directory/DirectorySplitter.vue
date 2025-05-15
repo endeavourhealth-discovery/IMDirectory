@@ -59,9 +59,7 @@ defineProps<{
   selectedFilterOptions: FilterOptions;
 }>();
 
-const emit = defineEmits<{
-  selectedFiltersUpdated: [payload: FilterOptions];
-}>();
+const emit = defineEmits<{ selectedFiltersUpdated: [payload: FilterOptions] }>();
 
 const router = useRouter();
 const loadingStore = useLoadingStore();

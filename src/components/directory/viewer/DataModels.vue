@@ -55,18 +55,13 @@ import setupOverlay from "@/composables/setupOverlay";
 import { getColourFromType } from "@/helpers/ConceptTypeVisuals";
 import { DataTableRowSelectEvent } from "primevue/datatable";
 
-const props = defineProps<{
+interface Props {
   entityIri: string;
 }>();
 
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
-
-interface UIDataModel extends TTIriRef {
-  type?: TTIriRef[];
-  icon?: string[];
-}
 
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();

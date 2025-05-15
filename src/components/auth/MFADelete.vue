@@ -9,7 +9,7 @@
         <div class="mfa-delete-content">
           <p>Disabling 2-factor authentication will reduce your account security</p>
           <div class="buttons-container">
-            <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
+            <Button icon="fa-solid fa-circle-question" rounded-sm severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
           </div>
           <p>Are you sure you want to continue disabling this security feature?</p>
           <div class="buttons-container">

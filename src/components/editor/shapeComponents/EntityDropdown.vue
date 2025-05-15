@@ -40,9 +40,7 @@ const props = defineProps<{
   value?: TTIriRef;
 }>();
 
-const emit = defineEmits<{
-  updateClicked: [payload: TTIriRef];
-}>();
+const emit = defineEmits<{ updateClicked: [payload: TTIriRef] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;

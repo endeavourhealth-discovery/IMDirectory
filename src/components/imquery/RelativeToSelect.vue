@@ -37,10 +37,11 @@ interface Props {
   propertyIri: string;
   property: Where;
   datatype: string;
-  propertyRef?: Where;
 }
 
 const props = defineProps<Props>();
+
+const modelPropertyRef = defineModel<Where | undefined>("propertyRef");
 
 const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
 const showTreeSearch: Ref<boolean> = ref(false);
@@ -53,14 +54,12 @@ const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const fullQuery = inject("fullQuery") as Ref<Query>;
 const { getTypeOfMatch } = setupIMQueryBuilderActions();
 
-const emit = defineEmits<{ "update:propertyRef": [treeData: any] }>();
-
 onMounted(async () => {
   await initValues();
 });
 
 watch(
-  () => props.propertyRef,
+  () => modelPropertyRef.value,
   async () => await initValues()
 );
 
@@ -99,7 +98,7 @@ function save() {
   if (selectedNode.value) {
     delete props.property.value;
     propertyDisplay.value = getVariableSearchInputDisplay(selectedNode.value.data);
-    if (props.propertyRef) emit("update:propertyRef", selectedNode.value.data);
+    if (modelPropertyRef.value) modelPropertyRef.value = selectedNode.value.data;
     else props.property.relativeTo = selectedNode.value.data;
     showTreeSearch.value = false;
   }
@@ -120,7 +119,7 @@ async function initValues() {
   selectPrepopulatedValue(variableOptions.value, propertyDisplay.value);
   variableOptions.value = await getVariableOptions();
   if (props.property.relativeTo) propertyDisplay.value = getVariableSearchInputDisplay(props.property.relativeTo);
-  if (props.propertyRef) propertyDisplay.value = getVariableSearchInputDisplay(props.propertyRef);
+  if (modelPropertyRef.value) propertyDisplay.value = getVariableSearchInputDisplay(modelPropertyRef.value);
 }
 
 async function getVariableOptions(searchTerm?: string) {
