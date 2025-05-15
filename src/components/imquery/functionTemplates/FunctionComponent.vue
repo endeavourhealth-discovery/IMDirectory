@@ -17,10 +17,10 @@
 <script setup lang="ts">
 import { Order, OrderLimit } from "@/interfaces/AutoGen";
 import { IM, RDFS, SHACL } from "@/vocabulary";
-interface Props {
+
+defineProps<{
   functionTemplates: any;
-}
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
   addFunctionProperty: [payload: { property: string; value: any }];

@@ -14,7 +14,7 @@
           </div>
           <div class="field">
             <label for="fieldPassword">Password</label>
-            <Password id="fieldPassword" v-model="password" :feedback="false" input-id="login-password" toggleMask />
+            <Password id="fieldPassword" v-model="password" :feedback="false"                 :pt="{ 'pc-input-text': { root: { 'data-testid': 'login-password' } } }"  toggleMask />
             <Message v-if="errors.password" severity="error">{{ errors.password }}</Message>
           </div>
           <div class="mt-3 flex flex-row justify-center">

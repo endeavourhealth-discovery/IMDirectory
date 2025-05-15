@@ -25,7 +25,7 @@ describe("User details", () => {
     cy.get(".two-factor-row").find("button").click();
     cy.get(".swal2-popup").find(".swal2-confirm").contains("Login").click();
     cy.getByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
-    cy.get("#login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+    cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
     cy.getByTestId("login-submit").click();
     cy.get(".swal2-popup").find(".swal2-confirm").click();
     cy.url({ timeout: 60000 }).should("contain", "/mfa-setup");

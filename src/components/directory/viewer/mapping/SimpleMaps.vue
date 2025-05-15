@@ -55,7 +55,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  toggleOverlay: [payload: { event: any; data: SimpleMap }];
+  toggleOverlay: [payload: { event: MouseEvent; data: SimpleMap }];
   navigateTo: [payload: string];
 }>();
 
@@ -90,7 +90,7 @@ function scrollToTop(): void {
   }
 }
 
-function toggle(event: any, data: any) {
+function toggle(event: MouseEvent, data: SimpleMap) {
   emit("toggleOverlay", { event: event, data: data });
 }
 
@@ -113,6 +113,6 @@ function select(iri: string) {
 }
 
 #simple-maps-table-container ::v-deep(.p-datatable-wrapper) {
-  flex-grow: 6;
+  grow: 6;
 }
 </style>

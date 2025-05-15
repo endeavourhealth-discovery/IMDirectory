@@ -127,8 +127,6 @@ const props = withDefaults(defineProps<Props>(), {
   rootBool: false
 });
 
-const emit = defineEmits<{ unGroupItems: [payload: any] }>();
-
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match>("parent", { default: {} });
 const operators = ["and", "or", "not"] as const;
@@ -137,6 +135,8 @@ const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 
 const childLoadingState = inject("childLoadingState") as Ref<any>;
+
+const emit = defineEmits<{ unGroupItems: [payload: any] }>();
 
 const canBeAttributeGroup: ComputedRef<boolean> = computed(() => {
   if (match.value.where) return true;

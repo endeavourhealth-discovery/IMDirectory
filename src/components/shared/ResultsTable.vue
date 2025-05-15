@@ -25,7 +25,7 @@
           ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink'
           : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'
       "
-      :pt="{ thead: { class: '!z-1' } }"
+      :pt="{ thead: { class: 'z-1!' } }"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">

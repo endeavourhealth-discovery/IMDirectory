@@ -9,7 +9,7 @@
       <template #option="{ option }">
         <div class="option-wrapper flex flex-row">
           <div class="option-content flex flex-row items-center gap-1">
-            <ToggleButton v-model="option.include" class="flex-shrink-0" offLabel="exclude" onLabel="include" />
+            <ToggleButton v-model="option.include" class="shrink-0" offLabel="exclude" onLabel="include" />
             <InputText v-if="isValueSet(option[RDF.TYPE])" v-model="option.entailment" disabled type="text" />
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
             <div class="flex-col px-1 pb-1">
@@ -123,6 +123,7 @@ async function init() {
       else entity.entailment = "descendantsOrSelfOf";
     }
     selectedEntities.value = entities as SelectedEntity[];
+    if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where?.valueLabel;
     if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where.valueLabel;
   }
   loading.value = false;

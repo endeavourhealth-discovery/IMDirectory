@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  addNextClicked: [payload: { type: ComponentType; name: string } | undefined];
+  addNextClicked: [payload: { type: ComponentType; name: string }];
   deleteClicked: [];
 }>();
 

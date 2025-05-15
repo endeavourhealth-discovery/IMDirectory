@@ -64,7 +64,7 @@ const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const menu = ref();
 
-const filteredSets: Ref<SearchResultSummary[]> = ref([]);
+const filteredSets: Ref<SearchResultSummary[] | undefined> = ref([]);
 const selected: Ref<Concept | undefined> = ref();
 const searchQuery: Ref<QueryRequest | undefined> = ref();
 const loading = ref(true);
@@ -89,6 +89,11 @@ const rClickItems = ref([
     }
   }
 ]);
+
+watch(
+  () => modelSelectedSet.value?.iri,
+  async () => emit("update:selectedSet", modelSelectedSet.value)
+);
 
 onMounted(async () => {
   loading.value = true;

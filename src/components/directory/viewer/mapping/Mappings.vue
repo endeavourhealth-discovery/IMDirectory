@@ -350,11 +350,11 @@ function toggle(event: MouseEvent, data: MapItem | SimpleMap, refId: string): vo
   if (x) x.value.toggle(event);
 }
 
-function handleMatchedFromToggle(args: { event: any; data: any }) {
+function handleMatchedFromToggle(args: { event: MouseEvent; data: SimpleMap }) {
   toggle(args.event, args.data, "opMatchedFrom");
 }
 
-function handleMatchedToToggle(args: { event: any; data: any }) {
+function handleMatchedToToggle(args: { event: MouseEvent; data: SimpleMap }) {
   toggle(args.event, args.data, "opMatchedTo");
 }
 </script>
