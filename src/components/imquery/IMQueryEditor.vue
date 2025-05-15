@@ -33,13 +33,12 @@ import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDispl
 
 const props = defineProps<{
   queryDefinition?: Query;
-}
+}>();
 
 const emit = defineEmits<{
   updateQuery: [payload: Query];
 }>();
 
-const props = defineProps<Props>();
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const editQueryDefinition: Ref<Match> = ref({});
 const rootQuery: Ref<Match> = ref({});

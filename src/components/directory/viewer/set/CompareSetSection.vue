@@ -50,8 +50,7 @@ const props = defineProps<{
   members: Concept[];
   setIri?: string;
   loading: boolean;
-}
-const props = defineProps<Props>();
+}>();
 
 const modelSelectedSet = defineModel<SearchResultSummary | undefined>("selectedSet");
 
@@ -92,8 +91,8 @@ const rClickItems = ref([
 ]);
 
 watch(
-  () => selectedSet.value?.iri,
-  async () => emit("update:selectedSet", selectedSet.value)
+  () => modelSelectedSet.value?.iri,
+  async () => emit("update:selectedSet", modelSelectedSet.value)
 );
 
 onMounted(async () => {

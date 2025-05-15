@@ -39,7 +39,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   updateClicked: [payload: any];
 }>();
-const props = defineProps<Props>();
 watch(
   () => cloneDeep(props.value),
   (newValue, oldValue) => {

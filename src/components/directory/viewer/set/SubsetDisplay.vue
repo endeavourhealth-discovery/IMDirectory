@@ -38,11 +38,6 @@ const emit = defineEmits<{
 
 const subsets: Ref<TTIriRef[]> = ref([]);
 
-const emit = defineEmits<{
-  onOpenTab: [payload: string];
-  navigateTo: [payload: string];
-}>();
-
 onMounted(async () => {
   subsets.value = await SetService.getSubsets(props.entityIri);
 });

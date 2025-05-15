@@ -48,8 +48,7 @@ const props = defineProps<{
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
-}
-const props = defineProps<Props>();
+}>();
 const modelSelectedProperty = defineModel<TreeNode | undefined>("selectedProperty");
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const selectedNode = ref();

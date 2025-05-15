@@ -127,10 +127,6 @@ const props = withDefaults(defineProps<Props>(), {
   rootBool: false
 });
 
-const emit = defineEmits<{
-  unGroupItems: [groupedItems: any];
-}>();
-
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match>("parent", { default: {} });
 const operators = ["and", "or", "not"] as const;
