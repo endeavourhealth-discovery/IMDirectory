@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, ref, Ref } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
@@ -78,22 +78,8 @@ function toQuerySearch() {
   align-items: center;
 }
 
-body {
-  overflow: hidden;
-}
-
-.loading-container {
-  width: 100%;
-  height: 100%;
-}
-
 #app-content-container {
   flex: 1 1 auto;
   overflow: auto;
-}
-
-#topbar-container {
-  height: 4rem;
-  width: 100vw;
 }
 </style>

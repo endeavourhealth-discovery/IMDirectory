@@ -42,7 +42,10 @@ const props = withDefaults(defineProps<Props>(), {
   }
 });
 
-const emit = defineEmits({ onTypeSelect: (payload: TypeOption) => payload, onSearch: (payload: string) => payload });
+const emit = defineEmits<{
+  onTypeSelect: [payload: TypeOption];
+  onSearch: [payload: string];
+}>();
 
 const searchTerm: Ref<string> = ref("");
 const typeOptions: ComputedRef<TypeOption[]> = computed(() => [
@@ -51,7 +54,7 @@ const typeOptions: ComputedRef<TypeOption[]> = computed(() => [
   { name: "Concept set", rootIri: IM.FOLDER_SETS, typeIri: IM.CONCEPT_SET, isLocked: props.lockTypeFilters.conceptSet },
   { name: "Property", rootIri: IM.PROPERTIES_FOLDER, typeIri: IM.DATAMODEL_PROPERTY, isLocked: props.lockTypeFilters.property },
   { name: "Feature", rootIri: IM.MODULE_FEATURES, typeIri: IM.MATCH_CLAUSE, isLocked: props.lockTypeFilters.feature },
-  { name: "Cohort", rootIri: IM.MODULE_QUERIES, typeIri: IM.COHORT_QUERY, isLocked: props.lockTypeFilters.cohort }
+  { name: "Cohort", rootIri: IM.MODULE_QUERIES, typeIri: IM.QUERY, isLocked: props.lockTypeFilters.cohort }
 ]);
 const selectedType: Ref<TypeOption> = ref(typeOptions.value[2]);
 

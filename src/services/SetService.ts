@@ -1,7 +1,8 @@
 import axios from "axios";
 import Env from "./Env";
 import { SetDiffObject } from "@/interfaces";
-import { SetExportRequest, TTIriRef } from "@/interfaces/AutoGen";
+import { Node, Pageable, SetExportRequest, TTIriRef } from "@/interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/set";
 
 const SetService = {
@@ -18,7 +19,7 @@ const SetService = {
       raw: raw
     });
   },
-  async getMembers(iri: string, entailments: boolean, pageIndex: number, pageSize: number, controller?: AbortController): Promise<any> {
+  async getMembers(iri: string, entailments: boolean, pageIndex: number, pageSize: number, controller?: AbortController): Promise<Pageable<Node>> {
     return axios.get(API_URL + "/public/members", {
       params: { iri: iri, entailments: entailments, page: pageIndex, size: pageSize },
       signal: controller?.signal
@@ -42,14 +43,14 @@ const SetService = {
     });
   },
 
-  async getFullExportSet(setRequest: SetExportRequest, raw?: boolean): Promise<any> {
+  async getFullExportSet(setRequest: SetExportRequest, raw?: boolean): Promise<Blob> {
     return axios.post(API_URL + "/public/setExport", setRequest, {
       responseType: "blob",
       raw: raw
     });
   },
 
-  async updateSubsetsFromSuper(entity: any) {
+  async updateSubsetsFromSuper(entity: TTEntity) {
     return axios.post(API_URL + "/updateSubsetsFromSuper", entity);
   }
 };

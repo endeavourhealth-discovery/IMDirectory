@@ -11,19 +11,17 @@ import { EntityService } from "@/services";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { useToast } from "primevue/usetoast";
 import { IM } from "@/vocabulary";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
-const toast = useToast();
 const entityJSON = ref({ entity: {}, predicates: {} });
 const { copyObjectToClipboard } = setupCopyToClipboard();
 const loading = ref(false);
+
 onMounted(async () => {
   loading.value = true;
   const response = await EntityService.getBundleByPredicateExclusions(props.entityIri, [IM.HAS_MEMBER]);

@@ -1,11 +1,11 @@
 export function timeNow12Hr() {
-  let newDate = new Date();
+  const newDate = new Date();
   return convertHoursTo12Hr(newDate) + ":" + getMinutes(newDate) + ":" + getSeconds(newDate) + getMeridiemIndicator(newDate);
 }
 
 function convertHoursTo12Hr(date: Date) {
-  let hours = date.getHours();
-  let convertedHours = date.getHours() < 10 ? "0" : "";
+  const hours = date.getHours();
+  const convertedHours = date.getHours() < 10 ? "0" : "";
   if (hours > 12) {
     if (hours - 12 > 9) {
       return convertedHours + (hours - 12);

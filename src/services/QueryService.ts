@@ -3,6 +3,7 @@ import { QueryResponse } from "@/interfaces";
 import axios from "axios";
 import { DisplayMode, Match, PathQuery, Query, QueryRequest, SearchResponse } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/query";
 
 const QueryService = {
@@ -51,7 +52,7 @@ const QueryService = {
     return (
       isObjectHasKeys(queryResponse, ["entities"]) &&
       isArrayHasLength(queryResponse.entities) &&
-      queryResponse.entities.some((entity: any) => entity["@id"] === selectedIri)
+      queryResponse.entities.some((entity: TTEntity) => entity["@id"] === selectedIri)
     );
   }
 };

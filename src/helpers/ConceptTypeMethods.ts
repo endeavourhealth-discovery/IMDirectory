@@ -38,7 +38,7 @@ export function isConcept(conceptTypes: TTIriRef[]): boolean {
 }
 
 export function isQuery(entityTypes: TTIriRef[]): boolean {
-  return isOfTypes(entityTypes, IM.QUERY, IM.COHORT_QUERY);
+  return isOfTypes(entityTypes, IM.QUERY);
 }
 
 export function isRecordModel(entityTypes: TTIriRef[]): boolean {
@@ -51,10 +51,6 @@ export function isFolder(entityTypes: TTIriRef[]): boolean {
 
 export function isFeature(entityTypes: TTIriRef[]): boolean {
   return isOfTypes(entityTypes, IM.FEATURE);
-}
-
-export function isDataSet(entityTypes: TTIriRef[]): boolean {
-  return isOfTypes(entityTypes, IM.DATASET_QUERY);
 }
 
 export function isFunction(entityTypes: TTIriRef[]): boolean {
@@ -80,7 +76,6 @@ export default {
   isQuery,
   isRecordModel,
   isFeature,
-  isDataSet,
   isFunction,
   getNamesAsStringFromTypes
 };

@@ -50,10 +50,10 @@ export const useDirectoryStore = defineStore("directory", {
     updateSplitterRightSize(splitterRightSize: number) {
       this.splitterRightSize = splitterRightSize;
     },
-    updateTextDefinitionStartExpanded(items: any) {
+    updateTextDefinitionStartExpanded(items: string[]) {
       this.textDefinitionStartExpanded = items;
     },
-    updateArrayObjectNameListboxWithLabelStartExpanded(items: any) {
+    updateArrayObjectNameListboxWithLabelStartExpanded(items: string[]) {
       this.arrayObjectNameListboxWithLabelStartExpanded = items;
     },
     updateFocusHierarchy(bool: boolean) {

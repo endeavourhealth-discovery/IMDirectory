@@ -47,7 +47,7 @@
           </div>
         </AccordionContent>
         <div id="set-definition-container" class="set-accordion-content">
-          <QueryDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <QueryDisplay :entityIri="props.entityIri" :eclQuery="true" :entity-type="IM.VALUESET" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </AccordionPanel>
       <AccordionPanel header="Direct Members" value="2">
@@ -92,20 +92,21 @@ import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
 import { SetExportRequest, SetOptions } from "@/interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
+}>();
 
+const emit = defineEmits<{ navigateTo: [payload: string] }>();
+
+const toast = useToast();
 const dynamicDialog = useDialog();
 
-const props = defineProps<Props>();
-const toast = useToast();
 const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();
 const active: Ref<string[]> = ref([]);
-const emit = defineEmits({ navigateTo: (_payload: string) => true });
 const showCompareSetDialog = ref(false);
 
 const { downloadFile } = setupDownloadFile(window, document);
@@ -117,7 +118,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const downloading = ref(false);
 const isPublishing = ref(false);
 const showOptions = ref(false);
-const entity: Ref<any> = ref({});
+const entity: Ref<TTEntity> = ref({});
 
 const { copyObjectToClipboard } = setupCopyToClipboard();
 
@@ -137,7 +138,7 @@ onMounted(async () => {
   }
 });
 
-async function onCopy(event: any) {
+async function onCopy(event: MouseEvent) {
   event.stopPropagation();
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   if (isObjectHasKeys(entity, [IM.DEFINITION])) {
@@ -199,7 +200,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   downloadDialog.close();
 }
 
-async function downloadIMV1(downloadOptions: DownloadSettings): Promise<void> {
+async function downloadIMV1(): Promise<void> {
   const downloadDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Downloading", text: "Preparing your download..." }
@@ -252,10 +253,6 @@ function publish() {
 function displayDialog() {
   showOptions.value = true;
 }
-
-function closeDialog() {
-  showOptions.value = false;
-}
 </script>
 
 <style scoped>
@@ -302,10 +299,5 @@ function closeDialog() {
   align-items: center;
   gap: 0.5rem;
   margin-right: 0.5rem;
-}
-
-.text {
-  font-size: medium;
-  padding: 0 0 1rem 0;
 }
 </style>

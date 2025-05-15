@@ -16,7 +16,7 @@
             :depth="1"
             :index="0"
             :key="0"
-            :operator="when.where.bool"
+            :operator="Bool.and"
             :expandedSet="false"
             :inline="true"
           />
@@ -31,20 +31,18 @@
 </template>
 
 <script setup lang="ts">
-import { Return, ReturnProperty, When } from "@/interfaces/AutoGen";
+import { Bool, Return, ReturnProperty, When } from "@/interfaces/AutoGen";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
-interface Props {
+defineProps<{
   select: Return;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 </script>
 
 <style scoped></style>

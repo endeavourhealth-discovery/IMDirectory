@@ -51,7 +51,7 @@ When("I enter a valid username", () => {
 });
 
 When("I enter a valid password", () => {
-  cy.get("#login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
 });
 
 When("I click on the login button", () => {
@@ -88,7 +88,7 @@ Then("I see the login confirmation", () => {
 });
 
 Then("I see the password", () => {
-  cy.get("#login-password").should("have.value", Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.getByTestId("login-password").should("have.value", Cypress.env("CYPRESS_LOGIN_PASSWORD"));
 });
 
 Then("I be able to navigate to register an account", () => {

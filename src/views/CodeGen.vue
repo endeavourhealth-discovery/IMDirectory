@@ -93,8 +93,8 @@ const nameInput = ref("");
 const codeInput = ref("");
 const fileExtensionInput = ref("");
 const collectionWrapperInput = ref("");
-const datatypeMapInput: Ref<any> = ref([{ code: "", replace: "" }]);
-const templateDropdownList: Ref<any> = ref([]);
+const datatypeMapInput: Ref<{ code: string; replace: string }[]> = ref([{ code: "", replace: "" }]);
+const templateDropdownList: Ref<{ label: string; command: () => Promise<void> }[]> = ref([]);
 const generatedCode = ref("");
 const templateMenu = ref();
 const complexTypes = ref(false);
@@ -114,7 +114,7 @@ watch([codeInput, collectionWrapperInput, nameInput, complexTypes], () => {
 watch(
   () => cloneDeep(datatypeMapInput.value),
   async () => {
-    datatypeMapInput.value.forEach((item: any, index: number) => {
+    datatypeMapInput.value.forEach((item: { code: string; replace: string }, index: number) => {
       if (index != datatypeMapInput.value.length - 1 && item.code === "" && item.replace === "") {
         datatypeMapInput.value.splice(index, 1);
       }
@@ -223,12 +223,12 @@ function getTemplate(): CodeTemplate {
     extension: fileExtensionInput.value,
     complexTypes: complexTypes.value,
     collectionWrapper: collectionWrapperInput.value,
-    datatypeMap: Object.fromEntries(datatypeMapInput.value.map((obj: any) => [obj.code, obj.replace] as const)),
+    datatypeMap: Object.fromEntries(datatypeMapInput.value.map((obj: { code: string; replace: string }) => [obj.code, obj.replace] as const)),
     template: codeInput.value
   } as CodeTemplate;
 }
 
-function toggleLoad(event: any) {
+function toggleLoad(event: MouseEvent) {
   templateMenu.value.toggle(event);
 }
 
@@ -242,14 +242,15 @@ async function loadTemplate(name: string) {
     collectionWrapperInput.value = newTemplate.collectionWrapper ? newTemplate.collectionWrapper : "";
     complexTypes.value = newTemplate.complexTypes ? newTemplate.complexTypes : false;
     datatypeMapInput.value = [];
-    if (newTemplate.datatypeMap) for (let [key, value] of Object.entries(newTemplate.datatypeMap)) datatypeMapInput.value.push({ code: key, replace: value });
+    if (newTemplate.datatypeMap)
+      for (let [key, value] of Object.entries(newTemplate.datatypeMap)) datatypeMapInput.value.push({ code: key, replace: value as string });
     else datatypeMapInput.value = [{ code: "", replace: "" }];
   }
 }
 
 async function generateCodeWithTemplate(iri: string) {
-  const map: any = {};
-  datatypeMapInput.value.forEach((m: any) => (map[m.code] = m.replace));
+  const map: { [x: string]: string } = {};
+  datatypeMapInput.value.forEach(m => (map[m.code] = m.replace));
 
   generatedCode.value = await CodeGenService.generateCodeForModel(getTemplate(), iri, "org.endavourhealth.im");
 }

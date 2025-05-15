@@ -8,7 +8,7 @@ import { TTIriRef } from "@/interfaces/AutoGen";
 import { EditorMode } from "@/enums";
 import { isEqual } from "lodash-es";
 
-export function setupEditorEntity(mode: EditorMode, updateType: Function) {
+export function setupEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]) => void) {
   const editorStore = useEditorStore();
   const creatorStore = useCreatorStore();
   const editorEntityOriginal: Ref<any> = ref({});
@@ -23,11 +23,15 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
 
   async function fetchEntity(): Promise<void> {
     if (mode === EditorMode.EDIT && editorIri) {
-      if (isObjectHasKeys(editorSavedEntity, ["@id"]) && editorSavedEntity[IM.ID] === editorIri) {
+      if (editorSavedEntity && isObjectHasKeys(editorSavedEntity, ["@id"]) && editorSavedEntity[IM.ID] === editorIri) {
         editorEntity.value = editorSavedEntity;
         return;
       }
-      const fullEntity = await EntityService.getFullEntity(editorIri, true);
+      const entityTypes = await EntityService.getEntityTypes(editorIri);
+      let fullEntity = null;
+      if (entityTypes.includes(IM.CONCEPT_SET) || entityTypes.includes(IM.VALUESET)) {
+        fullEntity = await EntityService.getEntityByPredicateExclusions(editorIri, [IM.HAS_MEMBER]);
+      } else fullEntity = await EntityService.getFullEntity(editorIri, true);
       if (isObjectHasKeys(fullEntity)) {
         const processedEntity = processEntity(fullEntity);
         editorEntityOriginal.value = processedEntity;

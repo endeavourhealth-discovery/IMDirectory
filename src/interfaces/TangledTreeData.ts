@@ -1,4 +1,4 @@
-import {TTIriRef} from "./AutoGen";
+import { TTIriRef } from "./AutoGen";
 
 export default interface TangledTreeData {
   id: string;

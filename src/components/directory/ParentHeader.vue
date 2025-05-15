@@ -13,6 +13,7 @@
       </div>
       <div class="entity-buttons-container">
         <ActionButtons
+          v-if="entity['@id']"
           :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'download', 'favourite'] : ['findInTree', 'view', 'addToList']"
           :iri="entity['@id']"
           :name="entity[RDFS.LABEL]"
@@ -49,25 +50,25 @@ import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
-  entity: any;
+defineProps<{
+  entity: TTEntity;
   showSelect?: boolean;
-}
-const props = defineProps<Props>();
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  navigateTo: (_payload: string) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+}>();
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  navigateTo: [payload: string];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
 
-function getIcon(entity: any) {
+function getIcon(entity: TTEntity) {
   if (entity["@id"] === IM.FAVOURITES) return ["fa-solid", "star"];
   return getFAIconFromType(entity[RDF.TYPE]);
 }
 
-function getColour(entity: any) {
+function getColour(entity: TTEntity) {
   return "color: " + getColourFromType(entity[RDF.TYPE]);
 }
 </script>
@@ -102,13 +103,5 @@ function getColour(entity: any) {
 
 .type-icon {
   padding-right: 0.5rem;
-}
-
-.concept-buttons-container {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
 }
 </style>

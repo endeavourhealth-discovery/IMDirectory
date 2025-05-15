@@ -19,7 +19,6 @@
             <Tab v-if="isRecordModel(types)" value="6">Data Model</Tab>
             <Tab v-if="isRecordModel(types)" value="7">Properties</Tab>
             <Tab v-if="isQuery(types)" value="8">Query</Tab>
-            <Tab v-if="isDataSet(types)" value="9">Data set</Tab>
             <Tab v-if="isFeature(types)" value="10">Feature</Tab>
             <Tab value="11">Contents</Tab>
             <Tab v-if="isProperty(types)" value="12">Data Models</Tab>
@@ -71,12 +70,7 @@
             </TabPanel>
             <TabPanel v-if="isQuery(types)" value="8">
               <div id="query-container" class="concept-panel-content">
-                <QueryDisplay :entityIri="entityIri" />
-              </div>
-            </TabPanel>
-            <TabPanel v-if="isDataSet(types)" value="9">
-              <div id="query-container" class="concept-panel-content">
-                <QueryDisplay :entityIri="entityIri" />
+                <QueryDisplay :entityIri="entityIri" :show-dataset="true" />
               </div>
             </TabPanel>
             <TabPanel v-if="isFeature(types)" value="10">
@@ -150,14 +144,13 @@ import { DirectService, EntityService } from "@/services";
 
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isConcept, isDataSet, isFeature, isFolder, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
+import { isConcept, isFeature, isFolder, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";
-
-import { useRouter } from "vue-router";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   entityIri: string;
@@ -165,22 +158,21 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
-const router = useRouter();
 const directService = new DirectService();
 
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
-const concept: Ref<any> = ref({});
+const concept: Ref<TTEntity> = ref({});
 
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
-const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, IM.DATASET_QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
+const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
 
 const tabMap = reactive(new Map<string, string>());
 
@@ -200,8 +192,6 @@ function setDefaultTab() {
     activeTab.value = tabMap.get("Data Model") ?? "0";
   } else if (isQuery(types.value)) {
     activeTab.value = tabMap.get("Query") ?? "0";
-  } else if (isDataSet(types.value)) {
-    activeTab.value = tabMap.get("Data set") ?? "0";
   } else if (isFeature(types.value)) {
     activeTab.value = tabMap.get("Feature") ?? "0";
   } else if (isValueSet(types.value)) {
@@ -214,6 +204,7 @@ function setDefaultTab() {
 }
 
 function setTabMap() {
+  // eslint-disable-next-line no-undef
   const tabList = document.getElementById("viewer-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
   if (tabList?.length) {
     for (let i = 0; i < tabList.length; i++) {
@@ -247,7 +238,7 @@ function onOpenTab(predicate: string) {
       activeTab.value = tabMap.get("Properties") ?? "0";
       break;
     case IM.DEFINITION:
-      if (isQuery(types.value) || isFeature(types.value) || isDataSet(types.value)) {
+      if (isQuery(types.value) || isFeature(types.value)) {
         activeTab.value = tabMap.get("Query") ?? "0";
       } else if (isValueSet(types.value)) {
         activeTab.value = tabMap.get("Set") ?? "0";
@@ -263,22 +254,11 @@ function handleControlClick(iri: string) {
 }
 </script>
 <style scoped>
-#info-side-bar-wrapper {
-  transition: 0.5s;
-  flex: 0 0 40%;
-  height: 100%;
-}
-
 #concept-main-container {
   height: 100%;
   width: 100%;
   display: flex;
   flex-flow: column nowrap;
-}
-
-#concept-empty-container {
-  height: 100%;
-  width: 100%;
 }
 
 .loading-container {
@@ -304,45 +284,11 @@ function handleControlClick(iri: string) {
   flex-flow: column nowrap;
 }
 
-.p-tabs {
-  height: 100%;
-  display: flex;
-  flex-flow: column nowrap;
-  overflow: auto;
-}
-
-.p-tabpanels {
-  flex: 1 1 auto;
-  overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
-}
-
-.p-tabpanels:deep(.p-tabpanel) {
-  flex: 1 1 auto;
-  overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
-}
-
 .concept-panel-content {
   height: 100%;
   overflow: auto;
   background-color: var(--p-content-background);
   display: flex;
-}
-
-.copy-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.icons-container {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
 }
 
 #concept-panel-container:deep(.p-tabview-panels) {

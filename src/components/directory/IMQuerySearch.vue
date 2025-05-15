@@ -41,10 +41,10 @@ import Textarea from "primevue/textarea";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import ResultsTable from "../shared/ResultsTable.vue";
 
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  selectedUpdated: (_payload: SearchResultSummary) => true
-});
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  selectedUpdated: [payload: SearchResultSummary];
+}>();
 
 const toast = useToast();
 const imQueryString = ref("");
@@ -93,7 +93,7 @@ async function format() {
 
 #query-builder-container {
   width: 100%;
-  flex-grow: 100;
+  grow: 100;
   overflow: auto;
 }
 
@@ -117,7 +117,7 @@ async function format() {
   width: 100%;
   height: 10rem;
   overflow: auto;
-  flex-grow: 100;
+  grow: 100;
 }
 
 .info {

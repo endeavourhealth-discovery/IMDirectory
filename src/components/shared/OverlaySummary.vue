@@ -57,7 +57,7 @@ const overlayLocation: Ref<any> = ref({});
 const OP = ref();
 const loading = ref(true);
 
-async function showOverlay(event: any, iri: any): Promise<void> {
+async function showOverlay(event: any, iri: string): Promise<void> {
   if (iri) {
     loading.value = true;
     const x = OP.value;
@@ -71,7 +71,7 @@ async function showOverlay(event: any, iri: any): Promise<void> {
 function hideOverlay(event: any): void {
   const x = OP.value;
   x.hide(event);
-  overlayLocation.value = {} as any;
+  overlayLocation.value = {};
 }
 
 function getConceptTypes(types: TTIriRef[]): string {

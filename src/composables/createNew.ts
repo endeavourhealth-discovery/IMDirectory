@@ -6,16 +6,17 @@ import { IM, QUERY, RDFS, SHACL } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { QueryRequest } from "@/interfaces/AutoGen";
+import { MenuItem } from "primevue/menuitem";
 
 function createNew() {
   const directService = new DirectService();
 
-  async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode>, node: TreeNode): Promise<any[]> {
+  async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
     const selectionWrapperCopy = [
       {
         label: "New",
         icon: "fas fa-fw fa-plus",
-        items: [] as any[]
+        items: [] as MenuItem[]
       },
       {
         label: "Edit",
@@ -37,13 +38,13 @@ function createNew() {
       query: {
         "@id": QUERY.ALLOWABLE_CHILD_TYPES
       }
-    } as any as QueryRequest;
+    } as QueryRequest;
 
     const response = await QueryService.queryIM(queryRequest);
     const types = response?.entities ?? [];
     if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
 
-    for (let currentType in node.conceptTypes) {
+    for (const currentType in node.conceptTypes) {
       switch (node.conceptTypes[currentType]["@id"]) {
         case IM.FOLDER:
           if (allowableTypes.findIndex(i => i["@id"] === IM.FOLDER) === -1)
@@ -61,8 +62,8 @@ function createNew() {
         case SHACL.NODESHAPE:
           allowableTypes = getChildType(SHACL.NODESHAPE, "Data Model/Node Shape", RDFS.SUBCLASS_OF);
           break;
-        case IM.COHORT_QUERY:
-          allowableTypes = getChildType(IM.COHORT_QUERY, "Cohort Query", IM.DEFINITION);
+        case IM.QUERY:
+          allowableTypes = getChildType(IM.QUERY, "Cohort Query", IM.DEFINITION);
           break;
         default:
           break;
@@ -81,7 +82,7 @@ function createNew() {
           property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"]["@id"].toString()
         },
         icon: getFAIconFromType([{ "@id": allowableType["@id"], name: allowableType["http://www.w3.org/2000/01/rdf-schema#label"] }]).join(" "),
-        command: {} as Function
+        command: () => {}
       };
       if (allowableType["@id"] === IM.FOLDER) {
         item.command = () => {

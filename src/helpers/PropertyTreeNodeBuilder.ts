@@ -17,11 +17,11 @@ export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
       const propertyTreeNode = buildPropertyTreeNode(property, parent);
       addDataModel(property, propertyTreeNode);
       if (!isArrayHasLength(parent.children)) parent.children = [];
-      parent.children.push(propertyTreeNode);
+      parent.children?.push(propertyTreeNode);
     }
   }
 
-  return parent.children;
+  return parent.children!;
 }
 
 export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
@@ -57,13 +57,13 @@ function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNod
     const propertyTreeNode = buildPropertyTreeNode(property, treeNode);
     addDataModel(property, propertyTreeNode);
     if (!isArrayHasLength(treeNode.children)) treeNode.children = [];
-    treeNode.children.push(propertyTreeNode);
+    treeNode.children?.push(propertyTreeNode);
   } else {
     const newGroup = buildGroupTreeNode(group.name, String(treeNodes.length), {} as TreeNode);
     const propertyTreeNode = buildPropertyTreeNode(property, newGroup);
     addDataModel(property, propertyTreeNode);
     if (!isArrayHasLength(newGroup.children)) newGroup.children = [];
-    newGroup.children.push(propertyTreeNode);
+    newGroup.children?.push(propertyTreeNode);
     treeNodes.push(newGroup);
     groupMap.set(group["@id"], newGroup);
   }

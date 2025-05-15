@@ -124,11 +124,13 @@
 <script lang="ts" setup>
 import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
-import { ChartMapNode, ChartTableNode, ContextMap, MapItem, Namespace, SimpleMap, SimpleMapIri } from "@/interfaces";
+import { ChartMapNode, ChartTableNode, MapItem, Namespace, SimpleMap, SimpleMapIri } from "@/interfaces";
 import { DataTypeCheckers, Sorters } from "@/helpers";
 import { ConceptService, EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import { Context } from "@/interfaces/Context";
+import { ConceptContextMap } from "@/interfaces/AutoGen";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPriority, byScheme } = Sorters;
@@ -139,21 +141,21 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const mappings: Ref<any[]> = ref([]);
-const contextMaps: Ref<ContextMap[]> = ref([]);
+const mappings: Ref<GenericObject[]> = ref([]);
+const contextMaps: Ref<ConceptContextMap[]> = ref([]);
 const data: Ref = ref({});
 const hoveredResult: Ref = ref({});
 const matchedFrom: Ref<SimpleMap[]> = ref([]);
 const matchedTo: Ref<SimpleMap[]> = ref([]);
 const namespaces: Ref<Namespace[]> = ref([]);
 const loading = ref(false);
-const contextExpandedRows: Ref<ContextMap[]> = ref([]);
+const contextExpandedRows: Ref<ConceptContextMap[]> = ref([]);
 
 const opMap = ref(null);
 const opMatchedTo = ref(null);
 const opMatchedFrom = ref(null);
 
-const emit = defineEmits({ navigateTo: (_payload: string) => true });
+const emit = defineEmits<{ navigateTo: [payload: string] }>();
 
 watch(
   () => props.entityIri,
@@ -228,10 +230,10 @@ function createChartMapNode(item: string, location: string, positionInLevel: num
   }
 }
 
-function generateChildNodes(mapObject: any, location: string, positionInLevel: number): ChartMapNode[] | ChartTableNode[] {
+function generateChildNodes(mapObject: GenericObject[], location: string, positionInLevel: number): ChartMapNode[] | ChartTableNode[] {
   if (isObjectHasKeys(mapObject[0], [IM.MAPPED_TO])) {
     const mappedList = [] as MapItem[];
-    mapObject.forEach((item: any) => {
+    mapObject.forEach(item => {
       mappedList.push({
         name: item[IM.MAPPED_TO][0].name,
         iri: item[IM.MAPPED_TO][0]["@id"],
@@ -257,7 +259,7 @@ function generateChildNodes(mapObject: any, location: string, positionInLevel: n
   }
 }
 
-function createChartStructure(mappingObject: any): ChartMapNode | [] {
+function createChartStructure(mappingObject: GenericObject[]): ChartMapNode | [] {
   const parentNode = {
     key: "0",
     type: "hasMap",
@@ -331,7 +333,7 @@ function getSimpleMapsNamespaces(): void {
   }
 }
 
-function toggle(event: any, data: MapItem, refId: string): void {
+function toggle(event: MouseEvent, data: MapItem | SimpleMap, refId: string): void {
   hoveredResult.value = data;
   let x: any;
   switch (refId) {
@@ -348,12 +350,12 @@ function toggle(event: any, data: MapItem, refId: string): void {
   if (x) x.value.toggle(event);
 }
 
-function handleMatchedFromToggle(event: any, data: any) {
-  toggle(event, data, "opMatchedFrom");
+function handleMatchedFromToggle(args: { event: MouseEvent; data: SimpleMap }) {
+  toggle(args.event, args.data, "opMatchedFrom");
 }
 
-function handleMatchedToToggle(event: any, data: any) {
-  toggle(event, data, "opMatchedTo");
+function handleMatchedToToggle(args: { event: MouseEvent; data: SimpleMap }) {
+  toggle(args.event, args.data, "opMatchedTo");
 }
 </script>
 
@@ -378,12 +380,6 @@ th[scope="col"] {
 table {
   border-collapse: collapse;
   border: 2px solid var(--p-textarea-border-color);
-}
-
-.p-organizationchart {
-  height: 100%;
-  width: 100%;
-  overflow: auto;
 }
 
 .loading-container {

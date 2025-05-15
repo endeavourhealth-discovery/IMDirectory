@@ -8,10 +8,6 @@ export function verifyPasswordsMatch(password1: string, password2: string): bool
   return password1 !== "" && password2 !== "" && password1 === password2;
 }
 
-export function verifyEmailsMatch(email1: string, email2: string): boolean {
-  return email1 !== "" && email2 !== "" && email1.toLowerCase() === email2.toLowerCase();
-}
-
 export function verifyIsFirstName(name: string): boolean {
   return name !== "" && /^\p{L}+(?:['-]?\p{L}+)*$/u.test(name);
 }
@@ -36,7 +32,6 @@ export function checkPasswordStrength(password: string): PasswordStrength {
 }
 
 export default {
-  verifyEmailsMatch,
   verifyIsEmail,
   verifyIsFirstName,
   verifyIsLastName,

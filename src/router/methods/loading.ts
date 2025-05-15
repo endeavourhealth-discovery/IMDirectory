@@ -23,7 +23,7 @@ export function startRouterLoading(routes: Array<RouteRecordRaw>, to: RouteLocat
   }
 }
 
-export function endRouterLoading(routes: Array<RouteRecordRaw>, to: RouteLocationNormalized) {
+export function endRouterLoading() {
   const loadingStore = useLoadingStore();
   if (loadingStore.viewsLoading) {
     loadingStore.updateViewsLoading(false);
@@ -38,7 +38,7 @@ export function endRouterLoading(routes: Array<RouteRecordRaw>, to: RouteLocatio
     loadingStore.updateAdminToolboxLoading(false);
   }
   if (loadingStore.workflowLoading) {
-    loadingStore.updateWorkflowLoading;
+    loadingStore.updateWorkflowLoading(false);
   }
   if (loadingStore.authLoading) {
     loadingStore.updateAuthLoading(false);

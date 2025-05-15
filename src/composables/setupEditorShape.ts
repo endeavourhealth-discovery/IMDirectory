@@ -6,9 +6,9 @@ import { IM, RDF, RDFS } from "@/vocabulary";
 import editorShapes from "@/constants/editorShapes";
 
 export function setupEditorShape() {
-  let shape: Ref<FormGenerator | undefined> = ref();
-  let targetShape: Ref<TTIriRef | undefined> = ref();
-  let groups: Ref<PropertyShape[]> = ref([]);
+  const shape: Ref<FormGenerator | undefined> = ref();
+  const targetShape: Ref<TTIriRef | undefined> = ref();
+  const groups: Ref<PropertyShape[]> = ref([]);
 
   function getShapesCombined(types: TTIriRef[], primaryType?: TTIriRef) {
     let shapeCombined: FormGenerator = {} as FormGenerator;
@@ -68,12 +68,6 @@ export function setupEditorShape() {
       targetShape.value = shape.targetShape;
       groups.value = shape.property;
     }
-  }
-
-  function removeUrlSubroute(url: string) {
-    const splitString = url.split("/");
-    if (splitString.length >= 3) return splitString[0] + "/" + splitString[1] + "/" + splitString[2];
-    else return url;
   }
 
   return {

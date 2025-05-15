@@ -22,26 +22,24 @@ import { RDFS } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, QueryRequest, Query } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
-  value?: String;
-}
+  value?: string;
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({ updateClicked: (_payload: String) => true });
+const emit = defineEmits<{ updateClicked: [payload: String] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -78,7 +76,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   else return false;
 });
 
-const dropdownOptions: Ref<String[]> = ref([]);
+const dropdownOptions: Ref<string[]> = ref([]);
 const loading = ref(false);
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -86,7 +84,7 @@ const showValidation = ref(false);
 
 let key = props.shape.path["@id"];
 
-let selectedItem: Ref<String | undefined> = ref();
+let selectedItem: Ref<string | undefined> = ref();
 watch(selectedItem, async newValue => {
   if (newValue) {
     updateEntity(newValue);
@@ -109,7 +107,7 @@ onMounted(async () => {
   loading.value = false;
 });
 
-function setSelectedItem(): String | undefined {
+function setSelectedItem(): string | undefined {
   if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue) {
     const found = dropdownOptions.value.find(o => o === props.shape.isIri!["@id"]);
     if (found) return found;
@@ -140,15 +138,15 @@ async function getDropdownOptions() {
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
-function updateEntity(data: String) {
-  const result = {} as any;
+function updateEntity(data: string) {
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
   else emit("updateClicked", data);
 }
 
-function updateValueVariableMap(data: String) {
+function updateValueVariableMap(data: string) {
   if (!props.shape.valueVariable) return;
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;

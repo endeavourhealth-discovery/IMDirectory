@@ -35,7 +35,7 @@ export default class DirectService {
     }
   }
 
-  public directWithConfirmation(iri: string, action: string, component: ComponentPublicInstance<any>, appRoute: string) {
+  public directWithConfirmation(iri: string, action: string, component: ComponentPublicInstance, appRoute: string) {
     component.$confirm.require({
       message: this._message,
       header: "Confirmation",

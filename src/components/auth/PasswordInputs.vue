@@ -12,7 +12,7 @@
         id="passwordOld"
         fluid
         :pt="{
-          pcInputText: { root: { 'data-testid': testId + 'old' } }
+          'pc-input-text': { root: { 'data-testid': testId + 'old' } }
         }"
       />
     </div>
@@ -31,7 +31,7 @@
         data-testid="password-new1"
         id="password"
         :pt="{
-          pcInputText: { root: { 'data-testid': testId + 'new1' } }
+          'pc-input-text': { root: { 'data-testid': testId + 'new1' } }
         }"
         :overlayVisible="true"
         strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
@@ -69,7 +69,7 @@
         data-testid="password-new2"
         id="password2"
         :pt="{
-          pcInputText: { root: { 'data-testid': testId + 'new2' } }
+          'pc-input-text': { root: { 'data-testid': testId + 'new2' } }
         }"
       />
     </div>
@@ -122,11 +122,11 @@ function isValidPassword(): boolean {
   return checkPasswordStrength(password.value) === PasswordStrength.medium || checkPasswordStrength(password.value) === PasswordStrength.strong;
 }
 
-const emit = defineEmits({
-  "update:oldPassword": (_payload: string) => true,
-  "update:password": (_payload: string) => true,
-  "update:arePasswordsValid": (_payload: boolean) => true
-});
+const emit = defineEmits<{
+  "update:oldPassword": [payload: string];
+  "update:password": [payload: string];
+  "update:arePasswordsValid": [payload: boolean];
+}>();
 
 watch(
   () => passwordOld.value,

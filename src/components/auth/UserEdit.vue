@@ -145,8 +145,6 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-const allVerified = computed(() => isObjectHasKeys(errors) && emailIsNotRegistered.value);
-
 const passwordOld = ref("");
 const password = ref("");
 const isNewPasswordValid = ref(false);
@@ -255,7 +253,6 @@ function swalert(icon: SweetAlertIcon, title: string, text: string) {
 
 function handleFieldsVerified(handlePasswordChange: boolean) {
   loading.value = true;
-  const oldEmail = currentUser.value?.email;
   const updatedUser = {
     id: currentUser.value?.id,
     username: username.value,
@@ -323,9 +320,8 @@ function handleEmailChange() {
 
 function submitPasswordChange(res: CustomAlert) {
   AuthService.changePassword(passwordOld.value, password.value).then(async res2 => {
-    res2.status === 200
-      ? swalert("success", "Success", "User details and password successfully updated.")
-      : swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
+    if (res2.status === 200) swalert("success", "Success", "User details and password successfully updated.");
+    else swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
     userStore.updateCurrentUser(res.user);
     await userStore.getAllFromUserDatabase();
     await router.push({ name: "UserDetails" });

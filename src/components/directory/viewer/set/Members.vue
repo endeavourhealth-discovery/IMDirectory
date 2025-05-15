@@ -30,7 +30,7 @@
       <Column field="member" header="Name">
         <template #body="{ data }: any">
           <span v-if="data.exclude" class="exclude">Exclude</span>
-          <IMViewerLink  :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
           <span class="entailment" v-html="getEntailment(data)"></span>
         </template>
       </Column>
@@ -44,27 +44,28 @@ import { Node } from "@/interfaces/AutoGen";
 import { EntityService, SetService } from "@/services";
 import { IM } from "@/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { DataTablePageEvent } from "primevue/datatable";
+import { useToast } from "primevue/usetoast";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true, openDownloadDialog: () => true });
+const emit = defineEmits<{
+  onOpenTab: [payload: string];
+  navigateTo: [payload: string];
+  openDownloadDialog: [];
+}>();
 const toast = useToast();
 
 const hasDefinition: Ref<boolean> = ref(false);
-
 const loading = ref(false);
-const members: Ref<Node[]> = ref([]);
-
+const members: Ref<Node[] | undefined> = ref([]);
 
 const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
-const totalCount = ref(0);
+const totalCount: Ref<number | undefined> = ref(0);
 const currentPage = ref(0);
 const pageSize = ref(25);
 
@@ -91,31 +92,26 @@ async function setHasDefinition() {
 
 async function getMembers(): Promise<void> {
   loading.value = true;
-  const paged = await SetService.getMembers(props.entityIri,true, currentPage.value + 1, pageSize.value);
+  const paged = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
   members.value = paged.result;
   totalCount.value = paged.totalCount;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
   loading.value = false;
 }
 
-
-
 async function getPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  let pagedNewMembers = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
+  const pagedNewMembers = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
   members.value = pagedNewMembers.result;
   loading.value = false;
 }
 
-function getEntailment(data : any){
-  if (data.descendantsOrSelfOf)
-    return "(+ subtypes)";
-  if (data.descendantsOf)
-    return "(subtypes of only)";
-  if (data.ancestorsOf)
-    return "(+ supertypes)";
+function getEntailment(data: any) {
+  if (data.descendantsOrSelfOf) return "(+ subtypes)";
+  if (data.descendantsOf) return "(subtypes of only)";
+  if (data.ancestorsOf) return "(+ supertypes)";
   return "";
 }
 </script>
@@ -147,10 +143,6 @@ function getEntailment(data : any){
 #members-table-container:deep(.exclude) {
   color: var(--p-red-500);
   padding-right: 0.3rem;
-}
-
-.html-container ::v-deep(p) {
-  margin-bottom: 0 !important;
 }
 
 .custom-button span {

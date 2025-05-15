@@ -14,7 +14,7 @@
           </div>
           <div class="field">
             <label for="fieldPassword">Password</label>
-            <Password id="fieldPassword" v-model="password" :feedback="false" input-id="login-password" toggleMask />
+            <Password id="fieldPassword" v-model="password" :feedback="false"                 :pt="{ 'pc-input-text': { root: { 'data-testid': 'login-password' } } }"  toggleMask />
             <Message v-if="errors.password" severity="error">{{ errors.password }}</Message>
           </div>
           <div class="mt-3 flex flex-row justify-center">
@@ -73,7 +73,7 @@ const schema = yup.object({
   password: yup.string().required("Password is required")
 });
 
-const { errors, defineField, handleSubmit } = useForm({ validationSchema: schema });
+const { errors, defineField } = useForm({ validationSchema: schema });
 
 const [username] = defineField("username");
 const [password] = defineField("password");
@@ -84,7 +84,7 @@ onMounted(() => {
   }
 });
 
-async function handle200(res: CustomAlert) {
+async function handle200() {
   authStore.updateRegisteredUsername("");
   Swal.fire({
     icon: "success",
@@ -116,7 +116,20 @@ function handle403(res: CustomAlert) {
         router.push({ name: "ConfirmCode" });
       }
     });
-  } else if (res.message === "NEW_PASSWORD_REQUIRED" || res.nextStep === "RESET_PASSWORD" || res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
+  } else if (res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
+    Swal.fire({
+      icon: "warning",
+      title: "New password required",
+      text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+      showCloseButton: false,
+      showCancelButton: false,
+      confirmButtonText: "Change password"
+    }).then(async (result: SweetAlertResult) => {
+      if (result.isConfirmed) {
+        await router.push({ name: "ChangeTemporaryPassword", params: { tempPassword: password.value } });
+      }
+    });
+  } else if (res.message === "NEW_PASSWORD_REQUIRED" || res.nextStep === "RESET_PASSWORD") {
     Swal.fire({
       icon: "warning",
       title: "New password required",
@@ -169,7 +182,7 @@ const onSubmit = async function handleSubmit(): Promise<void> {
   await AuthService.signIn(username.value, password.value)
     .then(async res => {
       if (res.status === 200) {
-        await handle200(res);
+        await handle200();
       } else if (res.status === 403) {
         handle403(res);
       } else {
@@ -221,14 +234,5 @@ const onSubmit = async function handleSubmit(): Promise<void> {
 .icon-header {
   font-size: 5rem;
   margin-top: 1em;
-}
-
-.text-with-button {
-  display: flex;
-  flex-flow: row nowrap;
-}
-
-.p-password:deep(.p-password-input) {
-  width: 100%;
 }
 </style>

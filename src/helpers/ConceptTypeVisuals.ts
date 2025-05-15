@@ -5,7 +5,7 @@
 
 import { TTIriRef } from "@/interfaces/AutoGen";
 import palette from "google-palette";
-import { isDataSet, isFeature, isFolder, isFunction, isProperty, isQuery, isRecordModel, isTask, isValueSet } from "@/helpers/ConceptTypeMethods";
+import { isFeature, isFolder, isFunction, isProperty, isQuery, isRecordModel, isTask, isValueSet } from "@/helpers/ConceptTypeMethods";
 
 export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
   if (isRecordModel(conceptTypes)) return ["fa-duotone", "fa-diagram-project"];
@@ -15,7 +15,6 @@ export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
   else if (isFolder(conceptTypes)) return ["fa-duotone", "fa-folder"];
   else if (isQuery(conceptTypes)) return ["fa-duotone", "fa-magnifying-glass"];
   else if (isFeature(conceptTypes)) return ["fa-duotone", "fa-filter-list"];
-  else if (isDataSet(conceptTypes)) return ["fa-duotone", "fa-file-chart-pie"];
   else if (isFunction(conceptTypes)) return ["fa-duotone", "fa-function"];
   else return ["fa-duotone", "fa-lightbulb"];
 }
@@ -30,7 +29,6 @@ export function getColourFromType(conceptTypes: TTIriRef[]): string {
   else if (isFolder(conceptTypes)) return bgsFixed[1];
   else if (isQuery(conceptTypes)) return bgsFixed[3];
   else if (isFeature(conceptTypes)) return bgsFixed[7];
-  else if (isDataSet(conceptTypes)) return bgsFixed[8];
   else if (isFunction(conceptTypes)) return bgsFixed[9];
   else return bgsFixed[5];
 }

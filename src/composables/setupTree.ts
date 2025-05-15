@@ -1,8 +1,7 @@
 import { DirectService, EntityService } from "@/services";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { EntityReferenceNode } from "@/interfaces";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { TTEntity, TTIriRef } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { computed, ref, Ref } from "vue";
@@ -24,10 +23,10 @@ function setupTree(emit?: any, customPageSize?: number) {
   const directService = new DirectService();
 
   function createTreeNode(
-    conceptName: string,
+    conceptName: string | undefined,
     conceptIri: string,
     conceptTypes: TTIriRef[],
-    hasChildren: boolean,
+    hasChildren: boolean | undefined,
     parent: TreeNode | null,
     order?: number
   ): TreeNode {
@@ -102,7 +101,8 @@ function setupTree(emit?: any, customPageSize?: number) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
       children.result.forEach(child => {
-        if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+        if (!nodeHasChild(node.parentNode, child))
+          node.parentNode.children.push(createTreeNode(child.name, child["@id"] as string, child.type as TTIriRef[], child.hasChildren, node));
       });
       node.nextPage = node.nextPage + 1;
       node.parentNode.children.push(createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
@@ -137,7 +137,7 @@ function setupTree(emit?: any, customPageSize?: number) {
   async function expandFavouriteNode(node: any) {
     for (const fav of favourites.value) {
       const favChild = await EntityService.getEntityAsEntityReferenceNode(fav);
-      if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type, false, node));
+      if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type as TTIriRef[], false, node));
     }
   }
 
@@ -176,7 +176,7 @@ function setupTree(emit?: any, customPageSize?: number) {
     }
   }
 
-  function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
+  function nodeHasChild(node: TreeNode, child: TTEntity) {
     return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
   }
 
