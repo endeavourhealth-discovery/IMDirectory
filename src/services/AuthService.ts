@@ -25,8 +25,7 @@ import {
   verifyTOTPSetup,
   updateMFAPreference,
   updatePassword,
-  updateUserAttributes,
-  ConfirmSignInInput
+  updateUserAttributes
 } from "aws-amplify/auth";
 import axios, { AxiosResponse } from "axios";
 import Env from "./Env";

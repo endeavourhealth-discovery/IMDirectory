@@ -33,7 +33,6 @@
 <script lang="ts" setup>
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode } from "@/enums";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { DisplayMode, PropertyShape, Query } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
@@ -41,7 +40,6 @@ import { cloneDeep } from "lodash-es";
 import { QueryService } from "@/services";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import DisplayAnything from "@/components/editor/shapeComponents/DisplayAnything.vue";
 
 interface Props {
   mode: EditorMode;
@@ -106,13 +104,6 @@ async function init() {
   }
 }
 
-async function generateSQL() {
-  if (queryDefinition.value) {
-    sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
-    showSql.value = true;
-  }
-}
-
 async function generateDefaultQuery() {
   return await QueryService.getDefaultQuery();
 }
@@ -124,10 +115,6 @@ function updateEntity() {
     imDefinition[IM.DEFINITION] = JSON.stringify(cloneDeep(queryDefinition.value));
     if (entityUpdate) entityUpdate(imDefinition);
   }
-}
-
-function updateQueryDefinition(test: any) {
-  queryDefinition.value = test;
 }
 </script>
 

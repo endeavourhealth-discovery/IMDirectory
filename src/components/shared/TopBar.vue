@@ -65,8 +65,8 @@
           </div>
           <h2>Presets</h2>
           <div class="flex flex-row flex-wrap">
-          <SelectButton v-model="preset" :options="themeOptions.presets" :allowEmpty="false" />
-        </div>
+            <SelectButton v-model="preset" :options="themeOptions.presets" :allowEmpty="false" />
+          </div>
           <h2>Dark mode</h2>
           <ToggleSwitch v-model="darkMode" />
         </div>

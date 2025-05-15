@@ -41,7 +41,7 @@ watch(editMode, () => init());
 
 watch(
   () => modelShowDialog.value,
-  newValue => {
+  () => {
     editMode.value = false;
   }
 );

@@ -45,8 +45,6 @@ import { EntityService, SetService } from "@/services";
 import { IM } from "@/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { DataTablePageEvent } from "primevue/datatable";
-import { useToast } from "primevue/usetoast";
 
 const props = defineProps<{
   entityIri: string;
@@ -57,13 +55,10 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
   openDownloadDialog: [];
 }>();
-const toast = useToast();
-
 const hasDefinition: Ref<boolean> = ref(false);
 const loading = ref(false);
 const members: Ref<Node[] | undefined> = ref([]);
 
-const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
 const totalCount: Ref<number | undefined> = ref(0);
 const currentPage = ref(0);

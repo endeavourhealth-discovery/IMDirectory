@@ -4,7 +4,7 @@
 // Everything else
 
 import { TTIriRef } from "../interfaces/AutoGen";
-import { IM, OWL, RDF, RDFS, SHACL } from "../vocabulary";
+import { IM, OWL, RDF, SHACL } from "../vocabulary";
 
 export function isOfTypes(conceptTypeElements: TTIriRef[], ...types: string[]): boolean {
   if (!conceptTypeElements || !conceptTypeElements.length) {

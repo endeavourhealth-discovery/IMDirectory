@@ -97,7 +97,6 @@ import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/
 import { RDFS } from "@/vocabulary";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions } from "@/interfaces";
-import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
   imQuery?: QueryRequest;
@@ -126,8 +125,6 @@ const emit = defineEmits<{
 
 const modelShowDialog = defineModel<boolean>("showDialog", { required: true });
 const modelSelected = defineModel<SearchResultSummary | undefined>("selected");
-
-const sharedStore = useSharedStore();
 
 const updateSearch: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);

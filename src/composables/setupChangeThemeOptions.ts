@@ -5,7 +5,7 @@ import { usePreset, updatePrimaryPalette, updateSurfacePalette, palette } from "
 import Aura from "@primeuix/themes/aura";
 import Lara from "@primeuix/themes/lara";
 import Nora from "@primeuix/themes/nora";
-import Material from "@primeuix/themes/material"
+import Material from "@primeuix/themes/material";
 import { PaletteDesignToken } from "@primeuix/themes/types";
 
 function setupChangeThemeOptions() {
@@ -22,9 +22,9 @@ function setupChangeThemeOptions() {
       case PrimeVuePresetThemes.LARA:
         usePreset(Lara);
         break;
-        case PrimeVuePresetThemes.MATERIAL:
-          usePreset(Material)
-          break;
+      case PrimeVuePresetThemes.MATERIAL:
+        usePreset(Material);
+        break;
       default:
         usePreset(Aura);
         break;

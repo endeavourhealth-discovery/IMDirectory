@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, Return, ReturnProperty, When } from "@/interfaces/AutoGen";
+import { Bool, Return } from "@/interfaces/AutoGen";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
