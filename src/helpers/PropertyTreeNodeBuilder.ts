@@ -11,7 +11,7 @@ export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
   const dataModelProperties = entity[SHACL.PROPERTY];
   const groupMap = new Map<string, TreeNode>();
   for (const property of dataModelProperties) {
-    if (isObjectHasKeys(property, [SHACL.GROUP])) {
+    if (isObjectHasKeys(property, [SHACL.GROUP]) && parent.children) {
       addGroup(groupMap, property, parent.children);
     } else {
       const propertyTreeNode = buildPropertyTreeNode(property, parent);
@@ -47,7 +47,7 @@ export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
 
 function getKey(parent: TreeNode | undefined) {
   if (!parent) return "0";
-  return parent.key + parent.children.length;
+  return parent.key + parent.children!.length;
 }
 
 function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNodes: TreeNode[]) {
