@@ -184,7 +184,7 @@ async function onNodeExpand(node: TreeNode) {
       const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
       let groupNode = node.children?.find(child => child.data === groupRef["@id"]);
       if (!groupNode) {
-        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, false, node, undefined, groupRef.order);
+        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, false, node, undefined, (groupRef as any).order);
         node.children?.push(groupNode);
       }
       const propertyNode = buildTreeNodeFromTTProperty(prop, groupNode);
