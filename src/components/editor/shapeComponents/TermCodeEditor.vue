@@ -29,17 +29,16 @@ import { IM, RDFS } from "@/vocabulary";
 import { useFilterStore } from "@/stores/filterStore";
 import { cloneDeep } from "lodash-es";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   value?: any;
   position: number;
-}
+}>();
 
 const emit = defineEmits<{
   updateClicked: [payload: any];
 }>();
-const props = defineProps<Props>();
 watch(
   () => cloneDeep(props.value),
   (newValue, oldValue) => {
@@ -49,8 +48,8 @@ watch(
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
@@ -106,7 +105,7 @@ const status: Ref<TTIriRef | undefined> = ref();
 const codeComplete = ref(false);
 const validationDone = ref(false);
 
-watch(props, newValue => {
+watch(props, () => {
   if (props.value === undefined) {
     name.value = "";
     status.value = undefined;
@@ -114,7 +113,7 @@ watch(props, newValue => {
   }
 });
 
-watch([name, code, status], async ([newName, newCode, newStatus], [oldName, oldCode, oldStatus]) => {
+watch([name, code, status], async () => {
   if ((name.value.length > 0 && code.value.length > 0 && status.value) || validationDone.value) {
     codeComplete.value = true;
   }

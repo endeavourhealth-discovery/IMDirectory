@@ -10,7 +10,7 @@
         <ProgressSpinner strokeWidth="8" />
       </div>
       <div v-else class="children-container concept-colours">
-        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup concept-colours">
+        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup concept-colours" v-bind:key="rgIndex">
           <div :class="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation ? 'error-message' : ''">
             <span v-if="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation" class="error-message">{{
               invalidGroups.find(o => o.groupIndex === rgIndex).errorMessage
@@ -19,7 +19,7 @@
               <label>Role Group {{ rgIndex }}</label>
               <Button class="p-button-danger m-2" icon="fa-solid fa-trash" severity="danger" size="small" @click="deleteRoleGroup(rgIndex)" />
             </div>
-            <div v-for="(row, rIndex) in rg">
+            <div v-for="(row, rIndex) in rg" v-bind:key="rIndex">
               <div v-if="!isObjectHasKeys(row.key, ['@id']) || row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow concept-colours">
                 <AutocompleteSearchBar v-model:selected="row.key" :im-query="request" :search-placeholder="'Search properties'" class="roleProperty" />
                 <span style="width: 1rem; text-align: center">:</span>
@@ -40,43 +40,33 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
-import { SearchOptions } from "@/interfaces";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
-
-defineComponent({
-  components: { EntityAutoComplete }
-});
-</script>
-
 <script lang="ts" setup>
-import { EntityService, QueryService } from "@/services";
-import { EditorMode, ToastSeverity } from "@/enums";
+import { EntityService } from "@/services";
+import { EditorMode } from "@/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@/helpers/TypeGuards";
-import { PropertyShape, QueryRequest, SearchResponse, TTIriRef } from "@/interfaces/AutoGen";
+import { PropertyShape, QueryRequest } from "@/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@/vocabulary";
 import { cloneDeep, isArray } from "lodash-es";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { useToast } from "primevue/usetoast";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   value?: any;
+}>();
+
+interface Role {
+  key: { "@id": string; name: string };
+  value: { "@id": string; name: string };
 }
-
-const toast = useToast();
-const props = defineProps<Props>();
-
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -134,12 +124,12 @@ function deleteRoleGroup(index: number) {
   update();
 }
 
-function addRole(rg: any) {
+function addRole(rg: Role[]) {
   rg.push({ key: { "@id": "", name: "" }, value: { "@id": "", name: "" } });
   update();
 }
 
-function deleteRole(rg: any, index: number) {
+function deleteRole(rg: Role[], index: number) {
   rg.splice(index, 1);
   update();
 }
@@ -156,7 +146,7 @@ async function processProps() {
   loading.value = false;
 }
 
-async function processRole(newData: any[], role: any) {
+async function processRole(newData: any[], role: Role) {
   const grp: any[] = [];
   newData.push(grp);
   if (isObjectHasKeys(role, [IM.GROUP_NUMBER])) {
@@ -191,69 +181,6 @@ const valueRequest: QueryRequest = {
   }
 };
 
-async function propertyDrop(event: any, object: any) {
-  const data = event.dataTransfer.getData("conceptIri");
-  if (data) {
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidProperty(conceptIri)) {
-      object.key = { "@id": conceptIri, name: conceptName } as TTIriRef;
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set property",
-        detail: "'" + conceptName + "' is not a valid role group property",
-        life: 3000
-      });
-    }
-  }
-}
-
-async function isValidProperty(iri: string): Promise<boolean> {
-  const filterOptions: SearchOptions = {
-    isA: [{ "@id": SNOMED.ATTRIBUTE }],
-    textSearch: iri,
-    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
-    page: { pageNumber: 1, pageSize: 1 }
-  } as SearchOptions;
-  const imQuery = buildIMQueryFromFilters(filterOptions);
-  const results = await QueryService.queryIMSearch(imQuery);
-  if (results.entities) return results.entities.length > 0;
-  return false;
-}
-
-async function valueDrop(event: any, object: any) {
-  const data = event.dataTransfer.getData("conceptIri");
-  if (data) {
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidValue(conceptIri)) {
-      object.value = { "@id": conceptIri, name: conceptName } as TTIriRef;
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set value",
-        detail: "'" + conceptName + "' is not a valid role group value",
-        life: 3000
-      });
-    }
-  }
-}
-
-async function isValidValue(iri: string): Promise<boolean> {
-  const filterOptions: SearchOptions = {
-    textSearch: iri,
-    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
-    page: { pageNumber: 1, pageSize: 1 }
-  } as SearchOptions;
-  const imQuery = buildIMQueryFromFilters(filterOptions);
-  const results = await QueryService.queryIMSearch(imQuery);
-  if (results.entities) return results.entities.length > 0;
-  return false;
-}
-
 async function update() {
   validateEntity();
   updateEntity();
@@ -269,7 +196,7 @@ function validateEntity() {
   });
 }
 
-function isGroupValid(group: any[]): boolean {
+function isGroupValid(group: Role[]): boolean {
   invalid.value = false;
   if (group.length == 0 || (group.length == 1 && group[0]?.key?.["@id"] == IM.GROUP_NUMBER)) {
     specificValidationErrorMessage.value = "Role groups can not be empty.";
@@ -300,7 +227,7 @@ function isGroupValid(group: any[]): boolean {
 }
 
 function updateEntity() {
-  const groups: any = {};
+  const groups: TTEntity = {};
   groups[IM.ROLE_GROUP] = [];
 
   for (const rg in roleGroups.value) {
@@ -325,10 +252,6 @@ function updateEntity() {
 </script>
 
 <style scoped>
-.vertical-layout-container {
-  margin: 0;
-}
-
 span.error-message {
   color: red;
 }
@@ -388,11 +311,6 @@ div.error-message {
 }
 
 .roleProperty {
-  display: flex;
-  flex: 1;
-}
-
-.roleVal {
   display: flex;
   flex: 1;
 }

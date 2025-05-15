@@ -1,5 +1,5 @@
-import { CreateComponentPublicInstance } from "vue";
-import { RouteLocationNormalizedLoaded, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
+import { ComponentPublicInstance } from "vue";
+import { RouteLocationNormalizedLoaded, Router, useRoute, useRouter } from "vue-router";
 import { RecentActivityItem } from "@/interfaces";
 import Env from "./Env";
 import { useUserStore } from "@/stores/userStore";
@@ -37,7 +37,7 @@ export default class DirectService {
     }
   }
 
-  public directWithConfirmation(iri: string, action: string, component: CreateComponentPublicInstance<any>, appRoute: string) {
+  public directWithConfirmation(iri: string, action: string, component: ComponentPublicInstance, appRoute: string) {
     component.$confirm.require({
       message: this._message,
       header: "Confirmation",

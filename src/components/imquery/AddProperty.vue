@@ -114,39 +114,6 @@ function getEditWhereDMIriRecursively(where: Where, found: any[]) {}
 </script>
 
 <style scoped>
-.footer {
-  display: flex;
-  justify-content: end;
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-}
-
-.add-base-container {
-  display: flex;
-  flex-flow: column;
-  height: 100%;
-}
-
-.query-nav-tree {
-  height: 70vh;
-}
-
-.edit-property {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-}
-
-.p-stepper {
-  flex: 1 1 auto;
-  overflow: auto;
-}
-
-.p-stepper-panels {
-  overflow: auto;
-}
-
 .button-bar {
   display: flex;
   justify-content: end;

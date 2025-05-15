@@ -1,5 +1,5 @@
 export function timeNow() {
-  let newDate = new Date();
+  const newDate = new Date();
   return (
     (newDate.getHours() < 10 ? "0" : "") +
     newDate.getHours() +

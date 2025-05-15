@@ -24,21 +24,21 @@
       </template>
 
       <Column field="property" header="Name">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <div class="link" @click="navigate($event, data.property[0]['@id'])" data-testid="name">
             {{ data.property[0].name || data.property[0]["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <div class="link" @click="navigate($event, data.type[0]['@id'])">
             {{ data.type[0].name || data.type[0]["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="cardinality" header="Cardinality">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           {{ data.cardinality }}
         </template>
       </Column>
@@ -87,18 +87,20 @@
       </Column>
     </DataTable>
   </div>
+  {{ properties }} -
+  <div>{{ groupedProperties }}</div>
 </template>
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import { PropertyDisplay } from "@/interfaces";
 import { DataModelService, DirectService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { DataTableExpandedRows } from "primevue/datatable";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
   entityName: string;
-}
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
   navigateTo: [payload: string];
@@ -107,10 +109,10 @@ const emit = defineEmits<{
 const directService = new DirectService();
 
 const loading = ref(false);
-const properties: Ref<any[]> = ref([]);
-const groupedProperties: Ref<any[]> = ref([]);
+const properties: Ref<PropertyDisplay[]> = ref([]);
+const groupedProperties: Ref<PropertyDisplay[]> = ref([]);
 const propertiesTable = ref();
-const expandedRowGroups: Ref<any[]> = ref([]);
+const expandedRowGroups: Ref<DataTableExpandedRows[]> = ref([]);
 
 watch(
   () => props.entityIri,
@@ -146,8 +148,8 @@ function getProperty(result: PropertyDisplay): PropertyDisplay {
     propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
     propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name?.slice(0, p.name?.indexOf("(")) as string}`;
   });
-  const ranges = (Array.from(new Set((result.type as any)?.map(JSON.stringify))) as any).map(JSON.parse);
-  ranges.forEach((t: any) => {
+  const ranges = Array.from(new Set(result.type?.map(type => JSON.stringify(type)))).map(item => JSON.parse(item));
+  ranges.forEach(t => {
     typeId = `${typeId}${typeId !== "" ? "OR" : ""}${t["@id"]}`;
     typeName = `${typeName} ${typeName !== "" ? "OR" : ""} ${t.name as string}`;
   });
@@ -158,7 +160,7 @@ function getProperty(result: PropertyDisplay): PropertyDisplay {
   } as PropertyDisplay;
 }
 
-function navigate(event: MouseEvent, iri: any): void {
+function navigate(event: MouseEvent, iri: string): void {
   if (!iri.includes("OR")) {
     if (event.metaKey || event.ctrlKey) {
       directService.view(iri);
@@ -175,15 +177,15 @@ function exportCSV(): void {
     csvValue = allProperties.map(property => {
       if (isObjectHasKeys(property, ["group"])) {
         return {
-          group: { name: property.group["@id"] },
+          group: { name: property?.group?.["@id"] },
           property: property.property[0]["@id"],
-          type: property.type[0]["@id"],
+          type: property?.type?.[0]["@id"],
           cardinality: property.cardinality
         };
       } else {
         return {
           property: property.property[0]["@id"],
-          type: property.type[0]["@id"],
+          type: property.type?.[0]["@id"],
           cardinality: property.cardinality
         };
       }

@@ -45,10 +45,6 @@ onMounted(() => {
   overflow: auto;
 }
 
-.json-value-form {
-  width: 100%;
-}
-
 .json-value-wrapper {
   width: 100%;
 }

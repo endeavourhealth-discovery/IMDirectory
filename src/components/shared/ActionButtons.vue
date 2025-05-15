@@ -76,7 +76,6 @@
 import { computed, onMounted, ref } from "vue";
 import { DirectService, EntityService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
 import { useDialog } from "primevue/usedialog";
 import { useConfirm } from "primevue/useconfirm";
@@ -84,8 +83,7 @@ import setupDownloadFile from "@/composables/downloadFile";
 import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 
 const directService = new DirectService();
-const confirm = useConfirm();
-const sharedStore = useSharedStore();
+const confirmDlg = useConfirm();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -118,7 +116,6 @@ const dynamicDialog = useDialog();
 const { downloadFile } = setupDownloadFile(window, document);
 
 const loadingFavourites = ref(false);
-const showDownloadOptions = ref(false);
 
 function getClass() {
   const activityRowButton = "p-button-rounded p-button-text p-button-plain activity-row-button ";
@@ -148,30 +145,30 @@ function isFavourite(iri: string) {
   return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
 }
 
-async function updateFavourites(event: any, iri: string) {
+async function updateFavourites(event: MouseEvent, iri: string) {
   event.stopPropagation();
   loadingFavourites.value = true;
   await userStore.updateFavourites(iri);
   loadingFavourites.value = false;
 }
 
-function locateInTree(event: any, iri: string) {
+function locateInTree(event: MouseEvent, iri: string) {
   event.stopPropagation();
   emit("locateInTree", iri);
 }
 
-function viewEntity(event: any, iri: string) {
+function viewEntity(event: MouseEvent, iri: string) {
   event.stopPropagation();
   directService.view(iri);
 }
 
-function toEdit(event: any, iri: string) {
+function toEdit(event: MouseEvent, iri: string) {
   event.stopPropagation();
   directService.edit(iri, true);
 }
 
 function confirmDownload() {
-  confirm.require({
+  confirmDlg.require({
     message: 'Are you sure you want to download "' + props.name + '" (' + props.iri + ")?",
     header: "Download",
     rejectProps: {
@@ -183,10 +180,10 @@ function confirmDownload() {
       label: "Download"
     },
     accept: async () => {
-      confirm.close();
+      confirmDlg.close();
       await download();
     },
-    reject: () => confirm.close()
+    reject: () => confirmDlg.close()
   });
 }
 

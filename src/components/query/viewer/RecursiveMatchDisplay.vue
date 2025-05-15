@@ -195,7 +195,7 @@ function indentationStyle(depth: number) {
 
 #recursive-match-display:deep(.or) {
   color: var(--p-blue-500);
-  fint-style: italic;
+  font-style: italic;
   padding-right: 1.2rem;
 }
 

@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { UserState } from "@/stores/types/userState";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { EntityService, UserService } from "@/services";
-import { HistoryItem, RecentActivityItem } from "@/interfaces";
+import { UserService } from "@/services";
+import { HistoryItem, RecentActivityItem, User } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
@@ -162,7 +162,7 @@ export const useUserStore = defineStore("user", {
       if (this.currentUser) await UserService.updateUserScale(scale);
       else localStorageWithExpiry.setItem("scale", scale);
     },
-    updateCurrentUser(user: any) {
+    updateCurrentUser(user: User | undefined) {
       this.currentUser = user;
     },
     updateSnomedLicenseAccepted(bool: boolean) {

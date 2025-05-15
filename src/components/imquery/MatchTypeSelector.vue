@@ -64,20 +64,20 @@ import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisua
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TreeSelectionKeys } from "primevue/tree";
 
-interface Props {
-  baseType: Node;
-}
-
 const visible = defineModel<boolean>("visible");
-const props = defineProps<Props>();
-const loading = ref(false);
-const data: Ref<TreeNode[]> = ref([]);
+
+const props = defineProps<{
+  baseType: Node;
+}>();
+
 const emit = defineEmits<{
   (event: "node-selected", query: any): void;
   (event: "navigateTo", iri: string): void;
   (event: "onCancel", visible: boolean): void;
 }>();
 
+const loading = ref(false);
+const data: Ref<TreeNode[]> = ref([]);
 const expandedKeys = ref<Record<string, boolean>>({});
 
 const onNodeSelect = (node: any) => {
@@ -94,18 +94,13 @@ const selectedNodeKey = ref<TreeSelectionKeys | undefined>(undefined);
 
 watch(
   () => props.baseType,
-  async newValue => await createFeatureTree()
+  async () => await createFeatureTree()
 );
 
 onMounted(async () => {
   expandedKeys.value = {};
   await createFeatureTree();
 });
-
-async function init() {
-  expandedKeys.value = {};
-  await createFeatureTree();
-}
 
 async function onNodeExpand(node: TreeNode) {
   if (node.children && node.children.length > 0) {
@@ -250,14 +245,6 @@ function createPropertyNode(index: string, property: PropertyShape, parent: Tree
 }
 .tree-node-label {
   padding-right: 1rem;
-}
-
-.tree-row {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 0.25rem;
 }
 
 .progress-spinner {

@@ -1,7 +1,7 @@
 <template>
   <div class="horizontal-row-container">
     <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
-    <div v-for="(component, index) in components" class="component-container" :style="'width:' + widths[index]">
+    <div v-for="(component, index) in components" class="component-container" :style="'width:' + widths[index]" v-bind:key="index">
       <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>
   </div>
@@ -65,7 +65,7 @@ function setWidths() {
 }
 
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
+  if (editorEntity && isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
     return editorEntity[property.path!["@id"]];
   }
   return undefined;

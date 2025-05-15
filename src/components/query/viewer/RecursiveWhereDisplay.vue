@@ -70,7 +70,6 @@ import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Where, Assignable, Bool, Node } from "@/interfaces/AutoGen";
 import { computed, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import { IM } from "@/vocabulary/IM";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupOverlay from "@/composables/setupOverlay";

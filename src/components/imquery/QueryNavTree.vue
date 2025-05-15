@@ -27,13 +27,12 @@
 </template>
 
 <script async setup lang="ts">
-import { Ref, inject, onMounted, onUnmounted, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
-import type { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { isFolder, isFunction, isProperty, isRecordModel } from "@/helpers/ConceptTypeMethods";
 import { TTProperty } from "@/interfaces";
@@ -42,13 +41,14 @@ import { Match, TTIriRef, Where } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { getKey, getParentNode } from "@/helpers";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { TreeNode as LocalTreeNode } from "@/interfaces/TreeNode";
+import type { TreeNode } from "primevue/treenode";
 
-interface Props {
+const props = defineProps<{
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
-}
-const props = defineProps<Props>();
+}>();
 const modelSelectedProperty = defineModel<TreeNode | undefined>("selectedProperty");
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const selectedNode = ref();
@@ -124,7 +124,7 @@ function createTreeNode(
     leaf: !hasChildren,
     loading: false,
     children: [] as TreeNode[],
-    parent: getParentNode(parent as any),
+    parent: getParentNode(parent as unknown as LocalTreeNode),
     order: order,
     selectable: selectable,
     hasVariable: hasVariable
@@ -203,7 +203,7 @@ async function onNodeExpand(node: TreeNode) {
   // add subTypes
   const subTypes = await EntityService.getEntityChildren(iri);
   for (const subType of subTypes) {
-    const subTypeNode = createTreeNode(subType.name, subType["@id"], subType.type, true, false, node);
+    const subTypeNode = createTreeNode(subType.name, subType["@id"], subType.type as TTIriRef[], true, false, node);
     subTypeNode.inheritedProps = [...node.children!];
     node.children!.push(subTypeNode);
   }
@@ -305,24 +305,6 @@ async function addBaseEntityToRoot(iri: string) {
   flex-flow: column nowrap;
 }
 
-.loading-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.p-tree .p-tree-container .p-treenode .p-treenode-content {
-  padding: 0rem !important;
-  transition: box-shadow 3600s 3600s !important;
-}
-
-.p-tree-toggler {
-  margin-right: 0 !important;
-}
-
 .tree-root {
   height: 100%;
   overflow: auto;
@@ -333,7 +315,7 @@ async function addBaseEntityToRoot(iri: string) {
   min-width: 2rem;
 }
 
-.tree-row .p-progressspinner {
+.tree-row {
   width: 1.25em !important;
   height: 1.25em !important;
 }

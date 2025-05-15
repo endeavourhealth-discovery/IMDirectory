@@ -71,7 +71,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   updateClicked: [payload: ComponentDetails];
-  addNextOptionsClicked: [payload: any];
+  addNextOptionsClicked: [payload: { position: number; selectedType: string }];
   deleteClicked: [payload: any];
   addClicked: [payload: any];
   moveUpClicked: [payload: any];
@@ -121,7 +121,7 @@ function downClicked(): void {
   emit("moveDownClicked", createEntity());
 }
 
-function addNextClicked(item: any): void {
+function addNextClicked(item: { type: ComponentType; name: string }): void {
   emit("addNextOptionsClicked", {
     position: props.position + 1,
     selectedType: item.type
@@ -154,37 +154,6 @@ function addNextClicked(item: any): void {
   flex-flow: row nowrap;
   align-items: center;
   overflow: auto;
-}
-
-.label-container {
-  flex: 1 1 auto;
-  padding: 1rem;
-  border-radius: var(--p-textarea-border-radius);
-  position: relative;
-  min-width: 15rem;
-}
-
-.label {
-  cursor: pointer;
-  border: 1px solid var(--p-textarea-border-color);
-  border-radius: var(--p-textarea-border-radius);
-  background-color: var(--p-content-background);
-  padding: 0.25rem;
-}
-
-.float-text {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 0.75rem;
-  color: var(--p-text-color);
-}
-
-.search-input {
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .indented-add-button {

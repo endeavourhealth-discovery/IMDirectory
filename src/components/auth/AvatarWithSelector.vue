@@ -53,7 +53,7 @@ watch(newAvatar, newValue => {
   emit("avatarSelected", newValue);
 });
 
-function toggleAvatarSelect(event: any): void {
+function toggleAvatarSelect(event: MouseEvent): void {
   avatar.value.toggle(event);
 }
 </script>

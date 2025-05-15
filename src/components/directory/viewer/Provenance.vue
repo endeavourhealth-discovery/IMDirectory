@@ -32,7 +32,7 @@
       }"
       @hide="onClose()"
     >
-      <div v-for="(value, key) in provItem" class="prov-item">
+      <div v-for="(value, key) in provItem" class="prov-item" v-bind:key="key">
         <label v-html="getLabel(key)"></label>
         <div v-if="!Array.isArray(value) && getLabel(key)">{{ value }}</div>
         <div v-if="Array.isArray(value) && getLabel(key)">
@@ -76,12 +76,20 @@ import { onMounted, ref, Ref, watch } from "vue";
 import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
+interface Provenane {
+  prov: string;
+  usedEntity: string;
+  effectiveDate: string;
+  activityType: string;
+  agent: string;
+}
+
 interface Props {
   entityIri: string;
 }
 const props = defineProps<Props>();
 
-const provenances: Ref<any[]> = ref([]);
+const provenances: Ref<Provenane[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const visible = ref(false);
 
@@ -157,10 +165,6 @@ function onClose() {
 
 function getLabel(key: any) {
   return labels.value[key];
-}
-
-function getGroupKeyName(key: string) {
-  return EntityService.getPartialEntity(key, [RDFS.LABEL]);
 }
 </script>
 

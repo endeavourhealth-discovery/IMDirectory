@@ -22,9 +22,10 @@ import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { onMounted, ref } from "vue";
 import { IM, RDFS } from "@/vocabulary";
 import { EntityService } from "@/services";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
-  concept: any;
+  concept: TTEntity;
 }
 
 const props = defineProps<Props>();
@@ -92,14 +93,5 @@ async function generateExpression() {
   font-family: "Courier New", monospace;
   font-weight: 700;
   font-size: 13px;
-}
-
-.loading-container {
-  display: flex;
-  flex-flow: row;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 20rem;
 }
 </style>

@@ -102,9 +102,9 @@ const showValidation = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
@@ -132,11 +132,6 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const showRequired: ComputedRef<boolean> = computed(() => {
-  if (props.shape.minCount && props.shape.minCount > 0) return true;
-  else return false;
-});
-
 const key = props.shape.path["@id"];
 const buttonOptions = [
   { label: "From list", command: () => showAddByCodeList() },
@@ -162,7 +157,7 @@ watch(ecl, async newValue => {
   }, 600);
 });
 
-watch(showNames, async newValue => {
+watch(showNames, async () => {
   if (props.value) {
     loading.value = true;
     await processProps();
@@ -195,7 +190,7 @@ async function processProps() {
   }
 }
 
-function toggleMenuOptions(event: any) {
+function toggleMenuOptions(event: MouseEvent) {
   importMenu.value.toggle(event);
 }
 
@@ -232,7 +227,7 @@ function processCodeList(data: SearchResultSummary[]) {
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as any;
+    const result = {} as { [x: string]: string };
     if (eclAsQuery.value) {
       result[key] = JSON.stringify(eclAsQuery.value);
     }
@@ -252,8 +247,8 @@ function updateError(errorUpdate: { error: boolean; message: string }): void {
   eclErrorMessage.value = errorUpdate.message;
 }
 
-async function dropReceived(event: any) {
-  const data = event.dataTransfer.getData("conceptIri");
+async function dropReceived(event: DragEvent) {
+  const data = event.dataTransfer?.getData("conceptIri");
   if (data) {
     ecl.value = JSON.parse(data);
   }

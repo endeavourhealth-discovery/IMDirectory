@@ -63,10 +63,9 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
   navigateTo: [payload: string];
@@ -127,12 +126,6 @@ th[scope="col"] {
 table {
   border-collapse: collapse;
   border: 2px solid var(--p-textarea-border-color);
-}
-
-.p-organizationchart {
-  height: 100%;
-  width: 100%;
-  overflow: auto;
 }
 
 .loading-container {

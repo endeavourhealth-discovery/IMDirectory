@@ -30,9 +30,4 @@ const authLoading = computed(() => loadingStore.authLoading);
 .card-button-container {
   height: 100%;
 }
-
-#user-card-container {
-  height: 100%;
-  overflow-y: auto;
-}
 </style>

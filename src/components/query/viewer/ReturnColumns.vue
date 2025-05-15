@@ -8,6 +8,11 @@
         <RecursiveReturnDisplay :select="select" />
       </span>
     </div>
+    <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle" />
+    <span>GraphQL</span>
+    <span v-if="propertyExpand">
+      <RecursiveReturnDisplay :select="select" />
+    </span>
   </div>
 </template>
 
@@ -51,11 +56,3 @@ function getColumnNamesFromReturn(select: Return) {
   }
 }
 </script>
-
-<style scoped>
-th,
-td {
-  border: 1px solid var(--p-content-border-color);
-  padding: 8px 10px;
-}
-</style>

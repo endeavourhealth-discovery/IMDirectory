@@ -18,24 +18,23 @@ import { IM, QUERY, RDFS, SHACL } from "@/vocabulary";
 import { EntityService, QueryService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { QueryRequest, TTIriRef } from "@/interfaces/AutoGen";
-interface Props {
-  propertyIri: string;
-  param?: TTIriRef;
-}
 
-interface Option {
+interface SelectOption {
   id: string;
   name: string;
   value: TTIriRef;
 }
 
-const props = defineProps<Props>();
+const props = defineProps<{
+  propertyIri: string;
+  param?: TTIriRef;
+}>();
 
 const emit = defineEmits<{
   updateParameterValue: [payload: TTIriRef];
 }>();
 
-const paramOptions: Ref<Option[]> = ref([]);
+const paramOptions: Ref<SelectOption[]> = ref([]);
 const selectedParam = ref();
 const placeholder: Ref<string> = ref("");
 watch(
@@ -51,7 +50,7 @@ onMounted(async () => {
 });
 
 async function getParameters() {
-  let options: Option[] = [];
+  let options: SelectOption[] = [];
   const response = await EntityService.getPartialEntity(props.propertyIri, []);
   if (isArrayHasLength(response?.[IM.PARAMETER])) {
     const param = response[IM.PARAMETER][0];
@@ -62,7 +61,7 @@ async function getParameters() {
 }
 
 async function getOptions(iri: string) {
-  let options: Option[] = [];
+  let options: SelectOption[] = [];
   const qr: QueryRequest = {
     query: { "@id": QUERY.GET_SUBCLASSES },
     argument: [
@@ -77,35 +76,10 @@ async function getOptions(iri: string) {
   const response = await QueryService.queryIM(qr);
   if (isArrayHasLength(response.entities)) {
     options = response.entities.map(entity => {
-      return { id: entity[IM.CODE], name: entity[RDFS.LABEL], value: { "@id": entity["@id"], name: entity[RDFS.LABEL] } } as Option;
+      return { id: entity[IM.CODE], name: entity[RDFS.LABEL], value: { "@id": entity["@id"], name: entity[RDFS.LABEL] } } as SelectOption;
     });
   }
 
   return options;
 }
 </script>
-
-<style scoped>
-.property-input-container {
-  display: flex;
-  flex-flow: row;
-  align-items: baseline;
-}
-
-.property-input {
-  display: flex;
-  flex-flow: row;
-  align-items: baseline;
-  flex-wrap: wrap;
-}
-
-.property-input-title {
-  width: 4rem;
-}
-
-.property-range {
-  display: flex;
-  flex-flow: row;
-  align-items: baseline;
-}
-</style>

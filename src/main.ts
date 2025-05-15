@@ -5,7 +5,6 @@ import PrimeVue from "primevue/config";
 import Aura from "@primeuix/themes/aura";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
-import axios from "axios";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -36,13 +35,13 @@ import Ripple from "primevue/ripple";
 
 import { VueShowdownPlugin } from "vue-showdown";
 
-import { Amplify } from "aws-amplify";
+import { Amplify, ResourcesConfig } from "aws-amplify";
 import { createPinia } from "pinia";
 import { useSharedStore } from "@/stores/sharedStore";
 import { AuthService } from "@/services";
 
 const awsconfig = await AuthService.getConfig();
-Amplify.configure(awsconfig.data);
+Amplify.configure(awsconfig.data as ResourcesConfig);
 
 // msw initialising
 if (import.meta.env.MODE === "mock") {
@@ -78,7 +77,7 @@ if (window.Cypress) {
   window.__app__ = app;
 }
 
-const vm = app.mount("#app");
+app.mount("#app");
 
 // Vue application exceptions
 app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | null, info: string) => {
@@ -89,6 +88,6 @@ app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | nu
     detail: err
   });
 
-  sharedStore.updateError(err);
+  sharedStore.updateError(err as string);
   router.push({ name: "VueError" });
 };

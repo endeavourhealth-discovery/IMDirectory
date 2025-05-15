@@ -1,7 +1,8 @@
 import axios from "axios";
 import Env from "./Env";
 import { SetDiffObject } from "@/interfaces";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { Node, Pageable, TTIriRef } from "@/interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/set";
 
 const SetService = {
@@ -18,19 +19,12 @@ const SetService = {
       raw: raw
     });
   },
-  async getMembers(
-      iri: string,
-      entailments: boolean,
-      pageIndex: number,
-      pageSize: number,
-      controller?: AbortController
-  ): Promise<any> {
+  async getMembers(iri: string, entailments: boolean, pageIndex: number, pageSize: number, controller?: AbortController): Promise<Pageable<Node>> {
     return axios.get(API_URL + "/public/members", {
-      params: { iri: iri,  entailments: entailments,page: pageIndex, size: pageSize },
+      params: { iri: iri, entailments: entailments, page: pageIndex, size: pageSize },
       signal: controller?.signal
     });
   },
-
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {
     return axios.get(API_URL + "/public/subsets", {
@@ -61,7 +55,7 @@ const SetService = {
     format: string,
     schemes: string[],
     raw?: boolean
-  ): Promise<any> {
+  ): Promise<Blob> {
     return axios.get(API_URL + "/public/setExport", {
       params: {
         iri: iri,
@@ -80,7 +74,7 @@ const SetService = {
     });
   },
 
-  async updateSubsetsFromSuper(entity: any) {
+  async updateSubsetsFromSuper(entity: TTEntity) {
     return axios.post(API_URL + "/updateSubsetsFromSuper", entity);
   }
 };

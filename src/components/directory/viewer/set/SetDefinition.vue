@@ -91,12 +91,11 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{ navigateTo: [payload: string] }>();
 
@@ -118,7 +117,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const downloading = ref(false);
 const isPublishing = ref(false);
 const showOptions = ref(false);
-const entity: Ref<any> = ref({});
+const entity: Ref<TTEntity> = ref({});
 
 const { copyObjectToClipboard } = setupCopyToClipboard();
 
@@ -138,7 +137,7 @@ onMounted(async () => {
   }
 });
 
-async function onCopy(event: any) {
+async function onCopy(event: MouseEvent) {
   event.stopPropagation();
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   if (isObjectHasKeys(entity, [IM.DEFINITION])) {
@@ -197,7 +196,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   downloadDialog.close();
 }
 
-async function downloadIMV1(downloadOptions: DownloadSettings): Promise<void> {
+async function downloadIMV1(): Promise<void> {
   const downloadDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Downloading", text: "Preparing your download..." }
@@ -250,10 +249,6 @@ function publish() {
 function displayDialog() {
   showOptions.value = true;
 }
-
-function closeDialog() {
-  showOptions.value = false;
-}
 </script>
 
 <style scoped>
@@ -300,10 +295,5 @@ function closeDialog() {
   align-items: center;
   gap: 0.5rem;
   margin-right: 0.5rem;
-}
-
-.text {
-  font-size: medium;
-  padding: 0 0 1rem 0;
 }
 </style>

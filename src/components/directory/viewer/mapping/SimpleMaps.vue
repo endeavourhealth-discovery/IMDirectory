@@ -50,14 +50,12 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import { SimpleMap } from "@/interfaces";
 
-interface Props {
+defineProps<{
   data: [];
-}
-
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
-  toggleOverlay: [payload: { event: any; data: SimpleMap }];
+  toggleOverlay: [payload: { event: MouseEvent; data: SimpleMap }];
   navigateTo: [payload: string];
 }>();
 
@@ -92,7 +90,7 @@ function scrollToTop(): void {
   }
 }
 
-function toggle(event: any, data: any) {
+function toggle(event: MouseEvent, data: SimpleMap) {
   emit("toggleOverlay", { event: event, data: data });
 }
 

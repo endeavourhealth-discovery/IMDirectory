@@ -23,7 +23,6 @@
 
 <script lang="ts" setup>
 import { onMounted, provide, Ref, ref, watch } from "vue";
-import AutocompleteSearchBar from "../shared/AutocompleteSearchBar.vue";
 import { Match, Node, Query, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
 import { IM, SHACL } from "@/vocabulary";
 import { cloneDeep } from "lodash-es";
@@ -32,15 +31,14 @@ import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 
-interface Props {
+const props = defineProps<{
   queryDefinition?: Query;
-}
+}>();
 
 const emit = defineEmits<{
   updateQuery: [payload: Query];
 }>();
 
-const props = defineProps<Props>();
 const selectedBaseType: Ref<SearchResultSummary | undefined> = ref();
 const editQueryDefinition: Ref<Match> = ref({});
 const rootQuery: Ref<Match> = ref({});
@@ -104,79 +102,5 @@ function buildImQueryForBaseType() {
   flex: 0 0 auto;
   display: flex;
   align-items: baseline;
-}
-
-.feature-container {
-  flex: 1 1 auto;
-  display: flex;
-  width: 100%;
-  overflow: auto;
-  padding: 0.5rem 0.5rem 0 0.5rem;
-}
-
-.feature-list {
-  flex: 1 1 auto;
-  display: flex;
-  flex-flow: column nowrap;
-  gap: 0.2rem;
-  width: 100%;
-  overflow: auto;
-}
-
-.feature-list-container {
-  display: flex;
-  flex-flow: column;
-  height: 100%;
-  width: 100%;
-  overflow: auto;
-}
-
-.feature-description {
-  width: 100%;
-}
-
-.add-feature-button {
-  margin: 0.1rem;
-}
-
-.feature-description-card {
-  padding: 0.5rem;
-  border: var(--p-imquery-editor-border-color) 1px solid;
-  border-radius: 5px;
-  background-color: var(--p-imquery-editor-background-color);
-  flex: 1;
-}
-
-.feature-description-card-hover {
-  width: 100%;
-  padding: 0.5rem;
-  border-radius: 5px;
-  background-color: var(--p-imquery-editor-background-color);
-  flex: 1;
-  border: var(--p-imquery-editor-hover-border-color) 1px solid;
-}
-
-.clickable {
-  cursor: pointer;
-}
-
-.side-title {
-  width: 5rem;
-}
-
-.feature-title {
-  flex: 0 0 auto;
-  padding-top: 0.5rem;
-}
-
-.add-buttons {
-  flex: 0 0 auto;
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-}
-
-.expanding-button {
-  align-self: stretch;
 }
 </style>

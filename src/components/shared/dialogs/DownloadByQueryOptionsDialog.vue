@@ -162,19 +162,19 @@ const isOptionsSelected = computed(() => {
 const checkedLegacy = ref(false);
 const checked = ref(true);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
-const schemesOptions = filterOptions.value.schemes.filter((c: any) => c["@id"] !== IM.NAMESPACE || c["@id"] !== SNOMED.NAMESPACE);
+const schemesOptions = filterOptions.value.schemes.filter(c => c["@id"] !== IM.NAMESPACE || c["@id"] !== SNOMED.NAMESPACE);
 
 watch(
   () => props.showDefinition,
   newValue => {
-    const objIndex = contentOptions.value.findIndex((obj: any) => obj.key == "definition");
+    const objIndex = contentOptions.value.findIndex(obj => obj.key == "definition");
     contentOptions.value[objIndex].include = newValue;
   }
 );
 
 watch(selectedContents, () => {
   if (contentOptions.value.length !== 0 && selectedFormat.value !== "IMv1") {
-    contentOptions.value[1].disabled = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
+    contentOptions.value[1].disabled = selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx";
     isCoreSelected();
     isLegacySelected();
   }
@@ -185,12 +185,12 @@ watch(selectedFormat, () => {
   checkedLegacy.value = false;
   if (selectedFormat.value) {
     if (selectedFormat.value === "IMv1") {
-      contentOptions.value.forEach((f: any) => (f.disabled = true));
+      contentOptions.value.forEach(f => (f.disabled = true));
     } else {
-      contentOptions.value.forEach((f: any) => (f.disabled = false));
+      contentOptions.value.forEach(f => (f.disabled = false));
     }
   } else {
-    contentOptions.value.forEach((f: any) => (f.disabled = true));
+    contentOptions.value.forEach(f => (f.disabled = true));
   }
 });
 

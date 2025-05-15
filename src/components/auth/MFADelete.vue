@@ -29,12 +29,10 @@ import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
 import Swal from "sweetalert2";
 import { AuthService } from "@/services";
-import { useUserStore } from "@/stores/userStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const helpDialog = useDialog();
-const userStore = useUserStore();
 
 const loading = ref(false);
 
@@ -99,15 +97,6 @@ function handleCancel() {
   align-items: flex-start;
   gap: 0.5rem;
   max-width: 30rem;
-}
-
-.code-input {
-  display: flex;
-  flex-flow: column nowrap;
-}
-
-.invalid-text {
-  color: var(--p-red-500);
 }
 
 .buttons-container {

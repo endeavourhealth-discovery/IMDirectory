@@ -54,7 +54,7 @@
             @locateInTree="locateInTree"
             @navigateTo="navigateTo"
             :showSelectButton="true"
-            v-model:history="history"
+            v-model:history="directoryHistory"
             :searchResults
             @selected-updated="updateSelectedFromIri"
             @go-to-search-results="goToSearchResults"
@@ -94,8 +94,8 @@ import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
 import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS } from "@/vocabulary";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { RDFS } from "@/vocabulary";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions } from "@/interfaces";
 import { useSharedStore } from "@/stores/sharedStore";
 
@@ -158,11 +158,11 @@ watch(
   }
 );
 
-const history: Ref<string[]> = ref([]);
+const directoryHistory: Ref<string[]> = ref([]);
 const activePage = ref(0);
 const selectedName = ref("");
 
-watch(searchResults, newValue => {
+watch(searchResults, () => {
   detailsIri.value = "";
   activePage.value = 0;
 });
@@ -228,7 +228,7 @@ function resetDialog() {
   searchLoading.value = false;
   treeIri.value = "";
   detailsIri.value = "";
-  history.value = [];
+  directoryHistory.value = [];
   activePage.value = 0;
 }
 
@@ -314,12 +314,5 @@ function goToSearchResults() {
   flex: 1 0 auto;
   flex-wrap: nowrap;
   justify-content: flex-end;
-}
-</style>
-
-<style>
-.p-dialog-content {
-  flex: 1 1 auto;
-  display: flex;
 }
 </style>

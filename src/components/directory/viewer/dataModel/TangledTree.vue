@@ -23,11 +23,10 @@ import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { TTIriRef } from "@/interfaces/AutoGen";
 
-interface Props {
+const props = defineProps<{
   data: Array<TangledTreeData[]>;
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
   navigateTo: [payload: string];
@@ -44,9 +43,9 @@ watch(
 const options: Ref = ref({});
 const color = ref(d3.scaleOrdinal(d3.schemeSet2));
 const chartData: Ref<TangledTreeData[][]> = ref([]);
-const multiselectMenu: Ref<{ iri: string; label: string; result: {}; disabled?: boolean }[]> = ref([]);
+const multiselectMenu: Ref<{ iri: string; label: string; result: any; disabled?: boolean }[]> = ref([]);
 const twinNode = ref("twin-node-");
-const selected: Ref<{ iri: string; label: string; result: {} }[]> = ref([]);
+const selected: Ref<{ iri: string; label: string; result: any }[]> = ref([]);
 const selectedNode = ref({} as TangledTreeData);
 const nodeMap = reactive(new Map<string, any[]>());
 const overlayTop = ref(0);
@@ -63,7 +62,7 @@ onMounted(() => {
 
 async function getMultiselectMenu(d: any) {
   let node = d["target"]["__data__"];
-  multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
+  multiselectMenu.value = [] as { iri: string; label: string; result: any; disabled?: boolean }[];
   let result = [] as PropertyDisplay[];
   if (node.type === "group") {
     result = !node.id.startsWith(twinNode) ? await DataModelService.getPropertiesDisplay(node.parents[0].id) : [];
@@ -207,14 +206,14 @@ function hideAll(node: any) {
     if (childIdes.length > 0) {
       childIdes.forEach((childId: any) => {
         const index = chartData.value[node.level + 1].findIndex((d: any) => d.id === childId);
-        hideNode(chartData.value[node.level + 1][index], node.id);
+        hideNode(chartData.value[node.level + 1][index]);
       });
     }
   }
   renderChart();
 }
 
-function hideNode(node: any, parentId: any) {
+function hideNode(node: any) {
   const nodeIndex = chartData.value[node.level].findIndex((p: any) => p.id === node.id);
   if (chartData.value.length > node.level + 1) {
     const childIdes = chartData.value[node.level + 1]
@@ -225,7 +224,7 @@ function hideNode(node: any, parentId: any) {
     if (childIdes.length > 0) {
       childIdes.forEach((childId: any) => {
         const index = chartData.value[node.level + 1].findIndex((d: any) => d.id === childId);
-        hideNode(chartData.value[node.level + 1][index], node.id);
+        hideNode(chartData.value[node.level + 1][index]);
       });
     }
   }
@@ -323,7 +322,7 @@ function renderChart() {
         .style("left", d.layerX + "px")
         .style("top", d.layerY + 10 + "px");
     })
-    .on("mouseout", (_d: any) => {
+    .on("mouseout", () => {
       div.transition().duration(500).style("opacity", 0);
     })
     .on("click", (d: any) => {
@@ -415,7 +414,7 @@ function createSelectedCircle(
         .attr("stroke-width", 0.1)
         .style("font-size", 12);
     })
-    .on("mouseout", (_d: any) => {
+    .on("mouseout", () => {
       if (cardRect && cardinality) {
         cardRect.remove();
         cardinality.remove();
@@ -513,8 +512,7 @@ function precomputeBundles(levels: any, nodes: any) {
       if (id in index) {
         index[id].parents = index[id].parents.concat(n.parents);
       } else {
-        // @ts-ignore
-        index[id] = { id: id, parents: n.parents.slice(), level: i, span: i - d3.min(n.parents, (p: any) => p.level) };
+        index[id] = { id: id, parents: n.parents.slice(), level: i, span: i - d3.min(n.parents, (p: any) => p.level as number)! };
       }
       n.bundle = index[id];
     });
@@ -567,7 +565,7 @@ function reversePointers(bundles: any, nodes: any, links: any) {
   });
 }
 
-function constructTangleLayout(levels: any, options: any): TangleLayout {
+function constructTangleLayout(levels: TangledTreeData[][], options: any): TangleLayout {
   const { nodes, nodes_index } = precomputeLevelDepth(levels);
   const { bundles, links } = precomputeBundles(levels, nodes);
   reversePointers(bundles, nodes, links);
@@ -591,7 +589,7 @@ function constructTangleLayout(levels: any, options: any): TangleLayout {
     x_offset += l.bundles.length * bundle_width;
     y_offset += level_y_padding;
 
-    l.forEach((n: any, i: any) => {
+    l.forEach((n: any) => {
       n.x = n.level * node_width + x_offset;
       n.y = node_height + y_offset + n.height / 2;
       n.xz = 0;
@@ -604,8 +602,7 @@ function constructTangleLayout(levels: any, options: any): TangleLayout {
   let i = 0;
   levels.forEach((l: any) => {
     l.bundles.forEach((b: any) => {
-      // @ts-ignore
-      b.x = d3.max(b.parents, (d: any) => d.x) + node_width + (l.bundles.length - 1 - b.i) * bundle_width;
+      b.x = d3.max(b.parents, (d: any) => d.x)! + node_width + (l.bundles.length - 1 - b.i) * bundle_width;
       b.y = i * node_height;
     });
     i += l.length;
@@ -631,10 +628,8 @@ function constructTangleLayout(levels: any, options: any): TangleLayout {
   });
 
   let layout = {
-    // @ts-ignore
-    width: d3.max(nodes, (n: any) => n.x) + node_width + 2 * padding,
-    // @ts-ignore
-    height: d3.max(nodes, (n: any) => n.y) + node_height / 2 + 2 * padding,
+    width: d3.max(nodes, (n: any) => n.x)! + node_width + 2 * padding,
+    height: d3.max(nodes, (n: any) => n.y)! + node_height / 2 + 2 * padding,
     node_height,
     node_width,
     bundle_width,

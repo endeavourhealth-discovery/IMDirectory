@@ -1,6 +1,6 @@
 <template>
   <div id="mfa-setup">
-    <Card class="flex flex-col justify-content-sm-around items-center mfa-setup-card">
+    <Card class="justify-content-sm-around mfa-setup-card flex flex-col items-center">
       <template #header>
         <IMFontAwesomeIcon icon="fa-solid fa-shield-halved" class="icon-header" />
       </template>
@@ -32,12 +32,10 @@ import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
 import Swal from "sweetalert2";
 import { AuthService } from "@/services";
-import { useUserStore } from "@/stores/userStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const helpDialog = useDialog();
-const userStore = useUserStore();
 
 const styles = getComputedStyle(document.body);
 const primaryColor = styles.getPropertyValue("--primary-color");
@@ -46,9 +44,44 @@ const textColor = styles.getPropertyValue("--text-color");
 
 const isValidCode = computed(() => /\d{6}/.test(code.value));
 
+interface Options {
+  width: number;
+  height: number;
+  type: DrawType;
+  data: string;
+  image: string;
+  margin: number;
+  qrOptions: {
+    typeNumber: TypeNumber;
+    mode: Mode;
+    errorCorrectionLevel: ErrorCorrectionLevel;
+  };
+  imageOptions: {
+    hideBackgroundDots: boolean;
+    imageSize: number;
+    margin: number;
+    crossOrigin: string;
+  };
+  dotsOptions: {
+    color: string;
+    type: DotType;
+  };
+  backgroundOptions: {
+    color: string;
+  };
+  cornersSquareOptions: {
+    color: string;
+    type: CornerSquareType;
+  };
+  cornersDotOptions: {
+    color: string;
+    type: CornerDotType;
+  };
+}
+
 const code = ref("");
 
-const options: Ref<any> = ref();
+const options: Ref<Options | undefined> = ref();
 const loading = ref(false);
 const loadingQRCode = ref(false);
 
@@ -141,8 +174,8 @@ async function handleSubmitMFA() {
         title: "Success",
         text: "2-factor authentication successfully setup for this account."
       }).then(() => router.push({ name: "UserDetails" }));
-    } catch (err: any) {
-      throw new Error("Error setting up mfa", err);
+    } catch (err: unknown) {
+      throw new Error("Error setting up mfa", { cause: err });
     }
     loading.value = false;
   }

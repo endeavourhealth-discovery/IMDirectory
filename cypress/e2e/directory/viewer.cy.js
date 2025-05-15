@@ -69,6 +69,7 @@ describe("viewer", () => {
             });
         });
         it("can collapse all details nodes", () => {
+          cy.wait(1000);
           cy.getByTestId("expand-details-button").click();
           cy.get(".details-container").find(".p-tree-node-children").should("exist");
           cy.getByTestId("collapse-details-button").click();

@@ -5,7 +5,7 @@ import axios from "axios";
 const api = Env.API;
 
 const WorkflowService = {
-  async createBugReport(bugReport: BugReport): Promise<any> {
+  async createBugReport(bugReport: BugReport): Promise<void> {
     bugReport.error = JSON.stringify(bugReport.error);
     return axios.post(api + "api/workflow/createBugReport", bugReport);
   },

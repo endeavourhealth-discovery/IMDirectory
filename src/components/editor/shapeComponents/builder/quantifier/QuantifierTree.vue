@@ -10,7 +10,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="{ node }: any">
+      <template #default="{ node }">
         <div class="tree-row">
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
@@ -26,31 +26,29 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { EntityReferenceNode } from "@/interfaces";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { EntityReferenceNode, TTIriRef } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { byKey } from "@/helpers/Sorters";
 import { EntityService } from "@/services";
 import type { TreeNode } from "primevue/treenode";
 import { useToast } from "primevue/usetoast";
+import { GenericObject } from "@/interfaces/GenericObject";
 
-interface Props {
+const props = defineProps<{
   quantifier?: TTIriRef;
   isAs: string[];
-}
-
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{ treeNodeSelected: [payload: TTIriRef] }>();
 
 const toast = useToast();
 
-const selected: Ref<any> = ref({});
+const selected: Ref<GenericObject> = ref({});
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
 const root: Ref<TreeNode[]> = ref([]);
 const loading = ref(true);
-const expandedKeys: Ref<any> = ref({});
+const expandedKeys: Ref<GenericObject> = ref({});
 
 onMounted(async () => {
   loading.value = true;
@@ -63,12 +61,15 @@ async function addIsAsToRoot() {
   for (const isA of props.isAs) {
     const asNode = await EntityService.getEntityAsEntityReferenceNode(isA);
     const hasNode = !!root.value.find(node => node.data === asNode["@id"]);
-    if (!hasNode) root.value.push(createTreeNode(asNode.name, asNode["@id"], asNode.type, asNode.hasGrandChildren));
+    if (!hasNode) {
+      const treeNode = createTreeNode(asNode.name as string, asNode["@id"], asNode.type as TTIriRef[], asNode.hasGrandChildren);
+      if (treeNode) root.value.push(treeNode);
+    }
   }
   root.value.sort(byKey);
 }
 
-function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
+function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean | undefined): TreeNode {
   return {
     key: conceptName,
     label: conceptName,
@@ -77,21 +78,21 @@ function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: T
     data: conceptIri,
     leaf: !hasChildren,
     loading: false,
-    children: [] as TreeNode[]
+    children: []
   };
 }
 
-function onNodeSelect(node: any): void {
+function onNodeSelect(node: TreeNode): void {
   selectedNode.value = node;
   emit("treeNodeSelected", { "@id": node.data, name: node.label } as TTIriRef);
 }
 
-async function onNodeExpand(node: any) {
+async function onNodeExpand(node: TreeNode) {
   if (isObjectHasKeys(node)) {
     node.loading = true;
     const children = await EntityService.getEntityChildren(node.data);
     children.forEach(child => {
-      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+      if (!nodeHasChild(node, child)) node.children?.push(createTreeNode(child.name, child["@id"], child.type as TTIriRef[], child.hasChildren));
     });
     node.loading = false;
   }
@@ -110,7 +111,7 @@ function selectKey(selectedKey: string) {
 
 async function findPathToNode(iri: string) {
   loading.value = true;
-  let path = [] as any[];
+  let path: TTIriRef[] = [];
   for (const isA of props.isAs) {
     const result = await EntityService.getPathBetweenNodes(iri, isA);
     if (isArrayHasLength(result)) path = result;
@@ -169,24 +170,6 @@ async function findPathToNode(iri: string) {
   flex-flow: column nowrap;
 }
 
-.loading-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.p-tree .p-tree-container .p-treenode .p-treenode-content {
-  padding: 0rem !important;
-  transition: box-shadow 3600s 3600s !important;
-}
-
-.p-tree-toggler {
-  margin-right: 0 !important;
-}
-
 .tree-root {
   height: 100%;
   overflow: auto;
@@ -197,37 +180,15 @@ async function findPathToNode(iri: string) {
   min-width: 2rem;
 }
 
-.tree-row .p-progressspinner {
+.tree-row {
   width: 1.25em !important;
   height: 1.25em !important;
-}
-
-.tree-row {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: flex-start;
   gap: 0.25rem;
-}
-
-#parent-button-bar {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.toggle-buttons-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.tree-locked-button,
-.tree-lock-button,
-.home-button,
-.next-parent-button {
-  width: fit-content !important;
+  padding: 0rem !important;
+  transition: box-shadow 3600s 3600s !important;
 }
 </style>

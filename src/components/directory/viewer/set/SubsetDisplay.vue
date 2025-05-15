@@ -27,17 +27,16 @@ import { SetService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { TTIriRef } from "@/interfaces/AutoGen";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-
-const props = defineProps<Props>();
-const subsets: Ref<TTIriRef[]> = ref([]);
+}>();
 
 const emit = defineEmits<{
   onOpenTab: [payload: string];
   navigateTo: [payload: string];
 }>();
+
+const subsets: Ref<TTIriRef[]> = ref([]);
 
 onMounted(async () => {
   subsets.value = await SetService.getSubsets(props.entityIri);

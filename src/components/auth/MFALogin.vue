@@ -41,7 +41,6 @@ const authStore = useAuthStore();
 
 const isValidCode = computed(() => /\d{6}/.test(code.value));
 const authReturnPath = computed(() => authStore.authReturnPath);
-const currentUser = computed(() => userStore.currentUser);
 
 const code = ref("");
 const loading = ref(false);
@@ -66,7 +65,7 @@ function showHelpDialog() {
   });
 }
 
-async function handle200(res: CustomAlert) {
+async function handle200() {
   Swal.fire({
     icon: "success",
     title: "Success",
@@ -134,7 +133,7 @@ async function handleSubmitMFA() {
     await AuthService.mfaSignIn(code.value)
       .then(async res => {
         if (res.status === 200) {
-          await handle200(res);
+          await handle200();
         } else if (res.status === 403) {
           handle403(res);
         } else {

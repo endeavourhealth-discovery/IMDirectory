@@ -6,13 +6,15 @@
 import { Entailment } from "@/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
 
-interface Props {
+const props = defineProps<{
   entailmentObject: Entailment;
-}
+}>();
 
-const props = defineProps<Props>();
+const emit = defineEmits<{
+  updateEntailment: [payload: string];
+}>();
+
 const selectedOption: Ref<string> = ref("");
-const emit = defineEmits<{ updateEntailment: [payload: string] }>();
 
 const options = [
   { id: "memberOf", name: "member of" },

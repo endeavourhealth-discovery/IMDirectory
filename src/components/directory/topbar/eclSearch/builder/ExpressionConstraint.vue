@@ -193,7 +193,6 @@ const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const operators = ["and", "or", "not"] as const;
 const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
 
-const addMenu = ref();
 const loading = ref(false);
 const group: Ref<number[]> = ref([]);
 const refinementGroup: Ref<number[]> = ref([]);
@@ -226,10 +225,6 @@ function deleteItem(index: number) {
 function mouseout(event: any) {
   event.stopPropagation();
   hoverAddConcept.value = false;
-}
-
-function toggleAdd(event: any) {
-  addMenu.value.toggle(event);
 }
 
 function addRefinement() {

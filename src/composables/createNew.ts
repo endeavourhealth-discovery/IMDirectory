@@ -2,20 +2,21 @@ import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { AllowableChildProperty } from "@/interfaces";
 import { DirectService, QueryService } from "@/services";
-import { IM, QUERY, RDF, RDFS, SHACL } from "@/vocabulary";
+import { IM, QUERY, RDFS, SHACL } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { QueryRequest } from "@/interfaces/AutoGen";
+import { MenuItem } from "primevue/menuitem";
 
 function createNew() {
   const directService = new DirectService();
 
-  async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode>, node: TreeNode): Promise<any[]> {
+  async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
     const selectionWrapperCopy = [
       {
         label: "New",
         icon: "fas fa-fw fa-plus",
-        items: [] as any[]
+        items: [] as MenuItem[]
       },
       {
         label: "Edit",
@@ -37,7 +38,7 @@ function createNew() {
       query: {
         "@id": QUERY.ALLOWABLE_CHILD_TYPES
       }
-    } as any as QueryRequest;
+    } as QueryRequest;
 
     const response = await QueryService.queryIM(queryRequest);
     const types = response?.entities ?? [];
@@ -81,7 +82,7 @@ function createNew() {
           property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"]["@id"].toString()
         },
         icon: getFAIconFromType([{ "@id": allowableType["@id"], name: allowableType["http://www.w3.org/2000/01/rdf-schema#label"] }]).join(" "),
-        command: {} as Function
+        command: () => {}
       };
       if (allowableType["@id"] === IM.FOLDER) {
         item.command = () => {

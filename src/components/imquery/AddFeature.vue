@@ -47,7 +47,7 @@ const emit = defineEmits<{
 
 watch(
   selectedCohort,
-  (newValue, oldValue) => {
+  newValue => {
     const match = {
       typeOf: props.baseType,
       instanceOf: [{ "@id": newValue?.iri, name: newValue?.name, memberOf: true }]

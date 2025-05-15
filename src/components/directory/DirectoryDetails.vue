@@ -15,6 +15,7 @@
     </div>
     <div class="header-container">
       <ParentHierarchy
+        v-if="entity['@id']"
         :entityIri="entity?.['@id']"
         @navigateTo="(iri: string) => $emit('navigateTo', iri)"
         :history="modelHistory"
@@ -29,7 +30,7 @@
       />
     </div>
     <div class="datatable-container">
-      <Viewer :entityIri="entity?.['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
+      <Viewer v-if="entity['@id']" :entityIri="entity?.['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>
@@ -42,6 +43,7 @@ import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
 import { SearchResponse } from "@/interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   selectedIri: string;
@@ -64,7 +66,7 @@ watch(
   async () => await init()
 );
 
-const entity: Ref<any> = ref({});
+const entity: Ref<TTEntity> = ref({});
 const loading = ref(true);
 
 onMounted(async () => await init());

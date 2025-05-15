@@ -83,7 +83,7 @@ const buttonActions = ref([
 ]);
 const searchPlaceholder: Ref<string> = ref("Search");
 const searchLoading: Ref<boolean> = ref(false);
-const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
+const { listening, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const filtersOP = ref();
 const debounce = ref(0);
 
@@ -96,7 +96,7 @@ onMounted(() => {
   if (modelSearchTerm.value) searchText.value = modelSearchTerm.value;
 });
 
-function openFiltersOverlay(event: any) {
+function openFiltersOverlay(event: MouseEvent) {
   filtersOP.value.toggle(event);
 }
 
@@ -142,10 +142,6 @@ async function onSearch() {
   cursor: pointer;
 }
 
-.listening {
-  color: red !important;
-}
-
 #autocomplete-search {
   font-size: 1rem;
   height: 2.25rem;
@@ -153,15 +149,7 @@ async function onSearch() {
   width: 100%;
 }
 
-.fa-icon {
-  padding-right: 0.25rem;
-}
-
 .search-button {
   height: 2.25rem;
-}
-
-.p-inputicon {
-  color: var(--p-inputtext-color);
 }
 </style>

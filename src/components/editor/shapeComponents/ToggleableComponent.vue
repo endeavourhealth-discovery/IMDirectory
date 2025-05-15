@@ -96,7 +96,7 @@ function setChecked() {
 
 function processEntityValue(property: PropertyShape | undefined) {
   if (!property) throw new Error("Property is undefined");
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
+  if (editorEntity && isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
     return editorEntity[property.path!["@id"]];
   }
   return undefined;
@@ -121,11 +121,6 @@ function processEntityValue(property: PropertyShape | undefined) {
 
 .toggleable-entity-search:deep(.label-container) {
   border-color: var(--p-red-500);
-}
-
-.label {
-  font-size: 1rem;
-  color: var(--p-text-color);
 }
 
 .title {

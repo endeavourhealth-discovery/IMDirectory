@@ -7,7 +7,6 @@ import { DashboardLayout } from "./DashboardLayout";
 import { Dataset } from "./Dataset";
 import { DefinitionConfig } from "./DefinitionConfig";
 import { ECLComponentDetails } from "./ECLComponentDetails";
-import { EntityReferenceNode } from "./EntityReferenceNode";
 import { ExportValueSet } from "./ExportValueSet";
 import { FiltersAsIris } from "./FiltersAsIris";
 import GraphData from "./GraphData";
@@ -22,7 +21,6 @@ import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
 import { TermCode } from "./TermCode";
 import { TreeParent } from "./TreeParent";
-import { TTBundle } from "./TTBundle";
 import TTGraphData from "./TTGraphData";
 import { UPRN } from "./Uprn";
 import { UprnSearchResponse } from "./UprnSearchResponse";
@@ -40,7 +38,6 @@ import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { TTProperty, UIProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
-import { ContextMap } from "./ContextMap";
 import { SelectedMatch } from "./SelectedMatch";
 import { MailOptions } from "./MailOptions";
 import { QueryResponse } from "./QueryResponse";
@@ -61,7 +58,6 @@ export {
   type Dataset,
   type DefinitionConfig,
   type ECLComponentDetails,
-  type EntityReferenceNode,
   type ExportValueSet,
   type FiltersAsIris,
   type GraphData,
@@ -76,7 +72,6 @@ export {
   type SimpleMapIri,
   type TermCode,
   type TreeParent,
-  type TTBundle,
   type TTGraphData,
   type UPRN,
   type UprnSearchResponse,
@@ -95,7 +90,6 @@ export {
   type TTProperty,
   type UIProperty,
   type TreeNode,
-  type ContextMap,
   type SelectedMatch,
   type MailOptions,
   type QueryResponse,

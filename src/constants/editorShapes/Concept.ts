@@ -1,5 +1,5 @@
-import { Argument, FormGenerator, PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
-import { RDF, IM, RDFS, SHACL, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION, XSD } from "@/vocabulary";
+import { FormGenerator } from "@/interfaces/AutoGen";
+import { RDF, IM, RDFS, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION, XSD } from "@/vocabulary";
 
 const ConceptShape: FormGenerator = {
   "@id": EDITOR.CONCEPT_SHAPE,

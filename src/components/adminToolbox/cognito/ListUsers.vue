@@ -19,7 +19,6 @@
 
 <script setup lang="ts">
 import AdminService from "@/services/AdminService";
-import { User } from "@/interfaces";
 import { onMounted, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
 

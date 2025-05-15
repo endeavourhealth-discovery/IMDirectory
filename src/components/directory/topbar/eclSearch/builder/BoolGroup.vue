@@ -126,6 +126,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   rootBool: false
 });
+
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match>("parent", { default: {} });
 const operators = ["and", "or", "not"] as const;

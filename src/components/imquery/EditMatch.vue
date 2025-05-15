@@ -116,7 +116,6 @@ const selectedBaseType = inject("selectedBaseType") as Ref<SearchResultSummary |
 const fullMatch = inject("fullMatch") as Ref<Match | undefined>;
 const showAddPropertyDialog: Ref<boolean> = ref(false);
 const showBuildFeature: Ref<boolean> = ref(false);
-const showBuildThenFeature: Ref<boolean> = ref(false);
 const editMatch = ref(cloneDeep(props.match));
 const boolGroup = computed(() => {
   return {

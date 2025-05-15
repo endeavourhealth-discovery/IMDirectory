@@ -34,10 +34,9 @@
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode } from "@/enums";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { DisplayMode, Match, PropertyShape, Query } from "@/interfaces/AutoGen";
+import { DisplayMode, PropertyShape, Query } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
-import { useRoute } from "vue-router";
 import { cloneDeep } from "lodash-es";
 import { QueryService } from "@/services";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
@@ -54,12 +53,12 @@ const props = defineProps<Props>();
 
 const iri = "http://endhealth.info/im#CohortDefinition";
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (updateValidity) {
@@ -69,7 +68,6 @@ if (forceValidation) {
     }
   });
 }
-const route = useRoute();
 const loading = ref(true);
 const queryDefinition: Ref<Query | undefined> = ref();
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -133,7 +131,7 @@ function updateQueryDefinition(test: any) {
 }
 </script>
 
-<style>
+<style scoped>
 #cohort-query-definition-editor {
   height: 100%;
   width: 100%;

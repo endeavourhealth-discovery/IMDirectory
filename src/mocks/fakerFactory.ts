@@ -1,8 +1,6 @@
 import { factory, primaryKey, manyOf, nullable, oneOf } from "@mswjs/data";
 import { faker } from "@faker-js/faker";
 
-const apiUrl = "http://localhost/imapi/api/";
-
 const fakerFactory = factory({
   entity: {
     "@id": primaryKey(faker.internet.url),

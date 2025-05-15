@@ -73,7 +73,7 @@ const schema = yup.object({
   password: yup.string().required("Password is required")
 });
 
-const { errors, defineField, handleSubmit } = useForm({ validationSchema: schema });
+const { errors, defineField } = useForm({ validationSchema: schema });
 
 const [username] = defineField("username");
 const [password] = defineField("password");
@@ -84,7 +84,7 @@ onMounted(() => {
   }
 });
 
-async function handle200(res: CustomAlert) {
+async function handle200() {
   authStore.updateRegisteredUsername("");
   Swal.fire({
     icon: "success",
@@ -182,7 +182,7 @@ const onSubmit = async function handleSubmit(): Promise<void> {
   await AuthService.signIn(username.value, password.value)
     .then(async res => {
       if (res.status === 200) {
-        await handle200(res);
+        await handle200();
       } else if (res.status === 403) {
         handle403(res);
       } else {
@@ -234,14 +234,5 @@ const onSubmit = async function handleSubmit(): Promise<void> {
 .icon-header {
   font-size: 5rem;
   margin-top: 1em;
-}
-
-.text-with-button {
-  display: flex;
-  flex-flow: row nowrap;
-}
-
-.p-password:deep(.p-password-input) {
-  width: 100%;
 }
 </style>
