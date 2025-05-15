@@ -195,7 +195,7 @@ const AuthService = {
       return { status: 200, message: "User updated successfully" };
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err: unknown) {
-      return { status: 500, message: "Error authenticating current user" };
+      return { status: 500, message: "Error authenticating current user", error: err as Error };
     }
   },
 

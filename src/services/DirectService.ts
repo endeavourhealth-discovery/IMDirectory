@@ -6,14 +6,12 @@ import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
 export default class DirectService {
-  private directoryStore;
-  private userStore;
-  private _message: string;
-  private router: Router;
-  private route: RouteLocationNormalizedLoaded;
+  private readonly directoryStore;
+  private readonly userStore;
+  private readonly _message: string;
+  private readonly router: Router;
 
   constructor() {
-    this.route = useRoute();
     this.router = useRouter();
     this.directoryStore = useDirectoryStore();
     this.userStore = useUserStore();
@@ -28,7 +26,7 @@ export default class DirectService {
       this.userStore.updateRecentLocalActivity({ iri: options.iri, dateTime: new Date(), action: options.action } as RecentActivityItem);
     }
     if (!options.newTab) {
-      if (options.iri) this.directoryStore.updateConceptIri(options.iri!);
+      if (options.iri) this.directoryStore.updateConceptIri(options.iri);
       this.router.push({
         path: "/" + pathUrl
       });

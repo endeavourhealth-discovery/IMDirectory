@@ -1,11 +1,8 @@
 import { Ref, ref } from "vue";
-import { FormGenerator } from "@/interfaces/AutoGen";
-
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { FormGenerator, PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { EditorMode } from "@/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@/vocabulary";
-import { PropertyShape } from "@/interfaces/AutoGen";
 import editorShapes from "@/constants/editorShapes";
 
 export function setupEditorShape() {
@@ -18,7 +15,9 @@ export function setupEditorShape() {
     types = types.filter(item => item["@id"] !== RDFS.CLASS);
     if (primaryType) {
       types.sort(function (x, y) {
-        return x["@id"] == primaryType["@id"] ? -1 : y["@id"] == primaryType["@id"] ? 1 : 0;
+        if (x["@id"] == primaryType["@id"]) return -1;
+        else if (y["@id"] == primaryType["@id"]) return 1;
+        else return 0;
       });
     }
     for (const type of types) {

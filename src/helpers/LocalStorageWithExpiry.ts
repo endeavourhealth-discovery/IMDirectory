@@ -17,6 +17,7 @@ const localStorageWithExpiry = {
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
+        console.log(`Error getting item from local storage: ${e}. Removing item wth key: ${key}.`);
         window.localStorage.removeItem(key);
       }
       return null;
