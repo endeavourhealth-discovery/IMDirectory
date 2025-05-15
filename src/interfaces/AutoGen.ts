@@ -1,6 +1,15 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-13 10:55:06.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-15 10:00:14.
+
+export interface ConceptContextMap {
+    id?: string;
+    node?: string;
+    value?: string;
+    regex?: string;
+    property?: string;
+    context?: Context[];
+}
 
 export interface DataModelProperty extends Serializable {
     property?: TTIriRef;
@@ -278,17 +287,17 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    valueParameter?: string;
     qualifier?: string;
-    unit?: TTIriRef;
-    operator?: Operator;
     valueLabel?: string;
+    unit?: TTIriRef;
+    valueParameter?: string;
+    operator?: Operator;
 }
 
 export interface BoolGroup<T> {
-    and?: T[];
-    not?: T[];
     or?: T[];
+    not?: T[];
+    and?: T[];
 }
 
 export interface Case {
@@ -321,10 +330,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -832,6 +841,14 @@ export interface WORKFLOW {
 export interface XSD {
 }
 
+export interface Context {
+    publisher?: string;
+    system?: string;
+    schema?: string;
+    table?: string;
+    field?: string;
+}
+
 /**
  * Class representing an IRI
  */
@@ -856,6 +873,7 @@ export interface TTEntity extends TTNode, Serializable {
     name?: string;
     type?: TTArray;
     scheme?: TTIriRef;
+    version?: number;
     description?: string;
     status?: TTIriRef;
     code?: string;
@@ -863,8 +881,8 @@ export interface TTEntity extends TTNode, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -887,14 +905,6 @@ export interface StackTraceElement extends Serializable {
 }
 
 export interface Exception extends Throwable {
-}
-
-export interface TTValue extends Serializable {
-}
-
-export interface TTArray extends Serializable {
-    elements?: TTValue[];
-    list?: boolean;
 }
 
 export interface TTPrefix {

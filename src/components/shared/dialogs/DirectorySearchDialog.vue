@@ -97,6 +97,7 @@ import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/
 import { RDFS } from "@/vocabulary";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions } from "@/interfaces";
+import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
   imQuery?: QueryRequest;

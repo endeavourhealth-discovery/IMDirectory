@@ -2,12 +2,12 @@
   <div v-if="loading" class="flex">
     <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
   </div>
-  <div class="ml-1 mt-1 flex flex-row items-center gap-2">
+  <div class="mt-1 ml-1 flex flex-row items-center gap-2">
     <InputText v-if="selectedProperty" v-model="selectedProperty.name" class="w-full md:w-56" disabled />
     <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
       <span class="self-center"> is </span>
       <InputGroup class="flex flex-row flex-nowrap">
-        <div class="border-1 border-border-surface flex flex-row rounded-sm border border-solid p-1">
+        <div class="border-border-surface flex flex-row rounded-sm border border-1 border-solid p-1">
           <div v-if="property.valueLabel">
             <Chip :label="property.valueLabel" />
           </div>
@@ -61,7 +61,6 @@ defineEmits<{
 
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
-const emit = defineEmits<{ deleteProperty: [] }>();
 const loading = ref(true);
 const property = defineModel<Where>("property", { default: {} });
 const dropdown = ref();
