@@ -75,7 +75,7 @@ const EntityService = {
     pageSize: number,
     filters?: FiltersAsIris,
     controller?: AbortController,
-    typeFilter?: string[] | undefined
+    typeFilter?: string[]
   ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: TTEntity[] }> {
     return axios.get(API_URL + "/public/childrenPaged", {
       params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(","), typeFilter: typeFilter?.join(",") },

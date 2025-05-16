@@ -37,7 +37,7 @@ export function bundleToText(
   return result;
 }
 
-function addDefaultPredicates(predicates?: GenericObject | undefined, defaults?: GenericObject | undefined) {
+function addDefaultPredicates(predicates?: GenericObject, defaults?: GenericObject) {
   if (!predicates || !isObjectHasKeys(predicates)) predicates = {};
   if (!defaults || !isObjectHasKeys(defaults)) return predicates;
   for (const [key, value] of Object.entries(defaults)) {
@@ -200,7 +200,7 @@ function processNodeArray(
   let result = "";
   if (value.length === 1 && isObjectHasKeys(value[0], ["@id"])) {
     result += getObjectName(key, iriMap, stringAdditions.pad, stringAdditions.prefix);
-    result += ttIriToString(appPath, value[0] as TTIriRef, "object", indent, stringAdditions.withHyperlinks, true, blockedUrlIris);
+    result += ttIriToString(appPath, value[0], "object", indent, stringAdditions.withHyperlinks, true, blockedUrlIris);
     result += stringAdditions.suffix;
   } else if ((value.length === 1 && typeof value[0] === "string") || typeof value[0] === "number") {
     result += getObjectName(key, iriMap, stringAdditions.pad, stringAdditions.prefix);

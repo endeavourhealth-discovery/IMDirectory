@@ -41,7 +41,7 @@ function setupIMQueryBuilderActions() {
     if (match["@id"] === id) {
       if (match.typeOf && match.typeOf?.["@id"]) typeOf.push(match.typeOf?.["@id"]);
       else if (parent && parent.typeOf && parent.typeOf?.["@id"]) typeOf.push(parent.typeOf?.["@id"]);
-      else if (parent && parent["@id"]) searchForTypeOfRecursively(fullQuery, parent!["@id"], undefined, typeOf, fullQuery);
+      else if (parent && parent["@id"]) searchForTypeOfRecursively(fullQuery, parent["@id"], undefined, typeOf, fullQuery);
     } else if (match.and) {
       for (const nestedMatch of match.and) {
         searchForTypeOfRecursively(nestedMatch, id, match, typeOf, fullQuery);

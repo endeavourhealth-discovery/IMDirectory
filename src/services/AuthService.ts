@@ -112,7 +112,7 @@ const AuthService = {
           return { status: 403, message: "Additional step required", nextStep: nextStep.signUpStep };
       }
     } catch (err: unknown) {
-      return { status: 403, message: "Failed register confirmation", error: err as string as string };
+      return { status: 403, message: "Failed register confirmation", error: err as string };
     }
   },
 

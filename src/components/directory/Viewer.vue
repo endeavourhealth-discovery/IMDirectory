@@ -204,7 +204,6 @@ function setDefaultTab() {
 }
 
 function setTabMap() {
-  // eslint-disable-next-line no-undef
   const tabList = document.getElementById("viewer-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
   if (tabList?.length) {
     for (let i = 0; i < tabList.length; i++) {
