@@ -343,21 +343,6 @@ function updateQueryForPropertySearch() {
     }
 }
 
-async function updateRanges() {
-  if (selectedProperty.value?.iri) {
-    const rangesQueryRequest: QueryRequest = {
-      query: { iri: QUERY.ALLOWABLE_RANGES },
-      argument: [{ parameter: "this", valueIri: { iri: selectedProperty.value?.iri } }]
-    } as QueryRequest;
-
-    const response = await QueryService.queryIM(rangesQueryRequest);
-    if (isArrayHasLength(response.entities))
-      for (const range of response.entities) {
-        propertyRanges.value.add(range["@id"]);
-      }
-  }
-}
-
 async function updatePropertyTreeRoots(): Promise<void> {
   let roots = ["http://snomed.info/sct#410662002"];
   if (props.focus) {
