@@ -1,27 +1,23 @@
 import { Ref, ref } from "vue";
-import { FormGenerator } from "@/interfaces/AutoGen";
-
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { FormGenerator, PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { EditorMode } from "@/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@/vocabulary";
-import { useRoute, useRouter } from "vue-router";
-import { PropertyShape } from "@/interfaces/AutoGen";
 import editorShapes from "@/constants/editorShapes";
 
 export function setupEditorShape() {
-  const router = useRouter();
-  const route = useRoute();
-  let shape: Ref<FormGenerator | undefined> = ref();
-  let targetShape: Ref<TTIriRef | undefined> = ref();
-  let groups: Ref<PropertyShape[]> = ref([]);
+  const shape: Ref<FormGenerator | undefined> = ref();
+  const targetShape: Ref<TTIriRef | undefined> = ref();
+  const groups: Ref<PropertyShape[]> = ref([]);
 
   function getShapesCombined(types: TTIriRef[], primaryType?: TTIriRef) {
     let shapeCombined: FormGenerator = {} as FormGenerator;
     types = types.filter(item => item["@id"] !== RDFS.CLASS);
     if (primaryType) {
       types.sort(function (x, y) {
-        return x["@id"] == primaryType["@id"] ? -1 : y["@id"] == primaryType["@id"] ? 1 : 0;
+        if (x["@id"] == primaryType["@id"]) return -1;
+        else if (y["@id"] == primaryType["@id"]) return 1;
+        else return 0;
       });
     }
     for (const type of types) {
@@ -72,12 +68,6 @@ export function setupEditorShape() {
       targetShape.value = shape.targetShape;
       groups.value = shape.property;
     }
-  }
-
-  function removeUrlSubroute(url: string) {
-    const splitString = url.split("/");
-    if (splitString.length >= 3) return splitString[0] + "/" + splitString[1] + "/" + splitString[2];
-    else return url;
   }
 
   return {

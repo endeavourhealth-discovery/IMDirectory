@@ -1,8 +1,9 @@
 import Env from "./Env";
-import { AllowableChildProperty, QueryResponse } from "@/interfaces";
+import { QueryResponse } from "@/interfaces";
 import axios from "axios";
 import { DBEntry, DisplayMode, Match, PathQuery, Query, QueryExecutorStatus, QueryRequest, RequeueQueryRequest, SearchResponse } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/query";
 
 const QueryService = {
@@ -51,7 +52,7 @@ const QueryService = {
     return (
       isObjectHasKeys(queryResponse, ["entities"]) &&
       isArrayHasLength(queryResponse.entities) &&
-      queryResponse.entities.some((entity: any) => entity["@id"] === selectedIri)
+      queryResponse.entities.some((entity: TTEntity) => entity["@id"] === selectedIri)
     );
   },
 

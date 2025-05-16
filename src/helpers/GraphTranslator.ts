@@ -1,7 +1,9 @@
 import { TTIriRef } from "../interfaces/AutoGen";
-import { TTBundle, TTGraphData } from "../interfaces";
+import { TTGraphData, TTProperty } from "../interfaces";
 import { IM, OWL, RDFS, SHACL, SNOMED, XSD } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { TTBundle, TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
   const { entity, predicates } = bundle;
@@ -17,7 +19,7 @@ export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: 
   return firstNode;
 }
 
-function getPropertyIri(nested: any): string {
+function getPropertyIri(nested: TTProperty): string {
   if (isObjectHasKeys(nested, [SHACL.CLASS])) {
     return nested[SHACL.CLASS][0]["@id"];
   }
@@ -34,21 +36,21 @@ function getPropertyIri(nested: any): string {
   return "undefined";
 }
 
-function getPropertyName(nested: any): string {
+function getPropertyName(nested: TTProperty): string {
   if (isObjectHasKeys(nested, [SHACL.CLASS])) {
-    return nested[SHACL.CLASS][0].name || getNameFromIri(nested[SHACL.CLASS][0]["@id"]);
+    return nested[SHACL.CLASS][0].name ?? getNameFromIri(nested[SHACL.CLASS][0]["@id"]);
   }
 
   if (isObjectHasKeys(nested, [SHACL.NODE])) {
-    return nested[SHACL.NODE][0].name || getNameFromIri(nested[SHACL.NODE][0]["@id"]);
+    return nested[SHACL.NODE][0].name ?? getNameFromIri(nested[SHACL.NODE][0]["@id"]);
   }
 
   if (isObjectHasKeys(nested, [OWL.CLASS])) {
-    return nested[OWL.CLASS][0].name || getNameFromIri(nested[OWL.CLASS][0]["@id"]);
+    return nested[OWL.CLASS][0].name ?? getNameFromIri(nested[OWL.CLASS][0]["@id"]);
   }
 
   if (isObjectHasKeys(nested, [SHACL.DATATYPE])) {
-    return nested[SHACL.DATATYPE][0].name || getNameFromIri(nested[SHACL.DATATYPE][0]["@id"]);
+    return nested[SHACL.DATATYPE][0].name ?? getNameFromIri(nested[SHACL.DATATYPE][0]["@id"]);
   }
 
   return "undefined";
@@ -63,8 +65,8 @@ function getNameFromIri(iri: string): string {
   return "undefined";
 }
 
-function addMaps(firstNode: TTGraphData, entity: any, key: string) {
-  let preNode = {
+function addMaps(firstNode: TTGraphData, entity: TTEntity, key: string) {
+  const preNode = {
     name: "middle-node-" + key,
     iri: "",
     relToParent: "mapped to",
@@ -74,17 +76,7 @@ function addMaps(firstNode: TTGraphData, entity: any, key: string) {
   entity[key].forEach((nested: any) => {
     Object.keys(nested).forEach(predicate => {
       nested[predicate].forEach((element: any) => {
-        if (isObjectHasKeys(element, [IM.MAPPED_TO])) {
-          element[IM.MAPPED_TO].forEach((mappedTo: any) => {
-            preNode.children.push({
-              name: mappedTo.name,
-              iri: mappedTo["@id"],
-              relToParent: mappedTo.name,
-              children: [],
-              _children: []
-            });
-          });
-        }
+        addMap(element, preNode);
       });
     });
   });
@@ -100,10 +92,24 @@ function addMaps(firstNode: TTGraphData, entity: any, key: string) {
   }
 }
 
-function addProperties(firstNode: TTGraphData, entity: any, key: string) {
+function addMap(element: any, preNode: TTGraphData) {
+  if (isObjectHasKeys(element, [IM.MAPPED_TO])) {
+    element[IM.MAPPED_TO].forEach((mappedTo: any) => {
+      preNode.children.push({
+        name: mappedTo.name,
+        iri: mappedTo["@id"],
+        relToParent: mappedTo.name,
+        children: [],
+        _children: []
+      });
+    });
+  }
+}
+
+function addProperties(firstNode: TTGraphData, entity: TTEntity, key: string) {
   if (isObjectHasKeys(entity[key][0], [SHACL.GROUP])) {
     entity[key].forEach((nested: any) => {
-      if (nested[SHACL.GROUP] && nested[SHACL.GROUP].length) {
+      if (nested[SHACL.GROUP]?.length) {
         const groupRef: TTIriRef = nested[SHACL.GROUP][0];
         let groupNode = firstNode.children.find(child => child.iri === groupRef["@id"]);
         if (!groupNode) {
@@ -126,10 +132,10 @@ function addProperties(firstNode: TTGraphData, entity: any, key: string) {
   }
 }
 
-function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: any) {
+function addRoles(firstNode: TTGraphData, entity: TTEntity, key: string, predicates: GenericObject) {
   entity[key].forEach((nested: any) => {
     const groupID = nested[IM.GROUP_NUMBER];
-    let preNode = {
+    const preNode = {
       name: "middle-node-" + groupID,
       iri: "",
       relToParent: "Group Number " + groupID,
@@ -139,7 +145,7 @@ function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: 
     Object.keys(nested).forEach(predicate => {
       if (predicate !== IM.GROUP_NUMBER && isArrayHasLength(nested[predicate])) {
         nested[predicate].forEach((role: any) => {
-          addChild(preNode, role.name, role["@id"], predicates[predicate] || predicate);
+          addChild(preNode, role.name, role["@id"], predicates[predicate] ?? predicate);
         });
       }
     });
@@ -149,8 +155,8 @@ function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: 
   });
 }
 
-function addArray(firstNode: TTGraphData, entity: any, key: string, predicates: any) {
-  let preNode = {
+function addArray(firstNode: TTGraphData, entity: TTEntity, key: string, predicates: GenericObject) {
+  const preNode = {
     name: "middle-node-" + key,
     iri: "",
     relToParent: predicates[key],
@@ -161,20 +167,18 @@ function addArray(firstNode: TTGraphData, entity: any, key: string, predicates: 
     if (entity[key].length > 1) {
       if (isObjectHasKeys(nested)) {
         addChild(
-            preNode,
-            nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"]),
-            nested["@id"],
-            nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"])
+          preNode,
+          nested[RDFS.LABEL] ?? nested.name ?? getNameFromIri(nested["@id"]),
+          nested["@id"],
+          nested[RDFS.LABEL] ?? nested.name ?? getNameFromIri(nested["@id"])
         );
       } else {
         addChild(preNode, nested, "", nested);
       }
+    } else if (isObjectHasKeys(nested)) {
+      addChild(firstNode, nested[RDFS.LABEL] ?? nested.name ?? getNameFromIri(nested["@id"]), nested["@id"], predicates[key]);
     } else {
-      if (isObjectHasKeys(nested)) {
-        addChild(firstNode, nested[RDFS.LABEL] || nested.name || getNameFromIri(nested["@id"]), nested["@id"], predicates[key]);
-      } else {
-        addChild(firstNode, nested, "", nested);
-      }
+      addChild(firstNode, nested, "", nested);
     }
   });
   if (entity[key].length > 1 && !firstNode.children.some((c: any) => c.relToParent === preNode.relToParent)) {
@@ -194,7 +198,7 @@ function addChild(parent: any, name: string, iri: string, relToParent: string) {
   }
 }
 
-function addNodes(entity: any, keys: string[], firstNode: TTGraphData, predicates: any): void {
+function addNodes(entity: TTEntity, keys: string[], firstNode: TTGraphData, predicates: any): void {
   if (isObjectHasKeys(entity)) {
     keys.forEach(key => {
       if (isArrayHasLength(entity[key])) {
@@ -213,7 +217,7 @@ function addNodes(entity: any, keys: string[], firstNode: TTGraphData, predicate
             break;
         }
       } else {
-        addChild(firstNode, entity[key].name || entity[key], entity[key]["@id"], predicates[key] || getNameFromIri(key));
+        addChild(firstNode, entity[key].name ?? entity[key], entity[key]["@id"], predicates[key] ?? getNameFromIri(key));
       }
     });
   }

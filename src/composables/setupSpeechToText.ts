@@ -10,12 +10,12 @@ function setupSpeechToText(searchText: Ref<string>, searchPlaceholder: Ref<strin
   });
 
   function init() {
-    const speechEngine = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const speechEngine = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
     if (speechEngine) {
       recog = new speechEngine();
       recog.interimResults = true;
       recog.addEventListener("result", (ev: any) => {
-        if (ev && ev.results && ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) {
+        if (ev?.results?.[0]?.[0]?.transcript) {
           const t = Array.from(ev.results)
             .map((r: any) => r[0])
             .map((r: any) => r.transcript)

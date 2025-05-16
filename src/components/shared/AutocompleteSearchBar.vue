@@ -78,7 +78,7 @@ import { FilterOptions } from "@/interfaces";
 import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep, debounce, isEqual } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import { EntityService, QueryService } from "@/services";
 
@@ -96,11 +96,11 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowBrowserAutocomplete: false });
 
-const emit = defineEmits({
-  "update:selected": (_payload: SearchResultSummary | undefined) => true,
-  openDialog: () => true,
-  updateSelectedFilters: (_payload: FilterOptions) => true
-});
+const emit = defineEmits<{
+  "update:selected": [payload: SearchResultSummary | undefined];
+  openDialog: [];
+  updateSelectedFilters: [payload: FilterOptions];
+}>();
 
 const resultsOP = ref();
 const searchText = ref("");
@@ -109,10 +109,11 @@ const showDialog = ref(false);
 const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
 const searchLoading: Ref<boolean> = ref(false);
 const searchPlaceholder: Ref<string> = ref(props.searchPlaceholder ?? "Search");
-const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
+const { listening, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const selectedIndex: Ref<number> = ref(-1);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
-const debounce = ref(0);
+
+let searchDebounce: any;
 
 watch(showDialog, () => {
   if (showDialog.value) emit("openDialog");
@@ -159,16 +160,21 @@ onMounted(async () => {
   searchLoading.value = false;
 });
 
-function debounceForSearch(event: any): void {
+function debounceForSearch(event: Event): void {
   if (!searchText.value) {
     selectedLocal.value = undefined;
   } else if (!searchLoading.value && searchText.value != props.selected?.name) {
-    clearTimeout(debounce.value);
-    debounce.value = window.setTimeout(async () => {
-      results.value = await search();
+    if (searchDebounce) searchDebounce.cancel();
+    searchDebounce = debounce(async () => {
+      await doSearch(event);
     }, 600);
-    showResultsOverlay(event);
+    searchDebounce();
   }
+}
+
+async function doSearch(event: any) {
+  results.value = await search();
+  await showResultsOverlay(event);
 }
 
 function select(event: KeyboardEvent) {
@@ -188,7 +194,7 @@ function select(event: KeyboardEvent) {
     }
 }
 
-async function onEnter(event: any) {
+async function onEnter(event: KeyboardEvent) {
   if (resultsOP.value) resultsOP.value.show(event);
   if (searchText.value) {
     results.value = await search();
@@ -208,7 +214,7 @@ async function search() {
 }
 
 async function showResultsOverlay(event: any) {
-  if (resultsOP.value) resultsOP.value.show(event);
+  if (resultsOP.value) resultsOP.value.show(event, event.target);
 }
 
 function hideResultsOverlay() {
@@ -223,10 +229,6 @@ function onListboxOptionClick(selected: SearchResultSummary) {
 </script>
 
 <style scoped>
-#filter-button {
-  height: 2.25rem;
-}
-
 .search-container {
   flex: 1 0 auto;
   padding: 0 0.2rem;
@@ -238,20 +240,8 @@ function onListboxOptionClick(selected: SearchResultSummary) {
   overflow: auto;
 }
 
-.search-group {
-  flex: 1 1 auto;
-}
-
 .mic {
   cursor: pointer;
-}
-
-.advanced-button {
-  width: 12%;
-}
-
-.listening {
-  color: red !important;
 }
 
 #autocomplete-search {
@@ -268,14 +258,6 @@ function onListboxOptionClick(selected: SearchResultSummary) {
   width: 100%;
 }
 
-.fa-icon {
-  padding-right: 0.25rem;
-}
-
-.search-button {
-  height: 2.25rem;
-}
-
 .results-container {
   display: flex;
   flex-flow: column nowrap;
@@ -285,13 +267,8 @@ function onListboxOptionClick(selected: SearchResultSummary) {
 .advanced-search-container {
   display: flex;
   flex-flow: row;
-  justify-content: center;
   align-items: baseline;
   justify-content: space-between;
-}
-
-.advanced-search-button {
-  width: fit-content;
 }
 
 .loading-container {

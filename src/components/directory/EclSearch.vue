@@ -65,8 +65,8 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
-import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
-import { EclSearchRequest, TTIriRef, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
+import Builder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
+import { EclSearchRequest, TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { EclService } from "@/services";
 import { byName } from "@/helpers/Sorters";
@@ -74,11 +74,12 @@ import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { GenericObject } from "@/interfaces/GenericObject";
 
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  selectedUpdated: (_payload: SearchResultSummary) => true
-});
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  selectedUpdated: [payload: SearchResultSummary];
+}>();
 
 const filterStore = useFilterStore();
 const editorStore = useEditorStore();
@@ -92,7 +93,7 @@ const eclErrorMessage = ref("");
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
 const eclQuery: Ref<EclSearchRequest | undefined> = ref();
-const keysPressed = {} as any;
+const keysPressed: GenericObject = {};
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
 
@@ -110,12 +111,12 @@ onMounted(() => {
   if (savedEcl.value) eclQueryString.value = savedEcl.value;
 });
 
-async function onKeyDown(event: any) {
+async function onKeyDown(event: KeyboardEvent) {
   keysPressed[event.key] = true;
   if (keysPressed["Control"] && keysPressed["Enter"] && eclQueryString.value.length && !eclError.value) await onSearch();
 }
 
-function onKeyUp(event: any) {
+function onKeyUp(event: KeyboardEvent) {
   delete keysPressed[event.key];
 }
 
@@ -147,7 +148,7 @@ async function onSearch(): Promise<void> {
 }
 
 function setFilterDefaults() {
-  selectedStatus.value = statusOptions.value.filter((option: any) => option["@id"] === IM.ACTIVE);
+  selectedStatus.value = statusOptions.value.filter(option => option["@id"] === IM.ACTIVE);
 }
 </script>
 
@@ -161,33 +162,11 @@ function setFilterDefaults() {
   align-items: center;
 }
 
-#query-builder-container {
-  width: 100%;
-  flex-grow: 100;
-  overflow: auto;
-}
-
-#query-build {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-  margin: 0 0 1rem 0;
-}
-
-#next-option-container {
-  width: 100%;
-  display: flex;
-  flex-flow: row;
-  justify-content: center;
-}
-
 #query-string-container {
   width: 100%;
   height: 10rem;
   overflow: auto;
-  flex-grow: 100;
+  grow: 100;
 }
 
 .info {
@@ -206,11 +185,6 @@ function setFilterDefaults() {
   width: 100%;
   flex: 0 1 auto;
   overflow: auto;
-}
-
-.result-summary {
-  width: 100%;
-  padding-left: 8px;
 }
 
 .error-message {

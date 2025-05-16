@@ -12,121 +12,123 @@
         @mouseover="mouseover($event, true)"
       >
         <table data-testid="property-builder">
-          <template v-for="(row, index) in dmProperties">
-            <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
-                <AutocompleteSearchBar
-                  v-model:selected="row.path"
-                  :class="row.error === 'Property must have a path' && invalid && showValidation ? 'error-message-container-highlight' : ''"
-                  :im-query="pSuggestions"
-                  :root-entities="['http://endhealth.info/im#Properties']"
-                  :search-placeholder="'Select property'"
-                  class="search-bar"
-                  data-testid="property-autocomplete"
-                />
-                <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
-              </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
-                <AutocompleteSearchBar
-                  v-model:selected="row.range"
-                  :class="row.error === 'Property must have a range' && invalid && showValidation ? 'error-message-container-highlight' : ''"
-                  :im-query="rSuggestions"
-                  :search-placeholder="'Select range'"
-                  data-testid="range-autocomplete"
-                />
-                <div v-if="invalid && showValidation && row.error" class="error-message-text opacity-0">{{ row.error }}</div>
-              </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="row-buttons">
-                <span>
-                  <ToggleButton
-                    v-model="row.required"
-                    class="toggle-button"
-                    offIcon="fa-solid fa-xmark"
-                    offLabel="Required"
-                    onIcon="fa-solid fa-check"
-                    onLabel="Required"
+          <tbody>
+            <template v-for="(row, index) in dmProperties" v-bind:key="index">
+              <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
+                  <AutocompleteSearchBar
+                    v-model:selected="row.path"
+                    :class="row.error === 'Property must have a path' && invalid && showValidation ? 'error-message-container-highlight' : ''"
+                    :im-query="pSuggestions"
+                    :root-entities="['http://endhealth.info/im#Properties']"
+                    :search-placeholder="'Select property'"
+                    class="search-bar"
+                    data-testid="property-autocomplete"
                   />
-                  <ToggleButton
-                    v-model="row.unique"
-                    class="toggle-button"
-                    offIcon="fa-solid fa-xmark"
-                    offLabel="Unique"
-                    onIcon="fa-solid fa-check"
-                    onLabel="Unique"
+                  <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
+                </td>
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
+                  <AutocompleteSearchBar
+                    v-model:selected="row.range"
+                    :class="row.error === 'Property must have a range' && invalid && showValidation ? 'error-message-container-highlight' : ''"
+                    :im-query="rSuggestions"
+                    :search-placeholder="'Select range'"
+                    data-testid="range-autocomplete"
                   />
-                  <Button
-                    :disabled="index == 0 || dmProperties[index - 1].inherited != undefined"
-                    class="p-button-rounded p-button-text"
-                    icon="fa-solid fa-chevron-up"
-                    @click="moveUp(index)"
-                  />
-                  <Button
-                    :disabled="index == dmProperties.length - 1"
-                    class="p-button-rounded p-button-text"
-                    icon="fa-solid fa-chevron-down"
-                    @click="moveDown(index)"
-                  />
-                  <Button
-                    class="p-button-danger"
-                    icon="fa-solid fa-trash"
-                    severity="danger"
-                    @click="deleteProperty(index, row)"
-                    data-testid="delete-property-button"
-                  />
-                </span>
-              </td>
+                  <div v-if="invalid && showValidation && row.error" class="error-message-text opacity-0">{{ row.error }}</div>
+                </td>
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="row-buttons">
+                  <span>
+                    <ToggleButton
+                      v-model="row.required"
+                      class="toggle-button"
+                      offIcon="fa-solid fa-xmark"
+                      offLabel="Required"
+                      onIcon="fa-solid fa-check"
+                      onLabel="Required"
+                    />
+                    <ToggleButton
+                      v-model="row.unique"
+                      class="toggle-button"
+                      offIcon="fa-solid fa-xmark"
+                      offLabel="Unique"
+                      onIcon="fa-solid fa-check"
+                      onLabel="Unique"
+                    />
+                    <Button
+                      :disabled="index == 0 || dmProperties[index - 1].inherited != undefined"
+                      class="p-button-rounded p-button-text"
+                      icon="fa-solid fa-chevron-up"
+                      @click="moveUp(index)"
+                    />
+                    <Button
+                      :disabled="index == dmProperties.length - 1"
+                      class="p-button-rounded p-button-text"
+                      icon="fa-solid fa-chevron-down"
+                      @click="moveDown(index)"
+                    />
+                    <Button
+                      class="p-button-danger"
+                      icon="fa-solid fa-trash"
+                      severity="danger"
+                      @click="deleteProperty(index)"
+                      data-testid="delete-property-button"
+                    />
+                  </span>
+                </td>
+              </tr>
+            </template>
+            <tr class="button-group">
+              <Button
+                :class="!hover && 'hover-button'"
+                :outlined="!hover"
+                :severity="hover ? 'success' : 'secondary'"
+                class="builder-button"
+                icon="fa-solid fa-plus"
+                label="Add property"
+                @click="addProperty"
+                data-testid="add-property-button"
+              />
+              <Button
+                :class="!hover && 'hover-button'"
+                :outlined="!hover"
+                :severity="hover ? 'primary' : 'secondary'"
+                class="builder-button"
+                icon="fa-solid fa-pencil"
+                label="Create new"
+                @click="directService.create()"
+                data-testid="create-new-property-button"
+              />
             </tr>
-          </template>
-          <tr class="button-group">
-            <Button
-              :class="!hover && 'hover-button'"
-              :outlined="!hover"
-              :severity="hover ? 'success' : 'secondary'"
-              class="builder-button"
-              icon="fa-solid fa-plus"
-              label="Add property"
-              @click="addProperty"
-              data-testid="add-property-button"
-            />
-            <Button
-              :class="!hover && 'hover-button'"
-              :outlined="!hover"
-              :severity="hover ? 'primary' : 'secondary'"
-              class="builder-button"
-              icon="fa-solid fa-pencil"
-              label="Create new"
-              @click="directService.create()"
-              data-testid="create-new-property-button"
-            />
-          </tr>
-          <template v-for="(row, index) in dmPropertiesInherited" class="property">
-            <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
-                <AutocompleteSearchBar
-                  v-model:selected="row.path"
-                  :disabled="true"
-                  :imQuery="pSuggestions"
-                  :root-entities="['http://endhealth.info/im#Properties']"
-                  class="search-bar"
-                  data-testid="property-path-search"
-                />
-                <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
-              </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
-                <AutocompleteSearchBar v-model:selected="row.range" :disabled="true" data-testid="property-range-search" />
-              </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-nw items-center">
-                <tag
-                  v-if="row.inherited && row.inherited.length > 0"
-                  @click="directService.view(row.inherited[0]['@id'])"
-                  severity="info"
-                  v-tooltip.top="getInheritedTooltipName(row.inherited)"
-                  class="cursor-pointer align-middle"
-                  ><span>(Inherited <IMFontAwesomeIcon icon="fa-duotone fa-arrow-up-right-from-square" /> )</span></tag
-                >
-              </td>
-            </tr>
-          </template>
+            <template v-for="(row, index) in dmPropertiesInherited" v-bind:key="index">
+              <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
+                  <AutocompleteSearchBar
+                    v-model:selected="row.path"
+                    :disabled="true"
+                    :imQuery="pSuggestions"
+                    :root-entities="['http://endhealth.info/im#Properties']"
+                    class="search-bar"
+                    data-testid="property-path-search"
+                  />
+                  <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
+                </td>
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
+                  <AutocompleteSearchBar v-model:selected="row.range" :disabled="true" data-testid="property-range-search" />
+                </td>
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-nw items-center">
+                  <tag
+                    v-if="row.inherited && row.inherited.length > 0"
+                    @click="directService.view(row.inherited[0]['@id'])"
+                    severity="info"
+                    v-tooltip.top="getInheritedTooltipName(row.inherited)"
+                    class="cursor-pointer align-middle"
+                    ><span>(Inherited <IMFontAwesomeIcon icon="fa-duotone fa-arrow-up-right-from-square" /> )</span></tag
+                  >
+                </td>
+              </tr>
+            </template>
+          </tbody>
         </table>
       </div>
       <span v-if="invalid && showValidation" class="error-message-text">{{ validationErrorMessage }}</span>
@@ -135,19 +137,18 @@
 </template>
 
 <script lang="ts" setup>
-import { Property, RecentActivityItem, SearchOptions } from "@/interfaces";
+import { Property } from "@/interfaces";
 import { PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
-import { EditorMode, ToastSeverity } from "@/enums";
+import { EditorMode } from "@/enums";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL, SNOMED, XSD } from "@/vocabulary";
-import { DirectService, EntityService, QueryService } from "@/services";
-import { useToast } from "primevue/usetoast";
+import { DirectService, EntityService } from "@/services";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   shape: PropertyShape;
@@ -166,18 +167,16 @@ interface SimpleProp {
   error: string | undefined;
 }
 
-const toast = useToast();
 const props = defineProps<Props>();
 const directService = new DirectService();
 
 const showValidation = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
-const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -267,9 +266,9 @@ onMounted(async () => {
   loading.value = false;
 });
 
-const hover = ref();
+const hover: Ref<boolean | SimpleProp | undefined> = ref();
 
-function mouseover(event: Event, row: any) {
+function mouseover(event: Event, row: boolean | SimpleProp) {
   event.stopPropagation();
   hover.value = row;
 }
@@ -280,9 +279,8 @@ function mouseout(event: Event) {
 }
 
 function processProps() {
-  const newData: any[] = [];
-  const newInheritedData: any[] = [];
-  const newSearchData: any[] = [];
+  const newData: SimpleProp[] = [];
+  const newInheritedData: SimpleProp[] = [];
   if (props.value && isArrayHasLength(props.value)) {
     for (const p of props.value) {
       processProperty(newData, newInheritedData, p);
@@ -296,7 +294,7 @@ function getInheritedTooltipName(inherited: TTIriRef[]) {
   return inherited.length ? inherited[0].name : "";
 }
 
-function processProperty(newData: any[], newInheritedData: any[], property: any) {
+function processProperty(newData: SimpleProp[], newInheritedData: SimpleProp[], property: Property) {
   let rangeType;
   if (property[SHACL.DATATYPE]) {
     rangeType = SHACL.DATATYPE;
@@ -353,7 +351,7 @@ function processProperty(newData: any[], newInheritedData: any[], property: any)
   } else newData.push(row);
 }
 
-function propertyError(row: any) {
+function propertyError(row: SimpleProp) {
   if (!row?.path?.iri) {
     return "Property must have a path";
   } else if (!row?.range?.iri) {
@@ -389,7 +387,7 @@ function addProperty() {
   update();
 }
 
-function deleteProperty(index: number, row: any) {
+function deleteProperty(index: number) {
   if (index >= 0 && index < dmProperties.value.length) {
     const newData = [];
     newData.push(...dmProperties.value);
@@ -426,64 +424,6 @@ function moveDown(index: number) {
   }
 }
 
-// Path functions
-
-async function pathDrop(object: any, event: DragEvent) {
-  if (event.dataTransfer) {
-    const data = event.dataTransfer.getData("conceptIri");
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidPath(conceptIri)) {
-      object.path = { "@id": conceptIri, name: conceptName } as TTIriRef;
-      await update();
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set path",
-        detail: "'" + conceptName + "' is not a valid property path",
-        life: 3000
-      });
-    }
-  }
-}
-
-async function isValidPath(iri: string): Promise<boolean> {
-  const filterOptions: SearchOptions = {
-    textSearch: iri,
-    isA: [{ "@id": RDF.PROPERTY }],
-    page: { pageNumber: 1, pageSize: 1 }
-  } as SearchOptions;
-  const imQuery = buildIMQueryFromFilters(filterOptions);
-  const results = await QueryService.queryIMSearch(imQuery);
-
-  if (results.entities) return results.entities.length > 0;
-  return false;
-}
-
-// Range functions
-
-async function rangeDrop(object: any, event: DragEvent) {
-  if (event.dataTransfer) {
-    const data = event.dataTransfer.getData("conceptIri");
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidRange(conceptIri)) {
-      object.range = { "@id": conceptIri, name: conceptName } as TTIriRef;
-      object.rangeType = await getRangeType(conceptIri);
-      await update();
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set range",
-        detail: "'" + conceptName + "' is not a valid property range",
-        life: 3000
-      });
-    }
-  }
-}
-
 async function getRangeType(iri: string) {
   const partial = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
   const types: TTIriRef[] = partial?.[RDF.TYPE];
@@ -493,19 +433,6 @@ async function getRangeType(iri: string) {
     else if (types.some(t => t["@id"] == RDFS.DATATYPE)) return SHACL.DATATYPE;
     else return SHACL.NODE;
   }
-}
-
-async function isValidRange(iri: string): Promise<boolean> {
-  const filterOptions: SearchOptions = {
-    textSearch: iri,
-    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
-    page: { pageNumber: 1, pageSize: 1 }
-  } as SearchOptions;
-  const imQuery = buildIMQueryFromFilters(filterOptions);
-  const results = await QueryService.queryIMSearch(imQuery);
-
-  if (results.entities) return results.entities.length > 0;
-  return false;
 }
 
 // Update/validation
@@ -521,10 +448,10 @@ async function validateEntity() {
 
 function updateEntity() {
   if (entityUpdate) {
-    const deltas: any[] = [];
+    const deltas: TTEntity[] = [];
     const dmAllProperties = dmProperties.value.concat(dmPropertiesInherited.value);
     dmAllProperties.forEach((value, index) => {
-      const p: any = {};
+      const p: TTEntity = {};
       let fullPath = {} as TTIriRef;
       let fullRange = {} as TTIriRef;
 
@@ -539,7 +466,7 @@ function updateEntity() {
       p[IM.INHERITED_FROM] = value.inherited;
       deltas.push(p);
     });
-    const update: any = {};
+    const update: TTEntity = {};
     update[key] = deltas;
 
     entityUpdate(update);
@@ -626,7 +553,7 @@ function updateEntity() {
   border-style: solid none solid none;
   padding: 0.5rem;
   margin: 0;
-  flex-grow: 1;
+  grow: 1;
   display: flex;
   flex-direction: column;
 }
@@ -637,7 +564,7 @@ function updateEntity() {
   border-style: solid none solid none;
   padding: 0.5rem;
   margin: 0;
-  flex-grow: 1;
+  grow: 1;
   display: flex;
   flex-direction: column;
 }

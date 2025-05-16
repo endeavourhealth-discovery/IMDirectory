@@ -1,6 +1,5 @@
 import ChartRescale from "./ChartRescale";
 import ConceptTypeMethods from "./ConceptTypeMethods";
-import CopyConceptToClipboard from "./CopyConceptToClipboard";
 import DataTypeCheckers from "./DataTypeCheckers";
 import ContainerDimensionGetters from "./ContainerDimensionGetters";
 import GraphTranslator from "./GraphTranslator";
@@ -19,13 +18,11 @@ import { timeNow } from "./Datetime/TimeNow";
 import { timeNow12Hr } from "./Datetime/TimeNow12Hr";
 import { getKey, getParentNode } from "./TreeHelper";
 import { deferred } from "./Deferred";
-import { generateCode } from "./CodeGenerator";
 
 export {
   ChartRescale,
   ConceptTypeMethods,
   Converters,
-  CopyConceptToClipboard,
   DataTypeCheckers,
   ContainerDimensionGetters,
   EditorMethods,
@@ -43,6 +40,5 @@ export {
   timeNow12Hr,
   getKey,
   getParentNode,
-  deferred,
-  generateCode
+  deferred
 };

@@ -40,9 +40,9 @@ const props = withDefaults(defineProps<Props>(), {
   html: false
 });
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const vLinkMenu = ref();
 const items = ref([
@@ -56,7 +56,7 @@ const items = ref([
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
 
-function onNodeContext(event: any) {
+function onNodeContext(event: MouseEvent) {
   vLinkMenu.value.show(event);
 }
 

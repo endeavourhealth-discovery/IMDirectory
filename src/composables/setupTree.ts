@@ -1,8 +1,7 @@
 import { DirectService, EntityService } from "@/services";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { EntityReferenceNode } from "@/interfaces";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { TTEntity, TTIriRef } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { computed, ref, Ref } from "vue";
@@ -24,10 +23,10 @@ function setupTree(emit?: any, customPageSize?: number) {
   const directService = new DirectService();
 
   function createTreeNode(
-    conceptName: string,
+    conceptName: string | undefined,
     conceptIri: string,
     conceptTypes: TTIriRef[],
-    hasChildren: boolean,
+    hasChildren: boolean | undefined,
     parent: TreeNode | null,
     order?: number
   ): TreeNode {
@@ -76,15 +75,22 @@ function setupTree(emit?: any, customPageSize?: number) {
     if (!(node.data === "loadMore" || node.data === IM.FAVOURITES)) directService.view(node.key);
   }
 
-  function customOnClick(event: MouseEvent, node: TreeNode, useEmits?: boolean) {
+  function customOnClick(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
     if (useEmits) {
       if (!emit) throw new Error("setupTree requires vue emits for custom clicks");
       if (checkForControlClick(event)) emit("rowControlClicked", node.data);
       else emit("rowClicked", node.data);
+    } else if (checkForControlClick(event)) {
+      directService.view(node.data);
+    } else if (updateSelectedKeys) {
+      selectedKeys.value = {};
+      selectedKeys.value[node.data] = true;
+      directService.select(node.data);
     } else {
-      if (checkForControlClick(event)) directService.view(node.data);
-      else directService.select(node.data);
+      directService.select(node.data);
     }
+
+    console.log(selectedKeys.value);
   }
 
   function checkForControlClick(event: MouseEvent): boolean {
@@ -97,7 +103,8 @@ function setupTree(emit?: any, customPageSize?: number) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
       children.result.forEach(child => {
-        if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+        if (!nodeHasChild(node.parentNode, child))
+          node.parentNode.children.push(createTreeNode(child.name, child["@id"] as string, child.type as TTIriRef[], child.hasChildren, node));
       });
       node.nextPage = node.nextPage + 1;
       node.parentNode.children.push(createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
@@ -114,32 +121,40 @@ function setupTree(emit?: any, customPageSize?: number) {
     node.loading = false;
   }
 
-  async function onNodeExpand(node: any, typeFilter?: string[] | undefined) {
+  async function onNodeExpand(node: any, typeFilter?: string[]) {
     if (!node.data) return;
     if (isObjectHasKeys(node)) {
       node.loading = true;
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       if (!expandedData.value.find(x => x.key === node.key)) expandedData.value.push(node);
       if (node.data === IM.FAVOURITES && node.children.length < favourites.value.length) {
-        for (const fav of favourites.value) {
-          const favChild = await EntityService.getEntityAsEntityReferenceNode(fav);
-          if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type, false, node));
-        }
+        await expandFavouriteNode(node);
       } else {
-        const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value, undefined, undefined, typeFilter);
-        children.result.forEach((child: any) => {
-          if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
-        });
-        if (
-          node.children.length > 0 &&
-          children.totalCount >= pageSize.value &&
-          node.children.length !== children.totalCount &&
-          node.children[node.children.length - 1].data !== "loadMore"
-        ) {
-          node.children.push(createLoadMoreNode(node, 2, children.totalCount));
-        }
+        await expandNode(node, typeFilter);
       }
       node.loading = false;
+    }
+  }
+
+  async function expandFavouriteNode(node: any) {
+    for (const fav of favourites.value) {
+      const favChild = await EntityService.getEntityAsEntityReferenceNode(fav);
+      if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type as TTIriRef[], false, node));
+    }
+  }
+
+  async function expandNode(node: any, typeFilter?: string[]) {
+    const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value, undefined, undefined, typeFilter);
+    children.result.forEach((child: any) => {
+      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+    });
+    if (
+      node.children.length > 0 &&
+      children.totalCount >= pageSize.value &&
+      node.children.length !== children.totalCount &&
+      node.children[node.children.length - 1].data !== "loadMore"
+    ) {
+      node.children.push(createLoadMoreNode(node, 2, children.totalCount));
     }
   }
 
@@ -163,7 +178,7 @@ function setupTree(emit?: any, customPageSize?: number) {
     }
   }
 
-  function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
+  function nodeHasChild(node: TreeNode, child: TTEntity) {
     return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
   }
 
@@ -181,39 +196,42 @@ function setupTree(emit?: any, customPageSize?: number) {
     // Recursively expand
     let n = root.value.find(c => path.find(p => p["@id"] === c.data));
     let i = 0;
-    if (n) {
-      expandedKeys.value = {};
-      while (n && n.data != path[0]["@id"] && i++ < 50) {
-        await selectAndExpand(n);
-        // Find relevant child
-        n = await locateChildInLoadMore(n, path);
-      }
-      if (n && n.data === path[0]["@id"]) {
-        await selectAndExpand(n);
+    if (!n) {
+      scrollToHighlighted(treeContainerId);
+      loading.value = false;
+      return;
+    }
+    expandedKeys.value = {};
+    while (n && n.data != path[0]["@id"] && i++ < 50) {
+      await selectAndExpand(n);
+      // Find relevant child
+      n = await locateChildInLoadMore(n, path);
+    }
+    if (n && n.data === path[0]["@id"]) {
+      await selectAndExpand(n);
 
-        while (!n.children?.some(child => child.data === iri)) {
-          await loadMoreChildren(n);
-        }
-        for (const gc of n.children) {
-          if (gc.data === iri && gc.key) {
-            selectKey(gc.key);
-          }
-        }
-        selectedNode.value = n;
-      } else {
-        toast.add({
-          severity: "warn",
-          summary: "Unable to locate",
-          detail: "Unable to locate concept in the current hierarchy"
-        });
+      while (!n.children?.some(child => child.data === iri)) {
+        await loadMoreChildren(n);
       }
+      for (const gc of n.children) {
+        if (gc.data === iri && gc.key) {
+          selectKey(gc.key);
+        }
+      }
+      selectedNode.value = n;
+    } else {
+      toast.add({
+        severity: "warn",
+        summary: "Unable to locate",
+        detail: "Unable to locate concept in the current hierarchy"
+      });
     }
     scrollToHighlighted(treeContainerId);
     loading.value = false;
   }
 
   async function locateChildInLoadMore(n: TreeNode, path: TTIriRef[]): Promise<TreeNode | undefined> {
-    if (n.children && n.children.find(c => c.data === "loadMore")) {
+    if (n.children?.find(c => c.data === "loadMore")) {
       const found = n.children.find(c => path.find(p => p["@id"] === c.data));
       if (found) {
         return n.children.find(c => path.find(p => p["@id"] === c.data));
@@ -245,7 +263,7 @@ function setupTree(emit?: any, customPageSize?: number) {
   }
 
   async function loadMoreChildren(node: any) {
-    if (node.children[node.children.length - 1].data === "loadMore") {
+    if (node.children?.length > 0 && node.children[node.children.length - 1].data === "loadMore") {
       await loadMore(node.children[node.children.length - 1]);
     }
   }

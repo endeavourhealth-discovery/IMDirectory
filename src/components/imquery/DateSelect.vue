@@ -83,19 +83,18 @@
 
 <script setup lang="ts">
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Operator, Where, Range, TTIriRef } from "@/interfaces/AutoGen";
+import { Operator, Where, Range } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import { Ref, onMounted, ref, watch } from "vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
 import { IM } from "@/vocabulary";
-import { Option } from "./DatatypeSelect.vue";
 import { UIProperty } from "@/interfaces";
 
-interface Props {
+const props = defineProps<{
   property: Where;
   uiProperty: UIProperty;
-}
-const props = defineProps<Props>();
+}>();
+
 const propertyType: Ref<"is" | "between" | "within" | "isNull" | "notNull" | undefined> = ref();
 const valueType: Ref<"date" | "variable" | "partial date" | undefined> = ref("date");
 const selectedValueA: Ref<any> = ref();
@@ -275,9 +274,6 @@ function getDateFromString(date: string) {
 </script>
 
 <style scoped>
-.property-input-title {
-  width: 5rem;
-}
 .property-input-title-and {
   width: 3rem;
 }

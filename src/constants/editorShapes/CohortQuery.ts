@@ -11,22 +11,21 @@ const CohortQueryShape: FormGenerator = {
   label: "Editor - Cohort query shape",
   comment: "Form editor for a cohort query",
   targetShape: {
-    "@id": IM.COHORT_QUERY
+    "@id": IM.QUERY
   },
   property: [
     {
-      comment: "Summary | rolegroup splitter",
+      comment: "Tab menu , with summary and query definition builder tabs. ",
       order: 1,
       name: "splitter",
       path: { "@id": IM.CONCEPT },
       maxCount: 1,
-      componentType: { "@id": COMPONENT.HORIZONTAL_LAYOUT },
-      argument: [{ parameter: "subGroup widths", valueData: "40%,60%" }],
+      componentType: { "@id": COMPONENT.TAB_LAYOUT },
       property: [
         {
-          label: "Property group - Summary details",
-          name: "Summary",
-          showTitle: true,
+          label: "Property group - query definition builder",
+          name: "Cohort definition builder",
+          showTitle: false,
           order: 1,
           maxCount: 1,
           path: {
@@ -37,32 +36,69 @@ const CohortQueryShape: FormGenerator = {
           },
           property: [
             {
-              comment: "A property that auto generates the type as  concept type",
               order: 1,
-              function: {
-                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
-              },
-              name: "Type",
-              showTitle: true,
-              path: {
-                "@id": RDF.TYPE
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.COHORT_QUERY
-                  },
-                  parameter: "entityIri"
-                }
-              ],
-              isIri: {
-                "@id": IM.COHORT_QUERY
-              },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.ENTITY_COMBOBOX
+                "@id": COMPONENT.QUERY_DEFINITION_BUILDER
+              },
+              validation: {
+                "@id": VALIDATION.IS_DEFINITION
+              },
+              validationErrorMessage: "Query definition is not valid",
+              path: {
+                "@id": IM.DEFINITION
               }
-            },
+            }
+          ]
+        },
+        {
+          label: "Property group - data set definition builder",
+          name: "Dataset builder",
+          showTitle: false,
+          order: 1,
+          argument: [
+            {
+              valueData: IM.DATASET_QUERY,
+              parameter: "value"
+            }
+          ],
+          maxCount: 1,
+          path: {
+            "@id": RDF.TYPE
+          },
+          componentType: {
+            "@id": COMPONENT.VERTICAL_LAYOUT
+          },
+          property: [
+            {
+              order: 1,
+              minCount: 1,
+              componentType: {
+                "@id": COMPONENT.QUERY_DEFINITION_BUILDER
+              },
+              validation: {
+                "@id": VALIDATION.IS_DEFINITION
+              },
+              validationErrorMessage: "Query definition is not valid",
+              path: {
+                "@id": IM.DEFINITION
+              }
+            }
+          ]
+        },
+        {
+          label: "Property group - Summary details",
+          name: "Summary",
+          showTitle: false,
+          order: 1,
+          maxCount: 1,
+          path: {
+            "@id": RDF.TYPE
+          },
+          componentType: {
+            "@id": COMPONENT.VERTICAL_LAYOUT
+          },
+          property: [
             {
               comment: "A property that auto generates a concept iri from the snomed extension",
               order: 2,
@@ -205,7 +241,7 @@ const CohortQueryShape: FormGenerator = {
                   argument: [
                     {
                       valueIri: {
-                        "@id": IM.COHORT_QUERY
+                        "@id": IM.QUERY
                       },
                       parameter: "value"
                     }
@@ -215,36 +251,6 @@ const CohortQueryShape: FormGenerator = {
                   }
                 }
               ]
-            }
-          ]
-        },
-        {
-          label: "Property group - query definition builder",
-          name: "Query definition builder",
-          showTitle: true,
-          order: 1,
-          minCount: 1,
-          maxCount: 1,
-          path: {
-            "@id": RDF.TYPE
-          },
-          componentType: {
-            "@id": COMPONENT.VERTICAL_LAYOUT
-          },
-          property: [
-            {
-              order: 1,
-              minCount: 1,
-              componentType: {
-                "@id": COMPONENT.QUERY_DEFINITION_BUILDER
-              },
-              validation: {
-                "@id": VALIDATION.IS_DEFINITION
-              },
-              validationErrorMessage: "Query definition is not valid",
-              path: {
-                "@id": IM.DEFINITION
-              }
             }
           ]
         }

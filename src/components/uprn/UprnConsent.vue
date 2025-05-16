@@ -92,12 +92,9 @@
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
 import { computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
-const uprnLicenseAccepted = computed(() => userStore.uprnAgreementAccepted);
-
-const route = useRoute();
 const router = useRouter();
 
 const sharedStore = useSharedStore();
@@ -131,10 +128,5 @@ function submitAgree(): void {
   margin: 0.5rem;
   border: 1px solid;
   padding: 0.5rem;
-}
-
-.license-disclaimer {
-  flex: 0 0 auto;
-  width: 100%;
 }
 </style>

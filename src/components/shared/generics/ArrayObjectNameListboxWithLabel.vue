@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { DirectService } from "@/services";
-import { computed, onMounted, PropType, ref, Ref } from "vue";
+import { computed, onMounted, ref, Ref } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { getLogger } from "@/logger/LogConfig";
 import { useDirectoryStore } from "@/stores/directoryStore";
@@ -105,31 +105,5 @@ function expandAtStartup() {
 
 .array-listbox {
   margin: 0.5rem 0 0 0;
-}
-
-@keyframes my-fadein {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes my-fadeout {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.my-fadein {
-  animation: my-fadein 150ms linear;
-}
-
-.my-fadeout {
-  animation: my-fadeout 150ms linear;
 }
 </style>

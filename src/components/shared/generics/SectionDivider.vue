@@ -9,7 +9,7 @@ interface Props {
   size?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   size: "100%"
 });
 </script>

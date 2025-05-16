@@ -74,9 +74,6 @@ async function download(fileUrl: string) {
 </script>
 
 <style scoped>
-.buttons-container {
-  padding-top: 1rem;
-}
 #search-results {
   flex: 1 1 auto;
   overflow: auto;

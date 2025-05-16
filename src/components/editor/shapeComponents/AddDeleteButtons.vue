@@ -12,6 +12,7 @@
 import { onMounted, ref, Ref, watch } from "vue";
 import { ComponentType } from "@/enums";
 import { cloneDeep } from "lodash-es";
+import { MenuItem } from "primevue/menuitem";
 
 interface Props {
   position?: number;
@@ -23,12 +24,12 @@ const props = withDefaults(defineProps<Props>(), {
   show: { minus: true, plus: true } as any
 });
 
-const emit = defineEmits({
-  addNextClicked: (_payload: any) => true,
-  deleteClicked: () => true
-});
+const emit = defineEmits<{
+  addNextClicked: [payload: { type: ComponentType; name: string }];
+  deleteClicked: [];
+}>();
 
-let menuOptions: Ref<any[]> = ref([]);
+let menuOptions: Ref<MenuItem[]> = ref([]);
 let selected: Ref<{ type: ComponentType; name: string } | undefined> = ref();
 
 const optionsMenu = ref();
@@ -51,11 +52,11 @@ onMounted(() => {
   setMenuOptions();
 });
 
-function addNextClicked(event: any) {
+function addNextClicked(event: MouseEvent) {
   if (props.options?.length === 1) {
     selected.value = props.options[0];
   } else {
-    (optionsMenu.value as any).toggle(event);
+    optionsMenu.value.toggle(event);
   }
 }
 
@@ -68,7 +69,7 @@ function setMenuOptions() {
   for (const item of props.options) {
     menuOptions.value.push({
       label: item.name,
-      command: (option: any) => {
+      command: option => {
         selected.value = props.options.find(item => item.name === option.item.label);
       }
     });

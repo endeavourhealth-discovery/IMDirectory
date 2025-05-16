@@ -10,13 +10,13 @@ export async function setBrowserTabTitles(to: RouteLocationNormalized) {
   const editorStore = useEditorStore();
   const queryStore = useQueryStore();
   let title = (to.meta.title as string) ? (to.meta.title as string) : "";
-  if (to.matched.some((record: any) => record.name === "Directory")) {
+  if (to.matched.some(record => record.name === "Directory")) {
     if (!to.meta.title) title += await directoryStore.getConceptName();
   }
-  if (to.matched.some((record: any) => record.name === "Editor")) {
+  if (to.matched.some(record => record.name === "Editor")) {
     title += "Editor: " + (await editorStore.getConceptName());
   }
-  if (to.matched.some((record: any) => record.name === "Query")) {
+  if (to.matched.some(record => record.name === "Query")) {
     title += "Query";
     if (to.params.queryIri) title += ": " + (await queryStore.getQueryName());
   }

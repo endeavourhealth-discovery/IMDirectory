@@ -3,6 +3,7 @@
 export class COMPONENT {
   public static readonly DOMAIN = "http://endhealth.info/im#";
   public static readonly NAMESPACE = COMPONENT.DOMAIN + "Component_";
+  public static readonly TAB_LAYOUT = COMPONENT.NAMESPACE + "TabLayout";
   public static readonly TEXT_DISPLAY = COMPONENT.NAMESPACE + "textDisplay";
   public static readonly TEXT_INPUT = COMPONENT.NAMESPACE + "textInput";
   public static readonly HTML_INPUT = COMPONENT.NAMESPACE + "htmlInput";

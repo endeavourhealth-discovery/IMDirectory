@@ -26,7 +26,7 @@
           <div class="flex w-80 flex-col">
             <strong>MFA Status</strong>
             <div>
-              <span v-for="status in userDetails.mfaStatus">{{ status }}</span>
+              <span v-for="(status, statusIdx) in userDetails.mfaStatus" v-bind:key="statusIdx">{{ status }}</span>
             </div>
           </div>
           <div class="flex w-80 flex-col gap-3">

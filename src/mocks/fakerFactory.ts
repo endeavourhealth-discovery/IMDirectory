@@ -1,8 +1,6 @@
 import { factory, primaryKey, manyOf, nullable, oneOf } from "@mswjs/data";
 import { faker } from "@faker-js/faker";
 
-const apiUrl = "http://localhost/imapi/api/";
-
 const fakerFactory = factory({
   entity: {
     "@id": primaryKey(faker.internet.url),
@@ -14,7 +12,7 @@ const fakerFactory = factory({
     name: faker.lorem.sentence
   },
   pagedChildren: {
-    uuid: primaryKey(faker.datatype.uuid),
+    uuid: primaryKey(faker.string.uuid),
     result: manyOf("entitySummary", { unique: true }),
     totalCount: Number
   },
@@ -39,7 +37,7 @@ const fakerFactory = factory({
     status: manyOf("iriRef", { unique: true })
   },
   eclSearch: {
-    uuid: primaryKey(faker.datatype.uuid),
+    uuid: primaryKey(faker.string.uuid),
     entities: manyOf("conceptSummary", { unique: true }),
     count: Number,
     page: Number
@@ -56,7 +54,7 @@ const fakerFactory = factory({
     title: faker.string.sample,
     createdDate: faker.date.recent,
     publishedDate: faker.date.past,
-    releaseNotes: () => faker.helpers.multiple(faker.word.sample),
+    releaseNotes: () => faker.helpers.multiple(() => faker.word.sample()),
     author: faker.person.fullName,
     url: primaryKey(faker.internet.url)
   },
@@ -66,7 +64,7 @@ const fakerFactory = factory({
     valueVariable: faker.string.sample,
     valueIri: oneOf("iriRef"),
     valueIriList: manyOf("iriRef"),
-    valueDataList: () => faker.helpers.multiple(faker.word.sample)
+    valueDataList: () => faker.helpers.multiple(() => faker.word.sample())
   },
   propertyShape: {
     label: faker.lorem.sentence,
@@ -106,7 +104,7 @@ const fakerFactory = factory({
     mode: String
   },
   propertyDisplay: {
-    key: primaryKey(faker.datatype.uuid),
+    key: primaryKey(faker.string.uuid),
     order: Number,
     group: oneOf("iriRef"),
     property: oneOf("iriRef"),
@@ -121,13 +119,13 @@ const fakerFactory = factory({
     cardinality: nullable(faker.string.sample)
   },
   user: {
-    id: primaryKey(faker.datatype.uuid),
+    id: primaryKey(faker.string.uuid),
     firstName: faker.person.firstName,
     lastName: faker.person.lastName,
     email: faker.internet.email,
     password: faker.internet.password,
     avatar: faker.system.directoryPath,
-    roles: () => faker.helpers.multiple(faker.word.noun)
+    roles: () => faker.helpers.multiple(() => faker.word.noun())
   }
 });
 

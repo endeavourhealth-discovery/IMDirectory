@@ -30,39 +30,43 @@
           <h2>Primary</h2>
           <div class="color-picker">
             <Button
-              v-for="color in themeOptions.primaryColours"
+              v-for="(color, index) in themeOptions.primaryColours"
               rounded
               class="round-button border-none"
               :class="selectedPrimaryColor === color && 'selected-primary'"
               :style="'background-color:var(--p-' + color + '-500)'"
               v-tooltip="color"
               @click="
-                {
+                () => {
                   selectedPrimaryColor = color;
                   changePrimaryColor(color);
                 }
               "
+              v-bind:key="index"
             />
           </div>
           <h2>Surface</h2>
           <div class="color-picker">
             <Button
-              v-for="color in themeOptions.surfaceColours"
+              v-for="(color, index) in themeOptions.surfaceColours"
               rounded
               class="round-button border-none"
               :class="selectedSurfaceColor === color && 'selected-surface'"
               :style="'background-color:var(--p-' + color + '-500)'"
               v-tooltip="color"
               @click="
-                {
+                () => {
                   selectedSurfaceColor = color;
                   changeSurfaceColor(color);
                 }
               "
+              v-bind:key="index"
             />
           </div>
           <h2>Presets</h2>
-          <SelectButton v-model="preset" :options="themeOptions.presets" :allowEmpty="false" />
+          <div class="flex flex-row flex-wrap">
+            <SelectButton v-model="preset" :options="themeOptions.presets" :allowEmpty="false" />
+          </div>
           <h2>Dark mode</h2>
           <ToggleSwitch v-model="darkMode" />
         </div>
@@ -78,7 +82,7 @@
         data-testid="font-size-button"
       />
       <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
-        <template #item="{ item }: any">
+        <template #item="{ item }">
           <div class="scale-row">
             <span class="theme-icon p-menuitem-icon" :class="item.icon" />
             <span class="p-menuitem-text">{{ item.label }}</span>
@@ -103,7 +107,7 @@
       />
       <Popover ref="appsOP" class="app-overlay-panel" id="apps-menu">
         <div class="flex flex-row flex-wrap justify-start gap-2">
-          <template v-for="item in appItems">
+          <template v-for="(item, index) in appItems" v-bind:key="index">
             <Shortcut :label="item.label" :icon="item.icon" :command="item.command" :color="item.color" :size="item.size" :visible="item.visible" />
           </template>
         </div>
@@ -165,13 +169,11 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, Env, FilerService, GithubService, UserService, CodeGenService } from "@/services";
+import { DirectService, FilerService, GithubService, CodeGenService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
-import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import setupChangeScale from "@/composables/setupChangeScale";
 import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
@@ -179,9 +181,7 @@ import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 
 const router = useRouter();
-const authStore = useAuthStore();
 const userStore = useUserStore();
-const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -199,11 +199,10 @@ const showCodeDownload = ref(false);
 const namespace = ref();
 const templates: Ref<string[]> = ref([]);
 const template = ref();
-const loading = ref(false);
 const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
 const uploadDownloadItems: Ref<MenuItem[]> = ref([]);
-const appItems: Ref<{ icon: string; command?: Function; url?: string; label: string; color: string; size: number; visible?: boolean }[]> = ref([]);
+const appItems: Ref<{ icon: string; command?: () => void; url?: string; label: string; color: string; size: number; visible?: boolean }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: PrimeVueColors[]; presets: PrimeVuePresetThemes[] }> = ref({
   primaryColours: [
@@ -226,7 +225,7 @@ const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: Prim
     PrimeVueColors.ROSE
   ],
   surfaceColours: [PrimeVueColors.SLATE, PrimeVueColors.GRAY, PrimeVueColors.ZINC, PrimeVueColors.NEUTRAL, PrimeVueColors.STONE],
-  presets: [PrimeVuePresetThemes.AURA, PrimeVuePresetThemes.LARA, PrimeVuePresetThemes.NORA]
+  presets: [PrimeVuePresetThemes.AURA, PrimeVuePresetThemes.LARA, PrimeVuePresetThemes.NORA, PrimeVuePresetThemes.MATERIAL]
 });
 const preset = ref(themeOptions.value.presets[0]);
 const darkMode = ref(false);
@@ -269,10 +268,6 @@ function toLandingPage() {
   router.push("/");
 }
 
-function open(item: { icon: string; command: Function; label: string }) {
-  item.command();
-}
-
 function getItems(): MenuItem[] {
   if (isLoggedIn.value) {
     return accountItems.value;
@@ -281,11 +276,11 @@ function getItems(): MenuItem[] {
   }
 }
 
-function openUserMenu(event: any): void {
+function openUserMenu(event: MouseEvent): void {
   userMenu.value.toggle(event);
 }
 
-function openAppsOverlay(event: any) {
+function openAppsOverlay(event: MouseEvent) {
   appsOP.value.toggle(event);
 }
 
@@ -326,15 +321,15 @@ function setUserMenuItems(): void {
   ];
 }
 
-function openUploadDownloadMenu(event: any): void {
+function openUploadDownloadMenu(event: MouseEvent): void {
   uploadDownloadMenu.value.toggle(event);
 }
 
-function openThemesMenu(event: any): void {
+function openThemesMenu(event: MouseEvent): void {
   themesMenu.value.toggle(event);
 }
 
-function openScaleMenu(event: any): void {
+function openScaleMenu(event: MouseEvent): void {
   scaleMenu.value.toggle(event);
 }
 
@@ -412,7 +407,7 @@ async function downloadCode() {
 async function generateAndDownload() {
   showCodeDownload.value = false;
   toast.add({ severity: "info", summary: "Preparing download", detail: "Generating files for download...", life: 3000 });
-  let blob = await CodeGenService.generateCode(namespace.value, template.value);
+  let blob = await CodeGenService.generateCodeForAllModels(namespace.value, template.value);
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -447,6 +442,7 @@ async function downloadChanges() {
     link.href = url;
     link.download = "deltas.zip";
     link.click();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
     toast.add({ severity: "error", summary: "Download failed", detail: "File location not found, unable to download deltas", life: 3000 });
   }
@@ -462,6 +458,7 @@ async function openAdminToolbox() {
 </script>
 
 <style scoped>
+@reference "tailwindcss-primeui";
 .im-logo {
   cursor: pointer;
   margin: 0 0.5rem;
@@ -508,14 +505,6 @@ async function openAdminToolbox() {
   gap: 0.25rem;
 }
 
-.theme-row {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .scale-row {
   display: flex;
   flex-flow: row;
@@ -526,16 +515,6 @@ async function openAdminToolbox() {
   cursor: pointer;
 }
 
-.selected-primary {
-  border: solid 2px;
-  @apply border-surface;
-}
-
-.selected-surface {
-  border: solid 2px;
-  @apply border-primary;
-}
-
 .theme-icon {
   margin-left: 1rem;
   display: flex;
@@ -544,9 +523,7 @@ async function openAdminToolbox() {
   align-items: center;
   padding: 0.125rem 0;
 }
-</style>
 
-<style>
 .topbar-end-button:hover {
   background-color: var(--p-text-color) !important;
   color: var(--p-content-background) !important;
@@ -556,22 +533,14 @@ async function openAdminToolbox() {
   z-index: 1;
 }
 
-.p-submenu-list {
-  left: -100%;
-}
-
-.p-tooltip {
-  z-index: 999;
-}
-
 #themes-menu {
   overflow: auto;
-  width: 20vw;
 }
 
 .theme-container {
   display: flex;
   flex-flow: column nowrap;
+  width: 18rem;
 }
 
 .color-picker {

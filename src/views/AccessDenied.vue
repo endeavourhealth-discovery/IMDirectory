@@ -26,7 +26,7 @@ interface Props {
   accessType?: string;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const router = useRouter();
 
 function goBack() {

@@ -14,7 +14,7 @@ export function setupValidity(shape?: FormGenerator) {
   constructValidationCheckStatus(shape);
   function constructValidationCheckStatus(shape?: FormGenerator) {
     validationCheckStatus.value = [];
-    if (shape && shape.property) {
+    if (shape?.property) {
       for (const property of shape.property) {
         addPropertyToValidationCheckStatus(property);
       }
@@ -80,13 +80,13 @@ export function setupValidity(shape?: FormGenerator) {
     let valid = true;
     let message;
     if (isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
-      let customValidationResult = await EntityService.checkValidation(componentShape.validation!["@id"], editorEntity.value);
+      const customValidationResult = await EntityService.checkValidation(componentShape.validation!["@id"], editorEntity.value);
       if (customValidationResult.valid === false) {
         valid = false;
         message = customValidationResult.message;
       }
     }
-    let defaultValidationResult = defaultValidation(componentShape, editorEntity, valueVariableMap, key);
+    const defaultValidationResult = defaultValidation(componentShape, editorEntity, valueVariableMap, key);
     if (defaultValidationResult.isValid === false) {
       valid = false;
       message = defaultValidationResult.message;
@@ -117,17 +117,19 @@ export function setupValidity(shape?: FormGenerator) {
   ): { isValid: boolean; message?: string } {
     let valid = true;
     let message;
-    if (shape.minCount && shape.minCount > 0) {
-      if (!isObjectHasKeys(editorEntity.value, [key])) {
-        valid = false;
-        message = `A minimum of ${shape.minCount} is required.`;
-      }
+    if (shape.minCount && shape.minCount > 0 && !isObjectHasKeys(editorEntity.value, [key])) {
+      valid = false;
+      message = `A minimum of ${shape.minCount} is required.`;
     }
-    if (shape.maxCount && shape.maxCount > 0) {
-      if (isObjectHasKeys(editorEntity.value, [key]) && isArray(editorEntity.value[key]) && editorEntity.value[key].length > shape.maxCount) {
-        valid = false;
-        message = `A maximum of ${shape.maxCount} is required.`;
-      }
+    if (
+      shape.maxCount &&
+      shape.maxCount > 0 &&
+      isObjectHasKeys(editorEntity.value, [key]) &&
+      isArray(editorEntity.value[key]) &&
+      editorEntity.value[key].length > shape.maxCount
+    ) {
+      valid = false;
+      message = `A maximum of ${shape.maxCount} is required.`;
     }
     if (isObjectHasKeys(shape, ["argument"]) && isArrayHasLength(shape.argument) && shape.argument![0].valueVariable) {
       if (shape.builderChild) {

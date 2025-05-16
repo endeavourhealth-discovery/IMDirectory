@@ -25,7 +25,7 @@
           ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink'
           : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'
       "
-      :pt="{ thead: { class: '!z-1' } }"
+      :pt="{ thead: { class: 'z-1!' } }"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
@@ -47,7 +47,7 @@
             />
           </div>
         </template>
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
             <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
@@ -57,7 +57,7 @@
         </template>
       </Column>
       <Column field="usageTotal" header="Weighting">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <BatteryBar
             :highest-value="highestUsage"
             :current-value="data.usageTotal ?? 0"
@@ -66,7 +66,7 @@
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
-        <template #body="{ data }: any">
+        <template #body="{ data }">
           <div class="buttons-container">
             <ActionButtons
               :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'favourite'] : ['viewHierarchy', 'view', 'addToList']"
@@ -111,12 +111,14 @@ import { cloneDeep } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { DownloadByQueryOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest, Query } from "@/interfaces/AutoGen";
+import { DownloadByQueryOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest } from "@/interfaces/AutoGen";
 import { DownloadSettings, ExtendedSearchResultSummary, Namespace, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions } from "@/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { MenuItem } from "primevue/menuitem";
+import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 
 interface Props {
   searchTerm?: string;
@@ -124,21 +126,21 @@ interface Props {
   imQuery?: QueryRequest;
   eclQuery?: EclSearchRequest;
   pageSize?: number;
-  loading?: boolean;
   disablePageDropdown?: boolean;
   showSelect?: boolean;
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  rowSelected: (_payload: SearchResultSummary) => true,
-  locateInTree: (_payload: string) => true,
-  "update:loading": _payload => true,
-  searchResultsUpdated: (_payload: SearchResponse | undefined) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+const emit = defineEmits<{
+  rowSelected: [payload: SearchResultSummary];
+  locateInTree: [payload: string];
+  searchResultsUpdated: [payload: SearchResponse | undefined];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
+
+const modelLoading = defineModel<boolean | undefined>("loading");
 
 onMounted(async () => {
   schemesWithPrefixes.value = await EntityService.getSchemes();
@@ -166,16 +168,16 @@ const highestUsage = ref(0);
 const page = ref(0);
 const rows = ref(25);
 const rowsOriginal = ref(25);
-const rClickOptions: Ref<any[]> = ref([
+const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Select",
     icon: "fa-solid fa-sitemap",
-    command: () => directService.select((selected.value as any).iri)
+    command: () => directService.select(selected.value.iri)
   },
   {
     label: "View in new tab",
     icon: "fa-solid fa-arrow-up-right-from-square",
-    command: () => directService.view((selected.value as any).iri)
+    command: () => directService.view(selected.value.iri)
   },
   {
     separator: true
@@ -186,9 +188,6 @@ const rClickOptions: Ref<any[]> = ref([
     command: () => updateFavourites()
   }
 ]);
-const delay = ref(200);
-const clicks = ref(0);
-const timer: Ref<NodeJS.Timeout> = ref({} as NodeJS.Timeout);
 const showDownloadOptions = ref(false);
 
 const { OS, showOverlay, hideOverlay } = setupOverlay();
@@ -202,7 +201,7 @@ watch(
 
 watch(
   () => searchLoading.value,
-  () => emit("update:loading", searchLoading.value)
+  () => (modelLoading.value = searchLoading.value)
 );
 
 async function onSearch() {
@@ -240,7 +239,7 @@ async function search(pageNumber: number, pageSize: number) {
   return response;
 }
 
-function updateFavourites(row?: any) {
+function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
   if (row) selected.value = row.data;
   userStore.updateFavourites(selected.value.iri);
 }
@@ -253,9 +252,9 @@ function isFavourite(iri: string) {
 function processSearchResults(searchResponse: SearchResponse | undefined): void {
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
     searchResults.value = searchResponse.entities.map(result => {
-      const copy: any = cloneDeep(result);
+      const copy = cloneDeep(result) as ExtendedSearchResultSummary;
       copy.icon = getFAIconFromType(result.entityType);
-      copy.colour = getColourFromType(result.entityType);
+      copy.color = getColourFromType(result.entityType);
       copy.typeNames = getNamesAsStringFromTypes(result.entityType);
       copy.favourite = isFavourite(result.iri);
       return copy;
@@ -269,7 +268,7 @@ function updateRClickOptions() {
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
 }
 
-async function onPage(event: any) {
+async function onPage(event: DataTablePageEvent) {
   page.value = event.page;
   rows.value = event.rows;
   await onSearch();
@@ -281,14 +280,15 @@ function scrollToTop() {
   scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
-function onRowContextMenu(event: any) {
+function onRowContextMenu(event: { originalEvent: MouseEvent; data: ExtendedSearchResultSummary }) {
   selected.value = event.data;
   updateRClickOptions();
   contextMenu.value.show(event.originalEvent);
 }
 
-function onRowSelect(event: any) {
-  if (event.originalEvent.metaKey || event.originalEvent.ctrlKey) {
+function onRowSelect(event: DataTableRowSelectEvent<ExtendedSearchResultSummary>) {
+  const mouseEvent = event.originalEvent as MouseEvent;
+  if (mouseEvent.metaKey || mouseEvent.ctrlKey) {
     directService.view(event.data.iri);
   } else {
     const found = searchResults.value.find(result => event.data.iri === result.iri);
@@ -335,10 +335,6 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
 </script>
 
 <style scoped>
-label {
-  font-size: 1rem !important;
-}
-
 #search-results-main-container {
   height: 100%;
   flex: 1 1 auto;

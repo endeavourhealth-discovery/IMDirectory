@@ -12,7 +12,9 @@
       <div v-if="viewsLoading || !finishedOnMounted" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
-      <router-view v-else />
+      <div v-else id="router-main" class="flex h-full w-full overflow-auto">
+        <router-view />
+      </div>
       <FooterBar v-if="finishedOnMounted" />
     </div>
   </div>
@@ -28,9 +30,9 @@ import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { AuthService, GithubService, StatusService } from "@/services";
+import { AuthService, GithubService } from "@/services";
 import { fetchAuthSession } from "aws-amplify/auth";
-import axios, { AxiosRequestHeaders, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
@@ -135,7 +137,7 @@ function getLocalVersion(repoName: string): string | null {
   return localStorage.getItem(repoName + "Version");
 }
 
-async function setupAxiosInterceptors(axios: any) {
+async function setupAxiosInterceptors(axios: AxiosInstance) {
   axios.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
@@ -147,7 +149,7 @@ async function setupAxiosInterceptors(axios: any) {
   });
 
   axios.interceptors.response.use(
-    async (response: any) => {
+    async (response: AxiosResponse) => {
       return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
     },
     async (error: any) => {
@@ -179,30 +181,30 @@ async function setupAxiosInterceptors(axios: any) {
   );
 }
 
-function handle401(error: any) {
+function handle401(error: AxiosError) {
   toast.add({
     severity: "error",
     summary: "Access denied",
     detail:
       "Insufficient clearance to access " +
-      error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
+      error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1) +
       ". Please contact an admin to change your account security clearance if you require access to this resource."
   });
   router.push({ name: "AccessDenied" }).then();
 }
 
 async function handle403(error: any) {
-  if (!isPublicMode.value && error.response.data === "Access forbidden") {
+  if (!isPublicMode.value && error.response?.data === "Access forbidden") {
     if (route.path !== "/user/login") {
       await router.push({ name: "Login" });
     } else console.error(error);
-  } else if (error.response.data) {
+  } else if (error.response?.data) {
     toast.add({
       severity: "error",
       summary: "Access denied",
       detail: error.response.data.debugMessage
     });
-  } else if (error.config.url) {
+  } else if (error?.config?.url) {
     toast.add({
       severity: "error",
       summary: "Access denied",
@@ -259,19 +261,24 @@ function setupExternalErrorHandler() {
         summary: "An error occurred",
         detail: e.reason
       });
-    sharedStore.updateError(e);
+    sharedStore.updateError(e as unknown as string);
     router.push({ name: "VueError" });
   });
 }
 </script>
 
-<style lang="scss">
+<!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
+<style lang="scss" unscoped>
+@use "assets/layout/sass/_main.scss";
 @import "primeicons/primeicons.css";
-@import "@/assets/layout/flags/flags.css";
-@import "@/assets/layout/sass/_main.scss";
+@import "assets/layout/flags/flags.css";
 @import "sweetalert2/dist/sweetalert2.min.css";
-@import "@/assets/tailwind.css";
-@import "@/assets/primevueOverrides.css";
+@import "assets/tailwind.css";
+@import "assets/primevueOverrides.css";
+
+.swal2-popup {
+  background-color: var(--p-content-background);
+}
 </style>
 
 <style scoped>
@@ -297,11 +304,5 @@ function setupExternalErrorHandler() {
 .loading-container {
   width: 100%;
   flex: 1 1 auto;
-}
-</style>
-
-<style>
-.swal2-popup {
-  background-color: var(--p-content-background);
 }
 </style>

@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType } from "vue";
+import { computed } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { SHACL } from "@/vocabulary";
 
@@ -42,9 +42,5 @@ const arrayToString = computed(() => {
 .container {
   margin: 0;
   padding: 0.25rem 0.5rem 0 0;
-}
-
-.break-text {
-  word-break: break-all;
 }
 </style>

@@ -51,7 +51,11 @@
           <RadioButton v-model="quickTypeFilter" inputId="allQuickFilter" name="quickTypeFilter" :value="undefined" variant="filled" />
           <label for="allQuickFilter">All</label>
         </div>
-        <div v-for="typeOption in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t['@id']))" class="radio-label-container">
+        <div
+          v-for="(typeOption, index) in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t['@id']))"
+          class="radio-label-container"
+          v-bind:key="index"
+        >
           <RadioButton v-model="quickTypeFilter" :inputId="typeOption.name + 'QuickFilter'" name="quickTypeFilter" :value="typeOption" variant="filled" />
           <label :for="typeOption.name + 'QuickFilter'">{{ typeOption.name }}</label>
         </div>
@@ -79,7 +83,7 @@ import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep } from "lodash-es";
 import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 
@@ -103,14 +107,14 @@ const props = withDefaults(defineProps<Props>(), {
   rows: 25
 });
 
-const emit = defineEmits({
-  selectedUpdated: (_payload: SearchResultSummary) => true,
-  locateInTree: (_payload: string) => true,
-  selectedFiltersUpdated: (_payload: FilterOptions) => true,
-  searchResultsUpdated: (_payload: SearchResponse | undefined) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+const emit = defineEmits<{
+  selectedUpdated: [payload: SearchResultSummary];
+  locateInTree: [payload: string];
+  selectedFiltersUpdated: [payload: FilterOptions];
+  searchResultsUpdated: [payload: SearchResponse | undefined];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
 
 const filterStore = useFilterStore();
 const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
@@ -223,9 +227,5 @@ label {
 .heading {
   padding-left: 0.5rem;
   margin: 0;
-}
-
-.p-multiselect {
-  width: 100%;
 }
 </style>

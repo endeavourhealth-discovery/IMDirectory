@@ -1,4 +1,6 @@
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+
 export interface CreatorState {
-    creatorSavedEntity: any;
-    creatorHasChanges: boolean;
+  creatorSavedEntity: TTEntity | undefined;
+  creatorHasChanges: boolean;
 }

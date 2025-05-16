@@ -121,9 +121,9 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import AdminService from "@/services/AdminService";
 
-const emit = defineEmits({
-  userCreated: (_payload: User) => true
-});
+defineEmits<{
+  userCreated: [payload: User];
+}>();
 
 const router = useRouter();
 
@@ -131,7 +131,7 @@ const focused: Ref<Map<string, boolean>> = ref(new Map());
 const emailIsNotRegistered = ref(true);
 const allVerified = computed(() => isObjectHasKeys(errors) && emailIsNotRegistered.value);
 
-const schema: any = yup.object({
+const schema = yup.object({
   username: yup
     .string()
     .required("Username is required")
@@ -195,7 +195,7 @@ const onSubmit = handleSubmit(async () => {
       mfaStatus: []
     } as User;
     AdminService.createUser(user)
-      .then(res => {
+      .then(() => {
         Swal.fire({
           icon: "success",
           title: "Success",

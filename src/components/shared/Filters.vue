@@ -72,9 +72,9 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  selectedFiltersUpdated: (_payload: FilterOptions) => true
-});
+const emit = defineEmits<{
+  selectedFiltersUpdated: [payload: FilterOptions];
+}>();
 const filterStore = useFilterStore();
 const storeDefaultFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.defaultFilterOptions);
 const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);

@@ -6,9 +6,9 @@ export default class ApiError extends Error {
   timestamp: string;
   debugMessage?: string;
   code?: string;
-  subErrors?: any[];
+  subErrors?: Error[];
 
-  constructor(status: number, message: string, debugMessage?: string, code?: string, subErrors?: any[]) {
+  constructor(status: number, message: string, debugMessage?: string, code?: string, subErrors?: Error[]) {
     super(message);
     this.status = status;
     this.timestamp = this.currentDateTime();
@@ -33,7 +33,7 @@ export default class ApiError extends Error {
     this.code = code;
   }
 
-  public setSubErrors(subErrors: any[]) {
+  public setSubErrors(subErrors: Error[]) {
     this.subErrors = subErrors;
   }
 

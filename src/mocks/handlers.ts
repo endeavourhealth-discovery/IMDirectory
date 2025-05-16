@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw";
 import { IM } from "@/vocabulary";
 import { fakerFactory } from "@/mocks/fakerFactory";
 import { isArray } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const apiUrl = "http://localhost:8082/imapi/api/";
 
@@ -18,8 +19,8 @@ export const handlers = [
       );
   }),
   http.post(apiUrl + "query/public/entityQuery", async ({ request }) => {
-    const body: any = await request.json();
-    const { queryIri, argument } = body;
+    const body = await request.json();
+    const { queryIri, argument } = body as { [x: string]: { [x: string]: string } };
     if (queryIri["@id"] === "http://endhealth.info/im#Query_GetIsas") {
       if (argument.this === "http://endhealth.info/im#Status")
         return HttpResponse.json([
@@ -37,8 +38,8 @@ export const handlers = [
       );
   }),
   http.post(apiUrl + "function/public/callFunction", async ({ request }) => {
-    const body: any = await request.json();
-    const { functionIri } = body;
+    const body = await request.json();
+    const { functionIri } = body as { [x: string]: string };
     if (functionIri === "http://endhealth.info/im#GetAdditionalAllowableTypes") return HttpResponse.json([]);
     else
       return new HttpResponse(
@@ -54,24 +55,22 @@ export const handlersFaker = [
   http.get(apiUrl + "entity/public/partial", async ({ params }) => {
     console.log("using msw");
     const { iri, predicatesArray } = params;
-    const entityValue = {} as any;
+    const entityValue = {} as { [x: string]: string | readonly string[] | undefined | null };
     if (iri) entityValue["@id"] = iri;
     if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax"))
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax"] = null;
     if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"] = null;
-    const entity = fakerFactory.entity.create(entityValue) as any;
+    const entity = fakerFactory.entity.create(entityValue) as TTEntity;
     Object.keys(entity).forEach((key: string) => {
       if (!entity[key]) delete entity[key];
     });
     return HttpResponse.json(entity);
   }),
-  http.get(apiUrl + "entity/public/parents", async ({ params }) => {
-    const { iri } = params;
+  http.get(apiUrl + "entity/public/parents", async () => {
     return HttpResponse.json([fakerFactory.entitySummary.create(), fakerFactory.entitySummary.create()]);
   }),
-  http.get(apiUrl + "entity/public/childrenPaged", async ({ params }) => {
-    const { iri } = params;
+  http.get(apiUrl + "entity/public/childrenPaged", async () => {
     const children = [
       fakerFactory.entitySummary.create(),
       fakerFactory.entitySummary.create(),

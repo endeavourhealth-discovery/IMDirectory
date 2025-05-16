@@ -1,6 +1,6 @@
 <template>
   <div class="skeleton-boolgroup-container">
-    <template v-for="(item, index) in value.items">
+    <template v-for="(item, index) in value.items" v-bind:key="index">
       <div class="component-container">
         <div class="left-container">
           <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>

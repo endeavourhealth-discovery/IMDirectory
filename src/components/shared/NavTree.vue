@@ -2,22 +2,21 @@
   <div id="hierarchy-tree-bar-container" class="flex flex-col justify-start">
     <Tree
       v-model:expandedKeys="expandedKeys"
-      v-model:selectionKeys="selectedKeys"
+      :selectionKeys="selectedKeys"
       :loading="loading"
       :value="root"
       class="tree-root"
       selectionMode="single"
-      @node-select="onNodeSelect"
       @node-expand="expandNode"
       @node-collapse="onNodeCollapse"
     >
-      <template #default="{ node }: any">
+      <template #default="{ node }">
         <div
           :class="allowDragAndDrop && 'grabbable'"
           :draggable="allowDragAndDrop"
           class="tree-row"
           @contextmenu="onNodeContext($event, node)"
-          @dblclick="emit('rowDblClicked', node)"
+          @click="onNodeSelect($event, node, false, true)"
           @dragstart="dragStart($event, node.data)"
           @mouseleave="hideOverlay"
           @mouseover="displayOverlay($event, node)"
@@ -55,16 +54,15 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { byKey } from "@/helpers/Sorters";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@/vocabulary";
-import { useRouter } from "vue-router";
 import type { TreeNode } from "primevue/treenode";
 import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
-import { SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
+import { TTIriRef } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { cloneDeep } from "lodash-es";
+import { MenuItem } from "primevue/menuitem";
 
 interface Props {
   allowDragAndDrop?: boolean;
@@ -81,47 +79,28 @@ const props = withDefaults(defineProps<Props>(), {
   allowDragAndDrop: false
 });
 
-const emit = defineEmits({
-  rowSelected: payload => true,
-  rowDblClicked: payload => true,
-  foundInTree: () => true
-});
+const emit = defineEmits<{
+  rowSelected: [payload: any];
+  rowDblClicked: [payload: any];
+  foundInTree: [];
+}>();
 
-const router = useRouter();
 const toast = useToast();
-const confirm = useConfirm();
+const confirmDlg = useConfirm();
 const userStore = useUserStore();
-const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const favourites = computed(() => userStore.favourites);
 
-const {
-  root,
-  selectedKeys,
-  selectedNode,
-  expandedKeys,
-  expandedData,
-  pageSize,
-  createTreeNode,
-  createLoadMoreNode,
-  loadMore,
-  loadMoreChildren,
-  locateChildInLoadMore,
-  onNodeExpand,
-  onNodeCollapse,
-  findPathToNode,
-  scrollToHighlighted,
-  selectAndExpand,
-  nodeHasChild
-} = setupTree(emit, 50);
-const { getCreateOptions }: { getCreateOptions: Function } = createNew();
+const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
+  setupTree(emit, 50);
+const { getCreateOptions }: { getCreateOptions: (newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode) => Promise<MenuItem[]> } =
+  createNew();
 const loading = ref(true);
-const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const overlayLocation: Ref<MouseEvent | undefined> = ref();
-const items: Ref<any[]> = ref([]);
-const newFolder: Ref<null | TreeNode> = ref(null);
+const items: Ref<MenuItem[]> = ref([]);
+const newFolder: Ref<TreeNode | null> = ref(null);
 const newFolderName = ref("");
 
 const creating = ref(false);
@@ -184,7 +163,7 @@ async function init() {
   loading.value = false;
 }
 
-function expandNode(node: any) {
+function expandNode(node: TreeNode) {
   onNodeExpand(node, props.typeFilter);
 }
 
@@ -193,7 +172,8 @@ async function addParentFoldersToRoot() {
   if (isArrayHasLength(IMChildren)) {
     for (let IMchild of IMChildren) {
       const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
-      if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
+      if (!hasNode)
+        root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type as TTIriRef[], IMchild.hasGrandChildren, null, IMchild.orderNumber));
     }
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
@@ -213,13 +193,13 @@ async function addRootEntitiesToTree() {
     const itemSummary = await EntityService.getEntityAsEntityReferenceNode(item);
     if (itemSummary) {
       const hasNode = !!root.value.find(node => node.data === itemSummary["@id"]);
-      if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary["@id"], itemSummary.type, itemSummary.hasGrandChildren, null));
+      if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary["@id"], itemSummary.type as TTIriRef[], itemSummary.hasGrandChildren, null));
     }
   }
   root.value.sort(byKey);
 }
 
-async function onNodeContext(event: any, node: any) {
+async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
 
@@ -257,7 +237,7 @@ async function onNodeContext(event: any, node: any) {
 
 function confirmMove(node: TreeNode) {
   if (selectedNode.value && isObjectHasKeys(selectedNode.value)) {
-    confirm.require({
+    confirmDlg.require({
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
       icon: "fa-solid fa-triangle-exclamation",
@@ -300,7 +280,7 @@ async function moveConcept(target: TreeNode) {
 
 function confirmAdd(node: TreeNode) {
   if (selectedNode.value && isObjectHasKeys(selectedNode.value)) {
-    confirm.require({
+    confirmDlg.require({
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
       icon: "fa-solid fa-triangle-exclamation",
@@ -368,6 +348,7 @@ async function createFolder() {
         )
       );
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     toast.add({
       severity: "error",
@@ -382,26 +363,23 @@ async function createFolder() {
   }
 }
 
-async function displayOverlay(event: any, node: any): Promise<void> {
+async function displayOverlay(event: MouseEvent, node: TreeNode): Promise<void> {
   if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
     showOverlay(event, node.key);
   }
 }
 
-function onNodeSelect(node: any): void {
+function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
   if (node.data === "loadMore") {
     if (!node.loading) loadMore(node);
-  } else {
-    selectedNode.value = node;
-    emit("rowSelected", node);
-  }
+  } else customOnClick(event, node, useEmits, updateSelectedKeys);
 }
 
-function dragStart(event: any, data: any) {
+function dragStart(event: DragEvent, data: TreeNode) {
   if (props.allowDragAndDrop) {
-    event.dataTransfer.setData("conceptIri", JSON.stringify(data));
-    event.dataTransfer.effectAllowed = "copy";
-    event.dataTransfer.dropEffect = "copy";
+    event.dataTransfer?.setData("conceptIri", JSON.stringify(data));
+    event.dataTransfer!.effectAllowed = "copy";
+    event.dataTransfer!.dropEffect = "copy";
     hideOverlay();
   }
 }
@@ -464,27 +442,6 @@ function dragStart(event: any, data: any) {
   justify-content: flex-start;
   align-items: flex-start;
   gap: 0.25rem;
-}
-
-#parent-button-bar {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.toggle-buttons-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.tree-locked-button,
-.tree-lock-button,
-.home-button,
-.next-parent-button {
-  width: fit-content !important;
 }
 
 #hierarchy-tree-bar-container::v-deep(.p-tree-toggler) {

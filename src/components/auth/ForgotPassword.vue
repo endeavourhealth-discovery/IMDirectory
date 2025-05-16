@@ -53,7 +53,7 @@ const schema = yup.object({
 
 const { errors, defineField, handleSubmit } = useForm({ validationSchema: schema });
 
-const [username, usernameAttrs] = defineField("username");
+const [username] = defineField("username");
 
 const onSubmit = handleSubmit(async () => {
   Swal.fire({

@@ -15,6 +15,7 @@ function setupCopyToClipboard(valueToCopy?: Ref<string>, onCopyMessage?: string,
       navigator.clipboard.writeText(JSON.stringify(object));
       onCopy();
     } catch (error) {
+      console.log(`Error copying to clipboard ${error}`);
       onCopyError();
     }
     return valueToCopy?.value;

@@ -52,7 +52,7 @@ describe("top bar", () => {
       it("can change theme", () => {
         cy.get("#banner").should("have.css", "background-color", "rgb(16, 185, 129)");
         cy.getByTestId("change-theme-button").click();
-        cy.get(".color-picker").find(".p-button").eq(1).click();
+        cy.get(".color-picker").find(".p-button", { timeout: 10000 }).eq(1).click();
         cy.get("#banner").should("have.css", "background-color", "rgb(34, 197, 94)");
       });
     });
@@ -82,6 +82,7 @@ describe("top bar", () => {
 
       it("can route to directory", () => {
         cy.visit("/#/directory/search");
+        cy.wait(1000);
         cy.getByTestId("apps-button").click();
         cy.get("#apps-menu").find(".shortcut").contains("Directory").click();
         cy.url().should("equal", "http://localhost:8082/#/directory/landingPage");

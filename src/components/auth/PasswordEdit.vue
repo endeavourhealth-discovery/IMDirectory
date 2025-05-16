@@ -132,9 +132,4 @@ const onSubmit = handleSubmit(async () => {
   border: 1px solid lightgray;
   border-radius: 50%;
 }
-
-.input-with-button {
-  display: flex;
-  flex-flow: row nowrap;
-}
 </style>

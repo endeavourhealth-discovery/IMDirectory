@@ -49,18 +49,17 @@ import { Ref, computed, ref } from "vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { useRouter } from "vue-router";
 import { useLoadingStore } from "@/stores/loadingStore";
-import { FilterOptions } from "@/interfaces";
+import { FilterOptions, TreeNode } from "@/interfaces";
 import { SearchResponse } from "@/interfaces/AutoGen";
+import { SplitterResizeEndEvent } from "primevue/splitter";
 
-interface Props {
+defineProps<{
   searchTerm: string;
   updateSearch: boolean;
   selectedFilterOptions: FilterOptions;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({ selectedFiltersUpdated: (_payload: FilterOptions) => true });
+const emit = defineEmits<{ selectedFiltersUpdated: [payload: FilterOptions] }>();
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -74,22 +73,19 @@ const directoryLoading = computed(() => loadingStore.directoryLoading);
 const history: Ref<string[]> = ref([]);
 const searchResults: Ref<SearchResponse | undefined> = ref();
 
-function updateSplitter(event: any) {
+function updateSplitter(event: SplitterResizeEndEvent) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
 }
 
-function routeToSelected(selected: any) {
+function routeToSelected(selected: TreeNode) {
   if (isObjectHasKeys(selected, ["key"])) directService.select(selected.key);
   else if (isObjectHasKeys(selected, ["iri"])) directService.select(selected.iri);
   else if (typeof selected === "string") directService.select(selected);
 }
 
-function navigateTo(iri: any) {
-  if (iri.item?.icon.includes("fa-house")) {
-    router.push("/");
-  } else {
-    directService.select(iri);
-  }
+function navigateTo(iri: string) {
+  if (iri === "home") router.push("/");
+  else directService.select(iri);
 }
 
 function locateInTree(iri: string) {

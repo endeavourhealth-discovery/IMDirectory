@@ -12,16 +12,16 @@ export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
   const groupMap = new Map<string, TreeNode>();
   for (const property of dataModelProperties) {
     if (isObjectHasKeys(property, [SHACL.GROUP])) {
-      addGroup(groupMap, property, parent.children!);
+      addGroup(groupMap, property, parent.children ?? []);
     } else {
       const propertyTreeNode = buildPropertyTreeNode(property, parent);
       addDataModel(property, propertyTreeNode);
       if (!isArrayHasLength(parent.children)) parent.children = [];
-      parent.children.push(propertyTreeNode);
+      parent.children?.push(propertyTreeNode);
     }
   }
 
-  return parent.children;
+  return parent.children!;
 }
 
 export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
@@ -39,7 +39,7 @@ export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
     data: property,
     type: type,
     icon: getFAIconFromType([imtype]),
-    leaf: "node" === type ? false : true,
+    leaf: "node" === type,
     children: [] as TreeNode[],
     parent: getParentNode(parent)
   } as TreeNode;
@@ -47,7 +47,7 @@ export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
 
 function getKey(parent: TreeNode | undefined) {
   if (!parent) return "0";
-  return parent.key! + parent.children!.length;
+  return parent.key + parent.children!.length;
 }
 
 function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNodes: TreeNode[]) {
@@ -57,13 +57,13 @@ function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNod
     const propertyTreeNode = buildPropertyTreeNode(property, treeNode);
     addDataModel(property, propertyTreeNode);
     if (!isArrayHasLength(treeNode.children)) treeNode.children = [];
-    treeNode.children.push(propertyTreeNode);
+    treeNode.children?.push(propertyTreeNode);
   } else {
-    const newGroup = buildGroupTreeNode(group.name!, String(treeNodes.length), {} as TreeNode);
+    const newGroup = buildGroupTreeNode(group.name, String(treeNodes.length), {} as TreeNode);
     const propertyTreeNode = buildPropertyTreeNode(property, newGroup);
     addDataModel(property, propertyTreeNode);
     if (!isArrayHasLength(newGroup.children)) newGroup.children = [];
-    newGroup.children.push(propertyTreeNode);
+    newGroup.children?.push(propertyTreeNode);
     treeNodes.push(newGroup);
     groupMap.set(group["@id"], newGroup);
   }

@@ -15,9 +15,10 @@
     </div>
     <div class="header-container">
       <ParentHierarchy
+        v-if="entity['@id']"
         :entityIri="entity?.['@id']"
         @navigateTo="(iri: string) => $emit('navigateTo', iri)"
-        :history="history"
+        :history="modelHistory"
         @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
       />
       <ParentHeader
@@ -29,7 +30,7 @@
       />
     </div>
     <div class="datatable-container">
-      <Viewer :entityIri="entity?.['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
+      <Viewer v-if="entity['@id']" :entityIri="entity?.['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>
@@ -42,29 +43,30 @@ import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
 import { SearchResponse } from "@/interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   selectedIri: string;
   showSelectButton?: boolean;
-  history: string[];
   searchResults?: SearchResponse;
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true,
-  locateInTree: (_payload: string) => true,
-  "update:history": (_payload: string[]) => true,
-  selectedUpdated: (_payload: string) => true,
-  goToSearchResults: () => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+  locateInTree: [payload: string];
+  selectedUpdated: [payload: string];
+  goToSearchResults: [];
+}>();
+
+const modelHistory = defineModel<string[]>("history", { required: true });
 
 watch(
   () => props.selectedIri,
   async () => await init()
 );
 
-const entity: Ref<any> = ref({});
+const entity: Ref<TTEntity> = ref({});
 const loading = ref(true);
 
 onMounted(async () => await init());
