@@ -1,8 +1,8 @@
 import { SHACL } from "../vocabulary";
 import { TreeNode } from "../interfaces";
-import { Match, Operator, Where, Query } from "../interfaces/AutoGen";
+import { Match, Operator, Where } from "../interfaces/AutoGen";
 import { isFolder, isFunction, isProperty, isRecordModel } from "./ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { isObjectHasKeys } from "./DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import { v4 } from "uuid";
 

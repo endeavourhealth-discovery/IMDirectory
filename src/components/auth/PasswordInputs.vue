@@ -43,7 +43,7 @@
         <template #footer>
           <hr />
           <p class="mt-2">Password should contain:</p>
-          <ul class="ml-2 mt-0 pl-2" style="line-height: 1.5">
+          <ul class="mt-0 ml-2 pl-2" style="line-height: 1.5">
             <li>At least one lowercase</li>
             <li>At least one uppercase</li>
             <li>At least one number</li>

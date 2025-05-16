@@ -217,7 +217,6 @@ declare module 'vue' {
     SharedSecondaryTree: typeof import('./src/components/shared/SecondaryTree.vue')['default']
     SharedTermCodeTable: typeof import('./src/components/shared/TermCodeTable.vue')['default']
     SharedTopBar: typeof import('./src/components/shared/TopBar.vue')['default']
-    Skeleton: typeof import('primevue/skeleton')['default']
     SplitButton: typeof import('primevue/splitbutton')['default']
     Splitter: typeof import('primevue/splitter')['default']
     SplitterPanel: typeof import('primevue/splitterpanel')['default']

@@ -171,11 +171,9 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, inject, computed } from "vue";
-import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
+import { Ref, ref, onMounted, inject } from "vue";
 import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
-import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Match, Bool, Where } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
@@ -191,21 +189,19 @@ const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const operators = ["and", "or", "not"] as const;
-const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 
-const loading = ref(false);
 const group: Ref<number[]> = ref([]);
-const refinementGroup: Ref<number[]> = ref([]);
 
 onMounted(() => {});
 const hoverAddConcept = ref(false);
 const hoverAddRefinement = ref(false);
-const hoverDeleteWhere = ref(false);
 const hoverDeleteConcept = ref(false);
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "update:parentOperator", value: string): void;
 }>();
+
 function mouseover(event: any) {
   event.stopPropagation();
   hoverAddConcept.value = true;
@@ -232,8 +228,6 @@ function addRefinement() {
   match.value.where = where;
 }
 
-function addGroup() {}
-
 function addInstanceOf() {
   match.value.instanceOf = [{ descendantsOrSelfOf: true }];
 }
@@ -256,18 +250,7 @@ function addConceptToGroup() {
   }
 }
 
-function getSkeletonComponent(componentName: string) {
-  switch (componentName) {
-    case "BoolGroup":
-      return BoolGroupSkeleton;
-    case "Refinement":
-      return RefinementSkeleton;
-  }
-}
-
 function processGroup() {}
-function processRefinementGroup() {}
-function unGroupItems(groupedItems: any) {}
 </script>
 
 <style scoped>

@@ -8,7 +8,7 @@
       </template>
     </TopBar>
     <div id="toolbox-container" class="flex flex-1 flex-row overflow-auto">
-      <Menu :model="adminMenu" class="rounded-none border-b-0 border-t-0" />
+      <Menu :model="adminMenu" class="rounded-none border-t-0 border-b-0" />
       <div v-if="adminToolboxLoading" class="flex flex-1 flex-row items-center justify-center"><ProgressSpinner /></div>
       <router-view v-else />
     </div>

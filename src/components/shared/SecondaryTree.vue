@@ -77,7 +77,7 @@ import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { ConceptAggregate, TreeParent } from "@/interfaces";
-import { IM, RDF, RDFS } from "@/vocabulary";
+import { RDF, RDFS } from "@/vocabulary";
 import { EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import OverlaySummary from "./OverlaySummary.vue";

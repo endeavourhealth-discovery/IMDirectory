@@ -79,17 +79,14 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
-import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import { QueryService } from "@/services";
 import { Bool, DisplayMode, Query } from "@/interfaces/AutoGen";
-import { computed, onMounted, ref, Ref, watch } from "vue";
-import { useUserStore } from "@/stores/userStore";
+import { onMounted, ref, Ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { IM } from "@/vocabulary";
-import { getOperatorText } from "@/helpers/IMQueryBuilder";
 
 interface Props {
   entityIri?: string;
@@ -105,30 +102,12 @@ interface Props {
 const props = defineProps<Props>();
 const query: Ref<Query> = ref<Query>(props.queryDefinition ?? ({} as Query));
 const rootQuery = ref({} as Query);
-const dataSetExpanded = ref(false);
-const userStore = useUserStore();
-const currentUser = computed(() => userStore.currentUser);
-const isLoggedIn = computed(() => userStore.isLoggedIn);
 const activeTab = ref("0");
-const operators = ["rule", "and", "or", "not"] as const;
 const sql: Ref<string> = ref("");
 const showSql: Ref<boolean> = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 const loading = ref(true);
-const ruleView: Ref<boolean> = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
-const boolGroup = computed(() => {
-  return {
-    ...(query.value.and ? { and: query.value.and } : {}),
-    ...(query.value.or ? { or: query.value.or } : {}),
-    ...(query.value.not ? { not: query.value.not } : {})
-  };
-});
-const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
-
-const emit = defineEmits<{
-  navigateTo: [payload: string];
-}>();
 
 watch(
   () => props.definition,
@@ -168,11 +147,6 @@ async function init() {
   } else activeTab.value = "1";
   loading.value = false;
 }
-
-async function generateSQL() {
-  if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri);
-  showSql.value = true;
-}
 </script>
 
 <style scoped>
@@ -206,13 +180,6 @@ async function generateSQL() {
 
 .rec-query-display {
   padding: 1rem;
-}
-.refresh-link {
-  color: #007bff; /* Blue for visibility */
-  font-weight: bold;
-  text-decoration: underline;
-  font-size: 0.9rem;
-  cursor: pointer;
 }
 #tab-list {
   flex: 0 0 auto;

@@ -157,7 +157,6 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   const core = downloadSettings.selectedContents.includes("Core");
   const legacy = downloadSettings.selectedContents.includes("Legacy");
   const im1id = downloadSettings.selectedContents.includes("IM1Id");
-  const subsumedBy = downloadSettings.selectedContents.includes("Subsumed By");
   showOptions.value = false;
 
   const schemes = [] as string[];

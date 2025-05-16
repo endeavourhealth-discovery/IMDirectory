@@ -92,8 +92,10 @@ function processEntityValue(property: PropertyShape) {
   display: flex;
   flex-flow: row nowrap;
 }
+/*
 .component-container {
   height: 100%;
   overflow: auto;
 }
+*/
 </style>

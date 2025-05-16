@@ -13,122 +13,122 @@
       >
         <table data-testid="property-builder">
           <tbody>
-          <template v-for="(row, index) in dmProperties" v-bind:key="index">
-            <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
-                <AutocompleteSearchBar
-                  v-model:selected="row.path"
-                  :class="row.error === 'Property must have a path' && invalid && showValidation ? 'error-message-container-highlight' : ''"
-                  :im-query="pSuggestions"
-                  :root-entities="['http://endhealth.info/im#Properties']"
-                  :search-placeholder="'Select property'"
-                  class="search-bar"
-                  data-testid="property-autocomplete"
-                />
-                <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
-              </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
-                <AutocompleteSearchBar
-                  v-model:selected="row.range"
-                  :class="row.error === 'Property must have a range' && invalid && showValidation ? 'error-message-container-highlight' : ''"
-                  :im-query="rSuggestions"
-                  :search-placeholder="'Select range'"
-                  data-testid="range-autocomplete"
-                />
-                <div v-if="invalid && showValidation && row.error" class="error-message-text opacity-0">{{ row.error }}</div>
-              </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="row-buttons">
-                <span>
-                  <ToggleButton
-                    v-model="row.required"
-                    class="toggle-button"
-                    offIcon="fa-solid fa-xmark"
-                    offLabel="Required"
-                    onIcon="fa-solid fa-check"
-                    onLabel="Required"
+            <template v-for="(row, index) in dmProperties" v-bind:key="index">
+              <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
+                  <AutocompleteSearchBar
+                    v-model:selected="row.path"
+                    :class="row.error === 'Property must have a path' && invalid && showValidation ? 'error-message-container-highlight' : ''"
+                    :im-query="pSuggestions"
+                    :root-entities="['http://endhealth.info/im#Properties']"
+                    :search-placeholder="'Select property'"
+                    class="search-bar"
+                    data-testid="property-autocomplete"
                   />
-                  <ToggleButton
-                    v-model="row.unique"
-                    class="toggle-button"
-                    offIcon="fa-solid fa-xmark"
-                    offLabel="Unique"
-                    onIcon="fa-solid fa-check"
-                    onLabel="Unique"
+                  <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
+                </td>
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
+                  <AutocompleteSearchBar
+                    v-model:selected="row.range"
+                    :class="row.error === 'Property must have a range' && invalid && showValidation ? 'error-message-container-highlight' : ''"
+                    :im-query="rSuggestions"
+                    :search-placeholder="'Select range'"
+                    data-testid="range-autocomplete"
                   />
-                  <Button
-                    :disabled="index == 0 || dmProperties[index - 1].inherited != undefined"
-                    class="p-button-rounded p-button-text"
-                    icon="fa-solid fa-chevron-up"
-                    @click="moveUp(index)"
-                  />
-                  <Button
-                    :disabled="index == dmProperties.length - 1"
-                    class="p-button-rounded p-button-text"
-                    icon="fa-solid fa-chevron-down"
-                    @click="moveDown(index)"
-                  />
-                  <Button
-                    class="p-button-danger"
-                    icon="fa-solid fa-trash"
-                    severity="danger"
-                    @click="deleteProperty(index)"
-                    data-testid="delete-property-button"
-                  />
-                </span>
-              </td>
+                  <div v-if="invalid && showValidation && row.error" class="error-message-text opacity-0">{{ row.error }}</div>
+                </td>
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="row-buttons">
+                  <span>
+                    <ToggleButton
+                      v-model="row.required"
+                      class="toggle-button"
+                      offIcon="fa-solid fa-xmark"
+                      offLabel="Required"
+                      onIcon="fa-solid fa-check"
+                      onLabel="Required"
+                    />
+                    <ToggleButton
+                      v-model="row.unique"
+                      class="toggle-button"
+                      offIcon="fa-solid fa-xmark"
+                      offLabel="Unique"
+                      onIcon="fa-solid fa-check"
+                      onLabel="Unique"
+                    />
+                    <Button
+                      :disabled="index == 0 || dmProperties[index - 1].inherited != undefined"
+                      class="p-button-rounded p-button-text"
+                      icon="fa-solid fa-chevron-up"
+                      @click="moveUp(index)"
+                    />
+                    <Button
+                      :disabled="index == dmProperties.length - 1"
+                      class="p-button-rounded p-button-text"
+                      icon="fa-solid fa-chevron-down"
+                      @click="moveDown(index)"
+                    />
+                    <Button
+                      class="p-button-danger"
+                      icon="fa-solid fa-trash"
+                      severity="danger"
+                      @click="deleteProperty(index)"
+                      data-testid="delete-property-button"
+                    />
+                  </span>
+                </td>
+              </tr>
+            </template>
+            <tr class="button-group">
+              <Button
+                :class="!hover && 'hover-button'"
+                :outlined="!hover"
+                :severity="hover ? 'success' : 'secondary'"
+                class="builder-button"
+                icon="fa-solid fa-plus"
+                label="Add property"
+                @click="addProperty"
+                data-testid="add-property-button"
+              />
+              <Button
+                :class="!hover && 'hover-button'"
+                :outlined="!hover"
+                :severity="hover ? 'primary' : 'secondary'"
+                class="builder-button"
+                icon="fa-solid fa-pencil"
+                label="Create new"
+                @click="directService.create()"
+                data-testid="create-new-property-button"
+              />
             </tr>
-          </template>
-          <tr class="button-group">
-            <Button
-              :class="!hover && 'hover-button'"
-              :outlined="!hover"
-              :severity="hover ? 'success' : 'secondary'"
-              class="builder-button"
-              icon="fa-solid fa-plus"
-              label="Add property"
-              @click="addProperty"
-              data-testid="add-property-button"
-            />
-            <Button
-              :class="!hover && 'hover-button'"
-              :outlined="!hover"
-              :severity="hover ? 'primary' : 'secondary'"
-              class="builder-button"
-              icon="fa-solid fa-pencil"
-              label="Create new"
-              @click="directService.create()"
-              data-testid="create-new-property-button"
-            />
-          </tr>
-          <template v-for="(row, index) in dmPropertiesInherited" v-bind:key="index">
-            <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
-                <AutocompleteSearchBar
-                  v-model:selected="row.path"
-                  :disabled="true"
-                  :imQuery="pSuggestions"
-                  :root-entities="['http://endhealth.info/im#Properties']"
-                  class="search-bar"
-                  data-testid="property-path-search"
-                />
-                <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
-              </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
-                <AutocompleteSearchBar v-model:selected="row.range" :disabled="true" data-testid="property-range-search" />
-              </td>
-              <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-nw items-center">
-                <tag
-                  v-if="row.inherited && row.inherited.length > 0"
-                  @click="directService.view(row.inherited[0]['@id'])"
-                  severity="info"
-                  v-tooltip.top="getInheritedTooltipName(row.inherited)"
-                  class="cursor-pointer align-middle"
-                  ><span>(Inherited <IMFontAwesomeIcon icon="fa-duotone fa-arrow-up-right-from-square" /> )</span></tag
-                >
-              </td>
-            </tr>
-          </template>
-        </tbody>
+            <template v-for="(row, index) in dmPropertiesInherited" v-bind:key="index">
+              <tr class="property" @mouseout="mouseout" @mouseover="mouseover($event, row)">
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
+                  <AutocompleteSearchBar
+                    v-model:selected="row.path"
+                    :disabled="true"
+                    :imQuery="pSuggestions"
+                    :root-entities="['http://endhealth.info/im#Properties']"
+                    class="search-bar"
+                    data-testid="property-path-search"
+                  />
+                  <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
+                </td>
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
+                  <AutocompleteSearchBar v-model:selected="row.range" :disabled="true" data-testid="property-range-search" />
+                </td>
+                <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-nw items-center">
+                  <tag
+                    v-if="row.inherited && row.inherited.length > 0"
+                    @click="directService.view(row.inherited[0]['@id'])"
+                    severity="info"
+                    v-tooltip.top="getInheritedTooltipName(row.inherited)"
+                    class="cursor-pointer align-middle"
+                    ><span>(Inherited <IMFontAwesomeIcon icon="fa-duotone fa-arrow-up-right-from-square" /> )</span></tag
+                  >
+                </td>
+              </tr>
+            </template>
+          </tbody>
         </table>
       </div>
       <span v-if="invalid && showValidation" class="error-message-text">{{ validationErrorMessage }}</span>
