@@ -267,13 +267,18 @@ function setupExternalErrorHandler() {
 }
 </script>
 
-<style lang="scss">
+<!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
+<style lang="scss" unscoped>
 @use "assets/layout/sass/_main.scss";
 @import "primeicons/primeicons.css";
 @import "assets/layout/flags/flags.css";
 @import "sweetalert2/dist/sweetalert2.min.css";
 @import "assets/tailwind.css";
 @import "assets/primevueOverrides.css";
+
+.swal2-popup {
+  background-color: var(--p-content-background);
+}
 </style>
 
 <style scoped>
@@ -299,11 +304,5 @@ function setupExternalErrorHandler() {
 .loading-container {
   width: 100%;
   flex: 1 1 auto;
-}
-</style>
-
-<style>
-.swal2-popup {
-  background-color: var(--p-content-background);
 }
 </style>

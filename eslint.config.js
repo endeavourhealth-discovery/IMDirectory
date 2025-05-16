@@ -34,7 +34,6 @@ export default defineConfig([
 
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "vue/no-mutating-props": "off",
       "no-console": "off",
       "no-unused-vars": "off",
       "no-use-before-define": "off",
