@@ -85,8 +85,10 @@ function setupTree(emit?: any, customPageSize?: number) {
     } else if (updateSelectedKeys) {
       selectedKeys.value = {};
       selectedKeys.value[node.data] = true;
+      directService.select(node.data);
+    } else {
+      directService.select(node.data);
     }
-    directService.select(node.data);
 
     console.log(selectedKeys.value);
   }
@@ -126,9 +128,9 @@ function setupTree(emit?: any, customPageSize?: number) {
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       if (!expandedData.value.find(x => x.key === node.key)) expandedData.value.push(node);
       if (node.data === IM.FAVOURITES && node.children.length < favourites.value.length) {
-        expandFavouriteNode(node);
+        await expandFavouriteNode(node);
       } else {
-        expandNode(node, typeFilter);
+        await expandNode(node, typeFilter);
       }
       node.loading = false;
     }
@@ -261,7 +263,7 @@ function setupTree(emit?: any, customPageSize?: number) {
   }
 
   async function loadMoreChildren(node: any) {
-    if (node.children[node.children.length - 1].data === "loadMore") {
+    if (node.children?.length > 0 && node.children[node.children.length - 1].data === "loadMore") {
       await loadMore(node.children[node.children.length - 1]);
     }
   }

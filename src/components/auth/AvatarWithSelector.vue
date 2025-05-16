@@ -81,7 +81,15 @@ function toggleAvatarSelect(event: MouseEvent): void {
 }
 </style>
 
+<!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style>
+.avatar-select {
+  width: 3em;
+  height: 3em;
+  border: 1px solid var(--p-textarea-border-color);
+  border-radius: 50%;
+  margin: 0.5em;
+}
 .avatar-popup {
   width: 25em;
   height: 40vh;

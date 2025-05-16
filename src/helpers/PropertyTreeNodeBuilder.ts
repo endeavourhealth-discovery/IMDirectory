@@ -11,8 +11,8 @@ export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
   const dataModelProperties = entity[SHACL.PROPERTY];
   const groupMap = new Map<string, TreeNode>();
   for (const property of dataModelProperties) {
-    if (isObjectHasKeys(property, [SHACL.GROUP]) && parent.children) {
-      addGroup(groupMap, property, parent.children);
+    if (isObjectHasKeys(property, [SHACL.GROUP])) {
+      addGroup(groupMap, property, parent.children ?? []);
     } else {
       const propertyTreeNode = buildPropertyTreeNode(property, parent);
       addDataModel(property, propertyTreeNode);

@@ -49,7 +49,7 @@ const props = defineProps<{
   header: string;
   members: Concept[];
   setIri?: string;
-  loading: boolean;
+  //  loading: boolean;
 }>();
 
 const modelSelectedSet = defineModel<SearchResultSummary | undefined>("selectedSet");
@@ -64,7 +64,6 @@ const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const menu = ref();
 
-const filteredSets: Ref<SearchResultSummary[] | undefined> = ref([]);
 const selected: Ref<Concept | undefined> = ref();
 const searchQuery: Ref<QueryRequest | undefined> = ref();
 const loading = ref(true);

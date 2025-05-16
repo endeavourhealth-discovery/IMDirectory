@@ -1,7 +1,7 @@
 import { Match, OrderDirection, BoolGroup, Node, Query, QueryRequest, SearchBinding, TTIriRef, Where, Element, Bool } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -206,8 +206,4 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
     };
     imQuery.query.and!.push(match);
   }
-}
-
-function deleteWherePredicateIfExists(where: Where, parent: Where[], predicateIri: string): boolean {
-  return where.iri === predicateIri;
 }

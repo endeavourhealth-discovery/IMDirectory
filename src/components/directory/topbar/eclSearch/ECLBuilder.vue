@@ -362,23 +362,6 @@ function stripValidation(build: any) {
   overflow: auto;
 }
 
-#query-build {
-  width: 100%;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 1rem;
-  flex: 1 1 auto;
-  font-size: 12px;
-  overflow: auto;
-}
-
-#query-build > .nested-div,
-.nested-div-hover {
-  min-width: calc(100% - 1rem);
-}
-
 #build-string-container {
   width: 100%;
   flex: 0 1 auto;
@@ -411,26 +394,5 @@ function stripValidation(build: any) {
   align-items: baseline;
   justify-content: space-between;
   font-size: larger;
-}
-
-.nested-div {
-  padding: 0.5rem;
-  border: #488bc230 1px solid;
-  border-radius: 5px;
-  background-color: #488bc210;
-  margin: 0.5rem;
-}
-
-.nested-div:deep(.hover-button) {
-  color: #00000030 !important;
-  border-style: dashed !important;
-}
-
-.nested-div-hover {
-  padding: 0.5rem;
-  border-radius: 5px;
-  background-color: #488bc210;
-  margin: 0.5rem;
-  border: #488bc2 1px solid;
 }
 </style>

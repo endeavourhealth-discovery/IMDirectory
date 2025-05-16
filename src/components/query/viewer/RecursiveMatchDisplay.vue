@@ -101,14 +101,14 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Match, Return, Bool } from "@/interfaces/AutoGen";
-import { computed, Ref, ref } from "vue";
+import { Match, Bool } from "@/interfaces/AutoGen";
+import { Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import ClauseEditorMenus from "@/components/imquery/ClauseEditorMenus.vue";
 import { getOperatorText } from "@/helpers/IMQueryBuilder";
-interface Props {
+
+defineProps<{
   isVariable?: boolean;
   depth: number;
   clauseIndex: number;
@@ -119,9 +119,8 @@ interface Props {
   from?: Match;
   eclQuery?: boolean;
   parentOperator?: Bool;
-}
+}>();
 
-const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parentMatch = defineModel<Match>("parentMatch", { default: {} });
 const emit = defineEmits<{
@@ -131,17 +130,6 @@ const editMenu = (match.value.and || match.value.or) && !match.value.instanceOf 
 const expandSet: Ref<boolean> = ref(false);
 const operators = ["and", "or", "not"] as const;
 
-function toggle() {
-  expandSet.value = !expandSet.value;
-}
-
-function getReturnProperties(ret: Return): string {
-  return ret.property
-    ? ret.property
-        .map(p => p.name?.replace(/\s*\(.*?\)/, "")) // Remove bracketed term
-        .join(", ") // Join names with a comma and space
-    : "";
-}
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
@@ -151,12 +139,6 @@ function getFormattedPath(path: any): string {
     }
   }
   return result;
-}
-
-function indentationStyle(depth: number) {
-  return {
-    paddingRight: depth * 2 + "rem"
-  };
 }
 
 // Watch for changes in the prop and update the local copy accordingly

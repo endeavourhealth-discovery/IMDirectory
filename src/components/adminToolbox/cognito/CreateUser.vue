@@ -121,7 +121,7 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
 import AdminService from "@/services/AdminService";
 
-const emit = defineEmits<{
+defineEmits<{
   userCreated: [payload: User];
 }>();
 

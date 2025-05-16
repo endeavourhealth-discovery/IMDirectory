@@ -2,7 +2,7 @@
 
 export class IM {
   public static readonly DOMAIN = "http://endhealth.info/";
-  public static readonly HAS_SUBTYPES = IM.DOMAIN+"hasSubtypes";
+  public static readonly HAS_SUBTYPES = IM.DOMAIN + "hasSubtypes";
   public static readonly PREFIX = "im";
   public static readonly NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
   public static readonly HAS_VALUESET = IM.NAMESPACE + "hasValueSet";

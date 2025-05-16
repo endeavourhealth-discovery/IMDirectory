@@ -67,12 +67,11 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Where, Assignable, Bool, Node } from "@/interfaces/AutoGen";
-import { computed, Ref, ref, watch } from "vue";
+import { Where, Bool, Node } from "@/interfaces/AutoGen";
+import { computed, ref } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM } from "@/vocabulary/IM";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   where: Where;
@@ -92,18 +91,12 @@ const emit = defineEmits<{
 }>();
 
 const isExpanded = ref(props.expandedSet);
-const childExpand = true;
-const { OS, showOverlay, hideOverlay } = setupOverlay();
 const boolGroup = computed(() => {
   return {
     ...(props.where.and ? { and: props.where.and } : {}),
     ...(props.where.or ? { or: props.where.or } : {})
   };
 });
-
-function toggle() {
-  isExpanded.value = !isExpanded.value;
-}
 
 function getOperator(operator: Bool | undefined, index: number): string {
   if (operator === "or") {

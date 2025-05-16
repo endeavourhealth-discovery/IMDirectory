@@ -1,5 +1,5 @@
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Bool, Match, Query, Where, Node } from "@/interfaces/AutoGen";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { Match, Query, Where, Node } from "@/interfaces/AutoGen";
 import type { MenuItem } from "primevue/menuitem";
 
 function setupIMQueryBuilderActions() {
@@ -14,17 +14,6 @@ function setupIMQueryBuilderActions() {
     } else if (object.or) {
       object.and = object.or;
       delete object.or;
-    }
-  }
-
-  function addWhereToMatch(match: Match, where: Where) {
-    if (!match.where) match.where = where;
-    else {
-      if (match.where.iri) {
-        if (match.where.and) match.where.and.push(where);
-        else if (match.where.or) match.where.or.push(where);
-        else match.where = { and: [where] };
-      }
     }
   }
 
@@ -131,9 +120,6 @@ function setupIMQueryBuilderActions() {
     }
   }
 
-  function getLeafWhereRecursively(whereList: Where, found: Match[], currentMatch: Match) {
-    found.push(currentMatch);
-  }
   return { toggleWhereBool, toggleMatchBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap, updateEntailment };
 }
 export default setupIMQueryBuilderActions;

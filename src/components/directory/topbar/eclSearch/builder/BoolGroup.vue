@@ -108,13 +108,9 @@
 
 <script setup lang="ts">
 import { ref, inject, Ref, computed, ComputedRef } from "vue";
-import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { Match, Bool, SearchResultSummary } from "@/interfaces/AutoGen";
-import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
+import { Match, Bool } from "@/interfaces/AutoGen";
 import { getOperatorText, getOperatorToggle } from "@/helpers/IMQueryBuilder";
-import { IM } from "@/vocabulary";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import ConceptSelector from "@/components/directory/topbar/eclSearch/builder/ConceptSelector.vue";
 interface Props {
   focus?: any;
@@ -132,9 +128,7 @@ const parent = defineModel<Match>("parent", { default: {} });
 const operators = ["and", "or", "not"] as const;
 const attributeGroup: Ref<boolean> = ref(false);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const { onDragEnd, onDragStart, onDrop, onDragOver, onDragLeave } = setupECLBuilderActions(wasDraggedAndDropped);
-
-const childLoadingState = inject("childLoadingState") as Ref<any>;
+const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 
 const emit = defineEmits<{ unGroupItems: [payload: any] }>();
 
@@ -162,18 +156,7 @@ function mouseout(event: any) {
   hover.value = false;
 }
 
-function toggleExclude() {
-  if (parent.value) {
-    if (parent.value.or) {
-      parent.value.or.push(...parent.value.not!);
-    } else if (parent.value.and) {
-      parent.value.and.push(...parent.value.not!);
-    }
-    delete parent.value.not;
-  }
-}
-
-function toggleBool(event: any) {
+function toggleBool() {
   if (match.value.and) {
     match.value.or = match.value.and;
     delete match.value.and;
@@ -211,8 +194,6 @@ function deleteItem(index: number) {
 
 function processGroup() {
   if (group.value.length > 1 && !props.rootBool) {
-    const conjunction = props.operator === Bool.and ? "and" : "or";
-    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: conjunction, items: [] };
     const newMatch = {} as Match;
     if (props.operator === Bool.and) {
       newMatch.or = [];
@@ -241,10 +222,6 @@ function addRefinement() {
 
 function requestUnGroupItems() {
   emit("unGroupItems", match.value);
-}
-
-function unGroupItems(groupedItems: any) {
-  console.log("unGroupItems", groupedItems);
 }
 </script>
 

@@ -25,8 +25,7 @@ import {
   verifyTOTPSetup,
   updateMFAPreference,
   updatePassword,
-  updateUserAttributes,
-  ConfirmSignInInput
+  updateUserAttributes
 } from "aws-amplify/auth";
 import axios, { AxiosResponse } from "axios";
 import Env from "./Env";
@@ -193,7 +192,6 @@ const AuthService = {
       }
       await this.getCurrentAuthenticatedUser();
       return { status: 200, message: "User updated successfully" };
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err: unknown) {
       return { status: 500, message: "Error authenticating current user", error: err as Error };
     }

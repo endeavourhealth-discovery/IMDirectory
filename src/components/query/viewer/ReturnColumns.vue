@@ -18,9 +18,8 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Return, ReturnProperty } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref, watch } from "vue";
-import { cloneDeep, isEqual } from "lodash-es";
+import { Return } from "@/interfaces/AutoGen";
+import { onMounted, Ref, ref } from "vue";
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 
 interface Props {

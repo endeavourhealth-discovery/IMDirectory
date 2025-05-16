@@ -56,7 +56,7 @@ const props = defineProps<{
   entityIri: string;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   navigateTo: [payload: string];
 }>();
 

@@ -76,7 +76,7 @@ import CompareSetDialog from "./CompareSetDialog.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
-import { computed, markRaw, onMounted, Ref, ref } from "vue";
+import { computed, ComputedRef, markRaw, onMounted, Ref, ref } from "vue";
 import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@/vocabulary";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
@@ -122,7 +122,7 @@ const entity: Ref<TTEntity> = ref({});
 
 const { copyObjectToClipboard } = setupCopyToClipboard();
 
-const hasDefinition = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION]);
+const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION] != undefined);
 
 onMounted(async () => {
   active.value = ["0", "1", "2"];
@@ -157,7 +157,6 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   const core = downloadSettings.selectedContents.includes("Core");
   const legacy = downloadSettings.selectedContents.includes("Legacy");
   const im1id = downloadSettings.selectedContents.includes("IM1Id");
-  const subsumedBy = downloadSettings.selectedContents.includes("Subsumed By");
   showOptions.value = false;
 
   const schemes = [] as string[];

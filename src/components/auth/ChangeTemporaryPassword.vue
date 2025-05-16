@@ -51,7 +51,6 @@ import { AuthService } from "@/services";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
-import { useUserStore } from "@/stores/userStore";
 import { useForm } from "vee-validate";
 import PasswordInputs from "@/components/auth/PasswordInputs.vue";
 import * as yup from "yup";
@@ -66,7 +65,6 @@ const props = defineProps<Props>();
 
 const router = useRouter();
 const authStore = useAuthStore();
-const userStore = useUserStore();
 
 const authReturnPath = computed(() => authStore.authReturnPath);
 const buttonDisabled = computed(() => setButtonDisabled());

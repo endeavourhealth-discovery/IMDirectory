@@ -47,15 +47,13 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Bool, DisplayMode, Query } from "@/interfaces/AutoGen";
-import { onMounted, watch, ref, toRaw } from "vue";
+import { onMounted, watch, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import ReturnColumns from "./ReturnColumns.vue";
 import { QueryService } from "@/services";
 import ClauseEditorMenus from "@/components/imquery/ClauseEditorMenus.vue";
-import { cloneDeep } from "lodash-es";
 
 interface Props {
   matchExpanded: boolean;
@@ -104,6 +102,7 @@ watch(
 </script>
 
 <style scoped>
+/*
 .button-chevron {
   background-color: transparent;
   border: none;
@@ -125,4 +124,5 @@ watch(
 .output {
   color: var(--p-indigo-500);
 }
+*/
 </style>
