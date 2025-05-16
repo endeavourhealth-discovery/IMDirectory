@@ -36,7 +36,7 @@ function populateFlatListOfNodesRecursively(flatList: TreeNode[], treeNode: Tree
 
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
   if (treeNode.property) return treeNode.property;
-  const property = { iri: treeNode.data } as Where;
+  const property: Where = { iri: treeNode.data } as Where;
   // string - is ""
   // boolean - is true
   // long - is true
@@ -49,5 +49,5 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
     property.is = [];
   }
   (property as any).key = treeNode.key;
-  return property as Where;
+  return property;
 }

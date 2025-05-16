@@ -84,7 +84,7 @@ export function ttIriToString(
   const pad = indentSize.repeat(indent);
   let result = "";
   if (!inline) result += pad;
-  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri.iri))) {
+  if (withHyperlinks && !blockedUrlIris?.includes(iri.iri)) {
     const escapedUrl = iriToUrl(iri.iri);
     if (iri.iri === seeMore) {
       result += `<Button link as="a" href="">`;
@@ -94,7 +94,7 @@ export function ttIriToString(
   }
   if (iri.name) result += removeEndBrackets(iri.name);
   else result += iri.iri;
-  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri.iri))) {
+  if (withHyperlinks && !blockedUrlIris?.includes(iri.iri)) {
     result += "</Button>";
   }
   if (previous === "array") result += "\n";
@@ -218,7 +218,7 @@ function processNodeArray(
 }
 
 function getObjectName(key: string, iriMap: GenericObject | undefined, pad: string, prefix: string) {
-  if (iriMap && iriMap[key]) return pad + prefix + removeEndBrackets(iriMap[key]) + " : ";
+  if (iriMap?.[key]) return pad + prefix + removeEndBrackets(iriMap[key]) + " : ";
   else return pad + prefix + removeEndBrackets(key) + " : ";
 }
 

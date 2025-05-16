@@ -10,29 +10,32 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
   property.argument?.forEach(arg => {
     const argResult = {} as Argument;
     for (const [key, value] of Object.entries(arg)) {
-      if (key === "valueVariable") {
-        let foundValueVariable: any = null;
-        if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
-        if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
-          foundValueVariable = valueVariableMap.get(value + property.order);
-        } else if (valueVariableMap && valueVariableMap.has(value)) {
-          foundValueVariable = valueVariableMap.get(value);
-        }
-        if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item)))
-          argResult["valueIriList"] = foundValueVariable;
-        else if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => typeof item === "string"))
-          argResult["valueDataList"] = foundValueVariable;
-        else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
-        else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
-        else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
-        else argResult[key] = foundValueVariable;
-      } else {
-        (argResult as GenericObject)[key] = value;
-      }
+      processArgument(property, key, value, argResult, valueVariableMap);
     }
     result.push(argResult);
   });
   return result;
+}
+
+function processArgument(property: PropertyShape, key: string, value: any, argResult: any, valueVariableMap?: Map<string, any>) {
+  if (key === "valueVariable") {
+    let foundValueVariable: any = null;
+    if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
+    if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
+      foundValueVariable = valueVariableMap.get(value + property.order);
+    } else if (valueVariableMap && valueVariableMap.has(value)) {
+      foundValueVariable = valueVariableMap.get(value);
+    }
+    if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item))) argResult["valueIriList"] = foundValueVariable;
+    else if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => typeof item === "string"))
+      argResult["valueDataList"] = foundValueVariable;
+    else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
+    else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
+    else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
+    else argResult[key] = foundValueVariable;
+  } else {
+    (argResult as GenericObject)[key] = value;
+  }
 }
 
 export function getTreeQueryIri(select: TTIriRef[]) {

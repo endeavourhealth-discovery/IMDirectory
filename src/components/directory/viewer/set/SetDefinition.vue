@@ -91,6 +91,7 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
+import { SetExportRequest, SetOptions } from "@/interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
@@ -164,20 +165,23 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
     downloadSettings.selectedSchemes.forEach(s => schemes.push(s.iri));
   }
   let result;
+  const setOptions: SetOptions = {
+    setIri: props.entityIri,
+    includeDefinition: definition,
+    includeCore: core,
+    includeLegacy: legacy,
+    includeSubsets: downloadSettings.includeSubsets,
+    schemes: schemes,
+    includeIM1id: im1id,
+    subsumptions: []
+  };
+  const setRequest: SetExportRequest = {
+    ownRow: downloadSettings.legacyInline,
+    format: downloadSettings.selectedFormat,
+    options: setOptions
+  };
   try {
-    result = await SetService.getFullExportSet(
-      props.entityIri,
-      definition,
-      core,
-      legacy,
-      downloadSettings.includeSubsets,
-      downloadSettings.legacyInline,
-      im1id,
-      subsumedBy,
-      downloadSettings.selectedFormat,
-      schemes,
-      true
-    );
+    result = await SetService.getFullExportSet(setRequest, true);
   } catch (error: any) {
     if (isObjectHasKeys(error?.response?.data, ["code"]) && error?.response?.data?.code === "DownloadException") {
       downloadDialog.options.templates = { footer: markRaw(Footer) };
