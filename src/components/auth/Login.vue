@@ -92,95 +92,119 @@ onMounted(() => {
 
 async function handle200() {
   authStore.updateRegisteredUsername("");
-  Swal.fire({
+  await Swal.fire({
     icon: "success",
     title: "Success",
     text: "Login successful",
     footer: `<p style="color: var(--p-red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
-  }).then(() => {
+  }).then(async () => {
     userStore.clearOptionalCookies();
     if (authReturnPath.value) {
-      router.push({ path: authReturnPath.value });
+      await router.push({ path: authReturnPath.value });
     } else {
-      router.push({ name: "LandingPage" });
+      await router.push({ name: "LandingPage" });
     }
   });
 }
 
-function handle403(res: CustomAlert) {
+async function handle403(res: CustomAlert) {
   if (res.nextStep === "CONFIRM_SIGN_UP") {
-    Swal.fire({
-      icon: "warning",
-      title: "User Unconfirmed",
-      text: "Account has not been confirmed. Please confirm account to continue.",
-      showCloseButton: true,
-      showCancelButton: true,
-      confirmButtonText: "Confirm Account"
-    }).then((result: SweetAlertResult) => {
-      if (result.isConfirmed) {
-        authStore.updateRegisteredUsername(username.value);
-        router.push({ name: "ConfirmCode" });
-      }
-    });
+    await handle403ConfirmSignUp();
   } else if (res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED") {
-    Swal.fire({
-      icon: "warning",
-      title: "New password required",
-      text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
-      showCloseButton: false,
-      showCancelButton: false,
-      confirmButtonText: "Change password"
-    }).then(async (result: SweetAlertResult) => {
-      if (result.isConfirmed) {
-        await router.push({ name: "ChangeTemporaryPassword", params: { tempPassword: password.value } });
-      }
-    });
+    await handle403ConfirmWithPasswordRequired();
   } else if (res.message === "NEW_PASSWORD_REQUIRED" || res.nextStep === "RESET_PASSWORD") {
-    Swal.fire({
-      icon: "warning",
-      title: "New password required",
-      text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
-      showCloseButton: false,
-      showCancelButton: false,
-      confirmButtonText: "Reset password"
-    }).then((result: SweetAlertResult) => {
-      if (result.isConfirmed) {
-        router.push({ name: "ForgotPassword" });
-      }
-    });
+    await handle403WithNewOrResetPassword();
   } else if (res.nextStep === "CONTINUE_SIGN_IN_WITH_TOTP_SETUP") {
-    Swal.fire({
-      icon: "info",
-      title: "Redirecting to 2-factor authentication setup...",
-      text: "A request for 2-factor authentication was made. We will redirect you to the 2-factor authentication setup page shortly.",
-      timer: 2000,
-      timerProgressBar: true,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-      showCloseButton: true
-    }).then(() => {
-      router.push({ name: "MFASetup" });
-    });
+    await handle403TOTPSetup();
   } else if (res.nextStep === "CONFIRM_SIGN_IN_WITH_TOTP_CODE") {
-    router.push({ name: "MFALogin" });
+    await router.push({ name: "MFALogin" });
   } else if (res.message) {
-    console.error(res.error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: res.message,
-      confirmButtonText: "Close"
-    });
+    await handle403Message(res);
   } else {
-    console.error(res.error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Authentication error",
-      confirmButtonText: "Close"
-    });
+    await handle403Default(res);
   }
+}
+
+async function handle403ConfirmSignUp() {
+  await Swal.fire({
+    icon: "warning",
+    title: "User Unconfirmed",
+    text: "Account has not been confirmed. Please confirm account to continue.",
+    showCloseButton: true,
+    showCancelButton: true,
+    confirmButtonText: "Confirm Account"
+  }).then(async (result: SweetAlertResult) => {
+    if (result.isConfirmed) {
+      authStore.updateRegisteredUsername(username.value);
+      await router.push({ name: "ConfirmCode" });
+    }
+  });
+}
+
+async function handle403ConfirmWithPasswordRequired() {
+  await Swal.fire({
+    icon: "warning",
+    title: "New password required",
+    text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+    showCloseButton: false,
+    showCancelButton: false,
+    confirmButtonText: "Change password"
+  }).then(async (result: SweetAlertResult) => {
+    if (result.isConfirmed) {
+      await router.push({ name: "ChangeTemporaryPassword", params: { tempPassword: password.value } });
+    }
+  });
+}
+
+async function handle403WithNewOrResetPassword() {
+  await Swal.fire({
+    icon: "warning",
+    title: "New password required",
+    text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+    showCloseButton: false,
+    showCancelButton: false,
+    confirmButtonText: "Reset password"
+  }).then(async (result: SweetAlertResult) => {
+    if (result.isConfirmed) {
+      await router.push({ name: "ForgotPassword" });
+    }
+  });
+}
+
+async function handle403TOTPSetup() {
+  await Swal.fire({
+    icon: "info",
+    title: "Redirecting to 2-factor authentication setup...",
+    text: "A request for 2-factor authentication was made. We will redirect you to the 2-factor authentication setup page shortly.",
+    timer: 2000,
+    timerProgressBar: true,
+    didOpen: () => {
+      Swal.showLoading();
+    },
+    showCloseButton: true
+  }).then(async () => {
+    await router.push({ name: "MFASetup" });
+  });
+}
+
+async function handle403Message(res: CustomAlert) {
+  console.error(res.error);
+  await Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: res.message,
+    confirmButtonText: "Close"
+  });
+}
+
+async function handle403Default(res: CustomAlert) {
+  console.error(res.error);
+  await Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: "Authentication error",
+    confirmButtonText: "Close"
+  });
 }
 
 const onSubmit = async function handleSubmit(): Promise<void> {
@@ -190,9 +214,9 @@ const onSubmit = async function handleSubmit(): Promise<void> {
       if (res.status === 200) {
         await handle200();
       } else if (res.status === 403) {
-        handle403(res);
+        await handle403(res);
       } else {
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Error",
           text: res.message,
@@ -200,9 +224,9 @@ const onSubmit = async function handleSubmit(): Promise<void> {
         });
       }
     })
-    .catch(err => {
+    .catch(async err => {
       console.error(err);
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Error",
         text: "Authentication error",

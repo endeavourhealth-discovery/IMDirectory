@@ -66,7 +66,7 @@ const predicatePageIndexMap: Ref<Map<string, { pageIndex: number; node: TreeNode
 
 watch(
   () => props.entityIri,
-  async () => getDefinition()
+  async () => await getDefinition()
 );
 
 onMounted(async () => await getDefinition());
@@ -117,7 +117,7 @@ async function onSelect(node: TreeNode) {
   }
 }
 
-async function onExpand(node: TreeNode) {
+function onExpand(node: TreeNode) {
   const hasLoadMore = node.children?.some(child => child.key === IM.LOAD_MORE);
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
 }

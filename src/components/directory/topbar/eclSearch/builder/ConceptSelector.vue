@@ -61,8 +61,8 @@ const selected: Ref<Partial<SearchResultSummary>> = ref({});
 
 const imQueryForConceptSearch: Ref<QueryRequest | undefined> = ref();
 
-onMounted(async () => {
-  await init();
+onMounted(() => {
+  init();
 });
 
 watch(selected, (newValue, oldValue) => {
@@ -71,7 +71,7 @@ watch(selected, (newValue, oldValue) => {
   }
 });
 
-async function init() {
+function init() {
   buildIMQueryForConceptSearch();
   selected.value.iri = node.value["@id"];
   selected.value.name = node.value.name;

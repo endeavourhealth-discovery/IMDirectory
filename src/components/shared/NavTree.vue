@@ -122,11 +122,11 @@ watch(
 
 watch(
   () => cloneDeep(favourites.value),
-  () => {
+  async () => {
     const favouritesIndex = root.value.findIndex(node => node.data === IM.FAVOURITES);
     if (favouritesIndex !== -1) {
       root.value.splice(favouritesIndex, 1);
-      addFavouritesToTree();
+      await addFavouritesToTree();
     }
   }
 );
@@ -146,11 +146,11 @@ onBeforeUnmount(() => {
   }
 });
 
-document.addEventListener("visibilitychange", function () {
+document.addEventListener("visibilitychange", async () => {
   if (!document.hidden) {
     expandedKeys.value = {};
     for (const newNode in expandedData.value) {
-      onNodeExpand(expandedData.value[newNode]);
+      await onNodeExpand(expandedData.value[newNode]);
     }
   }
 });
@@ -163,8 +163,8 @@ async function init() {
   loading.value = false;
 }
 
-function expandNode(node: TreeNode) {
-  onNodeExpand(node, props.typeFilter);
+async function expandNode(node: TreeNode) {
+  await onNodeExpand(node, props.typeFilter);
 }
 
 async function addParentFoldersToRoot() {
@@ -180,7 +180,7 @@ async function addParentFoldersToRoot() {
   if (isLoggedIn.value) await addFavouritesToTree();
 }
 
-async function addFavouritesToTree() {
+function addFavouritesToTree() {
   const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], !!favourites.value.length, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "var(--p-yellow-500)";
@@ -241,8 +241,8 @@ function confirmMove(node: TreeNode) {
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
       icon: "fa-solid fa-triangle-exclamation",
-      accept: () => {
-        moveConcept(node);
+      accept: async () => {
+        await moveConcept(node);
       },
       reject: () => {
         toast.add({ severity: "warn", summary: "Cancelled", detail: "Move cancelled", life: 3000 });
@@ -284,8 +284,8 @@ function confirmAdd(node: TreeNode) {
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
       icon: "fa-solid fa-triangle-exclamation",
-      accept: () => {
-        addConcept(node);
+      accept: async () => {
+        await addConcept(node);
       },
       reject: () => {
         toast.add({ severity: "warn", summary: "Cancelled", detail: "Add cancelled", life: 3000 });
@@ -365,14 +365,14 @@ async function createFolder() {
 
 async function displayOverlay(event: MouseEvent, node: TreeNode): Promise<void> {
   if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
-    showOverlay(event, node.key);
+    await showOverlay(event, node.key);
   }
 }
 
-function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
+async function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
   if (node.data === "loadMore") {
-    if (!node.loading) loadMore(node);
-  } else customOnClick(event, node, useEmits, updateSelectedKeys);
+    if (!node.loading) await loadMore(node);
+  } else await customOnClick(event, node, useEmits, updateSelectedKeys);
 }
 
 function dragStart(event: DragEvent, data: TreeNode) {

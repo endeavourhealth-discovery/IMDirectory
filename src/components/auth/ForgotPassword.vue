@@ -56,28 +56,28 @@ const { errors, defineField, handleSubmit } = useForm({ validationSchema: schema
 const [username] = defineField("username");
 
 const onSubmit = handleSubmit(async () => {
-  Swal.fire({
+  await Swal.fire({
     icon: "warning",
     title: "Warning",
     text: "Reset password for account: " + username.value,
     showCancelButton: true,
     confirmButtonColor: "var(--p-primary-color)",
     confirmButtonText: "Reset Password"
-  }).then((result: SweetAlertResult) => {
+  }).then(async (result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      AuthService.forgotPassword(username.value).then(res => {
+      await AuthService.forgotPassword(username.value).then(async res => {
         if (res.status === 200) {
-          Swal.fire({
+          await Swal.fire({
             icon: "success",
             title: "Success",
             text: "Password has been reset for account: " + username.value + ". An email has been sent with a recovery code."
-          }).then(() => {
+          }).then(async () => {
             authStore.updateRegisteredUsername(username.value);
-            if (res.nextStep === "CONFIRM_RESET_PASSWORD_WITH_CODE") router.push({ name: "ForgotPasswordSubmit" });
-            else router.push({ name: "Login" });
+            if (res.nextStep === "CONFIRM_RESET_PASSWORD_WITH_CODE") await router.push({ name: "ForgotPasswordSubmit" });
+            else await router.push({ name: "Login" });
           });
         } else {
-          Swal.fire({
+          await Swal.fire({
             icon: "error",
             title: "Error",
             text: res.message + ". Check username is correct."

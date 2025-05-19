@@ -41,22 +41,22 @@ const directorySearchTerm: Ref<string> = ref("");
 const updateSearch: Ref<boolean> = ref(false);
 const storeSelectedFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 
-function onSelectedFiltersUpdated(filters: FilterOptions) {
+async function onSelectedFiltersUpdated(filters: FilterOptions) {
   filterStore.updateSelectedFilterOptions(filters);
-  if (directorySearchTerm.value && directorySearchTerm.value.length > 2) toSearch();
+  if (directorySearchTerm.value && directorySearchTerm.value.length > 2) await toSearch();
 }
 
-function toSearch() {
-  router.push({ name: "Search" });
+async function toSearch() {
+  await router.push({ name: "Search" });
   updateSearch.value = !updateSearch.value;
 }
 
-function toEclSearch() {
-  router.push({ name: "EclSearch" });
+async function toEclSearch() {
+  await router.push({ name: "EclSearch" });
 }
 
-function toQuerySearch() {
-  router.push({ name: "IMQuerySearch" });
+async function toQuerySearch() {
+  await router.push({ name: "IMQuerySearch" });
 }
 </script>
 

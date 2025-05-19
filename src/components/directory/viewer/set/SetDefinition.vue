@@ -143,7 +143,7 @@ async function onCopy(event: MouseEvent) {
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   if (isObjectHasKeys(entity, [IM.DEFINITION])) {
     const definition = JSON.parse(entity[IM.DEFINITION]);
-    copyObjectToClipboard(navigator, definition);
+    await copyObjectToClipboard(navigator, definition);
   }
 }
 

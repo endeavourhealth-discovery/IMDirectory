@@ -248,8 +248,8 @@ function onOpenTab(predicate: string) {
   }
 }
 
-function handleControlClick(iri: string) {
-  directService.view(iri);
+async function handleControlClick(iri: string) {
+  await directService.view(iri);
 }
 </script>
 <style scoped>

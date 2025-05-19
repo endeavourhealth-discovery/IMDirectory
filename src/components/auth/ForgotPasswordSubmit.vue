@@ -125,30 +125,30 @@ function updateFocused(key: string, value: boolean) {
 
 const onSubmit = handleSubmit(async () => {
   if (allVerified.value) {
-    AuthService.forgotPasswordSubmit(username.value, code.value, password.value).then(res => {
+    await AuthService.forgotPasswordSubmit(username.value, code.value, password.value).then(async res => {
       if (res.status === 200) {
-        Swal.fire({
+        await Swal.fire({
           icon: "success",
           title: "Success",
           text: "Password successfully reset",
           confirmButtonText: "Continue"
-        }).then(() => {
-          router.push({ name: "Login" });
+        }).then(async () => {
+          await router.push({ name: "Login" });
         });
       } else if (res.status === 403) {
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Code Expired",
           text: "Password reset code has expired. Please request a new code",
           showCancelButton: true,
           confirmButtonText: "Request new code"
-        }).then((result: SweetAlertResult) => {
+        }).then(async (result: SweetAlertResult) => {
           if (result.isConfirmed) {
-            router.push({ name: "ForgotPassword" });
+            await router.push({ name: "ForgotPassword" });
           }
         });
       } else {
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Error",
           text: res.message + ". Check input data."

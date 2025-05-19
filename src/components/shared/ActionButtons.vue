@@ -157,14 +157,14 @@ function locateInTree(event: MouseEvent, iri: string) {
   emit("locateInTree", iri);
 }
 
-function viewEntity(event: MouseEvent, iri: string) {
+async function viewEntity(event: MouseEvent, iri: string) {
   event.stopPropagation();
-  directService.view(iri);
+  await directService.view(iri);
 }
 
-function toEdit(event: MouseEvent, iri: string) {
+async function toEdit(event: MouseEvent, iri: string) {
   event.stopPropagation();
-  directService.edit(iri, true);
+  await directService.edit(iri, true);
 }
 
 function confirmDownload() {

@@ -18,16 +18,16 @@ export default class DirectService {
     this._message = "You will be directed to a different application. Are you sure you want to proceed?";
   }
 
-  private directTo(options: { iri?: string; action?: string; appRoute: string; newTab?: boolean }) {
+  private async directTo(options: { iri?: string; action?: string; appRoute: string; newTab?: boolean }) {
     let pathUrl = "";
     pathUrl += options.appRoute + "/";
     if (options.iri) pathUrl += encodeURIComponent(options.iri);
     if (options.action && options.iri) {
-      this.userStore.updateRecentLocalActivity({ iri: options.iri, dateTime: new Date(), action: options.action } as RecentActivityItem);
+      await this.userStore.updateRecentLocalActivity({ iri: options.iri, dateTime: new Date(), action: options.action } as RecentActivityItem);
     }
     if (!options.newTab) {
       if (options.iri) this.directoryStore.updateConceptIri(options.iri);
-      this.router.push({
+      await this.router.push({
         path: "/" + pathUrl
       });
     } else {
@@ -40,8 +40,8 @@ export default class DirectService {
       message: this._message,
       header: "Confirmation",
       icon: "fa-solid fa-triangle-exclamation",
-      accept: () => {
-        this.directTo({ iri: iri, action: action, appRoute: appRoute, newTab: true });
+      accept: async () => {
+        await this.directTo({ iri: iri, action: action, appRoute: appRoute, newTab: true });
       },
       reject: () => {
         component.$confirm.close();
@@ -49,45 +49,45 @@ export default class DirectService {
     });
   }
 
-  public file() {
-    this.directTo({ action: "Filed", appRoute: "filer", newTab: true });
+  public async file() {
+    await this.directTo({ action: "Filed", appRoute: "filer", newTab: true });
   }
 
-  public view(iri: string) {
-    this.directTo({ iri: iri, action: "Viewed", appRoute: "directory/folder", newTab: true });
+  public async view(iri: string) {
+    await this.directTo({ iri: iri, action: "Viewed", appRoute: "directory/folder", newTab: true });
   }
 
-  public select(iri: string) {
-    this.directTo({ iri: iri, action: "Viewed", appRoute: "directory/folder", newTab: false });
+  public async select(iri: string) {
+    await this.directTo({ iri: iri, action: "Viewed", appRoute: "directory/folder", newTab: false });
   }
 
-  public edit(iri: string, openInNewTab?: boolean) {
-    if (iri) this.directTo({ iri: iri, action: "Edited", appRoute: "editor", newTab: openInNewTab });
-    else this.directTo({ appRoute: "editor", newTab: true });
+  public async edit(iri: string, openInNewTab?: boolean) {
+    if (iri) await this.directTo({ iri: iri, action: "Edited", appRoute: "editor", newTab: openInNewTab });
+    else await this.directTo({ appRoute: "editor", newTab: true });
   }
 
-  public query() {
-    this.directTo({ action: "Queried", appRoute: "query", newTab: true });
+  public async query() {
+    await this.directTo({ action: "Queried", appRoute: "query", newTab: true });
   }
 
-  public create(typeIri?: string, propertyIri?: string, valueIri?: string) {
+  public async create(typeIri?: string, propertyIri?: string, valueIri?: string) {
     if (!typeIri && !propertyIri && !valueIri) {
-      this.directTo({ appRoute: "creator", newTab: true });
+      await this.directTo({ appRoute: "creator", newTab: true });
     } else {
       const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, propertyIri: propertyIri, valueIri: valueIri } });
-      this.directTo({ appRoute: routeData.href.replace("#/", ""), newTab: true });
+      await this.directTo({ appRoute: routeData.href.replace("#/", ""), newTab: true });
     }
   }
 
-  public uprn() {
-    this.directTo({ appRoute: "uprn", newTab: true });
+  public async uprn() {
+    await this.directTo({ appRoute: "uprn", newTab: true });
   }
 
-  public workflow() {
-    this.directTo({ appRoute: "workflow", newTab: true });
+  public async workflow() {
+    await this.directTo({ appRoute: "workflow", newTab: true });
   }
 
-  public codeGenerator() {
-    this.directTo({ appRoute: "codeGenerator" });
+  public async codeGenerator() {
+    await this.directTo({ appRoute: "codeGenerator" });
   }
 }

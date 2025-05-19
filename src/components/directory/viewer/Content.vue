@@ -96,8 +96,8 @@ watch(
 
 watch(
   () => cloneDeep(favourites.value),
-  () => {
-    if (conceptIsFavourite.value) init();
+  async () => {
+    if (conceptIsFavourite.value) await init();
   }
 );
 
@@ -187,8 +187,8 @@ function onRowContextMenu(event: MouseEvent, data: { data: ExtendedEntityReferen
   menu.value.show(event);
 }
 
-function updateFavourites(iri: string) {
-  userStore.updateFavourites(iri);
+async function updateFavourites(iri: string) {
+  await userStore.updateFavourites(iri);
 }
 
 function onRowSelect(event: { data: ExtendedEntityReferenceNode }) {

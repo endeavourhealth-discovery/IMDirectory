@@ -69,21 +69,21 @@ function setButtonDisabled(): boolean {
 
 const onSubmit = handleSubmit(async () => {
   if (isNewPasswordValid.value) {
-    AuthService.changePassword(passwordOld.value, password.value).then(res => {
+    await AuthService.changePassword(passwordOld.value, password.value).then(async res => {
       if (res.status === 200) {
-        Swal.fire({
+        await Swal.fire({
           icon: "success",
           title: "Success",
           text: "Password successfully updated"
-        }).then(() => {
+        }).then(async () => {
           if (authReturnPath.value) {
-            router.push({ path: authReturnPath.value });
+            await router.push({ path: authReturnPath.value });
           } else {
-            router.push({ name: "UserDetails" });
+            await router.push({ name: "UserDetails" });
           }
         });
       } else {
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Error",
           text: res.message
@@ -91,13 +91,13 @@ const onSubmit = handleSubmit(async () => {
       }
     });
   } else if (passwordOld.value === password.value) {
-    Swal.fire({
+    await Swal.fire({
       icon: "error",
       title: "Error",
       text: "New password can not be the same as the current password."
     });
   } else {
-    Swal.fire({
+    await Swal.fire({
       icon: "error",
       title: "Error",
       text: "Error updating password. Authentication error or new passwords do not match."

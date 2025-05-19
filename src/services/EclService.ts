@@ -18,11 +18,11 @@ const EclService = {
   },
 
   async getQueryFromECL(ecl: string, raw: boolean = false): Promise<Query> {
-    return axios.post(Env.API + "api/ecl/public/queryFromEcl", ecl, { headers: { "Content-Type": "text/plain" }, raw: raw });
+    return await axios.post(Env.API + "api/ecl/public/queryFromEcl", ecl, { headers: { "Content-Type": "text/plain" }, raw: raw });
   },
 
   async isValidECL(ecl: string): Promise<boolean> {
-    return axios.post(Env.API + "api/ecl/public/validateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
+    return await axios.post(Env.API + "api/ecl/public/validateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
   },
 
   async getECLFromQuery(query: Query, includeNames?: boolean): Promise<string> {

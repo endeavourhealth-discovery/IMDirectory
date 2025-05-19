@@ -18,7 +18,7 @@ const CodeGenService = {
     return await axios.post(Env.API + "api/codeGen/public/codeTemplate", template);
   },
   async generateCodeForAllModels(namespace: string, template: string): Promise<Blob> {
-    return axios.get(Env.API + "api/codeGen/public/generateCode", {
+    return await axios.get(Env.API + "api/codeGen/public/generateCode", {
       params: {
         template,
         namespace
@@ -27,7 +27,7 @@ const CodeGenService = {
     });
   },
   async generateCodeForModel(template: CodeTemplate, modelIri: string, namespace: string): Promise<string> {
-    return axios.post(Env.API + "api/codeGen/public/generateCodePreview", template, {
+    return await axios.post(Env.API + "api/codeGen/public/generateCodePreview", template, {
       params: {
         iri: modelIri,
         namespace

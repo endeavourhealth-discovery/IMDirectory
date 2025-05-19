@@ -50,7 +50,7 @@ function processAwsUser(cognitoUser: GetCurrentUserOutput, userAttributes: Fetch
 
 const AuthService = {
   async getConfig(): Promise<AxiosResponse<string>> {
-    return axios.get(Env.API + "api/cognito/public/config");
+    return await axios.get(Env.API + "api/cognito/public/config");
   },
 
   async register(userToRegister: User): Promise<CustomAlert> {
@@ -93,7 +93,7 @@ const AuthService = {
   },
 
   async isEmailRegistered(email: string): Promise<boolean> {
-    return axios.get(Env.API + "api/cognito/public/isEmailRegistered", { params: { email: email } });
+    return await axios.get(Env.API + "api/cognito/public/isEmailRegistered", { params: { email: email } });
   },
 
   async confirmRegister(username: string, code: string): Promise<CustomAlert> {

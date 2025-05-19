@@ -112,25 +112,25 @@ const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 watch(
   () => props.definition,
   async () => {
-    init();
+    await init();
   }
 );
 
 watch(
   () => props.entityIri,
   async () => {
-    init();
+    await init();
   }
 );
 
-watch(activeTab, newVal => {
+watch(activeTab, async () => {
   if (activeTab.value === "1") displayMode.value = DisplayMode.LOGICAL;
   else if (activeTab.value === "0") displayMode.value = DisplayMode.RULES;
-  getQuery();
+  await getQuery();
 });
 
 onMounted(async () => {
-  init();
+  await init();
 });
 
 async function getQuery() {

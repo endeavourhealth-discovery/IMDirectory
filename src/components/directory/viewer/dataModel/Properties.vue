@@ -116,7 +116,7 @@ const expandedRowGroups: Ref<DataTableExpandedRows[]> = ref([]);
 
 watch(
   () => props.entityIri,
-  async newValue => getDataModelProps(newValue)
+  async newValue => await getDataModelProps(newValue)
 );
 
 onMounted(async () => {
@@ -160,12 +160,12 @@ function getProperty(result: PropertyDisplay): PropertyDisplay {
   } as PropertyDisplay;
 }
 
-function navigate(event: MouseEvent, iri: string): void {
+async function navigate(event: MouseEvent, iri: string) {
   if (!iri.includes("OR")) {
     if (event.metaKey || event.ctrlKey) {
-      directService.view(iri);
+      await directService.view(iri);
     } else {
-      directService.select(iri);
+      await directService.select(iri);
     }
   }
 }

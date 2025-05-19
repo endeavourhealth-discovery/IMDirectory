@@ -81,8 +81,8 @@ watch(
 
 watch(
   () => cloneDeep(favourites.value),
-  () => {
-    if (conceptIsFavourite.value) init();
+  async () => {
+    if (conceptIsFavourite.value) await init();
   }
 );
 

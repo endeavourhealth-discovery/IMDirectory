@@ -273,8 +273,8 @@ function drawGraph() {
     .on("mouseout", () => {
       div.transition().duration(500).style("opacity", 0);
     })
-    .on("contextmenu", e => {
-      getContextMenu(e);
+    .on("contextmenu", async e => {
+      await getContextMenu(e);
       menu.value.show(e);
     });
 

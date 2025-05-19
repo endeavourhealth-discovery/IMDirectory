@@ -45,7 +45,7 @@ Amplify.configure(awsconfig.data as ResourcesConfig);
 
 // msw initialising
 if (import.meta.env.MODE === "mock") {
-  worker.start();
+  await worker.start();
 }
 
 const pinia = createPinia();
@@ -80,7 +80,7 @@ if (window.Cypress) {
 app.mount("#app");
 
 // Vue application exceptions
-app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | null, info: string) => {
+app.config.errorHandler = async (err: unknown, _instance: ComponentPublicInstance | null, info: string) => {
   console.error(err);
   _instance?.$toast.add({
     severity: "error",
@@ -89,5 +89,5 @@ app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | nu
   });
 
   sharedStore.updateError(err as string);
-  router.push({ name: "VueError" });
+  await router.push({ name: "VueError" });
 };

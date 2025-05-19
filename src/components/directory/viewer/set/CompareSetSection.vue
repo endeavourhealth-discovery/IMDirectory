@@ -74,7 +74,7 @@ const rClickItems = ref([
     label: "Copy code",
     icon: "fa-solid fa-copy",
     command: async () => {
-      if (selected.value?.code) copyObjectToClipboard(navigator, selected.value?.code);
+      if (selected.value?.code) await copyObjectToClipboard(navigator, selected.value?.code);
     }
   },
   {
@@ -83,15 +83,15 @@ const rClickItems = ref([
   {
     label: "View",
     icon: "fa-duotone fa-up-right-from-square",
-    command: () => {
-      if (selected.value?.["@id"]) directService.view(selected.value["@id"]);
+    command: async () => {
+      if (selected.value?.["@id"]) await directService.view(selected.value["@id"]);
     }
   }
 ]);
 
 watch(
   () => modelSelectedSet.value?.iri,
-  async () => emit("update:selectedSet", modelSelectedSet.value)
+  () => emit("update:selectedSet", modelSelectedSet.value)
 );
 
 onMounted(async () => {

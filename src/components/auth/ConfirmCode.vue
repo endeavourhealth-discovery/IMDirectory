@@ -122,9 +122,9 @@ onMounted(() => {
 
 const onSubmit = handleSubmit(async () => {
   await AuthService.confirmRegister(username.value, code.value)
-    .then(res => {
+    .then(async res => {
       if (res.status === 200) {
-        Swal.fire({
+        await Swal.fire({
           icon: "success",
           title: "Success",
           text: res.message,
@@ -132,11 +132,11 @@ const onSubmit = handleSubmit(async () => {
         }).then(async () => {
           authStore.updateRegisteredUsername(username.value);
           if (res.nextStep === "COMPLETE_AUTO_SIGN_IN") await AuthService.handleAutoSignIn();
-          else router.push({ name: "Login" });
+          else await router.push({ name: "Login" });
         });
       } else if (res.status === 403) {
         if (res.nextStep === "COMPLETE_AUTO_SIGN_IN") {
-          Swal.fire({
+          await Swal.fire({
             icon: "success",
             title: "Success",
             text: "Confirmed registration",
@@ -147,23 +147,23 @@ const onSubmit = handleSubmit(async () => {
             await router.push({ name: "LandingPage" });
           });
         } else {
-          Swal.fire({
+          await Swal.fire({
             icon: "error",
             title: "Error",
             text: res.message
           });
         }
       } else {
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Error",
           text: res.message
         });
       }
     })
-    .catch(err => {
+    .catch(async err => {
       console.error(err);
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Error",
         text: "Auth Service Error"
@@ -176,35 +176,36 @@ async function requestCode() {
   await AuthService.resendConfirmationCode(username.value)
     .then(async res => {
       if (res.status === 200) {
-        Swal.fire({
+        await Swal.fire({
           icon: "success",
           title: "Success",
           text: "Code has been resent to email for: " + username.value
         });
       } else if (res.message === "User is already confirmed.") {
-        await UserService.updateEmailVerified(true).then(async () =>
-          Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Account has successfully been verified",
-            confirmButtonText: "Login"
-          }).then(async () => {
-            authStore.updateRegisteredUsername(username.value);
-            await autoSignIn();
-            router.push({ name: "LandingPage" });
-          })
+        await UserService.updateEmailVerified(true).then(
+          async () =>
+            await Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: "Account has successfully been verified",
+              confirmButtonText: "Login"
+            }).then(async () => {
+              authStore.updateRegisteredUsername(username.value);
+              await autoSignIn();
+              await router.push({ name: "LandingPage" });
+            })
         );
       } else {
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Error",
           text: "Code resending failed. Please check your username is correct."
         });
       }
     })
-    .catch(err => {
+    .catch(async err => {
       console.error(err);
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Error",
         text: "Internal application error"

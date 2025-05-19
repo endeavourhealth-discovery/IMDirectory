@@ -53,7 +53,7 @@ const imQuery: Ref<QueryRequest | undefined> = ref();
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
 
-async function onSearch(): Promise<void> {
+function onSearch() {
   if (imQueryString.value) {
     try {
       imQuery.value = parseQuery();
@@ -75,7 +75,7 @@ function parseQuery() {
   }
 }
 
-async function format() {
+function format() {
   const parsed = parseQuery();
   if (parsed) imQueryString.value = JSON.stringify(parsed, null, 2);
 }

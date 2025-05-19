@@ -52,7 +52,8 @@ export default defineConfig([
       "no-unused-vars": "off",
       "no-use-before-define": "off",
       "require-await": "warn",
-      "vue/multi-word-component-names": "off"
+      "vue/multi-word-component-names": "off",
+      "vue/no-mutating-props": "off"        // TODO: Remove!!!
     }
   }
 ]);

@@ -169,7 +169,7 @@ async function handleSubmitMFA() {
     try {
       await AuthService.verifyMFAToken(code.value);
       await AuthService.setMfaPreference("TOTP");
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
         title: "Success",
         text: "2-factor authentication successfully setup for this account."

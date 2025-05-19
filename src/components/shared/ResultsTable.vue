@@ -112,9 +112,8 @@ import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
 import { DownloadByQueryOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest } from "@/interfaces/AutoGen";
-import { DownloadSettings, ExtendedSearchResultSummary, Namespace, SearchOptions } from "@/interfaces";
+import { DownloadSettings, ExtendedSearchResultSummary, Namespace, SearchOptions, FilterOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { FilterOptions } from "@/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import { MenuItem } from "primevue/menuitem";
@@ -239,9 +238,9 @@ async function search(pageNumber: number, pageSize: number) {
   return response;
 }
 
-function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
+async function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
   if (row) selected.value = row.data;
-  userStore.updateFavourites(selected.value.iri);
+  await userStore.updateFavourites(selected.value.iri);
 }
 
 function isFavourite(iri: string) {
@@ -286,10 +285,10 @@ function onRowContextMenu(event: { originalEvent: MouseEvent; data: ExtendedSear
   contextMenu.value.show(event.originalEvent);
 }
 
-function onRowSelect(event: DataTableRowSelectEvent<ExtendedSearchResultSummary>) {
+async function onRowSelect(event: DataTableRowSelectEvent<ExtendedSearchResultSummary>) {
   const mouseEvent = event.originalEvent as MouseEvent;
   if (mouseEvent.metaKey || mouseEvent.ctrlKey) {
-    directService.view(event.data.iri);
+    await directService.view(event.data.iri);
   } else {
     const found = searchResults.value.find(result => event.data.iri === result.iri);
     if (found) emit("rowSelected", found);

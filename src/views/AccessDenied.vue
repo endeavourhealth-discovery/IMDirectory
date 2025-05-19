@@ -33,8 +33,8 @@ function goBack() {
   router.go(-2);
 }
 
-function goHome() {
-  router.push({ name: "Directory" });
+async function goHome() {
+  await router.push({ name: "Directory" });
 }
 </script>
 
