@@ -3,12 +3,12 @@ import { faker } from "@faker-js/faker";
 
 const fakerFactory = factory({
   entity: {
-    "@id": primaryKey(faker.internet.url),
+    iri: primaryKey(faker.internet.url),
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": nullable(manyOf("iriRef", { unique: true })),
     "http://www.w3.org/2000/01/rdf-schema#label": nullable(faker.lorem.sentence)
   },
   iriRef: {
-    "@id": primaryKey(faker.internet.url),
+    iri: primaryKey(faker.internet.url),
     name: faker.lorem.sentence
   },
   pagedChildren: {
@@ -17,7 +17,7 @@ const fakerFactory = factory({
     totalCount: Number
   },
   entitySummary: {
-    "@id": primaryKey(faker.internet.url),
+    iri: primaryKey(faker.internet.url),
     hasChildren: Boolean,
     hasGrandChildren: Boolean,
     name: faker.lorem.sentence,

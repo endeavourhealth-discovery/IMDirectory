@@ -25,7 +25,7 @@
     </Button>
     <Menu ref="editMenu" :model="editMenuItems" :popup="true" />
   </span>
-  <EditMatchDialog v-if="editFeature" v-model:visible="editFeature" :match="match" :match-base-type-iri="match.typeOf!['@id']" @save-changes="onSaveChanges" />
+  <EditMatchDialog v-if="editFeature" v-model:visible="editFeature" :match="match" :match-base-type-iri="match.typeOf?.iri" @save-changes="onSaveChanges" />
   <AddFeature v-if="addFeature" v-model:addFeature="addFeature" :base-type="parentMatch?.typeOf!" @onAddMatch="addNewMatch" @on-add-cohort="addInstanceOf" />
 </template>
 

@@ -34,39 +34,39 @@ describe("EditorMethods", () => {
       const iri1 = fakerFactory.iriRef.create();
       const iri2 = fakerFactory.iriRef.create();
       const iri3 = fakerFactory.iriRef.create();
-      expect(getTreeQueryIri([iri1, iri2, iri3])).toBe(iri2["@id"]);
+      expect(getTreeQueryIri([iri1, iri2, iri3])).toBe(iri2.iri);
     });
   });
 
   describe("processComponentType", () => {
     it("processes component type ___ invalid not component", () => {
       const testIri = fakerFactory.iriRef.create();
-      expect(() => processComponentType(testIri)).toThrowError("Iri is not of type ComponentType: " + testIri["@id"]);
+      expect(() => processComponentType(testIri)).toThrowError("Iri is not of type ComponentType: " + testIri.iri);
     });
 
     it("processes component type ___ invalid component", () => {
-      const testIri = { "@id": "http://endhealth.info/im#Component_TestError" };
-      expect(() => processComponentType(testIri)).toThrowError("Invalid component type encountered while processing component types: " + testIri["@id"]);
+      const testIri = { iri: "http://endhealth.info/im#Component_TestError" };
+      expect(() => processComponentType(testIri)).toThrowError("Invalid component type encountered while processing component types: " + testIri.iri);
     });
 
     it("process component type __ valid", () => {
-      expect(processComponentType({ "@id": COMPONENT.TEXT_DISPLAY })).toBe(ComponentType.TEXT_DISPLAY);
-      expect(processComponentType({ "@id": COMPONENT.TEXT_INPUT })).toBe(ComponentType.TEXT_INPUT);
-      expect(processComponentType({ "@id": COMPONENT.HTML_INPUT })).toBe(ComponentType.HTML_INPUT);
-      expect(processComponentType({ "@id": COMPONENT.ARRAY_BUILDER })).toBe(ComponentType.ARRAY_BUILDER);
-      expect(processComponentType({ "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER })).toBe(ComponentType.AUTOCOMPLETE_SEARCH_BAR_WRAPPER);
-      expect(processComponentType({ "@id": COMPONENT.ENTITY_COMBOBOX })).toBe(ComponentType.ENTITY_COMBOBOX);
-      expect(processComponentType({ "@id": COMPONENT.ENTITY_DROPDOWN })).toBe(ComponentType.ENTITY_DROPDOWN);
-      expect(processComponentType({ "@id": COMPONENT.ENTITY_AUTO_COMPLETE })).toBe(ComponentType.ENTITY_AUTO_COMPLETE);
-      expect(processComponentType({ "@id": COMPONENT.COMPONENT_GROUP })).toBe(ComponentType.COMPONENT_GROUP);
-      expect(processComponentType({ "@id": COMPONENT.MEMBERS_BUILDER })).toBe(ComponentType.MEMBERS_BUILDER);
-      expect(processComponentType({ "@id": COMPONENT.SET_DEFINITION_BUILDER })).toBe(ComponentType.SET_DEFINITION_BUILDER);
-      expect(processComponentType({ "@id": COMPONENT.QUERY_DEFINITION_BUILDER })).toBe(ComponentType.QUERY_DEFINITION_BUILDER);
-      expect(processComponentType({ "@id": COMPONENT.PROPERTY_BUILDER })).toBe(ComponentType.PROPERTY_BUILDER);
-      expect(processComponentType({ "@id": COMPONENT.TOGGLEABLE })).toBe(ComponentType.TOGGLEABLE_COMPONENT);
-      expect(processComponentType({ "@id": COMPONENT.HORIZONTAL_LAYOUT })).toBe(ComponentType.HORIZONTAL_LAYOUT);
-      expect(processComponentType({ "@id": COMPONENT.VERTICAL_LAYOUT })).toBe(ComponentType.VERTICAL_LAYOUT);
-      expect(processComponentType({ "@id": COMPONENT.DROPDOWN_TEXT_INPUT_CONCATENATOR })).toBe(ComponentType.DROPDOWN_TEXT_INPUT_CONCATENATOR);
+      expect(processComponentType({ iri: COMPONENT.TEXT_DISPLAY })).toBe(ComponentType.TEXT_DISPLAY);
+      expect(processComponentType({ iri: COMPONENT.TEXT_INPUT })).toBe(ComponentType.TEXT_INPUT);
+      expect(processComponentType({ iri: COMPONENT.HTML_INPUT })).toBe(ComponentType.HTML_INPUT);
+      expect(processComponentType({ iri: COMPONENT.ARRAY_BUILDER })).toBe(ComponentType.ARRAY_BUILDER);
+      expect(processComponentType({ iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER })).toBe(ComponentType.AUTOCOMPLETE_SEARCH_BAR_WRAPPER);
+      expect(processComponentType({ iri: COMPONENT.ENTITY_COMBOBOX })).toBe(ComponentType.ENTITY_COMBOBOX);
+      expect(processComponentType({ iri: COMPONENT.ENTITY_DROPDOWN })).toBe(ComponentType.ENTITY_DROPDOWN);
+      expect(processComponentType({ iri: COMPONENT.ENTITY_AUTO_COMPLETE })).toBe(ComponentType.ENTITY_AUTO_COMPLETE);
+      expect(processComponentType({ iri: COMPONENT.COMPONENT_GROUP })).toBe(ComponentType.COMPONENT_GROUP);
+      expect(processComponentType({ iri: COMPONENT.MEMBERS_BUILDER })).toBe(ComponentType.MEMBERS_BUILDER);
+      expect(processComponentType({ iri: COMPONENT.SET_DEFINITION_BUILDER })).toBe(ComponentType.SET_DEFINITION_BUILDER);
+      expect(processComponentType({ iri: COMPONENT.QUERY_DEFINITION_BUILDER })).toBe(ComponentType.QUERY_DEFINITION_BUILDER);
+      expect(processComponentType({ iri: COMPONENT.PROPERTY_BUILDER })).toBe(ComponentType.PROPERTY_BUILDER);
+      expect(processComponentType({ iri: COMPONENT.TOGGLEABLE })).toBe(ComponentType.TOGGLEABLE_COMPONENT);
+      expect(processComponentType({ iri: COMPONENT.HORIZONTAL_LAYOUT })).toBe(ComponentType.HORIZONTAL_LAYOUT);
+      expect(processComponentType({ iri: COMPONENT.VERTICAL_LAYOUT })).toBe(ComponentType.VERTICAL_LAYOUT);
+      expect(processComponentType({ iri: COMPONENT.DROPDOWN_TEXT_INPUT_CONCATENATOR })).toBe(ComponentType.DROPDOWN_TEXT_INPUT_CONCATENATOR);
     });
   });
 });

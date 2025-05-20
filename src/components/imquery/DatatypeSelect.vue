@@ -47,7 +47,7 @@
       <div v-if="propertyType === 'is'" class="property-input">
         <Select type="text" placeholder="operator" :options="uiProperty.operatorOptions" v-model="property.operator" data-testid="property-operator-select" />
         <InputText type="text" placeholder="value" v-model="property.value" data-testid="property-value-input" />
-        <RelativeToSelect :property="property" :datatype="uiProperty.valueType" :property-iri="property['@id']!" />
+        <RelativeToSelect :property="property" :datatype="uiProperty.valueType" :property-iri="property.iri!" />
         <Select
           v-if="isArrayHasLength(uiProperty.unitOptions)"
           type="text"

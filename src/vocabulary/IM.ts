@@ -15,9 +15,9 @@ export class IM {
   public static readonly ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
   public static readonly ENTAILMENT = IM.NAMESPACE + "entailment";
   public static readonly EXCLUDE = IM.NAMESPACE + "exclude";
-  public static readonly IRI = "@id";
-  public static readonly VALUE = "@value";
-  public static readonly TYPE = "@type";
+  public static readonly IRI = "iri";
+  public static readonly VALUE = "value";
+  public static readonly TYPE = "type";
   public static readonly id = IM.NAMESPACE + "id";
   public static readonly RELATIONSHIP_TYPE = IM.NAMESPACE + "relationshipType";
   public static readonly CODE = IM.NAMESPACE + "code";

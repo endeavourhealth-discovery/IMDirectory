@@ -82,7 +82,7 @@ const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(false);
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 let selectedItem: Ref<string | undefined> = ref();
 watch(selectedItem, async newValue => {
@@ -109,13 +109,13 @@ onMounted(async () => {
 
 function setSelectedItem(): string | undefined {
   if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue) {
-    const found = dropdownOptions.value.find(o => o === props.shape.isIri!["@id"]);
+    const found = dropdownOptions.value.find(o => o === props.shape.isIri!.iri);
     if (found) return found;
   }
   if (props.value && isArrayHasLength(props.value)) return props.value[0];
   else if (props.value) return props.value;
-  else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!["@id"]) {
-    const found = dropdownOptions.value.find(o => o === props.shape.isIri!["@id"]);
+  else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!.iri) {
+    const found = dropdownOptions.value.find(o => o === props.shape.isIri!.iri);
     if (found) return found;
   } else return undefined;
 }
@@ -125,7 +125,7 @@ async function getDropdownOptions() {
     const args = processArguments(props.shape);
     const queryRequest = {} as QueryRequest;
     queryRequest.argument = args;
-    const query = { "@id": props.shape.select![0]["@id"] } as Query;
+    const query = { iri: props.shape.select![0].iri } as Query;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)
@@ -134,7 +134,7 @@ async function getDropdownOptions() {
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await FunctionService.runFunction(props.shape.function!["@id"])).sort();
+    return (await FunctionService.runFunction(props.shape.function!.iri)).sort();
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 

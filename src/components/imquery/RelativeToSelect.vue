@@ -146,22 +146,22 @@ async function getPropertyOptions(dataModelIri: string, dataTypeIri: string, key
   const propertiesEntity = await EntityService.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
   if (!isObjectHasKeys(propertiesEntity, [SHACL.PROPERTY])) return {} as TreeNode;
   const allProperties: any[] = propertiesEntity[SHACL.PROPERTY];
-  const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === dataTypeIri);
+  const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0].iri === dataTypeIri);
   if (!isArrayHasLength(validOptions)) return {} as TreeNode;
 
   const treeNode = {
     key: key,
-    label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
+    label: key + " (" + getNameFromRef({ iri: dataModelIri }) + ")",
     children: [] as TreeNode[],
     selectable: false
   } as TreeNode;
 
   for (const property of validOptions) {
     treeNode.children?.push({
-      key: key + "/" + property[SHACL.PATH][0]["@id"],
+      key: key + "/" + property[SHACL.PATH][0].iri,
       label: property[SHACL.PATH][0].name,
       data: {
-        "@id": property[SHACL.PATH][0]["@id"],
+        iri: property[SHACL.PATH][0].iri,
         nodeRef: key,
         name: property[SHACL.PATH][0].name
       }
@@ -198,11 +198,11 @@ function filterBySearchTerm(options: TreeNode[], searchTerm: string) {
 }
 
 function getVariableWithType(value: any) {
-  if (isObjectHasKeys(value, ["typeOf"])) return value.typeOf["@id"];
+  if (isObjectHasKeys(value, ["typeOf"])) return value.typeOf.iri;
   else if (isObjectHasKeys(value, ["variable"])) {
     const objectWithTypeOf = variableMap.value[value.variable];
-    if (isObjectHasKeys(objectWithTypeOf, ["typeOf"])) return objectWithTypeOf.typeOf["@id"];
-    if (fullQuery.value && isObjectHasKeys(objectWithTypeOf, ["@id"])) return getTypeOfMatch(fullQuery.value, objectWithTypeOf["@id"]);
+    if (isObjectHasKeys(objectWithTypeOf, ["typeOf"])) return objectWithTypeOf.typeOf.iri;
+    if (fullQuery.value && isObjectHasKeys(objectWithTypeOf, ["iri"])) return getTypeOfMatch(fullQuery.value, objectWithTypeOf.iri);
   }
 }
 

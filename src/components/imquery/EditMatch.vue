@@ -55,7 +55,7 @@
           </Dialog>
 
           <Button
-            v-if="!isBooleanEditor && editMatch['@id'] === focusedId"
+            v-if="!isBooleanEditor && editMatch.iri === focusedId"
             class="add-property-button"
             icon="fa-solid fa-plus"
             label="Add property"
@@ -64,7 +64,7 @@
           />
         </div>
       </div>
-      <EditOrderBy v-if="focusedId === editMatch['@id'] && editMatch.orderBy" :dm-iri="typeOf" :editMatch="editMatch" :order-by="editMatch.orderBy" />
+      <EditOrderBy v-if="focusedId === editMatch.iri && editMatch.orderBy" :dm-iri="typeOf" :editMatch="editMatch" :order-by="editMatch.orderBy" />
       <div v-else-if="editMatch.orderBy" v-html="editMatch.orderBy.description" />
       <span v-if="editMatch.variable">label as {{ editMatch.variable }}</span>
     </div>
@@ -75,7 +75,7 @@
       class="builder-button delete-button"
       icon="fa-solid fa-trash"
       severity="danger"
-      @click.stop="emit('deleteMatch', editMatch['@id']!)"
+      @click.stop="emit('deleteMatch', editMatch.iri!)"
       @mouseover.stop="hover = true"
       @mouseout.stop="hover = false"
     />
@@ -134,13 +134,13 @@ function getOperatorText(operator: string): string {
   }
 }
 onMounted(() => {
-  if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!["@id"]!;
+  if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!.iri!;
 });
 
 watch(
   () => cloneDeep(editMatch),
   () => {
-    if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!["@id"]!;
+    if (fullMatch.value) typeOf.value = fullMatch.value!.typeOf!.iri!;
   }
 );
 

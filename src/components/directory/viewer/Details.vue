@@ -25,7 +25,7 @@
         </div>
 
         <div v-else-if="node.data">
-          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          {{ node.label + " - " }}<IMViewerLink :iri="node.data.iri!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
         <div v-else>{{ node.label }}</div>
       </template>

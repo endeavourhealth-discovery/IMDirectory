@@ -199,7 +199,7 @@ function removeEroneousKeys() {
   const shapeKeys = [] as string[];
   groups.value.forEach((group: PropertyShape) => {
     group.property?.forEach((property: PropertyShape) => {
-      if (isObjectHasKeys(property, ["path"])) shapeKeys.push(property.path!["@id"]);
+      if (isObjectHasKeys(property, ["path"])) shapeKeys.push(property.path!.iri);
     });
   });
   for (const key of Object.keys(editorEntity.value)) {
@@ -307,8 +307,8 @@ function submit(): void {
 }
 
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!["@id"]])) {
-    return editorEntity.value[property.path!["@id"]];
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!.iri])) {
+    return editorEntity.value[property.path!.iri];
   }
   return undefined;
 }

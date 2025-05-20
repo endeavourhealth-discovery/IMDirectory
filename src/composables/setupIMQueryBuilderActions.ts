@@ -28,7 +28,7 @@ function setupIMQueryBuilderActions() {
   }
 
   function getMenuItemFromMatch(match: Match): MenuItem {
-    return { label: match.typeOf?.name ?? match.description ?? "Feature", key: match["@id"], editMatch: match };
+    return { label: match.typeOf?.name ?? match.description ?? "Feature", key: match.iri, editMatch: match };
   }
 
   function getTypeOfMatch(query: Query, id: string): string {
@@ -38,10 +38,10 @@ function setupIMQueryBuilderActions() {
   }
 
   function searchForTypeOfRecursively(match: Match, id: string, parent: Match | undefined, typeOf: string[], fullQuery: Query) {
-    if (match["@id"] === id) {
-      if (match.typeOf && match.typeOf?.["@id"]) typeOf.push(match.typeOf?.["@id"]);
-      else if (parent && parent.typeOf && parent.typeOf?.["@id"]) typeOf.push(parent.typeOf?.["@id"]);
-      else if (parent && parent["@id"]) searchForTypeOfRecursively(fullQuery, parent!["@id"], undefined, typeOf, fullQuery);
+    if (match.iri === id) {
+      if (match.typeOf && match.typeOf?.iri) typeOf.push(match.typeOf?.iri);
+      else if (parent && parent.typeOf && parent.typeOf?.iri) typeOf.push(parent.typeOf?.iri);
+      else if (parent && parent.iri) searchForTypeOfRecursively(fullQuery, parent!.iri, undefined, typeOf, fullQuery);
     } else if (match.and) {
       for (const nestedMatch of match.and) {
         searchForTypeOfRecursively(nestedMatch, id, match, typeOf, fullQuery);

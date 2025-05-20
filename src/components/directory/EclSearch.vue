@@ -148,7 +148,7 @@ async function onSearch(): Promise<void> {
 }
 
 function setFilterDefaults() {
-  selectedStatus.value = statusOptions.value.filter(option => option["@id"] === IM.ACTIVE);
+  selectedStatus.value = statusOptions.value.filter(option => option.iri === IM.ACTIVE);
 }
 </script>
 

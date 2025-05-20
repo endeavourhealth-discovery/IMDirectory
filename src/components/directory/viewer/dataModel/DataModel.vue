@@ -125,9 +125,9 @@ function createGroupNode(property: PropertyShape, index: number, propertyList: T
       selectable: true,
       loading: false,
       data: {
-        typeIcon: getFAIconFromType([{ "@id": IM.FOLDER }]),
-        color: getColourFromType([{ "@id": IM.FOLDER }]),
-        iri: property.group["@id"]
+        typeIcon: getFAIconFromType([{ iri: IM.FOLDER }]),
+        color: getColourFromType([{ iri: IM.FOLDER }]),
+        iri: property.group.iri
       },
       type: "type"
     } as TreeNode;
@@ -146,13 +146,13 @@ function createQualifierNode(property: PropertyShape, rangeNode: TreeNode) {
     if (property.datatype.qualifier) {
       let qualifiers = "qualifiers ->";
       qualifiers = qualifiers + property.datatype.qualifier.map(item => item.name).join(", ");
-      setQualifierNode(qualifiers, rangeNode, property.datatype["@id"], 0);
+      setQualifierNode(qualifiers, rangeNode, property.datatype.iri, 0);
     }
     if (property.datatype.units) {
-      setQualifierNode("units : " + property.datatype.units.name, rangeNode, property.datatype["@id"], 1);
+      setQualifierNode("units : " + property.datatype.units.name, rangeNode, property.datatype.iri, 1);
     }
     if (property.datatype.operator) {
-      setQualifierNode("operators : <,>,<=,>=", rangeNode, property.datatype["@id"], 2);
+      setQualifierNode("operators : <,>,<=,>=", rangeNode, property.datatype.iri, 2);
     }
   }
 }
@@ -165,8 +165,8 @@ function createOrderableNode(property: PropertyShape, rangeNode: TreeNode) {
       selectable: false,
       loading: false,
       data: {
-        typeIcon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
-        color: getColourFromType([{ "@id": IM.CONCEPT }]),
+        typeIcon: getFAIconFromType([{ iri: IM.CONCEPT }]),
+        color: getColourFromType([{ iri: IM.CONCEPT }]),
         iri: "im:orderable"
       },
       type: "type"
@@ -182,8 +182,8 @@ function setQualifierNode(qualifiers: string, rangeNode: TreeNode, iri: string, 
     selectable: true,
     loading: false,
     data: {
-      typeIcon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
-      color: getColourFromType([{ "@id": IM.CONCEPT }]),
+      typeIcon: getFAIconFromType([{ iri: IM.CONCEPT }]),
+      color: getColourFromType([{ iri: IM.CONCEPT }]),
       iri: iri
     },
     type: "type"
@@ -202,9 +202,9 @@ function createParameterNode(property: PropertyShape, rangeNode: TreeNode) {
           selectable: true,
           loading: false,
           data: {
-            typeIcon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
-            color: getColourFromType([{ "@id": IM.CONCEPT }]),
-            iri: parameter.type["@id"]
+            typeIcon: getFAIconFromType([{ iri: IM.CONCEPT }]),
+            color: getColourFromType([{ iri: IM.CONCEPT }]),
+            iri: parameter.type.iri
           },
           type: "type"
         } as TreeNode;
@@ -237,7 +237,7 @@ function createRangeNode(property: PropertyShape, propertyNode: TreeNode) {
       data: {
         typeIcon: getFAIconFromType([rangeType]),
         color: getColourFromType([rangeType]),
-        iri: range["@id"]
+        iri: range.iri
       },
       type: "type"
     } as TreeNode;
@@ -268,10 +268,10 @@ function createPropertyNode(property: PropertyShape, index: number, propertyList
 
     let name = property.path.name;
     if (property.hasValue) {
-      const value = property.hasValueType?.["@id"] === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
+      const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
       name += ` (${value})`;
     }
-    const propertyType = { "@id": RDF.PROPERTY } as TTIriRef;
+    const propertyType = { iri: RDF.PROPERTY } as TTIriRef;
     if (range && rangeType) {
       const propertyNode = {
         key: parentKey + "-" + index.toString(),
@@ -284,7 +284,7 @@ function createPropertyNode(property: PropertyShape, index: number, propertyList
           cardinality: cardinality,
           typeIcon: getFAIconFromType([propertyType]),
           color: getColourFromType([propertyType]),
-          iri: property.path["@id"]
+          iri: property.path.iri
         },
         type: "property"
       } as TreeNode;

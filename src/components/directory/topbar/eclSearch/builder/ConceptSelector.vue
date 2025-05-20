@@ -73,7 +73,7 @@ watch(selected, (newValue, oldValue) => {
 
 async function init() {
   buildIMQueryForConceptSearch();
-  selected.value.iri = node.value["@id"];
+  selected.value.iri = node.value.iri;
   selected.value.name = node.value.name;
   constraintOperator.value = getConstraintOperator(node.value);
 }
@@ -84,19 +84,19 @@ function updateConstraintOperator(e: { value: string }) {
 
 function buildIMQueryForConceptSearch() {
   const coreSchemesAsIris = coreSchemes.value.map(iri => {
-    return { "@id": iri };
+    return { iri: iri };
   });
   const searchOptions: SearchOptions = {
     schemes: coreSchemesAsIris,
-    status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
-    types: [{ "@id": IM.CONCEPT }]
+    status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
+    types: [{ iri: IM.CONCEPT }]
   };
   imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }
 
 function updateConcept(concept: SearchResultSummary) {
   if (concept) {
-    node.value["@id"] = concept.iri;
+    node.value.iri = concept.iri;
     node.value.name = concept.name;
   }
 }

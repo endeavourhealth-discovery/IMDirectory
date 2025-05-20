@@ -37,7 +37,7 @@ const props = defineProps<Props>();
 const showCohortSelector = ref(false);
 const showMatchTypeSelector = ref(true);
 const selectedCohort: Ref<SearchResultSummary | undefined> = ref();
-const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ "@id": IM.QUERY }], status: [], schemes: [] });
+const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ iri: IM.QUERY }], status: [], schemes: [] });
 const queryRequest: Ref<QueryRequest | undefined> = ref();
 const rootCohortFolder = [IM.NAMESPACE + "Q_Queries"];
 const emit = defineEmits<{
@@ -50,7 +50,7 @@ watch(
   newValue => {
     const match = {
       typeOf: props.baseType,
-      instanceOf: [{ "@id": newValue?.iri, name: newValue?.name, memberOf: true }]
+      instanceOf: [{ iri: newValue?.iri, name: newValue?.name, memberOf: true }]
     } as Match;
     emit("onAddCohort", match);
   },
@@ -77,7 +77,7 @@ async function createMatch(node: TreeNode) {
   if (node.data.pathMatch) {
     match = node.data.pathMatch;
   }
-  match.where = { "@id": node.data.iri, name: node.label };
+  match.where = { iri: node.data.iri, name: node.label };
   emit("onAddMatch", match);
 }
 </script>

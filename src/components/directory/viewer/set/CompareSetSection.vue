@@ -21,7 +21,7 @@
       filter-placeholder="Filter"
     >
       <template #option="{ option }: { option: Concept }">
-        <div class="member-name" @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay" @contextmenu="onMemberRightClick($event, option)">
+        <div class="member-name" @mouseover="showOverlay($event, option.iri)" @mouseleave="hideOverlay" @contextmenu="onMemberRightClick($event, option)">
           {{ option.name }}
         </div>
       </template>
@@ -84,7 +84,7 @@ const rClickItems = ref([
     label: "View",
     icon: "fa-duotone fa-up-right-from-square",
     command: () => {
-      if (selected.value?.["@id"]) directService.view(selected.value["@id"]);
+      if (selected.value?.iri) directService.view(selected.value.iri);
     }
   }
 ]);
@@ -107,14 +107,7 @@ async function init() {
     const queryFilterOptions: SearchOptions = {
       schemes: filterOptions.value.schemes,
       status: filterOptions.value.status,
-      types: [
-        { "@id": IM.CONCEPT_SET },
-        { "@id": IM.SET },
-        { "@id": IM.QUERY_SET },
-        { "@id": IM.VALUE_SET },
-        { "@id": IM.CONCEPT_SET },
-        { "@id": IM.CONCEPT_SET_GROUP }
-      ],
+      types: [{ iri: IM.CONCEPT_SET }, { iri: IM.SET }, { iri: IM.QUERY_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT_SET }, { iri: IM.CONCEPT_SET_GROUP }],
       textSearch: entity.name,
       page: { pageNumber: 1, pageSize: 100 }
     };

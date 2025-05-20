@@ -189,7 +189,7 @@ const hasFocus = computed(() => {
   else return false;
 });
 const hasProperty = computed(() => {
-  return where.value["@id"];
+  return where.value.iri;
 });
 defineEmits<{
   (e: "update:parentOperator", value: string): void;
@@ -282,11 +282,11 @@ function updateValueConstraint(e: { value: string }) {
 function updateQueryForValueSearch() {
   if (where.value.is) {
     imQueryForValueSearch.value = {
-      query: { "@id": QUERY.ALLOWABLE_RANGES },
+      query: { iri: QUERY.ALLOWABLE_RANGES },
       argument: [
         {
           parameter: "this",
-          valueIri: { "@id": where.value.is[0]["@id"] }
+          valueIri: { iri: where.value.is[0].iri }
         }
       ]
     } as QueryRequest;
@@ -297,7 +297,7 @@ function addIfConcept(focus: any[], iris: TTIriRef[]) {
   for (const item of focus) {
     if (item.type === "ExpressionConstraint") {
       if (item.conceptSingle) {
-        iris.push({ "@id": item.conceptSingle.iri });
+        iris.push({ iri: item.conceptSingle.iri });
       } else if (item.conceptBool) {
         addIfConcept(item.conceptBoolItem.items, iris);
       }
@@ -314,7 +314,7 @@ function updateQueryForPropertySearch() {
       const iris: TTIriRef[] = [];
       addIfConcept(props.focus.items, iris);
       imQueryForPropertySearch.value = {
-        query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
+        query: { iri: QUERY.ALLOWABLE_PROPERTIES },
         argument: [
           {
             parameter: "this",
@@ -326,17 +326,17 @@ function updateQueryForPropertySearch() {
       const filterOptions = {
         isAs: ["http://snomed.info/sct#410662002"],
         status: filterStoreOptions.value.status,
-        schemes: filterStoreOptions.value.schemes.filter(filterOption => coreSchemes.value.includes(filterOption["@id"])),
-        types: [{ "@id": RDF.PROPERTY }]
+        schemes: filterStoreOptions.value.schemes.filter(filterOption => coreSchemes.value.includes(filterOption.iri)),
+        types: [{ iri: RDF.PROPERTY }]
       } as SearchOptions;
       imQueryForPropertySearch.value = buildIMQueryFromFilters(filterOptions);
     } else {
       imQueryForPropertySearch.value = {
-        query: { "@id": QUERY.ALLOWABLE_PROPERTIES },
+        query: { iri: QUERY.ALLOWABLE_PROPERTIES },
         argument: [
           {
             parameter: "this",
-            valueIri: { "@id": props.focus.iri }
+            valueIri: { iri: props.focus.iri }
           }
         ]
       } as QueryRequest;
@@ -348,10 +348,10 @@ async function updatePropertyTreeRoots(): Promise<void> {
   if (props.focus) {
     if (isAliasIriRef(props.focus) && props.focus.iri !== SNOMED.ANY) {
       const results = await ConceptService.getSuperiorPropertiesPaged(props.focus.iri);
-      if (results.result) roots = results.result.map(item => item["@id"]);
+      if (results.result) roots = results.result.map(item => item.iri);
     } else if (isBoolGroup(props.focus)) {
       const results = await ConceptService.getSuperiorPropertiesBoolFocusPaged(props.focus);
-      if (results.result) roots = results.result.map(item => item["@id"]);
+      if (results.result) roots = results.result.map(item => item.iri);
     }
   }
   propertyTreeRoots.value = roots;
@@ -359,29 +359,29 @@ async function updatePropertyTreeRoots(): Promise<void> {
 
 async function updateValueTreeRoots(): Promise<void> {
   let roots = [IM.ONTOLOGY_PARENT_FOLDER];
-  if (where.value["@id"] && where.value["@id"] !== SNOMED.ANY) {
-    const results = await ConceptService.getSuperiorPropertyValuesPaged(where.value["@id"]);
-    if (results.result) roots = results.result.map(item => item["@id"]);
+  if (where.value.iri && where.value.iri !== SNOMED.ANY) {
+    const results = await ConceptService.getSuperiorPropertyValuesPaged(where.value.iri);
+    if (results.result) roots = results.result.map(item => item.iri);
   }
   valueTreeRoots.value = roots;
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (where.value["@id"] && where.value["@id"] === SNOMED.ANY) {
+  if (where.value.iri && where.value.iri === SNOMED.ANY) {
     const imQuery: QueryRequest = cloneDeep(imQueryForPropertySearch.value) ?? { query: {} };
     imQuery.textSearch = selectedProperty.value?.iri;
     const results = await QueryService.queryIMSearch(imQuery);
     isValidProperty.value = results.entities?.findIndex(r => r.iri === selectedProperty.value?.iri) != -1 ? true : false;
   } else if (props.focus && hasProperty.value && imQueryForPropertySearch.value) {
     const imQuery = cloneDeep(imQueryForPropertySearch.value);
-    imQuery.askIri = where.value["@id"];
+    imQuery.askIri = where.value.iri;
     isValidProperty.value = await QueryService.askQuery(imQuery);
     if (!isValidProperty.value) {
       if (isAliasIriRef(props.focus))
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property",
-          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value["@id"]}" is not valid for concept "${
+          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value.iri}" is not valid for concept "${
             props.focus?.name ? props.focus.name : props.focus?.iri
           }"`,
           life: 3000
@@ -390,7 +390,7 @@ async function updateIsValidProperty(): Promise<void> {
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property",
-          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value["@id"]}" is not valid for focus "${props.focus?.ecl}"`,
+          detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value.iri}" is not valid for focus "${props.focus?.ecl}"`,
           life: 3000
         });
     }
@@ -421,8 +421,8 @@ async function processProps() {
 }
 
 async function processPropertyProp() {
-  if (where.value["@id"]) {
-    selectedProperty.value = { iri: where.value["@id"], name: where.value.name } as SearchResultSummary;
+  if (where.value.iri) {
+    selectedProperty.value = { iri: where.value.iri, name: where.value.name } as SearchResultSummary;
     propertyConstraintOperator.value = getConstraintOperator(where.value);
   } else {
     selectedProperty.value = undefined;
@@ -431,8 +431,8 @@ async function processPropertyProp() {
 }
 
 async function processValueProp() {
-  if (where.value.is && where.value.is[0]["@id"]) {
-    selectedValue.value = { iri: where.value.is[0]["@id"], name: where.value.is[0].name } as SearchResultSummary;
+  if (where.value.is && where.value.is[0].iri) {
+    selectedValue.value = { iri: where.value.is[0].iri, name: where.value.is[0].name } as SearchResultSummary;
     valueConstraintOperator.value = getConstraintOperator(where.value.is[0]);
   } else {
     selectedValue.value = undefined;
@@ -442,10 +442,10 @@ async function processValueProp() {
 
 async function updateProperty(property: SearchResultSummary | undefined) {
   if (!property) {
-    delete where.value["@id"];
+    delete where.value.iri;
     delete where.value.name;
   } else {
-    where.value["@id"] = property.iri;
+    where.value.iri = property.iri;
     where.value.name = property.name;
   }
 }
@@ -456,7 +456,7 @@ async function updateValue(value: SearchResultSummary | undefined) {
   } else {
     where.value.is = [
       {
-        "@id": value.iri,
+        iri: value.iri,
         name: value.name
       }
     ];

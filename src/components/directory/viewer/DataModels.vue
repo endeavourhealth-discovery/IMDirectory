@@ -4,7 +4,7 @@
       :value="dataModels"
       class="concept-data-table p-datatable-sm"
       selectionMode="single"
-      dataKey="@id"
+      dataKey="iri"
       :scrollable="true"
       scrollHeight="flex"
       :loading="loading"
@@ -18,7 +18,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
-            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay">{{ data.name }}</span>
+            <span @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -28,7 +28,7 @@
             <ActionButtons
               v-if="data.iri"
               :buttons="['findInTree', 'view', 'edit', 'favourite']"
-              :iri="data['@id']"
+              :iri="data.iri"
               :name="data.name"
               @locate-in-tree="locateInTree"
             />
@@ -54,13 +54,10 @@ import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";
 import { getColourFromType } from "@/helpers/ConceptTypeVisuals";
 import { DataTableRowSelectEvent } from "primevue/datatable";
-
 interface UIDataModel extends TTIriRef {
-  order: number;
-  type: TTIriRef[];
-  icon: string[];
+  type?: TTIriRef[];
+  icon?: string[];
 }
-
 const props = defineProps<{
   entityIri: string;
 }>();
@@ -108,18 +105,17 @@ async function getDMs(iri: string): Promise<UIDataModel[]> {
   const dataModels = await DataModelService.getDataModelsFromProperty(iri);
   return dataModels.map(dm => {
     return {
-      "@id": dm["@id"],
+      iri: dm.iri,
       name: dm.name,
       description: dm.description,
-      order: (dm as any).order,
-      type: [{ "@id": SHACL.NODESHAPE }],
+      type: [{ iri: SHACL.NODESHAPE }],
       icon: ["fa-duotone", "fa-diagram-project"]
     };
   });
 }
 
 function onRowSelect(event: DataTableRowSelectEvent<UIDataModel>) {
-  emit("navigateTo", event.data["@id"]);
+  emit("navigateTo", event.data.iri);
 }
 
 function locateInTree(iri: string) {

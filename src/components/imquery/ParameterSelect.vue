@@ -55,7 +55,7 @@ async function getParameters() {
   if (isArrayHasLength(response?.[IM.PARAMETER])) {
     const param = response[IM.PARAMETER][0];
     if (param[RDFS.LABEL]) placeholder.value = param[RDFS.LABEL];
-    if (isArrayHasLength(param[SHACL.CLASS]) && param[SHACL.CLASS][0]["@id"]) options = await getOptions(param[SHACL.CLASS][0]["@id"]);
+    if (isArrayHasLength(param[SHACL.CLASS]) && param[SHACL.CLASS][0].iri) options = await getOptions(param[SHACL.CLASS][0].iri);
   }
   return options;
 }
@@ -63,12 +63,12 @@ async function getParameters() {
 async function getOptions(iri: string) {
   let options: SelectOption[] = [];
   const qr: QueryRequest = {
-    query: { "@id": QUERY.GET_SUBCLASSES },
+    query: { iri: QUERY.GET_SUBCLASSES },
     argument: [
       {
         parameter: "this",
         valueIri: {
-          "@id": iri
+          iri: iri
         }
       }
     ]
@@ -76,7 +76,7 @@ async function getOptions(iri: string) {
   const response = await QueryService.queryIM(qr);
   if (isArrayHasLength(response.entities)) {
     options = response.entities.map(entity => {
-      return { id: entity[IM.CODE], name: entity[RDFS.LABEL], value: { "@id": entity["@id"], name: entity[RDFS.LABEL] } } as SelectOption;
+      return { id: entity[IM.CODE], name: entity[RDFS.LABEL], value: { iri: entity.iri, name: entity[RDFS.LABEL] } } as SelectOption;
     });
   }
 

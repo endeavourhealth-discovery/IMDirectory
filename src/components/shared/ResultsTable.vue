@@ -51,7 +51,7 @@
           <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
             <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
-              {{ (data.code ? data.name + " | " + data.code : data.name) + " [" + schemesWithPrefixes[data.scheme["@id"]]?.prefix + "]" }}
+              {{ (data.code ? data.name + " | " + data.code : data.name) + " [" + schemesWithPrefixes[data.scheme.iri]?.prefix + "]" }}
             </span>
           </div>
         </template>

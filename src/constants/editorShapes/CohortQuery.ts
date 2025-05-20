@@ -2,25 +2,25 @@ import { FormGenerator } from "@/interfaces/AutoGen";
 import { IM, RDF, RDFS, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY, XSD } from "@/vocabulary";
 
 const CohortQueryShape: FormGenerator = {
-  "@id": EDITOR.COHORT_QUERY_SHAPE,
+  iri: EDITOR.COHORT_QUERY_SHAPE,
   type: [
     {
-      "@id": IM.FORM_GENERATOR
+      iri: IM.FORM_GENERATOR
     }
   ],
   label: "Editor - Cohort query shape",
   comment: "Form editor for a cohort query",
   targetShape: {
-    "@id": IM.QUERY
+    iri: IM.QUERY
   },
   property: [
     {
       comment: "Tab menu , with summary and query definition builder tabs. ",
       order: 1,
       name: "splitter",
-      path: { "@id": IM.CONCEPT },
+      path: { iri: IM.CONCEPT },
       maxCount: 1,
-      componentType: { "@id": COMPONENT.TAB_LAYOUT },
+      componentType: { iri: COMPONENT.TAB_LAYOUT },
       property: [
         {
           label: "Property group - query definition builder",
@@ -29,24 +29,24 @@ const CohortQueryShape: FormGenerator = {
           order: 1,
           maxCount: 1,
           path: {
-            "@id": RDF.TYPE
+            iri: RDF.TYPE
           },
           componentType: {
-            "@id": COMPONENT.VERTICAL_LAYOUT
+            iri: COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
               order: 1,
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.QUERY_DEFINITION_BUILDER
+                iri: COMPONENT.QUERY_DEFINITION_BUILDER
               },
               validation: {
-                "@id": VALIDATION.IS_DEFINITION
+                iri: VALIDATION.IS_DEFINITION
               },
               validationErrorMessage: "Query definition is not valid",
               path: {
-                "@id": IM.DEFINITION
+                iri: IM.DEFINITION
               }
             }
           ]
@@ -64,24 +64,24 @@ const CohortQueryShape: FormGenerator = {
           ],
           maxCount: 1,
           path: {
-            "@id": RDF.TYPE
+            iri: RDF.TYPE
           },
           componentType: {
-            "@id": COMPONENT.VERTICAL_LAYOUT
+            iri: COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
               order: 1,
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.QUERY_DEFINITION_BUILDER
+                iri: COMPONENT.QUERY_DEFINITION_BUILDER
               },
               validation: {
-                "@id": VALIDATION.IS_DEFINITION
+                iri: VALIDATION.IS_DEFINITION
               },
               validationErrorMessage: "Query definition is not valid",
               path: {
-                "@id": IM.DEFINITION
+                iri: IM.DEFINITION
               }
             }
           ]
@@ -93,10 +93,10 @@ const CohortQueryShape: FormGenerator = {
           order: 1,
           maxCount: 1,
           path: {
-            "@id": RDF.TYPE
+            iri: RDF.TYPE
           },
           componentType: {
-            "@id": COMPONENT.VERTICAL_LAYOUT
+            iri: COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
@@ -106,17 +106,17 @@ const CohortQueryShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.ID
+                iri: IM.ID
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.IRI_BUILDER
+                iri: COMPONENT.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
+                iri: IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
-              validation: { "@id": VALIDATION.IS_IRI }
+              validation: { iri: VALIDATION.IS_IRI }
             },
 
             {
@@ -126,14 +126,14 @@ const CohortQueryShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": RDFS.LABEL
+                iri: RDFS.LABEL
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.TEXT_INPUT
+                iri: COMPONENT.TEXT_INPUT
               },
               datatype: {
-                "@id": XSD.STRING
+                iri: XSD.STRING
               }
             },
             {
@@ -142,33 +142,33 @@ const CohortQueryShape: FormGenerator = {
               name: "Preferred name",
               showTitle: true,
               maxCount: 1,
-              path: { "@id": IM.PREFERRED_NAME },
+              path: { iri: IM.PREFERRED_NAME },
               minCount: 0,
-              componentType: { "@id": COMPONENT.TEXT_INPUT }
+              componentType: { iri: COMPONENT.TEXT_INPUT }
             },
             {
               comment: "optional description",
               order: 5,
               datatype: {
-                "@id": XSD.STRING
+                iri: XSD.STRING
               },
               name: "Description",
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": RDFS.COMMENT
+                iri: RDFS.COMMENT
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.HTML_INPUT
+                iri: COMPONENT.HTML_INPUT
               }
             },
             {
               name: "Status",
               order: 6,
-              path: { "@id": IM.HAS_STATUS },
-              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
-              validation: { "@id": VALIDATION.IS_STATUS },
+              path: { iri: IM.HAS_STATUS },
+              componentType: { iri: COMPONENT.ARRAY_BUILDER },
+              validation: { iri: VALIDATION.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
@@ -177,7 +177,7 @@ const CohortQueryShape: FormGenerator = {
                   order: 6,
                   select: [
                     {
-                      "@id": QUERY.GET_SUBCLASSES
+                      iri: QUERY.GET_SUBCLASSES
                     }
                   ],
                   name: "Status",
@@ -185,22 +185,22 @@ const CohortQueryShape: FormGenerator = {
                   builderChild: true,
                   maxCount: 1,
                   path: {
-                    "@id": IM.HAS_STATUS
+                    iri: IM.HAS_STATUS
                   },
                   argument: [
                     {
                       valueIri: {
-                        "@id": IM.STATUS
+                        iri: IM.STATUS
                       },
                       parameter: "this"
                     }
                   ],
                   isIri: {
-                    "@id": IM.DRAFT
+                    iri: IM.DRAFT
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_DROPDOWN
+                    iri: COMPONENT.ENTITY_DROPDOWN
                   },
                   forceIsValue: true
                 }
@@ -213,15 +213,15 @@ const CohortQueryShape: FormGenerator = {
               order: 6,
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.ARRAY_BUILDER
+                iri: COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
-                "@id": VALIDATION.HAS_PARENT
+                iri: VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'isContainedIn'.",
               path: {
-                "@id": IM.IS_CONTAINED_IN
+                iri: IM.IS_CONTAINED_IN
               },
               property: [
                 {
@@ -231,23 +231,23 @@ const CohortQueryShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   select: [
                     {
-                      "@id": QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
+                      iri: QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
                     }
                   ],
                   argument: [
                     {
                       valueIri: {
-                        "@id": IM.QUERY
+                        iri: IM.QUERY
                       },
                       parameter: "value"
                     }
                   ],
                   path: {
-                    "@id": IM.IS_CONTAINED_IN
+                    iri: IM.IS_CONTAINED_IN
                   }
                 }
               ]

@@ -104,7 +104,7 @@ function setupTree(emit?: any, customPageSize?: number) {
       node.parentNode.children.pop();
       children.result.forEach(child => {
         if (!nodeHasChild(node.parentNode, child))
-          node.parentNode.children.push(createTreeNode(child.name, child["@id"] as string, child.type as TTIriRef[], child.hasChildren, node));
+          node.parentNode.children.push(createTreeNode(child.name, child.iri as string, child.type as TTIriRef[], child.hasChildren, node));
       });
       node.nextPage = node.nextPage + 1;
       node.parentNode.children.push(createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
@@ -113,7 +113,7 @@ function setupTree(emit?: any, customPageSize?: number) {
       node.parentNode.children.pop();
       children.result.forEach((child: any) => {
         if (!nodeHasChild(node.parentNode, child))
-          node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node.parentNode));
+          node.parentNode.children.push(createTreeNode(child.name, child.iri, child.type, child.hasChildren, node.parentNode));
       });
     } else {
       node.parentNode.children.pop();
@@ -139,14 +139,14 @@ function setupTree(emit?: any, customPageSize?: number) {
   async function expandFavouriteNode(node: any) {
     for (const fav of favourites.value) {
       const favChild = await EntityService.getEntityAsEntityReferenceNode(fav);
-      if (favChild) node.children.push(createTreeNode(favChild.name, favChild["@id"], favChild.type as TTIriRef[], false, node));
+      if (favChild) node.children.push(createTreeNode(favChild.name, favChild.iri, favChild.type as TTIriRef[], false, node));
     }
   }
 
   async function expandNode(node: any, typeFilter?: string[]) {
     const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value, undefined, undefined, typeFilter);
     children.result.forEach((child: any) => {
-      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child.iri, child.type, child.hasChildren, node));
     });
     if (
       node.children.length > 0 &&
@@ -179,7 +179,7 @@ function setupTree(emit?: any, customPageSize?: number) {
   }
 
   function nodeHasChild(node: TreeNode, child: TTEntity) {
-    return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
+    return !!node.children?.find(nodeChild => child.iri === nodeChild.data);
   }
 
   function selectKey(selectedKey: string) {
@@ -194,7 +194,7 @@ function setupTree(emit?: any, customPageSize?: number) {
     const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
     // Recursively expand
-    let n = root.value.find(c => path.find(p => p["@id"] === c.data));
+    let n = root.value.find(c => path.find(p => p.iri === c.data));
     let i = 0;
     if (!n) {
       scrollToHighlighted(treeContainerId);
@@ -202,12 +202,12 @@ function setupTree(emit?: any, customPageSize?: number) {
       return;
     }
     expandedKeys.value = {};
-    while (n && n.data != path[0]["@id"] && i++ < 50) {
+    while (n && n.data != path[0].iri && i++ < 50) {
       await selectAndExpand(n);
       // Find relevant child
       n = await locateChildInLoadMore(n, path);
     }
-    if (n && n.data === path[0]["@id"]) {
+    if (n && n.data === path[0].iri) {
       await selectAndExpand(n);
 
       while (!n.children?.some(child => child.data === iri)) {
@@ -232,15 +232,15 @@ function setupTree(emit?: any, customPageSize?: number) {
 
   async function locateChildInLoadMore(n: TreeNode, path: TTIriRef[]): Promise<TreeNode | undefined> {
     if (n.children?.find(c => c.data === "loadMore")) {
-      const found = n.children.find(c => path.find(p => p["@id"] === c.data));
+      const found = n.children.find(c => path.find(p => p.iri === c.data));
       if (found) {
-        return n.children.find(c => path.find(p => p["@id"] === c.data));
+        return n.children.find(c => path.find(p => p.iri === c.data));
       } else {
         await loadMoreChildren(n);
         return await locateChildInLoadMore(n, path);
       }
     } else {
-      return n.children?.find(c => path.find(p => p["@id"] === c.data));
+      return n.children?.find(c => path.find(p => p.iri === c.data));
     }
   }
 
