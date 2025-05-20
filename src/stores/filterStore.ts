@@ -21,9 +21,7 @@ export const useFilterStore = defineStore("filter", {
         this.updateDefaultFilterOptions(filterDefaults);
         this.updateFilterOptions(filterOptions);
         const selectedStatus = this.filterOptions.status.filter(item => filterDefaults.status.map(defaultOption => defaultOption.iri).includes(item.iri));
-        const selectedSchemes = this.filterOptions.schemes.filter(item =>
-          filterDefaults.schemes.map(defaultOption => defaultOption.iri).includes(item.iri)
-        );
+        const selectedSchemes = this.filterOptions.schemes.filter(item => filterDefaults.schemes.map(defaultOption => defaultOption.iri).includes(item.iri));
         const selectedTypes = this.filterOptions.types.filter(item => filterDefaults.types.map(defaultOption => defaultOption.iri).includes(item.iri));
 
         this.updateSelectedFilterOptions({

@@ -172,8 +172,7 @@ async function addParentFoldersToRoot() {
   if (isArrayHasLength(IMChildren)) {
     for (let IMchild of IMChildren) {
       const hasNode = !!root.value.find(node => node.data === IMchild.iri);
-      if (!hasNode)
-        root.value.push(createTreeNode(IMchild.name, IMchild.iri, IMchild.type as TTIriRef[], IMchild.hasGrandChildren, null, IMchild.orderNumber));
+      if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild.iri, IMchild.type as TTIriRef[], IMchild.hasGrandChildren, null, IMchild.orderNumber));
     }
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));

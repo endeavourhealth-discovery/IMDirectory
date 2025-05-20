@@ -51,7 +51,7 @@
           <RadioButton v-model="quickTypeFilter" inputId="allQuickFilter" name="quickTypeFilter" :value="undefined" variant="filled" />
           <label for="allQuickFilter">All</label>
         </div>
-        <div v-for="typeOption in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t.iri))" class="radio-label-container">
+        <div v-for="(typeOption, index) in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t.iri))" class="radio-label-container" v-bind:key="index">
           <RadioButton v-model="quickTypeFilter" :inputId="typeOption.name + 'QuickFilter'" name="quickTypeFilter" :value="typeOption" variant="filled" />
           <label :for="typeOption.name + 'QuickFilter'">{{ typeOption.name }}</label>
         </div>
@@ -79,7 +79,7 @@ import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep } from "lodash-es";
 import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 

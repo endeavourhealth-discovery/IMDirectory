@@ -268,10 +268,6 @@ export function mapToObject(args: Argument[]) {
 }
 
 export function entityToAliasEntity(ttEntity: TTEntity) {
-  if (isObjectHasKeys(ttEntity, ["iri"])) {
-    ttEntity.iri = ttEntity.iri;
-    delete ttEntity.iri;
-  }
   if (isObjectHasKeys(ttEntity, [RDFS.LABEL])) {
     ttEntity.name = ttEntity[RDFS.LABEL];
     delete ttEntity[RDFS.LABEL];

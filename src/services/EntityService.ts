@@ -1,5 +1,5 @@
 import { IM, RDFS } from "@/vocabulary";
-import { FiltersAsIris, Namespace, FilterOptions, PropertyDisplay, ValidatedEntity } from "@/interfaces";
+import { FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
 import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
