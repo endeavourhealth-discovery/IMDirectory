@@ -97,7 +97,7 @@ function addMap(element: any, preNode: TTGraphData) {
     element[IM.MAPPED_TO].forEach((mappedTo: any) => {
       preNode.children.push({
         name: mappedTo.name,
-        iri: mappedTo["@id"],
+        iri: mappedTo.iri,
         relToParent: mappedTo.name,
         children: [],
         _children: []
