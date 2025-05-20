@@ -60,7 +60,7 @@ export function isFunction(entityTypes: TTIriRef[]): boolean {
 export function getNamesAsStringFromTypes(typeList: TTIriRef[]) {
   return typeList
     .map(type => {
-      if (type["@id"] === SHACL.NODESHAPE) {
+      if (type.iri === SHACL.NODESHAPE) {
         return "Data model";
       } else return type.name;
     })

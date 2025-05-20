@@ -92,7 +92,7 @@ const menu = ref();
 
 onMounted(async () => {
   const result = await EntityService.getEntityChildren(IM.GRAPH_EXCLUDE_PREDICATES);
-  if (result) graphExcludePredicates.value = result.map(r => r["@id"]);
+  if (result) graphExcludePredicates.value = result.map(r => r.iri);
   window.addEventListener("resize", onResize);
   graphData.value = props.data;
   setRoot();
@@ -128,10 +128,10 @@ async function getContextMenu(d: any) {
       bundle.predicates[IM.HAS_MEMBER] = "has member";
     }
     if (hasMember.totalCount && hasMember.totalCount >= 10) {
-      bundle.entity[IM.HAS_MEMBER] = bundle.entity[IM.HAS_MEMBER].concat({ "@id": "seeMore", name: "see more..." });
+      bundle.entity[IM.HAS_MEMBER] = bundle.entity[IM.HAS_MEMBER].concat({ iri: "seeMore", name: "see more..." });
     }
     Object.keys(bundle.entity)
-      .filter(value => value !== "@id")
+      .filter(value => value !== "iri")
       .filter(value => !graphExcludePredicates.value.find(gep => gep === value))
       .forEach((key: string) => {
         contextMenu.value.push({

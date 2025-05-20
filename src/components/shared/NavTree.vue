@@ -171,9 +171,9 @@ async function addParentFoldersToRoot() {
   const IMChildren = await EntityService.getEntityChildren(IM.MODULE_IM);
   if (isArrayHasLength(IMChildren)) {
     for (let IMchild of IMChildren) {
-      const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
+      const hasNode = !!root.value.find(node => node.data === IMchild.iri);
       if (!hasNode)
-        root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type as TTIriRef[], IMchild.hasGrandChildren, null, IMchild.orderNumber));
+        root.value.push(createTreeNode(IMchild.name, IMchild.iri, IMchild.type as TTIriRef[], IMchild.hasGrandChildren, null, IMchild.orderNumber));
     }
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
@@ -192,8 +192,8 @@ async function addRootEntitiesToTree() {
   for (const item of props.rootEntities) {
     const itemSummary = await EntityService.getEntityAsEntityReferenceNode(item);
     if (itemSummary) {
-      const hasNode = !!root.value.find(node => node.data === itemSummary["@id"]);
-      if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary["@id"], itemSummary.type as TTIriRef[], itemSummary.hasGrandChildren, null));
+      const hasNode = !!root.value.find(node => node.data === itemSummary.iri);
+      if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary.iri, itemSummary.type as TTIriRef[], itemSummary.hasGrandChildren, null));
     }
   }
   root.value.sort(byKey);
@@ -215,7 +215,7 @@ async function onNodeContext(event: MouseEvent, node: TreeNode) {
     node.typeIcon.includes("fa-folder")
   ) {
     const isOwnDescendant = await EntityService.getPathBetweenNodes(node.key, selectedNode.value.key);
-    if (isOwnDescendant.findIndex(pathItem => pathItem["@id"] === selectedNode.value?.key) === -1) {
+    if (isOwnDescendant.findIndex(pathItem => pathItem.iri === selectedNode.value?.key) === -1) {
       items.value.push({
         label: "Move selection here",
         icon: "fa-solid fa-fw fa-file-import",
@@ -339,7 +339,7 @@ async function createFolder() {
           iri,
           [
             {
-              "@id": IM.FOLDER,
+              iri: IM.FOLDER,
               name: "Folder"
             } as TTIriRef
           ],

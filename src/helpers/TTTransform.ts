@@ -30,7 +30,7 @@ function transformObjectRecursively(ttEntity: TTEntity, map?: GenericObject) {
 }
 
 function transformIris(ttEntity: TTEntity) {
-  const regex = /@id/gm;
+  const regex = /iri/gm;
   const stringEntity = JSON.stringify(ttEntity);
   return JSON.parse(stringEntity.replace(regex, "iri"));
 }
@@ -50,15 +50,15 @@ export function getNameFromIri(iri: string) {
 
 export function getNameListFromIriList(iris: TTIriRef[]): string {
   const result: string[] = [];
-  for (const iri of iris) result.push(getNameFromIri(iri["@id"]));
+  for (const iri of iris) result.push(getNameFromIri(iri.iri));
 
   return result.join(", ");
 }
 
 export function getNameFromRef(ref: GenericObject): string {
   if (ref.name && isObjectHasKeys(ref, ["name"])) return ref.name;
-  else if (ref["@id"] && isObjectHasKeys(ref, ["@id"])) return getNameFromIri(ref["@id"]);
-  else if (isObjectHasKeys(ref, ["typeOf"])) return getNameFromIri(ref["typeOf"]["@id"]);
+  else if (ref.iri && isObjectHasKeys(ref, ["iri"])) return getNameFromIri(ref.iri);
+  else if (isObjectHasKeys(ref, ["typeOf"])) return getNameFromIri(ref["typeOf"].iri);
   else if (isObjectHasKeys(ref, ["parameter"])) return ref["parameter"];
   return "";
 }

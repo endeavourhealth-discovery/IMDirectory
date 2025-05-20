@@ -161,7 +161,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
 
   const schemes = [] as string[];
   if (downloadSettings.selectedSchemes.length !== 0) {
-    downloadSettings.selectedSchemes.forEach(s => schemes.push(s["@id"]));
+    downloadSettings.selectedSchemes.forEach(s => schemes.push(s.iri));
   }
   let result;
   const setOptions: SetOptions = {

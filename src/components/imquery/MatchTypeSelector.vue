@@ -144,14 +144,14 @@ async function createFeatureTree() {
   data.value.push(createNode("0", "Add a cohort as feature", "cohort", "cohort", IM.QUERY, "", null, null));
   data.value.push(createNode("1", "Add " + props.baseType.name + " features", "features", "folder", IM.FOLDER, "", null, null));
   data.value[0].selectable = true;
-  await createPropertyTree(props.baseType["@id"]!, data.value[1], false);
+  await createPropertyTree(props.baseType.iri!, data.value[1], false);
   expandedKeys.value = { 1: true };
   loading.value = false;
 }
 
 function isBase(property: PropertyShape): boolean {
   if (property.node) {
-    if (property.node["@id"] === props.baseType["@id"]) {
+    if (property.node.iri === props.baseType.iri) {
       return true;
     } else {
       return false;
@@ -176,8 +176,8 @@ function createNode(
     label: conceptName,
     expanded: false,
     data: {
-      typeIcon: getFAIconFromType([{ "@id": iconType }]),
-      color: getColourFromType([{ "@id": iconType }]),
+      typeIcon: getFAIconFromType([{ iri: iconType }]),
+      color: getColourFromType([{ iri: iconType }]),
       iri: conceptIri,
       match: pathMatch
     },
@@ -187,8 +187,8 @@ function createNode(
     type: type
   } as TreeNode;
   if (rangeType != "") {
-    node.data.rangeTypeIcon = getFAIconFromType([{ "@id": rangeType }]);
-    node.data.rangeTypeColor = getColourFromType([{ "@id": rangeType }]);
+    node.data.rangeTypeIcon = getFAIconFromType([{ iri: rangeType }]);
+    node.data.rangeTypeColor = getColourFromType([{ iri: rangeType }]);
   }
   return node;
 }
@@ -196,7 +196,7 @@ function createNode(
 function createGroupNode(index: string, property: PropertyShape, parent: TreeNode, pathMatch: Match | null): TreeNode {
   loading.value = true;
   const name = property.group!.name;
-  const groupNode = createNode(index, name, property.group!["@id"], "folder", IM.FOLDER, "", parent, pathMatch) as TreeNode;
+  const groupNode = createNode(index, name, property.group!.iri, "folder", IM.FOLDER, "", parent, pathMatch) as TreeNode;
   if (property.property) {
     const propertyList = [] as TreeNode[];
     for (const [propertyIndex, groupedProperty] of property.property.entries()) {
@@ -215,21 +215,21 @@ function createPropertyNode(index: string, property: PropertyShape, parent: Tree
   }
   let rangeType = "";
   if (property.clazz) {
-    rangeType = property.clazz.type!["@id"];
+    rangeType = property.clazz.type!.iri;
   } else if (property.node) {
-    rangeType = property.node.type!["@id"];
+    rangeType = property.node.type!.iri;
   }
 
   let name = "";
   if (property.path.name) name = property.path.name;
   if (property.hasValue) {
-    const value = property.hasValueType?.["@id"] === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
+    const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
     name += ` (${value})`;
   }
-  const propertyNode = createNode(index, name!, property.path["@id"], "property", RDF.PROPERTY, rangeType, parent, pathMatch);
+  const propertyNode = createNode(index, name!, property.path.iri, "property", RDF.PROPERTY, rangeType, parent, pathMatch);
   propertyNode.selectable = true;
   if (property.node) {
-    propertyNode.data.range = property.node["@id"];
+    propertyNode.data.range = property.node.iri;
     propertyNode.data.rangeName = property.node.name;
   }
   return propertyNode;

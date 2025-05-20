@@ -51,12 +51,12 @@ describe("mutations", () => {
           iri: "testIri",
           scheme: {
             name: "testScheme",
-            "@id": "testSchemeIri"
+            iri: "testSchemeIri"
           },
           code: "testCode",
-          entityType: [{ "@id": "testType", name: "testType" }],
+          entityType: [{ iri: "testType", name: "testType" }],
           match: "testMatch",
-          status: { "@id": "testStatus", name: "testStatus" }
+          status: { iri: "testStatus", name: "testStatus" }
         }
       ]
     } as SearchResponse;

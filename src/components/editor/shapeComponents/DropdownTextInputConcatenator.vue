@@ -10,7 +10,7 @@
         <InputText :disabled="loading" class="p-inputtext-lg input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
         <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
       </div>
-      <span>{{ selectedDropdownOption ? selectedDropdownOption["@id"] : "" }}{{ userInput }}</span>
+      <span>{{ selectedDropdownOption ? selectedDropdownOption.iri : "" }}{{ userInput }}</span>
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
@@ -94,7 +94,7 @@ const showValidation = ref(false);
 
 watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, newUserInput], [oldSelectedDropdownOption, oldUserInput]) => {
   if (isTTIriRef(newSelectedDropdownOption) && newUserInput && (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)) {
-    const concatenated = newSelectedDropdownOption["@id"] + newUserInput;
+    const concatenated = newSelectedDropdownOption.iri + newUserInput;
     updateEntity(concatenated);
     updateValueVariableMap(concatenated);
     if (updateValidity) {
@@ -108,7 +108,7 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
   }
 });
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 onMounted(async () => {
   loading.value = true;
@@ -119,14 +119,14 @@ onMounted(async () => {
 
 function setSelectedOption() {
   if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue) {
-    deconstructInputValue(props.shape.isIri!["@id"]);
+    deconstructInputValue(props.shape.isIri!.iri);
     return;
   }
   if (props.value && typeof props.value === "string") {
     deconstructInputValue(props.value);
     return;
-  } else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!["@id"]) {
-    deconstructInputValue(props.shape.isIri!["@id"]);
+  } else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!.iri) {
+    deconstructInputValue(props.shape.isIri!.iri);
     return;
   } else {
     selectedDropdownOption.value = null;
@@ -136,10 +136,10 @@ function setSelectedOption() {
 }
 
 function deconstructInputValue(inputValue: string) {
-  const found = dropdownOptions.value.find(o => inputValue.startsWith(o["@id"]));
+  const found = dropdownOptions.value.find(o => inputValue.startsWith(o.iri));
   if (found) {
     selectedDropdownOption.value = found;
-    userInput.value = inputValue.substring(found["@id"].length);
+    userInput.value = inputValue.substring(found.iri.length);
   }
 }
 
@@ -148,16 +148,16 @@ async function getDropdownOptions() {
     const args = processArguments(props.shape);
     const queryRequest = {} as QueryRequest;
     queryRequest.argument = args;
-    const query = { "@id": props.shape.select![0]["@id"] } as Query;
+    const query = { iri: props.shape.select![0].iri } as Query;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)
       return result.entities.map(item => {
-        return { "@id": item["@id"], name: item[RDFS.LABEL] };
+        return { iri: item.iri, name: item[RDFS.LABEL] };
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await FunctionService.runFunction(props.shape.function!["@id"])).sort(byName);
+    return (await FunctionService.runFunction(props.shape.function!.iri)).sort(byName);
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 

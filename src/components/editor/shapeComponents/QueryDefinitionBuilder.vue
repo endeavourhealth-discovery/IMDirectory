@@ -75,7 +75,7 @@ const showSql: Ref<boolean> = ref(false);
 const sql: Ref<string> = ref("");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
-const key = props.shape.path["@id"];
+const key = props.shape.path.iri;
 
 watch(
   () => cloneDeep(queryDefinition.value),

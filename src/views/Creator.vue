@@ -180,11 +180,11 @@ onMounted(async () => {
   loading.value = true;
   await filterStore.fetchFilterSettings();
   const { typeIri, propertyIri, valueIri } = route.query;
-  if (isObjectHasKeys(creatorSavedEntity.value, ["@id"])) {
+  if (isObjectHasKeys(creatorSavedEntity.value, ["iri"])) {
     await showEntityFoundWarning();
   }
   if (props.type) {
-    getShape(props.type["@id"]);
+    getShape(props.type.iri);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
     getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
@@ -193,7 +193,7 @@ onMounted(async () => {
     const typeIriFixed = removeEndSlash(typeIri as string);
     currentStep.value = 1;
     const typeEntity = await EntityService.getPartialEntity(typeIriFixed, [RDFS.LABEL]);
-    editorEntity.value[RDF.TYPE] = [{ "@id": typeIriFixed, name: typeEntity[RDFS.LABEL] }];
+    editorEntity.value[RDF.TYPE] = [{ iri: typeIriFixed, name: typeEntity[RDFS.LABEL] }];
     shape.value = getShape(typeIriFixed);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
@@ -207,7 +207,7 @@ onMounted(async () => {
             {
               is: [
                 {
-                  "@id": newValue["@id"],
+                  iri: newValue.iri,
                   name: newValue.name
                 }
               ],
@@ -215,14 +215,14 @@ onMounted(async () => {
             }
           ],
           typeOf: {
-            "@id": newValue.typeOf!["@id"]
+            iri: newValue.typeOf!.iri
           }
         });
       } else {
         const containingEntity = await EntityService.getPartialEntity(valueIriFixed, [RDFS.LABEL]);
         editorEntity.value[propertyIriFixed] = [
           {
-            "@id": containingEntity["@id"],
+            iri: containingEntity.iri,
             name: containingEntity[RDFS.LABEL]
           }
         ];
@@ -244,7 +244,7 @@ async function showEntityFoundWarning() {
     title: "Unsaved creator entity found",
     html:
       "<span>Local saved entity found. Would you like to continue creating this entity?</span><br/><br/><span>iri: " +
-      creatorSavedEntity.value?.["@id"] +
+      creatorSavedEntity.value?.iri +
       "</span><br/><span>name: " +
       creatorSavedEntity.value?.[RDFS.LABEL] +
       "</span>",
@@ -263,7 +263,7 @@ async function showEntityFoundWarning() {
     } else {
       await Swal.fire({
         title: "Delete saved entity",
-        text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value?.["@id"] + ". Are you sure you want to continue?",
+        text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value?.iri + ". Are you sure you want to continue?",
         showCloseButton: false,
         showCancelButton: true,
         cancelButtonText: "Cancel",
@@ -405,8 +405,8 @@ async function closeCreator() {
 }
 
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!["@id"]])) {
-    return editorEntity.value[property.path!["@id"]];
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!.iri])) {
+    return editorEntity.value[property.path!.iri];
   }
   return undefined;
 }

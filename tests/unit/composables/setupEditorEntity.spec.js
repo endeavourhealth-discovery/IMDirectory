@@ -37,8 +37,8 @@ describe("fetchEntity", () => {
 
     await wrapper.vm.fetchEntity();
     expect(getFullEntitySpy).toHaveBeenCalled();
-    expect(wrapper.vm.editorEntityOriginal).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity["@id"] }));
-    expect(wrapper.vm.editorEntity).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity["@id"] }));
+    expect(wrapper.vm.editorEntityOriginal).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity.iri }));
+    expect(wrapper.vm.editorEntity).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity.iri }));
     expect(wrapper.vm.entityName).toEqual(testEntity["http://www.w3.org/2000/01/rdf-schema#label"]);
   });
 });
@@ -49,13 +49,13 @@ describe("processEntity", () => {
     vi.resetAllMocks();
     mockUpdateType = vi.fn();
   });
-  it("changes @id to full iri and removes im1id and im1scheme", async () => {
+  it("changes iri to full iri and removes im1id and im1scheme", async () => {
     const testEntity = fakerFactory.entity.create();
     testEntity[IM.IM_1_ID] = "testIri";
-    testEntity[IM.IM_1_SCHEME] = [{ "@id": "testScheme" }];
+    testEntity[IM.IM_1_SCHEME] = [{ iri: "testScheme" }];
     const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
     const result = wrapper.vm.processEntity(testEntity);
-    expect(result).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity["@id"] }));
+    expect(result).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity.iri }));
     expect(result).toEqual(
       expect.not.objectContaining({ "http://endhealth.info/im#im1Id": testEntity.IM_1_ID, "http://endhealth.info/im#im1Scheme": testEntity.IM_1_SCHEME })
     );
@@ -70,44 +70,44 @@ describe("processEntity", () => {
 
     it("returns undefined if no types", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
-      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT }] };
+      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       wrapper.vm.editorEntity = {};
       expect(wrapper.vm.findPrimaryType()).toBeUndefined();
     });
 
     it("returns type if edit and original same type", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
-      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT }] };
-      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT }] };
+      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
+      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       expect(wrapper.vm.findPrimaryType()).toEqual({
-        "@id": "http://endhealth.info/im#Concept"
+        iri: "http://endhealth.info/im#Concept"
       });
     });
 
     it("returns new type if types different", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
-      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT }] };
-      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT_SET }] };
+      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
+      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT_SET }] };
       expect(wrapper.vm.findPrimaryType()).toEqual({
-        "@id": "http://endhealth.info/im#ConceptSet"
+        iri: "http://endhealth.info/im#ConceptSet"
       });
     });
 
     it("returns nodeshape if present in multiple types", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
-      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT }] };
-      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT_SET }, { "@id": SHACL.NODESHAPE }] };
+      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
+      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT_SET }, { iri: SHACL.NODESHAPE }] };
       expect(wrapper.vm.findPrimaryType()).toEqual({
-        "@id": SHACL.NODESHAPE
+        iri: SHACL.NODESHAPE
       });
     });
 
     it("returns first if multiple types no rules", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
-      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT }] };
-      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }] };
+      wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
+      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }] };
       expect(wrapper.vm.findPrimaryType()).toEqual({
-        "@id": IM.CONCEPT_SET
+        iri: IM.CONCEPT_SET
       });
     });
   });
@@ -159,7 +159,7 @@ describe("processEntity", () => {
       const dataToAdd = {
         testIri1: "testValue1",
         testIri2: "testValue2",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }]
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }]
       };
       wrapper.vm.updateEntity(dataToAdd);
       expect(mockUpdateType).toHaveBeenCalled();
@@ -171,11 +171,11 @@ describe("processEntity", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const store = useEditorStore();
       const store2 = useCreatorStore();
-      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT }] };
+      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       const dataToAdd = {
         testIri1: "testValue1",
         testIri2: "testValue2",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }]
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }]
       };
       wrapper.vm.updateEntity(dataToAdd);
       expect(mockUpdateType).toHaveBeenCalled();
@@ -187,11 +187,11 @@ describe("processEntity", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const store = useEditorStore();
       const store2 = useCreatorStore();
-      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT }] };
+      wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       const dataToAdd = {
         testIri1: "testValue1",
         testIri2: "testValue2",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": IM.CONCEPT }]
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }]
       };
       wrapper.vm.updateEntity(dataToAdd);
       expect(mockUpdateType).not.toHaveBeenCalled();

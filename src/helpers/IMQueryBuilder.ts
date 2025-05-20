@@ -19,7 +19,7 @@ function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
   if (!query.where) query.where = {};
   if (!query.where.and) query.where.and = [];
   const where: Where = {
-    "@id": predicate,
+    iri: predicate,
     is: values.map(item => item as Node)
   };
   query.where.and.push(where);
@@ -175,9 +175,9 @@ export function addSortingToIMQuery(sortingField: TTIriRef, sortDirection: TTIri
     imQuery.query.orderBy.property = [];
   }
   const orderDirection = {
-    "@id": sortingField["@id"],
+    iri: sortingField.iri,
     name: sortingField.name ? sortingField.name : "",
-    direction: sortDirection["@id"] === IM.ASCENDING ? "ascending" : "descending"
+    direction: sortDirection.iri === IM.ASCENDING ? "ascending" : "descending"
   } as OrderDirection;
   imQuery.query.orderBy.property?.push(orderDirection);
 }
@@ -188,18 +188,18 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
     const match: Match = {
       path: [
         {
-          "@id": IM.BINDING
+          iri: IM.BINDING
         }
       ],
       where: {
         and: [
           {
-            "@id": SHACL.PATH,
-            is: [{ "@id": searchBinding.path?.["@id"] }]
+            iri: SHACL.PATH,
+            is: [{ iri: searchBinding.path?.iri }]
           },
           {
-            "@id": SHACL.NODE,
-            is: [{ "@id": searchBinding.node?.["@id"] }]
+            iri: SHACL.NODE,
+            is: [{ iri: searchBinding.node?.iri }]
           }
         ]
       }

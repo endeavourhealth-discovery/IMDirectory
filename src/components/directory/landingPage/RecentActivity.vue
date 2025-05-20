@@ -122,7 +122,7 @@ async function getRecentActivityDetails() {
     const clone = { ...rla };
 
     let result = null;
-    if (results && isArray(results)) result = results.find(r => r["@id"] === rla.iri);
+    if (results && isArray(results)) result = results.find(r => r.iri === rla.iri);
 
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
       clone.name = result[RDFS.LABEL];

@@ -98,7 +98,7 @@ const provItem = ref();
 const jsonDisplay = ref();
 
 const labels = ref({
-  "@id": "Iri:",
+  iri: "Iri:",
   [RDF.TYPE]: "Type:",
   [RDFS.LABEL]: "Name:",
   [RDFS.COMMENT]: "Description:",
@@ -125,8 +125,8 @@ watch(selectedProvenance, async () => {
     const result = await EntityService.getProvHistory(props.entityIri);
     let matchIri = "";
     result.forEach((p: any) => {
-      if (p["@id"] === selectedProvenance.value.prov && p[IM.PROVENANCE_USED]) {
-        matchIri = p[IM.PROVENANCE_USED][0]["@id"].toString();
+      if (p.iri === selectedProvenance.value.prov && p[IM.PROVENANCE_USED]) {
+        matchIri = p[IM.PROVENANCE_USED][0].iri.toString();
       }
     });
     if (matchIri === "") {
@@ -135,7 +135,7 @@ watch(selectedProvenance, async () => {
       const entity = await EntityService.getEntityByPredicateExclusions(matchIri, [IM.HAS_MEMBER]);
       if (isObjectHasKeys(entity, [IM.DEFINITION])) {
         provItem.value = JSON.parse(entity[IM.DEFINITION]);
-        jsonDisplay.value = entity["@id"];
+        jsonDisplay.value = entity.iri;
       }
       visible.value = true;
     }
@@ -147,11 +147,11 @@ async function getProvHistory(iri: string) {
   const result = await EntityService.getProvHistory(iri);
   result.forEach((p: any) =>
     provenances.value.push({
-      prov: p["@id"],
-      usedEntity: p[IM.PROVENANCE_USED]?.[0].name || p[IM.PROVENANCE_USED]?.[0]["@id"] || "---",
+      prov: p.iri,
+      usedEntity: p[IM.PROVENANCE_USED]?.[0].name || p[IM.PROVENANCE_USED]?.[0].iri || "---",
       effectiveDate: p[IM.EFFECTIVE_DATE],
-      activityType: p[IM.PROV_ACTIVITY_TYPE][0].name || p[IM.PROV_ACTIVITY_TYPE][0]["@id"],
-      agent: p[IM.PROVENANCE_AGENT]?.[0].name || p[IM.PROVENANCE_AGENT]?.[0]["@id"] || "---"
+      activityType: p[IM.PROV_ACTIVITY_TYPE][0].name || p[IM.PROV_ACTIVITY_TYPE][0].iri,
+      agent: p[IM.PROVENANCE_AGENT]?.[0].name || p[IM.PROVENANCE_AGENT]?.[0].iri || "---"
     })
   );
 

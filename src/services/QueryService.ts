@@ -52,7 +52,7 @@ const QueryService = {
     return (
       isObjectHasKeys(queryResponse, ["entities"]) &&
       isArrayHasLength(queryResponse.entities) &&
-      queryResponse.entities.some((entity: TTEntity) => entity["@id"] === selectedIri)
+      queryResponse.entities.some((entity: TTEntity) => entity.iri === selectedIri)
     );
   }
 };

@@ -2,53 +2,53 @@ import { FormGenerator } from "@/interfaces/AutoGen";
 import { IM, RDF, RDFS, XSD, EDITOR, IM_FUNCTION, COMPONENT, QUERY, VALIDATION } from "@/vocabulary";
 
 const PropertyShape: FormGenerator = {
-  "@id": EDITOR.PROPERTY_SHAPE,
+  iri: EDITOR.PROPERTY_SHAPE,
   type: [
     {
-      "@id": IM.FORM_GENERATOR
+      iri: IM.FORM_GENERATOR
     }
   ],
   label: "Editor - Property shape",
   comment: "Form editor for a property",
   targetShape: {
-    "@id": RDF.PROPERTY
+    iri: RDF.PROPERTY
   },
   property: [
     {
       name: "Summary",
       showTitle: true,
       comment: "Vertical splitter",
-      path: { "@id": RDF.PROPERTY },
+      path: { iri: RDF.PROPERTY },
       order: 1,
       maxCount: 1,
-      componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
+      componentType: { iri: COMPONENT.VERTICAL_LAYOUT },
       argument: [{ valueData: "60", parameter: "width" }],
       property: [
         {
           comment: "A property that auto generates the type as property type",
           order: 1,
           function: {
-            "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+            iri: IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
           },
           name: "Type",
           showTitle: true,
           path: {
-            "@id": RDF.TYPE
+            iri: RDF.TYPE
           },
           argument: [
             {
               valueIri: {
-                "@id": RDF.PROPERTY
+                iri: RDF.PROPERTY
               },
               parameter: "entityIri"
             }
           ],
           isIri: {
-            "@id": RDF.PROPERTY
+            iri: RDF.PROPERTY
           },
           minCount: 1,
           componentType: {
-            "@id": COMPONENT.ENTITY_COMBOBOX
+            iri: COMPONENT.ENTITY_COMBOBOX
           }
         },
         {
@@ -58,17 +58,17 @@ const PropertyShape: FormGenerator = {
           showTitle: true,
           maxCount: 1,
           path: {
-            "@id": IM.ID
+            iri: IM.ID
           },
           minCount: 1,
           componentType: {
-            "@id": COMPONENT.IRI_BUILDER
+            iri: COMPONENT.IRI_BUILDER
           },
           valueVariable: "propertyIri",
           function: {
-            "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
+            iri: IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
           },
-          validation: { "@id": VALIDATION.IS_IRI }
+          validation: { iri: VALIDATION.IS_IRI }
         },
         {
           comment: "Property that derives an entity code from the entity iri",
@@ -77,7 +77,7 @@ const PropertyShape: FormGenerator = {
           showTitle: true,
           maxCount: 1,
           path: {
-            "@id": IM.CODE
+            iri: IM.CODE
           },
           argument: [
             {
@@ -91,13 +91,13 @@ const PropertyShape: FormGenerator = {
           ],
           minCount: 1,
           componentType: {
-            "@id": COMPONENT.TEXT_DISPLAY
+            iri: COMPONENT.TEXT_DISPLAY
           },
           datatype: {
-            "@id": XSD.STRING
+            iri: XSD.STRING
           },
           function: {
-            "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
+            iri: IM_FUNCTION.LOCAL_NAME_RETRIEVER
           }
         },
         {
@@ -107,14 +107,14 @@ const PropertyShape: FormGenerator = {
           showTitle: true,
           maxCount: 1,
           path: {
-            "@id": RDFS.LABEL
+            iri: RDFS.LABEL
           },
           minCount: 1,
           componentType: {
-            "@id": COMPONENT.TEXT_INPUT
+            iri: COMPONENT.TEXT_INPUT
           },
           datatype: {
-            "@id": XSD.STRING
+            iri: XSD.STRING
           }
         },
         {
@@ -123,33 +123,33 @@ const PropertyShape: FormGenerator = {
           name: "Preferred name",
           showTitle: true,
           maxCount: 1,
-          path: { "@id": IM.PREFERRED_NAME },
+          path: { iri: IM.PREFERRED_NAME },
           minCount: 0,
-          componentType: { "@id": COMPONENT.TEXT_INPUT }
+          componentType: { iri: COMPONENT.TEXT_INPUT }
         },
         {
           comment: "optional description",
           order: 6,
           datatype: {
-            "@id": XSD.STRING
+            iri: XSD.STRING
           },
           name: "Description",
           showTitle: true,
           maxCount: 1,
           path: {
-            "@id": RDFS.COMMENT
+            iri: RDFS.COMMENT
           },
           minCount: 0,
           componentType: {
-            "@id": COMPONENT.HTML_INPUT
+            iri: COMPONENT.HTML_INPUT
           }
         },
         {
           name: "Status",
           order: 7,
-          path: { "@id": IM.HAS_STATUS },
-          componentType: { "@id": COMPONENT.ARRAY_BUILDER },
-          validation: { "@id": VALIDATION.IS_STATUS },
+          path: { iri: IM.HAS_STATUS },
+          componentType: { iri: COMPONENT.ARRAY_BUILDER },
+          validation: { iri: VALIDATION.IS_STATUS },
           minCount: 1,
           arrayButtons: { up: false, down: false, plus: false, minus: false },
           property: [
@@ -158,7 +158,7 @@ const PropertyShape: FormGenerator = {
               order: 6,
               select: [
                 {
-                  "@id": QUERY.GET_SUBCLASSES
+                  iri: QUERY.GET_SUBCLASSES
                 }
               ],
               name: "Status",
@@ -166,22 +166,22 @@ const PropertyShape: FormGenerator = {
               builderChild: true,
               maxCount: 1,
               path: {
-                "@id": IM.HAS_STATUS
+                iri: IM.HAS_STATUS
               },
               argument: [
                 {
                   valueIri: {
-                    "@id": IM.STATUS
+                    iri: IM.STATUS
                   },
                   parameter: "this"
                 }
               ],
               isIri: {
-                "@id": IM.DRAFT
+                iri: IM.DRAFT
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.ENTITY_DROPDOWN
+                iri: COMPONENT.ENTITY_DROPDOWN
               },
               forceIsValue: true
             }
@@ -191,10 +191,10 @@ const PropertyShape: FormGenerator = {
           label: "Property group - Sub type array builder",
           order: 8,
           path: {
-            "@id": RDFS.SUBCLASS_OF
+            iri: RDFS.SUBCLASS_OF
           },
           validation: {
-            "@id": VALIDATION.HAS_PARENT
+            iri: VALIDATION.HAS_PARENT
           },
           validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
           property: [
@@ -203,13 +203,13 @@ const PropertyShape: FormGenerator = {
               order: 1,
               select: [
                 {
-                  "@id": QUERY.SEARCH_ALLOWABLE_SUBCLASS
+                  iri: QUERY.SEARCH_ALLOWABLE_SUBCLASS
                 }
               ],
               argument: [
                 {
                   valueIri: {
-                    "@id": RDF.PROPERTY
+                    iri: RDF.PROPERTY
                   },
                   parameter: "value"
                 }
@@ -217,11 +217,11 @@ const PropertyShape: FormGenerator = {
               builderChild: true,
               name: "Entity",
               path: {
-                "@id": RDFS.SUBCLASS_OF
+                iri: RDFS.SUBCLASS_OF
               },
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
               }
             }
           ],
@@ -229,7 +229,7 @@ const PropertyShape: FormGenerator = {
           showTitle: true,
           minCount: 0,
           componentType: {
-            "@id": COMPONENT.ARRAY_BUILDER
+            iri: COMPONENT.ARRAY_BUILDER
           },
           arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
         },
@@ -237,10 +237,10 @@ const PropertyShape: FormGenerator = {
           label: "Property group - Contained in array builder",
           order: 9,
           path: {
-            "@id": IM.IS_CONTAINED_IN
+            iri: IM.IS_CONTAINED_IN
           },
           validation: {
-            "@id": VALIDATION.HAS_PARENT
+            iri: VALIDATION.HAS_PARENT
           },
           validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
           property: [
@@ -249,13 +249,13 @@ const PropertyShape: FormGenerator = {
               order: 1,
               select: [
                 {
-                  "@id": QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
+                  iri: QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
                 }
               ],
               argument: [
                 {
                   valueIri: {
-                    "@id": RDF.PROPERTY
+                    iri: RDF.PROPERTY
                   },
                   parameter: "value"
                 }
@@ -263,11 +263,11 @@ const PropertyShape: FormGenerator = {
               builderChild: true,
               name: "Entity",
               path: {
-                "@id": IM.IS_CONTAINED_IN
+                iri: IM.IS_CONTAINED_IN
               },
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
               }
             }
           ],
@@ -275,7 +275,7 @@ const PropertyShape: FormGenerator = {
           showTitle: true,
           minCount: 0,
           componentType: {
-            "@id": COMPONENT.ARRAY_BUILDER
+            iri: COMPONENT.ARRAY_BUILDER
           },
           arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
         }

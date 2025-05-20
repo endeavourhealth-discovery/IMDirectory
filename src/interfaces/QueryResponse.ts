@@ -1,4 +1,4 @@
 export interface QueryResponse {
   entities: any[];
-  "@context": any;
+  context: any;
 }

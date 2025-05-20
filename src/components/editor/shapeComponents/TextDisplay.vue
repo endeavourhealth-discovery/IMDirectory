@@ -89,7 +89,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 const loading = ref(false);
 const invalid = ref(false);
@@ -131,23 +131,23 @@ async function init() {
 
 async function processPropertyValue(property: PropertyShape): Promise<string> {
   if (isObjectHasKeys(property, ["isIri"])) {
-    return property.isIri!["@id"];
+    return property.isIri!.iri;
   }
   if (isObjectHasKeys(property, ["function", "argument"])) {
     const args = processArguments(property, valueVariableMap?.value);
     if (props.shape.argument!.find((a: Argument) => a.valueVariable)) {
       const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
       if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
-        const result = await FunctionService.runFunction(property.function!["@id"], args);
+        const result = await FunctionService.runFunction(property.function!.iri, args);
         if (result) return result;
       } else return "";
     } else {
-      const result = await FunctionService.runFunction(property.function!["@id"], args);
+      const result = await FunctionService.runFunction(property.function!.iri, args);
       if (result) return result;
     }
   } else if (isObjectHasKeys(property, ["function"])) {
-    const result = await FunctionService.runFunction(property.function!["@id"]);
-    if (result && isObjectHasKeys(result, ["iri"])) return result.iri["@id"];
+    const result = await FunctionService.runFunction(property.function!.iri);
+    if (result && isObjectHasKeys(result, ["iri"])) return result.iri.iri;
   }
   return "";
 }

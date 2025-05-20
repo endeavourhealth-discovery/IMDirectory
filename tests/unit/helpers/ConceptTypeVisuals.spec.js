@@ -6,20 +6,20 @@ import { useSharedStore } from "@/stores/sharedStore";
 createTestingPinia();
 
 describe("ConceptTypeMethods", () => {
-  const testSetType = [{ "@id": "http://endhealth.info/im#ValueSet", name: "Value set" }];
+  const testSetType = [{ iri: "http://endhealth.info/im#ValueSet", name: "Value set" }];
   const testDataModelType = [
-    { "@id": "http://www.w3.org/2000/01/rdf-schema#Class", name: "Class" },
-    { "@id": "http://www.w3.org/ns/shacl#NodeShape", name: "Node shape" }
+    { iri: "http://www.w3.org/2000/01/rdf-schema#Class", name: "Class" },
+    { iri: "http://www.w3.org/ns/shacl#NodeShape", name: "Node shape" }
   ];
   const testPropertyType = [
     {
-      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
+      iri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
       name: "Property"
     }
   ];
-  const testQueryType = [{ "@id": "http://endhealth.info/im#Query", name: "Query template" }];
-  const testFeatureType = [{ "@id": "http://endhealth.info/im#MatchClause", name: "Feature or Rule" }];
-  const testFolder = [{ "@id": "http://endhealth.info/im#Folder", name: "Folder" }];
+  const testQueryType = [{ iri: "http://endhealth.info/im#Query", name: "Query template" }];
+  const testFeatureType = [{ iri: "http://endhealth.info/im#MatchClause", name: "Feature or Rule" }];
+  const testFolder = [{ iri: "http://endhealth.info/im#Folder", name: "Folder" }];
 
   describe("getFAIconFromType", () => {
     it("returns icon for nodeshape", () => {

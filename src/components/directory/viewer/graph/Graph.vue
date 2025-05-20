@@ -51,7 +51,7 @@ const graphExcludePredicates: Ref<string[]> = ref([]);
 
 onMounted(async () => {
   const result = await EntityService.getEntityChildren(IM.GRAPH_EXCLUDE_PREDICATES);
-  if (result) graphExcludePredicates.value = result.map(r => r["@id"]);
+  if (result) graphExcludePredicates.value = result.map(r => r.iri);
   await getEntityBundle(props.entityIri);
 });
 
@@ -72,9 +72,9 @@ async function getEntityBundle(iri: string) {
     bundle.value.predicates[IM.HAS_MEMBER] = "has member";
   }
   if (hasMember.totalCount && hasMember.totalCount >= 10) {
-    bundle.value.entity[IM.HAS_MEMBER] = bundle.value.entity[IM.HAS_MEMBER].concat({ "@id": "seeMore", name: "see more..." });
+    bundle.value.entity[IM.HAS_MEMBER] = bundle.value.entity[IM.HAS_MEMBER].concat({ iri: "seeMore", name: "see more..." });
   }
-  predicatesIris.value = Object.keys(bundle.value.entity).filter(value => value !== "@id");
+  predicatesIris.value = Object.keys(bundle.value.entity).filter(value => value !== "iri");
   predicatesIris.value.forEach(i => {
     if (!graphExcludePredicates.value.find(gep => gep === i)) options.value.push({ iri: i, name: bundle.value.predicates[i] });
   });

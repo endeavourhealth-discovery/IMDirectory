@@ -77,7 +77,7 @@ function handlePropertyUpdate() {
       editWhere.value = getEditWhere(whereOrMatch.value.and![0]!);
       const dmIriFromProperty = getEditWhereDMIri(whereOrMatch.value.and![0]!);
       if (dmIriFromProperty) editWhereDMIri.value = dmIriFromProperty;
-      else editWhereDMIri.value = (whereOrMatch.value as Match).typeOf?.["@id"] ?? "";
+      else editWhereDMIri.value = (whereOrMatch.value as Match).typeOf?.iri ?? "";
     } else {
       editWhere.value = getEditWhere(whereOrMatch.value);
       editWhereDMIri.value = getEditWhereDMIri(whereOrMatch.value);

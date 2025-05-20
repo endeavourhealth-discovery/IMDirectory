@@ -5,7 +5,7 @@
       class="concept-data-table p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
-      dataKey="@id"
+      dataKey="iri"
       :scrollable="true"
       scrollHeight="flex"
       :loading="loading"
@@ -28,7 +28,7 @@
         <template #body="{ data }: { data: ExtendedEntityReferenceNode }">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type as TTIriRef[])" class="p-mx-1 type-icon" />
-            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay">{{ data.name }}</span>
+            <span @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -41,9 +41,9 @@
         <template #body="{ data }: { data: ExtendedEntityReferenceNode }">
           <div class="buttons-container">
             <ActionButtons
-              v-if="data['@id']"
+              v-if="data.iri"
               :buttons="['findInTree', 'view', 'edit', 'favourite']"
-              :iri="data['@id']"
+              :iri="data.iri"
               :name="data.name"
               @locate-in-tree="locateInTree"
             />
@@ -110,12 +110,12 @@ const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Open",
     icon: "fa-solid fa-folder-open",
-    command: () => emit("navigateTo", selected.value["@id"])
+    command: () => emit("navigateTo", selected.value.iri)
   },
   {
     label: "View in new tab",
     icon: "fa-solid fa-arrow-up-right-from-square",
-    command: () => directService.view(selected.value["@id"])
+    command: () => directService.view(selected.value.iri)
   }
 ]);
 const totalCount = ref(0);
@@ -136,7 +136,7 @@ async function init() {
     rClickOptions.value.push({
       label: "Favourite",
       icon: "fa-solid fa-star",
-      command: () => updateFavourites(selected.value["@id"])
+      command: () => updateFavourites(selected.value.iri)
     });
   }
   if (conceptIsFavourite.value) await getFavourites();
@@ -148,7 +148,7 @@ async function init() {
 async function getFavourites() {
   const result = await EntityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map(child => {
-    return { "@id": child["@id"] as string, name: child[RDFS.LABEL], type: child[RDF.TYPE], icon: getFAIconFromType(child[RDF.TYPE]) };
+    return { iri: child.iri as string, name: child[RDFS.LABEL], type: child[RDF.TYPE], icon: getFAIconFromType(child[RDF.TYPE]) };
   });
   totalCount.value = children.value.length;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
@@ -165,7 +165,7 @@ function getColourStyleFromType(types: TTIriRef[]) {
 async function getChildren(iri: string) {
   const result = await EntityService.getPagedChildren(iri, currentPage.value + 1, pageSize.value);
   children.value = result.result.map(child => {
-    return { "@id": child["@id"] as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
+    return { iri: child.iri as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
   });
   totalCount.value = result.totalCount;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
@@ -178,7 +178,7 @@ function isFavourite(iri: string) {
 function updateRClickOptions() {
   rClickOptions.value[0].label = selected.value.hasChildren ? "Open" : "Select";
   rClickOptions.value[0].icon = selected.value.hasChildren ? "fa-solid fa-folder-open" : "fa-solid fa-sitemap";
-  if (isLoggedIn.value) rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
+  if (isLoggedIn.value) rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
 }
 
 function onRowContextMenu(event: MouseEvent, data: { data: ExtendedEntityReferenceNode }) {
@@ -192,7 +192,7 @@ async function updateFavourites(iri: string) {
 }
 
 function onRowSelect(event: { data: ExtendedEntityReferenceNode }) {
-  emit("navigateTo", event.data["@id"]);
+  emit("navigateTo", event.data.iri);
 }
 
 async function onPage(event: { rows: number; page: number }) {
@@ -201,7 +201,7 @@ async function onPage(event: { rows: number; page: number }) {
   currentPage.value = event.page;
   const result = await EntityService.getPagedChildren(props.entityIri, currentPage.value + 1, pageSize.value);
   children.value = result.result.map(child => {
-    return { "@id": child["@id"] as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
+    return { iri: child.iri as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
   });
   scrollToTop();
   loading.value = false;

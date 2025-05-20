@@ -132,7 +132,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const key = props.shape.path["@id"];
+const key = props.shape.path.iri;
 const buttonOptions = [
   { label: "From list", command: () => showAddByCodeList() },
   { label: "From file", command: () => showAddByFile() }
