@@ -21,11 +21,24 @@
     </Select>
     <div class="auto-complete-container">
       <AutocompleteSearchBar
+        ref="searchBar"
         v-model:selected="selected as SearchResultSummary"
         :im-query="imQueryForConceptSearch"
         :root-entities="[IM.ONTOLOGY_PARENT_FOLDER]"
+        @activateInput="emit('activateInput', $event)"
       />
     </div>
+    <template v-if="searchBar?.searchText && node.name">
+      <Button
+        v-if="searchBar?.searchText && searchBar.searchText !== node.name"
+        label="?"
+        class="sync-warning"
+        severity="danger"
+        v-tooltip="'Revert'"
+        @click="searchBar.searchText = node.name!"
+      />
+    </template>
+
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
 </template>
@@ -44,6 +57,8 @@ interface Props {
   parent?: any;
 }
 defineProps<Props>();
+const searchBar = ref<{ searchText: string } | null>(null);
+const emit = defineEmits(["activateInput"]);
 const node = defineModel<Node>("node", { default: {} });
 watch(
   () => cloneDeep(node.value),
@@ -120,5 +135,8 @@ function updateConcept(concept: SearchResultSummary) {
 .auto-complete-container {
   flex: 1 1 0%;
   min-width: 0;
+}
+.sync-warning {
+  color: var(--p-black-500) !important;
 }
 </style>

@@ -24,60 +24,148 @@ function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
   };
   query.where.and.push(where);
 }
-
-export const booleanWhereOptions = [
-  {
-    label: "Or",
-    value: "or",
-    tooltip: "At least on of this group must be true"
-  },
-  {
-    label: "And",
-    value: "and",
-    tooltip: "All of this group must be true"
-  }
-];
-
-export function toggleBool(parent: BoolGroup<Match | Where | undefined>, child: BoolGroup<Match | Where>, oldBool: Bool, newBool: Bool, index: number) {
-  if (!parent) return;
-  const from = oldBool as keyof typeof parent;
-  const to = newBool as keyof typeof parent;
-  if (from === to) return;
-  if (to === Bool.not) {
-    const sourceArray = parent[from];
-    if (Array.isArray(sourceArray) && sourceArray.length > 1) {
-      sourceArray.splice(index, 1);
-      parent.not = parent.not || [];
-      parent.not.push(child);
+export function rationaliseBoolGroups(clause: Match | Where) {
+  if (!clause) return;
+  flatten(clause, Bool.or);
+  flatten(clause, Bool.and);
+}
+function flatten(clause: Match | Where, operator: Bool) {
+  const bool = operator as keyof typeof clause;
+  if (clause[bool] && Array.isArray(clause[bool])) {
+    for (let index = clause[bool].length - 1; index >= 0; index--) {
+      const item = clause[bool][index];
+      if (shouldFlatten(item, operator)) {
+        const boolArray = item[bool]!;
+        clause[bool].splice(index, 1, ...boolArray);
+      }
     }
-    return;
-  }
-  if (from === Bool.not) {
-    if (parent.or) parent.or.push(child);
-    else if (parent.and) parent.and.push(child);
-    parent.not!.splice(index, 1);
-    if (parent.not!.length === 0) delete parent.not;
-  } else if (parent[from]) {
-    parent[to] = parent[from];
-    delete parent[from];
   }
 }
 
-export function getBooleanOptions(parent: BoolGroup<Match | Where>, operator: Bool): any[] {
+function shouldFlatten(clause: Match | Where, operator: Bool): boolean {
+  const bool = operator as keyof typeof clause;
+  if (clause[bool]) return true;
+  return false;
+}
+
+function createNewBoolGroup(clause: BoolGroup<Match | Where | undefined>, group: number[], oldBool: Bool, newBool: Bool) {
+  group.sort((a, b) => a - b);
+  const newGroup: (Match | Where)[] = [];
+  const from = oldBool as keyof typeof clause;
+  const to = newBool as keyof typeof clause;
+  const newGroupIndex = group[0];
+  const newItem = {
+    [to]: newGroup
+  };
+
+  group.forEach(index => {
+    newGroup.push(clause[from]![index]!);
+  });
+  const newBoolGroup = [];
+  for (const [index, item] of clause[from]!.entries()) {
+    if (index === newGroupIndex) {
+      newBoolGroup.push(newItem);
+    } else if (!group.includes(index)) newBoolGroup.push(item);
+  }
+  clause[from] = newBoolGroup;
+}
+
+export function updateBooleans(clause: BoolGroup<Match | Where | undefined>, oldBool: Bool, newBool: Bool, index: number, group: number[]) {
+  if (!clause) return;
+  if (group.length > 1) {
+    createNewBoolGroup(clause, group, oldBool, newBool);
+    group.length = 0;
+    return;
+  }
+  const from = oldBool as keyof typeof clause;
+  const to = newBool as keyof typeof clause;
+  if (from === to) return;
+  if (oldBool === Bool.not) {
+    const item = clause.not![index];
+    if (clause.and) clause.and.push(item);
+    else if (clause.or) clause.or.push(item);
+    clause.not!.splice(index, 1);
+    if (clause.not!.length === 0) delete clause.not;
+    return;
+  }
+  if (newBool === Bool.not) {
+    const item = clause[from]![index];
+    clause[from]!.splice(index, 1);
+    clause.not = [...(clause.not || []), item];
+    return;
+  }
+  clause[to] = clause[from];
+  delete clause[from];
+}
+export function hasBoolGroups(clause: Match | Where) {
+  if (clause.or || clause.and) return true;
+  return false;
+}
+
+export function getBooleanLabel(clause: Match | Where, clauseType: string, operator: Bool, index: number): string {
+  const isFirst = index === 0;
+  const isMatch = clauseType === "Match";
+  const hasNested = hasBoolGroups(clause);
+  if (operator === Bool.and) {
+    if (hasNested) {
+      return isFirst ? (isMatch ? "Must be " : "Must have") : isMatch ? "And must be a" : "And must have";
+    } else {
+      return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
+    }
+  }
+  if (operator === Bool.or) {
+    if (hasNested) {
+      return isFirst ? (isMatch ? "Either is a" : "Either has") : isMatch ? "Or" : "Or has";
+    } else {
+      return isFirst ? (isMatch ? "Either" : "Either") : "Or";
+    }
+  }
+  return "Minus";
+}
+
+export function getBooleanOptions(clause: Match | Where, parent: BoolGroup<Match | Where>, parentOperator: Bool, clauseType: string, index: number): any[] {
+  const operator = parentOperator as keyof typeof parent;
+  const notLabel = getBooleanLabel(clause, clauseType, Bool.not, index);
+  const andLabel = getBooleanLabel(clause, clauseType, Bool.and, parentOperator === Bool.not ? 1 : index);
+  const orLabel = getBooleanLabel(clause, clauseType, Bool.or, parentOperator === Bool.not ? 1 : index);
+
   const options = [];
-  options.push({
-    label: "And",
-    value: "and",
-    tooltip: "All of this group must be true"
-  });
-  options.push({
-    label: "Or",
-    value: "or",
-    tooltip: "At least on of this group must be true"
-  });
-  if (parent[operator as keyof typeof parent] && parent[operator as keyof typeof parent]!.length > 1)
+  if (parentOperator === Bool.not) {
     options.push({
-      label: "Minus",
+      label: notLabel,
+      value: "not",
+      tooltip: "Exclude this item or  group "
+    });
+    if (parent.and) {
+      options.push({
+        label: andLabel,
+        value: "and",
+        tooltip: "All of this group must be true"
+      });
+    }
+    if (parent.or) {
+      options.push({
+        label: orLabel,
+        value: "or",
+        tooltip: "At least on of this group must be true"
+      });
+    }
+    return options;
+  }
+
+  options.push({
+    label: andLabel,
+    value: "and",
+    tooltip: "Must include"
+  });
+  options.push({
+    label: orLabel,
+    value: "or",
+    tooltip: "At least one of this group must be true"
+  });
+  if (clauseType != "Where" && parent[operator] && parent[operator]!.length > 1)
+    options.push({
+      label: notLabel,
       value: "not",
       tooltip: "Exclude this item or  group "
     });

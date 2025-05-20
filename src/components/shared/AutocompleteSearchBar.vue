@@ -112,9 +112,8 @@ const searchPlaceholder: Ref<string> = ref(props.searchPlaceholder ?? "Search");
 const { listening, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const selectedIndex: Ref<number> = ref(-1);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
-
 let searchDebounce: any;
-
+defineExpose({ searchText });
 watch(showDialog, () => {
   if (showDialog.value) emit("openDialog");
 });

@@ -13,6 +13,8 @@ export class QUERY {
   public static readonly OBJECT_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "ObjectPropertyRangeSuggestions";
   public static readonly DATA_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "DataPropertyRangeSuggestions";
   public static readonly ALLOWABLE_PROPERTIES = QUERY.NAMESPACE + "AllowableProperties";
+  public static readonly ALLOWABLE_PROPERTY_ANCESTORS = QUERY.NAMESPACE + "AllowablePropertyAncestors";
+  public static readonly IS_VALID_PROPERTY = QUERY.NAMESPACE + "IsValidProperty";
   public static readonly SEARCH_PROPERTIES = QUERY.NAMESPACE + "SearchProperties";
   public static readonly SEARCH_ENTITIES = QUERY.NAMESPACE + "SearchEntities";
   public static readonly SEARCH_FOLDERS = QUERY.NAMESPACE + "SearchFolders";

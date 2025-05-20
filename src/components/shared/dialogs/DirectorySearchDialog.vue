@@ -111,13 +111,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   showFilters: false
 });
-watch(
-  () => modelShowDialog.value,
-  newValue => {
-    if (newValue === true) initSelection();
-    else resetDialog();
-  }
-);
 
 const emit = defineEmits<{
   updateSelectedFilters: [payload: FilterOptions];
@@ -135,6 +128,7 @@ const searchLoading = ref(false);
 const treeIri = ref("");
 const searchTerm = ref(props.searchTerm ?? "");
 const typeFilter = computed(() => props.selectedFilterOptions?.types.map(item => item.iri));
+
 watch(
   () => treeIri.value,
   () => {

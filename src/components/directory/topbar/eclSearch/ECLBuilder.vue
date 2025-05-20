@@ -25,8 +25,7 @@
     <div id="builder-string-container">
       <div id="query-builder-container">
         <ProgressSpinner v-if="loading" />
-        <ExpressionConstraint v-model:match="build" :rootBool="true" :index="0" :parentOperator="'and'" />
-
+        <ExpressionConstraint v-model:match="build" :rootBool="true" :index="0" :parentOperator="'and'" :activeInputId= "activeInputId" @activateInput="activeInputId=$event"/>
         <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.instanceOf && !loading">
           *Move pointer over panel above to add concepts, refinements and groups.
         </small>
@@ -62,8 +61,8 @@
     </div>
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
-      <Button label="Validate" severity="help" @click="validateBuild" :disabled="!isValidEcl" data-testid="ecl-validate-button" />
-      <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" data-testid="ecl-ok-button" />
+      <Button label="Validate" severity="help" @click="validateBuild" data-testid="ecl-validate-button" />
+      <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
     </template>
   </Dialog>
 </template>
@@ -81,15 +80,16 @@ import { Match } from "@/interfaces/AutoGen";
 import { Ref, ref, watch, onMounted, provide, readonly } from "vue";
 import { cloneDeep } from "lodash-es";
 import EclService from "@/services/EclService";
+import QueryService from "@/services/QueryService";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 
 interface Props {
   showDialog?: boolean;
   eclString?: string;
+  showNames?: boolean;
 }
 const props = defineProps<Props>();
-
 const emit = defineEmits<{
   eclSubmitted: [payload: string];
   eclConversionError: [payload: { error: boolean; message: string }];
@@ -97,7 +97,7 @@ const emit = defineEmits<{
 }>();
 
 const dynamicDialog = useDialog();
-
+const activeInputId = ref("");
 const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
 const forceValidation = ref(false);
@@ -124,11 +124,6 @@ function toggle(event: any) {
   op.value.toggle(event);
 }
 
-watch(queryString, async () => {
-  if (queryString.value) isValidEcl.value = await EclService.isValidECL(queryString.value);
-  else isValidEcl.value = false;
-});
-
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
 provide("childLoadingState", childLoadingState);
@@ -144,13 +139,6 @@ watch(
   async newValue => {
     if (newValue) await createBuildFromEclString(newValue);
     else createDefaultBuild();
-  }
-);
-
-watch(
-  () => cloneDeep(build.value),
-  async () => {
-    if (!loading.value && build.value) await generateQueryString();
   }
 );
 
@@ -180,7 +168,8 @@ async function createBuildFromEclString(ecl: string) {
   await generateQueryString();
 }
 
-function submit(): void {
+async function submit(): Promise<void> {
+  queryString.value = await EclService.getECLFromQuery(build.value, props.showNames);
   emit("eclSubmitted", queryString.value);
 }
 
