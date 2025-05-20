@@ -204,7 +204,6 @@ function setDefaultTab() {
 }
 
 function setTabMap() {
-  // eslint-disable-next-line no-undef
   const tabList = document.getElementById("viewer-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
   if (tabList?.length) {
     for (let i = 0; i < tabList.length; i++) {
@@ -249,8 +248,8 @@ function onOpenTab(predicate: string) {
   }
 }
 
-function handleControlClick(iri: string) {
-  directService.view(iri);
+async function handleControlClick(iri: string) {
+  await directService.view(iri);
 }
 </script>
 <style scoped>

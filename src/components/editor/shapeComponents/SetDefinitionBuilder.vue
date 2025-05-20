@@ -148,7 +148,7 @@ watch(
 );
 
 const debounceTimer = ref(0);
-watch(ecl, async newValue => {
+watch(ecl, newValue => {
   clearTimeout(debounceTimer.value);
   debounceTimer.value = window.setTimeout(async (): Promise<void> => {
     if (newValue && (await EclService.isValidECL(newValue))) {
@@ -247,7 +247,7 @@ function updateError(errorUpdate: { error: boolean; message: string }): void {
   eclErrorMessage.value = errorUpdate.message;
 }
 
-async function dropReceived(event: DragEvent) {
+function dropReceived(event: DragEvent) {
   const data = event.dataTransfer?.getData("conceptIri");
   if (data) {
     ecl.value = JSON.parse(data);

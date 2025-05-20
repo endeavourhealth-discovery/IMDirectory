@@ -54,10 +54,10 @@ const tangleLayout2: any = ref();
 
 const menu = ref();
 
-onMounted(() => {
+onMounted(async () => {
   chartData.value = props.data;
   renderChart();
-  setSelected(props.entityIri);
+  await setSelected(props.entityIri);
 });
 
 async function getMultiselectMenu(d: any) {
@@ -325,7 +325,7 @@ function renderChart() {
     .on("mouseout", () => {
       div.transition().duration(500).style("opacity", 0);
     })
-    .on("click", (d: any) => {
+    .on("click", async (d: any) => {
       div.transition().duration(500).style("opacity", 0);
       const node = d["target"]["__data__"];
       if (!node.isOr) {
@@ -338,7 +338,7 @@ function renderChart() {
           }
         } else {
           d.preventDefault();
-          toggleSubProperties(d);
+          await toggleSubProperties(d);
           if (selectedNode.value !== node) {
             selectedNode.value = node;
             selected.value = (nodeMap.get(node.id) as any) || [];
@@ -431,10 +431,10 @@ function createNodeCircle(
     .attr("stroke-width", 7)
     .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
 
-  nodeCircle.on("click", e => {
+  nodeCircle.on("click", async e => {
     const node = e["target"]["__data__"];
     e.preventDefault();
-    toggleSubProperties(e);
+    await toggleSubProperties(e);
     if (selectedNode.value !== node) {
       selectedNode.value = node;
       selected.value = (nodeMap.get(node.id) as any) || [];
@@ -449,10 +449,10 @@ function createNodeCircle(
       d3.select(d.srcElement).attr("stroke-width", 7).attr("stroke", "white");
     });
 
-  nodeCircle.on("contextmenu", e => {
+  nodeCircle.on("contextmenu", async e => {
     const node = e["target"]["__data__"];
     e.preventDefault();
-    getMultiselectMenu(e);
+    await getMultiselectMenu(e);
     if (displayMenu.value) {
       menu.value.show(e);
     }

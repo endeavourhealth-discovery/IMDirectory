@@ -55,7 +55,7 @@ onMounted(async () => {
   await getEntityBundle(props.entityIri);
 });
 
-async function updatePredicates() {
+function updatePredicates() {
   selectedIris.value = [];
   selectedPredicates.value.forEach(i => {
     selectedIris.value.push(i.iri);

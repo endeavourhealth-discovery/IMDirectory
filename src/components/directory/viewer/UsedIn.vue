@@ -88,12 +88,12 @@ async function init() {
   await getRecordsSize(props.entityIri);
 }
 
-function onRowSelect(event: DataTableRowSelectEvent<Usage>) {
+async function onRowSelect(event: DataTableRowSelectEvent<Usage>) {
   const mouseEvent = event.originalEvent as MouseEvent;
   if (mouseEvent.metaKey || mouseEvent.ctrlKey) {
-    directService.view(event.data.iri);
+    await directService.view(event.data.iri);
   } else {
-    directService.select(event.data.iri);
+    await directService.select(event.data.iri);
   }
 }
 

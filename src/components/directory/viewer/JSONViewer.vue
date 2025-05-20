@@ -33,7 +33,7 @@ onMounted(async () => {
 });
 
 async function onClick() {
-  copyObjectToClipboard(navigator, entityJSON.value.entity);
+  await copyObjectToClipboard(navigator, entityJSON.value.entity);
 }
 </script>
 

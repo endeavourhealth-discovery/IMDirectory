@@ -169,7 +169,7 @@ onMounted(async () => {
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
     getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
-  } else router.push({ path: "/" });
+  } else await router.push({ path: "/" });
   loading.value = false;
 });
 
@@ -229,7 +229,7 @@ function submit(): void {
         forceValidation.value = false;
         verificationDialog.close();
         if (isValidEntity(editorEntity.value)) {
-          Swal.fire({
+          await Swal.fire({
             icon: "info",
             title: "Confirm save",
             text: "Are you sure you want to save your changes?",
@@ -254,7 +254,7 @@ function submit(): void {
             }
           }).then(async (result: SweetAlertResult) => {
             if (result.isConfirmed) {
-              Swal.fire({
+              await Swal.fire({
                 title: "Success",
                 text: "Entity: " + editorEntity.value[IM.ID] + " has been updated.",
                 icon: "success",
@@ -265,7 +265,7 @@ function submit(): void {
                 cancelButtonColor: "#607D8B"
               }).then(async (result: SweetAlertResult) => {
                 if (result.isConfirmed) {
-                  directService.view(editorEntity.value[IM.ID]);
+                  await directService.view(editorEntity.value[IM.ID]);
                 } else {
                   await fetchEntity();
                 }
@@ -273,7 +273,7 @@ function submit(): void {
             }
           });
         } else {
-          Swal.fire({
+          await Swal.fire({
             icon: "warning",
             title: "Warning",
             text: "Invalid values found. Please review your entries.",
@@ -284,7 +284,7 @@ function submit(): void {
       } else {
         forceValidation.value = false;
         verificationDialog.close();
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Timeout",
           text: "Validation timed out. Please contact an admin for support.",
@@ -293,10 +293,10 @@ function submit(): void {
         });
       }
     })
-    .catch(() => {
+    .catch(async () => {
       forceValidation.value = false;
       verificationDialog.close();
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Timeout",
         text: "Validation timed out. Please contact an admin for support.",
@@ -313,8 +313,8 @@ function processEntityValue(property: PropertyShape) {
   return undefined;
 }
 
-function closeEditor() {
-  Swal.fire({
+async function closeEditor() {
+  await Swal.fire({
     icon: "warning",
     title: "Warning",
     text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
@@ -324,9 +324,9 @@ function closeEditor() {
     confirmButtonColor: "#D32F2F",
     cancelButtonColor: "#607D8B",
     customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: SweetAlertResult) => {
+  }).then(async (result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
+      if (window.history.state.back === null) await router.push({ name: "Folder", params: { selectedIri: editorIri } });
       else router.go(-1);
     }
   });

@@ -75,8 +75,8 @@ const menuItems = ref([
   }
 ]);
 
-function handleEditClicked(): void {
-  router.push({ name: "UserEdit" });
+async function handleEditClicked() {
+  await router.push({ name: "UserEdit" });
 }
 </script>
 

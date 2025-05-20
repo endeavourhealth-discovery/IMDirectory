@@ -189,9 +189,9 @@ onBeforeUnmount(() => {
   }
 });
 
-watch(selectedResult, (newValue, oldValue) => {
+watch(selectedResult, async (newValue, oldValue) => {
   if (newValue && typeof newValue !== "string" && !isEqual(newValue, oldValue)) {
-    itemSelected(newValue);
+    await itemSelected(newValue);
   }
 });
 
@@ -317,9 +317,9 @@ function convertToConceptSummary(results: any[]) {
   });
 }
 
-function searchOptions(event: AutoCompleteCompleteEvent) {
+async function searchOptions(event: AutoCompleteCompleteEvent) {
   if (!event.query.trim().length) {
-    getAutocompleteOptions();
+    await getAutocompleteOptions();
   } else {
     autocompleteOptions.value = autocompleteOptions.value.filter(option =>
       option.name?.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())

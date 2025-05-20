@@ -121,7 +121,7 @@ watch(showDialog, () => {
 
 watch(
   () => cloneDeep(props.selected),
-  async (newValue, oldValue) => {
+  (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       searchLoading.value = true;
       if (newValue && newValue.name && newValue.name != searchText.value) {
@@ -213,7 +213,7 @@ async function search() {
   }
 }
 
-async function showResultsOverlay(event: any) {
+function showResultsOverlay(event: any) {
   if (resultsOP.value) resultsOP.value.show(event, event.target);
 }
 

@@ -160,12 +160,7 @@ async function getConceptAggregate(iri: string): Promise<void> {
   loading.value = false;
 }
 
-async function createTree(
-  concept: TTEntity,
-  parentHierarchy: ExtendedEntityReferenceNode[],
-  children: ExtendedEntityReferenceNode[],
-  parentPosition: number
-): Promise<void> {
+function createTree(concept: TTEntity, parentHierarchy: ExtendedEntityReferenceNode[], children: ExtendedEntityReferenceNode[], parentPosition: number) {
   loading.value = true;
   const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri as string, concept[RDF.TYPE], concept.hasChildren, null, undefined);
   children.forEach(child => {
@@ -291,7 +286,7 @@ async function onNodeSelect(node: TreeNode): Promise<void> {
 
 async function showPopup(event: MouseEvent, iri?: string): Promise<void> {
   if (iri && iri !== "loadMode") {
-    showOverlay(event, iri);
+    await showOverlay(event, iri);
   }
 }
 

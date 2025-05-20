@@ -67,27 +67,27 @@ function setupTree(emit?: any, customPageSize?: number) {
       if (!node.loading) await loadMore(node);
     } else {
       selectedNode.value = node;
-      directService.select(node.data);
+      await directService.select(node.data);
     }
   }
 
-  function onNodeDblClick($event: MouseEvent, node: TreeNode) {
-    if (!(node.data === "loadMore" || node.data === IM.FAVOURITES)) directService.view(node.key);
+  async function onNodeDblClick($event: MouseEvent, node: TreeNode) {
+    if (!(node.data === "loadMore" || node.data === IM.FAVOURITES)) await directService.view(node.key);
   }
 
-  function customOnClick(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
+  async function customOnClick(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
     if (useEmits) {
       if (!emit) throw new Error("setupTree requires vue emits for custom clicks");
       if (checkForControlClick(event)) emit("rowControlClicked", node.data);
       else emit("rowClicked", node.data);
     } else if (checkForControlClick(event)) {
-      directService.view(node.data);
+      await directService.view(node.data);
     } else if (updateSelectedKeys) {
       selectedKeys.value = {};
       selectedKeys.value[node.data] = true;
-      directService.select(node.data);
+      await directService.select(node.data);
     } else {
-      directService.select(node.data);
+      await directService.select(node.data);
     }
 
     console.log(selectedKeys.value);

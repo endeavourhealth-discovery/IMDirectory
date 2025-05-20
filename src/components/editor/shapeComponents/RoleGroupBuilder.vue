@@ -181,7 +181,7 @@ const valueRequest: QueryRequest = {
   }
 };
 
-async function update() {
+function update() {
   validateEntity();
   updateEntity();
 }

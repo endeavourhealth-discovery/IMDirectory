@@ -65,7 +65,7 @@ const UserService = {
         iri: iri
       },
       headers: {
-        Authorization: "Bearer " + (await fetchAuthSession()).tokens?.idToken
+        Authorization: "Bearer " + (await fetchAuthSession()).tokens?.idToken?.toString()
       }
     });
   },

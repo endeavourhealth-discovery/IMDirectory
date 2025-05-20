@@ -29,9 +29,9 @@ function setupChangeThemeOptions() {
         usePreset(Aura);
         break;
     }
-    if (userStore.currentPrimaryColor) changePrimaryColor(userStore.currentPrimaryColor);
-    if (userStore.currentSurfaceColor) changeSurfaceColor(userStore.currentSurfaceColor);
-    if (userStore.darkMode) changeDarkMode(userStore.darkMode);
+    if (userStore.currentPrimaryColor) await changePrimaryColor(userStore.currentPrimaryColor);
+    if (userStore.currentSurfaceColor) await changeSurfaceColor(userStore.currentSurfaceColor);
+    if (userStore.darkMode) await changeDarkMode(userStore.darkMode);
     if (preset !== userStore.currentPreset) await userStore.updatePreset(preset);
   }
 

@@ -69,7 +69,7 @@ const matchExpand = ref(props.matchExpanded);
 const loading = ref(false);
 const dataSet = ref({ ...props.query });
 
-async function matchToggle() {
+function matchToggle() {
   matchExpand.value = !matchExpand.value;
 }
 
@@ -81,7 +81,7 @@ function hasCriteria(query: Query): boolean {
 }
 
 onMounted(async () => {
-  init();
+  await init();
 });
 async function init() {
   if (!dataSet.value.return) {

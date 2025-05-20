@@ -47,7 +47,7 @@ const canGoForward = computed(() => modelHistory.value.length && modelHistory.va
 
 watch(
   () => props.entityIri,
-  () => init()
+  async () => await init()
 );
 
 const pathItems: Ref<MenuItem[]> = ref([]);
@@ -75,12 +75,12 @@ function goForward() {
   if (canGoForward.value) emit("navigateTo", modelHistory.value[modelHistory.value.indexOf(props.entityIri) + 1]);
 }
 
-function init() {
+async function init() {
   if (props.entityIri) {
     const newHistory: string[] = [...modelHistory.value];
     if (!newHistory.includes(props.entityIri)) newHistory.push(props.entityIri);
     modelHistory.value = newHistory;
-    getPath();
+    await getPath();
   }
 }
 

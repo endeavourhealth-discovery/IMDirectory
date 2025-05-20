@@ -345,9 +345,9 @@ function submit(): void {
               return res;
             } else Swal.showValidationMessage("Error creating entity from server.");
           }
-        }).then((result: SweetAlertResult) => {
+        }).then(async (result: SweetAlertResult) => {
           if (result.isConfirmed) {
-            Swal.fire({
+            await Swal.fire({
               title: "Success",
               text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
               icon: "success",
@@ -356,17 +356,17 @@ function submit(): void {
               confirmButtonText: "Open in Viewer",
               confirmButtonColor: "#2196F3",
               cancelButtonColor: "#607D8B"
-            }).then((result: SweetAlertResult) => {
+            }).then(async (result: SweetAlertResult) => {
               if (result.isConfirmed) {
-                directService.view(editorEntity.value[IM.ID]);
+                await directService.view(editorEntity.value[IM.ID]);
               } else {
-                directService.edit(editorEntity.value[IM.ID], true);
+                await directService.edit(editorEntity.value[IM.ID], true);
               }
             });
           }
         });
       } else {
-        Swal.fire({
+        await Swal.fire({
           icon: "warning",
           title: "Warning",
           text: "Invalid values found. Please review your entries.",
@@ -375,8 +375,8 @@ function submit(): void {
         });
       }
     })
-    .catch(() => {
-      Swal.fire({
+    .catch(async () => {
+      await Swal.fire({
         icon: "error",
         title: "Timeout",
         text: "Validation timed out. Please contact an admin for support",
@@ -386,8 +386,8 @@ function submit(): void {
     });
 }
 
-function closeCreator() {
-  Swal.fire({
+async function closeCreator() {
+  await Swal.fire({
     icon: "warning",
     title: "Warning",
     text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
@@ -397,9 +397,9 @@ function closeCreator() {
     confirmButtonColor: "#D32F2F",
     cancelButtonColor: "#607D8B",
     customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: SweetAlertResult) => {
+  }).then(async (result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      router.push({ name: "LandingPage" });
+      await router.push({ name: "LandingPage" });
     }
   });
 }

@@ -260,7 +260,7 @@ watch(
   }
 );
 
-onMounted(async () => {
+onMounted(() => {
   loading.value = true;
   processProps();
   loading.value = false;
@@ -361,7 +361,7 @@ function propertyError(row: SimpleProp) {
   }
 }
 
-function addProperty() {
+async function addProperty() {
   let a = {
     path: {
       iri: "",
@@ -384,17 +384,17 @@ function addProperty() {
     error: undefined
   } as SimpleProp;
   dmProperties.value.push(a);
-  update();
+  await update();
 }
 
-function deleteProperty(index: number) {
+async function deleteProperty(index: number) {
   if (index >= 0 && index < dmProperties.value.length) {
     const newData = [];
     newData.push(...dmProperties.value);
 
     newData.splice(index, 1);
     dmProperties.value = newData;
-    update();
+    await update();
   }
 }
 

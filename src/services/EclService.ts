@@ -6,9 +6,9 @@ import { Query, SearchResultSummary, EclSearchRequest, SearchResponse } from "@/
 
 const EclService = {
   async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<SearchResponse> {
-    const results: SearchResponse = (await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest, {
+    const results: SearchResponse = await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest, {
       signal: controller?.signal
-    })) as SearchResponse;
+    });
     if (isObjectHasKeys(results, ["entities"]) && results.entities) results.entities.forEach((result: SearchResultSummary) => entityToAliasEntity(result));
     return results;
   },
@@ -18,11 +18,11 @@ const EclService = {
   },
 
   async getQueryFromECL(ecl: string, raw: boolean = false): Promise<Query> {
-    return axios.post(Env.API + "api/ecl/public/queryFromEcl", ecl, { headers: { "Content-Type": "text/plain" }, raw: raw });
+    return await axios.post(Env.API + "api/ecl/public/queryFromEcl", ecl, { headers: { "Content-Type": "text/plain" }, raw: raw });
   },
 
   async isValidECL(ecl: string): Promise<boolean> {
-    return axios.post(Env.API + "api/ecl/public/validateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
+    return await axios.post(Env.API + "api/ecl/public/validateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
   },
 
   async getECLFromQuery(query: Query, includeNames?: boolean): Promise<string> {

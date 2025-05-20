@@ -17,34 +17,34 @@ const QueryService = {
   },
 
   async pathQuery(pathQuery: PathQuery, controller?: AbortController, raw: boolean = false): Promise<{ match: Match[] }> {
-    return axios.post(API_URL + "/public/pathQuery", pathQuery, { signal: controller?.signal, raw: raw });
+    return await axios.post(API_URL + "/public/pathQuery", pathQuery, { signal: controller?.signal, raw: raw });
   },
 
   async askQuery(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<boolean> {
-    return axios.post(API_URL + "/public/askQueryIM", query, { signal: controller?.signal, raw: raw });
+    return await axios.post(API_URL + "/public/askQueryIM", query, { signal: controller?.signal, raw: raw });
   },
 
   async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
-    return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
+    return await axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
   },
 
   async getQueryDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
-    return axios.post(API_URL + "/public/queryDisplayFromQuery", query, { params: { displayMode } });
+    return await axios.post(API_URL + "/public/queryDisplayFromQuery", query, { params: { displayMode } });
   },
 
   async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
-    return axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
+    return await axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
   },
 
   async getDefaultQuery(): Promise<Query> {
-    return axios.get(API_URL + "/public/defaultQuery");
+    return await axios.get(API_URL + "/public/defaultQuery");
   },
   async generateQuerySQL(queryIri: string): Promise<string> {
-    return axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri } });
+    return await axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri } });
   },
 
   async generateQuerySQLfromQuery(query: Query): Promise<string> {
-    return axios.post(API_URL + "/public/sql", query);
+    return await axios.post(API_URL + "/public/sql", query);
   },
 
   async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<boolean> {

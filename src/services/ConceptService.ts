@@ -6,7 +6,7 @@ const API_URL = Env.API + "api/concept";
 
 const ConceptService = {
   async getMatchedFrom(iri: string): Promise<SimpleMap[]> {
-    return axios.get(API_URL + "/public/matchedFrom", {
+    return await axios.get(API_URL + "/public/matchedFrom", {
       params: {
         iri: iri
       }
@@ -14,7 +14,7 @@ const ConceptService = {
   },
 
   async getMatchedTo(iri: string): Promise<SimpleMap[]> {
-    return axios.get(API_URL + "/public/matchedTo", {
+    return await axios.get(API_URL + "/public/matchedTo", {
       params: {
         iri: iri
       }
@@ -22,7 +22,7 @@ const ConceptService = {
   },
 
   async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
-    return axios.get(API_URL + "/public/termCode", {
+    return await axios.get(API_URL + "/public/termCode", {
       params: { iri: iri, includeInactive: includeInactive }
     });
   },
@@ -34,7 +34,7 @@ const ConceptService = {
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<Pageable<EntityReferenceNode>> {
-    return axios.get(API_URL + "/public/superiorPropertiesPaged", {
+    return await axios.get(API_URL + "/public/superiorPropertiesPaged", {
       params: { conceptIri: conceptIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
@@ -53,7 +53,7 @@ const ConceptService = {
     controller?: AbortController,
     inactive?: boolean
   ): Promise<Pageable<EntityReferenceNode>> {
-    return axios.post(
+    return await axios.post(
       API_URL + "/public/superiorPropertiesBoolFocusPaged",
       { ecl: focus.ecl, page: pageIndex, size: pageSize, schemeFilters: filters, inactive: inactive },
       { signal: controller?.signal }
@@ -67,14 +67,14 @@ const ConceptService = {
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<Pageable<EntityReferenceNode>> {
-    return axios.get(API_URL + "/public/superiorPropertyValuesPaged", {
+    return await axios.get(API_URL + "/public/superiorPropertyValuesPaged", {
       params: { propertyIri: propertyIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
   },
 
   async getContextMaps(conceptIri: string): Promise<ConceptContextMap[]> {
-    return axios.get(API_URL + "/public/conceptContextMaps", {
+    return await axios.get(API_URL + "/public/conceptContextMaps", {
       params: { iri: conceptIri }
     });
   }

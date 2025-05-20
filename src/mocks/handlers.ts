@@ -7,7 +7,7 @@ import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const apiUrl = "http://localhost:8082/imapi/api/";
 
 export const handlers = [
-  http.get(apiUrl + "entity/public/children", async ({ params }) => {
+  http.get(apiUrl + "entity/public/children", ({ params }) => {
     const { iri } = params;
     if (iri === IM.STATUS) return HttpResponse.json([IM.ACTIVE, IM.DRAFT, IM.INACTIVE]);
     else
@@ -52,7 +52,7 @@ export const handlers = [
 ];
 
 export const handlersFaker = [
-  http.get(apiUrl + "entity/public/partial", async ({ params }) => {
+  http.get(apiUrl + "entity/public/partial", ({ params }) => {
     console.log("using msw");
     const { iri, predicatesArray } = params;
     const entityValue = {} as { [x: string]: string | readonly string[] | undefined | null };
@@ -67,10 +67,10 @@ export const handlersFaker = [
     });
     return HttpResponse.json(entity);
   }),
-  http.get(apiUrl + "entity/public/parents", async () => {
+  http.get(apiUrl + "entity/public/parents", () => {
     return HttpResponse.json([fakerFactory.entitySummary.create(), fakerFactory.entitySummary.create()]);
   }),
-  http.get(apiUrl + "entity/public/childrenPaged", async () => {
+  http.get(apiUrl + "entity/public/childrenPaged", () => {
     const children = [
       fakerFactory.entitySummary.create(),
       fakerFactory.entitySummary.create(),
@@ -79,7 +79,7 @@ export const handlersFaker = [
     ];
     return HttpResponse.json(fakerFactory.pagedChildren.create({ result: children, totalCount: 4 }));
   }),
-  http.get(apiUrl + "entity/public/summary", async ({ params }) => {
+  http.get(apiUrl + "entity/public/summary", ({ params }) => {
     const { iri } = params;
     if (iri && typeof iri === "string") {
       const found = fakerFactory.entitySummary.findFirst({ where: { iri: { equals: iri } } });

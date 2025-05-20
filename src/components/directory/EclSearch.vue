@@ -102,7 +102,7 @@ watch(eclQueryString, () => {
   editorStore.updateEclEditorSavedString(eclQueryString.value);
 });
 
-watch(selectedStatus, async () => {
+watch(selectedStatus, () => {
   selectedStatus.value.sort(byName);
 });
 

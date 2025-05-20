@@ -99,16 +99,16 @@ const generatedCode = ref("");
 const templateMenu = ref();
 const complexTypes = ref(false);
 
-const convert = debounce(() => {
-  generateCodeWithTemplate("http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction");
+const convert = debounce(async () => {
+  await generateCodeWithTemplate("http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction");
 }, 500);
 
 onMounted(async () => {
   await init();
 });
 
-watch([codeInput, collectionWrapperInput, nameInput, complexTypes], () => {
-  convert();
+watch([codeInput, collectionWrapperInput, nameInput, complexTypes], async () => {
+  await convert();
 });
 
 watch(
@@ -122,7 +122,7 @@ watch(
         datatypeMapInput.value.push({ code: "", replace: "" });
       }
     });
-    convert();
+    await convert();
   }
 );
 
@@ -145,7 +145,7 @@ async function setDefaultTemplate() {
 
   if (codeInput.value.length == 0) getDefaultTemplate();
 
-  convert();
+  await convert();
 }
 
 function getDefaultTemplate() {

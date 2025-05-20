@@ -112,8 +112,8 @@ const isValid = ref(false);
 const childLoadingState: Ref<any> = ref({});
 watch(
   () => cloneDeep(childLoadingState.value),
-  newValue => {
-    if (Object.values(newValue).every(item => item === true)) generateQueryString();
+  async newValue => {
+    if (Object.values(newValue).every(item => item === true)) await generateQueryString();
   }
 );
 
@@ -224,7 +224,7 @@ async function validateBuild() {
   if (result) {
     isValid.value = validationBuild.every(v => v.validation.valid);
     if (isValid.value) {
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
         title: "Success",
         text: "All entities are valid.",
@@ -232,7 +232,7 @@ async function validateBuild() {
         confirmButtonColor: "##2196F3"
       });
     } else {
-      Swal.fire({
+      await Swal.fire({
         icon: "warning",
         title: "Warning",
         text: "Invalid values found. Please review your entries.",
@@ -241,7 +241,7 @@ async function validateBuild() {
       });
     }
   } else {
-    Swal.fire({
+    await Swal.fire({
       icon: "error",
       title: "Timeout",
       text: "Validation timed out. Please contact an admin for support.",

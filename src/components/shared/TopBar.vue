@@ -264,8 +264,8 @@ async function getCurrentVersion() {
   if (latestRelease && latestRelease.version) currentVersion.value = latestRelease.version;
 }
 
-function toLandingPage() {
-  router.push("/");
+async function toLandingPage() {
+  await router.push("/");
 }
 
 function getItems(): MenuItem[] {
@@ -337,7 +337,7 @@ function isLoggedInWithRole(role: string): boolean {
   return isLoggedIn.value && typeof currentUser.value !== "undefined" && currentUser.value.roles.includes(role);
 }
 
-async function setUploadDownloadMenuItems(): Promise<void> {
+function setUploadDownloadMenuItems() {
   uploadDownloadItems.value = [
     {
       label: "Upload/Download",

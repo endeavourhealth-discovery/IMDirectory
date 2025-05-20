@@ -222,32 +222,32 @@ const onSubmit = handleSubmit(async () => {
       mfaStatus: []
     } as User;
     AuthService.register(user)
-      .then(res => {
+      .then(async res => {
         if (res.status === 201) {
-          Swal.fire({
+          await Swal.fire({
             icon: "success",
             title: "Success",
             text: res.message,
             showCancelButton: true,
             confirmButtonText: "Continue"
-          }).then((result: SweetAlertResult) => {
+          }).then(async (result: SweetAlertResult) => {
             emit("userCreated", user);
             if (result.isConfirmed) {
               authStore.updateRegisteredUsername(username.value.modelValue);
-              router.push({ name: "ConfirmCode" });
+              await router.push({ name: "ConfirmCode" });
             } else {
               clearForm();
             }
           });
         } else if (res.status === 409) {
-          Swal.fire({
+          await Swal.fire({
             icon: "error",
             title: "Error",
             text: "Username already taken. Please pick another username",
             confirmButtonText: "Close"
           });
         } else {
-          Swal.fire({
+          await Swal.fire({
             icon: "error",
             title: "Error",
             text: res.message,
@@ -259,7 +259,7 @@ const onSubmit = handleSubmit(async () => {
         console.error(err);
       });
   } else {
-    Swal.fire({
+    await Swal.fire({
       icon: "error",
       title: "Error",
       text: "User creation failed. Check input data.",

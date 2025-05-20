@@ -89,7 +89,7 @@ watch(
   async () => await getFavouritesDetails()
 );
 
-onMounted(async () => init());
+onMounted(async () => await init());
 
 async function init(): Promise<void> {
   loading.value = true;
@@ -97,12 +97,12 @@ async function init(): Promise<void> {
   loading.value = false;
 }
 
-function onRowSelect(event: { data: ExtendedSearchResultSummary }) {
-  directService.select(event.data.iri);
+async function onRowSelect(event: { data: ExtendedSearchResultSummary }) {
+  await directService.select(event.data.iri);
 }
 
-function locateInTree(iri: string) {
-  directoryStore.updateFindInTreeIri(iri);
+async function locateInTree(iri: string) {
+  await directoryStore.updateFindInTreeIri(iri);
 }
 
 async function getFavouritesDetails() {

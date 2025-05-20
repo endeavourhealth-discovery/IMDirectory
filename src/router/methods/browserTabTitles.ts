@@ -23,7 +23,7 @@ export async function setBrowserTabTitles(to: RouteLocationNormalized) {
   if (to.matched.some(record => record.name === "Uprn")) {
     title += "ASSIGN-UPRN";
   }
-  nextTick(() => {
+  await nextTick(() => {
     document.title = APP_TITLE + (title ? " - " : "") + title;
   });
 }

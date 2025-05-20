@@ -246,8 +246,8 @@ async function getIsSelectableEntity(): Promise<boolean> {
   return true;
 }
 
-function onEnter() {
-  if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
+async function onEnter() {
+  if (selectedName.value && isSelectableEntity.value) await updateSelectedFromIri(detailsIri.value);
 }
 
 function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {

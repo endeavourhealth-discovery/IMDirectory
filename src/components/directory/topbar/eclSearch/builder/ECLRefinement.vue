@@ -241,13 +241,13 @@ watch(selectedValue, async (newValue, oldValue) => {
   }
 });
 
-watch([() => cloneDeep(props.focus), () => cloneDeep(where.value)], async () => {
+watch([() => cloneDeep(props.focus), () => cloneDeep(where.value)], () => {
   loadingProperty.value = true;
   updateQueryForPropertySearch();
   loadingProperty.value = false;
 });
 
-watch([selectedProperty, () => cloneDeep(where.value)], async () => {
+watch([selectedProperty, () => cloneDeep(where.value)], () => {
   loadingValue.value = true;
   updateQueryForValueSearch();
   loadingValue.value = false;
@@ -371,7 +371,7 @@ async function updateIsValidProperty(): Promise<void> {
     const imQuery: QueryRequest = cloneDeep(imQueryForPropertySearch.value) ?? { query: {} };
     imQuery.textSearch = selectedProperty.value?.iri;
     const results = await QueryService.queryIMSearch(imQuery);
-    isValidProperty.value = results.entities?.findIndex(r => r.iri === selectedProperty.value?.iri) != -1 ? true : false;
+    isValidProperty.value = results.entities?.findIndex(r => r.iri === selectedProperty.value?.iri) != -1;
   } else if (props.focus && hasProperty.value && imQueryForPropertySearch.value) {
     const imQuery = cloneDeep(imQueryForPropertySearch.value);
     imQuery.askIri = where.value.iri;
@@ -415,12 +415,12 @@ async function updateIsValidPropertyValue(): Promise<void> {
   } else isValidPropertyValue.value = false;
 }
 
-async function processProps() {
-  await processPropertyProp();
-  await processValueProp();
+function processProps() {
+  processPropertyProp();
+  processValueProp();
 }
 
-async function processPropertyProp() {
+function processPropertyProp() {
   if (where.value.iri) {
     selectedProperty.value = { iri: where.value.iri, name: where.value.name } as SearchResultSummary;
     propertyConstraintOperator.value = getConstraintOperator(where.value);
@@ -430,7 +430,7 @@ async function processPropertyProp() {
   }
 }
 
-async function processValueProp() {
+function processValueProp() {
   if (where.value.is && where.value.is[0].iri) {
     selectedValue.value = { iri: where.value.is[0].iri, name: where.value.is[0].name } as SearchResultSummary;
     valueConstraintOperator.value = getConstraintOperator(where.value.is[0]);
@@ -440,7 +440,7 @@ async function processValueProp() {
   }
 }
 
-async function updateProperty(property: SearchResultSummary | undefined) {
+function updateProperty(property: SearchResultSummary | undefined) {
   if (!property) {
     delete where.value.iri;
     delete where.value.name;
@@ -450,7 +450,7 @@ async function updateProperty(property: SearchResultSummary | undefined) {
   }
 }
 
-async function updateValue(value: SearchResultSummary | undefined) {
+function updateValue(value: SearchResultSummary | undefined) {
   if (!value) {
     delete where.value.is;
   } else {

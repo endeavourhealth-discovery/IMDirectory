@@ -86,7 +86,7 @@ watch(
   async () => await getRecentActivityDetails()
 );
 
-onMounted(async () => init());
+onMounted(async () => await init());
 
 async function init(): Promise<void> {
   loading.value = true;
@@ -94,8 +94,8 @@ async function init(): Promise<void> {
   loading.value = false;
 }
 
-function onRowSelect(event: { data: RecentActivityItem }) {
-  directService.select(event.data.iri);
+async function onRowSelect(event: { data: RecentActivityItem }) {
+  await directService.select(event.data.iri);
 }
 
 function getActivityTooltipMessage(activity: RecentActivityItem) {

@@ -111,8 +111,8 @@ const showValidation = ref(false);
 const queryRequest: Ref<QueryRequest | undefined> = ref(undefined);
 const rootEntities: Ref<string[]> = ref([]);
 
-watch(selectedResult, (newValue, oldValue) => {
-  if (newValue && !isEqual(newValue, oldValue)) updateSelectedResult(newValue);
+watch(selectedResult, async (newValue, oldValue) => {
+  if (newValue && !isEqual(newValue, oldValue)) await updateSelectedResult(newValue);
 });
 
 async function init() {
@@ -129,7 +129,7 @@ async function init() {
     queryRequest.value.argument = props.shape.argument;
   }
   if (props.value && isObjectHasKeys(props.value)) {
-    updateSelectedResult(props.value);
+    await updateSelectedResult(props.value);
   } else {
     selectedResult.value = {} as SearchResultSummary;
   }

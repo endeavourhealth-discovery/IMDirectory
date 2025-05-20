@@ -10,9 +10,9 @@ function setupCopyToClipboard(valueToCopy?: Ref<string>, onCopyMessage?: string,
     return valueToCopy?.value;
   }
 
-  function copyObjectToClipboard(navigator: Navigator, object: any) {
+  async function copyObjectToClipboard(navigator: Navigator, object: any) {
     try {
-      navigator.clipboard.writeText(JSON.stringify(object));
+      await navigator.clipboard.writeText(JSON.stringify(object));
       onCopy();
     } catch (error) {
       console.log(`Error copying to clipboard ${error}`);

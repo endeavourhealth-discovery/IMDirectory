@@ -1,7 +1,7 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
 import eslint from "@eslint/js";
-import typescriptEslint from "typescript-eslint";
+import tseslint from "typescript-eslint";
 import pluginVue from "eslint-plugin-vue";
 import pluginCypress from "eslint-plugin-cypress/flat";
 import pluginPrettier from "eslint-plugin-prettier/recommended";
@@ -14,32 +14,46 @@ export default defineConfig([
     files: ["src/**/*"],
     extends: [
       eslint.configs.recommended,
-      ...typescriptEslint.configs.recommended,
+      ...tseslint.configs.recommended,
       ...pluginVue.configs["flat/essential"],
-      ...eslintPluginVueScopedCSS.configs["flat/recommended"],
+      ...eslintPluginVueScopedCSS.configs["flat/base"],
       pluginCypress.configs.recommended,
       css.configs.recommended,
       pluginPrettier
     ],
+    plugins: {
+      "typescript-eslint": tseslint.plugin
+    },
     languageOptions: {
       globals: {
         ...globals.browser
       },
       ecmaVersion: 2020,
-      sourceType: "script",
       parserOptions: {
-        parser: "@typescript-eslint/parser"
+        parser: tseslint.parser,
+        project: "./tsconfig.json",
+        extraFileExtensions: [".vue"],
+        sourceType: "module"
       }
     },
 
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-floating-promises": "warn",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/require-await": "off",
       "no-console": "off",
+      "no-debugger": "off",
+      "no-redeclare": "off",
       "no-unused-vars": "off",
       "no-use-before-define": "off",
-      "no-debugger": "off",
+      "require-await": "warn",
       "vue/multi-word-component-names": "off",
-      "no-redeclare": "off"
+      "vue/no-mutating-props": "off"        // TODO: Remove!!!
     }
   }
 ]);

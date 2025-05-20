@@ -16,8 +16,8 @@
     "cypress:run": "cypress run",
     "test:e2e": "cypress open --browser chrome",
     "test:e2e:ci": "pnpm clean-e2e && pnpm stop-only && cypress run --browser chrome --headless --reporter junit --reporter-options \"mochaFile=cypress/e2e-results.[hash].xml\"",
-    "lint": "eslint --fix",
-    "format": "prettier --write",
+    "lint": "cross-env TIMING=1 eslint --fix",
+    "format": "prettier --list-different --write src",
     "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install",
     "clean-e2e": "rimraf ./cypress/downloads && rimraf ./cypress/screenshots && rimraf --glob ./cypress/e2e-results.*.xml",
     "stop-only": "node stop-only.js"
