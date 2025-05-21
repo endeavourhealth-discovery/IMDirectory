@@ -17,6 +17,14 @@
       data-testid="cancel-query-button"
     />
     <Button
+      v-if="queryQueueItem.status && [QueryExecutorStatus.ERRORED].includes(queryQueueItem.status)"
+      icon="fa-duotone fa-solid fa-triangle-exclamation"
+      class="p-button-rounded p-button-text activity-row-button"
+      @click="showErrorDialog = true"
+      v-tooltip.left="'Error details'"
+      data-testid="show-error-button"
+    />
+    <Button
       v-if="queryQueueItem.status && [QueryExecutorStatus.CANCELLED, QueryExecutorStatus.ERRORED].includes(queryQueueItem.status)"
       icon="fa-duotone fa-solid fa-repeat"
       severity="warn"
@@ -26,7 +34,7 @@
       data-testid="requeue-query-button"
     />
     <Button
-      v-if="queryQueueItem.status === QueryExecutorStatus.CANCELLED"
+      v-if="queryQueueItem.status && [QueryExecutorStatus.CANCELLED, QueryExecutorStatus.ERRORED].includes(queryQueueItem.status)"
       icon="fa-duotone fa-solid fa-trash"
       severity="danger"
       class="p-button-rounded p-button-text activity-row-button"
@@ -43,11 +51,22 @@
       data-testid="view-query-results-button"
     />
   </div>
+  <Dialog v-model:visible="showErrorDialog" modal maximizable header="Error details">
+    <div>{{ queryQueueItem.error }}</div>
+    <template #footer>
+      <div class="im-dialog-footer">
+        <div class="button-footer">
+          <Button label="Close" @click="showErrorDialog = false" text />
+        </div>
+      </div>
+    </template>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
 import { DBEntry, QueryExecutorStatus } from "@/interfaces/AutoGen";
 import { useConfirm } from "primevue/useconfirm";
+import { ref } from "vue";
 
 interface Props {
   queryQueueItem: DBEntry;
@@ -64,6 +83,8 @@ const emit = defineEmits({
 });
 
 const confirm = useConfirm();
+
+const showErrorDialog = ref(false);
 
 function goToQuery() {
   emit("goToQuery", props.queryQueueItem.queryIri);
@@ -112,6 +133,8 @@ function viewQueryResults() {
 function requeueQuery() {
   emit("requeueQuery", props.queryQueueItem.id);
 }
+
+function showErrorDetails() {}
 </script>
 
 <style scoped>

@@ -61,26 +61,7 @@ const QueryService = {
   },
 
   async getQueryQueue(page: number, size: number): Promise<{ totalCount: number; result: DBEntry[]; currentPage: number; pageSize: number }> {
-    return {
-      totalCount: 1,
-      result: [
-        {
-          queryIri: "testIri",
-          queryName: "TestName",
-          id: "testPid",
-          userId: "testUserId",
-          userName: "Test User",
-          queuedAt: new Date(),
-          startedAt: undefined,
-          finishedAt: undefined,
-          killedAt: undefined,
-          status: QueryExecutorStatus.QUEUED
-        }
-      ],
-      currentPage: 1,
-      pageSize: 25
-    };
-    // return axios.get(API_URL + "/userQueryQueue", {params:{page:page,size:size}});
+    return axios.get(API_URL + "/userQueryQueue", { params: { page: page, size: size } });
   },
 
   async getQueryQueueByStatus(

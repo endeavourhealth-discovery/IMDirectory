@@ -3,12 +3,13 @@
     <TopBar>
       <template #content>
         <div class="flex h-full w-full items-center">
-          <span class="whitespace-nowrap text-[2rem]"><strong class="text-center">Query runner</strong></span>
+          <span class="text-[2rem] whitespace-nowrap"><strong class="text-center">Query runner</strong></span>
         </div>
       </template>
     </TopBar>
     <div class="h-[calc(100% - 3.5rem)] overflow-auto">
-      <div class="bg-(--p-content-background) flex h-full flex-auto flex-col flex-nowrap overflow-auto">
+      <div class="flex h-full flex-auto flex-col flex-nowrap overflow-auto bg-(--p-content-background)">
+        <div><Button label="Refresh" @click="init()" /></div>
         <DataTable
           :value="queryQueueItems"
           :paginator="true"
@@ -26,7 +27,7 @@
           <template #empty>None</template>
           <Column field="id" header="ID"></Column>
           <Column field="queryIri" header="Iri"></Column>
-          <Column field="queryName" header="Name"></Column>
+          <Column field="queryName" header="Query name"></Column>
           <Column field="userName" header="User"></Column>
           <Column field="queuedAt" header="Queued at">
             <template #body="slotProps">
@@ -88,7 +89,7 @@ const queryQueueItems: Ref<DBEntry[]> = ref([]);
 const loading = ref(true);
 const searchLoading = ref(false);
 const totalCount = ref(0);
-const page = ref(0);
+const page = ref(1);
 const rows = ref(25);
 const rowsOriginal = ref(25);
 const selectedQuery: Ref<DBEntry | undefined> = ref();
@@ -107,8 +108,13 @@ async function init() {
 async function search() {
   searchLoading.value = true;
   const results = await QueryService.getQueryQueue(page.value, rows.value);
-  totalCount.value = results.totalCount;
-  queryQueueItems.value = results.result;
+  if (results) {
+    totalCount.value = results.totalCount;
+    queryQueueItems.value = results.result;
+  } else {
+    totalCount.value = 0;
+    queryQueueItems.value = [];
+  }
   searchLoading.value = false;
 }
 
@@ -144,11 +150,13 @@ async function viewQueryResults(queryItem: DBEntry) {
 
 async function deleteQuery(queryId: string) {
   await QueryService.deleteFromQueryQueue(queryId);
+  await init();
 }
 
 async function requeueQuery(queryId: string) {
   const found = getById(queryId);
   if (found) await QueryService.requeueQuery({ queueId: found.id, queryRequest: found.queryRequest });
+  await init();
 }
 
 function getById(queryId: string): DBEntry | undefined {

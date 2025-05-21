@@ -84,7 +84,7 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
 import { QueryService } from "@/services";
-import { Bool, DisplayMode, Query } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
@@ -217,9 +217,17 @@ function runQuery() {
     acceptProps: {
       label: "Yes"
     },
-    accept: async () => router.push({ name: "QueryRunner" }),
+    accept: async () => {
+      await addQueryToRunnerQueue();
+      router.push({ name: "QueryRunner" });
+    },
     reject: () => confirm.close()
   });
+}
+
+async function addQueryToRunnerQueue() {
+  const request: QueryRequest = { query: query.value };
+  await QueryService.addQueryToRunnerQueue(request);
 }
 
 function toggle() {

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-16 16:24:59.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-21 14:29:28.
 
 export interface ConceptContextMap {
     id?: string;
@@ -287,17 +287,17 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    qualifier?: string;
-    valueLabel?: string;
     operator?: Operator;
     valueParameter?: string;
     unit?: TTIriRef;
+    qualifier?: string;
+    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
-    or?: T[];
-    not?: T[];
     and?: T[];
+    not?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -330,10 +330,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
-    ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -556,6 +556,7 @@ export interface DBEntry {
     killedAt?: Date;
     status?: QueryExecutorStatus;
     queryResult?: string;
+    error?: string;
 }
 
 export interface DownloadByQueryOptions {
@@ -919,8 +920,8 @@ export interface TTEntity extends TTNode, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
