@@ -16,7 +16,7 @@
     >
       <template #empty>None</template>
       <Column header="ID">
-        <template #body="{ data }">{{ data.id["@id"] }}</template>
+        <template #body="{ data }">{{ data.id.iri }}</template>
       </Column>
       <Column field="createdBy" header="Created by"></Column>
       <Column field="type" header="Type"></Column>
@@ -53,9 +53,13 @@ import { onMounted, ref, Ref } from "vue";
 import { useRouter } from "vue-router";
 import TaskHistoryDialog from "./TaskHistoryDialog.vue";
 
-interface Props {}
+interface Props {
+  taskType: string;
+}
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  taskType: "createdBy"
+});
 
 const router = useRouter();
 
@@ -74,7 +78,17 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  myWorkflows.value = await WorkflowService.getTasksByCreatedBy(page.value, size.value);
+  switch (props.taskType) {
+    case "createdBy":
+      myWorkflows.value = await WorkflowService.getTasksByCreatedBy(page.value, size.value);
+      break;
+    case "assignedTo":
+      myWorkflows.value = await WorkflowService.getTasksByAssignedTo(page.value, size.value);
+      break;
+    case "unassigned":
+      myWorkflows.value = await WorkflowService.getUnassignedTasks(page.value, size.value);
+      break;
+  }
   loading.value = false;
 }
 

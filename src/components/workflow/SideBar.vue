@@ -19,17 +19,41 @@
 
 <script setup lang="ts">
 import router from "@/router";
-import { ref } from "vue";
+import { useUserStore } from "@/stores/userStore";
+import { MenuItem } from "primevue/menuitem";
+import { computed, onMounted, Ref, ref } from "vue";
 
-const items = ref([
-  {
-    label: "My tasks",
-    icon: "fa-duotone fa-user-check",
-    command: () => {
-      router.push({ name: "MyWorkflows" });
+const userStore = useUserStore();
+const isAdmin = computed(() => userStore.isAdmin);
+
+const items: Ref<MenuItem[]> = ref([]);
+
+onMounted(() => {
+  setItems();
+});
+
+function setItems() {
+  items.value = [
+    {
+      label: "My tasks",
+      icon: "fa-duotone fa-user-check",
+      command: async () => {
+        await router.push({ name: "MyWorkflows", params: { taskType: "createdBy" } });
+      }
+    },
+    {
+      label: "My assigned tasks",
+      icon: "fa-duotone fa-user-magnifying-glass",
+      command: async () => await router.push({ name: "MyWorkflows", params: { taskType: "assignedTo" } })
     }
-  }
-]);
+  ];
+  if (isAdmin.value)
+    items.value.push({
+      label: "Unassigned tasks",
+      icon: "fa-duotone fa-clipboard-question",
+      command: async () => await router.push({ name: "MyWorkflows", params: { taskType: "unassigned" } })
+    });
+}
 </script>
 
 <style scoped>

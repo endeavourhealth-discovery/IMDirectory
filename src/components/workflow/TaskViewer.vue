@@ -59,6 +59,7 @@ import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "@/stores/userStore";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskHistoryDialog from "@/components/workflow/TaskHistoryDialog.vue";
+import AdminService from "@/services/AdminService";
 
 interface Props {
   id: string;
@@ -145,12 +146,12 @@ const showErrorMessages = ref({ createdBy: false, taskType: false, state: false,
 onMounted(async () => {
   loading.value = true;
   task.value = await WorkflowService.getTask(props.id);
-  setOptions();
+  await setOptions();
   setValuesFromTask(task.value);
   loading.value = false;
 });
 
-function setOptions() {
+async function setOptions() {
   taskTypeOptions.value = [TaskType.BUG_REPORT, TaskType.ENTITY_APPROVAL, TaskType.ROLE_REQUEST];
   stateOptions.value = [
     TaskState.APPROVED,
@@ -161,7 +162,7 @@ function setOptions() {
     TaskState.TODO,
     TaskState.UNDER_REVIEW
   ];
-  assignedToOptions.value = ["UNASSIGNED", "mattergosoft"];
+  assignedToOptions.value = await AdminService.getUsersInGroup("IMAdmin");
 }
 
 function setValuesFromTask(task: Task) {

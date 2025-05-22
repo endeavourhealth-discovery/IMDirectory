@@ -289,6 +289,7 @@ async function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateBugReport(updatedBugReport);
+        editMode.value = false;
       }
     });
   }
