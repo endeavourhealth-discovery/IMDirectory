@@ -38,7 +38,7 @@ export function endRouterLoading(routes: Array<RouteRecordRaw>, to: RouteLocatio
     loadingStore.updateAdminToolboxLoading(false);
   }
   if (loadingStore.workflowLoading) {
-    loadingStore.updateWorkflowLoading;
+    loadingStore.updateWorkflowLoading(false);
   }
   if (loadingStore.authLoading) {
     loadingStore.updateAuthLoading(false);

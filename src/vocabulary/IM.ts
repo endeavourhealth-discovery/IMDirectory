@@ -2,25 +2,28 @@
 
 export class IM {
   public static readonly DOMAIN = "http://endhealth.info/";
+  public static readonly HAS_SUBTYPES = IM.DOMAIN + "hasSubtypes";
   public static readonly PREFIX = "im";
   public static readonly NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
+  public static readonly HAS_VALUESET = IM.NAMESPACE + "hasValueSet";
+  public static readonly VALUE_SET = IM.NAMESPACE + "ValueSet";
   public static readonly DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
   public static readonly DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
   public static readonly IS_RELATIVE_VALUE = IM.NAMESPACE + "isRelativeValue";
   public static readonly FULLY_SPECIFIED_NAME = IM.NAMESPACE + "fullySpecifiedName";
-  public static readonly ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
+  public static readonly ANCESTORS_OF = IM.NAMESPACE + "AncestorsOf";
   public static readonly ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
   public static readonly ENTAILMENT = IM.NAMESPACE + "entailment";
   public static readonly EXCLUDE = IM.NAMESPACE + "exclude";
-  public static readonly IRI = "@id";
-  public static readonly VALUE = "@value";
-  public static readonly TYPE = "@type";
+  public static readonly IRI = "iri";
+  public static readonly VALUE = "value";
+  public static readonly TYPE = "type";
   public static readonly id = IM.NAMESPACE + "id";
-  public static readonly RELATIONSHIP_TYPE = IM.NAMESPACE+"relationshipType";
+  public static readonly RELATIONSHIP_TYPE = IM.NAMESPACE + "relationshipType";
   public static readonly CODE = IM.NAMESPACE + "code";
   public static readonly PREFERRED_NAME = IM.NAMESPACE + "preferredName";
   public static readonly HAS_SCHEME = IM.NAMESPACE + "scheme";
-  public static readonly BINDING = IM.NAMESPACE+"binding";
+  public static readonly BINDING = IM.NAMESPACE + "binding";
   public static readonly HAS_STATUS = IM.NAMESPACE + "status";
   public static readonly STATUS = IM.NAMESPACE + "Status";
   public static readonly CONTENT_TYPE = IM.NAMESPACE + "contentType";
@@ -200,7 +203,6 @@ export class IM {
   public static readonly CONCEPT_SCHEMES = IM.NAMESPACE + "ontologyConceptSchemes";
   public static readonly CONCEPT_STATUS = IM.NAMESPACE + "ontologyConceptStatus";
   public static readonly HAS_VALUE = IM.NAMESPACE + "hasValue";
-  public static readonly VALUE_SET = IM.NAMESPACE + "ValueSet";
   public static readonly DATAMODEL_ENTITY = IM.NAMESPACE + "DataModelEntity";
   public static readonly DATAMODEL_OBJECTPROPERTY = IM.NAMESPACE + "dataModelObjectProperty";
   public static readonly DATAMODEL_DATAPROPERTY = IM.NAMESPACE + "dataModelDataProperty";

@@ -14,6 +14,10 @@ const WorkflowService = {
     return axios.get(api + "api/workflow/getBugReport", { params: { id: id } });
   },
 
+  async updateBugReport(bugReport: BugReport): Promise<void> {
+    return axios.post(api + "api/workflow/updateBugReport", bugReport);
+  },
+
   async getTasksByCreatedBy(page?: number, size?: number): Promise<WorkflowResponse> {
     return axios.get(api + "api/workflow/getTasksByCreatedBy", { params: { page: page, size: size } });
   },
@@ -32,6 +36,10 @@ const WorkflowService = {
 
   async updateTask(task: Task): Promise<void> {
     return axios.post(api + "api/workflow/updateTask", task);
+  },
+
+  async getTask(id: string): Promise<Task> {
+    return axios.get(api + "api/workflow/getTask", { params: { id: id } });
   }
 };
 

@@ -231,10 +231,24 @@ const routes: Array<RouteRecordRaw> = [
     path: "/workflow",
     name: "Workflow",
     component: () => import("@/views/Workflow.vue"),
+    redirect: { name: "MyWorkflows" },
     meta: {
       requiresAuth: true,
       requiresLicense: true
-    }
+    },
+    children: [
+      {
+        path: "myworkflows",
+        name: "MyWorkflows",
+        component: () => import("@/components/workflow/WorkflowTable.vue")
+      },
+      {
+        path: "bugReport:id?",
+        name: "ViewBugReport",
+        component: () => import("@/components/workflow/ViewBugReport.vue"),
+        props: true
+      }
+    ]
   },
   {
     path: "/filer",
