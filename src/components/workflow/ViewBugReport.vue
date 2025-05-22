@@ -12,7 +12,7 @@
               v-model="selectedProduct"
               :options="productOptions"
               :class="{ 'p-invalid': productErrorMessage }"
-              :disabled="canEdit"
+              :disabled="!editMode"
               @blur="showErrorMessages.product = true"
             />
             <small v-if="showErrorMessages.product && productErrorMessage" class="p-error">{{ productErrorMessage }}</small>
@@ -23,7 +23,7 @@
               v-model="selectedModule"
               :options="moduleOptions"
               :class="{ 'p-invalid': moduleErrorMessage }"
-              :disabled="canEdit"
+              :disabled="!editMode"
               @blur="showErrorMessages.module = true"
             />
             <small>Module can be identified in the browser url after the '#' e.g. http://im.endeavourhealth.net/#/<strong>auth</strong></small>
@@ -35,13 +35,13 @@
               v-model="selectedOS"
               :options="osOptions"
               :class="osErrorMessage && selectedOS !== OperatingSystem.OTHER && 'p-invalid'"
-              disabled
+              :disabled="!editMode"
               @blur="showErrorMessages.os = true"
             />
 
             <div v-if="selectedOS === OperatingSystem.OTHER" class="other-container">
               <label for="osOther">Input operating system name</label>
-              <InputText id="osOther" disabled v-model="osOther" :class="osErrorMessage && 'p-invalid'" />
+              <InputText id="osOther" :disabled="!editMode" v-model="osOther" :class="osErrorMessage && 'p-invalid'" />
             </div>
             <small v-if="showErrorMessages.os && osErrorMessage" class="p-error" :class="selectedOS === OperatingSystem.OTHER && 'error-indented'">{{
               osErrorMessage
@@ -54,12 +54,12 @@
               v-model="selectedBrowser"
               :options="browserOptions"
               :class="browserErrorMessage && selectedBrowser !== Browser.OTHER && 'p-invalid'"
-              disabled
+              :disabled="!editMode"
               @blur="showErrorMessages.browser = true"
             />
             <div v-if="selectedBrowser === Browser.OTHER" class="other-container">
               <label for="browserOther">Input browser name</label>
-              <InputText id="browserOther" v-model="browserOther" :class="browserErrorMessage && 'p-invalid'" disabled />
+              <InputText id="browserOther" v-model="browserOther" :class="browserErrorMessage && 'p-invalid'" :disabled="!editMode" />
             </div>
             <small v-if="showErrorMessages.browser && browserErrorMessage" class="p-error" :class="selectedBrowser === Browser.OTHER && 'error-indented'">{{
               browserErrorMessage
@@ -72,7 +72,7 @@
               :class="{ 'p-invalid': descriptionErrorMessage }"
               class="text-area"
               @blur="showErrorMessages.description = true"
-              disabled
+              :disabled="!editMode"
             />
             <small v-if="showErrorMessages.description && descriptionErrorMessage" class="p-error">{{ descriptionErrorMessage }}</small>
           </div>
@@ -83,7 +83,7 @@
               :class="{ 'p-invalid': stepsToReproduceErrorMessage }"
               class="text-area"
               @blur="showErrorMessages.steps = true"
-              disabled
+              :disabled="!editMode"
             />
             <small>Please detail the necessary steps to encounter the error so it can be effectively reproduced.</small>
             <small v-if="showErrorMessages.steps && stepsToReproduceErrorMessage" class="p-error">{{ stepsToReproduceErrorMessage }}</small>
@@ -95,7 +95,7 @@
               :class="{ 'p-invalid': expectedResultErrorMessage }"
               class="text-area"
               @blur="showErrorMessages.expected = true"
-              disabled
+              :disabled="!editMode"
             />
             <small>What should have happened if you hadn't encountered a bug?</small>
             <small v-if="showErrorMessages.expected && expectedResultErrorMessage" class="p-error">{{ expectedResultErrorMessage }}</small>
@@ -107,14 +107,15 @@
               :class="{ 'p-invalid': actualResultErrorMessage }"
               class="text-area"
               @blur="showErrorMessages.actual = true"
-              disabled
+              :disabled="!editMode"
             />
             <small>What actually happened when you followed the reproduction steps to encounter the bug?</small>
             <small v-if="showErrorMessages.actual && actualResultErrorMessage" class="p-error">{{ actualResultErrorMessage }}</small>
           </div>
-          <div class="button-container">
-            <Button v-if="canEdit" label="Edit" @click="" />
-            <Button @click="updateBugReport" :loading="loading" label="Update" />
+          <div class="flex gap-1">
+            <Button v-if="canEdit && !editMode" label="Edit" @click="editMode = true" />
+            <Button v-if="editMode" label="Cancel" @click="cancelEdit" severity="secondary" />
+            <Button v-if="editMode" @click="updateBugReport" :loading="loading" label="Update" />
           </div>
         </div>
       </template>
@@ -128,6 +129,7 @@ import WorkflowService from "@/services/WorkflowService";
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
 import { useUserStore } from "@/stores/userStore";
+import { useConfirm } from "primevue/useconfirm";
 
 interface Props {
   id: string;
@@ -136,6 +138,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const userStore = useUserStore();
+const confirm = useConfirm();
 
 const currentUser = computed(() => userStore.currentUser);
 const canEdit = computed(() => currentUser.value?.username === bugReport.value?.createdBy);
@@ -254,27 +257,46 @@ async function updateBugReport() {
 
 async function updateTask(task: Task) {
   if (isValidBugReport) {
-    const updatedBugReport: BugReport = {
-      id: { iri: props.id },
-      product: selectedProduct.value,
-      module: selectedModule.value,
-      os: selectedOS.value,
-      osOther: osOther.value,
-      browser: selectedBrowser.value,
-      browserOther: browserOther.value,
-      description: description.value,
-      reproduceSteps: stepsToReproduce.value,
-      expectedResult: expectedResult.value,
-      actualResult: actualResult.value,
-      createdBy: task.createdBy,
-      type: task.type,
-      state: task.state,
-      assignedTo: task.assignedTo,
-      dateCreated: task.dateCreated,
-      history: task.history
-    };
-    await WorkflowService.updateBugReport(updatedBugReport);
+    confirm.require({
+      message: "Are you sure you want to update this bug report?",
+      header: "Confirm update",
+      rejectProps: {
+        label: "Cancel",
+        severity: "secondary",
+        outlined: true
+      },
+      acceptProps: {
+        label: "Update"
+      },
+      accept: async () => {
+        const updatedBugReport: BugReport = {
+          id: { iri: props.id },
+          product: selectedProduct.value,
+          module: selectedModule.value,
+          os: selectedOS.value,
+          osOther: osOther.value,
+          browser: selectedBrowser.value,
+          browserOther: browserOther.value,
+          description: description.value,
+          reproduceSteps: stepsToReproduce.value,
+          expectedResult: expectedResult.value,
+          actualResult: actualResult.value,
+          createdBy: task.createdBy,
+          type: task.type,
+          state: task.state,
+          assignedTo: task.assignedTo,
+          dateCreated: task.dateCreated,
+          history: task.history
+        };
+        await WorkflowService.updateBugReport(updatedBugReport);
+      }
+    });
   }
+}
+
+function cancelEdit() {
+  if (bugReport.value) setValuesFromBugReport(bugReport.value);
+  editMode.value = false;
 }
 </script>
 

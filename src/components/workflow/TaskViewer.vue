@@ -4,7 +4,7 @@
       <label for="createdBy">Created by</label>
       <InputText
         v-model="createdBy"
-        :disabled="!editMode"
+        :disabled="!editMode || !isAdmin"
         :class="{ 'p-invalid': createdByErrorMessage }"
         @blur="showErrorMessages.createdBy = true"
       ></InputText>
@@ -13,7 +13,7 @@
       <label for="createdBy">Type</label>
       <Select
         v-model="taskType"
-        :disabled="!editMode"
+        :disabled="!editMode || !isAdmin"
         :options="taskTypeOptions"
         :class="{ 'p-invalid': taskTypeErrorMessage }"
         @blur="showErrorMessages.taskType = true"
@@ -24,7 +24,7 @@
       <Select
         v-model="state"
         :options="stateOptions"
-        :disabled="!editMode"
+        :disabled="!editMode || !isAdmin"
         :class="{ 'p-invalid': stateErrorMessage }"
         @blur="showErrorMessages.state = true"
       ></Select>
@@ -34,14 +34,14 @@
       <Select
         v-model="assignedTo"
         :options="assignedToOptions"
-        :disabled="!editMode"
+        :disabled="!editMode || !isAdmin"
         :class="{ 'p-invalid': assignedToErrorMessage }"
         @blur="showErrorMessages.assignedTo = true"
       ></Select>
     </div>
     <div class="field">
       <label for="dateCreated">Date created</label>
-      <DatePicker v-model="dateCreated" :disabled="!editMode"></DatePicker>
+      <DatePicker v-model="dateCreated" :disabled="!editMode || !isAdmin" dateFormat="dd/mm/yy" showTime hourFormat="24"> </DatePicker>
     </div>
     <div class="field">
       <label for="history">History</label>
@@ -161,12 +161,13 @@ function setOptions() {
     TaskState.TODO,
     TaskState.UNDER_REVIEW
   ];
+  assignedToOptions.value = ["UNASSIGNED", "mattergosoft"];
 }
 
 function setValuesFromTask(task: Task) {
   if (task.assignedTo) assignedTo.value = task.assignedTo;
   if (task.createdBy) createdBy.value = task.createdBy;
-  if (task.dateCreated) dateCreated.value = task.dateCreated;
+  if (task.dateCreated) dateCreated.value = new Date(task.dateCreated);
   if (task.history) history.value = task.history;
   if (task.state) state.value = task.state;
   if (task.type) taskType.value = task.type;
