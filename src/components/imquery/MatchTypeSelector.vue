@@ -47,7 +47,7 @@
     </div>
     <template #footer>
       <div class="button-footer">
-        <Button label="Cancel" @click="visible = false" />
+        <Button label="Cancel" @click="handleClose" />
       </div>
     </template>
   </Dialog>
@@ -64,20 +64,20 @@ import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisua
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TreeSelectionKeys } from "primevue/tree";
 
-interface Props {
-  baseType: Node;
-}
-
 const visible = defineModel<boolean>("visible");
-const props = defineProps<Props>();
-const loading = ref(false);
-const data: Ref<TreeNode[]> = ref([]);
+
+const props = defineProps<{
+  baseType: Node;
+}>();
+
 const emit = defineEmits<{
   (event: "node-selected", query: any): void;
   (event: "navigateTo", iri: string): void;
   (event: "onCancel", visible: boolean): void;
 }>();
 
+const loading = ref(false);
+const data: Ref<TreeNode[]> = ref([]);
 const expandedKeys = ref<Record<string, boolean>>({});
 
 const onNodeSelect = (node: any) => {
@@ -94,7 +94,7 @@ const selectedNodeKey = ref<TreeSelectionKeys | undefined>(undefined);
 
 watch(
   () => props.baseType,
-  async newValue => await createFeatureTree()
+  async () => await createFeatureTree()
 );
 
 onMounted(async () => {
@@ -102,18 +102,20 @@ onMounted(async () => {
   await createFeatureTree();
 });
 
-async function init() {
-  expandedKeys.value = {};
-  await createFeatureTree();
-}
-
 async function onNodeExpand(node: TreeNode) {
-  if (!node.children || node.children.length > 0) return;
-  if (node.data.range) {
+  if (node.children && node.children.length > 0) {
     loading.value = true;
-    node.loading = true;
-    await createPropertyTree(node.data.range, node);
-    node.loading = false;
+    for (const child of node.children) {
+      if (child.children && !child.children.length) {
+        child.loading = true;
+        if (child.data.range) await createPropertyTree(child.data.range, child, false);
+        child.loading = false;
+      }
+    }
+    loading.value = false;
+  } else if (node.data.range) {
+    loading.value = true;
+    await createPropertyTree(node.data.range, node, false);
     loading.value = false;
   }
 }
@@ -126,25 +128,36 @@ function onNodeCollapse(node: TreeNode) {
     }
   }
 }
-async function createPropertyTree(iri: string, parent: TreeNode) {
-  const entity = await DataModelService.getDataModelProperties(iri);
+async function createPropertyTree(iri: string, parent: TreeNode, pathsOnly: boolean) {
+  const entity = await DataModelService.getDataModelProperties(iri, pathsOnly);
   const propertyList = [] as TreeNode[];
   if (entity.property && isArrayHasLength(entity.property)) {
     for (const [index, property] of entity.property.entries()) {
-      propertyList.push(createPropertyNode(index.toString(), property, parent, null));
+      if (!isBase(property)) propertyList.push(createPropertyNode(index.toString(), property, parent, null));
     }
-    parent.children = propertyList;
+    if (propertyList.length > 0) parent.children = propertyList;
   }
 }
 
 async function createFeatureTree() {
   loading.value = true;
-  data.value.push(createNode("0", "Add a cohort as feature", "cohort", "cohort", IM.COHORT_QUERY, "", null, null));
+  data.value.push(createNode("0", "Add a cohort as feature", "cohort", "cohort", IM.QUERY, "", null, null));
   data.value.push(createNode("1", "Add " + props.baseType.name + " features", "features", "folder", IM.FOLDER, "", null, null));
   data.value[0].selectable = true;
-  await createPropertyTree(props.baseType["@id"]!, data.value[1]);
+  await createPropertyTree(props.baseType.iri!, data.value[1], false);
   expandedKeys.value = { 1: true };
   loading.value = false;
+}
+
+function isBase(property: PropertyShape): boolean {
+  if (property.node) {
+    if (property.node.iri === props.baseType.iri) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return false;
 }
 
 function createNode(
@@ -163,8 +176,8 @@ function createNode(
     label: conceptName,
     expanded: false,
     data: {
-      typeIcon: getFAIconFromType([{ "@id": iconType }]),
-      color: getColourFromType([{ "@id": iconType }]),
+      typeIcon: getFAIconFromType([{ iri: iconType }]),
+      color: getColourFromType([{ iri: iconType }]),
       iri: conceptIri,
       match: pathMatch
     },
@@ -174,8 +187,8 @@ function createNode(
     type: type
   } as TreeNode;
   if (rangeType != "") {
-    node.data.rangeTypeIcon = getFAIconFromType([{ "@id": rangeType }]);
-    node.data.rangeTypeColor = getColourFromType([{ "@id": rangeType }]);
+    node.data.rangeTypeIcon = getFAIconFromType([{ iri: rangeType }]);
+    node.data.rangeTypeColor = getColourFromType([{ iri: rangeType }]);
   }
   return node;
 }
@@ -183,7 +196,7 @@ function createNode(
 function createGroupNode(index: string, property: PropertyShape, parent: TreeNode, pathMatch: Match | null): TreeNode {
   loading.value = true;
   const name = property.group!.name;
-  const groupNode = createNode(index, name, property.group!["@id"], "folder", IM.FOLDER, "", parent, pathMatch) as TreeNode;
+  const groupNode = createNode(index, name, property.group!.iri, "folder", IM.FOLDER, "", parent, pathMatch) as TreeNode;
   if (property.property) {
     const propertyList = [] as TreeNode[];
     for (const [propertyIndex, groupedProperty] of property.property.entries()) {
@@ -201,31 +214,22 @@ function createPropertyNode(index: string, property: PropertyShape, parent: Tree
     return createGroupNode(index, property, parent, pathMatch);
   }
   let rangeType = "";
-  let relatedMatch = null;
   if (property.clazz) {
-    rangeType = property.clazz.type!["@id"];
+    rangeType = property.clazz.type!.iri;
   } else if (property.node) {
-    rangeType = property.node.type!["@id"];
-    relatedMatch = {
-      path: { "@id": property.path["@id"], name: property.path.name },
-      typeOf: { "@id": rangeType }
-    };
-    //if (pathMatch) {
-    //pathMatch.relation = [relatedMatch];
-    //}
+    rangeType = property.node.type!.iri;
   }
 
   let name = "";
   if (property.path.name) name = property.path.name;
   if (property.hasValue) {
-    const value = property.hasValueType?.["@id"] === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
+    const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
     name += ` (${value})`;
   }
-  const propertyNode = createNode(index, name!, property.path["@id"], "property", RDF.PROPERTY, rangeType, parent, pathMatch);
+  const propertyNode = createNode(index, name!, property.path.iri, "property", RDF.PROPERTY, rangeType, parent, pathMatch);
   propertyNode.selectable = true;
   if (property.node) {
-    propertyNode.leaf = false;
-    propertyNode.data.range = property.node["@id"];
+    propertyNode.data.range = property.node.iri;
     propertyNode.data.rangeName = property.node.name;
   }
   return propertyNode;
@@ -241,14 +245,6 @@ function createPropertyNode(index: string, property: PropertyShape, parent: Tree
 }
 .tree-node-label {
   padding-right: 1rem;
-}
-
-.tree-row {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 0.25rem;
 }
 
 .progress-spinner {

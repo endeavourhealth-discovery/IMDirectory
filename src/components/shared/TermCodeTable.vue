@@ -27,17 +27,13 @@ watch(
   }
 );
 
-const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: Function } = setupTerms();
+const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: (iri: string) => void } = setupTerms();
 
 onMounted(() => {
   getTerms(props.entityIri);
 });
 </script>
 <style scoped>
-.term-code.table {
-  height: 100%;
-  width: 100%;
-}
 .termcode-table-container {
   display: flex;
   flex-flow: column nowrap;

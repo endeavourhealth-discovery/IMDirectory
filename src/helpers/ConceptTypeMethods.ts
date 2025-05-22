@@ -4,10 +4,10 @@
 // Everything else
 
 import { TTIriRef } from "../interfaces/AutoGen";
-import { IM, OWL, RDF, RDFS,SHACL } from "../vocabulary";
+import { IM, OWL, RDF, SHACL } from "../vocabulary";
 
 export function isOfTypes(conceptTypeElements: TTIriRef[], ...types: string[]): boolean {
-  if (!conceptTypeElements || !conceptTypeElements.length) {
+  if (!conceptTypeElements?.length) {
     return false;
   }
   let found = false;
@@ -38,7 +38,7 @@ export function isConcept(conceptTypes: TTIriRef[]): boolean {
 }
 
 export function isQuery(entityTypes: TTIriRef[]): boolean {
-  return isOfTypes(entityTypes, IM.QUERY, IM.COHORT_QUERY);
+  return isOfTypes(entityTypes, IM.QUERY);
 }
 
 export function isRecordModel(entityTypes: TTIriRef[]): boolean {
@@ -53,10 +53,6 @@ export function isFeature(entityTypes: TTIriRef[]): boolean {
   return isOfTypes(entityTypes, IM.FEATURE);
 }
 
-export function isDataSet(entityTypes: TTIriRef[]): boolean {
-  return isOfTypes(entityTypes, IM.DATASET_QUERY);
-}
-
 export function isFunction(entityTypes: TTIriRef[]): boolean {
   return isOfTypes(entityTypes, SHACL.FUNCTION);
 }
@@ -64,7 +60,7 @@ export function isFunction(entityTypes: TTIriRef[]): boolean {
 export function getNamesAsStringFromTypes(typeList: TTIriRef[]) {
   return typeList
     .map(type => {
-      if (type["@id"] === SHACL.NODESHAPE) {
+      if (type.iri === SHACL.NODESHAPE) {
         return "Data model";
       } else return type.name;
     })
@@ -80,7 +76,6 @@ export default {
   isQuery,
   isRecordModel,
   isFeature,
-  isDataSet,
   isFunction,
   getNamesAsStringFromTypes
 };

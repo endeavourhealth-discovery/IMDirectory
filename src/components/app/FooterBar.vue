@@ -7,6 +7,7 @@
         class="footer-icon"
         v-tooltip.right="'Cookie settings'"
         @click="showCookieSettings"
+        data-testid="cookie-settings-button"
       />
     </div>
     <div id="footer-middle">
@@ -22,6 +23,7 @@
         class="footer-icon"
         v-tooltip.left="'Report bug'"
         @click="reportBug"
+        data-testid="reportbug-button"
       />
     </div>
   </div>

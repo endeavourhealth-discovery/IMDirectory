@@ -1,5 +1,5 @@
 export function dateNow() {
-  let newDate = new Date();
+  const newDate = new Date();
   return (
     (newDate.getDate() < 10 ? "0" : "") +
     newDate.getDate() +

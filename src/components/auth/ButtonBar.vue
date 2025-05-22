@@ -21,13 +21,13 @@ const router = useRouter();
 const sharedStore = useSharedStore();
 const isPublicMode = computed(() => sharedStore.isPublicMode);
 
-function clickedBack(): void {
+async function clickedBack() {
   if (window.history.length > 2) router.back();
-  else router.push({ name: "LandingPage" });
+  else await router.push({ name: "LandingPage" });
 }
 
-function homeClicked(): void {
-  router.push({ name: "Directory" });
+async function homeClicked() {
+  await router.push({ name: "Directory" });
 }
 </script>
 

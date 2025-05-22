@@ -19,7 +19,7 @@
           aria-describedby="text-error"
           :options="schemeOptions"
           option-label="name"
-          option-value="@id"
+          option-value="iri"
           placeholder="Scheme"
           class="flex-1"
         />
@@ -28,7 +28,7 @@
 
       <div class="flex flex-col gap-2" id="save-set-name">
         <span id="save-set-name-header">Name</span>
-        <InputText id="name" v-model="name" v-bind="nameAttrs" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
+        <InputText id="name" v-model="setName" v-bind="nameAttrs" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
         <small class="p-error" id="text-error">{{ errors.name || "&nbsp;" }}</small>
       </div>
 
@@ -37,14 +37,14 @@
 
         <Select
           id="type"
-          v-model="type"
+          v-model="setType"
           v-bind="typeAttrs"
           type="text"
           :class="{ 'p-invalid': errors.type }"
           aria-describedby="text-error"
           :options="typeOptions"
           option-label="name"
-          option-value="@id"
+          option-value="iri"
         />
         <small class="p-error" id="text-error">{{ errors.type || "&nbsp;" }}</small>
       </div>
@@ -65,7 +65,7 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { useForm } from "vee-validate";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { Node, TTIriRef, Match } from "@/interfaces/AutoGen";
-import { EntityService, FilerService, FunctionService, QueryService } from "@/services";
+import { EntityService, FilerService, FunctionService } from "@/services";
 import { IM, RDF, RDFS, IM_FUNCTION } from "@/vocabulary";
 import { useToast } from "primevue/usetoast";
 import * as yup from "yup";
@@ -75,7 +75,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const emit = defineEmits({ onSave: (payload: Node) => payload });
+const emit = defineEmits<{ onSave: [payload: Node] }>();
 
 const schema = yup.object({
   scheme: yup.string().required().label("Scheme").default(IM.NAMESPACE),
@@ -97,9 +97,9 @@ const { defineField, handleSubmit, resetForm, errors, setFieldValue } = useForm(
 const fullIri: ComputedRef<string> = computed(() => `${scheme.value ?? ""}${iri.value ?? ""}`);
 
 const [scheme, schemeAttrs] = defineField("scheme");
-const [iri, iriAttrs] = defineField("iri");
-const [name, nameAttrs] = defineField("name");
-const [type, typeAttrs] = defineField("type");
+const [iri] = defineField("iri");
+const [setName, nameAttrs] = defineField("name");
+const [setType, typeAttrs] = defineField("type");
 
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
@@ -112,7 +112,7 @@ watch(
 );
 
 watch(
-  () => name.value,
+  () => setName.value,
   () => onNameGenIri()
 );
 
@@ -136,7 +136,7 @@ async function getTypeOptions(): Promise<TTIriRef[]> {
   const setTypes = await EntityService.getEntityChildren(IM.SET);
   return setTypes.map(setType => {
     return {
-      "@id": setType["@id"],
+      iri: setType.iri,
       name: setType.name
     };
   });
@@ -147,14 +147,14 @@ async function getSchemeOptions(): Promise<TTIriRef[]> {
 }
 
 function onNameGenIri() {
-  if (name.value && name.value) {
-    const nameValue: string = name.value;
+  if (setName.value && setName.value) {
+    const nameValue: string = setName.value;
     setFieldValue("iri", nameValue.replaceAll(" ", ""));
   }
 }
 
 function selectDefaults() {
-  if (isArrayHasLength(schemeOptions.value)) setFieldValue("scheme", schemeOptions.value[0]["@id"]);
+  if (isArrayHasLength(schemeOptions.value)) setFieldValue("scheme", schemeOptions.value[0].iri);
   else setFieldValue("scheme", IM.NAMESPACE);
 
   setFieldValue("type", IM.CONCEPT_SET);
@@ -165,7 +165,7 @@ const onSubmit = handleSubmit(async () => {
   const setEntity = buildSetEntity();
   try {
     await FilerService.fileEntity(setEntity, IM.NAMESPACE, IM.ADD_QUADS);
-    const createdEntity = await EntityService.getFullEntity(setEntity["@id"]);
+    const createdEntity = await EntityService.getFullEntity(setEntity.iri);
     if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.HAS_SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
       toast.add({ severity: "success", summary: "Created", detail: "Created " + createdEntity[RDFS.LABEL], life: 3000 });
   } catch (e: any) {
@@ -174,7 +174,7 @@ const onSubmit = handleSubmit(async () => {
   }
   loading.value = false;
   showSaveCustomSetDialog.value = false;
-  emit("onSave", { "@id": setEntity["@id"], name: setEntity[RDFS.LABEL] });
+  emit("onSave", { iri: setEntity.iri, name: setEntity[RDFS.LABEL] });
 });
 
 function onDiscard() {
@@ -183,7 +183,7 @@ function onDiscard() {
 }
 
 function getIsContainedIn() {
-  switch (type.value) {
+  switch (setType.value) {
     case IM.CONCEPT_SET:
       return IM.FOLDER_QUERY_CONCEPT_SETS;
     case IM.VALUE_SET:
@@ -199,24 +199,19 @@ function getDefinition() {
     matches.push({ name: member.name, instanceOf: [member] });
   }
   const definition = {
-    match: [
-      {
-        match: matches,
-        bool: "or"
-      }
-    ] as Match[]
+    or: matches
   };
   return JSON.stringify(definition);
 }
 
 function buildSetEntity() {
   const setEntity = {} as any;
-  setEntity["@id"] = fullIri.value;
-  setEntity[RDFS.LABEL] = name.value;
-  setEntity[RDF.TYPE] = [{ "@id": type.value }];
-  setEntity[IM.HAS_STATUS] = [{ "@id": IM.DRAFT }];
-  setEntity[IM.HAS_SCHEME] = [{ "@id": scheme.value }];
-  setEntity[IM.IS_CONTAINED_IN] = [{ "@id": getIsContainedIn() }];
+  setEntity.iri = fullIri.value;
+  setEntity[RDFS.LABEL] = setName.value;
+  setEntity[RDF.TYPE] = [{ iri: setType.value }];
+  setEntity[IM.HAS_STATUS] = [{ iri: IM.DRAFT }];
+  setEntity[IM.HAS_SCHEME] = [{ iri: scheme.value }];
+  setEntity[IM.IS_CONTAINED_IN] = [{ iri: getIsContainedIn() }];
   setEntity[IM.DEFINITION] = getDefinition();
   return setEntity;
 }

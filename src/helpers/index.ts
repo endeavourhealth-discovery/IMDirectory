@@ -1,6 +1,5 @@
 import ChartRescale from "./ChartRescale";
 import ConceptTypeMethods from "./ConceptTypeMethods";
-import CopyConceptToClipboard from "./CopyConceptToClipboard";
 import DataTypeCheckers from "./DataTypeCheckers";
 import ContainerDimensionGetters from "./ContainerDimensionGetters";
 import GraphTranslator from "./GraphTranslator";
@@ -24,7 +23,6 @@ export {
   ChartRescale,
   ConceptTypeMethods,
   Converters,
-  CopyConceptToClipboard,
   DataTypeCheckers,
   ContainerDimensionGetters,
   EditorMethods,

@@ -2,20 +2,21 @@ import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { AllowableChildProperty } from "@/interfaces";
 import { DirectService, QueryService } from "@/services";
-import { IM, QUERY, RDF, RDFS, SHACL } from "@/vocabulary";
+import { IM, QUERY, RDFS, SHACL } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { QueryRequest } from "@/interfaces/AutoGen";
+import { MenuItem } from "primevue/menuitem";
 
 function createNew() {
   const directService = new DirectService();
 
-  async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode>, node: TreeNode): Promise<any[]> {
+  async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
     const selectionWrapperCopy = [
       {
         label: "New",
         icon: "fas fa-fw fa-plus",
-        items: [] as any[]
+        items: [] as MenuItem[]
       },
       {
         label: "Edit",
@@ -30,23 +31,23 @@ function createNew() {
         {
           parameter: "this",
           valueIri: {
-            "@id": node.key
+            iri: node.key
           }
         }
       ],
       query: {
-        "@id": QUERY.ALLOWABLE_CHILD_TYPES
+        iri: QUERY.ALLOWABLE_CHILD_TYPES
       }
-    } as any as QueryRequest;
+    } as QueryRequest;
 
     const response = await QueryService.queryIM(queryRequest);
     const types = response?.entities ?? [];
     if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
 
-    for (let currentType in node.conceptTypes) {
-      switch (node.conceptTypes[currentType]["@id"]) {
+    for (const currentType in node.conceptTypes) {
+      switch (node.conceptTypes[currentType].iri) {
         case IM.FOLDER:
-          if (allowableTypes.findIndex(i => i["@id"] === IM.FOLDER) === -1)
+          if (allowableTypes.findIndex(i => i.iri === IM.FOLDER) === -1)
             allowableTypes = getChildType(IM.FOLDER, "Folder", IM.IS_CONTAINED_IN).concat(allowableTypes);
           break;
         case IM.CONCEPT:
@@ -61,8 +62,8 @@ function createNew() {
         case SHACL.NODESHAPE:
           allowableTypes = getChildType(SHACL.NODESHAPE, "Data Model/Node Shape", RDFS.SUBCLASS_OF);
           break;
-        case IM.COHORT_QUERY:
-          allowableTypes = getChildType(IM.COHORT_QUERY, "Cohort Query", IM.DEFINITION);
+        case IM.QUERY:
+          allowableTypes = getChildType(IM.QUERY, "Cohort Query", IM.DEFINITION);
           break;
         default:
           break;
@@ -77,13 +78,13 @@ function createNew() {
       const item = {
         label: allowableType["http://www.w3.org/2000/01/rdf-schema#label"],
         data: {
-          type: allowableType["@id"],
-          property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"]["@id"].toString()
+          type: allowableType.iri,
+          property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"].iri.toString()
         },
-        icon: getFAIconFromType([{ "@id": allowableType["@id"], name: allowableType["http://www.w3.org/2000/01/rdf-schema#label"] }]).join(" "),
-        command: {} as Function
+        icon: getFAIconFromType([{ iri: allowableType.iri, name: allowableType["http://www.w3.org/2000/01/rdf-schema#label"] }]).join(" "),
+        command: () => {}
       };
-      if (allowableType["@id"] === IM.FOLDER) {
+      if (allowableType.iri === IM.FOLDER) {
         item.command = () => {
           newFolderName.value = "";
           newFolder.value = node;
@@ -101,11 +102,11 @@ function createNew() {
 function getChildType(type: string, label: string, path: string) {
   return [
     {
-      "@id": type,
+      iri: type,
       "http://www.w3.org/2000/01/rdf-schema#label": label,
       "http://www.w3.org/ns/shacl#property": [
         {
-          "http://www.w3.org/ns/shacl#path": { "@id": path }
+          "http://www.w3.org/ns/shacl#path": { iri: path }
         }
       ]
     }

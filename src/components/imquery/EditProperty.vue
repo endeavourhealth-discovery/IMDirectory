@@ -2,12 +2,12 @@
   <div v-if="loading" class="flex">
     <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
   </div>
-  <div class="ml-1 mt-1 flex flex-row items-center gap-2">
+  <div class="mt-1 ml-1 flex flex-row items-center gap-2">
     <InputText v-if="selectedProperty" v-model="selectedProperty.name" class="w-full md:w-56" disabled />
     <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
       <span class="self-center"> is </span>
       <InputGroup class="flex flex-row flex-nowrap">
-        <div class="border-1 border-border-surface flex flex-row rounded border border-solid p-1">
+        <div class="border-border-surface flex flex-row rounded-sm border border-1 border-solid p-1">
           <div v-if="property.valueLabel">
             <Chip :label="property.valueLabel" />
           </div>
@@ -43,20 +43,22 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { DataModelService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 import { cloneDeep } from "lodash-es";
 import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 
-interface Props {
-  dataModelIri: string;
-  showDelete?: boolean;
-  editMatch: Match;
-}
-
-const props = withDefaults(defineProps<Props>(), { showDelete: true });
+const props = withDefaults(
+  defineProps<{
+    dataModelIri: string;
+    showDelete?: boolean;
+    editMatch: Match;
+  }>(),
+  { showDelete: true }
+);
+defineEmits<{
+  deleteProperty: [];
+}>();
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
-const emit = defineEmits({ deleteProperty: () => true });
 const loading = ref(true);
 const property = defineModel<Where>("property", { default: {} });
 const dropdown = ref();
@@ -77,7 +79,7 @@ watch(
 
 async function init() {
   loading.value = true;
-  if (props.dataModelIri && property!.value["@id"]) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, property!.value["@id"]);
+  if (props.dataModelIri && property!.value.iri) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, property!.value.iri);
   loading.value = false;
 }
 
@@ -95,30 +97,3 @@ function onSaveCustomSet(newSet: Node) {
   property.value.memberOf = true;
 }
 </script>
-
-<style scoped>
-.property-label {
-  padding: 0.1rem;
-}
-
-.button-bar {
-  display: flex;
-  justify-content: end;
-}
-
-.button-bar-button {
-  margin: 0.5rem;
-}
-
-.property {
-  display: flex;
-}
-
-.concept-select {
-  width: 100%;
-}
-
-.is-title {
-  padding: 1rem;
-}
-</style>

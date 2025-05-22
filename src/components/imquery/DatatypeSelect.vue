@@ -47,7 +47,7 @@
       <div v-if="propertyType === 'is'" class="property-input">
         <Select type="text" placeholder="operator" :options="uiProperty.operatorOptions" v-model="property.operator" data-testid="property-operator-select" />
         <InputText type="text" placeholder="value" v-model="property.value" data-testid="property-value-input" />
-        <RelativeToSelect :property="property" :datatype="uiProperty.valueType" :property-iri="property['@id']!" />
+        <RelativeToSelect :property="property" :datatype="uiProperty.valueType" :property-iri="property.iri!" />
         <Select
           v-if="isArrayHasLength(uiProperty.unitOptions)"
           type="text"
@@ -119,24 +119,14 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 import { IM, XSD } from "@/vocabulary";
-import { Assignable, Range, Where, Operator, TTIriRef } from "@/interfaces/AutoGen";
+import { Assignable, Range, Where, Operator } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import DateSelect from "./DateSelect.vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
-import ParameterSelect from "./ParameterSelect.vue";
 import { UIProperty } from "@/interfaces";
 interface Props {
   property: Where;
   uiProperty: UIProperty;
-}
-
-export interface Option {
-  id: string;
-  name: string;
-  value: TTIriRef;
-  min: number;
-  max: number;
-  inputValue: string;
 }
 
 const props = defineProps<Props>();

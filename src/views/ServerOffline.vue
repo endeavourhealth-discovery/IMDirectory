@@ -21,12 +21,12 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-function goBack() {
-  router.go(-1);
+async function goBack() {
+  await router.go(-1);
 }
 
-function goHome() {
-  router.push({ name: "Directory" });
+async function goHome() {
+  await router.push({ name: "Directory" });
 }
 </script>
 

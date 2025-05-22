@@ -47,7 +47,7 @@
           </div>
         </AccordionContent>
         <div id="set-definition-container" class="set-accordion-content">
-          <QueryDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <QueryDisplay :entityIri="props.entityIri" :eclQuery="true" :entity-type="IM.VALUESET" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </AccordionPanel>
       <AccordionPanel header="Direct Members" value="2">
@@ -76,7 +76,7 @@ import CompareSetDialog from "./CompareSetDialog.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
-import { computed, markRaw, onMounted, Ref, ref } from "vue";
+import { computed, ComputedRef, markRaw, onMounted, Ref, ref } from "vue";
 import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@/vocabulary";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
@@ -91,20 +91,22 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
+import { SetExportRequest, SetOptions } from "@/interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
+}>();
 
+const emit = defineEmits<{ navigateTo: [payload: string] }>();
+
+const toast = useToast();
 const dynamicDialog = useDialog();
 
-const props = defineProps<Props>();
-const toast = useToast();
 const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();
 const active: Ref<string[]> = ref([]);
-const emit = defineEmits({ navigateTo: (_payload: string) => true });
 const showCompareSetDialog = ref(false);
 
 const { downloadFile } = setupDownloadFile(window, document);
@@ -116,11 +118,11 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const downloading = ref(false);
 const isPublishing = ref(false);
 const showOptions = ref(false);
-const entity: Ref<any> = ref({});
+const entity: Ref<TTEntity> = ref({});
 
 const { copyObjectToClipboard } = setupCopyToClipboard();
 
-const hasDefinition = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION]);
+const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION] != undefined);
 
 onMounted(async () => {
   active.value = ["0", "1", "2"];
@@ -136,12 +138,12 @@ onMounted(async () => {
   }
 });
 
-async function onCopy(event: any) {
+async function onCopy(event: MouseEvent) {
   event.stopPropagation();
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   if (isObjectHasKeys(entity, [IM.DEFINITION])) {
     const definition = JSON.parse(entity[IM.DEFINITION]);
-    copyObjectToClipboard(navigator, definition);
+    await copyObjectToClipboard(navigator, definition);
   }
 }
 
@@ -155,28 +157,30 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   const core = downloadSettings.selectedContents.includes("Core");
   const legacy = downloadSettings.selectedContents.includes("Legacy");
   const im1id = downloadSettings.selectedContents.includes("IM1Id");
-  const subsumedBy = downloadSettings.selectedContents.includes("Subsumed By");
   showOptions.value = false;
 
   const schemes = [] as string[];
   if (downloadSettings.selectedSchemes.length !== 0) {
-    downloadSettings.selectedSchemes.forEach(s => schemes.push(s["@id"]));
+    downloadSettings.selectedSchemes.forEach(s => schemes.push(s.iri));
   }
   let result;
+  const setOptions: SetOptions = {
+    setIri: props.entityIri,
+    includeDefinition: definition,
+    includeCore: core,
+    includeLegacy: legacy,
+    includeSubsets: downloadSettings.includeSubsets,
+    schemes: schemes,
+    includeIM1id: im1id,
+    subsumptions: []
+  };
+  const setRequest: SetExportRequest = {
+    ownRow: downloadSettings.legacyInline,
+    format: downloadSettings.selectedFormat,
+    options: setOptions
+  };
   try {
-    result = await SetService.getFullExportSet(
-      props.entityIri,
-      definition,
-      core,
-      legacy,
-      downloadSettings.includeSubsets,
-      downloadSettings.legacyInline,
-      im1id,
-      subsumedBy,
-      downloadSettings.selectedFormat,
-      schemes,
-      true
-    );
+    result = await SetService.getFullExportSet(setRequest, true);
   } catch (error: any) {
     if (isObjectHasKeys(error?.response?.data, ["code"]) && error?.response?.data?.code === "DownloadException") {
       downloadDialog.options.templates = { footer: markRaw(Footer) };
@@ -195,7 +199,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   downloadDialog.close();
 }
 
-async function downloadIMV1(downloadOptions: DownloadSettings): Promise<void> {
+async function downloadIMV1(): Promise<void> {
   const downloadDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Downloading", text: "Preparing your download..." }
@@ -248,10 +252,6 @@ function publish() {
 function displayDialog() {
   showOptions.value = true;
 }
-
-function closeDialog() {
-  showOptions.value = false;
-}
 </script>
 
 <style scoped>
@@ -298,10 +298,5 @@ function closeDialog() {
   align-items: center;
   gap: 0.5rem;
   margin-right: 0.5rem;
-}
-
-.text {
-  font-size: medium;
-  padding: 0 0 1rem 0;
 }
 </style>

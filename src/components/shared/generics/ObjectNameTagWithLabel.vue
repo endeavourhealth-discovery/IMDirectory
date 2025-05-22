@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType } from "vue";
+import { computed } from "vue";
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { getLogger } from "@/logger/LogConfig";
@@ -36,8 +36,8 @@ const isObjectWithName = computed(() => isObjectHasKeys(props.data, ["name"]));
 function getSeverity(data: TTIriRef): TagSeverity {
   let result = TagSeverity.INFO;
   if (!tagSeverityMatches.value) throw new Error("Missing vuex sharedStore property 'tagSeverityMatches'");
-  if (data && isObjectHasKeys(data, ["@id"])) {
-    const found = tagSeverityMatches.value.find((severity: { "@id": string; severity: string }) => severity["@id"] === data["@id"]);
+  if (data && isObjectHasKeys(data, ["iri"])) {
+    const found = tagSeverityMatches.value.find((severity: { iri: string; severity: string }) => severity.iri === data.iri);
     if (found) result = found.severity;
     else log.warn("TagWithLabel missing case for severity");
   }

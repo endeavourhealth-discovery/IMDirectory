@@ -8,7 +8,7 @@
       <template #content>
         <div class="mfa-login-content">
           <p>Enter the code from your authenticator app to continue.</p>
-          <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
+          <Button icon="fa-solid fa-circle-question" rounded-sm severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
           <div class="code-input">
             <label for="mfa-code">Code</label>
             <InputText id="mfa-code" v-model="code" v-on:keyup.enter="handleSubmitMFA" autofocus />
@@ -41,7 +41,6 @@ const authStore = useAuthStore();
 
 const isValidCode = computed(() => /\d{6}/.test(code.value));
 const authReturnPath = computed(() => authStore.authReturnPath);
-const currentUser = computed(() => userStore.currentUser);
 
 const code = ref("");
 const loading = ref(false);
@@ -66,52 +65,52 @@ function showHelpDialog() {
   });
 }
 
-async function handle200(res: CustomAlert) {
-  Swal.fire({
+async function handle200() {
+  await Swal.fire({
     icon: "success",
     title: "Success",
     text: "Login successful"
-  }).then(() => {
+  }).then(async () => {
     userStore.clearOptionalCookies();
     if (authReturnPath.value) {
-      router.push({ path: authReturnPath.value });
+      await router.push({ path: authReturnPath.value });
     } else {
-      router.push({ name: "LandingPage" });
+      await router.push({ name: "LandingPage" });
     }
   });
 }
 
-function handle403(res: CustomAlert) {
+async function handle403(res: CustomAlert) {
   if (res.nextStep === "CONFIRM_SIGN_UP") {
-    Swal.fire({
+    await Swal.fire({
       icon: "warning",
       title: "User Unconfirmed",
       text: "Account has not been confirmed. Please confirm account to continue.",
       showCloseButton: true,
       showCancelButton: true,
       confirmButtonText: "Confirm Account"
-    }).then((result: SweetAlertResult) => {
+    }).then(async (result: SweetAlertResult) => {
       if (result.isConfirmed) {
-        router.push({ name: "ConfirmCode" });
+        await router.push({ name: "ConfirmCode" });
       }
     });
   }
   if (res.nextStep === "RESET_PASSWORD" || res.nextStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD") {
-    Swal.fire({
+    await Swal.fire({
       icon: "warning",
       title: "New password required",
       text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
       showCloseButton: false,
       showCancelButton: false,
       confirmButtonText: "Reset password"
-    }).then((result: SweetAlertResult) => {
+    }).then(async (result: SweetAlertResult) => {
       if (result.isConfirmed) {
-        router.push({ name: "ForgotPassword" });
+        await router.push({ name: "ForgotPassword" });
       }
     });
   } else if (res.message) {
     console.error(res.error);
-    Swal.fire({
+    await Swal.fire({
       icon: "error",
       title: "Error",
       text: res.message,
@@ -119,7 +118,7 @@ function handle403(res: CustomAlert) {
     });
   } else {
     console.error(res.error);
-    Swal.fire({
+    await Swal.fire({
       icon: "error",
       title: "Error",
       text: "Authentication error",
@@ -134,11 +133,11 @@ async function handleSubmitMFA() {
     await AuthService.mfaSignIn(code.value)
       .then(async res => {
         if (res.status === 200) {
-          await handle200(res);
+          await handle200();
         } else if (res.status === 403) {
-          handle403(res);
+          await handle403(res);
         } else {
-          Swal.fire({
+          await Swal.fire({
             icon: "error",
             title: "Error",
             text: res.message,
@@ -146,9 +145,9 @@ async function handleSubmitMFA() {
           });
         }
       })
-      .catch(err => {
+      .catch(async err => {
         console.error(err);
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Error",
           text: "Authentication error",

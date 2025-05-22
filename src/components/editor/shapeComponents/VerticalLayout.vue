@@ -4,7 +4,7 @@
       <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
       <h2 v-if="showRequired" class="required">*</h2>
     </div>
-    <div v-for="(component, index) in components" class="component-container" :style="styles.find(s => s.index === index)?.style">
+    <div v-for="(component, index) in components" class="component-container" :style="styles.find(s => s.index === index)?.style" v-bind:key="index">
       <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>
   </div>
@@ -29,7 +29,6 @@ import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
 import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
 import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
 import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
-import { shapeTypes } from "qr-code-styling";
 
 export default defineComponent({
   components: {
@@ -56,20 +55,18 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { EditorMode } from "@/enums";
-import { PropType, inject, ref, Ref, onMounted, ComputedRef, computed } from "vue";
+import { inject, ref, Ref, onMounted, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@/helpers/EditorMethods";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { PropertyShape } from "@/interfaces/AutoGen";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   value?: any;
   position?: number;
-}
-
-const props = defineProps<Props>();
+}>();
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
 
@@ -103,8 +100,8 @@ function setStyles() {
 }
 
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
-    return editorEntity[property.path["@id"]];
+  if (editorEntity && isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path.iri])) {
+    return editorEntity[property.path.iri];
   }
   return undefined;
 }

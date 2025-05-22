@@ -37,10 +37,11 @@ interface Props {
   propertyIri: string;
   property: Where;
   datatype: string;
-  propertyRef?: Where;
 }
 
 const props = defineProps<Props>();
+
+const modelPropertyRef = defineModel<Where | undefined>("propertyRef");
 
 const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
 const showTreeSearch: Ref<boolean> = ref(false);
@@ -53,14 +54,12 @@ const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const fullQuery = inject("fullQuery") as Ref<Query>;
 const { getTypeOfMatch } = setupIMQueryBuilderActions();
 
-const emit = defineEmits({ "update:propertyRef": payload => true });
-
 onMounted(async () => {
   await initValues();
 });
 
 watch(
-  () => props.propertyRef,
+  () => modelPropertyRef.value,
   async () => await initValues()
 );
 
@@ -99,7 +98,7 @@ function save() {
   if (selectedNode.value) {
     delete props.property.value;
     propertyDisplay.value = getVariableSearchInputDisplay(selectedNode.value.data);
-    if (props.propertyRef) emit("update:propertyRef", selectedNode.value.data);
+    if (modelPropertyRef.value) modelPropertyRef.value = selectedNode.value.data;
     else props.property.relativeTo = selectedNode.value.data;
     showTreeSearch.value = false;
   }
@@ -120,7 +119,7 @@ async function initValues() {
   selectPrepopulatedValue(variableOptions.value, propertyDisplay.value);
   variableOptions.value = await getVariableOptions();
   if (props.property.relativeTo) propertyDisplay.value = getVariableSearchInputDisplay(props.property.relativeTo);
-  if (props.propertyRef) propertyDisplay.value = getVariableSearchInputDisplay(props.propertyRef);
+  if (modelPropertyRef.value) propertyDisplay.value = getVariableSearchInputDisplay(modelPropertyRef.value);
 }
 
 async function getVariableOptions(searchTerm?: string) {
@@ -147,22 +146,22 @@ async function getPropertyOptions(dataModelIri: string, dataTypeIri: string, key
   const propertiesEntity = await EntityService.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
   if (!isObjectHasKeys(propertiesEntity, [SHACL.PROPERTY])) return {} as TreeNode;
   const allProperties: any[] = propertiesEntity[SHACL.PROPERTY];
-  const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === dataTypeIri);
+  const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0].iri === dataTypeIri);
   if (!isArrayHasLength(validOptions)) return {} as TreeNode;
 
   const treeNode = {
     key: key,
-    label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
+    label: key + " (" + getNameFromRef({ iri: dataModelIri }) + ")",
     children: [] as TreeNode[],
     selectable: false
   } as TreeNode;
 
   for (const property of validOptions) {
     treeNode.children?.push({
-      key: key + "/" + property[SHACL.PATH][0]["@id"],
+      key: key + "/" + property[SHACL.PATH][0].iri,
       label: property[SHACL.PATH][0].name,
       data: {
-        "@id": property[SHACL.PATH][0]["@id"],
+        iri: property[SHACL.PATH][0].iri,
         nodeRef: key,
         name: property[SHACL.PATH][0].name
       }
@@ -199,11 +198,11 @@ function filterBySearchTerm(options: TreeNode[], searchTerm: string) {
 }
 
 function getVariableWithType(value: any) {
-  if (isObjectHasKeys(value, ["typeOf"])) return value.typeOf["@id"];
+  if (isObjectHasKeys(value, ["typeOf"])) return value.typeOf.iri;
   else if (isObjectHasKeys(value, ["variable"])) {
     const objectWithTypeOf = variableMap.value[value.variable];
-    if (isObjectHasKeys(objectWithTypeOf, ["typeOf"])) return objectWithTypeOf.typeOf["@id"];
-    if (fullQuery.value && isObjectHasKeys(objectWithTypeOf, ["@id"])) return getTypeOfMatch(fullQuery.value, objectWithTypeOf["@id"]);
+    if (isObjectHasKeys(objectWithTypeOf, ["typeOf"])) return objectWithTypeOf.typeOf.iri;
+    if (fullQuery.value && isObjectHasKeys(objectWithTypeOf, ["iri"])) return getTypeOfMatch(fullQuery.value, objectWithTypeOf.iri);
   }
 }
 

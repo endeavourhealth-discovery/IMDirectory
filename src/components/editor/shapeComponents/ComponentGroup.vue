@@ -5,7 +5,7 @@
       <h2 v-if="showRequired" class="required">*</h2>
     </div>
     <div class="label-container">
-      <div v-for="(property, index) in properties" class="component-container">
+      <div v-for="(property, index) in properties" class="component-container" v-bind:key="index">
         <component :is="processComponentType(property.componentType)" :shape="property" :value="processEntityValue(property)" :mode="mode" />
       </div>
     </div>
@@ -65,11 +65,11 @@ onMounted(() => {
 });
 
 function processEntityValue(property: PropertyShape) {
-  if (props.value && isObjectHasKeys(props.value) && isPropertyShape(property) && isObjectHasKeys(props.value, [property.path["@id"]])) {
-    return props.value[property.path["@id"]];
+  if (props.value && isObjectHasKeys(props.value) && isPropertyShape(property) && isObjectHasKeys(props.value, [property.path.iri])) {
+    return props.value[property.path.iri];
   }
-  if (isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
-    return editorEntity[property.path["@id"]];
+  if (editorEntity && isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path.iri])) {
+    return editorEntity[property.path.iri];
   }
   return undefined;
 }
@@ -107,14 +107,6 @@ function setProperties(shape: PropertyShape) {
   align-items: flex-start;
   overflow: auto;
   gap: 1rem;
-}
-
-.float-text {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 0.75rem;
-  color: var(--p-text-color);
 }
 
 .title-bar {

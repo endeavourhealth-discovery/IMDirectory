@@ -2,11 +2,12 @@ import { http, HttpResponse } from "msw";
 import { IM } from "@/vocabulary";
 import { fakerFactory } from "@/mocks/fakerFactory";
 import { isArray } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const apiUrl = "http://localhost:8082/imapi/api/";
 
 export const handlers = [
-  http.get(apiUrl + "entity/public/children", async ({ params }) => {
+  http.get(apiUrl + "entity/public/children", ({ params }) => {
     const { iri } = params;
     if (iri === IM.STATUS) return HttpResponse.json([IM.ACTIVE, IM.DRAFT, IM.INACTIVE]);
     else
@@ -18,14 +19,14 @@ export const handlers = [
       );
   }),
   http.post(apiUrl + "query/public/entityQuery", async ({ request }) => {
-    const body: any = await request.json();
-    const { queryIri, argument } = body;
-    if (queryIri["@id"] === "http://endhealth.info/im#Query_GetIsas") {
+    const body = await request.json();
+    const { queryIri, argument } = body as { [x: string]: { [x: string]: string } };
+    if (queryIri.iri === "http://endhealth.info/im#Query_GetIsas") {
       if (argument.this === "http://endhealth.info/im#Status")
         return HttpResponse.json([
-          { "@id": IM.ACTIVE, "http://www.w3.org/2000/01/rdf-schema#label": "Active" },
-          { "@id": IM.DRAFT, "http://www.w3.org/2000/01/rdf-schema#label": "Draft" },
-          { "@id": IM.INACTIVE, "http://www.w3.org/2000/01/rdf-schema#label": "Inactive" }
+          { iri: IM.ACTIVE, "http://www.w3.org/2000/01/rdf-schema#label": "Active" },
+          { iri: IM.DRAFT, "http://www.w3.org/2000/01/rdf-schema#label": "Draft" },
+          { iri: IM.INACTIVE, "http://www.w3.org/2000/01/rdf-schema#label": "Inactive" }
         ]);
       else return HttpResponse.json([]);
     } else
@@ -37,8 +38,8 @@ export const handlers = [
       );
   }),
   http.post(apiUrl + "function/public/callFunction", async ({ request }) => {
-    const body: any = await request.json();
-    const { functionIri } = body;
+    const body = await request.json();
+    const { functionIri } = body as { [x: string]: string };
     if (functionIri === "http://endhealth.info/im#GetAdditionalAllowableTypes") return HttpResponse.json([]);
     else
       return new HttpResponse(
@@ -51,27 +52,25 @@ export const handlers = [
 ];
 
 export const handlersFaker = [
-  http.get(apiUrl + "entity/public/partial", async ({ params }) => {
+  http.get(apiUrl + "entity/public/partial", ({ params }) => {
     console.log("using msw");
     const { iri, predicatesArray } = params;
-    const entityValue = {} as any;
-    if (iri) entityValue["@id"] = iri;
+    const entityValue = {} as { [x: string]: string | readonly string[] | undefined | null };
+    if (iri) entityValue.iri = iri;
     if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax"))
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax"] = null;
     if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"] = null;
-    const entity = fakerFactory.entity.create(entityValue) as any;
+    const entity = fakerFactory.entity.create(entityValue) as TTEntity;
     Object.keys(entity).forEach((key: string) => {
       if (!entity[key]) delete entity[key];
     });
     return HttpResponse.json(entity);
   }),
-  http.get(apiUrl + "entity/public/parents", async ({ params }) => {
-    const { iri } = params;
+  http.get(apiUrl + "entity/public/parents", () => {
     return HttpResponse.json([fakerFactory.entitySummary.create(), fakerFactory.entitySummary.create()]);
   }),
-  http.get(apiUrl + "entity/public/childrenPaged", async ({ params }) => {
-    const { iri } = params;
+  http.get(apiUrl + "entity/public/childrenPaged", () => {
     const children = [
       fakerFactory.entitySummary.create(),
       fakerFactory.entitySummary.create(),
@@ -80,10 +79,10 @@ export const handlersFaker = [
     ];
     return HttpResponse.json(fakerFactory.pagedChildren.create({ result: children, totalCount: 4 }));
   }),
-  http.get(apiUrl + "entity/public/summary", async ({ params }) => {
+  http.get(apiUrl + "entity/public/summary", ({ params }) => {
     const { iri } = params;
     if (iri && typeof iri === "string") {
-      const found = fakerFactory.entitySummary.findFirst({ where: { "@id": { equals: iri } } });
+      const found = fakerFactory.entitySummary.findFirst({ where: { iri: { equals: iri } } });
       if (found) return HttpResponse.json(found);
       else return HttpResponse.json(fakerFactory.pagedChildren.create());
     } else

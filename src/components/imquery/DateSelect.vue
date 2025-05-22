@@ -40,7 +40,7 @@
       v-model:propertyRef="propertyRef"
       :property="property"
       :datatype="uiProperty.valueType"
-      :property-iri="property['@id']!"
+      :property-iri="property.iri!"
       @update:property-ref="populateIsDate"
     />
   </div>
@@ -75,7 +75,7 @@
       v-model:propertyRef="propertyRef"
       :property="property"
       :datatype="uiProperty.valueType"
-      :property-iri="property['@id']!"
+      :property-iri="property.iri!"
       @update:property-ref="populateWithinDate"
     />
   </div>
@@ -83,19 +83,18 @@
 
 <script setup lang="ts">
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Operator, Where, Range, TTIriRef } from "@/interfaces/AutoGen";
+import { Operator, Where, Range } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import { Ref, onMounted, ref, watch } from "vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
 import { IM } from "@/vocabulary";
-import { Option } from "./DatatypeSelect.vue";
 import { UIProperty } from "@/interfaces";
 
-interface Props {
+const props = defineProps<{
   property: Where;
   uiProperty: UIProperty;
-}
-const props = defineProps<Props>();
+}>();
+
 const propertyType: Ref<"is" | "between" | "within" | "isNull" | "notNull" | undefined> = ref();
 const valueType: Ref<"date" | "variable" | "partial date" | undefined> = ref("date");
 const selectedValueA: Ref<any> = ref();
@@ -162,8 +161,8 @@ function handlePropertyType() {
       break;
     case "between":
       props.property.range = {
-        from: { operator: "=", unit: { "@id": dateType }, value: "" },
-        to: { operator: "=", unit: { "@id": dateType }, value: "" }
+        from: { operator: "=", unit: { iri: dateType }, value: "" },
+        to: { operator: "=", unit: { iri: dateType }, value: "" }
       } as Range;
       break;
     case "within":
@@ -214,8 +213,8 @@ function populateBetweenDate() {
 
   if (!isObjectHasKeys(props.property, ["range"]))
     props.property.range = {
-      from: { operator: "=", unit: { "@id": dateType }, value: "" },
-      to: { operator: "=", unit: { "@id": dateType }, value: "" }
+      from: { operator: "=", unit: { iri: dateType }, value: "" },
+      to: { operator: "=", unit: { iri: dateType }, value: "" }
     } as Range;
   if (selectedValueA.value) props.property.range!.from.value = getStringFromDate(selectedValueA.value);
   if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);
@@ -275,9 +274,6 @@ function getDateFromString(date: string) {
 </script>
 
 <style scoped>
-.property-input-title {
-  width: 5rem;
-}
 .property-input-title-and {
   width: 3rem;
 }

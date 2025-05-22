@@ -2,16 +2,16 @@ import { FormGenerator } from "@/interfaces/AutoGen";
 import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, VALIDATION, QUERY, IM_FUNCTION } from "@/vocabulary";
 
 const FolderShape: FormGenerator = {
-  "@id": EDITOR.FOLDER_SHAPE,
+  iri: EDITOR.FOLDER_SHAPE,
   type: [
     {
-      "@id": IM.FORM_GENERATOR
+      iri: IM.FORM_GENERATOR
     }
   ],
   label: "Editor - folder shape",
   comment: "Form editor for a folder",
   targetShape: {
-    "@id": IM.FOLDER
+    iri: IM.FOLDER
   },
   property: [
     {
@@ -19,11 +19,11 @@ const FolderShape: FormGenerator = {
       order: 1,
       name: "splitter",
       path: {
-        "@id": RDF.PROPERTY
+        iri: RDF.PROPERTY
       },
       maxCount: 1,
       componentType: {
-        "@id": COMPONENT.HORIZONTAL_LAYOUT
+        iri: COMPONENT.HORIZONTAL_LAYOUT
       },
       argument: [
         {
@@ -35,9 +35,9 @@ const FolderShape: FormGenerator = {
         {
           name: "Summary",
           comment: "Vertical splitter",
-          path: { "@id": IM.FOLDER },
+          path: { iri: IM.FOLDER },
           showTitle: true,
-          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
+          componentType: { iri: COMPONENT.VERTICAL_LAYOUT },
           maxCount: 1,
           order: 1,
           property: [
@@ -45,27 +45,27 @@ const FolderShape: FormGenerator = {
               comment: "A property that auto generates the type as folder type",
               order: 1,
               function: {
-                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+                iri: IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
               path: {
-                "@id": RDF.TYPE
+                iri: RDF.TYPE
               },
               argument: [
                 {
                   parameter: "entityIri",
                   valueIri: {
-                    "@id": IM.FOLDER
+                    iri: IM.FOLDER
                   }
                 }
               ],
               isIri: {
-                "@id": IM.FOLDER
+                iri: IM.FOLDER
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.ENTITY_COMBOBOX
+                iri: COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -75,17 +75,17 @@ const FolderShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.ID
+                iri: IM.ID
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.IRI_BUILDER
+                iri: COMPONENT.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
+                iri: IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
-              validation: { "@id": VALIDATION.IS_IRI }
+              validation: { iri: VALIDATION.IS_IRI }
             },
             {
               comment: "name or main term of entity",
@@ -94,14 +94,14 @@ const FolderShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": RDFS.LABEL
+                iri: RDFS.LABEL
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.TEXT_INPUT
+                iri: COMPONENT.TEXT_INPUT
               },
               datatype: {
-                "@id": XSD.STRING
+                iri: XSD.STRING
               }
             },
             {
@@ -110,33 +110,33 @@ const FolderShape: FormGenerator = {
               name: "Preferred name",
               showTitle: true,
               maxCount: 1,
-              path: { "@id": IM.PREFERRED_NAME },
+              path: { iri: IM.PREFERRED_NAME },
               minCount: 0,
-              componentType: { "@id": COMPONENT.TEXT_INPUT }
+              componentType: { iri: COMPONENT.TEXT_INPUT }
             },
             {
               comment: "optional description",
               order: 5,
               datatype: {
-                "@id": XSD.STRING
+                iri: XSD.STRING
               },
               name: "Description",
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": RDFS.COMMENT
+                iri: RDFS.COMMENT
               },
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.HTML_INPUT
+                iri: COMPONENT.HTML_INPUT
               }
             },
             {
               name: "Status",
               order: 6,
-              path: { "@id": IM.HAS_STATUS },
-              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
-              validation: { "@id": VALIDATION.IS_STATUS },
+              path: { iri: IM.HAS_STATUS },
+              componentType: { iri: COMPONENT.ARRAY_BUILDER },
+              validation: { iri: VALIDATION.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
@@ -145,7 +145,7 @@ const FolderShape: FormGenerator = {
                   order: 6,
                   select: [
                     {
-                      "@id": QUERY.GET_SUBCLASSES
+                      iri: QUERY.GET_SUBCLASSES
                     }
                   ],
                   name: "Status",
@@ -153,22 +153,22 @@ const FolderShape: FormGenerator = {
                   builderChild: true,
                   maxCount: 1,
                   path: {
-                    "@id": IM.HAS_STATUS
+                    iri: IM.HAS_STATUS
                   },
                   argument: [
                     {
                       valueIri: {
-                        "@id": IM.STATUS
+                        iri: IM.STATUS
                       },
                       parameter: "this"
                     }
                   ],
                   isIri: {
-                    "@id": IM.DRAFT
+                    iri: IM.DRAFT
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_DROPDOWN
+                    iri: COMPONENT.ENTITY_DROPDOWN
                   },
                   forceIsValue: true
                 }
@@ -178,7 +178,7 @@ const FolderShape: FormGenerator = {
               label: "Property group - Contained in array builder",
               order: 1,
               path: {
-                "@id": IM.IS_CONTAINED_IN
+                iri: IM.IS_CONTAINED_IN
               },
               property: [
                 {
@@ -186,25 +186,25 @@ const FolderShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": QUERY.SEARCH_FOLDERS
+                      iri: QUERY.SEARCH_FOLDERS
                     }
                   ],
                   argument: [
                     {
                       parameter: "this",
                       valueIri: {
-                        "@id": IM.FOLDER
+                        iri: IM.FOLDER
                       }
                     }
                   ],
                   builderChild: true,
                   name: "Entity",
                   path: {
-                    "@id": IM.IS_CONTAINED_IN
+                    iri: IM.IS_CONTAINED_IN
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   }
                 }
               ],
@@ -212,7 +212,7 @@ const FolderShape: FormGenerator = {
               showTitle: true,
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.ARRAY_BUILDER
+                iri: COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             }
@@ -222,8 +222,8 @@ const FolderShape: FormGenerator = {
           name: "Content type",
           showTitle: true,
           comment: "Vertical splitter",
-          path: { "@id": IM.FOLDER },
-          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
+          path: { iri: IM.FOLDER },
+          componentType: { iri: COMPONENT.VERTICAL_LAYOUT },
           minCount: 1,
           maxCount: 1,
           order: 1,
@@ -232,7 +232,7 @@ const FolderShape: FormGenerator = {
               label: "Property group - Content type array builder",
               order: 1,
               path: {
-                "@id": IM.CONTENT_TYPE
+                iri: IM.CONTENT_TYPE
               },
               property: [
                 {
@@ -240,13 +240,13 @@ const FolderShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": QUERY.SEARCH_CONTAINED_IN
+                      iri: QUERY.SEARCH_CONTAINED_IN
                     }
                   ],
                   argument: [
                     {
                       valueIri: {
-                        "@id": IM.ENTITY_TYPES
+                        iri: IM.ENTITY_TYPES
                       },
                       parameter: "value"
                     }
@@ -254,18 +254,18 @@ const FolderShape: FormGenerator = {
                   builderChild: true,
                   name: "Entity",
                   path: {
-                    "@id": IM.CONTENT_TYPE
+                    iri: IM.CONTENT_TYPE
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   }
                 }
               ],
               name: "Content type",
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.ARRAY_BUILDER
+                iri: COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             }

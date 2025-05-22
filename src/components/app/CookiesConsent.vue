@@ -38,13 +38,11 @@
 
 <script lang="ts" setup>
 import { computed, ComputedRef, onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
-const route = useRoute();
 
 const cookiesEssentialAccepted: ComputedRef<boolean> = computed(() => userStore.cookiesEssentialAccepted);
 const cookiesOptionalAccepted: ComputedRef<boolean> = computed(() => userStore.cookiesOptionalAccepted);

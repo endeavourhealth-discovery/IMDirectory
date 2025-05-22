@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType } from "vue";
+import { computed } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { SHACL } from "@/vocabulary";
 
@@ -28,7 +28,7 @@ const arrayToString = computed(() => {
   if (props.data && isArrayHasLength(props.data) && props.data.every(item => isObjectHasKeys(item, ["name"]))) {
     return props.data
       .map(function (item: any) {
-        if (item["@id"] === SHACL.NODESHAPE) return "Data model";
+        if (item.iri === SHACL.NODESHAPE) return "Data model";
         return item.name;
       })
       .join(", ");
@@ -42,9 +42,5 @@ const arrayToString = computed(() => {
 .container {
   margin: 0;
   padding: 0.25rem 0.5rem 0 0;
-}
-
-.break-text {
-  word-break: break-all;
 }
 </style>

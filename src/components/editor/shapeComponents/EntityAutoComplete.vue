@@ -23,7 +23,7 @@
           @drop.prevent
           :class="invalid && showValidation && 'invalid'"
         >
-          <template #option="{ option }: any">
+          <template #option="{ option }">
             <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, option)" @mouseleave="hideOptionsOverlay($event)">
               <span>{{ option.name }}</span>
             </div>
@@ -82,6 +82,8 @@ import { DataModelService, QueryService } from "@/services";
 import { IM, QUERY, RDF, RDFS } from "@/vocabulary";
 import { TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "@/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   shape: PropertyShape;
@@ -95,6 +97,10 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false
 });
 
+const emit = defineEmits<{
+  updateClicked: [payload: TTIriRef];
+}>();
+
 watch(
   () => cloneDeep(props.value),
   async () => {
@@ -102,19 +108,14 @@ watch(
   }
 );
 
-const emit = defineEmits({
-  updateClicked: (_payload: TTIriRef) => true
-});
-
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -139,7 +140,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
           if (props.shape.builderChild) {
             hasData();
           } else {
-            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
           }
           showValidation.value = true;
         }
@@ -188,15 +189,15 @@ onBeforeUnmount(() => {
   }
 });
 
-watch(selectedResult, (newValue, oldValue) => {
+watch(selectedResult, async (newValue, oldValue) => {
   if (newValue && typeof newValue !== "string" && !isEqual(newValue, oldValue)) {
-    itemSelected(newValue);
+    await itemSelected(newValue);
   }
 });
 
 async function init() {
   loading.value = true;
-  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
+  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!.iri;
   getAssociatedProperty();
   if (autocompleteOptions.value.length === 0) {
     await getAutocompleteOptions();
@@ -227,7 +228,7 @@ function getAssociatedProperty() {
         associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable);
       }
     } else if (isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri) {
-      associatedProperty.value = props.shape.argument![0].valueIri["@id"];
+      associatedProperty.value = props.shape.argument![0].valueIri.iri;
     }
   }
 }
@@ -238,7 +239,7 @@ async function getAutocompleteOptions() {
     let query = {} as Query;
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
       queryRequest.argument = processArguments(props.shape, valueVariableMap?.value);
-      query["@id"] = props.shape.select![0]["@id"];
+      query.iri = props.shape.select![0].iri;
       queryRequest.query = query;
     } else {
       throw new Error("EntityAutoComplete is missing 'select' or 'argument' in propertyShape object");
@@ -254,8 +255,8 @@ async function getAutocompleteOptions() {
       }
     }
   } else {
-    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri!["@id"]) {
-      const range = await getPropertyRange(props.shape?.argument![0].valueIri!["@id"]);
+    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri!.iri) {
+      const range = await getPropertyRange(props.shape?.argument![0].valueIri!.iri);
       if (range.length !== 0) {
         autocompleteOptions.value = convertToConceptSummary(range);
       }
@@ -263,20 +264,20 @@ async function getAutocompleteOptions() {
   }
 }
 
-async function getPropertyRange(propIri: string): Promise<any> {
+async function getPropertyRange(propIri: string): Promise<any[]> {
   const queryRequest = {
     argument: [
       {
         parameter: "this",
         valueIri: {
-          "@id": propIri
+          iri: propIri
         }
       }
     ],
     query: {
-      "@id": QUERY.ALLOWABLE_RANGES
+      iri: QUERY.ALLOWABLE_RANGES
     }
-  } as any as QueryRequest;
+  } as QueryRequest;
 
   const response = await QueryService.queryIM(queryRequest);
 
@@ -285,28 +286,29 @@ async function getPropertyRange(propIri: string): Promise<any> {
   } else {
     const propType = await DataModelService.checkPropertyType(propIri);
     if (propType === IM.DATAMODEL_OBJECTPROPERTY) {
-      queryRequest.query = { "@id": QUERY.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as any;
+      queryRequest.query = { iri: QUERY.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as Query;
       const suggestions = await QueryService.queryIM(queryRequest);
       suggestions.entities.push({
-        "@id": IM.CONCEPT,
+        iri: IM.CONCEPT,
         "http://www.w3.org/2000/01/rdf-schema#label": "Terminology concept"
       });
       return suggestions.entities;
     } else if (propType === IM.DATAMODEL_DATAPROPERTY) {
-      queryRequest.query = { "@id": QUERY.DATA_PROPERTY_RANGE_SUGGESTIONS } as any;
+      queryRequest.query = { iri: QUERY.DATA_PROPERTY_RANGE_SUGGESTIONS } as Query;
       const dataTypes = await QueryService.queryIM(queryRequest);
       if (isObjectHasKeys(dataTypes, ["entities"]) && dataTypes.entities.length !== 0) {
         return dataTypes.entities;
       }
-    } else return [];
+    }
+    return [];
   }
 }
 
 function convertToConceptSummary(results: any[]) {
   return results.map(result => {
     const conceptSummary = {} as SearchResultSummary;
-    conceptSummary.iri = result["@id"];
-    conceptSummary.name = result[RDFS.LABEL] ? result[RDFS.LABEL] : result["@id"];
+    conceptSummary.iri = result.iri;
+    conceptSummary.name = result[RDFS.LABEL] ? result[RDFS.LABEL] : result.iri;
     conceptSummary.code = result[IM.CODE];
     conceptSummary.entityType = result[RDF.TYPE];
     conceptSummary.scheme = result[IM.HAS_SCHEME];
@@ -315,9 +317,9 @@ function convertToConceptSummary(results: any[]) {
   });
 }
 
-function searchOptions(event: any) {
+async function searchOptions(event: AutoCompleteCompleteEvent) {
   if (!event.query.trim().length) {
-    getAutocompleteOptions();
+    await getAutocompleteOptions();
   } else {
     autocompleteOptions.value = autocompleteOptions.value.filter(option =>
       option.name?.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
@@ -341,7 +343,7 @@ async function itemSelected(value: SearchResultSummary) {
       emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }
     updateValueVariableMap(value);
-  } else if (!props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  } else if (!props.shape.builderChild && deleteEntityKey) deleteEntityKey(key.value);
 }
 
 function updateValueVariableMap(data: SearchResultSummary) {
@@ -352,16 +354,16 @@ function updateValueVariableMap(data: SearchResultSummary) {
 }
 
 function summaryToTTIriRef(summary: SearchResultSummary): TTIriRef {
-  return { "@id": summary.iri, name: summary.name } as TTIriRef;
+  return { iri: summary.iri, name: summary.name } as TTIriRef;
 }
 
 function updateEntity(value: SearchResultSummary) {
-  const result = {} as any;
+  const result = {} as TTEntity;
   result[key.value] = summaryToTTIriRef(value);
   if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }
 
-function showOptionsOverlay(event: any, data?: any) {
+function showOptionsOverlay(event: MouseEvent, data?: SearchResultSummary) {
   if (data) {
     optionsOverlayLocation.value = event;
     optionsOP.value.show(optionsOverlayLocation.value);
@@ -369,7 +371,7 @@ function showOptionsOverlay(event: any, data?: any) {
   }
 }
 
-function hideOptionsOverlay(event: any): void {
+function hideOptionsOverlay(event: MouseEvent): void {
   optionsOP.value.hide(event);
   optionsOverlayLocation.value = {};
 }

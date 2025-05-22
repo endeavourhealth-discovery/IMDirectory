@@ -10,7 +10,7 @@
         <ProgressSpinner strokeWidth="8" />
       </div>
       <div v-else class="children-container concept-colours">
-        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup concept-colours">
+        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup concept-colours" v-bind:key="rgIndex">
           <div :class="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation ? 'error-message' : ''">
             <span v-if="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation" class="error-message">{{
               invalidGroups.find(o => o.groupIndex === rgIndex).errorMessage
@@ -19,8 +19,8 @@
               <label>Role Group {{ rgIndex }}</label>
               <Button class="p-button-danger m-2" icon="fa-solid fa-trash" severity="danger" size="small" @click="deleteRoleGroup(rgIndex)" />
             </div>
-            <div v-for="(row, rIndex) in rg">
-              <div v-if="!isObjectHasKeys(row.key, ['@id']) || row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow concept-colours">
+            <div v-for="(row, rIndex) in rg" v-bind:key="rIndex">
+              <div v-if="!isObjectHasKeys(row.key, ['iri']) || row.key.iri != IM.GROUP_NUMBER" class="roleGroupRow concept-colours">
                 <AutocompleteSearchBar v-model:selected="row.key" :im-query="request" :search-placeholder="'Search properties'" class="roleProperty" />
                 <span style="width: 1rem; text-align: center">:</span>
                 <AutocompleteSearchBar v-model:selected="row.value" :im-query="valueRequest" :search-placeholder="'Search quantifiers'" class="roleProperty" />
@@ -40,43 +40,33 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
-import { SearchOptions } from "@/interfaces";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
-
-defineComponent({
-  components: { EntityAutoComplete }
-});
-</script>
-
 <script lang="ts" setup>
-import { EntityService, QueryService } from "@/services";
-import { EditorMode, ToastSeverity } from "@/enums";
+import { EntityService } from "@/services";
+import { EditorMode } from "@/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@/helpers/TypeGuards";
-import { PropertyShape, QueryRequest, SearchResponse, TTIriRef } from "@/interfaces/AutoGen";
+import { PropertyShape, QueryRequest } from "@/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@/vocabulary";
 import { cloneDeep, isArray } from "lodash-es";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { useToast } from "primevue/usetoast";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   value?: any;
+}>();
+
+interface Role {
+  key: { iri: string; name: string };
+  value: { iri: string; name: string };
 }
-
-const toast = useToast();
-const props = defineProps<Props>();
-
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -103,7 +93,7 @@ const invalidGroups: Ref<any[]> = ref([]);
 const showValidation = ref(false);
 const loading = ref(true);
 
-const key = props.shape.path["@id"];
+const key = props.shape.path.iri;
 
 onMounted(async () => {
   await processProps();
@@ -114,32 +104,32 @@ watch(
   async () => {
     await update();
     if (updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+      await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path.iri, invalid, validationErrorMessage);
     }
   }
 );
 
 function addRoleGroup() {
-  roleGroups.value.push([{ key: { "@id": IM.GROUP_NUMBER, name: "Group Number" }, value: roleGroups.value.length }]);
+  roleGroups.value.push([{ key: { iri: IM.GROUP_NUMBER, name: "Group Number" }, value: roleGroups.value.length }]);
   update();
 }
 
 function deleteRoleGroup(index: number) {
   roleGroups.value.splice(index, 1);
   for (const rg in roleGroups.value) {
-    if (roleGroups.value[rg][0].key["@id"] === IM.GROUP_NUMBER && parseInt(rg) <= index) {
+    if (roleGroups.value[rg][0].key.iri === IM.GROUP_NUMBER && parseInt(rg) <= index) {
       roleGroups.value[rg][0].value = roleGroups.value[rg][0].value - 1;
     }
   }
   update();
 }
 
-function addRole(rg: any) {
-  rg.push({ key: { "@id": "", name: "" }, value: { "@id": "", name: "" } });
+function addRole(rg: Role[]) {
+  rg.push({ key: { iri: "", name: "" }, value: { iri: "", name: "" } });
   update();
 }
 
-function deleteRole(rg: any, index: number) {
+function deleteRole(rg: Role[], index: number) {
   rg.splice(index, 1);
   update();
 }
@@ -156,14 +146,14 @@ async function processProps() {
   loading.value = false;
 }
 
-async function processRole(newData: any[], role: any) {
+async function processRole(newData: any[], role: Role) {
   const grp: any[] = [];
   newData.push(grp);
   if (isObjectHasKeys(role, [IM.GROUP_NUMBER])) {
     for (const [key, value] of Object.entries(role)) {
       if (key !== IM.GROUP_NUMBER && isArray(value) && value.every(item => isTTIriRef(item))) {
         const keyName = await EntityService.getPartialEntity(key, [RDFS.LABEL]);
-        grp.push({ key: { "@id": key, name: keyName[RDFS.LABEL] ?? "" }, value: value[0] });
+        grp.push({ key: { iri: key, name: keyName[RDFS.LABEL] ?? "" }, value: value[0] });
       }
     }
   }
@@ -172,14 +162,10 @@ async function processRole(newData: any[], role: any) {
 const request: QueryRequest = {
   query: {
     activeOnly: true,
-    match: [
+    instanceOf: [
       {
-        instanceOf: [
-          {
-            "@id": SNOMED.ATTRIBUTE,
-            descendantsOrSelfOf: true
-          }
-        ]
+        iri: SNOMED.ATTRIBUTE,
+        descendantsOrSelfOf: true
       }
     ]
   }
@@ -188,83 +174,14 @@ const request: QueryRequest = {
 const valueRequest: QueryRequest = {
   query: {
     activeOnly: true,
-    match: [
-      {
-        where: [
-          {
-            "@id": IM.HAS_SCHEME,
-            is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
-          }
-        ]
-      }
-    ]
+    where: {
+      iri: IM.HAS_SCHEME,
+      is: [{ iri: SNOMED.NAMESPACE }, { iri: IM.NAMESPACE }]
+    }
   }
 };
 
-async function propertyDrop(event: any, object: any) {
-  const data = event.dataTransfer.getData("conceptIri");
-  if (data) {
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidProperty(conceptIri)) {
-      object.key = { "@id": conceptIri, name: conceptName } as TTIriRef;
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set property",
-        detail: "'" + conceptName + "' is not a valid role group property",
-        life: 3000
-      });
-    }
-  }
-}
-
-async function isValidProperty(iri: string): Promise<boolean> {
-  const filterOptions: SearchOptions = {
-    isA: [{ "@id": SNOMED.ATTRIBUTE }],
-    textSearch: iri,
-    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
-    page: { pageNumber: 1, pageSize: 1 }
-  } as SearchOptions;
-  const imQuery = buildIMQueryFromFilters(filterOptions);
-  const results = await QueryService.queryIMSearch(imQuery);
-  if (results.entities) return results.entities.length > 0;
-  return false;
-}
-
-async function valueDrop(event: any, object: any) {
-  const data = event.dataTransfer.getData("conceptIri");
-  if (data) {
-    const conceptIri = JSON.parse(data);
-    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-
-    if (await isValidValue(conceptIri)) {
-      object.value = { "@id": conceptIri, name: conceptName } as TTIriRef;
-    } else {
-      toast.add({
-        severity: ToastSeverity.WARN,
-        summary: "Failed to set value",
-        detail: "'" + conceptName + "' is not a valid role group value",
-        life: 3000
-      });
-    }
-  }
-}
-
-async function isValidValue(iri: string): Promise<boolean> {
-  const filterOptions: SearchOptions = {
-    textSearch: iri,
-    schemes: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }],
-    page: { pageNumber: 1, pageSize: 1 }
-  } as SearchOptions;
-  const imQuery = buildIMQueryFromFilters(filterOptions);
-  const results = await QueryService.queryIMSearch(imQuery);
-  if (results.entities) return results.entities.length > 0;
-  return false;
-}
-
-async function update() {
+function update() {
   validateEntity();
   updateEntity();
 }
@@ -279,26 +196,26 @@ function validateEntity() {
   });
 }
 
-function isGroupValid(group: any[]): boolean {
+function isGroupValid(group: Role[]): boolean {
   invalid.value = false;
-  if (group.length == 0 || (group.length == 1 && group[0]?.key?.["@id"] == IM.GROUP_NUMBER)) {
+  if (group.length == 0 || (group.length == 1 && group[0]?.key?.iri == IM.GROUP_NUMBER)) {
     specificValidationErrorMessage.value = "Role groups can not be empty.";
     return false;
   }
   for (const pair of group) {
     if (!pair.key) {
-      pair.key = { "@id": "", name: "" };
+      pair.key = { iri: "", name: "" };
     }
     if (!pair.value && pair.value !== 0) {
-      pair.value = { "@id": "", name: "" };
+      pair.value = { iri: "", name: "" };
     }
-    if (pair.key["@id"] != IM.GROUP_NUMBER) {
-      if (!isObjectHasKeys(pair.key, ["iri"]) && (!pair?.key?.["@id"] || pair.key["@id"] == "")) {
+    if (pair.key.iri != IM.GROUP_NUMBER) {
+      if (!isObjectHasKeys(pair.key, ["iri"]) && (!pair?.key?.iri || pair.key.iri == "")) {
         specificValidationErrorMessage.value = "Missing role property.";
         invalid.value = true;
         return false;
       }
-      if (!isObjectHasKeys(pair.value, ["iri"]) && (!pair?.value?.["@id"] || "" === pair.value["@id"] || null === pair.value["@id"])) {
+      if (!isObjectHasKeys(pair.value, ["iri"]) && (!pair?.value?.iri || "" === pair.value.iri || null === pair.value.iri)) {
         specificValidationErrorMessage.value = "Missing role quantifier.";
         invalid.value = true;
         return false;
@@ -310,7 +227,7 @@ function isGroupValid(group: any[]): boolean {
 }
 
 function updateEntity() {
-  const groups: any = {};
+  const groups: TTEntity = {};
   groups[IM.ROLE_GROUP] = [];
 
   for (const rg in roleGroups.value) {
@@ -319,13 +236,13 @@ function updateEntity() {
     groups[IM.ROLE_GROUP].push(group);
     for (const pair of roleGroups.value[rg]) {
       if (isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
-        group[pair.key.iri] = { "@id": pair.value.iri, name: pair.value.name };
+        group[pair.key.iri] = { iri: pair.value.iri, name: pair.value.name };
       } else if (isObjectHasKeys(pair.key, ["iri"]) && !isObjectHasKeys(pair.value, ["iri"])) {
         group[pair.key.iri] = pair.value;
       } else if (!isObjectHasKeys(pair.key, ["iri"]) && isObjectHasKeys(pair.value, ["iri"])) {
-        group[pair.key["@id"]] = { "@id": pair.value.iri, name: pair.value.name };
-      } else if (isObjectHasKeys(pair.key, ["@id"])) {
-        group[pair.key["@id"]] = pair.value;
+        group[pair.key.iri] = { iri: pair.value.iri, name: pair.value.name };
+      } else if (isObjectHasKeys(pair.key, ["iri"])) {
+        group[pair.key.iri] = pair.value;
       }
     }
   }
@@ -335,10 +252,6 @@ function updateEntity() {
 </script>
 
 <style scoped>
-.vertical-layout-container {
-  margin: 0;
-}
-
 span.error-message {
   color: red;
 }
@@ -398,11 +311,6 @@ div.error-message {
 }
 
 .roleProperty {
-  display: flex;
-  flex: 1;
-}
-
-.roleVal {
   display: flex;
   flex: 1;
 }

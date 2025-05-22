@@ -3,11 +3,11 @@ import Env from "./Env";
 
 const StatusService = {
   async isPublicMode(): Promise<boolean> {
-    return axios.get(Env.API + "api/status/public/isPublicMode");
+    return await axios.get(Env.API + "api/status/public/isPublicMode");
   },
 
   async isDevMode(): Promise<boolean> {
-    return axios.get(Env.API + "api/status/public/isDevMode");
+    return await axios.get(Env.API + "api/status/public/isDevMode");
   }
 };
 

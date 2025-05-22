@@ -8,7 +8,7 @@ import { TTIriRef } from "@/interfaces/AutoGen";
 import { EditorMode } from "@/enums";
 import { isEqual } from "lodash-es";
 
-export function setupEditorEntity(mode: EditorMode, updateType: Function) {
+export function setupEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]) => void) {
   const editorStore = useEditorStore();
   const creatorStore = useCreatorStore();
   const editorEntityOriginal: Ref<any> = ref({});
@@ -17,18 +17,21 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
 
   const editorIri = computed(() => editorStore.editorIri).value;
   const editorSavedEntity = computed(() => editorStore.editorSavedEntity).value;
-  const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
   const hasType = computed<boolean>(() => {
     return isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]);
   });
 
   async function fetchEntity(): Promise<void> {
     if (mode === EditorMode.EDIT && editorIri) {
-      if (isObjectHasKeys(editorSavedEntity, ["@id"]) && editorSavedEntity[IM.ID] === editorIri) {
+      if (editorSavedEntity && isObjectHasKeys(editorSavedEntity, ["iri"]) && editorSavedEntity[IM.ID] === editorIri) {
         editorEntity.value = editorSavedEntity;
         return;
       }
-      const fullEntity = await EntityService.getFullEntity(editorIri, true);
+      const entityTypes = await EntityService.getEntityTypes(editorIri);
+      let fullEntity = null;
+      if (entityTypes.includes(IM.CONCEPT_SET) || entityTypes.includes(IM.VALUESET)) {
+        fullEntity = await EntityService.getEntityByPredicateExclusions(editorIri, [IM.HAS_MEMBER]);
+      } else fullEntity = await EntityService.getFullEntity(editorIri, true);
       if (isObjectHasKeys(fullEntity)) {
         const processedEntity = processEntity(fullEntity);
         editorEntityOriginal.value = processedEntity;
@@ -39,10 +42,10 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
   }
 
   function processEntity(entity: any) {
-    const result = { ...entity } as any;
-    if (isObjectHasKeys(result, ["@id"])) {
-      result[IM.ID] = result["@id"];
-      delete result["@id"];
+    const result = { ...entity };
+    if (result?.iri) {
+      result[IM.ID] = result.iri;
+      delete result.iri;
     }
     return result;
   }
@@ -60,8 +63,8 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
       if (found) return found;
     }
     if (editorEntity.value[RDF.TYPE].length === 1) return editorEntity.value[RDF.TYPE][0];
-    if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE) !== -1) {
-      const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE);
+    if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type.iri === SHACL.NODESHAPE) !== -1) {
+      const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type.iri === SHACL.NODESHAPE);
       if (found) return found;
     }
     return editorEntity.value[RDF.TYPE][0];
@@ -70,34 +73,43 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
   function updateEntity(data: any) {
     let wasUpdated = false;
     if (isArrayHasLength(data)) {
-      data.forEach((item: any) => {
-        if (isObjectHasKeys(item)) {
-          for (const [key, value] of Object.entries(item)) {
-            editorEntity.value[key] = value;
-            wasUpdated = true;
-          }
-        }
-      });
+      wasUpdated = updateArrayEntity(data);
     } else if (isObjectHasKeys(data)) {
-      if (isObjectHasKeys(data, [RDF.TYPE])) {
-        if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
-          updateType(data[RDF.TYPE]);
-          wasUpdated = true;
-        } else if (JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
-          updateType(data[RDF.TYPE]);
-          wasUpdated = true;
-        }
-      } else {
-        for (const [key, value] of Object.entries(data)) {
-          editorEntity.value[key] = value;
-          wasUpdated = true;
-        }
-      }
+      wasUpdated = updateObjectEntity(data);
     }
     if (wasUpdated) {
       if (mode === EditorMode.CREATE) creatorStore.updateCreatorSavedEntity(editorEntity.value);
       else editorStore.updateEditorSavedEntity(editorEntity.value);
     }
+  }
+
+  function updateArrayEntity(data: any[]): boolean {
+    let wasUpdated = false;
+    data.forEach((item: any) => {
+      if (isObjectHasKeys(item)) {
+        for (const [key, value] of Object.entries(item)) {
+          editorEntity.value[key] = value;
+          wasUpdated = true;
+        }
+      }
+    });
+    return wasUpdated;
+  }
+
+  function updateObjectEntity(data: any): boolean {
+    let wasUpdated = false;
+    if (isObjectHasKeys(data, [RDF.TYPE])) {
+      if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE]) || JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
+        updateType(data[RDF.TYPE]);
+        wasUpdated = true;
+      }
+    } else {
+      for (const [key, value] of Object.entries(data)) {
+        editorEntity.value[key] = value;
+        wasUpdated = true;
+      }
+    }
+    return wasUpdated;
   }
 
   function deleteEntityKey(data: string) {

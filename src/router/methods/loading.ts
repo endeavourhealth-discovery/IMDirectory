@@ -23,7 +23,7 @@ export function startRouterLoading(routes: Array<RouteRecordRaw>, to: RouteLocat
   }
 }
 
-export function endRouterLoading(routes: Array<RouteRecordRaw>, to: RouteLocationNormalized) {
+export function endRouterLoading() {
   const loadingStore = useLoadingStore();
   if (loadingStore.viewsLoading) {
     loadingStore.updateViewsLoading(false);

@@ -27,13 +27,12 @@
 </template>
 
 <script async setup lang="ts">
-import { Ref, inject, onMounted, onUnmounted, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
-import type { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { isFolder, isFunction, isProperty, isRecordModel } from "@/helpers/ConceptTypeMethods";
 import { TTProperty } from "@/interfaces";
@@ -42,19 +41,17 @@ import { Match, TTIriRef, Where } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { getKey, getParentNode } from "@/helpers";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { TreeNode as LocalTreeNode } from "@/interfaces/TreeNode";
+import type { TreeNode } from "primevue/treenode";
 
-interface Props {
+const props = defineProps<{
   editMatch: Match;
   showVariableOptions: boolean;
   dmIri: string;
-  selectedProperty: TreeNode | undefined;
-}
-const props = defineProps<Props>();
+}>();
+const modelSelectedProperty = defineModel<TreeNode | undefined>("selectedProperty");
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const selectedNode = ref();
-const emit = defineEmits({
-  "update:selectedProperty": (_payload: TreeNode) => true
-});
 
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild, selectedKeys } = setupTree();
@@ -75,14 +72,12 @@ async function init() {
 }
 
 async function populateCheckBoxes(match: Match) {
-  if (isArrayHasLength(match.where)) {
-    for (const property of match.where!) {
-      selectByIri(property, property["@id"]!, root.value);
-    }
+  if (match.where) {
+    if (match.where.iri) selectByIri(match.where, match.where.iri, root.value);
   }
 }
 
-async function selectByIri(property: Where, iri: string, nodes: TreeNode[]) {
+async function selectByIri(property: Where, iri: string | undefined, nodes: TreeNode[]) {
   let found = nodes.find(node => node.data === iri);
   if (found) {
     found.property = property;
@@ -129,7 +124,7 @@ function createTreeNode(
     leaf: !hasChildren,
     loading: false,
     children: [] as TreeNode[],
-    parent: getParentNode(parent as any),
+    parent: getParentNode(parent as unknown as LocalTreeNode),
     order: order,
     selectable: selectable,
     hasVariable: hasVariable
@@ -142,7 +137,7 @@ function select(node: TreeNode) {
 
 function onSelect(node: any) {
   select(node);
-  emit("update:selectedProperty", selectedNode.value);
+  modelSelectedProperty.value = selectedNode.value;
 }
 
 async function handleTreeNodeExpand(node: any) {
@@ -160,10 +155,10 @@ async function onPropertyExpand(node: TreeNode) {
   const ttProperty: TTProperty = node.ttproperty;
   if (isArrayHasLength(ttProperty["http://www.w3.org/ns/shacl#node"])) {
     const shaclNode = ttProperty["http://www.w3.org/ns/shacl#node"]!;
-    node.children!.push(createTreeNode(shaclNode[0].name as string, shaclNode[0]["@id"], [{ "@id": SHACL.NODESHAPE }], true, false, node));
+    node.children!.push(createTreeNode(shaclNode[0].name as string, shaclNode[0].iri, [{ iri: SHACL.NODESHAPE }], true, false, node));
   } else if (isArrayHasLength(ttProperty["http://www.w3.org/ns/shacl#class"])) {
     const shaclClass = ttProperty["http://www.w3.org/ns/shacl#class"]!;
-    node.children!.push(createTreeNode(shaclClass[0].name as string, shaclClass[0]["@id"], [{ "@id": SHACL.CLASS }], false, false, node));
+    node.children!.push(createTreeNode(shaclClass[0].name as string, shaclClass[0].iri, [{ iri: SHACL.CLASS }], false, false, node));
   }
 }
 
@@ -175,7 +170,7 @@ async function onNodeExpand(node: TreeNode) {
   // filter out inherited-duplicated properties
   if (isArrayHasLength(node.inheritedProps)) {
     properties = properties.filter(
-      prop => !(node.inheritedProps as TreeNode[]).some(inherited => inherited.data === prop["http://www.w3.org/ns/shacl#path"][0]["@id"])
+      prop => !(node.inheritedProps as TreeNode[]).some(inherited => inherited.data === prop["http://www.w3.org/ns/shacl#path"][0].iri)
     );
   }
 
@@ -183,9 +178,18 @@ async function onNodeExpand(node: TreeNode) {
   for (const prop of properties) {
     if (isObjectHasKeys(prop, ["http://www.w3.org/ns/shacl#group"])) {
       const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
-      let groupNode = node.children?.find(child => child.data === groupRef["@id"]);
+      let groupNode = node.children?.find(child => child.data === groupRef.iri);
       if (!groupNode) {
-        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, false, node, undefined, groupRef.order);
+        groupNode = createTreeNode(
+          getNameFromRef(groupRef),
+          groupRef.iri,
+          [{ iri: IM.FOLDER }],
+          true,
+          false,
+          node,
+          undefined,
+          prop["http://www.w3.org/ns/shacl#order"]
+        );
         node.children?.push(groupNode);
       }
       const propertyNode = buildTreeNodeFromTTProperty(prop, groupNode);
@@ -199,7 +203,7 @@ async function onNodeExpand(node: TreeNode) {
   // add subTypes
   const subTypes = await EntityService.getEntityChildren(iri);
   for (const subType of subTypes) {
-    const subTypeNode = createTreeNode(subType.name, subType["@id"], subType.type, true, false, node);
+    const subTypeNode = createTreeNode(subType.name, subType.iri, subType.type as TTIriRef[], true, false, node);
     subTypeNode.inheritedProps = [...node.children!];
     node.children!.push(subTypeNode);
   }
@@ -208,8 +212,8 @@ async function onNodeExpand(node: TreeNode) {
 function buildTreeNodeFromTTProperty(property: TTProperty, parent?: TreeNode) {
   const child = createTreeNode(
     property["http://www.w3.org/ns/shacl#path"][0].name as string,
-    property["http://www.w3.org/ns/shacl#path"][0]["@id"],
-    [{ "@id": RDF.PROPERTY }],
+    property["http://www.w3.org/ns/shacl#path"][0].iri,
+    [{ iri: RDF.PROPERTY }],
     !isArrayHasLength(property["http://www.w3.org/ns/shacl#datatype"]) && !isArrayHasLength(property["http://www.w3.org/ns/shacl#class"]),
     true,
     parent
@@ -226,7 +230,7 @@ async function onClassExpand(node: TreeNode) {
     const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
     if (children.totalCount === 0) node.leaf = true;
     children.result.forEach((child: any) => {
-      if (!nodeHasChild(node, child)) node.children!.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, false, node));
+      if (!nodeHasChild(node, child)) node.children!.push(createTreeNode(child.name, child.iri, child.type, child.hasChildren, false, node));
     });
     if (children.totalCount >= pageSize.value) {
       node.children!.push(createLoadMoreNode(node, 2, children.totalCount));
@@ -246,26 +250,25 @@ function addVariableNodes() {
     const types: string[] = [];
     getVariableTypesFromMatch(variableMap.value[key], types);
     for (const typeIri of types) {
-      const name = key + " (" + getNameFromRef({ "@id": typeIri }) + ")";
-      const treeNode = createTreeNode(name, typeIri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] }, key);
+      const name = key + " (" + getNameFromRef({ iri: typeIri }) + ")";
+      const treeNode = createTreeNode(name, typeIri, [{ iri: SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] }, key);
       root.value.push(treeNode);
     }
   }
 }
 
 function getVariableTypesFromMatch(match: Match, types: string[]) {
-  const type = isObjectHasKeys(match.typeOf, ["@id"]) ? resolveIri(match.typeOf!["@id"]!) : resolveIri("");
+  const type = isObjectHasKeys(match.typeOf, ["iri"]) ? resolveIri(match.typeOf!.iri!) : resolveIri("");
 
   if (type && !types.includes(type)) types.push(type);
-  if (isArrayHasLength(match.match))
-    for (const nestedMatch of match.match!) {
-      getVariableTypesFromMatch(nestedMatch, types);
-    }
+  for (const bool of ["and", "or", "not"] as const) {
+    if (isArrayHasLength(match[bool]))
+      for (const nestedMatch of match[bool]!) {
+        getVariableTypesFromMatch(nestedMatch, types);
+      }
+  }
 
-  if (isArrayHasLength(match.where))
-    for (const property of match.where!) {
-      getVariableTypesFromProperty(property, types);
-    }
+  if (match.where) getVariableTypesFromProperty(match.where, types);
 
   if (match.nodeRef && variableMap.value[match.nodeRef]) {
     const nodeRefMatch = variableMap.value[match.nodeRef];
@@ -274,17 +277,21 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
 }
 
 function getVariableTypesFromProperty(property: Where, types: string[]) {
-  if (isObjectHasKeys(property, ["match"])) getVariableTypesFromMatch(property.match!, types);
-
-  if (isArrayHasLength(property.where))
-    for (const nestedProperty of property.where!) {
+  if (isArrayHasLength(property.and)) {
+    for (const nestedProperty of property.and!) {
       getVariableTypesFromProperty(nestedProperty, types);
     }
+  }
+  if (isArrayHasLength(property.or)) {
+    for (const nestedProperty of property.or!) {
+      getVariableTypesFromProperty(nestedProperty, types);
+    }
+  }
 }
 
 async function addBaseEntityToRoot(iri: string) {
-  const name = getNameFromRef({ "@id": iri });
-  const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
+  const name = getNameFromRef({ iri: iri });
+  const parent = createTreeNode(name, iri, [{ iri: SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
   expandedKeys.value[parent.key!] = true;
   await onNodeExpand(parent);
   root.value.push(parent);
@@ -298,24 +305,6 @@ async function addBaseEntityToRoot(iri: string) {
   flex-flow: column nowrap;
 }
 
-.loading-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.p-tree .p-tree-container .p-treenode .p-treenode-content {
-  padding: 0rem !important;
-  transition: box-shadow 3600s 3600s !important;
-}
-
-.p-tree-toggler {
-  margin-right: 0 !important;
-}
-
 .tree-root {
   height: 100%;
   overflow: auto;
@@ -326,7 +315,7 @@ async function addBaseEntityToRoot(iri: string) {
   min-width: 2rem;
 }
 
-.tree-row .p-progressspinner {
+.tree-row {
   width: 1.25em !important;
   height: 1.25em !important;
 }

@@ -1,17 +1,27 @@
-import { TTBundle, UIProperty } from "../interfaces";
-import { IM, RDF, RDFS, SHACL } from "../vocabulary";
+import { IM, RDF, RDFS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
-import { TTIriRef } from "../interfaces/AutoGen";
+import { Argument, TTIriRef, TTNode } from "../interfaces/AutoGen";
+import { TTBundle, TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 // min 2 characters
 const indentSize = "  ";
 let seeMore = "";
 
+interface StringAdditions {
+  pad: string;
+  prefix: string;
+  withHyperlinks: boolean;
+  suffix: string;
+  group: boolean;
+  last: boolean;
+}
+
 export function bundleToText(
   appPath: string,
   bundle: TTBundle,
-  defaultPredicatenames: any,
+  defaultPredicatenames: GenericObject,
   indent: number,
   withHyperlinks: boolean,
   conceptIri: string,
@@ -20,16 +30,16 @@ export function bundleToText(
   seeMore = conceptIri;
   let predicates = bundle.predicates;
   predicates = addDefaultPredicates(predicates, defaultPredicatenames);
-  delete bundle.entity["@id"];
+  delete bundle.entity.iri;
   delete bundle.entity[IM.IS_A];
   let result = "";
   result += ttValueToString(appPath, bundle.entity, "object", indent, withHyperlinks, predicates, blockedUrlIris);
   return result;
 }
 
-function addDefaultPredicates(predicates?: any, defaults?: any) {
-  if (!isObjectHasKeys(predicates)) predicates = {} as any;
-  if (!isObjectHasKeys(defaults)) return predicates;
+function addDefaultPredicates(predicates?: GenericObject, defaults?: GenericObject) {
+  if (!predicates || !isObjectHasKeys(predicates)) predicates = {};
+  if (!defaults || !isObjectHasKeys(defaults)) return predicates;
   for (const [key, value] of Object.entries(defaults)) {
     predicates[key] = value;
   }
@@ -42,10 +52,10 @@ export function ttValueToString(
   previousType: string,
   indent: number,
   withHyperlinks: boolean,
-  iriMap?: any,
+  iriMap?: GenericObject,
   blockedUrlIris?: string[]
 ): string {
-  if (isObjectHasKeys(node, ["@id"])) {
+  if (isObjectHasKeys(node, ["iri"])) {
     return ttIriToString(appPath, node, previousType, indent, withHyperlinks, false, blockedUrlIris);
   } else if (isObjectHasKeys(node, [RDFS.LABEL, IM.CODE])) {
     return termToString(node, indent);
@@ -58,7 +68,7 @@ export function ttValueToString(
   }
 }
 
-export function termToString(node: any, indent: number): string {
+export function termToString(node: TTEntity, indent: number): string {
   return indentSize.repeat(indent) + node[RDFS.LABEL] + "\n";
 }
 
@@ -74,17 +84,17 @@ export function ttIriToString(
   const pad = indentSize.repeat(indent);
   let result = "";
   if (!inline) result += pad;
-  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
-    const escapedUrl = iriToUrl(iri["@id"]);
-    if (iri["@id"] === seeMore) {
+  if (withHyperlinks && !blockedUrlIris?.includes(iri.iri)) {
+    const escapedUrl = iriToUrl(iri.iri);
+    if (iri.iri === seeMore) {
       result += `<Button link as="a" href="">`;
     } else {
       result += `<Button link as="a" target="_blank" href="${window.location.origin}${appPath}/#/concept/${escapedUrl}">`;
     }
   }
   if (iri.name) result += removeEndBrackets(iri.name);
-  else result += iri["@id"];
-  if (withHyperlinks && (!blockedUrlIris || !blockedUrlIris.includes(iri["@id"]))) {
+  else result += iri.iri;
+  if (withHyperlinks && !blockedUrlIris?.includes(iri.iri)) {
     result += "</Button>";
   }
   if (previous === "array") result += "\n";
@@ -93,11 +103,11 @@ export function ttIriToString(
 
 export function ttNodeToString(
   appPath: string,
-  node: any,
+  node: TTNode,
   _previousType: string,
   indent: number,
   withHyperlinks: boolean,
-  iriMap?: any,
+  iriMap?: GenericObject,
   blockedUrlIris?: string[]
 ): string {
   const pad = indentSize.repeat(indent);
@@ -147,11 +157,19 @@ export function ttNodeToString(
   return result;
 }
 
-function processNode(appPath: string, key: string, value: any, indent: number, iriMap: any, stringAdditions: any, blockedUrlIris?: string[]): string {
+function processNode(
+  appPath: string,
+  key: string,
+  value: any,
+  indent: number,
+  iriMap: GenericObject | undefined,
+  stringAdditions: StringAdditions,
+  blockedUrlIris?: string[]
+): string {
   let result = "";
-  if (isObjectHasKeys(value, ["@id"])) {
+  if (isObjectHasKeys(value, ["iri"])) {
     result += getObjectName(key, iriMap, stringAdditions.pad, stringAdditions.prefix);
-    result += ttIriToString(appPath, value as TTIriRef, "object", indent, stringAdditions.withHyperlinks, true, blockedUrlIris);
+    result += ttIriToString(appPath, value, "object", indent, stringAdditions.withHyperlinks, true, blockedUrlIris);
     result += stringAdditions.suffix;
   } else if (isArrayHasLength(value)) {
     result += processNodeArray(value, key, appPath, indent, iriMap, stringAdditions, blockedUrlIris);
@@ -170,11 +188,19 @@ function processNode(appPath: string, key: string, value: any, indent: number, i
   return result;
 }
 
-function processNodeArray(value: any[], key: string, appPath: string, indent: number, iriMap: any, stringAdditions: any, blockedUrlIris?: string[]) {
+function processNodeArray(
+  value: TTIriRef[],
+  key: string,
+  appPath: string,
+  indent: number,
+  iriMap: GenericObject | undefined,
+  stringAdditions: StringAdditions,
+  blockedUrlIris?: string[]
+) {
   let result = "";
-  if (value.length === 1 && isObjectHasKeys(value[0], ["@id"])) {
+  if (value.length === 1 && isObjectHasKeys(value[0], ["iri"])) {
     result += getObjectName(key, iriMap, stringAdditions.pad, stringAdditions.prefix);
-    result += ttIriToString(appPath, value[0] as TTIriRef, "object", indent, stringAdditions.withHyperlinks, true, blockedUrlIris);
+    result += ttIriToString(appPath, value[0], "object", indent, stringAdditions.withHyperlinks, true, blockedUrlIris);
     result += stringAdditions.suffix;
   } else if ((value.length === 1 && typeof value[0] === "string") || typeof value[0] === "number") {
     result += getObjectName(key, iriMap, stringAdditions.pad, stringAdditions.prefix);
@@ -191,12 +217,19 @@ function processNodeArray(value: any[], key: string, appPath: string, indent: nu
   return result;
 }
 
-function getObjectName(key: string, iriMap: any, pad: string, prefix: string) {
-  if (iriMap && iriMap[key]) return pad + prefix + removeEndBrackets(iriMap[key]) + " : ";
+function getObjectName(key: string, iriMap: GenericObject | undefined, pad: string, prefix: string) {
+  if (iriMap?.[key]) return pad + prefix + removeEndBrackets(iriMap[key]) + " : ";
   else return pad + prefix + removeEndBrackets(key) + " : ";
 }
 
-export function ttArrayToString(appPath: string, arr: any[], indent: number, withHyperlinks: boolean, iriMap?: any, blockedUrlIris?: string[]): string {
+export function ttArrayToString(
+  appPath: string,
+  arr: TTIriRef[],
+  indent: number,
+  withHyperlinks: boolean,
+  iriMap?: GenericObject,
+  blockedUrlIris?: string[]
+): string {
   let result = "";
   for (const item of arr) {
     removeGroupNumber(arr);
@@ -213,7 +246,7 @@ function removeEndBrackets(str: string): string {
   else return str;
 }
 
-function removeGroupNumber(arr: any[]) {
+function removeGroupNumber(arr: TTEntity[]) {
   const groupNumberItems = arr.filter(item => {
     return isObjectHasKeys(item, [IM.ROLE_GROUP]);
   });
@@ -226,19 +259,15 @@ function removeGroupNumber(arr: any[]) {
   }
 }
 
-export function mapToObject(args: any[]) {
-  const argsAsObject = {} as any;
+export function mapToObject(args: Argument[]) {
+  const argsAsObject = {} as Argument;
   args.forEach((value, key) => {
-    argsAsObject[key] = value;
+    (argsAsObject as GenericObject)[key] = value;
   });
   return argsAsObject;
 }
 
-export function entityToAliasEntity(ttEntity: any) {
-  if (isObjectHasKeys(ttEntity, ["@id"])) {
-    ttEntity.iri = ttEntity["@id"];
-    delete ttEntity["@id"];
-  }
+export function entityToAliasEntity(ttEntity: TTEntity) {
   if (isObjectHasKeys(ttEntity, [RDFS.LABEL])) {
     ttEntity.name = ttEntity[RDFS.LABEL];
     delete ttEntity[RDFS.LABEL];

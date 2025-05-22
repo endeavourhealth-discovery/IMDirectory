@@ -7,7 +7,7 @@
     <Skeleton />
   </div>
   <div v-if="isArrayHasLength(children)" class="children-container">
-    <template v-for="(item, index) in value.items">
+    <template v-for="(item, index) in value.items" v-bind:key="index">
       <div class="left-container">
         <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
         <Skeleton v-else class="logic-button-skeleton" />
@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys, isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { ref, Ref } from "vue";
 import BoolGroupSkeleton from "./BoolGroupSkeleton.vue";
 import ConceptSkeleton from "./ConceptSkeleton.vue";
@@ -39,14 +39,6 @@ interface Props {
 const props = defineProps<Props>();
 
 const children: Ref<any[]> = ref([]);
-
-function processSkeletonProps() {
-  if (isObjectHasKeys(props.value, ["items"])) {
-    props.value.items.forEach((item: any) => {
-      children.value.push(item);
-    });
-  }
-}
 
 function getSkeletonComponent(componentName: string) {
   switch (componentName) {

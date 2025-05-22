@@ -25,7 +25,7 @@
         </div>
 
         <div v-else-if="node.data">
-          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          {{ node.label + " - " }}<IMViewerLink :iri="node.data.iri!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
         <div v-else>{{ node.label }}</div>
       </template>
@@ -50,24 +50,23 @@ import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@/vocabulary";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { isArray } from "lodash-es";
+import { GenericObject } from "@/interfaces/GenericObject";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
+const emit = defineEmits<{ onOpenTab: [payload: string]; navigateTo: [payload: string] }>();
 
 const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
-const OS: Ref<any> = ref();
 const definition: Ref<any> = ref();
-const expandedKeys: Ref<any> = ref({});
-const selectedKeys: Ref<any> = ref({});
+const expandedKeys: Ref<GenericObject> = ref({});
+const selectedKeys: Ref<GenericObject> = ref({});
 const predicatePageIndexMap: Ref<Map<string, { pageIndex: number; node: TreeNode }>> = ref(new Map<string, { pageIndex: number; node: TreeNode }>());
 
 watch(
   () => props.entityIri,
-  async () => getDefinition()
+  async () => await getDefinition()
 );
 
 onMounted(async () => await getDefinition());
@@ -118,7 +117,7 @@ async function onSelect(node: TreeNode) {
   }
 }
 
-async function onExpand(node: TreeNode) {
+function onExpand(node: TreeNode) {
   const hasLoadMore = node.children?.some(child => child.key === IM.LOAD_MORE);
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
 }

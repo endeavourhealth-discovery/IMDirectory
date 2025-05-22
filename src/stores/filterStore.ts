@@ -20,11 +20,9 @@ export const useFilterStore = defineStore("filter", {
       if (isObjectHasKeys(filterOptions, ["status", "schemes", "types"]) && isObjectHasKeys(filterDefaults, ["status", "schemes", "types"])) {
         this.updateDefaultFilterOptions(filterDefaults);
         this.updateFilterOptions(filterOptions);
-        const selectedStatus = this.filterOptions.status.filter(item => filterDefaults.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"]));
-        const selectedSchemes = this.filterOptions.schemes.filter(item =>
-          filterDefaults.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-        );
-        const selectedTypes = this.filterOptions.types.filter(item => filterDefaults.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"]));
+        const selectedStatus = this.filterOptions.status.filter(item => filterDefaults.status.map(defaultOption => defaultOption.iri).includes(item.iri));
+        const selectedSchemes = this.filterOptions.schemes.filter(item => filterDefaults.schemes.map(defaultOption => defaultOption.iri).includes(item.iri));
+        const selectedTypes = this.filterOptions.types.filter(item => filterDefaults.types.map(defaultOption => defaultOption.iri).includes(item.iri));
 
         this.updateSelectedFilterOptions({
           status: selectedStatus,
@@ -32,23 +30,23 @@ export const useFilterStore = defineStore("filter", {
           types: selectedTypes,
           includeLegacy: false
         } as FilterOptions);
-        this.updateHierarchySelectedFilters(selectedSchemes);
+        this.updateHierarchySelectedFilters(selectedSchemes as unknown as Namespace[]);
         this.updateCoreSchemes(coreSchemes);
       }
     },
-    updateFilterOptions(filters: any) {
+    updateFilterOptions(filters: FilterOptions) {
       this.filterOptions = filters;
     },
 
-    updateDefaultFilterOptions(filters: any) {
+    updateDefaultFilterOptions(filters: FilterOptions) {
       this.defaultFilterOptions = filters;
     },
 
-    updateSelectedFilterOptions(filters: any) {
+    updateSelectedFilterOptions(filters: FilterOptions) {
       this.selectedFilterOptions = filters;
     },
 
-    updateHierarchySelectedFilters(filters: any) {
+    updateHierarchySelectedFilters(filters: Namespace[]) {
       this.hierarchySelectedFilters = filters;
     },
     updateCoreSchemes(schemes: string[]) {
