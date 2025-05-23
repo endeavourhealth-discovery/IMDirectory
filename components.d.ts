@@ -237,6 +237,10 @@ declare module 'vue' {
     UprnConsent: typeof import('./src/components/uprn/UprnConsent.vue')['default']
     UprnSingleAddressLookup: typeof import('./src/components/uprn/SingleAddressLookup.vue')['default']
     WorkflowSideBar: typeof import('./src/components/workflow/SideBar.vue')['default']
+    WorkflowTable: typeof import('./src/components/workflow/WorkflowTable.vue')['default']
+    WorkflowTaskHistoryDialog: typeof import('./src/components/workflow/TaskHistoryDialog.vue')['default']
+    WorkflowTaskViewer: typeof import('./src/components/workflow/TaskViewer.vue')['default']
+    WorkflowViewBugReport: typeof import('./src/components/workflow/ViewBugReport.vue')['default']
   }
   export interface ComponentCustomProperties {
     Ripple: typeof import('primevue/ripple')['default']
