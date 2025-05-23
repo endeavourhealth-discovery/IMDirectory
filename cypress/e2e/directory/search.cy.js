@@ -22,6 +22,7 @@ describe("Search", () => {
     cy.getByTestId("status-filter").find(".p-multiselect-dropdown").click();
     cy.wait(1000);
     cy.get("p-datatable-mask").should("not.exist");
+    cy.wait(1000);
     cy.getByTestId("total-results", { timeout: 60000 })
       .invoke("text")
       .then(parseFloat)
@@ -39,6 +40,7 @@ describe("Search", () => {
     cy.getByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
     cy.wait(1000);
     cy.get("p-datatable-mask").should("not.exist");
+    cy.wait(1000);
     cy.getByTestId("total-results", { timeout: 60000 })
       .invoke("text")
       .then(parseFloat)
@@ -56,6 +58,7 @@ describe("Search", () => {
     cy.getByTestId("type-filter").find(".p-multiselect-dropdown").click();
     cy.wait(1000);
     cy.get("p-datatable-mask").should("not.exist");
+    cy.wait(1000);
     cy.getByTestId("total-results", { timeout: 60000 })
       .invoke("text")
       .then(parseFloat)
