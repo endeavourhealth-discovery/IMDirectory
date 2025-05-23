@@ -130,6 +130,7 @@ import { computed, onMounted, Ref, ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
+import Swal from "sweetalert2";
 
 interface Props {
   id: string;
@@ -225,9 +226,11 @@ const showErrorMessages = ref({ product: false, module: false, os: false, browse
 const loading = ref(false);
 
 onMounted(async () => {
+  loading.value = true;
   bugReport.value = await WorkflowService.getBugReport(props.id);
   if (bugReport) setValuesFromBugReport(bugReport.value);
   setOptions();
+  loading.value = false;
 });
 
 function setOptions() {
@@ -288,7 +291,14 @@ async function updateTask(task: Task) {
           dateCreated: task.dateCreated,
           history: task.history
         };
-        await WorkflowService.updateBugReport(updatedBugReport);
+        await WorkflowService.updateBugReport(updatedBugReport).then(async () => {
+          await Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Bug report successfully updated."
+          });
+        });
+
         editMode.value = false;
       }
     });

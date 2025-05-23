@@ -25,6 +25,7 @@
       <Column field="dateCreated" header="Created at">
         <template #body="{ data }: any">{{ data.dateCreated ? formatDateTime(data.dateCreated) : "-" }}</template>
       </Column>
+      <Column field="hostUrl" header="Host url"></Column>
       <Column header="History">
         <template #body="{ data }: any"
           ><Button
@@ -54,7 +55,7 @@ import { useRouter } from "vue-router";
 import TaskHistoryDialog from "./TaskHistoryDialog.vue";
 
 interface Props {
-  taskType: string;
+  taskType?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {

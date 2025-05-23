@@ -120,12 +120,14 @@ import { TaskModule, TaskState, TaskType, Browser, OperatingSystem, Status } fro
 import { useUserStore } from "@/stores/userStore";
 import WorkflowService from "@/services/WorkflowService";
 import Swal from "sweetalert2";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import GithubService from "@/services/GithubService";
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const router = useRouter();
+
+const url = window.location.origin;
 
 const error = computed(() => sharedStore.error);
 const user = computed(() => userStore.currentUser);
@@ -227,6 +229,7 @@ async function onSubmit() {
     bugReport.actualResult = actualResult.value;
     if (user.value) bugReport.createdBy = user.value.id;
     if (error.value) bugReport.error = error.value;
+    bugReport.hostUrl = url;
     const latestResult = await GithubService.getLatestRelease("IMDirectory");
     if (latestResult) bugReport.version = latestResult.version;
     bugReport.type = TaskType.BUG_REPORT;

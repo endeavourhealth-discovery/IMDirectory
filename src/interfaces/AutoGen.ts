@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-20 10:40:05.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-23 13:06:43.
 
 export interface ConceptContextMap {
     id?: string;
@@ -285,18 +285,18 @@ export interface Argument {
 }
 
 export interface Assignable {
-    value?: string;
     operator?: Operator;
-    qualifier?: string;
     valueLabel?: string;
-    unit?: TTIriRef;
     valueParameter?: string;
+    qualifier?: string;
+    unit?: TTIriRef;
+    value?: string;
 }
 
 export interface BoolGroup<T> {
-    not?: T[];
-    or?: T[];
     and?: T[];
+    or?: T[];
+    not?: T[];
 }
 
 export interface Case {
@@ -336,10 +336,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -730,14 +730,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
+    prefixes?: TTPrefix[];
+    scheme?: TTIriRef;
     type?: TTArray;
     name?: string;
-    scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     description?: string;
+    status?: TTIriRef;
     code?: string;
-    prefixes?: TTPrefix[];
 }
 
 export interface EntityValidationRequest {
@@ -778,6 +778,7 @@ export interface Task {
     assignedTo?: string;
     dateCreated?: Date;
     history?: TaskHistory[];
+    hostUrl?: string;
 }
 
 /**
