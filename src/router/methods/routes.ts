@@ -245,13 +245,13 @@ const routes: Array<RouteRecordRaw> = [
     },
     children: [
       {
-        path: "myworkflows:taskType?",
+        path: "myworkflows/:taskType?",
         name: "MyWorkflows",
         component: () => import("@/components/workflow/WorkflowTable.vue"),
         props: true
       },
       {
-        path: "bugReport:id?",
+        path: "bugReport/:id?",
         name: "ViewBugReport",
         component: () => import("@/components/workflow/ViewBugReport.vue"),
         props: true
