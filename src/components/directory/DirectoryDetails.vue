@@ -93,7 +93,7 @@ async function init() {
 
 .datatable-container {
   flex: 0 1 auto;
-  overflow: auto;
+  overflow: hidden;
   padding: 0.5rem;
 }
 
