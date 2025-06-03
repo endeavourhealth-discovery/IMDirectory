@@ -13,7 +13,7 @@
         v-model:selection="selected"
         selectionMode="single"
         @rowSelect="onRowSelect"
-        dataKey="dateTime"
+        dataKey="iri"
         :scrollable="true"
         scrollHeight="flex"
         class="p-datatable-sm favourites-datatable"
@@ -22,7 +22,7 @@
         <Column field="name" header="Name">
           <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="favourite-name-icon-container">
-              <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
+              <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon pr-2" :style="data.color" fixed-width />
               <span class="favourite-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
