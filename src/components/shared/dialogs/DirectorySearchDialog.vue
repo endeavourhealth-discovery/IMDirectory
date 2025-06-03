@@ -28,6 +28,7 @@
             :typeFilter="typeFilter"
             :find-in-tree="findInDialogTree"
             :useEmits="true"
+            :childLength="20"
             @found-in-tree="findInDialogTree = false"
             @row-clicked="showDetails"
           />
@@ -66,11 +67,12 @@
       </div>
     </div>
     <template #footer>
-      <div class="im-dialog-footer" v-if="detailsIri">
+      <div class="im-dialog-footer">
         <div v-if="selectedName" v-tooltip.right="detailsIri">Item selected: {{ selectedName }}</div>
         <div class="button-footer">
           <Button label="Cancel" @click="modelShowDialog = false" text />
           <Button
+            v-if="selectedName && isSelectableEntity"
             :disabled="!isSelectableEntity"
             data-testid="search-dialog-select-button"
             label="Select"

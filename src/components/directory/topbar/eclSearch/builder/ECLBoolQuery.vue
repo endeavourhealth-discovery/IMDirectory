@@ -61,6 +61,22 @@
       @mouseover="hoverAddConcept = true"
       @mouseout="hoverAddConcept = false"
     />
+
+    <div v-if="match.where">
+      <span>Attributes for Group</span>
+      <ECLRefinement
+        v-model:where="match.where"
+        v-model:parent="match"
+        :index="index"
+        :rootBool="true"
+        :focusConcepts="focusConcepts"
+        :parentType="'match'"
+        :propertyTreeRoots="propertyTreeRoots"
+        :imQueryForPropertySearch="imQueryForPropertySearch"
+        @rationalise="onRationalise"
+        class="refinement"
+      />
+    </div>
     <Button
       type="button"
       icon="fa-solid fa-filter"
@@ -75,20 +91,6 @@
       @mouseover="hoverAddRefinement = true"
       @mouseout="hoverAddRefinement = false"
     />
-    <div v-if="match.where">
-      <span>Attributes for Group</span>
-      <ECLRefinement
-        v-model:where="match.where"
-        v-model:parent="match"
-        :index="index"
-        :rootBool="true"
-        :focusConcepts="focusConcepts"
-        :parentType="'match'"
-        :propertyTreeRoots="propertyTreeRoots"
-        :imQueryForPropertySearch="imQueryForPropertySearch"
-        class="refinement"
-      />
-    </div>
   </div>
 </template>
 
@@ -99,7 +101,7 @@ import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { addConceptToGroup, rationaliseBoolGroups, updateBooleans } from "@/helpers/IMQueryBuilder";
+import { addConceptToGroup, updateBooleans } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import { cloneDeep } from "lodash-es";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
@@ -121,7 +123,6 @@ const operators = ["and", "or", "not"] as const;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const hoverAddConcept = ref(false);
 const hoverAddRefinement = ref(false);
-const hoverDeleteConcept = ref(false);
 const focusConcepts = computed(() => {
   return updateFocusConcepts(match.value);
 });
@@ -132,7 +133,9 @@ function updateOperator(val: string) {
   updateFocusConcepts(match.value);
   emit("updateBool", props.parentOperator, val);
 }
-
+function onRationalise() {
+  emit("rationalise");
+}
 function focusChildren(children: Match[] | undefined): TTIriRef[] {
   const focusConcepts: TTIriRef[] = [];
   if (children) {
@@ -160,27 +163,19 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
 
 function mouseover(event: any) {
   event.stopPropagation();
-  hoverAddConcept.value = true;
 }
 
-function deleteItem(index: number) {
-  if (match.value.or) {
-    match.value.or.splice(index, 1);
-  } else if (match.value.and) {
-    match.value.and.splice(index, 1);
-  }
-  updateFocusConcepts(match.value);
-}
 function mouseout(event: any) {
   event.stopPropagation();
-  hoverAddConcept.value = false;
 }
 
 function addRefinement() {
   const where = { uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where;
   if (match.value.where) {
-    if (match.value.where.and) match.value.where.and.push(where);
-    else if (match.value.where.or) match.value.where.or.push(where);
+    if (match.value.where.and) {
+      match.value.where.and.push(where);
+      console.log("and clauses = " + match.value.where.and.length);
+    } else if (match.value.where.or) match.value.where.or.push(where);
     else {
       const boolWhere = { uuid: v4() } as Where;
       boolWhere.and = [match.value.where];

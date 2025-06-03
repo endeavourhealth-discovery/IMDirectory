@@ -16,7 +16,7 @@
           :draggable="allowDragAndDrop"
           class="tree-row"
           @contextmenu="onNodeContext($event, node)"
-          @click="onNodeSelect($event, node, useEmits ?useEmits : false, true)"
+          @click="onNodeSelect($event, node, useEmits ? useEmits : false, true)"
           @dragstart="dragStart($event, node.data)"
           @mouseleave="hideOverlay"
           @mouseover="displayOverlay($event, node)"
@@ -71,7 +71,8 @@ interface Props {
   selectedIri?: string;
   findInTree?: boolean;
   typeFilter?: string[];
-  useEmits? : boolean;
+  useEmits?: boolean;
+  childLength?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -96,7 +97,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const favourites = computed(() => userStore.favourites);
 
 const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
-  setupTree(emit, 50);
+  setupTree(emit, props.childLength ? props.childLength : 40);
 const { getCreateOptions }: { getCreateOptions: (newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode) => Promise<MenuItem[]> } =
   createNew();
 const loading = ref(true);
@@ -161,7 +162,7 @@ async function init() {
   loading.value = true;
   if (isArrayHasLength(props.rootEntities)) await addRootEntitiesToTree();
   else await addParentFoldersToRoot();
-  if (props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
+  //if (props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
   loading.value = false;
 }
 

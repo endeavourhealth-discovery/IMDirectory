@@ -25,29 +25,8 @@ function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
   };
   query.where.and.push(where);
 }
-export function rationaliseBoolGroups(clause: Match | Where) {
-  if (!clause) return;
-  flatten(clause, Bool.or);
-  flatten(clause, Bool.and);
-}
-function flatten(clause: Match | Where, operator: Bool) {
-  const bool = operator as keyof typeof clause;
-  if (clause[bool] && Array.isArray(clause[bool])) {
-    for (let index = clause[bool].length - 1; index >= 0; index--) {
-      const item = clause[bool][index];
-      if (shouldFlatten(item, operator)) {
-        const boolArray = item[bool]!;
-        clause[bool].splice(index, 1, ...boolArray);
-      }
-    }
-  }
-}
 
-function shouldFlatten(clause: Match | Where, operator: Bool): boolean {
-  const bool = operator as keyof typeof clause;
-  if (clause[bool]) return true;
-  return false;
-}
+
 
 function createNewBoolGroup(clause: BoolGroup<Match | Where | undefined>, group: number[], oldBool: Bool, newBool: Bool) {
   group.sort((a, b) => a - b);

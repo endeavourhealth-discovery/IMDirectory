@@ -15,6 +15,7 @@
         @keydown.enter="onEnter"
         @keydown.up="select"
         @focus="handleFocus"
+        @blur="editing = false"
         @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
         @mouseleave="hideOverlay"
         :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
@@ -328,7 +329,7 @@ function onListboxOptionClick(selected: SearchResultSummary) {
 
 .clear-icon {
   position: absolute;
-  right: 2.5rem;
+  right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   color: #999;

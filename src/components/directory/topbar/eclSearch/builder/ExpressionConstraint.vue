@@ -74,12 +74,12 @@
           :imQueryForPropertySearch="imQueryForPropertySearch"
           :parentType="'match'"
           class="refinement"
-          @rationalise="emit('rationalise')"
+          @rationalise="onRationalise"
         />
       </div>
     </div>
     <div v-else>
-      <ECLBoolQuery v-model:match="match" v-model:parent="parent" :index="index" :rootBool="rootBool" />
+      <ECLBoolQuery v-model:match="match" v-model:parent="parent" :index="index" :rootBool="rootBool" @rationalise="emit('rationalise')" />
     </div>
   </div>
 </template>
@@ -91,7 +91,7 @@ import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { getBooleanOptions, rationaliseBoolGroups, updateBooleans } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import ECLBoolQuery from "@/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue";
 
@@ -109,7 +109,6 @@ const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
-const hoverAddConcept = ref(false);
 const hoverAddRefinement = ref(false);
 const hoverDeleteConcept = ref(false);
 const focusConcepts = computed(() => {
@@ -145,9 +144,8 @@ function updateFocusConcepts(item: Match): TTIriRef[] {
   return focusConcepts;
 }
 
-function mouseover(event: any) {
-  event.stopPropagation();
-  hoverAddConcept.value = true;
+function onRationalise() {
+  emit("rationalise");
 }
 
 function deleteMatch() {
@@ -162,10 +160,6 @@ function deleteMatch() {
     }
     updateFocusConcepts(parent.value);
   }
-}
-function mouseout(event: any) {
-  event.stopPropagation();
-  hoverAddConcept.value = false;
 }
 
 function addRefinement() {
@@ -233,12 +227,6 @@ function addRefinement() {
   min-width: 0;
 }
 
-.display-concept {
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  min-width: 0;
-}
 
 .add-group {
   display: flex;
@@ -251,26 +239,9 @@ function addRefinement() {
 .builder-button {
   width: 2rem;
 }
-.add-refinement-button {
-  margin-left: 0.1rem;
-  width: 12rem;
-  max-height: 1rem;
-  padding: 1rem;
-}
 
-.vertical-button {
-  writing-mode: vertical-lr;
-  transform: scale(-1);
-}
-.not-button {
-  margin: 6px 0 6px 6px;
-}
 
-.add-filter-button {
-  display: flex;
-  width: 12rem;
-  margin-left: 0.1rem;
-}
+
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;
   padding-right: 0;

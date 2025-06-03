@@ -88,10 +88,9 @@ import { Match } from "@/interfaces/AutoGen";
 import { Ref, ref, watch, onMounted, provide, readonly } from "vue";
 import { cloneDeep } from "lodash-es";
 import EclService from "@/services/EclService";
+import QueryService from "@/services/QueryService";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
-import { Query } from "@/interfaces/AutoGen";
-import { rationaliseBoolGroups } from "@/helpers/IMQueryBuilder";
 interface Props {
   showDialog?: boolean;
   eclString?: string;
@@ -155,8 +154,8 @@ watch(includeTerms, async () => await generateQueryString());
 function createDefaultBuild() {
   build.value = {};
 }
-function rationaliseBooleans() {
-  rationaliseBoolGroups(build.value);
+async function rationaliseBooleans() {
+  build.value = await QueryService.flattenBooleans(build.value);
 }
 
 async function createBuildFromEclString(ecl: string) {

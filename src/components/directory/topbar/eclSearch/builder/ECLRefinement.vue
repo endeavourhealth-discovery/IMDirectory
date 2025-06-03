@@ -4,7 +4,7 @@
       <div :class="!rootBool ? [hover ? 'nested-div-hover' : 'nested-div'] : ''" @mouseover="mouseover" @mouseout="mouseout">
         <span v-for="operator in operators" :key="operator">
           <span v-if="where[operator]">
-            <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
+            <div @mouseover="mouseover" @mouseout="mouseout">
               <div
                 class="conjunction"
                 @drop="onDrop($event, where, parent, index)"
@@ -30,21 +30,22 @@
                   </template>
                 </Select>
               </div>
-
-              <div v-for="(item, index) in where[operator]" :key="item.uuid">
-                <ECLRefinement
-                  v-model:where="where[operator]![index]!"
-                  v-model:parent="where"
-                  :focusConcepts="props.focusConcepts"
-                  :index="index"
-                  v-model:group="group"
-                  v-model:parentOperator="operator as Bool"
-                  :property-tree-roots="propertyTreeRoots"
-                  :im-query-for-property-search="imQueryForPropertySearch"
-                  :parentType="'where'"
-                  @updateBool="updateBool"
-                  @rationalise="emit('rationalise')"
-                />
+              <div class="nested-ecl-refinement">
+                <div v-for="(item, index) in where[operator]" :key="item.uuid">
+                  <ECLRefinement
+                    v-model:where="where[operator]![index]!"
+                    v-model:parent="where"
+                    :focusConcepts="props.focusConcepts"
+                    :index="index"
+                    v-model:group="group"
+                    v-model:parentOperator="operator as Bool"
+                    :property-tree-roots="propertyTreeRoots"
+                    :im-query-for-property-search="imQueryForPropertySearch"
+                    :parentType="'where'"
+                    @updateBool="updateBool"
+                    @rationalise="onRationalise"
+                  />
+                </div>
               </div>
             </div>
           </span>
@@ -161,7 +162,7 @@ import { ToastSeverity } from "@/enums";
 import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef, Node } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { rationaliseBoolGroups, getBooleanOptions, updateBooleans } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions, updateBooleans } from "@/helpers/IMQueryBuilder";
 import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator } from "@/helpers/IMQueryBuilder";
 
 import Button from "primevue/button";
@@ -220,6 +221,9 @@ onMounted(async () => {
   loadingProperty.value = false;
 });
 
+function onRationalise() {
+  emit("rationalise");
+}
 
 function deleteProperty() {
   if (props.parentType === "match") {
@@ -231,8 +235,8 @@ function deleteProperty() {
         ((parent.value as Where)[operator] as Where[]).splice(props.index, 1);
       }
     }
-    emit("rationalise");
   }
+  emit("rationalise");
 }
 
 async function updatePropertyTreeRoots(): Promise<string[]> {
@@ -301,9 +305,6 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
     emit("rationalise");
   }
 }
-function rationaliseBooleans() {
-  rationaliseBoolGroups(where.value);
-}
 
 function updatePropertyConstraint(e: { value: string }) {
   setConstraintOperator(where.value, e.value);
@@ -369,22 +370,22 @@ async function updateProperty(property: SearchResultSummary | undefined) {
     where.value.name = property.name;
   }
 }
-
-function updateValue(value: SearchResultSummary | undefined) {
-  if (!value) {
-    delete where.value.is;
-  } else {
-    where.value.is = [
-      {
-        iri: value.iri,
-        name: value.name
-      }
-    ];
-  }
-}
 </script>
 
 <style scoped>
+.nested-ecl-refinement {
+  width: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-width: 0;
+  padding: 0.5rem;
+  border: #488bc230 1px solid;
+  border-radius: 5px;
+  background-color: #488bc210;
+  margin: 0.5rem;
+  font-size: 1rem;
+}
 .refinement-content-container {
   padding: 0;
   margin: 0.5rem;
@@ -465,5 +466,9 @@ function updateValue(value: SearchResultSummary | undefined) {
   display: flex;
   justify-content: flex-start;
   width: 100%;
+}
+
+.builder-button {
+  width: 2rem;
 }
 </style>

@@ -33,6 +33,7 @@
       <small v-if="!isValidPropertyValue && showValidation" class="validate-error">Item is invalid for selected property.</small>
     </div>
     <Button
+      :disabled="!where.iri"
       type="button"
       icon="fa-solid fa-plus"
       label="Add value"
@@ -43,6 +44,16 @@
       @click="addValue()"
       @mouseover="hoverAddValue = true"
       @mouseout="hoverAddValue = false"
+    />
+    <Button
+      @click.stop="deleteValue"
+      class="builder-button"
+      :severity="hoverDeleteValue ? 'danger' : 'secondary'"
+      :outlined="!hoverDeleteValue"
+      :class="!hoverDeleteValue && 'hover-button'"
+      icon="fa-solid fa-trash"
+      @mouseover="hoverDeleteValue = true"
+      @mouseout="hoverDeleteValue = false"
     />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
   </div>
@@ -77,6 +88,7 @@ const showValidation = ref(false);
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const toast = useToast();
 const allowableRanges: Ref<TTIriRef[]> = ref([]);
+const hoverDeleteValue = ref(false);
 const hasFocus = computed(() => {
   return !!where.value.iri;
 });
@@ -121,6 +133,14 @@ function updateValue(value: SearchResultSummary | undefined) {
     node.value.name = value.name;
     selectedValue.value = value;
   }
+}
+
+function deleteValue() {
+  if (props.index === 0 && where.value!.is!.length === 1) {
+    delete node.value.iri;
+    delete node.value.name;
+    node.value.descendantsOrSelfOf = true;
+  } else where.value!.is!.splice(props.index, 1);
 }
 
 function updateValueConstraint(e: { value: string }) {
@@ -194,5 +214,9 @@ async function updateValueTreeRoots(): Promise<string[]> {
 .value-text-container {
   flex: 1 1 0%;
   width: 100%;
+}
+
+.builder-button {
+  width: 2rem;
 }
 </style>
