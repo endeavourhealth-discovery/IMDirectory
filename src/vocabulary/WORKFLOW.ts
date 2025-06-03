@@ -8,7 +8,6 @@ export class WORKFLOW {
   public static readonly CREATED_BY = WORKFLOW.NAMESPACE + "createdBy";
   public static readonly ASSIGNED_TO = WORKFLOW.NAMESPACE + "assignedTo";
   public static readonly STATE = WORKFLOW.NAMESPACE + "state";
-  public static readonly HOST_URL = WORKFLOW.NAMESPACE + "hostUrl";
   public static readonly RELATED_PRODUCT = WORKFLOW.NAMESPACE + "relatedProduct";
   public static readonly RELATED_MODULE = WORKFLOW.NAMESPACE + "relatedModule";
   public static readonly OPERATING_SYSTEM = WORKFLOW.NAMESPACE + "operatingSystem";
