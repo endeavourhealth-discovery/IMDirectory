@@ -3,7 +3,7 @@
 export class QUERY {
   public static readonly DOMAIN = "http://endhealth.info/im#";
   public static readonly NAMESPACE = QUERY.DOMAIN + "Query_";
-  public static readonly ALLOWABLE_RANGES = QUERY.NAMESPACE + "AllowableRanges";
+  public static readonly IS_ALLOWABLE_RANGE = QUERY.NAMESPACE + "IsAllowableRange";
   public static readonly ALLOWABLE_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "AllowableRangeSuggestions";
   public static readonly GET_SUBCLASSES = QUERY.NAMESPACE + "GetSubClasses";
   public static readonly GET_ANCESTORS = QUERY.NAMESPACE + "GetAncestors";
@@ -13,6 +13,8 @@ export class QUERY {
   public static readonly OBJECT_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "ObjectPropertyRangeSuggestions";
   public static readonly DATA_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "DataPropertyRangeSuggestions";
   public static readonly ALLOWABLE_PROPERTIES = QUERY.NAMESPACE + "AllowableProperties";
+  public static readonly ALLOWABLE_PROPERTY_ANCESTORS = QUERY.NAMESPACE + "AllowablePropertyAncestors";
+  public static readonly IS_VALID_PROPERTY = QUERY.NAMESPACE + "IsValidProperty";
   public static readonly SEARCH_PROPERTIES = QUERY.NAMESPACE + "SearchProperties";
   public static readonly SEARCH_ENTITIES = QUERY.NAMESPACE + "SearchEntities";
   public static readonly SEARCH_FOLDERS = QUERY.NAMESPACE + "SearchFolders";

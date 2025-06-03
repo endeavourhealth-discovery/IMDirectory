@@ -21,6 +21,7 @@ export class IM {
   public static readonly id = IM.NAMESPACE + "id";
   public static readonly RELATIONSHIP_TYPE = IM.NAMESPACE + "relationshipType";
   public static readonly CODE = IM.NAMESPACE + "code";
+  public static readonly KEY_TERM = IM.NAMESPACE + "keyTerm";
   public static readonly PREFERRED_NAME = IM.NAMESPACE + "preferredName";
   public static readonly HAS_SCHEME = IM.NAMESPACE + "scheme";
   public static readonly BINDING = IM.NAMESPACE + "binding";
@@ -207,7 +208,7 @@ export class IM {
   public static readonly DATAMODEL_OBJECTPROPERTY = IM.NAMESPACE + "dataModelObjectProperty";
   public static readonly DATAMODEL_DATAPROPERTY = IM.NAMESPACE + "dataModelDataProperty";
   public static readonly DATAMODEL_FUNCTIONPROPERTY = IM.NAMESPACE + "functionProperty";
-  public static readonly MATCH = IM.NAMESPACE + "match";
+  public static readonly BEST_MATCH = IM.NAMESPACE + "bestMatch";
   public static readonly ENTITY_TYPE = IM.NAMESPACE + "entityType";
   public static readonly VALUE_DATA = IM.NAMESPACE + "valueData";
   public static readonly VALUE_OBJECT = IM.NAMESPACE + "valueObject";
