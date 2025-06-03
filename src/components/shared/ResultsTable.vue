@@ -2,8 +2,10 @@
   <div id="search-results-main-container">
     <DataTable
       :paginator="true"
+      :paginatorTemplate="'PrevPageLink NextPageLink RowsPerPageDropdown'"
       :rows="rows"
       :value="searchResults"
+      :first="page * rows"
       class="p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
@@ -20,11 +22,6 @@
       :total-records="totalCount"
       :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
       :loading="searchLoading"
-      :paginatorTemplate="
-        disablePageDropdown
-          ? 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink'
-          : 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'
-      "
       :pt="{ thead: { class: 'z-1!' } }"
     >
       <template #empty> None </template>
@@ -50,9 +47,7 @@
         <template #body="{ data }">
           <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
-            <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">
-              {{ (data.code ? data.name + " | " + data.code : data.name) + " [" + schemesWithPrefixes[data.scheme.iri]?.prefix + "]" }}
-            </span>
+            <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ getNameDisplay(data) }}</span>
           </div>
         </template>
       </Column>
@@ -111,13 +106,15 @@ import { cloneDeep } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { DownloadByQueryOptions, EclSearchRequest, SearchResultSummary, SearchResponse, QueryRequest } from "@/interfaces/AutoGen";
-import { DownloadSettings, ExtendedSearchResultSummary, Namespace, SearchOptions, FilterOptions } from "@/interfaces";
+import { DownloadByQueryOptions, EclSearchRequest, QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
+import { DownloadSettings, ExtendedSearchResultSummary, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
 import { MenuItem } from "primevue/menuitem";
 import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
+import { nextTick } from "vue";
+import DataTable from "primevue/datatable";
 
 interface Props {
   searchTerm?: string;
@@ -161,12 +158,14 @@ const schemesWithPrefixes: Ref<{ [x: string]: Namespace }> = ref({});
 const directService = new DirectService();
 
 const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
+const pageCache = ref<Record<number, ExtendedSearchResultSummary[] | undefined>>({});
 const searchResults: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const totalCount = ref(0);
 const highestUsage = ref(0);
 const page = ref(0);
-const rows = ref(25);
-const rowsOriginal = ref(25);
+const rows = ref(props.pageSize ? props.pageSize : 25);
+const rowsOriginal = ref(20);
+const searchTable = ref<InstanceType<typeof DataTable> | null>(null);
 const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Select",
@@ -195,7 +194,14 @@ const contextMenu = ref();
 
 watch(
   () => props.updateSearch,
-  async () => await onSearch()
+  async (newVal, oldVal) => {
+    if (newVal && newVal !== oldVal) {
+      searchResults.value = [];
+      totalCount.value = 0;
+      page.value = 0;
+      await onSearch();
+    }
+  }
 );
 
 watch(
@@ -204,18 +210,29 @@ watch(
 );
 
 async function onSearch() {
-  const response = await search(page.value + 1, rows.value);
+  searchLoading.value = true;
+  const response = await search(page.value + 1, rows.value, true);
   emit("searchResultsUpdated", response);
-  if (response?.entities && isArrayHasLength(response.entities)) processSearchResults(response);
-  else {
-    searchResults.value = [];
-    totalCount.value = 0;
+  const lastSearchTerm = props.searchTerm;
+  if (response?.entities && isArrayHasLength(response.entities)) {
+    processSearchResults(response);
+    pageCache.value[page.value] = searchResults.value;
+  }
+  searchLoading.value = false;
+  if (props.searchTerm === lastSearchTerm) {
+    search(page.value + 1, rows.value, false).then(slow => {
+      if (slow && slow.entities) {
+        processSearchResults(slow);
+        pageCache.value[page.value] = searchResults.value;
+        emit("searchResultsUpdated", response);
+      }
+    });
   }
 }
 
-async function search(pageNumber: number, pageSize: number) {
+async function search(pageNumber: number, pageSize: number, fast: boolean) {
   let response = undefined;
-  searchLoading.value = true;
+
   if (props.eclQuery) {
     props.eclQuery.page = pageNumber;
     props.eclQuery.size = pageSize;
@@ -225,22 +242,31 @@ async function search(pageNumber: number, pageSize: number) {
     if (props.imQuery) {
       props.imQuery.textSearch = props.searchTerm;
       props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
+      if (fast) props.imQuery.textSearchStyle = TextSearchStyle.autocomplete;
+      else props.imQuery.textSearchStyle = TextSearchStyle.fuzzy;
       response = await QueryService.queryIMSearch(props.imQuery);
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
       searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
       const imQuery = buildIMQueryFromFilters(searchOptions);
+      if (fast) imQuery.textSearchStyle = TextSearchStyle.autocomplete;
+      else imQuery.textSearchStyle = TextSearchStyle.fuzzy;
       response = await QueryService.queryIMSearch(imQuery);
     }
   }
-  searchLoading.value = false;
+
   return response;
 }
+``;
 
 async function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
   if (row) selected.value = row.data;
   await userStore.updateFavourites(selected.value.iri);
+}
+function getNameDisplay(data: ExtendedSearchResultSummary): string {
+  const name = data.bestMatch ? data.bestMatch : data.name;
+  return (data.code ? name + " | " + data.code : name) + " [" + schemesWithPrefixes.value[data.scheme.iri]?.prefix + "]";
 }
 
 function isFavourite(iri: string) {
@@ -250,14 +276,35 @@ function isFavourite(iri: string) {
 
 function processSearchResults(searchResponse: SearchResponse | undefined): void {
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
-    searchResults.value = searchResponse.entities.map(result => {
-      const copy = cloneDeep(result) as ExtendedSearchResultSummary;
-      copy.icon = getFAIconFromType(result.entityType);
-      copy.color = getColourFromType(result.entityType);
-      copy.typeNames = getNamesAsStringFromTypes(result.entityType);
-      copy.favourite = isFavourite(result.iri);
-      return copy;
-    });
+    searchResults.value = mapSearchResults(searchResponse);
+    totalCount.value = searchResponse.count ?? 0;
+    highestUsage.value = searchResponse.highestUsage ?? 0;
+  }
+}
+function mapSearchResults(searchResponse: SearchResponse) {
+  return searchResponse.entities!.map(result => {
+    const copy = cloneDeep(result) as ExtendedSearchResultSummary;
+    copy.icon = getFAIconFromType(result.type);
+    copy.color = getColourFromType(result.type);
+    copy.typeNames = getNamesAsStringFromTypes(result.type);
+    copy.favourite = isFavourite(result.iri);
+    return copy;
+  });
+}
+
+function addSearchResults(searchResponse: SearchResponse | undefined) {
+  const fastIds = new Set(searchResults.value.map(result => result.iri));
+  if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
+    for (const item of searchResponse.entities) {
+      if (!fastIds.has(item.iri)) {
+        const copy = cloneDeep(item) as ExtendedSearchResultSummary;
+        copy.icon = getFAIconFromType(item.type);
+        copy.color = getColourFromType(item.type);
+        copy.typeNames = getNamesAsStringFromTypes(item.type);
+        copy.favourite = isFavourite(item.iri);
+        searchResults.value.push(copy);
+      }
+    }
     totalCount.value = searchResponse.count ?? 0;
     highestUsage.value = searchResponse.highestUsage ?? 0;
   }
@@ -269,9 +316,11 @@ function updateRClickOptions() {
 
 async function onPage(event: DataTablePageEvent) {
   page.value = event.page;
-  rows.value = event.rows;
-  await onSearch();
-  scrollToTop();
+  if (pageCache.value[event.page]) {
+    searchResults.value = pageCache.value[event.page]!;
+  } else {
+    await onSearch();
+  }
 }
 
 function scrollToTop() {

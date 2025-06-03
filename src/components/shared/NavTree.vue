@@ -16,7 +16,7 @@
           :draggable="allowDragAndDrop"
           class="tree-row"
           @contextmenu="onNodeContext($event, node)"
-          @click="onNodeSelect($event, node, false, true)"
+          @click="onNodeSelect($event, node, useEmits ?useEmits : false, true)"
           @dragstart="dragStart($event, node.data)"
           @mouseleave="hideOverlay"
           @mouseover="displayOverlay($event, node)"
@@ -71,6 +71,7 @@ interface Props {
   selectedIri?: string;
   findInTree?: boolean;
   typeFilter?: string[];
+  useEmits? : boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -81,6 +82,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   rowSelected: [payload: any];
+  rowClicked: [payload: any];
   rowDblClicked: [payload: any];
   foundInTree: [];
 }>();

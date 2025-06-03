@@ -25,7 +25,15 @@
     <div id="builder-string-container">
       <div id="query-builder-container">
         <ProgressSpinner v-if="loading" />
-        <ExpressionConstraint v-model:match="build" :rootBool="true" :index="0" :parentOperator="'and'" :activeInputId= "activeInputId" @activateInput="activeInputId=$event"/>
+        <ExpressionConstraint
+          v-model:match="build"
+          :rootBool="true"
+          :index="0"
+          :parentOperator="'and'"
+          :activeInputId="activeInputId"
+          @activateInput="activeInputId = $event"
+          @rationalise="rationaliseBooleans"
+        />
         <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.instanceOf && !loading">
           *Move pointer over panel above to add concepts, refinements and groups.
         </small>
@@ -80,10 +88,10 @@ import { Match } from "@/interfaces/AutoGen";
 import { Ref, ref, watch, onMounted, provide, readonly } from "vue";
 import { cloneDeep } from "lodash-es";
 import EclService from "@/services/EclService";
-import QueryService from "@/services/QueryService";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
-
+import { Query } from "@/interfaces/AutoGen";
+import { rationaliseBoolGroups } from "@/helpers/IMQueryBuilder";
 interface Props {
   showDialog?: boolean;
   eclString?: string;
@@ -147,6 +155,9 @@ watch(includeTerms, async () => await generateQueryString());
 function createDefaultBuild() {
   build.value = {};
 }
+function rationaliseBooleans() {
+  rationaliseBoolGroups(build.value);
+}
 
 async function createBuildFromEclString(ecl: string) {
   if (ecl === "") {
@@ -157,7 +168,6 @@ async function createBuildFromEclString(ecl: string) {
     loading.value = true;
     build.value = await EclService.getQueryFromECL(ecl, true);
     eclConversionError.value = { error: false, message: "" };
-    createInitialLoadingState(build.value, 0, 0);
   } catch (err: any) {
     createDefaultBuild();
     if (err?.response?.data) eclConversionError.value = { error: true, message: err.response.data.debugMessage };
@@ -265,28 +275,6 @@ function flattenBuild(build: any, flattenedBuild: any[]) {
       }
       flattenBuild(item, flattenedBuild);
     });
-  }
-}
-
-function createInitialLoadingState(initialBuild: any, depth: number, position: number) {
-  if (initialBuild) {
-    const id = depth + "-" + position;
-    initialBuild.id = id;
-    childLoadingState.value[id] = false;
-    if (initialBuild.items?.length) {
-      for (const [index, item] of initialBuild.items.entries()) {
-        createInitialLoadingState(item, depth + 1, index);
-      }
-    } else if (initialBuild.type === "ExpressionConstraint") {
-      if (initialBuild.conceptBool) {
-        createInitialLoadingState(initialBuild.conceptBool, depth + 1, 1);
-      }
-      if (initialBuild.refinementItems) {
-        for (const [index, item] of initialBuild.refinementItems.entries()) {
-          createInitialLoadingState(item, depth + 1, index);
-        }
-      }
-    }
   }
 }
 

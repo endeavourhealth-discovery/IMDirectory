@@ -2,6 +2,7 @@ import { Match, OrderDirection, BoolGroup, Node, Query, QueryRequest, SearchBind
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { v4 } from "uuid";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -68,6 +69,20 @@ function createNewBoolGroup(clause: BoolGroup<Match | Where | undefined>, group:
     } else if (!group.includes(index)) newBoolGroup.push(item);
   }
   clause[from] = newBoolGroup;
+}
+
+export function addConceptToGroup(match:Match) {
+  if (match.instanceOf) {
+    const subMatch = { uuid: match.uuid, instanceOf: match.instanceOf } as Match;
+    delete match.instanceOf;
+    match.or = [subMatch];
+  }
+  const bool= match.and ? Bool.and : match.or ? Bool.or : undefined;
+  if (bool) {
+    const subMatch = { instanceOf: [{ descendantsOrSelfOf: true }] };
+    match[bool]!.push(subMatch);
+  } else
+    match.instanceOf = [{ descendantsOrSelfOf: true }];
 }
 
 export function updateBooleans(clause: BoolGroup<Match | Where | undefined>, oldBool: Bool, newBool: Bool, index: number, group: number[]) {

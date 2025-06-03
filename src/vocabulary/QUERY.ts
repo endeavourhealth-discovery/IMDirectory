@@ -3,7 +3,7 @@
 export class QUERY {
   public static readonly DOMAIN = "http://endhealth.info/im#";
   public static readonly NAMESPACE = QUERY.DOMAIN + "Query_";
-  public static readonly ALLOWABLE_RANGES = QUERY.NAMESPACE + "AllowableRanges";
+  public static readonly IS_ALLOWABLE_RANGE = QUERY.NAMESPACE + "IsAllowableRange";
   public static readonly ALLOWABLE_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "AllowableRangeSuggestions";
   public static readonly GET_SUBCLASSES = QUERY.NAMESPACE + "GetSubClasses";
   public static readonly GET_ANCESTORS = QUERY.NAMESPACE + "GetAncestors";

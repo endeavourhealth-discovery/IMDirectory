@@ -328,14 +328,14 @@ function processProperty(newData: SimpleProp[], newInheritedData: SimpleProp[], 
       name: pathName,
       scheme: { iri: "", name: "" },
       status: { iri: "", name: "" },
-      entityType: []
+      type: []
     },
     range: {
       iri: rangeIri,
       name: rangeName,
       scheme: { iri: "", name: "" },
       status: { iri: "", name: "" },
-      entityType: []
+      type: []
     },
     rangeType: rangeType,
     required: property[SHACL.MINCOUNT] != 0,
@@ -368,14 +368,14 @@ async function addProperty() {
       name: "",
       scheme: { iri: "", name: "" },
       status: { iri: "", name: "" },
-      entityType: []
+      type: []
     },
     range: {
       iri: "",
       name: "",
       scheme: { iri: "", name: "" },
       status: { iri: "", name: "" },
-      entityType: []
+      type: []
     },
     rangeType: "UNKNOWN",
     required: false,

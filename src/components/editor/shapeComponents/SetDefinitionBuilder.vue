@@ -36,7 +36,7 @@
                 </div>
               </TabPanel>
               <TabPanel value="1">
-                <QueryDisplay :definition="value" />
+                <QueryDisplay :definition="value" :eclQuery="true" />
               </TabPanel>
             </TabPanels>
           </Tabs>

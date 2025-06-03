@@ -1,27 +1,31 @@
 <template>
   <div class="search-container">
     <IconField class="autocomplete-search" iconPosition="right">
-      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen" />
+      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="{ listening }" @click="toggleListen" />
       <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
       <InputText
         id="autocomplete-search"
+        ref="searchInput"
+        :disabled="disabled"
         v-model="searchText"
         :placeholder="searchPlaceholder"
         data-testid="search-input"
-        autofocus
         @input="debounceForSearch"
-        v-on:keyup.enter="onEnter"
-        v-on:keyup="select"
+        @keydown.down="select"
+        @keydown.enter="onEnter"
+        @keydown.up="select"
+        @focus="handleFocus"
         @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
         @mouseleave="hideOverlay"
-        :disabled="disabled"
         :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
       />
+      <i v-if="editing" class="fa fa-times-circle clear-icon" @click="clearSearch()"></i>
     </IconField>
+
     <Button
       :disabled="disabled"
       severity="info"
-      @click="showDialog = true"
+      @click="advancedSearch"
       data-testid="autocomplete-search-button"
       icon="pi pi-search"
       v-tooltip="'Advanced search'"
@@ -30,8 +34,8 @@
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
       </div>
-      <div v-else class="results-container">
-        <Listbox v-if="results?.entities" v-model="selectedLocal" :options="results.entities">
+      <div v-else class="results-container" :tabindex="0">
+        <Listbox v-if="results?.entities" v-model="listBoxSelected" :options="results.entities">
           <template #option="slotProps">
             <div
               class="listbox-item"
@@ -39,7 +43,7 @@
               @mouseleave="hideOverlay"
               @click="onListboxOptionClick(slotProps.option)"
             >
-              <span>{{ slotProps.option.name }}</span>
+              <span>{{ slotProps.option.bestMatch ? slotProps.option.bestMatch : slotProps.option.name }}</span>
             </div>
           </template>
         </Listbox>
@@ -71,17 +75,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted } from "vue";
+import { onMounted, Ref, ref, watch, nextTick, computed } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@/interfaces";
-import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
+import { QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import { EntityService, QueryService } from "@/services";
-
 interface Props {
   selected?: SearchResultSummary;
   imQuery?: QueryRequest;
@@ -92,6 +95,8 @@ interface Props {
   quickTypeFiltersAllowed?: string[];
   selectedQuickTypeFilter?: string;
   allowBrowserAutocomplete?: boolean;
+  setupSearch?: () => Promise<QueryRequest>;
+  setupRootEntities?: () => Promise<string[]>;
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowBrowserAutocomplete: false });
@@ -112,7 +117,11 @@ const searchPlaceholder: Ref<string> = ref(props.searchPlaceholder ?? "Search");
 const { listening, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const selectedIndex: Ref<number> = ref(-1);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
+const listBoxSelected: Ref<SearchResultSummary | undefined> = ref();
+const searchInput = ref<any>(null);
+const localRootEntities = ref<string[]>([]);
 let searchDebounce: any;
+const editing = ref(false);
 defineExpose({ searchText });
 watch(showDialog, () => {
   if (showDialog.value) emit("openDialog");
@@ -123,8 +132,8 @@ watch(
   (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       searchLoading.value = true;
-      if (newValue && newValue.name && newValue.name != searchText.value) {
-        searchText.value = newValue.name;
+      if (newValue && newValue.name && newValue.name != searchText.value && newValue.bestMatch && newValue.bestMatch != searchText.value) {
+        searchText.value = newValue.bestMatch ? newValue.bestMatch : newValue.name;
         selectedLocal.value = newValue;
       } else if (!newValue || !newValue.name) {
         searchText.value = "";
@@ -138,7 +147,12 @@ watch(
 watch(
   selectedLocal,
   (newValue, oldValue) => {
-    if (newValue?.iri !== oldValue?.iri) emit("update:selected", newValue);
+    if (newValue?.iri !== oldValue?.iri) {
+      if (newValue?.name) {
+        searchText.value = newValue!.name ? newValue!.name : "";
+        emit("update:selected", newValue);
+      }
+    }
   },
   { deep: true }
 );
@@ -151,18 +165,39 @@ watch(searchText, newValue => {
 
 onMounted(async () => {
   searchLoading.value = true;
-  if (props.selected && !props.selected.name && props.selected.iri) props.selected.name = await EntityService.getName(props.selected.iri);
   if (props.selected?.name) {
     searchText.value = props.selected.name;
     selectedLocal.value = props.selected;
   }
   searchLoading.value = false;
 });
+function clearSearch() {
+  searchText.value = "";
+  nextTick(() => {
+    searchInput.value.$el.focus();
+  });
+}
+function handleFocus(event: FocusEvent) {
+  if (!editing.value) {
+    (event.target as HTMLInputElement).select(); // select all text
+    editing.value = true;
+  }
+}
+async function advancedSearch() {
+  if (!props.rootEntities) {
+    if (props.setupRootEntities) {
+      localRootEntities.value = await props.setupRootEntities();
+    } else localRootEntities.value = [];
+  } else localRootEntities.value = props.rootEntities;
+  showDialog.value = true;
+}
 
 function debounceForSearch(event: Event): void {
   if (!searchText.value) {
     selectedLocal.value = undefined;
+    editing.value = false;
   } else if (!searchLoading.value && searchText.value != props.selected?.name) {
+    editing.value = true;
     if (searchDebounce) searchDebounce.cancel();
     searchDebounce = debounce(async () => {
       await doSearch(event);
@@ -176,39 +211,44 @@ async function doSearch(event: any) {
   await showResultsOverlay(event);
 }
 
+async function onEnter(event: KeyboardEvent) {
+  if (listBoxSelected.value) onListboxOptionClick(listBoxSelected.value);
+}
 function select(event: KeyboardEvent) {
   if (isArrayHasLength(results.value?.entities))
     if (event.key === "ArrowDown") {
-      if (selectedIndex.value < results.value!.entities!.length - 1) selectedLocal.value = results.value?.entities?.[++selectedIndex.value];
+      if (selectedIndex.value < results.value!.entities!.length - 1) listBoxSelected.value = results.value?.entities?.[++selectedIndex.value];
       else {
         selectedIndex.value = 0;
-        selectedLocal.value = results.value?.entities?.[selectedIndex.value];
+        listBoxSelected.value = results.value?.entities?.[selectedIndex.value];
       }
     } else if (event.key === "ArrowUp") {
-      if (selectedIndex.value > 0) selectedLocal.value = results.value?.entities?.[--selectedIndex.value];
+      if (selectedIndex.value > 0) listBoxSelected.value = results.value?.entities?.[--selectedIndex.value];
       else {
         selectedIndex.value = results.value!.entities!.length - 1;
-        selectedLocal.value = results.value?.entities?.[selectedIndex.value];
+        listBoxSelected.value = results.value?.entities?.[selectedIndex.value];
       }
     }
 }
 
-async function onEnter(event: KeyboardEvent) {
-  if (resultsOP.value) resultsOP.value.show(event);
-  if (searchText.value) {
-    results.value = await search();
-  }
-}
-
 async function search() {
   if (searchText.value && searchText.value.length > 2) {
-    searchLoading.value = true;
-    const imQueryCopy = props.imQuery ? cloneDeep(props.imQuery) : { query: {} };
-    imQueryCopy.textSearch = searchText.value;
-    imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
-    const response = await QueryService.queryIMSearch(imQueryCopy);
-    searchLoading.value = false;
-    return response;
+    let imQueryCopy: QueryRequest | undefined = undefined;
+    if (props.imQuery) {
+      imQueryCopy = cloneDeep(props.imQuery);
+    }
+    if (!imQueryCopy) {
+      if (props.setupSearch) imQueryCopy = await props.setupSearch();
+    }
+    if (imQueryCopy) {
+      searchLoading.value = true;
+      imQueryCopy.textSearch = searchText.value;
+      imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
+      imQueryCopy.textSearchStyle = TextSearchStyle.autocomplete;
+      const response = await QueryService.queryIMSearch(imQueryCopy);
+      searchLoading.value = false;
+      return response;
+    }
   }
 }
 
@@ -224,6 +264,8 @@ function onListboxOptionClick(selected: SearchResultSummary) {
   selectedLocal.value = selected;
   hideOverlay();
   hideResultsOverlay();
+  editing.value = false;
+  emit("update:selected", selectedLocal.value);
 }
 </script>
 
@@ -279,5 +321,23 @@ function onListboxOptionClick(selected: SearchResultSummary) {
 
 .listbox-item {
   width: 100%;
+}
+.listbox-item:focus {
+  outline: none;
+}
+
+.clear-icon {
+  position: absolute;
+  right: 2.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  cursor: pointer;
+  font-size: 1.1rem;
+  z-index: 10;
+}
+
+.clear-icon:hover {
+  color: #555;
 }
 </style>

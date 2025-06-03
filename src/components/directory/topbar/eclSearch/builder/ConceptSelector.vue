@@ -22,9 +22,10 @@
     <div class="auto-complete-container">
       <AutocompleteSearchBar
         ref="searchBar"
-        v-model:selected="selected as SearchResultSummary"
+        v-model:selected="selected"
         :im-query="imQueryForConceptSearch"
         :root-entities="[IM.ONTOLOGY_PARENT_FOLDER]"
+        @update-selected="updateConcept"
         @activateInput="emit('activateInput', $event)"
       />
     </div>
@@ -58,7 +59,7 @@ interface Props {
 }
 defineProps<Props>();
 const searchBar = ref<{ searchText: string } | null>(null);
-const emit = defineEmits(["activateInput"]);
+const emit = defineEmits(["activateInput", "updateMatch"]);
 const node = defineModel<Node>("node", { default: {} });
 watch(
   () => cloneDeep(node.value),
@@ -70,10 +71,8 @@ watch(
 const filterStore = useFilterStore();
 const constraintOperator = ref({});
 const coreSchemes = computed(() => filterStore.coreSchemes);
-
 const loading = ref(false);
-const selected: Ref<Partial<SearchResultSummary>> = ref({});
-
+const selected: Ref<SearchResultSummary> = ref({ iri: node.value.iri, name: node.value.name } as SearchResultSummary);
 const imQueryForConceptSearch: Ref<QueryRequest | undefined> = ref();
 
 onMounted(() => {
@@ -88,9 +87,11 @@ watch(selected, (newValue, oldValue) => {
 
 function init() {
   buildIMQueryForConceptSearch();
-  selected.value.iri = node.value.iri;
-  selected.value.name = node.value.name;
-  constraintOperator.value = getConstraintOperator(node.value);
+  if (node.value.iri) {
+    selected.value.iri = node.value.iri;
+    selected.value.name = node.value.name;
+    constraintOperator.value = getConstraintOperator(node.value);
+  }
 }
 function updateConstraintOperator(e: { value: string }) {
   setConstraintOperator(node.value, e.value);
@@ -113,6 +114,7 @@ function updateConcept(concept: SearchResultSummary) {
   if (concept) {
     node.value.iri = concept.iri;
     node.value.name = concept.name;
+    emit("updateMatch", node.value);
   }
 }
 </script>

@@ -1,85 +1,93 @@
 <template>
   <div class="nested-ecl-match">
-    <div v-if="match.instanceOf">
-      <div class="instance-of">
-        <div style="width: 6.5rem">
-          <span v-if="!rootBool">
-            <Select
-              :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
-              :modelValue="parentOperator"
-              :options="getBooleanOptions(match, parent!, parentOperator as Bool, 'Match', index)"
-              option-label="label"
-              option-value="value"
-              @update:modelValue="val => updateOperator(val)"
-            >
-              <template #option="slotProps">
-                <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-                  <div>{{ slotProps.option.label }}</div>
-                </div>
-              </template>
-            </Select>
-          </span>
-        </div>
-        <span>
-          <div v-if="parent && (parent[parentOperator as keyof typeof parent] as Match[]).length > 2" class="group-checkbox">
-            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="parentGroup" data-testid="group-checkbox" />
-            <label :for="'group' + index">Select</label>
+    <div
+      @mouseover="mouseover"
+      @mouseout="mouseout"
+      @drop="onDrop($event, match, parent, index)"
+      @dragover="
+        onDragOver($event);
+        mouseover($event);
+      "
+      @dragleave="mouseout"
+    >
+      <Button
+        v-if="!rootBool"
+        icon="drag-icon fa-solid fa-grip-vertical"
+        severity="secondary"
+        text
+        draggable="true"
+        @dragstart="onDragStart($event, match, parent)"
+        @dragend="onDragEnd(match, parent)"
+      />
+      <span v-for="operator in operators" :key="operator">
+        <span v-if="match[operator]">
+          <div class="nested-ecl-match" @mouseover="mouseover" @mouseout="mouseout">
+            <div
+              v-if="match.and || match.or"
+              class="conjunction"
+              @drop="onDrop($event, match, parent, index)"
+              @dragover="
+                onDragOver($event);
+                mouseover($event);
+              "
+              @dragleave="mouseout"
+            />
+            <div v-for="(item, index) in match[operator]" :key="item.uuid">
+              <ExpressionConstraint
+                v-model:match="match[operator]![index]"
+                v-model:parent="match"
+                :index="index"
+                :operator="operator as Bool"
+                :parentOperator="operator"
+                v-model:parentGroup="group"
+                @updateBool="updateBool"
+                @rationalise="emit('rationalise')"
+                :rootBool="false"
+              />
+            </div>
           </div>
         </span>
-        <span class="concept-selector-container">
-          <ConceptSelector
-            v-model:node="match.instanceOf[0]"
-            :parent="parent"
-            :activeInputId="activeInputId"
-            @activateInput="emit('activateInput', $event)"
-            @update-match="updateMatch"
-          />
-        </span>
-        <span class="add-group">
-          <Button
-            type="button"
-            icon="fa-solid fa-plus"
-            label="Add attribute"
-            data-testid="add-refinement-button"
-            :severity="hoverAddRefinement ? 'success' : 'secondary'"
-            :outlined="!hoverAddRefinement"
-            :class="!hoverAddRefinement && 'hover-button'"
-            @click="addRefinement()"
-            @mouseover="hoverAddRefinement = true"
-            @mouseout="hoverAddRefinement = false"
-          />
-        </span>
-        <span class="add-group">
-          <Button
-            @click.stop="deleteMatch"
-            class="builder-button"
-            :severity="hoverDeleteConcept ? 'danger' : 'secondary'"
-            :outlined="!hoverDeleteConcept"
-            :class="!hoverDeleteConcept && 'hover-button'"
-            icon="fa-solid fa-trash"
-            @mouseover="hoverDeleteConcept = true"
-            @mouseout="hoverDeleteConcept = false"
-          />
-        </span>
-      </div>
-      <div v-if="match.where">
-        <span>With these attributes:</span>
-        <ECLRefinement
-          v-model:where="match.where"
-          v-model:parent="match"
-          :index="index"
-          :rootBool="true"
-          :focusConcepts="focusConcepts"
-          :propertyTreeRoots="propertyTreeRoots"
-          :imQueryForPropertySearch="imQueryForPropertySearch"
-          :parentType="'match'"
-          class="refinement"
-          @rationalise="emit('rationalise')"
-        />
-      </div>
+      </span>
     </div>
-    <div v-else>
-      <ECLBoolQuery v-model:match="match" v-model:parent="parent" :index="index" :rootBool="rootBool" />
+    <Button
+      type="button"
+      icon="fa-solid fa-plus"
+      label="Add concept"
+      data-testid="add-concept-button"
+      :severity="hoverAddConcept ? 'success' : 'secondary'"
+      :outlined="!hoverAddConcept"
+      :class="!hoverAddConcept && 'hover-button'"
+      @click.stop="addConcept()"
+      @mouseover="hoverAddConcept = true"
+      @mouseout="hoverAddConcept = false"
+    />
+    <Button
+      type="button"
+      icon="fa-solid fa-filter"
+      :class="!hoverAddRefinement && 'hover-button'"
+      :severity="hoverAddRefinement ? 'success' : 'secondary'"
+      :outlined="!hoverAddRefinement"
+      @click.stop="addRefinement"
+      aria-haspopup="true"
+      aria-controls="add-filter"
+      label="Add attribute"
+      data-testid="add-refinement-button"
+      @mouseover="hoverAddRefinement = true"
+      @mouseout="hoverAddRefinement = false"
+    />
+    <div v-if="match.where">
+      <span>Attributes for Group</span>
+      <ECLRefinement
+        v-model:where="match.where"
+        v-model:parent="match"
+        :index="index"
+        :rootBool="true"
+        :focusConcepts="focusConcepts"
+        :parentType="'match'"
+        :propertyTreeRoots="propertyTreeRoots"
+        :imQueryForPropertySearch="imQueryForPropertySearch"
+        class="refinement"
+      />
     </div>
   </div>
 </template>
@@ -91,9 +99,10 @@ import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { getBooleanOptions, rationaliseBoolGroups, updateBooleans } from "@/helpers/IMQueryBuilder";
+import { addConceptToGroup, rationaliseBoolGroups, updateBooleans } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
-import ECLBoolQuery from "@/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue";
+import { cloneDeep } from "lodash-es";
+import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 
 interface Props {
   index: number;
@@ -108,6 +117,7 @@ const parentGroup = defineModel<number[]>("group", { default: [] });
 const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const operators = ["and", "or", "not"] as const;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const hoverAddConcept = ref(false);
 const hoverAddRefinement = ref(false);
@@ -133,16 +143,19 @@ function focusChildren(children: Match[] | undefined): TTIriRef[] {
   return focusConcepts;
 }
 
-function updateMatch() {
-  updateFocusConcepts(match.value);
-}
-
 function updateFocusConcepts(item: Match): TTIriRef[] {
   if (item.instanceOf && item.instanceOf[0].iri) return [{ iri: item.instanceOf[0].iri }];
   const focusConcepts: TTIriRef[] = [];
-  focusConcepts.push(...focusChildren(match.value.or));
-  focusConcepts.push(...focusChildren(match.value.and));
+  focusConcepts.push(...focusChildren(item.or));
+  focusConcepts.push(...focusChildren(item.and));
   return focusConcepts;
+}
+
+function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
+  updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool, props.index, group.value);
+  if (newOperator === props.parentOperator) {
+    emit("rationalise");
+  }
 }
 
 function mouseover(event: any) {
@@ -150,18 +163,13 @@ function mouseover(event: any) {
   hoverAddConcept.value = true;
 }
 
-function deleteMatch() {
-  if (!props.parentOperator) {
-    delete match.value.instanceOf;
-    return;
+function deleteItem(index: number) {
+  if (match.value.or) {
+    match.value.or.splice(index, 1);
+  } else if (match.value.and) {
+    match.value.and.splice(index, 1);
   }
-  if (parent.value) {
-    const operator = props.parentOperator as keyof Match;
-    if (parent.value[operator]) {
-      (parent.value[operator] as Match[]).splice(props.index, 1);
-    }
-    updateFocusConcepts(parent.value);
-  }
+  updateFocusConcepts(match.value);
 }
 function mouseout(event: any) {
   event.stopPropagation();
@@ -180,6 +188,10 @@ function addRefinement() {
       match.value.where = boolWhere;
     }
   } else match.value.where = where;
+}
+
+function addConcept() {
+  addConceptToGroup(match.value);
 }
 </script>
 

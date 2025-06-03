@@ -27,8 +27,9 @@
             :root-entities="rootEntities"
             :typeFilter="typeFilter"
             :find-in-tree="findInDialogTree"
+            :useEmits="true"
             @found-in-tree="findInDialogTree = false"
-            @row-selected="showDetails"
+            @row-clicked="showDetails"
           />
         </div>
         <div class="right-container">
@@ -94,7 +95,7 @@ import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
 import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
-import { RDFS } from "@/vocabulary";
+import { IM, RDFS } from "@/vocabulary";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions } from "@/interfaces";
 
@@ -204,9 +205,12 @@ function locateInTree(iri: string) {
   treeIri.value = iri;
 }
 
-function showDetails(data: any) {
-  detailsIri.value = data.key;
-  activePage.value = 1;
+async function showDetails(data: any) {
+  const entity = await EntityService.getEntitySummary(data);
+  if (entity.type[0].iri != IM.FOLDER) {
+    detailsIri.value = data;
+    activePage.value = 1;
+  }
 }
 
 function navigateTo(iri: string) {

@@ -9,7 +9,6 @@ const EclService = {
     const results: SearchResponse = await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest, {
       signal: controller?.signal
     });
-    if (isObjectHasKeys(results, ["entities"]) && results.entities) results.entities.forEach((result: SearchResultSummary) => entityToAliasEntity(result));
     return results;
   },
 
