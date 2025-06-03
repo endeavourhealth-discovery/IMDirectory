@@ -84,7 +84,7 @@ Cypress.Commands.add("expandTreeNode", (treeId: string, contains: string) => {
 
 Cypress.Commands.add("searchAndSelect", (searchTerm: string) => {
   cy.get("[data-testid='search-input']", { timeout: 60000 }).type(searchTerm);
-  cy.wait(1000);
+  cy.wait(4000);
   cy.get(".p-datatable-selectable-row", { timeout: 60000 }).should("have.length.gte", 1).first().click();
   cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 10000 }).contains(searchTerm);
   cy.get("#viewer-tabs", { timeout: 10000 });
