@@ -99,6 +99,7 @@ async function handle200() {
     footer: `<p style="color: var(--p-red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
   }).then(async () => {
     userStore.clearOptionalCookies();
+    await userStore.getAllFromUserDatabase();
     if (authReturnPath.value) {
       await router.push({ path: authReturnPath.value });
     } else {
@@ -264,5 +265,9 @@ const onSubmit = async function handleSubmit(): Promise<void> {
 .icon-header {
   font-size: 5rem;
   margin-top: 1em;
+}
+
+.login-form:deep(.p-password-input) {
+  width: 100%;
 }
 </style>

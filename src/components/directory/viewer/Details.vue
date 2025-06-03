@@ -136,7 +136,6 @@ function openTab(predicate: string) {
   background-color: var(--p-content-background);
 }
 .tree-container {
-  height: 100vh;
   overflow-y: auto;
 }
 
