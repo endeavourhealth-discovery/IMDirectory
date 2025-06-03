@@ -274,6 +274,7 @@ async function handleControlClick(iri: string) {
   display: flex;
   flex-flow: column nowrap;
   overflow: hidden;
+  height: 100%;
 }
 
 #concept-content-dialogs-container {
@@ -293,6 +294,15 @@ async function handleControlClick(iri: string) {
 #concept-panel-container:deep(.p-tabview-panels) {
   flex: 1 1 auto;
   overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabpanels) {
+  overflow: auto;
+}
+
+#viewer-tabs {
+  height: 100%;
+  overflow: hidden;
 }
 
 #tab-list {

@@ -95,6 +95,7 @@ async function init() {
   flex: 0 1 auto;
   overflow: hidden;
   padding: 0.5rem;
+  height: 100%;
 }
 
 .header-container {

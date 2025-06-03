@@ -401,9 +401,13 @@ function dragStart(event: DragEvent, data: TreeNode) {
   align-items: center;
 }
 
-.p-tree .p-tree-container .p-treenode .p-treenode-content {
+.p-tree .p-tree-container .p-tree-node .p-tree-node-content {
   padding: 0rem !important;
   transition: box-shadow 3600s 3600s !important;
+}
+
+#hierarchy-tree-bar-container:deep(.p-tree-node-content) {
+  padding: 0 !important;
 }
 
 .p-tree-toggler {
