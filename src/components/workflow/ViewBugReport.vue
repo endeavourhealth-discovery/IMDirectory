@@ -228,7 +228,7 @@ const loading = ref(false);
 onMounted(async () => {
   loading.value = true;
   bugReport.value = await WorkflowService.getBugReport(props.id);
-  if (bugReport) setValuesFromBugReport(bugReport.value);
+  if (bugReport.value) setValuesFromBugReport(bugReport.value);
   setOptions();
   loading.value = false;
 });
@@ -259,7 +259,7 @@ async function updateBugReport() {
 }
 
 async function updateTask(task: Task) {
-  if (isValidBugReport) {
+  if (isValidBugReport.value) {
     confirm.require({
       message: "Are you sure you want to update this bug report?",
       header: "Confirm update",

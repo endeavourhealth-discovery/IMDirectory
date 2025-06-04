@@ -30,7 +30,7 @@
         <Column field="type" header="Type">
           <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="favourite-type-container flex flex-row">
-              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.entityType }}</span>
+              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.type }}</span>
             </div>
           </template>
         </Column>
@@ -117,7 +117,7 @@ async function getFavouritesDetails() {
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "iri"])) {
       if (result.iri) clone.iri = result.iri;
       clone.name = result[RDFS.LABEL];
-      clone.entityType = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+      clone.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
       clone.icon = getFAIconFromType(result[RDF.TYPE]);
       clone.color = "color:" + getColourFromType(result[RDF.TYPE]);
     }
