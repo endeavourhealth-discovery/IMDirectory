@@ -255,6 +255,18 @@ const routes: Array<RouteRecordRaw> = [
         name: "ViewBugReport",
         component: () => import("@/components/workflow/ViewBugReport.vue"),
         props: true
+      },
+      {
+        path: "roleRequest/:id?",
+        name: "ViewRoleRequest",
+        component: () => import("@/components/workflow/ViewRoleRequest.vue"),
+        props: true
+      },
+      {
+        path: "entityApproval/:id?",
+        name: "ViewEntityApproval",
+        component: () => import("@/components/workflow/ViewEntityApproval.vue"),
+        props: true
       }
     ]
   },

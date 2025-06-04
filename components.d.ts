@@ -241,6 +241,8 @@ declare module 'vue' {
     WorkflowTaskHistoryDialog: typeof import('./src/components/workflow/TaskHistoryDialog.vue')['default']
     WorkflowTaskViewer: typeof import('./src/components/workflow/TaskViewer.vue')['default']
     WorkflowViewBugReport: typeof import('./src/components/workflow/ViewBugReport.vue')['default']
+    WorkflowViewEntityApproval: typeof import('./src/components/workflow/ViewEntityApproval.vue')['default']
+    WorkflowViewRoleRequest: typeof import('./src/components/workflow/ViewRoleRequest.vue')['default']
   }
   export interface ComponentCustomProperties {
     Ripple: typeof import('primevue/ripple')['default']

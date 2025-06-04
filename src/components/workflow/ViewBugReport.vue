@@ -228,7 +228,7 @@ const loading = ref(false);
 onMounted(async () => {
   loading.value = true;
   bugReport.value = await WorkflowService.getBugReport(props.id);
-  if (bugReport) setValuesFromBugReport(bugReport.value);
+  if (bugReport.value) setValuesFromBugReport(bugReport.value);
   setOptions();
   loading.value = false;
 });
@@ -254,12 +254,12 @@ function setValuesFromBugReport(bugReport: BugReport) {
   if (bugReport.actualResult) actualResult.value = bugReport.actualResult;
 }
 
-async function updateBugReport() {
+function updateBugReport() {
   submitRequested.value = true;
 }
 
 async function updateTask(task: Task) {
-  if (isValidBugReport) {
+  if (isValidBugReport.value) {
     confirm.require({
       message: "Are you sure you want to update this bug report?",
       header: "Confirm update",
@@ -277,9 +277,9 @@ async function updateTask(task: Task) {
           product: selectedProduct.value,
           module: selectedModule.value,
           os: selectedOS.value,
-          osOther: osOther.value,
+          osOther: osOther.value ? osOther.value : undefined,
           browser: selectedBrowser.value,
-          browserOther: browserOther.value,
+          browserOther: browserOther.value ? browserOther.value : undefined,
           description: description.value,
           reproduceSteps: stepsToReproduce.value,
           expectedResult: expectedResult.value,
@@ -302,6 +302,7 @@ async function updateTask(task: Task) {
         editMode.value = false;
       }
     });
+    submitRequested.value = false;
   }
 }
 
