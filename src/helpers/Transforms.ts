@@ -1,8 +1,8 @@
 import { IM, RDF, RDFS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
-import { Argument, SearchResultSummary, TTIriRef, TTNode } from "../interfaces/AutoGen";
-import { TTBundle, TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { Argument, TTIriRef, TTNode } from "../interfaces/AutoGen";
+import { TTBundle, TTEntity, SearchResultSummary } from "@/interfaces/ExtendedAutoGen";
 import { GenericObject } from "@/interfaces/GenericObject";
 
 // min 2 characters
