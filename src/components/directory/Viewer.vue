@@ -1,5 +1,5 @@
 <template>
-  <div id="concept-main-container">
+  <div id="concept-main-container" style="'overflow:hidden;'">
     <div v-if="entityIri === 'http://endhealth.info/im#Favourites'">
       <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
     </div>
@@ -273,7 +273,8 @@ async function handleControlClick(iri: string) {
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
-  overflow: auto;
+  overflow: hidden;
+  height: 100%;
 }
 
 #concept-content-dialogs-container {
@@ -293,6 +294,15 @@ async function handleControlClick(iri: string) {
 #concept-panel-container:deep(.p-tabview-panels) {
   flex: 1 1 auto;
   overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabpanels) {
+  overflow: auto;
+}
+
+#viewer-tabs {
+  height: 100%;
+  overflow: hidden;
 }
 
 #tab-list {
