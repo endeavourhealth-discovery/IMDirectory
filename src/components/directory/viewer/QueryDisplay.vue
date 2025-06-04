@@ -5,8 +5,8 @@
       <TabList id="tab-list">
         <Tab value="0">Rule view</Tab>
         <Tab value="1">Logical view</Tab>
-        <Tab value="2">PostgreSQL</Tab>
-        <Tab value="3">MySQL</Tab>
+        <Tab value="2">MySQL</Tab>
+        <Tab value="3">PostgreSQL</Tab>
         <Tab v-if="showDataset" value="4">Dataset definition</Tab>
       </TabList>
     </Tabs>
