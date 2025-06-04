@@ -1,5 +1,12 @@
 import { dateNowReverse } from "@/helpers/Datetime/DateNowReverse";
 
+const searchTerm = "athsma discorder";
+const firstMatch = "Asthma (disorder)";
+const parentTerm = "Disorder of respiratory system (disorder)";
+const matchSNOMED = "http://snomed.info/sct#195967001";
+const firstChild = "Allergic asthma";
+const childCount = 21;
+
 describe("viewer", () => {
   beforeEach(() => {
     cy.acceptLicenseAndLogin();
@@ -8,34 +15,34 @@ describe("viewer", () => {
   describe("Concept", () => {
     beforeEach(() => {
       cy.clearFavouritesAndSuggested();
-      cy.searchAndSelect("Asthma");
+      cy.searchAndSelect(searchTerm, firstMatch);
     });
 
     it("loads", () => {
-      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("Asthma");
+      cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains(firstMatch);
     });
     describe("action buttons", () => {
       it("can find in tree", () => {
         cy.get(".entity-buttons-container").find(".fa-list-tree").click();
-        cy.get("#hierarchy-tree-bar-container").contains("Asthma", { timeout: 60000 });
+        cy.get("#hierarchy-tree-bar-container").contains(firstMatch, { timeout: 60000 });
       });
       it("can download concept", () => {
         const currentDate = dateNowReverse("_");
         const cypressDownloads = Cypress.config("downloadsFolder");
         cy.getByTestId("download-button").click();
         cy.get(".p-confirmdialog").find(".p-confirmdialog-accept-button").click();
-        cy.readFile(cypressDownloads + "/Asthma (disorder)_" + currentDate + ".json");
+        cy.readFile(cypressDownloads + "/" + firstMatch + "_" + currentDate + ".json");
       });
       it("can favourite", () => {
         cy.clearFavouritesAndSuggested();
         cy.get(".entity-buttons-container").find("[data-testid=favourite-button]").click();
         cy.expandTreeNode("hierarchy-tree-bar-container", "Favourites");
-        cy.get("#hierarchy-tree-bar-container").contains("Asthma");
+        cy.get("#hierarchy-tree-bar-container").contains(firstMatch);
       });
     });
     describe("breadcrumb", () => {
       it("shows breadcrumb route", () => {
-        cy.get(".breadcrumb-container").contains("Disorder of respiratory system (disorder)");
+        cy.get(".breadcrumb-container").contains(parentTerm);
         cy.get(".breadcrumb-container").contains("...");
         cy.get(".breadcrumb-container").contains("Health Information Model");
       });
@@ -44,10 +51,8 @@ describe("viewer", () => {
         cy.get("#path_overlay_menu").find(".p-menu-item").should("have.length.above", 0);
       });
       it("navigates from breadcrumb", () => {
-        cy.get(".breadcrumb-container").contains("Disorder of respiratory system (disorder)").click();
-        cy.get("#directory-table-container", { timeout: 60000 })
-          .find(".parent-header-container", { timeout: 60000 })
-          .contains("Disorder of respiratory system (disorder)");
+        cy.get(".breadcrumb-container").contains(parentTerm).click();
+        cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains(parentTerm);
       });
       it("navigates from breadcrumb elipsis menu", () => {
         cy.get(".breadcrumb-container").contains("...").click();
@@ -125,20 +130,16 @@ describe("viewer", () => {
           cy.get(".p-tablist-tab-list").find(".p-tab").contains("Hierarchy Position").click();
         });
         it("shows current highlighted and expanded", () => {
-          cy.get(".p-tree-node-selected").contains("Asthma (disorder)");
+          cy.get(".p-tree-node-selected").contains(firstMatch);
           cy.get(".p-tree-node-children");
         });
         it("can load more", () => {
-          cy.get("#secondary-tree-bar-container").find(".p-tree-node-children").find(".p-tree-node").should("have.length", 21);
+          cy.get("#secondary-tree-bar-container").find(".p-tree-node-children").find(".p-tree-node").should("have.length", childCount);
           cy.get("#secondary-tree-bar-container").contains("Load more...").click();
           cy.get("#secondary-tree-bar-container").find(".p-tree-node-children").find(".p-tree-node").should("have.length.above", 20);
         });
         it("can climb hierarchy", () => {
-          cy.getByTestId("parent")
-            .find(".p-button-label")
-            .contains("Disorder of respiratory system (disorder)")
-            .invoke("text")
-            .as("startParent", { type: "static" });
+          cy.getByTestId("parent").find(".p-button-label").contains(parentTerm).invoke("text").as("startParent", { type: "static" });
           cy.getByTestId("parent").click();
           cy.get("@startParent").then(startParent => {
             cy.get("#secondary-tree-bar-container")
@@ -154,8 +155,8 @@ describe("viewer", () => {
           });
         });
         it("routes on click", () => {
-          cy.get("#secondary-tree-bar-container").contains("Allergic asthma").click();
-          cy.get(".title-container").contains("Allergic asthma");
+          cy.get("#secondary-tree-bar-container").contains(firstChild).click();
+          cy.get(".title-container").contains(firstChild);
         });
       });
       describe("entity chart tab", () => {
@@ -169,8 +170,8 @@ describe("viewer", () => {
           cy.getByTestId("subtype").find("tr").should("have.length.above", 0);
         });
         it("routes on row click", () => {
-          cy.getByTestId("subtype").contains("Allergic asthma").click();
-          cy.get(".title-container").contains("Allergic asthma");
+          cy.getByTestId("subtype").contains(firstChild).click();
+          cy.get(".title-container").contains(firstChild);
         });
       });
       describe("graph tab", () => {
@@ -179,7 +180,7 @@ describe("viewer", () => {
           cy.get(".p-tablist-tab-list").find(".p-tab").contains("Graph").click({ scrollBehavior: false });
         });
         it("loads d3 graph for entity", () => {
-          cy.get("#graph-container").contains("Asthma (disorder)");
+          cy.get("#graph-container").contains(firstMatch);
         });
       });
       describe("json tab", () => {
@@ -189,7 +190,7 @@ describe("viewer", () => {
           cy.get("#viewer-tabs").contains("JSON").click({ scrollBehavior: false });
         });
         it("has json with correct iri", () => {
-          cy.get("#json-container", { timeout: 60000 }).should("contain.text", "http://snomed.info/sct#195967001");
+          cy.get("#json-container", { timeout: 60000 }).should("contain.text", matchSNOMED);
         });
       });
       describe("provenance tab", () => {

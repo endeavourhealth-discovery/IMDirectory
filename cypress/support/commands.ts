@@ -82,11 +82,13 @@ Cypress.Commands.add("expandTreeNode", (treeId: string, contains: string) => {
   cy.get(`#${treeId}`).contains(contains, { timeout: 10000 }).parents(".p-tree-node-selectable").find(".p-tree-node-toggle-button").click();
 });
 
-Cypress.Commands.add("searchAndSelect", (searchTerm: string) => {
+Cypress.Commands.add("searchAndSelect", (searchTerm: string, matchTerm?: string) => {
   cy.get("[data-testid='search-input']", { timeout: 60000 }).type(searchTerm);
   cy.wait(1000);
   cy.get(".p-datatable-selectable-row", { timeout: 60000 }).should("have.length.gte", 1).first().click();
-  cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 10000 }).contains(searchTerm);
+  cy.get("#directory-table-container", { timeout: 60000 })
+    .find(".parent-header-container", { timeout: 10000 })
+    .contains(matchTerm ?? searchTerm);
   cy.get("#viewer-tabs", { timeout: 10000 });
 });
 
@@ -159,7 +161,7 @@ declare global {
       visitNewTab(url: string): Chainable<void>;
       login(): Chainable<void>;
       expandTreeNode(treeId: string, contains: string): Chainable<void>;
-      searchAndSelect(searchTerm: string): Chainable<void>;
+      searchAndSelect(searchTerm: string, matchTerm?: string): Chainable<void>;
       acceptLicenseAndLogin(): Chainable<void>;
       populateBaseType(): Chainable<void>;
       loginByCognitoApi(username: string, password: string): Chainable<void>;
