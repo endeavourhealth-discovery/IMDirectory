@@ -1,16 +1,8 @@
 import { FilterOptions } from "@/interfaces";
 import "./auth-provider-commands/cognito";
+import { toMatchSnapshot } from "./snapshots";
+import "globals";
 
-/// <reference types="cypress" />
-// ***********************************************
-// This example commands.ts shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
 Cypress.Commands.add("acceptLicenseAndCookies", (url?: string) => {
   cy.visit(url ?? "/");
   cy.get("[data-testid='license-dialog']", { timeout: 60000 }).should("exist");
@@ -135,21 +127,10 @@ Cypress.Commands.add("setHostingMode", (isPublicMode: boolean) => {
   });
 });
 
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+Cypress.Commands.add("toMatchSnapshot", { prevSubject: ["element"] }, toMatchSnapshot);
 
 declare global {
+  var vueSnapshots: any;
   namespace Cypress {
     interface Chainable {
       acceptLicenseAndCookies(): Chainable<void>;
@@ -168,6 +149,7 @@ declare global {
       clearFavouritesAndSuggested(): Chainable<void>;
       searchAndSelectWithFilters(searchTerm: string, filters: FilterOptions): Chainable<void>;
       setHostingMode(isPublicMode: boolean): Chainable<void>;
+      toMatchSnapshot(options?: any): void;
     }
   }
 }

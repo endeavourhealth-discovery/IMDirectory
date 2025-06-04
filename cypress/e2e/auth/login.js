@@ -1,5 +1,21 @@
 import { When, Then, Step, Given } from "@badeball/cypress-cucumber-preprocessor";
 
+const loginSnapshotConfig = {
+  attributesToClear: ["aria-controls", "class", "style", "data-pc-section", "data-pc-name", "data-pc-section", "data-scrollselectors"],
+  stubs: [".p-tabpanels", "svg"],
+  regexToRemoveAttributes: new RegExp(/data-.*|p.\d|aria-.*/),
+  removeComments: true,
+  removeDataTestId: true,
+  formatting: {
+    attributesPerLine: 10,
+    classesPerLine: 10,
+    inlineStylesPerLine: 10,
+    escapeInnerText: false,
+    emptyAttributes: false,
+    selfClosingTag: true
+  }
+};
+
 Given("the server is in private mode", () => {
   cy.setHostingMode(false);
 });
@@ -113,4 +129,8 @@ Then("the home and back buttons are not available", () => {
 
 Then("I see the entity viewer", () => {
   cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("QRISK3 2024");
+});
+
+Then(/^the (.*) matches the snapshot$/, function (testId) {
+  cy.getByTestId(testId).toMatchSnapshot(loginSnapshotConfig);
 });
