@@ -282,7 +282,7 @@ function updateValueConstraint(e: { value: string }) {
 function updateQueryForValueSearch() {
   if (where.value.is) {
     imQueryForValueSearch.value = {
-      query: { iri: QUERY.ALLOWABLE_RANGES },
+      query: { iri: QUERY.IS_ALLOWABLE_RANGE },
       argument: [
         {
           parameter: "this",
