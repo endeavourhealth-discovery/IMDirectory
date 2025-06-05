@@ -252,9 +252,9 @@ function processSearchResults(searchResponse: SearchResponse | undefined): void 
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
     searchResults.value = searchResponse.entities.map(result => {
       const copy = cloneDeep(result) as ExtendedSearchResultSummary;
-      copy.icon = getFAIconFromType(result.entityType);
-      copy.color = getColourFromType(result.entityType);
-      copy.typeNames = getNamesAsStringFromTypes(result.entityType);
+      copy.icon = getFAIconFromType(result.type);
+      copy.color = getColourFromType(result.type);
+      copy.typeNames = getNamesAsStringFromTypes(result.type);
       copy.favourite = isFavourite(result.iri);
       return copy;
     });

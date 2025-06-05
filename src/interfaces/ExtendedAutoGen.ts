@@ -1,4 +1,4 @@
-import { EntityReferenceNode, TTEntity as GeneratedTTEntity } from "./AutoGen";
+import { EntityReferenceNode, TTEntity as GeneratedTTEntity, SearchResultSummary as GeneratedSearchResultSummary } from "./AutoGen";
 import { GenericObject } from "./GenericObject";
 
 export interface TTEntity extends GeneratedTTEntity, GenericObject {}
@@ -13,3 +13,5 @@ export interface ExtendedEntityReferenceNode extends EntityReferenceNode {
   icon: string[];
   hasGrandChildren?: boolean;
 }
+
+export interface SearchResultSummary extends GeneratedSearchResultSummary, GenericObject {}

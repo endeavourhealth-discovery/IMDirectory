@@ -59,9 +59,9 @@
           <strong>Scheme: </strong>
           <span>{{ hoveredResult.scheme.name }}</span>
         </p>
-        <p v-if="hoveredResult.entityType">
+        <p v-if="hoveredResult.type">
           <strong>Type: </strong>
-          <span>{{ getNamesAsStringFromTypes(hoveredResult.entityType) }}</span>
+          <span>{{ getNamesAsStringFromTypes(hoveredResult.type) }}</span>
         </p>
       </div>
     </div>
@@ -275,7 +275,7 @@ async function getPropertyRange(propIri: string): Promise<any[]> {
       }
     ],
     query: {
-      iri: QUERY.ALLOWABLE_RANGES
+      iri: QUERY.IS_ALLOWABLE_RANGE
     }
   } as QueryRequest;
 
@@ -310,7 +310,7 @@ function convertToConceptSummary(results: any[]) {
     conceptSummary.iri = result.iri;
     conceptSummary.name = result[RDFS.LABEL] ? result[RDFS.LABEL] : result.iri;
     conceptSummary.code = result[IM.CODE];
-    conceptSummary.entityType = result[RDF.TYPE];
+    conceptSummary.type = result[RDF.TYPE];
     conceptSummary.scheme = result[IM.HAS_SCHEME];
     conceptSummary.status = result[IM.HAS_STATUS];
     return conceptSummary;

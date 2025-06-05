@@ -37,9 +37,9 @@
           <strong>Scheme: </strong>
           <span>{{ hoveredResult.scheme.name }}</span>
         </p>
-        <p v-if="hoveredResult.entityType">
+        <p v-if="hoveredResult.type">
           <strong>Type: </strong>
-          <span>{{ getConceptTypes(hoveredResult.entityType) }}</span>
+          <span>{{ getConceptTypes(hoveredResult.type) }}</span>
         </p>
       </div>
     </div>
