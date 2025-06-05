@@ -15,7 +15,7 @@
     "sourceMap": false,
     "rootDirs": ["."],
     "baseUrl": ".",
-    "types": ["vite/client", "vitest/globals", "cypress", "@testing-library/cypress"],
+    "types": ["vite/client", "vitest/globals", "cypress"],
     "paths": {
       "@/*": ["src/*"]
     },

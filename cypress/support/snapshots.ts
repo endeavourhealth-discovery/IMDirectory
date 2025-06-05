@@ -27,10 +27,7 @@ export function toMatchSnapshot(element: any, options?: any): Chainable<Assertio
     debug: true
   };
 
-  const id =
-    (Cypress.spec.relative.startsWith("__") ? "" : Cypress.spec.relative.replace("cypress\\e2e\\", "").replace(".feature", "\\")) +
-    Cypress.currentTest.titlePath.join("\\");
-  console.log("Relative: " + Cypress.spec.relative);
+  const id = Cypress.currentTest.titlePath.join("\\");
 
   let snapshot = snapshotMeta.snapshots[id];
   const actual = vueMarkupFormatter(element.html());
@@ -88,11 +85,9 @@ function doCompare(one: string, other: string) {
 }
 
 after(() => {
-  console.log("Writing snapshots");
   if (snapshotMeta.updated.length > 0) {
     for (let id of snapshotMeta.updated) {
       const data = snapshotMeta.snapshots[id].map((s, index) => "snapshot[" + index + "] = `" + s + "`;\n").join("\n");
-      console.log("Writing cypress/snapshots/" + id + ".js");
       cy.writeFile("cypress/snapshots/" + id + ".js", "const snapshot = [];\n\n" + data + "\nsnapshot;");
     }
   }
