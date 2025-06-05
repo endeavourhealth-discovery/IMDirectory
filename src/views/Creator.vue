@@ -339,7 +339,7 @@ function submit(): void {
               await SetService.updateSubsetsFromSuper(editorEntity.value);
               delete editorEntity.value[IM.HAS_SUBSET];
             }
-            const res = await EntityService.createEntity(editorEntity.value);
+            const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
             if (res) {
               creatorStore.updateCreatorSavedEntity(undefined);
               return res;

@@ -72,6 +72,14 @@ const WorkflowService = {
 
   async rejectRoleRequest(roleRequest: RoleRequest) {
     return await axios.post(api + "/rejectRoleRequest", roleRequest);
+  },
+
+  async approveEntityApproval(entityApproval: EntityApproval) {
+    return await axios.post(api + "/approveEntityApproval", entityApproval);
+  },
+
+  async rejectEntityApproval(entityApproval: EntityApproval) {
+    return await axios.post(api + "/rejectEntityApproval", entityApproval);
   }
 };
 

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-23 13:06:43.
+// Generated using typescript-generator version 3.2.1263 on 2025-06-04 15:14:08.
 
 export interface ConceptContextMap {
     id?: string;
@@ -65,6 +65,11 @@ export interface CodeGenDto {
     datatypeMap?: { [index: string]: string };
     template?: string;
     complexTypes?: boolean;
+}
+
+export interface EditRequest {
+    entity?: TTEntity;
+    hostUrl?: string;
 }
 
 export interface GithubAuthorDTO {
@@ -285,18 +290,18 @@ export interface Argument {
 }
 
 export interface Assignable {
-    operator?: Operator;
-    valueLabel?: string;
-    valueParameter?: string;
+    value?: string;
     qualifier?: string;
     unit?: TTIriRef;
-    value?: string;
+    operator?: Operator;
+    valueParameter?: string;
+    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
-    and?: T[];
-    or?: T[];
     not?: T[];
+    or?: T[];
+    and?: T[];
 }
 
 export interface Case {
@@ -337,9 +342,9 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -730,13 +735,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    prefixes?: TTPrefix[];
-    scheme?: TTIriRef;
     type?: TTArray;
     name?: string;
+    scheme?: TTIriRef;
     version?: number;
-    description?: string;
+    prefixes?: TTPrefix[];
     status?: TTIriRef;
+    description?: string;
     code?: string;
 }
 
@@ -763,6 +768,7 @@ export interface BugReport extends Task {
 }
 
 export interface EntityApproval extends Task {
+    entityIri?: TTIriRef;
     approvalType?: ApprovalType;
 }
 
@@ -906,8 +912,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {

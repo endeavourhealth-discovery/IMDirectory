@@ -1,6 +1,6 @@
 import { IM, RDFS } from "@/vocabulary";
 import { FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest } from "@/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest, EditRequest } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
@@ -168,12 +168,12 @@ const EntityService = {
     });
   },
 
-  async createEntity(entity: TTEntity): Promise<TTEntity> {
-    return await axios.post(API_URL + "/create", entity);
+  async createEntity(editRequest: EditRequest): Promise<TTEntity> {
+    return await axios.post(API_URL + "/create", editRequest);
   },
 
-  async updateEntity(entity: TTEntity): Promise<TTEntity> {
-    return await axios.post(API_URL + "/update", entity);
+  async updateEntity(editRequest: EditRequest): Promise<TTEntity> {
+    return await axios.post(API_URL + "/update", editRequest);
   },
 
   async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<ValidatedEntity[]> {

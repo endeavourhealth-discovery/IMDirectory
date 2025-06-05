@@ -92,7 +92,7 @@ import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, watch } fr
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import Swal, { SweetAlertResult } from "sweetalert2";
@@ -109,6 +109,7 @@ import { processComponentType } from "@/helpers/EditorMethods";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 
 const router = useRouter();
+const route = useRoute();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const dynamicDialog = useDialog();
@@ -246,7 +247,7 @@ function submit(): void {
                 await SetService.updateSubsetsFromSuper(editorEntity.value);
                 delete editorEntity.value[IM.HAS_SUBSET];
               }
-              const res = await EntityService.updateEntity(editorEntity.value);
+              const res = await EntityService.updateEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
               if (res) {
                 editorStore.updateEditorSavedEntity(undefined);
                 return res;
