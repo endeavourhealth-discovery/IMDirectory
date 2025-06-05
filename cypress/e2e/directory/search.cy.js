@@ -10,7 +10,7 @@ describe("Search", () => {
     cy.getByTestId("search-input", { timeout: 60000 }).type("scoliosis");
     const page1Rows = cy.get(".p-datatable-selectable-row", { timeout: 60000 });
     page1Rows.should("have.length.greaterThan", 1);
-    cy.get(".p-paginator-page").contains("2").click();
+    cy.get(".p-paginator-page").contains("1").click();
     const page2Rows = cy.get(".p-datatable-selectable-row", { timeout: 60000 });
     page2Rows.should("not.deep.include", page1Rows.get("span"));
   });
