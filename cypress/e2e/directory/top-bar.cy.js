@@ -38,7 +38,7 @@ describe("top bar", () => {
       });
       it("has a github url in every release", () => {
         cy.get(".app-releases").find(".view-more").click();
-        cy.get(".release-container").each(($el, index, $list) => {
+        cy.get(".release-container").each($el => {
           cy.wrap($el).find("a").should("have.attr", "href");
         });
       });

@@ -27,7 +27,7 @@ interface Props {
   taskHistory: TaskHistory[];
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const visible = defineModel("showDialog", { type: Boolean, default: false });
 </script>

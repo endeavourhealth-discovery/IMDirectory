@@ -1,4 +1,5 @@
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@/helpers/DataTypeCheckers";
+import { describe, it, expect } from "vitest";
 
 describe("DataTypeCheckers.ts ___", () => {
   describe("isArrayHasLength", () => {
@@ -8,7 +9,7 @@ describe("DataTypeCheckers.ts ___", () => {
     });
 
     it("can handle empty array", () => {
-      const testArray = [];
+      const testArray: any[] = [];
       expect(isArrayHasLength(testArray)).toBe(false);
     });
 

@@ -120,7 +120,7 @@ import { TaskModule, TaskState, TaskType, Browser, OperatingSystem, Status } fro
 import { useUserStore } from "@/stores/userStore";
 import WorkflowService from "@/services/WorkflowService";
 import Swal from "sweetalert2";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import GithubService from "@/services/GithubService";
 
 const sharedStore = useSharedStore();

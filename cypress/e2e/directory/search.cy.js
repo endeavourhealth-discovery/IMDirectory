@@ -8,11 +8,17 @@ describe("Search", () => {
   });
   it("pages", () => {
     cy.getByTestId("search-input", { timeout: 60000 }).type("scoliosis");
-    const page1Rows = cy.get(".p-datatable-selectable-row", { timeout: 60000 });
-    page1Rows.should("have.length.greaterThan", 1);
-    cy.get(".p-paginator-page").contains("1").click();
-    const page2Rows = cy.get(".p-datatable-selectable-row", { timeout: 60000 });
-    page2Rows.should("not.deep.include", page1Rows.get("span"));
+    cy.get(".p-datatable-selectable-row", { timeout: 60000 }).then(page1Rows => {
+      expect(page1Rows.length).to.be.greaterThan(1);
+      cy.get(".p-paginator-page").contains("1").click();
+      cy.get(".p-datatable-selectable-row", { timeout: 60000 }).then(page2Rows => {
+        const page1Texts = [...page1Rows].map(el => el.innerText);
+        const page2Texts = [...page2Rows].map(el => el.innerText);
+        page2Texts.forEach(text => {
+          expect(page1Texts).to.not.include(text);
+        });
+      });
+    });
   });
   it("filters by status", () => {
     cy.getByTestId("search-input", { timeout: 60000 }).type("scoliosis");

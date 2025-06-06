@@ -143,7 +143,6 @@ const confirm = useConfirm();
 
 const currentUser = computed(() => userStore.currentUser);
 const canEdit = computed(() => currentUser.value?.username === bugReport.value?.createdBy);
-const isAdmin = computed(() => userStore.isAdmin);
 const isValidBugReport = computed(
   () =>
     !productErrorMessage.value &&
@@ -254,11 +253,11 @@ function setValuesFromBugReport(bugReport: BugReport) {
   if (bugReport.actualResult) actualResult.value = bugReport.actualResult;
 }
 
-async function updateBugReport() {
+function updateBugReport() {
   submitRequested.value = true;
 }
 
-async function updateTask(task: Task) {
+function updateTask(task: Task) {
   if (isValidBugReport.value) {
     confirm.require({
       message: "Are you sure you want to update this bug report?",

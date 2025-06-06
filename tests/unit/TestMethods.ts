@@ -16,10 +16,10 @@ export function createTestRouter(routes?: RouteRecordRaw[], mockPush?: any, mock
   return router;
 }
 
-function createTestComponent(composable: any, composableInputs?: any[]) {
+function createTestComponent(composable: any, composableInputs: any[] = []) {
   return defineComponent({
     setup() {
-      return { ...composable.apply(null, composableInputs) };
+      return { ...composable(...composableInputs) };
     },
     template: "<template></template>"
   });
