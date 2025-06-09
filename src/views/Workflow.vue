@@ -1,5 +1,5 @@
 <template>
-  <div id="topbar-mapper-container">
+  <div id="topbar-workflow-container">
     <TopBar>
       <template #content>
         <div class="topbar-content">
@@ -10,7 +10,6 @@
 
     <div class="col flex grow overflow-auto">
       <SideBar />
-
       <div id="main-container" class="overflow-auto">
         <div id="main-view">
           <div v-if="workflowLoading" class="flex flex-1 flex-row items-center justify-center"><ProgressSpinner /></div>
@@ -22,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, onMounted, Ref, computed } from "vue";
 import SideBar from "@/components/workflow/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import { useLoadingStore } from "@/stores/loadingStore";
@@ -32,7 +31,7 @@ const workflowLoading = computed(() => loadingStore.workflowLoading);
 </script>
 
 <style scoped lang="scss">
-#topbar-mapper-container {
+#topbar-workflow-container {
   height: 100%;
   width: 100vw;
   overflow: auto;
@@ -46,8 +45,8 @@ const workflowLoading = computed(() => loadingStore.workflowLoading);
 }
 
 #main-container {
-  display: flex;
   flex: 1 1 auto;
+  display: flex;
 }
 
 #main-view {

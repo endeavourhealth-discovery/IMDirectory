@@ -87,8 +87,6 @@
       </Column>
     </DataTable>
   </div>
-  {{ properties }} -
-  <div>{{ groupedProperties }}</div>
 </template>
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";

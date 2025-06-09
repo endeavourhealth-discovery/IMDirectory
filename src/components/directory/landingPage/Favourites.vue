@@ -13,7 +13,7 @@
         v-model:selection="selected"
         selectionMode="single"
         @rowSelect="onRowSelect"
-        dataKey="dateTime"
+        dataKey="iri"
         :scrollable="true"
         scrollHeight="flex"
         class="p-datatable-sm favourites-datatable"
@@ -22,7 +22,7 @@
         <Column field="name" header="Name">
           <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="favourite-name-icon-container">
-              <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
+              <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon pr-2" :style="data.color" fixed-width />
               <span class="favourite-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
@@ -30,7 +30,7 @@
         <Column field="type" header="Type">
           <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="favourite-type-container flex flex-row">
-              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.entityType }}</span>
+              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.type }}</span>
             </div>
           </template>
         </Column>
@@ -117,7 +117,7 @@ async function getFavouritesDetails() {
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "iri"])) {
       if (result.iri) clone.iri = result.iri;
       clone.name = result[RDFS.LABEL];
-      clone.entityType = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+      clone.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
       clone.icon = getFAIconFromType(result[RDF.TYPE]);
       clone.color = "color:" + getColourFromType(result[RDF.TYPE]);
     }

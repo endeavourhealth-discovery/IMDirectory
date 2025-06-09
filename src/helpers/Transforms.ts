@@ -2,7 +2,7 @@ import { IM, RDF, RDFS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
 import { Argument, TTIriRef, TTNode } from "../interfaces/AutoGen";
-import { TTBundle, TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { TTBundle, TTEntity, SearchResultSummary } from "@/interfaces/ExtendedAutoGen";
 import { GenericObject } from "@/interfaces/GenericObject";
 
 // min 2 characters
@@ -267,7 +267,7 @@ export function mapToObject(args: Argument[]) {
   return argsAsObject;
 }
 
-export function entityToAliasEntity(ttEntity: TTEntity) {
+export function entityToAliasEntity(ttEntity: TTEntity | SearchResultSummary) {
   if (isObjectHasKeys(ttEntity, [RDFS.LABEL])) {
     ttEntity.name = ttEntity[RDFS.LABEL];
     delete ttEntity[RDFS.LABEL];

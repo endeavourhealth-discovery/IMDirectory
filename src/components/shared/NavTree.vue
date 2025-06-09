@@ -16,7 +16,7 @@
           :draggable="allowDragAndDrop"
           class="tree-row"
           @contextmenu="onNodeContext($event, node)"
-          @click="onNodeSelect($event, node, false, true)"
+          @click="onNodeSelect($event, node, useEmits ? useEmits : false, true)"
           @dragstart="dragStart($event, node.data)"
           @mouseleave="hideOverlay"
           @mouseover="displayOverlay($event, node)"
@@ -71,6 +71,8 @@ interface Props {
   selectedIri?: string;
   findInTree?: boolean;
   typeFilter?: string[];
+  useEmits?: boolean;
+  childLength?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -81,6 +83,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   rowSelected: [payload: any];
+  rowClicked: [payload: any];
   rowDblClicked: [payload: any];
   foundInTree: [];
 }>();
@@ -94,7 +97,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const favourites = computed(() => userStore.favourites);
 
 const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
-  setupTree(emit, 50);
+  setupTree(emit, props.childLength ? props.childLength : 40);
 const { getCreateOptions }: { getCreateOptions: (newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode) => Promise<MenuItem[]> } =
   createNew();
 const loading = ref(true);
@@ -159,7 +162,7 @@ async function init() {
   loading.value = true;
   if (isArrayHasLength(props.rootEntities)) await addRootEntitiesToTree();
   else await addParentFoldersToRoot();
-  if (props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
+  //if (props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
   loading.value = false;
 }
 
@@ -188,11 +191,10 @@ function addFavouritesToTree() {
 
 async function addRootEntitiesToTree() {
   root.value = [];
-  for (const item of props.rootEntities) {
-    const itemSummary = await EntityService.getEntityAsEntityReferenceNode(item);
-    if (itemSummary) {
-      const hasNode = !!root.value.find(node => node.data === itemSummary.iri);
-      if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary.iri, itemSummary.type as TTIriRef[], itemSummary.hasGrandChildren, null));
+  const itemSummaries = await EntityService.getAsEntityReferenceNodes(props.rootEntities);
+  if (itemSummaries && itemSummaries.length > 0) {
+    for (const itemSummary of itemSummaries) {
+      root.value.push(createTreeNode(itemSummary.name, itemSummary.iri, itemSummary.type as TTIriRef[], itemSummary.hasChildren, null));
     }
   }
   root.value.sort(byKey);
@@ -401,9 +403,13 @@ function dragStart(event: DragEvent, data: TreeNode) {
   align-items: center;
 }
 
-.p-tree .p-tree-container .p-treenode .p-treenode-content {
+.p-tree .p-tree-container .p-tree-node .p-tree-node-content {
   padding: 0rem !important;
   transition: box-shadow 3600s 3600s !important;
+}
+
+#hierarchy-tree-bar-container:deep(.p-tree-node-content) {
+  padding: 0 !important;
 }
 
 .p-tree-toggler {

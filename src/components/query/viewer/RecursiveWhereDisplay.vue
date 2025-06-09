@@ -5,7 +5,8 @@
         <span>{{ getOperator(operator, index) }}</span>
       </span>
       <span v-if="where.name" class="field">{{ where.name }}</span>
-      <span v-if="(where.valueLabel || where.qualifier) && !eclQuery">
+      <span v-if="eclQuery">=</span>
+      <span v-if="where.valueLabel || where.qualifier">
         <span v-if="where.qualifier" class="field">{{ where.qualifier }}</span>
         <span v-if="where.valueLabel && where.is" @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0">
           {{ where.valueLabel }}</span
@@ -18,7 +19,7 @@
         </span>
         <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
       </span>
-      <span v-if="(isExpanded || eclQuery) && isArrayHasLength(where.is)">
+      <span v-if="isExpanded && isArrayHasLength(where.is)">
         <span>, defined as</span>
         <div>
           <span style="list-style-type: none; padding-left: 0">
@@ -35,14 +36,6 @@
           </span>
         </div>
       </span>
-      <span v-else-if="where.is && eclQuery">
-        <span>=</span>
-        <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
-          <span v-if="index > 0" class="field">or</span>
-          <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
-          <span v-if="item.descendantsOrSelfOf">+subtypes</span>
-        </span>
-      </span>
       <span v-for="(matches, type) in boolGroup" :key="type">
         <span>(</span>
         <span v-for="(nestedProperty, index) in matches" :key="index">
@@ -55,6 +48,7 @@
               :depth="depth + 1"
               :expandedSet="expandedSet"
               :inline="false"
+              :eclQuery="eclQuery"
               :bracketed="index === where[type]!.length - 1"
             />
           </span>
