@@ -64,11 +64,13 @@
       </div>
       <div v-if="match.where">
         <span>With these attributes:</span>
+        <RoleGroup v-model:where="match.where" v-model:isRoleGroup="isRoleGroup" />
         <ECLRefinement
           v-model:where="match.where"
           v-model:parent="match"
           :index="index"
           :rootBool="true"
+          :isInAttributeGroup="isRoleGroup"
           :focusConcepts="focusConcepts"
           :propertyTreeRoots="propertyTreeRoots"
           :imQueryForPropertySearch="imQueryForPropertySearch"
@@ -85,15 +87,16 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, Ref, ref, computed } from "vue";
+import { inject, onMounted, Ref, ref, computed, watch } from "vue";
 import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { getBooleanOptions } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions, getIsRoleGroup, isBoolWhere, manageRoleGroup, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import ECLBoolQuery from "@/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue";
+import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
 
 interface Props {
   index: number;
@@ -111,37 +114,29 @@ const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const hoverAddRefinement = ref(false);
 const hoverDeleteConcept = ref(false);
+const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
 const focusConcepts = computed(() => {
   return updateFocusConcepts(match.value);
 });
 const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"]);
 const imQueryForPropertySearch: Ref<QueryRequest> = ref({} as QueryRequest);
 onMounted(() => {});
+
+watch(isRoleGroup, (newValue, oldValue) => {
+  if (newValue != oldValue) {
+    if (match.value.where) {
+      manageRoleGroup(match.value.where, newValue);
+    }
+  }
+});
+
 function updateOperator(val: string) {
   updateFocusConcepts(match.value);
   emit("updateBool", props.parentOperator, val);
 }
 
-function focusChildren(children: Match[] | undefined): TTIriRef[] {
-  const focusConcepts: TTIriRef[] = [];
-  if (children) {
-    for (const [index, item] of children.entries()) {
-      focusConcepts.push(...updateFocusConcepts(item));
-    }
-  }
-  return focusConcepts;
-}
-
 function updateMatch() {
   updateFocusConcepts(match.value);
-}
-
-function updateFocusConcepts(item: Match): TTIriRef[] {
-  if (item.instanceOf && item.instanceOf[0].iri) return [{ iri: item.instanceOf[0].iri }];
-  const focusConcepts: TTIriRef[] = [];
-  focusConcepts.push(...focusChildren(match.value.or));
-  focusConcepts.push(...focusChildren(match.value.and));
-  return focusConcepts;
 }
 
 function onRationalise() {
@@ -227,7 +222,6 @@ function addRefinement() {
   min-width: 0;
 }
 
-
 .add-group {
   display: flex;
   flex-flow: row wrap;
@@ -239,8 +233,6 @@ function addRefinement() {
 .builder-button {
   width: 2rem;
 }
-
-
 
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;

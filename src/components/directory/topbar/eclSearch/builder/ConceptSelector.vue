@@ -60,7 +60,7 @@ interface Props {
 defineProps<Props>();
 const searchBar = ref<{ searchText: string } | null>(null);
 const emit = defineEmits(["activateInput", "updateMatch"]);
-const node = defineModel<Node>("node", { default: {} });
+const node = defineModel<Node>("node", { required: true });
 watch(
   () => cloneDeep(node.value),
   async (newValue, oldValue) => {
@@ -87,10 +87,10 @@ watch(selected, (newValue, oldValue) => {
 
 function init() {
   buildIMQueryForConceptSearch();
+  constraintOperator.value = getConstraintOperator(node.value);
   if (node.value.iri) {
     selected.value.iri = node.value.iri;
     selected.value.name = node.value.name;
-    constraintOperator.value = getConstraintOperator(node.value);
   }
 }
 function updateConstraintOperator(e: { value: string }) {

@@ -191,11 +191,10 @@ function addFavouritesToTree() {
 
 async function addRootEntitiesToTree() {
   root.value = [];
-  for (const item of props.rootEntities) {
-    const itemSummary = await EntityService.getEntityAsEntityReferenceNode(item);
-    if (itemSummary) {
-      const hasNode = !!root.value.find(node => node.data === itemSummary.iri);
-      if (!hasNode) root.value.push(createTreeNode(itemSummary.name, itemSummary.iri, itemSummary.type as TTIriRef[], itemSummary.hasGrandChildren, null));
+  const itemSummaries = await EntityService.getAsEntityReferenceNodes(props.rootEntities);
+  if (itemSummaries && itemSummaries.length > 0) {
+    for (const itemSummary of itemSummaries) {
+      root.value.push(createTreeNode(itemSummary.name, itemSummary.iri, itemSummary.type as TTIriRef[], itemSummary.hasChildren, null));
     }
   }
   root.value.sort(byKey);

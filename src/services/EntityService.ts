@@ -142,6 +142,10 @@ const EntityService = {
     return await axios.get(API_URL + "/public/asEntityReferenceNode", { params: { iri: iri } });
   },
 
+  async getAsEntityReferenceNodes(iris: string[]): Promise<ExtendedEntityReferenceNode[]> {
+    return await axios.get(API_URL + "/public/asEntityReferenceNodes", { params: { iris: iris.join(",") } });
+  },
+
   async getPartialAndTotalCount(
     iri: string,
     predicate: string,

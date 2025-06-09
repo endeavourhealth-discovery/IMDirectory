@@ -27,48 +27,16 @@ const ConceptService = {
     });
   },
 
-  async getSuperiorPropertiesPaged(
-    conceptIri: string,
-    pageIndex?: number,
-    pageSize?: number,
-    filters?: FiltersAsIris,
-    controller?: AbortController
-  ): Promise<Pageable<EntityReferenceNode>> {
-    return await axios.get(API_URL + "/public/superiorPropertiesPaged", {
-      params: { conceptIri: conceptIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
+  async getPropertiesForDomains(conceptIri: string[], controller?: AbortController): Promise<string[]> {
+    return await axios.get(API_URL + "/public/propertiesForDomains", {
+      params: { conceptIri: conceptIri.join(",") },
       signal: controller?.signal
     });
   },
 
-  async getSuperiorPropertiesBoolFocusPaged(
-    focus: {
-      conjunction: string;
-      items: any[];
-      type: string;
-      ecl?: string;
-    },
-    pageIndex?: number,
-    pageSize?: number,
-    filters?: FiltersAsIris,
-    controller?: AbortController,
-    inactive?: boolean
-  ): Promise<Pageable<EntityReferenceNode>> {
-    return await axios.post(
-      API_URL + "/public/superiorPropertiesBoolFocusPaged",
-      { ecl: focus.ecl, page: pageIndex, size: pageSize, schemeFilters: filters, inactive: inactive },
-      { signal: controller?.signal }
-    );
-  },
-
-  async getSuperiorPropertyValuesPaged(
-    propertyIri: string,
-    pageIndex?: number,
-    pageSize?: number,
-    filters?: FiltersAsIris,
-    controller?: AbortController
-  ): Promise<Pageable<EntityReferenceNode>> {
-    return await axios.get(API_URL + "/public/superiorPropertyValuesPaged", {
-      params: { propertyIri: propertyIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
+  async getRangesForProperty(propertyIri: string, controller?: AbortController): Promise<string[]> {
+    return await axios.get(API_URL + "/public/rangesForProperty", {
+      params: { propertyIri: propertyIri},
       signal: controller?.signal
     });
   },

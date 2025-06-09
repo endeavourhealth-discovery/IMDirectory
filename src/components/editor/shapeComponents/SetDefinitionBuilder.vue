@@ -57,7 +57,7 @@
       </div>
     </div>
 
-    <ECLBuilder :showDialog="showDialog" :eclString="lastValidEcl" :showNames="showNames" @eclSubmitted="updateECL" @closeDialog="() => (showDialog = false)" />
+    <ECLBuilder v-if="showDialog" :showDialog="showDialog" :eclString="lastValidEcl" :showNames="showNames" @eclSubmitted="updateECL" @closeDialog="() => (showDialog = false)" />
 
     <AddByCodeList
       :showAddByFile="showAddByFileDialog"

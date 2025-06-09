@@ -195,7 +195,7 @@ const contextMenu = ref();
 watch(
   () => props.updateSearch,
   async (newVal, oldVal) => {
-    if (newVal && newVal !== oldVal) {
+    if (newVal !== oldVal) {
       searchResults.value = [];
       totalCount.value = 0;
       page.value = 0;
