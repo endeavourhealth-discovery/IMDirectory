@@ -12,7 +12,7 @@ describe("Search", () => {
       expect(page1Rows.length).to.be.greaterThan(1);
       cy.get(".p-paginator-page").contains("2").click();
       cy.wait(1000);
-      cy.get("p-datatable-mask").should("not.exist");
+      cy.get(".p-datatable-mask").should("not.exist");
       cy.wait(1000);
       cy.get(".p-datatable-selectable-row", { timeout: 60000 }).then(page2Rows => {
         const page1Texts = [...page1Rows].map(el => el.innerText);
@@ -30,7 +30,7 @@ describe("Search", () => {
     cy.get(".p-multiselect-overlay").contains("Inactive").click();
     cy.getByTestId("status-filter").find(".p-multiselect-dropdown").click();
     cy.wait(1000);
-    cy.get("p-datatable-mask").should("not.exist");
+    cy.get(".p-datatable-mask").should("not.exist");
     cy.wait(1000);
     cy.getByTestId("total-results", { timeout: 60000 })
       .invoke("text")
