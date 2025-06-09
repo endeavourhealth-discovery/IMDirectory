@@ -1,5 +1,5 @@
 <template>
-  <div class="search-container">
+  <div class="search-container" ref="autocompleteRoot">
     <IconField class="autocomplete-search" iconPosition="right">
       <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="{ listening }" @click="toggleListen" />
       <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
@@ -20,7 +20,7 @@
         @mouseleave="hideOverlay"
         :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
       />
-      <i v-if="editing" class="fa fa-times-circle clear-icon" @click="clearSearch()"></i>
+      <i v-if="editing" class="fa fa-times-circle clear-icon" @mousedown.prevent="clearSearch()"></i>
     </IconField>
 
     <Button
@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch, nextTick, computed } from "vue";
+import { onMounted, Ref, ref, watch, nextTick, computed, onBeforeUnmount } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@/interfaces";
@@ -86,9 +86,9 @@ import setupSpeechToText from "@/composables/setupSpeechToText";
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 import setupOverlay from "@/composables/setupOverlay";
 import { EntityService, QueryService } from "@/services";
+import { registerAutocomplete, unregisterAutocomplete } from "@/composables/useAutocompleteRegistry";
 interface Props {
   selected?: SearchResultSummary;
-  imQuery?: QueryRequest;
   filterOptions?: FilterOptions;
   disabled?: boolean;
   rootEntities?: string[];
@@ -108,6 +108,7 @@ const emit = defineEmits<{
   updateSelectedFilters: [payload: FilterOptions];
 }>();
 
+const imQuery = defineModel<QueryRequest>("imQuery");
 const resultsOP = ref();
 const searchText = ref("");
 const results: Ref<SearchResponse | undefined> = ref();
@@ -123,6 +124,7 @@ const searchInput = ref<any>(null);
 const localRootEntities = ref<string[]>([]);
 let searchDebounce: any;
 const editing = ref(false);
+const autocompleteRoot = ref<HTMLElement | null>(null);
 defineExpose({ searchText });
 watch(showDialog, () => {
   if (showDialog.value) emit("openDialog");
@@ -170,26 +172,56 @@ onMounted(async () => {
     searchText.value = props.selected.name;
     selectedLocal.value = props.selected;
   }
+  if (autocompleteRoot.value) {
+    registerAutocomplete({
+      element: autocompleteRoot.value,
+      reset: () => {
+        searchText.value = props.selected && props.selected.name ? props.selected.name : "";
+      }
+    });
+  }
   searchLoading.value = false;
 });
+
+onBeforeUnmount(() => {
+  if (autocompleteRoot.value) {
+    unregisterAutocomplete(autocompleteRoot.value);
+  }
+});
+
+function handleGlobalFocus(event: FocusEvent) {
+  const root = autocompleteRoot.value;
+  if (!root) return;
+  const target = event.target as Node;
+  if (!root.contains(target)) {
+    if (props.selected && props.selected.name) searchText.value = props.selected.name;
+    else searchText.value = "";
+  }
+}
 function clearSearch() {
   searchText.value = "";
+  selectedLocal.value = undefined;
   nextTick(() => {
     searchInput.value.$el.focus();
   });
 }
 function handleFocus(event: FocusEvent) {
   if (!editing.value) {
-    (event.target as HTMLInputElement).select(); // select all text
     editing.value = true;
+    (event.target as HTMLInputElement).select();
   }
 }
 async function advancedSearch() {
-  if (!props.rootEntities) {
+  if (!props.rootEntities || props.rootEntities.length === 0) {
     if (props.setupRootEntities) {
       localRootEntities.value = await props.setupRootEntities();
     } else localRootEntities.value = [];
   } else localRootEntities.value = props.rootEntities;
+  if (!imQuery.value) {
+    if (props.setupSearch) {
+      imQuery.value = await props.setupSearch();
+    }
+  }
   showDialog.value = true;
 }
 
@@ -209,7 +241,7 @@ function debounceForSearch(event: Event): void {
 
 async function doSearch(event: any) {
   results.value = await search();
-  await showResultsOverlay(event);
+  showResultsOverlay(event);
 }
 
 async function onEnter(event: KeyboardEvent) {
@@ -235,8 +267,8 @@ function select(event: KeyboardEvent) {
 async function search() {
   if (searchText.value && searchText.value.length > 2) {
     let imQueryCopy: QueryRequest | undefined = undefined;
-    if (props.imQuery) {
-      imQueryCopy = cloneDeep(props.imQuery);
+    if (imQuery.value) {
+      imQueryCopy = cloneDeep(imQuery.value);
     }
     if (!imQueryCopy) {
       if (props.setupSearch) imQueryCopy = await props.setupSearch();
@@ -336,6 +368,7 @@ function onListboxOptionClick(selected: SearchResultSummary) {
   cursor: pointer;
   font-size: 1.1rem;
   z-index: 10;
+  pointer-events: auto;
 }
 
 .clear-icon:hover {

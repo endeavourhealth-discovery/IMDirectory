@@ -187,11 +187,10 @@ async function updateIsValidPropertyValue(): Promise<void> {
 async function updateValueTreeRoots(): Promise<string[]> {
   let roots = [IM.ONTOLOGY_PARENT_FOLDER];
   if (where.value.iri && where.value.iri !== SNOMED.ANY) {
-    const results = await ConceptService.getSuperiorPropertyValuesPaged(where.value.iri);
-    if (results.result) {
-      roots = results.result.map(item => item.iri);
-      allowableRanges.value = results.result.map(item => item as TTIriRef);
-      valueTreeRoots.value = roots;
+    const results = await ConceptService.getRangesForProperty(where.value.iri);
+    if (results) {
+      allowableRanges.value = results.map(c => ({ iri: c }));
+      valueTreeRoots.value = results;
       return valueTreeRoots.value;
     }
   }

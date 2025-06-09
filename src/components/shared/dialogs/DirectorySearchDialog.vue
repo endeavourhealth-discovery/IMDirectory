@@ -5,7 +5,7 @@
     maximizable
     header="Search"
     :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
-    class="search-dialog"
+    :contentStyle="{ display: 'flex', flexDirection: 'column', height: '100%' }"
     @keyup.enter="onEnter"
   >
     <div class="directory-search-dialog-content">
@@ -20,12 +20,7 @@
           @to-search="onSearch"
         />
       </div>
-      <Splitter
-        stateKey="directorySearchSplitterHorizontal"
-        stateStorage="local"
-        @resizeend="updateSplitter"
-        style="height: 100%; flex: 1 1 auto; border-bottom: 5px solid #ccc"
-      >
+      <Splitter stateKey="directorySearchSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter" style="height: 100%; flex: 1 1 auto">
         <SplitterPanel :size="30" :minSize="10">
           <div style="height: 100%; display: flex; flex-direction: column">
             <div style="flex: 1; overflow-y: auto">
@@ -102,7 +97,6 @@
     </template>
   </Dialog>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted, watch, Ref, computed } from "vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
@@ -152,6 +146,7 @@ const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
 const searchTerm = ref(props.searchTerm ?? "");
+const lastSearchTerm = ref(searchTerm.value);
 const typeFilter = computed(() => props.selectedFilterOptions?.types.map(item => item.iri));
 
 watch(
@@ -197,7 +192,8 @@ function updateSplitter(event: SplitterResizeEndEvent) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
 }
 function onSearch() {
-  if (searchTerm.value) {
+  if (searchTerm.value && searchTerm.value !== lastSearchTerm.value) {
+    lastSearchTerm.value = searchTerm.value;
     activePage.value = 0;
     updateSearch.value = !updateSearch.value;
   }
@@ -291,52 +287,33 @@ function goToSearchResults() {
 
 <style scoped>
 .directory-search-dialog-content {
-  height: calc(100% - 3.5rem); /* subtract header if needed */
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  border-bottom: 1px solid #ccc;
-}
-
-.vertical-divider {
-  width: 100%;
-  flex: 1 1 auto;
-  overflow: auto;
-  display: flex;
-  flex-flow: row nowrap;
-}
-
-.left-container {
-  flex: 0 0 30%;
-  overflow: auto;
-}
-
-.splitter-right {
-  width: 100%;
   height: 100%;
-  display: flex;
-  flex-flow: row nowrap;
-  overflow: auto;
-}
-
-.right-container {
-  flex: 1 1 auto;
-  overflow: auto;
+  overflow: hidden;
+  border-bottom: 10px solid #ccc;
 }
 
 .search-bar {
-  min-height: 3.5rem;
-  display: flex;
+  height: 3.5rem;
+  flex-shrink: 0;
   flex-flow: row nowrap;
   align-items: center;
   padding: 0 0.5rem;
 }
 
 .im-dialog-footer {
+  border-top: 1px solid #ccc;
+  padding: 1rem;
+}
+.dialog-body-wrapper {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: nowrap;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+}
+.flex-spacer {
+  flex: 1;
 }
 
 .button-footer {
@@ -344,14 +321,5 @@ function goToSearchResults() {
   flex: 1 0 auto;
   flex-wrap: nowrap;
   justify-content: flex-end;
-}
-.panel-content {
-  height: 100%;
-  box-sizing: border-box;
-}
-
-.scrollable {
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 </style>

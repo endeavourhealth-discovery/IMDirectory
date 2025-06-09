@@ -52,6 +52,7 @@
       />
     </div>
     <ECLBuilder
+      v-if="showDialog"
       :showDialog="showDialog"
       :eclString="eclQueryString"
       @eclSubmitted="updateECL"

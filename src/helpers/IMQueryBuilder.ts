@@ -26,7 +26,22 @@ function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
   query.where.and.push(where);
 }
 
-
+export function updateFocusConcepts(match: Match): string[] {
+  if (match.instanceOf && match.instanceOf[0].iri) return [match.instanceOf[0].iri];
+  const focusConcepts: string[] = [];
+  focusConcepts.push(...focusChildren(match.or));
+  focusConcepts.push(...focusChildren(match.and));
+  return focusConcepts;
+}
+function focusChildren(children: Match[] | undefined): string[] {
+  const focusConcepts: string[] = [];
+  if (children) {
+    for (const [index, item] of children.entries()) {
+      focusConcepts.push(...updateFocusConcepts(item));
+    }
+  }
+  return focusConcepts;
+}
 
 function createNewBoolGroup(clause: BoolGroup<Match | Where | undefined>, group: number[], oldBool: Bool, newBool: Bool) {
   group.sort((a, b) => a - b);
@@ -50,18 +65,17 @@ function createNewBoolGroup(clause: BoolGroup<Match | Where | undefined>, group:
   clause[from] = newBoolGroup;
 }
 
-export function addConceptToGroup(match:Match) {
+export function addConceptToGroup(match: Match) {
   if (match.instanceOf) {
     const subMatch = { uuid: match.uuid, instanceOf: match.instanceOf } as Match;
     delete match.instanceOf;
     match.or = [subMatch];
   }
-  const bool= match.and ? Bool.and : match.or ? Bool.or : undefined;
+  const bool = match.and ? Bool.and : match.or ? Bool.or : undefined;
   if (bool) {
     const subMatch = { instanceOf: [{ descendantsOrSelfOf: true }] };
     match[bool]!.push(subMatch);
-  } else
-    match.instanceOf = [{ descendantsOrSelfOf: true }];
+  } else match.instanceOf = [{ descendantsOrSelfOf: true }];
 }
 
 export function updateBooleans(clause: BoolGroup<Match | Where | undefined>, oldBool: Bool, newBool: Bool, index: number, group: number[]) {
@@ -117,6 +131,36 @@ export function getBooleanLabel(clause: Match | Where, clauseType: string, opera
   return "Minus";
 }
 
+export function getIsRoleGroup(where: Where | undefined): boolean {
+  if (!where) return false;
+  return where.iri === IM.ROLE_GROUP;
+}
+
+export function isBoolWhere(where: Where | undefined): boolean {
+  if (!where) return false;
+  return !!(where.or || where.and);
+}
+
+export function manageRoleGroup(where: Where, isRoleGroup: boolean): void {
+  if (where) {
+    if (isRoleGroup) {
+      where.iri = IM.ROLE_GROUP;
+      removeRoleSubgroups(where);
+    } else delete where.iri;
+  }
+}
+
+function removeRoleSubgroups(where: Where): void {
+  const logicalGroups = [...(where.or ?? []), ...(where.and ?? [])];
+  for (const item of logicalGroups) {
+    if (getIsRoleGroup(item)) {
+      delete item.iri;
+    }
+    removeRoleSubgroups(item);
+  }
+}
+
+
 export function getBooleanOptions(clause: Match | Where, parent: BoolGroup<Match | Where>, parentOperator: Bool, clauseType: string, index: number): any[] {
   const operator = parentOperator as keyof typeof parent;
   const notLabel = getBooleanLabel(clause, clauseType, Bool.not, index);
@@ -157,7 +201,7 @@ export function getBooleanOptions(clause: Match | Where, parent: BoolGroup<Match
     value: "or",
     tooltip: "At least one of this group must be true"
   });
-  if (clauseType != "Where" && parent[operator] && parent[operator]!.length > 1)
+  if (clauseType != "Where" && parent[operator] && parent[operator]!.length > 1 && index > 0)
     options.push({
       label: notLabel,
       value: "not",

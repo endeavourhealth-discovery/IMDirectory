@@ -1,6 +1,7 @@
 <template>
+  <ProgressSpinner v-if="loading" />
   <Dialog
-    v-if="!eclConversionError.error"
+    v-if="!eclConversionError.error && !loading"
     :visible="showDialog"
     :modal="true"
     :closable="false"
@@ -23,9 +24,10 @@
       </div>
     </template>
     <div id="builder-string-container">
-      <div id="query-builder-container">
+      <div v-if="!previewECL" id="query-builder-container">
         <ProgressSpinner v-if="loading" />
         <ExpressionConstraint
+          v-else
           v-model:match="build"
           :rootBool="true"
           :index="0"
@@ -38,22 +40,14 @@
           *Move pointer over panel above to add concepts, refinements and groups.
         </small>
       </div>
-
-      <div id="build-string-container">
-        <Panel header="Output" toggleable collapsed>
+      <div v-if="previewECL" id="build-string-container">
+        <Panel header="Output">
           <div class="field-checkbox">
             <Checkbox inputId="includeTerms" v-model="includeTerms" :binary="true" />
             <label for="includeTerms">Include terms</label>
           </div>
           <div class="string-copy-container">
             <div v-if="eclStringError.error" class="output-string" style="color: red">Error generating ecl text. Please check your inputs are correct.</div>
-            <div
-              v-else-if="isObjectHasKeys(childLoadingState) && !Object.values(childLoadingState).every(item => item === true)"
-              class="output-string"
-              style="color: red"
-            >
-              <ProgressSpinner />
-            </div>
             <pre v-else class="output-string">{{ queryString }}</pre>
             <Button
               icon="fa-solid fa-copy"
@@ -69,6 +63,7 @@
     </div>
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
+      <Button :label="!previewECL ? 'PreviewECL' : 'Show editor'" severity="info" @click="preview" data-testid="ecl-preview-button" />
       <Button label="Validate" severity="help" @click="validateBuild" data-testid="ecl-validate-button" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
     </template>
@@ -110,37 +105,32 @@ const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
-
+const previewECL = ref(false);
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const eclStringError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
-const loading = ref(false);
+const loading = ref(true);
 const isValidEcl = ref(false);
 const isValid = ref(false);
 const childLoadingState: Ref<any> = ref({});
+const wasDraggedAndDropped = ref(false);
+const op = ref();
+provide("wasDraggedAndDropped", wasDraggedAndDropped);
+provide("includeTerms", readonly(includeTerms));
+provide("forceValidation", readonly(forceValidation));
+provide("childLoadingState", childLoadingState);
+
 watch(
   () => cloneDeep(childLoadingState.value),
   async newValue => {
     if (Object.values(newValue).every(item => item === true)) await generateQueryString();
   }
 );
-
-const wasDraggedAndDropped = ref(false);
-provide("wasDraggedAndDropped", wasDraggedAndDropped);
-const op = ref();
-function toggle(event: any) {
-  op.value.toggle(event);
-}
-
-provide("includeTerms", readonly(includeTerms));
-provide("forceValidation", readonly(forceValidation));
-provide("childLoadingState", childLoadingState);
-
-onMounted(async () => {
-  if (props.eclString) {
-    await createBuildFromEclString(props.eclString);
-  } else createDefaultBuild();
-});
-
+watch(
+  () => props.showDialog,
+  val => {
+    if (val) init();
+  }
+);
 watch(
   () => props.eclString,
   async newValue => {
@@ -151,6 +141,21 @@ watch(
 
 watch(includeTerms, async () => await generateQueryString());
 
+onMounted(async () => {
+  await init();
+});
+
+function toggle(event: any) {
+  op.value.toggle(event);
+}
+
+async function init() {
+  loading.value = true;
+  if (props.eclString) {
+    await createBuildFromEclString(props.eclString);
+  } else createDefaultBuild();
+  loading.value = false;
+}
 function createDefaultBuild() {
   build.value = {};
 }
@@ -177,7 +182,16 @@ async function createBuildFromEclString(ecl: string) {
   await generateQueryString();
 }
 
+async function preview() {
+  if (!previewECL.value) {
+    const rationalised = await QueryService.optimiseECLQuery(build.value);
+    queryString.value = await EclService.getECLFromQuery(rationalised, includeTerms.value);
+  }
+  previewECL.value = !previewECL.value;
+}
+
 async function submit(): Promise<void> {
+  build.value = await QueryService.optimiseECLQuery(build.value);
   queryString.value = await EclService.getECLFromQuery(build.value, props.showNames);
   emit("eclSubmitted", queryString.value);
 }
@@ -358,7 +372,6 @@ function stripValidation(build: any) {
 }
 
 .string-copy-container {
-  height: 10rem;
   display: flex;
   flex-flow: row nowrap;
   align-items: center;

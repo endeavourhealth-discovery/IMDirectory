@@ -41,7 +41,7 @@
                 :parentOperator="operator"
                 v-model:parentGroup="group"
                 @updateBool="updateBool"
-                @rationalise="emit('rationalise')"
+                @rationalise="onRationalise"
                 :rootBool="false"
               />
             </div>
@@ -64,10 +64,12 @@
 
     <div v-if="match.where">
       <span>Attributes for Group</span>
+      <RoleGroup v-model:where="match.where" v-model:isRoleGroup="isRoleGroup" />
       <ECLRefinement
         v-model:where="match.where"
         v-model:parent="match"
         :index="index"
+        :isInAttributeGroup="isRoleGroup"
         :rootBool="true"
         :focusConcepts="focusConcepts"
         :parentType="'match'"
@@ -96,15 +98,15 @@
 
 <script setup lang="ts">
 import { inject, onMounted, Ref, ref, computed } from "vue";
-import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
+import { Bool, Match, Where, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { addConceptToGroup, updateBooleans } from "@/helpers/IMQueryBuilder";
+import { addConceptToGroup, getIsRoleGroup, updateBooleans, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
-import { cloneDeep } from "lodash-es";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
+import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
+import { IM } from "@/vocabulary";
 
 interface Props {
   index: number;
@@ -115,7 +117,7 @@ interface Props {
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined>;
-const parentGroup = defineModel<number[]>("group", { default: [] });
+const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
 const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
@@ -128,6 +130,7 @@ const focusConcepts = computed(() => {
 });
 const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"]);
 const imQueryForPropertySearch: Ref<QueryRequest> = ref({} as QueryRequest);
+
 onMounted(() => {});
 function updateOperator(val: string) {
   updateFocusConcepts(match.value);
@@ -135,23 +138,6 @@ function updateOperator(val: string) {
 }
 function onRationalise() {
   emit("rationalise");
-}
-function focusChildren(children: Match[] | undefined): TTIriRef[] {
-  const focusConcepts: TTIriRef[] = [];
-  if (children) {
-    for (const [index, item] of children.entries()) {
-      focusConcepts.push(...updateFocusConcepts(item));
-    }
-  }
-  return focusConcepts;
-}
-
-function updateFocusConcepts(item: Match): TTIriRef[] {
-  if (item.instanceOf && item.instanceOf[0].iri) return [{ iri: item.instanceOf[0].iri }];
-  const focusConcepts: TTIriRef[] = [];
-  focusConcepts.push(...focusChildren(item.or));
-  focusConcepts.push(...focusChildren(item.and));
-  return focusConcepts;
 }
 
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
@@ -174,7 +160,6 @@ function addRefinement() {
   if (match.value.where) {
     if (match.value.where.and) {
       match.value.where.and.push(where);
-      console.log("and clauses = " + match.value.where.and.length);
     } else if (match.value.where.or) match.value.where.or.push(where);
     else {
       const boolWhere = { uuid: v4() } as Where;
@@ -216,68 +201,6 @@ function addConcept() {
   min-width: 0;
 }
 
-.instance-of {
-  display: flex;
-  flex: 1;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.group-checkbox {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-  align-items: center;
-}
-.group-checkbox label {
-  font-size: 1rem;
-  line-height: 1.25rem;
-  font-weight: normal;
-}
-
-.concept-selector-container {
-  flex: 1 1 0%;
-  min-width: 0;
-}
-
-.display-concept {
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  min-width: 0;
-}
-
-.add-group {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: flex-start;
-  gap: 4px;
-  padding: 4px 0 0 4px;
-}
-
-.builder-button {
-  width: 2rem;
-}
-.add-refinement-button {
-  margin-left: 0.1rem;
-  width: 12rem;
-  max-height: 1rem;
-  padding: 1rem;
-}
-
-.vertical-button {
-  writing-mode: vertical-lr;
-  transform: scale(-1);
-}
-.not-button {
-  margin: 6px 0 6px 6px;
-}
-
-.add-filter-button {
-  display: flex;
-  width: 12rem;
-  margin-left: 0.1rem;
-}
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;
   padding-right: 0;
@@ -292,9 +215,5 @@ function addConcept() {
 ::v-deep(.operator-selector-not .p-select-label) {
   color: var(--p-red-500) !important;
   font-size: 0.85rem;
-}
-.dropdown-labels {
-  min-height: 1rem;
-  font-size: 1rem;
 }
 </style>

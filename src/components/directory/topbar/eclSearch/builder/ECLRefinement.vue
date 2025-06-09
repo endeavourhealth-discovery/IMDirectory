@@ -29,7 +29,9 @@
                     </div>
                   </template>
                 </Select>
+                <RoleGroup v-if="!isInAttributeGroup" v-model:where="where" v-model:isRoleGroup="isRoleGroup" />
               </div>
+
               <div class="nested-ecl-refinement">
                 <div v-for="(item, index) in where[operator]" :key="item.uuid">
                   <ECLRefinement
@@ -37,6 +39,7 @@
                     v-model:parent="where"
                     :focusConcepts="props.focusConcepts"
                     :index="index"
+                    :isInAttributeGroup="isRoleGroup || isInAttributeGroup"
                     v-model:group="group"
                     v-model:parentOperator="operator as Bool"
                     :property-tree-roots="propertyTreeRoots"
@@ -162,18 +165,20 @@ import { ToastSeverity } from "@/enums";
 import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef, Node } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getBooleanOptions, updateBooleans } from "@/helpers/IMQueryBuilder";
-import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions, updateBooleans, getIsRoleGroup } from "@/helpers/IMQueryBuilder";
+import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/helpers/IMQueryBuilder";
 
 import Button from "primevue/button";
 import ECLRefinementValue from "@/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue";
+import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
 
 interface Props {
-  focusConcepts: TTIriRef[];
+  focusConcepts: string[];
   index: number;
   rootBool?: boolean;
   parentOperator?: string;
   parentType: string;
+  isInAttributeGroup: boolean;
 }
 const props = defineProps<Props>();
 const where = defineModel<Where>("where", { default: {} });
@@ -196,7 +201,7 @@ const selectedProperty: Ref<SearchResultSummary | undefined> = ref(where.value a
 const loadingProperty = ref(true);
 const isValidProperty = ref(false);
 const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
-
+const isRoleGroup = computed(() => getIsRoleGroup(where.value));
 const showValidation = ref(false);
 const operatorOptions = ["=", "!="];
 const hover = ref();
@@ -242,33 +247,19 @@ function deleteProperty() {
 async function updatePropertyTreeRoots(): Promise<string[]> {
   propertyTreeRoots.value = ["http://snomed.info/sct#410662002"];
   if (props.focusConcepts.length > 0) {
-    const imQuery = {
-      query: { iri: QUERY.ALLOWABLE_PROPERTY_ANCESTORS },
-      argument: [
-        {
-          parameter: "this",
-          valueIriList: props.focusConcepts
-        }
-      ]
-    } as QueryRequest;
-    const results = await QueryService.queryIMSearch(imQuery);
-    propertyTreeRoots.value.length = 0;
-    if (results.entities) {
-      for (const entity of results.entities) {
-        propertyTreeRoots.value.push(entity.iri);
-      }
-    }
+    propertyTreeRoots.value = await ConceptService.getPropertiesForDomains(props.focusConcepts);
   }
   return propertyTreeRoots.value;
 }
 async function updateQueryForPropertySearch(): Promise<QueryRequest> {
   if (props.focusConcepts.length > 0) {
+    const focusIriList = props.focusConcepts.map(c => ({ iri: c }));
     imQueryForPropertySearch.value = {
       query: { iri: QUERY.ALLOWABLE_PROPERTIES },
       argument: [
         {
           parameter: "this",
-          valueIriList: props.focusConcepts
+          valueIriList: focusIriList
         }
       ]
     } as QueryRequest;
@@ -335,12 +326,10 @@ async function updateIsValidProperty(): Promise<void> {
     } as QueryRequest;
     isValidProperty.value = await QueryService.askQuery(imQuery);
     if (!isValidProperty.value) {
-      let detail = "";
-      if (props.focusConcepts && props.focusConcepts.length > 0) detail = props.focusConcepts.map(c => c.name).join(", ");
       toast.add({
         severity: ToastSeverity.ERROR,
         summary: "Invalid property",
-        detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value.iri}" is not valid for concept "${detail}"`,
+        detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value.iri}" is not a  valid attribute for selected concepts "`,
         life: 3000
       });
     }
@@ -437,6 +426,7 @@ async function updateProperty(property: SearchResultSummary | undefined) {
   line-height: 1.25rem;
   font-weight: normal;
 }
+
 .constraint-operator {
   width: 7.5rem;
 }
