@@ -15,10 +15,6 @@ const AdminService = {
     return await axios.get(Env.API + "api/admin/cognito/group/users", { params: { group: group } });
   },
 
-  async getUsersInGroupAsUser(group: string): Promise<User[]> {
-    return await axios.get(Env.API + "api/admin/cognito/group/usersAsUser", { params: { group: group } });
-  },
-
   async getUser(username: string): Promise<User> {
     return await axios.get(Env.API + "api/admin/cognito/user", { params: { username: username } });
   },

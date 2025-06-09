@@ -11,6 +11,12 @@ const QueryService = {
     if (controller) return await axios.post(API_URL + "/public/queryIM", query, { signal: controller.signal, raw: raw });
     else return await axios.post(API_URL + "/public/queryIM", query, { raw: raw });
   },
+  async flattenBooleans(query: Query | Match): Promise<Query | Match> {
+    return await axios.post(API_URL + "/public/flattenBooleans", query);
+  },
+  async optimiseECLQuery(query: Query): Promise<Query> {
+    return await axios.post(API_URL + "/public/optimiseECLQuery", query);
+  },
 
   async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResponse> {
     return await axios.post(API_URL + "/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });

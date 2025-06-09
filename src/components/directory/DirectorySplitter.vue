@@ -21,7 +21,7 @@
           :searchTerm="searchTerm"
           :updateSearch="updateSearch"
           :selected-filter-options="selectedFilterOptions"
-          :rows="50"
+          :rows="20"
           :searchResults="searchResults"
           @selectedUpdated="routeToSelected"
           @navigateTo="navigateTo"

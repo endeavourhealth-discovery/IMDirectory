@@ -268,7 +268,7 @@ async function getPropertyRange(propIri: string): Promise<any[]> {
   const queryRequest = {
     argument: [
       {
-        parameter: "this",
+        parameter: "ranges",
         valueIri: {
           iri: propIri
         }
