@@ -45,8 +45,8 @@ const QueryService = {
   async getDefaultQuery(): Promise<Query> {
     return await axios.get(API_URL + "/public/defaultQuery");
   },
-  async generateQuerySQL(queryIri: string): Promise<string> {
-    return await axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri } });
+  async generateQuerySQL(queryIri: string, lang?: string): Promise<string> {
+    return await axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri, lang: lang } });
   },
 
   async generateQuerySQLfromQuery(query: Query): Promise<string> {

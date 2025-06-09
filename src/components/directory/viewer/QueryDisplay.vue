@@ -5,7 +5,9 @@
       <TabList id="tab-list">
         <Tab value="0">Rule view</Tab>
         <Tab value="1">Logical view</Tab>
-        <Tab v-if="showDataset" value="2">Dataset definition</Tab>
+        <Tab value="2">MySQL</Tab>
+        <Tab value="3">PostgreSQL</Tab>
+        <Tab v-if="showDataset" value="4">Dataset definition</Tab>
       </TabList>
     </Tabs>
     <div v-if="activeTab === '0' || activeTab === '1'" class="query-display-container flex flex-col gap-4">
@@ -48,24 +50,16 @@
               :expanded="query.name === undefined"
             />
           </span>
-          <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
-            <pre>{{ sql }}</pre>
-            <template #footer>
-              <Button
-                label="Copy to Clipboard"
-                v-tooltip.left="'Copy to clipboard'"
-                v-clipboard:copy="copyToClipboard()"
-                v-clipboard:success="onCopy"
-                v-clipboard:error="onCopyError"
-                data-testid="copy-button"
-              />
-              <Button label="Close" @click="showSql = false" data-testid="close-button" />
-            </template>
-          </Dialog>
         </div>
       </div>
     </div>
-    <div v-if="query.dataSet && activeTab === '2'" class="query-display-container flex flex-col gap-4">
+    <div v-if="activeTab === '2'" class="query-display-container flex flex-col gap-4">
+      <pre>{{ sql }}</pre>
+    </div>
+    <div v-if="activeTab === '3'" class="query-display-container flex flex-col gap-4">
+      <pre>{{ mysql }}</pre>
+    </div>
+    <div v-if="query.dataSet && activeTab === '4'" class="query-display-container flex flex-col gap-4">
       <DataSetDisplay
         v-for="(nestedQuery, index) in query.dataSet"
         :query="nestedQuery"
@@ -86,13 +80,11 @@ import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
 import { QueryService } from "@/services";
 import { Bool, DisplayMode, Query } from "@/interfaces/AutoGen";
 import { onMounted, ref, Ref, watch } from "vue";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { IM } from "@/vocabulary";
 
 interface Props {
   entityIri?: string;
   definition?: string;
-  showSqlButton?: boolean;
   queryDefinition?: Query;
   editMode?: boolean;
   entityType?: string;
@@ -105,8 +97,7 @@ const query: Ref<Query> = ref<Query>(props.queryDefinition ?? ({} as Query));
 const rootQuery = ref({} as Query);
 const activeTab = ref("0");
 const sql: Ref<string> = ref("");
-const showSql: Ref<boolean> = ref(false);
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
+const mysql: Ref<string> = ref("");
 const loading = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 
@@ -140,9 +131,17 @@ async function getQuery() {
   } else if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, displayMode.value);
 }
 
+async function getSQL() {
+  if (props.entityIri) {
+    sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");
+    mysql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
+  }
+}
+
 async function init() {
   loading.value = true;
   await getQuery();
+  await getSQL();
   if (query.value.rule) {
     activeTab.value = "0";
   } else activeTab.value = "1";
