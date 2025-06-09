@@ -70,7 +70,6 @@ declare module 'vue' {
     DirectorySplitter: typeof import('./src/components/directory/DirectorySplitter.vue')['default']
     DirectoryTopbarEclSearchAddDeleteButtons: typeof import('./src/components/directory/topbar/eclSearch/AddDeleteButtons.vue')['default']
     DirectoryTopbarEclSearchBuilderConceptSelector: typeof import('./src/components/directory/topbar/eclSearch/builder/ConceptSelector.vue')['default']
-    DirectoryTopbarEclSearchBuilderDialogTester: typeof import('./src/components/directory/topbar/eclSearch/builder/DialogTester.vue')['default']
     DirectoryTopbarEclSearchBuilderECLBoolQuery: typeof import('./src/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue')['default']
     DirectoryTopbarEclSearchBuilderECLRefinement: typeof import('./src/components/directory/topbar/eclSearch/builder/ECLRefinement.vue')['default']
     DirectoryTopbarEclSearchBuilderECLRefinementValue: typeof import('./src/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue')['default']
@@ -240,6 +239,7 @@ declare module 'vue' {
     UprnConsent: typeof import('./src/components/uprn/UprnConsent.vue')['default']
     UprnSingleAddressLookup: typeof import('./src/components/uprn/SingleAddressLookup.vue')['default']
     WorkflowSideBar: typeof import('./src/components/workflow/SideBar.vue')['default']
+    WorkflowViewBugReport: typeof import('./src/components/workflow/ViewBugReport.vue')['default']
   }
   export interface ComponentCustomProperties {
     Ripple: typeof import('primevue/ripple')['default']
