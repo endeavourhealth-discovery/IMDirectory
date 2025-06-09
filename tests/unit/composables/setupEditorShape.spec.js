@@ -6,7 +6,7 @@ import { setupEditorShape } from "@/composables/setupEditorShape";
 import { IM } from "@/vocabulary";
 import ConceptShape from "@/constants/editorShapes/Concept";
 
-describe("setupShape", async () => {
+describe("setupShape", () => {
   let wrapper;
 
   describe("getShape", () => {

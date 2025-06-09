@@ -1,13 +1,10 @@
 import { setupServer } from "msw/node";
-import { beforeAll, afterAll, afterEach, it, expect, beforeEach, describe } from "vitest";
+import { beforeAll, afterAll, afterEach } from "vitest";
 
 window.happyDOM.setURL("http://localhost");
 
 // Global canvas mock (for charts)
-HTMLCanvasElement.prototype.getContext = () => {
-  {
-  }
-};
+HTMLCanvasElement.prototype.getContext = () => {};
 
 const restHandlers = [];
 const server = setupServer(...restHandlers);
