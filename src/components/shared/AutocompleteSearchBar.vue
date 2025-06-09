@@ -135,10 +135,10 @@ watch(
   (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       searchLoading.value = true;
-      if (newValue && newValue.name && newValue.name != searchText.value && newValue.bestMatch && newValue.bestMatch != searchText.value) {
-        searchText.value = newValue.bestMatch ? newValue.bestMatch : newValue.name;
+      if (newValue && (newValue.name || newValue.bestMatch)) {
+        searchText.value = newValue.bestMatch ? newValue.bestMatch : newValue.name!;
         selectedLocal.value = newValue;
-      } else if (!newValue || !newValue.name) {
+      } else {
         searchText.value = "";
         selectedLocal.value = undefined;
       }
