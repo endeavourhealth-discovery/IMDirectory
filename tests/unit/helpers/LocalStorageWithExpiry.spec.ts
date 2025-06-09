@@ -1,5 +1,5 @@
-import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry.ts";
-import { vi, afterEach, it } from "vitest";
+import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
+import { describe, expect, vi, afterEach, it } from "vitest";
 
 describe("localStorageWithExpiry", () => {
   beforeEach(() => {

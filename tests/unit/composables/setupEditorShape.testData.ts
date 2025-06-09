@@ -392,8 +392,7 @@ export default {
     scheme: {
       name: "London Discovery Snomed extension code scheme and graph",
       iri: "http://endhealth.info/im#"
-    },
-    iri: "http://endhealth.info/im#Editor_ConceptShape"
+    }
   },
   CONCEPT_SET_SHAPE: {
     iri: "http://endhealth.info/im#Editor_ConceptSetShape",
@@ -841,7 +840,6 @@ export default {
     scheme: {
       name: "London Discovery Snomed extension code scheme and graph",
       iri: "http://endhealth.info/im#"
-    },
-    iri: "http://endhealth.info/im#Editor_ConceptSetShape"
+    }
   }
 };

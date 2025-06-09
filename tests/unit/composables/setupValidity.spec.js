@@ -6,6 +6,7 @@ import { IM } from "@/vocabulary";
 import { ref } from "vue";
 import { EntityService } from "@/services";
 import { cloneDeep } from "lodash-es";
+import { describe, vi, it, expect, beforeEach } from "vitest";
 
 describe("setupValidity", () => {
   describe("constructValidationCheckStatus", () => {

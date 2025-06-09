@@ -1,7 +1,9 @@
 import { ComponentType } from "@/enums";
 import { getTreeQueryIri, processArguments, processComponentType } from "@/helpers/EditorMethods";
+import { PropertyShape } from "@/interfaces/AutoGen";
 import { fakerFactory } from "@/mocks/fakerFactory";
-import { IM, COMPONENT } from "@/vocabulary";
+import { COMPONENT } from "@/vocabulary";
+import { describe, it, expect } from "vitest";
 
 describe("EditorMethods", () => {
   describe("processArguments", () => {
@@ -9,9 +11,16 @@ describe("EditorMethods", () => {
       const argument1 = fakerFactory.argument.create({ valueVariable: "testVariable", valueDataList: [] });
       const argument2 = fakerFactory.argument.create({ valueVariable: "altVariable", valueDataList: [] });
       const argument3 = fakerFactory.argument.create({ valueVariable: "testVariableWithOrder", valueDataList: [] });
-      const shape = fakerFactory.propertyShape.create({ argument: [argument1, argument2, argument3], builderChild: true, order: 2 });
+      // const shape = fakerFactory.propertyShape.create({ argument: [argument1, argument2, argument3], builderChild: true, order: 2 });
+      const propertyShape: PropertyShape = {
+        order: 2,
+        componentType: { iri: "componentType" },
+        path: { iri: "path" },
+        builderChild: true,
+        argument: [argument1, argument2, argument3]
+      };
       const valueVariableMap = new Map().set("testVariable", { id: "testId" }).set("testVariableWithOrder2", { id: "testOrderId" });
-      const results = processArguments(shape, valueVariableMap);
+      const results = processArguments(propertyShape, valueVariableMap);
       expect(results[0]).toEqual(expect.objectContaining({ valueObject: { id: "testId" } }));
       expect(results[0]).toEqual(expect.objectContaining({ valueData: argument1.valueData }));
       expect(results[1]).toEqual(expect.objectContaining({ valueVariable: null }));

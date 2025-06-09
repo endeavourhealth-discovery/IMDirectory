@@ -1,4 +1,5 @@
 import { RDF, IM, XSD, RDFS, EDITOR, COMPONENT, VALIDATION, IM_FUNCTION, QUERY } from "@/vocabulary";
+import { expect } from "vitest";
 
 export default {
   testShape: {
