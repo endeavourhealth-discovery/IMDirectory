@@ -1,4 +1,5 @@
 import { byScheme, byPriority, byLabel, byName, byPosition, byOrder } from "@/helpers/Sorters";
+import { describe, it, expect } from "vitest";
 
 describe("Sorters", () => {
   describe("byScheme", () => {

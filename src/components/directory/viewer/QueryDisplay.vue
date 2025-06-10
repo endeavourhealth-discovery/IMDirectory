@@ -1,6 +1,5 @@
 <template>
   <div id="query-display" class="flex flex-1 flex-col">
-    <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <Tabs v-if="!(entityType === IM.VALUESET)" id="viewer-tabs" v-model:value="activeTab" :lazy="true" scrollable>
       <TabList id="tab-list">
         <Tab value="0">Rule view</Tab>
@@ -10,7 +9,8 @@
         <Tab v-if="showDataset" value="4">Dataset definition</Tab>
       </TabList>
     </Tabs>
-    <div v-if="activeTab === '0' || activeTab === '1'" class="query-display-container flex flex-col gap-4">
+    <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
+    <div v-else-if="activeTab === '0' || activeTab === '1'" class="query-display-container flex flex-col gap-4">
       <div v-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
       <div class="query-display">
         <div class="rec-query-display">
@@ -53,13 +53,13 @@
         </div>
       </div>
     </div>
-    <div v-if="activeTab === '2'" class="query-display-container flex flex-col gap-4">
+    <div v-else-if="activeTab === '2'" class="query-display-container flex flex-col gap-4">
       <pre>{{ sql }}</pre>
     </div>
-    <div v-if="activeTab === '3'" class="query-display-container flex flex-col gap-4">
+    <div v-else-if="activeTab === '3'" class="query-display-container flex flex-col gap-4">
       <pre>{{ mysql }}</pre>
     </div>
-    <div v-if="query.dataSet && activeTab === '4'" class="query-display-container flex flex-col gap-4">
+    <div v-else-if="query.dataSet && activeTab === '4'" class="query-display-container flex flex-col gap-4">
       <DataSetDisplay
         v-for="(nestedQuery, index) in query.dataSet"
         :query="nestedQuery"

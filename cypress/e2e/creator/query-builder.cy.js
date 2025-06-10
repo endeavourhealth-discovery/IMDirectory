@@ -86,7 +86,12 @@ describe.skip("Query builder", () => {
     cy.get(".datatable-flex-cell").contains(diabetesSet.name).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.get("[data-testid=back-to-search-results]").click();
-    cy.get(".p-dialog-content").find("[data-testid=search-input]").clear().type(diabetesSet2.searchTerm);
+    cy.get(".p-dialog-content")
+      .find("[data-testid=search-input]")
+      .then($input => {
+        cy.wrap($input).clear();
+        cy.wrap($input).type(diabetesSet2.searchTerm);
+      });
     cy.get(".datatable-flex-cell").contains(diabetesSet2.name).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);
@@ -104,7 +109,12 @@ describe.skip("Query builder", () => {
     cy.get(".datatable-flex-cell").contains(diabetesSet.name).click();
     cy.get(".parent-header-container").find(".p-button-label").contains("Add").click();
     cy.get("[data-testid=back-to-search-results]").click();
-    cy.get(".p-dialog-content").find("[data-testid=search-input]").clear().type(diabetesSet2.searchTerm);
+    cy.get(".p-dialog-content")
+      .find("[data-testid=search-input]")
+      .then($input => {
+        cy.wrap($input).clear();
+        cy.wrap($input).type(diabetesSet2.searchTerm);
+      });
     cy.get(".datatable-flex-cell").contains(diabetesSet2.name).click();
     cy.get(".title-buttons-container").find(".p-button-label").contains("Add").click();
     cy.wait(1000);

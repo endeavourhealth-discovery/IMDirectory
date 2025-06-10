@@ -25,14 +25,13 @@
 <script setup lang="ts">
 import { formatDateTime } from "@/helpers/Datetime/FormatDateTime";
 import { TaskHistory } from "@/interfaces/AutoGen";
-import { IM, WORKFLOW } from "@/vocabulary";
 
 interface Props {
   showDialog: boolean;
   taskHistory: TaskHistory[];
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const visible = defineModel("showDialog", { type: Boolean, default: false });
 

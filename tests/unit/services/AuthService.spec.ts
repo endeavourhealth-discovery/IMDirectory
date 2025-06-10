@@ -1,9 +1,9 @@
 import { flushPromises } from "@vue/test-utils";
 import * as Auth from "aws-amplify/auth";
 import { AuthService } from "@/services";
-import { describe } from "vitest";
-import { vi } from "vitest";
+import { describe, vi, beforeEach, it, expect } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
+import { faker } from "@faker-js/faker";
 
 vi.mock("aws-amplify/auth", () => ({
   __esModule: true,
@@ -24,10 +24,10 @@ describe("AuthService", () => {
     });
 
     it("returns 200 with auth success", async () => {
-      signOutSpy = vi.spyOn(Auth, "signOut").mockResolvedValue({ code: 200 });
+      signOutSpy = vi.spyOn(Auth, "signOut").mockResolvedValue();
       const result = AuthService.signOut();
       let promiseResult;
-      result.then(res => {
+      void result.then(res => {
         promiseResult = res;
       });
       await flushPromises();
@@ -40,7 +40,7 @@ describe("AuthService", () => {
       const result = AuthService.signOut();
       let promiseResult;
       let err;
-      result.then(res => {
+      void result.then(res => {
         err = res.error;
         promiseResult = res;
       });
@@ -51,38 +51,40 @@ describe("AuthService", () => {
   });
 
   describe("getCurrentAuthenticatedUser", () => {
-    let getCurrentUserSpy;
-    let fetchAuthSessionSpy;
-    let fetchUserAttributesSpy;
-    let fetchMFAPreferenceSpy;
+    let getCurrentUserSpy = vi.spyOn(Auth, "getCurrentUser").mockRejectedValue(false);
+    let fetchAuthSessionSpy = vi.spyOn(Auth, "fetchAuthSession").mockRejectedValue(false);
+    let fetchUserAttributesSpy = vi.spyOn(Auth, "fetchUserAttributes").mockRejectedValue(false);
+    let fetchMFAPreferenceSpy = vi.spyOn(Auth, "fetchMFAPreference").mockRejectedValue(false);
     beforeEach(() => {
       vi.clearAllMocks();
     });
 
     it("returns 200 with auth success, user, password empty, with id", async () => {
+      const uuid = faker.string.uuid();
       const authUser = {
         username: "devtest",
+        userId: uuid,
         attributes: {
           "custom:avatar": "colour/002-man.png",
           "custom:forename": "John",
           "custom:surname": "Doe",
-          email: "john.doe@ergosoft.co.uk",
-          email_verified: true,
-          sub: "9gkej864-l39k-9u87-4lau-w7777b3m5g09"
+          email: "john.doe@ergosoft.co.uk"
         }
       };
-      getCurrentUserSpy = vi.spyOn(Auth, "getCurrentUser").mockResolvedValueOnce({ username: authUser.username, userId: authUser.attributes.sub });
-      fetchAuthSessionSpy = vi.spyOn(Auth, "fetchAuthSession").mockResolvedValueOnce({ tokens: { idToken: "testToken" } });
+      getCurrentUserSpy = vi.spyOn(Auth, "getCurrentUser").mockResolvedValueOnce(authUser);
+      fetchAuthSessionSpy = vi.spyOn(Auth, "fetchAuthSession").mockResolvedValueOnce({
+        tokens: { idToken: { payload: { iss: faker.internet.jwt() } } as Auth.JWT, accessToken: { payload: { iss: faker.internet.jwt() } } as Auth.JWT }
+      });
       fetchUserAttributesSpy = vi.spyOn(Auth, "fetchUserAttributes").mockResolvedValueOnce(authUser.attributes);
       fetchMFAPreferenceSpy = vi.spyOn(Auth, "fetchMFAPreference").mockResolvedValueOnce({ preferred: "TOTP" });
       const result = AuthService.getCurrentAuthenticatedUser();
       let promiseResult;
-      result.then(res => {
+      void result.then(res => {
         promiseResult = res;
       });
       await flushPromises();
       const currentUser = {
-        id: "9gkej864-l39k-9u87-4lau-w7777b3m5g09",
+        id: uuid,
         username: "devtest",
         firstName: "John",
         lastName: "Doe",
@@ -94,34 +96,41 @@ describe("AuthService", () => {
       };
 
       expect(getCurrentUserSpy).toHaveBeenCalledTimes(1);
+      expect(fetchAuthSessionSpy).toHaveBeenCalledOnce();
+      expect(fetchMFAPreferenceSpy).toHaveBeenCalledOnce();
+      expect(fetchUserAttributesSpy).toHaveBeenCalledOnce();
       expect(promiseResult).toStrictEqual({ status: 200, message: "User authenticated successfully", user: currentUser });
     });
 
     it("returns 400 with auth fail", async () => {
       const authUser = {
         username: "devtest",
+        userId: faker.string.uuid(),
         attributes: {
           "custom:avatar": "colour/002-man.png",
           "custom:forename": "John",
           "custom:surname": "Doe",
-          email: "john.doe@ergosoft.co.uk",
-          email_verified: true,
-          sub: "9gkej864-l39k-9u87-4lau-w7777b3m5g09"
+          email: "john.doe@ergosoft.co.uk"
         }
       };
-      getCurrentUserSpy = vi.spyOn(Auth, "getCurrentUser").mockResolvedValueOnce(false);
-      fetchAuthSessionSpy = vi.spyOn(Auth, "fetchAuthSession").mockResolvedValueOnce({ tokens: { idToken: "testToken" } });
+      getCurrentUserSpy = vi.spyOn(Auth, "getCurrentUser").mockRejectedValueOnce(false);
+      fetchAuthSessionSpy = vi.spyOn(Auth, "fetchAuthSession").mockResolvedValueOnce({
+        tokens: { idToken: { payload: { iss: faker.internet.jwt() } } as Auth.JWT, accessToken: { payload: { iss: faker.internet.jwt() } } as Auth.JWT }
+      });
       fetchUserAttributesSpy = vi.spyOn(Auth, "fetchUserAttributes").mockResolvedValueOnce(authUser.attributes);
       fetchMFAPreferenceSpy = vi.spyOn(Auth, "fetchMFAPreference").mockResolvedValueOnce({ preferred: "TOTP" });
       const result = AuthService.getCurrentAuthenticatedUser();
       let promiseResult;
       let err;
-      result.then(res => {
+      void result.then(res => {
         err = res.error;
         promiseResult = res;
       });
       await flushPromises();
       expect(getCurrentUserSpy).toHaveBeenCalledTimes(1);
+      expect(fetchAuthSessionSpy).not.toHaveBeenCalledOnce();
+      expect(fetchMFAPreferenceSpy).not.toHaveBeenCalledOnce();
+      expect(fetchUserAttributesSpy).not.toHaveBeenCalledOnce();
       expect(promiseResult).toStrictEqual({ status: 403, message: "Error authenticating current user", error: err });
     });
   });

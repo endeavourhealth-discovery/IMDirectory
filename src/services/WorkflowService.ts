@@ -15,31 +15,31 @@ const WorkflowService = {
   },
 
   async updateBugReport(bugReport: BugReport): Promise<void> {
-    return axios.post(api + "/updateBugReport", bugReport);
+    return await axios.post(api + "/updateBugReport", bugReport);
   },
 
   async createRoleRequest(roleRequest: RoleRequest): Promise<void> {
-    return axios.post(api + "/createRoleRequest", roleRequest);
+    return await axios.post(api + "/createRoleRequest", roleRequest);
   },
 
   async getRoleRequest(id: string): Promise<RoleRequest> {
-    return axios.get(api + "/roleRequest", { params: { id: id } });
+    return await axios.get(api + "/roleRequest", { params: { id: id } });
   },
 
   async updateRoleRequest(roleRequest: RoleRequest): Promise<void> {
-    return axios.post(api + "/updateRoleRequest", roleRequest);
+    return await axios.post(api + "/updateRoleRequest", roleRequest);
   },
 
   async createEntityApproval(entityApproval: EntityApproval): Promise<void> {
-    return axios.post(api + "/createEntityApproval", entityApproval);
+    return await axios.post(api + "/createEntityApproval", entityApproval);
   },
 
   async getEntityApproval(id: string): Promise<EntityApproval> {
-    return axios.get(api + "/entityApproval", { params: { id: id } });
+    return await axios.get(api + "/entityApproval", { params: { id: id } });
   },
 
   async updateEntityApproval(entityApproval: EntityApproval): Promise<void> {
-    return axios.post(api + "/updateEntityApproval", entityApproval);
+    return await axios.post(api + "/updateEntityApproval", entityApproval);
   },
 
   async getTasksByCreatedBy(page?: number, size?: number): Promise<WorkflowResponse> {

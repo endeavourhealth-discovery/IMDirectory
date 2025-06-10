@@ -1,4 +1,5 @@
 import { translateFromEntityBundle } from "@/helpers/GraphTranslator";
+import { describe, it, expect } from "vitest";
 
 describe("GraphTranslator", () => {
   describe("translateFromEntityBundle", () => {

@@ -1,7 +1,7 @@
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import palette from "google-palette";
 import { createTestingPinia } from "@pinia/testing";
-import { useSharedStore } from "@/stores/sharedStore";
+import { describe, it, expect } from "vitest";
 
 createTestingPinia();
 
@@ -53,7 +53,7 @@ describe("ConceptTypeMethods", () => {
 
   describe("getColourFromType", () => {
     const bgs = palette("tol-rainbow", 10);
-    const bgsFixed = bgs.map(color => "#" + color + "88");
+    const bgsFixed = bgs.map((color: string) => "#" + color + "88");
 
     it("returns correct colour for nodeshape", () => {
       expect(getColourFromType(testDataModelType)).toBe(bgsFixed[0]);
