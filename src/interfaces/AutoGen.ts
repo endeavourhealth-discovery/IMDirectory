@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-06-02 15:49:11.
+// Generated using typescript-generator version 3.2.1263 on 2025-06-10 05:30:20.
 
 export interface ConceptContextMap {
     id?: string;
@@ -286,17 +286,17 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    qualifier?: string;
     unit?: TTIriRef;
     operator?: Operator;
     valueParameter?: string;
     valueLabel?: string;
+    qualifier?: string;
 }
 
 export interface BoolGroup<T> {
-    not?: T[];
-    and?: T[];
     or?: T[];
+    and?: T[];
+    not?: T[];
 }
 
 export interface Case {
@@ -337,9 +337,9 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -537,6 +537,7 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     is?: Node[];
     notIs?: Node[];
     not?: Where[];
+    roleGroup?: boolean;
     isNotNull?: boolean;
     function?: FunctionClause;
     valueVariable?: string;
@@ -733,15 +734,15 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    type?: TTArray;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
-    description?: string;
+    types?: TTIriRef[];
     code?: string;
     prefixes?: TTPrefix[];
-    types?: TTIriRef[];
+    description?: string;
+    status?: TTIriRef;
 }
 
 export interface EntityValidationRequest {
@@ -782,6 +783,7 @@ export interface Task {
     assignedTo?: string;
     dateCreated?: Date;
     history?: TaskHistory[];
+    hostUrl?: string;
 }
 
 /**
