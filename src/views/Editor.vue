@@ -64,6 +64,7 @@ import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
+import { handleFocusChange } from "@/composables/useAutocompleteRegistry";
 import { useDialog } from "primevue/usedialog";
 
 export default defineComponent({
@@ -88,7 +89,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, onUnmounted, onBeforeUnmount, provide, ref, watch } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -112,10 +113,27 @@ const router = useRouter();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const dynamicDialog = useDialog();
+const autocompletes = new Map<HTMLElement, () => void>();
 
+document.addEventListener("focusin", e => {
+  for (const [element, resetFn] of autocompletes.entries()) {
+    if (!element.contains(e.target as Node)) {
+      resetFn(); // Only reset if focus moved outside
+    }
+  }
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("focusin", onGlobalFocusIn);
+});
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
+
+function onGlobalFocusIn(e: FocusEvent) {
+  const newFocusedElement = e.target as HTMLElement;
+  handleFocusChange(newFocusedElement);
+}
 
 const { editorEntity, editorEntityOriginal, fetchEntity, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
   setupEditorEntity(EditorMode.EDIT, updateType);
@@ -164,6 +182,7 @@ provide(injectionKeys.fullShape, shape);
 
 onMounted(async () => {
   loading.value = true;
+  document.addEventListener("focusin", onGlobalFocusIn);
   await filterStore.fetchFilterSettings();
   await fetchEntity();
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {

@@ -46,6 +46,7 @@
               :parent-match="rootQuery"
               :bracketed="false"
               :editMode="editMode"
+              :eclQuery="eclQuery"
               :expanded="query.name === undefined"
             />
           </span>

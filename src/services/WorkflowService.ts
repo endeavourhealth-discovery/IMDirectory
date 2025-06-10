@@ -15,7 +15,7 @@ const WorkflowService = {
   },
 
   async updateBugReport(bugReport: BugReport): Promise<void> {
-    return axios.post(api + "api/workflow/updateBugReport", bugReport);
+    return await axios.post(api + "api/workflow/updateBugReport", bugReport);
   },
 
   async getTasksByCreatedBy(page?: number, size?: number): Promise<WorkflowResponse> {

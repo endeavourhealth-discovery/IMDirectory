@@ -12,6 +12,7 @@ function createNew() {
   const directService = new DirectService();
 
   async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
+    console.log("getCreateOptions called for " + JSON.stringify(node));
     const selectionWrapperCopy = [
       {
         label: "New",
@@ -43,7 +44,6 @@ function createNew() {
     const response = await QueryService.queryIM(queryRequest);
     const types = response?.entities ?? [];
     if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
-
     for (const currentType in node.conceptTypes) {
       switch (node.conceptTypes[currentType].iri) {
         case IM.FOLDER:
@@ -73,7 +73,6 @@ function createNew() {
     if (!isArrayHasLength(allowableTypes)) {
       return selectionWrapperCopy;
     }
-
     for (const allowableType of allowableTypes) {
       const item = {
         label: allowableType["http://www.w3.org/2000/01/rdf-schema#label"],
@@ -90,6 +89,7 @@ function createNew() {
           newFolder.value = node;
         };
       } else {
+        console.log("item as : " + item.data.type + " " + item.data.property + " " + node.data.iri);
         item.command = () => directService.create(item.data.type, item.data.property, node.data);
       }
       if (selectionWrapperCopy[0].items) selectionWrapperCopy[0].items.push(item);

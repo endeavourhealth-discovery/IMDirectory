@@ -15,6 +15,7 @@
           </div>
           <div v-else class="creator-layout-container">
             <template v-for="(group, index) of groups" v-bind:key="index">
+              <span>{{ log(group.componentType) }}</span>
               <component :is="processComponentType(group.componentType)" :mode="EditorMode.CREATE" :shape="group" :value="processEntityValue(group)" />
             </template>
           </div>
@@ -128,6 +129,9 @@ watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
 });
 
+function log(message: TTIriRef) {
+  console.log(message.iri);
+}
 function onShowSidebar() {
   showSidebar.value = !showSidebar.value;
   editorStore.updateFindInEditorTreeIri("");
