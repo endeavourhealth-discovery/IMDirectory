@@ -35,7 +35,10 @@ describe("Register", () => {
     cy.findByTestId("register-email2").type("cypress@cypres.com");
     cy.findByTestId("register-email1").focus();
     cy.get(".p-message-error").contains("Email addresses do not match");
-    cy.findByTestId("register-email2").clear().type("cypress@cypress.com");
+    cy.findByTestId("register-email2").then($input => {
+      cy.wrap($input).clear();
+      cy.wrap($input).type("cypress@cypress.com");
+    });
     cy.findByTestId("register-email1").focus();
     cy.get(".p-message-error").should("not.exist");
   });
@@ -73,7 +76,10 @@ describe("Register", () => {
     cy.findByTestId("password-new2").type("1234dcbaA%");
     cy.findByTestId("password-new1").find("input").focus();
     cy.get(".p-message-error").contains("Passwords do not match");
-    cy.findByTestId("password-new2").clear().type("1234abcdA%");
+    cy.findByTestId("password-new2").then($input => {
+      cy.wrap($input).clear();
+      cy.wrap($input).type("1234abcdA%");
+    });
     cy.get(".p-message-error").should("not.exist");
   });
   it("can show privacy policy", () => {
@@ -82,8 +88,10 @@ describe("Register", () => {
     cy.get("#topbar-content", { timeout: 60000 }).contains("Privacy policy");
   });
   it("can reveal passwords", () => {
-    cy.findByTestId("password-new1").type("1234abcdA%").find("input").should("not.have.text", "1234abcdA%");
-    cy.findByTestId("password-new2").type("1234abcdA%").find("input").should("not.have.text", "1234abcdA%");
+    cy.findByTestId("password-new1").type("1234abcdA%");
+    cy.getByTestId("password-new1").find("input").should("not.have.text", "1234abcdA%");
+    cy.findByTestId("password-new2").type("1234abcdA%");
+    cy.getByTestId("password-new2").find("input").should("not.have.text", "1234abcdA%");
     cy.findByTestId("password-new1").find("svg").click();
     cy.findByTestId("password-new2").find("svg").click();
     cy.findByTestId("password-new1").find("input").should("have.value", "1234abcdA%");

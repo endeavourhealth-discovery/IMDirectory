@@ -26,18 +26,30 @@ describe("UserEdit", () => {
   });
 
   it("checks that the email is valid", () => {
-    cy.findByTestId("user-edit-email1").clear().type("cypress@cypress,com");
+    cy.findByTestId("user-edit-email1").then($input => {
+      cy.wrap($input).clear();
+      cy.wrap($input).type("cypress@cypress,com");
+    });
     cy.get(".email-times");
     cy.findByTestId("user-edit-email1").type("{backspace}{backspace}{backspace}{backspace}.com");
     cy.get(".email-check");
   });
   it("checks confirm email is valid", () => {
-    cy.findByTestId("user-edit-email1").clear().type("cypress@cypress.com");
+    cy.findByTestId("user-edit-email1").then($input => {
+      cy.wrap($input).clear();
+      cy.wrap($input).type("cypress@cypress.com");
+    });
     cy.get(".email-check");
-    cy.findByTestId("user-edit-email2").clear().type("cypress@cypres.com");
+    cy.findByTestId("user-edit-email2").then($input => {
+      cy.wrap($input).clear();
+      cy.wrap($input).type("cypress@cypres.com");
+    });
     cy.findByTestId("user-edit-email1").focus();
     cy.get(".p-message-error").contains("Email addresses do not match");
-    cy.findByTestId("user-edit-email2").clear().type("cypress@cypress.com");
+    cy.findByTestId("user-edit-email2").then($input => {
+      cy.wrap($input).clear();
+      cy.wrap($input).type("cypress@cypress.com");
+    });
     cy.findByTestId("user-edit-email1").focus();
     cy.get(".p-message-error").should("not.exist");
   });
@@ -78,7 +90,10 @@ describe("UserEdit", () => {
     cy.findByTestId("password-new2").type("1234dcbaA%");
     cy.findByTestId("password-new1").find("input").focus();
     cy.get(".p-message-error").contains("Passwords do not match");
-    cy.findByTestId("password-new2").clear().type("1234abcdA%");
+    cy.findByTestId("password-new2").then($input => {
+      cy.wrap($input).clear();
+      cy.wrap($input).type("1234abcdA%");
+    });
     cy.get(".p-message-error").should("not.exist");
   });
 });

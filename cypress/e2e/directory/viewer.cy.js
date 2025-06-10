@@ -96,14 +96,13 @@ describe("viewer", () => {
         it("shows some of's in order of priority", () => {
           cy.findByTestId("hasMap").find("tr").should("have.length.above", 0);
           const priorityArray = [];
-          cy.get("[data-testid=priority]")
-            .each(($el, index, $list) => {
-              cy.wrap($el)
-                .invoke("text")
-                .then(parseFloat)
-                .then(num => priorityArray.push(num));
-            })
-            .then(() => expect(priorityArray).to.equal(priorityArray.sort()));
+          cy.get("[data-testid=priority]").each($el => {
+            cy.wrap($el)
+              .invoke("text")
+              .then(parseFloat)
+              .then(num => priorityArray.push(num));
+          });
+          cy.then(() => expect(priorityArray).to.equal(priorityArray.sort()));
         });
         it("shows matched from's", () => {
           cy.findByTestId("matchedFrom").find("tr").should("have.length.above", 0);

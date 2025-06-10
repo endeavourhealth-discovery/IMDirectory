@@ -1,7 +1,5 @@
-import ChartRescale from "./ChartRescale";
 import ConceptTypeMethods from "./ConceptTypeMethods";
 import DataTypeCheckers from "./DataTypeCheckers";
-import ContainerDimensionGetters from "./ContainerDimensionGetters";
 import GraphTranslator from "./GraphTranslator";
 import Converters from "./Converters";
 import Sorters from "./Sorters";
@@ -20,11 +18,9 @@ import { getKey, getParentNode } from "./TreeHelper";
 import { deferred } from "./Deferred";
 
 export {
-  ChartRescale,
   ConceptTypeMethods,
   Converters,
   DataTypeCheckers,
-  ContainerDimensionGetters,
   EditorMethods,
   GraphTranslator,
   Sorters,

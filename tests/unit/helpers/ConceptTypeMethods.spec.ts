@@ -1,5 +1,6 @@
 import { isOfTypes, isValueSet, isProperty } from "@/helpers/ConceptTypeMethods";
 import { IM } from "@/vocabulary";
+import { describe, it, expect } from "vitest";
 
 describe("ConceptTypeMethods", () => {
   const testConceptType = [{ iri: "http://endhealth.info/im#Concept", name: "Concept" }];

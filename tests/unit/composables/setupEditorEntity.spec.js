@@ -13,7 +13,7 @@ describe("fetchEntity", () => {
   let getFullEntitySpy;
   let getEntityTypesSpy;
   let mockUpdateType;
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.resetAllMocks();
     getFullEntitySpy = vi.spyOn(EntityService, "getFullEntity");
     getEntityTypesSpy = vi.spyOn(EntityService, "getEntityTypes");
@@ -45,11 +45,11 @@ describe("fetchEntity", () => {
 
 describe("processEntity", () => {
   let mockUpdateType;
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.resetAllMocks();
     mockUpdateType = vi.fn();
   });
-  it("changes iri to full iri and removes im1id and im1scheme", async () => {
+  it("changes iri to full iri and removes im1id and im1scheme", () => {
     const testEntity = fakerFactory.entity.create();
     testEntity[IM.IM_1_ID] = "testIri";
     testEntity[IM.IM_1_SCHEME] = [{ iri: "testScheme" }];
@@ -220,7 +220,6 @@ describe("processEntity", () => {
     it("can check for changes ___ has changes ___ editor", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const editorStore = useEditorStore();
-      const creatorStore = useCreatorStore();
       wrapper.vm.editorEntity = { testIri1: "testValue1", testIri2: "testValue2" };
       wrapper.vm.editorEntityOriginal = { testIri1: "testValue1" };
       expect(wrapper.vm.checkForChanges()).toBe(true);
@@ -230,7 +229,6 @@ describe("processEntity", () => {
     it("can check for changes ___ no changes ___ editor", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const editorStore = useEditorStore();
-      const creatorStore = useCreatorStore();
       wrapper.vm.editorEntity = { testIri1: "testValue1", testIri2: "testValue2" };
       wrapper.vm.editorEntityOriginal = { testIri1: "testValue1", testIri2: "testValue2" };
       expect(wrapper.vm.checkForChanges()).toBe(false);
@@ -239,7 +237,6 @@ describe("processEntity", () => {
 
     it("can check for changes ___ has changes ___ creator", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.CREATE, mockUpdateType]);
-      const editorStore = useEditorStore();
       const creatorStore = useCreatorStore();
       wrapper.vm.editorEntity = { testIri1: "testValue1", testIri2: "testValue2" };
       wrapper.vm.editorEntityOriginal = { testIri1: "testValue1" };
@@ -249,7 +246,6 @@ describe("processEntity", () => {
 
     it("can check for changes ___ no changes ___ creator", () => {
       const wrapper = mountComposable(setupEditorEntity, [EditorMode.CREATE, mockUpdateType]);
-      const editorStore = useEditorStore();
       const creatorStore = useCreatorStore();
       wrapper.vm.editorEntity = { testIri1: "testValue1", testIri2: "testValue2" };
       wrapper.vm.editorEntityOriginal = { testIri1: "testValue1", testIri2: "testValue2" };
