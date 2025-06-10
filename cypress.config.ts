@@ -3,6 +3,7 @@ import "dotenv/config";
 import { addCucumberPreprocessorPlugin } from "@badeball/cypress-cucumber-preprocessor";
 import createBundler from "@bahmutov/cypress-esbuild-preprocessor";
 import { createEsbuildPlugin } from "@badeball/cypress-cucumber-preprocessor/esbuild";
+import fs from "fs";
 
 export default defineConfig({
   e2e: {
@@ -10,6 +11,16 @@ export default defineConfig({
     supportFile: "cypress/support/e2e.ts",
     async setupNodeEvents(on, config) {
       await addCucumberPreprocessorPlugin(on, config);
+
+      on("task", {
+        readFileMaybe(filename) {
+          if (fs.existsSync(filename)) {
+            return fs.readFileSync(filename, "utf8");
+          }
+
+          return null;
+        }
+      });
 
       on(
         "file:preprocessor",

@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-row items-center">
-    <Card class="justify-content-sm-around login-card flex flex-col items-center">
+    <Card class="justify-content-sm-around login-card flex flex-col items-center" data-testId="login-page">
       <template #header>
         <IMFontAwesomeIcon class="icon-header" icon="fa-solid fa-users" />
       </template>
