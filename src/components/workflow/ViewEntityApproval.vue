@@ -23,7 +23,6 @@
             <Button label="View draft entity" @click="openDraftEntityDialog" />
           </div>
           <div class="flex gap-1">
-            <Button label="View changes" />
             <Button v-if="canEdit && !editMode" label="Edit" @click="editMode = true" />
             <Button v-if="editMode" label="Cancel" @click="cancelEdit" severity="secondary" />
             <Button v-if="editMode" @click="updateEntityApproval" :loading="loading" label="Update" />
