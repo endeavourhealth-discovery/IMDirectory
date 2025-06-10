@@ -4,7 +4,6 @@ import { toMatchSnapshot } from "./snapshots";
 import "@testing-library/cypress/add-commands";
 
 declare global {
-  var vueSnapshots: any;
   namespace Cypress {
     interface Chainable {
       acceptLicenseAndCookies(): Chainable<void>;

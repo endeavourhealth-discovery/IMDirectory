@@ -89,9 +89,9 @@ describe("Register", () => {
   });
   it("can reveal passwords", () => {
     cy.findByTestId("password-new1").type("1234abcdA%");
-    cy.getByTestId("password-new1").find("input").should("not.have.text", "1234abcdA%");
+    cy.findByTestId("password-new1").find("input").should("not.have.text", "1234abcdA%");
     cy.findByTestId("password-new2").type("1234abcdA%");
-    cy.getByTestId("password-new2").find("input").should("not.have.text", "1234abcdA%");
+    cy.findByTestId("password-new2").find("input").should("not.have.text", "1234abcdA%");
     cy.findByTestId("password-new1").find("svg").click();
     cy.findByTestId("password-new2").find("svg").click();
     cy.findByTestId("password-new1").find("input").should("have.value", "1234abcdA%");
