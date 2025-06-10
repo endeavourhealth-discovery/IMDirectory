@@ -3,7 +3,7 @@ import { When, Then, Step, Given } from "@badeball/cypress-cucumber-preprocessor
 const loginSnapshotConfig = {
   attributesToClear: ["aria-controls", "class", "style", "data-pc-section", "data-pc-name", "data-pc-section", "data-scrollselectors"],
   stubs: [".p-tabpanels", "svg"],
-  regexToRemoveAttributes: new RegExp(/data-.*|p.\d|aria-.*/),
+  regexToRemoveAttributes: new RegExp(/data-.*|p.\d|aria-.*|id/),
   removeComments: true,
   removeDataTestId: true,
   formatting: {

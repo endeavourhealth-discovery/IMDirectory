@@ -15,14 +15,14 @@ snapshot[0] = `<div class>
         <label for="fieldUsername">
           Username
         </label>
-        <input class id="fieldUsername" type="text" />
+        <input class type="text" />
       </div>
       <div class>
         <label for="fieldPassword">
           Password
         </label>
-        <div class id="fieldPassword">
-          <input class id="pv_id_0_146" type="password" />
+        <div class>
+          <input class type="password" />
           <svg-stub />
           <span class>
             Enter a password
@@ -42,20 +42,20 @@ snapshot[0] = `<div class>
   <div class>
     <small>
       Don't have an account yet?
-      <a class id="register-link" style>Register here <span class role="presentation" /></a>
+      <a class style>Register here <span class role="presentation" /></a>
     </small>
     <br />
     <br />
     <small>
       Already received a confirmation code?
-      <a class id="code-link" style>Add it here <span class role="presentation" /></a>
+      <a class style>Add it here <span class role="presentation" /></a>
     </small>
     <br />
     <br />
     <small>
       Forgot your password or username?
       <br />
-      <a class id="recover-link" style> Recover account <span class role="presentation" /></a>
+      <a class style> Recover account <span class role="presentation" /></a>
     </small>
   </div>
 </div>`;
@@ -75,14 +75,14 @@ snapshot[1] = `<div class>
         <label for="fieldUsername">
           Username
         </label>
-        <input class id="fieldUsername" placeholder="cypress" type="text" value="cypress" />
+        <input class placeholder="cypress" type="text" value="cypress" />
       </div>
       <div class>
         <label for="fieldPassword">
           Password
         </label>
-        <div class id="fieldPassword">
-          <input class id="pv_id_0_146" type="password" value="uzv6duKjAf6F!zqL" />
+        <div class>
+          <input class type="password" value="uzv6duKjAf6F!zqL" />
           <svg-stub />
           <span class>
             Enter a password
@@ -103,20 +103,20 @@ snapshot[1] = `<div class>
   <div class>
     <small>
       Don't have an account yet?
-      <a class id="register-link" style>Register here <span class role="presentation" /></a>
+      <a class style>Register here <span class role="presentation" /></a>
     </small>
     <br />
     <br />
     <small>
       Already received a confirmation code?
-      <a class id="code-link" style>Add it here <span class role="presentation" /></a>
+      <a class style>Add it here <span class role="presentation" /></a>
     </small>
     <br />
     <br />
     <small>
       Forgot your password or username?
       <br />
-      <a class id="recover-link" style> Recover account <span class role="presentation" /></a>
+      <a class style> Recover account <span class role="presentation" /></a>
     </small>
   </div>
 </div>`;
