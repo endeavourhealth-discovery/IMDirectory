@@ -69,6 +69,9 @@ const matchExpand = ref(props.matchExpanded);
 const loading = ref(false);
 const dataSet = ref({ ...props.query });
 
+onMounted(async () => {
+  await init();
+});
 function matchToggle() {
   matchExpand.value = !matchExpand.value;
 }
@@ -80,15 +83,10 @@ function hasCriteria(query: Query): boolean {
   return false;
 }
 
-onMounted(async () => {
-  await init();
-});
 async function init() {
-  if (!dataSet.value.return) {
-    if (dataSet.value.iri) {
-      dataSet.value = await QueryService.getDisplayFromQueryIri(dataSet.value.iri, DisplayMode.ORIGINAL);
-    } else dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
-  }
+  if (dataSet.value.iri) {
+    dataSet.value = await QueryService.getDisplayFromQueryIri(dataSet.value.iri, DisplayMode.ORIGINAL);
+  } else dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
 }
 watch(
   () => props.query,
@@ -101,28 +99,4 @@ watch(
 );
 </script>
 
-<style scoped>
-/*
-.button-chevron {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-.field {
-  padding-right: 0.2rem;
-}
-.rule {
-  font-weight: bold;
-  padding-right: 1rem;
-}
-
-.return {
-  color: var(--p-teal-500);
-  padding-left: 0.5rem;
-}
-
-.output {
-  color: var(--p-indigo-500);
-}
-*/
-</style>
+<style scoped></style>
