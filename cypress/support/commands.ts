@@ -1,7 +1,6 @@
 import { FilterOptions } from "@/interfaces";
 import "./auth-provider-commands/cognito";
 import { toMatchSnapshot } from "./snapshots";
-import "globals";
 import "@testing-library/cypress/add-commands";
 
 declare global {
