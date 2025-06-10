@@ -57,7 +57,14 @@
       </div>
     </div>
 
-    <ECLBuilder v-if="showDialog" :showDialog="showDialog" :eclString="lastValidEcl" :showNames="showNames" @eclSubmitted="updateECL" @closeDialog="() => (showDialog = false)" />
+    <ECLBuilder
+      v-if="showDialog"
+      :showDialog="showDialog"
+      :eclString="lastValidEcl"
+      :showNames="showNames"
+      @eclSubmitted="updateECL"
+      @closeDialog="() => (showDialog = false)"
+    />
 
     <AddByCodeList
       :showAddByFile="showAddByFileDialog"
@@ -89,8 +96,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const eclAsQuery: Ref<Match[] | Match | undefined> = ref();
 const importMenu = ref();
-
 const ecl: Ref<string> = ref("");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ecl);
 const showDialog = ref(false);
@@ -116,6 +123,13 @@ const lastValidEcl: Ref<string> = ref("");
 const eclError = computed(() => {
   return !eclStatus.value.valid;
 });
+const key = props.shape.path.iri;
+const buttonOptions = [
+  { label: "From list", command: () => showAddByCodeList() },
+  { label: "From file", command: () => showAddByFile() }
+];
+
+const debounceTimer = ref(0);
 const highlightedText = computed(() => {
   const lines = ecl.value.split("\n");
   if (eclStatus.value && eclStatus.value.line) {
@@ -153,20 +167,28 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const key = props.shape.path.iri;
-const buttonOptions = [
-  { label: "From list", command: () => showAddByCodeList() },
-  { label: "From file", command: () => showAddByFile() }
-];
-
-const debounceTimer = ref(0);
 watch(ecl, newValue => {
   clearTimeout(debounceTimer.value);
   debounceTimer.value = window.setTimeout(async (): Promise<void> => {
     eclStatus.value = await EclService.validateECL(newValue);
-    if (eclStatus.value.valid) lastValidEcl.value = newValue;
+    if (eclStatus.value.valid) {
+      lastValidEcl.value = newValue;
+      eclAsQuery.value = await EclService.getQueryFromECL(newValue);
+    }
   }, 600);
 });
+watch(
+  () => cloneDeep(eclAsQuery.value),
+  async (newValue, oldValue) => {
+    if (!isEqual(newValue, oldValue)) {
+      updateEntity();
+      if (updateValidity && valueVariableMap) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
+    }
+  }
+);
 
 watch(showNames, async newValue => {
   if (props.value && !eclError.value) {
@@ -183,6 +205,18 @@ onMounted(async () => {
   await processProps();
   loading.value = false;
 });
+
+function updateEntity() {
+  if (entityUpdate) {
+    const result = {} as any;
+    if (eclAsQuery.value) {
+      result[key] = JSON.stringify(eclAsQuery.value);
+    }
+    if (!eclAsQuery.value && deleteEntityKey) deleteEntityKey(key);
+    if (isObjectHasKeys(result)) entityUpdate(result);
+  }
+}
+
 async function processProps() {
   if (props.value) {
     ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
