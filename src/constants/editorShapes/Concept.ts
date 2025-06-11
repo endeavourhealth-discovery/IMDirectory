@@ -2,61 +2,61 @@ import { FormGenerator } from "@/interfaces/AutoGen";
 import { RDF, IM, RDFS, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION, XSD } from "@/vocabulary";
 
 const ConceptShape: FormGenerator = {
-  "@id": EDITOR.CONCEPT_SHAPE,
+  iri: EDITOR.CONCEPT_SHAPE,
   type: [
     {
-      "@id": IM.FORM_GENERATOR
+      iri: IM.FORM_GENERATOR
     }
   ],
   label: "Editor - Concept shape",
   comment: "Form editor for a concept",
   targetShape: {
-    "@id": IM.CONCEPT
+    iri: IM.CONCEPT
   },
   property: [
     {
       comment: "Summary | rolegroup splitter",
       order: 1,
       name: "splitter",
-      path: { "@id": IM.CONCEPT },
+      path: { iri: IM.CONCEPT },
       maxCount: 1,
-      componentType: { "@id": COMPONENT.HORIZONTAL_LAYOUT },
+      componentType: { iri: COMPONENT.HORIZONTAL_LAYOUT },
       argument: [{ parameter: "subGroup widths", valueData: "40%,60%" }],
       property: [
         {
           comment: "Summary layout",
           name: "Summary",
-          path: { "@id": IM.CONCEPT },
+          path: { iri: IM.CONCEPT },
           showTitle: true,
           order: 1,
           maxCount: 1,
-          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
+          componentType: { iri: COMPONENT.VERTICAL_LAYOUT },
           property: [
             {
               comment: "A property that auto generates the type as  concept type",
               order: 1,
               function: {
-                "@id": IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+                iri: IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "Type",
               showTitle: true,
               path: {
-                "@id": RDF.TYPE
+                iri: RDF.TYPE
               },
               argument: [
                 {
                   valueIri: {
-                    "@id": IM.CONCEPT
+                    iri: IM.CONCEPT
                   },
                   parameter: "entityIri"
                 }
               ],
               isIri: {
-                "@id": IM.CONCEPT
+                iri: IM.CONCEPT
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.ENTITY_COMBOBOX
+                iri: COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -66,17 +66,17 @@ const ConceptShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.ID
+                iri: IM.ID
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.IRI_BUILDER
+                iri: COMPONENT.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
+                iri: IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
               },
-              validation: { "@id": VALIDATION.IS_IRI }
+              validation: { iri: VALIDATION.IS_IRI }
             },
             {
               comment: "Property that derives a concept code from the concept iri",
@@ -85,7 +85,7 @@ const ConceptShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.CODE
+                iri: IM.CODE
               },
               argument: [
                 {
@@ -99,13 +99,13 @@ const ConceptShape: FormGenerator = {
               ],
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.TEXT_DISPLAY
+                iri: COMPONENT.TEXT_DISPLAY
               },
               datatype: {
-                "@id": XSD.STRING
+                iri: XSD.STRING
               },
               function: {
-                "@id": IM_FUNCTION.LOCAL_NAME_RETRIEVER
+                iri: IM_FUNCTION.LOCAL_NAME_RETRIEVER
               }
             },
             {
@@ -115,14 +115,14 @@ const ConceptShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": RDFS.LABEL
+                iri: RDFS.LABEL
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.TEXT_INPUT
+                iri: COMPONENT.TEXT_INPUT
               },
               datatype: {
-                "@id": XSD.STRING
+                iri: XSD.STRING
               }
             },
             {
@@ -131,33 +131,33 @@ const ConceptShape: FormGenerator = {
               name: "Preferred name",
               showTitle: true,
               maxCount: 1,
-              path: { "@id": IM.PREFERRED_NAME },
+              path: { iri: IM.PREFERRED_NAME },
               minCount: 0,
-              componentType: { "@id": COMPONENT.TEXT_INPUT }
+              componentType: { iri: COMPONENT.TEXT_INPUT }
             },
             {
               comment: "optional description",
               order: 6,
               datatype: {
-                "@id": XSD.STRING
+                iri: XSD.STRING
               },
               name: "Concept description",
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": RDFS.COMMENT
+                iri: RDFS.COMMENT
               },
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.HTML_INPUT
+                iri: COMPONENT.HTML_INPUT
               }
             },
             {
               name: "Status",
               order: 7,
-              path: { "@id": IM.HAS_STATUS },
-              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
-              validation: { "@id": VALIDATION.IS_STATUS },
+              path: { iri: IM.HAS_STATUS },
+              componentType: { iri: COMPONENT.ARRAY_BUILDER },
+              validation: { iri: VALIDATION.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
@@ -166,7 +166,7 @@ const ConceptShape: FormGenerator = {
                   order: 6,
                   select: [
                     {
-                      "@id": QUERY.GET_SUBCLASSES
+                      iri: QUERY.GET_SUBCLASSES
                     }
                   ],
                   name: "Status",
@@ -174,22 +174,22 @@ const ConceptShape: FormGenerator = {
                   builderChild: true,
                   maxCount: 1,
                   path: {
-                    "@id": IM.HAS_STATUS
+                    iri: IM.HAS_STATUS
                   },
                   argument: [
                     {
                       valueIri: {
-                        "@id": IM.STATUS
+                        iri: IM.STATUS
                       },
                       parameter: "this"
                     }
                   ],
                   isIri: {
-                    "@id": IM.DRAFT
+                    iri: IM.DRAFT
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_DROPDOWN
+                    iri: COMPONENT.ENTITY_DROPDOWN
                   },
                   forceIsValue: true
                 }
@@ -202,28 +202,28 @@ const ConceptShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.IM_1_ID
+                iri: IM.IM_1_ID
               },
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.TEXT_DISPLAY
+                iri: COMPONENT.TEXT_DISPLAY
               }
             },
             {
               comment: "optional im1scheme",
               order: 9,
               function: {
-                "@id": IM_FUNCTION.IM1_SCHEME_OPTIONS
+                iri: IM_FUNCTION.IM1_SCHEME_OPTIONS
               },
               name: "IM1Scheme",
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.IM_1_SCHEME
+                iri: IM.IM_1_SCHEME
               },
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.TEXT_DISPLAY
+                iri: COMPONENT.TEXT_DISPLAY
               }
             },
             {
@@ -233,15 +233,15 @@ const ConceptShape: FormGenerator = {
               order: 10,
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.ARRAY_BUILDER
+                iri: COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
-                "@id": VALIDATION.HAS_PARENT
+                iri: VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
               path: {
-                "@id": RDFS.SUBCLASS_OF
+                iri: RDFS.SUBCLASS_OF
               },
               valueVariable: "subClassOf",
               property: [
@@ -252,20 +252,20 @@ const ConceptShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   path: {
-                    "@id": RDFS.SUBCLASS_OF
+                    iri: RDFS.SUBCLASS_OF
                   },
                   select: [
                     {
-                      "@id": QUERY.SEARCH_ALLOWABLE_SUBCLASS
+                      iri: QUERY.SEARCH_ALLOWABLE_SUBCLASS
                     }
                   ],
                   argument: [
                     {
                       valueIri: {
-                        "@id": IM.CONCEPT
+                        iri: IM.CONCEPT
                       },
                       parameter: "value"
                     }
@@ -280,15 +280,15 @@ const ConceptShape: FormGenerator = {
               order: 11,
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.ARRAY_BUILDER
+                iri: COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
-                "@id": VALIDATION.HAS_PARENT
+                iri: VALIDATION.HAS_PARENT
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
               path: {
-                "@id": IM.IS_CONTAINED_IN
+                iri: IM.IS_CONTAINED_IN
               },
               property: [
                 {
@@ -298,23 +298,23 @@ const ConceptShape: FormGenerator = {
                   minCount: 0,
                   builderChild: true,
                   componentType: {
-                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
                   select: [
                     {
-                      "@id": QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
+                      iri: QUERY.SEARCH_ALLOWABLE_CONTAINED_IN
                     }
                   ],
                   argument: [
                     {
                       valueIri: {
-                        "@id": IM.CONCEPT
+                        iri: IM.CONCEPT
                       },
                       parameter: "value"
                     }
                   ],
                   path: {
-                    "@id": IM.IS_CONTAINED_IN
+                    iri: IM.IS_CONTAINED_IN
                   }
                 }
               ]
@@ -327,10 +327,10 @@ const ConceptShape: FormGenerator = {
               minCount: 1,
               maxCount: 1,
               path: {
-                "@id": "http://snomed.info/sct#370124000"
+                iri: "http://snomed.info/sct#370124000"
               },
               componentType: {
-                "@id": COMPONENT.TOGGLEABLE
+                iri: COMPONENT.TOGGLEABLE
               },
               property: [
                 {
@@ -338,25 +338,25 @@ const ConceptShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": QUERY.SEARCH_ENTITIES
+                      iri: QUERY.SEARCH_ENTITIES
                     }
                   ],
                   argument: [
                     {
                       parameter: "this",
                       valueIri: {
-                        "@id": IM.CONCEPT
+                        iri: IM.CONCEPT
                       }
                     }
                   ],
                   name: "Replaced by",
                   showTitle: true,
                   path: {
-                    "@id": "http://snomed.info/sct#370124000"
+                    iri: "http://snomed.info/sct#370124000"
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   }
                 }
               ]
@@ -366,24 +366,24 @@ const ConceptShape: FormGenerator = {
         {
           name: "Splitter",
           comment: "Role group | Mapped to splitter",
-          path: { "@id": IM.CONCEPT },
+          path: { iri: IM.CONCEPT },
           order: 1,
           minCount: 0,
           maxCount: 1,
-          componentType: { "@id": COMPONENT.VERTICAL_LAYOUT },
+          componentType: { iri: COMPONENT.VERTICAL_LAYOUT },
           property: [
             {
               label: "Property Group - Role group builder",
               order: 1,
               path: {
-                "@id": IM.ROLE_GROUP
+                iri: IM.ROLE_GROUP
               },
-              validation: { "@id": VALIDATION.IS_ROLE_GROUP },
+              validation: { iri: VALIDATION.IS_ROLE_GROUP },
               name: "Role group",
               showTitle: true,
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.ROLE_GROUP_BUILDER
+                iri: COMPONENT.ROLE_GROUP_BUILDER
               }
             },
             {
@@ -392,7 +392,7 @@ const ConceptShape: FormGenerator = {
               maxCount: 1,
               showTitle: true,
               path: {
-                "@id": IM.MATCHED_TO
+                iri: IM.MATCHED_TO
               },
               property: [
                 {
@@ -401,18 +401,18 @@ const ConceptShape: FormGenerator = {
                   builderChild: true,
                   name: "Entity",
                   path: {
-                    "@id": IM.MATCHED_TO
+                    iri: IM.MATCHED_TO
                   },
                   minCount: 0,
                   componentType: {
-                    "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   }
                 }
               ],
               name: "Mapped to",
               minCount: 0,
               componentType: {
-                "@id": COMPONENT.ARRAY_BUILDER
+                iri: COMPONENT.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             },
@@ -421,22 +421,22 @@ const ConceptShape: FormGenerator = {
               comment: "Term code array builder",
               order: 1,
               path: {
-                "@id": IM.HAS_TERM_CODE
+                iri: IM.HAS_TERM_CODE
               },
               showTitle: true,
               minCount: 0,
-              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              componentType: { iri: COMPONENT.ARRAY_BUILDER },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
-              validation: { "@id": VALIDATION.IS_TERMCODE },
+              validation: { iri: VALIDATION.IS_TERMCODE },
               property: [
                 {
                   name: "Term code",
-                  path: { "@id": IM.HAS_TERM_CODE },
+                  path: { iri: IM.HAS_TERM_CODE },
                   builderChild: true,
                   order: 1,
                   minCount: 0,
-                  componentType: { "@id": COMPONENT.TERM_CODE_EDITOR },
-                  validation: { "@id": VALIDATION.IS_TERMCODE }
+                  componentType: { iri: COMPONENT.TERM_CODE_EDITOR },
+                  validation: { iri: VALIDATION.IS_TERMCODE }
                 }
               ]
             },
@@ -444,19 +444,19 @@ const ConceptShape: FormGenerator = {
               name: "Child of",
               comment: "Child of array builder",
               order: 1,
-              path: { "@id": IM.IS_CHILD_OF },
+              path: { iri: IM.IS_CHILD_OF },
               showTitle: true,
               minCount: 0,
-              componentType: { "@id": COMPONENT.ARRAY_BUILDER },
+              componentType: { iri: COMPONENT.ARRAY_BUILDER },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               property: [
                 {
                   name: "Child of",
-                  path: { "@id": IM.IS_CHILD_OF },
+                  path: { iri: IM.IS_CHILD_OF },
                   builderChild: true,
                   order: 1,
                   minCount: 0,
-                  componentType: { "@id": COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER }
+                  componentType: { iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER }
                 }
               ]
             }

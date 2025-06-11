@@ -119,7 +119,7 @@
                 <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-nw items-center">
                   <tag
                     v-if="row.inherited && row.inherited.length > 0"
-                    @click="directService.view(row.inherited[0]['@id'])"
+                    @click="directService.view(row.inherited[0].iri)"
                     severity="info"
                     v-tooltip.top="getInheritedTooltipName(row.inherited)"
                     class="cursor-pointer align-middle"
@@ -201,7 +201,7 @@ const pSuggestions: Ref<QueryRequest | undefined> = ref({
     match: [
       {
         typeOf: {
-          "@id": RDF.PROPERTY
+          iri: RDF.PROPERTY
         }
       }
     ]
@@ -214,12 +214,12 @@ const rSuggestions: Ref<QueryRequest | undefined> = ref({
       {
         where: [
           {
-            "@id": RDF.TYPE,
-            is: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }, { "@id": IM.CONCEPT }, { "@id": SHACL.NODESHAPE }, { "@id": RDFS.DATATYPE }]
+            iri: RDF.TYPE,
+            is: [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT }, { iri: SHACL.NODESHAPE }, { iri: RDFS.DATATYPE }]
           },
           {
-            "@id": IM.HAS_SCHEME,
-            is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }, { "@id": XSD.NAMESPACE }]
+            iri: IM.HAS_SCHEME,
+            is: [{ iri: SNOMED.NAMESPACE }, { iri: IM.NAMESPACE }, { iri: XSD.NAMESPACE }]
           }
         ]
       }
@@ -229,7 +229,7 @@ const rSuggestions: Ref<QueryRequest | undefined> = ref({
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 
-const key = props.shape.path["@id"];
+const key = props.shape.path.iri;
 
 watch(
   () => cloneDeep(props.value),
@@ -260,7 +260,7 @@ watch(
   }
 );
 
-onMounted(async () => {
+onMounted(() => {
   loading.value = true;
   processProps();
   loading.value = false;
@@ -311,13 +311,13 @@ function processProperty(newData: SimpleProp[], newInheritedData: SimpleProp[], 
   let rangeIri = undefined;
   let rangeName = undefined;
   if (property[SHACL.PATH]?.[0]) {
-    pathIri = property[SHACL.PATH]?.[0]["@id"];
+    pathIri = property[SHACL.PATH]?.[0].iri;
   }
   if (property[SHACL.PATH]?.[0]) {
     pathName = property[SHACL.PATH]?.[0].name;
   }
   if (property[rangeType]?.[0]) {
-    rangeIri = property[rangeType]?.[0]["@id"];
+    rangeIri = property[rangeType]?.[0].iri;
   }
   if (property[rangeType]?.[0]) {
     rangeName = property[rangeType]?.[0].name;
@@ -326,16 +326,16 @@ function processProperty(newData: SimpleProp[], newInheritedData: SimpleProp[], 
     path: {
       iri: pathIri,
       name: pathName,
-      scheme: { "@id": "", name: "" },
-      status: { "@id": "", name: "" },
-      entityType: []
+      scheme: { iri: "", name: "" },
+      status: { iri: "", name: "" },
+      type: []
     },
     range: {
       iri: rangeIri,
       name: rangeName,
-      scheme: { "@id": "", name: "" },
-      status: { "@id": "", name: "" },
-      entityType: []
+      scheme: { iri: "", name: "" },
+      status: { iri: "", name: "" },
+      type: []
     },
     rangeType: rangeType,
     required: property[SHACL.MINCOUNT] != 0,
@@ -361,21 +361,21 @@ function propertyError(row: SimpleProp) {
   }
 }
 
-function addProperty() {
+async function addProperty() {
   let a = {
     path: {
       iri: "",
       name: "",
-      scheme: { "@id": "", name: "" },
-      status: { "@id": "", name: "" },
-      entityType: []
+      scheme: { iri: "", name: "" },
+      status: { iri: "", name: "" },
+      type: []
     },
     range: {
       iri: "",
       name: "",
-      scheme: { "@id": "", name: "" },
-      status: { "@id": "", name: "" },
-      entityType: []
+      scheme: { iri: "", name: "" },
+      status: { iri: "", name: "" },
+      type: []
     },
     rangeType: "UNKNOWN",
     required: false,
@@ -384,17 +384,17 @@ function addProperty() {
     error: undefined
   } as SimpleProp;
   dmProperties.value.push(a);
-  update();
+  await update();
 }
 
-function deleteProperty(index: number) {
+async function deleteProperty(index: number) {
   if (index >= 0 && index < dmProperties.value.length) {
     const newData = [];
     newData.push(...dmProperties.value);
 
     newData.splice(index, 1);
     dmProperties.value = newData;
-    update();
+    await update();
   }
 }
 
@@ -428,9 +428,9 @@ async function getRangeType(iri: string) {
   const partial = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
   const types: TTIriRef[] = partial?.[RDF.TYPE];
   if (isArrayHasLength(types)) {
-    if (types.some(t => t["@id"] == IM.CONCEPT)) return SHACL.CLASS;
-    else if (types.some(t => t["@id"] == IM.CONCEPT_SET)) return SHACL.CLASS;
-    else if (types.some(t => t["@id"] == RDFS.DATATYPE)) return SHACL.DATATYPE;
+    if (types.some(t => t.iri == IM.CONCEPT)) return SHACL.CLASS;
+    else if (types.some(t => t.iri == IM.CONCEPT_SET)) return SHACL.CLASS;
+    else if (types.some(t => t.iri == RDFS.DATATYPE)) return SHACL.DATATYPE;
     else return SHACL.NODE;
   }
 }
@@ -455,8 +455,8 @@ function updateEntity() {
       let fullPath = {} as TTIriRef;
       let fullRange = {} as TTIriRef;
 
-      if (value.path) fullPath = { "@id": value.path.iri, name: value.path.name } as TTIriRef;
-      if (value.range) fullRange = { "@id": value.range.iri, name: value.range.name } as TTIriRef;
+      if (value.path) fullPath = { iri: value.path.iri, name: value.path.name } as TTIriRef;
+      if (value.range) fullRange = { iri: value.range.iri, name: value.range.name } as TTIriRef;
 
       p[SHACL.ORDER] = index;
       p[SHACL.PATH] = [fullPath];

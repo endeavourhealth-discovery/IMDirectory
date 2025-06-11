@@ -87,7 +87,7 @@ const { listening, toggleListen } = setupSpeechToText(searchText, searchPlacehol
 const filtersOP = ref();
 const debounce = ref(0);
 
-watch(searchText, async () => {
+watch(searchText, () => {
   modelSearchTerm.value = searchText.value;
   debounceForSearch();
 });
@@ -107,7 +107,7 @@ function debounceForSearch(): void {
   }, 600);
 }
 
-async function onSearch() {
+function onSearch() {
   emit("toSearch");
 }
 </script>

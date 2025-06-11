@@ -31,7 +31,7 @@ function processEntityKey(key: string, treeNode: any, entity: any, predicates: a
   else if (key === IM.BINDING) addBinding(treeNode, entity, predicates, key);
   else if (key === IM.DEFINITION) addDefinition(treeNode, predicates, key);
   else if (key === IM.HAS_MAP) addHasMapNode(treeNode, entity, predicates, key);
-  else if (key !== "@id") {
+  else if (key !== "iri") {
     const newTreeNode = { key: key, label: predicates[key] ?? key, children: [] };
     treeNode.children?.push(newTreeNode);
     buildTreeDataRecursively(newTreeNode, entity[key], predicates);
@@ -43,14 +43,14 @@ function addValueToLabel(treeNode: any, divider: string, value: any) {
 }
 
 function addIriLink(treeNode: any, item: TTIriRef) {
-  if (item["@id"] === IM.LOAD_MORE)
+  if (item.iri === IM.LOAD_MORE)
     treeNode.children?.push({
-      key: item["@id"],
+      key: item.iri,
       label: item.name,
       type: "loadMore",
       data: { predicate: treeNode.key, totalCount: (item as any).totalCount }
     });
-  else treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
+  else treeNode.children?.push({ key: item.iri, label: item.name, type: "link" });
 }
 
 function addDefinition(treeNode: any, predicates: any, key: string) {
@@ -92,7 +92,7 @@ function addDefault(treeNode: any, entity: any, predicates: any) {
 
 function addArray(treeNode: any, entity: any, predicates: any, key: string) {
   for (const [index, item] of [entity[key]].entries()) {
-    if (isObjectHasKeys(item[index], ["@id", "name"])) addIriLink(treeNode, item[index]);
+    if (isObjectHasKeys(item[index], ["iri", "name"])) addIriLink(treeNode, item[index]);
     else addDefault(treeNode, item, predicates);
   }
 }
@@ -181,7 +181,7 @@ function addBinding(treeNode: any, entity: any, predicates: any, key: any) {
   if (isArrayHasLength(entity[key])) {
     for (const roleGroup of entity[key]) {
       const bindingNode = {
-        key: roleGroup[SHACL.NODE][0]["@id"],
+        key: roleGroup[SHACL.NODE][0].iri,
         label: roleGroup[SHACL.NODE][0].name,
         type: "link"
       };

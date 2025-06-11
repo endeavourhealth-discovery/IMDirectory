@@ -14,17 +14,17 @@ const loading = ref(false);
 async function updateGithubConfig() {
   loading.value = true;
   await GithubService.updateGithubConfig()
-    .then(() => {
-      Swal.fire({
+    .then(async () => {
+      await Swal.fire({
         icon: "success",
         title: "Success",
         text: "Github config successfully updated",
         confirmButtonText: "Close"
       });
     })
-    .catch(err => {
+    .catch(async err => {
       console.error(err);
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Error",
         text: "Failed to update github config. Check the console to see the error."

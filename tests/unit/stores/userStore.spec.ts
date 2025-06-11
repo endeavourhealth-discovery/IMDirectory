@@ -1,7 +1,9 @@
 import { createTestingPinia } from "@pinia/testing";
 import { useUserStore } from "@/stores/userStore";
-import { AuthService } from "@/services";
 import { flushPromises } from "@vue/test-utils";
+import { afterAll, it, expect, beforeEach, describe } from "vitest";
+import { User } from "@/interfaces";
+import { uniqueId } from "lodash-es";
 
 describe("state", () => {
   beforeEach(() => {
@@ -24,14 +26,16 @@ describe("state", () => {
 describe("getters", () => {
   it("can get isLoggedIn ___ true", async () => {
     const userStore = useUserStore();
-    const testUser = {
+    const testUser: User = {
       username: "testUser",
       firstName: "John",
       lastName: "Doe",
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: "colour/003-man.png",
-      roles: []
+      roles: [],
+      id: uniqueId(),
+      mfaStatus: ["TOTP"]
     };
     userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);
@@ -50,7 +54,7 @@ describe("getters", () => {
   it("can get isLoggedIn ___ false", async () => {
     const userStore = useUserStore();
     userStore.getAllFromUserDatabase = vi.fn();
-    userStore.updateCurrentUser({});
+    userStore.updateCurrentUser(undefined);
     await flushPromises();
     expect(userStore.isLoggedIn).toEqual(false);
   });
@@ -60,14 +64,16 @@ describe("mutations", () => {
   it("can updateCurrentUser", async () => {
     const userStore = useUserStore();
 
-    const testUser = {
+    const testUser: User = {
       username: "testUser",
       firstName: "John",
       lastName: "Doe",
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: "colour/003-man.png",
-      roles: []
+      roles: [],
+      id: uniqueId(),
+      mfaStatus: ["TOTP"]
     };
     userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);

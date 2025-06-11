@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-21 14:29:28.
+// Generated using typescript-generator version 3.2.1263 on 2025-06-10 15:19:16.
 
 export interface ConceptContextMap {
     id?: string;
@@ -121,17 +121,17 @@ export interface ConceptSet extends Entity {
 }
 
 export interface Entity {
-    "@id"?: string;
+    iri?: string;
+    type?: TTIriRef[];
     status?: TTIriRef;
     scheme?: TTIriRef;
     isContainedIn?: TTEntity[];
-    entityType?: TTIriRef[];
     name?: string;
     description?: string;
 }
 
 export interface FormGenerator {
-    "@id"?: string;
+    iri?: string;
     status?: TTIriRef;
     label?: string;
     comment?: string;
@@ -140,7 +140,6 @@ export interface FormGenerator {
     isContainedIn?: TTEntity[];
     subClassOf?: TTIriRef[];
     scheme?: TTIriRef;
-    iri?: string;
     property?: PropertyShape[];
 }
 
@@ -165,7 +164,7 @@ export interface MapFunction extends TTIriRef {
 }
 
 export interface ModelDocument {
-    "@context"?: TTContext;
+    context?: TTContext;
     query?: QueryEntity[];
     folder?: Entity[];
     conceptSet?: ConceptSet[];
@@ -287,10 +286,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
     valueParameter?: string;
-    unit?: TTIriRef;
     qualifier?: string;
+    unit?: TTIriRef;
+    operator?: Operator;
     valueLabel?: string;
 }
 
@@ -318,6 +317,13 @@ export interface Delete {
     delete?: Delete[];
 }
 
+export interface ECLStatus {
+    valid?: boolean;
+    line?: number;
+    offset?: number;
+    message?: string;
+}
+
 export interface Element extends IriLD, Entailment {
     parameter?: string;
     variable?: string;
@@ -330,10 +336,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -353,10 +359,11 @@ export interface Instance extends IriLD {
 }
 
 export interface IriLD {
-    "@id"?: string;
+    iri?: string;
     qualifier?: string;
     name?: string;
     description?: string;
+    uuid?: string;
 }
 
 export interface Match extends IriLD, BoolGroup<Match> {
@@ -435,8 +442,8 @@ export interface Prefix {
 export interface Query extends Match {
     activeOnly?: boolean;
     groupBy?: GroupBy[];
-    prefixes?: Prefix[];
     dataSet?: Query[];
+    prefixes?: Prefix[];
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
@@ -450,7 +457,6 @@ export interface QueryException extends Exception {
 }
 
 export interface QueryRequest extends ContextMap {
-    "@context"?: { [index: string]: string };
     textSearch?: string;
     argument?: Argument[];
     referenceDate?: string;
@@ -462,6 +468,9 @@ export interface QueryRequest extends ContextMap {
     askIri?: string;
     timings?: { [index: string]: string }[];
     cohort?: TTIriRef[];
+    includeNames?: boolean;
+    textSearchStyle?: TextSearchStyle;
+    language?: DatabaseOption;
 }
 
 export interface Range {
@@ -489,7 +498,7 @@ export interface Return {
 }
 
 export interface ReturnProperty {
-    "@id"?: string;
+    iri?: string;
     name?: string;
     function?: FunctionClause;
     as?: string;
@@ -534,6 +543,7 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     is?: Node[];
     notIs?: Node[];
     not?: Where[];
+    roleGroup?: boolean;
     isNotNull?: boolean;
     function?: FunctionClause;
     valueVariable?: string;
@@ -581,7 +591,7 @@ export interface EntityDocument {
     code?: string;
     alternativeCode?: string;
     scheme?: TTIriRef;
-    entityType?: TTIriRef[];
+    type?: TTIriRef[];
     status?: TTIriRef;
     termCode?: SearchTermCode[];
     usageTotal?: number;
@@ -687,9 +697,9 @@ export interface SearchResultSummary {
     description?: string;
     status: TTIriRef;
     scheme: TTIriRef;
-    entityType: TTIriRef[];
+    type: TTIriRef[];
     usageTotal?: number;
-    match?: string;
+    bestMatch?: string;
     preferredName?: string;
     key?: string[];
     isA?: TTIriRef[];
@@ -703,6 +713,8 @@ export interface SearchTermCode extends Comparable<SearchTermCode> {
     term?: string;
     code?: string;
     status?: TTIriRef;
+    length?: number;
+    keyTerm?: string;
 }
 
 export interface EclSearchRequest {
@@ -738,6 +750,21 @@ export interface TTDocument extends TTNode {
     entities?: TTEntity[];
     crud?: TTIriRef;
     predicates?: { [index: string]: string };
+    prefixes?: TTPrefix[];
+}
+
+export interface TTEntity extends TTNode, Serializable {
+    context?: TTContext;
+    crud?: TTIriRef;
+    graph?: TTIriRef;
+    name?: string;
+    type?: TTArray;
+    scheme?: TTIriRef;
+    version?: number;
+    description?: string;
+    status?: TTIriRef;
+    code?: string;
+    types?: TTIriRef[];
     prefixes?: TTPrefix[];
 }
 
@@ -779,6 +806,7 @@ export interface Task {
     assignedTo?: string;
     dateCreated?: Date;
     history?: TaskHistory[];
+    hostUrl?: string;
 }
 
 /**
@@ -894,7 +922,7 @@ export interface Context {
 export interface TTIriRef extends TTValue, Serializable {
     name?: string;
     description?: string;
-    "@id": string;
+    iri: string;
 }
 
 export interface Serializable {
@@ -903,20 +931,6 @@ export interface Serializable {
 export interface TTArray extends Serializable {
     elements?: TTValue[];
     list?: boolean;
-}
-
-export interface TTEntity extends TTNode, Serializable {
-    context?: TTContext;
-    crud?: TTIriRef;
-    graph?: TTIriRef;
-    type?: TTArray;
-    status?: TTIriRef;
-    description?: string;
-    name?: string;
-    scheme?: TTIriRef;
-    version?: number;
-    code?: string;
-    prefixes?: TTPrefix[];
 }
 
 export interface TTContext extends Serializable {
@@ -953,8 +967,8 @@ export interface TTPrefix {
 }
 
 export interface TTNode extends TTValue, Serializable {
+    iri?: string;
     predicateMap?: { [index: string]: TTArray };
-    "@id"?: string;
 }
 
 export interface TTValue extends Serializable {
@@ -996,6 +1010,12 @@ export const enum Comparison {
     gt = "gt",
     lte = "lte",
     lt = "lt",
+}
+
+export const enum DatabaseOption {
+    MYSQL = "MYSQL",
+    POSTGRESQL = "POSTGRESQL",
+    GRAPHDB = "GRAPHDB",
 }
 
 export const enum DisplayMode {
@@ -1061,6 +1081,14 @@ export const enum RuleAction {
     SELECT = "SELECT",
     REJECT = "REJECT",
     NEXT = "NEXT",
+}
+
+export const enum TextSearchStyle {
+    autocomplete = "autocomplete",
+    fuzzy = "fuzzy",
+    multiword = "multiword",
+    ngram = "ngram",
+    exact = "exact",
 }
 
 export const enum VarType {

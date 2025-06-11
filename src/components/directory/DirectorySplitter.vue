@@ -21,7 +21,7 @@
           :searchTerm="searchTerm"
           :updateSearch="updateSearch"
           :selected-filter-options="selectedFilterOptions"
-          :rows="50"
+          :rows="20"
           :searchResults="searchResults"
           @selectedUpdated="routeToSelected"
           @navigateTo="navigateTo"
@@ -77,15 +77,15 @@ function updateSplitter(event: SplitterResizeEndEvent) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
 }
 
-function routeToSelected(selected: TreeNode) {
-  if (isObjectHasKeys(selected, ["key"])) directService.select(selected.key);
-  else if (isObjectHasKeys(selected, ["iri"])) directService.select(selected.iri);
-  else if (typeof selected === "string") directService.select(selected);
+async function routeToSelected(selected: TreeNode) {
+  if (isObjectHasKeys(selected, ["key"])) await directService.select(selected.key);
+  else if (isObjectHasKeys(selected, ["iri"])) await directService.select(selected.iri);
+  else if (typeof selected === "string") await directService.select(selected);
 }
 
-function navigateTo(iri: string) {
-  if (iri === "home") router.push("/");
-  else directService.select(iri);
+async function navigateTo(iri: string) {
+  if (iri === "home") await router.push("/");
+  else await directService.select(iri);
 }
 
 function locateInTree(iri: string) {

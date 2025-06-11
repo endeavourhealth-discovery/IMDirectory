@@ -53,16 +53,16 @@ const expandedKeys: Ref<GenericObject> = ref({});
 onMounted(async () => {
   loading.value = true;
   await addIsAsToRoot();
-  if (props.quantifier) await findPathToNode(props.quantifier["@id"]);
+  if (props.quantifier) await findPathToNode(props.quantifier.iri);
   loading.value = false;
 });
 
 async function addIsAsToRoot() {
   for (const isA of props.isAs) {
     const asNode = await EntityService.getEntityAsEntityReferenceNode(isA);
-    const hasNode = !!root.value.find(node => node.data === asNode["@id"]);
+    const hasNode = !!root.value.find(node => node.data === asNode.iri);
     if (!hasNode) {
-      const treeNode = createTreeNode(asNode.name as string, asNode["@id"], asNode.type as TTIriRef[], asNode.hasGrandChildren);
+      const treeNode = createTreeNode(asNode.name as string, asNode.iri, asNode.type as TTIriRef[], asNode.hasGrandChildren);
       if (treeNode) root.value.push(treeNode);
     }
   }
@@ -84,7 +84,7 @@ function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: T
 
 function onNodeSelect(node: TreeNode): void {
   selectedNode.value = node;
-  emit("treeNodeSelected", { "@id": node.data, name: node.label } as TTIriRef);
+  emit("treeNodeSelected", { iri: node.data, name: node.label } as TTIriRef);
 }
 
 async function onNodeExpand(node: TreeNode) {
@@ -92,14 +92,14 @@ async function onNodeExpand(node: TreeNode) {
     node.loading = true;
     const children = await EntityService.getEntityChildren(node.data);
     children.forEach(child => {
-      if (!nodeHasChild(node, child)) node.children?.push(createTreeNode(child.name, child["@id"], child.type as TTIriRef[], child.hasChildren));
+      if (!nodeHasChild(node, child)) node.children?.push(createTreeNode(child.name, child.iri, child.type as TTIriRef[], child.hasChildren));
     });
     node.loading = false;
   }
 }
 
 function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
-  return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
+  return !!node.children?.find(nodeChild => child.iri === nodeChild.data);
 }
 
 function selectKey(selectedKey: string) {
@@ -121,11 +121,11 @@ async function findPathToNode(iri: string) {
     return;
   }
   // Recursively expand
-  let n = root.value.find(c => path.find(p => p["@id"] === c.data));
+  let n = root.value.find(c => path.find(p => p.iri === c.data));
   let i = 0;
   if (n) {
     expandedKeys.value = {};
-    while (n && n.data != path[0]["@id"] && i++ < 50) {
+    while (n && n.data != path[0].iri && i++ < 50) {
       selectKey(n.key!);
       if (!n.children || n.children.length == 0) {
         await onNodeExpand(n);
@@ -133,10 +133,10 @@ async function findPathToNode(iri: string) {
       expandedKeys.value[n.key!] = true;
 
       // Find relevant child
-      n = n.children?.find(c => path.find(p => p["@id"] === c.data));
+      n = n.children?.find(c => path.find(p => p.iri === c.data));
     }
 
-    if (n && n.data === path[0]["@id"]) {
+    if (n && n.data === path[0].iri) {
       selectKey(n.key!);
       // Expand node if necessary
       if (!n.children || n.children.length == 0) {

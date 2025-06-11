@@ -26,7 +26,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color:' + data.colour" class="p-mx-1 type-icon" />
-            <span class="text-name" @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay">{{ data.name }}</span>
+            <span class="text-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -46,7 +46,7 @@ import { DirectService } from "@/services";
 import { DataTableRowSelectEvent } from "primevue/datatable";
 
 interface Usage {
-  "@id": string;
+  iri: string;
   name: string;
   icon: string[];
   colour: string;
@@ -88,12 +88,12 @@ async function init() {
   await getRecordsSize(props.entityIri);
 }
 
-function onRowSelect(event: DataTableRowSelectEvent<Usage>) {
+async function onRowSelect(event: DataTableRowSelectEvent<Usage>) {
   const mouseEvent = event.originalEvent as MouseEvent;
   if (mouseEvent.metaKey || mouseEvent.ctrlKey) {
-    directService.view(event.data["@id"]);
+    await directService.view(event.data.iri);
   } else {
-    directService.select(event.data["@id"]);
+    await directService.select(event.data.iri);
   }
 }
 
@@ -101,7 +101,7 @@ async function getUsages(iri: string, pageIndex: number, pageSize: number): Prom
   const result = await EntityService.getEntityUsages(iri, pageIndex, pageSize);
   usages.value = result.map(usage => {
     return {
-      "@id": usage["@id"],
+      iri: usage.iri,
       name: usage[RDFS.LABEL],
       icon: getFAIconFromType(usage[RDF.TYPE]),
       colour: getColourFromType(usage[RDF.TYPE])

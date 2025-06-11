@@ -40,7 +40,7 @@
       v-model:propertyRef="propertyRef"
       :property="property"
       :datatype="uiProperty.valueType"
-      :property-iri="property['@id']!"
+      :property-iri="property.iri!"
       @update:property-ref="populateIsDate"
     />
   </div>
@@ -75,7 +75,7 @@
       v-model:propertyRef="propertyRef"
       :property="property"
       :datatype="uiProperty.valueType"
-      :property-iri="property['@id']!"
+      :property-iri="property.iri!"
       @update:property-ref="populateWithinDate"
     />
   </div>
@@ -161,8 +161,8 @@ function handlePropertyType() {
       break;
     case "between":
       props.property.range = {
-        from: { operator: "=", unit: { "@id": dateType }, value: "" },
-        to: { operator: "=", unit: { "@id": dateType }, value: "" }
+        from: { operator: "=", unit: { iri: dateType }, value: "" },
+        to: { operator: "=", unit: { iri: dateType }, value: "" }
       } as Range;
       break;
     case "within":
@@ -213,8 +213,8 @@ function populateBetweenDate() {
 
   if (!isObjectHasKeys(props.property, ["range"]))
     props.property.range = {
-      from: { operator: "=", unit: { "@id": dateType }, value: "" },
-      to: { operator: "=", unit: { "@id": dateType }, value: "" }
+      from: { operator: "=", unit: { iri: dateType }, value: "" },
+      to: { operator: "=", unit: { iri: dateType }, value: "" }
     } as Range;
   if (selectedValueA.value) props.property.range!.from.value = getStringFromDate(selectedValueA.value);
   if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);

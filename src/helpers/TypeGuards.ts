@@ -3,7 +3,7 @@ import { PropertyShape, TTIriRef, Task, BugReport } from "../interfaces/AutoGen"
 import { isObjectHasKeys } from "./DataTypeCheckers";
 
 export function isTTIriRef(data: unknown): data is TTIriRef {
-  if (data && (data as TTIriRef)["@id"] && (data as TTIriRef).name && Object.keys(data).length === 2) return true;
+  if (data && (data as TTIriRef).iri && (data as TTIriRef).name && Object.keys(data).length === 2) return true;
   return false;
 }
 

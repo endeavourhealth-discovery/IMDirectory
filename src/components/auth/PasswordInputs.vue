@@ -130,21 +130,21 @@ const emit = defineEmits<{
 
 watch(
   () => passwordOld.value,
-  async newValue => {
+  newValue => {
     emit("update:oldPassword", newValue);
   }
 );
 
 watch(
   () => password.value,
-  async newValue => {
+  newValue => {
     emit("update:password", newValue);
   }
 );
 
 watch(
   () => arePasswordsValid.value,
-  async newValue => {
+  newValue => {
     emit("update:arePasswordsValid", newValue);
   }
 );

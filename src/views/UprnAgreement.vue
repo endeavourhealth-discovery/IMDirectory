@@ -73,9 +73,9 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-function goBack() {
+async function goBack() {
   if (window.history.length > 2) router.back();
-  else router.push({ name: "LandingPage" });
+  else await router.push({ name: "LandingPage" });
 }
 </script>
 

@@ -25,7 +25,7 @@
         </div>
 
         <div v-else-if="node.data">
-          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          {{ node.label + " - " }}<IMViewerLink :iri="node.data.iri!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
         <div v-else>{{ node.label }}</div>
       </template>
@@ -66,7 +66,7 @@ const predicatePageIndexMap: Ref<Map<string, { pageIndex: number; node: TreeNode
 
 watch(
   () => props.entityIri,
-  async () => getDefinition()
+  async () => await getDefinition()
 );
 
 onMounted(async () => await getDefinition());
@@ -117,7 +117,7 @@ async function onSelect(node: TreeNode) {
   }
 }
 
-async function onExpand(node: TreeNode) {
+function onExpand(node: TreeNode) {
   const hasLoadMore = node.children?.some(child => child.key === IM.LOAD_MORE);
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
 }
@@ -136,7 +136,6 @@ function openTab(predicate: string) {
   background-color: var(--p-content-background);
 }
 .tree-container {
-  height: 100vh;
   overflow-y: auto;
 }
 

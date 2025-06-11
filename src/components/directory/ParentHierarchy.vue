@@ -47,7 +47,7 @@ const canGoForward = computed(() => modelHistory.value.length && modelHistory.va
 
 watch(
   () => props.entityIri,
-  () => init()
+  async () => await init()
 );
 
 const pathItems: Ref<MenuItem[]> = ref([]);
@@ -75,12 +75,12 @@ function goForward() {
   if (canGoForward.value) emit("navigateTo", modelHistory.value[modelHistory.value.indexOf(props.entityIri) + 1]);
 }
 
-function init() {
+async function init() {
   if (props.entityIri) {
     const newHistory: string[] = [...modelHistory.value];
     if (!newHistory.includes(props.entityIri)) newHistory.push(props.entityIri);
     modelHistory.value = newHistory;
-    getPath();
+    await getPath();
   }
 }
 
@@ -92,7 +92,7 @@ async function getPath() {
   folderPath.value = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();
   if (!folderPath.value.length) folderPath.value = await EntityService.getFolderPath(props.entityIri);
   pathItems.value = folderPath.value.map((iriRef: TTIriRef) => {
-    return { label: iriRef.name, command: () => emit("navigateTo", iriRef["@id"]) };
+    return { label: iriRef.name, command: () => emit("navigateTo", iriRef.iri) };
   });
   if (pathItems.value.length > 2) {
     const filteredOutPathItems = pathItems.value.splice(1, pathItems.value.length - 2);

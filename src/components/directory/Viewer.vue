@@ -1,5 +1,5 @@
 <template>
-  <div id="concept-main-container">
+  <div id="concept-main-container" style="'overflow:hidden;'">
     <div v-if="entityIri === 'http://endhealth.info/im#Favourites'">
       <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
     </div>
@@ -204,7 +204,6 @@ function setDefaultTab() {
 }
 
 function setTabMap() {
-  // eslint-disable-next-line no-undef
   const tabList = document.getElementById("viewer-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
   if (tabList?.length) {
     for (let i = 0; i < tabList.length; i++) {
@@ -249,8 +248,8 @@ function onOpenTab(predicate: string) {
   }
 }
 
-function handleControlClick(iri: string) {
-  directService.view(iri);
+async function handleControlClick(iri: string) {
+  await directService.view(iri);
 }
 </script>
 <style scoped>
@@ -274,7 +273,8 @@ function handleControlClick(iri: string) {
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
-  overflow: auto;
+  overflow: hidden;
+  height: 100%;
 }
 
 #concept-content-dialogs-container {
@@ -294,6 +294,15 @@ function handleControlClick(iri: string) {
 #concept-panel-container:deep(.p-tabview-panels) {
   flex: 1 1 auto;
   overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabpanels) {
+  overflow: auto;
+}
+
+#viewer-tabs {
+  height: 100%;
+  overflow: hidden;
 }
 
 #tab-list {

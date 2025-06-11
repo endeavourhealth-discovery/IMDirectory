@@ -64,6 +64,7 @@ import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
+import { handleFocusChange } from "@/composables/useAutocompleteRegistry";
 import { useDialog } from "primevue/usedialog";
 
 export default defineComponent({
@@ -88,7 +89,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, onUnmounted, onBeforeUnmount, provide, ref, watch } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -112,10 +113,27 @@ const router = useRouter();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const dynamicDialog = useDialog();
+const autocompletes = new Map<HTMLElement, () => void>();
 
+document.addEventListener("focusin", e => {
+  for (const [element, resetFn] of autocompletes.entries()) {
+    if (!element.contains(e.target as Node)) {
+      resetFn(); // Only reset if focus moved outside
+    }
+  }
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("focusin", onGlobalFocusIn);
+});
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
+
+function onGlobalFocusIn(e: FocusEvent) {
+  const newFocusedElement = e.target as HTMLElement;
+  handleFocusChange(newFocusedElement);
+}
 
 const { editorEntity, editorEntityOriginal, fetchEntity, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
   setupEditorEntity(EditorMode.EDIT, updateType);
@@ -164,12 +182,13 @@ provide(injectionKeys.fullShape, shape);
 
 onMounted(async () => {
   loading.value = true;
+  document.addEventListener("focusin", onGlobalFocusIn);
   await filterStore.fetchFilterSettings();
   await fetchEntity();
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
     getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
-  } else router.push({ path: "/" });
+  } else await router.push({ path: "/" });
   loading.value = false;
 });
 
@@ -199,7 +218,7 @@ function removeEroneousKeys() {
   const shapeKeys = [] as string[];
   groups.value.forEach((group: PropertyShape) => {
     group.property?.forEach((property: PropertyShape) => {
-      if (isObjectHasKeys(property, ["path"])) shapeKeys.push(property.path!["@id"]);
+      if (isObjectHasKeys(property, ["path"])) shapeKeys.push(property.path!.iri);
     });
   });
   for (const key of Object.keys(editorEntity.value)) {
@@ -229,7 +248,7 @@ function submit(): void {
         forceValidation.value = false;
         verificationDialog.close();
         if (isValidEntity(editorEntity.value)) {
-          Swal.fire({
+          await Swal.fire({
             icon: "info",
             title: "Confirm save",
             text: "Are you sure you want to save your changes?",
@@ -254,7 +273,7 @@ function submit(): void {
             }
           }).then(async (result: SweetAlertResult) => {
             if (result.isConfirmed) {
-              Swal.fire({
+              await Swal.fire({
                 title: "Success",
                 text: "Entity: " + editorEntity.value[IM.ID] + " has been updated.",
                 icon: "success",
@@ -265,7 +284,7 @@ function submit(): void {
                 cancelButtonColor: "#607D8B"
               }).then(async (result: SweetAlertResult) => {
                 if (result.isConfirmed) {
-                  directService.view(editorEntity.value[IM.ID]);
+                  await directService.view(editorEntity.value[IM.ID]);
                 } else {
                   await fetchEntity();
                 }
@@ -273,7 +292,7 @@ function submit(): void {
             }
           });
         } else {
-          Swal.fire({
+          await Swal.fire({
             icon: "warning",
             title: "Warning",
             text: "Invalid values found. Please review your entries.",
@@ -284,7 +303,7 @@ function submit(): void {
       } else {
         forceValidation.value = false;
         verificationDialog.close();
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Timeout",
           text: "Validation timed out. Please contact an admin for support.",
@@ -293,10 +312,10 @@ function submit(): void {
         });
       }
     })
-    .catch(() => {
+    .catch(async () => {
       forceValidation.value = false;
       verificationDialog.close();
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Timeout",
         text: "Validation timed out. Please contact an admin for support.",
@@ -307,14 +326,14 @@ function submit(): void {
 }
 
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!["@id"]])) {
-    return editorEntity.value[property.path!["@id"]];
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!.iri])) {
+    return editorEntity.value[property.path!.iri];
   }
   return undefined;
 }
 
-function closeEditor() {
-  Swal.fire({
+async function closeEditor() {
+  await Swal.fire({
     icon: "warning",
     title: "Warning",
     text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
@@ -324,9 +343,9 @@ function closeEditor() {
     confirmButtonColor: "#D32F2F",
     cancelButtonColor: "#607D8B",
     customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: SweetAlertResult) => {
+  }).then(async (result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
+      if (window.history.state.back === null) await router.push({ name: "Folder", params: { selectedIri: editorIri } });
       else router.go(-1);
     }
   });

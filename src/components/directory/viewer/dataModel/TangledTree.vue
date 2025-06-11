@@ -54,10 +54,10 @@ const tangleLayout2: any = ref();
 
 const menu = ref();
 
-onMounted(() => {
+onMounted(async () => {
   chartData.value = props.data;
   renderChart();
-  setSelected(props.entityIri);
+  await setSelected(props.entityIri);
 });
 
 async function getMultiselectMenu(d: any) {
@@ -70,7 +70,7 @@ async function getMultiselectMenu(d: any) {
     const ranges = (Array.from(new Set(node.range?.map(JSON.stringify))) as any).map(JSON.parse);
     ranges?.forEach((range: any) => {
       result.push({
-        property: [{ "@id": range["@id"], name: range.name ? range.name : range["@id"] }],
+        property: [{ iri: range.iri, name: range.name ? range.name : range.iri }],
         isType: true
       } as PropertyDisplay);
     });
@@ -89,12 +89,12 @@ function processPropertyDisplay(r: PropertyDisplay, node: any) {
   let propId = "";
   let propLabel = "";
   r.property.forEach(p => {
-    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p.iri}`;
     propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
   });
   if (r.group) {
     if (node.type === "group") {
-      if (node.id === r.group?.["@id"]) {
+      if (node.id === r.group?.iri) {
         multiselectMenu.value.push({
           iri: propId,
           label: propLabel,
@@ -125,24 +125,24 @@ function addNode(node: any, r: PropertyDisplay) {
     range.push(t);
   });
   r.property.forEach(p => {
-    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p.iri}`;
     propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
   });
   if (r.group && node.type !== "group") {
     if (chartData.value.length < node.level + 1) {
       chartData.value.push([
         {
-          id: r.group["@id"],
+          id: r.group.iri,
           parents: [node.id],
-          name: r.group.name ?? r.group["@id"],
+          name: r.group.name ?? r.group.iri,
           type: "group"
         }
       ]);
     } else {
       chartData.value[node.level + 1]?.push({
-        id: r.group["@id"],
+        id: r.group.iri,
         parents: [node.id],
-        name: r.group.name ?? r.group["@id"],
+        name: r.group.name ?? r.group.iri,
         type: "group"
       });
     }
@@ -237,9 +237,9 @@ async function setSelected(iri: any) {
   if (result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
       if (r.group) {
-        if (!selected.value.some((n: any) => n.iri === r.group?.["@id"])) {
+        if (!selected.value.some((n: any) => n.iri === r.group?.iri)) {
           selected.value.push({
-            iri: r.group["@id"],
+            iri: r.group.iri,
             label: r.group.name as string,
             result: r
           });
@@ -248,7 +248,7 @@ async function setSelected(iri: any) {
         let propId = "";
         let propLabel = "";
         r.property.forEach(p => {
-          propId = `${propId}${propId !== "" ? "OR" : ""}  ${p["@id"]}`;
+          propId = `${propId}${propId !== "" ? "OR" : ""}  ${p.iri}`;
           propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
         });
         selected.value.push({
@@ -271,7 +271,7 @@ function change(event: any) {
   }
 
   selected.value.forEach((s: any) => {
-    if (nodeMap.has(s.result.type["@id"])) nodeMap.set(s.result.type?.["@id"], []);
+    if (nodeMap.has(s.result.type.iri)) nodeMap.set(s.result.type?.iri, []);
   });
   nodeMap.set(selectedNode.value.id, selected.value);
 }
@@ -325,7 +325,7 @@ function renderChart() {
     .on("mouseout", () => {
       div.transition().duration(500).style("opacity", 0);
     })
-    .on("click", (d: any) => {
+    .on("click", async (d: any) => {
       div.transition().duration(500).style("opacity", 0);
       const node = d["target"]["__data__"];
       if (!node.isOr) {
@@ -338,7 +338,7 @@ function renderChart() {
           }
         } else {
           d.preventDefault();
-          toggleSubProperties(d);
+          await toggleSubProperties(d);
           if (selectedNode.value !== node) {
             selectedNode.value = node;
             selected.value = (nodeMap.get(node.id) as any) || [];
@@ -431,10 +431,10 @@ function createNodeCircle(
     .attr("stroke-width", 7)
     .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
 
-  nodeCircle.on("click", e => {
+  nodeCircle.on("click", async e => {
     const node = e["target"]["__data__"];
     e.preventDefault();
-    toggleSubProperties(e);
+    await toggleSubProperties(e);
     if (selectedNode.value !== node) {
       selectedNode.value = node;
       selected.value = (nodeMap.get(node.id) as any) || [];
@@ -449,10 +449,10 @@ function createNodeCircle(
       d3.select(d.srcElement).attr("stroke-width", 7).attr("stroke", "white");
     });
 
-  nodeCircle.on("contextmenu", e => {
+  nodeCircle.on("contextmenu", async e => {
     const node = e["target"]["__data__"];
     e.preventDefault();
-    getMultiselectMenu(e);
+    await getMultiselectMenu(e);
     if (displayMenu.value) {
       menu.value.show(e);
     }

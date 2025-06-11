@@ -153,7 +153,7 @@ function confirmResetPassword(username: string) {
     },
     accept: async () => {
       await resetUserPassword(username);
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
         title: "Success",
         text: "Password successfully reset"
@@ -166,7 +166,7 @@ async function resetUserPassword(username: string) {
   await AdminService.resetUserPassword(username);
 }
 
-async function confirmDeleteUser(username: string) {
+function confirmDeleteUser(username: string) {
   confirm.require({
     message: "Are you sure you want to delete this user?",
     header: "Delete user",
@@ -181,7 +181,7 @@ async function confirmDeleteUser(username: string) {
     },
     accept: async () => {
       await deleteUser(username);
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
         title: "Success",
         text: "User successfully deleted"

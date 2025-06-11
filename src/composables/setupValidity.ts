@@ -22,9 +22,9 @@ export function setupValidity(shape?: FormGenerator) {
   }
 
   function removeValidationCheckStatus(shape: PropertyShape) {
-    if (shape && validationCheckStatus.value.findIndex(item => item.key === shape.path["@id"]) !== -1) {
+    if (shape && validationCheckStatus.value.findIndex(item => item.key === shape.path.iri) !== -1) {
       validationCheckStatus.value.splice(
-        validationCheckStatus.value.findIndex(item => item.key === shape.path["@id"]),
+        validationCheckStatus.value.findIndex(item => item.key === shape.path.iri),
         1
       );
     }
@@ -48,15 +48,15 @@ export function setupValidity(shape?: FormGenerator) {
 
   function addPropertyToValidationCheckStatus(property: PropertyShape) {
     if (
-      ![COMPONENT.HORIZONTAL_LAYOUT.valueOf(), COMPONENT.VERTICAL_LAYOUT.valueOf(), COMPONENT.TOGGLEABLE.valueOf()].includes(property.componentType["@id"]) &&
-      validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1
+      ![COMPONENT.HORIZONTAL_LAYOUT.valueOf(), COMPONENT.VERTICAL_LAYOUT.valueOf(), COMPONENT.TOGGLEABLE.valueOf()].includes(property.componentType.iri) &&
+      validationCheckStatus.value.findIndex(check => check.key === property.path.iri) === -1
     ) {
       validationCheckStatus.value.push({
-        key: property.path["@id"],
+        key: property.path.iri,
         deferred: deferred(60000)
       });
     }
-    if (property.componentType["@id"] !== COMPONENT.TOGGLEABLE)
+    if (property.componentType.iri !== COMPONENT.TOGGLEABLE)
       if (property.property) {
         for (const subProperty of property.property) {
           addPropertyToValidationCheckStatus(subProperty);
@@ -80,7 +80,7 @@ export function setupValidity(shape?: FormGenerator) {
     let valid = true;
     let message;
     if (isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
-      const customValidationResult = await EntityService.checkValidation(componentShape.validation!["@id"], editorEntity.value);
+      const customValidationResult = await EntityService.checkValidation(componentShape.validation!.iri, editorEntity.value);
       if (customValidationResult.valid === false) {
         valid = false;
         message = customValidationResult.message;

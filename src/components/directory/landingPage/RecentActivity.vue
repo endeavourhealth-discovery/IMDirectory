@@ -22,8 +22,8 @@
         <Column field="name" header="Name">
           <template #body="{ data }: { data: RecentActivityItem }">
             <div class="activity-name-icon-container">
-              <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
-              <span class="activity-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
+              <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon pr-2" :style="data.color" fixed-width />
+              <span class="activity-name flex-1 pl-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
         </Column>
@@ -86,7 +86,7 @@ watch(
   async () => await getRecentActivityDetails()
 );
 
-onMounted(async () => init());
+onMounted(async () => await init());
 
 async function init(): Promise<void> {
   loading.value = true;
@@ -94,8 +94,8 @@ async function init(): Promise<void> {
   loading.value = false;
 }
 
-function onRowSelect(event: { data: RecentActivityItem }) {
-  directService.select(event.data.iri);
+async function onRowSelect(event: { data: RecentActivityItem }) {
+  await directService.select(event.data.iri);
 }
 
 function getActivityTooltipMessage(activity: RecentActivityItem) {
@@ -122,7 +122,7 @@ async function getRecentActivityDetails() {
     const clone = { ...rla };
 
     let result = null;
-    if (results && isArray(results)) result = results.find(r => r["@id"] === rla.iri);
+    if (results && isArray(results)) result = results.find(r => r.iri === rla.iri);
 
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
       clone.name = result[RDFS.LABEL];

@@ -12,6 +12,7 @@ function createNew() {
   const directService = new DirectService();
 
   async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
+    console.log("getCreateOptions called for " + JSON.stringify(node));
     const selectionWrapperCopy = [
       {
         label: "New",
@@ -31,23 +32,22 @@ function createNew() {
         {
           parameter: "this",
           valueIri: {
-            "@id": node.key
+            iri: node.key
           }
         }
       ],
       query: {
-        "@id": QUERY.ALLOWABLE_CHILD_TYPES
+        iri: QUERY.ALLOWABLE_CHILD_TYPES
       }
     } as QueryRequest;
 
     const response = await QueryService.queryIM(queryRequest);
     const types = response?.entities ?? [];
     if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
-
     for (const currentType in node.conceptTypes) {
-      switch (node.conceptTypes[currentType]["@id"]) {
+      switch (node.conceptTypes[currentType].iri) {
         case IM.FOLDER:
-          if (allowableTypes.findIndex(i => i["@id"] === IM.FOLDER) === -1)
+          if (allowableTypes.findIndex(i => i.iri === IM.FOLDER) === -1)
             allowableTypes = getChildType(IM.FOLDER, "Folder", IM.IS_CONTAINED_IN).concat(allowableTypes);
           break;
         case IM.CONCEPT:
@@ -73,23 +73,23 @@ function createNew() {
     if (!isArrayHasLength(allowableTypes)) {
       return selectionWrapperCopy;
     }
-
     for (const allowableType of allowableTypes) {
       const item = {
         label: allowableType["http://www.w3.org/2000/01/rdf-schema#label"],
         data: {
-          type: allowableType["@id"],
-          property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"]["@id"].toString()
+          type: allowableType.iri,
+          property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"].iri.toString()
         },
-        icon: getFAIconFromType([{ "@id": allowableType["@id"], name: allowableType["http://www.w3.org/2000/01/rdf-schema#label"] }]).join(" "),
+        icon: getFAIconFromType([{ iri: allowableType.iri, name: allowableType["http://www.w3.org/2000/01/rdf-schema#label"] }]).join(" "),
         command: () => {}
       };
-      if (allowableType["@id"] === IM.FOLDER) {
+      if (allowableType.iri === IM.FOLDER) {
         item.command = () => {
           newFolderName.value = "";
           newFolder.value = node;
         };
       } else {
+        console.log("item as : " + item.data.type + " " + item.data.property + " " + node.data.iri);
         item.command = () => directService.create(item.data.type, item.data.property, node.data);
       }
       if (selectionWrapperCopy[0].items) selectionWrapperCopy[0].items.push(item);
@@ -102,11 +102,11 @@ function createNew() {
 function getChildType(type: string, label: string, path: string) {
   return [
     {
-      "@id": type,
+      iri: type,
       "http://www.w3.org/2000/01/rdf-schema#label": label,
       "http://www.w3.org/ns/shacl#property": [
         {
-          "http://www.w3.org/ns/shacl#path": { "@id": path }
+          "http://www.w3.org/ns/shacl#path": { iri: path }
         }
       ]
     }

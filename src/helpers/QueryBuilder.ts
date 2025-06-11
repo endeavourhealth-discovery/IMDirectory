@@ -16,10 +16,10 @@ export function buildProperty(treeNode: TreeNode): Where | Match {
       if (isObjectHasKeys(currentMatchOrProperty)) parentProperty.match = cloneDeep(currentMatchOrProperty);
       currentMatchOrProperty = parentProperty;
     } else if (isRecordModel(treeNode.conceptTypes)) {
-      const parentMatch = { "@id": v4(), typeOf: { "@id": treeNode.data }, where: [cloneDeep(currentMatchOrProperty)] };
+      const parentMatch = { iri: v4(), typeOf: { iri: treeNode.data }, where: [cloneDeep(currentMatchOrProperty)] };
       currentMatchOrProperty = parentMatch;
     } else if (isProperty(treeNode.conceptTypes) || isFunction(treeNode.conceptTypes)) {
-      const parentProperty: any = { "@id": treeNode.data };
+      const parentProperty: any = { iri: treeNode.data };
       if (isObjectHasKeys(currentMatchOrProperty)) parentProperty.match = cloneDeep(currentMatchOrProperty);
       currentMatchOrProperty = parentProperty;
     }
@@ -36,7 +36,7 @@ function populateFlatListOfNodesRecursively(flatList: TreeNode[], treeNode: Tree
 
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
   if (treeNode.property) return treeNode.property;
-  const property: Where = { "@id": treeNode.data } as Where;
+  const property: Where = { iri: treeNode.data } as Where;
   // string - is ""
   // boolean - is true
   // long - is true

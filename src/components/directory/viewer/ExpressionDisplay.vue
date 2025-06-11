@@ -46,14 +46,14 @@ async function generateExpression() {
   let result = "";
   if (props.concept[IM.DEFINITIONAL_STATUS] && props.concept[IM.DEFINITIONAL_STATUS].length) {
     for (const def of props.concept[IM.DEFINITIONAL_STATUS]) {
-      if (def["@id"] === "http://endhealth.info/im#1251000252106") result += "===\t";
+      if (def.iri === "http://endhealth.info/im#1251000252106") result += "===\t";
     }
   } else {
     result += "<<<\t";
   }
   if (props.concept[RDFS.SUBCLASS_OF]) {
     for (let subclass in props.concept[RDFS.SUBCLASS_OF]) {
-      result += props.concept[RDFS.SUBCLASS_OF][subclass]["@id"].split("#")[1] + " |" + props.concept[RDFS.SUBCLASS_OF][subclass].name + "|";
+      result += props.concept[RDFS.SUBCLASS_OF][subclass].iri.split("#")[1] + " |" + props.concept[RDFS.SUBCLASS_OF][subclass].name + "|";
       if (parseInt(subclass) < props.concept[RDFS.SUBCLASS_OF].length - 1) result += " +\n\t";
     }
   }
@@ -71,7 +71,7 @@ async function generateExpression() {
           result += "\t\t{ ";
         } else result += "\n\t\t  ";
         count++;
-        result += key.split("#")[1] + " |" + label[RDFS.LABEL] + "| = " + value[0]["@id"].split("#")[1] + " |" + value[0].name + "|";
+        result += key.split("#")[1] + " |" + label[RDFS.LABEL] + "| = " + value[0].iri.split("#")[1] + " |" + value[0].name + "|";
         if (count < Object.entries(newGroup).length) result += ",";
       }
       count = 0;

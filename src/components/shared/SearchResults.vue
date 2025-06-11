@@ -51,11 +51,7 @@
           <RadioButton v-model="quickTypeFilter" inputId="allQuickFilter" name="quickTypeFilter" :value="undefined" variant="filled" />
           <label for="allQuickFilter">All</label>
         </div>
-        <div
-          v-for="(typeOption, index) in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t['@id']))"
-          class="radio-label-container"
-          v-bind:key="index"
-        >
+        <div v-for="(typeOption, index) in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t.iri))" class="radio-label-container" v-bind:key="index">
           <RadioButton v-model="quickTypeFilter" :inputId="typeOption.name + 'QuickFilter'" name="quickTypeFilter" :value="typeOption" variant="filled" />
           <label :for="typeOption.name + 'QuickFilter'">{{ typeOption.name }}</label>
         </div>
@@ -139,7 +135,7 @@ onMounted(() => init());
 function init() {
   setFiltersFromStore();
   if (props.showQuickTypeFilters && props.selectedQuickTypeFilter) {
-    const found = typeOptions.value.find(typeOption => typeOption["@id"] === props.selectedQuickTypeFilter);
+    const found = typeOptions.value.find(typeOption => typeOption.iri === props.selectedQuickTypeFilter);
     if (found) quickTypeFilter.value = found;
   }
 }
@@ -156,11 +152,9 @@ function setFiltersFromStore() {
     selectedStatus.value = cloneDeep(props.selectedFilterOptions.status);
     selectedTypes.value = cloneDeep(props.selectedFilterOptions.types);
   } else {
-    selectedSchemes.value = storeFilterOptions.value.schemes.filter(
-      option => storeFilterDefaults.value.schemes.findIndex(s => s["@id"] === option["@id"]) != -1
-    );
-    selectedStatus.value = storeFilterOptions.value.status.filter(option => storeFilterDefaults.value.status.findIndex(s => s["@id"] === option["@id"]) != -1);
-    selectedTypes.value = storeFilterOptions.value.types.filter(option => storeFilterDefaults.value.types.findIndex(t => t["@id"] === option["@id"]) != -1);
+    selectedSchemes.value = storeFilterOptions.value.schemes.filter(option => storeFilterDefaults.value.schemes.findIndex(s => s.iri === option.iri) != -1);
+    selectedStatus.value = storeFilterOptions.value.status.filter(option => storeFilterDefaults.value.status.findIndex(s => s.iri === option.iri) != -1);
+    selectedTypes.value = storeFilterOptions.value.types.filter(option => storeFilterDefaults.value.types.findIndex(t => t.iri === option.iri) != -1);
   }
 }
 
@@ -227,5 +221,9 @@ label {
 .heading {
   padding-left: 0.5rem;
   margin: 0;
+}
+
+.p-multiselect {
+  width: 100%;
 }
 </style>

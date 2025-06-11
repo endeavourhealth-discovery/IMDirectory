@@ -59,18 +59,18 @@ function showHelpDialog() {
 async function handleDisableMfa() {
   loading.value = true;
   await AuthService.setMfaPreference("NOMFA");
-  Swal.fire({
+  await Swal.fire({
     icon: "success",
     title: "Success",
     text: "2-factor authentication successfully disabled"
-  }).then(() => {
-    router.push({ name: "UserDetails" });
+  }).then(async () => {
+    await router.push({ name: "UserDetails" });
   });
   loading.value = false;
 }
 
-function handleCancel() {
-  router.push({ name: "UserDetails" });
+async function handleCancel() {
+  await router.push({ name: "UserDetails" });
 }
 </script>
 

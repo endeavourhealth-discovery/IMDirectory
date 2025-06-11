@@ -63,7 +63,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const key = props.shape.path["@id"];
+const key = props.shape.path.iri;
 
 const hasSubSets: ComputedRef<boolean> = computed(() => isArrayHasLength(inclusions.value));
 
@@ -95,10 +95,10 @@ onMounted(async () => {
 
 async function init() {
   if (editorEntity?.value[IM.ID]) {
-    const subsets = await QueryService.queryIM({ query: { "@id": QUERY.GET_SUBSETS }, argument: [{ parameter: "this", valueIri: editorEntity.value[IM.ID] }] });
+    const subsets = await QueryService.queryIM({ query: { iri: QUERY.GET_SUBSETS }, argument: [{ parameter: "this", valueIri: editorEntity.value[IM.ID] }] });
     if (subsets?.entities) {
       inclusions.value = subsets.entities.map(s => {
-        return { "@id": s["@id"], name: s[RDFS.LABEL] };
+        return { iri: s.iri, name: s[RDFS.LABEL] };
       });
     } else inclusions.value = [];
   } else inclusions.value = [];
@@ -111,7 +111,7 @@ function updateValueVariableMap(data: TTIriRef[] | undefined) {
 }
 
 function updateInclusions(data: any) {
-  inclusions.value = data[props.shape.path["@id"]];
+  inclusions.value = data[props.shape.path.iri];
 }
 
 function updateEntity() {

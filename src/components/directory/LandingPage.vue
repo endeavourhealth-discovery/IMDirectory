@@ -37,30 +37,30 @@ const directService = new DirectService();
 const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: () => void; color: string; size: number; newTab?: boolean }[]> = ref([
   {
     label: "Ontology",
-    icon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
+    icon: getFAIconFromType([{ iri: IM.CONCEPT }]),
     command: () => directService.select(IM.NAMESPACE + "HealthModelOntology"),
-    color: getColourFromType([{ "@id": IM.CONCEPT }]),
+    color: getColourFromType([{ iri: IM.CONCEPT }]),
     size: 4
   },
   {
     label: "Sets",
-    icon: getFAIconFromType([{ "@id": IM.SET }]),
+    icon: getFAIconFromType([{ iri: IM.SET }]),
     command: () => directService.select(IM.MODULE_SETS),
-    color: getColourFromType([{ "@id": IM.SET }]),
+    color: getColourFromType([{ iri: IM.SET }]),
     size: 4
   },
   {
     label: "Health records",
-    icon: getFAIconFromType([{ "@id": SHACL.NODESHAPE }]),
+    icon: getFAIconFromType([{ iri: SHACL.NODESHAPE }]),
     command: () => directService.select(IM.HEALTH_RECORDS),
-    color: getColourFromType([{ "@id": SHACL.NODESHAPE }]),
+    color: getColourFromType([{ iri: SHACL.NODESHAPE }]),
     size: 4
   },
   {
     label: "Queries",
-    icon: getFAIconFromType([{ "@id": IM.QUERY }]),
+    icon: getFAIconFromType([{ iri: IM.QUERY }]),
     command: () => directService.select(IM.MODULE_QUERIES),
-    color: getColourFromType([{ "@id": IM.QUERY }]),
+    color: getColourFromType([{ iri: IM.QUERY }]),
     size: 4
   },
   {

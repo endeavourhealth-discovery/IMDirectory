@@ -5,7 +5,7 @@
     maximizable
     header="Search"
     :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
-    class="search-dialog"
+    :contentStyle="{ display: 'flex', flexDirection: 'column', height: '100%' }"
     @keyup.enter="onEnter"
   >
     <div class="directory-search-dialog-content">
@@ -20,56 +20,71 @@
           @to-search="onSearch"
         />
       </div>
-      <div class="vertical-divider">
-        <div class="left-container">
-          <NavTree
-            :selectedIri="treeIri"
-            :root-entities="rootEntities"
-            :typeFilter="typeFilter"
-            :find-in-tree="findInDialogTree"
-            @found-in-tree="findInDialogTree = false"
-            @row-selected="showDetails"
-          />
-        </div>
-        <div class="right-container">
-          <SearchResults
-            v-if="activePage === 0"
-            :selected="selected"
-            :show-filters="showFilters"
-            :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
-            :quick-type-filters-allowed="quickTypeFiltersAllowed"
-            :selected-quick-type-filter="selectedQuickTypeFilter"
-            :updateSearch="updateSearch"
-            :search-term="searchTerm"
-            :im-query="imQuery"
-            :selected-filter-options="selectedFilterOptions"
-            @selectedUpdated="updateSelected"
-            @locate-in-tree="locateInTree"
-            @selected-filters-updated="onSelectedFiltersUpdate"
-            @searchResultsUpdated="updateSearchResults"
-          />
-          <DirectoryDetails
-            v-if="activePage === 1"
-            :selected-iri="detailsIri"
-            @locateInTree="locateInTree"
-            @navigateTo="navigateTo"
-            :showSelectButton="true"
-            v-model:history="directoryHistory"
-            :searchResults
-            @selected-updated="updateSelectedFromIri"
-            @go-to-search-results="goToSearchResults"
-          />
-          <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
-          <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
-        </div>
-      </div>
+      <Splitter stateKey="directorySearchSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter" style="height: 100%; flex: 1 1 auto">
+        <SplitterPanel :size="30" :minSize="10">
+          <div style="height: 100%; display: flex; flex-direction: column">
+            <div style="flex: 1; overflow-y: auto">
+              <div v-if="directoryLoading" class="loading-container flex flex-row items-center justify-center">
+                <ProgressSpinner />
+              </div>
+              <NavTree
+                :selectedIri="treeIri"
+                :root-entities="rootEntities"
+                :typeFilter="typeFilter"
+                :find-in-tree="findInDialogTree"
+                :useEmits="true"
+                :childLength="20"
+                @found-in-tree="findInDialogTree = false"
+                @row-clicked="showDetails"
+              />
+            </div>
+          </div>
+        </SplitterPanel>
+        <SplitterPanel :size="70" :minSize="10">
+          <div style="height: 100%; display: flex; flex-direction: column">
+            <div style="flex: 1; overflow-y: auto">
+              <SearchResults
+                v-if="activePage === 0"
+                :selected="selected"
+                :show-filters="showFilters"
+                :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
+                :quick-type-filters-allowed="quickTypeFiltersAllowed"
+                :selected-quick-type-filter="selectedQuickTypeFilter"
+                :updateSearch="updateSearch"
+                :search-term="searchTerm"
+                :im-query="imQuery"
+                :selected-filter-options="selectedFilterOptions"
+                @selectedUpdated="updateSelected"
+                @locate-in-tree="locateInTree"
+                @selected-filters-updated="onSelectedFiltersUpdate"
+                @searchResultsUpdated="updateSearchResults"
+              />
+              <DirectoryDetails
+                v-if="activePage === 1"
+                :selected-iri="detailsIri"
+                @locateInTree="locateInTree"
+                @navigateTo="navigateTo"
+                :showSelectButton="true"
+                v-model:history="directoryHistory"
+                :searchResults
+                @selected-updated="updateSelectedFromIri"
+                @go-to-search-results="goToSearchResults"
+              />
+              <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
+              <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
+            </div>
+          </div>
+        </SplitterPanel>
+      </Splitter>
     </div>
+
     <template #footer>
-      <div class="im-dialog-footer" v-if="detailsIri">
+      <div class="im-dialog-footer">
         <div v-if="selectedName" v-tooltip.right="detailsIri">Item selected: {{ selectedName }}</div>
         <div class="button-footer">
           <Button label="Cancel" @click="modelShowDialog = false" text />
           <Button
+            v-if="selectedName && isSelectableEntity"
             :disabled="!isSelectableEntity"
             data-testid="search-dialog-select-button"
             label="Select"
@@ -82,7 +97,6 @@
     </template>
   </Dialog>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted, watch, Ref, computed } from "vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
@@ -94,9 +108,12 @@ import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
 import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
-import { RDFS } from "@/vocabulary";
+import { IM, RDFS } from "@/vocabulary";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions } from "@/interfaces";
+import { SplitterResizeEndEvent } from "primevue/splitter";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useLoadingStore } from "@/stores/loadingStore";
 
 interface Props {
   imQuery?: QueryRequest;
@@ -111,13 +128,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   showFilters: false
 });
-watch(
-  () => modelShowDialog.value,
-  newValue => {
-    if (newValue === true) initSelection();
-    else resetDialog();
-  }
-);
 
 const emit = defineEmits<{
   updateSelectedFilters: [payload: FilterOptions];
@@ -125,7 +135,9 @@ const emit = defineEmits<{
 
 const modelShowDialog = defineModel<boolean>("showDialog", { required: true });
 const modelSelected = defineModel<SearchResultSummary | undefined>("selected");
-
+const loadingStore = useLoadingStore();
+const directoryStore = useDirectoryStore();
+const directoryLoading = computed(() => loadingStore.directoryLoading);
 const updateSearch: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
@@ -134,7 +146,9 @@ const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
 const searchTerm = ref(props.searchTerm ?? "");
-const typeFilter = computed(() => props.selectedFilterOptions?.types.map(item => item["@id"]));
+const lastSearchTerm = ref(searchTerm.value);
+const typeFilter = computed(() => props.selectedFilterOptions?.types.map(item => item.iri));
+
 watch(
   () => treeIri.value,
   () => {
@@ -174,8 +188,12 @@ onMounted(() => {
   initSelection();
 });
 
+function updateSplitter(event: SplitterResizeEndEvent) {
+  directoryStore.updateSplitterRightSize(event.sizes[1]);
+}
 function onSearch() {
-  if (searchTerm.value) {
+  if (searchTerm.value && searchTerm.value !== lastSearchTerm.value) {
+    lastSearchTerm.value = searchTerm.value;
     activePage.value = 0;
     updateSearch.value = !updateSearch.value;
   }
@@ -210,9 +228,12 @@ function locateInTree(iri: string) {
   treeIri.value = iri;
 }
 
-function showDetails(data: any) {
-  detailsIri.value = data.key;
-  activePage.value = 1;
+async function showDetails(data: any) {
+  const entity = await EntityService.getEntitySummary(data);
+  if (entity.type[0].iri != IM.FOLDER) {
+    detailsIri.value = data;
+    activePage.value = 1;
+  }
 }
 
 function navigateTo(iri: string) {
@@ -246,8 +267,8 @@ async function getIsSelectableEntity(): Promise<boolean> {
   return true;
 }
 
-function onEnter() {
-  if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
+async function onEnter() {
+  if (selectedName.value && isSelectableEntity.value) await updateSelectedFromIri(detailsIri.value);
 }
 
 function onSelectedFiltersUpdate(selectedFilters: FilterOptions) {
@@ -266,44 +287,33 @@ function goToSearchResults() {
 
 <style scoped>
 .directory-search-dialog-content {
-  width: 100%;
-  flex: 1 1 auto;
   display: flex;
-  flex-flow: column nowrap;
-  overflow: auto;
-}
-
-.vertical-divider {
-  width: 100%;
-  flex: 1 1 auto;
-  overflow: auto;
-  display: flex;
-  flex-flow: row nowrap;
-}
-
-.left-container {
-  flex: 0 0 30%;
-  overflow: auto;
-}
-
-.right-container {
-  flex: 1 1 auto;
-  overflow: auto;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-bottom: 10px solid #ccc;
 }
 
 .search-bar {
-  min-height: 3.5rem;
-  display: flex;
+  height: 3.5rem;
+  flex-shrink: 0;
   flex-flow: row nowrap;
   align-items: center;
   padding: 0 0.5rem;
 }
 
 .im-dialog-footer {
+  border-top: 1px solid #ccc;
+  padding: 1rem;
+}
+.dialog-body-wrapper {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: nowrap;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+}
+.flex-spacer {
+  flex: 1;
 }
 
 .button-footer {

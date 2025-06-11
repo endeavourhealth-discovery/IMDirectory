@@ -100,10 +100,10 @@ const router = useRouter();
 const sharedStore = useSharedStore();
 const showUprnConsent = computed(() => sharedStore.showUprnConsent);
 
-function submitDecline(): void {
+async function submitDecline() {
   userStore.updateUprnAgreementAccepted(false);
   sharedStore.updateShowUprnConsent(false);
-  router.push({ path: "/" });
+  await router.push({ path: "/" });
 }
 
 function submitAgree(): void {

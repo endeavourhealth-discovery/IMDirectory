@@ -15,6 +15,7 @@
           </div>
           <div v-else class="creator-layout-container">
             <template v-for="(group, index) of groups" v-bind:key="index">
+              <span>{{ log(group.componentType) }}</span>
               <component :is="processComponentType(group.componentType)" :mode="EditorMode.CREATE" :shape="group" :value="processEntityValue(group)" />
             </template>
           </div>
@@ -128,6 +129,9 @@ watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
 });
 
+function log(message: TTIriRef) {
+  console.log(message.iri);
+}
 function onShowSidebar() {
   showSidebar.value = !showSidebar.value;
   editorStore.updateFindInEditorTreeIri("");
@@ -180,11 +184,11 @@ onMounted(async () => {
   loading.value = true;
   await filterStore.fetchFilterSettings();
   const { typeIri, propertyIri, valueIri } = route.query;
-  if (isObjectHasKeys(creatorSavedEntity.value, ["@id"])) {
+  if (isObjectHasKeys(creatorSavedEntity.value, ["iri"])) {
     await showEntityFoundWarning();
   }
   if (props.type) {
-    getShape(props.type["@id"]);
+    getShape(props.type.iri);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
     getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
@@ -193,7 +197,7 @@ onMounted(async () => {
     const typeIriFixed = removeEndSlash(typeIri as string);
     currentStep.value = 1;
     const typeEntity = await EntityService.getPartialEntity(typeIriFixed, [RDFS.LABEL]);
-    editorEntity.value[RDF.TYPE] = [{ "@id": typeIriFixed, name: typeEntity[RDFS.LABEL] }];
+    editorEntity.value[RDF.TYPE] = [{ iri: typeIriFixed, name: typeEntity[RDFS.LABEL] }];
     shape.value = getShape(typeIriFixed);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
@@ -207,7 +211,7 @@ onMounted(async () => {
             {
               is: [
                 {
-                  "@id": newValue["@id"],
+                  iri: newValue.iri,
                   name: newValue.name
                 }
               ],
@@ -215,14 +219,14 @@ onMounted(async () => {
             }
           ],
           typeOf: {
-            "@id": newValue.typeOf!["@id"]
+            iri: newValue.typeOf!.iri
           }
         });
       } else {
         const containingEntity = await EntityService.getPartialEntity(valueIriFixed, [RDFS.LABEL]);
         editorEntity.value[propertyIriFixed] = [
           {
-            "@id": containingEntity["@id"],
+            iri: containingEntity.iri,
             name: containingEntity[RDFS.LABEL]
           }
         ];
@@ -244,7 +248,7 @@ async function showEntityFoundWarning() {
     title: "Unsaved creator entity found",
     html:
       "<span>Local saved entity found. Would you like to continue creating this entity?</span><br/><br/><span>iri: " +
-      creatorSavedEntity.value?.["@id"] +
+      creatorSavedEntity.value?.iri +
       "</span><br/><span>name: " +
       creatorSavedEntity.value?.[RDFS.LABEL] +
       "</span>",
@@ -263,7 +267,7 @@ async function showEntityFoundWarning() {
     } else {
       await Swal.fire({
         title: "Delete saved entity",
-        text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value?.["@id"] + ". Are you sure you want to continue?",
+        text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value?.iri + ". Are you sure you want to continue?",
         showCloseButton: false,
         showCancelButton: true,
         cancelButtonText: "Cancel",
@@ -345,9 +349,9 @@ function submit(): void {
               return res;
             } else Swal.showValidationMessage("Error creating entity from server.");
           }
-        }).then((result: SweetAlertResult) => {
+        }).then(async (result: SweetAlertResult) => {
           if (result.isConfirmed) {
-            Swal.fire({
+            await Swal.fire({
               title: "Success",
               text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
               icon: "success",
@@ -356,17 +360,17 @@ function submit(): void {
               confirmButtonText: "Open in Viewer",
               confirmButtonColor: "#2196F3",
               cancelButtonColor: "#607D8B"
-            }).then((result: SweetAlertResult) => {
+            }).then(async (result: SweetAlertResult) => {
               if (result.isConfirmed) {
-                directService.view(editorEntity.value[IM.ID]);
+                await directService.view(editorEntity.value[IM.ID]);
               } else {
-                directService.edit(editorEntity.value[IM.ID], true);
+                await directService.edit(editorEntity.value[IM.ID], true);
               }
             });
           }
         });
       } else {
-        Swal.fire({
+        await Swal.fire({
           icon: "warning",
           title: "Warning",
           text: "Invalid values found. Please review your entries.",
@@ -375,8 +379,8 @@ function submit(): void {
         });
       }
     })
-    .catch(() => {
-      Swal.fire({
+    .catch(async () => {
+      await Swal.fire({
         icon: "error",
         title: "Timeout",
         text: "Validation timed out. Please contact an admin for support",
@@ -386,8 +390,8 @@ function submit(): void {
     });
 }
 
-function closeCreator() {
-  Swal.fire({
+async function closeCreator() {
+  await Swal.fire({
     icon: "warning",
     title: "Warning",
     text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
@@ -397,16 +401,16 @@ function closeCreator() {
     confirmButtonColor: "#D32F2F",
     cancelButtonColor: "#607D8B",
     customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: SweetAlertResult) => {
+  }).then(async (result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      router.push({ name: "LandingPage" });
+      await router.push({ name: "LandingPage" });
     }
   });
 }
 
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!["@id"]])) {
-    return editorEntity.value[property.path!["@id"]];
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!.iri])) {
+    return editorEntity.value[property.path!.iri];
   }
   return undefined;
 }

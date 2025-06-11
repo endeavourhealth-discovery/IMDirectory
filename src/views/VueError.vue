@@ -27,12 +27,12 @@ function goBack() {
   router.go(-1);
 }
 
-function goHome() {
-  router.push({ name: "Directory" });
+async function goHome() {
+  await router.push({ name: "Directory" });
 }
 
-function sendErrorReport() {
-  router.push({ name: "BugReport" });
+async function sendErrorReport() {
+  await router.push({ name: "BugReport" });
 }
 </script>
 

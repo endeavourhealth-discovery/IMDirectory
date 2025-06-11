@@ -1,10 +1,15 @@
 <template>
-  <div class="sql-container" v-html="highlightedSQL"></div>
+  <pre class="sql-container line-numbers">
+    <code class="language-sql" >{{ sql }}</code>
+  </pre>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import Prism from "prismjs";
+import "prismjs/components/prism-sql.js";
+import "prismjs/plugins/line-numbers/prism-line-numbers.js";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 
 interface Props {
   sql: string;
@@ -12,21 +17,22 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const highlightedSQL = ref("");
 watch(
   () => props.sql,
-  newValue => {
-    highlightSql(newValue);
+  () => {
+    Prism.highlightAll();
   }
 );
 
 onMounted(() => {
-  highlightSql(props.sql);
+  Prism.plugins.NormalizeWhitespace.setDefaults({
+    "remove-trailing": false,
+    "remove-indent": true,
+    "left-trim": false,
+    "right-trim": false
+  });
+  Prism.highlightAll();
 });
-
-function highlightSql(sql: string) {
-  highlightedSQL.value = Prism.highlight(sql, Prism.languages.sql, "sql");
-}
 </script>
 
 <style scoped>

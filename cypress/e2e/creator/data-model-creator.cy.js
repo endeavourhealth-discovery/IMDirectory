@@ -28,12 +28,8 @@ describe("creator", () => {
       cy.get(".iri-builder-container").contains("http://endhealth.info/im#test");
     });
     it("updates status", () => {
-      cy.get(".entity-single-dropdown-container", { timeout: 60000 })
-        .getByTestId("entity-single-dropdown")
-        .click()
-        .get(".p-select-option")
-        .contains("Active")
-        .click();
+      cy.get(".entity-single-dropdown-container", { timeout: 60000 }).getByTestId("entity-single-dropdown").click();
+      cy.get(".p-select-option").contains("Active").click();
       cy.getByTestId("entity-single-dropdown").contains("Active");
     });
     it("can add, select, and delete contained in", () => {

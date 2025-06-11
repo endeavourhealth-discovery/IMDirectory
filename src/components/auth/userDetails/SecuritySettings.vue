@@ -43,15 +43,15 @@ const twoFactorMethods = ref([
   }
 ]);
 
-function handleMfaActivate(key: string) {
+async function handleMfaActivate(key: string) {
   if (key === "TOTP") {
-    router.push({ name: "MFASetup" });
+    await router.push({ name: "MFASetup" });
   }
 }
 
-function handleMfaDelete(key: string) {
+async function handleMfaDelete(key: string) {
   if (key === "TOTP") {
-    router.push({ name: "MFADelete" });
+    await router.push({ name: "MFADelete" });
   }
 }
 

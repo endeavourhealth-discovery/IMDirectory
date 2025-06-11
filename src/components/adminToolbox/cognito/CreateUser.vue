@@ -195,24 +195,24 @@ const onSubmit = handleSubmit(async () => {
       mfaStatus: []
     } as User;
     AdminService.createUser(user)
-      .then(() => {
-        Swal.fire({
+      .then(async () => {
+        await Swal.fire({
           icon: "success",
           title: "Success",
           text: "User created",
           showCancelButton: true,
           confirmButtonText: "Continue"
-        }).then((result: SweetAlertResult) => {
+        }).then(async (result: SweetAlertResult) => {
           if (result.isConfirmed) {
-            router.push({ name: "CognitoListUsers" });
+            await router.push({ name: "CognitoListUsers" });
           } else {
             clearForm();
           }
         });
       })
-      .catch(err => {
+      .catch(async err => {
         console.error(err);
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Error",
           text: err.message,
@@ -220,7 +220,7 @@ const onSubmit = handleSubmit(async () => {
         });
       });
   } else {
-    Swal.fire({
+    await Swal.fire({
       icon: "error",
       title: "Error",
       text: "User creation failed. Check input data.",

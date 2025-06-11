@@ -25,15 +25,15 @@
 
       <Column field="property" header="Name">
         <template #body="{ data }">
-          <div class="link" @click="navigate($event, data.property[0]['@id'])" data-testid="name">
-            {{ data.property[0].name || data.property[0]["@id"] }}
+          <div class="link" @click="navigate($event, data.property[0].iri)" data-testid="name">
+            {{ data.property[0].name || data.property[0].iri }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
         <template #body="{ data }">
-          <div class="link" @click="navigate($event, data.type[0]['@id'])">
-            {{ data.type[0].name || data.type[0]["@id"] }}
+          <div class="link" @click="navigate($event, data.type[0].iri)">
+            {{ data.type[0].name || data.type[0].iri }}
           </div>
         </template>
       </Column>
@@ -68,15 +68,15 @@
 
       <Column field="property" header="Name">
         <template #body="{ data }: any">
-          <div class="link" @click="navigate($event, data.property[0]['@id'])" data-testid="name">
-            {{ data.property[0].name || data.property[0]["@id"] }}
+          <div class="link" @click="navigate($event, data.property[0].iri)" data-testid="name">
+            {{ data.property[0].name || data.property[0].iri }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
         <template #body="{ data }: any">
-          <div class="link" @click="navigate($event, data.type[0]['@id'])">
-            {{ data.type[0].name || data.type[0]["@id"] }}
+          <div class="link" @click="navigate($event, data.type[0].iri)">
+            {{ data.type[0].name || data.type[0].iri }}
           </div>
         </template>
       </Column>
@@ -87,8 +87,6 @@
       </Column>
     </DataTable>
   </div>
-  {{ properties }} -
-  <div>{{ groupedProperties }}</div>
 </template>
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
@@ -116,7 +114,7 @@ const expandedRowGroups: Ref<DataTableExpandedRows[]> = ref([]);
 
 watch(
   () => props.entityIri,
-  async newValue => getDataModelProps(newValue)
+  async newValue => await getDataModelProps(newValue)
 );
 
 onMounted(async () => {
@@ -145,27 +143,27 @@ function getProperty(result: PropertyDisplay): PropertyDisplay {
   let typeName = "";
   let typeId = "";
   result.property.forEach(p => {
-    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p.iri}`;
     propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name?.slice(0, p.name?.indexOf("(")) as string}`;
   });
   const ranges = Array.from(new Set(result.type?.map(type => JSON.stringify(type)))).map(item => JSON.parse(item));
   ranges.forEach(t => {
-    typeId = `${typeId}${typeId !== "" ? "OR" : ""}${t["@id"]}`;
+    typeId = `${typeId}${typeId !== "" ? "OR" : ""}${t.iri}`;
     typeName = `${typeName} ${typeName !== "" ? "OR" : ""} ${t.name as string}`;
   });
   return {
-    property: [{ "@id": propId, name: propName }],
-    type: [{ "@id": typeId, name: typeName }],
+    property: [{ iri: propId, name: propName }],
+    type: [{ iri: typeId, name: typeName }],
     cardinality: result.cardinality
   } as PropertyDisplay;
 }
 
-function navigate(event: MouseEvent, iri: string): void {
+async function navigate(event: MouseEvent, iri: string) {
   if (!iri.includes("OR")) {
     if (event.metaKey || event.ctrlKey) {
-      directService.view(iri);
+      await directService.view(iri);
     } else {
-      directService.select(iri);
+      await directService.select(iri);
     }
   }
 }
@@ -177,15 +175,15 @@ function exportCSV(): void {
     csvValue = allProperties.map(property => {
       if (isObjectHasKeys(property, ["group"])) {
         return {
-          group: { name: property?.group?.["@id"] },
-          property: property.property[0]["@id"],
-          type: property?.type?.[0]["@id"],
+          group: { name: property?.group?.iri },
+          property: property.property[0].iri,
+          type: property?.type?.[0].iri,
           cardinality: property.cardinality
         };
       } else {
         return {
-          property: property.property[0]["@id"],
-          type: property.type?.[0]["@id"],
+          property: property.property[0].iri,
+          type: property.type?.[0].iri,
           cardinality: property.cardinality
         };
       }

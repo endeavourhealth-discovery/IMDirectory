@@ -51,7 +51,8 @@
         @locateInTree="(iri: string) => $emit('locateInTree', iri)"
       />
     </div>
-    <Builder
+    <ECLBuilder
+      v-if="showDialog"
       :showDialog="showDialog"
       :eclString="eclQueryString"
       @eclSubmitted="updateECL"
@@ -65,7 +66,7 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
-import Builder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
+import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
 import { EclSearchRequest, TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { EclService } from "@/services";
@@ -102,7 +103,7 @@ watch(eclQueryString, () => {
   editorStore.updateEclEditorSavedString(eclQueryString.value);
 });
 
-watch(selectedStatus, async () => {
+watch(selectedStatus, () => {
   selectedStatus.value.sort(byName);
 });
 
@@ -148,7 +149,7 @@ async function onSearch(): Promise<void> {
 }
 
 function setFilterDefaults() {
-  selectedStatus.value = statusOptions.value.filter(option => option["@id"] === IM.ACTIVE);
+  selectedStatus.value = statusOptions.value.filter(option => option.iri === IM.ACTIVE);
 }
 </script>
 

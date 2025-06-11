@@ -21,11 +21,25 @@
     </Select>
     <div class="auto-complete-container">
       <AutocompleteSearchBar
-        v-model:selected="selected as SearchResultSummary"
+        ref="searchBar"
+        v-model:selected="selected"
         :im-query="imQueryForConceptSearch"
         :root-entities="[IM.ONTOLOGY_PARENT_FOLDER]"
+        @update-selected="updateConcept"
+        @activateInput="emit('activateInput', $event)"
       />
     </div>
+    <template v-if="searchBar?.searchText && node.name">
+      <Button
+        v-if="searchBar?.searchText && searchBar.searchText !== node.name"
+        label="?"
+        class="sync-warning"
+        severity="danger"
+        v-tooltip="'Revert'"
+        @click="searchBar.searchText = node.name!"
+      />
+    </template>
+
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
 </template>
@@ -44,7 +58,9 @@ interface Props {
   parent?: any;
 }
 defineProps<Props>();
-const node = defineModel<Node>("node", { default: {} });
+const searchBar = ref<{ searchText: string } | null>(null);
+const emit = defineEmits(["activateInput", "updateMatch"]);
+const node = defineModel<Node>("node", { required: true });
 watch(
   () => cloneDeep(node.value),
   async (newValue, oldValue) => {
@@ -55,14 +71,12 @@ watch(
 const filterStore = useFilterStore();
 const constraintOperator = ref({});
 const coreSchemes = computed(() => filterStore.coreSchemes);
-
 const loading = ref(false);
-const selected: Ref<Partial<SearchResultSummary>> = ref({});
-
+const selected: Ref<SearchResultSummary> = ref({ iri: node.value.iri, name: node.value.name } as SearchResultSummary);
 const imQueryForConceptSearch: Ref<QueryRequest | undefined> = ref();
 
-onMounted(async () => {
-  await init();
+onMounted(() => {
+  init();
 });
 
 watch(selected, (newValue, oldValue) => {
@@ -71,11 +85,13 @@ watch(selected, (newValue, oldValue) => {
   }
 });
 
-async function init() {
+function init() {
   buildIMQueryForConceptSearch();
-  selected.value.iri = node.value["@id"];
-  selected.value.name = node.value.name;
   constraintOperator.value = getConstraintOperator(node.value);
+  if (node.value.iri) {
+    selected.value.iri = node.value.iri;
+    selected.value.name = node.value.name;
+  }
 }
 function updateConstraintOperator(e: { value: string }) {
   setConstraintOperator(node.value, e.value);
@@ -84,20 +100,21 @@ function updateConstraintOperator(e: { value: string }) {
 
 function buildIMQueryForConceptSearch() {
   const coreSchemesAsIris = coreSchemes.value.map(iri => {
-    return { "@id": iri };
+    return { iri: iri };
   });
   const searchOptions: SearchOptions = {
     schemes: coreSchemesAsIris,
-    status: [{ "@id": IM.ACTIVE }, { "@id": IM.DRAFT }],
-    types: [{ "@id": IM.CONCEPT }]
+    status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
+    types: [{ iri: IM.CONCEPT }]
   };
   imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }
 
 function updateConcept(concept: SearchResultSummary) {
   if (concept) {
-    node.value["@id"] = concept.iri;
+    node.value.iri = concept.iri;
     node.value.name = concept.name;
+    emit("updateMatch", node.value);
   }
 }
 </script>
@@ -120,5 +137,8 @@ function updateConcept(concept: SearchResultSummary) {
 .auto-complete-container {
   flex: 1 1 0%;
   min-width: 0;
+}
+.sync-warning {
+  color: var(--p-black-500) !important;
 }
 </style>

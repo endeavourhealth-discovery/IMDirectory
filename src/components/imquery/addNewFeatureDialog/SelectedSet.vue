@@ -14,7 +14,7 @@
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
             <div class="flex-col px-1 pb-1">
               <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="type-icon mr-2" />
-              <span @mouseleave="hideOverlay" @mouseover="showOverlay($event, option['@id'])">{{ option[RDFS.LABEL] }}</span>
+              <span @mouseleave="hideOverlay" @mouseover="showOverlay($event, option.iri)">{{ option[RDFS.LABEL] }}</span>
             </div>
             <Button
               :severity="'danger'"
@@ -22,7 +22,7 @@
               data-testid="remove-member-button"
               icon="fa-solid fa-trash"
               text
-              @click="selectedValueMap.delete(option['@id'])"
+              @click="selectedValueMap.delete(option.iri)"
             />
           </div>
         </div>
@@ -118,12 +118,13 @@ async function init() {
   if (isArrayHasLength(entities)) {
     for (const entity of entities) {
       entity.icon = getFAIconFromType(entity[RDF.TYPE]);
-      if (entity["@id"]) entity.include = !selectedValueMap.value.get(entity["@id"])?.exclude;
+      if (entity.iri) entity.include = !selectedValueMap.value.get(entity.iri)?.exclude;
       if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
       else entity.entailment = "descendantsOrSelfOf";
     }
     selectedEntities.value = entities as SelectedEntity[];
     if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where?.valueLabel;
+    if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where.valueLabel;
   }
   loading.value = false;
 }
@@ -136,7 +137,7 @@ function updatePathValues() {}
 
 function convertSelectedEntityToNode(selected: SelectedEntity): Node {
   const node: Node = {
-    "@id": selected["@id"],
+    iri: selected.iri,
     name: selected["http://www.w3.org/2000/01/rdf-schema#label"],
     exclude: !selected.include
   };

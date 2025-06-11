@@ -62,9 +62,9 @@ function onNodeContext(event: MouseEvent) {
 
 async function click(event: MouseEvent) {
   if (event.metaKey || event.ctrlKey) {
-    directService.view(props.iri);
+    await directService.view(props.iri);
   } else {
-    directService.select(props.iri);
+    await directService.select(props.iri);
   }
 }
 </script>

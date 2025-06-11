@@ -4,7 +4,7 @@ export interface SharedState {
   showCookieConsent: boolean;
   showSnomedLicense: boolean;
   showUprnConsent: boolean;
-  tagSeverityMatches: { "@id": string; severity: TagSeverity }[];
+  tagSeverityMatches: { iri: string; severity: TagSeverity }[];
   showReleaseNotes: boolean;
   showReleaseBanner: boolean;
   showDevBanner: boolean;

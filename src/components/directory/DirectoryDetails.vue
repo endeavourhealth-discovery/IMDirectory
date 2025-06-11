@@ -15,8 +15,8 @@
     </div>
     <div class="header-container">
       <ParentHierarchy
-        v-if="entity['@id']"
-        :entityIri="entity?.['@id']"
+        v-if="entity.iri"
+        :entityIri="entity?.iri"
         @navigateTo="(iri: string) => $emit('navigateTo', iri)"
         :history="modelHistory"
         @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
@@ -30,7 +30,7 @@
       />
     </div>
     <div class="datatable-container">
-      <Viewer v-if="entity['@id']" :entityIri="entity?.['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
+      <Viewer v-if="entity.iri" :entityIri="entity?.iri" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>
@@ -93,8 +93,9 @@ async function init() {
 
 .datatable-container {
   flex: 0 1 auto;
-  overflow: auto;
+  overflow: hidden;
   padding: 0.5rem;
+  height: 100%;
 }
 
 .header-container {

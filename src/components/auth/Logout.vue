@@ -55,36 +55,36 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const authReturnPath = computed(() => authStore.authReturnPath);
 const isPublicMode = computed(() => sharedStore.isPublicMode);
 
-function handleSubmit(): void {
-  Swal.fire({
+async function handleSubmit() {
+  await Swal.fire({
     icon: "warning",
     title: "Are you sure?",
     text: "Confirm logout request",
     showCancelButton: true,
     confirmButtonText: "OK",
     reverseButtons: true
-  }).then((result: SweetAlertResult) => {
+  }).then(async (result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      AuthService.signOut().then((res: CustomAlert) => {
+      await AuthService.signOut().then(async (res: CustomAlert) => {
         if (res.status === 200) {
-          Swal.fire({
+          await Swal.fire({
             icon: "success",
             title: "Success",
             text: res.message
-          }).then(() => {
+          }).then(async () => {
             userStore.clearOptionalCookies();
             if (isPublicMode.value) {
               if (authReturnPath.value) {
-                router.push({ path: authReturnPath.value });
+                await router.push({ path: authReturnPath.value });
               } else {
-                router.push({ name: "LandingPage" });
+                await router.push({ name: "LandingPage" });
               }
             } else {
               window.location.reload();
             }
           });
         } else {
-          Swal.fire({
+          await Swal.fire({
             icon: "error",
             title: "Error",
             text: res.message

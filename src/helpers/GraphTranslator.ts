@@ -9,28 +9,28 @@ export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: 
   const { entity, predicates } = bundle;
   const firstNode = {
     name: entity[RDFS.LABEL],
-    iri: entity["@id"],
+    iri: entity.iri,
     relToParent: "",
     children: [],
     _children: []
   } as TTGraphData;
-  const keys = Object.keys(entity).filter(key => key != "@id" && includedPredicates.includes(key));
+  const keys = Object.keys(entity).filter(key => key != "iri" && includedPredicates.includes(key));
   addNodes(entity, keys, firstNode, predicates);
   return firstNode;
 }
 
 function getPropertyIri(nested: TTProperty): string {
   if (isObjectHasKeys(nested, [SHACL.CLASS])) {
-    return nested[SHACL.CLASS][0]["@id"];
+    return nested[SHACL.CLASS][0].iri;
   }
   if (isObjectHasKeys(nested, [SHACL.NODE])) {
-    return nested[SHACL.NODE][0]["@id"];
+    return nested[SHACL.NODE][0].iri;
   }
   if (isObjectHasKeys(nested, [OWL.CLASS])) {
-    return nested[OWL.CLASS][0]["@id"];
+    return nested[OWL.CLASS][0].iri;
   }
   if (isObjectHasKeys(nested, [SHACL.DATATYPE])) {
-    return nested[SHACL.DATATYPE][0]["@id"];
+    return nested[SHACL.DATATYPE][0].iri;
   }
 
   return "undefined";
@@ -38,19 +38,19 @@ function getPropertyIri(nested: TTProperty): string {
 
 function getPropertyName(nested: TTProperty): string {
   if (isObjectHasKeys(nested, [SHACL.CLASS])) {
-    return nested[SHACL.CLASS][0].name ?? getNameFromIri(nested[SHACL.CLASS][0]["@id"]);
+    return nested[SHACL.CLASS][0].name ?? getNameFromIri(nested[SHACL.CLASS][0].iri);
   }
 
   if (isObjectHasKeys(nested, [SHACL.NODE])) {
-    return nested[SHACL.NODE][0].name ?? getNameFromIri(nested[SHACL.NODE][0]["@id"]);
+    return nested[SHACL.NODE][0].name ?? getNameFromIri(nested[SHACL.NODE][0].iri);
   }
 
   if (isObjectHasKeys(nested, [OWL.CLASS])) {
-    return nested[OWL.CLASS][0].name ?? getNameFromIri(nested[OWL.CLASS][0]["@id"]);
+    return nested[OWL.CLASS][0].name ?? getNameFromIri(nested[OWL.CLASS][0].iri);
   }
 
   if (isObjectHasKeys(nested, [SHACL.DATATYPE])) {
-    return nested[SHACL.DATATYPE][0].name ?? getNameFromIri(nested[SHACL.DATATYPE][0]["@id"]);
+    return nested[SHACL.DATATYPE][0].name ?? getNameFromIri(nested[SHACL.DATATYPE][0].iri);
   }
 
   return "undefined";
@@ -97,7 +97,7 @@ function addMap(element: any, preNode: TTGraphData) {
     element[IM.MAPPED_TO].forEach((mappedTo: any) => {
       preNode.children.push({
         name: mappedTo.name,
-        iri: mappedTo["@id"],
+        iri: mappedTo.iri,
         relToParent: mappedTo.name,
         children: [],
         _children: []
@@ -111,11 +111,11 @@ function addProperties(firstNode: TTGraphData, entity: TTEntity, key: string) {
     entity[key].forEach((nested: any) => {
       if (nested[SHACL.GROUP]?.length) {
         const groupRef: TTIriRef = nested[SHACL.GROUP][0];
-        let groupNode = firstNode.children.find(child => child.iri === groupRef["@id"]);
+        let groupNode = firstNode.children.find(child => child.iri === groupRef.iri);
         if (!groupNode) {
           groupNode = {
             name: groupRef.name,
-            iri: groupRef["@id"],
+            iri: groupRef.iri,
             relToParent: "property group",
             children: [],
             _children: []
@@ -145,7 +145,7 @@ function addRoles(firstNode: TTGraphData, entity: TTEntity, key: string, predica
     Object.keys(nested).forEach(predicate => {
       if (predicate !== IM.GROUP_NUMBER && isArrayHasLength(nested[predicate])) {
         nested[predicate].forEach((role: any) => {
-          addChild(preNode, role.name, role["@id"], predicates[predicate] ?? predicate);
+          addChild(preNode, role.name, role.iri, predicates[predicate] ?? predicate);
         });
       }
     });
@@ -168,15 +168,15 @@ function addArray(firstNode: TTGraphData, entity: TTEntity, key: string, predica
       if (isObjectHasKeys(nested)) {
         addChild(
           preNode,
-          nested[RDFS.LABEL] ?? nested.name ?? getNameFromIri(nested["@id"]),
-          nested["@id"],
-          nested[RDFS.LABEL] ?? nested.name ?? getNameFromIri(nested["@id"])
+          nested[RDFS.LABEL] ?? nested.name ?? getNameFromIri(nested.iri),
+          nested.iri,
+          nested[RDFS.LABEL] ?? nested.name ?? getNameFromIri(nested.iri)
         );
       } else {
         addChild(preNode, nested, "", nested);
       }
     } else if (isObjectHasKeys(nested)) {
-      addChild(firstNode, nested[RDFS.LABEL] ?? nested.name ?? getNameFromIri(nested["@id"]), nested["@id"], predicates[key]);
+      addChild(firstNode, nested[RDFS.LABEL] ?? nested.name ?? getNameFromIri(nested.iri), nested.iri, predicates[key]);
     } else {
       addChild(firstNode, nested, "", nested);
     }
@@ -217,7 +217,7 @@ function addNodes(entity: TTEntity, keys: string[], firstNode: TTGraphData, pred
             break;
         }
       } else {
-        addChild(firstNode, entity[key].name ?? entity[key], entity[key]["@id"], predicates[key] ?? getNameFromIri(key));
+        addChild(firstNode, entity[key].name ?? entity[key], entity[key].iri, predicates[key] ?? getNameFromIri(key));
       }
     });
   }
