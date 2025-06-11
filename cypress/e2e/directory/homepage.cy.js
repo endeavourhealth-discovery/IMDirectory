@@ -80,34 +80,34 @@ describe("homepage", () => {
 
     it("shows suggested", () => {
       cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
-      cy.getByTestId("view-button").click();
-      cy.getByTestId("im-logo").click();
+      cy.findByTestId("view-button").click();
+      cy.findByTestId("im-logo").click();
       cy.get(".activity-container").contains("Scoliosis deformity of spine (disorder)");
     });
 
     it("shows favourites", () => {
       cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
-      cy.getByTestId("favourite-button").click();
-      cy.getByTestId("im-logo").click();
+      cy.findByTestId("favourite-button").click();
+      cy.findByTestId("im-logo").click();
       cy.get(".favourites-container").contains("Scoliosis deformity of spine (disorder)");
     });
 
     it("can clear suggested", () => {
       cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
-      cy.getByTestId("view-button").click();
-      cy.getByTestId("im-logo").click();
+      cy.findByTestId("view-button").click();
+      cy.findByTestId("im-logo").click();
       cy.get(".activity-container").contains("Scoliosis deformity of spine (disorder)");
-      cy.getByTestId("clear-suggestions-button").click();
+      cy.findByTestId("clear-suggestions-button").click();
       cy.get(".p-confirmdialog").find(".p-confirmdialog-accept-button").click();
       cy.get(".activity-container").contains("No recent activity");
     });
 
     it("can clear favourites", () => {
       cy.searchAndSelect("Scoliosis deformity of spine (disorder)");
-      cy.getByTestId("favourite-button").click();
-      cy.getByTestId("im-logo").click();
+      cy.findByTestId("favourite-button").click();
+      cy.findByTestId("im-logo").click();
       cy.get(".favourites-container").contains("Scoliosis deformity of spine (disorder)");
-      cy.getByTestId("clear-favourites-button").click();
+      cy.findByTestId("clear-favourites-button").click();
       cy.get(".p-confirmdialog").find(".p-confirmdialog-accept-button").click();
       cy.get(".favourites-container").contains("No favourites");
     });
