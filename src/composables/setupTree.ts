@@ -160,6 +160,7 @@ function setupTree(emit?: any, customPageSize?: number) {
 
   function onNodeCollapse(node: any) {
     deleteKeysRecursively(node);
+    expandedData.value = expandedData.value.filter(item => item !== node);
     delete expandedKeys.value[node.key];
   }
 
@@ -169,6 +170,7 @@ function setupTree(emit?: any, customPageSize?: number) {
       for (const child of node.children) {
         if (child.children.length) {
           collapsedKeys.push(child.key);
+
           deleteKeysRecursively(child);
         }
       }
