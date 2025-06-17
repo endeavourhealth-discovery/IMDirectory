@@ -88,8 +88,8 @@
       @click.stop="addRefinement"
       aria-haspopup="true"
       aria-controls="add-filter"
-      label="Add attribute"
-      data-testid="add-refinement-button"
+      label="Add shared attribute"
+      data-testid="add-shared-refinement-button"
       @mouseover="hoverAddRefinement = true"
       @mouseout="hoverAddRefinement = false"
     />

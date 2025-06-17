@@ -1,4 +1,4 @@
-describe.skip("Ecl search", () => {
+describe("Ecl search", () => {
   beforeEach(() => {
     cy.acceptLicenseAndCookies();
   });
@@ -45,7 +45,7 @@ describe.skip("Ecl search", () => {
       cy.get(".p-datatable-selectable-row").should("have.length.greaterThan", 1);
     });
 
-    it("can build allergyToPenicillinsOrCephasporinsWithCausativeLactams", () => {
+    it.only("can build allergyToPenicillinsOrCephasporinsWithCausativeLactams", () => {
       cy.findByTestId("builder-button").click();
       cy.get("#ecl-builder-dialog").get("button").contains("Add concept").click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").type("Allergy to penicillin");
@@ -53,10 +53,7 @@ describe.skip("Ecl search", () => {
       cy.get("#ecl-builder-dialog").get("button").contains("Add concept").click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").last().type("Allergy to cephalosporin");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Allergy to cephalosporin").click();
-      cy.get("#ecl-builder-dialog").find('[type="checkbox"]').first().check();
-      cy.get("#ecl-builder-dialog").find('[type="checkbox"]').eq(1).check();
-      cy.findByTestId("group-button").first().click();
-      cy.findByTestId("add-refinement-button").last().click();
+      cy.findByTestId("add-shared-refinement-button").last().click();
       cy.get(".property-container").find("#autocomplete-search").type("causative");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Causative").click();
       cy.get(".value-container").find("#autocomplete-search").type("lactam");
