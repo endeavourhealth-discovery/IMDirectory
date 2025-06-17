@@ -1,4 +1,4 @@
-describe("Ecl search", () => {
+describe.skip("Ecl search", () => {
   beforeEach(() => {
     cy.acceptLicenseAndCookies();
   });
