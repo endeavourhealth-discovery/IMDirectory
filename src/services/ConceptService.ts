@@ -27,19 +27,6 @@ const ConceptService = {
     });
   },
 
-  async getPropertiesForDomains(conceptIri: string[], controller?: AbortController): Promise<string[]> {
-    return await axios.get(API_URL + "/public/propertiesForDomains", {
-      params: { conceptIri: conceptIri.join(",") },
-      signal: controller?.signal
-    });
-  },
-
-  async getRangesForProperty(propertyIri: string, controller?: AbortController): Promise<string[]> {
-    return await axios.get(API_URL + "/public/rangesForProperty", {
-      params: { propertyIri: propertyIri},
-      signal: controller?.signal
-    });
-  },
 
   async getContextMaps(conceptIri: string): Promise<ConceptContextMap[]> {
     return await axios.get(API_URL + "/public/conceptContextMaps", {

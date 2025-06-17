@@ -1,6 +1,6 @@
 <template>
   <div class="set-definition-container">
-    <div class="ecl-container">
+    <div class="ecl-container" id="ecl-text-editor">
       <div class="text-copy-container">
         <div id="definition-panel-container">
           <Tabs value="0" class="ecl-tabview">
@@ -26,12 +26,12 @@
                       @drop="dropReceived($event)"
                     />
                   </div>
-                  <div v-if="!eclError" class="show-names-container">
+                  <div v-if="eclQuery.status!.valid">
                     <label for="">Show names</label>
                     <Checkbox v-model="showNames" :binary="true" />
                   </div>
-                  <div class="error-message" v-if="eclError">
-                    Invalid ECL : line {{ eclStatus.line }}, offset {{ eclStatus.offset }} -> {{ eclStatus.message }}
+                  <div class="error-message" v-if="!eclQuery.status!.valid">
+                    Invalid ECL : line {{ eclQuery.status!.line }}, offset {{ eclQuery.status!.offset }} -> {{ eclQuery.status!.message }}
                   </div>
                 </div>
               </TabPanel>
@@ -46,6 +46,7 @@
         <Button label="Import" @click="toggleMenuOptions" aria-haspopup="true" aria-controls="import_menu" />
         <Menu id="import_menu" ref="importMenu" :model="buttonOptions" :popup="true" />
         <Button label="Set builder" @click="showBuilder" severity="help" data-testid="builder-button" :loading="loading" />
+        <Button label="Validate model" severity="info" @click="validateModel(false)" data-testid="ecl-validate-button" />
         <Button
           icon="fa-solid fa-copy"
           label="Copy to clipboard"
@@ -62,7 +63,7 @@
       :showDialog="showDialog"
       :eclString="lastValidEcl"
       :showNames="showNames"
-      @eclSubmitted="updateECL"
+      @eclSubmitted="updatefromBuilder"
       @closeDialog="() => (showDialog = false)"
     />
 
@@ -81,12 +82,14 @@ import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 import { EditorMode } from "@/enums";
 import { EclService } from "@/services";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep, isEqual, last } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { Match, ECLStatus, PropertyShape, SearchResultSummary } from "@/interfaces/AutoGen";
+import { ECLQuery, PropertyShape, SearchResultSummary } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { validateModelFromECL } from "@/composables/eclValidator";
+import { useDialog } from "primevue/usedialog";
 
 interface Props {
   shape: PropertyShape;
@@ -95,8 +98,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-const eclAsQuery: Ref<Match[] | Match | undefined> = ref();
+const validationDialog = useDialog();
+const eclQuery: Ref<ECLQuery> = ref({ ecl: props.value, query: {}, status: { valid: true } });
 const importMenu = ref();
 const ecl: Ref<string> = ref("");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ecl);
@@ -118,11 +121,8 @@ const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 const textarea = ref<HTMLTextAreaElement | null>(null);
 const highlightDiv = ref<HTMLDivElement | null>(null);
-const eclStatus: Ref<ECLStatus> = ref({ valid: true, message: "" });
 const lastValidEcl: Ref<string> = ref("");
-const eclError = computed(() => {
-  return !eclStatus.value.valid;
-});
+
 const key = props.shape.path.iri;
 const buttonOptions = [
   { label: "From list", command: () => showAddByCodeList() },
@@ -132,9 +132,10 @@ const buttonOptions = [
 const debounceTimer = ref(0);
 const highlightedText = computed(() => {
   const lines = ecl.value.split("\n");
-  if (eclStatus.value && eclStatus.value.line) {
-    const lineIndex = eclStatus.value.line! - 1;
-    const offset = eclStatus.value.offset!;
+  if (eclQuery.value && eclQuery.value.status && !eclQuery.value.status.valid) {
+    const eclStatus = eclQuery.value.status;
+    const lineIndex = eclStatus.line! - 1;
+    const offset = eclStatus.offset!;
     if (lines[lineIndex] && offset < lines[lineIndex].length) {
       const line = lines[lineIndex];
       lines[lineIndex] = line.slice(0, offset) + '<span class="error-char">' + line[offset] + "</span>" + line.slice(offset + 1);
@@ -170,32 +171,20 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 watch(ecl, newValue => {
   clearTimeout(debounceTimer.value);
   debounceTimer.value = window.setTimeout(async (): Promise<void> => {
-    eclStatus.value = await EclService.validateECL(newValue);
-    if (eclStatus.value.valid) {
-      lastValidEcl.value = newValue;
-      eclAsQuery.value = await EclService.getQueryFromECL(newValue);
+    eclQuery.value = await EclService.validateECL(newValue, showNames.value);
+    if (eclQuery.value && eclQuery.value.status) {
+      if (eclQuery.value.status.valid) {
+        lastValidEcl.value = newValue;
+      } else eclQuery.value.query!.invalid = true;
     }
+    updateEntity();
   }, 600);
 });
-watch(
-  () => cloneDeep(eclAsQuery.value),
-  async (newValue, oldValue) => {
-    if (!isEqual(newValue, oldValue)) {
-      updateEntity();
-      if (updateValidity && valueVariableMap) {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-        showValidation.value = true;
-      }
-    }
-  }
-);
 
-watch(showNames, async newValue => {
-  if (props.value && !eclError.value) {
+watch(showNames, async (newValue, oldValue) => {
+  if (newValue !== oldValue) {
     loading.value = true;
-    if (newValue) {
-      ecl.value = await EclService.getEclFromEcl(ecl.value, true);
-    } else ecl.value = await EclService.getEclFromEcl(ecl.value, false);
+    await showOrHideNames();
     loading.value = false;
   }
 });
@@ -206,20 +195,33 @@ onMounted(async () => {
   loading.value = false;
 });
 
+async function validateModel(showOnlyInvalid?: boolean) {
+  if (lastValidEcl) {
+    const eclQuery = await validateModelFromECL(lastValidEcl.value, "ecl-text-editor", validationDialog, showOnlyInvalid, showNames.value);
+  }
+}
+async function showOrHideNames() {
+  eclQuery.value = await EclService.getEclFromEcl(ecl.value, showNames.value);
+  if (eclQuery.value.status && eclQuery.value.status.valid) {
+    ecl.value = eclQuery.value.ecl!;
+  } else showNames.value = !showNames.value;
+}
+
 function updateEntity() {
   if (entityUpdate) {
     const result = {} as any;
-    if (eclAsQuery.value) {
-      result[key] = JSON.stringify(eclAsQuery.value);
+    if (eclQuery.value && eclQuery.value.query) {
+      result[key] = JSON.stringify(eclQuery.value.query);
     }
-    if (!eclAsQuery.value && deleteEntityKey) deleteEntityKey(key);
+    if (!eclQuery.value && deleteEntityKey) deleteEntityKey(key);
     if (isObjectHasKeys(result)) entityUpdate(result);
   }
 }
 
 async function processProps() {
   if (props.value) {
-    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
+    eclQuery.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
+    ecl.value = eclQuery.value.ecl!;
     lastValidEcl.value = ecl.value;
   }
 }
@@ -259,9 +261,10 @@ function processCodeList(data: SearchResultSummary[]) {
   }
 }
 
-async function updateECL(data: string): Promise<void> {
-  const eclStatus = await EclService.validateECL(data);
-  if (eclStatus.valid) ecl.value = data;
+async function updatefromBuilder(builderQuery: ECLQuery): Promise<void> {
+  eclQuery.value = await EclService.getECLFromQuery(builderQuery.query!, showNames.value);
+  ecl.value = eclQuery.value.ecl!;
+  lastValidEcl.value = ecl.value;
   showDialog.value = false;
 }
 

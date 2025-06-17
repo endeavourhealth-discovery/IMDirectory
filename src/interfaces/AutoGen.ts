@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-06-10 05:30:20.
+// Generated using typescript-generator version 3.2.1263 on 2025-06-15 10:57:29.
 
 export interface ConceptContextMap {
     id?: string;
@@ -286,17 +286,17 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: TTIriRef;
     operator?: Operator;
+    unit?: TTIriRef;
     valueParameter?: string;
-    valueLabel?: string;
     qualifier?: string;
+    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
+    not?: T[];
     or?: T[];
     and?: T[];
-    not?: T[];
 }
 
 export interface Case {
@@ -317,6 +317,13 @@ export interface Delete {
     delete?: Delete[];
 }
 
+export interface ECLQuery {
+    ecl?: string;
+    query?: Query;
+    showNames?: boolean;
+    status?: ECLStatus;
+}
+
 export interface ECLStatus {
     valid?: boolean;
     line?: number;
@@ -333,12 +340,13 @@ export interface Element extends IriLD, Entailment {
     parentOrSelfOf?: boolean;
     parentOf?: boolean;
     nodeRef?: string;
+    invalid?: boolean;
 }
 
 export interface Entailment {
     memberOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -392,6 +400,8 @@ export interface Match extends IriLD, BoolGroup<Match> {
     inverse?: boolean;
     then?: Match;
     rule?: Match[];
+    libraryItem?: string;
+    invalid?: boolean;
     return?: Return;
     returx?: Return;
     isUnion?: boolean;
@@ -734,15 +744,15 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    status?: TTIriRef;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
-    types?: TTIriRef[];
+    description?: string;
     code?: string;
     prefixes?: TTPrefix[];
-    description?: string;
-    status?: TTIriRef;
+    types?: TTIriRef[];
 }
 
 export interface EntityValidationRequest {
@@ -911,8 +921,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -995,7 +1005,7 @@ export const enum DisplayMode {
     LOGICAL = "LOGICAL",
 }
 
-export const enum EclType {
+export const enum ECLType {
     refined = "refined",
     compound = "compound",
     simple = "simple",
@@ -1060,6 +1070,11 @@ export const enum TextSearchStyle {
     multiword = "multiword",
     ngram = "ngram",
     exact = "exact",
+}
+
+export const enum ValidationLevel {
+    CONCEPT = "CONCEPT",
+    ECL = "ECL",
 }
 
 export const enum VarType {

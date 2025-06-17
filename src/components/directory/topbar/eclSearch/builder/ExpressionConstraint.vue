@@ -35,6 +35,7 @@
             @update-match="updateMatch"
           />
         </span>
+        <Button v-if="match.instanceOf[0].invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
         <span class="add-group">
           <Button
             type="button"

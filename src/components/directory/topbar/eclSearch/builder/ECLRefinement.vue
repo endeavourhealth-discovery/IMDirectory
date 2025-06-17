@@ -120,11 +120,10 @@
             :root-entities="propertyTreeRoots"
             :setupSearch="updateQueryForPropertySearch"
             :setupRootEntities="updatePropertyTreeRoots"
-            :class="!isValidProperty && showValidation && 'invalid'"
             @update:selected="updateProperty"
           />
 
-          <small v-if="!isValidProperty && showValidation" class="validate-error">Property is invalid for selected expression constraint.</small>
+          <Button v-if="where.invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
           <Button
             @click.stop="deleteProperty"
             class="builder-button"
@@ -158,7 +157,7 @@
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { ConceptService, QueryService } from "@/services";
+import { EclService } from "@/services";
 import { IM, SNOMED, QUERY, RDF } from "@/vocabulary";
 import { useToast } from "primevue/usetoast";
 import { ToastSeverity } from "@/enums";
@@ -180,6 +179,7 @@ interface Props {
   parentType: string;
   isInAttributeGroup: boolean;
 }
+
 const props = defineProps<Props>();
 const where = defineModel<Where>("where", { default: {} });
 const parent = defineModel<Where | Match>("parent");
@@ -199,10 +199,8 @@ const operators = ["and", "or"] as const;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const selectedProperty: Ref<SearchResultSummary | undefined> = ref(where.value as SearchResultSummary | undefined);
 const loadingProperty = ref(true);
-const isValidProperty = ref(false);
 const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
 const isRoleGroup = computed(() => getIsRoleGroup(where.value));
-const showValidation = ref(false);
 const operatorOptions = ["=", "!="];
 const hover = ref();
 const propertyConstraintOperator: Ref<string | undefined> = ref<"<<">();
@@ -217,7 +215,6 @@ const hasFocus = computed(() => {
 
 watch(forceValidation, async () => {
   await updateIsValidProperty();
-  showValidation.value = true;
 });
 
 onMounted(async () => {
@@ -247,7 +244,7 @@ function deleteProperty() {
 async function updatePropertyTreeRoots(): Promise<string[]> {
   propertyTreeRoots.value = ["http://snomed.info/sct#410662002"];
   if (props.focusConcepts.length > 0) {
-    propertyTreeRoots.value = await ConceptService.getPropertiesForDomains(props.focusConcepts);
+    propertyTreeRoots.value = await EclService.getPropertiesForDomains(props.focusConcepts);
   }
   return propertyTreeRoots.value;
 }
@@ -310,29 +307,17 @@ function addValue() {
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (where.value.iri) {
-    const imQuery = {
-      query: { iri: QUERY.IS_VALID_PROPERTY },
-      argument: [
-        {
-          parameter: "property",
-          valueIri: { iri: where.value.iri }
-        },
-        {
-          parameter: "concept",
-          valueIriList: props.focusConcepts
-        }
-      ]
-    } as QueryRequest;
-    isValidProperty.value = await QueryService.askQuery(imQuery);
-    if (!isValidProperty.value) {
+  if (where.value && where.value.iri) {
+    const result = await EclService.isValidPropertyForDomains(where.value.iri, props.focusConcepts);
+    if (!result) {
+      where.value.invalid = true;
       toast.add({
         severity: ToastSeverity.ERROR,
         summary: "Invalid property",
         detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value.iri}" is not a  valid attribute for selected concepts "`,
         life: 3000
       });
-    }
+    } else where.value.invalid = false;
   }
 }
 
@@ -354,9 +339,11 @@ async function updateProperty(property: SearchResultSummary | undefined) {
   if (!property) {
     delete where.value.iri;
     delete where.value.name;
+    where.value.invalid= false;
   } else {
     where.value.iri = property.iri;
     where.value.name = property.name;
+    where.value.invalid = false;
   }
 }
 </script>

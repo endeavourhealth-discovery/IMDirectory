@@ -2,7 +2,6 @@ import { Match, OrderDirection, BoolGroup, Node, Query, QueryRequest, SearchBind
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { v4 } from "uuid";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -36,7 +35,7 @@ export function updateFocusConcepts(match: Match): string[] {
 function focusChildren(children: Match[] | undefined): string[] {
   const focusConcepts: string[] = [];
   if (children) {
-    for (const [index, item] of children.entries()) {
+    for (const item of children) {
       focusConcepts.push(...updateFocusConcepts(item));
     }
   }
