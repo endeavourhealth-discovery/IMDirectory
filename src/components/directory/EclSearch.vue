@@ -129,14 +129,7 @@ const highlightedText = computed(() => {
 watch(eclQueryString, newValue => {
   clearTimeout(debounceTimer.value);
   debounceTimer.value = window.setTimeout(async (): Promise<void> => {
-    setDefinition.value = await EclService.validateECL(newValue, showNames.value);
-    if (setDefinition.value && setDefinition.value.status) {
-      if (!setDefinition.value.status.valid) {
-        setDefinition.value.query!.invalid = true;
-      } else {
-        lastValidEcl.value = eclQueryString.value;
-      }
-    }
+    await validateECL(newValue);
   }, 600);
 });
 
@@ -154,10 +147,21 @@ onMounted(async () => {
   setFilterDefaults();
   if (savedEcl.value) eclQueryString.value = savedEcl.value;
   if (eclQueryString.value) {
-    setDefinition.value = await EclService.validateECL(eclQueryString.value, showNames.value);
-    lastValidEcl.value = eclQueryString.value;
+    await validateECL(eclQueryString.value);
   }
 });
+
+async function validateECL(ecl: string) {
+  setDefinition.value = await EclService.validateECL(ecl, showNames.value);
+  if (setDefinition.value && setDefinition.value.status) {
+    if (!setDefinition.value.status.valid) {
+      setDefinition.value.query!.invalid = true;
+    } else {
+      lastValidEcl.value = eclQueryString.value;
+      editorStore.updateEclEditorSavedString(lastValidEcl.value);
+    }
+  }
+}
 
 async function showOrHideNames() {
   setDefinition.value = await EclService.getEclFromEcl(eclQueryString.value, showNames.value);
