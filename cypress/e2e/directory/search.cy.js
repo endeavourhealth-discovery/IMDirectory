@@ -3,11 +3,11 @@ describe("Search", () => {
     cy.acceptLicenseAndCookies();
   });
   it("can search", () => {
-    cy.getByTestId("search-input", { timeout: 60000 }).type("scoliosis");
+    cy.findByTestId("search-input", { timeout: 60000 }).type("scoliosis");
     cy.get(".p-datatable-selectable-row", { timeout: 60000 }).should("have.length.greaterThan", 1);
   });
   it("pages", () => {
-    cy.getByTestId("search-input", { timeout: 60000 }).type("heart");
+    cy.findByTestId("search-input", { timeout: 60000 }).type("heart");
     cy.get(".p-datatable-selectable-row", { timeout: 60000 }).then(page1Rows => {
       expect(page1Rows.length).to.be.greaterThan(1);
     cy.get(".p-paginator-next").click();
@@ -24,15 +24,15 @@ describe("Search", () => {
     });
   });
   it("filters by status", () => {
-    cy.getByTestId("search-input", { timeout: 60000 }).type("scoliosis");
-    cy.getByTestId("total-results", { timeout: 60000 }).invoke("text").then(parseFloat).as("startCount", { type: "static" }).should("be.gt", 0);
-    cy.getByTestId("status-filter").find(".p-multiselect-dropdown").click();
+    cy.findByTestId("search-input", { timeout: 60000 }).type("scoliosis");
+    cy.findByTestId("total-results", { timeout: 60000 }).invoke("text").then(parseFloat).as("startCount", { type: "static" }).should("be.gt", 0);
+    cy.findByTestId("status-filter").find(".p-multiselect-dropdown").click();
     cy.get(".p-multiselect-overlay").contains("Inactive").click();
-    cy.getByTestId("status-filter").find(".p-multiselect-dropdown").click();
+    cy.findByTestId("status-filter").find(".p-multiselect-dropdown").click();
     cy.wait(1000);
     cy.get(".p-datatable-mask").should("not.exist");
     cy.wait(1000);
-    cy.getByTestId("total-results", { timeout: 60000 })
+    cy.findByTestId("total-results", { timeout: 60000 })
       .invoke("text")
       .then(parseFloat)
       .then(newCount => {
@@ -42,15 +42,15 @@ describe("Search", () => {
       });
   });
   it("filters by scheme", () => {
-    cy.getByTestId("search-input", { timeout: 60000 }).type("scoliosis");
-    cy.getByTestId("total-results", { timeout: 60000 }).invoke("text").then(parseFloat).as("startCount", { type: "static" }).should("be.gt", 0);
-    cy.getByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
+    cy.findByTestId("search-input", { timeout: 60000 }).type("scoliosis");
+    cy.findByTestId("total-results", { timeout: 60000 }).invoke("text").then(parseFloat).as("startCount", { type: "static" }).should("be.gt", 0);
+    cy.findByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
     cy.get(".p-multiselect-overlay").contains("Snomed").click();
-    cy.getByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
+    cy.findByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
     cy.wait(1000);
     cy.get("p-datatable-mask").should("not.exist");
     cy.wait(1000);
-    cy.getByTestId("total-results", { timeout: 60000 })
+    cy.findByTestId("total-results", { timeout: 60000 })
       .invoke("text")
       .then(parseFloat)
       .then(newCount => {
@@ -60,15 +60,15 @@ describe("Search", () => {
       });
   });
   it("filters by type", () => {
-    cy.getByTestId("search-input", { timeout: 60000 }).type("asthma");
-    cy.getByTestId("total-results", { timeout: 60000 }).invoke("text").then(parseFloat).as("startCount", { type: "static" }).should("be.gt", 0);
-    cy.getByTestId("type-filter").find(".p-multiselect-dropdown").click();
+    cy.findByTestId("search-input", { timeout: 60000 }).type("asthma");
+    cy.findByTestId("total-results", { timeout: 60000 }).invoke("text").then(parseFloat).as("startCount", { type: "static" }).should("be.gt", 0);
+    cy.findByTestId("type-filter").find(".p-multiselect-dropdown").click();
     cy.get(".p-multiselect-overlay").contains("Terminology concept").click();
-    cy.getByTestId("type-filter").find(".p-multiselect-dropdown").click();
+    cy.findByTestId("type-filter").find(".p-multiselect-dropdown").click();
     cy.wait(1000);
     cy.get("p-datatable-mask").should("not.exist");
     cy.wait(1000);
-    cy.getByTestId("total-results", { timeout: 60000 })
+    cy.findByTestId("total-results", { timeout: 60000 })
       .invoke("text")
       .then(parseFloat)
       .then(newCount => {
