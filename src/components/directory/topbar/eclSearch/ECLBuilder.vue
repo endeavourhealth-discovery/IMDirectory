@@ -12,9 +12,9 @@
       display: 'flex',
       flexFlow: 'column nowrap'
     }"
-    id="ecl-builder-dialog"
     :contentStyle="{ flexGrow: '100', display: 'flex' }"
     :auto-z-index="true"
+    id="ecl-builder-dialog"
   >
     <template #header>
       <div class="ecl-builder-dialog-header">
@@ -81,9 +81,7 @@ import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { Match, ECLQuery } from "@/interfaces/AutoGen";
-import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { validateModelFromQuery } from "@/composables/eclValidator";
-
+import { showValidationMessage,showVerificationDialog } from "@/composables/eclValidator";
 interface Props {
   showDialog?: boolean;
   eclString?: string;
@@ -219,8 +217,34 @@ async function generateQueryString() {
 }
 
 async function validateBuild() {
-  const eclQuery = await validateModelFromQuery(build.value, "ecl-builder-dialog", dynamicDialog);
+  const verificationDialog = showVerificationDialog(dynamicDialog);
+  const eclQuery = await EclService.validateModelFromQuery(build.value);
   build.value = eclQuery.query!;
+  verificationDialog.close();
+  await displayValidationMessage(!eclQuery.status!.valid);
+
+}
+
+async function displayValidationMessage(invalid: boolean | undefined) {
+  if (!invalid) {
+    await Swal.fire({
+      icon: "success",
+      title: "Success",
+      backdrop: true,
+      showClass: { popup: "swal-popup" },
+      text: "All entities are valid.",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
+    });
+  } else {
+    await Swal.fire({
+      icon: "warning",
+      title: "Warning",
+      text: "Invalid values found. Please review your entries.",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
+    });
+  }
 }
 
 function stripIds(idBuild: any) {
@@ -258,8 +282,8 @@ function stripValidation(build: any) {
 </script>
 
 <style scoped>
-.swal-popup {
-  z-index: 9999999 !important;
+.swal2-container {
+  z-index: 3000 !important;
 }
 #ecl-builder-dialog {
   display: flex;

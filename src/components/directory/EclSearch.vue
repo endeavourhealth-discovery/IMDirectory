@@ -71,7 +71,6 @@
       @eclSubmitted="updateECL"
       @closeDialog="showDialog = false"
       :key="builderKey"
-      :data-testid="'builder-visible-' + showDialog"
     />
   </div>
 </template>

@@ -88,7 +88,7 @@ import { ECLQuery, PropertyShape, SearchResultSummary } from "@/interfaces/AutoG
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { validateModelFromECL } from "@/composables/eclValidator";
+import { showVerificationDialog, showValidationMessage } from "@/composables/eclValidator";
 import { useDialog } from "primevue/usedialog";
 
 interface Props {
@@ -197,7 +197,10 @@ onMounted(async () => {
 
 async function validateModel(showOnlyInvalid?: boolean) {
   if (lastValidEcl) {
-    const eclQuery = await validateModelFromECL(lastValidEcl.value, "ecl-text-editor", validationDialog, showOnlyInvalid, showNames.value);
+    const eclQuery = await EclService.validateModelFromECL(lastValidEcl.value, showNames.value);
+    if (showOnlyInvalid && eclQuery.status && !eclQuery.status.valid) {
+      await showValidationMessage(true);
+    } else await showValidationMessage(!eclQuery.status?.valid);
   }
 }
 async function showOrHideNames() {
