@@ -84,7 +84,8 @@ import { EditorMode } from "@/enums";
 import { EclService } from "@/services";
 import { cloneDeep, isEqual, last } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { ECLQuery, PropertyShape, SearchResultSummary, TTEntity } from "@/interfaces/AutoGen";
+import { ECLQuery, PropertyShape, SearchResultSummary } from "@/interfaces/AutoGen";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
@@ -213,7 +214,7 @@ async function showOrHideNames() {
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as any;
+    const result = {} as TTEntity;
     if (eclQuery.value && eclQuery.value.query) {
       result[key] = JSON.stringify(eclQuery.value.query);
     }
