@@ -167,8 +167,6 @@ function onShowSidebar() {
   editorStore.updateFindInEditorTreeIri("");
 }
 
-
-
 onBeforeUnmount(() => {
   document.removeEventListener("focusin", onGlobalFocusIn);
 });
@@ -186,7 +184,6 @@ onMounted(async () => {
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
   } else await router.push({ path: "/" });
   loading.value = false;
-  console.log("editor mounted");
 });
 
 watch(
@@ -199,7 +196,6 @@ watch(
     }
   }
 );
-
 
 function onGlobalFocusIn(e: FocusEvent) {
   const newFocusedElement = e.target as HTMLElement;

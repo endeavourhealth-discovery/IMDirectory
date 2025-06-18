@@ -54,7 +54,7 @@
         <AccordionHeader>Direct or entailed members</AccordionHeader>
         <AccordionContent>
           <div id="members-container" class="set-accordion-content">
-            <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @open-download-dialog="displayDialog" />
+            <!-- <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @open-download-dialog="displayDialog" />-->
           </div>
         </AccordionContent>
       </AccordionPanel>

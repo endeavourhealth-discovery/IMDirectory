@@ -10,6 +10,7 @@
               :options="getBooleanOptions(match, parent!, parentOperator as Bool, 'Match', index)"
               option-label="label"
               option-value="value"
+              data-testid="operator-selector"
               @update:modelValue="val => updateOperator(val)"
             >
               <template #option="slotProps">
@@ -151,7 +152,7 @@ function addConcept() {
 }
 function updateOperator(val: string) {
   updateFocusConcepts(match.value);
-  emit("updateBool", props.parentOperator, val);
+  emit("updateBool", props.parentOperator, val,props.index);
 }
 
 function updateMatch() {

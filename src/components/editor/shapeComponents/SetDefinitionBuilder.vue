@@ -84,12 +84,13 @@ import { EditorMode } from "@/enums";
 import { EclService } from "@/services";
 import { cloneDeep, isEqual, last } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { ECLQuery, PropertyShape, SearchResultSummary } from "@/interfaces/AutoGen";
+import { ECLQuery, PropertyShape, SearchResultSummary, TTEntity } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { showVerificationDialog, showValidationMessage } from "@/composables/eclValidator";
 import { useDialog } from "primevue/usedialog";
+import { IM } from "@/vocabulary";
 
 interface Props {
   shape: PropertyShape;
@@ -156,7 +157,7 @@ if (forceValidation) {
 
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
-    () => cloneDeep(valueVariableMap),
+    () => valueVariableMap,
     async (newValue, oldValue) => {
       if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
         if (updateValidity) {

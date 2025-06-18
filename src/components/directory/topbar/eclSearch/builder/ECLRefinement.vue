@@ -285,10 +285,10 @@ function mouseout(event: any) {
 }
 
 function updateOperator(val: string) {
-  emit("updateBool", props.parentOperator, val);
+  emit("updateBool", props.parentOperator, val, props.index);
 }
-function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
-  updateBooleans(where.value!, oldOperator as Bool, newOperator as Bool, props.index, group.value);
+function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
+  updateBooleans(where.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
   if (newOperator === props.parentOperator) {
     emit("rationalise");
   }
@@ -339,7 +339,7 @@ async function updateProperty(property: SearchResultSummary | undefined) {
   if (!property) {
     delete where.value.iri;
     delete where.value.name;
-    where.value.invalid= false;
+    where.value.invalid = false;
   } else {
     where.value.iri = property.iri;
     where.value.name = property.name;

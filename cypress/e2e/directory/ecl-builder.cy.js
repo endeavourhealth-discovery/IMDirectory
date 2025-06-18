@@ -16,36 +16,30 @@ describe("Ecl search", () => {
       cy.get("#ecl-search-container").find(".title").contains("Expression constraints language search");
     });
 
-    it("can build orGroupMinusOrGroup", () => {
+    it.only("can build orGroupMinusOrGroup", () => {
       cy.findByTestId("builder-button").click();
-      cy.get("#ecl-builder-dialog").get("button").contains("Add concept").click();
+      cy.get("#ecl-builder-dialog").get('[data-testid="add-bool-concept-button"]').click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").type("body temperature");
       cy.get(".p-popover").find(".p-listbox-option").contains("Body temperature").click();
-      cy.get("#ecl-builder-dialog").get("button").contains("Add concept").click();
+      cy.get("#ecl-builder-dialog").get('[data-testid="add-concept-button"]').click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").last().type("Peripheral oxygen saturation");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Peripheral oxygen saturation").click();
-      cy.get("#ecl-builder-dialog").find('[type="checkbox"]').first().check();
-      cy.get("#ecl-builder-dialog").find('[type="checkbox"]').eq(1).check();
-      cy.findByTestId("group-button").first().click();
-      cy.get("#ecl-builder-dialog").findByTestId("add-concept-button").eq(1).click();
+      cy.get("#ecl-builder-dialog").get('[data-testid="add-bool-concept-button"]').click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").last().type("Target body mass index");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Target body mass index").click();
-      cy.get("#ecl-builder-dialog").findByTestId("add-concept-button").eq(1).click();
+      cy.get("#ecl-builder-dialog").get('[data-testid="add-bool-concept-button"]').click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").last().type("Target body mass index");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Target body mass index").click();
-      cy.get("#ecl-builder-dialog").find('[type="checkbox"]').eq(3).check();
-      cy.get("#ecl-builder-dialog").find('[type="checkbox"]').eq(4).check();
-      cy.findByTestId("group-button").first().click();
-      cy.findByTestId("bool-not-button").click();
-      cy.findByTestId("ecl-validate-button").click();
-      cy.get(".swal2-popup").contains("Success");
-      cy.get(".swal2-confirm").click();
-      cy.findByTestId("ecl-ok-button").click();
+      cy.get("#ecl-builder-dialog").get('[data-testid="operator-selector"]').eq(3).click();
+      cy.get(".p-select-list-container").contains("li", "Minus").click();
+      cy.get("#ecl-builder-dialog").get('[data-testid="operator-selector"]').eq(2).click();
+      cy.get(".p-select-list-container").contains("li", "Minus").click();
+      cy.get("#ecl-builder-dialog").get('[data-testid= "ecl-ok-button"]').click();
       cy.findByTestId("ecl-search-button").click();
       cy.get(".p-datatable-selectable-row").should("have.length.greaterThan", 1);
     });
 
-    it.only("can build allergyToPenicillinsOrCephasporinsWithCausativeLactams", () => {
+    it("can build allergyToPenicillinsOrCephasporinsWithCausativeLactams", () => {
       cy.findByTestId("builder-button").click();
       cy.get("#ecl-builder-dialog").get("button").contains("Add concept").click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").type("Allergy to penicillin");
