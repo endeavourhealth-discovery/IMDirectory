@@ -12,7 +12,7 @@
         id="passwordOld"
         fluid
         :pt="{
-          'pc-input': { root: { 'data-testid': testId + 'old' } }
+          'pc-input-text': { root: { 'data-testid': testId + 'old' } }
         }"
       />
     </div>
@@ -31,7 +31,7 @@
         data-testid="password-new1"
         id="password"
         :pt="{
-          'pc-input': { root: { 'data-testid': testId + 'new1' } }
+          'pc-input-text': { root: { 'data-testid': testId + 'new1' } }
         }"
         :overlayVisible="true"
         strong-regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
@@ -43,7 +43,7 @@
         <template #footer>
           <hr />
           <p class="mt-2">Password should contain:</p>
-          <ul class="ml-2 mt-0 pl-2" style="line-height: 1.5">
+          <ul class="mt-0 ml-2 pl-2" style="line-height: 1.5">
             <li>At least one lowercase</li>
             <li>At least one uppercase</li>
             <li>At least one number</li>
@@ -69,7 +69,7 @@
         data-testid="password-new2"
         id="password2"
         :pt="{
-          'pc-input': { root: { 'data-testid': testId + 'new2' } }
+          'pc-input-text': { root: { 'data-testid': testId + 'new2' } }
         }"
       />
     </div>
@@ -122,29 +122,29 @@ function isValidPassword(): boolean {
   return checkPasswordStrength(password.value) === PasswordStrength.medium || checkPasswordStrength(password.value) === PasswordStrength.strong;
 }
 
-const emit = defineEmits({
-  "update:oldPassword": (_payload: string) => true,
-  "update:password": (_payload: string) => true,
-  "update:arePasswordsValid": (_payload: boolean) => true
-});
+const emit = defineEmits<{
+  "update:oldPassword": [payload: string];
+  "update:password": [payload: string];
+  "update:arePasswordsValid": [payload: boolean];
+}>();
 
 watch(
   () => passwordOld.value,
-  async newValue => {
+  newValue => {
     emit("update:oldPassword", newValue);
   }
 );
 
 watch(
   () => password.value,
-  async newValue => {
+  newValue => {
     emit("update:password", newValue);
   }
 );
 
 watch(
   () => arePasswordsValid.value,
-  async newValue => {
+  newValue => {
     emit("update:arePasswordsValid", newValue);
   }
 );

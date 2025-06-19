@@ -3,18 +3,19 @@
     <div class="title-buttons-container">
       <div class="title-container">
         <h2 v-if="!showSelect" class="title">
-          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
+          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity.iri" class="p-mx-1 type-icon" />
           <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
         </h2>
         <h2 v-else class="title">
-          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
+          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity.iri" class="p-mx-1 type-icon" />
           <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
         </h2>
       </div>
       <div class="entity-buttons-container">
         <ActionButtons
+          v-if="entity.iri"
           :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'download', 'favourite'] : ['findInTree', 'view', 'addToList']"
-          :iri="entity['@id']"
+          :iri="entity.iri"
           :name="entity[RDFS.LABEL]"
           :type="'entityButton'"
           @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
@@ -24,7 +25,7 @@
       </div>
     </div>
     <div class="flex flex-row">
-      <TextWithLabel label="Iri" :data="entity['@id']" v-if="!!entity['@id']" />
+      <TextWithLabel label="Iri" :data="entity.iri" v-if="!!entity.iri" />
       <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
     </div>
     <div class="flex flex-row justify-start">
@@ -49,25 +50,25 @@ import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
-  entity: any;
+defineProps<{
+  entity: TTEntity;
   showSelect?: boolean;
-}
-const props = defineProps<Props>();
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  navigateTo: (_payload: string) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+}>();
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  navigateTo: [payload: string];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
 
-function getIcon(entity: any) {
-  if (entity["@id"] === IM.FAVOURITES) return ["fa-solid", "star"];
+function getIcon(entity: TTEntity) {
+  if (entity.iri === IM.FAVOURITES) return ["fa-solid", "star"];
   return getFAIconFromType(entity[RDF.TYPE]);
 }
 
-function getColour(entity: any) {
+function getColour(entity: TTEntity) {
   return "color: " + getColourFromType(entity[RDF.TYPE]);
 }
 </script>
@@ -102,13 +103,5 @@ function getColour(entity: any) {
 
 .type-icon {
   padding-right: 0.5rem;
-}
-
-.concept-buttons-container {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
 }
 </style>

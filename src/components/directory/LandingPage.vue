@@ -4,7 +4,7 @@
       <div id="shortcuts-container">
         <h2>Quick links</h2>
         <div class="shortcuts">
-          <template v-for="shortcut of shortcuts">
+          <template v-for="(shortcut, index) of shortcuts" v-bind:key="index">
             <Shortcut
               :icon="shortcut.icon"
               :label="shortcut.label"
@@ -34,33 +34,33 @@ import Favourites from "@/components/directory/landingPage/Favourites.vue";
 
 const directService = new DirectService();
 
-const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: Function; color: string; size: number; newTab?: boolean }[]> = ref([
+const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: () => void; color: string; size: number; newTab?: boolean }[]> = ref([
   {
     label: "Ontology",
-    icon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
+    icon: getFAIconFromType([{ iri: IM.CONCEPT }]),
     command: () => directService.select(IM.NAMESPACE + "HealthModelOntology"),
-    color: getColourFromType([{ "@id": IM.CONCEPT }]),
+    color: getColourFromType([{ iri: IM.CONCEPT }]),
     size: 4
   },
   {
     label: "Sets",
-    icon: getFAIconFromType([{ "@id": IM.SET }]),
+    icon: getFAIconFromType([{ iri: IM.SET }]),
     command: () => directService.select(IM.MODULE_SETS),
-    color: getColourFromType([{ "@id": IM.SET }]),
+    color: getColourFromType([{ iri: IM.SET }]),
     size: 4
   },
   {
     label: "Health records",
-    icon: getFAIconFromType([{ "@id": SHACL.NODESHAPE }]),
+    icon: getFAIconFromType([{ iri: SHACL.NODESHAPE }]),
     command: () => directService.select(IM.HEALTH_RECORDS),
-    color: getColourFromType([{ "@id": SHACL.NODESHAPE }]),
+    color: getColourFromType([{ iri: SHACL.NODESHAPE }]),
     size: 4
   },
   {
     label: "Queries",
-    icon: getFAIconFromType([{ "@id": IM.QUERY }]),
+    icon: getFAIconFromType([{ iri: IM.QUERY }]),
     command: () => directService.select(IM.MODULE_QUERIES),
-    color: getColourFromType([{ "@id": IM.QUERY }]),
+    color: getColourFromType([{ iri: IM.QUERY }]),
     size: 4
   },
   {
@@ -109,16 +109,6 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
   flex-flow: column nowrap;
   justify-content: flex-start;
   overflow: auto;
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.p-card {
-  box-shadow: none;
 }
 
 #shortcuts-container {

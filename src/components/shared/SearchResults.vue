@@ -51,7 +51,7 @@
           <RadioButton v-model="quickTypeFilter" inputId="allQuickFilter" name="quickTypeFilter" :value="undefined" variant="filled" />
           <label for="allQuickFilter">All</label>
         </div>
-        <div v-for="typeOption in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t['@id']))" class="radio-label-container">
+        <div v-for="(typeOption, index) in typeOptions.filter(t => quickTypeFiltersAllowed.includes(t.iri))" class="radio-label-container" v-bind:key="index">
           <RadioButton v-model="quickTypeFilter" :inputId="typeOption.name + 'QuickFilter'" name="quickTypeFilter" :value="typeOption" variant="filled" />
           <label :for="typeOption.name + 'QuickFilter'">{{ typeOption.name }}</label>
         </div>
@@ -79,7 +79,7 @@ import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep } from "lodash-es";
 import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 
@@ -103,14 +103,14 @@ const props = withDefaults(defineProps<Props>(), {
   rows: 25
 });
 
-const emit = defineEmits({
-  selectedUpdated: (_payload: SearchResultSummary) => true,
-  locateInTree: (_payload: string) => true,
-  selectedFiltersUpdated: (_payload: FilterOptions) => true,
-  searchResultsUpdated: (_payload: SearchResponse | undefined) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+const emit = defineEmits<{
+  selectedUpdated: [payload: SearchResultSummary];
+  locateInTree: [payload: string];
+  selectedFiltersUpdated: [payload: FilterOptions];
+  searchResultsUpdated: [payload: SearchResponse | undefined];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
 
 const filterStore = useFilterStore();
 const storeFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
@@ -135,7 +135,7 @@ onMounted(() => init());
 function init() {
   setFiltersFromStore();
   if (props.showQuickTypeFilters && props.selectedQuickTypeFilter) {
-    const found = typeOptions.value.find(typeOption => typeOption["@id"] === props.selectedQuickTypeFilter);
+    const found = typeOptions.value.find(typeOption => typeOption.iri === props.selectedQuickTypeFilter);
     if (found) quickTypeFilter.value = found;
   }
 }
@@ -152,11 +152,9 @@ function setFiltersFromStore() {
     selectedStatus.value = cloneDeep(props.selectedFilterOptions.status);
     selectedTypes.value = cloneDeep(props.selectedFilterOptions.types);
   } else {
-    selectedSchemes.value = storeFilterOptions.value.schemes.filter(
-      option => storeFilterDefaults.value.schemes.findIndex(s => s["@id"] === option["@id"]) != -1
-    );
-    selectedStatus.value = storeFilterOptions.value.status.filter(option => storeFilterDefaults.value.status.findIndex(s => s["@id"] === option["@id"]) != -1);
-    selectedTypes.value = storeFilterOptions.value.types.filter(option => storeFilterDefaults.value.types.findIndex(t => t["@id"] === option["@id"]) != -1);
+    selectedSchemes.value = storeFilterOptions.value.schemes.filter(option => storeFilterDefaults.value.schemes.findIndex(s => s.iri === option.iri) != -1);
+    selectedStatus.value = storeFilterOptions.value.status.filter(option => storeFilterDefaults.value.status.findIndex(s => s.iri === option.iri) != -1);
+    selectedTypes.value = storeFilterOptions.value.types.filter(option => storeFilterDefaults.value.types.findIndex(t => t.iri === option.iri) != -1);
   }
 }
 

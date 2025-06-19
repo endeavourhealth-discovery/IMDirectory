@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { SharedState } from "@/stores/types/sharedState";
 import { IM } from "@/vocabulary";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
+import { TagSeverity } from "@/enums";
 
 export const useSharedStore = defineStore("shared", {
   state: (): SharedState => ({
@@ -9,23 +10,23 @@ export const useSharedStore = defineStore("shared", {
     showSnomedLicense: false,
     showUprnConsent: false,
     tagSeverityMatches: [
-      { "@id": IM.ACTIVE, severity: "success" },
-      { "@id": IM.DRAFT, severity: "warning" },
-      { "@id": IM.INACTIVE, severity: "danger" }
+      { iri: IM.ACTIVE, severity: TagSeverity.SUCCESS },
+      { iri: IM.DRAFT, severity: TagSeverity.WARNING },
+      { iri: IM.INACTIVE, severity: TagSeverity.DANGER }
     ],
     showReleaseNotes: false,
     showReleaseBanner: localStorage.getItem("showReleaseBanner") === "true" ? true : false,
     showDevBanner: localStorageWithExpiry.getItem("showDevBanner") ?? true,
     activeProfile: { uuid: "", activeClausePath: "" },
     error: undefined,
-    isPublicMode: false,
-    isDevMode: false
+    isPublicMode: undefined,
+    isDevMode: undefined
   }),
   actions: {
     updateShowCookieConsent(bool: boolean) {
       this.showCookieConsent = bool;
     },
-    updateActiveProfile(value: any) {
+    updateActiveProfile(value: { uuid: string; activeClausePath: string }) {
       this.activeProfile = value;
     },
     updateShowSnomedLicense(bool: boolean) {
@@ -45,10 +46,10 @@ export const useSharedStore = defineStore("shared", {
       this.showDevBanner = bool;
       localStorageWithExpiry.setItem("showDevBanner", bool);
     },
-    updateTagSeverityMatches(items: any) {
+    updateTagSeverityMatches(items: { iri: string; severity: TagSeverity }[]) {
       this.tagSeverityMatches = items;
     },
-    updateError(error: any) {
+    updateError(error: string) {
       this.error = error;
     },
     updateIsPublicMode(publicMode: boolean) {

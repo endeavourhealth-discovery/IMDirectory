@@ -6,6 +6,7 @@ import { IM } from "@/vocabulary";
 import { ref } from "vue";
 import { EntityService } from "@/services";
 import { cloneDeep } from "lodash-es";
+import { describe, vi, it, expect, beforeEach } from "vitest";
 
 describe("setupValidity", () => {
   describe("constructValidationCheckStatus", () => {
@@ -30,9 +31,9 @@ describe("setupValidity", () => {
       const itemToRemove = testData.testShape.property[0].property[0].property[0];
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
-      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: itemToRemove.path["@id"], deferred: expect.anything() });
+      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: itemToRemove.path.iri, deferred: expect.anything() });
       wrapper.vm.removeValidationCheckStatus(itemToRemove);
-      expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: itemToRemove.path["@id"], deferred: expect.anything() });
+      expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: itemToRemove.path.iri, deferred: expect.anything() });
       expect(wrapper.vm.validationCheckStatus).toHaveLength(11);
     });
   });
@@ -91,7 +92,7 @@ describe("setupValidity", () => {
       expect(wrapper.vm.validationCheckStatus).toEqual([
         {
           deferred: expect.anything(),
-          key: testData.testShape.property[0].property[0].property[0].path["@id"]
+          key: testData.testShape.property[0].property[0].property[0].path.iri
         }
       ]);
     });
@@ -149,7 +150,7 @@ describe("setupValidity", () => {
         testData.testShape.property[0].property[0].property[7],
         editorEntity,
         valueVariableMap,
-        testData.testShape.property[0].property[0].property[7].path["@id"],
+        testData.testShape.property[0].property[0].property[7].path.iri,
         invalid,
         validationErrorMessage
       );
@@ -170,7 +171,7 @@ describe("setupValidity", () => {
         testData.testShape.property[0].property[0].property[7],
         editorEntity,
         valueVariableMap,
-        testData.testShape.property[0].property[0].property[7].path["@id"],
+        testData.testShape.property[0].property[0].property[7].path.iri,
         invalid,
         validationErrorMessage
       );
@@ -191,7 +192,7 @@ describe("setupValidity", () => {
         testData.testShape.property[0].property[0].property[0],
         editorEntity,
         valueVariableMap,
-        testData.testShape.property[0].property[0].property[0].path["@id"],
+        testData.testShape.property[0].property[0].property[0].path.iri,
         invalid,
         validationErrorMessage
       );
@@ -204,7 +205,7 @@ describe("setupValidity", () => {
       const invalid = ref(false);
       const validationErrorMessage = ref();
       const editorEntity = ref({ ...testData.testEntity });
-      delete editorEntity.value[testData.testShape.property[0].property[0].property[0].path["@id"]];
+      delete editorEntity.value[testData.testShape.property[0].property[0].property[0].path.iri];
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
@@ -213,7 +214,7 @@ describe("setupValidity", () => {
         testData.testShape.property[0].property[0].property[0],
         editorEntity,
         valueVariableMap,
-        testData.testShape.property[0].property[0].property[0].path["@id"],
+        testData.testShape.property[0].property[0].property[0].path.iri,
         invalid,
         validationErrorMessage
       );
@@ -226,10 +227,10 @@ describe("setupValidity", () => {
       const invalid = ref(false);
       const validationErrorMessage = ref();
       const editorEntity = ref({ ...testData.testEntity });
-      editorEntity.value[testData.testShape.property[0].property[0].property[0].path["@id"]] = [
-        { "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" },
-        { "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" },
-        { "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" }
+      editorEntity.value[testData.testShape.property[0].property[0].property[0].path.iri] = [
+        { iri: "http://endhealth.info/im#Concept", name: "Terminology concept" },
+        { iri: "http://endhealth.info/im#Concept", name: "Terminology concept" },
+        { iri: "http://endhealth.info/im#Concept", name: "Terminology concept" }
       ];
       const testShape = { ...testData.testShape.property[0].property[0].property[0] };
       testShape.maxCount = 1;
@@ -237,7 +238,7 @@ describe("setupValidity", () => {
       checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
-      await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path["@id"], invalid, validationErrorMessage);
+      await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path.iri, invalid, validationErrorMessage);
       await flushPromises();
       expect(invalid.value).toEqual(true);
       expect(validationErrorMessage.value).toEqual(`A maximum of ${testShape.maxCount} is required.`);
@@ -253,7 +254,7 @@ describe("setupValidity", () => {
       checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[2].validation).toBeUndefined();
-      await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path["@id"], invalid, validationErrorMessage);
+      await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path.iri, invalid, validationErrorMessage);
       await flushPromises();
       expect(invalid.value).toEqual(true);
       expect(validationErrorMessage.value).toEqual(`Missing required related item: ${testShape.argument[0].valueVariable}.`);
@@ -279,13 +280,13 @@ describe("setupValidity", () => {
         testData.testShape.property[0].property[0].property[0],
         editorEntity,
         valueVariableMap,
-        testData.testShape.property[0].property[0].property[0].path["@id"],
+        testData.testShape.property[0].property[0].property[0].path.iri,
         invalid,
         validationErrorMessage
       );
       await flushPromises();
       expect(wrapper.vm.editorValidity).toHaveLength(1);
-      wrapper.vm.removeValidity({ key: testData.testShape.property[0].property[0].property[0].path["@id"], valid: true });
+      wrapper.vm.removeValidity({ key: testData.testShape.property[0].property[0].property[0].path.iri, valid: true });
       expect(wrapper.vm.editorValidity).toHaveLength(0);
     });
   });

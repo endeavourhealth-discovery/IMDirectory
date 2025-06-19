@@ -1,6 +1,6 @@
 <template>
   <div id="address-file-workflow">
-    <FileUpload mode="advanced" :maxFileSize="4000000" customUpload @uploader="handleFileUpload" chooseLabel="Browse" accept=".txt" :multiple="true" />
+    <FileUpload mode="advanced" :maxFileSize="12000000" customUpload @uploader="handleFileUpload" chooseLabel="Browse" accept=".txt" :multiple="true" />
     <div id="address-file-instructions">
       <p>
         The address file to be uploaded must contain two columns separated by a single tab character with a .txt extension<br />

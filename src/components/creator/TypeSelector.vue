@@ -7,7 +7,7 @@
       <div v-else class="header-content-container">
         <span class="text">Select entity type:</span>
         <div class="type-buttons-container">
-          <button v-for="option in typeOptions" class="custom-button" @click="typeSelected(option)">
+          <button v-for="(option, idx) in typeOptions" class="custom-button" @click="typeSelected(option)" v-bind:key="idx">
             <span>{{ option.name }}</span>
           </button>
         </div>
@@ -18,15 +18,15 @@
 
 <script setup lang="ts">
 import { ref, Ref, onMounted, inject } from "vue";
-import { EntityReferenceNode } from "@/interfaces";
 import { EntityService } from "@/services";
 import { RDF } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import editorShapes from "@/constants/editorShapes";
+import { ExtendedEntityReferenceNode, TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   showTypeSelector?: boolean;
-  updateShowTypeSelector: Function;
+  updateShowTypeSelector: (value: boolean) => void;
 }
 const props = withDefaults(defineProps<Props>(), {
   showTypeSelector: false
@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 
 let loading = ref(false);
-let typeOptions: Ref<EntityReferenceNode[]> = ref([]);
+let typeOptions: Ref<ExtendedEntityReferenceNode[]> = ref([]);
 
 onMounted(async () => {
   await setOptions();
@@ -44,13 +44,13 @@ onMounted(async () => {
 async function setOptions() {
   loading.value = true;
   const entityTypes = await EntityService.getEntityChildren("http://endhealth.info/im#EntityTypes");
-  typeOptions.value = entityTypes.filter(entityType => editorShapes.some(shape => shape.targetShape?.["@id"] === entityType["@id"]));
+  typeOptions.value = entityTypes.filter(entityType => editorShapes.some(shape => shape.targetShape?.iri === entityType.iri));
   loading.value = false;
 }
 
-function typeSelected(data: EntityReferenceNode) {
-  const result = {} as any;
-  result[RDF.TYPE] = [{ "@id": data["@id"], name: data.name }];
+function typeSelected(data: ExtendedEntityReferenceNode) {
+  const result: TTEntity = {};
+  result[RDF.TYPE] = [{ iri: data.iri, name: data.name }];
   if (entityUpdate) entityUpdate(result);
   props.updateShowTypeSelector(false);
 }

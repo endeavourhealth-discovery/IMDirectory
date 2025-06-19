@@ -5,33 +5,39 @@ import { PropertyDisplay, UIProperty } from "@/interfaces";
 const API_URL = Env.API + "api/dataModel";
 
 const DataModelService = {
-  async getDataModelProperties(iri: string, parent: null | string): Promise<NodeShape> {
-    return axios.get(API_URL + "/public/dataModelProperties", {
+  async getDataModelProperties(iri: string, pathsOnly?: boolean): Promise<NodeShape> {
+    return await axios.get(API_URL + "/public/dataModelProperties", {
       params: {
         iri: iri,
-        parent: parent
+        ...(pathsOnly !== undefined && { pathsOnly: pathsOnly })
       }
     });
   },
 
   async getDataModelsFromProperty(propIri: string): Promise<TTIriRef[]> {
-    return axios.get(API_URL + "/public/dataModels", {
+    return await axios.get(API_URL + "/public/dataModels", {
       params: {
         propIri: propIri
       }
     });
   },
-
-  async checkPropertyType(iri: string): Promise<String> {
-    return axios.get(API_URL + "/public/checkPropertyType", { params: { iri: iri } });
+  async getDataModelPaths(iri: string): Promise<NodeShape> {
+    return await axios.get(API_URL + "/public/dataModelPaths", {
+      params: {
+        iri: iri
+      }
+    });
+  },
+  async checkPropertyType(iri: string): Promise<string> {
+    return await axios.get(API_URL + "/public/checkPropertyType", { params: { iri: iri } });
   },
 
   async getUIProperty(dmIri: string, propIri: string): Promise<UIProperty> {
-    return axios.get(API_URL + "/public/UIPropertyForQB", { params: { dmIri: dmIri, propIri: propIri } });
+    return await axios.get(API_URL + "/public/UIPropertyForQB", { params: { dmIri: dmIri, propIri: propIri } });
   },
 
   async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
-    return axios.get(API_URL + "/public/propertiesDisplay", {
+    return await axios.get(API_URL + "/public/propertiesDisplay", {
       params: { iri: iri }
     });
   }

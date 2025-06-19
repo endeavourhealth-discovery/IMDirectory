@@ -1,6 +1,8 @@
-import { beforeEach, describe, vi } from "vitest";
+import { beforeEach, describe, vi, expect } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
 import { useFilterStore } from "@/stores/filterStore";
+import { FilterOptions } from "@/interfaces";
+import { IM, RDF, RDFS } from "@/vocabulary";
 
 describe("state", () => {
   beforeEach(() => {
@@ -27,10 +29,10 @@ describe("state", () => {
 describe("mutations", () => {
   it("can updateselectedFilterOptions", () => {
     const filterStore = useFilterStore();
-    const testFilter = {
-      selectedStatus: ["testActive", "testDraft"],
-      selectedSchemes: [{ iri: "http://endhealth.info/im#test" }],
-      selectedTypes: ["testClass", "testProperty"]
+    const testFilter: FilterOptions = {
+      status: [{ iri: IM.DRAFT }, { iri: IM.ACTIVE }],
+      schemes: [{ iri: "http://endhealth.info/im#test" }],
+      types: [{ iri: RDFS.CLASS }, { iri: RDF.PROPERTY }]
     };
     filterStore.updateSelectedFilterOptions(testFilter);
     expect(filterStore.selectedFilterOptions).toEqual(testFilter);
@@ -38,22 +40,28 @@ describe("mutations", () => {
 
   it("can updateFilterOptions", () => {
     const filterStore = useFilterStore();
-    const testFilter = {
-      selectedStatus: ["testActive", "testDraft"],
-      selectedSchemes: [{ iri: "http://endhealth.info/im#test" }],
-      selectedTypes: ["testClass", "testProperty"]
+    const testFilter: FilterOptions = {
+      status: [{ iri: IM.DRAFT }, { iri: IM.ACTIVE }],
+      schemes: [{ iri: "http://endhealth.info/im#test" }],
+      types: [{ iri: RDFS.CLASS }, { iri: RDF.PROPERTY }]
     };
     filterStore.updateFilterOptions(testFilter);
     expect(filterStore.filterOptions).toEqual(testFilter);
   });
   it("can update hierarchyselectedFilterOptions", () => {
     const filterStore = useFilterStore();
-    filterStore.updateHierarchySelectedFilters(["testIri"]);
-    expect(filterStore.hierarchySelectedFilters).toStrictEqual(["testIri"]);
+    const testFilter = [{ iri: "testIri", name: "testName", prefix: "testPrefix" }];
+    filterStore.updateHierarchySelectedFilters(testFilter);
+    expect(filterStore.hierarchySelectedFilters).toStrictEqual(testFilter);
   });
   it("can updateFilterDefaults", () => {
     const filterStore = useFilterStore();
-    filterStore.updateDefaultFilterOptions({ schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
-    expect(filterStore.defaultFilterOptions).toStrictEqual({ schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
+    const testFilter: FilterOptions = {
+      status: [{ iri: IM.DRAFT }, { iri: IM.ACTIVE }],
+      schemes: [{ iri: "http://endhealth.info/im#test" }],
+      types: [{ iri: RDFS.CLASS }, { iri: RDF.PROPERTY }]
+    };
+    filterStore.updateDefaultFilterOptions(testFilter);
+    expect(filterStore.defaultFilterOptions).toStrictEqual(testFilter);
   });
 });

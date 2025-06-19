@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -28,12 +27,12 @@ function goBack() {
   router.go(-1);
 }
 
-function goHome() {
-  router.push({ name: "Directory" });
+async function goHome() {
+  await router.push({ name: "Directory" });
 }
 
-function sendErrorReport() {
-  router.push({ name: "BugReport" });
+async function sendErrorReport() {
+  await router.push({ name: "BugReport" });
 }
 </script>
 

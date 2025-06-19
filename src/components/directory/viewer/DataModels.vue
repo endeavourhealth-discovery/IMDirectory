@@ -4,7 +4,7 @@
       :value="dataModels"
       class="concept-data-table p-datatable-sm"
       selectionMode="single"
-      dataKey="@id"
+      dataKey="iri"
       :scrollable="true"
       scrollHeight="flex"
       :loading="loading"
@@ -18,7 +18,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
-            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay">{{ data.name }}</span>
+            <span @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -28,7 +28,7 @@
             <ActionButtons
               v-if="data.iri"
               :buttons="['findInTree', 'view', 'edit', 'favourite']"
-              :iri="data['@id']"
+              :iri="data.iri"
               :name="data.name"
               @locate-in-tree="locateInTree"
             />
@@ -53,16 +53,18 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";
 import { getColourFromType } from "@/helpers/ConceptTypeVisuals";
-
-interface Props {
-  entityIri: string;
+import { DataTableRowSelectEvent } from "primevue/datatable";
+interface UIDataModel extends TTIriRef {
+  type?: TTIriRef[];
+  icon?: string[];
 }
+const props = defineProps<{
+  entityIri: string;
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
@@ -76,14 +78,14 @@ watch(
 
 watch(
   () => cloneDeep(favourites.value),
-  () => {
-    if (conceptIsFavourite.value) init();
+  async () => {
+    if (conceptIsFavourite.value) await init();
   }
 );
 
 const conceptIsFavourite = computed(() => props.entityIri === IM.FAVOURITES);
 const loading = ref(false);
-const dataModels: Ref<any[]> = ref([]);
+const dataModels: Ref<UIDataModel[]> = ref([]);
 
 onMounted(async () => await init());
 
@@ -99,17 +101,21 @@ function getColourStyleFromType(types: TTIriRef[]) {
   return "color: " + getColourFromType(types);
 }
 
-async function getDMs(iri: string) {
+async function getDMs(iri: string): Promise<UIDataModel[]> {
   const dataModels = await DataModelService.getDataModelsFromProperty(iri);
-  dataModels.forEach((dm: any) => {
-    dm.type = [{ "@id": SHACL.NODESHAPE }];
-    dm.icon = ["fa-duotone", "fa-diagram-project"];
+  return dataModels.map(dm => {
+    return {
+      iri: dm.iri,
+      name: dm.name,
+      description: dm.description,
+      type: [{ iri: SHACL.NODESHAPE }],
+      icon: ["fa-duotone", "fa-diagram-project"]
+    };
   });
-  return dataModels;
 }
 
-function onRowSelect(event: any) {
-  emit("navigateTo", event.data["@id"]);
+function onRowSelect(event: DataTableRowSelectEvent<UIDataModel>) {
+  emit("navigateTo", event.data.iri);
 }
 
 function locateInTree(iri: string) {
@@ -130,24 +136,9 @@ function locateInTree(iri: string) {
   padding-right: 0.5rem;
 }
 
-.row-button:hover {
-  background-color: var(--p-textarea-border-color) !important;
-  color: var(--p-content-background) !important;
-}
-
-.row-button-fav:hover {
-  background-color: var(--p-yellow-500) !important;
-  color: var(--p-content-background) !important;
-}
-
 .content-wrapper {
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
-}
-
-.scrollbar {
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 </style>

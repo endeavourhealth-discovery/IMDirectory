@@ -23,15 +23,14 @@ import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { TTIriRef } from "@/interfaces/AutoGen";
 
-interface Props {
+const props = defineProps<{
   data: Array<TangledTreeData[]>;
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 watch(
   () => cloneDeep(props.data),
@@ -44,9 +43,9 @@ watch(
 const options: Ref = ref({});
 const color = ref(d3.scaleOrdinal(d3.schemeSet2));
 const chartData: Ref<TangledTreeData[][]> = ref([]);
-const multiselectMenu: Ref<{ iri: string; label: string; result: {}; disabled?: boolean }[]> = ref([]);
+const multiselectMenu: Ref<{ iri: string; label: string; result: any; disabled?: boolean }[]> = ref([]);
 const twinNode = ref("twin-node-");
-const selected: Ref<{ iri: string; label: string; result: {} }[]> = ref([]);
+const selected: Ref<{ iri: string; label: string; result: any }[]> = ref([]);
 const selectedNode = ref({} as TangledTreeData);
 const nodeMap = reactive(new Map<string, any[]>());
 const overlayTop = ref(0);
@@ -55,15 +54,15 @@ const tangleLayout2: any = ref();
 
 const menu = ref();
 
-onMounted(() => {
+onMounted(async () => {
   chartData.value = props.data;
   renderChart();
-  setSelected(props.entityIri);
+  await setSelected(props.entityIri);
 });
 
 async function getMultiselectMenu(d: any) {
   let node = d["target"]["__data__"];
-  multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
+  multiselectMenu.value = [] as { iri: string; label: string; result: any; disabled?: boolean }[];
   let result = [] as PropertyDisplay[];
   if (node.type === "group") {
     result = !node.id.startsWith(twinNode) ? await DataModelService.getPropertiesDisplay(node.parents[0].id) : [];
@@ -71,7 +70,7 @@ async function getMultiselectMenu(d: any) {
     const ranges = (Array.from(new Set(node.range?.map(JSON.stringify))) as any).map(JSON.parse);
     ranges?.forEach((range: any) => {
       result.push({
-        property: [{ "@id": range["@id"], name: range.name ? range.name : range["@id"] }],
+        property: [{ iri: range.iri, name: range.name ? range.name : range.iri }],
         isType: true
       } as PropertyDisplay);
     });
@@ -90,12 +89,12 @@ function processPropertyDisplay(r: PropertyDisplay, node: any) {
   let propId = "";
   let propLabel = "";
   r.property.forEach(p => {
-    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p.iri}`;
     propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
   });
   if (r.group) {
     if (node.type === "group") {
-      if (node.id === r.group?.["@id"]) {
+      if (node.id === r.group?.iri) {
         multiselectMenu.value.push({
           iri: propId,
           label: propLabel,
@@ -126,24 +125,24 @@ function addNode(node: any, r: PropertyDisplay) {
     range.push(t);
   });
   r.property.forEach(p => {
-    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p.iri}`;
     propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
   });
   if (r.group && node.type !== "group") {
     if (chartData.value.length < node.level + 1) {
       chartData.value.push([
         {
-          id: r.group["@id"],
+          id: r.group.iri,
           parents: [node.id],
-          name: r.group.name ?? r.group["@id"],
+          name: r.group.name ?? r.group.iri,
           type: "group"
         }
       ]);
     } else {
       chartData.value[node.level + 1]?.push({
-        id: r.group["@id"],
+        id: r.group.iri,
         parents: [node.id],
-        name: r.group.name ?? r.group["@id"],
+        name: r.group.name ?? r.group.iri,
         type: "group"
       });
     }
@@ -207,14 +206,14 @@ function hideAll(node: any) {
     if (childIdes.length > 0) {
       childIdes.forEach((childId: any) => {
         const index = chartData.value[node.level + 1].findIndex((d: any) => d.id === childId);
-        hideNode(chartData.value[node.level + 1][index], node.id);
+        hideNode(chartData.value[node.level + 1][index]);
       });
     }
   }
   renderChart();
 }
 
-function hideNode(node: any, parentId: any) {
+function hideNode(node: any) {
   const nodeIndex = chartData.value[node.level].findIndex((p: any) => p.id === node.id);
   if (chartData.value.length > node.level + 1) {
     const childIdes = chartData.value[node.level + 1]
@@ -225,7 +224,7 @@ function hideNode(node: any, parentId: any) {
     if (childIdes.length > 0) {
       childIdes.forEach((childId: any) => {
         const index = chartData.value[node.level + 1].findIndex((d: any) => d.id === childId);
-        hideNode(chartData.value[node.level + 1][index], node.id);
+        hideNode(chartData.value[node.level + 1][index]);
       });
     }
   }
@@ -238,9 +237,9 @@ async function setSelected(iri: any) {
   if (result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
       if (r.group) {
-        if (!selected.value.some((n: any) => n.iri === r.group?.["@id"])) {
+        if (!selected.value.some((n: any) => n.iri === r.group?.iri)) {
           selected.value.push({
-            iri: r.group["@id"],
+            iri: r.group.iri,
             label: r.group.name as string,
             result: r
           });
@@ -249,7 +248,7 @@ async function setSelected(iri: any) {
         let propId = "";
         let propLabel = "";
         r.property.forEach(p => {
-          propId = `${propId}${propId !== "" ? "OR" : ""}  ${p["@id"]}`;
+          propId = `${propId}${propId !== "" ? "OR" : ""}  ${p.iri}`;
           propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
         });
         selected.value.push({
@@ -272,7 +271,7 @@ function change(event: any) {
   }
 
   selected.value.forEach((s: any) => {
-    if (nodeMap.has(s.result.type["@id"])) nodeMap.set(s.result.type?.["@id"], []);
+    if (nodeMap.has(s.result.type.iri)) nodeMap.set(s.result.type?.iri, []);
   });
   nodeMap.set(selectedNode.value.id, selected.value);
 }
@@ -323,10 +322,10 @@ function renderChart() {
         .style("left", d.layerX + "px")
         .style("top", d.layerY + 10 + "px");
     })
-    .on("mouseout", (_d: any) => {
+    .on("mouseout", () => {
       div.transition().duration(500).style("opacity", 0);
     })
-    .on("click", (d: any) => {
+    .on("click", async (d: any) => {
       div.transition().duration(500).style("opacity", 0);
       const node = d["target"]["__data__"];
       if (!node.isOr) {
@@ -339,7 +338,7 @@ function renderChart() {
           }
         } else {
           d.preventDefault();
-          toggleSubProperties(d);
+          await toggleSubProperties(d);
           if (selectedNode.value !== node) {
             selectedNode.value = node;
             selected.value = (nodeMap.get(node.id) as any) || [];
@@ -415,7 +414,7 @@ function createSelectedCircle(
         .attr("stroke-width", 0.1)
         .style("font-size", 12);
     })
-    .on("mouseout", (_d: any) => {
+    .on("mouseout", () => {
       if (cardRect && cardinality) {
         cardRect.remove();
         cardinality.remove();
@@ -432,10 +431,10 @@ function createNodeCircle(
     .attr("stroke-width", 7)
     .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
 
-  nodeCircle.on("click", e => {
+  nodeCircle.on("click", async e => {
     const node = e["target"]["__data__"];
     e.preventDefault();
-    toggleSubProperties(e);
+    await toggleSubProperties(e);
     if (selectedNode.value !== node) {
       selectedNode.value = node;
       selected.value = (nodeMap.get(node.id) as any) || [];
@@ -450,10 +449,10 @@ function createNodeCircle(
       d3.select(d.srcElement).attr("stroke-width", 7).attr("stroke", "white");
     });
 
-  nodeCircle.on("contextmenu", e => {
+  nodeCircle.on("contextmenu", async e => {
     const node = e["target"]["__data__"];
     e.preventDefault();
-    getMultiselectMenu(e);
+    await getMultiselectMenu(e);
     if (displayMenu.value) {
       menu.value.show(e);
     }
@@ -513,8 +512,7 @@ function precomputeBundles(levels: any, nodes: any) {
       if (id in index) {
         index[id].parents = index[id].parents.concat(n.parents);
       } else {
-        // @ts-ignore
-        index[id] = { id: id, parents: n.parents.slice(), level: i, span: i - d3.min(n.parents, (p: any) => p.level) };
+        index[id] = { id: id, parents: n.parents.slice(), level: i, span: i - d3.min(n.parents, (p: any) => p.level as number)! };
       }
       n.bundle = index[id];
     });
@@ -567,7 +565,7 @@ function reversePointers(bundles: any, nodes: any, links: any) {
   });
 }
 
-function constructTangleLayout(levels: any, options: any): TangleLayout {
+function constructTangleLayout(levels: TangledTreeData[][], options: any): TangleLayout {
   const { nodes, nodes_index } = precomputeLevelDepth(levels);
   const { bundles, links } = precomputeBundles(levels, nodes);
   reversePointers(bundles, nodes, links);
@@ -591,7 +589,7 @@ function constructTangleLayout(levels: any, options: any): TangleLayout {
     x_offset += l.bundles.length * bundle_width;
     y_offset += level_y_padding;
 
-    l.forEach((n: any, i: any) => {
+    l.forEach((n: any) => {
       n.x = n.level * node_width + x_offset;
       n.y = node_height + y_offset + n.height / 2;
       n.xz = 0;
@@ -604,8 +602,7 @@ function constructTangleLayout(levels: any, options: any): TangleLayout {
   let i = 0;
   levels.forEach((l: any) => {
     l.bundles.forEach((b: any) => {
-      // @ts-ignore
-      b.x = d3.max(b.parents, (d: any) => d.x) + node_width + (l.bundles.length - 1 - b.i) * bundle_width;
+      b.x = d3.max(b.parents, (d: any) => d.x)! + node_width + (l.bundles.length - 1 - b.i) * bundle_width;
       b.y = i * node_height;
     });
     i += l.length;
@@ -631,10 +628,8 @@ function constructTangleLayout(levels: any, options: any): TangleLayout {
   });
 
   let layout = {
-    // @ts-ignore
-    width: d3.max(nodes, (n: any) => n.x) + node_width + 2 * padding,
-    // @ts-ignore
-    height: d3.max(nodes, (n: any) => n.y) + node_height / 2 + 2 * padding,
+    width: d3.max(nodes, (n: any) => n.x)! + node_width + 2 * padding,
+    height: d3.max(nodes, (n: any) => n.y)! + node_height / 2 + 2 * padding,
     node_height,
     node_width,
     bundle_width,

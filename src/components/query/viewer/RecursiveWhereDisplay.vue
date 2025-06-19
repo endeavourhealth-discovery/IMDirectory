@@ -1,79 +1,71 @@
 <template>
-  <component id="recursive-where-display" :is="operator===Bool.or&&index>0 ? 'div' : 'span'">
-  <span v-if="index === 0 && operator === Bool.or" class="either">either</span>
-  <span v-else-if="index === 1 && !where.where && operator === Bool.and"
-        :style="{
-    paddingRight: '1rem',
-    paddingLeft: expandedSet ? '3rem' : '0rem'
-  }"
-  > with</span>
-  <span v-else-if="index > 1 && !where.where && operator === Bool.and"> ,and </span>
-  <span v-else-if="operator === Bool.or" :class="operator">{{ operator }}</span>
-  <span v-if="where.name" class="field">{{ where.name }}</span>
-  <span v-if="where.valueLabel || where.qualifier">
-    <span class="value-field" v-html="getFormattedValue(where)"></span>
-    <span v-if="where.relativeTo">
-      <span v-if="where.relativeTo.qualifier">
-        <span class="field">{{ where.relativeTo.qualifier }}</span>
+  <component id="recursive-where-display" :is="inline ? 'span' : 'div'">
+    <span :style="indentationStyle(inline, depth)">
+      <span :class="operator">
+        <span>{{ getOperator(operator, index) }}</span>
       </span>
-      <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
-    </span>
-  </span>
-    <span v-if="where.valueVariable" class="node-ref">as {{where.valueVariable }}</span>
-  <span v-if="where.nodeRef" class="node-ref">{{ where.nodeRef }}</span>
-  <span v-if="expandedSet && isArrayHasLength(where.is)">
-    <span>, defined as</span>
-    <div>
-      <span style="list-style-type: none; padding-left: 0">
-        <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
-          <ul>
-            <li class="tight-spacing">
-               <IMFontAwesomeIcon
-                   :icon="getTypeIcon(item)"
-                   :style="'color:' + getIconColor(item)"
-               />
-              <span v-if="item.qualifier" v-html="item.qualifier"></span>
-               <IMViewerLink v-if="item['@id']"
-                :iri="item['@id']" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)"
-               />
-                <span v-if="item.descendantsOrSelfOf">+subtypes</span>
-            </li>
-          </ul>
+      <span v-if="where.name" class="field">{{ where.name }}</span>
+      <span v-if="eclQuery">=</span>
+      <span v-if="where.valueLabel || where.qualifier">
+        <span v-if="where.qualifier" class="field">{{ where.qualifier }}</span>
+        <span v-if="where.valueLabel && where.is" @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0">
+          {{ where.valueLabel }}</span
+        >
+        <span v-else-if="where.valueLabel" class="field">{{ where.valueLabel }}</span>
+      </span>
+      <span v-if="where.relativeTo">
+        <span v-if="where.relativeTo.qualifier">
+          <span class="field">{{ where.relativeTo.qualifier }}</span>
+        </span>
+        <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
+      </span>
+      <span v-if="isExpanded && isArrayHasLength(where.is)">
+        <span>, defined as</span>
+        <div>
+          <span style="list-style-type: none; padding-left: 0">
+            <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
+              <ul>
+                <li class="tight-spacing">
+                  <IMFontAwesomeIcon :icon="getTypeIcon(item)" :style="'color:' + getIconColor(item)" />
+                  <span v-if="item.qualifier" v-html="item.qualifier"></span>
+                  <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                  <span v-if="item.descendantsOrSelfOf">+subtypes</span>
+                </li>
+              </ul>
+            </span>
+          </span>
+        </div>
+      </span>
+      <span v-for="(matches, type) in boolGroup" :key="type">
+        <span>(</span>
+        <span v-for="(nestedProperty, index) in matches" :key="index">
+          <span>
+            <RecursiveWhereDisplay
+              :where="nestedProperty"
+              :index="index"
+              :operator="type as Bool"
+              :key="index"
+              :depth="depth + 1"
+              :expandedSet="expandedSet"
+              :inline="false"
+              :eclQuery="eclQuery"
+              :bracketed="index === where[type]!.length - 1"
+            />
+          </span>
         </span>
       </span>
-    </div>
-  </span>
-
-  <div v-if="isArrayHasLength(where.where)" :style="indentationStyle(true,depth + 1)">
-    <span v-if="index>0" :class="where.operator"> {{ operator }}</span>
-    <span>(</span>
-    <div>
-      <RecursiveWhereDisplay
-        v-if="isArrayHasLength(where.where)"
-        v-for="(nestedProperty, index) of where.where"
-        :where="nestedProperty"
-        :index="index"
-        :operator="where.boolWhere"
-        :key="index"
-        :depth="depth + 1"
-        :expandedSet="expandedSet"
-      />
-      <span>)</span>
-    </div>
-  </div>
-
-  <RecursiveMatchDisplay v-if="where.match" :match="where.match" :depth="depth + 1" :inline="true" :index="0" :expanded="childExpand" />
+      <span v-if="bracketed">)</span>
+    </span>
   </component>
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Where, Assignable, Bool,Node } from "@/interfaces/AutoGen";
-import { Ref, ref, watch } from "vue";
+import { Where, Bool, Node } from "@/interfaces/AutoGen";
+import { computed, ref } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import { IM } from "@/vocabulary/IM";
-import {getColourFromType, getFAIconFromType} from "@/helpers/ConceptTypeVisuals";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
 interface Props {
   where: Where;
@@ -81,48 +73,58 @@ interface Props {
   depth: number;
   operator?: Bool;
   expandedSet: boolean;
+  inline: boolean;
+  bracketed?: boolean;
+  eclQuery?: boolean;
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
+
+const isExpanded = ref(props.expandedSet);
+const boolGroup = computed(() => {
+  return {
+    ...(props.where.and ? { and: props.where.and } : {}),
+    ...(props.where.or ? { or: props.where.or } : {})
+  };
 });
 
-const childExpand = true;
-
-function getFormattedValue(value: Assignable) {
-  let result = "";
-  if (value.qualifier) {
-    result = value.qualifier + " ";
+function getOperator(operator: Bool | undefined, index: number): string {
+  if (operator === "or") {
+    if (index === 0) {
+      return "Either";
+    } else {
+      return "or";
+    }
+  } else if (operator === "and") {
+    if (index > 0) {
+      return "and";
+    } else {
+      return "";
+    }
+  } else {
+    if (index < 0) return "and";
+    else return "";
   }
-  if (value.valueLabel) {
-    result = result + value.valueLabel;
-  }
-  return result;
+}
+function getTypeIcon(is: Node) {
+  if (is.memberOf) {
+    return getFAIconFromType([{ iri: IM.CONCEPT_SET }]);
+  } else return getFAIconFromType([{ iri: IM.CONCEPT }]);
 }
 
-function getTypeIcon(is:Node){
- if (is.memberOf){
-   return getFAIconFromType([{"@id": IM.CONCEPT_SET}])
- }
- else
-   return getFAIconFromType([{"@id": IM.CONCEPT}]);
+function getIconColor(is: Node) {
+  if (is.memberOf) {
+    return getColourFromType([{ iri: IM.CONCEPT_SET }]);
+  } else return getColourFromType([{ iri: IM.CONCEPT }]);
 }
 
-function getIconColor(is:Node){
-  if (is.memberOf){
-    return getColourFromType([{"@id": IM.CONCEPT_SET}])
-  }
-  else
-    return getColourFromType([{"@id": IM.CONCEPT}]);
-}
-
-
-function indentationStyle(newLine:boolean, depth: number) {
-
+function indentationStyle(inLine: boolean, depth: number) {
   return {
-    paddingLeft: newLine ? depth * 2 + "rem" : "0rem"
+    paddingLeft: inLine ? "0rem" : depth + "rem"
   };
 }
 </script>
@@ -151,6 +153,9 @@ function indentationStyle(newLine:boolean, depth: number) {
   color: var(--p-blue-700);
   padding-right: 0.2rem;
 }
+.op {
+  padding-right: 1rem;
+}
 
 .and {
   color: var(--p-orange-700);
@@ -159,5 +164,12 @@ function indentationStyle(newLine:boolean, depth: number) {
 
 .property-display {
   margin-left: 0.2rem;
+}
+.hover-label {
+  color: var(--p-green-700);
+  cursor: pointer;
+}
+.hover-label:hover {
+  text-decoration: underline;
 }
 </style>

@@ -1,5 +1,5 @@
 interface Window {
-  Cypress: any;
-  __app__: any;
+  Cypress: typeof Cypress;
+  __app__: App;
 }
 declare let window: Window;

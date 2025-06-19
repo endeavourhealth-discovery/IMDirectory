@@ -1,3 +1,4 @@
+import { GenericObject } from "@/interfaces/GenericObject";
 import { ComponentType } from "../enums";
 import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
 import { enumToArray } from "./Converters";
@@ -7,38 +8,41 @@ import { isTTIriRef } from "./TypeGuards";
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
   property.argument?.forEach(arg => {
-    const argResult: any = {};
+    const argResult = {} as Argument;
     for (const [key, value] of Object.entries(arg)) {
-      if (key === "valueVariable") {
-        let foundValueVariable: any = null;
-        if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
-        if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
-          foundValueVariable = valueVariableMap.get(value + property.order);
-        } else if (valueVariableMap && valueVariableMap.has(value)) {
-          foundValueVariable = valueVariableMap.get(value);
-        }
-        if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item)))
-          argResult["valueIriList"] = foundValueVariable;
-        else if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => typeof item === "string"))
-          argResult["valueDataList"] = foundValueVariable;
-        else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
-        else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
-        else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
-        else argResult[key] = foundValueVariable;
-      } else {
-        argResult[key] = value;
-      }
+      processArgument(property, key, value, argResult, valueVariableMap);
     }
     result.push(argResult);
   });
   return result;
 }
 
+function processArgument(property: PropertyShape, key: string, value: any, argResult: any, valueVariableMap?: Map<string, any>) {
+  if (key === "valueVariable") {
+    let foundValueVariable: any = null;
+    if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
+    if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
+      foundValueVariable = valueVariableMap.get(value + property.order);
+    } else if (valueVariableMap && valueVariableMap.has(value)) {
+      foundValueVariable = valueVariableMap.get(value);
+    }
+    if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item))) argResult["valueIriList"] = foundValueVariable;
+    else if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => typeof item === "string"))
+      argResult["valueDataList"] = foundValueVariable;
+    else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
+    else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
+    else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
+    else argResult[key] = foundValueVariable;
+  } else {
+    (argResult as GenericObject)[key] = value;
+  }
+}
+
 export function getTreeQueryIri(select: TTIriRef[]) {
   if (!isArrayHasLength(select) || select.length < 2) {
     return undefined;
   }
-  return select[1]["@id"];
+  return select[1].iri;
 }
 
 function getNameFromIri(iri: string) {
@@ -51,18 +55,18 @@ function getNameFromIri(iri: string) {
 }
 
 function extractComponentFromIri(type: TTIriRef) {
-  let name = getNameFromIri(type["@id"]);
+  const name = getNameFromIri(type.iri);
   if (name.includes("_")) return name.split("_")[1];
-  else throw new Error("Iri is not of type ComponentType: " + type["@id"]);
+  else throw new Error("Iri is not of type ComponentType: " + type.iri);
 }
 
-export function processComponentType(type: TTIriRef | undefined): any {
+export function processComponentType(type: TTIriRef | undefined) {
   if (!type) throw new Error("Invalid component type: undefined");
   const typeName = extractComponentFromIri(type);
   const componentList = enumToArray(ComponentType);
   const found = componentList.find(c => c.toLowerCase() === typeName.toLowerCase());
   if (found) return found;
-  else throw new Error("Invalid component type encountered while processing component types: " + type["@id"]);
+  else throw new Error("Invalid component type encountered while processing component types: " + type.iri);
 }
 
 export default { processArguments, processComponentType, getTreeQueryIri };

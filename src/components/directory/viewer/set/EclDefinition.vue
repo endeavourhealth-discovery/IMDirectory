@@ -46,13 +46,4 @@ async function init() {
   white-space: break-spaces;
   cursor: pointer;
 }
-
-.loading-container {
-  display: flex;
-  flex-flow: row;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 20rem;
-}
 </style>

@@ -9,7 +9,7 @@
         <div class="mfa-delete-content">
           <p>Disabling 2-factor authentication will reduce your account security</p>
           <div class="buttons-container">
-            <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
+            <Button icon="fa-solid fa-circle-question" rounded-sm severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
           </div>
           <p>Are you sure you want to continue disabling this security feature?</p>
           <div class="buttons-container">
@@ -29,12 +29,10 @@ import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
 import Swal from "sweetalert2";
 import { AuthService } from "@/services";
-import { useUserStore } from "@/stores/userStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const helpDialog = useDialog();
-const userStore = useUserStore();
 
 const loading = ref(false);
 
@@ -61,18 +59,18 @@ function showHelpDialog() {
 async function handleDisableMfa() {
   loading.value = true;
   await AuthService.setMfaPreference("NOMFA");
-  Swal.fire({
+  await Swal.fire({
     icon: "success",
     title: "Success",
     text: "2-factor authentication successfully disabled"
-  }).then(() => {
-    router.push({ name: "UserDetails" });
+  }).then(async () => {
+    await router.push({ name: "UserDetails" });
   });
   loading.value = false;
 }
 
-function handleCancel() {
-  router.push({ name: "UserDetails" });
+async function handleCancel() {
+  await router.push({ name: "UserDetails" });
 }
 </script>
 
@@ -99,15 +97,6 @@ function handleCancel() {
   align-items: flex-start;
   gap: 0.5rem;
   max-width: 30rem;
-}
-
-.code-input {
-  display: flex;
-  flex-flow: column nowrap;
-}
-
-.invalid-text {
-  color: var(--p-red-500);
 }
 
 .buttons-container {

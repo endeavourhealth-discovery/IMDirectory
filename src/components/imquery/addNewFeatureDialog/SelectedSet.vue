@@ -6,15 +6,15 @@
     <InputText v-model="valueLabel" placeholder="Value label" type="text" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #empty> Add concepts and/or sets to this list</template>
-      <template #option="{ option }" class="flex flex-row">
+      <template #option="{ option }">
         <div class="option-wrapper flex flex-row">
           <div class="option-content flex flex-row items-center gap-1">
-            <ToggleButton v-model="option.include" class="flex-shrink-0" offLabel="exclude" onLabel="include" />
+            <ToggleButton v-model="option.include" class="shrink-0" offLabel="exclude" onLabel="include" />
             <InputText v-if="isValueSet(option[RDF.TYPE])" v-model="option.entailment" disabled type="text" />
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
             <div class="flex-col px-1 pb-1">
               <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="type-icon mr-2" />
-              <span @mouseleave="hideOverlay" @mouseover="showOverlay($event, option['@id'])">{{ option[RDFS.LABEL] }}</span>
+              <span @mouseleave="hideOverlay" @mouseover="showOverlay($event, option.iri)">{{ option[RDFS.LABEL] }}</span>
             </div>
             <Button
               :severity="'danger'"
@@ -22,7 +22,7 @@
               data-testid="remove-member-button"
               icon="fa-solid fa-trash"
               text
-              @click="selectedValueMap.delete(option['@id'])"
+              @click="selectedValueMap.delete(option.iri)"
             />
           </div>
         </div>
@@ -45,6 +45,7 @@ import { cloneDeep } from "lodash-es";
 import { isConcept, isValueSet } from "@/helpers/ConceptTypeMethods";
 import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   dataModelIri: string | undefined;
@@ -54,13 +55,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const { getLeafMatch } = setupIMQueryBuilderActions();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 
-interface SelectedEntity {
-  "@id": string;
-  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": TTIriRef[];
-  "http://www.w3.org/2000/01/rdf-schema#label": string;
+interface SelectedEntity extends TTEntity {
   icon: string[];
   include: boolean;
   entailment: "memberOf" | "descendantsOf" | "descendantsOrSelfOf" | "ancestorsOf";
@@ -78,9 +75,9 @@ const valueLabel: Ref<string> = ref("");
 const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
 const canHaveValueList: Ref<boolean> = ref(false);
 
-const emit = defineEmits({
-  goToNextStep: () => true
-});
+const emit = defineEmits<{
+  goToNextStep: [];
+}>();
 
 watch(
   () => props.updatedPathOption,
@@ -121,12 +118,13 @@ async function init() {
   if (isArrayHasLength(entities)) {
     for (const entity of entities) {
       entity.icon = getFAIconFromType(entity[RDF.TYPE]);
-      entity.include = !selectedValueMap.value.get(entity["@id"])?.exclude;
+      if (entity.iri) entity.include = !selectedValueMap.value.get(entity.iri)?.exclude;
       if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
       else entity.entailment = "descendantsOrSelfOf";
     }
-    selectedEntities.value = entities;
-    if (selectedPath.value?.where?.[0].valueLabel) valueLabel.value = selectedPath.value?.where?.[0].valueLabel;
+    selectedEntities.value = entities as SelectedEntity[];
+    if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where?.valueLabel;
+    if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where.valueLabel;
   }
   loading.value = false;
 }
@@ -135,20 +133,11 @@ function getColourStyleFromType(types: TTIriRef[]) {
   return "color: " + getColourFromType(types);
 }
 
-function updatePathValues() {
-  let index = 0;
-  if (selectedPath.value?.where?.length && selectedPath.value?.where?.length !== 1)
-    index = selectedPath.value?.where?.findIndex(where => where["@id"] === props.propertyIri);
-  if (index != -1 && selectedPath.value?.where?.[index]) {
-    if (selectedPath.value?.where?.[index]) {
-      selectedPath.value.where[index].is = selectedEntities.value.map(selected => convertSelectedEntityToNode(selected));
-    }
-  }
-}
+function updatePathValues() {}
 
 function convertSelectedEntityToNode(selected: SelectedEntity): Node {
   const node: Node = {
-    "@id": selected["@id"],
+    iri: selected.iri,
     name: selected["http://www.w3.org/2000/01/rdf-schema#label"],
     exclude: !selected.include
   };
@@ -173,24 +162,9 @@ function convertSelectedEntityToNode(selected: SelectedEntity): Node {
   return node;
 }
 
-function updateValueLabel() {
-  if (selectedPath.value?.where?.[0]) {
-    selectedPath.value.where[0].valueLabel = valueLabel.value;
-  }
-}
+function updateValueLabel() {}
 
-async function updateCanHaveValueList(path: Match | undefined) {
-  if (path) {
-    const dmIri = path.typeOf?.["@id"] ?? props.dataModelIri;
-    const propIri = getLeafMatch(path)?.where?.[0]["@id"];
-    if (propIri === IM.DATA_MODEL_PROPERTY_CONCEPT) canHaveValueList.value = true;
-    else if (dmIri && propIri) {
-      const entity = await EntityService.getPartialEntity(dmIri, [SHACL.PROPERTY]);
-      const prop = entity[SHACL.PROPERTY]?.find((prop: any) => prop?.[SHACL.PATH]?.[0]["@id"] === propIri);
-      canHaveValueList.value = prop && isArrayHasLength(prop[SHACL.CLASS]);
-    } else canHaveValueList.value = false;
-  } else canHaveValueList.value = false;
-}
+async function updateCanHaveValueList(path: Match | undefined) {}
 </script>
 
 <style scoped></style>

@@ -20,6 +20,7 @@ import { EditorMode } from "@/enums";
 import { cloneDeep, isEqual } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   value?: TTIriRef[];
@@ -31,9 +32,9 @@ const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
@@ -62,7 +63,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const key = props.shape.path["@id"];
+const key = props.shape.path.iri;
 
 const hasSubSets: ComputedRef<boolean> = computed(() => isArrayHasLength(inclusions.value));
 
@@ -94,10 +95,10 @@ onMounted(async () => {
 
 async function init() {
   if (editorEntity?.value[IM.ID]) {
-    const subsets = await QueryService.queryIM({ query: { "@id": QUERY.GET_SUBSETS }, argument: [{ parameter: "this", valueIri: editorEntity.value[IM.ID] }] });
+    const subsets = await QueryService.queryIM({ query: { iri: QUERY.GET_SUBSETS }, argument: [{ parameter: "this", valueIri: editorEntity.value[IM.ID] }] });
     if (subsets?.entities) {
       inclusions.value = subsets.entities.map(s => {
-        return { "@id": s["@id"], name: s[RDFS.LABEL] };
+        return { iri: s.iri, name: s[RDFS.LABEL] };
       });
     } else inclusions.value = [];
   } else inclusions.value = [];
@@ -110,12 +111,12 @@ function updateValueVariableMap(data: TTIriRef[] | undefined) {
 }
 
 function updateInclusions(data: any) {
-  inclusions.value = data[props.shape.path["@id"]];
+  inclusions.value = data[props.shape.path.iri];
 }
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as any;
+    const result = {} as TTEntity;
     if (isArrayHasLength(inclusions.value)) {
       result[key] = cloneDeep(inclusions.value);
     }
@@ -154,12 +155,5 @@ function updateEntity() {
 
 .subsets-content:deep(#autocomplete-search) {
   border: 1px solid var(--p-textarea-border-color);
-}
-
-.title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--p-text-color);
-  padding-top: 0.5rem;
 }
 </style>

@@ -1,27 +1,34 @@
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Bool, Match, Query, Where, Node } from "@/interfaces/AutoGen";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { Match, Query, Where, Node } from "@/interfaces/AutoGen";
 import type { MenuItem } from "primevue/menuitem";
 
 function setupIMQueryBuilderActions() {
   function isFlatMatch(match: Match): boolean {
-    const nestedWhereHasMatch = match.where ? match.where.some(nestedWhere => nestedWhere.match) : false;
-    return !nestedWhereHasMatch && !match.match && !match.then && !match.where;
+    return !match.and && !match.or && !match.where;
   }
 
   function toggleMatchBool(object: Match) {
-    if (object.boolMatch === Bool.and) object.boolMatch = Bool.or;
-    else if (object.boolMatch === Bool.or) object.boolMatch = Bool.and;
-    else object.boolMatch = Bool.or;
+    if (object.and) {
+      object.or = object.and;
+      delete object.and;
+    } else if (object.or) {
+      object.and = object.or;
+      delete object.or;
+    }
   }
 
   function toggleWhereBool(object: Match | Where) {
-    if (object.boolWhere === Bool.and) object.boolWhere = Bool.or;
-    else if (object.boolWhere === Bool.or) object.boolWhere = Bool.and;
-    else object.boolWhere = Bool.or;
+    if (object.and) {
+      object.or = object.and;
+      delete object.and;
+    } else if (object.or) {
+      object.and = object.or;
+      delete object.or;
+    }
   }
 
   function getMenuItemFromMatch(match: Match): MenuItem {
-    return { label: match.typeOf?.name || match.description || "Feature", key: match["@id"], editMatch: match };
+    return { label: match.typeOf?.name ?? match.description ?? "Feature", key: match.iri, editMatch: match };
   }
 
   function getTypeOfMatch(query: Query, id: string): string {
@@ -31,48 +38,60 @@ function setupIMQueryBuilderActions() {
   }
 
   function searchForTypeOfRecursively(match: Match, id: string, parent: Match | undefined, typeOf: string[], fullQuery: Query) {
-    if (match["@id"] === id) {
-      if (match.typeOf && match.typeOf?.["@id"]) typeOf.push(match.typeOf?.["@id"]);
-      else if (parent && parent.typeOf && parent.typeOf?.["@id"]) typeOf.push(parent.typeOf?.["@id"]);
-      else if (parent && parent["@id"]) searchForTypeOfRecursively(fullQuery, parent!["@id"], undefined, typeOf, fullQuery);
-    } else if (match.match) {
-      for (const nestedMatch of match.match) {
+    if (match.iri === id) {
+      if (match.typeOf && match.typeOf?.iri) typeOf.push(match.typeOf?.iri);
+      else if (parent && parent.typeOf && parent.typeOf?.iri) typeOf.push(parent.typeOf?.iri);
+      else if (parent && parent.iri) searchForTypeOfRecursively(fullQuery, parent!.iri, undefined, typeOf, fullQuery);
+    } else if (match.and) {
+      for (const nestedMatch of match.and) {
         searchForTypeOfRecursively(nestedMatch, id, match, typeOf, fullQuery);
       }
-    } else if (match.then) {
-      searchForTypeOfRecursively(match.then, id, match, typeOf, fullQuery);
+    } else if (match.or) {
+      for (const nestedMatch of match.or) {
+        searchForTypeOfRecursively(nestedMatch, id, match, typeOf, fullQuery);
+      }
     }
   }
 
   function populateVariableMap(map: { [key: string]: any }, query: Query) {
-    if (query.match)
-      for (const match of query.match) {
+    if (query.and) {
+      for (const match of query.and) {
         addVariableRefFromMatch(map, match);
       }
+    }
+    if (query.or) {
+      for (const match of query.or) {
+        addVariableRefFromMatch(map, match);
+      }
+    }
   }
 
   function addVariableRefFromMatch(map: { [key: string]: any }, match: Match) {
     if (match.variable) map[match.variable] = match;
-    if (isArrayHasLength(match.match))
-      for (const nestedMatch of match.match!) {
+    if (isArrayHasLength(match.and)) {
+      for (const nestedMatch of match.and!) {
         addVariableRefFromMatch(map, nestedMatch);
       }
-
-    if (isArrayHasLength(match.where))
-      for (const property of match.where!) {
-        addVariableRefFromProperty(map, property);
+    }
+    if (isArrayHasLength(match.or)) {
+      for (const nestedMatch of match.or!) {
+        addVariableRefFromMatch(map, nestedMatch);
       }
+    }
 
-    if (match.then) addVariableRefFromMatch(map, match.then);
+    if (match.where) addVariableRefFromProperty(map, match.where);
   }
 
   function addVariableRefFromProperty(map: { [key: string]: any }, property: Where) {
     if (property.variable) map[property.variable] = property;
 
-    if (isObjectHasKeys(property, ["match"])) addVariableRefFromMatch(map, property.match!);
+    if (isArrayHasLength(property.and))
+      for (const nestedProperty of property.and!) {
+        addVariableRefFromProperty(map, nestedProperty);
+      }
 
-    if (isArrayHasLength(property.where))
-      for (const nestedProperty of property.where!) {
+    if (isArrayHasLength(property.or))
+      for (const nestedProperty of property.or!) {
         addVariableRefFromProperty(map, nestedProperty);
       }
   }
@@ -101,21 +120,6 @@ function setupIMQueryBuilderActions() {
     }
   }
 
-  function getLeafMatch(match: Match) {
-    if (!match.where) return match;
-    const found: Match[] = [];
-    getLeafWhereRecursively(match.where, found, match);
-    if (found.length) return found[0];
-    else return match;
-  }
-
-  function getLeafWhereRecursively(whereList: Where[], found: Match[], currentMatch: Match) {
-    const hasNested = whereList.find(nestedWhere => nestedWhere.match?.where);
-    if (hasNested) getLeafWhereRecursively(hasNested.match?.where!, found, hasNested.match!);
-    else found.push(currentMatch);
-  }
-
-  return { toggleWhereBool, toggleMatchBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap, updateEntailment, getLeafMatch };
+  return { toggleWhereBool, toggleMatchBool, getMenuItemFromMatch, isFlatMatch, getTypeOfMatch, populateVariableMap, updateEntailment };
 }
-
 export default setupIMQueryBuilderActions;

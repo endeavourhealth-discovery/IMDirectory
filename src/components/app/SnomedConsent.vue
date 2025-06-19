@@ -101,9 +101,6 @@ function submitAgree(): void {
 </script>
 
 <style scoped>
-.content {
-  flex: 1 1 auto;
-}
 .license-content {
   height: 40vh;
   width: 60vw;
@@ -111,9 +108,5 @@ function submitAgree(): void {
   margin: 20px;
   border: 1px solid;
   padding: 10px;
-}
-
-#license-content:deep(.p-button-link) {
-  padding: 0;
 }
 </style>

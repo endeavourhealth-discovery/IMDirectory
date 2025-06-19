@@ -1,150 +1,156 @@
 <template>
   <div id="query-display" class="flex flex-1 flex-col">
+    <Tabs v-if="!(entityType === IM.VALUESET)" id="viewer-tabs" v-model:value="activeTab" :lazy="true" scrollable>
+      <TabList id="tab-list">
+        <Tab value="0">Rule view</Tab>
+        <Tab value="1">Logical view</Tab>
+        <Tab value="2">MySQL</Tab>
+        <Tab value="3">PostgreSQL</Tab>
+        <Tab v-if="showDataset" value="4">Dataset definition</Tab>
+      </TabList>
+    </Tabs>
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
-    <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
-    <div v-else class="query-display-container flex flex-col gap-4">
-      <div class="flex flex-row gap-2">
-        <div v-if="showSqlButton"><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
-      </div>
-      <div class="query-display">
+    <div v-else-if="activeTab === '0' || activeTab === '1'" class="query-display-container flex flex-col gap-4">
+      <div v-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
+      <div v-else-if="query" class="query-display">
         <div class="rec-query-display">
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
             <span class="field" v-html="query.typeOf.name"></span>
-            <span class="include-title text-green-500">with the following features</span>
+            <span class="include-title text-black-500">with the following features</span>
           </div>
-          <div v-if="isArrayHasLength(query.match)">
-            <MatchSummaryDisplay
-              v-for="(nestedQuery, index) of query.match"
-              :match="nestedQuery"
-              :expanded="false"
-              :index="index"
-              :operator="query.boolMatch"
+          <span v-if="query.rule">
+            <div class="tree-node-wrapper">
+              <span v-for="(nestedQuery, index) in query.rule" :key="index">
+                <RecursiveMatchDisplay
+                  :match="nestedQuery"
+                  :key="`nestedQueryDisplay-${index}`"
+                  :clause-index="index"
+                  :property-index="index"
+                  :parentOperator="Bool.rule"
+                  :depth="0"
+                  :parent-match="query"
+                  :bracketed="false"
+                  :edit-mode="editMode"
+                  :eclQuery="eclQuery"
+                />
+              </span>
+            </div>
+          </span>
+          <span v-else>
+            <RecursiveMatchDisplay
+              :match="query"
+              :clauseIndex="-1"
+              :depth="0"
+              :inline="false"
+              :parent-match="rootQuery"
+              :bracketed="false"
+              :editMode="editMode"
+              :eclQuery="eclQuery"
+              :expanded="query.name === undefined"
             />
-          </div>
-          <div v-if="isArrayHasLength(query.where)">
-            <RecursiveWhereDisplay
-              v-for="(nestedWhere, index) in query.where"
-              :where="nestedWhere"
-              :depth="1"
-              :index="index"
-              :key="index"
-              :operator="query.boolWhere"
-              :expandedSet="false"
-            />
-          </div>
-          <div v-if="query.function">
-            <span class="field"> Function : {{ query.function?.name }}</span>
-            <span v-if="isArrayHasLength(query.function?.argument)" v-for="param in query.function?.argument">
-              <ul>
-                <li class="tight-spacing">
-                  <span class="argument">parameter :{{ param.parameter }}</span>
-                  <span v-if="param.valueVariable" class="field"> :,argument: {{ param.valueVariable }}</span>
-                </li>
-              </ul>
-            </span>
-          </div>
-          <div v-if="query.return">
-            <ReturnColumns :select="query.return" :property-expanded="false" class="pl-8" />
-          </div>
-          <div v-if="isArrayHasLength(query.query)" class="pl-8">
-            <Button :icon="!dataSetExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="toggle" />
-            <span class="text-green-500">The cohort query has the following data set definition</span>
-            <span v-if="dataSetExpanded">
-              <RecursiveQueryDisplay v-for="nestedQuery of query.query" :query="nestedQuery" :match-expanded="false" :return-expanded="false" />
-            </span>
-          </div>
+          </span>
         </div>
       </div>
     </div>
-    <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
+    <div v-else-if="activeTab === '2' || activeTab === '3'" class="query-display-container flex flex-col gap-4">
       <pre>{{ sql }}</pre>
-      <template #footer>
-        <Button
-          label="Copy to Clipboard"
-          v-tooltip.left="'Copy to clipboard'"
-          v-clipboard:copy="copyToClipboard()"
-          v-clipboard:success="onCopy"
-          v-clipboard:error="onCopyError"
-          data-testid="copy-button"
-        />
-        <Button label="Close" @click="showSql = false" data-testid="close-button" />
-      </template>
-    </Dialog>
+    </div>
+    <div v-else-if="query?.dataSet && activeTab === '4'" class="query-display-container flex flex-col gap-4">
+      <DataSetDisplay
+        v-for="(nestedQuery, index) in query.dataSet"
+        :query="nestedQuery"
+        :key="`nestedQuery-${index}`"
+        :matchExpanded="false"
+        :returnExpanded="true"
+        :index="index"
+        :editMode="editMode"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import MatchSummaryDisplay from "@/components/query/viewer/MatchSummaryDisplay.vue";
-import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
-import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
-import { QueryService } from "@/services";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Query } from "@/interfaces/AutoGen";
-import { onMounted, watch, Ref, ref, computed } from "vue";
-import { useUserStore } from "@/stores/userStore";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
+import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
+import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
+import { QueryService } from "@/services";
+import { Bool, DisplayMode, Query } from "@/interfaces/AutoGen";
+import { onMounted, ref, Ref, watch } from "vue";
+import { IM } from "@/vocabulary";
 
 interface Props {
   entityIri?: string;
   definition?: string;
-  showSqlButton?: boolean;
+  queryDefinition?: Query;
+  editMode?: boolean;
+  entityType?: string;
+  eclQuery?: boolean;
+  showDataset?: boolean;
 }
 
-const dataSetExpanded = ref(false);
-const userStore = useUserStore();
-const currentUser = computed(() => userStore.currentUser);
-const isLoggedIn = computed(() => userStore.isLoggedIn);
 const props = defineProps<Props>();
-const query: Ref<Query> = ref({} as Query);
+const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
+const rootQuery = ref({} as Query);
+const activeTab = ref("0");
 const sql: Ref<string> = ref("");
-const showSql: Ref<boolean> = ref(false);
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 const loading = ref(true);
-
-const canTestQuery = computed(() => isLoggedIn.value && (currentUser.value?.roles?.includes("create") || currentUser.value?.roles?.includes("edit")));
 
 watch(
   () => props.definition,
-  async newValue => {
-    init();
+  async () => {
+    await init();
   }
 );
 
 watch(
   () => props.entityIri,
-  async newValue => {
-    init();
+  async () => {
+    await init();
   }
 );
 
+watch(activeTab, async () => {
+  switch (activeTab.value) {
+    case "0":
+      query.value = await getQueryDisplay(DisplayMode.RULES);
+      break;
+    case "1":
+      query.value = await getQueryDisplay(DisplayMode.LOGICAL);
+      break;
+    case "2":
+      if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");
+      break;
+    case "3":
+      if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
+      break;
+    default:
+      break;
+  }
+});
+
 onMounted(async () => {
-  init();
+  await init();
 });
 
 async function init() {
   loading.value = true;
-  if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, true);
-  else if (props.definition) query.value = await QueryService.getDisplayFromQuery(JSON.parse(props.definition), true);
+  if (query.value?.rule) {
+    activeTab.value = "0";
+  } else activeTab.value = "1";
   loading.value = false;
 }
 
-async function generateSQL() {
-  if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri);
-  showSql.value = true;
-}
-
-function toggle() {
-  dataSetExpanded.value = !dataSetExpanded.value;
+async function getQueryDisplay(displayMode: DisplayMode) {
+  if (query.value?.typeOf) {
+    return await QueryService.getQueryDisplayFromQuery(query.value, displayMode);
+  } else if (props.entityIri) return await QueryService.getDisplayFromQueryIri(props.entityIri, displayMode);
+  return undefined;
 }
 </script>
 
 <style scoped>
 .query-display-container {
-  display: flex;
-  flex-flow: column nowrap;
   width: 100%;
   height: 100%;
 }
@@ -158,11 +164,26 @@ function toggle() {
   padding-right: 1rem;
 }
 
-.argument {
-  padding-left: 2rem;
+.tree-node-wrapper {
+  position: relative;
+  padding-left: 0rem;
+}
+
+.tree-node-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 0.1rem;
+  height: 100%;
+  border-left: 0.1rem dotted #999;
 }
 
 .rec-query-display {
   padding: 1rem;
 }
+#tab-list {
+  flex: 0 0 auto;
+  display: flex;
+}
 </style>
+<script setup lang="ts"></script>

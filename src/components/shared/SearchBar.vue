@@ -57,24 +57,24 @@ import InputGroupAddon from "primevue/inputgroupaddon";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 
 interface Props {
-  searchTerm?: string;
   showFilters: boolean;
   selectedFilterOptions?: FilterOptions;
   selected?: SearchResultSummary;
   allowAutocomplete?: boolean;
 }
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   showFilters: false,
   allowAutocomplete: true
 });
 
-const emit = defineEmits({
-  "update:searchTerm": _payload => true,
-  selectedFiltersUpdated: (_payload: FilterOptions) => true,
-  toSearch: () => true,
-  toEclSearch: () => true,
-  toQuerySearch: () => true
-});
+const emit = defineEmits<{
+  selectedFiltersUpdated: [payload: FilterOptions];
+  toSearch: [];
+  toEclSearch: [];
+  toQuerySearch: [];
+}>();
+
+const modelSearchTerm = defineModel<string | undefined>("searchTerm");
 
 const searchText = ref("");
 const buttonActions = ref([
@@ -83,20 +83,20 @@ const buttonActions = ref([
 ]);
 const searchPlaceholder: Ref<string> = ref("Search");
 const searchLoading: Ref<boolean> = ref(false);
-const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
+const { listening, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 const filtersOP = ref();
 const debounce = ref(0);
 
-watch(searchText, async () => {
-  emit("update:searchTerm", searchText.value);
+watch(searchText, () => {
+  modelSearchTerm.value = searchText.value;
   debounceForSearch();
 });
 
 onMounted(() => {
-  if (props.searchTerm) searchText.value = props.searchTerm;
+  if (modelSearchTerm.value) searchText.value = modelSearchTerm.value;
 });
 
-function openFiltersOverlay(event: any) {
+function openFiltersOverlay(event: MouseEvent) {
   filtersOP.value.toggle(event);
 }
 
@@ -107,7 +107,7 @@ function debounceForSearch(): void {
   }, 600);
 }
 
-async function onSearch() {
+function onSearch() {
   emit("toSearch");
 }
 </script>
@@ -142,10 +142,6 @@ async function onSearch() {
   cursor: pointer;
 }
 
-.listening {
-  color: red !important;
-}
-
 #autocomplete-search {
   font-size: 1rem;
   height: 2.25rem;
@@ -153,15 +149,7 @@ async function onSearch() {
   width: 100%;
 }
 
-.fa-icon {
-  padding-right: 0.25rem;
-}
-
 .search-button {
   height: 2.25rem;
-}
-
-.p-inputicon {
-  color: var(--p-inputtext-color);
 }
 </style>

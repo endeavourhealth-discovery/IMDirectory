@@ -3,7 +3,7 @@
     <div class="padding-container flex justify-between gap-4">
       <div class="table-header grow">
         <Breadcrumb :home="home" :model="pathItems">
-          <template #item="{ item }: { item: any }">
+          <template #item="{ item }: { item: MenuItem }">
             <div class="p-menuitem" @click="onClick($event, item)">
               <span v-if="item.icon" :class="item.icon"></span>
               <span v-if="item.label" class="p-menuitem-text">{{ item.label }}</span>
@@ -30,58 +30,57 @@ import { onMounted, ref, Ref, watch, computed } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import { TTIriRef } from "@/interfaces/AutoGen";
-import { useSharedStore } from "@/stores/sharedStore";
+import { MenuItem } from "primevue/menuitem";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-  history: string[];
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true,
-  "update:history": (_payload: string[]) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
-const canGoBack = computed(() => props.history.length && props.history.indexOf(props.entityIri) !== 0);
-const canGoForward = computed(() => props.history.length && props.history.indexOf(props.entityIri) < props.history.length - 1);
+const modelHistory = defineModel<string[]>("history", { required: true });
+
+const canGoBack = computed(() => modelHistory.value.length && modelHistory.value.indexOf(props.entityIri) !== 0);
+const canGoForward = computed(() => modelHistory.value.length && modelHistory.value.indexOf(props.entityIri) < modelHistory.value.length - 1);
 
 watch(
   () => props.entityIri,
-  () => init()
+  async () => await init()
 );
 
-const pathItems: Ref<any[]> = ref([]);
-const pathOptions: Ref<any[]> = ref([]);
+const pathItems: Ref<MenuItem[]> = ref([]);
+const pathOptions: Ref<MenuItem[]> = ref([]);
 const folderPath: Ref<TTIriRef[]> = ref([]);
 
 const home = {
   icon: "fa-duotone fa-house-chimney",
-  command: (data: any) => emit("navigateTo", data)
+  command: () => emit("navigateTo", "home")
 };
 
 const pathOverlayMenu = ref();
 
 onMounted(() => init());
 
-function openPathOverlaymenu(event: any) {
+function openPathOverlaymenu(event: Event | undefined) {
   pathOverlayMenu.value.toggle(event);
 }
 
 function goBack() {
-  if (canGoBack.value) emit("navigateTo", props.history[props.history.indexOf(props.entityIri) - 1]);
+  if (canGoBack.value) emit("navigateTo", modelHistory.value[modelHistory.value.indexOf(props.entityIri) - 1]);
 }
 
 function goForward() {
-  if (canGoForward.value) emit("navigateTo", props.history[props.history.indexOf(props.entityIri) + 1]);
+  if (canGoForward.value) emit("navigateTo", modelHistory.value[modelHistory.value.indexOf(props.entityIri) + 1]);
 }
 
-function init() {
+async function init() {
   if (props.entityIri) {
-    const newHistory: string[] = [...props.history];
+    const newHistory: string[] = [...modelHistory.value];
     if (!newHistory.includes(props.entityIri)) newHistory.push(props.entityIri);
-    emit("update:history", newHistory);
-    getPath();
+    modelHistory.value = newHistory;
+    await getPath();
   }
 }
 
@@ -93,7 +92,7 @@ async function getPath() {
   folderPath.value = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();
   if (!folderPath.value.length) folderPath.value = await EntityService.getFolderPath(props.entityIri);
   pathItems.value = folderPath.value.map((iriRef: TTIriRef) => {
-    return { label: iriRef.name, command: () => emit("navigateTo", iriRef["@id"]) };
+    return { label: iriRef.name, command: () => emit("navigateTo", iriRef.iri) };
   });
   if (pathItems.value.length > 2) {
     const filteredOutPathItems = pathItems.value.splice(1, pathItems.value.length - 2);
@@ -107,7 +106,7 @@ async function getPath() {
   }
 }
 
-function onClick(event: any, item: any) {
+function onClick(event: MouseEvent, item: MenuItem) {
   if (item.command) item.command({ originalEvent: event, item: item });
 }
 </script>

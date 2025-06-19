@@ -12,7 +12,7 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     event.dataTransfer.effectAllowed = "move";
   }
 
-  function onDrop(event: any, dropzoneItem: any, parent: any, index?: number) {
+  async function onDrop(event: any, dropzoneItem: any, parent: any, index?: number) {
     event.preventDefault();
     const draggedItemDataString = event.dataTransfer.getData("draggedItem");
     const { draggedItem, draggedItemParent } = JSON.parse(draggedItemDataString);
@@ -52,7 +52,7 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     ) {
       insert(draggedItem, rawDropzoneItem);
     } else if (draggedItem.type === "BoolGroup" && rawDropzoneItem.type === "BoolGroup") {
-      Swal.fire({
+      await Swal.fire({
         title: "Do you want to insert or merge?",
         showDenyButton: true,
         showCancelButton: true,
@@ -86,7 +86,7 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     wasDraggedAndDropped.value = true;
   }
 
-  function merge(draggedItem: any, dropzoneItem: any, parent: any, index?: number) {
+  function merge(draggedItem: any, dropzoneItem: any, parent: any) {
     const newBoolGroup = { type: "BoolGroup", conjunction: "or", items: [] as any[] };
     newBoolGroup.items = draggedItem.items.concat(dropzoneItem.items);
     if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items)) {

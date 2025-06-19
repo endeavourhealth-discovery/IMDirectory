@@ -29,35 +29,31 @@ import { isTTIriRef } from "@/helpers/TypeGuards";
 import { QueryService, EntityService } from "@/services";
 import { RDFS } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, Query, QueryRequest } from "@/interfaces/AutoGen";
-import { useEditorStore } from "@/stores/editorStore";
+import { PropertyShape, QueryRequest } from "@/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
+import { GenericObject } from "@/interfaces/GenericObject";
 
 const toast = useToast();
-const editorStore = useEditorStore();
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
   value?: TTIriRef;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  updateClicked: (_payload: TTIriRef | undefined) => true
-});
+const emit = defineEmits<{
+  updateClicked: [payload: TTIriRef | undefined];
+}>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -107,7 +103,6 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   else return false;
 });
 
-const loading = ref(false);
 const selectedResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const key = ref("");
 const invalid = ref(false);
@@ -116,43 +111,43 @@ const showValidation = ref(false);
 const queryRequest: Ref<QueryRequest | undefined> = ref(undefined);
 const rootEntities: Ref<string[]> = ref([]);
 
-watch(selectedResult, (newValue, oldValue) => {
-  if (newValue && !isEqual(newValue, oldValue)) updateSelectedResult(newValue);
+watch(selectedResult, async (newValue, oldValue) => {
+  if (newValue && !isEqual(newValue, oldValue)) await updateSelectedResult(newValue);
 });
 
 async function init() {
-  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
+  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!.iri;
   if (isObjectHasKeys(props.shape, ["select"]) && isArrayHasLength(props.shape.select) && props.shape.select) {
-    queryRequest.value = { query: { "@id": props.shape.select[0]["@id"] } };
+    queryRequest.value = { query: { iri: props.shape.select[0].iri } };
   } else queryRequest.value = undefined;
   if (isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
     queryRequest.value.argument = [];
     for (const arg of props.shape.argument) {
-      if (arg.parameter === "rootEntities" && arg.valueIriList) rootEntities.value = arg.valueIriList.map(i => i["@id"]);
+      if (arg.parameter === "rootEntities" && arg.valueIriList) rootEntities.value = arg.valueIriList.map(i => i.iri);
       else queryRequest.value.argument.push(arg);
     }
     queryRequest.value.argument = props.shape.argument;
   }
   if (props.value && isObjectHasKeys(props.value)) {
-    updateSelectedResult(props.value);
+    await updateSelectedResult(props.value);
   } else {
     selectedResult.value = {} as SearchResultSummary;
   }
 }
 
 function convertToTTIriRef(data: SearchResultSummary): TTIriRef | undefined {
-  if (data.iri && data.name) return { "@id": data.iri, name: data.name } as TTIriRef;
+  if (data.iri && data.name) return { iri: data.iri, name: data.name } as TTIriRef;
   else return undefined;
 }
 
 async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
   if (!isObjectHasKeys(data)) {
     selectedResult.value = {} as SearchResultSummary;
-  } else if (isObjectHasKeys(data, ["@id"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef)["@id"]) {
-    const asSummary = await EntityService.getEntitySummary((data as TTIriRef)["@id"]);
+  } else if (isObjectHasKeys(data, ["iri"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef).iri) {
+    const asSummary = await EntityService.getEntitySummary((data as TTIriRef).iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else if (isTTIriRef(data)) {
-    const asSummary = await EntityService.getEntitySummary(data["@id"]);
+    const asSummary = await EntityService.getEntitySummary(data.iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else {
     selectedResult.value = data;
@@ -174,7 +169,7 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
 }
 
 function updateEntity() {
-  const result = {} as any;
+  const result: GenericObject = {};
   result[key.value] = convertToTTIriRef(selectedResult.value);
   if (!result[key.value] && deleteEntityKey) {
     deleteEntityKey(key.value);
@@ -188,12 +183,12 @@ function updateValueVariableMap(data: TTIriRef | undefined) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-async function dropReceived(event: any) {
-  const data = event.dataTransfer.getData("conceptIri");
+async function dropReceived(event: DragEvent) {
+  const data = event.dataTransfer?.getData("conceptIri");
   if (data) {
     const conceptIri = JSON.parse(data);
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-    const iriRef = { "@id": conceptIri, name: conceptName } as TTIriRef;
+    const iriRef = { iri: conceptIri, name: conceptName } as TTIriRef;
     if (!queryRequest.value) await updateSelectedResult(iriRef);
     else if (await QueryService.validateSelectionWithQuery(conceptIri, queryRequest.value)) {
       await updateSelectedResult(iriRef);

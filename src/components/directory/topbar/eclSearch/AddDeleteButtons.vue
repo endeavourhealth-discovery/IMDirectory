@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
 import { ECLComponent } from "@/enums";
+import { MenuItem } from "primevue/menuitem";
 
 interface Props {
   position?: number;
@@ -19,15 +20,15 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  show: { minus: true, plus: true } as any
+  show: () => ({ minus: true, plus: true })
 });
 
-const emit = defineEmits({
-  addNextClicked: (_payload: ECLComponent) => true,
-  deleteClicked: () => true
-});
+const emit = defineEmits<{
+  addNextClicked: [payload: ECLComponent];
+  deleteClicked: [];
+}>();
 
-const menuOptions: Ref<any[]> = ref([]);
+const menuOptions: Ref<MenuItem[]> = ref([]);
 const selected: Ref<ECLComponent | null> = ref(null);
 
 watch(selected, newValue => {
@@ -38,7 +39,7 @@ const optionsMenu = ref();
 
 onMounted(() => setMenuOptions());
 
-function addNextClicked(event: any) {
+function addNextClicked(event: MouseEvent) {
   optionsMenu.value.toggle(event);
 }
 
@@ -50,7 +51,7 @@ function setMenuOptions() {
   for (const item of props.options) {
     menuOptions.value.push({
       label: item,
-      command: (option: any) => {
+      command: (option: MenuItem) => {
         selected.value = null;
         selected.value = option.item.label;
       }

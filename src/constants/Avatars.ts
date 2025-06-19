@@ -98,5 +98,5 @@ export const Avatars = [
   "lineal/047-woman.png",
   "lineal/048-woman.png",
   "lineal/049-woman.png",
-  "lineal/050-woman.png",
+  "lineal/050-woman.png"
 ] as string[];

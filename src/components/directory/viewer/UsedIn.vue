@@ -26,7 +26,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color:' + data.colour" class="p-mx-1 type-icon" />
-            <span class="text-name" @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay">{{ data.name }}</span>
+            <span class="text-name" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -43,19 +43,26 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import setupOverlay from "@/composables/setupOverlay";
 import { DirectService } from "@/services";
+import { DataTableRowSelectEvent } from "primevue/datatable";
 
-interface Props {
-  entityIri: string;
+interface Usage {
+  iri: string;
+  name: string;
+  icon: string[];
+  colour: string;
 }
-const props = defineProps<Props>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const props = defineProps<{
+  entityIri: string;
+}>();
+
+defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const directService = new DirectService();
 
-const usages: Ref<any[]> = ref([]);
+const usages: Ref<Usage[]> = ref([]);
 const loading = ref(false);
 const selected: Ref = ref({});
 const recordsTotal = ref(0);
@@ -81,23 +88,24 @@ async function init() {
   await getRecordsSize(props.entityIri);
 }
 
-function onRowSelect(event: any) {
-  if (event.originalEvent.metaKey || event.originalEvent.ctrlKey) {
-    directService.view(event.data["@id"]);
+async function onRowSelect(event: DataTableRowSelectEvent<Usage>) {
+  const mouseEvent = event.originalEvent as MouseEvent;
+  if (mouseEvent.metaKey || mouseEvent.ctrlKey) {
+    await directService.view(event.data.iri);
   } else {
-    directService.select(event.data["@id"]);
+    await directService.select(event.data.iri);
   }
 }
 
 async function getUsages(iri: string, pageIndex: number, pageSize: number): Promise<void> {
   const result = await EntityService.getEntityUsages(iri, pageIndex, pageSize);
-  usages.value = result.map((usage: any) => {
+  usages.value = result.map(usage => {
     return {
-      "@id": usage["@id"],
+      iri: usage.iri,
       name: usage[RDFS.LABEL],
       icon: getFAIconFromType(usage[RDF.TYPE]),
       colour: getColourFromType(usage[RDF.TYPE])
-    };
+    } as Usage;
   });
 }
 

@@ -47,25 +47,24 @@
 
 <script lang="ts" setup>
 import { onMounted, Ref, ref, watch } from "vue";
-import { DataModelService, EntityService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { DataModelService } from "@/services";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import type { TreeNode } from "primevue/treenode";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { IM, RDFS } from "@/vocabulary";
+import { IM, RDFS, RDF } from "@/vocabulary";
 import { PropertyShape, TTIriRef, PropertyRange } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { GenericObject } from "@/interfaces/GenericObject";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
   entityName: string;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 watch(
   () => props.entityIri,
@@ -74,7 +73,7 @@ watch(
 
 const loading = ref(false);
 const data: Ref<TreeNode[]> = ref([]);
-const expandedKeys = ref({} as any);
+const expandedKeys: Ref<GenericObject> = ref({});
 
 onMounted(async () => {
   await getDataModel(props.entityIri);
@@ -82,7 +81,7 @@ onMounted(async () => {
 
 async function getDataModel(iri: string) {
   loading.value = true;
-  const children = await getDataModelPropertiesDisplay(iri, "0", null);
+  const children = await getDataModelPropertiesDisplay(iri, "0");
   data.value.push({ key: "0", label: props.entityName ?? iri, children: children, type: "root", data: { iri: iri } } as TreeNode);
   await onNodeExpand(data.value[0]);
   if (data.value[0].key) expandedKeys.value = { [data.value[0].key]: true };
@@ -95,10 +94,13 @@ async function onNodeExpand(node: TreeNode) {
       for (const child of node.children) {
         if (child.children && !child.children.length) {
           child.loading = true;
-          const children = await getDataModelPropertiesDisplay(child.data.iri, child.key!, props.entityIri);
+          const children = await getDataModelPropertiesDisplay(child.data.iri, child.key!);
           if (children.length) child.children = children;
           child.loading = false;
         }
+      }
+      if (node.children[0].children && node.children[0].children.length && node.children[0].type === "type") {
+        node.children = node.children[0].children;
       }
     }
   }
@@ -112,9 +114,9 @@ function onNodeCollapse(node: TreeNode) {
   }
 }
 
-function createGroupNode(property: PropertyShape, index: any, propertyList: TreeNode[], parentKey: string) {
+function createGroupNode(property: PropertyShape, index: number, propertyList: TreeNode[], parentKey: string) {
   if (property.group) {
-    let name = property.group.name;
+    const name = property.group.name;
 
     const groupNode = {
       key: parentKey + "-" + index.toString(),
@@ -123,9 +125,9 @@ function createGroupNode(property: PropertyShape, index: any, propertyList: Tree
       selectable: true,
       loading: false,
       data: {
-        typeIcon: getFAIconFromType([{ "@id": IM.FOLDER }]),
-        color: getColourFromType([{ "@id": IM.FOLDER }]),
-        iri: property.group["@id"]
+        typeIcon: getFAIconFromType([{ iri: IM.FOLDER }]),
+        color: getColourFromType([{ iri: IM.FOLDER }]),
+        iri: property.group.iri
       },
       type: "type"
     } as TreeNode;
@@ -144,14 +146,32 @@ function createQualifierNode(property: PropertyShape, rangeNode: TreeNode) {
     if (property.datatype.qualifier) {
       let qualifiers = "qualifiers ->";
       qualifiers = qualifiers + property.datatype.qualifier.map(item => item.name).join(", ");
-      setQualifierNode(qualifiers, rangeNode, property.datatype["@id"], 0);
+      setQualifierNode(qualifiers, rangeNode, property.datatype.iri, 0);
     }
     if (property.datatype.units) {
-      setQualifierNode("units : " + property.datatype.units.name, rangeNode, property.datatype["@id"], 1);
+      setQualifierNode("units : " + property.datatype.units.name, rangeNode, property.datatype.iri, 1);
     }
     if (property.datatype.operator) {
-      setQualifierNode("operators : <,>,<=,>=", rangeNode, property.datatype["@id"], 2);
+      setQualifierNode("operators : <,>,<=,>=", rangeNode, property.datatype.iri, 2);
     }
+  }
+}
+function createOrderableNode(property: PropertyShape, rangeNode: TreeNode) {
+  if (property.orderable) {
+    const orderableNode = {
+      key: rangeNode.key + "-orderable",
+      label: "Orderable ( " + property.ascending + " / " + property.descending + ")",
+      children: [] as TreeNode[],
+      selectable: false,
+      loading: false,
+      data: {
+        typeIcon: getFAIconFromType([{ iri: IM.CONCEPT }]),
+        color: getColourFromType([{ iri: IM.CONCEPT }]),
+        iri: "im:orderable"
+      },
+      type: "type"
+    } as TreeNode;
+    rangeNode.children!.push(orderableNode);
   }
 }
 function setQualifierNode(qualifiers: string, rangeNode: TreeNode, iri: string, index: number) {
@@ -162,8 +182,8 @@ function setQualifierNode(qualifiers: string, rangeNode: TreeNode, iri: string, 
     selectable: true,
     loading: false,
     data: {
-      typeIcon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
-      color: getColourFromType([{ "@id": IM.CONCEPT }]),
+      typeIcon: getFAIconFromType([{ iri: IM.CONCEPT }]),
+      color: getColourFromType([{ iri: IM.CONCEPT }]),
       iri: iri
     },
     type: "type"
@@ -173,7 +193,6 @@ function setQualifierNode(qualifiers: string, rangeNode: TreeNode, iri: string, 
 
 function createParameterNode(property: PropertyShape, rangeNode: TreeNode) {
   if (property.parameter && property.parameter.length) {
-    let params = "parameters : ";
     for (const [index, parameter] of property.parameter.entries()) {
       if (parameter.type) {
         const parameterNode = {
@@ -183,9 +202,9 @@ function createParameterNode(property: PropertyShape, rangeNode: TreeNode) {
           selectable: true,
           loading: false,
           data: {
-            typeIcon: getFAIconFromType([{ "@id": IM.CONCEPT }]),
-            color: getColourFromType([{ "@id": IM.CONCEPT }]),
-            iri: parameter.type["@id"]
+            typeIcon: getFAIconFromType([{ iri: IM.CONCEPT }]),
+            color: getColourFromType([{ iri: IM.CONCEPT }]),
+            iri: parameter.type.iri
           },
           type: "type"
         } as TreeNode;
@@ -218,17 +237,18 @@ function createRangeNode(property: PropertyShape, propertyNode: TreeNode) {
       data: {
         typeIcon: getFAIconFromType([rangeType]),
         color: getColourFromType([rangeType]),
-        iri: range["@id"]
+        iri: range.iri
       },
       type: "type"
     } as TreeNode;
     propertyNode.children!.push(rangeNode);
     createParameterNode(property, rangeNode);
     createQualifierNode(property, rangeNode);
+    createOrderableNode(property, rangeNode);
   }
 }
 
-function createPropertyNode(property: PropertyShape, index: any, propertyList: TreeNode[], parentKey: string) {
+function createPropertyNode(property: PropertyShape, index: number, propertyList: TreeNode[], parentKey: string) {
   if (property.group) {
     createGroupNode(property, index, propertyList, parentKey);
   } else {
@@ -248,10 +268,10 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
 
     let name = property.path.name;
     if (property.hasValue) {
-      const value = property.hasValueType?.["@id"] === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
+      const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
       name += ` (${value})`;
     }
-    const propertyType = property.type as TTIriRef[];
+    const propertyType = { iri: RDF.PROPERTY } as TTIriRef;
     if (range && rangeType) {
       const propertyNode = {
         key: parentKey + "-" + index.toString(),
@@ -262,9 +282,9 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
         data: {
           rangeType: [range],
           cardinality: cardinality,
-          typeIcon: getFAIconFromType(propertyType),
-          color: getColourFromType(propertyType),
-          iri: property.path["@id"]
+          typeIcon: getFAIconFromType([propertyType]),
+          color: getColourFromType([propertyType]),
+          iri: property.path.iri
         },
         type: "property"
       } as TreeNode;
@@ -275,8 +295,8 @@ function createPropertyNode(property: PropertyShape, index: any, propertyList: T
   }
 }
 
-async function getDataModelPropertiesDisplay(iri: string, parentKey: string, parent: null | string): Promise<TreeNode[]> {
-  const entity = await DataModelService.getDataModelProperties(iri, parent);
+async function getDataModelPropertiesDisplay(iri: string, parentKey: string): Promise<TreeNode[]> {
+  const entity = await DataModelService.getDataModelProperties(iri);
   const propertyList = [] as TreeNode[];
   if (entity.property && isArrayHasLength(entity.property)) {
     for (const [index, property] of entity.property.entries()) {
@@ -293,14 +313,6 @@ async function getDataModelPropertiesDisplay(iri: string, parentKey: string, par
   height: 100%;
   position: relative;
   overflow: auto;
-}
-
-.tree-row {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 0.25rem;
 }
 
 .progress-spinner {

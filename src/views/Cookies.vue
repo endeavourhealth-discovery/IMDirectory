@@ -55,9 +55,9 @@ const userCookiesData: Ref<{ cookie: string; name: string; purpose: string }[]> 
   { cookie: "Editor iri", name: "editorSelectedIri", purpose: "Stores the original iri of the entity currently being edited." }
 ]);
 
-function goBack() {
+async function goBack() {
   if (window.history.length > 2) router.back();
-  else router.push({ name: "LandingPage" });
+  else await router.push({ name: "LandingPage" });
 }
 </script>
 

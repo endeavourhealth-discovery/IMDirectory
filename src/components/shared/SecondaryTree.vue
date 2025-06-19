@@ -75,16 +75,16 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
-import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { ConceptAggregate, EntityReferenceNode, TreeParent } from "@/interfaces";
-import { TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS } from "@/vocabulary";
-import { DirectService, EntityService } from "@/services";
+import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { ConceptAggregate, TreeParent } from "@/interfaces";
+import { RDF, RDFS } from "@/vocabulary";
+import { EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import OverlaySummary from "./OverlaySummary.vue";
 import type { TreeNode } from "primevue/treenode";
 import setupOverlay from "@/composables/setupOverlay";
+import { TTIriRef } from "@/interfaces/AutoGen";
+import { ExtendedEntityReferenceNode, TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   entityIri: string;
@@ -93,17 +93,14 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({
-  rowClicked: (_payload: string) => true,
-  rowControlClicked: (_payload: string) => true,
-  onSelect: (_payload: string) => true,
-  rowSelected: (_payload: TreeNode | undefined) => true
-});
+const emit = defineEmits<{
+  rowClicked: [payload: string];
+  rowControlClicked: [payload: string];
+  onSelect: [payload: string];
+  rowSelected: [payload: TreeNode | undefined];
+}>();
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore, selectedNode } = setupTree(
-  emit,
-  20
-);
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore } = setupTree(emit, 20);
 const { showOverlay, hideOverlay, OS } = setupOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
@@ -122,7 +119,12 @@ watch(
     alternateParents.value = [];
     expandedKeys.value = {};
     await getConceptAggregate(newValue);
-    await createTree(conceptAggregate.value.concept, conceptAggregate.value.parents, conceptAggregate.value.children, parentPosition.value);
+    await createTree(
+      conceptAggregate.value.concept,
+      conceptAggregate.value.parents as ExtendedEntityReferenceNode[],
+      conceptAggregate.value.children as ExtendedEntityReferenceNode[],
+      parentPosition.value
+    );
   }
 );
 
@@ -132,7 +134,12 @@ watch(loading, newValue => {
 
 onMounted(async () => {
   await getConceptAggregate(props.entityIri);
-  await createTree(conceptAggregate.value.concept, conceptAggregate.value.parents, conceptAggregate.value.children, 0);
+  await createTree(
+    conceptAggregate.value.concept,
+    conceptAggregate.value.parents as ExtendedEntityReferenceNode[],
+    conceptAggregate.value.children as ExtendedEntityReferenceNode[],
+    0
+  );
 });
 
 onBeforeUnmount(() => {
@@ -153,11 +160,11 @@ async function getConceptAggregate(iri: string): Promise<void> {
   loading.value = false;
 }
 
-async function createTree(concept: any, parentHierarchy: EntityReferenceNode[], children: EntityReferenceNode[], parentPosition: number): Promise<void> {
+function createTree(concept: TTEntity, parentHierarchy: ExtendedEntityReferenceNode[], children: ExtendedEntityReferenceNode[], parentPosition: number) {
   loading.value = true;
-  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept[IM.IRI], concept[RDF.TYPE], concept.hasChildren, null, undefined);
-  children.forEach((child: EntityReferenceNode) => {
-    selectedConcept.children?.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, selectedConcept, child.orderNumber));
+  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri as string, concept[RDF.TYPE], concept.hasChildren, null, undefined);
+  children.forEach(child => {
+    selectedConcept.children?.push(createTreeNode(child.name, child.iri, child.type as TTIriRef[], child.hasChildren, selectedConcept, child.orderNumber));
   });
   if (totalCount.value >= pageSize.value) {
     selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
@@ -172,12 +179,12 @@ async function createTree(concept: any, parentHierarchy: EntityReferenceNode[], 
   loading.value = false;
 }
 
-function setParents(parentHierarchy: EntityReferenceNode[], parentPosition: number): void {
+function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPosition: number): void {
   if (isArrayHasLength(parentHierarchy)) {
     if (parentHierarchy.length === 1) {
       currentParent.value = {
         name: parentHierarchy[parentPosition].name,
-        iri: parentHierarchy[parentPosition]["@id"],
+        iri: parentHierarchy[parentPosition].iri,
         listPosition: 0
       };
       alternateParents.value = [] as TreeParent[];
@@ -186,13 +193,13 @@ function setParents(parentHierarchy: EntityReferenceNode[], parentPosition: numb
         if (i === parentPosition) {
           currentParent.value = {
             name: parentHierarchy[parentPosition].name,
-            iri: parentHierarchy[parentPosition]["@id"],
+            iri: parentHierarchy[parentPosition].iri,
             listPosition: i
           };
         } else {
           alternateParents.value.push({
             name: parentHierarchy[i].name,
-            iri: parentHierarchy[i]["@id"],
+            iri: parentHierarchy[i].iri,
             listPosition: i
           });
         }
@@ -202,10 +209,6 @@ function setParents(parentHierarchy: EntityReferenceNode[], parentPosition: numb
     currentParent.value = null;
     alternateParents.value = [] as TreeParent[];
   }
-}
-
-function containsChild(nodeChildren: TreeNode[], child: EntityReferenceNode): boolean {
-  return nodeChildren.some(nodeChild => nodeChild.data === child["@id"]);
 }
 
 async function expandParents(parentPosition: number): Promise<void> {
@@ -225,11 +228,11 @@ async function expandParents(parentPosition: number): Promise<void> {
   loading.value = false;
 }
 
-function createExpandedParentTree(parents: any, parentPosition: number): TreeNode {
+function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parentPosition: number): TreeNode {
   let parentNode = {} as TreeNode;
   for (let i = 0; i < parents.length; i++) {
     if (i === parentPosition) {
-      parentNode = createTreeNode(parents[i].name, parents[i]["@id"], parents[i].type, true, null, undefined);
+      parentNode = createTreeNode(parents[i].name, parents[i].iri, parents[i].type as TTIriRef[], true, null, undefined);
       if (parentNode.children && parentNode.key) {
         parentNode.children.push(root.value[0]);
         if (!isObjectHasKeys(expandedKeys.value, [parentNode.key])) {
@@ -250,7 +253,7 @@ async function setExpandedParentParents(): Promise<void> {
     parentPosition.value = 0;
     currentParent.value = {
       name: result[0].name,
-      iri: result[0]["@id"],
+      iri: result[0].iri,
       listPosition: 0
     };
   } else {
@@ -258,13 +261,13 @@ async function setExpandedParentParents(): Promise<void> {
       if (i === 0) {
         currentParent.value = {
           name: result[i].name,
-          iri: result[i]["@id"],
+          iri: result[i].iri,
           listPosition: i
         };
       } else {
         alternateParents.value.push({
           name: result[i].name,
-          iri: result[i]["@id"],
+          iri: result[i].iri,
           listPosition: i
         });
       }
@@ -272,7 +275,7 @@ async function setExpandedParentParents(): Promise<void> {
   }
 }
 
-async function onNodeSelect(node: any): Promise<void> {
+async function onNodeSelect(node: TreeNode): Promise<void> {
   if (node.data === "loadMore") {
     if (!node.loading) await loadMore(node);
   }
@@ -283,7 +286,7 @@ async function onNodeSelect(node: any): Promise<void> {
 
 async function showPopup(event: MouseEvent, iri?: string): Promise<void> {
   if (iri && iri !== "loadMode") {
-    showOverlay(event, iri);
+    await showOverlay(event, iri);
   }
 }
 
@@ -310,11 +313,6 @@ function hidePopup(): void {
 #secondary-tree-bar-container {
   flex: 1 1 auto;
   border-top: 1px solid var(--p-textarea-border-color);
-}
-
-.p-progressspinner {
-  width: 1.25em !important;
-  height: 1.25em !important;
 }
 
 #secondary-tree-bar-container ::v-deep(.p-treenode-selectable) {

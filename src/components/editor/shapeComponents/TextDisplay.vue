@@ -27,31 +27,32 @@ import { EditorMode } from "@/enums";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { processArguments } from "@/helpers/EditorMethods";
 import { FunctionService } from "@/services";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   value?: string;
   position?: number;
-}
+}>();
 
-const props = defineProps<Props>();
+const emit = defineEmits<{
+  updateClicked: [payload: string];
+}>();
+
 watch([() => cloneDeep(props.value), () => cloneDeep(props.shape)], async ([newPropsValue, newShapeValue]) => {
   if (newPropsValue && newShapeValue) userInput.value = newPropsValue;
   else userInput.value = await processPropertyValue(newShapeValue);
 });
 
-const emit = defineEmits({ updateClicked: (_payload: string) => true });
-
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -88,7 +89,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 const loading = ref(false);
 const invalid = ref(false);
@@ -128,56 +129,31 @@ async function init() {
   }
 }
 
-function compareMaps(map1: Map<string, any>, map2: Map<string, any>) {
-  let testValue;
-  if (map1.size !== map2.size) return false;
-  for (let [key, value] of map1) {
-    testValue = map2.get(key);
-    if (testValue !== value || (testValue === undefined && !map2.has(key))) return false;
-  }
-  return true;
-}
-
 async function processPropertyValue(property: PropertyShape): Promise<string> {
   if (isObjectHasKeys(property, ["isIri"])) {
-    return property.isIri!["@id"];
+    return property.isIri!.iri;
   }
   if (isObjectHasKeys(property, ["function", "argument"])) {
     const args = processArguments(property, valueVariableMap?.value);
     if (props.shape.argument!.find((a: Argument) => a.valueVariable)) {
       const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
       if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
-        const result = await FunctionService.runFunction(property.function!["@id"], args);
+        const result = await FunctionService.runFunction(property.function!.iri, args);
         if (result) return result;
       } else return "";
     } else {
-      const result = await FunctionService.runFunction(property.function!["@id"], args);
+      const result = await FunctionService.runFunction(property.function!.iri, args);
       if (result) return result;
     }
   } else if (isObjectHasKeys(property, ["function"])) {
-    const result = await FunctionService.runFunction(property.function!["@id"]);
-    if (result && isObjectHasKeys(result, ["iri"])) return result.iri["@id"];
+    const result = await FunctionService.runFunction(property.function!.iri);
+    if (result && isObjectHasKeys(result, ["iri"])) return result.iri.iri;
   }
   return "";
 }
 
-// function processArguments(property: PropertyShape) {
-//   const result = new Map<string, any>();
-//   property.argument.forEach(arg => {
-//     let key = "";
-//     let value: any;
-//     if (arg.parameter === "this") key = props.shape.path["@id"] == IM.ID ? IM.IRI : props.shape.path["@id"];
-//     else key = arg.parameter;
-//     if (arg.valueIri) value = arg.valueIri;
-//     else if (arg.valueVariable) value = valueVariableMap?.value.get(arg.valueVariable);
-//     else if (arg.valueData) value = arg.valueData;
-//     result.set(key, value);
-//   });
-//   return result;
-// }
-
 function updateEntity(data: string) {
-  const result = {} as any;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
@@ -246,9 +222,7 @@ function hasData() {
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
-</style>
 
-<style>
 .string-single-display-tooltip .p-tooltip-text {
   width: fit-content;
   word-wrap: break-word;

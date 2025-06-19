@@ -1,26 +1,26 @@
 export default {
   CONCEPT_SHAPE: {
-    "@id": "http://endhealth.info/im#Editor_ConceptShape",
+    iri: "http://endhealth.info/im#Editor_ConceptShape",
     status: {
       name: "Active",
-      "@id": "http://endhealth.info/im#Active"
+      iri: "http://endhealth.info/im#Active"
     },
     label: "Editor - Concept shape",
     comment: "Form editor for a concept",
     targetShape: {
       name: "Concept shape",
-      "@id": "http://endhealth.info/im#ConceptShape"
+      iri: "http://endhealth.info/im#ConceptShape"
     },
     type: [
       {
         name: "Form generator",
-        "@id": "http://endhealth.info/im#FormGenerator"
+        iri: "http://endhealth.info/im#FormGenerator"
       }
     ],
     isContainedIn: [
       {
         name: "Data models for IM itself",
-        "@id": "http://endhealth.info/im#ModelDataModels"
+        iri: "http://endhealth.info/im#ModelDataModels"
       }
     ],
     property: [
@@ -32,7 +32,7 @@ export default {
         maxCount: 1,
         path: {
           name: "type",
-          "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+          iri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
         },
         property: [
           {
@@ -41,27 +41,27 @@ export default {
             order: 1,
             minCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#entityComboBox"
+              iri: "http://endhealth.info/im#entityComboBox"
             },
             path: {
               name: "type",
-              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+              iri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
             },
             function: {
-              "@id": "http://endhealth.info/im#Function_GetAdditionalAllowableTypes"
+              iri: "http://endhealth.info/im#Function_GetAdditionalAllowableTypes"
             },
             argument: [
               {
                 parameter: "entityIri",
                 valueIri: {
                   name: "Terminology Concept",
-                  "@id": "http://endhealth.info/im#Concept"
+                  iri: "http://endhealth.info/im#Concept"
                 }
               }
             ],
             isIri: {
               name: "Terminology Concept",
-              "@id": "http://endhealth.info/im#Concept"
+              iri: "http://endhealth.info/im#Concept"
             }
           },
           {
@@ -71,14 +71,14 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#textDisplay"
+              iri: "http://endhealth.info/im#textDisplay"
             },
             path: {
-              "@id": "http://endhealth.info/im#id"
+              iri: "http://endhealth.info/im#id"
             },
             function: {
               name: "Snomed concept generator",
-              "@id": "http://endhealth.info/im#Function_SnomedConceptGenerator"
+              iri: "http://endhealth.info/im#Function_SnomedConceptGenerator"
             },
             valueVariable: "conceptIri"
           },
@@ -89,15 +89,15 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#textDisplay"
+              iri: "http://endhealth.info/im#textDisplay"
             },
             path: {
               name: "code",
-              "@id": "http://endhealth.info/im#code"
+              iri: "http://endhealth.info/im#code"
             },
             function: {
               name: "Local name retriever",
-              "@id": "http://endhealth.info/im#Function_LocalNameRetriever"
+              iri: "http://endhealth.info/im#Function_LocalNameRetriever"
             },
             argument: [
               {
@@ -117,11 +117,11 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#textInput"
+              iri: "http://endhealth.info/im#textInput"
             },
             path: {
               name: "label",
-              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+              iri: "http://www.w3.org/2000/01/rdf-schema#label"
             }
           },
           {
@@ -131,15 +131,15 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#htmlInput"
+              iri: "http://endhealth.info/im#htmlInput"
             },
             path: {
               name: "comment",
-              "@id": "http://www.w3.org/2000/01/rdf-schema#comment"
+              iri: "http://www.w3.org/2000/01/rdf-schema#comment"
             },
             datatype: {
               name: "string",
-              "@id": "http://www.w3.org/2001/XMLSchema#string"
+              iri: "http://www.w3.org/2001/XMLSchema#string"
             }
           },
           {
@@ -149,15 +149,15 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#entityComboBox"
+              iri: "http://endhealth.info/im#entityComboBox"
             },
             path: {
               name: "status",
-              "@id": "http://endhealth.info/im#status"
+              iri: "http://endhealth.info/im#status"
             },
             select: [
               {
-                "@id": "http://endhealth.info/im#Query_GetIsas"
+                iri: "http://endhealth.info/im#Query_GetIsas"
               }
             ],
             argument: [
@@ -165,18 +165,18 @@ export default {
                 parameter: "this",
                 valueIri: {
                   name: "Activity status",
-                  "@id": "http://endhealth.info/im#Status"
+                  iri: "http://endhealth.info/im#Status"
                 }
               }
             ],
             isIri: {
               name: "Draft",
-              "@id": "http://endhealth.info/im#Draft"
+              iri: "http://endhealth.info/im#Draft"
             }
           }
         ],
         componentType: {
-          "@id": "http://endhealth.info/im#stepsGroup"
+          iri: "http://endhealth.info/im#stepsGroup"
         }
       },
       {
@@ -187,10 +187,10 @@ export default {
         maxCount: 1,
         path: {
           name: "Subclass of",
-          "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+          iri: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
         },
         componentType: {
-          "@id": "http://endhealth.info/im#stepsGroup"
+          iri: "http://endhealth.info/im#stepsGroup"
         },
         property: [
           {
@@ -205,30 +205,30 @@ export default {
                 order: 1,
                 minCount: 1,
                 componentType: {
-                  "@id": "http://endhealth.info/im#entitySearch"
+                  iri: "http://endhealth.info/im#entitySearch"
                 },
                 path: {
                   name: "Subclass of",
-                  "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+                  iri: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
                 },
                 select: [
                   {
                     name: "Search for concepts",
-                    "@id": "http://endhealth.info/im#Query_SearchConcepts"
+                    iri: "http://endhealth.info/im#Query_SearchConcepts"
                   }
                 ],
                 builderChild: true
               }
             ],
             componentType: {
-              "@id": "http://endhealth.info/im#arrayBuilder"
+              iri: "http://endhealth.info/im#arrayBuilder"
             },
             path: {
               name: "Subclass of",
-              "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+              iri: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
             },
             validation: {
-              "@id": "http://endhealth.info/im#Validation_hasParent"
+              iri: "http://endhealth.info/im#Validation_hasParent"
             },
             validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'."
           }
@@ -242,10 +242,10 @@ export default {
         maxCount: 1,
         path: {
           name: "Is Contained In",
-          "@id": "http://endhealth.info/im#isContainedIn"
+          iri: "http://endhealth.info/im#isContainedIn"
         },
         componentType: {
-          "@id": "http://endhealth.info/im#stepsGroup"
+          iri: "http://endhealth.info/im#stepsGroup"
         },
         property: [
           {
@@ -260,30 +260,30 @@ export default {
                 order: 1,
                 minCount: 1,
                 componentType: {
-                  "@id": "http://endhealth.info/im#entitySearch"
+                  iri: "http://endhealth.info/im#entitySearch"
                 },
                 path: {
                   name: "Is Contained In",
-                  "@id": "http://endhealth.info/im#isContainedIn"
+                  iri: "http://endhealth.info/im#isContainedIn"
                 },
                 select: [
                   {
                     name: "Search for concepts",
-                    "@id": "http://endhealth.info/im#Query_SearchConcepts"
+                    iri: "http://endhealth.info/im#Query_SearchConcepts"
                   }
                 ],
                 builderChild: true
               }
             ],
             componentType: {
-              "@id": "http://endhealth.info/im#arrayBuilder"
+              iri: "http://endhealth.info/im#arrayBuilder"
             },
             path: {
               name: "Is Contained In",
-              "@id": "http://endhealth.info/im#isContainedIn"
+              iri: "http://endhealth.info/im#isContainedIn"
             },
             validation: {
-              "@id": "http://endhealth.info/im#Validation_hasParent"
+              iri: "http://endhealth.info/im#Validation_hasParent"
             },
             validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'."
           }
@@ -296,10 +296,10 @@ export default {
         minCount: 0,
         path: {
           name: "role group",
-          "@id": "http://endhealth.info/im#roleGroup"
+          iri: "http://endhealth.info/im#roleGroup"
         },
         componentType: {
-          "@id": "http://endhealth.info/im#stepsGroup"
+          iri: "http://endhealth.info/im#stepsGroup"
         },
         property: [
           {
@@ -309,7 +309,7 @@ export default {
             minCount: 0,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#arrayBuilder"
+              iri: "http://endhealth.info/im#arrayBuilder"
             },
             property: [
               {
@@ -324,16 +324,16 @@ export default {
                     order: 1,
                     minCount: 1,
                     componentType: {
-                      "@id": "http://endhealth.info/im#entityAutoComplete"
+                      iri: "http://endhealth.info/im#entityAutoComplete"
                     },
                     path: {
                       name: "role group",
-                      "@id": "http://endhealth.info/im#roleGroup"
+                      iri: "http://endhealth.info/im#roleGroup"
                     },
                     select: [
                       {
                         name: "Query -allowable properties for a concept",
-                        "@id": "http://endhealth.info/im#Query_AllowableProperties"
+                        iri: "http://endhealth.info/im#Query_AllowableProperties"
                       }
                     ],
                     argument: [
@@ -351,16 +351,16 @@ export default {
                     order: 2,
                     minCount: 1,
                     componentType: {
-                      "@id": "http://endhealth.info/im#entityAutoComplete"
+                      iri: "http://endhealth.info/im#entityAutoComplete"
                     },
                     path: {
                       name: "role group",
-                      "@id": "http://endhealth.info/im#roleGroup"
+                      iri: "http://endhealth.info/im#roleGroup"
                     },
                     select: [
                       {
                         name: "Query -allowable ranges for a property",
-                        "@id": "http://endhealth.info/im#Query_AllowableRanges"
+                        iri: "http://endhealth.info/im#Query_AllowableRanges"
                       }
                     ],
                     argument: [
@@ -373,17 +373,17 @@ export default {
                   }
                 ],
                 componentType: {
-                  "@id": "http://endhealth.info/im#componentGroup"
+                  iri: "http://endhealth.info/im#componentGroup"
                 },
                 path: {
                   name: "role group",
-                  "@id": "http://endhealth.info/im#roleGroup"
+                  iri: "http://endhealth.info/im#roleGroup"
                 }
               }
             ],
             path: {
               name: "role group",
-              "@id": "http://endhealth.info/im#roleGroup"
+              iri: "http://endhealth.info/im#roleGroup"
             }
           }
         ]
@@ -391,32 +391,31 @@ export default {
     ],
     scheme: {
       name: "London Discovery Snomed extension code scheme and graph",
-      "@id": "http://endhealth.info/im#"
-    },
-    iri: "http://endhealth.info/im#Editor_ConceptShape"
+      iri: "http://endhealth.info/im#"
+    }
   },
   CONCEPT_SET_SHAPE: {
-    "@id": "http://endhealth.info/im#Editor_ConceptSetShape",
+    iri: "http://endhealth.info/im#Editor_ConceptSetShape",
     status: {
       name: "Active",
-      "@id": "http://endhealth.info/im#Active"
+      iri: "http://endhealth.info/im#Active"
     },
     label: "Editor - Concept set shape",
     comment: "Form editor for a concept set",
     targetShape: {
       name: "Set shape",
-      "@id": "http://endhealth.info/im#SetShape"
+      iri: "http://endhealth.info/im#SetShape"
     },
     type: [
       {
         name: "Form generator",
-        "@id": "http://endhealth.info/im#FormGenerator"
+        iri: "http://endhealth.info/im#FormGenerator"
       }
     ],
     isContainedIn: [
       {
         name: "Data models for IM itself",
-        "@id": "http://endhealth.info/im#ModelDataModels"
+        iri: "http://endhealth.info/im#ModelDataModels"
       }
     ],
     property: [
@@ -428,7 +427,7 @@ export default {
         maxCount: 1,
         path: {
           name: "type",
-          "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+          iri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
         },
         property: [
           {
@@ -437,27 +436,27 @@ export default {
             order: 1,
             minCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#entityComboBox"
+              iri: "http://endhealth.info/im#entityComboBox"
             },
             path: {
               name: "type",
-              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+              iri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
             },
             function: {
-              "@id": "http://endhealth.info/im#Function_GetAdditionalAllowableTypes"
+              iri: "http://endhealth.info/im#Function_GetAdditionalAllowableTypes"
             },
             argument: [
               {
                 parameter: "entityIri",
                 valueIri: {
                   name: "Concept Set",
-                  "@id": "http://endhealth.info/im#ConceptSet"
+                  iri: "http://endhealth.info/im#ConceptSet"
                 }
               }
             ],
             isIri: {
               name: "Concept Set",
-              "@id": "http://endhealth.info/im#ConceptSet"
+              iri: "http://endhealth.info/im#ConceptSet"
             }
           },
           {
@@ -467,14 +466,14 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#textDisplay"
+              iri: "http://endhealth.info/im#textDisplay"
             },
             path: {
-              "@id": "http://endhealth.info/im#id"
+              iri: "http://endhealth.info/im#id"
             },
             function: {
               name: "Snomed concept generator",
-              "@id": "http://endhealth.info/im#Function_SnomedConceptGenerator"
+              iri: "http://endhealth.info/im#Function_SnomedConceptGenerator"
             },
             valueVariable: "conceptIri"
           },
@@ -485,15 +484,15 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#textDisplay"
+              iri: "http://endhealth.info/im#textDisplay"
             },
             path: {
               name: "code",
-              "@id": "http://endhealth.info/im#code"
+              iri: "http://endhealth.info/im#code"
             },
             function: {
               name: "Local name retriever",
-              "@id": "http://endhealth.info/im#Function_LocalNameRetriever"
+              iri: "http://endhealth.info/im#Function_LocalNameRetriever"
             },
             argument: [
               {
@@ -513,11 +512,11 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#textInput"
+              iri: "http://endhealth.info/im#textInput"
             },
             path: {
               name: "label",
-              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+              iri: "http://www.w3.org/2000/01/rdf-schema#label"
             }
           },
           {
@@ -527,15 +526,15 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#htmlInput"
+              iri: "http://endhealth.info/im#htmlInput"
             },
             path: {
               name: "comment",
-              "@id": "http://www.w3.org/2000/01/rdf-schema#comment"
+              iri: "http://www.w3.org/2000/01/rdf-schema#comment"
             },
             datatype: {
               name: "string",
-              "@id": "http://www.w3.org/2001/XMLSchema#string"
+              iri: "http://www.w3.org/2001/XMLSchema#string"
             }
           },
           {
@@ -545,15 +544,15 @@ export default {
             minCount: 1,
             maxCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#entityComboBox"
+              iri: "http://endhealth.info/im#entityComboBox"
             },
             path: {
               name: "status",
-              "@id": "http://endhealth.info/im#status"
+              iri: "http://endhealth.info/im#status"
             },
             select: [
               {
-                "@id": "http://endhealth.info/im#Query_GetIsas"
+                iri: "http://endhealth.info/im#Query_GetIsas"
               }
             ],
             argument: [
@@ -561,18 +560,18 @@ export default {
                 parameter: "this",
                 valueIri: {
                   name: "Activity status",
-                  "@id": "http://endhealth.info/im#Status"
+                  iri: "http://endhealth.info/im#Status"
                 }
               }
             ],
             isIri: {
               name: "Draft",
-              "@id": "http://endhealth.info/im#Draft"
+              iri: "http://endhealth.info/im#Draft"
             }
           }
         ],
         componentType: {
-          "@id": "http://endhealth.info/im#stepsGroup"
+          iri: "http://endhealth.info/im#stepsGroup"
         }
       },
       {
@@ -583,10 +582,10 @@ export default {
         maxCount: 0,
         path: {
           name: "Subclass of",
-          "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+          iri: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
         },
         componentType: {
-          "@id": "http://endhealth.info/im#stepsGroup"
+          iri: "http://endhealth.info/im#stepsGroup"
         },
         property: [
           {
@@ -601,30 +600,30 @@ export default {
                 order: 1,
                 minCount: 1,
                 componentType: {
-                  "@id": "http://endhealth.info/im#entitySearch"
+                  iri: "http://endhealth.info/im#entitySearch"
                 },
                 path: {
                   name: "Subclass of",
-                  "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+                  iri: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
                 },
                 select: [
                   {
                     name: "Search for concepts",
-                    "@id": "http://endhealth.info/im#Query_SearchConcepts"
+                    iri: "http://endhealth.info/im#Query_SearchConcepts"
                   }
                 ],
                 builderChild: true
               }
             ],
             componentType: {
-              "@id": "http://endhealth.info/im#arrayBuilder"
+              iri: "http://endhealth.info/im#arrayBuilder"
             },
             path: {
               name: "Subclass of",
-              "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+              iri: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
             },
             validation: {
-              "@id": "http://endhealth.info/im#Validation_hasParent"
+              iri: "http://endhealth.info/im#Validation_hasParent"
             },
             validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'."
           }
@@ -638,10 +637,10 @@ export default {
         maxCount: 1,
         path: {
           name: "is Contained In",
-          "@id": "http://endhealth.info/im#isContainedIn"
+          iri: "http://endhealth.info/im#isContainedIn"
         },
         componentType: {
-          "@id": "http://endhealth.info/im#stepsGroup"
+          iri: "http://endhealth.info/im#stepsGroup"
         },
         property: [
           {
@@ -656,30 +655,30 @@ export default {
                 order: 1,
                 minCount: 1,
                 componentType: {
-                  "@id": "http://endhealth.info/im#entitySearch"
+                  iri: "http://endhealth.info/im#entitySearch"
                 },
                 path: {
                   name: "is Contained In",
-                  "@id": "http://endhealth.info/im#isContainedIn"
+                  iri: "http://endhealth.info/im#isContainedIn"
                 },
                 select: [
                   {
                     name: "Search for concepts",
-                    "@id": "http://endhealth.info/im#Query_SearchAll"
+                    iri: "http://endhealth.info/im#Query_SearchAll"
                   }
                 ],
                 builderChild: true
               }
             ],
             componentType: {
-              "@id": "http://endhealth.info/im#arrayBuilder"
+              iri: "http://endhealth.info/im#arrayBuilder"
             },
             path: {
               name: "is Contained In",
-              "@id": "http://endhealth.info/im#isContainedIn"
+              iri: "http://endhealth.info/im#isContainedIn"
             },
             validation: {
-              "@id": "http://endhealth.info/im#Validation_hasParent"
+              iri: "http://endhealth.info/im#Validation_hasParent"
             },
             validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'."
           }
@@ -693,10 +692,10 @@ export default {
         maxCount: 1,
         path: {
           name: "definition",
-          "@id": "http://endhealth.info/im#definition"
+          iri: "http://endhealth.info/im#definition"
         },
         componentType: {
-          "@id": "http://endhealth.info/im#stepsGroup"
+          iri: "http://endhealth.info/im#stepsGroup"
         },
         property: [
           {
@@ -705,7 +704,7 @@ export default {
             order: 1,
             minCount: 1,
             componentType: {
-              "@id": "http://endhealth.info/im#arrayBuilder"
+              iri: "http://endhealth.info/im#arrayBuilder"
             },
             property: [
               {
@@ -721,16 +720,16 @@ export default {
                     order: 1,
                     minCount: 1,
                     componentType: {
-                      "@id": "http://endhealth.info/im#entitySearch"
+                      iri: "http://endhealth.info/im#entitySearch"
                     },
                     path: {
                       name: "definition",
-                      "@id": "http://endhealth.info/im#definition"
+                      iri: "http://endhealth.info/im#definition"
                     },
                     select: [
                       {
                         name: "Search for concepts",
-                        "@id": "http://endhealth.info/im#Query_SearchConcepts"
+                        iri: "http://endhealth.info/im#Query_SearchConcepts"
                       }
                     ],
                     valueVariable: "memberIri",
@@ -748,16 +747,16 @@ export default {
                         order: 1,
                         minCount: 1,
                         componentType: {
-                          "@id": "http://endhealth.info/im#entityAutoComplete"
+                          iri: "http://endhealth.info/im#entityAutoComplete"
                         },
                         path: {
                           name: "definition",
-                          "@id": "http://endhealth.info/im#definition"
+                          iri: "http://endhealth.info/im#definition"
                         },
                         select: [
                           {
                             name: "Query -allowable properties for a concept",
-                            "@id": "http://endhealth.info/im#Query_AllowableProperties"
+                            iri: "http://endhealth.info/im#Query_AllowableProperties"
                           }
                         ],
                         argument: [
@@ -775,16 +774,16 @@ export default {
                         order: 2,
                         minCount: 1,
                         componentType: {
-                          "@id": "http://endhealth.info/im#entityAutoComplete"
+                          iri: "http://endhealth.info/im#entityAutoComplete"
                         },
                         path: {
                           name: "role group",
-                          "@id": "http://endhealth.info/im#roleGroup"
+                          iri: "http://endhealth.info/im#roleGroup"
                         },
                         select: [
                           {
                             name: "Query -allowable ranges for a property",
-                            "@id": "http://endhealth.info/im#Query_AllowableRanges"
+                            iri: "http://endhealth.info/im#Query_AllowableRanges"
                           }
                         ],
                         argument: [
@@ -797,41 +796,41 @@ export default {
                       }
                     ],
                     componentType: {
-                      "@id": "http://endhealth.info/im#componentGroup"
+                      iri: "http://endhealth.info/im#componentGroup"
                     },
                     path: {
                       name: "definition",
-                      "@id": "http://endhealth.info/im#definition"
+                      iri: "http://endhealth.info/im#definition"
                     },
                     builderChild: true
                   }
                 ],
                 componentType: {
-                  "@id": "http://endhealth.info/im#arrayBuilderWithDropdown"
+                  iri: "http://endhealth.info/im#arrayBuilderWithDropdown"
                 },
                 path: {
                   name: "definition",
-                  "@id": "http://endhealth.info/im#definition"
+                  iri: "http://endhealth.info/im#definition"
                 },
                 validation: {
-                  "@id": "http://endhealth.info/im#Validation_isDefinition"
+                  iri: "http://endhealth.info/im#Validation_isDefinition"
                 },
                 validationErrorMessage: "Not a valid definition",
                 function: {
-                  "@id": "http://endhealth.info/im#Function_GetLogicOptions"
+                  iri: "http://endhealth.info/im#Function_GetLogicOptions"
                 },
                 valueIri: {
-                  "@id": "shacl:or"
+                  iri: "shacl:or"
                 },
                 builderChild: true
               }
             ],
             path: {
               name: "definition",
-              "@id": "http://endhealth.info/im#definition"
+              iri: "http://endhealth.info/im#definition"
             },
             validation: {
-              "@id": "http://endhealth.info/im#Validation_hasParent"
+              iri: "http://endhealth.info/im#Validation_hasParent"
             },
             validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'."
           }
@@ -840,8 +839,7 @@ export default {
     ],
     scheme: {
       name: "London Discovery Snomed extension code scheme and graph",
-      "@id": "http://endhealth.info/im#"
-    },
-    iri: "http://endhealth.info/im#Editor_ConceptSetShape"
+      iri: "http://endhealth.info/im#"
+    }
   }
 };

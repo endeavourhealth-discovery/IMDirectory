@@ -41,10 +41,10 @@ import Textarea from "primevue/textarea";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import ResultsTable from "../shared/ResultsTable.vue";
 
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  selectedUpdated: (_payload: SearchResultSummary) => true
-});
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  selectedUpdated: [payload: SearchResultSummary];
+}>();
 
 const toast = useToast();
 const imQueryString = ref("");
@@ -53,7 +53,7 @@ const imQuery: Ref<QueryRequest | undefined> = ref();
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
 
-async function onSearch(): Promise<void> {
+function onSearch() {
   if (imQueryString.value) {
     try {
       imQuery.value = parseQuery();
@@ -75,7 +75,7 @@ function parseQuery() {
   }
 }
 
-async function format() {
+function format() {
   const parsed = parseQuery();
   if (parsed) imQueryString.value = JSON.stringify(parsed, null, 2);
 }
@@ -91,33 +91,11 @@ async function format() {
   align-items: center;
 }
 
-#query-builder-container {
-  width: 100%;
-  flex-grow: 100;
-  overflow: auto;
-}
-
-#query-build {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-  margin: 0 0 1rem 0;
-}
-
-#next-option-container {
-  width: 100%;
-  display: flex;
-  flex-flow: row;
-  justify-content: center;
-}
-
 #query-string-container {
   width: 100%;
   height: 10rem;
   overflow: auto;
-  flex-grow: 100;
+  grow: 100;
 }
 
 .info {

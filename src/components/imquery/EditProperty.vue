@@ -2,16 +2,16 @@
   <div v-if="loading" class="flex">
     <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
   </div>
-  <div class="ml-1 mt-1 flex flex-row items-center gap-2">
+  <div class="mt-1 ml-1 flex flex-row items-center gap-2">
     <InputText v-if="selectedProperty" v-model="selectedProperty.name" class="w-full md:w-56" disabled />
     <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
       <span class="self-center"> is </span>
       <InputGroup class="flex flex-row flex-nowrap">
-        <div class="border-1 border-border-surface flex flex-row rounded border border-solid p-1">
+        <div class="border-border-surface flex flex-row rounded-sm border border-1 border-solid p-1">
           <div v-if="property.valueLabel">
             <Chip :label="property.valueLabel" />
           </div>
-          <div v-for="is of property.is" v-else>
+          <div v-for="is of property.is" :key="getNameFromRef(is)" v-else>
             <Chip v-tooltip.bottom="getNameFromRef(is)" :label="truncateName(getNameFromRef(is))" />
           </div>
         </div>
@@ -26,25 +26,12 @@
 
       <Popover ref="dropdown">
         <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
-          <span v-for="is of property.is" class="p-1">{{ getNameFromRef(is) }}</span>
+          <span v-for="is of property.is" :key="getNameFromRef(is)" class="p-1">{{ getNameFromRef(is) }}</span>
         </div>
       </Popover>
-      <AddNewFeatureDialog
-        v-model:show-dialog="showBuildFeatureDialog"
-        :show-navigate="false"
-        :can-clear-path="false"
-        :dataModelIri="dataModelIri"
-        :has-next-step="false"
-        :header="'Add new feature'"
-        :isList="property.is"
-        :match="editMatch"
-        :property-iri="selectedProperty.iri"
-        :show-all-type-filters="false"
-        @on-match-add="onMatchAdd"
-      />
     </div>
 
-    <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :ui-property="selectedProperty" :property="property" />
+    <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :ui-property="selectedProperty" :property="property!" />
     <Button v-if="showDelete" icon="fa-solid fa-trash" severity="danger" @click="$emit('deleteProperty')" />
   </div>
 </template>
@@ -56,23 +43,24 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { DataModelService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import AddNewFeatureDialog from "./addNewFeatureDialog/AddNewFeatureDialog.vue";
 import { cloneDeep } from "lodash-es";
 import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 
-interface Props {
-  property: Where;
-  dataModelIri: string;
-  showDelete?: boolean;
-  editMatch: Match;
-}
-
-const props = withDefaults(defineProps<Props>(), { showDelete: true });
+const props = withDefaults(
+  defineProps<{
+    dataModelIri: string;
+    showDelete?: boolean;
+    editMatch: Match;
+  }>(),
+  { showDelete: true }
+);
+defineEmits<{
+  deleteProperty: [];
+}>();
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const showBuildFeatureDialog: Ref<boolean> = ref(false);
-const emit = defineEmits({ deleteProperty: () => true });
 const loading = ref(true);
-
+const property = defineModel<Where>("property", { default: {} });
 const dropdown = ref();
 
 onMounted(async () => {
@@ -80,7 +68,7 @@ onMounted(async () => {
 });
 
 watch(
-  () => cloneDeep(props.property),
+  () => cloneDeep(property),
   async () => await init()
 );
 
@@ -91,12 +79,8 @@ watch(
 
 async function init() {
   loading.value = true;
-  if (props.dataModelIri && props.property?.["@id"]) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, props.property["@id"]);
+  if (props.dataModelIri && property!.value.iri) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, property!.value.iri);
   loading.value = false;
-}
-
-function onMatchAdd(updatedMatch: Match) {
-  props.editMatch.where = updatedMatch.where;
 }
 
 function truncateName(name: string) {
@@ -109,34 +93,7 @@ function toggleDropdown(event: MouseEvent) {
 }
 
 function onSaveCustomSet(newSet: Node) {
-  props.property.is = [newSet];
-  props.property.memberOf = true;
+  property.value.is = [newSet];
+  property.value.memberOf = true;
 }
 </script>
-
-<style scoped>
-.property-label {
-  padding: 0.1rem;
-}
-
-.button-bar {
-  display: flex;
-  justify-content: end;
-}
-
-.button-bar-button {
-  margin: 0.5rem;
-}
-
-.property {
-  display: flex;
-}
-
-.concept-select {
-  width: 100%;
-}
-
-.is-title {
-  padding: 1rem;
-}
-</style>

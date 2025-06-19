@@ -37,26 +37,23 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { cloneDeep, isEqual } from "lodash-es";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@/interfaces/AutoGen";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
   value?: TTIriRef[];
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({ updateClicked: (_payload: TTIriRef[]) => true });
+const emit = defineEmits<{ updateClicked: [payload: TTIriRef[]] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -103,7 +100,7 @@ const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(true);
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 watch(selectedEntities, async newValue => {
   if (
@@ -130,13 +127,13 @@ function processPropsValue() {
     return;
   }
   if (isObjectHasKeys(props.shape, ["isIri"])) {
-    selectedEntities.value = props.value.filter(o => o["@id"] !== props.shape.isIri!["@id"]);
-    const foundFixedOption = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri!["@id"]);
+    selectedEntities.value = props.value.filter(o => o.iri !== props.shape.isIri!.iri);
+    const foundFixedOption = dropdownOptions.value.find(o => o.iri === props.shape.isIri!.iri);
     if (!foundFixedOption) {
       throw new Error("shape isIri value did not match any dropdown option");
     } else {
       fixedOption.value = foundFixedOption;
-      dropdownOptions.value = dropdownOptions.value.filter(o => o["@id"] != fixedOption.value["@id"]);
+      dropdownOptions.value = dropdownOptions.value.filter(o => o.iri != fixedOption.value.iri);
     }
   } else {
     selectedEntities.value = [...props.value];
@@ -145,7 +142,7 @@ function processPropsValue() {
 
 function combineSelectedAndFixed(selected: TTIriRef[], fixed: TTIriRef) {
   let combined: TTIriRef[] = [...selected];
-  if (fixed["@id"]) combined.push(fixed);
+  if (fixed.iri) combined.push(fixed);
   return combined;
 }
 
@@ -170,20 +167,20 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     const replacedArgs = mapToObject(args);
     const queryRequest = {} as QueryRequest;
     const query = {} as Query;
-    query["@id"] = props.shape.select![0]["@id"];
-    queryRequest.argument = replacedArgs;
+    query.iri = props.shape.select![0].iri;
+    queryRequest.argument = [replacedArgs];
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)
       return result.entities.map((item: any) => {
-        return { "@id": item["@id"], name: item[RDFS.LABEL] } as TTIriRef;
+        return { iri: item.iri, name: item[RDFS.LABEL] } as TTIriRef;
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape);
-    return FunctionService.runFunction(props.shape.function!["@id"], args);
+    return FunctionService.runFunction(props.shape.function!.iri, args);
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return FunctionService.runFunction(props.shape.function!["@id"]);
+    return FunctionService.runFunction(props.shape.function!.iri);
   } else throw new Error("propertyshape is missing 'search' or 'function' parameter to fetch dropdown options");
 }
 

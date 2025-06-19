@@ -7,28 +7,32 @@ import { urlToIri } from "@/helpers/Converters";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { RouteLocationNormalized, Router } from "vue-router";
 
-export function directoryGuard(iri: string | string[], to: RouteLocationNormalized, from: RouteLocationNormalized) {
-  if (to.matched.some((record: any) => record.name === "Directory") && iri) {
+export function directoryGuard(iri: string | string[], to: RouteLocationNormalized) {
+  if (to.matched.some(record => record.name === "Directory") && iri) {
     const directoryStore = useDirectoryStore();
     directoryStore.updateConceptIri(iri as string);
   }
 }
 
-export async function editorGuard(iri: string | string[], to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router) {
+export async function editorGuard(iri: string | string[], to: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
     const editorStore = useEditorStore();
     if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
         await router.push({ name: "EntityNotFound", params: { iri: iri } });
+        return true;
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       await router.push({ name: "EntityNotFound", params: { iri: iri } });
+      return true;
     }
   }
+  return false;
 }
 
-export async function queryGuard(iri: string | string[], to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router) {
+export async function queryGuard(to: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.name?.toString() == "Query") {
     const queryStore = useQueryStore();
     const queryIri = to.params.queryIri;
@@ -37,12 +41,16 @@ export async function queryGuard(iri: string | string[], to: RouteLocationNormal
       try {
         if (!(await EntityService.iriExists(urlToIri(queryIri)))) {
           await router.push({ name: "EntityNotFound", params: { iri: queryIri } });
+          return true;
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (_error) {
         await router.push({ name: "EntityNotFound", params: { iri: queryIri } });
+        return true;
       }
     } else queryStore.updateQueryIri("");
   }
+  return false;
 }
 
 export async function pageNotFoundFromCreator(to: RouteLocationNormalized, router: Router) {
@@ -70,6 +78,7 @@ export async function viewerIriExistsGuard(to: RouteLocationNormalized, router: 
       if (!(await EntityService.iriExists(iri))) {
         await router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       await router.push({ name: "EntityNotFound", params: { iri: iri } });
     }

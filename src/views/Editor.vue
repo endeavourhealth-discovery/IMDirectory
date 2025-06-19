@@ -15,7 +15,7 @@
             <ProgressSpinner />
           </div>
           <div v-else class="editor-layout-container">
-            <template v-for="group of groups">
+            <template v-for="(group, index) of groups" v-bind:key="index">
               <component :is="processComponentType(group.componentType)" :mode="EditorMode.EDIT" :shape="group" :value="processEntityValue(group)" />
             </template>
           </div>
@@ -48,6 +48,7 @@
 <script lang="ts">
 import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
 import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
+import TabLayout from "@/components/editor/shapeComponents/TabLayout.vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
 import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
@@ -63,12 +64,14 @@ import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
+import { handleFocusChange } from "@/composables/useAutocompleteRegistry";
 import { useDialog } from "primevue/usedialog";
 
 export default defineComponent({
   components: {
     HorizontalLayout,
     VerticalLayout,
+    TabLayout,
     ArrayBuilder,
     EntityAutoComplete,
     EntityComboBox,
@@ -86,52 +89,55 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, Ref, watch, nextTick } from "vue";
+import { computed, ComputedRef, onMounted, onUnmounted, onBeforeUnmount, provide, ref, watch } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { useRouter, useRoute } from "vue-router";
-import { useConfirm } from "primevue/useconfirm";
+import { useRouter } from "vue-router";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
-import Swal from "sweetalert2";
+import Swal, { SweetAlertResult } from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";
 import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM, RDF, SHACL } from "@/vocabulary";
-import { DirectService, EntityService, Env, SetService } from "@/services";
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { IM, RDF } from "@/vocabulary";
+import { DirectService, EntityService, SetService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { processComponentType } from "@/helpers/EditorMethods";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 
 const router = useRouter();
-const route = useRoute();
-const confirm = useConfirm();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const dynamicDialog = useDialog();
+const autocompletes = new Map<HTMLElement, () => void>();
 
+document.addEventListener("focusin", e => {
+  for (const [element, resetFn] of autocompletes.entries()) {
+    if (!element.contains(e.target as Node)) {
+      resetFn(); // Only reset if focus moved outside
+    }
+  }
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("focusin", onGlobalFocusIn);
+});
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
 
-const {
-  editorEntity,
-  editorEntityOriginal,
-  fetchEntity,
-  processEntity,
-  editorIri,
-  editorSavedEntity,
-  entityName,
-  findPrimaryType,
-  updateEntity,
-  deleteEntityKey,
-  checkForChanges
-} = setupEditorEntity(EditorMode.EDIT, updateType);
-const { shape, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+function onGlobalFocusIn(e: FocusEvent) {
+  const newFocusedElement = e.target as HTMLElement;
+  handleFocusChange(newFocusedElement);
+}
+
+const { editorEntity, editorEntityOriginal, fetchEntity, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
+  setupEditorEntity(EditorMode.EDIT, updateType);
+const { shape, getShapesCombined, groups, processShape } = setupEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -176,12 +182,13 @@ provide(injectionKeys.fullShape, shape);
 
 onMounted(async () => {
   loading.value = true;
+  document.addEventListener("focusin", onGlobalFocusIn);
   await filterStore.fetchFilterSettings();
   await fetchEntity();
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
     getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
-  } else router.push({ path: "/" });
+  } else await router.push({ path: "/" });
   loading.value = false;
 });
 
@@ -209,19 +216,19 @@ function updateType(types: TTIriRef[]) {
 
 function removeEroneousKeys() {
   const shapeKeys = [] as string[];
-  groups.value.forEach((group: any) => {
-    group.property.forEach((property: PropertyShape) => {
-      if (isObjectHasKeys(property, ["path"])) shapeKeys.push(property.path!["@id"]);
+  groups.value.forEach((group: PropertyShape) => {
+    group.property?.forEach((property: PropertyShape) => {
+      if (isObjectHasKeys(property, ["path"])) shapeKeys.push(property.path!.iri);
     });
   });
-  for (const [key, value] of Object.entries(editorEntity.value)) {
+  for (const key of Object.keys(editorEntity.value)) {
     if (!shapeKeys.includes(key)) {
       delete editorEntity.value[key];
     }
   }
 }
 
-function beforeWindowUnload(e: any) {
+function beforeWindowUnload(e: BeforeUnloadEvent) {
   if (checkForChanges()) {
     e.preventDefault();
     e.returnValue = "";
@@ -241,7 +248,7 @@ function submit(): void {
         forceValidation.value = false;
         verificationDialog.close();
         if (isValidEntity(editorEntity.value)) {
-          Swal.fire({
+          await Swal.fire({
             icon: "info",
             title: "Confirm save",
             text: "Are you sure you want to save your changes?",
@@ -264,9 +271,9 @@ function submit(): void {
                 return res;
               } else Swal.showValidationMessage("Error saving entity to server.");
             }
-          }).then(async (result: any) => {
+          }).then(async (result: SweetAlertResult) => {
             if (result.isConfirmed) {
-              Swal.fire({
+              await Swal.fire({
                 title: "Success",
                 text: "Entity: " + editorEntity.value[IM.ID] + " has been updated.",
                 icon: "success",
@@ -275,9 +282,9 @@ function submit(): void {
                 confirmButtonText: "Open in Viewer",
                 confirmButtonColor: "#2196F3",
                 cancelButtonColor: "#607D8B"
-              }).then(async (result: any) => {
+              }).then(async (result: SweetAlertResult) => {
                 if (result.isConfirmed) {
-                  directService.view(editorEntity.value[IM.ID]);
+                  await directService.view(editorEntity.value[IM.ID]);
                 } else {
                   await fetchEntity();
                 }
@@ -285,7 +292,7 @@ function submit(): void {
             }
           });
         } else {
-          Swal.fire({
+          await Swal.fire({
             icon: "warning",
             title: "Warning",
             text: "Invalid values found. Please review your entries.",
@@ -296,7 +303,7 @@ function submit(): void {
       } else {
         forceValidation.value = false;
         verificationDialog.close();
-        Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Timeout",
           text: "Validation timed out. Please contact an admin for support.",
@@ -305,10 +312,10 @@ function submit(): void {
         });
       }
     })
-    .catch(err => {
+    .catch(async () => {
       forceValidation.value = false;
       verificationDialog.close();
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Timeout",
         text: "Validation timed out. Please contact an admin for support.",
@@ -318,33 +325,15 @@ function submit(): void {
     });
 }
 
-function refreshEditor() {
-  Swal.fire({
-    icon: "warning",
-    title: "Warning",
-    text: "This action will reset all progress. Are you sure you want to proceed?",
-    showCancelButton: true,
-    confirmButtonText: "Reset",
-    reverseButtons: true,
-    confirmButtonColor: "#FBC02D",
-    cancelButtonColor: "#607D8B",
-    customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: any) => {
-    if (result.isConfirmed) {
-      editorEntity.value = { ...editorEntityOriginal.value };
-    }
-  });
-}
-
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!["@id"]])) {
-    return editorEntity.value[property.path!["@id"]];
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!.iri])) {
+    return editorEntity.value[property.path!.iri];
   }
   return undefined;
 }
 
-function closeEditor() {
-  Swal.fire({
+async function closeEditor() {
+  await Swal.fire({
     icon: "warning",
     title: "Warning",
     text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
@@ -354,28 +343,14 @@ function closeEditor() {
     confirmButtonColor: "#D32F2F",
     cancelButtonColor: "#607D8B",
     customClass: { confirmButton: "swal-reset-button" }
-  }).then((result: any) => {
+  }).then(async (result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
+      if (window.history.state.back === null) await router.push({ name: "Folder", params: { selectedIri: editorIri } });
       else router.go(-1);
     }
   });
 }
 </script>
-
-<style>
-.p-dropdown-label {
-  font-size: 1rem;
-}
-
-.p-dropdown {
-  height: 2.7rem;
-}
-
-.p-inputtext {
-  font-size: 1rem;
-}
-</style>
 
 <style scoped>
 #topbar-editor-container {
@@ -436,10 +411,6 @@ function closeEditor() {
   align-items: center;
 }
 
-.placeholder {
-  height: 100%;
-}
-
 .title {
   font-size: 2rem;
   white-space: nowrap;
@@ -491,22 +462,9 @@ function closeEditor() {
   flex: 0 1 auto;
 }
 
-.p-divider {
-  height: calc(100% - 2rem) !important;
-  min-height: unset !important;
-  align-self: center;
-}
-
 .sidebar-toggle {
   position: absolute !important;
   top: 5px;
   right: 5px;
-}
-
-#summary-editor-container {
-  display: flex;
-  flex-flow: column;
-  justify-content: flex-start;
-  align-items: center;
 }
 </style>

@@ -19,7 +19,7 @@
 
 <script lang="ts" setup>
 import { onMounted, Ref, ref, watch } from "vue";
-import { Match, Query, Where } from "@/interfaces/AutoGen";
+import { DisplayMode, Match, Query, Where } from "@/interfaces/AutoGen";
 import type { TreeNode } from "primevue/treenode";
 import { buildProperty } from "@/helpers/QueryBuilder";
 import QueryNavTree from "./QueryNavTree.vue";
@@ -35,12 +35,12 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({
-  onClose: () => true,
-  onPropertyAdd: (_property: Where) => true,
-  onMatchAdd: (_match: Match) => true,
-  onDialogUpdate: payload => typeof payload === "boolean"
-});
+const emit = defineEmits<{
+  onClose: [];
+  onPropertyAdd: [payload: Where];
+  onMatchAdd: [payload: Match];
+  onDialogUpdate: [payload: boolean];
+}>();
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
 const selectedProperty: Ref<TreeNode | undefined> = ref();
 const editWhere: Ref<Where> = ref({});
@@ -68,39 +68,20 @@ onMounted(() => {
   if (isObjectHasKeys(props.match, ["where"]) && isArrayHasLength(props.match!.where)) editMatch.value.where = cloneDeep(props.match!.where);
 });
 
-async function handleEditMatchUpdate() {
-  if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
-    const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, false);
-    if (describedQuery.match?.[0].where) whereOrMatch.value.where = describedQuery.match?.[0].where;
-    const index = whereOrMatch.value.where?.findIndex(where => where["@id"] === whereOrMatch.value["@id"]);
-    if (whereOrMatch.value.where && index && index !== -1) {
-      editWhere.value = whereOrMatch.value.where[index];
-    }
-  } else if (editMatch.value.where?.length) {
-    const describedQuery = await QueryService.getQueryDisplayFromQuery({ match: [editMatch.value] } as Query, false);
-    if (describedQuery.match?.[0].where?.length) {
-      const index = describedQuery.match?.[0].where?.findIndex(where => where["@id"] === whereOrMatch.value["@id"]);
-      if (index && index !== -1) {
-        whereOrMatch.value = describedQuery.match?.[0].where[index];
-        editWhere.value = whereOrMatch.value;
-      }
-    }
-  }
-}
+async function handleEditMatchUpdate() {}
 
 function handlePropertyUpdate() {
   if (isObjectHasKeys(selectedProperty.value)) {
     whereOrMatch.value = buildProperty(selectedProperty.value as any);
     if (isObjectHasKeys(whereOrMatch.value, ["typeOf", "where"])) {
-      editWhere.value = getEditWhere(whereOrMatch.value.where![0]!);
-      const dmIriFromProperty = getEditWhereDMIri(whereOrMatch.value.where![0]!);
+      editWhere.value = getEditWhere(whereOrMatch.value.and![0]!);
+      const dmIriFromProperty = getEditWhereDMIri(whereOrMatch.value.and![0]!);
       if (dmIriFromProperty) editWhereDMIri.value = dmIriFromProperty;
-      else editWhereDMIri.value = (whereOrMatch.value as Match).typeOf?.["@id"] ?? "";
+      else editWhereDMIri.value = (whereOrMatch.value as Match).typeOf?.iri ?? "";
     } else {
       editWhere.value = getEditWhere(whereOrMatch.value);
       editWhereDMIri.value = getEditWhereDMIri(whereOrMatch.value);
-      editMatch.value.where = [];
-      editMatch.value.where?.push(editWhere.value);
+      editMatch.value.where = editWhere.value;
     }
   }
 }
@@ -119,11 +100,7 @@ function getEditWhere(whereMatch: any) {
 }
 
 function getEditWhereRecursively(where: Where, found: any[]) {
-  if (where.match?.where) {
-    for (const nestedWhere of where.match?.where) {
-      getEditWhereRecursively(nestedWhere, found);
-    }
-  } else found.push(where);
+  found.push(where);
 }
 
 function getEditWhereDMIri(whereMatch: any) {
@@ -133,50 +110,10 @@ function getEditWhereDMIri(whereMatch: any) {
   return "";
 }
 
-function getEditWhereDMIriRecursively(where: Where, found: any[]) {
-  if (where.match?.where) {
-    found[0] = where.match.typeOf?.["@id"];
-    for (const nestedWhere of where.match?.where) {
-      getEditWhereRecursively(nestedWhere, found);
-    }
-  }
-}
+function getEditWhereDMIriRecursively(where: Where, found: any[]) {}
 </script>
 
 <style scoped>
-.footer {
-  display: flex;
-  justify-content: end;
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-}
-
-.add-base-container {
-  display: flex;
-  flex-flow: column;
-  height: 100%;
-}
-
-.query-nav-tree {
-  height: 70vh;
-}
-
-.edit-property {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-}
-
-.p-stepper {
-  flex: 1 1 auto;
-  overflow: auto;
-}
-
-.p-stepper-panels {
-  overflow: auto;
-}
-
 .button-bar {
   display: flex;
   justify-content: end;

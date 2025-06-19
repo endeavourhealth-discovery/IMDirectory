@@ -31,27 +31,25 @@ import { RDFS } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
   value?: TTIriRef;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({ updateClicked: (_payload: TTIriRef) => true });
+const emit = defineEmits<{ updateClicked: [payload: TTIriRef] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -96,7 +94,7 @@ const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(false);
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 let selectedEntity: Ref<TTIriRef | undefined> = ref();
 watch(selectedEntity, async newValue => {
@@ -123,13 +121,13 @@ onMounted(async () => {
 
 function setSelectedEntity() {
   if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue) {
-    const found = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri!["@id"]);
+    const found = dropdownOptions.value.find(o => o.iri === props.shape.isIri!.iri);
     if (found) return found;
   }
   if (props.value && isTTIriRef(props.value)) return props.value;
   else if (props.value && isArrayHasLength(props.value)) return props.value[0];
-  else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!["@id"]) {
-    const found = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri!["@id"]);
+  else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!.iri) {
+    const found = dropdownOptions.value.find(o => o.iri === props.shape.isIri!.iri);
     if (found) return found;
   } else return undefined;
 }
@@ -139,21 +137,21 @@ async function getDropdownOptions() {
     const args = processArguments(props.shape);
     const queryRequest = {} as QueryRequest;
     queryRequest.argument = args;
-    const query = { "@id": props.shape.select![0]["@id"] } as Query;
+    const query = { iri: props.shape.select![0].iri } as Query;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)
       return result.entities.map((item: any) => {
-        return { "@id": item["@id"], name: item[RDFS.LABEL] };
+        return { iri: item.iri, name: item[RDFS.LABEL] };
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await FunctionService.runFunction(props.shape.function!["@id"])).options.sort(byName);
+    return (await FunctionService.runFunction(props.shape.function!.iri)).options.sort(byName);
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
 function updateEntity(data: TTIriRef) {
-  const result = {} as any;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

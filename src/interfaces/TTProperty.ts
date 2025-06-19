@@ -1,6 +1,7 @@
 import { TTIriRef } from "./AutoGen";
+import { GenericObject } from "./GenericObject";
 
-export interface TTProperty {
+export interface TTProperty extends GenericObject {
   "http://www.w3.org/ns/shacl#order": number;
   "http://www.w3.org/ns/shacl#path": TTIriRef[];
   "http://www.w3.org/ns/shacl#group"?: TTIriRef[];
@@ -11,7 +12,6 @@ export interface TTProperty {
   "http://endhealth.info/im#inversePath"?: TTIriRef[];
   "http://www.w3.org/ns/shacl#maxCount"?: number;
   "http://www.w3.org/ns/shacl#minCount"?: number;
-  [key: string]: any;
 }
 
 export interface UIProperty {

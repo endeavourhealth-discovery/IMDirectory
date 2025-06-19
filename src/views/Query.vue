@@ -64,7 +64,7 @@ async function setQuery() {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #topbar-query-container {
   height: 100%;
   width: 100%;
@@ -117,14 +117,5 @@ async function setQuery() {
   flex-flow: row;
   justify-content: center;
   align-items: center;
-}
-
-.button-bar {
-  display: flex;
-  justify-content: end;
-}
-
-.button-bar-button {
-  margin: 0.5rem;
 }
 </style>

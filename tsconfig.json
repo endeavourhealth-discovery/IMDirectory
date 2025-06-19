@@ -15,13 +15,25 @@
     "sourceMap": false,
     "rootDirs": ["."],
     "baseUrl": ".",
-    "types": ["vite/client", "vitest/globals", "cypress"],
+    "types": ["vite/client", "vitest/globals", "cypress", "@testing-library/cypress"],
     "paths": {
       "@/*": ["src/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "outDir": "./dist/types"
   },
-  "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.js", "./cypress/**/*.cy.js", "./cypress/**/*.cy.ts", "./cypress/support/**/*.ts"],
-  "exclude": ["node_modules", "./tests/**/*.spec.js", "./tests/**/*.spec.ts"]
+  "include": [
+    "./src/**/*.vue",
+    "./src/**/*.ts",
+    "./src/**/*.js",
+    "./cypress/**/*.cy.js",
+    "./cypress/**/*.cy.ts",
+    "./cypress/support/**/*.ts",
+    "./cypress/e2e/**/*.ts",
+    "./cypress/e2e/**/*.js",
+    "components.d.ts",
+    "./tests/**/*.ts",
+    "./tests/**/*.js"
+  ],
+  "exclude": ["node_modules"]
 }

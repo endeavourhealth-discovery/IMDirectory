@@ -7,7 +7,7 @@
         </template>
       </Column>
       <Column>
-        <template #body="{ data }: any">
+        <template #body>
           <div class="flex flex-row flex-nowrap items-center justify-center">
             <Button label="Details" />
           </div>
@@ -20,15 +20,12 @@
 <script setup lang="ts">
 import AdminService from "@/services/AdminService";
 import { onMounted, Ref, ref } from "vue";
-import { useRouter } from "vue-router";
 
 interface Props {
   group: string;
 }
 
 const props = defineProps<Props>();
-
-const router = useRouter();
 
 const users: Ref<string[]> = ref([]);
 

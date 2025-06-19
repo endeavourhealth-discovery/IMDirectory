@@ -1,3 +1,4 @@
+import { GenericObject } from "@/interfaces/GenericObject";
 import { isObjectHasKeys } from "./DataTypeCheckers";
 
 const localStorageWithExpiry = {
@@ -6,7 +7,7 @@ const localStorageWithExpiry = {
     if (lsItem) {
       try {
         const result = JSON.parse(lsItem);
-        if ((isObjectHasKeys(result), ["data", "expireTime"])) {
+        if (isObjectHasKeys(result, ["data", "expireTime"])) {
           if (result.expireTime <= Date.now()) {
             window.localStorage.removeItem(key);
             return null;
@@ -14,6 +15,7 @@ const localStorageWithExpiry = {
           return result.data;
         }
       } catch (e) {
+        console.log(`Error getting item from local storage: ${e}. Removing item wth key: ${key}.`);
         window.localStorage.removeItem(key);
       }
       return null;
@@ -22,7 +24,7 @@ const localStorageWithExpiry = {
   },
   setItem(key: string, data: any, maxAge: number = 30 * 24 * 60 * 60 * 1000) {
     // default maxAge 30 days
-    const result: { data: any; expireTime: number } = {
+    const result: { data: GenericObject; expireTime: number } = {
       data: data,
       expireTime: Date.now() + maxAge
     };
