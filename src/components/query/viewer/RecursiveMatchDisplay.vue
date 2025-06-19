@@ -57,7 +57,6 @@
       </span>
     </span>
     <span v-if="match.orderBy">{{ match.orderBy.description }}</span>
-
     <span v-if="match.where">
       <RecursiveWhereDisplay
         :where="match.where"
@@ -73,7 +72,6 @@
     <span v-if="match.union">
       <span class="field">Select one of the following</span>
     </span>
-
     <span v-if="match.return && !match.then">
       <span class="field">(as</span>
       <span class="as">{{ match.return?.as }})</span>

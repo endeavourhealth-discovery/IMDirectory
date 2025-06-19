@@ -53,7 +53,7 @@
       type="button"
       icon="fa-solid fa-plus"
       label="Add concept"
-      data-testid="add-concept-button"
+      data-testid="add-bool-concept-button"
       :severity="hoverAddConcept ? 'success' : 'secondary'"
       :outlined="!hoverAddConcept"
       :class="!hoverAddConcept && 'hover-button'"
@@ -88,8 +88,8 @@
       @click.stop="addRefinement"
       aria-haspopup="true"
       aria-controls="add-filter"
-      label="Add attribute"
-      data-testid="add-refinement-button"
+      label="Add shared attribute"
+      data-testid="add-shared-refinement-button"
       @mouseover="hoverAddRefinement = true"
       @mouseout="hoverAddRefinement = false"
     />
@@ -132,16 +132,13 @@ const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"
 const imQueryForPropertySearch: Ref<QueryRequest> = ref({} as QueryRequest);
 
 onMounted(() => {});
-function updateOperator(val: string) {
-  updateFocusConcepts(match.value);
-  emit("updateBool", props.parentOperator, val);
-}
+
 function onRationalise() {
   emit("rationalise");
 }
 
-function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
-  updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool, props.index, group.value);
+function updateBool(oldOperator: Bool | string, newOperator: Bool | string,index:number) {
+  updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
   if (newOperator === props.parentOperator) {
     emit("rationalise");
   }
