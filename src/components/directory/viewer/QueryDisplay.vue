@@ -4,8 +4,8 @@
       <TabList id="tab-list">
         <Tab value="0">Rule view</Tab>
         <Tab value="1">Logical view</Tab>
-        <Tab v-if="showSql" value="2">MySQL</Tab>
-        <Tab v-if="showSql" value="3">PostgreSQL</Tab>
+        <Tab value="2">MySQL</Tab>
+        <Tab value="3">PostgreSQL</Tab>
         <Tab v-if="showDataset" value="4">Dataset definition</Tab>
       </TabList>
     </Tabs>
@@ -87,7 +87,6 @@ interface Props {
   entityType?: string;
   eclQuery?: boolean;
   showDataset?: boolean;
-  showSql?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -136,10 +135,6 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  if (props.showSql) {
-    await getQuery();
-    await getSQL();
-  }
   if (query.value?.rule) {
     activeTab.value = "0";
   } else activeTab.value = "1";
@@ -191,4 +186,3 @@ async function getQueryDisplay(displayMode: DisplayMode) {
   display: flex;
 }
 </style>
-<script setup lang="ts"></script>

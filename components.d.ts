@@ -71,7 +71,6 @@ declare module 'vue' {
     DirectoryTopbarEclSearchAddDeleteButtons: typeof import('./src/components/directory/topbar/eclSearch/AddDeleteButtons.vue')['default']
     DirectoryTopbarEclSearchBuilderConceptSelector: typeof import('./src/components/directory/topbar/eclSearch/builder/ConceptSelector.vue')['default']
     DirectoryTopbarEclSearchBuilderECLBoolQuery: typeof import('./src/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue')['default']
-    DirectoryTopbarEclSearchBuilderECLEditor: typeof import('./src/components/directory/topbar/eclSearch/builder/ECLEditor.vue')['default']
     DirectoryTopbarEclSearchBuilderECLRefinement: typeof import('./src/components/directory/topbar/eclSearch/builder/ECLRefinement.vue')['default']
     DirectoryTopbarEclSearchBuilderECLRefinementValue: typeof import('./src/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue')['default']
     DirectoryTopbarEclSearchBuilderExpressionConstraint: typeof import('./src/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue')['default']
