@@ -12,7 +12,7 @@
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <div v-else-if="activeTab === '0' || activeTab === '1'" class="query-display-container flex flex-col gap-4">
       <div v-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
-      <div class="query-display">
+      <div v-else-if="query" class="query-display">
         <div class="rec-query-display">
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
@@ -53,13 +53,10 @@
         </div>
       </div>
     </div>
-    <div v-else-if="activeTab === '2'" class="query-display-container flex flex-col gap-4">
+    <div v-else-if="activeTab === '2' || activeTab === '3'" class="query-display-container flex flex-col gap-4">
       <pre>{{ sql }}</pre>
     </div>
-    <div v-else-if="activeTab === '3'" class="query-display-container flex flex-col gap-4">
-      <pre>{{ mysql }}</pre>
-    </div>
-    <div v-else-if="query.dataSet && activeTab === '4'" class="query-display-container flex flex-col gap-4">
+    <div v-else-if="query?.dataSet && activeTab === '4'" class="query-display-container flex flex-col gap-4">
       <DataSetDisplay
         v-for="(nestedQuery, index) in query.dataSet"
         :query="nestedQuery"
@@ -94,13 +91,11 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const query: Ref<Query> = ref<Query>(props.queryDefinition ?? ({} as Query));
+const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
 const activeTab = ref("0");
 const sql: Ref<string> = ref("");
-const mysql: Ref<string> = ref("");
 const loading = ref(true);
-const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 
 watch(
   () => props.definition,
@@ -117,27 +112,27 @@ watch(
 );
 
 watch(activeTab, async () => {
-  if (activeTab.value === "1") displayMode.value = DisplayMode.LOGICAL;
-  else if (activeTab.value === "0") displayMode.value = DisplayMode.RULES;
-  await getQuery();
+  switch (activeTab.value) {
+    case "0":
+      query.value = await getQueryDisplay(DisplayMode.RULES);
+      break;
+    case "1":
+      query.value = await getQueryDisplay(DisplayMode.LOGICAL);
+      break;
+    case "2":
+      if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");
+      break;
+    case "3":
+      if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
+      break;
+    default:
+      break;
+  }
 });
 
 onMounted(async () => {
   await init();
 });
-
-async function getQuery() {
-  if (query.value.typeOf) {
-    query.value = await QueryService.getQueryDisplayFromQuery(query.value, displayMode.value);
-  } else if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, displayMode.value);
-}
-
-async function getSQL() {
-  if (props.entityIri) {
-    sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");
-    mysql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
-  }
-}
 
 async function init() {
   loading.value = true;
@@ -145,10 +140,17 @@ async function init() {
     await getQuery();
     await getSQL();
   }
-  if (query.value.rule) {
+  if (query.value?.rule) {
     activeTab.value = "0";
   } else activeTab.value = "1";
   loading.value = false;
+}
+
+async function getQueryDisplay(displayMode: DisplayMode) {
+  if (query.value?.typeOf) {
+    return await QueryService.getQueryDisplayFromQuery(query.value, displayMode);
+  } else if (props.entityIri) return await QueryService.getDisplayFromQueryIri(props.entityIri, displayMode);
+  return undefined;
 }
 </script>
 
