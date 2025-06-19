@@ -12,9 +12,9 @@
       display: 'flex',
       flexFlow: 'column nowrap'
     }"
-    id="ecl-builder-dialog"
     :contentStyle="{ flexGrow: '100', display: 'flex' }"
     :auto-z-index="true"
+    id="ecl-builder-dialog"
   >
     <template #header>
       <div class="ecl-builder-dialog-header">
@@ -64,28 +64,24 @@
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
       <Button :label="!previewECL ? 'PreviewECL' : 'Show editor'" severity="info" @click="preview" data-testid="ecl-preview-button" />
-      <Button label="Validate" severity="help" @click="validateBuild" data-testid="ecl-validate-button" />
+      <Button label="Validate model" severity="help" @click="validateBuild" data-testid="ecl-validate-button" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
     </template>
   </Dialog>
 </template>
 
-<script lang="ts">
-import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { useDialog } from "primevue/usedialog";
-import { deferred } from "@/helpers";
-import Swal from "sweetalert2";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { Match } from "@/interfaces/AutoGen";
-</script>
-
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted, provide, readonly } from "vue";
+import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
 import { cloneDeep } from "lodash-es";
 import EclService from "@/services/EclService";
 import QueryService from "@/services/QueryService";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
+import { useDialog } from "primevue/usedialog";
+import Swal from "sweetalert2";
+import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { Match, ECLQuery } from "@/interfaces/AutoGen";
+import { showValidationMessage,showVerificationDialog } from "@/composables/eclValidator";
 interface Props {
   showDialog?: boolean;
   eclString?: string;
@@ -93,7 +89,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const emit = defineEmits<{
-  eclSubmitted: [payload: string];
+  eclSubmitted: [payload: ECLQuery];
   eclConversionError: [payload: { error: boolean; message: string }];
   closeDialog: [];
 }>();
@@ -109,11 +105,10 @@ const previewECL = ref(false);
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const eclStringError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(true);
-const isValidEcl = ref(false);
-const isValid = ref(false);
 const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);
 const op = ref();
+
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
@@ -170,7 +165,9 @@ async function createBuildFromEclString(ecl: string) {
   }
   try {
     loading.value = true;
-    build.value = await EclService.getQueryFromECL(ecl, true);
+    const eclQuery = await EclService.getQueryFromECL(ecl, true);
+    build.value = eclQuery.query!;
+    await EclService.validateModelFromQuery(build.value);
     eclConversionError.value = { error: false, message: "" };
   } catch (err: any) {
     createDefaultBuild();
@@ -185,15 +182,16 @@ async function createBuildFromEclString(ecl: string) {
 async function preview() {
   if (!previewECL.value) {
     const rationalised = await QueryService.optimiseECLQuery(build.value);
-    queryString.value = await EclService.getECLFromQuery(rationalised, includeTerms.value);
+    const eclQuery = await EclService.getECLFromQuery(rationalised, includeTerms.value);
+    queryString.value = eclQuery.ecl!;
   }
   previewECL.value = !previewECL.value;
 }
 
 async function submit(): Promise<void> {
   build.value = await QueryService.optimiseECLQuery(build.value);
-  queryString.value = await EclService.getECLFromQuery(build.value, props.showNames);
-  emit("eclSubmitted", queryString.value);
+  const eclQuery = await EclService.getECLFromQuery(build.value, props.showNames);
+  emit("eclSubmitted", eclQuery);
 }
 
 function closeBuilderDialog(): void {
@@ -208,7 +206,8 @@ async function generateQueryString() {
       stripValidation(buildClone);
       queryString.value = "";
       if (build.value && Object.keys(build.value).length > 0) {
-        queryString.value = await EclService.getECLFromQuery(build.value, includeTerms.value);
+        const eclQuery = await EclService.getECLFromQuery(build.value, includeTerms.value);
+        queryString.value = eclQuery.ecl!;
         eclStringError.value = { error: false, message: "" };
       }
     } catch (err: any) {
@@ -218,75 +217,32 @@ async function generateQueryString() {
 }
 
 async function validateBuild() {
-  const verificationDialog = dynamicDialog.open(LoadingDialog, {
-    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
-    data: { title: "Validating", text: "Running validation checks..." }
-  });
-  const validationBuild = generateValidation();
-  forceValidation.value = true;
-  const promises = validationBuild.map(v => v.validation.deferred.promise);
-  const result = await Promise.allSettled(promises)
-    .then(result => {
-      return result.every(r => r.status === "fulfilled");
-    })
-    .catch(err => {
-      verificationDialog.close();
-      throw err;
-    });
-  if (result) {
-    isValid.value = validationBuild.every(v => v.validation.valid);
-    if (isValid.value) {
-      await Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "All entities are valid.",
-        confirmButtonText: "Close",
-        confirmButtonColor: "##2196F3"
-      });
-    } else {
-      await Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Invalid values found. Please review your entries.",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
-      });
-    }
-  } else {
+  const verificationDialog = showVerificationDialog(dynamicDialog);
+  const eclQuery = await EclService.validateModelFromQuery(build.value);
+  build.value = eclQuery.query!;
+  verificationDialog.close();
+  await displayValidationMessage(!eclQuery.status!.valid);
+
+}
+
+async function displayValidationMessage(invalid: boolean | undefined) {
+  if (!invalid) {
     await Swal.fire({
-      icon: "error",
-      title: "Timeout",
-      text: "Validation timed out. Please contact an admin for support.",
+      icon: "success",
+      title: "Success",
+      backdrop: true,
+      showClass: { popup: "swal-popup" },
+      text: "All entities are valid.",
       confirmButtonText: "Close",
       confirmButtonColor: "#689F38"
     });
-  }
-  forceValidation.value = false;
-  verificationDialog.close();
-}
-
-function generateValidation(): any[] {
-  const flattenedBuild: any[] = [];
-  flattenBuild(build.value, flattenedBuild);
-  return flattenedBuild;
-}
-
-function flattenBuild(build: any, flattenedBuild: any[]) {
-  if (isArrayHasLength(build.items)) {
-    build.items.forEach((item: any) => {
-      if (item.type === "Refinement") {
-        item.validation = { deferred: deferred(6000), valid: false };
-        flattenedBuild.push(item);
-      }
-      flattenBuild(item, flattenedBuild);
-    });
-  } else if (isArrayHasLength(build.refinementItems)) {
-    build.refinementItems.forEach((item: any) => {
-      if (item.type === "Refinement") {
-        item.validation = { deferred: deferred(6000), valid: false };
-        flattenedBuild.push(item);
-      }
-      flattenBuild(item, flattenedBuild);
+  } else {
+    await Swal.fire({
+      icon: "warning",
+      title: "Warning",
+      text: "Invalid values found. Please review your entries.",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
     });
   }
 }
@@ -326,6 +282,9 @@ function stripValidation(build: any) {
 </script>
 
 <style scoped>
+.swal2-container {
+  z-index: 3000 !important;
+}
 #ecl-builder-dialog {
   display: flex;
   flex-direction: column;

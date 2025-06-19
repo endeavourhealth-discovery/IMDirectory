@@ -2,7 +2,6 @@ import { Match, OrderDirection, BoolGroup, Node, Query, QueryRequest, SearchBind
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { v4 } from "uuid";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -36,7 +35,7 @@ export function updateFocusConcepts(match: Match): string[] {
 function focusChildren(children: Match[] | undefined): string[] {
   const focusConcepts: string[] = [];
   if (children) {
-    for (const [index, item] of children.entries()) {
+    for (const item of children) {
       focusConcepts.push(...updateFocusConcepts(item));
     }
   }
@@ -133,7 +132,7 @@ export function getBooleanLabel(clause: Match | Where, clauseType: string, opera
 
 export function getIsRoleGroup(where: Where | undefined): boolean {
   if (!where) return false;
-  return where.iri === IM.ROLE_GROUP;
+  return !!where.roleGroup;
 }
 
 export function isBoolWhere(where: Where | undefined): boolean {
@@ -143,10 +142,8 @@ export function isBoolWhere(where: Where | undefined): boolean {
 
 export function manageRoleGroup(where: Where, isRoleGroup: boolean): void {
   if (where) {
-    if (isRoleGroup) {
-      where.iri = IM.ROLE_GROUP;
-      removeRoleSubgroups(where);
-    } else delete where.iri;
+    where.roleGroup = isRoleGroup;
+    removeRoleSubgroups(where);
   }
 }
 
@@ -154,12 +151,11 @@ function removeRoleSubgroups(where: Where): void {
   const logicalGroups = [...(where.or ?? []), ...(where.and ?? [])];
   for (const item of logicalGroups) {
     if (getIsRoleGroup(item)) {
-      delete item.iri;
+      item.roleGroup = false;
     }
     removeRoleSubgroups(item);
   }
 }
-
 
 export function getBooleanOptions(clause: Match | Where, parent: BoolGroup<Match | Where>, parentOperator: Bool, clauseType: string, index: number): any[] {
   const operator = parentOperator as keyof typeof parent;
