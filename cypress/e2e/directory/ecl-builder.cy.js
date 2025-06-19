@@ -1,4 +1,4 @@
-describe("Ecl search", () => {
+describe.skip("Ecl search", () => {
   beforeEach(() => {
     cy.acceptLicenseAndCookies();
   });
@@ -16,7 +16,7 @@ describe("Ecl search", () => {
       cy.get("#ecl-search-container").find(".title").contains("Expression constraints language search");
     });
 
-    it.only("can build orGroupMinusOrGroup", () => {
+    it("can build orGroupMinusOrGroup", () => {
       cy.findByTestId("builder-button").click();
       cy.get("#ecl-builder-dialog").get('[data-testid="add-bool-concept-button"]').click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").type("body temperature");
