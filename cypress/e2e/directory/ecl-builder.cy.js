@@ -18,16 +18,16 @@ describe.skip("Ecl search", () => {
 
     it("can build orGroupMinusOrGroup", () => {
       cy.findByTestId("builder-button").click();
-      cy.get("#ecl-builder-dialog").get('[data-testid="add-bool-concept-button"]').click();
+      cy.get("#ecl-builder-dialog").findByTestId("add-bool-concept-button").click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").type("body temperature");
       cy.get(".p-popover").find(".p-listbox-option").contains("Body temperature").click();
-      cy.get("#ecl-builder-dialog").get('[data-testid="add-concept-button"]').click();
+      cy.get("#ecl-builder-dialog").findByTestId("add-concept-button").click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").last().type("Peripheral oxygen saturation");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Peripheral oxygen saturation").click();
-      cy.get("#ecl-builder-dialog").get('[data-testid="add-bool-concept-button"]').click();
+      cy.get("#ecl-builder-dialog").findByTestId("add-bool-concept-button").click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").last().type("Target body mass index");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Target body mass index").click();
-      cy.get("#ecl-builder-dialog").get('[data-testid="add-bool-concept-button"]').click();
+      cy.get("#ecl-builder-dialog").findByTestId("add-bool-concept-button").click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").last().type("Target body mass index");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Target body mass index").click();
       cy.get("#ecl-builder-dialog").get('[data-testid="operator-selector"]').eq(3).click();
@@ -68,14 +68,17 @@ describe.skip("Ecl search", () => {
       cy.get("#ecl-builder-dialog").get("button").contains("Add concept").click();
       cy.get("#ecl-builder-dialog").find("#autocomplete-search").last().type("Pain of truncal structure");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Pain of truncal structure").click();
-      cy.findByTestId("add-refinement-button").last().click();
+      cy.get("#ecl-builder-dialog").findByTestId("add-shared-refinement-button").click();
       cy.get(".property-container").find("#autocomplete-search").type("Finding site");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Finding site").click();
       cy.get(".value-container").find("#autocomplete-search").type("Thoracic structure");
       cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Thoracic structure").click();
-      cy.findByTestId("group-checkbox").last().click();
-      cy.findByTestId("group-button").first().click();
-      cy.findByTestId("attribute-checkbox").click();
+      cy.get("#ecl-builder-dialog").get('[data-testid="add-shared-refinement-button"]').click();
+      cy.get(".property-container").find("#autocomplete-search").last().type("Finding site");
+      cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Finding site").click();
+      cy.get(".value-container").find("#autocomplete-search").last().type("Thoracic structure");
+      cy.get(".p-popover").find(".p-listbox-option", { timeout: 60000 }).contains("Thoracic structure").click();
+      cy.findByTestId("attribute-group-check").click();
       cy.wait(1000);
       cy.findByTestId("ecl-validate-button").click();
       cy.get(".swal2-popup").contains("Success");
