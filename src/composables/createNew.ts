@@ -1,12 +1,11 @@
 import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { AllowableChildProperty } from "@/interfaces";
 import { DirectService, EntityService } from "@/services";
-import { IM, QUERY, RDFS, SHACL } from "@/vocabulary";
+import { IM, RDFS, SHACL } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { MenuItem } from "primevue/menuitem";
-import { TTEntity, TTIriRef } from "@/interfaces/AutoGen";
+import { TTIriRef } from "@/interfaces/AutoGen";
 
 function createNew() {
   const directService = new DirectService();
