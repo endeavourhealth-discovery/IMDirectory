@@ -3,8 +3,6 @@ import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { GenericObject } from "@/interfaces/GenericObject";
 import type { InjectionKey, Ref } from "vue";
 
-
-
 const editorValidity = Symbol("editorValidity") as InjectionKey<{
   validity: Ref<{ key: string; valid: boolean }[]>;
   updateValidity: (

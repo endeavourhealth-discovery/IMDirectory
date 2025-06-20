@@ -1,7 +1,7 @@
-import { FiltersAsIris, SimpleMap, TermCode } from "@/interfaces";
+import { SimpleMap, TermCode } from "@/interfaces";
 import Env from "./Env";
 import axios from "axios";
-import { ConceptContextMap, EntityReferenceNode, Pageable } from "@/interfaces/AutoGen";
+import { ConceptContextMap } from "@/interfaces/AutoGen";
 const API_URL = Env.API + "api/concept";
 
 const ConceptService = {
@@ -26,7 +26,6 @@ const ConceptService = {
       params: { iri: iri, includeInactive: includeInactive }
     });
   },
-
 
   async getContextMaps(conceptIri: string): Promise<ConceptContextMap[]> {
     return await axios.get(API_URL + "/public/conceptContextMaps", {
