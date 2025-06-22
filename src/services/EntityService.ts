@@ -176,6 +176,10 @@ const EntityService = {
     });
   },
 
+  async checkExists(iri: string): Promise<boolean> {
+    return await axios.get(API_URL + "/checkExists", { params: { iri: iri } });
+  },
+
   async createEntity(entity: TTEntity): Promise<TTEntity> {
     return await axios.post(API_URL + "/create", entity);
   },

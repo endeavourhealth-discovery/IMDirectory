@@ -153,7 +153,8 @@ const {
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus,
   validationChecksCompleted,
-  checkValidity
+  checkValidity,
+  checkExists
 } = setupValidity(shape.value);
 const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
 
@@ -315,7 +316,9 @@ function beforeWindowUnload(e: BeforeUnloadEvent) {
   }
 }
 
-function submit(): void {
+async function submit(): Promise<void> {
+  if (isObjectHasKeys(editorEntity.value, [IM.ID]))
+    if (await checkExists(editorEntity.value[IM.ID])) return;
   const verificationDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }
