@@ -27,7 +27,13 @@
           <div class="flex flex-col gap-4">
             <div v-for="content of contentOptions" :key="content.key" class="check-container flex items-center">
               <div v-if="content.include" class="content-item">
-                <Checkbox v-model="selectedContents" :disabled="content.disabled" :inputId="content.key" :value="content.name" name="content" />
+                <Checkbox
+                  v-model="selectedContents"
+                  :disabled="content.disabled || content.cannotUncheck"
+                  :inputId="content.key"
+                  :value="content.name"
+                  name="content"
+                />
                 <label :for="content.key">{{ content.name }}</label>
               </div>
             </div>
@@ -97,6 +103,7 @@ interface DownloadOption {
   name: string;
   disabled: boolean;
   include: boolean;
+  cannotUncheck?: boolean;
 }
 
 interface Props {
