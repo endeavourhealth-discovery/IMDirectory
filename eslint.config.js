@@ -10,7 +10,7 @@ import css from "@eslint/css";
 import vueParser from "vue-eslint-parser";
 
 export default defineConfig([
-  globalIgnores(["src/components/imquery/**/*"]),
+  globalIgnores(["src/components/imquery/", "cypress/snapshots/"]),
   {
     files: ["src/**/*.ts", "src/**/*.js", "cyress/**/*.ts", "cypress/**/*.js", "tests/**/*.ts", "tests/**/*.js"],
     extends: [
