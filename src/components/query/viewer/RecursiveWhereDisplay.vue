@@ -29,6 +29,7 @@
                   <IMFontAwesomeIcon :icon="getTypeIcon(item)" :style="'color:' + getIconColor(item)" />
                   <span v-if="item.qualifier" v-html="item.qualifier"></span>
                   <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                  <span v-if="item.parameter">"{{ item.parameter }}" passed into query as a parameter at run time</span>
                   <span v-if="item.descendantsOrSelfOf">+subtypes</span>
                 </li>
               </ul>
