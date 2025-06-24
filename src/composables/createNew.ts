@@ -6,9 +6,24 @@ import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { MenuItem } from "primevue/menuitem";
 import { TTIriRef } from "@/interfaces/AutoGen";
+import Swal from "sweetalert2";
+
+export async function checkExists(iri: string): Promise<boolean> {
+  if (await EntityService.checkExists(iri)) {
+    await Swal.fire({
+      icon: "warning",
+      title: "Warning",
+      text: "Entity with this iri already exists.",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
+    });
+    return true;
+  } else return false;
+}
 
 function createNew() {
   const directService = new DirectService();
+
 
   async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
     const selectionWrapperCopy = [

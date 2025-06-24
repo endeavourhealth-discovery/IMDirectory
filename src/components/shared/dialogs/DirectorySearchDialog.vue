@@ -230,10 +230,8 @@ function locateInTree(iri: string) {
 
 async function showDetails(data: any) {
   const entity = await EntityService.getEntitySummary(data);
-  if (entity.type[0].iri != IM.FOLDER) {
-    detailsIri.value = data;
-    activePage.value = 1;
-  }
+  detailsIri.value = data;
+  activePage.value = 1;
 }
 
 function navigateTo(iri: string) {

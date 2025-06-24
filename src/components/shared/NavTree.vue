@@ -63,6 +63,7 @@ import { TTIriRef } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
+import { checkExists } from "@/composables/createNew";
 
 interface Props {
   allowDragAndDrop?: boolean;
@@ -100,12 +101,12 @@ const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTree
   setupTree(emit, props.childLength ? props.childLength : 40);
 const { getCreateOptions }: { getCreateOptions: (newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode) => Promise<MenuItem[]> } =
   createNew();
+
 const loading = ref(true);
 const overlayLocation: Ref<MouseEvent | undefined> = ref();
 const items: Ref<MenuItem[]> = ref([]);
 const newFolder: Ref<TreeNode | null> = ref(null);
 const newFolderName = ref("");
-
 const creating = ref(false);
 const newFolderIcon = computed(() => {
   if (creating.value) return "fa-solid fa-spinner";
@@ -207,6 +208,7 @@ async function onNodeContext(event: MouseEvent, node: TreeNode) {
   if (!currentUser.value || !currentUser.value.roles.includes("IMAdmin")) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
+  selectedNode.value = node;
 
   if (
     selectedNode.value &&
@@ -313,7 +315,7 @@ async function addConcept(target: TreeNode) {
         detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"',
         life: 3000
       });
-      target.children.push(selectedNode.value); // Does this need to be a (deep) clone?
+      target.children.push(selectedNode.value);
     } catch (e: any) {
       toast.add({ severity: "error", summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
     }
@@ -322,7 +324,7 @@ async function addConcept(target: TreeNode) {
 
 async function createFolder() {
   if (!newFolder.value || !newFolder.value.key || !newFolderName.value) return;
-
+  if (await checkExists(newFolder.value.key)) return;
   creating.value = true;
 
   try {
