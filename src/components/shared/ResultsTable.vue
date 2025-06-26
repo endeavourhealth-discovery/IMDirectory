@@ -139,7 +139,7 @@ const emit = defineEmits<{
 const modelLoading = defineModel<boolean | undefined>("loading");
 
 onMounted(async () => {
-  schemesWithPrefixes.value = await EntityService.getSchemes();
+  schemes.value = await EntityService.getNamespaces();
   if (props.pageSize) {
     rows.value = props.pageSize;
     rowsOriginal.value = props.pageSize;
@@ -154,7 +154,7 @@ const filterStore = useFilterStore();
 const searchLoading: Ref<boolean> = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
-const schemesWithPrefixes: Ref<{ [x: string]: Namespace }> = ref({});
+const schemes: Ref<Namespace[]> = ref([]);
 const directService = new DirectService();
 
 const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
@@ -266,7 +266,7 @@ async function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
 }
 function getNameDisplay(data: ExtendedSearchResultSummary): string {
   const name = data.bestMatch ? data.bestMatch : data.name;
-  return (data.code ? name + " | " + data.code : name) + " [" + schemesWithPrefixes.value[data.scheme.iri]?.prefix + "]";
+  return (data.code ? name + " | " + data.code : name) + " [" + schemes.value.find(s => s.iri === data.scheme.iri)?.prefix + "]";
 }
 
 function isFavourite(iri: string) {

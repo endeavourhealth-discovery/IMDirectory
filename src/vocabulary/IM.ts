@@ -24,6 +24,7 @@ export class IM {
   public static readonly KEY_TERM = IM.NAMESPACE + "keyTerm";
   public static readonly PREFERRED_NAME = IM.NAMESPACE + "preferredName";
   public static readonly HAS_SCHEME = IM.NAMESPACE + "scheme";
+  public static readonly SCHEME = IM.NAMESPACE + "Scheme";
   public static readonly BINDING = IM.NAMESPACE + "binding";
   public static readonly HAS_STATUS = IM.NAMESPACE + "status";
   public static readonly STATUS = IM.NAMESPACE + "Status";

@@ -166,14 +166,18 @@ const EntityService = {
     });
   },
 
-  async getBundleByPredicateExclusions(iri: string, predicates: string[]): Promise<TTBundle> {
+  async getBundleByPredicateExclusions(iri: string, predicates: string[], graph?: string): Promise<TTBundle> {
     return await axios.get(API_URL + "/public/bundleByPredicateExclusions", {
-      params: { iri: iri, predicates: predicates.join(",") }
+      params: { iri: iri, predicates: predicates.join(","), graph: graph }
     });
   },
 
   async createEntity(editRequest: EditRequest): Promise<TTEntity> {
     return await axios.post(API_URL + "/create", editRequest);
+  },
+
+  async createDraftEntity(editRequest: EditRequest): Promise<TTEntity> {
+    return await axios.post(API_URL + "/draft", editRequest);
   },
 
   async updateEntity(editRequest: EditRequest): Promise<TTEntity> {

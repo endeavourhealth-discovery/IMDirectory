@@ -13,15 +13,19 @@ const EclService = {
   },
 
   async getEcl(query: Query): Promise<string> {
-    return await axios.post(Env.API + "api/ecl/public/ecl", query);
+    return await axios.post(Env.API + "api/ecl/public/ecl", { eclQuery: query });
   },
 
   async getQueryFromECL(ecl: string, raw: boolean = false): Promise<Query> {
-    return await axios.post(Env.API + "api/ecl/public/queryFromEcl", ecl, { headers: { "Content-Type": "text/plain" }, raw: raw });
+    return await axios.get(Env.API + "api/ecl/public/queryFromEcl", { params: { ecl: ecl }, headers: { "Content-Type": "text/plain" }, raw: raw });
   },
 
   async getEclFromEcl(ecl: string, showNames: boolean): Promise<string> {
-    return axios.post(Env.API + "api/ecl/public/eclFromEcl", { ecl, showNames }, { headers: { "Content-Type": "application/json" }, raw: true });
+    return axios.get(Env.API + "api/ecl/public/eclFromEcl", {
+      params: { ecl: ecl, showNames: showNames },
+      headers: { "Content-Type": "application/json" },
+      raw: true
+    });
   },
 
   async validateECL(ecl: string): Promise<ECLStatus> {
