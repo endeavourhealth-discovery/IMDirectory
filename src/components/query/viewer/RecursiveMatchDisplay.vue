@@ -4,11 +4,11 @@
       <span class="rule">Rule {{ clauseIndex }}</span>
     </span>
     <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && !match.linkedMatch" :class="parentOperator">{{ parentOperator }}</span>
-    <span v-else-if="match.linkedMatch" class="linked-match">If also</span>
+    <span v-else-if="match.linkedMatch" class="linked-match">as long as</span>
     <span v-if="parentMatch?.union" class="number">{{ clauseIndex + 1 }}</span>
     <ClauseEditorMenus v-if="editMode" :editor="editMenu" v-model:match="match" v-model:parentMatch="parentMatch" />
     <span v-if="from">
-      <span class="field">Then include if</span>
+      <span class="field">and if the above</span>
     </span>
     <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
     <span v-if="match.instanceOf">
@@ -66,8 +66,9 @@
         :property-index="0"
         :key="0"
         :index="0"
+        :root="true"
         :expandedSet="expandSet"
-        :inline="!match.where.and && !match.where.or"
+        :inline="true"
         :eclQuery="eclQuery"
       />
     </span>

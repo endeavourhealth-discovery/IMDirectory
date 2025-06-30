@@ -9,48 +9,47 @@
         <Tab v-if="showDataset" value="4">Dataset definition</Tab>
       </TabList>
     </Tabs>
+
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <div v-else-if="activeTab === '0' || activeTab === '1'" class="query-display-container flex flex-col gap-4">
       <div v-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
-      <div v-else-if="query" class="query-display">
-        <div class="rec-query-display">
-          <span v-if="query.name" v-html="query.name"> </span>
-          <div v-if="query.typeOf">
-            <span class="field" v-html="query.typeOf.name"></span>
-            <span class="include-title text-black-500">with the following features</span>
-          </div>
-          <span v-if="query.rule">
-            <div class="tree-node-wrapper">
-              <span v-for="(nestedQuery, index) in query.rule" :key="index">
-                <RecursiveMatchDisplay
-                  :match="nestedQuery"
-                  :key="`nestedQueryDisplay-${index}`"
-                  :clause-index="index"
-                  :property-index="index"
-                  :parentOperator="Bool.rule"
-                  :depth="0"
-                  :parent-match="query"
-                  :bracketed="false"
-                  :edit-mode="editMode"
-                  :eclQuery="eclQuery"
-                />
-              </span>
-            </div>
-          </span>
-          <span v-else>
-            <RecursiveMatchDisplay
-              :match="query"
-              :clauseIndex="-1"
-              :depth="0"
-              :inline="false"
-              :parent-match="rootQuery"
-              :bracketed="false"
-              :editMode="editMode"
-              :eclQuery="eclQuery"
-              :expanded="query.name === undefined"
-            />
-          </span>
+      <div v-else-if="query" class="rec-query-display">
+        <span v-if="query.name" v-html="query.name"> </span>
+        <div v-if="query.typeOf">
+          <span class="field" v-html="query.typeOf.name"></span>
+          <span class="include-title text-black-500">with the following features</span>
         </div>
+        <span v-if="query.rule">
+          <div class="tree-node-wrapper">
+            <span v-for="(nestedQuery, index) in query.rule" :key="index">
+              <RecursiveMatchDisplay
+                :match="nestedQuery"
+                :key="`nestedQueryDisplay-${index}`"
+                :clause-index="index"
+                :property-index="index"
+                :parentOperator="Bool.rule"
+                :depth="0"
+                :parent-match="query"
+                :bracketed="false"
+                :edit-mode="editMode"
+                :eclQuery="eclQuery"
+              />
+            </span>
+          </div>
+        </span>
+        <span v-else>
+          <RecursiveMatchDisplay
+            :match="query"
+            :clauseIndex="-1"
+            :depth="0"
+            :inline="false"
+            :parent-match="rootQuery"
+            :bracketed="false"
+            :editMode="editMode"
+            :eclQuery="eclQuery"
+            :expanded="query.name === undefined"
+          />
+        </span>
       </div>
     </div>
     <div v-else-if="activeTab === '2' || activeTab === '3'" class="query-display-container flex flex-col gap-4">
@@ -166,11 +165,6 @@ async function getQueryDisplay(displayMode: DisplayMode) {
   height: 100%;
 }
 
-.query-display {
-  max-height: 100vh;
-  border: 1px solid var(--p-textarea-border-color);
-}
-
 .field {
   padding-right: 1rem;
 }
@@ -191,6 +185,11 @@ async function getQueryDisplay(displayMode: DisplayMode) {
 
 .rec-query-display {
   padding: 1rem;
+  border: 1px solid;
+  flex-shrink: 0;
+  flex-grow: 0;
+  max-height: 80vh;
+  overflow: auto;
 }
 #tab-list {
   flex: 0 0 auto;
