@@ -1,72 +1,77 @@
 <template>
   <div id="query-display" class="flex flex-1 flex-col">
-    <Tabs v-if="!(entityType === IM.VALUESET)" id="viewer-tabs" v-model:value="activeTab" :lazy="true" scrollable>
-      <TabList id="tab-list">
-        <Tab value="0">Rule view</Tab>
-        <Tab value="1">Logical view</Tab>
-        <Tab value="2">MySQL</Tab>
-        <Tab value="3">PostgreSQL</Tab>
-        <Tab v-if="showDataset" value="4">Dataset definition</Tab>
-      </TabList>
-    </Tabs>
-    <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
-    <div v-else-if="activeTab === '0' || activeTab === '1'" class="query-display-container flex flex-col gap-4">
-      <div v-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
-      <div v-else-if="query" class="query-display">
-        <div class="rec-query-display">
-          <span v-if="query.name" v-html="query.name"> </span>
-          <div v-if="query.typeOf">
-            <span class="field" v-html="query.typeOf.name"></span>
-            <span class="include-title text-black-500">with the following features</span>
-          </div>
-          <span v-if="query.rule">
-            <div class="tree-node-wrapper">
-              <span v-for="(nestedQuery, index) in query.rule" :key="index">
-                <RecursiveMatchDisplay
-                  :match="nestedQuery"
-                  :key="`nestedQueryDisplay-${index}`"
-                  :clause-index="index"
-                  :property-index="index"
-                  :parentOperator="Bool.rule"
-                  :depth="0"
-                  :parent-match="query"
-                  :bracketed="false"
-                  :edit-mode="editMode"
-                  :eclQuery="eclQuery"
-                />
-              </span>
+    <div class="scrollable-content">
+      <Tabs v-if="!(entityType === IM.VALUESET)" id="viewer-tabs" v-model:value="activeTab" :lazy="true" scrollable>
+        <TabList id="tab-list">
+          <Tab value="0">Rule view</Tab>
+          <Tab value="1">Logical view</Tab>
+          <Tab value="2">MySQL</Tab>
+          <Tab value="3">PostgreSQL</Tab>
+          <Tab v-if="showDataset" value="4">Dataset definition</Tab>
+        </TabList>
+      </Tabs>
+      <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
+      <div v-else-if="activeTab === '0' || activeTab === '1'" class="query-display-container flex flex-col gap-4">
+        <div v-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
+        <div v-else-if="query" class="query-display">
+          <div class="rec-query-display">
+            <span v-if="query.name" v-html="query.name"> </span>
+            <div v-if="query.typeOf">
+              <span class="field" v-html="query.typeOf.name"></span>
+              <span class="include-title text-black-500">with the following features</span>
             </div>
-          </span>
-          <span v-else>
-            <RecursiveMatchDisplay
-              :match="query"
-              :clauseIndex="-1"
-              :depth="0"
-              :inline="false"
-              :parent-match="rootQuery"
-              :bracketed="false"
-              :editMode="editMode"
-              :eclQuery="eclQuery"
-              :expanded="query.name === undefined"
-            />
-          </span>
+            <span v-if="query.rule">
+              <div class="tree-node-wrapper">
+                <span v-for="(nestedQuery, index) in query.rule" :key="index">
+                  <RecursiveMatchDisplay
+                    :match="nestedQuery"
+                    :key="`nestedQueryDisplay-${index}`"
+                    :clause-index="index"
+                    :property-index="index"
+                    :parentOperator="Bool.rule"
+                    :depth="0"
+                    :parent-match="query"
+                    :bracketed="false"
+                    :edit-mode="editMode"
+                    :eclQuery="eclQuery"
+                  />
+                </span>
+              </div>
+            </span>
+            <span v-else>
+              <RecursiveMatchDisplay
+                :match="query"
+                :clauseIndex="-1"
+                :depth="0"
+                :inline="false"
+                :parent-match="rootQuery"
+                :bracketed="false"
+                :editMode="editMode"
+                :eclQuery="eclQuery"
+                :expanded="query.name === undefined"
+              />
+            </span>
+          </div>
         </div>
       </div>
+      <div v-else-if="activeTab === '2' || activeTab === '3'" class="query-display-container flex flex-col gap-4">
+        <pre>{{ sql }}</pre>
+      </div>
+      <div v-else-if="query?.dataSet && activeTab === '4'" class="query-display-container flex flex-col gap-4">
+        <DataSetDisplay
+          v-for="(nestedQuery, index) in query.dataSet"
+          :query="nestedQuery"
+          :key="`nestedQuery-${index}`"
+          :matchExpanded="false"
+          :returnExpanded="true"
+          :index="index"
+          :editMode="editMode"
+        />
+      </div>
     </div>
-    <div v-else-if="activeTab === '2' || activeTab === '3'" class="query-display-container flex flex-col gap-4">
-      <pre>{{ sql }}</pre>
-    </div>
-    <div v-else-if="query?.dataSet && activeTab === '4'" class="query-display-container flex flex-col gap-4">
-      <DataSetDisplay
-        v-for="(nestedQuery, index) in query.dataSet"
-        :query="nestedQuery"
-        :key="`nestedQuery-${index}`"
-        :matchExpanded="false"
-        :returnExpanded="true"
-        :index="index"
-        :editMode="editMode"
-      />
-    </div>
+  </div>
+  <div id="query-edit-button-bar" class="button-bar">
+    <Button v-if="editMode" class="edit-button" data-testid="edit-button" icon="fa-solid fa-check" label="Edit query" @click="" />
   </div>
 </template>
 
@@ -95,6 +100,7 @@ const rootQuery = ref({} as Query);
 const activeTab = ref("0");
 const sql: Ref<string> = ref("");
 const loading = ref(true);
+const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 
 watch(
   () => props.definition,
@@ -113,10 +119,12 @@ watch(
 watch(activeTab, async () => {
   switch (activeTab.value) {
     case "0":
-      query.value = await getQueryDisplay(DisplayMode.RULES);
+      if (displayMode.value != DisplayMode.RULES) query.value = await getQueryDisplay(DisplayMode.RULES);
+      displayMode.value = DisplayMode.RULES;
       break;
     case "1":
-      query.value = await getQueryDisplay(DisplayMode.LOGICAL);
+      if (displayMode.value != DisplayMode.LOGICAL) query.value = await getQueryDisplay(DisplayMode.LOGICAL);
+      displayMode.value = DisplayMode.LOGICAL;
       break;
     case "2":
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");
@@ -134,6 +142,10 @@ onMounted(async () => {
 });
 
 async function init() {
+  if (!query.value?.typeOf) {
+    if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, DisplayMode.ORIGINAL);
+  }
+  displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
   loading.value = true;
   if (query.value?.rule) {
     activeTab.value = "0";
@@ -150,6 +162,10 @@ async function getQueryDisplay(displayMode: DisplayMode) {
 </script>
 
 <style scoped>
+.scrollable-content {
+  flex-grow: 1;
+  overflow-y: auto;
+}
 .query-display-container {
   width: 100%;
   height: 100%;
@@ -184,5 +200,14 @@ async function getQueryDisplay(displayMode: DisplayMode) {
 #tab-list {
   flex: 0 0 auto;
   display: flex;
+}
+
+.button-bar {
+  flex: 0 1 auto;
+  padding: 1rem 1rem 1rem 0;
+  gap: 0.5rem;
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-end;
 }
 </style>

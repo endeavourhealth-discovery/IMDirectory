@@ -3,6 +3,8 @@
     <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
       <span class="rule">Rule {{ clauseIndex }}</span>
     </span>
+    <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && !match.linkedMatch" :class="parentOperator">{{ parentOperator }}</span>
+    <span v-else-if="match.linkedMatch" class="linked-match">If also</span>
     <span v-if="parentMatch?.union" class="number">{{ clauseIndex + 1 }}</span>
     <ClauseEditorMenus v-if="editMode" :editor="editMenu" v-model:match="match" v-model:parentMatch="parentMatch" />
     <span v-if="from">
@@ -36,7 +38,7 @@
     <span v-for="operator in operators" :key="operator">
       <span v-if="match[operator]">
         <span v-if="match[operator]!.length > 1" :class="operator">
-          <span>{{ getOperatorText(operator) }}</span>
+          <span>{{ getOperatorText(operator, parentOperator, clauseIndex) }}</span>
         </span>
         <div class="tree-node-wrapper">
           <span v-for="(nestedQuery, index) in match[operator]" :key="index">
@@ -89,6 +91,10 @@
         :eclQuery="eclQuery"
       />
     </span>
+    <span v-if="match.return && match.then">
+      <span class="field">(as</span>
+      <span class="as">{{ match.return?.as }})</span>
+    </span>
     <div v-if="parentOperator === Bool.rule && clauseIndex > 0">
       <span class="field">if true</span>
       <span :class="match.ifTrue">{{ match.ifTrue }},</span>
@@ -104,7 +110,7 @@ import { Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import ClauseEditorMenus from "@/components/imquery/ClauseEditorMenus.vue";
-import { getOperatorText } from "@/helpers/IMQueryBuilder";
+import { getOperatorText, hasBoolGroups } from "@/helpers/IMQueryBuilder";
 
 defineProps<{
   isVariable?: boolean;
@@ -182,8 +188,9 @@ function getFormattedPath(path: any): string {
 .as {
   color: var(--p-amber-700) !important;
 }
-.node-ref {
+.linked-match {
   color: var(--p-amber-700) !important;
+  padding-left: 0.5rem;
   padding-right: 0.2rem;
   cursor: pointer !important;
 }

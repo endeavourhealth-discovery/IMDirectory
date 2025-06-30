@@ -119,14 +119,6 @@ function updateEntity() {
 </script>
 
 <style scoped>
-#cohort-query-definition-editor {
-  height: 100%;
-  width: 100%;
-  overflow: auto;
-  display: flex;
-  flex-flow: column;
-}
-
 .validate-error {
   color: var(--p-red-500);
   font-size: 0.8rem;
