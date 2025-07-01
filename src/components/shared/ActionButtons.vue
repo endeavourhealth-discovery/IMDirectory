@@ -47,24 +47,39 @@
       data-testid="download-button"
     />
     <Button
-      v-if="isLoggedIn && show('favourite') && isFavourite(iri)"
+      v-if="isLoggedIn && show('favourite') && isFavourite(iri) && !loadingFavourites"
       style="color: var(--p-yellow-500)"
       icon="fa-solid fa-star"
       :severity="getSeverity()"
       :class="getClass()"
       class="fav"
       @click="(event: MouseEvent) => updateFavourites(event, iri)"
-      v-tooltip.left="'Unfavourite'"
+      v-tooltip.right="{
+        value: 'Unfavourite'
+      }"
       data-testid="unfavourite-button"
       :loading="loadingFavourites"
     />
     <Button
-      v-else-if="isLoggedIn && show('favourite') && !isFavourite(iri)"
+      v-if="isLoggedIn && show('favourite') && loadingFavourites"
+      style="color: var(--p-yellow-500)"
+      icon="fa-solid fa-star"
+      :severity="getSeverity()"
+      :class="getClass()"
+      class="fav"
+      @click="(event: MouseEvent) => updateFavourites(event, iri)"
+      data-testid="unfavourite-button"
+      :loading="loadingFavourites"
+    />
+    <Button
+      v-else-if="isLoggedIn && show('favourite') && !isFavourite(iri) && !loadingFavourites"
       icon="fa-regular fa-star"
       :severity="getSeverity()"
       :class="getClass()"
       @click="(event: MouseEvent) => updateFavourites(event, iri)"
-      v-tooltip.left="'Favourite'"
+      v-tooltip.left="{
+        value: 'Favourite'
+      }"
       data-testid="favourite-button"
       :loading="loadingFavourites"
     />
