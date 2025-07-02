@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-06-15 10:57:29.
+// Generated using typescript-generator version 3.2.1263 on 2025-06-29 10:34:06.
 
 export interface ConceptContextMap {
     id?: string;
@@ -285,18 +285,18 @@ export interface Argument {
 }
 
 export interface Assignable {
-    value?: string;
-    operator?: Operator;
-    unit?: TTIriRef;
-    valueParameter?: string;
     qualifier?: string;
+    value?: string;
+    unit?: TTIriRef;
     valueLabel?: string;
+    valueParameter?: string;
+    operator?: Operator;
 }
 
 export interface BoolGroup<T> {
     not?: T[];
-    or?: T[];
     and?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -345,8 +345,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -394,7 +394,7 @@ export interface Match extends IriLD, BoolGroup<Match> {
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
-    hasLinked?: boolean;
+    linkedMatch?: string;
     union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
@@ -457,6 +457,8 @@ export interface Query extends Match {
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
+    subquery?: Query;
+    bindAs?: string;
 }
 
 export interface QueryEntity extends Entity {
@@ -751,8 +753,8 @@ export interface TTEntity extends TTNode, Serializable {
     version?: number;
     description?: string;
     code?: string;
-    prefixes?: TTPrefix[];
     types?: TTIriRef[];
+    prefixes?: TTPrefix[];
 }
 
 export interface EntityValidationRequest {
@@ -921,8 +923,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {

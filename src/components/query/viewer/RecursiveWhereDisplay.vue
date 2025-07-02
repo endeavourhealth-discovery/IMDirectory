@@ -38,7 +38,7 @@
         </div>
       </span>
       <span v-for="(matches, type) in boolGroup" :key="type">
-        <span>(</span>
+        <span v-if="!root">(</span>
         <span v-for="(nestedProperty, index) in matches" :key="index">
           <span>
             <RecursiveWhereDisplay
@@ -48,14 +48,15 @@
               :key="index"
               :depth="depth + 1"
               :expandedSet="expandedSet"
-              :inline="false"
+              :inline="!!root"
+              :root="false"
               :eclQuery="eclQuery"
               :bracketed="index === where[type]!.length - 1"
             />
           </span>
         </span>
+        <span v-if="!root">)</span>
       </span>
-      <span v-if="bracketed">)</span>
     </span>
   </component>
 </template>
@@ -77,6 +78,7 @@ interface Props {
   inline: boolean;
   bracketed?: boolean;
   eclQuery?: boolean;
+  root?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -125,7 +127,7 @@ function getIconColor(is: Node) {
 
 function indentationStyle(inLine: boolean, depth: number) {
   return {
-    paddingLeft: inLine ? "0rem" : depth + "rem"
+    paddingLeft: inLine ? "0.2rem" : depth + "rem"
   };
 }
 </script>
