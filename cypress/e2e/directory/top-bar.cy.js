@@ -51,7 +51,10 @@ describe("top bar", () => {
     describe("themes", () => {
       it("can change theme", () => {
         cy.get("#banner").should("have.css", "background-color", "rgb(16, 185, 129)");
-        cy.findByTestId("change-theme-button").click();
+        cy.findByTestId("account-menu").click();
+        cy.get("#account-menu").find("span").contains("Display settings").click();
+        cy.get("#account-menu").find("span").contains("Change theme").trigger("mouseover");
+        cy.get(".color-picker").should("be.visible");
         cy.get(".color-picker").find(".p-button", { timeout: 10000 }).eq(1).click();
         cy.get("#banner").should("have.css", "background-color", "rgb(34, 197, 94)");
       });
@@ -60,8 +63,11 @@ describe("top bar", () => {
     describe("font size", () => {
       it("can change font size", () => {
         cy.get(".p-button-label").first().should("have.css", "font-size", "14px");
-        cy.findByTestId("font-size-button").click();
-        cy.get("#scale-menu").find(".p-menu-item").first().should("have.text", "Small").click();
+        cy.findByTestId("account-menu").click();
+        cy.get("#account-menu").find("span").contains("Display settings").click();
+        cy.get("#account-menu").find("span").contains("Change theme").trigger("mouseover");
+        cy.get("#account-menu").find("span").contains("Change scale").trigger("mouseenter");
+        cy.get("#account-menu").find("span").contains("Small").click();
         cy.get(".p-button-label").first().should("not.have.css", "font-size", "16px");
       });
     });

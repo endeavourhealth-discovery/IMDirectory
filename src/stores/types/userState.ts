@@ -17,4 +17,5 @@ export interface UserState {
   snomedLicenseAccepted: boolean;
   uprnAgreementAccepted: boolean;
   organisations: string[];
+  includeUserGraph: boolean;
 }

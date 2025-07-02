@@ -8,19 +8,16 @@
     </div>
     <div id="topbar-end">
       <span class="filter-text filter">Include drafts:</span>
-      <ToggleSwitch class="filter-toggle mx-2 filter" v-model="checked"></ToggleSwitch>
+      <ToggleSwitch class="filter-toggle mx-2 filter" v-model="includeUserGraph"></ToggleSwitch>
       <IMFontAwesomeIcon
-        class="mr-2"
+        class="mt-0.5 mr-2"
         v-tooltip.bottom="{
-          value: 'When enabled, this will include your own unpublished drafts in places such as searches and the navigation tree.',
-          pt: {
-            width: '!w-full'
-          }
+          value: 'When enabled, this will include your own unpublished drafts in places such as search results and the navigation tree.'
         }"
         icon="fa-regular fa-circle-question"
       >
       </IMFontAwesomeIcon>
-      <Popover ref="themesMenu" id="themes-menu" @mouseleave="toggleThemesMenu">
+      <Popover ref="themesMenu" id="themes-menu" @mouseleave="themesMenu.hide()" scrollable>
         <div class="theme-container">
           <h2>Primary</h2>
           <div class="color-picker">
@@ -123,7 +120,7 @@
             <span :class="item.icon" />
             <span class="ml-2">{{ item.label }}</span>
           </a>
-          <div v-else v-ripple @mouseover="toggleThemesMenu($event, item.key)" :target="item.target" v-bind="props.action" style="color: var(--p-text-color)">
+          <div v-else v-ripple @mouseenter="toggleThemesMenu($event, item.key)" :target="item.target" v-bind="props.action" style="color: var(--p-text-color)">
             <span :class="item.icon" />
             <span class="ml-2">{{ item.label }} </span>
             <span v-if="item.key === currentScale" class="theme-icon p-menuitem-icon fa-regular fa-check" />
@@ -175,6 +172,7 @@ const currentPreset = computed(() => userStore.currentPreset);
 const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
 const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
 const userDarkMode = computed(() => userStore.darkMode);
+const currentIncludeUserGraph = computed(() => userStore.includeUserGraph);
 
 const { changeScale } = setupChangeScale();
 const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
@@ -214,6 +212,7 @@ const preset = ref(themeOptions.value.presets[0]);
 const darkMode = ref(false);
 const selectedPrimaryColor = ref(themeOptions.value.primaryColours[0]);
 const selectedSurfaceColor = ref(themeOptions.value.surfaceColours[0]);
+const includeUserGraph = ref(false);
 
 const toast = useToast();
 const uploadDownloadMenu = ref();
@@ -231,8 +230,13 @@ watch(darkMode, async newValue => {
   await changeDarkMode(newValue);
 });
 
+watch(includeUserGraph, async newValue => {
+  sharedStore.updateIncludeUserGraph(newValue);
+});
+
 onMounted(async () => {
   darkMode.value = userDarkMode.value;
+  includeUserGraph.value = currentIncludeUserGraph.value;
   if (currentPreset.value) preset.value = currentPreset.value;
   if (currentPrimaryColor.value) selectedPrimaryColor.value = currentPrimaryColor.value;
   if (currentSurfaceColor.value) selectedSurfaceColor.value = currentSurfaceColor.value;
@@ -345,7 +349,7 @@ function toggleThemesMenu(event: MouseEvent, key: string) {
   switch (key) {
     case "themes":
       if (scaleMenu.value && scaleMenu.value.visible) scaleMenu.value.hide();
-      themesMenu.value.show(event);
+      else themesMenu.value.show(event);
       break;
     case "scale":
       if (themesMenu.value.visible) themesMenu.value.hide();
