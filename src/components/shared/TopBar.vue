@@ -231,7 +231,7 @@ watch(darkMode, async newValue => {
 });
 
 watch(includeUserGraph, async newValue => {
-  sharedStore.updateIncludeUserGraph(newValue);
+  userStore.updateIncludeUserGraph(newValue);
 });
 
 onMounted(async () => {
