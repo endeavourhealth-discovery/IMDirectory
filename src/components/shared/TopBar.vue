@@ -345,15 +345,17 @@ function setUserMenuItems(): void {
 function openUploadDownloadMenu(event: MouseEvent): void {
   uploadDownloadMenu.value.toggle(event);
 }
-function toggleThemesMenu(event: MouseEvent, key: string) {
-  switch (key) {
-    case "themes":
-      if (scaleMenu.value && scaleMenu.value.visible) scaleMenu.value.hide();
-      else themesMenu.value.show(event);
-      break;
-    case "scale":
-      if (themesMenu.value.visible) themesMenu.value.hide();
-      break;
+function toggleThemesMenu(event: MouseEvent, key: string | undefined) {
+  if (key) {
+    switch (key) {
+      case "themes":
+        if (scaleMenu.value && scaleMenu.value.visible) scaleMenu.value.hide();
+        else themesMenu.value.show(event);
+        break;
+      case "scale":
+        if (themesMenu.value.visible) themesMenu.value.hide();
+        break;
+    }
   }
 }
 
