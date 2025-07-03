@@ -8,7 +8,7 @@
     </div>
     <div id="topbar-end">
       <span class="filter-text filter">Include drafts:</span>
-      <ToggleSwitch class="filter-toggle mx-2 filter" v-model="includeUserGraph"></ToggleSwitch>
+      <ToggleSwitch id="user-graph-switch" class="filter-toggle mx-2 filter" v-model="includeUserGraph" data-testid="user-graph-switch"></ToggleSwitch>
       <IMFontAwesomeIcon
         class="mt-0.5 mr-2"
         v-tooltip.bottom="{
@@ -149,7 +149,7 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, GithubService, CodeGenService } from "@/services";
+import { DirectService, FilerService, CodeGenService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
