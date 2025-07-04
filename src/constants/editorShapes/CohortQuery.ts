@@ -15,77 +15,19 @@ const CohortQueryShape: FormGenerator = {
   },
   property: [
     {
-      comment: "Tab menu , with summary and query definition builder tabs. ",
+      comment: "Splitter , with summary and query definition builder tabs. ",
       order: 1,
       name: "splitter",
       path: { iri: IM.CONCEPT },
       maxCount: 1,
-      componentType: { iri: COMPONENT.TAB_LAYOUT },
+      componentType: { iri: COMPONENT.HORIZONTAL_LAYOUT },
+      argument: [
+        {
+          parameter: "subGroup widths",
+          valueData: "40%,60%"
+        }
+      ],
       property: [
-        {
-          label: "Property group - query definition builder",
-          name: "Cohort definition builder",
-          showTitle: false,
-          order: 1,
-          maxCount: 1,
-          path: {
-            iri: RDF.TYPE
-          },
-          componentType: {
-            iri: COMPONENT.VERTICAL_LAYOUT
-          },
-          property: [
-            {
-              order: 1,
-              minCount: 1,
-              componentType: {
-                iri: COMPONENT.QUERY_DEFINITION_BUILDER
-              },
-              validation: {
-                iri: VALIDATION.IS_DEFINITION
-              },
-              validationErrorMessage: "Query definition is not valid",
-              path: {
-                iri: IM.DEFINITION
-              }
-            }
-          ]
-        },
-        {
-          label: "Property group - data set definition builder",
-          name: "Dataset builder",
-          showTitle: false,
-          order: 1,
-          argument: [
-            {
-              valueData: IM.DATASET_QUERY,
-              parameter: "value"
-            }
-          ],
-          maxCount: 1,
-          path: {
-            iri: RDF.TYPE
-          },
-          componentType: {
-            iri: COMPONENT.VERTICAL_LAYOUT
-          },
-          property: [
-            {
-              order: 1,
-              minCount: 1,
-              componentType: {
-                iri: COMPONENT.QUERY_DEFINITION_BUILDER
-              },
-              validation: {
-                iri: VALIDATION.IS_DEFINITION
-              },
-              validationErrorMessage: "Query definition is not valid",
-              path: {
-                iri: IM.DEFINITION
-              }
-            }
-          ]
-        },
         {
           label: "Property group - Summary details",
           name: "Summary",
@@ -98,6 +40,7 @@ const CohortQueryShape: FormGenerator = {
           componentType: {
             iri: COMPONENT.VERTICAL_LAYOUT
           },
+
           property: [
             {
               comment: "A property that auto generates a concept iri from the snomed extension",
@@ -251,6 +194,35 @@ const CohortQueryShape: FormGenerator = {
                   }
                 }
               ]
+            }
+          ]
+        },
+        {
+          label: "Property group - query definition builder",
+          name: "Cohort definition builder",
+          showTitle: false,
+          order: 1,
+          maxCount: 1,
+          path: {
+            iri: RDF.TYPE
+          },
+          componentType: {
+            iri: COMPONENT.VERTICAL_LAYOUT
+          },
+          property: [
+            {
+              order: 1,
+              minCount: 1,
+              componentType: {
+                iri: COMPONENT.QUERY_DEFINITION_BUILDER
+              },
+              validation: {
+                iri: VALIDATION.IS_DEFINITION
+              },
+              validationErrorMessage: "Query definition is not valid",
+              path: {
+                iri: IM.DEFINITION
+              }
             }
           ]
         }

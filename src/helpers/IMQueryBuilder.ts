@@ -237,13 +237,22 @@ export const constraintOperatorOptions = [
 export function getOperatorToggle(operator: string): string {
   return "Change to " + (operator === "and" ? '"or"' : '"and"') + " (" + (operator === "and" ? getOperatorText("or") : getOperatorText("and")) + ")";
 }
-export function getOperatorText(operator: string): string {
+export function getOperatorText(operator: string, parentOperator?: Bool, index?: number): string {
+  let text = "";
+  if (parentOperator) {
+    if (parentOperator === Bool.or) {
+      if (index! === 0) text = "Either ";
+      else text = "Or ";
+    } else if (parentOperator == Bool.and) {
+      if (index! > 0) text = "And ";
+    }
+  }
   if (operator === "or") {
-    return "At least one of the following";
+    return text + "at least one of the following";
   } else if (operator === "and") {
-    return "All of the following";
+    return text + "all of the following";
   } else if (operator === "not") {
-    return "Exclude if any of the following";
+    return text + "exclude if any of the following";
   } else {
     return "whats this operator ";
   }
