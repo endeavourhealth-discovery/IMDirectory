@@ -25,23 +25,6 @@
         <span v-if="editMatch">Description</span>
         <Textarea v-if="editMatch" v-model="editMatch.description" autoResize placeholder="Description" rows="2" type="text" />
         <span>Definition</span>
-        <div>
-          <div>
-            <EditMatch v-model:match="editMatch" />
-            <div class="add-button-bar">
-              <Button class="add-feature-button" icon="fa-solid fa-plus" label="Add test" severity="secondary" @click="showBuildThenFeature = true" />
-              <Button
-                v-if="!editMatch?.orderBy"
-                class="add-feature-button"
-                icon="fa-solid fa-arrow-down-z-a"
-                label="Add order by"
-                @click="editMatch!.orderBy = { description: '', limit: 0, property: [] }"
-              />
-              <FunctionComponent :function-templates="templates" @add-function-property="onAddFunctionProperty" />
-            </div>
-          </div>
-        </div>
-
         <div class="immatch-output-container">
           <Panel collapsed header="Output" toggleable>
             <Tabs value="0">
@@ -97,7 +80,6 @@ import { cloneDeep } from "lodash-es";
 import { Match, TTIriRef } from "@/interfaces/AutoGen";
 import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import EditMatch from "./EditMatch.vue";
 import type { MenuItem } from "primevue/menuitem";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";

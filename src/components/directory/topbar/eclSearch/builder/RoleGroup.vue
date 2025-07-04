@@ -31,7 +31,7 @@ watch(isRoleGroup, (newValue, oldValue) => {
 <style scoped>
 .attribute-group-checkbox {
   margin-top: 0.5rem;
-  padding-left: 2rem;
+  padding-left: 4rem;
   padding-right: 0.5rem;
 }
 .attribute-group-checkbox label {

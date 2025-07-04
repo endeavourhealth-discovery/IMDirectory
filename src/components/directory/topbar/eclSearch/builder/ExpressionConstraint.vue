@@ -2,9 +2,18 @@
   <div class="nested-ecl-match">
     <div v-if="match.instanceOf">
       <div class="instance-of">
-        <div style="width: 6.5rem">
+        <Button
+          icon="drag-icon fa-solid fa-grip-vertical"
+          severity="secondary"
+          text
+          draggable="true"
+          @dragstart="onDragStart($event, match, parent)"
+          @dragend="onDragEnd(match, parent)"
+        />
+        <div style="width: 5.5rem">
           <span v-if="!rootBool">
             <Select
+              :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
               :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
               :modelValue="parentOperator"
               :options="getBooleanOptions(match, parent!, parentOperator as Bool, 'Match', index)"
@@ -23,8 +32,15 @@
         </div>
         <span>
           <div v-if="parent && (parent[parentOperator as keyof typeof parent] as Match[]).length > 2" class="group-checkbox">
-            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="parentGroup" data-testid="group-checkbox" />
-            <label :for="'group' + index">Select</label>
+            <Checkbox
+              :disabled="parentGroup.length + 1 === (parent[parentOperator as keyof typeof parent] as Match[]).length && !parentGroup.includes(index)"
+              :inputId="'group' + index"
+              name="Group"
+              :value="index"
+              v-model="parentGroup"
+              data-testid="group-checkbox"
+              v-tooltip="'Select to create boolean subgroup'"
+            />
           </div>
         </span>
         <span class="concept-selector-container">
@@ -97,7 +113,40 @@
       </div>
     </div>
     <div v-else>
-      <ECLBoolQuery v-model:match="match" v-model:parent="parent" :index="index" :rootBool="rootBool" @rationalise="emit('rationalise')" />
+      <span v-if="index > 0">
+        <Button
+          icon="drag-icon fa-solid fa-grip-vertical"
+          severity="secondary"
+          text
+          draggable="true"
+          @dragstart="onDragStart($event, match, parent)"
+          @dragend="onDragEnd(match, parent)"
+        />
+        <Select
+          :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
+          :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
+          :modelValue="parentOperator"
+          :options="getBooleanOptions(match, parent!, parentOperator as Bool, 'Match', index)"
+          option-label="label"
+          option-value="value"
+          data-testid="operator-selector"
+          @update:modelValue="val => updateOperator(val)"
+        >
+          <template #option="slotProps">
+            <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+              <div>{{ slotProps.option.label }}</div>
+            </div>
+          </template>
+        </Select>
+      </span>
+      <ECLBoolQuery
+        v-model:match="match"
+        v-model:parent="parent"
+        v-model:group="group"
+        :index="index"
+        :rootBool="rootBool"
+        @rationalise="emit('rationalise')"
+      />
     </div>
   </div>
 </template>
@@ -152,7 +201,7 @@ function addConcept() {
 }
 function updateOperator(val: string) {
   updateFocusConcepts(match.value);
-  emit("updateBool", props.parentOperator, val,props.index);
+  emit("updateBool", props.parentOperator, val, props.index);
 }
 
 function updateMatch() {

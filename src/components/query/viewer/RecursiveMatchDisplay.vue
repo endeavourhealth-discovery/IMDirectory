@@ -4,11 +4,17 @@
       <span class="rule">Rule {{ clauseIndex }}</span>
     </span>
     <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && !match.linkedMatch" :class="parentOperator">{{ parentOperator }}</span>
+    <span v-if="match.union">
+      <span class="field">First Select one of the following</span>
+    </span>
     <span v-else-if="match.linkedMatch" class="linked-match">as long as</span>
-    <span v-if="parentMatch?.union" class="number">{{ clauseIndex + 1 }}</span>
-    <ClauseEditorMenus v-if="editMode" :editor="editMenu" v-model:match="match" v-model:parentMatch="parentMatch" />
+    <span v-if="parentMatch?.union && !from">
+      <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
+      <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
+    </span>
     <span v-if="from">
       <span class="field">and if the above</span>
+      <span v-if="match.nodeRef">({{ match.nodeRef }})</span>
     </span>
     <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
     <span v-if="match.instanceOf">
@@ -17,6 +23,7 @@
         v-if="match.instanceOf[0].iri"
         :iri="match.instanceOf[0].iri"
         :label="match.instanceOf[0].name"
+        :action="editMode ? 'view' : 'select'"
         @navigateTo="(iri: string) => emit('navigateTo', iri)"
       />
       <span v-if="match.instanceOf.length > 1">
@@ -26,7 +33,13 @@
               <ul>
                 <li class="tight-spacing">
                   <span class="or">or</span>
-                  <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                  <IMViewerLink
+                    v-if="item.iri"
+                    :iri="item.iri"
+                    :action="editMode ? 'view' : 'select'"
+                    :label="item.name"
+                    @navigateTo="(iri: string) => emit('navigateTo', iri)"
+                  />
                 </li>
               </ul>
             </span>
@@ -70,11 +83,10 @@
         :expandedSet="expandSet"
         :inline="true"
         :eclQuery="eclQuery"
+        :editMode="editMode"
       />
     </span>
-    <span v-if="match.union">
-      <span class="field">Select one of the following</span>
-    </span>
+
     <span v-if="match.return && !match.then">
       <span class="field">(as</span>
       <span class="as">{{ match.return?.as }})</span>
@@ -144,6 +156,9 @@ function getFormattedPath(path: any): string {
     }
   }
   return result;
+}
+function getSubrule(index: number): string {
+  return index + String.fromCharCode(96 + index);
 }
 
 // Watch for changes in the prop and update the local copy accordingly
@@ -252,7 +267,6 @@ function getFormattedPath(path: any): string {
 }
 
 #recursive-match-display:deep(.REJECT) {
-  color: var(--p-red-500);
   padding-right: 1.2rem;
 }
 

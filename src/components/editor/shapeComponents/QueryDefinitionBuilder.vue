@@ -4,6 +4,9 @@
       <ProgressSpinner />
     </div>
     <div v-else :class="showValidation && invalid && 'invalid'" class="content-container">
+      <div id="editor-button-bar" class="button-bar">
+        <Button data-testid="edit-button" icon="fa-solid fa-pen-to-square" label="Edit Query" @click="showBuilder" />
+      </div>
       <div class="query-editor-container flex flex-col gap-4">
         <div class="query-editor flex flex-col p-2">
           <QueryDisplay :entiryIri="iri" :showSqlButton="false" :queryDefinition="queryDefinition" :editMode="true" />
@@ -28,6 +31,14 @@
       </template>
     </Dialog>
   </div>
+  <div>
+  <CohortEditor
+    v-if="showEditor"
+    :showDialog="showEditor"
+    v-model:query="queryDefinition"
+    @closeDialog="showEditor = false"
+  />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -41,6 +52,8 @@ import { QueryService } from "@/services";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 
+import CohortEditor from "@/components/imquery/CohortEditor.vue";
+
 interface Props {
   mode: EditorMode;
   shape: PropertyShape;
@@ -50,6 +63,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const iri = "http://endhealth.info/im#CohortDefinition";
+const showEditor = ref(false);
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -108,6 +122,10 @@ async function generateDefaultQuery() {
   return await QueryService.getDefaultQuery();
 }
 
+function showBuilder(): void {
+  showEditor.value = true;
+}
+
 function updateEntity() {
   if (queryDefinition.value && deleteEntityKey) deleteEntityKey(key);
   else {
@@ -153,5 +171,14 @@ function updateEntity() {
 
 .validate-error-container {
   width: 100%;
+}
+
+.button-bar {
+  flex: 0 1 auto;
+  padding: 1rem 1rem 1rem 0;
+  gap: 0.5rem;
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-end;
 }
 </style>

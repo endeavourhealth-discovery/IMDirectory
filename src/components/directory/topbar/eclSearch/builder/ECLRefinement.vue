@@ -14,7 +14,16 @@
                 "
                 @dragleave="mouseout"
               />
+
               <div v-if="!rootBool" class="top-operator">
+                <Button
+                  icon="drag-icon fa-solid fa-grip-vertical"
+                  severity="secondary"
+                  text
+                  draggable="true"
+                  @dragstart="onDragStart($event, where, parent)"
+                  @dragend="onDragEnd(where, parent)"
+                />
                 <Select
                   :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
                   :modelValue="parentOperator"
@@ -67,18 +76,9 @@
             @dragend="onDragEnd(where, parent)"
           />
 
-          <div class="group-checkbox">
-            <Checkbox
-              :inputId="'group' + index"
-              name="Group"
-              :value="index"
-              v-model="parentGroup"
-              data-testid="group-checkbox"
-              v-tooltip="'Select to create boolean subgroup'"
-            />
-          </div>
           <div v-if="parentOperator" class="constraint-operator">
             <Select
+              :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
               :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
               :modelValue="parentOperator"
               :options="getBooleanOptions(where, parent!, parentOperator as Bool, 'Where', index)"
@@ -92,6 +92,16 @@
                 </div>
               </template>
             </Select>
+          </div>
+          <div class="group-checkbox">
+            <Checkbox
+              :inputId="'group' + index"
+              name="Group"
+              :value="index"
+              v-model="parentGroup"
+              data-testid="group-checkbox"
+              v-tooltip="'Select to create boolean subgroup'"
+            />
           </div>
           <Select
             style="width: 4.5rem; min-height: 2.3rem"

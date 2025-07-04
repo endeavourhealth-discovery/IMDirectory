@@ -1,4 +1,4 @@
-import { Match, OrderDirection, BoolGroup, Node, Query, QueryRequest, SearchBinding, TTIriRef, Where, Element, Bool } from "@/interfaces/AutoGen";
+import { Bool, BoolGroup, Element, Match, Node, OrderDirection, Query, QueryRequest, RuleAction, SearchBinding, TTIriRef, Where } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
@@ -109,7 +109,7 @@ export function hasBoolGroups(clause: Match | Where) {
   return false;
 }
 
-export function getBooleanLabel(clause: Match | Where, clauseType: string, operator: Bool, index: number): string {
+export function getBooleanLabel(clause: Match | Where, clauseType: string, operator: Bool, index: number, standardQuery?: boolean): string {
   const isFirst = index === 0;
   const isMatch = clauseType === "Match";
   const hasNested = hasBoolGroups(clause);
@@ -122,12 +122,12 @@ export function getBooleanLabel(clause: Match | Where, clauseType: string, opera
   }
   if (operator === Bool.or) {
     if (hasNested) {
-      return isFirst ? (isMatch ? "Either is a" : "Either has") : isMatch ? "Or" : "Or has";
+      return isFirst ? (isMatch ? (standardQuery ? "Either" : "Either is a") : "Either has") : isMatch ? "Or" : "Or has";
     } else {
       return isFirst ? (isMatch ? "Either" : "Either") : "Or";
     }
   }
-  return "Minus";
+  return standardQuery ? "Exclude" : "Minus";
 }
 
 export function getIsRoleGroup(where: Where | undefined): boolean {
@@ -156,12 +156,101 @@ function removeRoleSubgroups(where: Where): void {
     removeRoleSubgroups(item);
   }
 }
+export function getRuleAction(match: Match): string {
+  if (match.ifTrue) {
+    return (match.ifTrue + match.ifFalse).toLowerCase();
+  }
+  return "";
+}
+export function setRuleAction(match: Match, ruleAction: string) {
+  switch (ruleAction) {
+    case "selectnext": {
+      match.ifTrue = RuleAction.SELECT;
+      match.ifFalse = RuleAction.NEXT;
+      break;
+    }
+    case "selectreject": {
+      match.ifTrue = RuleAction.SELECT;
+      match.ifFalse = RuleAction.REJECT;
+      break;
+    }
+    case "nextSelect": {
+      match.ifTrue = RuleAction.NEXT;
+      match.ifFalse = RuleAction.SELECT;
+      break;
+    }
+    case "nextReject": {
+      match.ifTrue = RuleAction.NEXT;
+      match.ifFalse = RuleAction.REJECT;
+      break;
+    }
+    case "rejectnext": {
+      match.ifTrue = RuleAction.REJECT;
+      match.ifFalse = RuleAction.NEXT;
+      break;
+    }
+    case "rejectselect": {
+      match.ifTrue = RuleAction.REJECT;
+      match.ifFalse = RuleAction.SELECT;
+      break;
+    }
+  }
+}
+export function getRuleActionLabel(value: string): string {
+  const match = getRuleActionOptions().find(item => item.value === value);
+  return match?.label ?? "";
+}
+export function getRuleActionOptions(): any[] {
+  const next = '<span style="color: var(--p-purple-500);padding-left: 0.2rem;padding-right: 0.2rem">NEXT</span>';
+  const reject = '<span  style="color: var(--p-red-500);padding-left:0.2rem;padding-right: 0.2rem">REJECT</span>';
+  const select = '<span style="color: var(--p-green-500);padding-left: 0.2rem; padding-right: 0.2rem">SELECT</span>';
 
-export function getBooleanOptions(clause: Match | Where, parent: BoolGroup<Match | Where>, parentOperator: Bool, clauseType: string, index: number): any[] {
+  return [
+    {
+      label: "If true go to" + next + "if false" + reject,
+      value: "nextreject",
+      tooltip: "Equivalent to AND operator, must be true"
+    },
+    {
+      label: "If true" + select + "and finish, if false go to" + next,
+      value: "selectnext",
+      tooltip: "Equivalent to OR operator, may be true"
+    },
+    {
+      label: "If true go to" + next + ", if false" + select,
+      value: "nextselect",
+      tooltip: "Equivalent to OR /NOT"
+    },
+    {
+      label: "If True" + select + "and finish, if false" + reject,
+      value: "selectreject",
+      tooltip: "Last rule in the query, must be true"
+    },
+    {
+      label: "If True" + reject + ", if false go to" + next,
+      value: "rejectnext",
+      tooltip: "Equivalent to NOT operator"
+    },
+    {
+      label: "If True" + reject + ", if false" + select,
+      value: "rejectselect",
+      tooltip: "Last rule in query, must be false"
+    }
+  ];
+}
+
+export function getBooleanOptions(
+  clause: Match | Where,
+  parent: BoolGroup<Match | Where>,
+  parentOperator: Bool,
+  clauseType: string,
+  index: number,
+  standardQuery?: boolean
+): any[] {
   const operator = parentOperator as keyof typeof parent;
-  const notLabel = getBooleanLabel(clause, clauseType, Bool.not, index);
-  const andLabel = getBooleanLabel(clause, clauseType, Bool.and, parentOperator === Bool.not ? 1 : index);
-  const orLabel = getBooleanLabel(clause, clauseType, Bool.or, parentOperator === Bool.not ? 1 : index);
+  const notLabel = getBooleanLabel(clause, clauseType, Bool.not, index, standardQuery);
+  const andLabel = getBooleanLabel(clause, clauseType, Bool.and, parentOperator === Bool.not ? 1 : index, standardQuery);
+  const orLabel = getBooleanLabel(clause, clauseType, Bool.or, parentOperator === Bool.not ? 1 : index, standardQuery);
 
   const options = [];
   if (parentOperator === Bool.not) {
@@ -234,9 +323,7 @@ export const constraintOperatorOptions = [
     tooltip: "This concept and all ancestors"
   }
 ];
-export function getOperatorToggle(operator: string): string {
-  return "Change to " + (operator === "and" ? '"or"' : '"and"') + " (" + (operator === "and" ? getOperatorText("or") : getOperatorText("and")) + ")";
-}
+
 export function getOperatorText(operator: string, parentOperator?: Bool, index?: number): string {
   let text = "";
   if (parentOperator) {
@@ -257,7 +344,11 @@ export function getOperatorText(operator: string, parentOperator?: Bool, index?:
     return "whats this operator ";
   }
 }
-
+export function groupable(rootBool?: boolean, parentMatch?: Match, parentOperator?: Bool): boolean {
+  if (!rootBool && parentMatch && parentOperator && parentOperator != Bool.rule && (parentMatch[parentOperator as keyof Match] as Match[]).length > 2)
+    return true;
+  return false;
+}
 export function getConstraintOperator(constrainer: Element) {
   if (constrainer.descendantsOrSelfOf) return "<<";
   if (constrainer.descendantsOf) return "<";
