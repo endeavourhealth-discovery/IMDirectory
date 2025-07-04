@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-06-10 15:19:16.
+// Generated using typescript-generator version 3.2.1263 on 2025-07-02 16:02:24.
 
 export interface ConceptContextMap {
     id?: string;
@@ -287,9 +287,9 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     valueParameter?: string;
-    qualifier?: string;
-    unit?: TTIriRef;
     operator?: Operator;
+    unit?: TTIriRef;
+    qualifier?: string;
     valueLabel?: string;
 }
 
@@ -317,6 +317,13 @@ export interface Delete {
     delete?: Delete[];
 }
 
+export interface ECLQuery {
+    ecl?: string;
+    query?: Query;
+    showNames?: boolean;
+    status?: ECLStatus;
+}
+
 export interface ECLStatus {
     valid?: boolean;
     line?: number;
@@ -333,13 +340,14 @@ export interface Element extends IriLD, Entailment {
     parentOrSelfOf?: boolean;
     parentOf?: boolean;
     nodeRef?: string;
+    invalid?: boolean;
 }
 
 export interface Entailment {
     memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -386,12 +394,14 @@ export interface Match extends IriLD, BoolGroup<Match> {
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
-    hasLinked?: boolean;
+    linkedMatch?: string;
     union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
     then?: Match;
     rule?: Match[];
+    libraryItem?: string;
+    invalid?: boolean;
     return?: Return;
     returx?: Return;
     isUnion?: boolean;
@@ -447,6 +457,8 @@ export interface Query extends Match {
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
+    subquery?: Query;
+    bindAs?: string;
 }
 
 export interface QueryEntity extends Entity {
@@ -757,9 +769,9 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     graph?: TTIriRef;
-    name?: string;
-    type?: TTArray;
     scheme?: TTIriRef;
+    type?: TTArray;
+    name?: string;
     version?: number;
     description?: string;
     status?: TTIriRef;
@@ -1024,7 +1036,7 @@ export const enum DisplayMode {
     LOGICAL = "LOGICAL",
 }
 
-export const enum EclType {
+export const enum ECLType {
     refined = "refined",
     compound = "compound",
     simple = "simple",
@@ -1091,10 +1103,23 @@ export const enum TextSearchStyle {
     exact = "exact",
 }
 
+export const enum ValidationLevel {
+    CONCEPT = "CONCEPT",
+    ECL = "ECL",
+}
+
 export const enum VarType {
     NODE = "NODE",
     PATH = "PATH",
     LITERAL = "LITERAL",
+}
+
+export const enum QueryExecutorStatus {
+    QUEUED = "QUEUED",
+    RUNNING = "RUNNING",
+    COMPLETED = "COMPLETED",
+    CANCELLED = "CANCELLED",
+    ERRORED = "ERRORED",
 }
 
 export const enum Browser {
@@ -1169,12 +1194,4 @@ export const enum TaskType {
     BUG_REPORT = "BUG_REPORT",
     ROLE_REQUEST = "ROLE_REQUEST",
     ENTITY_APPROVAL = "ENTITY_APPROVAL",
-}
-
-export const enum QueryExecutorStatus {
-    QUEUED = "QUEUED",
-    RUNNING = "RUNNING",
-    COMPLETED = "COMPLETED",
-    CANCELLED = "CANCELLED",
-    ERRORED = "ERRORED",
 }

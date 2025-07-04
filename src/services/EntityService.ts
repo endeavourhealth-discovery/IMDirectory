@@ -142,6 +142,10 @@ const EntityService = {
     return await axios.get(API_URL + "/public/asEntityReferenceNode", { params: { iri: iri } });
   },
 
+  async getAllowableChildTypes(iri: string): Promise<TTEntity[]> {
+    return await axios.get(API_URL + "/public/allowableChildTypes", { params: { iri: iri } });
+  },
+
   async getAsEntityReferenceNodes(iris: string[]): Promise<ExtendedEntityReferenceNode[]> {
     return await axios.get(API_URL + "/public/asEntityReferenceNodes", { params: { iris: iris.join(",") } });
   },
@@ -170,6 +174,10 @@ const EntityService = {
     return await axios.get(API_URL + "/public/bundleByPredicateExclusions", {
       params: { iri: iri, predicates: predicates.join(",") }
     });
+  },
+
+  async checkExists(iri: string): Promise<boolean> {
+    return await axios.get(API_URL + "/checkExists", { params: { iri: iri } });
   },
 
   async createEntity(entity: TTEntity): Promise<TTEntity> {

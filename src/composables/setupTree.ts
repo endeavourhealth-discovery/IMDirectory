@@ -143,8 +143,20 @@ function setupTree(emit?: any, customPageSize?: number) {
     }
   }
 
+  function childrenHasNode(newChildren: TTEntity[], node: TreeNode): boolean {
+    return !!newChildren.find(child => child.iri === node.data);
+  }
+
   async function expandNode(node: any, typeFilter?: string[]) {
+    const currentChildCount = node.children ? node.children.length : 0;
     const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value, undefined, undefined, typeFilter);
+    if (currentChildCount > 0 && children.result.length < currentChildCount) {
+      for (const [index, currentChildNode] of node.children.entries()) {
+        if (!childrenHasNode(children.result, currentChildNode)) {
+          node.children.splice(index, 1);
+        }
+      }
+    }
     children.result.forEach((child: any) => {
       if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child.iri, child.type, child.hasChildren, node));
     });
@@ -160,6 +172,7 @@ function setupTree(emit?: any, customPageSize?: number) {
 
   function onNodeCollapse(node: any) {
     deleteKeysRecursively(node);
+    expandedData.value = expandedData.value.filter(item => item !== node);
     delete expandedKeys.value[node.key];
   }
 
@@ -169,6 +182,7 @@ function setupTree(emit?: any, customPageSize?: number) {
       for (const child of node.children) {
         if (child.children.length) {
           collapsedKeys.push(child.key);
+
           deleteKeysRecursively(child);
         }
       }

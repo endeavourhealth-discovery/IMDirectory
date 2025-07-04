@@ -10,6 +10,7 @@
               :options="getBooleanOptions(match, parent!, parentOperator as Bool, 'Match', index)"
               option-label="label"
               option-value="value"
+              data-testid="operator-selector"
               @update:modelValue="val => updateOperator(val)"
             >
               <template #option="slotProps">
@@ -35,6 +36,7 @@
             @update-match="updateMatch"
           />
         </span>
+        <Button v-if="match.instanceOf[0].invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
         <span class="add-group">
           <Button
             type="button"
@@ -79,6 +81,20 @@
           @rationalise="onRationalise"
         />
       </div>
+      <div v-if="rootBool && match.instanceOf[0].iri">
+        <Button
+          type="button"
+          icon="fa-solid fa-plus"
+          label="Add concept"
+          data-testid="add-concept-button"
+          :severity="hoverAddConcept ? 'success' : 'secondary'"
+          :outlined="!hoverAddConcept"
+          :class="!hoverAddConcept && 'hover-button'"
+          @click.stop="addConcept()"
+          @mouseover="hoverAddConcept = true"
+          @mouseout="hoverAddConcept = false"
+        />
+      </div>
     </div>
     <div v-else>
       <ECLBoolQuery v-model:match="match" v-model:parent="parent" :index="index" :rootBool="rootBool" @rationalise="emit('rationalise')" />
@@ -93,7 +109,7 @@ import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { getBooleanOptions, getIsRoleGroup, isBoolWhere, manageRoleGroup, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
+import { addConceptToGroup, getBooleanOptions, getIsRoleGroup, manageRoleGroup, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import ECLBoolQuery from "@/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
@@ -114,6 +130,7 @@ const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const hoverAddRefinement = ref(false);
 const hoverDeleteConcept = ref(false);
+const hoverAddConcept = ref(false);
 const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
 const focusConcepts = computed(() => {
   return updateFocusConcepts(match.value);
@@ -130,9 +147,12 @@ watch(isRoleGroup, (newValue, oldValue) => {
   }
 });
 
+function addConcept() {
+  addConceptToGroup(match.value);
+}
 function updateOperator(val: string) {
   updateFocusConcepts(match.value);
-  emit("updateBool", props.parentOperator, val);
+  emit("updateBool", props.parentOperator, val,props.index);
 }
 
 function updateMatch() {

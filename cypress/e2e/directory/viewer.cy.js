@@ -222,7 +222,6 @@ describe("viewer", () => {
       const cypressDownloads = Cypress.config("downloadsFolder");
       cy.findByTestId("set-download-button").click();
       cy.findByTestId("download-by-query-options-dialog").contains("csv").click();
-      cy.findByTestId("download-by-query-options-dialog").contains("Core").click();
       cy.findByTestId("download-by-query-options-dialog").contains("Download").click();
       cy.readFile(cypressDownloads + "/Autism Spectrum Disorders (Data model value set) - " + currentDate + ".csv");
     });
