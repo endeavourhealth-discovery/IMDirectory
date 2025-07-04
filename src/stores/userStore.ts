@@ -22,7 +22,8 @@ export const useUserStore = defineStore("user", {
     recentLocalActivity: [] as RecentActivityItem[],
     snomedLicenseAccepted: localStorageWithExpiry.getItem("snomedLicenseAccepted") === true ? true : false,
     uprnAgreementAccepted: localStorageWithExpiry.getItem("uprnAgreementAccepted") === true ? true : false,
-    organisations: [] as string[]
+    organisations: [] as string[],
+    includeUserGraph: false
   }),
   getters: {
     isLoggedIn: state => isObjectHasKeys(state.currentUser),
@@ -178,6 +179,9 @@ export const useUserStore = defineStore("user", {
     async updateOrganisations(organisations: string[]) {
       if (this.currentUser) await UserService.updateUserOrganisations(organisations);
       this.organisations = organisations;
+    },
+    updateIncludeUserGraph(includeUserGraph: boolean) {
+      this.includeUserGraph = includeUserGraph;
     }
   }
 });
