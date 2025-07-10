@@ -45,6 +45,7 @@ export class IM {
   public static readonly FUNCTION = IM.NAMESPACE + "FunctionClause";
   public static readonly QUERY = IM.NAMESPACE + "Query";
   public static readonly COHORT_QUERY = IM.NAMESPACE + "CohortQuery";
+  public static readonly DEFAULT_COHORTS = IM.NAMESPACE + "Q_DefaultCohorts";
   public static readonly DATASET_QUERY = IM.NAMESPACE + "DatasetQuery";
   public static readonly DATA_UPDATE = IM.NAMESPACE + "DataUpdate";
   public static readonly PATH_QUERY = IM.NAMESPACE + "PathQuery";
@@ -70,6 +71,8 @@ export class IM {
   public static readonly SOME_OF = IM.NAMESPACE + "someOf";
   public static readonly HAS_CHILDREN = IM.NAMESPACE + "hasChildren";
   public static readonly IS_A = IM.NAMESPACE + "isA";
+  public static readonly CONTEXT_ORDER = IM.NAMESPACE + "contextOrder";
+  public static readonly CONTEXT = IM.NAMESPACE + "context";
   public static readonly IS_CHILD_OF = IM.NAMESPACE + "isChildOf";
   public static readonly PREVIOUS_ENTITY_OF = IM.NAMESPACE + "previousEntityOf";
   public static readonly SUBSUMED_BY = IM.NAMESPACE + "subsumedBy";

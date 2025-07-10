@@ -49,7 +49,7 @@
                     :focusConcepts="props.focusConcepts"
                     :index="index"
                     :isInAttributeGroup="isRoleGroup || isInAttributeGroup"
-                    v-model:group="group"
+                    v-model:parentGroup="group"
                     v-model:parentOperator="operator as Bool"
                     :property-tree-roots="propertyTreeRoots"
                     :im-query-for-property-search="imQueryForPropertySearch"
@@ -98,8 +98,9 @@
               :inputId="'group' + index"
               name="Group"
               :value="index"
-              v-model="parentGroup"
+              v-model="checked"
               data-testid="group-checkbox"
+              @update:modelValue="onCheckGroupChange"
               v-tooltip="'Select to create boolean subgroup'"
             />
           </div>
@@ -174,7 +175,7 @@ import { ToastSeverity } from "@/enums";
 import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef, Node } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getBooleanOptions, updateBooleans, getIsRoleGroup } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions, updateBooleans, getIsRoleGroup, checkGroupChange } from "@/helpers/IMQueryBuilder";
 import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/helpers/IMQueryBuilder";
 
 import Button from "primevue/button";
@@ -193,11 +194,12 @@ interface Props {
 const props = defineProps<Props>();
 const where = defineModel<Where>("where", { default: {} });
 const parent = defineModel<Where | Match>("parent");
-const parentGroup = defineModel<number[]>("group", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "rationalise"]);
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
 const group: Ref<number[]> = ref([]);
+const checked: Ref<boolean> = ref(false);
 const toast = useToast();
 const filterStore = useFilterStore();
 const hoverDeleteProperty = ref(false);
@@ -235,6 +237,10 @@ onMounted(async () => {
 
 function onRationalise() {
   emit("rationalise");
+}
+
+function onCheckGroupChange(e: any) {
+  checkGroupChange(e, parentGroup.value, props.index);
 }
 
 function deleteProperty() {

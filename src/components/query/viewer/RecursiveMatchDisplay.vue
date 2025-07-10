@@ -3,11 +3,9 @@
     <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
       <span class="rule">Rule {{ clauseIndex }}</span>
     </span>
-    <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && !match.linkedMatch" :class="parentOperator">{{ parentOperator }}</span>
-    <span v-if="match.union">
-      <span class="field">First Select one of the following</span>
-    </span>
-    <span v-else-if="match.linkedMatch" class="linked-match">as long as</span>
+    <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && !match.linkedMatch && parentOperator != Bool.not" :class="parentOperator">{{
+      parentOperator
+    }}</span>
     <span v-if="parentMatch?.union && !from">
       <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
       <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
@@ -51,7 +49,7 @@
     <span v-for="operator in operators" :key="operator">
       <span v-if="match[operator]">
         <span v-if="match[operator]!.length > 1" :class="operator">
-          <span>{{ getOperatorText(operator, parentOperator, clauseIndex) }}</span>
+          <span>{{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true, match.union) }}</span>
         </span>
         <div class="tree-node-wrapper">
           <span v-for="(nestedQuery, index) in match[operator]" :key="index">
@@ -123,7 +121,7 @@ import { Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import ClauseEditorMenus from "@/components/imquery/ClauseEditorMenus.vue";
-import { getOperatorText, hasBoolGroups } from "@/helpers/IMQueryBuilder";
+import { getBooleanLabel, hasBoolGroups } from "@/helpers/IMQueryBuilder";
 
 defineProps<{
   isVariable?: boolean;
@@ -267,6 +265,7 @@ function getSubrule(index: number): string {
 }
 
 #recursive-match-display:deep(.REJECT) {
+  color: var(--p-red-500);
   padding-right: 1.2rem;
 }
 

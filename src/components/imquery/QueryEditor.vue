@@ -12,7 +12,7 @@
       display: 'flex',
       flexFlow: 'column nowrap'
     }"
-    :contentStyle="{ flexGrow: '100', display: 'flex' }"
+    :contentStyle="{ flexGrow: '100', display: 'flex', flexDirection: 'column' }"
     :auto-z-index="true"
     id="query-builder-dialog"
   >
@@ -23,13 +23,14 @@
         <Popover ref="op">Select or drag and drop for grouping</Popover>
       </div>
     </template>
-    <div v-if="query.rule" id="builder-rule-container">
+    <BaseTypeSelector v-model:match="query" />
+    <span v-if="query.rule">
       <span v-for="(nestedMatch, index) in query.rule" :key="index">
         <MatchClauseDisplay
           v-model:match="query.rule[index]"
           :rootBool="true"
-          :index="0"
           :depth="0"
+          :parentIndex="parentIndex"
           :clauseIndex="index"
           :parentOperator="Bool.rule"
           :activeInputId="activeInputId"
@@ -37,14 +38,14 @@
           @rationalise="rationaliseBooleans"
         />
       </span>
-    </div>
-    <div v-else id="query-builder-container">
+    </span>
+    <span v-else-if="query.typeOf" id="query-builder-container">
       <ProgressSpinner v-if="loading" />
       <MatchClauseDisplay
         v-else
         v-model:match="query"
         :rootBool="true"
-        :index="0"
+        :parentIndex="parentIndex"
         :depth="0"
         :clauseIndex="0"
         :parentOperator="Bool.and"
@@ -55,7 +56,7 @@
       <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.instanceOf && !loading">
         *Move pointer over panel above to add concepts, refinements and groups.
       </small>
-    </div>
+    </span>
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
@@ -71,6 +72,7 @@ import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { Bool, Match, Query } from "@/interfaces/AutoGen";
 import MatchClauseDisplay from "@/components/imquery/MatchClauseDisplay.vue";
+import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
 
 interface Props {
   showDialog?: boolean;
@@ -94,6 +96,7 @@ const loading = ref(true);
 const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);
 const op = ref();
+const parentIndex = ref(0);
 
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
@@ -190,58 +193,13 @@ function stripValidation(build: any) {
 </script>
 
 <style scoped>
-.swal2-container {
-  z-index: 3000 !important;
-}
-#ecl-builder-dialog {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-}
-
-#builder-string-container {
-  flex: 1 1 auto;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
-  gap: 1rem;
-}
-
 #query-builder-container {
   width: 100%;
-  height: 100%; /* ← ADD THIS */
+  height: 100%;
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   overflow: auto;
-}
-
-#build-string-container {
-  width: 100%;
-  flex: 0 1 auto;
-  display: flex;
-  flex-flow: column nowrap;
-}
-
-.output-string {
-  background-color: var(--p-content-background);
-  border: 1px solid var(--p-textarea-border-color);
-  border-radius: var(--p-textarea-border-radius);
-  padding: 1rem;
-  margin: 0;
-  height: 100%;
-  grow: 100;
-  overflow-y: auto;
-  tab-size: 4;
-}
-
-.string-copy-container {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
 }
 
 .ecl-builder-dialog-header {

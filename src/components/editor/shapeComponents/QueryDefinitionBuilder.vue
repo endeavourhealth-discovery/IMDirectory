@@ -3,41 +3,21 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else :class="showValidation && invalid && 'invalid'" class="content-container">
+    <div v-if="!loading" :class="showValidation && invalid && 'invalid'" class="content-container">
       <div id="editor-button-bar" class="button-bar">
         <Button data-testid="edit-button" icon="fa-solid fa-pen-to-square" label="Edit Query" @click="showBuilder" />
       </div>
       <div class="query-editor-container flex flex-col gap-4">
         <div class="query-editor flex flex-col p-2">
-          <QueryDisplay :entiryIri="iri" :showSqlButton="false" :queryDefinition="queryDefinition" :editMode="true" />
+          <QueryDisplay :showSqlButton="false" :queryDefinition="queryDefinition" />
         </div>
       </div>
     </div>
     <div class="validate-error-container"></div>
     <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
-
-    <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
-      <pre>{{ sql }}</pre>
-      <template #footer>
-        <Button
-          v-clipboard:copy="copyToClipboard()"
-          v-clipboard:error="onCopyError"
-          v-clipboard:success="onCopy"
-          v-tooltip.left="'Copy to clipboard'"
-          data-testid="copy-button"
-          label="Copy to Clipboard"
-        ></Button>
-        <Button data-testid="close-button" label="Close" @click="showSql = false" />
-      </template>
-    </Dialog>
-  </div>
-  <div>
-  <CohortEditor
-    v-if="showEditor"
-    :showDialog="showEditor"
-    v-model:query="queryDefinition"
-    @closeDialog="showEditor = false"
-  />
+    <div v-if="!loading">
+      <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="showEditor = false" />
+    </div>
   </div>
 </template>
 
@@ -51,8 +31,7 @@ import { cloneDeep } from "lodash-es";
 import { QueryService } from "@/services";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-
-import CohortEditor from "@/components/imquery/CohortEditor.vue";
+import QueryEditor from "@/components/imquery/QueryEditor.vue";
 
 interface Props {
   mode: EditorMode;
@@ -64,6 +43,9 @@ const props = defineProps<Props>();
 
 const iri = "http://endhealth.info/im#CohortDefinition";
 const showEditor = ref(false);
+const emit = defineEmits<{
+  (event: "onCancel"): void;
+}>();
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -81,7 +63,7 @@ if (forceValidation) {
   });
 }
 const loading = ref(true);
-const queryDefinition: Ref<Query | undefined> = ref();
+const queryDefinition: Ref<Query> = ref({} as Query);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 const showValidation = ref(false);
@@ -114,12 +96,16 @@ async function init() {
     const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.ORIGINAL);
     queryDefinition.value = labeledQuery;
   } else {
-    queryDefinition.value = await generateDefaultQuery();
+    showEditor.value = true;
   }
 }
 
 async function generateDefaultQuery() {
   return await QueryService.getDefaultQuery();
+}
+
+function closeDefinitionBuilder() {
+  emit("onCancel");
 }
 
 function showBuilder(): void {

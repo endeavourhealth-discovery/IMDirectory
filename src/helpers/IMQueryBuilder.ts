@@ -15,6 +15,18 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
   return imQuery;
 }
 
+export function checkGroupChange(e: any, parentGroup: number[], index: number) {
+  if (e.length === 1) {
+    if (!parentGroup.includes(index)) {
+      parentGroup.push(index);
+    }
+  } else {
+    if (parentGroup.includes(index)) {
+      parentGroup.splice(parentGroup.indexOf(index), 1);
+    }
+  }
+}
+
 function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
   if (!query.where) query.where = {};
   if (!query.where.and) query.where.and = [];
@@ -109,25 +121,19 @@ export function hasBoolGroups(clause: Match | Where) {
   return false;
 }
 
-export function getBooleanLabel(clause: Match | Where, clauseType: string, operator: Bool, index: number, standardQuery?: boolean): string {
+export function getBooleanLabel(clauseType: string, operator: Bool, index: number, standardQuery?: boolean, hasSubgroups?: boolean, union?: boolean): string {
   const isFirst = index === 0;
   const isMatch = clauseType === "Match";
-  const hasNested = hasBoolGroups(clause);
   if (operator === Bool.and) {
-    if (hasNested) {
-      return isFirst ? (isMatch ? "Must be " : "Must have") : isMatch ? "And must be a" : "And must have";
-    } else {
-      return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
-    }
+    if (hasSubgroups) return isFirst ? "all of the following" : "and all of the following";
+    else return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
   }
   if (operator === Bool.or) {
-    if (hasNested) {
-      return isFirst ? (isMatch ? (standardQuery ? "Either" : "Either is a") : "Either has") : isMatch ? "Or" : "Or has";
-    } else {
-      return isFirst ? (isMatch ? "Either" : "Either") : "Or";
-    }
+    if (union) return "merge results from the following";
+    if (hasSubgroups) return isFirst ? "at least one of the following" : "or at least one of the following";
+    else return isFirst ? (isMatch ? "Either" : "Either") : "Or";
   }
-  return standardQuery ? "Exclude" : "Minus";
+  return standardQuery ? (hasSubgroups ? "Exclude if the following" : "Exclude") : "Minus";
 }
 
 export function getIsRoleGroup(where: Where | undefined): boolean {
@@ -245,13 +251,14 @@ export function getBooleanOptions(
   parentOperator: Bool,
   clauseType: string,
   index: number,
-  standardQuery?: boolean
+  standardQuery?: boolean,
+  hasSubgroups?: boolean
 ): any[] {
   const operator = parentOperator as keyof typeof parent;
-  const notLabel = getBooleanLabel(clause, clauseType, Bool.not, index, standardQuery);
-  const andLabel = getBooleanLabel(clause, clauseType, Bool.and, parentOperator === Bool.not ? 1 : index, standardQuery);
-  const orLabel = getBooleanLabel(clause, clauseType, Bool.or, parentOperator === Bool.not ? 1 : index, standardQuery);
-
+  const union = ("union" in parent) as boolean;
+  const notLabel = getBooleanLabel(clauseType, Bool.not, index, standardQuery, hasSubgroups);
+  const andLabel = getBooleanLabel(clauseType, Bool.and, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups);
+  const orLabel = getBooleanLabel(clauseType, Bool.or, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups, union);
   const options = [];
   if (parentOperator === Bool.not) {
     options.push({
@@ -286,7 +293,7 @@ export function getBooleanOptions(
     value: "or",
     tooltip: "At least one of this group must be true"
   });
-  if (clauseType != "Where" && parent[operator] && parent[operator]!.length > 1 && index > 0)
+  if (clauseType != "Where" && parent[operator] && ((parent[operator]!.length > 1 && index > 0) || standardQuery))
     options.push({
       label: notLabel,
       value: "not",
@@ -324,29 +331,12 @@ export const constraintOperatorOptions = [
   }
 ];
 
-export function getOperatorText(operator: string, parentOperator?: Bool, index?: number): string {
-  let text = "";
-  if (parentOperator) {
-    if (parentOperator === Bool.or) {
-      if (index! === 0) text = "Either ";
-      else text = "Or ";
-    } else if (parentOperator == Bool.and) {
-      if (index! > 0) text = "And ";
-    }
+export function isGroupable(rootBool?: boolean, parentMatch?: Match, parentOperator?: Bool): boolean {
+  if (parentOperator && parentOperator === Bool.rule) return false;
+  if (parentMatch && !rootBool && parentOperator) {
+    const parentGroup = (parentMatch[parentOperator as keyof Match] as Match[]) || [];
+    return parentGroup.length > 2;
   }
-  if (operator === "or") {
-    return text + "at least one of the following";
-  } else if (operator === "and") {
-    return text + "all of the following";
-  } else if (operator === "not") {
-    return text + "exclude if any of the following";
-  } else {
-    return "whats this operator ";
-  }
-}
-export function groupable(rootBool?: boolean, parentMatch?: Match, parentOperator?: Bool): boolean {
-  if (!rootBool && parentMatch && parentOperator && parentOperator != Bool.rule && (parentMatch[parentOperator as keyof Match] as Match[]).length > 2)
-    return true;
   return false;
 }
 export function getConstraintOperator(constrainer: Element) {

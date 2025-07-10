@@ -41,6 +41,9 @@ const QueryService = {
   async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
     return await axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
   },
+  async getQueryFromIri(iri: string): Promise<Query> {
+    return await axios.get(API_URL + "/public/queryFromIri", { params: { queryIri: iri} });
+  },
 
   async getDefaultQuery(): Promise<Query> {
     return await axios.get(API_URL + "/public/defaultQuery");

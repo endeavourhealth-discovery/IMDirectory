@@ -1,70 +1,54 @@
 <template>
   <div class="nested-match">
-    <span v-if="parentOperator === Bool.rule">
-      <span class="rule">Rule {{ clauseIndex }}</span>
-    </span>
-    <div v-if="hasBoolGroups(match)">
-      <BooleanEditor
-        v-model:match="match"
-        v-model:parentMatch="parentMatch"
-        :index="clauseIndex"
-        :depth="depth"
-        :parentOperator="parentOperator"
-        :clauseIndex="clauseIndex"
-        v-model:parentGroup="group"
-        @updateBool="updateBool"
-        @rationalise="onRationalise"
-        :rootBool="false"
-      />
+    <div v-if="parentOperator === Bool.rule" class="rule">Rule {{ clauseIndex }}</div>
+    <span v-if="hasBoolGroups(match)">
       <span v-for="operator in operators" :key="operator">
-        <span v-if="match[operator]">
-          <div v-if="match.union">
-            <span class="field">Select one of the following</span>
-          </div>
-          <div class="nested-match" @mouseover="mouseover" @mouseout="mouseout">
-            <div
-              v-if="match.and || match.or"
-              class="conjunction"
-              @drop="onDrop($event, match, parentMatch, clauseIndex)"
-              @dragover="
-                onDragOver($event);
-                mouseover($event);
-              "
-              @dragleave="mouseout"
+        <div v-if="match[operator]">
+          <div class="match-clause">
+            <BooleanEditor
+              v-if="showBoolean"
+              v-model:match="match"
+              v-model:parentMatch="parentMatch"
+              :depth="depth"
+              :hasSubgroups="true"
+              :parentOperator="operator as Bool"
+              :clauseIndex="clauseIndex"
+              v-model:parentGroup="parentGroup"
+              @updateOperator="onUpdateOperator"
+              :rootBool="false"
             />
-            <div v-for="(item, index) in match[operator]" :key="item.uuid">
-              <MatchClauseDisplay
-                v-model:match="match[operator]![index]"
-                v-model:parentMatch="match"
-                :index="index"
-                :depth="depth + 1"
-                :parentOperator="operator as Bool"
-                :clauseIndex="index"
-                v-model:parentGroup="group"
-                @updateBool="updateBool"
-                @rationalise="onRationalise"
-                :rootBool="false"
-              />
-            </div>
           </div>
-        </span>
+          <div v-for="(item, index) in match[operator]" :key="item.uuid">
+            <MatchClauseDisplay
+              v-model:match="match[operator]![index]"
+              v-model:parentMatch="match"
+              :depth="depth + 1"
+              :parentOperator="operator as Bool"
+              :parentIndex="clauseIndex"
+              :clauseIndex="index"
+              v-model:parentGroup="group"
+              @updateBool="updateBool"
+              :rootBool="false"
+            />
+          </div>
+        </div>
       </span>
-    </div>
-    <div class="match-clause">
+    </span>
+    <div v-else class="match-clause">
+      <div v-if="parentMatch?.union && !from" class="number">{{ getSubrule(parentIndex, clauseIndex + 1) }}</div>
       <BooleanEditor
+        v-if="showBoolean"
         v-model:match="match"
         v-model:parentMatch="parentMatch"
-        :index="clauseIndex"
         :depth="depth"
         :parentOperator="parentOperator"
         :clauseIndex="clauseIndex"
-        v-model:parentGroup="group"
-        @updateBool="updateBool"
-        @rationalise="onRationalise"
+        v-model:parentGroup="parentGroup"
+        @update-operator="val => onUpdateOperator(val)"
         :rootBool="false"
       />
       <div class="match-display">
-        <MatchContentDisplay :match="match" :parentMatch="parentMatch" :depth="depth" :clauseIndex="clauseIndex" :expandSet="expandSet" />
+        <MatchContentDisplay :match="match" :parentMatch="parentMatch" :from="from" :depth="depth" :clauseIndex="clauseIndex" :expandSet="expandSet" />
       </div>
       <div class="edit-button">
         <Button
@@ -107,6 +91,33 @@
         />
       </div>
     </div>
+    <!--
+    <div v-if="match.not">
+      <span v-for="(item, index) in match.not" :key="item.uuid">
+        <MatchClauseDisplay
+          v-model:match="match.not![index]"
+          v-model:parentMatch="match"
+          :depth="depth + 1"
+          :parentOperator="Bool.not"
+          :parentIndex="clauseIndex"
+          :clauseIndex="index"
+          v-model:parentGroup="group"
+          @updateBool="updateBool"
+          :rootBool="false"
+        />
+      </span>
+    </div>-->
+    <div v-if="match.then">
+      <MatchClauseDisplay
+        v-model:match="match.then"
+        :from="match"
+        :depth="depth + 1"
+        :parentOperator="Bool.and"
+        :parentIndex="clauseIndex"
+        :clauseIndex="0"
+        :rootBool="false"
+      />
+    </div>
     <div v-if="parentOperator === Bool.rule">
       <RuleActionEditor :rule="match" />
     </div>
@@ -115,8 +126,8 @@
 
 <script setup lang="ts">
 import { Match, Bool } from "@/interfaces/AutoGen";
-import { inject, Ref, ref } from "vue";
-import { getBooleanOptions, getOperatorText, hasBoolGroups, updateBooleans, updateFocusConcepts, groupable } from "@/helpers/IMQueryBuilder";
+import { inject, Ref, ref, computed } from "vue";
+import { hasBoolGroups, updateBooleans, updateFocusConcepts, isGroupable } from "@/helpers/IMQueryBuilder";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
@@ -132,6 +143,7 @@ interface Props {
   canExpand?: boolean;
   from?: Match;
   parentOperator?: Bool;
+  parentIndex: number;
 }
 
 const props = defineProps<Props>();
@@ -147,23 +159,29 @@ const hoverEditClause = ref(false);
 const hoverDeleteClause = ref(false);
 const hoverAddClause = ref(false);
 const operators = ["and", "or", "not"] as const;
-
-function updateOperator(val: string) {
+const showBoolean = computed(() => {
+  if (props.from) return false;
+  if (props.parentOperator) {
+    return props.parentOperator !== Bool.rule;
+  }
+  return false;
+});
+function onUpdateOperator(val: string) {
   updateFocusConcepts(match.value);
   emit("updateBool", props.parentOperator, val, props.clauseIndex);
 }
 
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
   updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
-  if (newOperator === props.parentOperator) {
-    emit("rationalise");
-  }
 }
 function addMatch() {}
 function deleteMatch() {}
 function editMatch() {}
 function mouseover(event: any) {
   event.stopPropagation();
+}
+function getSubrule(parentIndex: number, index: number): string {
+  return parentIndex + String.fromCharCode(96 + index);
 }
 
 function mouseout(event: any) {
@@ -187,6 +205,14 @@ function mouseout(event: any) {
   flex-direction: row;
   align-items: center;
 }
+.drag-drop {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.boolean-editor {
+  min-height: 100%;
+  width: 6rem;
+}
 
 .match-display {
   width: 30%;
@@ -194,13 +220,6 @@ function mouseout(event: any) {
   flex: 1 1 auto;
 }
 
-.operator-selector {
-  width: 6rem;
-}
-.group-checkbox {
-  height: 100%;
-  width: 2rem;
-}
 .edit-button {
   height: 100%;
   width: 8%;

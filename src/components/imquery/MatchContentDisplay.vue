@@ -5,7 +5,6 @@
       <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
     </span>
 
-    <span v-if="parentMatch?.union && !from" class="number">{{ getSubrule(clauseIndex + 1) }}</span>
     <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
     <span v-if="match.instanceOf">
       <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
@@ -31,17 +30,6 @@
       <WhereDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :property-index="0" :key="0" :index="0" :root="true" :inline="true" />
     </span>
 
-    <div v-if="match.then">
-      <MatchContentDisplay
-        :match="match.then"
-        :clause-index="0"
-        :property-index="0"
-        :parent-operator="Bool.and"
-        :depth="depth + 1"
-        :parentMatch="match"
-        :from="match"
-      />
-    </div>
     <span v-if="match.return">
       <span class="field">(as</span>
       <span class="as">{{ match.return?.as }})</span>
@@ -51,7 +39,6 @@
 
 <script setup lang="ts">
 import { Bool, Match } from "@/interfaces/AutoGen";
-import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import WhereDisplay from "@/components/imquery/WhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import DirectService from "@/services/DirectService";
@@ -75,9 +62,6 @@ function getFormattedPath(path: any): string {
     }
   }
   return result;
-}
-function getSubrule(index: number): string {
-  return index + String.fromCharCode(96 + index);
 }
 </script>
 

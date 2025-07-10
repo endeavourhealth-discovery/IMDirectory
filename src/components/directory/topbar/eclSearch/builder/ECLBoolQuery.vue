@@ -1,6 +1,5 @@
 <template>
   <div class="nested-ecl-match">
-
     <span v-for="operator in operators" :key="operator">
       <span v-if="match[operator]">
         <div class="nested-ecl-match" @mouseover="mouseover" @mouseout="mouseout">
@@ -18,7 +17,7 @@
             <ExpressionConstraint
               v-model:match="match[operator]![index]"
               v-model:parent="match"
-              v-model:group="group"
+              v-model:parentGroup="group"
               :index="index"
               :operator="operator as Bool"
               :parentOperator="operator"
@@ -99,7 +98,6 @@ const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined>;
 const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
-
 const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;

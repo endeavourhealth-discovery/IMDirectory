@@ -37,7 +37,8 @@
               :inputId="'group' + index"
               name="Group"
               :value="index"
-              v-model="parentGroup"
+              v-model="checked"
+              @update:modelValue="onCheckGroupChange"
               data-testid="group-checkbox"
               v-tooltip="'Select to create boolean subgroup'"
             />
@@ -139,14 +140,7 @@
           </template>
         </Select>
       </span>
-      <ECLBoolQuery
-        v-model:match="match"
-        v-model:parent="parent"
-        v-model:group="group"
-        :index="index"
-        :rootBool="rootBool"
-        @rationalise="emit('rationalise')"
-      />
+      <ECLBoolQuery v-model:match="match" v-model:parent="parent" :index="index" :rootBool="rootBool" @rationalise="emit('rationalise')" />
     </div>
   </div>
 </template>
@@ -158,7 +152,7 @@ import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { addConceptToGroup, getBooleanOptions, getIsRoleGroup, manageRoleGroup, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
+import { addConceptToGroup, checkGroupChange, getBooleanOptions, getIsRoleGroup, manageRoleGroup, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
 import { v4 } from "uuid";
 import ECLBoolQuery from "@/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
@@ -172,7 +166,7 @@ interface Props {
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined>;
-const parentGroup = defineModel<number[]>("group", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
@@ -181,6 +175,7 @@ const hoverAddRefinement = ref(false);
 const hoverDeleteConcept = ref(false);
 const hoverAddConcept = ref(false);
 const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
+const checked = ref(false);
 const focusConcepts = computed(() => {
   return updateFocusConcepts(match.value);
 });
@@ -238,6 +233,10 @@ function addRefinement() {
       match.value.where = boolWhere;
     }
   } else match.value.where = where;
+}
+
+function onCheckGroupChange(e: any) {
+  checkGroupChange(e, parentGroup.value, props.index);
 }
 </script>
 
