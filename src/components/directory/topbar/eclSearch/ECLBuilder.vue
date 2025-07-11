@@ -80,7 +80,7 @@ import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builde
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { Match, ECLQuery } from "@/interfaces/AutoGen";
+import { Match, ECLQueryRequest } from "@/interfaces/AutoGen";
 import { showValidationMessage,showVerificationDialog } from "@/composables/eclValidator";
 interface Props {
   showDialog?: boolean;
@@ -89,7 +89,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const emit = defineEmits<{
-  eclSubmitted: [payload: ECLQuery];
+  eclSubmitted: [payload: ECLQueryRequest];
   eclConversionError: [payload: { error: boolean; message: string }];
   closeDialog: [];
 }>();

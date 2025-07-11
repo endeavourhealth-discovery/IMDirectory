@@ -27,6 +27,7 @@ import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDi
 import { SearchOptions } from "@/interfaces";
 import { IM } from "@/vocabulary";
 import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import {Namespace} from "@/vocabulary/Namespace";
 
 interface Props {
   baseType: Node;
@@ -39,7 +40,7 @@ const showMatchTypeSelector = ref(true);
 const selectedCohort: Ref<SearchResultSummary | undefined> = ref();
 const cohortFilterOptions: Ref<SearchOptions> = ref({ types: [{ iri: IM.QUERY }], status: [], schemes: [] });
 const queryRequest: Ref<QueryRequest | undefined> = ref();
-const rootCohortFolder = [IM.NAMESPACE + "Q_Queries"];
+const rootCohortFolder = [Namespace.IM + "Q_Queries"];
 const emit = defineEmits<{
   (event: "onAddMatch", match: Match): void;
   (event: "onAddCohort", match: Match): void;

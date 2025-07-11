@@ -15,7 +15,7 @@ import { QR } from "./QR";
 import { COMPONENT } from "./COMPONENT";
 import { EDITOR } from "./EDITOR";
 import { IM_FUNCTION } from "./IM_FUNCTION";
-import { GRAPH } from "./GRAPH";
+import { Graph as GRAPH } from "./GRAPH";
 import { VALIDATION } from "./VALIDATION";
 import { QUERY } from "./QUERY";
 import { SNOMED } from "./SNOMED";
