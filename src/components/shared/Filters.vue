@@ -67,6 +67,7 @@ import { TTIriRef } from "@/interfaces/AutoGen";
 import { GRAPH } from "@/vocabulary";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
+import {SCHEME} from "@/vocabulary/SCHEME";
 interface Props {
   selectedFilterOptions?: FilterOptions;
 }
@@ -161,10 +162,10 @@ function setDefaults() {
 }
 
 function setLegacy(include: boolean): void {
-  const emisScheme = selectedSchemes.value.findIndex(scheme => scheme.iri === GRAPH.EMIS);
+  const emisScheme = selectedSchemes.value.findIndex(scheme => scheme.iri === SCHEME.EMIS);
   if (include) {
     if (emisScheme === -1) {
-      const found = storeFilterOptions.value?.schemes.find(scheme => scheme.iri === GRAPH.EMIS);
+      const found = storeFilterOptions.value?.schemes.find(scheme => scheme.iri === SCHEME.EMIS);
       if (found) selectedSchemes.value.push(found);
     }
   } else {

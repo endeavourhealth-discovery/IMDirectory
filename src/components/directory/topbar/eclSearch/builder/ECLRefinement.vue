@@ -181,6 +181,7 @@ import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator
 import Button from "primevue/button";
 import ECLRefinementValue from "@/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
+import {Namespace} from "@/vocabulary/Namespace";
 
 interface Props {
   focusConcepts: string[];
@@ -278,7 +279,7 @@ async function updateQueryForPropertySearch(): Promise<QueryRequest> {
     } as QueryRequest;
   } else {
     imQueryForPropertySearch.value = {
-      query: { iri: IM.NAMESPACE + "getDescendants" },
+      query: { iri: Namespace.IM + "getDescendants" },
       argument: [
         {
           parameter: "this",

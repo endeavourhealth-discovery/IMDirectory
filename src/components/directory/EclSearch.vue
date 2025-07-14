@@ -78,7 +78,7 @@
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
-import { EclSearchRequest, TTIriRef, SearchResultSummary, ECLQuery } from "@/interfaces/AutoGen";
+import { EclSearchRequest, TTIriRef, SearchResultSummary, ECLQueryRequest } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { EclService } from "@/services";
 import { byName } from "@/helpers/Sorters";
@@ -108,7 +108,7 @@ const eclQuery: Ref<EclSearchRequest | undefined> = ref();
 const keysPressed: GenericObject = {};
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
-const setDefinition: Ref<ECLQuery> = ref({ status: { valid: true } });
+const setDefinition: Ref<ECLQueryRequest> = ref({ status: { valid: true } });
 const debounceTimer = ref(0);
 const lastValidEcl: Ref<string> = ref("");
 const highlightedText = computed(() => {
@@ -178,7 +178,7 @@ function onKeyUp(event: KeyboardEvent) {
   delete keysPressed[event.key];
 }
 
-function updateECL(eclQuery: ECLQuery): void {
+function updateECL(eclQuery: ECLQueryRequest): void {
   eclQueryString.value = eclQuery.ecl!;
   showDialog.value = false;
 }

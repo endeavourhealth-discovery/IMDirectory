@@ -31,6 +31,7 @@ import { IM, SHACL } from "@/vocabulary";
 import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
 import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";
 import Favourites from "@/components/directory/landingPage/Favourites.vue";
+import {Namespace} from "@/vocabulary/Namespace";
 
 const directService = new DirectService();
 
@@ -38,7 +39,7 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
   {
     label: "Ontology",
     icon: getFAIconFromType([{ iri: IM.CONCEPT }]),
-    command: () => directService.select(IM.NAMESPACE + "HealthModelOntology"),
+    command: () => directService.select(Namespace.IM + "HealthModelOntology"),
     color: getColourFromType([{ iri: IM.CONCEPT }]),
     size: 4
   },
