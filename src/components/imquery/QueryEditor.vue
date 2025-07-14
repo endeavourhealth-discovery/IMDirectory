@@ -23,39 +23,25 @@
         <Popover ref="op">Select or drag and drop for grouping</Popover>
       </div>
     </template>
-    <BaseTypeSelector v-model:match="query" />
-    <span v-if="query.rule">
-      <span v-for="(nestedMatch, index) in query.rule" :key="index">
-        <MatchClauseDisplay
-          v-model:match="query.rule[index]"
-          :rootBool="true"
-          :depth="0"
-          :parentIndex="parentIndex"
-          :clauseIndex="index"
-          :parentOperator="Bool.rule"
-          :activeInputId="activeInputId"
-          @activateInput="activeInputId = $event"
-          @rationalise="rationaliseBooleans"
-        />
+    <BaseTypeEditor v-model:match="query" />
+    <span v-if="query.typeOf" v-for="operator in operators" :key="operator">
+      <span v-if="query[operator]">
+        <span v-for="(nestedMatch, index) in query[operator]" :key="index">
+          <MatchClauseEditor
+            v-model:match="query[operator][index]"
+            :rootBool="true"
+            :depth="0"
+            v-model:parentMatch="query"
+            :parentIndex="parentIndex"
+            :clauseIndex="index"
+            :parentOperator="operator as Bool"
+            :baseType="query.typeOf!"
+            :activeInputId="activeInputId"
+            @activateInput="activeInputId = $event"
+            @rationalise="rationaliseBooleans"
+          />
+        </span>
       </span>
-    </span>
-    <span v-else-if="query.typeOf" id="query-builder-container">
-      <ProgressSpinner v-if="loading" />
-      <MatchClauseDisplay
-        v-else
-        v-model:match="query"
-        :rootBool="true"
-        :parentIndex="parentIndex"
-        :depth="0"
-        :clauseIndex="0"
-        :parentOperator="Bool.and"
-        :activeInputId="activeInputId"
-        @activateInput="activeInputId = $event"
-        @rationalise="rationaliseBooleans"
-      />
-      <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.instanceOf && !loading">
-        *Move pointer over panel above to add concepts, refinements and groups.
-      </small>
     </span>
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
@@ -71,8 +57,8 @@ import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { Bool, Match, Query } from "@/interfaces/AutoGen";
-import MatchClauseDisplay from "@/components/imquery/MatchClauseDisplay.vue";
-import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
+import MatchClauseEditor from "@/components/imquery/MatchClauseEditor.vue";
+import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 
 interface Props {
   showDialog?: boolean;
@@ -91,6 +77,7 @@ const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
+const operators = ["rule", "and", "or", "not"] as const;
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
 const loading = ref(true);
 const childLoadingState: Ref<any> = ref({});

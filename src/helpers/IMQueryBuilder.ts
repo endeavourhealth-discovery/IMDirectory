@@ -2,6 +2,7 @@ import { Bool, BoolGroup, Element, Match, Node, OrderDirection, Query, QueryRequ
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import Swal from "sweetalert2";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -13,6 +14,24 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
   if (filterOptions.page) imQuery.page = filterOptions.page;
   if (filterOptions.textSearch) imQuery.textSearch = filterOptions.textSearch;
   return imQuery;
+}
+
+export async function setReturn(match: Match, keepAs: string) {
+  if (keepAs === "") {
+    if (match.return) {
+      if (match.return.property) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Warning",
+          text: "You have already added properties to the output. Cannot remove label",
+          confirmButtonText: "Close",
+          confirmButtonColor: "#689F38"
+        });
+      } else delete match.return;
+    }
+  } else if (match.return) {
+    match.return.as = keepAs;
+  } else match.return = { as: keepAs };
 }
 
 export function checkGroupChange(e: any, parentGroup: number[], index: number) {
@@ -162,11 +181,23 @@ function removeRoleSubgroups(where: Where): void {
     removeRoleSubgroups(item);
   }
 }
+export function matchDefined(match: Match): boolean {
+  return !!(match.path || match.where || match.instanceOf);
+}
 export function getRuleAction(match: Match): string {
   if (match.ifTrue) {
     return (match.ifTrue + match.ifFalse).toLowerCase();
   }
-  return "";
+  return "nextreject";
+}
+
+export function addMatchToParent(match: Match, parent: Match) {
+  for (const key of ["rule", "and", "or", "not"] as const) {
+    if (parent[key]) {
+      parent[key]!.push(match);
+      break;
+    }
+  }
 }
 export function setRuleAction(match: Match, ruleAction: string) {
   switch (ruleAction) {

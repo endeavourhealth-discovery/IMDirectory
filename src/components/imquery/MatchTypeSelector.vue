@@ -94,17 +94,23 @@ const selectedNodeKey = ref<TreeSelectionKeys | undefined>(undefined);
 
 watch(
   () => props.baseType,
-  async () => await createFeatureTree()
+  async () => {
+    loading.value = true;
+    await createFeatureTree();
+    loading.value = false;
+  }
 );
 
 onMounted(async () => {
+  loading.value = true;
   expandedKeys.value = {};
   await createFeatureTree();
+  loading.value = false;
 });
 
 async function onNodeExpand(node: TreeNode) {
+  loading.value = true;
   if (node.children && node.children.length > 0) {
-    loading.value = true;
     for (const child of node.children) {
       if (child.children && !child.children.length) {
         child.loading = true;
@@ -112,12 +118,10 @@ async function onNodeExpand(node: TreeNode) {
         child.loading = false;
       }
     }
-    loading.value = false;
   } else if (node.data.range) {
-    loading.value = true;
     await createPropertyTree(node.data.range, node, false);
-    loading.value = false;
   }
+  loading.value = false;
 }
 
 function onNodeCollapse(node: TreeNode) {

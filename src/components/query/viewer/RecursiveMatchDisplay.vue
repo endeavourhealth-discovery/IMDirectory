@@ -48,7 +48,7 @@
     <span class="field">{{ getFormattedPath(match) }}</span>
     <span v-for="operator in operators" :key="operator">
       <span v-if="match[operator]">
-        <span v-if="match[operator]!.length > 1" :class="operator">
+        <span v-if="match[operator]!.length > 1 && operator != 'not'" :class="operator">
           <span>{{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true, match.union) }}</span>
         </span>
         <div class="tree-node-wrapper">
@@ -120,7 +120,6 @@ import { Match, Bool } from "@/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import ClauseEditorMenus from "@/components/imquery/ClauseEditorMenus.vue";
 import { getBooleanLabel, hasBoolGroups } from "@/helpers/IMQueryBuilder";
 
 defineProps<{

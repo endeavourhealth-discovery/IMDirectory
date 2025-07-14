@@ -1,7 +1,7 @@
 <template>
   <div>
     <Dialog
-      :visible="modelShowDialog"
+      :visible="showMatchEditor"
       modal
       :draggable="false"
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
@@ -9,12 +9,12 @@
       maximizable
     >
       <template #header>
-        <div v-if="editMatch" class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
+        <div class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
           <span>Name</span>
-          <InputText v-model="editMatch.name" class="name-display" placeholder="Name" type="text" />
+          <InputText v-model="match.name" class="name-display" placeholder="Name" type="text" />
           <span>Result label</span>
           <div>
-            <InputText v-model="editMatch.variable" placeholder="label to keep as reference" type="text" />
+            <InputText v-model="keepAs" placeholder="label to keep as reference" type="text" />
           </div>
         </div>
       </template>
@@ -22,47 +22,9 @@
         <ProgressSpinner />
       </div>
       <div v-else class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
-        <span v-if="editMatch">Description</span>
-        <Textarea v-if="editMatch" v-model="editMatch.description" autoResize placeholder="Description" rows="2" type="text" />
+        <span>Description</span>
+        <Textarea v-model="match.description" autoResize placeholder="Description" rows="2" type="text" />
         <span>Definition</span>
-        <div class="immatch-output-container">
-          <Panel collapsed header="Output" toggleable>
-            <Tabs value="0">
-              <TabList>
-                <Tab value="0">Match JSON</Tab>
-                <Tab value="1">Description</Tab>
-              </TabList>
-              <TabPanels>
-                <TabPanel value="0">
-                  <div class="immatch-string-container">
-                    <pre class="immatch-output-string">{{ editMatch }}</pre>
-                    <Button
-                      v-clipboard:copy="copyToClipboard()"
-                      v-clipboard:error="onCopyError"
-                      v-clipboard:success="onCopy"
-                      v-tooltip.left="'Copy to clipboard'"
-                      icon="fa-solid fa-copy"
-                    />
-                  </div>
-                </TabPanel>
-                <TabPanel value="1">
-                  <div class="immatch-description-container">
-                    <div class="immatch-description">
-                      <EditMatch v-model:match="editMatch" />
-                    </div>
-                    <Button
-                      v-clipboard:copy="copyToClipboard()"
-                      v-clipboard:error="onCopyError"
-                      v-clipboard:success="onCopy"
-                      v-tooltip.left="'Copy to clipboard'"
-                      icon="fa-solid fa-copy"
-                    />
-                  </div>
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </Panel>
-        </div>
       </div>
       <template #footer>
         <div class="button-footer">
@@ -75,66 +37,59 @@
 </template>
 
 <script lang="ts" setup>
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";
-import { Match, TTIriRef } from "@/interfaces/AutoGen";
+import { Match, TTIriRef, Return } from "@/interfaces/AutoGen";
 import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import type { MenuItem } from "primevue/menuitem";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
+import { setReturn } from "@/helpers/IMQueryBuilder";
 import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
 
 interface Props {
   index?: number;
-  match: Match;
 }
 
 const props = defineProps<Props>();
-
+const match = defineModel<Match>("match", { default: {} });
 const emit = defineEmits<{
-  saveChanges: [payload: Match];
+  (event: "saveChanges"): void;
+  (event: "cancel"): void;
 }>();
 const keepAsVariable: Ref<string> = ref("");
 const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const keepAsEdit: Ref<boolean> = ref(false);
 const editMatchString: Ref<string> = ref("");
-const modelShowDialog = defineModel<boolean>("visible");
+const showMatchEditor = defineModel<boolean>("showMatchEditor");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
 const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const templates: Ref<any> = ref();
 const loading = ref(true);
-const editMatch: Ref<Match> = ref(cloneDeep(props.match));
-const matchJson = computed(() => JSON.stringify(editMatch));
-watch(
-  () => cloneDeep(editMatch.value),
-  newValue => {
-    editMatchString.value = JSON.stringify(newValue);
-  }
-);
+const keepAs: Ref<string> = ref("");
 
 watch(
-  () => props.index,
-  () => setPathItems()
+  () => keepAs,
+  () => setReturn(match.value, keepAs.value)
 );
 
 onMounted(async () => {
-  console.log("IMQUERY EDIT DIALOG MOUNTED with " + props.match.typeOf?.iri);
+  console.log("IMQUERY EDIT DIALOG MOUNTED with " + match.value.typeOf?.iri);
   await init();
 });
 
 async function init() {
   loading.value = true;
-  editMatch.value = cloneDeep(props.match);
   setPathItems();
   templates.value = await getFunctionTemplates();
   loading.value = false;
 }
 
 async function getFunctionTemplates() {
-  const iri = editMatch.value?.typeOf?.iri;
+  const iri = match.value?.typeOf?.iri;
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
     if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
@@ -149,46 +104,18 @@ function setPathItems() {
   pathItems.value = [{ label: props.index ? "Feature " + props.index : "Feature" }];
 }
 
-function updateDialogFocus(match: Match) {
-  editMatch.value = match;
-  onSave();
-}
-
 function onSave() {
-  const newEditMatch = cloneDeep(editMatch.value);
-  if (newEditMatch && JSON.stringify(newEditMatch) !== JSON.stringify(editMatch.value)) {
-    emit("saveChanges", newEditMatch);
-  }
-  modelShowDialog.value = false;
+  showMatchEditor.value = false;
+  emit("saveChanges");
 }
 
 function onCancel() {
-  init();
-  modelShowDialog.value = false;
-}
-
-function saveVariable() {
-  udpateVariableMap();
-  if (editMatch.value) editMatch.value.variable = keepAsVariable.value;
-  keepAsEdit.value = false;
-}
-
-function deleteVariable() {
-  if (editMatch.value?.variable) {
-    delete variableMap.value[editMatch.value.variable];
-    delete editMatch.value.variable;
-  }
-  keepAsVariable.value = "";
-  keepAsEdit.value = false;
-}
-
-function udpateVariableMap() {
-  if (editMatch.value?.variable) delete variableMap.value[editMatch.value.variable];
-  variableMap.value[keepAsVariable.value] = editMatch.value;
+  showMatchEditor.value = false;
+  emit("cancel");
 }
 
 function onAddFunctionProperty(args: { property: string; value: any }) {
-  if (args.property === "orderBy") editMatch.value!.orderBy = args.value;
+  if (args.property === "orderBy") match.value!.orderBy = args.value;
 }
 </script>
 

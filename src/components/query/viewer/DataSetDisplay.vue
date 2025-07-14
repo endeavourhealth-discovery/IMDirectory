@@ -2,7 +2,6 @@
   <div :style="{ paddingLeft: '1rem' }">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <span v-if="dataSet.name">{{ dataSet.name }}</span>
-    <ClauseEditorMenus v-if="editMode" editor="queryEditor" v-model:query="dataSet" v-model:parentQuery="parentQuery" class="relative inline-block" />
     <span v-if="dataSet.return">
       <span v-if="dataSet.return.as">Group : {{ dataSet.return.as }}</span>
     </span>
@@ -53,7 +52,6 @@ import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import ReturnColumns from "./ReturnColumns.vue";
 import { QueryService } from "@/services";
-import ClauseEditorMenus from "@/components/imquery/ClauseEditorMenus.vue";
 
 interface Props {
   matchExpanded: boolean;

@@ -16,7 +16,7 @@
     <div class="validate-error-container"></div>
     <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
     <div v-if="!loading">
-      <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="showEditor = false" />
+      <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
     </div>
   </div>
 </template>
@@ -28,7 +28,7 @@ import { DisplayMode, PropertyShape, Query } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
-import { QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import QueryEditor from "@/components/imquery/QueryEditor.vue";
@@ -64,6 +64,7 @@ if (forceValidation) {
 }
 const loading = ref(true);
 const queryDefinition: Ref<Query> = ref({} as Query);
+const originalDefinition: Ref<Query> = ref({} as Query);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 const showValidation = ref(false);
@@ -90,18 +91,41 @@ onMounted(async () => {
   loading.value = false;
 });
 
+function cancelEditor() {
+  queryDefinition.value = originalDefinition.value;
+  showEditor.value = false;
+}
+
+function updateQuery(query: Query) {
+  originalDefinition.value = cloneDeep(queryDefinition.value);
+  showEditor.value = false;
+}
+
 async function init() {
   if (props.value) {
     const definition = JSON.parse(props.value);
     const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.ORIGINAL);
     queryDefinition.value = labeledQuery;
+    originalDefinition.value = cloneDeep(labeledQuery);
   } else {
+    queryDefinition.value = await generateDefaultQuery();
+    originalDefinition.value = cloneDeep(queryDefinition.value);
     showEditor.value = true;
   }
 }
 
-async function generateDefaultQuery() {
-  return await QueryService.getDefaultQuery();
+async function generateDefaultQuery(): Promise<Query> {
+  const defaultIris = await EntityService.getChildEntities(IM.DEFAULT_COHORTS);
+  const defaultBaseType = await QueryService.getQueryFromIri(defaultIris[0]);
+  const query = {
+    typeOf: defaultBaseType.typeOf,
+    and: [
+      {
+        instanceOf: [{ iri: defaultIris[0] }]
+      }
+    ]
+  };
+  return await QueryService.getQueryDisplayFromQuery(query, DisplayMode.ORIGINAL);
 }
 
 function closeDefinitionBuilder() {

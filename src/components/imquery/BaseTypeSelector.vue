@@ -1,140 +1,47 @@
 <template>
-  <div class="nested-match base-type-selector">
-    <div>Query Base entity type</div>
-    <div v-if="editMode" class="auto-complete-container">
-      <AutocompleteSearchBar
-        ref="searchBar"
-        v-model:selected="selected"
-        v-model:imQuery="baseCohortQuery"
-        :rootEntities="rootBaseEntities"
-        @update-selected="updateQuery"
-      />
+  <Dialog :visible="modelShowDialog" modal :draggable="false" :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '20vh' }" maximizable>
+    <template #header>
+      <div class="ecl-builder-dialog-header">
+        <strong>Base type Selector:</strong>
+      </div>
+    </template>
+    <div class="auto-complete-container">
+      <div>Select the type of entity or base cohort</div>
+      <AutocompleteSearchBar ref="searchBar" v-model:selected="localSelected" v-model:imQuery="baseCohortQuery" :rootEntities="rootBaseEntities" />
     </div>
-    <div v-else>
-      <span class="type-of">{{ match.typeOf?.name }}</span>
-    </div>
-    <div class="edit-button">
-      <Button
-        type="button"
-        icon="fa-solid fa-pen-to-square"
-        label="Edit base type"
-        data-testid="edit-base-type-button"
-        :severity="hoverEditClause ? 'success' : 'secondary'"
-        :outlined="!hoverEditClause"
-        :class="!hoverEditClause && 'hover-button'"
-        @click="editMode = true"
-        @mouseover="hoverEditClause = true"
-        @mouseout="hoverEditClause = false"
-      />
-    </div>
-    <div class="add-button">
-      <Button
-        type="button"
-        icon="fa-solid fa-plus"
-        label="Add clause"
-        data-testid="add-clause-button"
-        :severity="hoverAddClause ? 'success' : 'secondary'"
-        :outlined="!hoverAddClause"
-        :class="!hoverAddClause && 'hover-button'"
-        @click="addMatch()"
-        @mouseover="hoverAddClause = true"
-        @mouseout="hoverAddClause = false"
-      />
-    </div>
-  </div>
+    <template #footer>
+      <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBaseDialog" data-testid="cancel-base-type-button" />
+      <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submitBaseType" data-testid="base-type-ok-button" />
+    </template>
+  </Dialog>
 </template>
-
-<script lang="ts" setup>
-import { Ref, ref, watch, computed, onMounted } from "vue";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
-import { TreeSelectionKeys } from "primevue/tree";
+<script setup lang="ts">
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { EntityService, QueryService } from "@/services";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
-import { SearchOptions } from "@/interfaces";
-import Button from "primevue/button";
+import { SearchResultSummary, QueryRequest, Query } from "@/interfaces/AutoGen";
+import { ref } from "vue";
 
-const editMode = defineModel<boolean>("editMode");
-const match = defineModel<Match>("match", { default: {} });
-const rootBaseEntities: Ref<string[]> = ref([]);
-const selected: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-const hoverEditClause = ref(false);
-const hoverAddClause = ref(false);
-const cohortFilterOptions: Ref<SearchOptions> = ref({
-  types: [{ iri: IM.QUERY }, { iri: SHACL.NODESHAPE }],
-  status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
-  schemes: []
-});
-const baseCohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
-
-const emit = defineEmits<{
-  (event: "node-selected", query: any): void;
-  (event: "navigateTo", iri: string): void;
-  (event: "onCancel", visible: boolean): void;
-}>();
-
-onMounted(async () => {
-  await init();
-});
-
-async function init() {
-  rootBaseEntities.value = await EntityService.getChildEntities(IM.DEFAULT_COHORTS);
-  baseCohortQuery.value = buildIMQueryFromFilters(cohortFilterOptions.value);
-  if (match.value.typeOf) {
-    selected.value.iri = match.value.typeOf!.iri!;
-    selected.value.name = match.value.typeOf.name;
-  } else {
-    selected.value.iri = IM.NAMESPACE + "Patient";
-    selected.value.name = "Patients";
-  }
+interface Props {
+  selected: SearchResultSummary;
+  rootBaseEntities: string[];
 }
-function editBaseType() {}
-
-function addMatch() {}
-
-async function updateQuery(selected: SearchResultSummary) {
-  console.log("updateQuery");
-  const selectedBaseType = await EntityService.getEntitySummary(selected.iri);
-  if (selectedBaseType.type[0].iri === IM.QUERY) {
-    const parentCohort = await QueryService.getQueryFromIri(selectedBaseType.iri);
-    match.value.typeOf = parentCohort.typeOf;
-    if (match.value.rule) {
-      if (match.value.rule[0].instanceOf) match.value.rule[0].instanceOf = [{ iri: selectedBaseType.iri, name: selectedBaseType.name }];
-    }
-  } else match.value!.typeOf = selectedBaseType.type[0];
-  editMode.value = false;
+const props = defineProps<Props>();
+const baseCohortQuery = defineModel<QueryRequest>("baseCohortQuery");
+const modelShowDialog = defineModel<boolean>("visible");
+const localSelected = ref(props.selected);
+const emit = defineEmits<{
+  closeDialog: [];
+  updateBaseType: [payload: SearchResultSummary];
+}>();
+function closeBaseDialog() {
+  emit("closeDialog");
+}
+function submitBaseType() {
+  emit("updateBaseType", localSelected.value);
+  closeBaseDialog();
 }
 </script>
 
 <style scoped>
-.nested-match {
-  box-sizing: border-box;
-  min-width: 0;
-  padding: 0.5rem;
-  border: #488bc230 1px solid;
-  border-radius: 5px;
-  background-color: #488bc210;
-  margin: 0.5rem;
-  font-size: 1rem;
-}
-.base-type-selector {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.edit-button {
-  height: 100%;
-  width: 8%;
-  display: flex;
-  margin-left: auto;
-}
-.type-of {
-  padding-left: 0.2rem;
-  color: var(--p-green-700);
-}
-
 .auto-complete-container {
   flex: 1 1 0%;
   min-width: 0;

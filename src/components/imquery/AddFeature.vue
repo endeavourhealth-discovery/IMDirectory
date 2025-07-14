@@ -1,5 +1,4 @@
 <template>
-  <pre>addFeature={{ addFeature }},show=MatchType {{ showMatchTypeSelector }}</pre>
   <MatchTypeSelector
     v-if="showMatchTypeSelector"
     v-model:visible="showMatchTypeSelector"
@@ -43,6 +42,7 @@ const rootCohortFolder = [IM.NAMESPACE + "Q_Queries"];
 const emit = defineEmits<{
   (event: "onAddMatch", match: Match): void;
   (event: "onAddCohort", match: Match): void;
+  (event: "cancel"): void;
 }>();
 
 watch(
@@ -70,6 +70,7 @@ const onMatchTypeSelected = async (node: any) => {
 const cancel = () => {
   addFeature.value = false;
   showMatchTypeSelector.value = true;
+  emit("cancel");
 };
 
 async function createMatch(node: TreeNode) {
