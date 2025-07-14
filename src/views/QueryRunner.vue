@@ -137,6 +137,7 @@ function getStatusSeverity(status: QueryExecutorStatus): "secondary" | "success"
 
 async function cancelQuery(queryId: string) {
   await QueryService.cancelQuery(queryId);
+  await init();
 }
 
 function goToQuery(queryIri: string) {

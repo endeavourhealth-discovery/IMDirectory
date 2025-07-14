@@ -87,7 +87,7 @@ const QueryService = {
   },
 
   async cancelQuery(id: string): Promise<void> {
-    return axios.post(API_URL + "/cancelQuery", id);
+    return axios.post(API_URL + "/cancelQuery", { value: id });
   },
 
   async requeueQuery(request: RequeueQueryRequest): Promise<void> {

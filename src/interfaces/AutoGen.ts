@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-06-29 10:34:06.
+// Generated using typescript-generator version 3.2.1263 on 2025-07-09 15:34:26.
 
 export interface ConceptContextMap {
     id?: string;
@@ -287,16 +287,16 @@ export interface Argument {
 export interface Assignable {
     qualifier?: string;
     value?: string;
-    unit?: TTIriRef;
-    valueLabel?: string;
     valueParameter?: string;
+    unit?: TTIriRef;
     operator?: Operator;
+    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
-    not?: T[];
     and?: T[];
     or?: T[];
+    not?: T[];
 }
 
 export interface Case {
@@ -344,10 +344,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    ancestorsOf?: boolean;
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -482,6 +482,7 @@ export interface QueryRequest extends ContextMap {
     cohort?: TTIriRef[];
     includeNames?: boolean;
     textSearchStyle?: TextSearchStyle;
+    language?: DatabaseOption;
 }
 
 export interface Range {
@@ -492,6 +493,11 @@ export interface Range {
 export interface RelativeTo extends Node {
     valueVariable?: string;
     propertyRef?: string;
+}
+
+export interface RequeueQueryRequest {
+    queueId?: string;
+    queryRequest?: QueryRequest;
 }
 
 export interface Return {
@@ -556,6 +562,23 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     inverse?: boolean;
     or?: Where[];
     and?: Where[];
+}
+
+export interface DBEntry {
+    id?: string;
+    queryIri?: string;
+    queryName?: string;
+    queryRequest?: QueryRequest;
+    userId?: string;
+    userName?: string;
+    queuedAt?: Date;
+    startedAt?: Date;
+    pid?: number;
+    finishedAt?: Date;
+    killedAt?: Date;
+    status?: QueryExecutorStatus;
+    queryResult?: string;
+    error?: string;
 }
 
 export interface DownloadByQueryOptions {
@@ -747,10 +770,10 @@ export interface TTEntity extends TTNode, Serializable {
     crud?: TTIriRef;
     graph?: TTIriRef;
     type?: TTArray;
-    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
+    status?: TTIriRef;
     description?: string;
     code?: string;
     types?: TTIriRef[];
@@ -1001,6 +1024,12 @@ export const enum Comparison {
     lt = "lt",
 }
 
+export const enum DatabaseOption {
+    MYSQL = "MYSQL",
+    POSTGRESQL = "POSTGRESQL",
+    GRAPHDB = "GRAPHDB",
+}
+
 export const enum DisplayMode {
     ORIGINAL = "ORIGINAL",
     RULES = "RULES",
@@ -1025,8 +1054,9 @@ export const enum Function {
     sum = "sum",
     count = "count",
     average = "average",
-    timeDifference = "timeDifference",
     concatenate = "concatenate",
+    max = "max",
+    min = "min",
 }
 
 export const enum Operator {
@@ -1083,6 +1113,14 @@ export const enum VarType {
     NODE = "NODE",
     PATH = "PATH",
     LITERAL = "LITERAL",
+}
+
+export const enum QueryExecutorStatus {
+    QUEUED = "QUEUED",
+    RUNNING = "RUNNING",
+    COMPLETED = "COMPLETED",
+    CANCELLED = "CANCELLED",
+    ERRORED = "ERRORED",
 }
 
 export const enum Browser {
