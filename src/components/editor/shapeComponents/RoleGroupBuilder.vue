@@ -52,6 +52,7 @@ import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import {Namespace} from "@/vocabulary/Namespace";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -176,7 +177,7 @@ const valueRequest: QueryRequest = {
     activeOnly: true,
     where: {
       iri: IM.HAS_SCHEME,
-      is: [{ iri: SNOMED.NAMESPACE }, { iri: IM.NAMESPACE }]
+      is: [{ iri: Namespace.SNOMED }, { iri: Namespace.IM }]
     }
   }
 };

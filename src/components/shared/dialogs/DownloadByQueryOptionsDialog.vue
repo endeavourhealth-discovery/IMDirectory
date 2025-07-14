@@ -97,6 +97,7 @@ import { DownloadSettings } from "@/interfaces";
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { IM, SNOMED } from "@/vocabulary";
 import { computed, Ref, ref, watch } from "vue";
+import {Namespace} from "@/vocabulary/Namespace";
 
 interface DownloadOption {
   key: string;
@@ -169,7 +170,7 @@ const isOptionsSelected = computed(() => {
 const checkedLegacy = ref(false);
 const checked = ref(true);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
-const schemesOptions = filterOptions.value.schemes.filter(c => c.iri !== IM.NAMESPACE || c.iri !== SNOMED.NAMESPACE);
+const schemesOptions = filterOptions.value.schemes.filter(c => c.iri !== Namespace.IM && c.iri !== Namespace.SNOMED);
 
 watch(
   () => props.showDefinition,

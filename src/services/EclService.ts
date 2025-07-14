@@ -1,6 +1,6 @@
 import axios from "axios";
 import Env from "./Env";
-import { Query, EclSearchRequest, SearchResponse, ECLQuery } from "@/interfaces/AutoGen";
+import { Query, EclSearchRequest, SearchResponse, ECLQueryRequest } from "@/interfaces/AutoGen";
 
 const EclService = {
   async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<SearchResponse> {
@@ -14,7 +14,7 @@ const EclService = {
     return await axios.post(Env.API + "api/ecl/public/ecl", query);
   },
 
-  async getQueryFromECL(ecl: string, raw: boolean = false): Promise<ECLQuery> {
+  async getQueryFromECL(ecl: string, raw: boolean = false): Promise<ECLQueryRequest> {
     return await axios.post(
       Env.API + "api/ecl/public/queryFromEcl",
       { ecl: ecl, status: { valid: true } },
@@ -22,7 +22,7 @@ const EclService = {
     );
   },
 
-  async getEclFromEcl(ecl: string, showNames: boolean): Promise<ECLQuery> {
+  async getEclFromEcl(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
     return await axios.post(
       Env.API + "api/ecl/public/eclFromEcl",
       { ecl: ecl, showNames: showNames, status: { valid: true } },
@@ -30,7 +30,7 @@ const EclService = {
     );
   },
 
-  async validateECL(ecl: string, showNames: boolean): Promise<ECLQuery> {
+  async validateECL(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
     return await axios.post(
       Env.API + "api/ecl/public/validateEcl",
       { ecl: ecl, showNames: showNames, status: { valid: true } },
@@ -38,14 +38,14 @@ const EclService = {
     );
   },
 
-  async validateModelFromECL(ecl: string, showNames: boolean): Promise<ECLQuery> {
+  async validateModelFromECL(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
     return await axios.post(
       Env.API + "api/ecl/public/validateModelFromECL",
       { ecl: ecl, showNames: showNames, status: { valid: true } },
       { headers: { "Content-Type": "application/json" }, raw: true }
     );
   },
-  async validateModelFromQuery(query: Query): Promise<ECLQuery> {
+  async validateModelFromQuery(query: Query): Promise<ECLQueryRequest> {
     return await axios.post(
       Env.API + "api/ecl/public/validateModelFromQuery",
       { query: query, status: { valid: true } },
@@ -73,7 +73,7 @@ const EclService = {
     });
   },
 
-  async getECLFromQuery(query: Query, showNames?: boolean): Promise<ECLQuery> {
+  async getECLFromQuery(query: Query, showNames?: boolean): Promise<ECLQueryRequest> {
     return await axios.post(
       Env.API + "api/ecl/public/eclFromQuery",
       { query: query, showNames: showNames },

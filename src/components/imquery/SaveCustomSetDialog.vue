@@ -69,6 +69,7 @@ import { EntityService, FilerService, FunctionService } from "@/services";
 import { IM, RDF, RDFS, IM_FUNCTION } from "@/vocabulary";
 import { useToast } from "primevue/usetoast";
 import * as yup from "yup";
+import {Namespace} from "@/vocabulary/Namespace";
 
 interface Props {
   setMembers: Node[];
@@ -78,7 +79,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{ onSave: [payload: Node] }>();
 
 const schema = yup.object({
-  scheme: yup.string().required().label("Scheme").default(IM.NAMESPACE),
+  scheme: yup.string().required().label("Scheme").default(Namespace.IM),
   iri: yup
     .string()
     .required()
@@ -155,7 +156,7 @@ function onNameGenIri() {
 
 function selectDefaults() {
   if (isArrayHasLength(schemeOptions.value)) setFieldValue("scheme", schemeOptions.value[0].iri);
-  else setFieldValue("scheme", IM.NAMESPACE);
+  else setFieldValue("scheme", Namespace.IM);
 
   setFieldValue("type", IM.CONCEPT_SET);
 }
@@ -164,7 +165,7 @@ const onSubmit = handleSubmit(async () => {
   loading.value = true;
   const setEntity = buildSetEntity();
   try {
-    await FilerService.fileEntity(setEntity, IM.NAMESPACE, IM.ADD_QUADS);
+    await FilerService.fileEntity(setEntity, Namespace.IM, IM.ADD_QUADS);
     const createdEntity = await EntityService.getFullEntity(setEntity.iri);
     if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.HAS_SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
       toast.add({ severity: "success", summary: "Created", detail: "Created " + createdEntity[RDFS.LABEL], life: 3000 });

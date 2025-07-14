@@ -84,7 +84,7 @@ import { EditorMode } from "@/enums";
 import { EclService } from "@/services";
 import { cloneDeep, isEqual, last } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { ECLQuery, PropertyShape, SearchResultSummary } from "@/interfaces/AutoGen";
+import { ECLQueryRequest, PropertyShape, SearchResultSummary } from "@/interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
@@ -101,7 +101,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const validationDialog = useDialog();
-const eclQuery: Ref<ECLQuery> = ref({ ecl: props.value, query: {}, status: { valid: true } });
+const eclQuery: Ref<ECLQueryRequest> = ref({ ecl: props.value, query: {}, status: { valid: true } });
 const importMenu = ref();
 const ecl: Ref<string> = ref("");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ecl);
@@ -266,7 +266,7 @@ function processCodeList(data: SearchResultSummary[]) {
   }
 }
 
-async function updatefromBuilder(builderQuery: ECLQuery): Promise<void> {
+async function updatefromBuilder(builderQuery: ECLQueryRequest): Promise<void> {
   eclQuery.value = await EclService.getECLFromQuery(builderQuery.query!, showNames.value);
   ecl.value = eclQuery.value.ecl!;
   lastValidEcl.value = ecl.value;

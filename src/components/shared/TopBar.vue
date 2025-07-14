@@ -6,17 +6,19 @@
     <div id="topbar-content">
       <slot name="content" />
     </div>
-    <div id="topbar-end">
-      <span class="filter-text filter">Include drafts:</span>
-      <ToggleSwitch id="user-graph-switch" class="filter-toggle mx-2 filter" v-model="includeUserGraph" data-testid="user-graph-switch"></ToggleSwitch>
-      <IMFontAwesomeIcon
-        class="mt-0.5 mr-2"
-        v-tooltip.bottom="{
-          value: 'When enabled, this will include your own unpublished drafts in places such as search results and the navigation tree.'
-        }"
-        icon="fa-regular fa-circle-question"
-      >
-      </IMFontAwesomeIcon>
+    <div id="topbar-end" class="topbar-end">
+      <div v-if="isLoggedIn" class="topbar-end">
+        <span class="filter-text filter">Include drafts:</span>
+        <ToggleSwitch id="user-graph-switch" class="filter-toggle mx-2 filter" v-model="includeUserGraph" data-testid="user-graph-switch"></ToggleSwitch>
+        <IMFontAwesomeIcon
+          class="mt-0.5 mr-2"
+          v-tooltip.bottom="{
+            value: 'When enabled, this will include your own unpublished drafts in places such as search results and the navigation tree.'
+          }"
+          icon="fa-regular fa-circle-question"
+        >
+        </IMFontAwesomeIcon>
+      </div>
       <Popover ref="themesMenu" id="themes-menu" @mouseleave="themesMenu.hide()" scrollable>
         <div class="theme-container">
           <h2>Primary</h2>
@@ -510,7 +512,7 @@ async function openAdminToolbox() {
   width: 100%;
 }
 
-#topbar-end {
+.topbar-end {
   height: inherit;
   flex: 0 1 auto;
   justify-self: end;
