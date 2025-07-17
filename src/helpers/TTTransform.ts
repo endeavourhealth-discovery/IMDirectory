@@ -3,7 +3,7 @@ import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { TTIriRef } from "../interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { GenericObject } from "@/interfaces/GenericObject";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 export function transformTT(ttEntity: TTEntity, map?: GenericObject) {
   if (!isObjectHasKeys(ttEntity)) return {} as TTEntity;

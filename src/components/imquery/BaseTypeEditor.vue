@@ -8,7 +8,7 @@
         :rootBaseEntities="rootBaseEntities"
         v-model:base-cohort-query="baseCohortQuery"
         @updateBaseType="updateBaseType($event)"
-        @onCancel="editMode = false"
+        @cancel="editMode = false"
         @navigateTo="emit('navigateTo', $event)"
       />
     </div>
@@ -25,12 +25,15 @@
         :severity="hoverEditClause ? 'success' : 'secondary'"
         :outlined="!hoverEditClause"
         :class="!hoverEditClause && 'hover-button'"
-        @click="editMode = true"
+        @click="
+          editMode = true;
+          hoverEditClause = false;
+        "
         @mouseover="hoverEditClause = true"
         @mouseout="hoverEditClause = false"
       />
     </div>
-    <div v-if="!editMode" class="add-button">
+    <div v-if="!editMode && !hasBoolGroups(match)" class="add-button">
       <Button
         type="button"
         icon="fa-solid fa-plus"
@@ -51,10 +54,8 @@
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import { Match, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
-import { TreeSelectionKeys } from "primevue/tree";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { EntityService, QueryService } from "@/services";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { buildIMQueryFromFilters, hasBoolGroups } from "@/helpers/IMQueryBuilder";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
@@ -114,7 +115,7 @@ async function updateBaseType(newBaseType?: SearchResultSummary) {
             }
           ];
       }
-    } else match.value!.typeOf = selectedBaseType.type[0];
+    } else match.value!.typeOf = { iri: newBaseType.iri, name: newBaseType.name };
   }
   editMode.value = false;
 }

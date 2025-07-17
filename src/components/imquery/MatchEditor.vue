@@ -1,7 +1,7 @@
 <template>
   <div>
     <Dialog
-      :visible="showMatchEditor"
+      :visible="visible"
       modal
       :draggable="false"
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
@@ -24,7 +24,20 @@
       <div v-else class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
         <span>Description</span>
         <Textarea v-model="match.description" autoResize placeholder="Description" rows="2" type="text" />
-        <span>Definition</span>
+        <span v-if="match.instanceOf || match.where">
+          <CohortEditor v-if="match.instanceOf" v-model:match="match" v-model:editMode="editCohort" />
+          <div v-else-if="match.where">
+            <span v-if="!match.where.and">
+              <span>Where: {{ match.where }}</span>
+            </span>
+            <EditProperty :data-model-iri="match.typeOf ? match.typeOf!.iri! :baseType.iri!" :edit-match="match" v-model:property="match.where" />
+          </div>
+        </span>
+
+        <span v-else>
+          <span>Select properties to add</span>
+          <MatchTypeSelector :base-type="baseType" @node-selected="onMatchTypeSelected($event)" />
+        </span>
       </div>
       <template #footer>
         <div class="button-footer">
@@ -38,22 +51,26 @@
 
 <script lang="ts" setup>
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { cloneDeep } from "lodash-es";
-import { Match, TTIriRef, Return } from "@/interfaces/AutoGen";
-import { computed, inject, onMounted, Ref, ref, watch } from "vue";
+import { DisplayMode, Match, Node, TTIriRef } from "@/interfaces/AutoGen";
+import { onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import type { MenuItem } from "primevue/menuitem";
-import { EntityService } from "@/services";
+import { EntityService, QueryService, DataModelService } from "@/services";
 import { IM } from "@/vocabulary";
-import { setReturn } from "@/helpers/IMQueryBuilder";
-import FunctionComponent from "./functionTemplates/FunctionComponent.vue";
+import type { TreeNode } from "primevue/treenode";
+import { addWhereToMatch, setReturn } from "@/helpers/IMQueryBuilder";
+import MatchTypeSelector from "@/components/imquery/MatchTypeSelector.vue";
+import CohortEditor from "@/components/imquery/CohortEditor.vue";
+import EditProperty from "@/components/imquery/EditProperty.vue";
 
 interface Props {
   index?: number;
+  baseType: Node;
 }
 
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
+const visible = ref(true);
 const emit = defineEmits<{
   (event: "saveChanges"): void;
   (event: "cancel"): void;
@@ -63,21 +80,18 @@ const showBuildFeature: Ref<boolean> = ref(false);
 const showBuildThenFeature: Ref<boolean> = ref(false);
 const keepAsEdit: Ref<boolean> = ref(false);
 const editMatchString: Ref<string> = ref("");
-const showMatchEditor = defineModel<boolean>("showMatchEditor");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
 const pathItems: Ref<MenuItem[]> = ref([]);
-const variableMap = inject("variableMap") as Ref<{ [key: string]: any }>;
 const templates: Ref<any> = ref();
 const loading = ref(true);
 const keepAs: Ref<string> = ref("");
-
+const editCohort = ref(false);
 watch(
   () => keepAs,
   () => setReturn(match.value, keepAs.value)
 );
 
 onMounted(async () => {
-  console.log("IMQUERY EDIT DIALOG MOUNTED with " + match.value.typeOf?.iri);
   await init();
 });
 
@@ -88,6 +102,22 @@ async function init() {
   loading.value = false;
 }
 
+async function onMatchTypeSelected(node: TreeNode) {
+  if (node.data.iri === "cohort") {
+    editCohort.value = true;
+  } else {
+    if (node.data.range) {
+      const defaultPropertyShape = await DataModelService.getDefiningProperty(node.data.range);
+      if (defaultPropertyShape.path) {
+        addWhereToMatch(match.value, node.data.path, defaultPropertyShape.path.iri);
+        QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+      }
+    } else {
+      addWhereToMatch(match.value, node.data.path, node.data.iri);
+      QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+    }
+  }
+}
 async function getFunctionTemplates() {
   const iri = match.value?.typeOf?.iri;
   if (iri) {
@@ -105,13 +135,13 @@ function setPathItems() {
 }
 
 function onSave() {
-  showMatchEditor.value = false;
   emit("saveChanges");
+  visible.value = false;
 }
 
 function onCancel() {
-  showMatchEditor.value = false;
   emit("cancel");
+  visible.value = false;
 }
 
 function onAddFunctionProperty(args: { property: string; value: any }) {

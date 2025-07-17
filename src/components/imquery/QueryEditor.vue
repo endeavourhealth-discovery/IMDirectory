@@ -27,7 +27,7 @@
     <span v-if="query.typeOf" v-for="operator in operators" :key="operator">
       <span v-if="query[operator]">
         <span v-for="(nestedMatch, index) in query[operator]" :key="index">
-          <MatchClauseEditor
+          <ClauseEditor
             v-model:match="query[operator][index]"
             :rootBool="true"
             :depth="0"
@@ -36,7 +36,6 @@
             :clauseIndex="index"
             :parentOperator="operator as Bool"
             :baseType="query.typeOf!"
-            :activeInputId="activeInputId"
             @activateInput="activeInputId = $event"
             @rationalise="rationaliseBooleans"
           />
@@ -57,7 +56,7 @@ import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { Bool, Match, Query } from "@/interfaces/AutoGen";
-import MatchClauseEditor from "@/components/imquery/MatchClauseEditor.vue";
+import ClauseEditor from "@/components/imquery/ClauseEditor.vue";
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 
 interface Props {

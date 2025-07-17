@@ -1,10 +1,10 @@
 <template>
-  <EditMatchDialog
+  <MatchEditor
     v-if="!matchDefined(match) || showMatchEditor"
     v-model:match="match"
-    v-model:showMatchEditor="showMatchEditor"
     @cancel="cancelEditMatch"
     :baseType="baseType"
+    v-model:visible="showMatchEditor"
   />
   <!--<AddFeature v-if="addFeature" v-model:match="match" @cancel="addFeature = false" :baseType="baseType" />-->
   <div class="nested-match">
@@ -27,7 +27,7 @@
             />
           </div>
           <div v-for="(item, index) in match[operator]" :key="item.uuid">
-            <MatchClauseEditor
+            <ClauseEditor
               v-model:match="match[operator]![index]"
               v-model:parentMatch="match"
               :depth="depth + 1"
@@ -101,7 +101,7 @@
       </div>
     </div>
     <div v-if="match.then">
-      <MatchClauseEditor
+      <ClauseEditor
         v-model:match="match.then"
         :from="match"
         :depth="depth + 1"
@@ -121,14 +121,21 @@
 <script setup lang="ts">
 import { Match, Bool, Node } from "@/interfaces/AutoGen";
 import { inject, Ref, ref, computed, onMounted } from "vue";
-import { hasBoolGroups, updateBooleans, updateFocusConcepts, isGroupable, addMatchToParent, matchDefined } from "@/helpers/IMQueryBuilder";
+import {
+  hasBoolGroups,
+  updateBooleans,
+  updateFocusConcepts,
+  isGroupable,
+  addMatchToParent,
+  matchDefined,
+  deleteMatchFromParent
+} from "@/helpers/IMQueryBuilder";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
-import AddFeature from "@/components/imquery/AddFeature.vue";
-import EditMatchDialog from "@/components/imquery/EditMatchDialog.vue";
+import MatchEditor from "@/components/imquery/MatchEditor.vue";
 import { cloneDeep } from "lodash-es";
 interface Props {
   isVariable?: boolean;
@@ -157,7 +164,7 @@ const hoverDeleteClause = ref(false);
 const hoverAddClause = ref(false);
 const showMatchEditor = ref(false);
 const operators = ["and", "or", "not"] as const;
-const originalMatch:Ref<Match> = ref({});
+const originalMatch: Ref<Match> = ref({});
 const showBoolean = computed(() => {
   if (props.from) return false;
   if (props.parentOperator) {
@@ -169,7 +176,7 @@ onMounted(async () => {
   init();
 });
 
-function init(){
+function init() {
   originalMatch.value = cloneDeep(match.value);
 }
 
@@ -183,10 +190,11 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string, inde
 }
 function addMatch() {
   addMatchToParent({}, parentMatch.value);
-  showMatchEditor.value = true;
 }
 function deleteMatch() {}
-function editMatch() {}
+function editMatch() {
+  showMatchEditor.value = true;
+}
 function mouseover(event: any) {
   event.stopPropagation();
 }
@@ -194,8 +202,11 @@ function getSubrule(parentIndex: number, index: number): string {
   return parentIndex + String.fromCharCode(96 + index);
 }
 
-function cancelEditMatch(){
-  match.value= originalMatch.value;
+function cancelEditMatch() {
+  match.value = originalMatch.value;
+  if (!matchDefined(match.value)) {
+    deleteMatchFromParent(parentMatch.value, props.clauseIndex);
+  }
   showMatchEditor.value = false;
 }
 

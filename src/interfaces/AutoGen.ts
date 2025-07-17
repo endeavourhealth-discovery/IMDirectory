@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-10 15:50:14.
+// Generated using typescript-generator version 3.2.1263 on 2025-07-15 15:07:38.
 
 export interface ConceptContextMap {
     id?: string;
@@ -272,12 +272,12 @@ export interface Argument {
 }
 
 export interface Assignable {
-    unit?: TTIriRef;
     value?: string;
+    unit?: TTIriRef;
+    valueLabel?: string;
     valueParameter?: string;
     operator?: Operator;
     qualifier?: string;
-    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
@@ -332,10 +332,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -382,7 +382,6 @@ export interface Match extends IriLD, BoolGroup<Match> {
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
-    linkedMatch?: string;
     union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
@@ -823,11 +822,11 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
+    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    status?: TTIriRef;
     code?: string;
     types?: TTIriRef[];
     prefixes?: TTPrefix[];
@@ -879,10 +878,6 @@ export interface TaskHistory {
     dateTime?: Date;
 }
 
-export interface StringTypedEnum extends CharSequence {
-    empty?: boolean;
-}
-
 export interface VocabEnum {
 }
 
@@ -915,8 +910,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -967,9 +962,6 @@ export interface TTPrefix {
 export interface TTNode extends TTValue, Serializable {
     iri?: string;
     predicateMap?: { [index: string]: TTArray };
-}
-
-export interface CharSequence {
 }
 
 export interface TTValue extends Serializable {
@@ -1338,10 +1330,11 @@ export const enum IM {
     VALUESET = "http://endhealth.info/im#ValueSet",
     TEXT_MAPS = "http://endhealth.info/im#TextMaps",
     CONFIG = "http://endhealth.info/im#Config",
-    SCHEMES = "http://endhealth.info/im#Graph",
+    NAMESPACE = "http://endhealth.info/im#Namespace",
     FUNCTION = "http://endhealth.info/im#FunctionClause",
     QUERY = "http://endhealth.info/im#Query",
     COHORT_QUERY = "http://endhealth.info/im#CohortQuery",
+    DEFAULT_COHORTS = "http://endhealth.info/im#Q_DefaultCohorts",
     DATASET_QUERY = "http://endhealth.info/im#DatasetQuery",
     DATA_UPDATE = "http://endhealth.info/im#DataUpdate",
     PATH_QUERY = "http://endhealth.info/im#PathQuery",
@@ -1367,6 +1360,8 @@ export const enum IM {
     SOME_OF = "http://endhealth.info/im#someOf",
     HAS_CHILDREN = "http://endhealth.info/im#hasChildren",
     IS_A = "http://endhealth.info/im#isA",
+    CONTEXT_ORDER = "http://endhealth.info/im#contextOrder",
+    CONTEXT = "http://endhealth.info/im#context",
     IS_CHILD_OF = "http://endhealth.info/im#isChildOf",
     PREVIOUS_ENTITY_OF = "http://endhealth.info/im#previousEntityOf",
     SUBSUMED_BY = "http://endhealth.info/im#subsumedBy",

@@ -1,4 +1,18 @@
-import { Bool, BoolGroup, Element, Match, Node, OrderDirection, Query, QueryRequest, RuleAction, SearchBinding, TTIriRef, Where } from "@/interfaces/AutoGen";
+import {
+  Bool,
+  BoolGroup,
+  Element,
+  Match,
+  Node,
+  OrderDirection,
+  Query,
+  QueryRequest,
+  RuleAction,
+  SearchBinding,
+  TTIriRef,
+  Where,
+  Path
+} from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
@@ -180,6 +194,52 @@ function removeRoleSubgroups(where: Where): void {
     }
     removeRoleSubgroups(item);
   }
+}
+
+export function deleteMatchFromParent(parentMatch: Match, index: number) {
+  for (const key of ["rule", "and", "or", "not"] as const) {
+    if (parentMatch[key]) {
+      parentMatch[key]!.splice(index, 1);
+    }
+  }
+}
+
+export function addWhereToMatch(match: Match, path: string, property: string) {
+  let nodeRef = ";";
+  if (path != "") {
+    const propertyTypePath = path.split(",");
+    if (!match.path) match.path = [];
+    nodeRef = findMatchPathVariable(match, propertyTypePath);
+    if (nodeRef == "") {
+      const matchPath = {} as Path;
+      for (let i = 0; i < propertyTypePath.length; i += 2) {
+        matchPath.iri = propertyTypePath[i];
+        matchPath.typeOf = { iri: propertyTypePath[i + 1] };
+        match.typeOf = matchPath.typeOf;
+      }
+      match.path.push(matchPath);
+    }
+  }
+  const where = {} as Where;
+  where.iri = property;
+  if (match.where) {
+    if (!match.where.and) {
+      const currentWhere = match.where;
+      match.where = {} as Where;
+      match.where.and = [currentWhere];
+      match.where.and.push(where);
+    } else match.where.and.push(where);
+  } else match.where = where;
+}
+
+function findMatchPathVariable(match: Match, path: string[]): string {
+  if (!match.path) return "";
+  let i = -1;
+  for (const pathItem of match.path) {
+    i++;
+    if (pathItem.iri === path[i]) return pathItem.iri;
+  }
+  return "";
 }
 export function matchDefined(match: Match): boolean {
   return !!(match.path || match.where || match.instanceOf);

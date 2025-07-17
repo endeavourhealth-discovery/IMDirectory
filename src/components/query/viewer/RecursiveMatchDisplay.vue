@@ -3,7 +3,7 @@
     <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
       <span class="rule">Rule {{ clauseIndex }}</span>
     </span>
-    <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && !match.linkedMatch && parentOperator != Bool.not" :class="parentOperator">{{
+    <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && parentOperator != Bool.not" :class="parentOperator">{{
       parentOperator
     }}</span>
     <span v-if="parentMatch?.union && !from">
