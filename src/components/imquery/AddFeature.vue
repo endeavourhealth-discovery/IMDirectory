@@ -25,8 +25,8 @@ import { TreeNode } from "primevue/treenode";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { SearchOptions } from "@/interfaces";
 import { IM } from "@/vocabulary";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
-import {Namespace} from "@/vocabulary/Namespace";
+import { buildIMQueryFromFilters } from "@/composables/buildQuery";
+import { Namespace } from "@/vocabulary/Namespace";
 
 interface Props {
   baseType: Node;

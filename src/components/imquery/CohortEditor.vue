@@ -53,7 +53,7 @@ import { Match, SearchResultSummary, QueryRequest, Node } from "@/interfaces/Aut
 import { TreeSelectionKeys } from "primevue/tree";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { EntityService, QueryService } from "@/services";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { buildIMQueryFromFilters } from "@/composables/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";

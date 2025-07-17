@@ -25,7 +25,7 @@
         />
         <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
       </div>
-
+      <span>{{ selectedDropdownOption ? selectedDropdownOption.iri : "" }}{{ prefix ? prefix : "" }}{{ userInput }}</span>
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
@@ -44,7 +44,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import { cloneDeep, isEqual } from "lodash-es";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 const props = defineProps<{
   shape: PropertyShape;

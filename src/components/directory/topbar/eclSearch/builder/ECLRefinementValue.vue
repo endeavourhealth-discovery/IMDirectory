@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { constraintOperatorOptions, getConstraintOperator, setConstraintOperator } from "@/helpers/IMQueryBuilder";
+import { constraintOperatorOptions, getConstraintOperator, setConstraintOperator } from "@/composables/buildQuery";
 import Button from "primevue/button";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { computed, inject, onMounted, ref, Ref, watch } from "vue";

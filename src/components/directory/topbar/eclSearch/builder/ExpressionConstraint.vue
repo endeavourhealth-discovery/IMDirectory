@@ -152,7 +152,7 @@ import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { addConceptToGroup, checkGroupChange, getBooleanOptions, getIsRoleGroup, manageRoleGroup, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
+import { addConceptToGroup, checkGroupChange, getBooleanOptions, getIsRoleGroup, manageRoleGroup, updateFocusConcepts } from "@/composables/buildQuery";
 import { v4 } from "uuid";
 import ECLBoolQuery from "@/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";

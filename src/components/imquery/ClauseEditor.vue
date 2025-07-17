@@ -129,7 +129,7 @@ import {
   addMatchToParent,
   matchDefined,
   deleteMatchFromParent
-} from "@/helpers/IMQueryBuilder";
+} from "@/composables/buildQuery";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";

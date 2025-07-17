@@ -120,7 +120,7 @@ import { Match, Bool } from "@/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getBooleanLabel, hasBoolGroups } from "@/helpers/IMQueryBuilder";
+import { getBooleanLabel, hasBoolGroups } from "@/composables/buildQuery";
 
 defineProps<{
   isVariable?: boolean;

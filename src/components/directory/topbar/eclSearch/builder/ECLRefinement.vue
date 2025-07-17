@@ -175,13 +175,13 @@ import { ToastSeverity } from "@/enums";
 import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef, Node } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getBooleanOptions, updateBooleans, getIsRoleGroup, checkGroupChange } from "@/helpers/IMQueryBuilder";
-import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions, updateBooleans, getIsRoleGroup, checkGroupChange } from "@/composables/buildQuery";
+import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/composables/buildQuery";
 
 import Button from "primevue/button";
 import ECLRefinementValue from "@/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 interface Props {
   focusConcepts: string[];

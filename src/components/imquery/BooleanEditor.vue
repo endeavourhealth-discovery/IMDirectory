@@ -46,7 +46,7 @@ import { inject, onMounted, Ref, ref, computed } from "vue";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where } from "@/interfaces/AutoGen";
-import { checkGroupChange, getBooleanOptions, isGroupable, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
+import { checkGroupChange, getBooleanOptions, isGroupable, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
 
 interface Props {
   isVariable?: boolean;
@@ -72,7 +72,7 @@ const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wa
 
 function updateOperator(val: string) {
   updateFocusConcepts(match.value);
-  emit("updateOperator",val);
+  emit("updateOperator", val);
 }
 
 function onCheckGroupChange(e: any) {

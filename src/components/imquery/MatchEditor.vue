@@ -58,7 +58,7 @@ import type { MenuItem } from "primevue/menuitem";
 import { EntityService, QueryService, DataModelService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
-import { addWhereToMatch, setReturn } from "@/helpers/IMQueryBuilder";
+import { addWhereToMatch, setReturn } from "@/composables/buildQuery";
 import MatchTypeSelector from "@/components/imquery/MatchTypeSelector.vue";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import EditProperty from "@/components/imquery/EditProperty.vue";
