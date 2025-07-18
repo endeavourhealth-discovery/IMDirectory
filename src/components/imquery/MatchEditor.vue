@@ -1,7 +1,7 @@
 <template>
   <div>
     <Dialog
-      :visible="visible"
+      :visible="showMatchEditor"
       modal
       :draggable="false"
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
@@ -30,7 +30,7 @@
             <span v-if="!match.where.and">
               <span>Where: {{ match.where }}</span>
             </span>
-            <EditProperty :data-model-iri="match.typeOf ? match.typeOf!.iri! :baseType.iri!" :edit-match="match" v-model:property="match.where" />
+            <EditProperty :data-model-iri="match.typeOf ? match.typeOf!.iri! : baseType.iri!" :edit-match="match" v-model:property="match.where" />
           </div>
         </span>
 
@@ -70,7 +70,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
-const visible = ref(true);
+const showMatchEditor = defineModel<boolean>("showMatchEditot", { default: false });
 const emit = defineEmits<{
   (event: "saveChanges"): void;
   (event: "cancel"): void;
@@ -136,12 +136,12 @@ function setPathItems() {
 
 function onSave() {
   emit("saveChanges");
-  visible.value = false;
+  showMatchEditor.value = false;
 }
 
 function onCancel() {
   emit("cancel");
-  visible.value = false;
+  showMatchEditor.value = false;
 }
 
 function onAddFunctionProperty(args: { property: string; value: any }) {
