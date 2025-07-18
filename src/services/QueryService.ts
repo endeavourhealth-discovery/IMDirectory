@@ -106,7 +106,7 @@ const QueryService = {
     return axios.post(API_URL + "/killActiveQuery");
   },
 
-  async testRunQuery(request: Query): Promise<string[]> {
+  async testRunQuery(request: QueryRequest): Promise<string[]> {
     return axios.post(API_URL + "/testRunQuery", request);
   }
 };

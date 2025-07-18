@@ -39,7 +39,7 @@
 <script lang="ts" setup>
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode } from "@/enums";
-import { DisplayMode, PropertyShape, Query } from "@/interfaces/AutoGen";
+import { DisplayMode, PropertyShape, Query, QueryRequest } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
@@ -132,7 +132,8 @@ function updateQueryDefinition(test: any) {
 
 async function testRunQuery() {
   if (queryDefinition.value) {
-    queryTestResults.value = await QueryService.testRunQuery(queryDefinition.value);
+    const request: QueryRequest = { query: queryDefinition.value };
+    queryTestResults.value = await QueryService.testRunQuery(request);
   } else queryTestResults.value = [];
   showTestQueryResults.value = true;
 }
