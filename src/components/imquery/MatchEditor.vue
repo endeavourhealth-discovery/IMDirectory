@@ -30,7 +30,7 @@
             <span v-if="!match.where.and">
               <span>Where: {{ match.where }}</span>
             </span>
-            <EditProperty :data-model-iri="match.typeOf ? match.typeOf!.iri! :baseType.iri!" :edit-match="match" v-model:property="match.where" />
+            <EditProperty :data-model-iri="match.typeOf ? match.typeOf!.iri! : baseType.iri!" :edit-match="match" v-model:property="match.where" />
           </div>
         </span>
 
