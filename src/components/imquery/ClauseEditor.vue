@@ -1,7 +1,8 @@
 <template>
   <MatchEditor
-    v-if="!matchDefined(match) || showMatchEditor"
+    v-if="showMatchEditor"
     v-model:match="match"
+    v-model:showMatchEditor="showMatchEditor"
     @cancel="cancelEditMatch"
     :baseType="baseType"
     v-model:visible="showMatchEditor"
@@ -162,7 +163,7 @@ const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wa
 const hoverEditClause = ref(false);
 const hoverDeleteClause = ref(false);
 const hoverAddClause = ref(false);
-const showMatchEditor = ref(false);
+const showEditor = ref(false);
 const operators = ["and", "or", "not"] as const;
 const originalMatch: Ref<Match> = ref({});
 const showBoolean = computed(() => {
@@ -171,6 +172,11 @@ const showBoolean = computed(() => {
     return props.parentOperator !== Bool.rule;
   }
   return false;
+});
+const showMatchEditor = computed(() => {
+  if (!matchDefined(match.value)) return true;
+  else if (showEditor.value) return true;
+  else return false;
 });
 onMounted(async () => {
   init();
