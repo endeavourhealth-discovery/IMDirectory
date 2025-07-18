@@ -199,7 +199,7 @@ function addMatch() {
 }
 function deleteMatch() {}
 function editMatch() {
-  showMatchEditor.value = true;
+  showEditor.value = true;
 }
 function mouseover(event: any) {
   event.stopPropagation();
@@ -213,7 +213,7 @@ function cancelEditMatch() {
   if (!matchDefined(match.value)) {
     deleteMatchFromParent(parentMatch.value, props.clauseIndex);
   }
-  showMatchEditor.value = false;
+  showEditor.value = false;
 }
 
 function mouseout(event: any) {
