@@ -130,7 +130,7 @@ export class IM {
   public static readonly SOURCE_HEADING = Namespace.IM + "sourceHeading"
   public static readonly TARGET_PROPERTY = Namespace.IM + "targetProperty"
   public static readonly CONTEXT_NODE = Namespace.IM + "contextNode"
-  public static readonly UPDATE_ALL = Namespace.IM + "UpdateAll"
+  public static readonly REPLACE_ALL_PREDICATES = Namespace.IM + "ReplaceAllPredicates"
   public static readonly ADD_QUADS = Namespace.IM + "AddQuads"
   public static readonly UPDATE_PREDICATES = Namespace.IM + "UpdatePredicates"
   public static readonly DELETE_ALL = Namespace.IM + "DeleteAll"

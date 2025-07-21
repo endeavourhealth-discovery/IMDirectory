@@ -21,7 +21,7 @@
 import { onMounted, Ref, ref, watch } from "vue";
 import { DisplayMode, Match, Query, Where } from "@/interfaces/AutoGen";
 import type { TreeNode } from "primevue/treenode";
-import { buildProperty } from "@/helpers/QueryBuilder";
+import { buildProperty } from "@/composables/buildQuery";
 import QueryNavTree from "./QueryNavTree.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash-es";

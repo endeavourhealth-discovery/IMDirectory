@@ -281,23 +281,6 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: "/query",
-    name: "Queries",
-    component: () => import("@/views/Query.vue"),
-    meta: {
-      requiresAuth: true,
-      requiresLicense: true,
-      requiresCreateRole: true
-    },
-    children: [
-      {
-        path: ":queryIri?",
-        name: "Query",
-        component: () => import("@/views/Query.vue")
-      }
-    ]
-  },
-  {
     path: "/queryRunner",
     name: "QueryRunner",
     component: () => import("@/views/QueryRunner.vue"),

@@ -81,7 +81,7 @@ import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { Match, ECLQueryRequest } from "@/interfaces/AutoGen";
-import { showValidationMessage,showVerificationDialog } from "@/composables/eclValidator";
+import { showValidationMessage, showVerificationDialog } from "@/composables/eclValidator";
 interface Props {
   showDialog?: boolean;
   eclString?: string;
@@ -108,7 +108,7 @@ const loading = ref(true);
 const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);
 const op = ref();
-
+const group: Ref<number[]> = ref([]);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
@@ -222,7 +222,6 @@ async function validateBuild() {
   build.value = eclQuery.query!;
   verificationDialog.close();
   await displayValidationMessage(!eclQuery.status!.valid);
-
 }
 
 async function displayValidationMessage(invalid: boolean | undefined) {

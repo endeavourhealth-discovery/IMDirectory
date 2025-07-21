@@ -1,5 +1,4 @@
 <template>
-  <pre>addFeature={{ addFeature }},show=MatchType {{ showMatchTypeSelector }}</pre>
   <MatchTypeSelector
     v-if="showMatchTypeSelector"
     v-model:visible="showMatchTypeSelector"
@@ -26,8 +25,8 @@ import { TreeNode } from "primevue/treenode";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { SearchOptions } from "@/interfaces";
 import { IM } from "@/vocabulary";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
-import {Namespace} from "@/vocabulary/Namespace";
+import { buildIMQueryFromFilters } from "@/composables/buildQuery";
+import { Namespace } from "@/vocabulary/Namespace";
 
 interface Props {
   baseType: Node;
@@ -44,6 +43,7 @@ const rootCohortFolder = [Namespace.IM + "Q_Queries"];
 const emit = defineEmits<{
   (event: "onAddMatch", match: Match): void;
   (event: "onAddCohort", match: Match): void;
+  (event: "cancel"): void;
 }>();
 
 watch(
@@ -71,6 +71,7 @@ const onMatchTypeSelected = async (node: any) => {
 const cancel = () => {
   addFeature.value = false;
   showMatchTypeSelector.value = true;
+  emit("cancel");
 };
 
 async function createMatch(node: TreeNode) {

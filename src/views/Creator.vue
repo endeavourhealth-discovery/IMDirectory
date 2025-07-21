@@ -15,8 +15,13 @@
           </div>
           <div v-else class="creator-layout-container">
             <template v-for="(group, index) of groups" v-bind:key="index">
-              <span>{{ log(group.componentType) }}</span>
-              <component :is="processComponentType(group.componentType)" :mode="EditorMode.CREATE" :shape="group" :value="processEntityValue(group)" />
+              <component
+                :is="processComponentType(group.componentType)"
+                :mode="EditorMode.CREATE"
+                :shape="group"
+                :value="processEntityValue(group)"
+                @onCancel="closeCreator"
+              />
             </template>
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
@@ -129,9 +134,7 @@ watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
 });
 
-function log(message: TTIriRef) {
-  console.log(message.iri);
-}
+
 function onShowSidebar() {
   showSidebar.value = !showSidebar.value;
   editorStore.updateFindInEditorTreeIri("");
@@ -317,8 +320,7 @@ function beforeWindowUnload(e: BeforeUnloadEvent) {
 }
 
 async function submit(): Promise<void> {
-  if (isObjectHasKeys(editorEntity.value, [IM.ID]))
-    if (await checkExists(editorEntity.value[IM.ID])) return;
+  if (isObjectHasKeys(editorEntity.value, [IM.ID])) if (await checkExists(editorEntity.value[IM.ID])) return;
   const verificationDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }

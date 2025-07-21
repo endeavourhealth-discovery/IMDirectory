@@ -89,8 +89,6 @@ function setupTree(emit?: any, customPageSize?: number) {
     } else {
       await directService.select(node.data);
     }
-
-    console.log(selectedKeys.value);
   }
 
   function checkForControlClick(event: MouseEvent): boolean {

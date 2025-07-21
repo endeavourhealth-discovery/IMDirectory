@@ -1,99 +1,79 @@
 <template>
   <div class="nested-ecl-match">
-    <div
-      @mouseover="mouseover"
-      @mouseout="mouseout"
-      @drop="onDrop($event, match, parent, index)"
-      @dragover="
-        onDragOver($event);
-        mouseover($event);
-      "
-      @dragleave="mouseout"
-    >
-      <Button
-        v-if="!rootBool"
-        icon="drag-icon fa-solid fa-grip-vertical"
-        severity="secondary"
-        text
-        draggable="true"
-        @dragstart="onDragStart($event, match, parent)"
-        @dragend="onDragEnd(match, parent)"
-      />
-      <span v-for="operator in operators" :key="operator">
-        <span v-if="match[operator]">
-          <div class="nested-ecl-match" @mouseover="mouseover" @mouseout="mouseout">
-            <div
-              v-if="match.and || match.or"
-              class="conjunction"
-              @drop="onDrop($event, match, parent, index)"
-              @dragover="
-                onDragOver($event);
-                mouseover($event);
-              "
-              @dragleave="mouseout"
+    <span v-for="operator in operators" :key="operator">
+      <span v-if="match[operator]">
+        <div class="nested-ecl-match" @mouseover="mouseover" @mouseout="mouseout">
+          <div
+            v-if="match.and || match.or"
+            class="conjunction"
+            @drop="onDrop($event, match, parent, index)"
+            @dragover="
+              onDragOver($event);
+              mouseover($event);
+            "
+            @dragleave="mouseout"
+          />
+          <div v-for="(item, index) in match[operator]" :key="item.uuid">
+            <ExpressionConstraint
+              v-model:match="match[operator]![index]"
+              v-model:parent="match"
+              v-model:parentGroup="group"
+              :index="index"
+              :operator="operator as Bool"
+              :parentOperator="operator"
+              @updateBool="updateBool"
+              @rationalise="onRationalise"
+              :rootBool="false"
             />
-            <div v-for="(item, index) in match[operator]" :key="item.uuid">
-              <ExpressionConstraint
-                v-model:match="match[operator]![index]"
-                v-model:parent="match"
-                :index="index"
-                :operator="operator as Bool"
-                :parentOperator="operator"
-                v-model:parentGroup="group"
-                @updateBool="updateBool"
-                @rationalise="onRationalise"
-                :rootBool="false"
-              />
-            </div>
           </div>
-        </span>
+        </div>
       </span>
-    </div>
-    <Button
-      type="button"
-      icon="fa-solid fa-plus"
-      label="Add concept"
-      data-testid="add-bool-concept-button"
-      :severity="hoverAddConcept ? 'success' : 'secondary'"
-      :outlined="!hoverAddConcept"
-      :class="!hoverAddConcept && 'hover-button'"
-      @click.stop="addConcept()"
-      @mouseover="hoverAddConcept = true"
-      @mouseout="hoverAddConcept = false"
-    />
+    </span>
+  </div>
+  <Button
+    type="button"
+    icon="fa-solid fa-plus"
+    label="Add concept"
+    data-testid="add-bool-concept-button"
+    :severity="hoverAddConcept ? 'success' : 'secondary'"
+    :outlined="!hoverAddConcept"
+    :class="!hoverAddConcept && 'hover-button'"
+    @click.stop="addConcept()"
+    @mouseover="hoverAddConcept = true"
+    @mouseout="hoverAddConcept = false"
+  />
 
-    <div v-if="match.where">
-      <span>Attributes for Group</span>
-      <RoleGroup v-model:where="match.where" v-model:isRoleGroup="isRoleGroup" />
-      <ECLRefinement
-        v-model:where="match.where"
-        v-model:parent="match"
-        :index="index"
-        :isInAttributeGroup="isRoleGroup"
-        :rootBool="true"
-        :focusConcepts="focusConcepts"
-        :parentType="'match'"
-        :propertyTreeRoots="propertyTreeRoots"
-        :imQueryForPropertySearch="imQueryForPropertySearch"
-        @rationalise="onRationalise"
-        class="refinement"
-      />
-    </div>
-    <Button
-      type="button"
-      icon="fa-solid fa-filter"
-      :class="!hoverAddRefinement && 'hover-button'"
-      :severity="hoverAddRefinement ? 'success' : 'secondary'"
-      :outlined="!hoverAddRefinement"
-      @click.stop="addRefinement"
-      aria-haspopup="true"
-      aria-controls="add-filter"
-      label="Add shared attribute"
-      data-testid="add-shared-refinement-button"
-      @mouseover="hoverAddRefinement = true"
-      @mouseout="hoverAddRefinement = false"
+  <div v-if="match.where">
+    <span>Attributes for Group</span>
+    <RoleGroup v-model:where="match.where" v-model:isRoleGroup="isRoleGroup" />
+    <ECLRefinement
+      v-model:where="match.where"
+      v-model:parent="match"
+      :index="index"
+      :isInAttributeGroup="isRoleGroup"
+      :rootBool="true"
+      :focusConcepts="focusConcepts"
+      :parentType="'match'"
+      :propertyTreeRoots="propertyTreeRoots"
+      :imQueryForPropertySearch="imQueryForPropertySearch"
+      @rationalise="onRationalise"
+      class="refinement"
     />
   </div>
+  <Button
+    type="button"
+    icon="fa-solid fa-filter"
+    :class="!hoverAddRefinement && 'hover-button'"
+    :severity="hoverAddRefinement ? 'success' : 'secondary'"
+    :outlined="!hoverAddRefinement"
+    @click.stop="addRefinement"
+    aria-haspopup="true"
+    aria-controls="add-filter"
+    label="Add shared attribute"
+    data-testid="add-shared-refinement-button"
+    @mouseover="hoverAddRefinement = true"
+    @mouseout="hoverAddRefinement = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -102,7 +82,7 @@ import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { addConceptToGroup, getIsRoleGroup, updateBooleans, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
+import { addConceptToGroup, getIsRoleGroup, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
 import { v4 } from "uuid";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
@@ -137,7 +117,7 @@ function onRationalise() {
   emit("rationalise");
 }
 
-function updateBool(oldOperator: Bool | string, newOperator: Bool | string,index:number) {
+function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
   updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
   if (newOperator === props.parentOperator) {
     emit("rationalise");

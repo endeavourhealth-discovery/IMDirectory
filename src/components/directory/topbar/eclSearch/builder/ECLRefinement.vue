@@ -14,7 +14,16 @@
                 "
                 @dragleave="mouseout"
               />
+
               <div v-if="!rootBool" class="top-operator">
+                <Button
+                  icon="drag-icon fa-solid fa-grip-vertical"
+                  severity="secondary"
+                  text
+                  draggable="true"
+                  @dragstart="onDragStart($event, where, parent)"
+                  @dragend="onDragEnd(where, parent)"
+                />
                 <Select
                   :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
                   :modelValue="parentOperator"
@@ -40,7 +49,7 @@
                     :focusConcepts="props.focusConcepts"
                     :index="index"
                     :isInAttributeGroup="isRoleGroup || isInAttributeGroup"
-                    v-model:group="group"
+                    v-model:parentGroup="group"
                     v-model:parentOperator="operator as Bool"
                     :property-tree-roots="propertyTreeRoots"
                     :im-query-for-property-search="imQueryForPropertySearch"
@@ -67,18 +76,9 @@
             @dragend="onDragEnd(where, parent)"
           />
 
-          <div class="group-checkbox">
-            <Checkbox
-              :inputId="'group' + index"
-              name="Group"
-              :value="index"
-              v-model="parentGroup"
-              data-testid="group-checkbox"
-              v-tooltip="'Select to create boolean subgroup'"
-            />
-          </div>
           <div v-if="parentOperator" class="constraint-operator">
             <Select
+              :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
               :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
               :modelValue="parentOperator"
               :options="getBooleanOptions(where, parent!, parentOperator as Bool, 'Where', index)"
@@ -92,6 +92,17 @@
                 </div>
               </template>
             </Select>
+          </div>
+          <div class="group-checkbox">
+            <Checkbox
+              :inputId="'group' + index"
+              name="Group"
+              :value="index"
+              v-model="checked"
+              data-testid="group-checkbox"
+              @update:modelValue="onCheckGroupChange"
+              v-tooltip="'Select to create boolean subgroup'"
+            />
           </div>
           <Select
             style="width: 4.5rem; min-height: 2.3rem"
@@ -164,13 +175,13 @@ import { ToastSeverity } from "@/enums";
 import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef, Node } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getBooleanOptions, updateBooleans, getIsRoleGroup } from "@/helpers/IMQueryBuilder";
-import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions, updateBooleans, getIsRoleGroup, checkGroupChange } from "@/composables/buildQuery";
+import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/composables/buildQuery";
 
 import Button from "primevue/button";
 import ECLRefinementValue from "@/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 interface Props {
   focusConcepts: string[];
@@ -184,11 +195,12 @@ interface Props {
 const props = defineProps<Props>();
 const where = defineModel<Where>("where", { default: {} });
 const parent = defineModel<Where | Match>("parent");
-const parentGroup = defineModel<number[]>("group", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "rationalise"]);
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
 const group: Ref<number[]> = ref([]);
+const checked: Ref<boolean> = ref(false);
 const toast = useToast();
 const filterStore = useFilterStore();
 const hoverDeleteProperty = ref(false);
@@ -226,6 +238,10 @@ onMounted(async () => {
 
 function onRationalise() {
   emit("rationalise");
+}
+
+function onCheckGroupChange(e: any) {
+  checkGroupChange(e, parentGroup.value, props.index);
 }
 
 function deleteProperty() {

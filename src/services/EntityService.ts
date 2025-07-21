@@ -1,6 +1,6 @@
 import { IM, RDFS } from "@/vocabulary";
 import { FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest } from "@/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest, EntityReferenceNode } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
@@ -66,6 +66,12 @@ const EntityService = {
     return await axios.get(API_URL + "/public/children", {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
+    });
+  },
+
+  async getChildEntities(iri: string): Promise<string[]> {
+    return await axios.get(API_URL + "/public/childIris", {
+      params: { iri: iri }
     });
   },
 

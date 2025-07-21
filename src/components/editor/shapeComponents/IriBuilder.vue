@@ -44,7 +44,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import { cloneDeep, isEqual } from "lodash-es";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 const props = defineProps<{
   shape: PropertyShape;

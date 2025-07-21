@@ -110,7 +110,7 @@ import { DownloadByQueryOptions, EclSearchRequest, QueryRequest, SearchResponse,
 import { DownloadSettings, ExtendedSearchResultSummary, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { buildIMQueryFromFilters } from "@/composables/buildQuery";
 import { MenuItem } from "primevue/menuitem";
 import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 import { nextTick } from "vue";

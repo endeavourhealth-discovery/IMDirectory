@@ -3,10 +3,13 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else :class="showValidation && invalid && 'invalid'" class="content-container">
+    <div v-if="!loading" :class="showValidation && invalid && 'invalid'" class="content-container">
+      <div id="editor-button-bar" class="button-bar">
+        <Button data-testid="edit-button" icon="fa-solid fa-pen-to-square" label="Edit Query" @click="showBuilder" />
+      </div>
       <div class="query-editor-container flex flex-col gap-4">
         <div class="query-editor flex flex-col p-2">
-          <QueryDisplay :entiryIri="iri" :showSqlButton="false" :queryDefinition="queryDefinition" :editMode="true" />
+          <QueryDisplay :showSqlButton="false" :queryDefinition="queryDefinition" />
           <div class="flex flex-row justify-end gap-2">
             <div>
               <Button data-testid="test-query-button" label="Test run query" @click="testRunQuery" />
@@ -17,7 +20,9 @@
     </div>
     <div class="validate-error-container"></div>
     <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
-
+    <div v-if="!loading">
+      <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
+    </div>
     <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
       <pre>{{ sql }}</pre>
       <template #footer>
@@ -43,10 +48,11 @@ import { DisplayMode, PropertyShape, Query, QueryRequest } from "@/interfaces/Au
 import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
-import { QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
+import QueryEditor from "@/components/imquery/QueryEditor.vue";
 
 interface Props {
   mode: EditorMode;
@@ -57,6 +63,10 @@ interface Props {
 const props = defineProps<Props>();
 
 const iri = "http://endhealth.info/im#CohortDefinition";
+const showEditor = ref(false);
+const emit = defineEmits<{
+  (event: "onCancel"): void;
+}>();
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -74,7 +84,8 @@ if (forceValidation) {
   });
 }
 const loading = ref(true);
-const queryDefinition: Ref<Query | undefined> = ref();
+const queryDefinition: Ref<Query> = ref({} as Query);
+const originalDefinition: Ref<Query> = ref({} as Query);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 const showValidation = ref(false);
@@ -103,18 +114,49 @@ onMounted(async () => {
   loading.value = false;
 });
 
+function cancelEditor() {
+  queryDefinition.value = originalDefinition.value;
+  showEditor.value = false;
+}
+
+function updateQuery(query: Query) {
+  originalDefinition.value = cloneDeep(queryDefinition.value);
+  showEditor.value = false;
+}
+
 async function init() {
   if (props.value) {
     const definition = JSON.parse(props.value);
     const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.ORIGINAL);
     queryDefinition.value = labeledQuery;
+    originalDefinition.value = cloneDeep(labeledQuery);
   } else {
     queryDefinition.value = await generateDefaultQuery();
+    originalDefinition.value = cloneDeep(queryDefinition.value);
+    showEditor.value = true;
   }
 }
 
-async function generateDefaultQuery() {
-  return await QueryService.getDefaultQuery();
+async function generateDefaultQuery(): Promise<Query> {
+  const defaultIris = await EntityService.getChildEntities(IM.DEFAULT_COHORTS);
+  const defaultBaseType = await QueryService.getQueryFromIri(defaultIris[0]);
+  const query = {
+    typeOf: defaultBaseType.typeOf,
+    and: [
+      {
+        instanceOf: [{ iri: defaultIris[0] }]
+      }
+    ]
+  };
+  return await QueryService.getQueryDisplayFromQuery(query, DisplayMode.ORIGINAL);
+}
+
+function closeDefinitionBuilder() {
+  emit("onCancel");
+}
+
+function showBuilder(): void {
+  showEditor.value = true;
 }
 
 function updateEntity() {
@@ -174,5 +216,14 @@ async function testRunQuery() {
 
 .validate-error-container {
   width: 100%;
+}
+
+.button-bar {
+  flex: 0 1 auto;
+  padding: 1rem 1rem 1rem 0;
+  gap: 0.5rem;
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-end;
 }
 </style>

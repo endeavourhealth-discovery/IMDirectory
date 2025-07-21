@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { Where } from "@/interfaces/AutoGen";
-import { isBoolWhere, getIsRoleGroup, manageRoleGroup } from "@/helpers/IMQueryBuilder";
+import { isBoolWhere, getIsRoleGroup, manageRoleGroup } from "@/composables/buildQuery";
 
 const where = defineModel<Where>("where");
 const isRoleGroup = ref(getIsRoleGroup(where.value));
@@ -31,7 +31,7 @@ watch(isRoleGroup, (newValue, oldValue) => {
 <style scoped>
 .attribute-group-checkbox {
   margin-top: 0.5rem;
-  padding-left: 2rem;
+  padding-left: 4rem;
   padding-right: 0.5rem;
 }
 .attribute-group-checkbox label {

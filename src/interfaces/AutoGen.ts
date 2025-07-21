@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-16 14:50:40.
+// Generated using typescript-generator version 3.2.1263 on 2025-07-15 15:07:38.
 
 export interface ConceptContextMap {
     id?: string;
@@ -274,8 +274,8 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: TTIriRef;
-    valueParameter?: string;
     valueLabel?: string;
+    valueParameter?: string;
     operator?: Operator;
     qualifier?: string;
 }
@@ -466,11 +466,6 @@ export interface RelativeTo extends Node {
     propertyRef?: string;
 }
 
-export interface RequeueQueryRequest {
-    queueId?: string;
-    queryRequest?: QueryRequest;
-}
-
 export interface Return {
     nodeRef?: string;
     function?: FunctionClause;
@@ -535,23 +530,6 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     and?: Where[];
 }
 
-export interface DBEntry {
-    id?: string;
-    queryIri?: string;
-    queryName?: string;
-    queryRequest?: QueryRequest;
-    userId?: string;
-    userName?: string;
-    queuedAt?: Date;
-    startedAt?: Date;
-    pid?: number;
-    finishedAt?: Date;
-    killedAt?: Date;
-    status?: QueryExecutorStatus;
-    queryResult?: string;
-    error?: string;
-}
-
 export interface CognitoGroupRequest {
     username?: string;
     groupName?: string;
@@ -613,7 +591,6 @@ export interface QueryRequest extends ContextMap {
     cohort?: TTIriRef[];
     includeNames?: boolean;
     textSearchStyle?: TextSearchStyle;
-    language?: DatabaseOption;
     graph?: Graph;
 }
 
@@ -844,15 +821,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    status?: TTIriRef;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     description?: string;
     code?: string;
-    prefixes?: TTPrefix[];
     types?: TTIriRef[];
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -1065,12 +1042,6 @@ export const enum Comparison {
     lt = "lt",
 }
 
-export const enum DatabaseOption {
-    MYSQL = "MYSQL",
-    POSTGRESQL = "POSTGRESQL",
-    GRAPHDB = "GRAPHDB",
-}
-
 export const enum DisplayMode {
     ORIGINAL = "ORIGINAL",
     RULES = "RULES",
@@ -1154,14 +1125,6 @@ export const enum VarType {
     NODE = "NODE",
     PATH = "PATH",
     LITERAL = "LITERAL",
-}
-
-export const enum QueryExecutorStatus {
-    QUEUED = "QUEUED",
-    RUNNING = "RUNNING",
-    COMPLETED = "COMPLETED",
-    CANCELLED = "CANCELLED",
-    ERRORED = "ERRORED",
 }
 
 export const enum Browser {
