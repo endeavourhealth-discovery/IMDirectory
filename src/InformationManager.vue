@@ -142,6 +142,7 @@ function setupAxiosInterceptors(axios: AxiosInstance) {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
       request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
+      request.headers.set("Graph", userStore.includeUserGraph);
     } else if (!isLoggedIn.value && isPublicMode.value === false && !(request.url?.endsWith("isPublicMode") || request.url?.endsWith("isDevMode"))) {
       await router.push({ name: "Login" });
     }
