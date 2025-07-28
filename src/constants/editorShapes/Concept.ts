@@ -1,5 +1,6 @@
 import { FormGenerator } from "@/interfaces/AutoGen";
 import { RDF, IM, RDFS, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION, XSD } from "@/vocabulary";
+import {SCHEME} from "@/vocabulary/SCHEME";
 
 const ConceptShape: FormGenerator = {
   iri: EDITOR.CONCEPT_SHAPE,
@@ -219,7 +220,7 @@ const ConceptShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                iri: IM.IM_1_SCHEME
+                iri: SCHEME.IM1
               },
               minCount: 0,
               componentType: {

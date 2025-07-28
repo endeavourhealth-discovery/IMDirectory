@@ -308,23 +308,6 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: "/query",
-    name: "Queries",
-    component: () => import("@/views/Query.vue"),
-    meta: {
-      requiresAuth: true,
-      requiresLicense: true,
-      requiresCreateRole: true
-    },
-    children: [
-      {
-        path: ":queryIri?",
-        name: "Query",
-        component: () => import("@/views/Query.vue")
-      }
-    ]
-  },
-  {
     path: "/codeGenerator",
     name: "CodeGenerator",
     component: () => import("@/views/CodeGen.vue"),

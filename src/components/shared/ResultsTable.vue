@@ -46,7 +46,7 @@
         </template>
         <template #body="{ data }">
           <div class="datatable-flex-cell">
-            <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
+            <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.color" :icon="data.icon" class="recent-icon" />
             <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ getNameDisplay(data) }}</span>
           </div>
         </template>
@@ -110,7 +110,7 @@ import { DownloadByQueryOptions, EclSearchRequest, QueryRequest, SearchResponse,
 import { DownloadSettings, ExtendedSearchResultSummary, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { buildIMQueryFromFilters } from "@/composables/buildQuery";
 import { MenuItem } from "primevue/menuitem";
 import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 import { nextTick } from "vue";

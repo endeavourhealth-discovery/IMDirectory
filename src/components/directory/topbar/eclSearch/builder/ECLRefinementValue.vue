@@ -27,11 +27,10 @@
         :root-entities="valueTreeRoots"
         :setupSearch="updateQueryForValueSearch"
         :setupRootEntities="updateValueTreeRoots"
-        :class="!isValidPropertyValue && showValidation && 'invalid'"
         @update:selected="updateValue"
       />
-      <small v-if="!isValidPropertyValue && showValidation" class="validate-error">Item is invalid for selected property.</small>
     </div>
+    <Button v-if="node.invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
     <Button
       :disabled="!where.iri"
       type="button"
@@ -60,14 +59,14 @@
 </template>
 
 <script setup lang="ts">
-import { constraintOperatorOptions, getConstraintOperator, setConstraintOperator } from "@/helpers/IMQueryBuilder";
+import { constraintOperatorOptions, getConstraintOperator, setConstraintOperator } from "@/composables/buildQuery";
 import Button from "primevue/button";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { computed, inject, onMounted, ref, Ref, watch } from "vue";
 import { QueryRequest, SearchResultSummary, Where, Node, TTIriRef } from "@/interfaces/AutoGen";
 import { IM, QUERY, SNOMED } from "@/vocabulary";
-import { cloneDeep, isEqual } from "lodash-es";
-import { ConceptService, QueryService } from "@/services";
+import { isEqual } from "lodash-es";
+import { EclService, QueryService } from "@/services";
 import { ToastSeverity } from "@/enums";
 import { useToast } from "primevue/usetoast";
 interface Props {
@@ -83,8 +82,6 @@ const loadingValue = ref(true);
 const imQueryForValueSearch: Ref<QueryRequest | undefined> = ref();
 const valueTreeRoots: Ref<string[] | undefined> = ref();
 const selectedValue: Ref<SearchResultSummary> = ref({ iri: node.value.iri, name: node.value.name } as SearchResultSummary);
-const isValidPropertyValue = ref(false);
-const showValidation = ref(false);
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const toast = useToast();
 const allowableRanges: Ref<TTIriRef[]> = ref([]);
@@ -94,7 +91,6 @@ const hasFocus = computed(() => {
 });
 watch(forceValidation, async () => {
   await updateIsValidPropertyValue();
-  showValidation.value = true;
 });
 watch(where, async (newValue, oldValue) => {
   if (!isEqual(newValue.iri, oldValue.iri)) {
@@ -131,6 +127,7 @@ function updateValue(value: SearchResultSummary | undefined) {
   if (value) {
     node.value.iri = value.iri;
     node.value.name = value.name;
+    node.value.invalid = false;
     selectedValue.value = value;
   }
 }
@@ -173,6 +170,7 @@ async function updateIsValidPropertyValue(): Promise<void> {
     imQuery.askIri = node.value.iri;
     const result = await QueryService.askQuery(imQuery);
     if (!result) {
+      node.value.invalid = true;
       toast.add({
         severity: ToastSeverity.ERROR,
         summary: "Invalid property value",
@@ -180,14 +178,14 @@ async function updateIsValidPropertyValue(): Promise<void> {
         }"`,
         life: 3000
       });
-    }
-  } else isValidPropertyValue.value = false;
+    } else node.value.invalid = false;
+  }
 }
 
 async function updateValueTreeRoots(): Promise<string[]> {
   let roots = [IM.ONTOLOGY_PARENT_FOLDER];
   if (where.value.iri && where.value.iri !== SNOMED.ANY) {
-    const results = await ConceptService.getRangesForProperty(where.value.iri);
+    const results = await EclService.getRangesForProperty(where.value.iri);
     if (results) {
       allowableRanges.value = results.map(c => ({ iri: c }));
       valueTreeRoots.value = results;

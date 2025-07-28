@@ -80,7 +80,7 @@ async function getTTDocument(file: File) {
   const url = URL.createObjectURL(file);
   const ttDocument = (await d3.json(url)) as TTDocument;
   ttDocument.crud = {
-    iri: IM.UPDATE_ALL
+    iri: IM.REPLACE_ALL_PREDICATES
   };
 
   return ttDocument;

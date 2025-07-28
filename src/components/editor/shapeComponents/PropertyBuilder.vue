@@ -149,6 +149,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import {Namespace} from "@/vocabulary/Namespace";
 
 interface Props {
   shape: PropertyShape;
@@ -219,7 +220,7 @@ const rSuggestions: Ref<QueryRequest | undefined> = ref({
           },
           {
             iri: IM.HAS_SCHEME,
-            is: [{ iri: SNOMED.NAMESPACE }, { iri: IM.NAMESPACE }, { iri: XSD.NAMESPACE }]
+            is: [{ iri: Namespace.SNOMED }, { iri: Namespace.IM }, { iri: Namespace.XSD }]
           }
         ]
       }

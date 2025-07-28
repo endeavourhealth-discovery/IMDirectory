@@ -52,7 +52,7 @@ import { QueryRequest, SearchResultSummary, Node } from "@/interfaces/AutoGen";
 import { cloneDeep, isEqual } from "lodash-es";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";
-import { buildIMQueryFromFilters, constraintOperatorOptions, getConstraintOperator, setConstraintOperator } from "@/helpers/IMQueryBuilder";
+import { buildIMQueryFromFilters, constraintOperatorOptions, getConstraintOperator, setConstraintOperator } from "@/composables/buildQuery";
 
 interface Props {
   parent?: any;

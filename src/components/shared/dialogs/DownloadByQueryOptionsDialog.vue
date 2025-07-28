@@ -27,7 +27,13 @@
           <div class="flex flex-col gap-4">
             <div v-for="content of contentOptions" :key="content.key" class="check-container flex items-center">
               <div v-if="content.include" class="content-item">
-                <Checkbox v-model="selectedContents" :disabled="content.disabled" :inputId="content.key" :value="content.name" name="content" />
+                <Checkbox
+                  v-model="selectedContents"
+                  :disabled="content.disabled || content.cannotUncheck"
+                  :inputId="content.key"
+                  :value="content.name"
+                  name="content"
+                />
                 <label :for="content.key">{{ content.name }}</label>
               </div>
             </div>
@@ -91,12 +97,14 @@ import { DownloadSettings } from "@/interfaces";
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { IM, SNOMED } from "@/vocabulary";
 import { computed, Ref, ref, watch } from "vue";
+import {Namespace} from "@/vocabulary/Namespace";
 
 interface DownloadOption {
   key: string;
   name: string;
   disabled: boolean;
   include: boolean;
+  cannotUncheck?: boolean;
 }
 
 interface Props {
@@ -162,7 +170,7 @@ const isOptionsSelected = computed(() => {
 const checkedLegacy = ref(false);
 const checked = ref(true);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
-const schemesOptions = filterOptions.value.schemes.filter(c => c.iri !== IM.NAMESPACE || c.iri !== SNOMED.NAMESPACE);
+const schemesOptions = filterOptions.value.schemes.filter(c => c.iri !== Namespace.IM && c.iri !== Namespace.SNOMED);
 
 watch(
   () => props.showDefinition,

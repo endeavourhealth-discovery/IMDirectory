@@ -115,27 +115,7 @@ const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const dynamicDialog = useDialog();
 const autocompletes = new Map<HTMLElement, () => void>();
-
-document.addEventListener("focusin", e => {
-  for (const [element, resetFn] of autocompletes.entries()) {
-    if (!element.contains(e.target as Node)) {
-      resetFn(); // Only reset if focus moved outside
-    }
-  }
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener("focusin", onGlobalFocusIn);
-});
-onUnmounted(() => {
-  window.removeEventListener("beforeunload", beforeWindowUnload);
-});
-
-function onGlobalFocusIn(e: FocusEvent) {
-  const newFocusedElement = e.target as HTMLElement;
-  handleFocusChange(newFocusedElement);
-}
-
+const directService = new DirectService();
 const { editorEntity, editorEntityOriginal, fetchEntity, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
   setupEditorEntity(EditorMode.EDIT, updateType);
 const { shape, getShapesCombined, groups, processShape } = setupEditorShape();
@@ -153,17 +133,7 @@ const {
   checkValidity
 } = setupValidity(shape.value);
 const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
-
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
-
-watch(treeIri, (newValue, oldValue) => {
-  if ("" === oldValue && "" !== newValue) showSidebar.value = true;
-});
-
-function onShowSidebar() {
-  showSidebar.value = !showSidebar.value;
-  editorStore.updateFindInEditorTreeIri("");
-}
 
 const loading = ref(true);
 const showSidebar = ref(false);
@@ -180,6 +150,30 @@ provide(injectionKeys.forceValidation, {
   removeValidationCheckStatus
 });
 provide(injectionKeys.fullShape, shape);
+
+document.addEventListener("focusin", e => {
+  for (const [element, resetFn] of autocompletes.entries()) {
+    if (!element.contains(e.target as Node)) {
+      resetFn(); // Only reset if focus moved outside
+    }
+  }
+});
+
+watch(treeIri, (newValue, oldValue) => {
+  if ("" === oldValue && "" !== newValue) showSidebar.value = true;
+});
+
+function onShowSidebar() {
+  showSidebar.value = !showSidebar.value;
+  editorStore.updateFindInEditorTreeIri("");
+}
+
+onBeforeUnmount(() => {
+  document.removeEventListener("focusin", onGlobalFocusIn);
+});
+onUnmounted(() => {
+  window.removeEventListener("beforeunload", beforeWindowUnload);
+});
 
 onMounted(async () => {
   loading.value = true;
@@ -204,8 +198,10 @@ watch(
   }
 );
 
-const directService = new DirectService();
-
+function onGlobalFocusIn(e: FocusEvent) {
+  const newFocusedElement = e.target as HTMLElement;
+  handleFocusChange(newFocusedElement);
+}
 function updateType(types: TTIriRef[]) {
   loading.value = true;
   getShapesCombined(types, findPrimaryType());

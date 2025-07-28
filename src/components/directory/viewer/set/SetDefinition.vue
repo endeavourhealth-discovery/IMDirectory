@@ -47,14 +47,33 @@
           </div>
         </AccordionContent>
         <div id="set-definition-container" class="set-accordion-content">
-          <QueryDisplay :entityIri="props.entityIri" :eclQuery="true" :entity-type="IM.VALUESET" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <QueryDisplay
+            :entityIri="props.entityIri"
+            :displaySQL="false"
+            :eclQuery="true"
+            :entity-type="IM.VALUESET"
+            @navigateTo="(iri: string) => emit('navigateTo', iri)"
+          />
         </div>
       </AccordionPanel>
       <AccordionPanel header="Direct Members" value="2">
         <AccordionHeader>Direct or entailed members</AccordionHeader>
         <AccordionContent>
           <div id="members-container" class="set-accordion-content">
-            <Members :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" @open-download-dialog="displayDialog" />
+            <div v-if="hasDefinition">
+              <Button
+                label="click to view/hide  definition results"
+                class="p-button-link"
+                @click="showMembers = !showMembers"
+                data-testid="definition-button"
+              />
+            </div>
+            <Members
+              v-if="showMembers"
+              :entityIri="props.entityIri"
+              @navigateTo="(iri: string) => emit('navigateTo', iri)"
+              @open-download-dialog="displayDialog"
+            />
           </div>
         </AccordionContent>
       </AccordionPanel>
@@ -108,7 +127,7 @@ const isContainedIn = ref();
 const subclassOf = ref();
 const active: Ref<string[]> = ref([]);
 const showCompareSetDialog = ref(false);
-
+const showMembers = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
 const userStore = useUserStore();
 

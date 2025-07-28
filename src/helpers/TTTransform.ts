@@ -3,6 +3,7 @@ import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { TTIriRef } from "../interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { GenericObject } from "@/interfaces/GenericObject";
+import { Namespace } from "@/vocabulary/Namespace";
 
 export function transformTT(ttEntity: TTEntity, map?: GenericObject) {
   if (!isObjectHasKeys(ttEntity)) return {} as TTEntity;
@@ -65,7 +66,7 @@ export function getNameFromRef(ref: GenericObject): string {
 
 export function resolveIri(iri: string) {
   if (!iri) return undefined;
-  const prefixes: GenericObject = { im: IM.NAMESPACE, sn: SNOMED.NAMESPACE };
+  const prefixes: GenericObject = { im: Namespace.IM, sn: Namespace.SNOMED };
   if (iri.includes("#") || iri.includes("urn:uuid:")) {
     return iri;
   } else if (iri.includes(":")) {

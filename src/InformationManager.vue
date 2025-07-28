@@ -276,6 +276,10 @@ function setupExternalErrorHandler() {
 @import "assets/tailwind.css";
 @import "assets/primevueOverrides.css";
 
+.swal2-container {
+  z-index: 999999;
+}
+
 .swal2-popup {
   background-color: var(--p-content-background);
 }

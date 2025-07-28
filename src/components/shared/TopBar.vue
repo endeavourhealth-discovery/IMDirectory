@@ -6,26 +6,20 @@
     <div id="topbar-content">
       <slot name="content" />
     </div>
-    <div id="topbar-end">
-      <Button
-        v-tooltip.bottom="'Releases'"
-        v-if="currentVersion"
-        :label="currentVersion"
-        class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
-        @click="showReleaseNotes"
-        data-testid="releases-button"
-      />
-      <Button
-        v-tooltip.bottom="'Themes'"
-        icon="fa-regular fa-palette"
-        rounded
-        text
-        plain
-        class="topbar-end-button"
-        @click="openThemesMenu"
-        data-testid="change-theme-button"
-      />
-      <Popover ref="themesMenu" id="themes-menu">
+    <div id="topbar-end" class="topbar-end">
+      <div v-if="isLoggedIn" class="topbar-end">
+        <span class="filter-text filter">Include drafts:</span>
+        <ToggleSwitch id="user-graph-switch" class="filter-toggle mx-2 filter" v-model="includeUserGraph" data-testid="user-graph-switch"></ToggleSwitch>
+        <IMFontAwesomeIcon
+          class="mt-0.5 mr-2"
+          v-tooltip.bottom="{
+            value: 'When enabled, this will include your own unpublished drafts in places such as search results and the navigation tree.'
+          }"
+          icon="fa-regular fa-circle-question"
+        >
+        </IMFontAwesomeIcon>
+      </div>
+      <Popover ref="themesMenu" id="themes-menu" @mouseleave="themesMenu.hide()" scrollable>
         <div class="theme-container">
           <h2>Primary</h2>
           <div class="color-picker">
@@ -71,25 +65,7 @@
           <ToggleSwitch v-model="darkMode" />
         </div>
       </Popover>
-      <Button
-        v-tooltip.bottom="'Scale'"
-        icon="fa-duotone fa-text-size"
-        rounded
-        text
-        plain
-        class="topbar-end-button"
-        @click="openScaleMenu"
-        data-testid="font-size-button"
-      />
-      <Menu ref="scaleMenu" id="scale-menu" :model="getScales()" :popup="true">
-        <template #item="{ item }">
-          <div class="scale-row">
-            <span class="theme-icon p-menuitem-icon" :class="item.icon" />
-            <span class="p-menuitem-text">{{ item.label }}</span>
-            <span v-if="item.key === currentScale" class="theme-icon p-menuitem-icon fa-regular fa-check" />
-          </div>
-        </template>
-      </Menu>
+
       <Button
         v-tooltip.bottom="'Upload/Download'"
         icon="fa-duotone fa-arrow-down-up-across-line"
@@ -123,6 +99,7 @@
         data-testid="account-menu"
       />
       <Button
+        id="account-button"
         v-tooltip.left="'Account'"
         v-if="currentUser && isLoggedIn"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
@@ -133,7 +110,7 @@
       >
         <img class="avatar-icon" alt="avatar icon" :src="`/avatars/${currentUser.avatar}`" style="min-width: 1.75rem" />
       </Button>
-      <Menu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
+      <TieredMenu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
             <a v-ripple :href="href" v-bind="props.action" @click="navigate" style="color: var(--p-text-color)">
@@ -141,12 +118,17 @@
               <span class="ml-2">{{ item.label }}</span>
             </a>
           </router-link>
-          <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action" style="color: var(--p-text-color)">
+          <a v-else-if="item.url" v-ripple :href="item.url" :target="item.target" v-bind="props.action" style="color: var(--p-text-color)">
             <span :class="item.icon" />
             <span class="ml-2">{{ item.label }}</span>
           </a>
+          <div v-else v-ripple @mouseenter="toggleThemesMenu($event, item.key)" :target="item.target" v-bind="props.action" style="color: var(--p-text-color)">
+            <span :class="item.icon" />
+            <span class="ml-2">{{ item.label }} </span>
+            <span v-if="item.key === currentScale" class="theme-icon p-menuitem-icon fa-regular fa-check" />
+          </div>
         </template>
-      </Menu>
+      </TieredMenu>
     </div>
     <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
       <div class="flex flex-col gap-2">
@@ -169,7 +151,7 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, GithubService, CodeGenService } from "@/services";
+import { DirectService, FilerService, CodeGenService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -179,6 +161,7 @@ import setupChangeScale from "@/composables/setupChangeScale";
 import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
+import Button from "primevue/button";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -191,6 +174,7 @@ const currentPreset = computed(() => userStore.currentPreset);
 const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
 const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
 const userDarkMode = computed(() => userStore.darkMode);
+const currentIncludeUserGraph = computed(() => userStore.includeUserGraph);
 
 const { changeScale } = setupChangeScale();
 const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
@@ -203,7 +187,6 @@ const loginItems: Ref<MenuItem[]> = ref([]);
 const accountItems: Ref<MenuItem[]> = ref([]);
 const uploadDownloadItems: Ref<MenuItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command?: () => void; url?: string; label: string; color: string; size: number; visible?: boolean }[]> = ref([]);
-const currentVersion: Ref<undefined | string> = ref();
 const themeOptions: Ref<{ primaryColours: PrimeVueColors[]; surfaceColours: PrimeVueColors[]; presets: PrimeVuePresetThemes[] }> = ref({
   primaryColours: [
     PrimeVueColors.EMERALD,
@@ -231,6 +214,7 @@ const preset = ref(themeOptions.value.presets[0]);
 const darkMode = ref(false);
 const selectedPrimaryColor = ref(themeOptions.value.primaryColours[0]);
 const selectedSurfaceColor = ref(themeOptions.value.surfaceColours[0]);
+const includeUserGraph = ref(false);
 
 const toast = useToast();
 const uploadDownloadMenu = ref();
@@ -248,21 +232,20 @@ watch(darkMode, async newValue => {
   await changeDarkMode(newValue);
 });
 
+watch(includeUserGraph, async newValue => {
+  userStore.updateIncludeUserGraph(newValue);
+});
+
 onMounted(async () => {
   darkMode.value = userDarkMode.value;
+  includeUserGraph.value = currentIncludeUserGraph.value;
   if (currentPreset.value) preset.value = currentPreset.value;
   if (currentPrimaryColor.value) selectedPrimaryColor.value = currentPrimaryColor.value;
   if (currentSurfaceColor.value) selectedSurfaceColor.value = currentSurfaceColor.value;
   setUserMenuItems();
   setAppMenuItems();
   await setUploadDownloadMenuItems();
-  await getCurrentVersion();
 });
-
-async function getCurrentVersion() {
-  const latestRelease = await GithubService.getLatestRelease("IMDirectory");
-  if (latestRelease && latestRelease.version) currentVersion.value = latestRelease.version;
-}
 
 async function toLandingPage() {
   await router.push("/");
@@ -295,6 +278,26 @@ function setUserMenuItems(): void {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
       route: "/user/register"
+    },
+    {
+      separator: true
+    },
+    {
+      label: "Display settings",
+      icon: "fa-solid fa-fw fa-gear",
+      items: [
+        {
+          key: "scale",
+          label: "Change scale",
+          icon: "fa-duotone fa-text-size",
+          items: getScales()
+        },
+        {
+          key: "themes",
+          label: "Change theme",
+          icon: "fa-regular fa-palette"
+        }
+      ]
     }
   ];
   accountItems.value = [
@@ -317,6 +320,26 @@ function setUserMenuItems(): void {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
       route: "/user/logout"
+    },
+    {
+      separator: true
+    },
+    {
+      label: "Display settings",
+      icon: "fa-solid fa-fw fa-gear",
+      items: [
+        {
+          key: "scale",
+          label: "Change scale",
+          icon: "fa-duotone fa-text-size",
+          items: getScales()
+        },
+        {
+          key: "themes",
+          label: "Change theme",
+          icon: "fa-regular fa-palette"
+        }
+      ]
     }
   ];
 }
@@ -324,13 +347,18 @@ function setUserMenuItems(): void {
 function openUploadDownloadMenu(event: MouseEvent): void {
   uploadDownloadMenu.value.toggle(event);
 }
-
-function openThemesMenu(event: MouseEvent): void {
-  themesMenu.value.toggle(event);
-}
-
-function openScaleMenu(event: MouseEvent): void {
-  scaleMenu.value.toggle(event);
+function toggleThemesMenu(event: MouseEvent, key: string | undefined) {
+  if (key) {
+    switch (key) {
+      case "themes":
+        if (scaleMenu.value && scaleMenu.value.visible) scaleMenu.value.hide();
+        else themesMenu.value.show(event);
+        break;
+      case "scale":
+        if (themesMenu.value.visible) themesMenu.value.hide();
+        break;
+    }
+  }
 }
 
 function isLoggedInWithRole(role: string): boolean {
@@ -368,33 +396,28 @@ function setUploadDownloadMenuItems() {
 function getScales(): MenuItem[] {
   return [
     {
-      label: "UI Scale",
-      items: [
-        {
-          key: "12px",
-          label: "Small",
-          icon: "fa-regular fa-a fa-xs",
-          command: async () => await changeScale("12px")
-        },
-        {
-          key: "14px",
-          label: "Medium",
-          icon: "fa-regular fa-a fa-sm",
-          command: async () => await changeScale("14px")
-        },
-        {
-          key: "16px",
-          label: "Large",
-          icon: "fa-regular fa-a",
-          command: async () => await changeScale("16px")
-        },
-        {
-          key: "18px",
-          label: "XLarge",
-          icon: "fa-regular fa-a",
-          command: async () => await changeScale("18px")
-        }
-      ]
+      key: "12px",
+      label: "Small",
+      icon: "fa-regular fa-a fa-xs",
+      command: async () => await changeScale("12px")
+    },
+    {
+      key: "14px",
+      label: "Medium",
+      icon: "fa-regular fa-a fa-sm",
+      command: async () => await changeScale("14px")
+    },
+    {
+      key: "16px",
+      label: "Large",
+      icon: "fa-regular fa-a",
+      command: async () => await changeScale("16px")
+    },
+    {
+      key: "18px",
+      label: "XLarge",
+      icon: "fa-regular fa-a",
+      command: async () => await changeScale("18px")
     }
   ];
 }
@@ -448,10 +471,6 @@ async function downloadChanges() {
   }
 }
 
-function showReleaseNotes() {
-  sharedStore.updateShowReleaseNotes(true);
-}
-
 async function openAdminToolbox() {
   await router.push({ name: "Admin" });
 }
@@ -493,7 +512,7 @@ async function openAdminToolbox() {
   width: 100%;
 }
 
-#topbar-end {
+.topbar-end {
   height: inherit;
   flex: 0 1 auto;
   justify-self: end;
@@ -503,6 +522,7 @@ async function openAdminToolbox() {
   align-items: center;
   padding: 0 0.5rem 0 0;
   gap: 0.25rem;
+  flex-shrink: 0;
 }
 
 .scale-row {
@@ -552,5 +572,9 @@ async function openAdminToolbox() {
 .round-button {
   height: 2rem;
   width: 2rem;
+}
+
+.filter-text {
+  font-size: 0.8em;
 }
 </style>

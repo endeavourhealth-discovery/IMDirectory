@@ -1,5 +1,21 @@
 import { When, Then, Step, Given } from "@badeball/cypress-cucumber-preprocessor";
 
+const loginSnapshotConfig = {
+  attributesToClear: ["aria-controls", "class", "style", "data-pc-section", "data-pc-name", "data-pc-section", "data-scrollselectors"],
+  stubs: [".p-tabpanels", "svg"],
+  regexToRemoveAttributes: new RegExp(/data-.*|p.\d|aria-.*|id/),
+  removeComments: true,
+  removeDataTestId: true,
+  formatting: {
+    attributesPerLine: 10,
+    classesPerLine: 10,
+    inlineStylesPerLine: 10,
+    escapeInnerText: false,
+    emptyAttributes: false,
+    selfClosingTag: true
+  }
+};
+
 Given("the server is in private mode", () => {
   cy.setHostingMode(false);
 });
@@ -22,7 +38,7 @@ When("I accept the license and cookies", () => {
 
 When("I click on the account menu", () => {
   cy.get("#topbar", { timeout: 60000 });
-  cy.getByTestId("account-menu").click();
+  cy.findByTestId("account-menu").click();
 });
 
 When("I click on the login option", () => {
@@ -47,15 +63,15 @@ When("I login to the application", () => {
 });
 
 When("I enter a valid username", () => {
-  cy.getByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
+  cy.findByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
 });
 
 When("I enter a valid password", () => {
-  cy.getByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.findByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
 });
 
 When("I click on the login button", () => {
-  cy.getByTestId("login-submit").click();
+  cy.findByTestId("login-submit").click();
 });
 
 When("I click reveal password", () => {
@@ -68,7 +84,7 @@ When("I refresh the page", () => {
 
 Then("I see the account menu", () => {
   cy.get("#topbar", { timeout: 60000 });
-  cy.getByTestId("account-menu").should("exist");
+  cy.findByTestId("account-menu").should("exist");
 });
 
 Then("I see login option", () => {
@@ -88,7 +104,7 @@ Then("I see the login confirmation", () => {
 });
 
 Then("I see the password", () => {
-  cy.getByTestId("login-password").should("have.value", Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+  cy.findByTestId("login-password").should("have.value", Cypress.env("CYPRESS_LOGIN_PASSWORD"));
 });
 
 Then("I be able to navigate to register an account", () => {
@@ -113,4 +129,8 @@ Then("the home and back buttons are not available", () => {
 
 Then("I see the entity viewer", () => {
   cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("QRISK3 2024");
+});
+
+Then(/^the (.*) matches the snapshot$/, function (testId) {
+  cy.findByTestId(testId).toMatchSnapshot(loginSnapshotConfig);
 });

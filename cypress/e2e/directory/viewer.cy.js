@@ -29,7 +29,7 @@ describe("viewer", () => {
       it("can download concept", () => {
         const currentDate = dateNowReverse("_");
         const cypressDownloads = Cypress.config("downloadsFolder");
-        cy.getByTestId("download-button").click();
+        cy.findByTestId("download-button").click();
         cy.get(".p-confirmdialog").find(".p-confirmdialog-accept-button").click();
         cy.readFile(cypressDownloads + "/" + firstMatch + "_" + currentDate + ".json");
       });
@@ -69,15 +69,15 @@ describe("viewer", () => {
           cy.get(".details-container")
             .find(".p-tree-node-toggle-button")
             .then(startToggles => {
-              cy.getByTestId("expand-details-button").click();
+              cy.findByTestId("expand-details-button").click();
               cy.get(".details-container").find(".p-tree-node-children").should("have.length.at.least", startToggles.length);
             });
         });
         it("can collapse all details nodes", () => {
           cy.wait(1000);
-          cy.getByTestId("expand-details-button").click();
+          cy.findByTestId("expand-details-button").click();
           cy.get(".details-container").find(".p-tree-node-children").should("exist");
-          cy.getByTestId("collapse-details-button").click();
+          cy.findByTestId("collapse-details-button").click();
           cy.get(".details-container").get(".p-tree-node-children").should("not.exist");
         });
       });
@@ -94,7 +94,7 @@ describe("viewer", () => {
           cy.get(".p-tablist-tab-list").find(".p-tab").contains("Maps").click();
         });
         it("shows some of's in order of priority", () => {
-          cy.getByTestId("hasMap").find("tr").should("have.length.above", 0);
+          cy.findByTestId("hasMap").find("tr").should("have.length.above", 0);
           const priorityArray = [];
           cy.get("[data-testid=priority]").each($el => {
             cy.wrap($el)
@@ -105,7 +105,7 @@ describe("viewer", () => {
           cy.then(() => expect(priorityArray).to.equal(priorityArray.sort()));
         });
         it("shows matched from's", () => {
-          cy.getByTestId("matchedFrom").find("tr").should("have.length.above", 0);
+          cy.findByTestId("matchedFrom").find("tr").should("have.length.above", 0);
         });
       });
       describe("contents tab", () => {
@@ -121,7 +121,7 @@ describe("viewer", () => {
           cy.get(".p-tablist-tab-list").find(".p-tab").contains("Used In").click();
         });
         it("shows children", () => {
-          cy.getByTestId("used-in-table").find(".p-datatable-selectable-row").should("have.length.above", 0);
+          cy.findByTestId("used-in-table").find(".p-datatable-selectable-row").should("have.length.above", 0);
         });
       });
       describe("hierarchy position tab", () => {
@@ -138,8 +138,8 @@ describe("viewer", () => {
           cy.get("#secondary-tree-bar-container").find(".p-tree-node-children").find(".p-tree-node").should("have.length.above", 20);
         });
         it("can climb hierarchy", () => {
-          cy.getByTestId("parent").find(".p-button-label").contains(parentTerm).invoke("text").as("startParent", { type: "static" });
-          cy.getByTestId("parent").click();
+          cy.findByTestId("parent").find(".p-button-label").contains(parentTerm).invoke("text").as("startParent", { type: "static" });
+          cy.findByTestId("parent").click();
           cy.get("@startParent").then(startParent => {
             cy.get("#secondary-tree-bar-container")
               .find(".p-tree-root-children")
@@ -149,8 +149,8 @@ describe("viewer", () => {
               .first()
               .invoke("text")
               .should("equal", startParent);
-            cy.getByTestId("parent").find(".p-button-label").invoke("text").should("not.equal", startParent);
-            cy.getByTestId("alt-parent").find(".p-button-label").invoke("text").should("not.equal", startParent);
+            cy.findByTestId("parent").find(".p-button-label").invoke("text").should("not.equal", startParent);
+            cy.findByTestId("alt-parent").find(".p-button-label").invoke("text").should("not.equal", startParent);
           });
         });
         it("routes on click", () => {
@@ -163,13 +163,13 @@ describe("viewer", () => {
           cy.get(".p-tablist-tab-list").find(".p-tab").contains("Entity Chart").click();
         });
         it("has isa", () => {
-          cy.getByTestId("isA").find("tr").should("have.length.above", 0);
+          cy.findByTestId("isA").find("tr").should("have.length.above", 0);
         });
         it("has subtypes", () => {
-          cy.getByTestId("subtype").find("tr").should("have.length.above", 0);
+          cy.findByTestId("subtype").find("tr").should("have.length.above", 0);
         });
         it("routes on row click", () => {
-          cy.getByTestId("subtype").contains(firstChild).click();
+          cy.findByTestId("subtype").contains(firstChild).click();
           cy.get(".title-container").contains(firstChild);
         });
       });
@@ -199,7 +199,7 @@ describe("viewer", () => {
           cy.get("#viewer-tabs").contains("Provenance").click({ scrollBehavior: false });
         });
         it("has provenance table", () => {
-          cy.getByTestId("provenance-table").find("tr").should("have.length.above", 0);
+          cy.findByTestId("provenance-table").find("tr").should("have.length.above", 0);
         });
       });
     });
@@ -220,10 +220,9 @@ describe("viewer", () => {
     it("can download set", () => {
       const currentDate = dateNowReverse("_");
       const cypressDownloads = Cypress.config("downloadsFolder");
-      cy.getByTestId("set-download-button").click();
-      cy.getByTestId("download-by-query-options-dialog").contains("csv").click();
-      cy.getByTestId("download-by-query-options-dialog").contains("Core").click();
-      cy.getByTestId("download-by-query-options-dialog").contains("Download").click();
+      cy.findByTestId("set-download-button").click();
+      cy.findByTestId("download-by-query-options-dialog").contains("csv").click();
+      cy.findByTestId("download-by-query-options-dialog").contains("Download").click();
       cy.readFile(cypressDownloads + "/Autism Spectrum Disorders (Data model value set) - " + currentDate + ".csv");
     });
   });

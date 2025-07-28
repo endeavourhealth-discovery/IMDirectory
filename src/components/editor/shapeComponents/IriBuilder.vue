@@ -44,6 +44,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import { cloneDeep, isEqual } from "lodash-es";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { Namespace } from "@/vocabulary/Namespace";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -197,7 +198,7 @@ function setSelectedOption() {
     deconstructInputValue(props.shape.isIri!.iri);
     return;
   } else if (EditorMode.CREATE && isArrayHasLength(dropdownOptions.value)) {
-    const foundIndex = dropdownOptions.value.findIndex(option => option.iri === IM.NAMESPACE);
+    const foundIndex = dropdownOptions.value.findIndex(option => option.iri === Namespace.IM);
     if (foundIndex !== -1) selectedDropdownOption.value = dropdownOptions.value[foundIndex];
     else selectedDropdownOption.value = dropdownOptions.value[0];
     userInput.value = "";

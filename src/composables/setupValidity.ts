@@ -6,6 +6,7 @@ import { FormGenerator, PropertyShape } from "@/interfaces/AutoGen";
 import { IM, COMPONENT } from "@/vocabulary";
 import { isArray } from "lodash-es";
 import { Ref, ref } from "vue";
+import Swal from "sweetalert2";
 
 export function setupValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);
@@ -32,6 +33,19 @@ export function setupValidity(shape?: FormGenerator) {
 
   function clearValidationCheckStatus() {
     validationCheckStatus.value = [];
+  }
+
+  async function checkExists(iri: string): Promise<boolean> {
+    if (await EntityService.checkExists(iri)) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "Entity with this iri already exists.",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
+      return true;
+    } else return false;
   }
 
   async function validationChecksCompleted(): Promise<boolean> {
@@ -166,6 +180,7 @@ export function setupValidity(shape?: FormGenerator) {
     clearValidationCheckStatus,
     addPropertyToValidationCheckStatus,
     validationChecksCompleted,
-    checkValidity
+    checkValidity,
+    checkExists
   };
 }

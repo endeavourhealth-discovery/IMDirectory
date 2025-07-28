@@ -2,14 +2,24 @@
   <div class="nested-ecl-match">
     <div v-if="match.instanceOf">
       <div class="instance-of">
-        <div style="width: 6.5rem">
+        <Button
+          icon="drag-icon fa-solid fa-grip-vertical"
+          severity="secondary"
+          text
+          draggable="true"
+          @dragstart="onDragStart($event, match, parent)"
+          @dragend="onDragEnd(match, parent)"
+        />
+        <div style="width: 5.5rem">
           <span v-if="!rootBool">
             <Select
+              :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
               :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
               :modelValue="parentOperator"
               :options="getBooleanOptions(match, parent!, parentOperator as Bool, 'Match', index)"
               option-label="label"
               option-value="value"
+              data-testid="operator-selector"
               @update:modelValue="val => updateOperator(val)"
             >
               <template #option="slotProps">
@@ -22,8 +32,16 @@
         </div>
         <span>
           <div v-if="parent && (parent[parentOperator as keyof typeof parent] as Match[]).length > 2" class="group-checkbox">
-            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="parentGroup" data-testid="group-checkbox" />
-            <label :for="'group' + index">Select</label>
+            <Checkbox
+              :disabled="parentGroup.length + 1 === (parent[parentOperator as keyof typeof parent] as Match[]).length && !parentGroup.includes(index)"
+              :inputId="'group' + index"
+              name="Group"
+              :value="index"
+              v-model="checked"
+              @update:modelValue="onCheckGroupChange"
+              data-testid="group-checkbox"
+              v-tooltip="'Select to create boolean subgroup'"
+            />
           </div>
         </span>
         <span class="concept-selector-container">
@@ -35,6 +53,7 @@
             @update-match="updateMatch"
           />
         </span>
+        <Button v-if="match.instanceOf[0].invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
         <span class="add-group">
           <Button
             type="button"
@@ -79,8 +98,48 @@
           @rationalise="onRationalise"
         />
       </div>
+      <div v-if="rootBool && match.instanceOf[0].iri">
+        <Button
+          type="button"
+          icon="fa-solid fa-plus"
+          label="Add concept"
+          data-testid="add-concept-button"
+          :severity="hoverAddConcept ? 'success' : 'secondary'"
+          :outlined="!hoverAddConcept"
+          :class="!hoverAddConcept && 'hover-button'"
+          @click.stop="addConcept()"
+          @mouseover="hoverAddConcept = true"
+          @mouseout="hoverAddConcept = false"
+        />
+      </div>
     </div>
     <div v-else>
+      <span v-if="index > 0">
+        <Button
+          icon="drag-icon fa-solid fa-grip-vertical"
+          severity="secondary"
+          text
+          draggable="true"
+          @dragstart="onDragStart($event, match, parent)"
+          @dragend="onDragEnd(match, parent)"
+        />
+        <Select
+          :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
+          :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
+          :modelValue="parentOperator"
+          :options="getBooleanOptions(match, parent!, parentOperator as Bool, 'Match', index)"
+          option-label="label"
+          option-value="value"
+          data-testid="operator-selector"
+          @update:modelValue="val => updateOperator(val)"
+        >
+          <template #option="slotProps">
+            <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+              <div>{{ slotProps.option.label }}</div>
+            </div>
+          </template>
+        </Select>
+      </span>
       <ECLBoolQuery v-model:match="match" v-model:parent="parent" :index="index" :rootBool="rootBool" @rationalise="emit('rationalise')" />
     </div>
   </div>
@@ -93,7 +152,7 @@ import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { getBooleanOptions, getIsRoleGroup, isBoolWhere, manageRoleGroup, updateFocusConcepts } from "@/helpers/IMQueryBuilder";
+import { addConceptToGroup, checkGroupChange, getBooleanOptions, getIsRoleGroup, manageRoleGroup, updateFocusConcepts } from "@/composables/buildQuery";
 import { v4 } from "uuid";
 import ECLBoolQuery from "@/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
@@ -107,14 +166,16 @@ interface Props {
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined>;
-const parentGroup = defineModel<number[]>("group", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const hoverAddRefinement = ref(false);
 const hoverDeleteConcept = ref(false);
+const hoverAddConcept = ref(false);
 const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
+const checked = ref(false);
 const focusConcepts = computed(() => {
   return updateFocusConcepts(match.value);
 });
@@ -130,9 +191,12 @@ watch(isRoleGroup, (newValue, oldValue) => {
   }
 });
 
+function addConcept() {
+  addConceptToGroup(match.value);
+}
 function updateOperator(val: string) {
   updateFocusConcepts(match.value);
-  emit("updateBool", props.parentOperator, val);
+  emit("updateBool", props.parentOperator, val, props.index);
 }
 
 function updateMatch() {
@@ -169,6 +233,10 @@ function addRefinement() {
       match.value.where = boolWhere;
     }
   } else match.value.where = where;
+}
+
+function onCheckGroupChange(e: any) {
+  checkGroupChange(e, parentGroup.value, props.index);
 }
 </script>
 
