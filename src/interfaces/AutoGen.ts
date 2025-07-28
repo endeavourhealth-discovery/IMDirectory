@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-15 15:07:38.
+// Generated using typescript-generator version 3.2.1263 on 2025-07-25 15:17:21.
 
 export interface ConceptContextMap {
     id?: string;
@@ -240,6 +240,7 @@ export interface PropertyShape {
     ascending?: string;
     descending?: string;
     orderable?: boolean;
+    hasValueSet?: TTIriRef;
 }
 
 export interface SetContent {
@@ -271,18 +272,24 @@ export interface Argument {
     valueObject?: any;
 }
 
+export interface ArgumentReference {
+    parameter?: string;
+    referenceIri?: TTIriRef;
+    dataType?: TTIriRef;
+}
+
 export interface Assignable {
     value?: string;
-    unit?: TTIriRef;
-    valueLabel?: string;
-    valueParameter?: string;
     operator?: Operator;
+    valueParameter?: string;
+    valueLabel?: string;
+    unit?: TTIriRef;
     qualifier?: string;
 }
 
 export interface BoolGroup<T> {
-    and?: T[];
     or?: T[];
+    and?: T[];
     not?: T[];
 }
 
@@ -332,9 +339,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
+    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -466,6 +473,11 @@ export interface RelativeTo extends Node {
     propertyRef?: string;
 }
 
+export interface RequeueQueryRequest {
+    queueId?: string;
+    queryRequest?: QueryRequest;
+}
+
 export interface Return {
     nodeRef?: string;
     function?: FunctionClause;
@@ -530,6 +542,23 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     and?: Where[];
 }
 
+export interface DBEntry {
+    id?: string;
+    queryIri?: string;
+    queryName?: string;
+    queryRequest?: QueryRequest;
+    userId?: string;
+    userName?: string;
+    queuedAt?: Date;
+    startedAt?: Date;
+    pid?: number;
+    finishedAt?: Date;
+    killedAt?: Date;
+    status?: QueryExecutorStatus;
+    queryResult?: string;
+    error?: string;
+}
+
 export interface CognitoGroupRequest {
     username?: string;
     groupName?: string;
@@ -591,6 +620,7 @@ export interface QueryRequest extends ContextMap {
     cohort?: TTIriRef[];
     includeNames?: boolean;
     textSearchStyle?: TextSearchStyle;
+    language?: DatabaseOption;
     graph?: Graph;
 }
 
@@ -827,8 +857,8 @@ export interface TTEntity extends TTNode, Serializable {
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    code?: string;
     types?: TTIriRef[];
+    code?: string;
     prefixes?: TTPrefix[];
 }
 
@@ -1042,6 +1072,12 @@ export const enum Comparison {
     lt = "lt",
 }
 
+export const enum DatabaseOption {
+    MYSQL = "MYSQL",
+    POSTGRESQL = "POSTGRESQL",
+    GRAPHDB = "GRAPHDB",
+}
+
 export const enum DisplayMode {
     ORIGINAL = "ORIGINAL",
     RULES = "RULES",
@@ -1125,6 +1161,14 @@ export const enum VarType {
     NODE = "NODE",
     PATH = "PATH",
     LITERAL = "LITERAL",
+}
+
+export const enum QueryExecutorStatus {
+    QUEUED = "QUEUED",
+    RUNNING = "RUNNING",
+    COMPLETED = "COMPLETED",
+    CANCELLED = "CANCELLED",
+    ERRORED = "ERRORED",
 }
 
 export const enum Browser {
@@ -1342,6 +1386,7 @@ export const enum IM {
     OPENSEARCH_QUERY = "http://endhealth.info/im#OpenSearchQuery",
     DATAMODEL_PROPERTY = "http://endhealth.info/im#dataModelProperty",
     ONTOLOGY_PARENT_FOLDER = "http://endhealth.info/im#HealthModelOntology",
+    CONCEPT_SET_PARENT_FOLDER = "http://endhealth.info/im#QueryConceptSets",
     PROPERTIES_FOLDER = "http://endhealth.info/im#Properties",
     TASK = "http://endhealth.info/im#Task",
     FIELD_GROUP = "http://endhealth.info/im#FieldGroup",
@@ -1415,7 +1460,7 @@ export const enum IM {
     SOURCE_HEADING = "http://endhealth.info/im#sourceHeading",
     TARGET_PROPERTY = "http://endhealth.info/im#targetProperty",
     CONTEXT_NODE = "http://endhealth.info/im#contextNode",
-    UPDATE_ALL = "http://endhealth.info/im#UpdateAll",
+    REPLACE_ALL_PREDICATES = "http://endhealth.info/im#ReplaceAllPredicates",
     ADD_QUADS = "http://endhealth.info/im#AddQuads",
     UPDATE_PREDICATES = "http://endhealth.info/im#UpdatePredicates",
     DELETE_ALL = "http://endhealth.info/im#DeleteAll",

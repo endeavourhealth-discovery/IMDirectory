@@ -5,8 +5,9 @@
     <div v-else class="query-display-container flex flex-col gap-4">
       <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
       <div class="flex flex-row gap-2">
+        <div v-if="isLoggedIn"><Button label="View arguments" @click="checkArguments" :loading="checkingArguments" /></div>
         <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
-        <div v-if="isLoggedIn"><Button label="Run query" @click="runQuery" /></div>
+        <div v-if="isLoggedIn"><Button label="Run query" @click="runQuery" :loading="checkingArguments" /></div>
       </div>
       <div v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView].includes(selectedDisplayOption)" class="query-display-content">
         <div v-if="query" class="rec-query-display">
@@ -63,23 +64,25 @@
         />
       </div>
       <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
+      <ArgumentSelector v-model:showDialog="showArgumentSelector" :missingArguments="missingArguments" @arguments-completed="addArgumentsAndRun" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
 import { QueryService } from "@/services";
-import { Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
+import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
 import { computed, onMounted, ref, Ref, watch } from "vue";
-import { IM } from "@/vocabulary";
+import { IM, XSD } from "@/vocabulary";
 import SQLDisplay from "./SQLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
 import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
+import ArgumentSelector from "@/components/queryRunner/ArgumentSelector.vue";
 
 enum DisplayOptions {
   RuleView = "Rule view",
@@ -117,6 +120,10 @@ const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 
 const displayOptions: Ref<string[]> = ref([]);
 const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
+const showArgumentSelector = ref(false);
+const checkingArguments = ref(false);
+const missingArguments: Ref<ArgumentReference[]> = ref([]);
+const requestArguments: Ref<Argument[]> = ref([]);
 
 watch(
   () => props.definition,
@@ -190,10 +197,27 @@ async function getQueryDisplay(displayMode: DisplayMode) {
   return undefined;
 }
 
-function runQuery() {
+async function checkArguments(): Promise<boolean> {
   if (query.value) {
+    checkingArguments.value = true;
+    const request: QueryRequest = { query: query.value, argument: requestArguments.value };
+    missingArguments.value = await QueryService.findMissingArguments(request);
+    if (isArrayHasLength(missingArguments.value)) {
+      showArgumentSelector.value = true;
+      checkingArguments.value = false;
+      return false;
+    }
+    checkingArguments.value = false;
+  }
+  return true;
+}
+
+async function runQuery() {
+  if (query.value) {
+    const argumentsVerified = await checkArguments();
+    if (!argumentsVerified) return;
     confirm.require({
-      message: "Are you sure you want to run this query '" + query.value.name + "'?",
+      message: "Are you sure you want to run this query '" + query.value.name + "'?" + requestArguments.value.toString(),
       header: "Run query",
       icon: "pi pi-exclamation-triangle",
       rejectProps: {
@@ -213,15 +237,22 @@ function runQuery() {
   }
 }
 
+async function addArgumentsAndRun(completedArguments: Argument[]) {
+  requestArguments.value = completedArguments;
+  await runQuery();
+}
+
 async function addQueryToRunnerQueue() {
   if (query.value) {
-    const request: QueryRequest = { query: query.value };
+    const request: QueryRequest = { query: query.value, argument: requestArguments.value };
     await QueryService.addQueryToRunnerQueue(request);
   }
 }
 
 async function testRunQuery() {
   if (query.value) {
+    const argumentsVerified = await checkArguments();
+    if (!argumentsVerified) return;
     confirm.require({
       message: "Are you sure you want to test run this query '" + query.value.name + "'?",
       header: "Test run query",
@@ -236,7 +267,7 @@ async function testRunQuery() {
       },
       accept: async () => {
         if (query.value) {
-          const request: QueryRequest = { query: query.value };
+          const request: QueryRequest = { query: query.value, argument: requestArguments.value };
           testResults.value = await QueryService.testRunQuery(request);
           showTestResults.value = true;
         }

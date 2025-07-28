@@ -10,11 +10,6 @@
       <div class="query-editor-container flex flex-col gap-4">
         <div class="query-editor flex flex-col p-2">
           <QueryDisplay :showSqlButton="false" :queryDefinition="queryDefinition" />
-          <div class="flex flex-row justify-end gap-2">
-            <div>
-              <Button data-testid="test-query-button" label="Test run query" @click="testRunQuery" />
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -24,7 +19,7 @@
       <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
     </div>
     <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
-      <pre>{{ sql }}</pre>
+      <SQLDisplay :sql="sql" />
       <template #footer>
         <Button
           v-clipboard:copy="copyToClipboard()"
@@ -53,6 +48,7 @@ import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import QueryEditor from "@/components/imquery/QueryEditor.vue";
+import SQLDisplay from "@/components/directory/viewer/SQLDisplay.vue";
 
 interface Props {
   mode: EditorMode;
@@ -170,14 +166,6 @@ function updateEntity() {
 
 function updateQueryDefinition(test: any) {
   queryDefinition.value = test;
-}
-
-async function testRunQuery() {
-  if (queryDefinition.value) {
-    const request: QueryRequest = { query: queryDefinition.value };
-    queryTestResults.value = await QueryService.testRunQuery(request);
-  } else queryTestResults.value = [];
-  showTestQueryResults.value = true;
 }
 </script>
 

@@ -11,7 +11,8 @@ import {
   QueryRequest,
   RequeueQueryRequest,
   SearchResponse,
-  PropertyShape
+  PropertyShape,
+  ArgumentReference
 } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
@@ -122,6 +123,10 @@ const QueryService = {
 
   async testRunQuery(request: QueryRequest): Promise<string[]> {
     return axios.post(API_URL + "/testRunQuery", request);
+  },
+
+  async findMissingArguments(request: QueryRequest): Promise<ArgumentReference[]> {
+    return axios.post(API_URL + "/findRequestMissingArguments", request);
   }
 };
 
