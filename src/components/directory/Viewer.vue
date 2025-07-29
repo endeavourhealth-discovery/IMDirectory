@@ -18,7 +18,7 @@
             <Tab v-if="isConcept(types)" value="5">Expression</Tab>
             <Tab v-if="isRecordModel(types)" value="6">Data Model</Tab>
             <Tab v-if="isRecordModel(types)" value="7">Properties</Tab>
-            <Tab v-if="isQuery(types)" value="8">Query</Tab>
+            <Tab v-if="isQuery(types) || isFunctionalProperty(types)" value="8">Query</Tab>
             <Tab v-if="isFeature(types)" value="10">Feature</Tab>
             <Tab value="11">Contents</Tab>
             <Tab v-if="isProperty(types)" value="12">Data Models</Tab>
@@ -68,7 +68,7 @@
                 <Properties :entityIri="entityIri" :entityName="concept[RDFS.LABEL]" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isQuery(types)" value="8">
+            <TabPanel v-if="isQuery(types) || isFunctionalProperty(types)" value="8">
               <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" :show-dataset="true" />
               </div>
@@ -144,7 +144,7 @@ import { DirectService, EntityService } from "@/services";
 
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isConcept, isFeature, isFolder, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
+import { isConcept, isFeature, isFolder, isFunctionalProperty, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";

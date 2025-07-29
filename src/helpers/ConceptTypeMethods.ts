@@ -33,6 +33,10 @@ export function isProperty(conceptTypes: TTIriRef[]): boolean {
   return isOfTypes(conceptTypes, RDF.PROPERTY, SHACL.PROPERTY, IM.DATA_PROPERTY, IM.TARGET_PROPERTY, IM.FUNCTION_PROPERTY, OWL.ANNOTATION_PROPERTY);
 }
 
+export function isFunctionalProperty(conceptTypes: TTIriRef[]): boolean {
+  return isProperty(conceptTypes) && isOfTypes(conceptTypes, SHACL.FUNCTION);
+}
+
 export function isConcept(conceptTypes: TTIriRef[]): boolean {
   return isOfTypes(conceptTypes, IM.CONCEPT);
 }
