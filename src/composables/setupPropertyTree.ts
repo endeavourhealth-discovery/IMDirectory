@@ -2,7 +2,7 @@ import type { TreeNode } from "primevue/treenode";
 import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { PropertyShape, Node } from "@/interfaces/AutoGen";
+import { Match, Path, PropertyShape, Node, PropertyRange } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
 
@@ -25,11 +25,15 @@ function setupPropertyTree() {
   async function createFeatureTree(queryBaseType: Node): Promise<TreeNode[]> {
     baseType.value = queryBaseType;
     const data = ref([] as TreeNode[]);
-    data.value.push(createNode("0", "Add a cohort as feature", "cohort", "cohort", IM.QUERY, "", null, ""));
-    data.value.push(createNode("1", "Add " + baseType.value.name + " features", "features", "folder", IM.FOLDER, "", null, ""));
+    let key = "0";
+    let keyIndex = 0;
+    data.value.push(createNode(key, "Add a cohort as feature", "cohort", "cohort", IM.QUERY, null, "", null));
+    key = "1";
+    keyIndex++;
+    data.value.push(createNode(key, "Select features of  " + queryBaseType.name, "features", "folder", IM.FOLDER, null, "", null));
     data.value[0].selectable = true;
-    await createPropertyTree(baseType.value.iri!, data.value[1]);
-    expandedKeys.value = { 1: true };
+    await createPropertyTree(queryBaseType.iri!, data.value[keyIndex]);
+    expandedKeys.value = key === "1" ? { "1": true } : { "0": true };
     return data.value;
   }
 
@@ -39,9 +43,9 @@ function setupPropertyTree() {
     conceptIri: string,
     type: string,
     iconType: string,
+    range: PropertyRange | null,
     rangeType: string,
-    parent: TreeNode | null,
-    path: string
+    parent: TreeNode | null
   ): TreeNode {
     const key = parent === null ? index : parent.key + "_" + index;
     const node = {
@@ -52,11 +56,11 @@ function setupPropertyTree() {
         typeIcon: getFAIconFromType([{ iri: iconType }]),
         color: getColourFromType([{ iri: iconType }]),
         iri: conceptIri,
-        path: path
+        parentNode: parent,
+        range: range
       },
       loading: false,
       children: [] as TreeNode[],
-      parentNode: parent,
       type: type
     } as TreeNode;
     if (rangeType != "") {
@@ -69,7 +73,7 @@ function setupPropertyTree() {
 
   function createGroupNode(index: string, property: PropertyShape, parent: TreeNode): TreeNode {
     const name = property.group!.name;
-    const groupNode = createNode(index, name, property.group!.iri, "folder", IM.FOLDER, "", parent, parent.data.path) as TreeNode;
+    const groupNode = createNode(index, name, property.group!.iri, "folder", IM.FOLDER, null, "", parent) as TreeNode;
     if (property.property) {
       const propertyList = [] as TreeNode[];
       for (const [propertyIndex, groupedProperty] of property.property.entries()) {
@@ -86,12 +90,12 @@ function setupPropertyTree() {
       return createGroupNode(index, property, parent);
     }
     let rangeType = "";
-    let path = "";
+    let range = {} as PropertyRange;
     if (property.clazz) {
       rangeType = property.clazz.type!.iri;
     } else if (property.node) {
+      range = property.node;
       rangeType = property.node.type!.iri;
-      path = parent.data.path === "" ? property.path.iri + "," + property.node.iri : parent.data.path + "," + property.path.iri + property.node.iri;
     }
 
     let name = "";
@@ -100,7 +104,7 @@ function setupPropertyTree() {
       const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
       name += ` (${value})`;
     }
-    const propertyNode = createNode(index, name!, property.path.iri, "property", RDF.PROPERTY, rangeType, parent, path);
+    const propertyNode = createNode(index, name!, property.path.iri, "property", RDF.PROPERTY, range, rangeType, parent) as TreeNode;
     propertyNode.selectable = true;
     if (property.node) {
       propertyNode.data.range = property.node.iri;
@@ -130,6 +134,7 @@ function setupPropertyTree() {
         }
       }
     } else if (node.data.range) {
+      node.data.path = node.data.path === "" ? node.data.iri + "," + node.data.range : node.data.path + "," + node.data.iri + "," + node.data.range;
       await createPropertyTree(node.data.range, node);
     }
     node.loading = false;
@@ -143,8 +148,43 @@ function setupPropertyTree() {
       }
     }
   }
+  function getRootNodes(match: Match, nodes: TreeNode[]): TreeNode[] {
+    if (!match.path) return nodes;
+    const rootNodes = [] as TreeNode[];
+    for (const path of match.path) {
+      for (const node of nodes) {
+        if (node.type === "folder") {
+          getRootNodes(match, node.children!);
+        } else if (node.data.iri === path.iri) {
+          rootNodes.push(node);
+          if (path.path && path.path.length > 0 && node.children && node.children.length > 0) {
+            for (const subPath of path.path) {
+              addRootNodes(rootNodes, subPath, node);
+            }
+          }
+        }
+      }
+    }
+    return rootNodes;
+  }
+  function addRootNodes(rootNodes: TreeNode[], subPath: Path, node: TreeNode) {
+    for (const child of node.children!) {
+      if (child.type === "folder") {
+        addRootNodes(rootNodes, subPath, child);
+      } else if (child.data.iri === subPath.iri) {
+        rootNodes.push(child);
+        if (subPath.path && subPath.path.length > 0 && child.children && child.children.length > 0) {
+          for (const subSubPath of subPath.path) {
+            addRootNodes(rootNodes, subSubPath, child);
+          }
+        }
+      }
+    }
+  }
   return {
+    getRootNodes,
     createFeatureTree,
+    createNode,
     expandNode,
     collapseNode,
     expandedKeys,

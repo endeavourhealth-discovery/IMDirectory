@@ -68,7 +68,7 @@ import { Where, Bool, Node } from "@/interfaces/AutoGen";
 import { computed, ref } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM } from "@/vocabulary/IM";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { getTypeIcon, getIconColor } from "@/helpers/ConceptTypeVisuals";
 
 interface Props {
   where: Where;
@@ -114,17 +114,6 @@ function getOperator(operator: Bool | undefined, index: number): string {
     if (index < 0) return "and";
     else return "";
   }
-}
-function getTypeIcon(is: Node) {
-  if (is.memberOf) {
-    return getFAIconFromType([{ iri: IM.CONCEPT_SET }]);
-  } else return getFAIconFromType([{ iri: IM.CONCEPT }]);
-}
-
-function getIconColor(is: Node) {
-  if (is.memberOf) {
-    return getColourFromType([{ iri: IM.CONCEPT_SET }]);
-  } else return getColourFromType([{ iri: IM.CONCEPT }]);
 }
 
 function indentationStyle(inLine: boolean, depth: number) {

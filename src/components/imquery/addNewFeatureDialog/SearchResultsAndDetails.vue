@@ -81,7 +81,7 @@ import PathSelect from "./PathSelect.vue";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import { isConcept, isFeature, isProperty, isQuery, isRecordModel, isValueSet, isFunction } from "@/helpers/ConceptTypeMethods";
-import SelectedSet from "./SelectedSet.vue";
+import SelectedSet from "../SelectedSet.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import DataModel from "@/components/directory/viewer/dataModel/DataModel.vue";

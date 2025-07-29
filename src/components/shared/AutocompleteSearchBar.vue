@@ -42,7 +42,7 @@
               class="listbox-item"
               @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
               @mouseleave="hideOverlay"
-              @click="onListboxOptionClick(slotProps.option)"
+              @click="onListBoxOptionClick(slotProps.option)"
             >
               <span>{{ slotProps.option.bestMatch ? slotProps.option.bestMatch : slotProps.option.name }}</span>
             </div>
@@ -245,7 +245,7 @@ async function doSearch(event: any) {
 }
 
 async function onEnter(event: KeyboardEvent) {
-  if (listBoxSelected.value) onListboxOptionClick(listBoxSelected.value);
+  if (listBoxSelected.value) onListBoxOptionClick(listBoxSelected.value);
 }
 function select(event: KeyboardEvent) {
   if (isArrayHasLength(results.value?.entities))
@@ -293,12 +293,11 @@ function hideResultsOverlay() {
   if (resultsOP.value) resultsOP.value.hide();
 }
 
-function onListboxOptionClick(selected: SearchResultSummary) {
+function onListBoxOptionClick(selected: SearchResultSummary) {
   selectedLocal.value = selected;
   hideOverlay();
   hideResultsOverlay();
   editing.value = false;
-  emit("update:selected", selectedLocal.value);
 }
 </script>
 

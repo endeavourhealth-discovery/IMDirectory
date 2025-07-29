@@ -83,7 +83,8 @@ const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);
 const op = ref();
 const parentIndex = ref(0);
-
+const nodeRefMap = ref<{ [key: string]: any }>({})
+provide('query', query)
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));

@@ -21,24 +21,32 @@
       <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
         <ProgressSpinner />
       </div>
-      <div v-else class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
+      <div v-else class="description-container">
         <span>Description</span>
         <Textarea v-model="match.description" autoResize placeholder="Description" rows="2" type="text" />
-        <span v-if="match.instanceOf || match.where">
-          <CohortEditor v-if="match.instanceOf" v-model:match="match" v-model:editMode="editCohort" />
-          <div v-else-if="match.where">
-            <span v-if="!match.where.and">
-              <span>Where: {{ match.where }}</span>
-            </span>
-            <EditProperty :data-model-iri="match.typeOf ? match.typeOf!.iri! : baseType.iri!" :edit-match="match" v-model:property="match.where" />
-          </div>
-        </span>
-
-        <span v-else>
-          <span>Select properties to add</span>
-          <MatchTypeSelector :base-type="baseType" @node-selected="onMatchTypeSelected($event)" />
-        </span>
       </div>
+      <span>{{ match }}</span>
+      <div v-if="match.instanceOf || match.where" class="where-container">
+        <CohortEditor v-if="match.instanceOf" v-model:match="match" v-model:editMode="editCohort" />
+        <div v-else-if="match.where && !match.where.and">
+          <PropertyEditor
+            :data-model-iri="getDataModelFromNodeRef(match, match.where.nodeRef, baseType.iri!)"
+            :edit-match="match"
+            v-model:property="match.where"
+          />
+        </div>
+        <div v-else-if="match.where && match.where.and" v-for="(item, index) in match.where.and">
+          <PropertyEditor
+            :data-model-iri="getDataModelFromNodeRef(match, item.nodeRef, baseType.iri!)"
+            :edit-match="match"
+            v-model:property="match.where.and[index]"
+          />
+        </div>
+      </div>
+      <span>{{ rootNodes }}</span>
+      <span>
+        <MatchTypeSelector :base-type="baseType" v-model:match="match" :rootNodes="rootNodes" @node-selected="onMatchTypeSelected($event)" />
+      </span>
       <template #footer>
         <div class="button-footer">
           <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
@@ -52,16 +60,19 @@
 <script lang="ts" setup>
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { DisplayMode, Match, Node, TTIriRef } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch, computed } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import type { MenuItem } from "primevue/menuitem";
 import { EntityService, QueryService, DataModelService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
-import { addWhereToMatch, setReturn } from "@/composables/buildQuery";
+import { addWhereToMatch, setReturn, getDataModelFromNodeRef } from "@/composables/buildQuery";
 import MatchTypeSelector from "@/components/imquery/MatchTypeSelector.vue";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
-import EditProperty from "@/components/imquery/EditProperty.vue";
+import PropertyEditor from "@/components/imquery/PropertyEditor.vue";
+import SelectedSet from "@/components/imquery/SelectedSet.vue";
+import setupPropertyTree from "@/composables/setupPropertyTree";
+import { isEqual } from "lodash-es";
 
 interface Props {
   index?: number;
@@ -70,26 +81,32 @@ interface Props {
 
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
-const showMatchEditor = defineModel<boolean>("showMatchEditot", { default: false });
+const showMatchEditor = defineModel<boolean>("showMatchEditor", { default: false });
 const emit = defineEmits<{
   (event: "saveChanges"): void;
   (event: "cancel"): void;
 }>();
-const keepAsVariable: Ref<string> = ref("");
-const showBuildFeature: Ref<boolean> = ref(false);
-const showBuildThenFeature: Ref<boolean> = ref(false);
-const keepAsEdit: Ref<boolean> = ref(false);
+const { createFeatureTree, getRootNodes } = setupPropertyTree();
 const editMatchString: Ref<string> = ref("");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
-const pathItems: Ref<MenuItem[]> = ref([]);
+const { createNode } = setupPropertyTree();
 const templates: Ref<any> = ref();
 const loading = ref(true);
 const keepAs: Ref<string> = ref("");
 const editCohort = ref(false);
+const propertyTree: Ref<TreeNode[]> = ref([]);
+const rootNodes: Ref<TreeNode[]> = ref([]);
+const matchType: Ref<Node | undefined> = ref();
 watch(
   () => keepAs,
   () => setReturn(match.value, keepAs.value)
 );
+watch(props.baseType, async (newValue, oldValue) => {
+  if (!isEqual(newValue, oldValue)) {
+    propertyTree.value = await createFeatureTree(props.baseType);
+    rootNodes.value = propertyTree.value;
+  }
+});
 
 onMounted(async () => {
   await init();
@@ -97,7 +114,8 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  setPathItems();
+  propertyTree.value = await createFeatureTree(props.baseType);
+  if (match.value.path) rootNodes.value = getRootNodes(match.value, propertyTree.value[1].children!);
   templates.value = await getFunctionTemplates();
   loading.value = false;
 }
@@ -109,12 +127,16 @@ async function onMatchTypeSelected(node: TreeNode) {
     if (node.data.range) {
       const defaultPropertyShape = await DataModelService.getDefiningProperty(node.data.range);
       if (defaultPropertyShape.path) {
-        addWhereToMatch(match.value, node.data.path, defaultPropertyShape.path.iri);
-        QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+        if (!matchType.value) matchType.value = { iri: node.data.range.iri, name: node.data.range.name };
+        addWhereToMatch(match.value, node, defaultPropertyShape.path.iri);
+        match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+        rootNodes.value = getRootNodes(match.value, propertyTree.value[1].children!);
       }
     } else {
-      addWhereToMatch(match.value, node.data.path, node.data.iri);
-      QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+      if (!matchType.value) matchType.value = { iri: node.data.parentNode.data.range, name: node.data.range.name };
+      addWhereToMatch(match.value, node, node.conceptIri);
+      match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+      rootNodes.value = getRootNodes(match.value, propertyTree.value[1].children!);
     }
   }
 }
@@ -130,11 +152,8 @@ async function getFunctionTemplates() {
   }
 }
 
-function setPathItems() {
-  pathItems.value = [{ label: props.index ? "Feature " + props.index : "Feature" }];
-}
-
-function onSave() {
+async function onSave() {
+  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
   emit("saveChanges");
   showMatchEditor.value = false;
 }
@@ -157,6 +176,15 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 
 .name-display {
   width: 100%;
+}
+.description-container {
+  display: flex;
+  flex-flow: column;
+}
+.where-container {
+  display: flex;
+  flex-flow: column;
+  gap: 1rem;
 }
 
 #immatch-builder-string-container {

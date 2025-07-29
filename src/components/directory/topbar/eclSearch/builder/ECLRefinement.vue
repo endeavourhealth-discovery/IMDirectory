@@ -176,8 +176,8 @@ import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef, Node }
 import { useFilterStore } from "@/stores/filterStore";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { getBooleanOptions, updateBooleans, getIsRoleGroup, checkGroupChange } from "@/composables/buildQuery";
-import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/composables/buildQuery";
-
+import { setConstraintOperator, getConstraintOperator, manageRoleGroup } from "@/composables/buildQuery";
+import { constraintOperatorOptions } from "@/helpers/QueryEditorOptions";
 import Button from "primevue/button";
 import ECLRefinementValue from "@/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";

@@ -15,7 +15,8 @@ import {
   Operator
 } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
-import { SearchOptions, TreeNode } from "@/interfaces";
+import { SearchOptions } from "@/interfaces";
+import type { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import Swal from "sweetalert2";
 import { cloneDeep } from "lodash-es";
@@ -208,24 +209,68 @@ export function deleteMatchFromParent(parentMatch: Match, index: number) {
   }
 }
 
-export function addWhereToMatch(match: Match, path: string, property: string) {
-  let nodeRef = ";";
-  if (path != "") {
-    const propertyTypePath = path.split(",");
-    if (!match.path) match.path = [];
-    nodeRef = findMatchPathVariable(match, propertyTypePath);
-    if (nodeRef == "") {
-      const matchPath = {} as Path;
-      for (let i = 0; i < propertyTypePath.length; i += 2) {
-        matchPath.iri = propertyTypePath[i];
-        matchPath.typeOf = { iri: propertyTypePath[i + 1] };
-        match.typeOf = matchPath.typeOf;
-      }
-      match.path.push(matchPath);
+function getPathFromNode(node: TreeNode): Path | undefined {
+  if (!node.data.parentNode) return undefined;
+  if (node.data.parentNode.data.iri) {
+    const path = { iri: node.data.parentNode.data.iri, typeOf: { iri: node.data.parentNode.data.range } } as Path;
+    const parentPath = getPathFromNode(node.data.parentNode);
+    if (parentPath) {
+      if (!parentPath.path) parentPath.path = [];
+      parentPath.path.push(path);
+      path.variable = parentPath.variable ? parentPath.variable + "->" + path.iri!.split("#")[1] : path.iri!.split("#")[1];
+      return parentPath;
     }
   }
+  return undefined;
+}
+
+function getNewNodeRefFromPath(path: Path, newPath: Path): string {
+  let nodeRef = "";
+  if (newPath.path) {
+    for (const newChild of newPath.path) {
+      if (path.path) {
+        for (const child of path.path) {
+          if (child.iri === newChild.iri) {
+            nodeRef = getNewNodeRefFromPath(child, newChild);
+            nodeRef = nodeRef === "" ? child.variable! : nodeRef + "->" + child.variable!;
+            return nodeRef;
+          }
+        }
+        if (!path.path) path.path = [];
+        path.path.push(newChild);
+        return newPath.variable!;
+      }
+    }
+  }
+  return "";
+}
+
+function getNewNodeRefFromMatch(match: Match, node: TreeNode): string {
+  let nodeRef = "";
+  const newPath = getPathFromNode(node);
+  if (newPath) {
+    if (match.path) {
+      for (const path of match.path) {
+        if (path.iri === newPath.iri) {
+          nodeRef = getNewNodeRefFromPath(path, newPath);
+          nodeRef = nodeRef === "" ? path.iri!.split("#")[1] : nodeRef + "->" + path.iri!.split("#")[1];
+          return nodeRef;
+        }
+      }
+    } else {
+      match.path = [];
+      match.path.push(newPath);
+      return newPath.variable!;
+    }
+  }
+  return "";
+}
+
+export function addWhereToMatch(match: Match, node: TreeNode, property: string) {
+  const nodeRef = getNewNodeRefFromMatch(match, node);
   const where = {} as Where;
   where.iri = property;
+  if (nodeRef != "") where.nodeRef = nodeRef;
   if (match.where) {
     if (!match.where.and) {
       const currentWhere = match.where;
@@ -236,23 +281,38 @@ export function addWhereToMatch(match: Match, path: string, property: string) {
   } else match.where = where;
 }
 
-function findMatchPathVariable(match: Match, path: string[]): string {
-  if (!match.path) return "";
-  let i = -1;
-  for (const pathItem of match.path) {
-    i++;
-    if (pathItem.iri === path[i]) return pathItem.iri;
-  }
-  return "";
-}
 export function matchDefined(match: Match): boolean {
-  return !!(match.path || match.where || match.instanceOf);
+  return !!(match.path || match.where || match.instanceOf || match.rule || match.and || match.or || match.not);
 }
 export function getRuleAction(match: Match): string {
   if (match.ifTrue) {
     return (match.ifTrue + match.ifFalse).toLowerCase();
   }
   return "nextreject";
+}
+
+export function getDataModelFromNodeRef(match: Match | Path, nodeRef: string | undefined, baseType: string): string {
+  if (nodeRef === undefined) {
+    return getMatchTypeOf(match, baseType);
+  }
+  if (match.path) {
+    for (const path of match.path) {
+      if (path.variable === nodeRef) {
+        if (path.typeOf) return path.typeOf.iri!;
+        else return getMatchTypeOf(match, baseType);
+      }
+      if (path.path) {
+        const dataModel = getDataModelFromNodeRef(path, nodeRef, baseType);
+        if (dataModel) return dataModel;
+      }
+    }
+  }
+  return getMatchTypeOf(match, baseType);
+}
+
+function getMatchTypeOf(match: Match, baseType: string): string {
+  if (match.typeOf) return match.typeOf.iri!;
+  else return baseType;
 }
 
 export function addMatchToParent(match: Match, parent: Match) {
@@ -398,34 +458,6 @@ export function getBooleanOptions(
   return options;
 }
 
-export const constraintOperatorOptions = [
-  {
-    label: "--",
-    value: "",
-    tooltip: "This concept only"
-  },
-  {
-    label: "<<",
-    value: "<<",
-    tooltip: "This concept and all descendants"
-  },
-  {
-    label: "<",
-    value: "<",
-    tooltip: "Descendants of this concept but not this concept"
-  },
-  {
-    label: "^",
-    value: "^",
-    tooltip: "Member of this value set"
-  },
-  {
-    label: ">>!",
-    value: ">>!",
-    tooltip: "This concept and all ancestors"
-  }
-];
-
 export function isGroupable(rootBool?: boolean, parentMatch?: Match, parentOperator?: Bool): boolean {
   if (parentOperator && parentOperator === Bool.rule) return false;
   if (parentMatch && !rootBool && parentOperator) {
@@ -445,34 +477,38 @@ export function getConstraintOperator(constrainer: Element) {
 export function setConstraintOperator(constrainer: Element, valueConstraintOperator: string) {
   switch (valueConstraintOperator) {
     case "<<":
+    case "descendantsOrSelfOf":
       constrainer.descendantsOrSelfOf = true;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
-      constrainer.ancestorsOrSelfOf = false;
+      delete constrainer.descendantsOf;
+      delete constrainer.memberOf;
+      delete constrainer.ancestorsOrSelfOf;
       break;
     case "<":
+    case "descendantsOf":
       constrainer.descendantsOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.memberOf = false;
-      constrainer.ancestorsOrSelfOf = false;
+      delete constrainer.descendantsOrSelfOf;
+      delete constrainer.memberOf;
+      delete constrainer.ancestorsOrSelfOf;
       break;
     case "^":
+    case "memberOf":
       constrainer.memberOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.ancestorsOrSelfOf = false;
+      delete constrainer.descendantsOrSelfOf;
+      delete constrainer.descendantsOf;
+      delete constrainer.ancestorsOrSelfOf;
       break;
     case ">>!":
+    case "ancestorsOrSelfOf":
       constrainer.ancestorsOrSelfOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
+      delete constrainer.descendantsOrSelfOf;
+      delete constrainer.descendantsOf;
+      delete constrainer.memberOf;
       break;
     default:
-      constrainer.ancestorsOrSelfOf = false;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
+      delete constrainer.ancestorsOrSelfOf;
+      delete constrainer.descendantsOrSelfOf;
+      delete constrainer.descendantsOf;
+      delete constrainer.memberOf;
   }
 }
 
@@ -545,11 +581,6 @@ function populateFlatListOfNodesRecursively(flatList: TreeNode[], treeNode: Tree
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
   if (treeNode.property) return treeNode.property;
   const property: Where = { iri: treeNode.data } as Where;
-  // string - is ""
-  // boolean - is true
-  // long - is true
-  // DateTime - is today's date
-
   if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
     property.operator = Operator.eq;
     property.value = "";
@@ -558,4 +589,16 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
   }
   (property as any).key = treeNode.key;
   return property;
+}
+export function updateRelativeTo(property: Where, node: TreeNode) {
+  if (!property.relativeTo) property.relativeTo = {};
+  if (node.data.parameter) {
+    property.relativeTo.parameter = node.data.parameter;
+    delete property.relativeTo.nodeRef;
+  }
+  if (node.data.nodeRef) {
+    property.relativeTo.nodeRef = node.data.nodeRef;
+    property.relativeTo.iri = node.data.iri;
+    delete property.relativeTo.parameter;
+  }
 }

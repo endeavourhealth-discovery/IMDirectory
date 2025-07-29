@@ -2,7 +2,7 @@
   <div v-if="loading" class="flex w-full flex-col">
     <ProgressSpinner />
   </div>
-  <div v-else-if="canHaveValueList" class="flex w-full flex-col">
+  <div v-else class="flex w-full flex-col">
     <InputText v-model="valueLabel" placeholder="Value label" type="text" @change="updateValueLabel" />
     <Listbox :options="selectedEntities" class="flex w-full">
       <template #empty> Add concepts and/or sets to this list</template>
@@ -22,7 +22,7 @@
               data-testid="remove-member-button"
               icon="fa-solid fa-trash"
               text
-              @click="selectedValueMap.delete(option.iri)"
+              @click="deleteValue(option.iri)"
             />
           </div>
         </div>
@@ -34,8 +34,8 @@
 
 <script lang="ts" setup>
 import { EntityService } from "@/services";
-import { inject, onMounted, ref, Ref, watch } from "vue";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
+import { onMounted, ref, Ref, watch } from "vue";
+import { IM, RDF, RDFS } from "@/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Match, Node, TTIriRef } from "@/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -43,14 +43,11 @@ import setupOverlay from "@/composables/setupOverlay";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
 import { isConcept, isValueSet } from "@/helpers/ConceptTypeMethods";
-import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
-  dataModelIri: string | undefined;
   propertyIri: string | undefined;
-  updatedPathOption: boolean;
   addDefaultValue?: boolean;
 }
 
@@ -64,44 +61,18 @@ interface SelectedEntity extends TTEntity {
 }
 
 const loading = ref(true);
-const selectedEntities: Ref<SelectedEntity[]> = ref([]);
+const selectedEntities = defineModel<Node[]>("selectedEntities", { default: [] });
 const entailmentOptions: { name: string; id: string }[] = [
   { name: "descendants of", id: "descendantsOf" },
   { name: "descendants or self of", id: "descendantsOrSelfOf" },
   { name: "ancestors of", id: "ancestorsOf" }
 ];
-const selectedPath = inject("selectedPath") as Ref<Match | undefined>;
 const valueLabel: Ref<string> = ref("");
-const selectedValueMap = inject("selectedValueMap") as Ref<Map<string, Node>>;
-const canHaveValueList: Ref<boolean> = ref(false);
 
 const emit = defineEmits<{
   goToNextStep: [];
 }>();
 
-watch(
-  () => props.updatedPathOption,
-  () => {
-    if (canHaveValueList.value) updatePathValues();
-  }
-);
-
-watch(
-  () => cloneDeep(selectedPath.value),
-  async newValue => {
-    await updateCanHaveValueList(newValue);
-  }
-);
-
-watch(
-  () => cloneDeep(selectedValueMap.value),
-  async () => {
-    if (props.addDefaultValue) {
-      await init();
-      emit("goToNextStep");
-    } else await init();
-  }
-);
 watch(
   () => cloneDeep(selectedEntities.value),
   async () => {
@@ -112,22 +83,25 @@ onMounted(async () => await init());
 
 async function init() {
   loading.value = true;
-  const selectedList = Array.from(selectedValueMap.value.keys());
-  let entities = await EntityService.getPartialEntities(selectedList, [RDF.TYPE, RDFS.LABEL]);
-  entities = entities.filter(entity => isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]));
-  if (isArrayHasLength(entities)) {
-    for (const entity of entities) {
-      entity.icon = getFAIconFromType(entity[RDF.TYPE]);
-      if (entity.iri) entity.include = !selectedValueMap.value.get(entity.iri)?.exclude;
-      if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
-      else entity.entailment = "descendantsOrSelfOf";
+  if (selectedEntities.value) {
+    const valueIris = selectedEntities.value.map(entity => entity.iri).filter((iri): iri is string => !!iri);
+    if (valueIris.length) {
+      let entities = await EntityService.getPartialEntities(valueIris!, [RDF.TYPE, RDFS.LABEL]);
+      entities = entities.filter(entity => isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]));
+      if (isArrayHasLength(entities)) {
+        for (const entity of entities) {
+          entity.icon = getFAIconFromType(entity[RDF.TYPE]);
+          if (entity.iri) entity.include = !selectedEntities.value.filter(node => node.iri === entity.iri);
+          if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
+          else entity.entailment = "descendantsOrSelfOf";
+        }
+      }
     }
-    selectedEntities.value = entities as SelectedEntity[];
-    if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where?.valueLabel;
-    if (selectedPath.value?.where?.valueLabel) valueLabel.value = selectedPath.value?.where.valueLabel;
   }
   loading.value = false;
 }
+
+function deleteValue(iri: string) {}
 
 function getColourStyleFromType(types: TTIriRef[]) {
   return "color: " + getColourFromType(types);

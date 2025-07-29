@@ -29,4 +29,5 @@ export interface UIProperty {
   operatorIri: string;
   operatorOptions: string[];
   qualifierOptions: TTIriRef[];
+  setMemberCount: number;
 }

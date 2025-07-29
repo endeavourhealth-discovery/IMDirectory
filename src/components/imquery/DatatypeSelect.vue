@@ -23,12 +23,11 @@
     <div v-else-if="uiProperty.valueType === XSD.BOOLEAN" class="property-input-container">
       <Select :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
     </div>
-
     <div
       v-else-if="uiProperty.valueType === IM.DATE_TIME || uiProperty.valueType === IM.DATE || uiProperty.valueType === IM.TIME"
       class="property-input-container"
     >
-      <DateSelect :property="property" :ui-property="uiProperty" />
+      <ValuePatternEditor v-model:property="property" :uiProperty="uiProperty" />
     </div>
     <div v-else class="property-input-container">
       <Select
@@ -47,7 +46,7 @@
       <div v-if="propertyType === 'is'" class="property-input">
         <Select type="text" placeholder="operator" :options="uiProperty.operatorOptions" v-model="property.operator" data-testid="property-operator-select" />
         <InputText type="text" placeholder="value" v-model="property.value" data-testid="property-value-input" />
-        <RelativeToSelect :property="property" :datatype="uiProperty.valueType" :property-iri="property.iri!" />
+        <RelativeToSelect :property="property" :uiProperty="uiProperty" :property-iri="property.iri!" />
         <Select
           v-if="isArrayHasLength(uiProperty.unitOptions)"
           type="text"
@@ -121,15 +120,15 @@ import { Ref, onMounted, ref, watch } from "vue";
 import { IM, XSD } from "@/vocabulary";
 import { Assignable, Range, Where, Operator } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import DateSelect from "./DateSelect.vue";
+import ValuePatternEditor from "./ValuePatternEditor.vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
 import { UIProperty } from "@/interfaces";
 interface Props {
-  property: Where;
   uiProperty: UIProperty;
 }
 
 const props = defineProps<Props>();
+const property = defineModel<Where>("property", { default: {} });
 const propertyType: Ref<string> = ref("");
 const booleanOptions = [
   { name: "true", value: true },
@@ -141,47 +140,47 @@ watch(
   () => {
     switch (propertyType.value) {
       case "range":
-        props.property.operator = undefined;
-        props.property.isNull = undefined;
-        props.property.isNotNull = undefined;
-        if (!props.property.range) props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
+        property.value.operator = undefined;
+        property.value.isNull = undefined;
+        property.value.isNotNull = undefined;
+        if (!property.value.range) property.value.range = { from: {} as Assignable, to: {} as Assignable } as Range;
         break;
       case "between":
-        props.property.operator = undefined;
-        props.property.isNull = undefined;
-        props.property.isNotNull = undefined;
-        props.property.value = undefined;
-        if (!props.property.range) props.property.range = { from: { operator: Operator.gte }, to: { operator: Operator.lte } as Assignable } as Range;
+        property.value.operator = undefined;
+        property.value.isNull = undefined;
+        property.value.isNotNull = undefined;
+        property.value.value = undefined;
+        if (!property.value.range) property.value.range = { from: { operator: Operator.gte }, to: { operator: Operator.lte } as Assignable } as Range;
         break;
       case "startsWith":
-        delete props.property.range;
-        props.property.isNull = undefined;
-        props.property.isNotNull = undefined;
-        props.property.operator = Operator.start;
+        delete property.value.range;
+        property.value.isNull = undefined;
+        property.value.isNotNull = undefined;
+        property.value.operator = Operator.start;
         break;
       case "contains":
-        delete props.property.range;
-        props.property.isNull = undefined;
-        props.property.isNotNull = undefined;
-        props.property.operator = Operator.contains;
+        delete property.value.range;
+        property.value.isNull = undefined;
+        property.value.isNotNull = undefined;
+        property.value.operator = Operator.contains;
         break;
       case "is":
-        delete props.property.range;
-        props.property.isNull = undefined;
-        props.property.isNotNull = undefined;
-        props.property.operator = Operator.eq;
+        delete property.value.range;
+        property.value.isNull = undefined;
+        property.value.isNotNull = undefined;
+        property.value.operator = Operator.eq;
         break;
       case "notNull":
-        delete props.property.range;
-        props.property.operator = undefined;
-        props.property.isNull = undefined;
-        props.property.isNotNull = true;
+        delete property.value.range;
+        property.value.operator = undefined;
+        property.value.isNull = undefined;
+        property.value.isNotNull = true;
         break;
       case "isNull":
-        delete props.property.range;
-        props.property.operator = undefined;
-        props.property.isNull = true;
-        props.property.isNotNull = undefined;
+        delete property.value.range;
+        property.value.operator = undefined;
+        property.value.isNull = true;
+        property.value.isNotNull = undefined;
         break;
       default:
         break;
@@ -190,12 +189,12 @@ watch(
 );
 
 onMounted(async () => {
-  if (isObjectHasKeys(props.property.range)) {
-    if (props.property.range?.from.operator === Operator.gte && props.property.range?.to.operator === Operator.lte) propertyType.value = "between";
+  if (isObjectHasKeys(property.value.range)) {
+    if (property.value.range?.from.operator === Operator.gte && property.value.range?.to.operator === Operator.lte) propertyType.value = "between";
     else propertyType.value = "range";
-  } else if (props.property.operator === "startsWith" || props.property.operator === "contains") propertyType.value = props.property.operator;
-  else if (props.property.isNull) propertyType.value = "isNull";
-  else if (props.property.isNotNull) propertyType.value = "notNull";
+  } else if (property.value.operator === "startsWith" || property.value.operator === "contains") propertyType.value = property.value.operator;
+  else if (property.value.isNull) propertyType.value = "isNull";
+  else if (property.value.isNotNull) propertyType.value = "notNull";
   else if (props.uiProperty.valueType !== IM.DATE_TIME) propertyType.value = "is";
 });
 </script>

@@ -3,9 +3,10 @@
 // Class, Record Type
 // Everything else
 
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { Node, TTIriRef } from "@/interfaces/AutoGen";
 import palette from "google-palette";
 import { isFeature, isFolder, isFunction, isProperty, isQuery, isRecordModel, isTask, isValueSet } from "@/helpers/ConceptTypeMethods";
+import { IM } from "@/vocabulary";
 
 export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
   if (isRecordModel(conceptTypes)) return ["fa-duotone", "fa-diagram-project"];
@@ -32,8 +33,21 @@ export function getColourFromType(conceptTypes: TTIriRef[]): string {
   else if (isFunction(conceptTypes)) return bgsFixed[9];
   else return bgsFixed[5];
 }
+export function getTypeIcon(is: Node) {
+  if (is.memberOf) {
+    return getFAIconFromType([{ iri: IM.CONCEPT_SET }]);
+  } else return getFAIconFromType([{ iri: IM.CONCEPT }]);
+}
+
+export function getIconColor(is: Node) {
+  if (is.memberOf) {
+    return getColourFromType([{ iri: IM.CONCEPT_SET }]);
+  } else return getColourFromType([{ iri: IM.CONCEPT }]);
+}
 
 export default {
   getColourFromType,
-  getFAIconFromType
+  getFAIconFromType,
+  getTypeIcon,
+  getIconColor
 };

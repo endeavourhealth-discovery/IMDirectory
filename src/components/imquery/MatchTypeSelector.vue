@@ -4,7 +4,7 @@
       v-model:expandedKeys="expandedKeys"
       :selectionKeys="selectedNodeKey"
       :loading="loading"
-      :value="data"
+      :value="rootNodes"
       :lazy="true"
       icon="loading"
       @node-expand="expandNode"
@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, Ref, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import type { TreeNode } from "primevue/treenode";
@@ -49,21 +49,25 @@ import { TreeSelectionKeys } from "primevue/tree";
 import setupPropertyTree from "@/composables/setupPropertyTree";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
 import setupTree from "@/composables/setupTree";
+import { isEqual } from "lodash-es";
+import { matchDefined } from "@/composables/buildQuery";
 
 const visible = defineModel<boolean>("visible");
-
 const props = defineProps<{
   baseType: Node;
+  rootNodes: TreeNode[];
 }>();
-
+const match = defineModel<Match>("match", { default: {} });
 const emit = defineEmits<{
   (event: "node-selected", node: any): void;
   (event: "navigateTo", iri: string): void;
   (event: "onCancel", visible: boolean): void;
 }>();
 
-const data: Ref<TreeNode[]> = ref([]);
+
 const { createFeatureTree, expandNode, collapseNode, expandedKeys, loading } = setupPropertyTree();
+
+
 function onNodeSelect(node: any) {
   if (node.selectable) {
     emit("node-selected", node);
@@ -72,18 +76,7 @@ function onNodeSelect(node: any) {
 
 const selectedNodeKey = ref<TreeSelectionKeys | undefined>(undefined);
 
-watch(
-  () => props.baseType,
-  async () => {
-    loading.value = true;
-    data.value = await createFeatureTree(props.baseType);
-    loading.value = false;
-  }
-);
 
-onMounted(async () => {
-  data.value = await createFeatureTree(props.baseType);
-});
 
 </script>
 

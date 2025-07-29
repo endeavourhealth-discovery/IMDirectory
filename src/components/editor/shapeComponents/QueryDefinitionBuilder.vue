@@ -74,17 +74,6 @@ const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
 const key = props.shape.path.iri;
 
-watch(
-  () => cloneDeep(queryDefinition.value),
-  async newValue => {
-    updateEntity();
-    if (updateValidity && valueVariableMap) {
-      if (newValue) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      showValidation.value = true;
-    }
-  }
-);
-
 onMounted(async () => {
   loading.value = true;
   await init();

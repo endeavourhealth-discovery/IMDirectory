@@ -2,11 +2,13 @@
   <div v-if="loading" class="flex">
     <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
   </div>
-  <div class="mt-1 ml-1 flex flex-row items-center gap-2">
-    <InputText v-if="selectedProperty" v-model="selectedProperty.name" class="w-full md:w-56" disabled />
-    <div v-if="selectedProperty?.propertyType === 'class' || selectedProperty?.propertyType === 'node'" class="flex flex-row flex-nowrap gap-2">
-      <span class="self-center"> is </span>
-      <InputGroup class="flex flex-row flex-nowrap">
+  <div class="property-value-container">
+    <div class="property-display">
+      <span class="property-label">{{ propertyPath }}</span>
+    </div>
+    <div v-if="selectedProperty?.propertyType === 'class'">
+      <WhereIsEditor v-model:property="property" :uiProperty="selectedProperty" />
+      <!-- <InputGroup class="flex flex-row flex-nowrap">
         <div class="border-border-surface flex flex-row rounded-sm border border-1 border-solid p-1">
           <div v-if="property.valueLabel">
             <Chip :label="property.valueLabel" />
@@ -22,7 +24,7 @@
           <Checkbox v-model="property.inverse" inputId="inverse" binary />
           <label for="inverse" v-tooltip="'Invert the property<-value relationship'"> invert </label>
         </InputGroupAddon>
-      </InputGroup>
+      </InputGroup>-->
 
       <Popover ref="dropdown">
         <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
@@ -30,8 +32,9 @@
         </div>
       </Popover>
     </div>
-
-    <DatatypeSelect v-else-if="selectedProperty?.propertyType === 'datatype'" :ui-property="selectedProperty" :property="property!" />
+    <div v-else-if="selectedProperty?.propertyType === 'datatype'">
+      <DatatypeSelect :ui-property="selectedProperty" v-model:property="property!" />
+    </div>
     <Button v-if="showDelete" icon="fa-solid fa-trash" severity="danger" @click="$emit('deleteProperty')" />
   </div>
 </template>
@@ -39,13 +42,13 @@
 <script lang="ts" setup>
 import { Match, Node, Where } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
-import { onMounted, Ref, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import DatatypeSelect from "./DatatypeSelect.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
 import { cloneDeep } from "lodash-es";
 import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
-
+import WhereIsEditor from "./WhereIsEditor.vue";
 const props = withDefaults(
   defineProps<{
     dataModelIri: string;
@@ -62,7 +65,11 @@ const showBuildFeatureDialog: Ref<boolean> = ref(false);
 const loading = ref(true);
 const property = defineModel<Where>("property", { default: {} });
 const dropdown = ref();
-
+const propertyPath = computed(() => {
+  if (property.value.nodeRef)
+    return property.value.nodeRef + "/" + (property.value.name ? property.value.name : property.value.iri ? property.value.iri.split("#")[1] : "");
+  else return property.value.name ? property.value.name : property.value.iri ? property.value.iri.split("#")[1] : "";
+});
 onMounted(async () => {
   await init();
 });
@@ -97,3 +104,22 @@ function onSaveCustomSet(newSet: Node) {
   property.value.memberOf = true;
 }
 </script>
+
+<style scoped>
+.property-value-container {
+  display: flex;
+  flex-flow: row;
+  flex: 1;
+  border: 0.5px solid #999999;
+}
+
+.property-display {
+  width: 20rem;
+  display: flex;
+  flex-flow: wrap;
+  align-items: flex-start;
+}
+.property-label {
+  background: #e0f7fa;
+}
+</style>

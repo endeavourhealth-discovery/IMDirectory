@@ -13,6 +13,14 @@ const DataModelService = {
       }
     });
   },
+  async getDataModelPropertiesWithValueType(iris: string[], valueType: string): Promise<NodeShape[]> {
+    return await axios.get(API_URL + "/public/dataModelPropertiesWithValueType", {
+      params: {
+        iris: iris.join(","),
+        valueType: valueType
+      }
+    });
+  },
 
   async getDataModelsFromProperty(propIri: string): Promise<TTIriRef[]> {
     return await axios.get(API_URL + "/public/dataModels", {

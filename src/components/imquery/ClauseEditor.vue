@@ -1,13 +1,5 @@
 <template>
-  <MatchEditor
-    v-if="showMatchEditor"
-    v-model:match="match"
-    v-model:showMatchEditor="showMatchEditor"
-    @cancel="cancelEditMatch"
-    :baseType="baseType"
-    v-model:visible="showMatchEditor"
-  />
-  <!--<AddFeature v-if="addFeature" v-model:match="match" @cancel="addFeature = false" :baseType="baseType" />-->
+  <MatchEditor v-if="showEditor" v-model:match="match" v-model:showMatchEditor="showEditor"  :baseType="baseType" @cancel="cancelEditMatch"/>
   <div class="nested-match">
     <div v-if="parentOperator === Bool.rule" class="rule">Rule {{ clauseIndex }}</div>
     <span v-if="hasBoolGroups(match)">
@@ -108,6 +100,7 @@
         :depth="depth + 1"
         :parentOperator="Bool.and"
         :parentIndex="clauseIndex"
+        :parentGroup="group"
         :clauseIndex="0"
         :rootBool="false"
         :baseType="baseType"
@@ -120,8 +113,8 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool, Node } from "@/interfaces/AutoGen";
-import { inject, Ref, ref, computed, onMounted } from "vue";
+import { Match, Bool, Node, SearchResultSummary } from "@/interfaces/AutoGen";
+import { inject, Ref, ref, computed, onMounted, watch } from "vue";
 import {
   hasBoolGroups,
   updateBooleans,
@@ -129,7 +122,8 @@ import {
   isGroupable,
   addMatchToParent,
   matchDefined,
-  deleteMatchFromParent
+  deleteMatchFromParent,
+  setReturn
 } from "@/composables/buildQuery";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
@@ -137,7 +131,7 @@ import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import MatchEditor from "@/components/imquery/MatchEditor.vue";
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isEqual } from "lodash-es";
 interface Props {
   isVariable?: boolean;
   depth: number;
@@ -154,7 +148,7 @@ interface Props {
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parentMatch = defineModel<Match>("parentMatch", { default: {} });
-const parentGroup = defineModel<number[]>("group", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo"]);
 const expandSet: Ref<boolean> = ref(false);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
@@ -173,17 +167,24 @@ const showBoolean = computed(() => {
   }
   return false;
 });
-const showMatchEditor = computed(() => {
-  if (!matchDefined(match.value)) return true;
-  else if (showEditor.value) return true;
-  else return false;
+
+watch(match.value, (newValue, oldValue) => {
+  if (!isEqual(newValue, oldValue)) {
+    if (!matchDefined(newValue)) {
+      showEditor.value = true;
+    }
+  }
 });
+
 onMounted(async () => {
   init();
 });
 
 function init() {
   originalMatch.value = cloneDeep(match.value);
+  if (!matchDefined(match.value)) {
+    showEditor.value = true;
+  }
 }
 
 function onUpdateOperator(val: string) {
@@ -197,7 +198,9 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string, inde
 function addMatch() {
   addMatchToParent({}, parentMatch.value);
 }
-function deleteMatch() {}
+function deleteMatch() {
+  deleteMatchFromParent(parentMatch.value, props.clauseIndex);
+}
 function editMatch() {
   showEditor.value = true;
 }
