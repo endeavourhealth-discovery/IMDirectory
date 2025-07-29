@@ -57,6 +57,7 @@ export class IM {
   public static readonly OPENSEARCH_QUERY = Namespace.IM + "OpenSearchQuery"
   public static readonly DATAMODEL_PROPERTY = Namespace.IM + "dataModelProperty"
   public static readonly ONTOLOGY_PARENT_FOLDER = Namespace.IM + "HealthModelOntology"
+  public static readonly CONCEPT_SET_PARENT_FOLDER = Namespace.IM + "QueryConceptSets"
   public static readonly PROPERTIES_FOLDER = Namespace.IM + "Properties"
   public static readonly TASK = Namespace.IM + "Task"
   public static readonly FIELD_GROUP = Namespace.IM + "FieldGroup"
