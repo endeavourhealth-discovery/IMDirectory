@@ -17,15 +17,9 @@
       data-testid="cancel-query-button"
     />
     <Button
-      v-if="queryQueueItem.status && [QueryExecutorStatus.ERRORED].includes(queryQueueItem.status)"
-      icon="fa-duotone fa-solid fa-triangle-exclamation"
-      class="p-button-rounded p-button-text activity-row-button"
-      @click="showErrorDialog = true"
-      v-tooltip.left="'Error details'"
-      data-testid="show-error-button"
-    />
-    <Button
-      v-if="queryQueueItem.status && [QueryExecutorStatus.CANCELLED, QueryExecutorStatus.ERRORED].includes(queryQueueItem.status)"
+      v-if="
+        queryQueueItem.status && [QueryExecutorStatus.COMPLETED, QueryExecutorStatus.CANCELLED, QueryExecutorStatus.ERRORED].includes(queryQueueItem.status)
+      "
       icon="fa-duotone fa-solid fa-repeat"
       severity="warn"
       class="p-button-rounded p-button-text activity-row-button"
@@ -34,13 +28,12 @@
       data-testid="requeue-query-button"
     />
     <Button
-      v-if="queryQueueItem.status && [QueryExecutorStatus.CANCELLED, QueryExecutorStatus.ERRORED].includes(queryQueueItem.status)"
-      icon="fa-duotone fa-solid fa-trash"
-      severity="danger"
+      v-if="queryQueueItem.status && [QueryExecutorStatus.ERRORED].includes(queryQueueItem.status)"
+      icon="fa-duotone fa-solid fa-triangle-exclamation"
       class="p-button-rounded p-button-text activity-row-button"
-      @click="deleteQuery"
-      v-tooltip.left="'Delete from queue'"
-      data-testid="delete-query-button"
+      @click="showErrorDialog = true"
+      v-tooltip.left="'Error details'"
+      data-testid="show-error-button"
     />
     <Button
       v-if="queryQueueItem.status === QueryExecutorStatus.COMPLETED"
@@ -49,6 +42,14 @@
       @click="viewQueryResults"
       v-tooltip.left="'View results'"
       data-testid="view-query-results-button"
+    />
+    <Button
+      icon="fa-duotone fa-solid fa-trash"
+      severity="danger"
+      class="p-button-rounded p-button-text activity-row-button"
+      @click="deleteQuery"
+      v-tooltip.left="'Delete'"
+      data-testid="delete-query-button"
     />
   </div>
   <Dialog v-model:visible="showErrorDialog" modal maximizable header="Error details">
