@@ -3,7 +3,7 @@ import { IM } from "@/vocabulary";
 
 export const relativityOptions = [
   {
-    label: "Relative value",
+    label: "Relative to",
     value: "relative",
     tooltip: "The date or time or value is relative to the value of a parameter or result of another query"
   },
@@ -14,11 +14,10 @@ export const relativityOptions = [
   }
 ];
 
-export const valueConstraintTypeOptions = [
-  { label: "is", value: "is" },
-  { label: "between", value: "range" },
-  { label: "is not recorded", value: "isNull" },
-  { label: "is recorded", name: "notNull" }
+export const offsetOptions = [
+  { label: "(no offset)", value: "0" },
+  { label: "+", value: "+" },
+  { label: "-", value: "-" }
 ];
 
 export const constraintOperatorOptions = [
@@ -116,6 +115,39 @@ export function getDateFromString(date: string): Date {
   }
   return new Date();
 }
+
+export const comparatorOptions = (valueType: string): any[] => {
+  return [
+    {
+      label: (IM.DATE + IM.TIME).includes(valueType) ? "on" : "equal",
+      value: "=",
+      tooltip: "exactly equal to value"
+    },
+    {
+      label: (IM.DATE + IM.TIME).includes(valueType) ? "on or after" : "greater ot equal to",
+      value: ">=",
+      tooltip: "inclusive of value"
+    },
+    {
+      label: (IM.DATE + IM.TIME).includes(valueType) ? "on or before" : "less than or equal to",
+      value: "<=",
+      tooltip: "inclusive of value"
+    },
+    { label: "between", value: "range", tooltip: "Range of values" },
+    {
+      label: (IM.DATE + IM.TIME).includes(valueType) ? "after" : "greater than",
+      value: ">",
+      tooltip: "exclusive of value"
+    },
+    {
+      label: (IM.DATE + IM.TIME).includes(valueType) ? "before" : "less than",
+      value: "<",
+      tooltip: "exclusive of value"
+    },
+    { label: "is not recorded", value: "isNull", tooltip: "Test for absence of value" },
+    { label: "is recorded", name: "notNull", tooltip: "Test for presence of any value" }
+  ];
+};
 
 export const operatorOptions = (valueType: string): any[] => {
   return [

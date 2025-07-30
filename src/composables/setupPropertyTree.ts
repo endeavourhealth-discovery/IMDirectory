@@ -2,13 +2,12 @@ import type { TreeNode } from "primevue/treenode";
 import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, Path, PropertyShape, Node, PropertyRange } from "@/interfaces/AutoGen";
+import { Match, Path, PropertyShape, Node } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
 
 function setupPropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
-  const expandedKeys: Ref<any> = ref({});
   const loading: Ref<boolean> = ref(false);
 
   async function createPropertyTree(iri: string, parent: TreeNode) {
@@ -27,43 +26,47 @@ function setupPropertyTree() {
     const data = ref([] as TreeNode[]);
     let key = "0";
     let keyIndex = 0;
-    data.value.push(createNode(key, "Add a cohort as feature", "cohort", "cohort", IM.QUERY, null, "", null));
+    data.value.push(createNode(key, "Add a cohort as feature", "cohort", "cohort", IM.QUERY, undefined, "", null));
     key = "1";
     keyIndex++;
-    data.value.push(createNode(key, "Select features of  " + queryBaseType.name, "features", "folder", IM.FOLDER, null, "", null));
+    data.value.push(createNode(key, "Select features of  " + queryBaseType.name, "features", "folder", IM.FOLDER, undefined, "", null));
     data.value[0].selectable = true;
     await createPropertyTree(queryBaseType.iri!, data.value[keyIndex]);
-    expandedKeys.value = key === "1" ? { "1": true } : { "0": true };
     return data.value;
   }
 
   function createNode(
     index: string,
-    conceptName: string | undefined,
-    conceptIri: string,
+    name: string | undefined,
+    iri: string,
     type: string,
     iconType: string,
-    range: PropertyRange | null,
-    rangeType: string,
+    typeOf: string | undefined,
+    rangeType: string | undefined,
     parent: TreeNode | null
   ): TreeNode {
     const key = parent === null ? index : parent.key + "_" + index;
+    let path;
+    if (parent && parent.type === "property") {
+      if (parent.data.path) path = parent.data.path;
+    }
+    if (typeOf) path = (path ? path + "\t" : "") + iri + "\t" + typeOf;
     const node = {
       key: key,
-      label: conceptName,
+      label: name,
       expanded: false,
       data: {
         typeIcon: getFAIconFromType([{ iri: iconType }]),
         color: getColourFromType([{ iri: iconType }]),
-        iri: conceptIri,
-        parentNode: parent,
-        range: range
+        iri: iri,
+        path: path,
+        typeOf: typeOf
       },
       loading: false,
       children: [] as TreeNode[],
       type: type
     } as TreeNode;
-    if (rangeType != "") {
+    if (rangeType) {
       if (rangeType === SHACL.NODESHAPE) node.leaf = false;
       node.data.rangeTypeIcon = getFAIconFromType([{ iri: rangeType }]);
       node.data.rangeTypeColor = getColourFromType([{ iri: rangeType }]);
@@ -73,7 +76,7 @@ function setupPropertyTree() {
 
   function createGroupNode(index: string, property: PropertyShape, parent: TreeNode): TreeNode {
     const name = property.group!.name;
-    const groupNode = createNode(index, name, property.group!.iri, "folder", IM.FOLDER, null, "", parent) as TreeNode;
+    const groupNode = createNode(index, name, property.group!.iri, "folder", IM.FOLDER, undefined, "", parent) as TreeNode;
     if (property.property) {
       const propertyList = [] as TreeNode[];
       for (const [propertyIndex, groupedProperty] of property.property.entries()) {
@@ -89,37 +92,28 @@ function setupPropertyTree() {
     if (property.group) {
       return createGroupNode(index, property, parent);
     }
-    let rangeType = "";
-    let range = {} as PropertyRange;
+    let rangeType;
+    let typeOf;
     if (property.clazz) {
       rangeType = property.clazz.type!.iri;
     } else if (property.node) {
-      range = property.node;
+      typeOf = property.node.iri;
       rangeType = property.node.type!.iri;
     }
 
-    let name = "";
-    if (property.path.name) name = property.path.name;
+    let name = property.path.name;
     if (property.hasValue) {
       const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
       name += ` (${value})`;
     }
-    const propertyNode = createNode(index, name!, property.path.iri, "property", RDF.PROPERTY, range, rangeType, parent) as TreeNode;
+    const propertyNode = createNode(index, name!, property.path.iri, "property", RDF.PROPERTY, typeOf, rangeType, parent) as TreeNode;
     propertyNode.selectable = true;
-    if (property.node) {
-      propertyNode.data.range = property.node.iri;
-      propertyNode.data.rangeName = property.node.name;
-    }
     return propertyNode;
   }
 
   function isBase(property: PropertyShape): boolean {
     if (property.node) {
-      if (property.node.iri === baseType.value.iri) {
-        return true;
-      } else {
-        return false;
-      }
+      return property.node.iri === baseType.value.iri;
     }
     return false;
   }
@@ -128,38 +122,35 @@ function setupPropertyTree() {
     if (node.children && node.children.length > 0) {
       for (const child of node.children) {
         if (child.children && !child.children.length) {
-          if (child.data.range) {
+          if (child.data.typeOf) {
             child.leaf = false;
           } else child.lead = false;
         }
       }
-    } else if (node.data.range) {
-      node.data.path = node.data.path === "" ? node.data.iri + "," + node.data.range : node.data.path + "," + node.data.iri + "," + node.data.range;
-      await createPropertyTree(node.data.range, node);
+    } else if (node.data.typeOf) {
+      await createPropertyTree(node.data.typeOf, node);
     }
     node.loading = false;
   }
 
-  function collapseNode(node: TreeNode) {
-    expandedKeys.value = { ...expandedKeys.value, [node.key]: false };
-    for (const key of Object.keys(expandedKeys.value)) {
-      if (key.toString().startsWith(node.key!)) {
-        delete expandedKeys.value[key];
-      }
-    }
-  }
-  function getRootNodes(match: Match, nodes: TreeNode[]): TreeNode[] {
+  async function getRootNodes(match: Match, nodes: TreeNode[]): Promise<TreeNode[]> {
     if (!match.path) return nodes;
     const rootNodes = [] as TreeNode[];
-    for (const path of match.path) {
+    await setRootNodesFromMatch(match, nodes, rootNodes);
+    return rootNodes;
+  }
+
+  async function setRootNodesFromMatch(match: Match, nodes: TreeNode[], rootNodes: TreeNode[]) {
+    for (const path of match.path!) {
       for (const node of nodes) {
         if (node.type === "folder") {
-          getRootNodes(match, node.children!);
+          await setRootNodesFromMatch(match, node.children!, rootNodes);
         } else if (node.data.iri === path.iri) {
           rootNodes.push(node);
+          if (node.children!.length === 0) await expandNode(node);
           if (path.path && path.path.length > 0 && node.children && node.children.length > 0) {
             for (const subPath of path.path) {
-              addRootNodes(rootNodes, subPath, node);
+              await addRootNodes(rootNodes, subPath, node);
             }
           }
         }
@@ -167,15 +158,16 @@ function setupPropertyTree() {
     }
     return rootNodes;
   }
-  function addRootNodes(rootNodes: TreeNode[], subPath: Path, node: TreeNode) {
+  async function addRootNodes(rootNodes: TreeNode[], subPath: Path, node: TreeNode) {
     for (const child of node.children!) {
       if (child.type === "folder") {
-        addRootNodes(rootNodes, subPath, child);
+        await addRootNodes(rootNodes, subPath, child);
       } else if (child.data.iri === subPath.iri) {
         rootNodes.push(child);
+        if (child.children!.length === 0) await expandNode(child);
         if (subPath.path && subPath.path.length > 0 && child.children && child.children.length > 0) {
           for (const subSubPath of subPath.path) {
-            addRootNodes(rootNodes, subSubPath, child);
+            await addRootNodes(rootNodes, subSubPath, child);
           }
         }
       }
@@ -184,10 +176,7 @@ function setupPropertyTree() {
   return {
     getRootNodes,
     createFeatureTree,
-    createNode,
     expandNode,
-    collapseNode,
-    expandedKeys,
     loading
   };
 }

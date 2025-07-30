@@ -155,8 +155,7 @@ export function updateBooleans(clause: BoolGroup<Match | Where | undefined>, old
   delete clause[from];
 }
 export function hasBoolGroups(clause: Match | Where) {
-  if (clause.or || clause.and) return true;
-  return false;
+  return !!(clause.or || clause.and);
 }
 
 export function getBooleanLabel(clauseType: string, operator: Bool, index: number, standardQuery?: boolean, hasSubgroups?: boolean, union?: boolean): string {
@@ -209,68 +208,49 @@ export function deleteMatchFromParent(parentMatch: Match, index: number) {
   }
 }
 
-function getPathFromNode(node: TreeNode): Path | undefined {
-  if (!node.data.parentNode) return undefined;
-  if (node.data.parentNode.data.iri) {
-    const path = { iri: node.data.parentNode.data.iri, typeOf: { iri: node.data.parentNode.data.range } } as Path;
-    const parentPath = getPathFromNode(node.data.parentNode);
-    if (parentPath) {
-      if (!parentPath.path) parentPath.path = [];
-      parentPath.path.push(path);
-      path.variable = parentPath.variable ? parentPath.variable + "->" + path.iri!.split("#")[1] : path.iri!.split("#")[1];
-      return parentPath;
+function getPaths(match: Match): Record<string, string> | undefined {
+  if (!match.path) return undefined;
+  const paths = {} as Record<string, string>;
+  for (const path of match.path) {
+    const flatPath = path.iri! + "\t" + path.typeOf!.iri;
+    if (path.variable != null) {
+      paths[flatPath] = path.variable;
+    }
+    if (path.path) {
+      addSubPaths(flatPath, path, paths);
     }
   }
-  return undefined;
+  return paths;
 }
 
-function getNewNodeRefFromPath(path: Path, newPath: Path): string {
-  let nodeRef = "";
-  if (newPath.path) {
-    for (const newChild of newPath.path) {
-      if (path.path) {
-        for (const child of path.path) {
-          if (child.iri === newChild.iri) {
-            nodeRef = getNewNodeRefFromPath(child, newChild);
-            nodeRef = nodeRef === "" ? child.variable! : nodeRef + "->" + child.variable!;
-            return nodeRef;
-          }
-        }
-        if (!path.path) path.path = [];
-        path.path.push(newChild);
-        return newPath.variable!;
-      }
+function addSubPaths(flatPath: string, path: Path, paths: Record<string, string>): void {
+  for (const childPath of path.path!) {
+    const childFlatPath = childPath.iri! + "\t" + childPath.typeOf!.iri;
+    if (childPath.variable != null) {
+      paths[flatPath + "\t" + childFlatPath] = childPath.variable;
+    }
+    if (childPath.path) {
+      addSubPaths(flatPath + "\t" + childFlatPath, childPath, paths);
     }
   }
-  return "";
-}
-
-function getNewNodeRefFromMatch(match: Match, node: TreeNode): string {
-  let nodeRef = "";
-  const newPath = getPathFromNode(node);
-  if (newPath) {
-    if (match.path) {
-      for (const path of match.path) {
-        if (path.iri === newPath.iri) {
-          nodeRef = getNewNodeRefFromPath(path, newPath);
-          nodeRef = nodeRef === "" ? path.iri!.split("#")[1] : nodeRef + "->" + path.iri!.split("#")[1];
-          return nodeRef;
-        }
-      }
-    } else {
-      match.path = [];
-      match.path.push(newPath);
-      return newPath.variable!;
-    }
-  }
-  return "";
 }
 
 export function addWhereToMatch(match: Match, node: TreeNode, property: string) {
-  const nodeRef = getNewNodeRefFromMatch(match, node);
+  let nodeRef;
+  const path = node.data.path;
+  if (path) {
+    const paths = getPaths(match);
+    if (paths && path in paths) {
+      nodeRef = paths[path];
+    } else {
+      const refNumber = Object.keys(paths || {}).length + 1;
+      const lastPart = path.split("\t").at(-1) ?? "";
+      nodeRef = lastPart + refNumber.toString();
+    }
+  }
   const where = {} as Where;
   where.iri = property;
-  if (nodeRef != "") where.nodeRef = nodeRef;
+  if (nodeRef) where.nodeRef = nodeRef;
   if (match.where) {
     if (!match.where.and) {
       const currentWhere = match.where;

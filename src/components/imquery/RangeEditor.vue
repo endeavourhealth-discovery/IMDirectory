@@ -1,5 +1,12 @@
 <template>
-
+  <Select
+    :modelValue="operator"
+    :options="operatorOptions(uiProperty.valueType)"
+    option-label="label"
+    option-value="value"
+    data-testid="operator-selector"
+    @change="handleOperator($event)"
+  />
 
   <DatePicker
     v-if="(IM.DATE + IM.TIME).includes(uiProperty.valueType) && !relativeTo"
@@ -33,7 +40,7 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { getDateFromString, comparatorOptions, relativityOptions } from "@/helpers/QueryEditorOptions";
+import { getDateFromString, relativityOptions, operatorOptions } from "@/helpers/QueryEditorOptions";
 import { Assignable, RelativeTo } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { IM, XSD } from "@/vocabulary";

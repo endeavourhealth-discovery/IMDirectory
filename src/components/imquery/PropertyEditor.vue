@@ -33,8 +33,9 @@
       </Popover>
     </div>
     <div v-else-if="selectedProperty?.propertyType === 'datatype'">
-      <DatatypeSelect :ui-property="selectedProperty" v-model:property="property!" />
+      <WhereValueEditor :ui-property="selectedProperty" v-model:property="property!" />
     </div>
+    <Button data-testid="cancel-edit-feature-button" label="Revert" text @click="revert" />
     <Button v-if="showDelete" icon="fa-solid fa-trash" severity="danger" @click="$emit('deleteProperty')" />
   </div>
 </template>
@@ -44,10 +45,9 @@ import { Match, Node, Where } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
-import DatatypeSelect from "./DatatypeSelect.vue";
+import WhereValueEditor from "./WhereValueEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
 import { cloneDeep } from "lodash-es";
-import SaveCustomSetDialog from "./SaveCustomSetDialog.vue";
 import WhereIsEditor from "./WhereIsEditor.vue";
 const props = withDefaults(
   defineProps<{
@@ -70,22 +70,15 @@ const propertyPath = computed(() => {
     return property.value.nodeRef + "/" + (property.value.name ? property.value.name : property.value.iri ? property.value.iri.split("#")[1] : "");
   else return property.value.name ? property.value.name : property.value.iri ? property.value.iri.split("#")[1] : "";
 });
+const originalProperty: Ref<Where> = ref({});
+
 onMounted(async () => {
   await init();
 });
 
-watch(
-  () => cloneDeep(property),
-  async () => await init()
-);
-
-watch(
-  () => props.dataModelIri,
-  async () => await init()
-);
-
 async function init() {
   loading.value = true;
+  originalProperty.value = cloneDeep(property.value);
   if (props.dataModelIri && property!.value.iri) selectedProperty.value = await DataModelService.getUIProperty(props.dataModelIri, property!.value.iri);
   loading.value = false;
 }
@@ -102,6 +95,9 @@ function toggleDropdown(event: MouseEvent) {
 function onSaveCustomSet(newSet: Node) {
   property.value.is = [newSet];
   property.value.memberOf = true;
+}
+function revert() {
+  property.value = cloneDeep(originalProperty.value);
 }
 </script>
 

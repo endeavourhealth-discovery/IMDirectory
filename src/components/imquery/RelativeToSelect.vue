@@ -54,7 +54,7 @@ function onNodeSelect(node: any) {
 }
 
 async function initValues() {
-  createRelationTree(query.value, props.uiProperty.valueType);
+  await createRelationTree(query.value, props.uiProperty.valueType);
   defaultTarget.value = getDefaultTarget(property.value!, nodes.value);
   defaultTargetLabel.value = defaultTarget.value.label!;
 }
