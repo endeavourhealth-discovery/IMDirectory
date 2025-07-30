@@ -23,6 +23,7 @@
       :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
       :loading="searchLoading"
       :pt="{ thead: { class: 'z-1!' } }"
+      @update:rows="updateRows"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
@@ -228,6 +229,11 @@ async function onSearch() {
       }
     });
   }
+}
+
+function updateRows(newRows: number) {
+  rows.value = newRows;
+  onSearch();
 }
 
 async function search(pageNumber: number, pageSize: number, fast: boolean) {
