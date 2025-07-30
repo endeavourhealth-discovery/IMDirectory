@@ -1,5 +1,5 @@
 <template>
-  <div id="concept-main-container" style="'overflow:hidden;'">
+  <div id="concept-main-container" style="overflow: hidden">
     <div v-if="entityIri === 'http://endhealth.info/im#Favourites'">
       <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
     </div>
@@ -298,6 +298,10 @@ async function handleControlClick(iri: string) {
 
 #concept-panel-container:deep(.p-tabpanels) {
   overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabpanel) {
+  height: 100%;
 }
 
 #viewer-tabs {

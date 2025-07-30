@@ -70,7 +70,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
-const showMatchEditor = defineModel<boolean>("showMatchEditot", { default: false });
+const showMatchEditor = defineModel<boolean>("showMatchEditor", { default: false });
 const emit = defineEmits<{
   (event: "saveChanges"): void;
   (event: "cancel"): void;

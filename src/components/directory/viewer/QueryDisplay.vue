@@ -1,82 +1,96 @@
 <template>
   <div id="query-display" class="flex flex-1 flex-col">
-    <Tabs v-if="!(entityType === IM.VALUESET)" id="viewer-tabs" v-model:value="activeTab" :lazy="true" scrollable>
-      <TabList id="tab-list">
-        <Tab value="0">Rule view</Tab>
-        <Tab value="1">Logical view</Tab>
-        <Tab value="2">MySQL</Tab>
-        <Tab value="3">PostgreSQL</Tab>
-        <Tab v-if="showDataset" value="4">Dataset definition</Tab>
-      </TabList>
-    </Tabs>
-
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
-    <div v-else-if="activeTab === '0' || activeTab === '1'" class="query-display-container flex flex-col gap-4">
-      <div v-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
-      <div v-else-if="query" class="rec-query-display">
-        <span v-if="query.name" v-html="query.name"> </span>
-        <div v-if="query.typeOf">
-          <span class="field" v-html="query.typeOf.name"></span>
-          <span class="include-title text-black-500">with the following features</span>
-        </div>
-        <span v-if="query.rule">
-          <div class="tree-node-wrapper">
-            <span v-for="(nestedQuery, index) in query.rule" :key="index">
-              <RecursiveMatchDisplay
-                :match="nestedQuery"
-                :key="`nestedQueryDisplay-${index}`"
-                :clause-index="index"
-                :property-index="index"
-                :parentOperator="Bool.rule"
-                :depth="0"
-                :parent-match="query"
-                :bracketed="false"
-                :edit-mode="editMode"
-                :eclQuery="eclQuery"
-              />
-            </span>
-          </div>
-        </span>
-        <span v-else>
-          <RecursiveMatchDisplay
-            :match="query"
-            :clauseIndex="-1"
-            :depth="0"
-            :inline="false"
-            :parent-match="rootQuery"
-            :bracketed="false"
-            :editMode="editMode"
-            :eclQuery="eclQuery"
-            :expanded="query.name === undefined"
-          />
-        </span>
+    <div v-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
+    <div v-else class="query-display-container flex flex-col gap-4">
+      <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
+      <div class="flex flex-row gap-2">
+        <div v-if="isLoggedIn"><Button label="View arguments" @click="checkArguments" :loading="checkingArguments" /></div>
+        <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
+        <div v-if="isLoggedIn"><Button label="Run query" @click="runQuery" :loading="checkingArguments" /></div>
       </div>
-    </div>
-    <div v-else-if="activeTab === '2' || activeTab === '3'" class="query-display-container flex flex-col gap-4">
-      <pre>{{ sql }}</pre>
-    </div>
-    <div v-else-if="query?.dataSet && activeTab === '4'" class="query-display-container flex flex-col gap-4">
-      <DataSetDisplay
-        v-for="(nestedQuery, index) in query.dataSet"
-        :query="nestedQuery"
-        :key="`nestedQuery-${index}`"
-        :matchExpanded="false"
-        :returnExpanded="true"
-        :index="index"
-        :editMode="editMode"
-      />
+      <div v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView].includes(selectedDisplayOption)" class="query-display-content">
+        <div v-if="query" class="rec-query-display">
+          <span v-if="query.name" v-html="query.name"> </span>
+          <div v-if="query.typeOf">
+            <span class="field" v-html="query.typeOf.name"></span>
+            <span class="include-title text-black-500">with the following features</span>
+          </div>
+          <span v-if="query.rule">
+            <div class="tree-node-wrapper">
+              <span v-for="(nestedQuery, index) in query.rule" :key="index">
+                <RecursiveMatchDisplay
+                  :match="nestedQuery"
+                  :key="`nestedQueryDisplay-${index}`"
+                  :clause-index="index"
+                  :property-index="index"
+                  :parentOperator="Bool.rule"
+                  :depth="0"
+                  :parent-match="query"
+                  :bracketed="false"
+                  :edit-mode="editMode"
+                  :eclQuery="eclQuery"
+                />
+              </span>
+            </div>
+          </span>
+          <span v-else>
+            <RecursiveMatchDisplay
+              :match="query"
+              :clauseIndex="-1"
+              :depth="0"
+              :inline="false"
+              :parent-match="rootQuery"
+              :bracketed="false"
+              :editMode="editMode"
+              :eclQuery="eclQuery"
+              :expanded="query.name === undefined"
+            />
+          </span>
+        </div>
+      </div>
+      <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
+        <SQLDisplay :sql="sql" />
+      </div>
+      <div v-else-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
+        <DataSetDisplay
+          v-for="(nestedQuery, index) in query.dataSet"
+          :query="nestedQuery"
+          :key="`nestedQuery-${index}`"
+          :matchExpanded="false"
+          :returnExpanded="true"
+          :index="index"
+          :editMode="editMode"
+        />
+      </div>
+      <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
+      <ArgumentSelector v-model:showDialog="showArgumentSelector" :missingArguments="missingArguments" @arguments-completed="addArgumentsAndRun" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
 import { QueryService } from "@/services";
-import { Bool, DisplayMode, Query } from "@/interfaces/AutoGen";
-import { onMounted, ref, Ref, watch } from "vue";
-import { IM } from "@/vocabulary";
+import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
+import { computed, onMounted, ref, Ref, watch } from "vue";
+import { IM, XSD } from "@/vocabulary";
+import SQLDisplay from "./SQLDisplay.vue";
+import { useUserStore } from "@/stores/userStore";
+import { useConfirm } from "primevue/useconfirm";
+import { useRouter } from "vue-router";
+import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
+import ArgumentSelector from "@/components/queryRunner/ArgumentSelector.vue";
+
+enum DisplayOptions {
+  RuleView = "Rule view",
+  LogicalView = "Logical view",
+  MySQL = "MySQL",
+  PostreSQL = "PostgreSQL",
+  DatasetDefinition = "Dataset definition"
+}
 
 interface Props {
   entityIri?: string;
@@ -89,12 +103,27 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const userStore = useUserStore();
+const confirm = useConfirm();
+const router = useRouter();
+
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
-const activeTab = ref("0");
 const sql: Ref<string> = ref("");
 const loading = ref(true);
+const showTestResults = ref(false);
+const testResults: Ref<string[]> = ref([]);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
+
+const displayOptions: Ref<string[]> = ref([]);
+const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
+const showArgumentSelector = ref(false);
+const checkingArguments = ref(false);
+const missingArguments: Ref<ArgumentReference[]> = ref([]);
+const requestArguments: Ref<Argument[]> = ref([]);
 
 watch(
   () => props.definition,
@@ -110,20 +139,21 @@ watch(
   }
 );
 
-watch(activeTab, async () => {
-  switch (activeTab.value) {
-    case "0":
+watch(selectedDisplayOption, async (newValue, oldValue) => {
+  if (!newValue) selectedDisplayOption.value = oldValue;
+  switch (selectedDisplayOption.value) {
+    case DisplayOptions.RuleView:
       if (displayMode.value != DisplayMode.RULES) query.value = await getQueryDisplay(DisplayMode.RULES);
       displayMode.value = DisplayMode.RULES;
       break;
-    case "1":
+    case DisplayOptions.LogicalView:
       if (displayMode.value != DisplayMode.LOGICAL) query.value = await getQueryDisplay(DisplayMode.LOGICAL);
       displayMode.value = DisplayMode.LOGICAL;
       break;
-    case "2":
+    case DisplayOptions.MySQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");
       break;
-    case "3":
+    case DisplayOptions.PostreSQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
       break;
     default:
@@ -136,15 +166,28 @@ onMounted(async () => {
 });
 
 async function init() {
+  loading.value = true;
   if (!query.value?.typeOf) {
     if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, DisplayMode.ORIGINAL);
   }
   displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
-  loading.value = true;
+  setDisplayOptions();
   if (query.value?.rule) {
-    activeTab.value = "0";
-  } else activeTab.value = "1";
+    selectedDisplayOption.value = DisplayOptions.RuleView;
+  } else DisplayOptions.LogicalView;
   loading.value = false;
+}
+
+function setDisplayOptions() {
+  if (props.showDataset)
+    displayOptions.value = [
+      DisplayOptions.RuleView,
+      DisplayOptions.LogicalView,
+      DisplayOptions.MySQL,
+      DisplayOptions.PostreSQL,
+      DisplayOptions.DatasetDefinition
+    ];
+  else displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];
 }
 
 async function getQueryDisplay(displayMode: DisplayMode) {
@@ -153,16 +196,105 @@ async function getQueryDisplay(displayMode: DisplayMode) {
   } else if (props.entityIri) return await QueryService.getDisplayFromQueryIri(props.entityIri, displayMode);
   return undefined;
 }
+
+async function checkArguments(): Promise<boolean> {
+  if (query.value) {
+    checkingArguments.value = true;
+    const request: QueryRequest = { query: query.value, argument: requestArguments.value };
+    missingArguments.value = await QueryService.findMissingArguments(request);
+    if (isArrayHasLength(missingArguments.value)) {
+      showArgumentSelector.value = true;
+      checkingArguments.value = false;
+      return false;
+    }
+    checkingArguments.value = false;
+  }
+  return true;
+}
+
+async function runQuery() {
+  if (query.value) {
+    const argumentsVerified = await checkArguments();
+    if (!argumentsVerified) return;
+    confirm.require({
+      message: "Are you sure you want to run this query '" + query.value.name + "'?" + requestArguments.value.toString(),
+      header: "Run query",
+      icon: "pi pi-exclamation-triangle",
+      rejectProps: {
+        label: "No",
+        severity: "secondary",
+        outlined: true
+      },
+      acceptProps: {
+        label: "Yes"
+      },
+      accept: async () => {
+        await addQueryToRunnerQueue();
+        router.push({ name: "QueryRunner" });
+      },
+      reject: () => confirm.close()
+    });
+  }
+}
+
+async function addArgumentsAndRun(completedArguments: Argument[]) {
+  requestArguments.value = completedArguments;
+  await runQuery();
+}
+
+async function addQueryToRunnerQueue() {
+  if (query.value) {
+    const request: QueryRequest = { query: query.value, argument: requestArguments.value };
+    await QueryService.addQueryToRunnerQueue(request);
+  }
+}
+
+async function testRunQuery() {
+  if (query.value) {
+    const argumentsVerified = await checkArguments();
+    if (!argumentsVerified) return;
+    confirm.require({
+      message: "Are you sure you want to test run this query '" + query.value.name + "'?",
+      header: "Test run query",
+      icon: "pi pi-exclamation-triangle",
+      rejectProps: {
+        label: "No",
+        severity: "secondary",
+        outlined: true
+      },
+      acceptProps: {
+        label: "Yes"
+      },
+      accept: async () => {
+        if (query.value) {
+          const request: QueryRequest = { query: query.value, argument: requestArguments.value };
+          testResults.value = await QueryService.testRunQuery(request);
+          showTestResults.value = true;
+        }
+      },
+      reject: () => confirm.close()
+    });
+  }
+}
 </script>
 
 <style scoped>
-.scrollable-content {
-  flex-grow: 1;
-  overflow-y: auto;
-}
 .query-display-container {
   width: 100%;
   height: 100%;
+}
+
+.query-display-content {
+  overflow: auto;
+}
+
+#query-display {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.query-display-view {
+  overflow: auto;
 }
 
 .field {
@@ -185,15 +317,6 @@ async function getQueryDisplay(displayMode: DisplayMode) {
 
 .rec-query-display {
   padding: 1rem;
-  border: 1px solid;
-  flex-shrink: 0;
-  flex-grow: 0;
-  max-height: 80vh;
-  overflow: auto;
-}
-#tab-list {
-  flex: 0 0 auto;
-  display: flex;
 }
 
 .button-bar {
