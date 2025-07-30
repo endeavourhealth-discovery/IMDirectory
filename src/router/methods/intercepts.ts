@@ -8,13 +8,13 @@ export async function directToLogin(router: Router) {
     showCancelButton: true,
     confirmButtonText: "Login",
     reverseButtons: true
-  }).then((result: SweetAlertResult) => {
+  }).then(async (result: SweetAlertResult) => {
     if (result.isConfirmed) {
       console.log("redirecting to login");
-      router.push({ name: "Login" });
+      await router.push({ name: "Login" });
     } else {
       console.log("redirecting to landing page");
-      router.push({ name: "LandingPage" });
+      await router.push({ name: "LandingPage" });
     }
   });
 }

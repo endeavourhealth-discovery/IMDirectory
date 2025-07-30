@@ -1,6 +1,10 @@
+import { GenericObject } from "./GenericObject";
+
 export interface CodeTemplate {
-  fileExtension: string;
+  name: string;
+  extension: string;
   collectionWrapper: string;
-  datatypeMap: any;
+  datatypeMap: GenericObject;
   template: string;
+  complexTypes: boolean;
 }

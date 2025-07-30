@@ -47,24 +47,39 @@
       data-testid="download-button"
     />
     <Button
-      v-if="isLoggedIn && show('favourite') && isFavourite(iri)"
+      v-if="isLoggedIn && show('favourite') && isFavourite(iri) && !loadingFavourites"
       style="color: var(--p-yellow-500)"
       icon="fa-solid fa-star"
       :severity="getSeverity()"
       :class="getClass()"
       class="fav"
       @click="(event: MouseEvent) => updateFavourites(event, iri)"
-      v-tooltip.left="'Unfavourite'"
+      v-tooltip.right="{
+        value: 'Unfavourite'
+      }"
       data-testid="unfavourite-button"
       :loading="loadingFavourites"
     />
     <Button
-      v-else-if="isLoggedIn && show('favourite') && !isFavourite(iri)"
+      v-if="isLoggedIn && show('favourite') && loadingFavourites"
+      style="color: var(--p-yellow-500)"
+      icon="fa-solid fa-star"
+      :severity="getSeverity()"
+      :class="getClass()"
+      class="fav"
+      @click="(event: MouseEvent) => updateFavourites(event, iri)"
+      data-testid="unfavourite-button"
+      :loading="loadingFavourites"
+    />
+    <Button
+      v-else-if="isLoggedIn && show('favourite') && !isFavourite(iri) && !loadingFavourites"
       icon="fa-regular fa-star"
       :severity="getSeverity()"
       :class="getClass()"
       @click="(event: MouseEvent) => updateFavourites(event, iri)"
-      v-tooltip.left="'Favourite'"
+      v-tooltip.left="{
+        value: 'Favourite'
+      }"
       data-testid="favourite-button"
       :loading="loadingFavourites"
     />
@@ -76,7 +91,6 @@
 import { computed, onMounted, ref } from "vue";
 import { DirectService, EntityService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
 import { useDialog } from "primevue/usedialog";
 import { useConfirm } from "primevue/useconfirm";
@@ -84,8 +98,7 @@ import setupDownloadFile from "@/composables/downloadFile";
 import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 
 const directService = new DirectService();
-const confirm = useConfirm();
-const sharedStore = useSharedStore();
+const confirmDlg = useConfirm();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -104,11 +117,11 @@ const props = withDefaults(defineProps<Props>(), {
   type: "activityRowButton"
 });
 
-const emit = defineEmits({
-  locateInTree: (_payload: string) => true,
-  addToList: (_payload: string) => true,
-  viewHierarchy: (_payload: string) => true
-});
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  addToList: [payload: string];
+  viewHierarchy: [payload: string];
+}>();
 
 onMounted(() => {
   if (props.iri && props.iri.includes("#")) editAllowed.value = organisations.value.includes(props.iri.split("#")[0] + "#");
@@ -118,7 +131,6 @@ const dynamicDialog = useDialog();
 const { downloadFile } = setupDownloadFile(window, document);
 
 const loadingFavourites = ref(false);
-const showDownloadOptions = ref(false);
 
 function getClass() {
   const activityRowButton = "p-button-rounded p-button-text p-button-plain activity-row-button ";
@@ -148,30 +160,30 @@ function isFavourite(iri: string) {
   return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
 }
 
-async function updateFavourites(event: any, iri: string) {
+async function updateFavourites(event: MouseEvent, iri: string) {
   event.stopPropagation();
   loadingFavourites.value = true;
   await userStore.updateFavourites(iri);
   loadingFavourites.value = false;
 }
 
-function locateInTree(event: any, iri: string) {
+function locateInTree(event: MouseEvent, iri: string) {
   event.stopPropagation();
   emit("locateInTree", iri);
 }
 
-function viewEntity(event: any, iri: string) {
+async function viewEntity(event: MouseEvent, iri: string) {
   event.stopPropagation();
-  directService.view(iri);
+  await directService.view(iri);
 }
 
-function toEdit(event: any, iri: string) {
+async function toEdit(event: MouseEvent, iri: string) {
   event.stopPropagation();
-  directService.edit(iri, true);
+  await directService.edit(iri, true);
 }
 
 function confirmDownload() {
-  confirm.require({
+  confirmDlg.require({
     message: 'Are you sure you want to download "' + props.name + '" (' + props.iri + ")?",
     header: "Download",
     rejectProps: {
@@ -183,10 +195,10 @@ function confirmDownload() {
       label: "Download"
     },
     accept: async () => {
-      confirm.close();
+      confirmDlg.close();
       await download();
     },
-    reject: () => confirm.close()
+    reject: () => confirmDlg.close()
   });
 }
 

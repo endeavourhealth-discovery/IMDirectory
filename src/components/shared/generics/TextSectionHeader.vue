@@ -13,7 +13,7 @@ interface Props {
   id?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   size: "100%",
   id: "text-section-header",
   show: true

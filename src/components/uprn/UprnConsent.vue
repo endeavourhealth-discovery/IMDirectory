@@ -92,21 +92,18 @@
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
 import { computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
-const uprnLicenseAccepted = computed(() => userStore.uprnAgreementAccepted);
-
-const route = useRoute();
 const router = useRouter();
 
 const sharedStore = useSharedStore();
 const showUprnConsent = computed(() => sharedStore.showUprnConsent);
 
-function submitDecline(): void {
+async function submitDecline() {
   userStore.updateUprnAgreementAccepted(false);
   sharedStore.updateShowUprnConsent(false);
-  router.push({ path: "/" });
+  await router.push({ path: "/" });
 }
 
 function submitAgree(): void {
@@ -131,10 +128,5 @@ function submitAgree(): void {
   margin: 0.5rem;
   border: 1px solid;
   padding: 0.5rem;
-}
-
-.license-disclaimer {
-  flex: 0 0 auto;
-  width: 100%;
 }
 </style>

@@ -27,7 +27,13 @@
           <div class="flex flex-col gap-4">
             <div v-for="content of contentOptions" :key="content.key" class="check-container flex items-center">
               <div v-if="content.include" class="content-item">
-                <Checkbox v-model="selectedContents" :disabled="content.disabled" :inputId="content.key" :value="content.name" name="content" />
+                <Checkbox
+                  v-model="selectedContents"
+                  :disabled="content.disabled || content.cannotUncheck"
+                  :inputId="content.key"
+                  :value="content.name"
+                  name="content"
+                />
                 <label :for="content.key">{{ content.name }}</label>
               </div>
             </div>
@@ -91,12 +97,14 @@ import { DownloadSettings } from "@/interfaces";
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { IM, SNOMED } from "@/vocabulary";
 import { computed, Ref, ref, watch } from "vue";
+import {Namespace} from "@/vocabulary/Namespace";
 
 interface DownloadOption {
   key: string;
   name: string;
   disabled: boolean;
   include: boolean;
+  cannotUncheck?: boolean;
 }
 
 interface Props {
@@ -128,11 +136,11 @@ const props = withDefaults(defineProps<Props>(), {
   showSubsumedBy: true
 });
 
-const emit = defineEmits({
-  closeDialog: () => true,
-  download: (_payload: DownloadSettings) => true,
-  downloadIMV1: (_payload: DownloadSettings) => true
-});
+const emit = defineEmits<{
+  closeDialog: [];
+  download: [payload: DownloadSettings];
+  downloadIMV1: [payload: DownloadSettings];
+}>();
 
 const filterStore = useFilterStore();
 const filterOptions = computed(() => filterStore.filterOptions);
@@ -146,50 +154,51 @@ const formatOptions: Ref<DownloadOption[]> = ref([
 ]);
 const contentOptions: Ref<DownloadOption[]> = ref([
   { key: "definition", name: "Definition", disabled: false, include: props.showDefinition },
-  { key: "core", name: "Core", disabled: false, include: props.showCore },
+  { key: "core", name: "Core", disabled: false, include: props.showCore, cannotUncheck: true },
   { key: "legacy", name: "Legacy", disabled: false, include: props.showLegacy },
   { key: "im1Id", name: "IM1Id", disabled: false, include: props.showIm1Id },
-  { key: "subsumedBy", name: "Subsumed By", disabled: false, include: props.showSubsumedBy }
+  { key: "subsumedBy", name: "+Replaced concepts", disabled: false, include: props.showSubsumedBy }
 ]);
-const selectedContents: Ref<string[]> = ref([]);
-const selectedFormat = ref("");
+
+const selectedContents: Ref<string[]> = ref(["Core", "+Replaced concepts"]);
+const selectedFormat = ref("tsv");
 const displayLegacyOptions = ref(false);
 const coreSelected = ref(false);
-const isOptionsSelected = ref(false);
+const isOptionsSelected = computed(() => {
+  return (selectedContents.value.length !== 0 && selectedFormat.value != null) || selectedFormat.value === "IMv1";
+});
 const checkedLegacy = ref(false);
 const checked = ref(true);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
-const schemesOptions = filterOptions.value.schemes.filter((c: any) => c["@id"] !== IM.NAMESPACE || c["@id"] !== SNOMED.NAMESPACE);
+const schemesOptions = filterOptions.value.schemes.filter(c => c.iri !== Namespace.IM && c.iri !== Namespace.SNOMED);
 
 watch(
   () => props.showDefinition,
   newValue => {
-    const objIndex = contentOptions.value.findIndex((obj: any) => obj.key == "definition");
+    const objIndex = contentOptions.value.findIndex(obj => obj.key == "definition");
     contentOptions.value[objIndex].include = newValue;
   }
 );
 
 watch(selectedContents, () => {
   if (contentOptions.value.length !== 0 && selectedFormat.value !== "IMv1") {
-    contentOptions.value[1].disabled = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
+    contentOptions.value[1].disabled = selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx";
     isCoreSelected();
     isLegacySelected();
   }
-  isOptionsSelected.value = (selectedContents.value.length !== 0 && selectedFormat.value != null) || selectedFormat.value === "IMv1";
 });
 
 watch(selectedFormat, () => {
-  selectedContents.value = [];
   checked.value = true;
   checkedLegacy.value = false;
   if (selectedFormat.value) {
     if (selectedFormat.value === "IMv1") {
-      contentOptions.value.forEach((f: any) => (f.disabled = true));
+      contentOptions.value.forEach(f => (f.disabled = true));
     } else {
-      contentOptions.value.forEach((f: any) => (f.disabled = false));
+      contentOptions.value.forEach(f => (f.disabled = false));
     }
   } else {
-    contentOptions.value.forEach((f: any) => (f.disabled = true));
+    contentOptions.value.forEach(f => (f.disabled = true));
   }
 });
 

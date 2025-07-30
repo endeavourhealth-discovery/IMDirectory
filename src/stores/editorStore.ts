@@ -5,6 +5,7 @@ import { EntityService } from "@/services";
 import { RDFS } from "@/vocabulary";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 export const useEditorStore = defineStore("editor", {
   state: (): EditorState => ({
@@ -27,7 +28,7 @@ export const useEditorStore = defineStore("editor", {
       }
       return "";
     },
-    updateEditorSavedEntity(entity: any) {
+    updateEditorSavedEntity(entity: TTEntity | undefined) {
       this.editorSavedEntity = entity;
       if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("editorSavedEntity", entity);
       else localStorage.removeItem("editorSavedEntity");

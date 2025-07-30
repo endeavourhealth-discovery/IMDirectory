@@ -11,7 +11,7 @@
     <div id="uprn-content">
       <Tabs value="0" id="uprn-menu">
         <TabList>
-          <Tab :value="index.toString()" v-for="(item, index) in items">
+          <Tab :value="index.toString()" v-for="(item, index) in items" v-bind:key="index">
             <router-link v-slot="routerProps" :to="item.route" custom>
               <a :href="sanitizeUrl(routerProps.href)" @click="$event => routerProps.navigate($event)">
                 <span>{{ item.label }}</span>
@@ -20,7 +20,7 @@
           </Tab>
         </TabList>
       </Tabs>
-      <div v-if="uprnLoading" class="flex flex-row justify-center items-center loading-container">
+      <div v-if="uprnLoading" class="loading-container flex flex-row items-center justify-center">
         <ProgressSpinner />
       </div>
       <router-view v-else />

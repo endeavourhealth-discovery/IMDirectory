@@ -3,7 +3,7 @@
     <div class="display-container">
       <label v-if="shape.showTitle">{{ shape.name }}</label>
       <InputText class="entity-display" :class="invalid && showValidation && 'invalid'" v-model="selectedEntity.name" :disabled="true" />
-      <small>{{ selectedEntity?.["@id"] }}</small>
+      <small>{{ selectedEntity?.iri }}</small>
     </div>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
@@ -21,27 +21,25 @@ import { RDFS } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
   value?: TTIriRef;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({ updateClicked: (_payload: TTIriRef) => true });
+const emit = defineEmits<{ updateClicked: [payload: TTIriRef] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -81,9 +79,9 @@ const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(false);
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
-let selectedEntity: Ref<TTIriRef> = ref({ "@id": "", name: "" });
+let selectedEntity: Ref<TTIriRef> = ref({ iri: "", name: "" });
 watch(selectedEntity, async newValue => {
   if (isTTIriRef(newValue)) {
     updateEntity(newValue);
@@ -106,48 +104,48 @@ onMounted(async () => {
 });
 
 async function setSelectedEntity() {
-  if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue && props.shape.isIri?.["@id"]) {
+  if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue && props.shape.isIri?.iri) {
     let name = "";
     if (props.shape.isIri.name) name = props.shape.isIri.name;
     else {
-      const result = await EntityService.getPartialEntity(props.shape.isIri?.["@id"], [RDFS.LABEL]);
+      const result = await EntityService.getPartialEntity(props.shape.isIri?.iri, [RDFS.LABEL]);
       name = result[RDFS.LABEL];
     }
-    return { "@id": props.shape.isIri["@id"], name: name };
+    return { iri: props.shape.isIri.iri, name: name };
   }
   if (props.value && isTTIriRef(props.value)) return props.value;
-  else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri?.["@id"]) {
+  else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri?.iri) {
     let name = "";
     if (props.shape.isIri.name) name = props.shape.isIri.name;
     else {
-      const result = await EntityService.getPartialEntity(props.shape.isIri?.["@id"], [RDFS.LABEL]);
+      const result = await EntityService.getPartialEntity(props.shape.isIri?.iri, [RDFS.LABEL]);
       name = result[RDFS.LABEL];
     }
-    return { "@id": props.shape.isIri["@id"], name: name };
+    return { iri: props.shape.isIri.iri, name: name };
   } else if (isObjectHasKeys(props.shape, ["select", "argument"])) {
     const args = processArguments(props.shape, valueVariableMap?.value);
     const queryRequest = {} as QueryRequest;
     queryRequest.argument = args;
-    const query = { "@id": props.shape.select![0]["@id"] } as Query;
+    const query = { iri: props.shape.select![0].iri } as Query;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)
       return result.entities.map((item: any) => {
-        return { "@id": item["@id"], name: item[RDFS.LABEL] };
+        return { iri: item.iri, name: item[RDFS.LABEL] };
       })[0];
-    else return { "@id": "", name: "" };
+    else return { iri: "", name: "" };
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape, valueVariableMap?.value);
     if (args.filter(a => isObjectHasKeys(a, ["valueVariable"])).every(a => a.valueVariable)) {
-      const result = await FunctionService.runFunction(props.shape.function!["@id"], args);
+      const result = await FunctionService.runFunction(props.shape.function!.iri, args);
       if (isArrayHasLength(result)) return result[0];
       else return result;
-    } else return { "@id": "", name: "" };
-  } else return { "@id": "", name: "" };
+    } else return { iri: "", name: "" };
+  } else return { iri: "", name: "" };
 }
 
 function updateEntity(data: TTIriRef) {
-  const result = {} as any;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!isTTIriRef(data) && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

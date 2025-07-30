@@ -17,7 +17,7 @@ describe("deferred", () => {
   it("can resolve the promise", async () => {
     const deferredPromise = deferred();
     let result;
-    deferredPromise.promise.then(res => (result = res));
+    void deferredPromise.promise.then(res => (result = res));
     deferredPromise.resolve("resolved");
     await flushPromises();
     expect(result).toEqual("resolved");

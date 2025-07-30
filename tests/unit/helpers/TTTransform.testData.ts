@@ -1,14 +1,14 @@
 import { XSD } from "@/vocabulary";
 
 export const OntologiesFolderTTEntity = {
-  "@id": "http://endhealth.info/im#HealthModelOntology",
-  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": "http://endhealth.info/im#Folder", name: "Folder" }],
+  iri: "http://endhealth.info/im#HealthModelOntology",
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: "http://endhealth.info/im#Folder", name: "Folder" }],
   "http://www.w3.org/2000/01/rdf-schema#label": "Ontologies",
   "http://www.w3.org/2000/01/rdf-schema#comment": "A folder of ontologies, data models, and taxonomies",
-  "http://endhealth.info/im#status": [{ "@id": "http://endhealth.info/im#Active", name: "Active" }],
+  "http://endhealth.info/im#status": [{ iri: "http://endhealth.info/im#Active", name: "Active" }],
   "http://www.w3.org/ns/shacl#order": 1,
-  "http://endhealth.info/im#isContainedIn": [{ "@id": "http://endhealth.info/im#InformationModel", name: "Health Information Model" }],
-  "http://endhealth.info/im#scheme": [{ "@id": "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
+  "http://endhealth.info/im#isContainedIn": [{ iri: "http://endhealth.info/im#InformationModel", name: "Health Information Model" }],
+  "http://endhealth.info/im#scheme": [{ iri: "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
 };
 
 export const OntologiesFolderTransformed = {
@@ -40,106 +40,106 @@ export const OntologiesFolderCustomTransformed = {
 };
 
 export const EventTTEntity = {
-  "@id": "http://endhealth.info/im#Event",
+  iri: "http://endhealth.info/im#Event",
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
-    { "@id": "http://www.w3.org/2000/01/rdf-schema#Class", name: "Class" },
-    { "@id": "http://www.w3.org/ns/shacl#NodeShape", name: "Data model/Node shape " }
+    { iri: "http://www.w3.org/2000/01/rdf-schema#Class", name: "Class" },
+    { iri: "http://www.w3.org/ns/shacl#NodeShape", name: "Data model/Node shape " }
   ],
   "http://www.w3.org/2000/01/rdf-schema#label": "Event",
   "http://www.w3.org/2000/01/rdf-schema#comment":
     "An entry for something that is deemed to be valid at a point in time and may or may not be valid over time. In other words an entry with an effective date/time that does not have a property of end date/time defined",
-  "http://endhealth.info/im#status": [{ "@id": "http://endhealth.info/im#Active", name: "Active" }],
+  "http://endhealth.info/im#status": [{ iri: "http://endhealth.info/im#Active", name: "Active" }],
   "http://endhealth.info/im#isA": [
-    { "@id": "http://endhealth.info/im#Event", name: "Event" },
-    { "@id": "http://endhealth.info/im#Entity", name: "Entity" },
-    { "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }
+    { iri: "http://endhealth.info/im#Event", name: "Event" },
+    { iri: "http://endhealth.info/im#Entity", name: "Entity" },
+    { iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }
   ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
-  "http://endhealth.info/im#isContainedIn": [{ "@id": "http://endhealth.info/im#HealthDataModelClasses", name: "Health Data model classes" }],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf": [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
+  "http://endhealth.info/im#isContainedIn": [{ iri: "http://endhealth.info/im#HealthDataModelClasses", name: "Health Data model classes" }],
   "http://endhealth.info/im#weighting": 9998,
   "http://www.w3.org/ns/shacl#property": [
     {
       "http://www.w3.org/2000/01/rdf-schema#comment": "The preferred full name of the entity",
-      "http://www.w3.org/ns/shacl#datatype": [{ "@id": XSD.STRING, name: "string" }],
+      "http://www.w3.org/ns/shacl#datatype": [{ iri: XSD.STRING, name: "string" }],
       "http://www.w3.org/ns/shacl#order": 1,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://www.w3.org/2000/01/rdf-schema#label", name: "label" }],
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://www.w3.org/2000/01/rdf-schema#label", name: "label" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
-      "http://endhealth.info/im#inheritedFrom": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
+      "http://endhealth.info/im#inheritedFrom": [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
       "http://www.w3.org/ns/shacl#minCount": 1
     },
     {
       "http://www.w3.org/2000/01/rdf-schema#comment": "The description of the entity",
-      "http://www.w3.org/ns/shacl#datatype": [{ "@id": XSD.STRING, name: "string" }],
+      "http://www.w3.org/ns/shacl#datatype": [{ iri: XSD.STRING, name: "string" }],
       "http://www.w3.org/ns/shacl#order": 2,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://www.w3.org/2000/01/rdf-schema#comment", name: "comment" }],
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://www.w3.org/2000/01/rdf-schema#comment", name: "comment" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
-      "http://endhealth.info/im#inheritedFrom": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }]
+      "http://endhealth.info/im#inheritedFrom": [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }]
     },
     {
       "http://www.w3.org/2000/01/rdf-schema#comment": "The base type of the entity i.e. one of the high level entity types",
       "http://www.w3.org/ns/shacl#order": 3,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", name: "type" }],
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", name: "type" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
-      "http://endhealth.info/im#inheritedFrom": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
+      "http://endhealth.info/im#inheritedFrom": [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
       "http://www.w3.org/ns/shacl#minCount": 1,
-      "http://www.w3.org/ns/shacl#class": [{ "@id": "http://www.w3.org/2000/01/rdf-schema#Resource", name: "Resource" }]
+      "http://www.w3.org/ns/shacl#class": [{ iri: "http://www.w3.org/2000/01/rdf-schema#Resource", name: "Resource" }]
     },
     {
       "http://www.w3.org/2000/01/rdf-schema#comment": "The status of the entity being active, inactive, draft or unassigned",
       "http://www.w3.org/ns/shacl#order": 4,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#status", name: "status" }],
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://endhealth.info/im#status", name: "status" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
-      "http://endhealth.info/im#inheritedFrom": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
+      "http://endhealth.info/im#inheritedFrom": [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
       "http://www.w3.org/ns/shacl#minCount": 1,
-      "http://www.w3.org/ns/shacl#class": [{ "@id": "http://endhealth.info/im#Status", name: "Activity status" }]
+      "http://www.w3.org/ns/shacl#class": [{ iri: "http://endhealth.info/im#Status", name: "Activity status" }]
     },
     {
       "http://www.w3.org/2000/01/rdf-schema#comment": "The code scheme or graph which the entity belongs to",
       "http://www.w3.org/ns/shacl#order": 5,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#scheme", name: "scheme" }],
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://endhealth.info/im#scheme", name: "scheme" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
-      "http://endhealth.info/im#inheritedFrom": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
+      "http://endhealth.info/im#inheritedFrom": [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
       "http://www.w3.org/ns/shacl#minCount": 1,
-      "http://www.w3.org/ns/shacl#class": [{ "@id": "http://endhealth.info/im#Graph", name: "Graph or code scheme" }]
+      "http://www.w3.org/ns/shacl#class": [{ iri: "http://endhealth.info/im#Graph", name: "Graph or code scheme" }]
     },
     {
       "http://www.w3.org/2000/01/rdf-schema#comment":
         "An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties",
       "http://www.w3.org/ns/shacl#order": 6,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#isContainedIn", name: "Is contained in" }],
-      "http://endhealth.info/im#inheritedFrom": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
-      "http://www.w3.org/ns/shacl#class": [{ "@id": "http://endhealth.info/im#Folder", name: "Folder" }]
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://endhealth.info/im#isContainedIn", name: "Is contained in" }],
+      "http://endhealth.info/im#inheritedFrom": [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
+      "http://www.w3.org/ns/shacl#class": [{ iri: "http://endhealth.info/im#Folder", name: "Folder" }]
     },
     {
       "http://www.w3.org/2000/01/rdf-schema#comment": "When a status is inactive, the entity that replaces this entity (if any)",
       "http://www.w3.org/ns/shacl#order": 7,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://snomed.info/sct#370124000", name: "REPLACED BY (attribute)" }],
-      "http://endhealth.info/im#inheritedFrom": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
-      "http://www.w3.org/ns/shacl#class": [{ "@id": "http://endhealth.info/im#Entity", name: "Entity" }]
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://snomed.info/sct#370124000", name: "REPLACED BY (attribute)" }],
+      "http://endhealth.info/im#inheritedFrom": [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
+      "http://www.w3.org/ns/shacl#class": [{ iri: "http://endhealth.info/im#Entity", name: "Entity" }]
     },
     {
       "http://www.w3.org/ns/shacl#order": 8,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#recordOwner", name: "record owner" }],
-      "http://www.w3.org/ns/shacl#node": [{ "@id": "http://endhealth.info/im#Organisation", name: "Organisation" }],
-      "http://endhealth.info/im#inheritedFrom": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }]
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://endhealth.info/im#recordOwner", name: "record owner" }],
+      "http://www.w3.org/ns/shacl#node": [{ iri: "http://endhealth.info/im#Organisation", name: "Organisation" }],
+      "http://endhealth.info/im#inheritedFrom": [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }]
     },
     {
       "http://www.w3.org/ns/shacl#order": 9,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#concept", name: "concept" }],
-      "http://www.w3.org/ns/shacl#class": [{ "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" }]
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://endhealth.info/im#concept", name: "concept" }],
+      "http://www.w3.org/ns/shacl#class": [{ iri: "http://endhealth.info/im#Concept", name: "Terminology concept" }]
     },
     {
-      "http://www.w3.org/ns/shacl#datatype": [{ "@id": "http://endhealth.info/im#DateTime", name: "Date time" }],
+      "http://www.w3.org/ns/shacl#datatype": [{ iri: "http://endhealth.info/im#DateTime", name: "Date time" }],
       "http://www.w3.org/ns/shacl#order": 10,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#effectiveDate", name: "effective date" }]
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://endhealth.info/im#effectiveDate", name: "effective date" }]
     },
     {
-      "http://www.w3.org/ns/shacl#datatype": [{ "@id": "http://endhealth.info/im#DateTime", name: "Date time" }],
+      "http://www.w3.org/ns/shacl#datatype": [{ iri: "http://endhealth.info/im#DateTime", name: "Date time" }],
       "http://www.w3.org/ns/shacl#order": 11,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#endDate", name: "end date" }]
+      "http://www.w3.org/ns/shacl#path": [{ iri: "http://endhealth.info/im#endDate", name: "end date" }]
     }
   ],
-  "http://endhealth.info/im#scheme": [{ "@id": "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
+  "http://endhealth.info/im#scheme": [{ iri: "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
 };
 
 export const EventTTEntityTransformed = {

@@ -1,49 +1,84 @@
-import { entityToAliasEntity } from "@/helpers/Transforms";
 import axios from "axios";
 import Env from "./Env";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Query, SearchResultSummary, EclSearchRequest, BoolGroup } from "@/interfaces/AutoGen";
+import { Query, EclSearchRequest, SearchResponse, ECLQueryRequest } from "@/interfaces/AutoGen";
 
 const EclService = {
-  async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<{ count: number; entities: SearchResultSummary[]; page: number }> {
-    const results = (await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest, {
+  async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<SearchResponse> {
+    const results: SearchResponse = await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest, {
       signal: controller?.signal
-    })) as { count: number; entities: any[]; page: number };
-    if (isObjectHasKeys(results, ["entities"])) results.entities.forEach((result: any) => entityToAliasEntity(result));
+    });
     return results;
   },
 
-  async getEcl(query: any): Promise<string> {
+  async getEcl(query: Query): Promise<string> {
     return await axios.post(Env.API + "api/ecl/public/ecl", query);
   },
 
-  async getQueryFromECL(ecl: string, raw: boolean = false): Promise<Query> {
-    return axios.post(Env.API + "api/ecl/public/queryFromEcl", ecl, { headers: { "Content-Type": "text/plain" }, raw: raw });
+  async getQueryFromECL(ecl: string, raw: boolean = false): Promise<ECLQueryRequest> {
+    return await axios.post(
+      Env.API + "api/ecl/public/queryFromEcl",
+      { ecl: ecl, status: { valid: true } },
+      { headers: { "Content-Type": "application/json" }, raw: raw }
+    );
   },
 
-  async isValidECL(ecl: string): Promise<boolean> {
-    return axios.post(Env.API + "api/ecl/public/validateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
+  async getEclFromEcl(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
+    return await axios.post(
+      Env.API + "api/ecl/public/eclFromEcl",
+      { ecl: ecl, showNames: showNames, status: { valid: true } },
+      { headers: { "Content-Type": "application/json" }, raw: true }
+    );
   },
 
-  async getECLFromQuery(query: Query, includeNames?: boolean): Promise<any> {
-    if (includeNames) {
-      const result: any = await axios.post(Env.API + "api/ecl/public/eclFromQueryWithNames", query);
-      if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
-      else return result;
-    } else {
-      const result: any = await axios.post(Env.API + "api/ecl/public/eclFromQuery", query);
-      if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
-      else return result;
-    }
+  async validateECL(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
+    return await axios.post(
+      Env.API + "api/ecl/public/validateEcl",
+      { ecl: ecl, showNames: showNames, status: { valid: true } },
+      { headers: { "Content-Type": "application/json" } }
+    );
   },
 
-  async getEclBuilderFromQuery(query: Query, raw: boolean = false): Promise<BoolGroup> {
-    return axios.post(Env.API + "api/ecl/public/eclBuilderFromQuery", query, { raw: raw });
+  async validateModelFromECL(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
+    return await axios.post(
+      Env.API + "api/ecl/public/validateModelFromECL",
+      { ecl: ecl, showNames: showNames, status: { valid: true } },
+      { headers: { "Content-Type": "application/json" }, raw: true }
+    );
+  },
+  async validateModelFromQuery(query: Query): Promise<ECLQueryRequest> {
+    return await axios.post(
+      Env.API + "api/ecl/public/validateModelFromQuery",
+      { query: query, status: { valid: true } },
+      { headers: { "Content-Type": "application/json" }, raw: true }
+    );
+  },
+  async getPropertiesForDomains(conceptIri: string[], controller?: AbortController): Promise<string[]> {
+    return await axios.get(Env.API + "api/ecl/public/propertiesForDomains", {
+      params: { conceptIri: conceptIri.join(",") },
+      signal: controller?.signal
+    });
   },
 
-  async getQueryFromEclBuilder(boolGroup: BoolGroup, raw: boolean = false): Promise<Query> {
-    return axios.post(Env.API + "api/ecl/public/queryFromEclBuilder", boolGroup, { raw: raw });
+  async isValidPropertyForDomains(propertyIri: string, conceptIris: string[], controller?: AbortController): Promise<boolean> {
+    return await axios.get(Env.API + "api/ecl/public/propertiesForDomains", {
+      params: { propertyIri: propertyIri, conceptIri: conceptIris.join(",") },
+      signal: controller?.signal
+    });
+  },
+
+  async getRangesForProperty(propertyIri: string, controller?: AbortController): Promise<string[]> {
+    return await axios.get(Env.API + "api/ecl/public/rangesForProperty", {
+      params: { propertyIri: propertyIri },
+      signal: controller?.signal
+    });
+  },
+
+  async getECLFromQuery(query: Query, showNames?: boolean): Promise<ECLQueryRequest> {
+    return await axios.post(
+      Env.API + "api/ecl/public/eclFromQuery",
+      { query: query, showNames: showNames },
+      { headers: { "Content-Type": "application/json" }, raw: true }
+    );
   }
 };
-
 export default EclService;

@@ -26,15 +26,15 @@ interface Props {
   accessType?: string;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const router = useRouter();
 
 function goBack() {
   router.go(-2);
 }
 
-function goHome() {
-  router.push({ name: "Directory" });
+async function goHome() {
+  await router.push({ name: "Directory" });
 }
 </script>
 

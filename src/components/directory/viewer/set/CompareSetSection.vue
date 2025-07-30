@@ -4,8 +4,8 @@
       <div>{{ header }}</div>
       <AutocompleteSearchBar
         v-if="header !== 'Shared members '"
-        v-model:selected="selectedSet"
-        :root-entities="[IM.NAMESPACE + 'Sets']"
+        v-model:selected="modelSelectedSet"
+        :root-entities="[Namespace.IM + 'Sets']"
         :im-query="searchQuery"
       />
       <div v-if="isArrayHasLength(members)">Total members ({{ members.length }})</div>
@@ -21,7 +21,7 @@
       filter-placeholder="Filter"
     >
       <template #option="{ option }: { option: Concept }">
-        <div class="member-name" @mouseover="showOverlay($event, option['@id'])" @mouseleave="hideOverlay" @contextmenu="onMemberRightClick($event, option)">
+        <div class="member-name" @mouseover="showOverlay($event, option.iri)" @mouseleave="hideOverlay" @contextmenu="onMemberRightClick($event, option)">
           {{ option.name }}
         </div>
       </template>
@@ -35,35 +35,36 @@
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import setupOverlay from "@/composables/setupOverlay";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
-import { DirectService, EntityService, QueryService } from "@/services";
+import { buildIMQueryFromFilters } from "@/composables/buildQuery";
+import { DirectService, EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
-import { isArrayHasLength, isObject } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { FilterOptions, SearchOptions } from "@/interfaces";
 import { Concept, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
-import { IM, RDFS } from "@/vocabulary";
-import { useToast } from "primevue/usetoast";
+import { IM } from "@/vocabulary";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-interface Props {
+import { Namespace } from "@/vocabulary/Namespace";
+
+const props = defineProps<{
   header: string;
-  selectedSet?: SearchResultSummary;
   members: Concept[];
   setIri?: string;
-  loading: boolean;
-}
-const props = defineProps<Props>();
+  //  loading: boolean;
+}>();
 
-const toast = useToast();
+const modelSelectedSet = defineModel<SearchResultSummary | undefined>("selectedSet");
+
+const emit = defineEmits<{
+  "update:selectedSet": [payload: SearchResultSummary | undefined];
+}>();
+
 const directService = new DirectService();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
-const controller: Ref<AbortController> = ref({} as AbortController);
 const menu = ref();
 
-const selectedSet: Ref<SearchResultSummary | undefined> = ref();
-const filteredSets: Ref<SearchResultSummary[]> = ref([]);
 const selected: Ref<Concept | undefined> = ref();
 const searchQuery: Ref<QueryRequest | undefined> = ref();
 const loading = ref(true);
@@ -74,7 +75,7 @@ const rClickItems = ref([
     label: "Copy code",
     icon: "fa-solid fa-copy",
     command: async () => {
-      if (selected.value?.code) copyObjectToClipboard(navigator, selected.value?.code);
+      if (selected.value?.code) await copyObjectToClipboard(navigator, selected.value?.code);
     }
   },
   {
@@ -83,17 +84,15 @@ const rClickItems = ref([
   {
     label: "View",
     icon: "fa-duotone fa-up-right-from-square",
-    command: () => {
-      if (selected.value?.["@id"]) directService.view(selected.value["@id"]);
+    command: async () => {
+      if (selected.value?.iri) await directService.view(selected.value.iri);
     }
   }
 ]);
 
-const emit = defineEmits({ "update:selectedSet": _payload => true });
-
 watch(
-  () => selectedSet.value?.iri,
-  async newValue => emit("update:selectedSet", selectedSet.value)
+  () => modelSelectedSet.value?.iri,
+  () => emit("update:selectedSet", modelSelectedSet.value)
 );
 
 onMounted(async () => {
@@ -105,18 +104,11 @@ onMounted(async () => {
 async function init() {
   if (props.setIri) {
     const entity = await EntityService.getEntitySummary(props.setIri);
-    if (entity) selectedSet.value = entity;
+    if (entity) modelSelectedSet.value = entity;
     const queryFilterOptions: SearchOptions = {
       schemes: filterOptions.value.schemes,
       status: filterOptions.value.status,
-      types: [
-        { "@id": IM.CONCEPT_SET },
-        { "@id": IM.SET },
-        { "@id": IM.QUERY_SET },
-        { "@id": IM.VALUE_SET },
-        { "@id": IM.CONCEPT_SET },
-        { "@id": IM.CONCEPT_SET_GROUP }
-      ],
+      types: [{ iri: IM.CONCEPT_SET }, { iri: IM.SET }, { iri: IM.QUERY_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT_SET }, { iri: IM.CONCEPT_SET_GROUP }],
       textSearch: entity.name,
       page: { pageNumber: 1, pageSize: 100 }
     };
@@ -124,7 +116,7 @@ async function init() {
   }
 }
 
-function onMemberRightClick(event: any, option: Concept) {
+function onMemberRightClick(event: MouseEvent, option: Concept) {
   selected.value = option;
   menu.value.show(event);
 }
@@ -135,16 +127,6 @@ function onMemberRightClick(event: any, option: Concept) {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-}
-
-.p-listbox {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.p-listbox:deep(.p-listbox-list) {
-  width: 100%;
 }
 
 .loading-icon {
@@ -158,12 +140,5 @@ function onMemberRightClick(event: any, option: Concept) {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-</style>
-
-<style>
-.p-listbox-item {
-  width: 100%;
-  height: 100%;
 }
 </style>

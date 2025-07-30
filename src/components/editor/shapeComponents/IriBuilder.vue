@@ -25,7 +25,7 @@
         />
         <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
       </div>
-      <span>{{ selectedDropdownOption ? selectedDropdownOption["@id"] : "" }}{{ prefix ? prefix : "" }}{{ userInput }}</span>
+      <span>{{ selectedDropdownOption ? selectedDropdownOption.iri : "" }}{{ prefix ? prefix : "" }}{{ userInput }}</span>
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
@@ -39,33 +39,30 @@ import { isTTIriRef } from "@/helpers/TypeGuards";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { processArguments } from "@/helpers/EditorMethods";
 import { byName } from "@/helpers/Sorters";
-import { IM, RDF, RDFS, SNOMED, EDITOR, IM_FUNCTION } from "@/vocabulary";
+import { IM, RDFS } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import { cloneDeep, isEqual } from "lodash-es";
-import { isConcept } from "@/helpers/ConceptTypeMethods";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { Namespace } from "@/vocabulary/Namespace";
 
-interface Props {
+const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
   value?: string;
-}
+}>();
 
-const props = defineProps<Props>();
+const emit = defineEmits<{ updateClicked: [payload: string] }>();
 
-const emit = defineEmits({ updateClicked: (_payload: string) => true });
-
-const fullShape = inject(injectionKeys.fullShape);
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -130,7 +127,7 @@ const prefix = ref("");
 watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, newUserInput], [oldSelectedDropdownOption, oldUserInput]) => {
   if (isTTIriRef(newSelectedDropdownOption) && newUserInput && (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)) {
     let concatenated = "";
-    concatenated += newSelectedDropdownOption["@id"];
+    concatenated += newSelectedDropdownOption.iri;
     if (includePrefix.value) concatenated += prefix.value;
     concatenated += newUserInput;
     updateEntity(concatenated);
@@ -145,7 +142,7 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
     }
   } else if (!newUserInput && newUserInput !== oldUserInput && isTTIriRef(newSelectedDropdownOption)) {
     let concatenated = "";
-    concatenated += newSelectedDropdownOption["@id"];
+    concatenated += newSelectedDropdownOption.iri;
     if (includePrefix.value) concatenated += prefix.value;
     updateEntity(concatenated);
     updateValueVariableMap(concatenated);
@@ -176,7 +173,7 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
   }
 });
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 onMounted(async () => {
   loading.value = true;
@@ -191,17 +188,17 @@ onMounted(async () => {
 
 function setSelectedOption() {
   if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue) {
-    deconstructInputValue(props.shape.isIri!["@id"]);
+    deconstructInputValue(props.shape.isIri!.iri);
     return;
   }
   if (props.value && typeof props.value === "string") {
     deconstructInputValue(props.value);
     return;
-  } else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!["@id"]) {
-    deconstructInputValue(props.shape.isIri!["@id"]);
+  } else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!.iri) {
+    deconstructInputValue(props.shape.isIri!.iri);
     return;
   } else if (EditorMode.CREATE && isArrayHasLength(dropdownOptions.value)) {
-    const foundIndex = dropdownOptions.value.findIndex(option => option["@id"] === IM.NAMESPACE);
+    const foundIndex = dropdownOptions.value.findIndex(option => option.iri === Namespace.IM);
     if (foundIndex !== -1) selectedDropdownOption.value = dropdownOptions.value[foundIndex];
     else selectedDropdownOption.value = dropdownOptions.value[0];
     userInput.value = "";
@@ -213,11 +210,11 @@ function setSelectedOption() {
   }
 }
 
-function deconstructInputValue(inputValue: String) {
-  const found = dropdownOptions.value.find(o => inputValue.startsWith(o["@id"]));
+function deconstructInputValue(inputValue: string) {
+  const found = dropdownOptions.value.find(o => inputValue.startsWith(o.iri));
   if (found) {
     selectedDropdownOption.value = found;
-    userInput.value = inputValue.substring(found["@id"].length);
+    userInput.value = inputValue.substring(found.iri.length);
   }
 }
 
@@ -226,21 +223,21 @@ async function getDropdownOptions() {
     const args = processArguments(props.shape);
     const queryRequest = {} as QueryRequest;
     queryRequest.argument = args;
-    const query = { "@id": props.shape.select![0]["@id"] } as Query;
+    const query = { iri: props.shape.select![0].iri } as Query;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)
       return result.entities.map((item: any) => {
-        return { "@id": item["@id"], name: item[RDFS.LABEL] };
+        return { iri: item.iri, name: item[RDFS.LABEL] };
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await FunctionService.runFunction(props.shape.function!["@id"])).sort(byName);
+    return (await FunctionService.runFunction(props.shape.function!.iri)).sort(byName);
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
 function updateEntity(data: string) {
-  const result = {} as any;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
@@ -252,10 +249,6 @@ function updateValueVariableMap(data: string) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
-}
-
-function defaultValidation(data: string) {
-  return true;
 }
 
 function hasData() {

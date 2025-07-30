@@ -145,8 +145,6 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-const allVerified = computed(() => isObjectHasKeys(errors) && emailIsNotRegistered.value);
-
 const passwordOld = ref("");
 const password = ref("");
 const isNewPasswordValid = ref(false);
@@ -222,7 +220,7 @@ const [email1, email1Attrs]: any = defineField("email1");
 const [email2, email2Attrs]: any = defineField("email2");
 
 watch([firstName, lastName, email1, email2], async () => {
-  setButtonDisabled();
+  await setButtonDisabled();
 });
 
 function updateFocused(key: string, value: boolean) {
@@ -253,9 +251,8 @@ function swalert(icon: SweetAlertIcon, title: string, text: string) {
   });
 }
 
-function handleFieldsVerified(handlePasswordChange: boolean) {
+async function handleFieldsVerified(handlePasswordChange: boolean) {
   loading.value = true;
-  const oldEmail = currentUser.value?.email;
   const updatedUser = {
     id: currentUser.value?.id,
     username: username.value,
@@ -268,28 +265,28 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
     mfaStatus: []
   } as User;
 
-  AuthService.updateUser(updatedUser).then(res => {
+  await AuthService.updateUser(updatedUser).then(async res => {
     if (res.status === 200) {
       if (!handlePasswordChange) {
-        swalert("success", "Success", "Account details updated successfully.").then(async () => {
+        await swalert("success", "Success", "Account details updated successfully.").then(async () => {
           userStore.updateCurrentUser(res.user);
           await userStore.getAllFromUserDatabase();
-          router.push({ name: "UserDetails" });
+          await router.push({ name: "UserDetails" });
         });
       } else {
-        submitPasswordChange(res);
+        await submitPasswordChange(res);
       }
     } else if (res.status === 403 && res.message === "Confirm with email code") {
-      handleEmailChange();
+      await handleEmailChange();
     } else {
-      swalert("error", "Error", res.message);
+      await swalert("error", "Error", res.message);
     }
   });
   loading.value = false;
 }
 
-function handleEmailChange() {
-  Swal.fire({
+async function handleEmailChange() {
+  await Swal.fire({
     title: "Verify your changes",
     text: "Enter the 6-digit code sent to you by no-reply@verificationemail.com.",
     input: "text",
@@ -300,32 +297,31 @@ function handleEmailChange() {
       if (!value) return "Please enter the 6-digit code";
       else return null;
     }
-  }).then((result: SweetAlertResult) => {
+  }).then(async (result: SweetAlertResult) => {
     if (result.value) {
-      AuthService.verifyEmail(result.value).then(res => {
+      await AuthService.verifyEmail(result.value).then(async res => {
         if (res.status === 200) {
-          swalert("success", "Success", "Account details updated successfully.").then(async () => {
-            router.push({ name: "UserDetails" });
+          await swalert("success", "Success", "Account details updated successfully.").then(async () => {
+            await router.push({ name: "UserDetails" });
           });
         } else {
-          swalert("error", "Error", "Email verification failed, but user details updated successfully. " + res.message).then(() => {
+          await swalert("error", "Error", "Email verification failed, but user details updated successfully. " + res.message).then(() => {
             setFromCurrentUser();
           });
         }
       });
     } else {
-      swalert("error", "Error", "Email verification failed, but user details updated successfully. ").then(() => {
+      await swalert("error", "Error", "Email verification failed, but user details updated successfully. ").then(() => {
         setFromCurrentUser();
       });
     }
   });
 }
 
-function submitPasswordChange(res: CustomAlert) {
-  AuthService.changePassword(passwordOld.value, password.value).then(async res2 => {
-    res2.status === 200
-      ? swalert("success", "Success", "User details and password successfully updated.")
-      : swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
+async function submitPasswordChange(res: CustomAlert) {
+  await AuthService.changePassword(passwordOld.value, password.value).then(async res2 => {
+    if (res2.status === 200) await swalert("success", "Success", "User details and password successfully updated.");
+    else await swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
     userStore.updateCurrentUser(res.user);
     await userStore.getAllFromUserDatabase();
     await router.push({ name: "UserDetails" });
@@ -334,16 +330,16 @@ function submitPasswordChange(res: CustomAlert) {
 
 const onSubmit = handleSubmit(async () => {
   if ((await userFieldsVerified()) && isNewPasswordValid.value) {
-    handleFieldsVerified(true);
+    await handleFieldsVerified(true);
   } else if (showPasswordEdit.value) {
     const message = "Password cannot be updated. Please check all fields are valid.";
-    swalert("error", "Error", message);
+    await swalert("error", "Error", message);
   } else if (!checkForChanges()) {
-    swalert("warning", "Nothing to update", "Your account details have not been updated.");
+    await swalert("warning", "Nothing to update", "Your account details have not been updated.");
   } else if (await userFieldsVerified()) {
-    handleFieldsVerified(false);
+    await handleFieldsVerified(false);
   } else {
-    swalert("error", "Error", "Error with user form");
+    await swalert("error", "Error", "Error with user form");
   }
 });
 
@@ -359,8 +355,8 @@ async function verifyEmailIsNotRegistered(email: string) {
   else emailIsNotRegistered.value = true;
 }
 
-function resetForm(): void {
-  Swal.fire({
+async function resetForm() {
+  await Swal.fire({
     icon: "warning",
     title: "Warning",
     text: "Are you sure that you want to reset changes to this form? Any changes you have made will be lost.",

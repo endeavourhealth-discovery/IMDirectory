@@ -42,7 +42,7 @@ describe("mutations", () => {
   it("can updateSearchResults", () => {
     const directoryStore = useDirectoryStore();
 
-    const testResult = {
+    const testResult: SearchResponse = {
       count: 1,
       page: 1,
       entities: [
@@ -51,15 +51,15 @@ describe("mutations", () => {
           iri: "testIri",
           scheme: {
             name: "testScheme",
-            "@id": "testSchemeIri"
+            iri: "testSchemeIri"
           },
           code: "testCode",
-          entityType: [{ "@id": "testType", name: "testType" }],
-          match: "testMatch",
-          status: { "@id": "testStatus", name: "testStatus" }
+          type: [{ iri: "testType", name: "testType" }],
+          bestMatch: "testMatch",
+          status: { iri: "testStatus", name: "testStatus" }
         }
       ]
-    } as SearchResponse;
+    };
     directoryStore.updateSearchResults(testResult);
     expect(directoryStore.searchResults).toEqual(testResult);
   });

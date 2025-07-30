@@ -20,8 +20,8 @@ function goBack() {
   router.go(-1);
 }
 
-function goHome() {
-  router.push({ name: "Directory" });
+async function goHome() {
+  await router.push({ name: "Directory" });
 }
 </script>
 

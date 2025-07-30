@@ -6,7 +6,7 @@
       <DataView :value="twoFactorMethods" data-key="label">
         <template #header> Two-factor methods </template>
         <template #list="slotProps">
-          <div v-for="(item, index) in slotProps.items" class="col-span-12">
+          <div v-for="(item, index) in slotProps.items" class="col-span-12" v-bind:key="index">
             <div class="two-factor-row">
               <div class="mfa-row-details">
                 <span>{{ item.label }}</span>
@@ -43,15 +43,15 @@ const twoFactorMethods = ref([
   }
 ]);
 
-function handleMfaActivate(key: string) {
+async function handleMfaActivate(key: string) {
   if (key === "TOTP") {
-    router.push({ name: "MFASetup" });
+    await router.push({ name: "MFASetup" });
   }
 }
 
-function handleMfaDelete(key: string) {
+async function handleMfaDelete(key: string) {
   if (key === "TOTP") {
-    router.push({ name: "MFADelete" });
+    await router.push({ name: "MFADelete" });
   }
 }
 

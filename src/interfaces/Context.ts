@@ -1,7 +1,7 @@
 export interface Context {
-  publisher: string
-  system: string
-  schema: string
-  table: string
-  field: string
+  publisher: string;
+  system: string;
+  schema: string;
+  table: string;
+  field: string;
 }

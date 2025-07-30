@@ -5,7 +5,7 @@
       class="concept-data-table p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
-      dataKey="@id"
+      dataKey="iri"
       :scrollable="true"
       scrollHeight="flex"
       :loading="loading"
@@ -25,25 +25,25 @@
       <template #empty> No records found. </template>
 
       <Column field="name" header="Name">
-        <template #body="{ data }: any">
+        <template #body="{ data }: { data: ExtendedEntityReferenceNode }">
           <div>
-            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
-            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay">{{ data.name }}</span>
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type as TTIriRef[])" class="p-mx-1 type-icon" />
+            <span @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
-        <template #body="{ data }: any">
-          <span>{{ getTypesDisplay(data.type) }}</span>
+        <template #body="{ data }: { data: ExtendedEntityReferenceNode }">
+          <span v-if="data.type">{{ getTypesDisplay(data.type as TTIriRef[]) }}</span>
         </template>
       </Column>
       <Column :exportable="false" style="justify-content: flex-end">
-        <template #body="{ data }: any">
+        <template #body="{ data }: { data: ExtendedEntityReferenceNode }">
           <div class="buttons-container">
             <ActionButtons
               v-if="data.iri"
               :buttons="['findInTree', 'view', 'edit', 'favourite']"
-              :iri="data['@id']"
+              :iri="data.iri"
               :name="data.name"
               @locate-in-tree="locateInTree"
             />
@@ -71,21 +71,20 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { MenuItem } from "primevue/menuitem";
+import { ExtendedEntityReferenceNode } from "@/interfaces/ExtendedAutoGen";
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
+}>();
 
-const props = defineProps<Props>();
-
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
-const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
@@ -97,26 +96,26 @@ watch(
 
 watch(
   () => cloneDeep(favourites.value),
-  () => {
-    if (conceptIsFavourite.value) init();
+  async () => {
+    if (conceptIsFavourite.value) await init();
   }
 );
 
 const conceptIsFavourite = computed(() => props.entityIri === IM.FAVOURITES);
 
 const loading = ref(false);
-const children: Ref<any[]> = ref([]);
-const selected: Ref<any> = ref({});
-const rClickOptions: Ref<any[]> = ref([
+const children: Ref<ExtendedEntityReferenceNode[]> = ref([]);
+const selected: Ref<ExtendedEntityReferenceNode> = ref({} as ExtendedEntityReferenceNode);
+const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Open",
     icon: "fa-solid fa-folder-open",
-    command: () => emit("navigateTo", selected.value["@id"])
+    command: () => emit("navigateTo", selected.value.iri)
   },
   {
     label: "View in new tab",
     icon: "fa-solid fa-arrow-up-right-from-square",
-    command: () => directService.view(selected.value["@id"])
+    command: () => directService.view(selected.value.iri)
   }
 ]);
 const totalCount = ref(0);
@@ -137,19 +136,20 @@ async function init() {
     rClickOptions.value.push({
       label: "Favourite",
       icon: "fa-solid fa-star",
-      command: () => updateFavourites(selected.value["@id"])
+      command: () => updateFavourites(selected.value.iri)
     });
   }
-  !conceptIsFavourite.value ? await getChildren(props.entityIri) : await getFavourites();
+  if (conceptIsFavourite.value) await getFavourites();
+  else await getChildren(props.entityIri);
+
   loading.value = false;
 }
 
 async function getFavourites() {
   const result = await EntityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
-  children.value = result.map((child: any) => {
-    return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
+  children.value = result.map(child => {
+    return { iri: child.iri as string, name: child[RDFS.LABEL], type: child[RDF.TYPE], icon: getFAIconFromType(child[RDF.TYPE]) };
   });
-  children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
   totalCount.value = children.value.length;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
 }
@@ -164,9 +164,10 @@ function getColourStyleFromType(types: TTIriRef[]) {
 
 async function getChildren(iri: string) {
   const result = await EntityService.getPagedChildren(iri, currentPage.value + 1, pageSize.value);
-  children.value = result.result;
+  children.value = result.result.map(child => {
+    return { iri: child.iri as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
+  });
   totalCount.value = result.totalCount;
-  children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
 }
 
@@ -177,30 +178,31 @@ function isFavourite(iri: string) {
 function updateRClickOptions() {
   rClickOptions.value[0].label = selected.value.hasChildren ? "Open" : "Select";
   rClickOptions.value[0].icon = selected.value.hasChildren ? "fa-solid fa-folder-open" : "fa-solid fa-sitemap";
-  if (isLoggedIn.value) rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
+  if (isLoggedIn.value) rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
 }
 
-function onRowContextMenu(data: any) {
-  selected.value = data.data;
+function onRowContextMenu(event: MouseEvent, data: { data: ExtendedEntityReferenceNode }) {
+  selected.value = data.data as ExtendedEntityReferenceNode;
   updateRClickOptions();
   menu.value.show(event);
 }
 
-function updateFavourites(iri: string) {
-  userStore.updateFavourites(iri);
+async function updateFavourites(iri: string) {
+  await userStore.updateFavourites(iri);
 }
 
-function onRowSelect(event: any) {
-  emit("navigateTo", event.data["@id"]);
+function onRowSelect(event: { data: ExtendedEntityReferenceNode }) {
+  emit("navigateTo", event.data.iri);
 }
 
-async function onPage(event: any) {
+async function onPage(event: { rows: number; page: number }) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
   const result = await EntityService.getPagedChildren(props.entityIri, currentPage.value + 1, pageSize.value);
-  children.value = result.result;
-  children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
+  children.value = result.result.map(child => {
+    return { iri: child.iri as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
+  });
   scrollToTop();
   loading.value = false;
 }
@@ -228,24 +230,9 @@ function locateInTree(iri: string) {
   padding-right: 0.5rem;
 }
 
-.row-button:hover {
-  background-color: var(--p-textarea-border-color) !important;
-  color: var(--p-content-background) !important;
-}
-
-.row-button-fav:hover {
-  background-color: var(--p-yellow-500) !important;
-  color: var(--p-content-background) !important;
-}
-
 .content-wrapper {
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
-}
-
-.scrollbar {
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 </style>

@@ -1,54 +1,178 @@
 <template>
-  <div class="property-description-container">
-    <div v-if="where.name && !where.description && where?.match" v-html="where.name"></div>
-    <MatchDisplay v-if="where?.match" :match="where.match" />
-    <div v-if="where?.where" class="where-group">
-      <div v-if="where.where.length > 1" class="vertical-button-container">
-        <Button text class="builder-button conjunction-button vertical-button" :label="where.boolWhere?.toUpperCase() ?? 'AND'" severity="secondary" disabled />
-      </div>
-      <div class="where-list"><WhereDisplay v-for="nestedWhere in where.where" :where="nestedWhere" /></div>
-    </div>
-    <div class="property-description" v-html="where?.description"></div>
-  </div>
+  <component id="recursive-where-display" :is="inline ? 'span' : 'div'">
+    <span :style="indentationStyle(inline, depth)">
+      <span :class="operator">
+        <span>{{ getOperator(operator, index) }}</span>
+      </span>
+      <span v-if="where.name" class="field">{{ where.name }}</span>
+      <span v-if="eclQuery">=</span>
+      <span v-if="where.valueLabel || where.qualifier">
+        <span v-if="where.qualifier" class="field">{{ where.qualifier }}</span>
+        <span v-if="where.valueLabel && where.is" @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0">
+          {{ where.valueLabel }}</span
+        >
+        <span v-else-if="where.valueLabel" class="field">{{ where.valueLabel }}</span>
+      </span>
+      <span v-if="where.relativeTo">
+        <span v-if="where.relativeTo.qualifier">
+          <span class="field">{{ where.relativeTo.qualifier }}</span>
+        </span>
+        <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
+      </span>
+      <span v-if="isExpanded && isArrayHasLength(where.is)">
+        <span>, defined as</span>
+        <div>
+          <span style="list-style-type: none; padding-left: 0">
+            <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
+              <ul>
+                <li class="tight-spacing">
+                  <IMFontAwesomeIcon :icon="getTypeIcon(item)" :style="'color:' + getIconColor(item)" />
+                  <span v-if="item.qualifier" v-html="item.qualifier"></span>
+                  <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                  <span v-if="item.parameter">"{{ item.parameter }}" passed into query as a parameter at run time</span>
+                  <span v-if="item.descendantsOrSelfOf">+subtypes</span>
+                </li>
+              </ul>
+            </span>
+          </span>
+        </div>
+      </span>
+      <span v-for="(matches, type) in boolGroup" :key="type">
+        <span v-if="!root">(</span>
+        <span v-for="(nestedProperty, index) in matches" :key="index">
+          <span>
+            <WhereDisplay
+              :where="nestedProperty"
+              :index="index"
+              :operator="type as Bool"
+              :key="index"
+              :depth="depth + 1"
+              :expandedSet="expandedSet"
+              :inline="!!root"
+              :root="false"
+              :eclQuery="eclQuery"
+              :bracketed="index === where[type]!.length - 1"
+            />
+          </span>
+        </span>
+        <span v-if="!root">)</span>
+      </span>
+    </span>
+  </component>
 </template>
 
 <script setup lang="ts">
-import { Where } from "@/interfaces/AutoGen";
-import MatchDisplay from "./MatchDisplay.vue";
-import setupIMQueryBuilderActions from "@/composables/setupIMQueryBuilderActions";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { Where, Bool, Node } from "@/interfaces/AutoGen";
+import { computed, ref } from "vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { IM } from "@/vocabulary/IM";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+
 interface Props {
   where: Where;
+  index: number;
+  depth: number;
+  operator?: Bool;
+  expandedSet?: boolean;
+  inline: boolean;
+  bracketed?: boolean;
+  eclQuery?: boolean;
+  root?: boolean;
 }
+
 const props = defineProps<Props>();
-const { toggleWhereBool } = setupIMQueryBuilderActions();
+
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
+
+const isExpanded = ref(props.expandedSet);
+const boolGroup = computed(() => {
+  return {
+    ...(props.where.and ? { and: props.where.and } : {}),
+    ...(props.where.or ? { or: props.where.or } : {})
+  };
+});
+
+function getOperator(operator: Bool | undefined, index: number): string {
+  if (operator === "or") {
+    if (index === 0) {
+      return "Either";
+    } else {
+      return "or";
+    }
+  } else if (operator === "and") {
+    if (index > 0) {
+      return "and";
+    } else {
+      return "";
+    }
+  } else {
+    if (index < 0) return "and";
+    else return "";
+  }
+}
+function getTypeIcon(is: Node) {
+  if (is.memberOf) {
+    return getFAIconFromType([{ iri: IM.CONCEPT_SET }]);
+  } else return getFAIconFromType([{ iri: IM.CONCEPT }]);
+}
+
+function getIconColor(is: Node) {
+  if (is.memberOf) {
+    return getColourFromType([{ iri: IM.CONCEPT_SET }]);
+  } else return getColourFromType([{ iri: IM.CONCEPT }]);
+}
+
+function indentationStyle(inLine: boolean, depth: number) {
+  return {
+    paddingLeft: inLine ? "0.2rem" : depth + "rem"
+  };
+}
 </script>
 
 <style scoped>
-.property-description-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-}
-.property-description {
-  width: calc(100% - 1rem);
-  height: 100%;
-  margin-left: 1rem;
+.tight-spacing {
+  margin-top: -1rem;
+  margin-bottom: 0.5rem;
+  padding-left: 3rem;
 }
 
-.vertical-button-container {
-  display: flex;
-  flex-flow: row nowrap;
-  width: fit-content;
-  align-self: stretch;
+.field {
+  padding-right: 0.2rem;
 }
 
-.builder-button {
-  width: 2rem;
+.value-field {
+  color: var(--p-green-700);
+  padding-right: 0.2rem;
 }
 
-.vertical-button {
-  writing-mode: vertical-lr;
-  transform: scale(-1);
+.node-ref {
+  color: var(--p-amber-700) !important;
+  cursor: pointer !important;
+}
+.or {
+  color: var(--p-blue-700);
+  padding-right: 0.2rem;
+}
+.op {
+  padding-right: 1rem;
+}
+
+.and {
+  color: var(--p-orange-700);
+  padding-right: 0.3rem;
+}
+
+.property-display {
+  margin-left: 0.2rem;
+}
+.hover-label {
+  color: var(--p-green-700);
+  cursor: pointer;
+}
+.hover-label:hover {
+  text-decoration: underline;
 }
 </style>

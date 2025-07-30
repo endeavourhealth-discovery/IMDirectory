@@ -13,29 +13,29 @@
         v-model:selection="selected"
         selectionMode="single"
         @rowSelect="onRowSelect"
-        dataKey="dateTime"
+        dataKey="iri"
         :scrollable="true"
         scrollHeight="flex"
         class="p-datatable-sm favourites-datatable"
       >
         <template #empty>{{ !currentUser ? "Login to add favourites" : "No favourites" }}</template>
         <Column field="name" header="Name">
-          <template #body="{ data }: any">
+          <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="favourite-name-icon-container">
-              <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
+              <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon pr-2" :style="data.color" fixed-width />
               <span class="favourite-name flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
         </Column>
         <Column field="type" header="Type">
-          <template #body="{ data }: any">
+          <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="favourite-type-container flex flex-row">
-              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.entityType }}</span>
+              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.type }}</span>
             </div>
           </template>
         </Column>
         <Column :exportable="false">
-          <template #body="{ data }: any">
+          <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="action-buttons-container">
               <ActionButtons
                 v-if="data.iri"
@@ -64,7 +64,7 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
 import { TTIriRef } from "@/interfaces/AutoGen";
-import { DirectService, EntityService, UserService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import setupOverlay from "@/composables/setupOverlay";
 import { RDF, RDFS } from "@/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
@@ -79,9 +79,8 @@ const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const userFavourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
-const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-const selected: Ref<any> = ref({});
+const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
 const favourites: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 
@@ -90,7 +89,7 @@ watch(
   async () => await getFavouritesDetails()
 );
 
-onMounted(async () => init());
+onMounted(async () => await init());
 
 async function init(): Promise<void> {
   loading.value = true;
@@ -98,12 +97,12 @@ async function init(): Promise<void> {
   loading.value = false;
 }
 
-function onRowSelect(event: any) {
-  directService.select(event.data.iri);
+async function onRowSelect(event: { data: ExtendedSearchResultSummary }) {
+  await directService.select(event.data.iri);
 }
 
-function locateInTree(iri: string) {
-  directoryStore.updateFindInTreeIri(iri);
+async function locateInTree(iri: string) {
+  await directoryStore.updateFindInTreeIri(iri);
 }
 
 async function getFavouritesDetails() {
@@ -112,13 +111,13 @@ async function getFavouritesDetails() {
     favourites.value = [];
     return;
   }
-  const temp: any[] = [];
+  const temp: ExtendedSearchResultSummary[] = [];
   for (const result of results) {
-    let clone: ExtendedSearchResultSummary = {} as ExtendedSearchResultSummary;
-    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "@id"])) {
-      clone.iri = result["@id"];
+    const clone: ExtendedSearchResultSummary = {} as ExtendedSearchResultSummary;
+    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "iri"])) {
+      if (result.iri) clone.iri = result.iri;
       clone.name = result[RDFS.LABEL];
-      clone.entityType = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+      clone.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
       clone.icon = getFAIconFromType(result[RDF.TYPE]);
       clone.color = "color:" + getColourFromType(result[RDF.TYPE]);
     }

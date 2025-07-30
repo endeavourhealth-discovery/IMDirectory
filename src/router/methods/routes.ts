@@ -143,6 +143,13 @@ const routes: Array<RouteRecordRaw> = [
         name: "MFADelete",
         component: () => import("@/components/auth/MFADelete.vue"),
         meta: { requiresReAuth: true, title: "My account" }
+      },
+      {
+        path: "changeTemporaryPassword:tempPassword?",
+        props: true,
+        name: "ChangeTemporaryPassword",
+        component: () => import("@/components/auth/ChangeTemporaryPassword.vue"),
+        meta: { title: "Reset password" }
       }
     ]
   },
@@ -270,23 +277,6 @@ const routes: Array<RouteRecordRaw> = [
         path: "addressFileDownload",
         name: "AddressFileDownload",
         component: () => import("@/components/uprn/AddressFileDownload.vue")
-      }
-    ]
-  },
-  {
-    path: "/query",
-    name: "Query",
-    component: () => import("@/views/Query.vue"),
-    meta: {
-      requiresAuth: true,
-      requiresLicense: true,
-      requiresCreateRole: true
-    },
-    children: [
-      {
-        path: ":queryIri?",
-        name: "Query",
-        component: () => import("@/views/Query.vue")
       }
     ]
   },

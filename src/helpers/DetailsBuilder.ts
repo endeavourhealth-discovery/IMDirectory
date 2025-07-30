@@ -1,7 +1,7 @@
-import { TTBundle } from "@/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IM, RDFS, SHACL } from "@/vocabulary";
 import { TTIriRef } from "@/interfaces/AutoGen";
+import { TTBundle } from "@/interfaces/ExtendedAutoGen";
 
 export function buildDetails(definition: TTBundle): any[] {
   const treeNode = { children: [] as any[] };
@@ -23,15 +23,15 @@ function buildTreeDataRecursively(treeNode: any, entity: any, predicates: any) {
   }
 }
 
-function processEntityKey(key: string, treeNode: any, entity: any, predicates: any, types?: TTIriRef[]) {
+function processEntityKey(key: string, treeNode: any, entity: any, predicates: any) {
   if (key === IM.ROLE_GROUP) addRoleGroup(treeNode, entity, predicates, key);
   else if (key === IM.HAS_TERM_CODE) addTermCodes(treeNode, entity, predicates, key);
   else if (key === SHACL.PROPERTY) addProperty(treeNode, entity, predicates, key);
   else if (key === SHACL.PARAMETER) addParameter(treeNode, entity, predicates, key);
   else if (key === IM.BINDING) addBinding(treeNode, entity, predicates, key);
-  else if (key === IM.DEFINITION) addDefinition(treeNode, entity, predicates, key, types ?? []);
+  else if (key === IM.DEFINITION) addDefinition(treeNode, predicates, key);
   else if (key === IM.HAS_MAP) addHasMapNode(treeNode, entity, predicates, key);
-  else if (key !== "@id") {
+  else if (key !== "iri") {
     const newTreeNode = { key: key, label: predicates[key] ?? key, children: [] };
     treeNode.children?.push(newTreeNode);
     buildTreeDataRecursively(newTreeNode, entity[key], predicates);
@@ -43,25 +43,29 @@ function addValueToLabel(treeNode: any, divider: string, value: any) {
 }
 
 function addIriLink(treeNode: any, item: TTIriRef) {
-  if (item["@id"] === IM.LOAD_MORE)
+  if (item.iri === IM.LOAD_MORE)
     treeNode.children?.push({
-      key: item["@id"],
+      key: item.iri,
       label: item.name,
       type: "loadMore",
       data: { predicate: treeNode.key, totalCount: (item as any).totalCount }
     });
-  else treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
+  else treeNode.children?.push({ key: item.iri, label: item.name, type: "link" });
 }
 
-function addDefinition(treeNode: any, entity: any, predicates: any, key: string, types: TTIriRef[]) {
+function addDefinition(treeNode: any, predicates: any, key: string) {
   const definitionNode = { key: key, label: predicates[key] || key };
   treeNode.children.push(definitionNode);
+}
+
+function getLabel(key: string, predicates: any, entity: any) {
+  return predicates[key] ?? entity[key]?.path?.[0]?.name ?? key;
 }
 
 function addParameter(treeNode: any, entity: any, predicates: any, key: string) {
   const newTreeNode = {
     key: key,
-    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    label: getLabel(key, predicates, entity),
     children: [] as any[]
   };
   treeNode.children?.push(newTreeNode);
@@ -88,7 +92,7 @@ function addDefault(treeNode: any, entity: any, predicates: any) {
 
 function addArray(treeNode: any, entity: any, predicates: any, key: string) {
   for (const [index, item] of [entity[key]].entries()) {
-    if (isObjectHasKeys(item[index], ["@id", "name"])) addIriLink(treeNode, item[index]);
+    if (isObjectHasKeys(item[index], ["iri", "name"])) addIriLink(treeNode, item[index]);
     else addDefault(treeNode, item, predicates);
   }
 }
@@ -109,7 +113,7 @@ function addObject(treeNode: any, entity: any, predicates: any, key: string) {
 function addTermCodes(treeNode: any, entity: any, predicates: any, key: string) {
   const newTreeNode = {
     key: key,
-    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    label: getLabel(key, predicates, entity),
     children: [] as any[]
   };
   treeNode.children?.push(newTreeNode);
@@ -128,7 +132,7 @@ function addTermCodes(treeNode: any, entity: any, predicates: any, key: string) 
 function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) {
   const newTreeNode = {
     key: key,
-    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    label: getLabel(key, predicates, entity),
     children: [] as any[]
   };
   treeNode.children?.push(newTreeNode);
@@ -170,14 +174,14 @@ function getRoleValue(predicates: any, roleGroup: any, roleKey: any, key: string
 function addBinding(treeNode: any, entity: any, predicates: any, key: any) {
   const newTreeNode = {
     key: key,
-    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    label: getLabel(key, predicates, entity),
     children: [] as any[]
   };
   treeNode.children?.push(newTreeNode);
   if (isArrayHasLength(entity[key])) {
     for (const roleGroup of entity[key]) {
       const bindingNode = {
-        key: roleGroup[SHACL.NODE][0]["@id"],
+        key: roleGroup[SHACL.NODE][0].iri,
         label: roleGroup[SHACL.NODE][0].name,
         type: "link"
       };
@@ -189,7 +193,7 @@ function addBinding(treeNode: any, entity: any, predicates: any, key: any) {
 function addProperty(treeNode: any, entity: any, predicates: any, key: string) {
   const newTreeNode = {
     key: key,
-    label: predicates[key] || entity[key]?.path?.[0]?.name || key,
+    label: getLabel(key, predicates, entity),
     children: [] as any[]
   };
   treeNode.children?.push(newTreeNode);
@@ -219,7 +223,7 @@ function addHasMapNode(treeNode: any, entity: any, predicates: any, key: string)
       for (const childKey in child) {
         const childNode = {
           key: childKey,
-          label: predicates[childKey] || entity[childKey]?.path?.[0]?.name || childKey,
+          label: getLabel(childKey, predicates, entity),
           children: [] as any[]
         };
         newTreeNode.children.push(childNode);

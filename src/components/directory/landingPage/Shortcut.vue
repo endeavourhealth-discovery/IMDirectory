@@ -5,7 +5,7 @@
         v-if="isArray(icon) || icon.startsWith('fa-')"
         class="shortcut-icon"
         :icon="icon"
-        :size="size + 'x'"
+        :size="getIconSize(size)"
         :style="'color:' + color + ';width: ' + (size + 1) + 'rem'"
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;width:' + (size + 1) + 'rem'" />
@@ -16,7 +16,7 @@
         v-if="isArray(icon) || icon.startsWith('fa-')"
         class="shortcut-icon"
         :icon="icon"
-        :size="size + 'x'"
+        :size="getIconSize(size)"
         :style="'color:' + color + ';width:' + (size + 1) + 'rem'"
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;' + 'width:' + (size + 1) + 'rem'" />
@@ -31,16 +31,43 @@ interface Props {
   icon: string | string[];
   label: string;
   url?: string;
-  command?: Function;
+  command?: () => void;
   color: string;
   size: number;
   newTab?: boolean;
   visible?: boolean;
 }
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   newTab: false,
   visible: true
 });
+
+function getIconSize(size: number): "1x" | "2x" | "3x" | "4x" | "5x" | "6x" | "7x" | "8x" | "9x" | "10x" {
+  switch (size) {
+    case 1:
+      return "1x";
+    case 2:
+      return "2x";
+    case 3:
+      return "3x";
+    case 4:
+      return "4x";
+    case 5:
+      return "5x";
+    case 6:
+      return "6x";
+    case 7:
+      return "7x";
+    case 8:
+      return "8x";
+    case 9:
+      return "9x";
+    case 10:
+      return "10x";
+    default:
+      throw new Error("invalid icon size. Must be a number between 1-10");
+  }
+}
 </script>
 
 <style scoped>

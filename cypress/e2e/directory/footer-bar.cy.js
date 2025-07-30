@@ -27,7 +27,7 @@ describe("footer bar", () => {
   });
 
   it("can show cookie settings", () => {
-    cy.get(".footer-icon").click();
+    cy.findByTestId("cookie-settings-button").click();
     cy.get(".p-drawer").find("h1").should("have.text", "Our use of cookies");
   });
 });

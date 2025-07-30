@@ -8,7 +8,7 @@
       <ProgressSpinner />
     </div>
     <div v-else :class="invalid && showValidation && 'invalid'" class="children-container" data-testid="array-builder">
-      <template v-for="(item, index) in build" :key="item.id">
+      <template v-for="item in build" :key="item.id">
         <component
           :is="item.type"
           :value="item.value"
@@ -62,17 +62,16 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({ updateClicked: _payload => true });
+const emit = defineEmits<{ updateClicked: [payload: any] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -115,7 +114,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   else return false;
 });
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 const loading = ref(true);
 const invalid = ref(false);
@@ -137,7 +136,7 @@ onMounted(async () => {
 watch([() => cloneDeep(props.value), () => cloneDeep(props.shape)], ([newPropsValue, newPropsShape], [oldPropsValue, oldPropsShape]) => {
   // updateBuildLength();
   if (!isEqual(newPropsValue, oldPropsValue) && build.value.length) updateBuildPropsValue();
-  if (!isEqual(newPropsShape.path["@id"], oldPropsShape.path["@id"])) init();
+  if (!isEqual(newPropsShape.path.iri, oldPropsShape.path.iri)) init();
 });
 
 watch(
@@ -172,7 +171,7 @@ const finishedChildLoading = computed(
 );
 
 function init() {
-  key = props.shape.path["@id"];
+  key = props.shape.path.iri;
   createBuild();
 }
 
@@ -321,12 +320,12 @@ function moveItemUp(item: ComponentDetails) {
   if (item.position === 0) return;
   const found = build.value.find(o => o.position === item.position);
   if (found && found.showButtons) {
-    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+    if (props.shape.path.iri === SHACL.PROPERTY) {
       found.showButtons.plus = false;
     }
     build.value.splice(item.position, 1);
     build.value.splice(item.position - 1, 0, found);
-    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+    if (props.shape.path.iri === SHACL.PROPERTY) {
       const i = build.value.length - 1;
       const lastItem = build.value[i];
       if (lastItem.showButtons) {
@@ -341,7 +340,7 @@ function moveItemDown(item: ComponentDetails) {
   if (item.position === build.value.length - 1) return;
   const found = build.value.find(o => o.position === item.position);
   if (found) {
-    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+    if (props.shape.path.iri === SHACL.PROPERTY) {
       const i = build.value.length - 1;
       const lastItem = build.value[i];
       if (lastItem.showButtons) {
@@ -350,7 +349,7 @@ function moveItemDown(item: ComponentDetails) {
     }
     build.value.splice(item.position, 1);
     build.value.splice(item.position + 1, 0, found);
-    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+    if (props.shape.path.iri === SHACL.PROPERTY) {
       const i = build.value.length - 1;
       const lastItem = build.value[i];
       if (lastItem.showButtons) {

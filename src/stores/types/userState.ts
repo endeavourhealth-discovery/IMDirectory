@@ -1,6 +1,6 @@
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
-import { Namespace, RecentActivityItem, HistoryItem, FilterOptions, User } from "@/interfaces";
+import { RecentActivityItem, HistoryItem, User } from "@/interfaces";
 
 export interface UserState {
   cookiesEssentialAccepted: boolean;
@@ -17,4 +17,5 @@ export interface UserState {
   snomedLicenseAccepted: boolean;
   uprnAgreementAccepted: boolean;
   organisations: string[];
+  includeUserGraph: boolean;
 }

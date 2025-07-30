@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, ref, Ref } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
@@ -41,22 +41,22 @@ const directorySearchTerm: Ref<string> = ref("");
 const updateSearch: Ref<boolean> = ref(false);
 const storeSelectedFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 
-function onSelectedFiltersUpdated(filters: FilterOptions) {
+async function onSelectedFiltersUpdated(filters: FilterOptions) {
   filterStore.updateSelectedFilterOptions(filters);
-  if (directorySearchTerm.value && directorySearchTerm.value.length > 2) toSearch();
+  if (directorySearchTerm.value && directorySearchTerm.value.length > 2) await toSearch();
 }
 
-function toSearch() {
-  router.push({ name: "Search" });
+async function toSearch() {
+  await router.push({ name: "Search" });
   updateSearch.value = !updateSearch.value;
 }
 
-function toEclSearch() {
-  router.push({ name: "EclSearch" });
+async function toEclSearch() {
+  await router.push({ name: "EclSearch" });
 }
 
-function toQuerySearch() {
-  router.push({ name: "IMQuerySearch" });
+async function toQuerySearch() {
+  await router.push({ name: "IMQuerySearch" });
 }
 </script>
 
@@ -78,22 +78,8 @@ function toQuerySearch() {
   align-items: center;
 }
 
-body {
-  overflow: hidden;
-}
-
-.loading-container {
-  width: 100%;
-  height: 100%;
-}
-
 #app-content-container {
   flex: 1 1 auto;
   overflow: auto;
-}
-
-#topbar-container {
-  height: 4rem;
-  width: 100vw;
 }
 </style>

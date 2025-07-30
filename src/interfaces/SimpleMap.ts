@@ -1,5 +1,5 @@
 export interface SimpleMap {
-  "@id": string;
+  iri: string;
   code: string;
   name: string;
   scheme: string;

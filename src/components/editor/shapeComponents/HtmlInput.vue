@@ -4,17 +4,25 @@
       <span v-if="shape.showTitle">{{ shape.name }}</span>
       <span v-if="showRequired" class="required">*</span>
     </div>
-    <Textarea class="p-inputtext-lg input-html" :class="invalid && showValidation && 'invalid'" v-model="userInput" data-testid="html-input" rows="4" @drop.prevent />
+    <Textarea
+      class="p-inputtext-lg input-html"
+      :class="invalid && showValidation && 'invalid'"
+      v-model="userInput"
+      data-testid="html-input"
+      rows="4"
+      @drop.prevent
+    />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType, Ref, ComputedRef, computed } from "vue";
+import { ref, watch, onMounted, inject, Ref, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape } from "@/interfaces/AutoGen";
 import { EditorMode } from "@/enums";
 import { cloneDeep } from "lodash-es";
+import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   shape: PropertyShape;
@@ -27,17 +35,16 @@ const props = withDefaults(defineProps<Props>(), {
   value: ""
 });
 
-const emit = defineEmits({ updateClicked: (_payload: string) => true });
+const emit = defineEmits<{ updateClicked: [payload: string] }>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const editorEntity = inject(injectionKeys.editorEntity)!.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)!.valueVariableMap;
 const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
-const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
@@ -76,7 +83,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   else return false;
 });
 
-let key = props.shape.path["@id"];
+let key = props.shape.path.iri;
 
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -100,7 +107,7 @@ watch(userInput, async newValue => {
 });
 
 function updateEntity(data: string) {
-  const result = {} as any;
+  const result = {} as TTEntity;
   result[key] = textToHtml(data);
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

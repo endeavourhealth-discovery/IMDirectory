@@ -18,21 +18,21 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import GraphComponent from "./GraphComponent.vue";
-import { TTGraphData, TTBundle } from "@/interfaces";
+import { TTGraphData } from "@/interfaces";
 import { GraphTranslator, DataTypeCheckers } from "@/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
+import { TTBundle } from "@/interfaces/ExtendedAutoGen";
 const { translateFromEntityBundle } = GraphTranslator;
 const { isObjectHasKeys } = DataTypeCheckers;
 
-interface Props {
+const props = defineProps<{
   entityIri: string;
-}
-const props = defineProps<Props>();
+}>();
 
-const emit = defineEmits({
-  navigateTo: (_payload: string) => true
-});
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 
 watch(
   () => props.entityIri,
@@ -46,17 +46,16 @@ const selectedIris: Ref<string[]> = ref([]);
 const predicatesIris: Ref<string[]> = ref([]);
 const bundle: Ref<TTBundle> = ref({} as TTBundle);
 const options: Ref<{ iri: string; name: string }[]> = ref([]);
-const predicates: Ref<any[]> = ref([]);
 
 const graphExcludePredicates: Ref<string[]> = ref([]);
 
 onMounted(async () => {
   const result = await EntityService.getEntityChildren(IM.GRAPH_EXCLUDE_PREDICATES);
-  if (result) graphExcludePredicates.value = result.map(r => r["@id"]);
+  if (result) graphExcludePredicates.value = result.map(r => r.iri);
   await getEntityBundle(props.entityIri);
 });
 
-async function updatePredicates() {
+function updatePredicates() {
   selectedIris.value = [];
   selectedPredicates.value.forEach(i => {
     selectedIris.value.push(i.iri);
@@ -72,10 +71,10 @@ async function getEntityBundle(iri: string) {
     bundle.value.entity[IM.HAS_MEMBER] = hasMember.result;
     bundle.value.predicates[IM.HAS_MEMBER] = "has member";
   }
-  if (hasMember.totalCount >= 10) {
-    bundle.value.entity[IM.HAS_MEMBER] = bundle.value.entity[IM.HAS_MEMBER].concat({ "@id": "seeMore", name: "see more..." });
+  if (hasMember.totalCount && hasMember.totalCount >= 10) {
+    bundle.value.entity[IM.HAS_MEMBER] = bundle.value.entity[IM.HAS_MEMBER].concat({ iri: "seeMore", name: "see more..." });
   }
-  predicatesIris.value = Object.keys(bundle.value.entity).filter(value => value !== "@id");
+  predicatesIris.value = Object.keys(bundle.value.entity).filter(value => value !== "iri");
   predicatesIris.value.forEach(i => {
     if (!graphExcludePredicates.value.find(gep => gep === i)) options.value.push({ iri: i, name: bundle.value.predicates[i] });
   });

@@ -71,7 +71,7 @@ onMounted(() => {
 
 watch(checked, newValue => {
   if (!newValue && deleteEntityKey && isObjectHasKeys(props.shape, ["path"])) {
-    deleteEntityKey(props.shape.path!["@id"]);
+    deleteEntityKey(props.shape.path!.iri);
     if (removeValidationCheckStatus && props.shape.property && isArrayHasLength(props.shape.property)) {
       for (const property of props.shape.property) {
         removeValidationCheckStatus(property);
@@ -89,15 +89,15 @@ function setLabels() {
 }
 
 function setChecked() {
-  if (isObjectHasKeys(props.shape, ["path"]) && isObjectHasKeys(editorEntity, [props.shape.path!["@id"]])) {
+  if (isObjectHasKeys(props.shape, ["path"]) && isObjectHasKeys(editorEntity, [props.shape.path!.iri])) {
     checked.value = true;
   }
 }
 
 function processEntityValue(property: PropertyShape | undefined) {
   if (!property) throw new Error("Property is undefined");
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
-    return editorEntity[property.path!["@id"]];
+  if (editorEntity && isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!.iri])) {
+    return editorEntity[property.path!.iri];
   }
   return undefined;
 }
@@ -121,11 +121,6 @@ function processEntityValue(property: PropertyShape | undefined) {
 
 .toggleable-entity-search:deep(.label-container) {
   border-color: var(--p-red-500);
-}
-
-.label {
-  font-size: 1rem;
-  color: var(--p-text-color);
 }
 
 .title {
