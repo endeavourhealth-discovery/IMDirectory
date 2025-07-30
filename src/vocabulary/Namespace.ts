@@ -37,7 +37,7 @@ export class Namespace {
   public static readonly IM_EDITOR = "http://endhealth.info/im#Editor_"
   public static readonly IM_QUERY = "http://endhealth.info/im#Query_"
   public static readonly IM_VALIDATION = "http://endhealth.info/im#Validation_"
-  public static readonly IM_CODE_TEMPLATE = "http://endhealth.info/im#codeTemplate#"
+  public static readonly IM_CODE_TEMPLATE = "http://endhealth.info/codeTemplate#"
   public static readonly TPP = "http://endhealth.info/tpp#"
   public static readonly ENCOUNTERS = "http://endhealth.info/enc#"
   public static readonly ICD10 = "http://endhealth.info/icd10#"
