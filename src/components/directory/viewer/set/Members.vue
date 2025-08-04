@@ -1,5 +1,6 @@
 <template>
   <div id="members-table-container">
+
     <DataTable
       :value="members"
       showGridlines

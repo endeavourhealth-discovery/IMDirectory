@@ -144,7 +144,6 @@ declare module 'vue' {
     ImqueryAddNewFeatureDialogSearchBarWithRadioFilters: typeof import('./src/components/imquery/addNewFeatureDialog/SearchBarWithRadioFilters.vue')['default']
     ImqueryAddNewFeatureDialogSearchResultsAndDetails: typeof import('./src/components/imquery/addNewFeatureDialog/SearchResultsAndDetails.vue')['default']
     ImqueryAddNewFeatureDialogSelectedSet: typeof import('@/components/imquery/SelectedSet.vue')['default']
-    ImqueryAddProperty: typeof import('./src/components/imquery/AddProperty.vue')['default']
     ImqueryBaseTypeEditor: typeof import('./src/components/imquery/BaseTypeEditor.vue')['default']
     ImqueryBaseTypeSelector: typeof import('./src/components/imquery/BaseTypeSelector.vue')['default']
     ImqueryBooleanEditor: typeof import('./src/components/imquery/BooleanEditor.vue')['default']

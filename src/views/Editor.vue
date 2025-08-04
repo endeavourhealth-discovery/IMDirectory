@@ -115,7 +115,7 @@ const filterStore = useFilterStore();
 const dynamicDialog = useDialog();
 const autocompletes = new Map<HTMLElement, () => void>();
 const directService = new DirectService();
-const { editorEntity, editorEntityOriginal, fetchEntity, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
+const { fetchEntity, editorEntity, editorEntityOriginal, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
   setupEditorEntity(EditorMode.EDIT, updateType);
 const { shape, getShapesCombined, groups, processShape } = setupEditorShape();
 const {

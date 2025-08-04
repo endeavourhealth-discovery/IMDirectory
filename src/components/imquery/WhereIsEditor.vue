@@ -100,7 +100,15 @@
         </template>
       </Select>
       <div>
-        <Button icon="fa-solid fa-trash" severity="danger" @click="deleteNode(index)" />
+        <Button
+          @click.stop="deleteNode(index)"
+          :class="!hoverDeleteNode && 'hover-button'"
+          :severity="hoverDeleteNode ? 'danger' : 'secondary'"
+          :outlined="!hoverDeleteNode"
+          icon="fa-solid fa-trash"
+          @mouseover="hoverDeleteNode = true"
+          @mouseout="hoverDeleteNode = false"
+        />
       </div>
     </div>
   </div>
@@ -124,6 +132,7 @@ import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { getTypeIcon, getIconColor } from "@/helpers/ConceptTypeVisuals";
 import { UIProperty } from "@/interfaces";
 import SetService from "@/services/SetService";
+import Button from "primevue/button";
 interface Props {
   parent?: any;
   uiProperty: UIProperty;
@@ -136,6 +145,7 @@ const nodeInclusion: Ref<string> = ref("Include");
 const filterStore = useFilterStore();
 const coreSchemes = computed(() => filterStore.coreSchemes);
 const loading = ref(false);
+const hoverDeleteNode = ref(false);
 const selected: Ref<SearchResultSummary> = ref({ iri: node.value.iri, name: node.value.name } as SearchResultSummary);
 const selectedMember: Ref<Node> = ref({});
 const imQueryForConceptSearch: Ref<QueryRequest | undefined> = ref();
@@ -150,11 +160,9 @@ function isConstraintEditable(node: Node): boolean {
     if (node.type === IM.CONCEPT_SET) {
       return false;
     }
-    if (node.type === IM.CONCEPT) {
-      return true;
-    }
+    if (node.memberOf) return false;
   }
-  return false;
+  return true;
 }
 
 async function init() {

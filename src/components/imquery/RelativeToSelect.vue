@@ -1,16 +1,14 @@
 <template>
-  <div class="relative-to-select-dialog">
-    <TreeSelect
-      :model:value="selectedTarget"
-      :options="nodes"
-      :placeholder="defaultTargetLabel"
-      :loading="loading"
-      :expanded-keys="expandedKeys"
-      selection-mode="single"
-      @node-select="onNodeSelect"
-    >
-    </TreeSelect>
-  </div>
+  <TreeSelect
+    :model:value="selectedTarget"
+    :options="nodes"
+    :placeholder="defaultTargetLabel"
+    :loading="loading"
+    :expanded-keys="expandedKeys"
+    selection-mode="single"
+    @node-select="onNodeSelect"
+  >
+  </TreeSelect>
 </template>
 
 <script setup lang="ts">

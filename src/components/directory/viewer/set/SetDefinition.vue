@@ -155,6 +155,7 @@ onMounted(async () => {
   if (entity.value[RDFS.SUBCLASS_OF]) {
     subclassOf.value = entity.value[RDFS.SUBCLASS_OF];
   }
+  if (!hasDefinition.value) showMembers.value = true;
 });
 
 async function onCopy(event: MouseEvent) {

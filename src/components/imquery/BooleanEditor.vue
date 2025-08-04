@@ -62,7 +62,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
-const parentMatch = defineModel<Match>("parentMatch", { default: {} });
+const parentMatch = defineModel<Match|Where>("parentMatch", { default: {} });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateOperator", "activateInput", "navigateTo"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;

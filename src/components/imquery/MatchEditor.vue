@@ -27,27 +27,29 @@
       </div>
       <div v-if="match.instanceOf || match.where" class="where-container">
         <CohortEditor v-if="match.instanceOf" v-model:match="match" v-model:editMode="editCohort" />
-        <div v-else-if="match.where && !match.where.and">
+        <div v-else-if="match.where">
           <PropertyEditor
-            :data-model-iri="getDataModelFromNodeRef(match, match.where.nodeRef, baseType.iri!)"
             :edit-match="match"
+            :base-type="baseType"
             v-model:property="match.where"
-          />
-        </div>
-        <div v-else-if="match.where && match.where.and" v-for="(item, index) in match.where.and">
-          <PropertyEditor
-            :data-model-iri="getDataModelFromNodeRef(match, item.nodeRef, baseType.iri!)"
-            :edit-match="match"
-            v-model:property="match.where.and[index]"
+            :clauseIndex="0"
+            @addProperty="showPropertySelector = true"
           />
         </div>
       </div>
-      <div v-if="match.path">
-        <span>Add more properties</span>
+      <div v-if="match.path || from">
+        <span>Add more properties </span>
       </div>
-      <span>
-        <MatchTypeSelector :base-type="baseType" v-model:match="match" :rootNodes="rootNodes" @node-selected="onMatchTypeSelected($event)" />
-      </span>
+      <div v-if="showPropertySelector">
+        <MatchTypeSelector
+          :base-type="baseType"
+          v-model:match="match"
+          :rootNodes="rootNodes"
+          :from="from"
+          @node-selected="onMatchTypeSelected($event)"
+          @cancel="showPropertySelector = false"
+        />
+      </div>
       <template #footer>
         <div class="button-footer">
           <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
@@ -60,22 +62,24 @@
 
 <script lang="ts" setup>
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { DisplayMode, Match, Node, TTIriRef } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Match, Node, TTIriRef } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DataModelService, EntityService, QueryService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
-import { addWhereToMatch, getDataModelFromNodeRef, setReturn } from "@/composables/buildQuery";
+import { addWhereToMatch, getDataModelFromNodeRef, setReturn, hasBoolGroups } from "@/composables/buildQuery";
 import MatchTypeSelector from "@/components/imquery/MatchTypeSelector.vue";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import PropertyEditor from "@/components/imquery/PropertyEditor.vue";
 import setupPropertyTree from "@/composables/setupPropertyTree";
 import { isEqual } from "lodash-es";
+import ClauseEditor from "@/components/imquery/ClauseEditor.vue";
+import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 
 interface Props {
-  index?: number;
   baseType: Node;
+  from?: Match;
 }
 
 const props = defineProps<Props>();
@@ -85,10 +89,12 @@ const emit = defineEmits<{
   (event: "saveChanges"): void;
   (event: "cancel"): void;
 }>();
+
 const { createFeatureTree, getRootNodes } = setupPropertyTree();
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
 const templates: Ref<any> = ref();
+const showPropertySelector = ref(false);
 const loading = ref(true);
 const keepAs: Ref<string> = ref("");
 const editCohort = ref(false);
@@ -112,14 +118,23 @@ onMounted(async () => {
 async function init() {
   loading.value = true;
   propertyTree.value = await createFeatureTree(props.baseType);
-  if (match.value.path) {
+  if (props.from) {
+    rootNodes.value = await getRootNodes(props.from, propertyTree.value[1].children!);
+  } else if (match.value.path) {
     rootNodes.value = await getRootNodes(match.value, propertyTree.value[1].children!);
-  }
+  } else rootNodes.value = propertyTree.value;
   templates.value = await getFunctionTemplates();
   loading.value = false;
+  if (!isDefined()) showPropertySelector.value = true;
+}
+
+function isDefined(): boolean {
+  if (match.value.instanceOf || match.value.where) return true;
+  else return false;
 }
 
 async function onMatchTypeSelected(node: TreeNode) {
+  showPropertySelector.value = false;
   if (node.data.iri === "cohort") {
     editCohort.value = true;
   } else {

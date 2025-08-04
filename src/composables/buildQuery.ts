@@ -208,6 +208,17 @@ export function deleteMatchFromParent(parentMatch: Match, index: number) {
   }
 }
 
+export function deletePropertyFromParent(match: Match, parentWhere: Where, index: number) {
+  if (parentWhere) {
+    for (const key of ["and", "or"] as const) {
+      if (parentWhere[key]) {
+        parentWhere[key]!.splice(index, 1);
+      }
+    }
+  } else {
+    delete match.where;
+  }
+}
 function getPaths(match: Match): Record<string, string> | undefined {
   if (!match.path) return undefined;
   const paths = {} as Record<string, string>;

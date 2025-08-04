@@ -1,9 +1,9 @@
 <template>
-  <MatchEditor v-if="showEditor" v-model:match="match" v-model:showMatchEditor="showEditor"  :baseType="baseType" @cancel="cancelEditMatch"/>
+  <MatchEditor v-if="showEditor" v-model:match="match" v-model:showMatchEditor="showEditor" :baseType="baseType" :from="from" @cancel="cancelEditMatch" />
   <div class="nested-match">
     <div v-if="parentOperator === Bool.rule" class="rule">Rule {{ clauseIndex }}</div>
-    <span v-if="hasBoolGroups(match)">
-      <span v-for="operator in operators" :key="operator">
+    <div v-if="hasBoolGroups(match)">
+      <div v-for="operator in operators" :key="operator">
         <div v-if="match[operator]">
           <div class="match-clause">
             <BooleanEditor
@@ -34,8 +34,8 @@
             />
           </div>
         </div>
-      </span>
-    </span>
+      </div>
+    </div>
     <div v-else class="match-clause">
       <div v-if="parentMatch?.union && !from" class="number">{{ getSubrule(parentIndex, clauseIndex + 1) }}</div>
       <BooleanEditor

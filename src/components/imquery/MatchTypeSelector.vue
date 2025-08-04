@@ -1,38 +1,52 @@
 <template>
-  <div id="tree-container" @click.stop>
-    <Tree
-      v-model:expandedKeys="expandedKeys"
-      :selectionKeys="selectedNodeKey"
-      :loading="loading"
-      :value="rootNodes"
-      :lazy="true"
-      icon="loading"
-      @node-expand="expandNode"
-      @nodeSelect="onNodeSelect"
-      selectionMode="single"
-    >
-      <template #default="{ node }: any">
-        <div class="items-center">
-          <ProgressSpinner v-if="node.loading" class="progress-spinner" />
-          <IMFontAwesomeIcon
-            v-if="node.data.typeIcon && !node.loading"
-            :icon="node.data.typeIcon"
-            :style="'color:' + node.data.color"
-            class="mr-2"
-            fixed-width
-          />
-          <span class="tree-node-label">{{ node.label }}</span>
-          <IMFontAwesomeIcon
-            v-if="node.data.rangeTypeIcon && !node.loading"
-            :icon="node.data.rangeTypeIcon"
-            :style="'color:' + node.data.rangeTypeColor"
-            class="mr-2"
-            fixed-width
-          />
-        </div>
-      </template>
-    </Tree>
-  </div>
+  <Dialog
+    :visible="true"
+    modal
+    :draggable="false"
+    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
+    class="edit-match-dialog"
+    maximizable
+  >
+    <div id="tree-container" @click.stop>
+      <Tree
+        v-model:expandedKeys="expandedKeys"
+        :selectionKeys="selectedNodeKey"
+        :loading="loading"
+        :value="rootNodes"
+        :lazy="true"
+        icon="loading"
+        @node-expand="expandNode"
+        @nodeSelect="onNodeSelect"
+        selectionMode="single"
+      >
+        <template #default="{ node }: any">
+          <div class="items-center">
+            <ProgressSpinner v-if="node.loading" class="progress-spinner" />
+            <IMFontAwesomeIcon
+              v-if="node.data.typeIcon && !node.loading"
+              :icon="node.data.typeIcon"
+              :style="'color:' + node.data.color"
+              class="mr-2"
+              fixed-width
+            />
+            <span class="tree-node-label">{{ node.label }}</span>
+            <IMFontAwesomeIcon
+              v-if="node.data.rangeTypeIcon && !node.loading"
+              :icon="node.data.rangeTypeIcon"
+              :style="'color:' + node.data.rangeTypeColor"
+              class="mr-2"
+              fixed-width
+            />
+          </div>
+        </template>
+      </Tree>
+    </div>
+    <template #footer>
+      <div class="button-footer">
+        <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
+      </div>
+    </template>
+  </Dialog>
 </template>
 
 <script lang="ts" setup>
@@ -54,7 +68,7 @@ const expandedKeys = ref<Record<string, boolean>>({});
 const emit = defineEmits<{
   (event: "node-selected", node: any): void;
   (event: "navigateTo", iri: string): void;
-  (event: "onCancel", visible: boolean): void;
+  (event: "cancel"): void;
 }>();
 const { expandNode, loading } = setupPropertyTree();
 const selectedNodeKey = ref<TreeSelectionKeys | undefined>(undefined);
@@ -76,6 +90,9 @@ function onNodeSelect(node: any) {
   if (node.selectable) {
     emit("node-selected", node);
   }
+}
+function onCancel() {
+  emit("cancel");
 }
 </script>
 
