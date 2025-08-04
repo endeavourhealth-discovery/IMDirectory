@@ -18,20 +18,37 @@
     <div v-if="!loading">
       <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
     </div>
+    <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
+      <SQLDisplay :sql="sql" />
+      <template #footer>
+        <Button
+          v-clipboard:copy="copyToClipboard()"
+          v-clipboard:error="onCopyError"
+          v-clipboard:success="onCopy"
+          v-tooltip.left="'Copy to clipboard'"
+          data-testid="copy-button"
+          label="Copy to Clipboard"
+        ></Button>
+        <Button data-testid="close-button" label="Close" @click="showSql = false" />
+      </template>
+    </Dialog>
+    <TestQueryResults :show-dialog="showTestQueryResults" :test-query-results="queryTestResults" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode } from "@/enums";
-import { DisplayMode, PropertyShape, Query } from "@/interfaces/AutoGen";
+import { DisplayMode, PropertyShape, Query, QueryRequest } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import QueryEditor from "@/components/imquery/QueryEditor.vue";
+import SQLDisplay from "@/components/directory/viewer/SQLDisplay.vue";
 
 interface Props {
   mode: EditorMode;
@@ -70,6 +87,8 @@ const invalid = ref(false);
 const showValidation = ref(false);
 const showSql: Ref<boolean> = ref(false);
 const sql: Ref<string> = ref("");
+const queryTestResults: Ref<string[]> = ref([]);
+const showTestQueryResults = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
 
 const key = props.shape.path.iri;
@@ -132,6 +151,10 @@ function updateEntity() {
     imDefinition[IM.DEFINITION] = JSON.stringify(cloneDeep(queryDefinition.value));
     if (entityUpdate) entityUpdate(imDefinition);
   }
+}
+
+function updateQueryDefinition(test: any) {
+  queryDefinition.value = test;
 }
 </script>
 
