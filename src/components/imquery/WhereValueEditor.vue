@@ -90,7 +90,7 @@ import { IM, XSD } from "@/vocabulary";
 import { Range, Where, RelativeTo, Operator } from "@/interfaces/AutoGen";
 import RelativeToSelect from "./RelativeToSelect.vue";
 import { UIProperty } from "@/interfaces";
-import { operatorOptions, getWhereDisplay, relativityOptions } from "@/helpers/QueryEditorOptions";
+import { operatorOptions, getWhereDisplay, relativityOptions } from "@/helpers/QueryEditorMethods";
 import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import { cloneDeep } from "lodash-es";
 interface Props {

@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { getDateFromString, relativityOptions, operatorOptions } from "@/helpers/QueryEditorOptions";
+import { getDateFromString, relativityOptions, operatorOptions } from "@/helpers/QueryEditorMethods";
 import { Assignable, RelativeTo } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { IM, XSD } from "@/vocabulary";

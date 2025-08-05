@@ -5,8 +5,8 @@
       severity="secondary"
       text
       draggable="true"
-      @dragstart="onDragStart($event, match, parentMatch)"
-      @dragend="onDragEnd(match, parentMatch)"
+      @dragstart="onDragStart($event, match, parentClause)"
+      @dragend="onDragEnd(match, parentClause)"
     />
   </div>
   <span v-if="parentOperator != Bool.rule">
@@ -14,7 +14,7 @@
       <Select
         :disabled="parentGroup.length > 0 && (!parentGroup.includes(clauseIndex) || parentGroup.length === 1)"
         :modelValue="parentOperator"
-        :options="getBooleanOptions(match, parentMatch!, parentOperator as Bool, 'Match', clauseIndex, true, hasSubgroups)"
+        :options="getBooleanOptions(match, parentClause!, parentOperator as Bool,'Match', clauseIndex, true, hasSubgroups, grandParentOperator)"
         option-label="label"
         option-value="value"
         data-testid="operator-selector"
@@ -28,8 +28,8 @@
   </span>
   <div class="group-checkbox">
     <Checkbox
-      v-if="isGroupable(rootBool, parentMatch, parentOperator)"
-      :disabled="parentGroup.length + 1 === (parentMatch[parentOperator as keyof typeof parentMatch] as Match[]).length && !parentGroup.includes(clauseIndex)"
+      v-if="isGroupable(rootBool, parentClause, parentOperator)"
+      :disabled="parentGroup.length + 1 === (parentClause[parentOperator as keyof typeof parentClause] as Match[]).length && !parentGroup.includes(clauseIndex)"
       :inputId="'group' + clauseIndex"
       name="Group"
       :value="clauseIndex"
@@ -58,11 +58,12 @@ interface Props {
   from?: Match;
   parentOperator?: Bool;
   hasSubgroups?: boolean;
+  grandParentOperator?: Bool;
 }
 
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
-const parentMatch = defineModel<Match|Where>("parentMatch", { default: {} });
+const parentClause = defineModel<Match|Where>("parentClause", { default: {} });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateOperator", "activateInput", "navigateTo"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;

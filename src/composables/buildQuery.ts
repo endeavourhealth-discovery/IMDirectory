@@ -158,16 +158,28 @@ export function hasBoolGroups(clause: Match | Where) {
   return !!(clause.or || clause.and);
 }
 
-export function getBooleanLabel(clauseType: string, operator: Bool, index: number, standardQuery?: boolean, hasSubgroups?: boolean, union?: boolean): string {
+export function getBooleanLabel(
+  clauseType: string,
+  operator: Bool,
+  index: number,
+  standardQuery?: boolean,
+  hasSubgroups?: boolean,
+  union?: boolean,
+  grandParentOperator?: Bool
+): string {
   const isFirst = index === 0;
   const isMatch = clauseType === "Match";
   if (operator === Bool.and) {
-    if (hasSubgroups) return isFirst ? "all of the following" : "and all of the following";
+    if (hasSubgroups)
+      return isFirst ? "all of the following" : (grandParentOperator && grandParentOperator === Bool.or ? "or " : "and ") + "all of the following";
     else return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
   }
   if (operator === Bool.or) {
     if (union) return "merge results from the following";
-    if (hasSubgroups) return isFirst ? "at least one of the following" : "or at least one of the following";
+    if (hasSubgroups)
+      return isFirst
+        ? "at least one of the following"
+        : (grandParentOperator && grandParentOperator === Bool.and ? "and " : "or ") + "at least one of the following";
     else return isFirst ? (isMatch ? "Either" : "Either") : "Or";
   }
   return standardQuery ? (hasSubgroups ? "Exclude if the following" : "Exclude") : "Minus";
@@ -219,6 +231,33 @@ export function deletePropertyFromParent(match: Match, parentWhere: Where, index
     delete match.where;
   }
 }
+
+function addPath(match: Match, flatPath: string): string | undefined {
+  if (!match.path) {
+    match.path = [];
+  }
+  let matchPath: Path | undefined = undefined;
+  const paths = flatPath.split("\t");
+  for (let i = 0; i < paths.length - 1; i++) {
+    if (!matchPath) {
+      match.path.push({ iri: paths[i], typeOf: { iri: paths[i + 1] } });
+      matchPath = match.path[0];
+    } else {
+      matchPath.path = [];
+      matchPath.path.push({ iri: paths[i], typeOf: { iri: paths[i + 1] } });
+      matchPath = matchPath.path[0];
+    }
+  }
+  const refNumber = Object.keys(paths || {}).length + 1;
+  let lastPart = paths[paths.length - 1];
+  if (lastPart.includes("#")) lastPart = lastPart.split("#")[1];
+  const nodeRef = lastPart + refNumber.toString();
+  if (matchPath) {
+    matchPath.variable = nodeRef;
+    return nodeRef;
+  }
+  return undefined;
+}
 function getPaths(match: Match): Record<string, string> | undefined {
   if (!match.path) return undefined;
   const paths = {} as Record<string, string>;
@@ -254,9 +293,7 @@ export function addWhereToMatch(match: Match, node: TreeNode, property: string) 
     if (paths && path in paths) {
       nodeRef = paths[path];
     } else {
-      const refNumber = Object.keys(paths || {}).length + 1;
-      const lastPart = path.split("\t").at(-1) ?? "";
-      nodeRef = lastPart + refNumber.toString();
+      nodeRef = addPath(match, path);
     }
   }
   const where = {} as Where;
@@ -398,13 +435,14 @@ export function getBooleanOptions(
   clauseType: string,
   index: number,
   standardQuery?: boolean,
-  hasSubgroups?: boolean
+  hasSubgroups?: boolean,
+  grandParentOperator?: Bool
 ): any[] {
   const operator = parentOperator as keyof typeof parent;
   const union = ("union" in parent) as boolean;
   const notLabel = getBooleanLabel(clauseType, Bool.not, index, standardQuery, hasSubgroups);
-  const andLabel = getBooleanLabel(clauseType, Bool.and, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups);
-  const orLabel = getBooleanLabel(clauseType, Bool.or, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups, union);
+  const andLabel = getBooleanLabel(clauseType, Bool.and, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups, union, grandParentOperator);
+  const orLabel = getBooleanLabel(clauseType, Bool.or, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups, union, grandParentOperator);
   const options = [];
   if (parentOperator === Bool.not) {
     options.push({

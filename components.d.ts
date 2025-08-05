@@ -148,6 +148,8 @@ declare module 'vue' {
     ImqueryBaseTypeEditor: typeof import('./src/components/imquery/BaseTypeEditor.vue')['default']
     ImqueryBaseTypeSelector: typeof import('./src/components/imquery/BaseTypeSelector.vue')['default']
     ImqueryBooleanEditor: typeof import('./src/components/imquery/BooleanEditor.vue')['default']
+    ImqueryBooleanMatchEditor: typeof import('./src/components/imquery/BooleanMatchEditor.vue')['default']
+    ImqueryBooleanWhereEditor: typeof import('./src/components/imquery/BooleanWhereEditor.vue')['default']
     ImqueryClauseEditor: typeof import('./src/components/imquery/ClauseEditor.vue')['default']
     ImqueryCohortEditor: typeof import('./src/components/imquery/CohortEditor.vue')['default']
     ImqueryDateSelect: typeof import('./src/components/imquery/DateSelect.vue')['default']

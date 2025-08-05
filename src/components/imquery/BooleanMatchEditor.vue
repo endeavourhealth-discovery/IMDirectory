@@ -9,18 +9,19 @@
             <BooleanEditor
               v-if="showBoolean && operator !== 'not'"
               v-model:match="match"
-              v-model:parentMatch="parentMatch"
+              v-model:parentClause="parentMatch"
               :depth="depth"
               :hasSubgroups="true"
               :parentOperator="operator as Bool"
+              :grandParentOperator="parentOperator as Bool"
               :clauseIndex="clauseIndex"
               v-model:parentGroup="parentGroup"
-              @updateOperator="onUpdateOperator"
+              @updateOperator="onUpdateParentOperator"
               :rootBool="false"
             />
           </div>
           <div v-for="(item, index) in match[operator]" :key="item.uuid">
-            <ClauseEditor
+            <BooleanMatchEditor
               v-model:match="match[operator]![index]"
               v-model:parentMatch="match"
               :depth="depth + 1"
@@ -41,7 +42,7 @@
       <BooleanEditor
         v-if="showBoolean"
         v-model:match="match"
-        v-model:parentMatch="parentMatch"
+        v-model:parentClause="parentMatch"
         :depth="depth"
         :parentOperator="parentOperator"
         :clauseIndex="clauseIndex"
@@ -94,7 +95,7 @@
       </div>
     </div>
     <div v-if="match.then">
-      <ClauseEditor
+      <BooleanMatchEditor
         v-model:match="match.then"
         :from="match"
         :depth="depth + 1"
@@ -113,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool, Node, SearchResultSummary } from "@/interfaces/AutoGen";
+import { Match, Bool, Node, SearchResultSummary, Where } from "@/interfaces/AutoGen";
 import { inject, Ref, ref, computed, onMounted, watch } from "vue";
 import {
   hasBoolGroups,
@@ -192,6 +193,15 @@ function onUpdateOperator(val: string) {
   emit("updateBool", props.parentOperator, val, props.clauseIndex);
 }
 
+function onUpdateParentOperator(val: string) {
+  if (match.value.and) {
+    match.value.or = match.value.and;
+    delete match.value.and;
+  } else if (match.value.or) {
+    match.value.and = match.value.or;
+    delete match.value.or;
+  }
+}
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
   updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
 }

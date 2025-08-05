@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { getDateFromString, offsetOptions, operatorOptions, getInclusivityOptions } from "@/helpers/QueryEditorOptions";
+import { getDateFromString, offsetOptions, operatorOptions, getInclusivityOptions } from "@/helpers/QueryEditorMethods";
 import { Assignable, Operator, Range, RelativeTo, TTIriRef } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { IM, XSD } from "@/vocabulary";

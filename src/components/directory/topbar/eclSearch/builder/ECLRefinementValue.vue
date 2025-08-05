@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { getConstraintOperator, setConstraintOperator } from "@/composables/buildQuery";
-import { constraintOperatorOptions } from "@/helpers/QueryEditorOptions";
+import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
 import Button from "primevue/button";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { computed, inject, onMounted, ref, Ref, watch } from "vue";

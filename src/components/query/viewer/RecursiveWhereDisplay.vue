@@ -4,7 +4,7 @@
       <span :class="operator">
         <span>{{ getOperator(operator, index) }}</span>
       </span>
-      <span v-if="where.name" class="field">{{ where.name }}</span>
+      <span v-if="whereName" class="field">{{ whereName }}</span>
       <span v-if="eclQuery">=</span>
       <span v-if="where.valueLabel || where.qualifier">
         <span v-if="where.qualifier" class="field">{{ where.qualifier }}</span>
@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Where, Bool, Node } from "@/interfaces/AutoGen";
-import { computed, ref } from "vue";
+import { computed, Ref, ref, onMounted } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM } from "@/vocabulary/IM";
 import { getTypeIcon, getIconColor } from "@/helpers/ConceptTypeVisuals";
@@ -84,11 +84,11 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
+const whereName: Ref<string | undefined> = ref(undefined);
 const isExpanded = ref(props.expandedSet);
 const boolGroup = computed(() => {
   return {
@@ -97,6 +97,9 @@ const boolGroup = computed(() => {
   };
 });
 
+onMounted(async () => {
+  if (props.where.name && props.where.name != "concept") whereName.value = props.where.name;
+});
 function getOperator(operator: Bool | undefined, index: number): string {
   if (operator === "or") {
     if (index === 0) {

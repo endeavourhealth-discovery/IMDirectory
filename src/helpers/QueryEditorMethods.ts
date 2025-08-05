@@ -1,4 +1,4 @@
-import { Node, RelativeTo, Where, Assignable } from "@/interfaces/AutoGen";
+import { Node, RelativeTo, Where, Assignable, Match, Path } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 
 export const relativityOptions = [
@@ -265,4 +265,26 @@ export function getInclusivityOptions(fromOrTo: "from" | "to"): any[] {
     });
   }
   return results;
+}
+export function getPathName(nodeRef: string, match: Match): string {
+  if (!match.path) return "";
+  let flatPath = "";
+  for (const path of match.path) {
+    flatPath = flatPath + (path.name! === "" ? path.iri?.split("#")[1] : path.name);
+    if (path.variable === nodeRef) return flatPath;
+    flatPath = getPathNameFromPath(nodeRef, flatPath, path);
+  }
+  return flatPath;
+}
+
+function getPathNameFromPath(nodeRef: string, flatPath: string, path: Path): string {
+  flatPath = flatPath.concat("/");
+  if (path.path) {
+    for (const subPath of path.path) {
+      flatPath = flatPath.concat(subPath.name!);
+      if (path.variable === nodeRef) return flatPath;
+      flatPath = getPathNameFromPath(nodeRef, flatPath, path);
+    }
+  }
+  return flatPath;
 }

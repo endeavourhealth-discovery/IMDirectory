@@ -26,19 +26,10 @@
         <Textarea v-model="match.description" autoResize placeholder="Description" rows="2" type="text" />
       </div>
       <div v-if="match.instanceOf || match.where" class="where-container">
-        <CohortEditor v-if="match.instanceOf" v-model:match="match" v-model:editMode="editCohort" />
-        <div v-else-if="match.where">
-          <PropertyEditor
-            :edit-match="match"
-            :base-type="baseType"
-            v-model:property="match.where"
-            :clauseIndex="0"
-            @addProperty="showPropertySelector = true"
-          />
+        <CohortEditor v-if="match.instanceOf && !showPropertySelector" v-model:match="match" v-model:editMode="editCohort" />
+        <div v-else-if="match.where && !showPropertySelector">
+          <BooleanWhereEditor :match="match" :base-type="baseType" v-model:property="match.where" :clauseIndex="0" @addProperty="showPropertySelector = true" />
         </div>
-      </div>
-      <div v-if="match.path || from">
-        <span>Add more properties </span>
       </div>
       <div v-if="showPropertySelector">
         <MatchTypeSelector
@@ -71,10 +62,10 @@ import type { TreeNode } from "primevue/treenode";
 import { addWhereToMatch, getDataModelFromNodeRef, setReturn, hasBoolGroups } from "@/composables/buildQuery";
 import MatchTypeSelector from "@/components/imquery/MatchTypeSelector.vue";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
-import PropertyEditor from "@/components/imquery/PropertyEditor.vue";
+import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import setupPropertyTree from "@/composables/setupPropertyTree";
 import { isEqual } from "lodash-es";
-import ClauseEditor from "@/components/imquery/ClauseEditor.vue";
+import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 
 interface Props {
@@ -134,12 +125,11 @@ function isDefined(): boolean {
 }
 
 async function onMatchTypeSelected(node: TreeNode) {
-  showPropertySelector.value = false;
   if (node.data.iri === "cohort") {
     editCohort.value = true;
   } else {
-    if (node.data.range) {
-      const defaultPropertyShape = await DataModelService.getDefiningProperty(node.data.range);
+    if (node.data.typeOf) {
+      const defaultPropertyShape = await DataModelService.getDefiningProperty(node.data.typeOf);
       if (defaultPropertyShape.path) {
         addWhereToMatch(match.value, node, defaultPropertyShape.path.iri);
         match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
@@ -151,6 +141,7 @@ async function onMatchTypeSelected(node: TreeNode) {
       rootNodes.value = await getRootNodes(match.value, propertyTree.value[1].children!);
     }
   }
+  showPropertySelector.value = false;
 }
 async function getFunctionTemplates() {
   const iri = match.value?.typeOf?.iri;

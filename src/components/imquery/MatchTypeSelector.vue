@@ -3,10 +3,17 @@
     :visible="true"
     modal
     :draggable="false"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
+    :style="{ width: '80vw', height: '80vh', minWidth: '80vw', minHeight: '80vh' }"
     class="edit-match-dialog"
     maximizable
+    @close="onCancel"
   >
+    <template #header>
+      <div>
+        <strong>Property selector:</strong>
+      </div>
+    </template>
+    <div>Navigate the tree to the property you want to add and click</div>
     <div id="tree-container" @click.stop>
       <Tree
         v-model:expandedKeys="expandedKeys"
@@ -99,7 +106,7 @@ function onCancel() {
 <style scoped>
 #tree-container {
   width: 100%;
-  height: 100%;
+  height: 70rem;
   position: relative;
   overflow: auto;
 }

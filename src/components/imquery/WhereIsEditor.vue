@@ -1,5 +1,45 @@
 <template>
   <div class="set-container">
+    <div v-if="property.is && property.is.length > 0" v-for="(node, index) in property.is" :key="index" class="concept-container">
+      <div class="set-member-container">
+        <IMFontAwesomeIcon :icon="getTypeIcon(node)" :style="'color:' + getIconColor(node)" />
+        <span v-if="node.qualifier" v-html="node.qualifier"></span>
+        <IMViewerLink v-if="node.iri" :iri="node.iri" :label="node.name" :action="'view'" />
+        <span v-if="node.parameter">"{{ node.parameter }}" passed into query as a parameter at run time</span>
+      </div>
+      <Select
+        v-if="setMembers.length === 0"
+        style="width: 10.5rem; min-height: 2.3rem"
+        :disabled="!isConstraintEditable(node)"
+        :modelValue="getPlainConstraintOperatorValue(node)"
+        :options="plainConstraintOperatorOptions"
+        option-label="label"
+        option-value="value"
+        @update:modelValue="val => setConstraintOperator(node, val)"
+      >
+        <template #value="slotProps">
+          <div v-if="slotProps.value" class="flex items-center">
+            <div>{{ getPlainConstraintOperatorLabel(node) }}</div>
+          </div>
+        </template>
+        <template #option="slotProps">
+          <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+            <div>{{ slotProps.option.label }}</div>
+          </div>
+        </template>
+      </Select>
+      <div>
+        <Button
+          @click.stop="deleteNode(index)"
+          :class="!hoverDeleteNode && 'hover-button'"
+          :severity="hoverDeleteNode ? 'danger' : 'secondary'"
+          :outlined="!hoverDeleteNode"
+          icon="fa-solid fa-trash"
+          @mouseover="hoverDeleteNode = true"
+          @mouseout="hoverDeleteNode = false"
+        />
+      </div>
+    </div>
     <div class="concept-container">
       <template v-if="setMembers.length === 0">
         <div class="selected-member-container">
@@ -71,46 +111,6 @@
       </template>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     </div>
-    <div v-if="property.is && property.is.length > 0" v-for="(node, index) in property.is" :key="index" class="concept-container">
-      <div class="set-member-container">
-        <IMFontAwesomeIcon :icon="getTypeIcon(node)" :style="'color:' + getIconColor(node)" />
-        <span v-if="node.qualifier" v-html="node.qualifier"></span>
-        <IMViewerLink v-if="node.iri" :iri="node.iri" :label="node.name" :action="'view'" />
-        <span v-if="node.parameter">"{{ node.parameter }}" passed into query as a parameter at run time</span>
-      </div>
-      <Select
-        v-if="setMembers.length === 0"
-        style="width: 10.5rem; min-height: 2.3rem"
-        :disabled="!isConstraintEditable(node)"
-        :modelValue="getPlainConstraintOperatorValue(node)"
-        :options="plainConstraintOperatorOptions"
-        option-label="label"
-        option-value="value"
-        @update:modelValue="val => setConstraintOperator(node, val)"
-      >
-        <template #value="slotProps">
-          <div v-if="slotProps.value" class="flex items-center">
-            <div>{{ getPlainConstraintOperatorLabel(node) }}</div>
-          </div>
-        </template>
-        <template #option="slotProps">
-          <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-            <div>{{ slotProps.option.label }}</div>
-          </div>
-        </template>
-      </Select>
-      <div>
-        <Button
-          @click.stop="deleteNode(index)"
-          :class="!hoverDeleteNode && 'hover-button'"
-          :severity="hoverDeleteNode ? 'danger' : 'secondary'"
-          :outlined="!hoverDeleteNode"
-          icon="fa-solid fa-trash"
-          @mouseover="hoverDeleteNode = true"
-          @mouseout="hoverDeleteNode = false"
-        />
-      </div>
-    </div>
   </div>
 </template>
 
@@ -127,7 +127,7 @@ import {
   nodeInclusionOptions,
   getPlainConstraintOperatorLabel,
   getPlainConstraintOperatorValue
-} from "@/helpers/QueryEditorOptions";
+} from "@/helpers/QueryEditorMethods";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { getTypeIcon, getIconColor } from "@/helpers/ConceptTypeVisuals";
 import { UIProperty } from "@/interfaces";
@@ -241,14 +241,14 @@ function updateWithSetMember() {
 }
 .auto-complete-container {
   flex: 1 1 0%;
-  min-width: 104rem;
+  min-width: 84rem;
 }
 
 .sync-warning {
   color: var(--p-black-500) !important;
 }
 .set-member-container {
-  min-width: 100rem;
+  min-width: 84rem;
 }
 .node-inclusion {
   width: 8.5rem;
@@ -259,11 +259,11 @@ function updateWithSetMember() {
   min-height: 2.3rem;
 }
 .node-display {
-  min-width: 100rem;
+  min-width: 80rem;
 }
 .selected-member-container {
   display: flex;
   flex-flow: row nowrap;
-  min-width: 110rem;
+  min-width: 80rem;
 }
 </style>
