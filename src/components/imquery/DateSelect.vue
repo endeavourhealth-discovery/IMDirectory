@@ -153,7 +153,6 @@ function initValues() {
 
 function handlePropertyType() {
   clearAllProperties();
-  const dateType = IM.NAMESPACE + "Date";
   switch (propertyType.value) {
     case "is":
       props.property.operator = Operator.eq;
@@ -161,8 +160,8 @@ function handlePropertyType() {
       break;
     case "between":
       props.property.range = {
-        from: { operator: "=", unit: { iri: dateType }, value: "" },
-        to: { operator: "=", unit: { iri: dateType }, value: "" }
+        from: { operator: "=", unit: { iri: IM.DATE }, value: "" },
+        to: { operator: "=", unit: { iri: IM.DATE }, value: "" }
       } as Range;
       break;
     case "within":
@@ -209,12 +208,11 @@ function populateBetweenDate() {
   delete props.property.relativeTo;
   delete props.property.isNotNull;
   delete props.property.isNull;
-  const dateType = IM.NAMESPACE + "Date";
 
   if (!isObjectHasKeys(props.property, ["range"]))
     props.property.range = {
-      from: { operator: "=", unit: { iri: dateType }, value: "" },
-      to: { operator: "=", unit: { iri: dateType }, value: "" }
+      from: { operator: "=", unit: { iri: IM.DATE }, value: "" },
+      to: { operator: "=", unit: { iri: IM.DATE }, value: "" }
     } as Range;
   if (selectedValueA.value) props.property.range!.from.value = getStringFromDate(selectedValueA.value);
   if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);

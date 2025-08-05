@@ -14,7 +14,16 @@
                 "
                 @dragleave="mouseout"
               />
+
               <div v-if="!rootBool" class="top-operator">
+                <Button
+                  icon="drag-icon fa-solid fa-grip-vertical"
+                  severity="secondary"
+                  text
+                  draggable="true"
+                  @dragstart="onDragStart($event, where, parent)"
+                  @dragend="onDragEnd(where, parent)"
+                />
                 <Select
                   :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
                   :modelValue="parentOperator"
@@ -40,7 +49,7 @@
                     :focusConcepts="props.focusConcepts"
                     :index="index"
                     :isInAttributeGroup="isRoleGroup || isInAttributeGroup"
-                    v-model:group="group"
+                    v-model:parentGroup="group"
                     v-model:parentOperator="operator as Bool"
                     :property-tree-roots="propertyTreeRoots"
                     :im-query-for-property-search="imQueryForPropertySearch"
@@ -67,18 +76,9 @@
             @dragend="onDragEnd(where, parent)"
           />
 
-          <div class="group-checkbox">
-            <Checkbox
-              :inputId="'group' + index"
-              name="Group"
-              :value="index"
-              v-model="parentGroup"
-              data-testid="group-checkbox"
-              v-tooltip="'Select to create boolean subgroup'"
-            />
-          </div>
           <div v-if="parentOperator" class="constraint-operator">
             <Select
+              :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
               :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
               :modelValue="parentOperator"
               :options="getBooleanOptions(where, parent!, parentOperator as Bool, 'Where', index)"
@@ -92,6 +92,17 @@
                 </div>
               </template>
             </Select>
+          </div>
+          <div class="group-checkbox">
+            <Checkbox
+              :inputId="'group' + index"
+              name="Group"
+              :value="index"
+              v-model="checked"
+              data-testid="group-checkbox"
+              @update:modelValue="onCheckGroupChange"
+              v-tooltip="'Select to create boolean subgroup'"
+            />
           </div>
           <Select
             style="width: 4.5rem; min-height: 2.3rem"
@@ -120,11 +131,10 @@
             :root-entities="propertyTreeRoots"
             :setupSearch="updateQueryForPropertySearch"
             :setupRootEntities="updatePropertyTreeRoots"
-            :class="!isValidProperty && showValidation && 'invalid'"
             @update:selected="updateProperty"
           />
 
-          <small v-if="!isValidProperty && showValidation" class="validate-error">Property is invalid for selected expression constraint.</small>
+          <Button v-if="where.invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
           <Button
             @click.stop="deleteProperty"
             class="builder-button"
@@ -158,19 +168,20 @@
 <script setup lang="ts">
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { ConceptService, QueryService } from "@/services";
+import { EclService } from "@/services";
 import { IM, SNOMED, QUERY, RDF } from "@/vocabulary";
 import { useToast } from "primevue/usetoast";
 import { ToastSeverity } from "@/enums";
 import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef, Node } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getBooleanOptions, updateBooleans, getIsRoleGroup } from "@/helpers/IMQueryBuilder";
-import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/helpers/IMQueryBuilder";
+import { getBooleanOptions, updateBooleans, getIsRoleGroup, checkGroupChange } from "@/composables/buildQuery";
+import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/composables/buildQuery";
 
 import Button from "primevue/button";
 import ECLRefinementValue from "@/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
+import { Namespace } from "@/vocabulary/Namespace";
 
 interface Props {
   focusConcepts: string[];
@@ -180,14 +191,16 @@ interface Props {
   parentType: string;
   isInAttributeGroup: boolean;
 }
+
 const props = defineProps<Props>();
 const where = defineModel<Where>("where", { default: {} });
 const parent = defineModel<Where | Match>("parent");
-const parentGroup = defineModel<number[]>("group", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "rationalise"]);
 const propertyTreeRoots: Ref<string[]> = ref([]);
 const imQueryForPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
 const group: Ref<number[]> = ref([]);
+const checked: Ref<boolean> = ref(false);
 const toast = useToast();
 const filterStore = useFilterStore();
 const hoverDeleteProperty = ref(false);
@@ -199,10 +212,8 @@ const operators = ["and", "or"] as const;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const selectedProperty: Ref<SearchResultSummary | undefined> = ref(where.value as SearchResultSummary | undefined);
 const loadingProperty = ref(true);
-const isValidProperty = ref(false);
 const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
 const isRoleGroup = computed(() => getIsRoleGroup(where.value));
-const showValidation = ref(false);
 const operatorOptions = ["=", "!="];
 const hover = ref();
 const propertyConstraintOperator: Ref<string | undefined> = ref<"<<">();
@@ -217,7 +228,6 @@ const hasFocus = computed(() => {
 
 watch(forceValidation, async () => {
   await updateIsValidProperty();
-  showValidation.value = true;
 });
 
 onMounted(async () => {
@@ -228,6 +238,10 @@ onMounted(async () => {
 
 function onRationalise() {
   emit("rationalise");
+}
+
+function onCheckGroupChange(e: any) {
+  checkGroupChange(e, parentGroup.value, props.index);
 }
 
 function deleteProperty() {
@@ -247,7 +261,7 @@ function deleteProperty() {
 async function updatePropertyTreeRoots(): Promise<string[]> {
   propertyTreeRoots.value = ["http://snomed.info/sct#410662002"];
   if (props.focusConcepts.length > 0) {
-    propertyTreeRoots.value = await ConceptService.getPropertiesForDomains(props.focusConcepts);
+    propertyTreeRoots.value = await EclService.getPropertiesForDomains(props.focusConcepts);
   }
   return propertyTreeRoots.value;
 }
@@ -265,7 +279,7 @@ async function updateQueryForPropertySearch(): Promise<QueryRequest> {
     } as QueryRequest;
   } else {
     imQueryForPropertySearch.value = {
-      query: { iri: IM.NAMESPACE + "getDescendants" },
+      query: { iri: Namespace.IM + "getDescendants" },
       argument: [
         {
           parameter: "this",
@@ -288,10 +302,10 @@ function mouseout(event: any) {
 }
 
 function updateOperator(val: string) {
-  emit("updateBool", props.parentOperator, val);
+  emit("updateBool", props.parentOperator, val, props.index);
 }
-function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
-  updateBooleans(where.value!, oldOperator as Bool, newOperator as Bool, props.index, group.value);
+function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
+  updateBooleans(where.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
   if (newOperator === props.parentOperator) {
     emit("rationalise");
   }
@@ -310,29 +324,17 @@ function addValue() {
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (where.value.iri) {
-    const imQuery = {
-      query: { iri: QUERY.IS_VALID_PROPERTY },
-      argument: [
-        {
-          parameter: "property",
-          valueIri: { iri: where.value.iri }
-        },
-        {
-          parameter: "concept",
-          valueIriList: props.focusConcepts
-        }
-      ]
-    } as QueryRequest;
-    isValidProperty.value = await QueryService.askQuery(imQuery);
-    if (!isValidProperty.value) {
+  if (where.value && where.value.iri) {
+    const result = await EclService.isValidPropertyForDomains(where.value.iri, props.focusConcepts);
+    if (!result) {
+      where.value.invalid = true;
       toast.add({
         severity: ToastSeverity.ERROR,
         summary: "Invalid property",
         detail: `Property "${selectedProperty.value?.name ? selectedProperty.value.name : where.value.iri}" is not a  valid attribute for selected concepts "`,
         life: 3000
       });
-    }
+    } else where.value.invalid = false;
   }
 }
 
@@ -354,9 +356,11 @@ async function updateProperty(property: SearchResultSummary | undefined) {
   if (!property) {
     delete where.value.iri;
     delete where.value.name;
+    where.value.invalid = false;
   } else {
     where.value.iri = property.iri;
     where.value.name = property.name;
+    where.value.invalid = false;
   }
 }
 </script>

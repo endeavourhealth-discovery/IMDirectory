@@ -15,4 +15,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'IM'
+rootProject.name = 'IMDirectory'

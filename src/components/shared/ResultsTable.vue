@@ -23,6 +23,7 @@
       :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
       :loading="searchLoading"
       :pt="{ thead: { class: 'z-1!' } }"
+      @update:rows="updateRows"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
@@ -46,7 +47,7 @@
         </template>
         <template #body="{ data }">
           <div class="datatable-flex-cell">
-            <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
+            <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.color" :icon="data.icon" class="recent-icon" />
             <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ getNameDisplay(data) }}</span>
           </div>
         </template>
@@ -110,7 +111,7 @@ import { DownloadByQueryOptions, EclSearchRequest, QueryRequest, SearchResponse,
 import { DownloadSettings, ExtendedSearchResultSummary, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { buildIMQueryFromFilters } from "@/composables/buildQuery";
 import { MenuItem } from "primevue/menuitem";
 import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 import { nextTick } from "vue";
@@ -228,6 +229,11 @@ async function onSearch() {
       }
     });
   }
+}
+
+function updateRows(newRows: number) {
+  rows.value = newRows;
+  onSearch();
 }
 
 async function search(pageNumber: number, pageSize: number, fast: boolean) {

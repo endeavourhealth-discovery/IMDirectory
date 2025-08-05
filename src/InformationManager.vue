@@ -142,6 +142,7 @@ function setupAxiosInterceptors(axios: AxiosInstance) {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
       request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
+      request.headers.set("Graph", userStore.includeUserGraph);
     } else if (!isLoggedIn.value && isPublicMode.value === false && !(request.url?.endsWith("isPublicMode") || request.url?.endsWith("isDevMode"))) {
       await router.push({ name: "Login" });
     }
@@ -275,6 +276,10 @@ function setupExternalErrorHandler() {
 @import "sweetalert2/dist/sweetalert2.min.css";
 @import "assets/tailwind.css";
 @import "assets/primevueOverrides.css";
+
+.swal2-container {
+  z-index: 999999;
+}
 
 .swal2-popup {
   background-color: var(--p-content-background);

@@ -28,7 +28,8 @@
                 <li class="tight-spacing">
                   <IMFontAwesomeIcon :icon="getTypeIcon(item)" :style="'color:' + getIconColor(item)" />
                   <span v-if="item.qualifier" v-html="item.qualifier"></span>
-                  <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                  <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" :action="editMode ? 'view' : 'select'" />
+                  <span v-if="item.parameter">"{{ item.parameter }}" passed into query as a parameter at run time</span>
                   <span v-if="item.descendantsOrSelfOf">+subtypes</span>
                 </li>
               </ul>
@@ -37,7 +38,7 @@
         </div>
       </span>
       <span v-for="(matches, type) in boolGroup" :key="type">
-        <span>(</span>
+        <span v-if="!root">(</span>
         <span v-for="(nestedProperty, index) in matches" :key="index">
           <span>
             <RecursiveWhereDisplay
@@ -47,14 +48,16 @@
               :key="index"
               :depth="depth + 1"
               :expandedSet="expandedSet"
-              :inline="false"
+              :inline="!!root"
+              :root="false"
               :eclQuery="eclQuery"
+              :editMode="editMode"
               :bracketed="index === where[type]!.length - 1"
             />
           </span>
         </span>
+        <span v-if="!root">)</span>
       </span>
-      <span v-if="bracketed">)</span>
     </span>
   </component>
 </template>
@@ -76,6 +79,8 @@ interface Props {
   inline: boolean;
   bracketed?: boolean;
   eclQuery?: boolean;
+  root?: boolean;
+  editMode?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -124,7 +129,7 @@ function getIconColor(is: Node) {
 
 function indentationStyle(inLine: boolean, depth: number) {
   return {
-    paddingLeft: inLine ? "0rem" : depth + "rem"
+    paddingLeft: inLine ? "0.2rem" : depth + "rem"
   };
 }
 </script>

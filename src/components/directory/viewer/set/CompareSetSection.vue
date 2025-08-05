@@ -5,7 +5,7 @@
       <AutocompleteSearchBar
         v-if="header !== 'Shared members '"
         v-model:selected="modelSelectedSet"
-        :root-entities="[IM.NAMESPACE + 'Sets']"
+        :root-entities="[Namespace.IM + 'Sets']"
         :im-query="searchQuery"
       />
       <div v-if="isArrayHasLength(members)">Total members ({{ members.length }})</div>
@@ -35,7 +35,7 @@
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import setupOverlay from "@/composables/setupOverlay";
-import { buildIMQueryFromFilters } from "@/helpers/IMQueryBuilder";
+import { buildIMQueryFromFilters } from "@/composables/buildQuery";
 import { DirectService, EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
@@ -44,6 +44,7 @@ import { Concept, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen
 import { IM } from "@/vocabulary";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { Namespace } from "@/vocabulary/Namespace";
 
 const props = defineProps<{
   header: string;

@@ -2,7 +2,6 @@
   <div :style="{ paddingLeft: '1rem' }">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <span v-if="dataSet.name">{{ dataSet.name }}</span>
-    <ClauseEditorMenus v-if="editMode" editor="queryEditor" v-model:query="dataSet" v-model:parentQuery="parentQuery" class="relative inline-block" />
     <span v-if="dataSet.return">
       <span v-if="dataSet.return.as">Group : {{ dataSet.return.as }}</span>
     </span>
@@ -53,7 +52,6 @@ import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
 import ReturnColumns from "./ReturnColumns.vue";
 import { QueryService } from "@/services";
-import ClauseEditorMenus from "@/components/imquery/ClauseEditorMenus.vue";
 
 interface Props {
   matchExpanded: boolean;
@@ -69,6 +67,9 @@ const matchExpand = ref(props.matchExpanded);
 const loading = ref(false);
 const dataSet = ref({ ...props.query });
 
+onMounted(async () => {
+  await init();
+});
 function matchToggle() {
   matchExpand.value = !matchExpand.value;
 }
@@ -80,15 +81,10 @@ function hasCriteria(query: Query): boolean {
   return false;
 }
 
-onMounted(async () => {
-  await init();
-});
 async function init() {
-  if (!dataSet.value.return) {
-    if (dataSet.value.iri) {
-      dataSet.value = await QueryService.getDisplayFromQueryIri(dataSet.value.iri, DisplayMode.ORIGINAL);
-    } else dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
-  }
+  if (dataSet.value.iri) {
+    dataSet.value = await QueryService.getDisplayFromQueryIri(dataSet.value.iri, DisplayMode.ORIGINAL);
+  } else dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
 }
 watch(
   () => props.query,
@@ -101,28 +97,4 @@ watch(
 );
 </script>
 
-<style scoped>
-/*
-.button-chevron {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-.field {
-  padding-right: 0.2rem;
-}
-.rule {
-  font-weight: bold;
-  padding-right: 1rem;
-}
-
-.return {
-  color: var(--p-teal-500);
-  padding-left: 0.5rem;
-}
-
-.output {
-  color: var(--p-indigo-500);
-}
-*/
-</style>
+<style scoped></style>
