@@ -24,11 +24,12 @@
             <BooleanWhereEditor
               :match="match"
               v-model:property="property[operator][index]"
+              v-model:parentProperty="property"
               :clauseIndex="index"
               :baseType="baseType"
               :parentOperator="operator as Bool"
               :show-delete="showDelete"
-              @deleteProperty="deleteProperty"
+              @deletedProperty="deletedProperty"
               @addProperty="emit('addProperty')"
               @updateBool="updateBool"
             />
@@ -116,7 +117,7 @@ const props = withDefaults(
 );
 
 const selectedProperty: Ref<UIProperty | undefined> = ref();
-const emit = defineEmits(["updateBool", "addProperty"]);
+const emit = defineEmits(["updateBool", "addProperty", "deletedProperty"]);
 const expandSet: Ref<boolean> = ref(false);
 const group: Ref<number[]> = ref([]);
 const loading = ref(true);
@@ -148,6 +149,14 @@ async function init() {
 
 function deleteProperty() {
   deletePropertyFromParent(props.match, parentProperty.value, props.clauseIndex);
+  emit("deletedProperty");
+}
+function deletedProperty() {
+  if (property.value.and && property.value.and.length === 0) {
+    emit("deletedProperty");
+  } else if (property.value.or && property.value.or.length === 0) {
+    emit("deletedProperty");
+  }
 }
 function onUpdateOperator(val: string) {
   emit("updateBool", props.parentOperator, val, props.clauseIndex);

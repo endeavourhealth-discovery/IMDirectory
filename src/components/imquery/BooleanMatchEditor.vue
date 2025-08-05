@@ -212,6 +212,7 @@ function deleteMatch() {
   deleteMatchFromParent(parentMatch.value, props.clauseIndex);
 }
 function editMatch() {
+  originalMatch.value = cloneDeep(match.value);
   showEditor.value = true;
 }
 function mouseover(event: any) {
