@@ -79,11 +79,16 @@ import QueryResults from "@/components/queryRunner/QueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import { DBEntry, QueryExecutorStatus } from "@/interfaces/AutoGen";
 import { DirectService, QueryService } from "@/services";
-import { onMounted, Ref, ref } from "vue";
+import { computed, onMounted, onUnmounted, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
+import { connectWebSocket, disconnectWebSocket } from "@/websocket/WebSocket";
+import { useUserStore } from "@/stores/userStore";
+import { fetchAuthSession } from "aws-amplify/auth";
 
 const directService = new DirectService();
 const router = useRouter();
+const userStore = useUserStore();
+const userId = computed(() => userStore.currentUser?.id);
 
 const queryQueueItems: Ref<DBEntry[]> = ref([]);
 const loading = ref(true);
@@ -96,7 +101,15 @@ const selectedQuery: Ref<DBEntry | undefined> = ref();
 const showQueryResults = ref(false);
 
 onMounted(async () => {
+  const token = (await fetchAuthSession()).tokens?.idToken;
+  if (userId.value && token) {
+    connectWebSocket(userId.value, "Bearer " + token?.toString(), onMessage);
+  }
   await init();
+});
+
+onUnmounted(() => {
+  disconnectWebSocket();
 });
 
 async function init() {
@@ -174,6 +187,10 @@ async function onPage(event: any) {
 function scrollToTop() {
   const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
   scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+function onMessage(message: any) {
+  console.log(message);
 }
 </script>
 

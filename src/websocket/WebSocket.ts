@@ -5,15 +5,15 @@ import { Env } from "@/services";
 let stompClient: Client | null = null;
 let subscription: StompSubscription | null = null;
 
-export function connectWebSocket(onMessage: (msg: any) => void): void {
-  const socket = new SockJS(Env.API + "/websocket");
+export function connectWebSocket(userId: string, token: string, onMessage: (msg: any) => void): void {
+  const socket = new SockJS(Env.API + "ws?token=" + encodeURIComponent(token));
 
   stompClient = new Client({
     webSocketFactory: () => socket,
     debug: str => console.log("[STOMP]", str),
     onConnect: () => {
       console.log("[WebSocket] connected");
-      subscription = stompClient!.subscribe("/topic/userQueryQueue", (message: IMessage) => {
+      subscription = stompClient!.subscribe("/user/userQueryQueue-user" + userId, (message: IMessage) => {
         try {
           const data = JSON.parse(message.body);
           onMessage(data);
