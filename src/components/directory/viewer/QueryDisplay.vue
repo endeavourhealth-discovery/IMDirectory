@@ -244,9 +244,17 @@ async function addArgumentsAndRun(completedArguments: Argument[]) {
 
 async function addQueryToRunnerQueue() {
   if (query.value) {
-    const request: QueryRequest = { query: query.value, argument: requestArguments.value };
+    const request: QueryRequest = await getQueryRequestFromQueryIri();
     await QueryService.addQueryToRunnerQueue(request);
   }
+}
+
+async function getQueryRequestFromQueryIri() {
+  if (query.value?.iri) {
+    const queryDisplay = await QueryService.getDisplayFromQueryIri(query.value.iri, DisplayMode.LOGICAL);
+    return { query: queryDisplay, argument: requestArguments.value };
+  }
+  return {} as QueryRequest;
 }
 
 async function testRunQuery() {
