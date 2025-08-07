@@ -22,6 +22,11 @@
         :loading="loading"
         :paginatorTemplate="'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'"
       >
+        <template #header>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xl font-bold">Total results: {{ totalCount }}</span>
+          </div>
+        </template>
         <template #empty>None</template>
         <Column field="id" header="Patient ID"></Column>
       </DataTable>
@@ -48,7 +53,7 @@
 import { DBEntry } from "@/interfaces/AutoGen";
 import { QueryService } from "@/services";
 import { cloneDeep } from "lodash-es";
-import { Ref, ref } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 
 interface Props {
   queryItem: DBEntry | undefined;
@@ -60,11 +65,11 @@ const showDialog = defineModel<boolean>("showDialog");
 
 const loading = ref(false);
 const downloadLoading = ref(false);
-const queryResults: Ref<string[]> = ref([]);
+const queryResults: Ref<{ id: string }[]> = ref([]);
 const pageNumber = ref(1);
 const size = ref(25);
 const originalSize = ref(25);
-const totalCount = ref(0);
+const totalCount = ref();
 
 function closeDialog() {
   showDialog.value = false;
@@ -73,10 +78,12 @@ function closeDialog() {
 async function downloadQueryResults() {
   if (props.queryItem?.queryRequest) {
     const request = cloneDeep(props.queryItem.queryRequest);
-    request.page = { pageNumber: pageNumber.value, pageSize: size.value };
-    const results = await QueryService.getQueryResultsPaged(request);
-    totalCount.value = results.totalCount;
-    queryResults.value = results.result;
+    // request.page = { pageNumber: pageNumber.value, pageSize: size.value }; //TODO: fix paging mechanism
+    const results = await QueryService.getQueryResults(request);
+    if (results) {
+      totalCount.value = results.length; //TODO: replace with actual count
+      queryResults.value = results.map(id => ({ id }));
+    }
   }
 }
 
@@ -85,6 +92,14 @@ async function onPage(event: any) {
   size.value = event.rows;
   await downloadQueryResults();
 }
+
+watch(showDialog, async (newValue, oldValue) => {
+  if (newValue && totalCount.value === undefined) await downloadQueryResults();
+});
+
+onMounted(async () => {
+  await downloadQueryResults();
+});
 </script>
 
 <style scoped></style>
