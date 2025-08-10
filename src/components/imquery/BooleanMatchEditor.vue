@@ -1,5 +1,14 @@
 <template>
-  <MatchEditor v-if="showEditor" v-model:match="match" v-model:showMatchEditor="showEditor" :baseType="baseType" :from="from" @cancel="cancelEditMatch" />
+  <MatchEditor
+    v-if="showEditor"
+    v-model:match="match"
+    v-model:showMatchEditor="showEditor"
+    :baseType="baseType"
+    :from="from"
+    :depth="depth"
+    :clauseIndex="clauseIndex"
+    @cancel="cancelEditMatch"
+  />
   <div class="nested-match">
     <div v-if="parentOperator === Bool.rule" class="rule">Rule {{ clauseIndex }}</div>
     <div v-if="hasBoolGroups(match)">

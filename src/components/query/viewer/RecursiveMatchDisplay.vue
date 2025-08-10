@@ -80,12 +80,13 @@
         :root="true"
         :expandedSet="expandSet"
         :inline="true"
+        :then="then"
         :eclQuery="eclQuery"
         :editMode="editMode"
       />
     </span>
 
-    <span v-if="match.return && !match.then">
+    <span v-if="match.return && match.then">
       <span class="field">(as</span>
       <span class="as">{{ match.return?.as }})</span>
     </span>
@@ -102,7 +103,7 @@
         :eclQuery="eclQuery"
       />
     </span>
-    <span v-if="match.return && match.then">
+    <span v-if="match.return && !match.then">
       <span class="field">(as</span>
       <span class="as">{{ match.return?.as }})</span>
     </span>
@@ -117,12 +118,12 @@
 
 <script setup lang="ts">
 import { Match, Bool } from "@/interfaces/AutoGen";
-import { Ref, ref } from "vue";
+import { Ref, ref, computed } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { getBooleanLabel, hasBoolGroups } from "@/composables/buildQuery";
 
-defineProps<{
+interface Props {
   isVariable?: boolean;
   depth: number;
   clauseIndex: number;
@@ -133,8 +134,9 @@ defineProps<{
   from?: Match;
   eclQuery?: boolean;
   parentOperator?: Bool;
-}>();
+}
 
+const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parentMatch = defineModel<Match>("parentMatch", { default: {} });
 const emit = defineEmits<{
@@ -143,7 +145,9 @@ const emit = defineEmits<{
 const editMenu = (match.value.and || match.value.or) && !match.value.instanceOf ? "booleanEditor" : "matchEditor";
 const expandSet: Ref<boolean> = ref(false);
 const operators = ["and", "or", "not"] as const;
-
+const then: Ref<boolean> = computed(() => {
+  return !!props.from;
+});
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {

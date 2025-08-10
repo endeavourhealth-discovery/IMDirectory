@@ -52,6 +52,7 @@
               :root="false"
               :eclQuery="eclQuery"
               :editMode="editMode"
+              :then="then"
               :bracketed="index === where[type]!.length - 1"
             />
           </span>
@@ -81,6 +82,7 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
+  then?:boolean;
 }
 
 const props = defineProps<Props>();
@@ -98,7 +100,7 @@ const boolGroup = computed(() => {
 });
 
 onMounted(async () => {
-  if (props.where.name && props.where.name != "concept") whereName.value = props.where.name;
+  if (props.where.name && (props.where.name != "concept" ||props.then)) whereName.value = props.where.name;
 });
 function getOperator(operator: Bool | undefined, index: number): string {
   if (operator === "or") {

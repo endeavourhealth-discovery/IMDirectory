@@ -105,12 +105,6 @@ watch(
     init();
   }
 );
-watch(
-  () => numericValue.value,
-  val => {
-    console.log("Watcher: numericValue changed to", val);
-  }
-);
 
 onMounted(async () => {
   init();
@@ -161,7 +155,6 @@ function updateValue(e: any) {
   emit("updateProperty");
 }
 function updateNumericValue(e: any) {
-  console.log("updateNumericValue", e.value);
   numericValue.value = e.value;
   updateAssignable();
   emit("updateProperty");
@@ -174,34 +167,15 @@ function updateOffset(value: "0" | "+" | "-") {
 }
 
 function updateAssignable() {
-  if (!props.absolute) {
-    if (offset.value === "0") {
-      delete assignable.value.unit;
-      delete assignable.value.value;
-    } else if (offset.value != "0") {
-      if (!assignable.value.value) {
-        assignable.value.value = "1";
-        numericValue.value = 1;
-        if (!assignable.value.unit) {
-          if (props.uiProperty.unitOptions && props.uiProperty.unitOptions.length > 0) {
-            assignable.value.unit = props.uiProperty.unitOptions[0];
-            units.value = assignable.value.unit;
-          }
-        }
-      }
-      if (offset.value === "+") {
-        if (assignable.value.value.startsWith("-")) {
-          assignable.value.value = assignable.value.value.replace("-", "");
-        }
-      } else {
-        if (!assignable.value.value.startsWith("-")) {
-          assignable.value.value = "-" + assignable.value.value;
-        }
-      }
-    }
-  } else {
-    if (numericValue.value != null) assignable.value.value = numericValue.value.toString();
+  if (offset.value === "0") {
+    delete assignable.value.unit;
+    delete assignable.value.value;
+  } else if (offset.value != "0") {
+    if (offset.value === "+" && numericValue.value != null) assignable.value.value = numericValue.value.toString();
+    else if (numericValue.value != null) assignable.value.value = "-" + numericValue.value.toString();
+    if (numericValue.value === null) delete assignable.value.value;
     assignable.value.operator = operator.value as Operator;
+    if (units.value) assignable.value.unit = units.value;
   }
 }
 function updateOperator(value: string) {

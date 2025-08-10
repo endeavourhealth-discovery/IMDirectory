@@ -22,6 +22,7 @@ import Swal from "sweetalert2";
 import { cloneDeep } from "lodash-es";
 import { isFolder, isFunction, isProperty, isRecordModel } from "@/helpers/ConceptTypeMethods";
 import { v4 } from "uuid";
+import {getTypeFromClause} from "@/helpers/QueryEditorMethods";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -319,29 +320,9 @@ export function getRuleAction(match: Match): string {
   return "nextreject";
 }
 
-export function getDataModelFromNodeRef(match: Match | Path, nodeRef: string | undefined, baseType: string): string {
-  if (nodeRef === undefined) {
-    return getMatchTypeOf(match, baseType);
-  }
-  if (match.path) {
-    for (const path of match.path) {
-      if (path.variable === nodeRef) {
-        if (path.typeOf) return path.typeOf.iri!;
-        else return getMatchTypeOf(match, baseType);
-      }
-      if (path.path) {
-        const dataModel = getDataModelFromNodeRef(path, nodeRef, baseType);
-        if (dataModel) return dataModel;
-      }
-    }
-  }
-  return getMatchTypeOf(match, baseType);
-}
 
-function getMatchTypeOf(match: Match, baseType: string): string {
-  if (match.typeOf) return match.typeOf.iri!;
-  else return baseType;
-}
+
+
 
 export function addMatchToParent(match: Match, parent: Match) {
   for (const key of ["rule", "and", "or", "not"] as const) {

@@ -10,6 +10,7 @@
     >
       <template #header>
         <div class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
+          <strong v-if="from">This is a test on the previous clause : ({{ from?.return?.as }})</strong>
           <span>Name</span>
           <InputText v-model="match.name" class="name-display" placeholder="Name" type="text" />
           <span>Result label</span>
@@ -25,6 +26,7 @@
         <span>Description</span>
         <Textarea v-model="match.description" autoResize placeholder="Description" rows="2" type="text" />
       </div>
+      <div>With the following conditions</div>
       <div v-if="match.instanceOf || match.where" class="where-container">
         <CohortEditor v-if="match.instanceOf && !showPropertySelector" v-model:match="match" v-model:editMode="editCohort" />
         <div v-else-if="match.where && !showPropertySelector">
@@ -41,6 +43,43 @@
           @cancel="showPropertySelector = false"
         />
       </div>
+      <div v-if="orderables && orderables.length > 0 && isDefined()">
+        <Select
+          class="test-selector"
+          :modelValue="orderable"
+          :options="orderables"
+          :placeholder="`Add Test`"
+          scroll-height="50rem"
+          option-label="label"
+          option-value="value"
+          data-testid="order-selector"
+          @update:modelValue="updateOrderable"
+        >
+          <template #value="slotProps">
+            <div class="test-selector">
+              <div>{{ orderable.label }}</div>
+            </div>
+          </template>
+          <template #dropdownicon="slotProps">
+            <div class="test-dropdown">
+              <i class="pi pi-chevron-down text-white-600 text-xl"></i>
+            </div>
+          </template>
+          <template #option="slotProps">
+            <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+              <div>{{ slotProps.option.label }}</div>
+            </div>
+          </template>
+        </Select>
+        <Button v-if="!match.then" data-testid="add-test-button" label="Add test" @click="addThen" />
+      </div>
+      <div v-if="match.then">
+        <div>Then test</div>
+        <div v-if="!hasBoolGroups(match.then)" class="match-display">
+          <MatchContentDisplay :match="match.then" :parentMatch="match" :from="match" :depth="0" :clauseIndex="0" :expandSet="false" />
+        </div>
+        <div v-else>Multiple tests - see main editor</div>
+      </div>
       <template #footer>
         <div class="button-footer">
           <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
@@ -53,24 +92,27 @@
 
 <script lang="ts" setup>
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Bool, DisplayMode, Match, Node, TTIriRef } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Match, Node, TTIriRef, NodeShape, PropertyShape, Return } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref, watch } from "vue";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DataModelService, EntityService, QueryService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
-import { addWhereToMatch, getDataModelFromNodeRef, setReturn, hasBoolGroups } from "@/composables/buildQuery";
+import { addWhereToMatch, setReturn, hasBoolGroups, addMatchToParent } from "@/composables/buildQuery";
 import MatchTypeSelector from "@/components/imquery/MatchTypeSelector.vue";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import setupPropertyTree from "@/composables/setupPropertyTree";
 import { isEqual } from "lodash-es";
+import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
-import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 
 interface Props {
   baseType: Node;
   from?: Match;
+  depth: number;
+  clauseIndex: number;
 }
 
 const props = defineProps<Props>();
@@ -81,7 +123,7 @@ const emit = defineEmits<{
   (event: "cancel"): void;
 }>();
 
-const { createFeatureTree, getRootNodes } = setupPropertyTree();
+const { createFeatureTree, getRootNodes, getDefiningProperty, createPropertyTree, getOrderables } = setupPropertyTree();
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
 const templates: Ref<any> = ref();
@@ -91,6 +133,10 @@ const keepAs: Ref<string> = ref("");
 const editCohort = ref(false);
 const propertyTree: Ref<TreeNode[]> = ref([]);
 const rootNodes: Ref<TreeNode[]> = ref([]);
+const orderables: Ref<any[] | undefined> = ref();
+const addNewTest = ref(false);
+const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest" });
+
 watch(
   () => keepAs,
   () => setReturn(match.value, keepAs.value)
@@ -113,36 +159,67 @@ async function init() {
     rootNodes.value = await getRootNodes(props.from, propertyTree.value[1].children!);
   } else if (match.value.path) {
     rootNodes.value = await getRootNodes(match.value, propertyTree.value[1].children!);
-  } else rootNodes.value = propertyTree.value;
+    orderables.value = getOrderOptions(getOrderables(rootNodes.value[0]));
+  } else {
+    rootNodes.value = propertyTree.value;
+    orderables.value = getOrderOptions(getOrderables(rootNodes.value[1]));
+  }
   templates.value = await getFunctionTemplates();
   loading.value = false;
   if (!isDefined()) showPropertySelector.value = true;
+  else {
+    orderables.value = getOrderOptions(getOrderables(rootNodes.value[rootNodes.value.length - 1]));
+    if (match.value.orderBy) {
+      orderable.value = getOrderable(match.value, orderables.value);
+    }
+  }
 }
 
 function isDefined(): boolean {
-  if (match.value.instanceOf || match.value.where) return true;
-  else return false;
+  return !!(match.value.instanceOf || match.value.where);
+}
+
+function updateOrderable(value: any) {
+  orderable.value = value;
+  match.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] };
+}
+
+function addThen() {
+  if (!match.value.return) {
+    const as = keepAs ? keepAs : "Match_" + props.depth + "_" + props.clauseIndex;
+    match.value.return = {
+      as: as
+    } as Return;
+  }
+  if (!match.value.then) match.value.then = { nodeRef: match.value.return!.as! } as Match;
+  showMatchEditor.value = false;
 }
 
 async function onMatchTypeSelected(node: TreeNode) {
+  showPropertySelector.value = false;
   if (node.data.iri === "cohort") {
     editCohort.value = true;
   } else {
     if (node.data.typeOf) {
-      const defaultPropertyShape = await DataModelService.getDefiningProperty(node.data.typeOf);
-      if (defaultPropertyShape.path) {
-        addWhereToMatch(match.value, node, defaultPropertyShape.path.iri);
+      if (node.children && node.children.length === 0) {
+        await createPropertyTree(node.data.typeOf, node);
+      }
+      const definingProperty = getDefiningProperty(node);
+      if (definingProperty) {
+        addWhereToMatch(match.value, node, definingProperty);
         match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
         rootNodes.value = await getRootNodes(match.value, propertyTree.value[1].children!);
+        if (!orderables.value) orderables.value = getOrderOptions(getOrderables(rootNodes.value[0]));
       }
     } else {
       addWhereToMatch(match.value, node, node.data.iri);
       match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
       rootNodes.value = await getRootNodes(match.value, propertyTree.value[1].children!);
+      if (!orderables.value) orderables.value = getOrderOptions(getOrderables(rootNodes.value[0]));
     }
   }
-  showPropertySelector.value = false;
 }
+
 async function getFunctionTemplates() {
   const iri = match.value?.typeOf?.iri;
   if (iri) {
@@ -186,5 +263,12 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 
 .edit-match-dialog {
   background-color: var(--p-surface-section);
+}
+.test-selector {
+  background-color: rgb(16, 185, 129);
+  color: white;
+}
+.test-dropdown {
+  color: white;
 }
 </style>

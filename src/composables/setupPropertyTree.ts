@@ -5,6 +5,7 @@ import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import { Match, Path, PropertyShape, Node } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
+import { Orderable } from "@/stores/types/orderable";
 
 function setupPropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
@@ -43,7 +44,10 @@ function setupPropertyTree() {
     iconType: string,
     typeOf: string | undefined,
     rangeType: string | undefined,
-    parent: TreeNode | null
+    parent: TreeNode | null,
+    ascending?: string,
+    descending?: string,
+    definingProperty?: boolean
   ): TreeNode {
     const key = parent === null ? index : parent.key + "_" + index;
     let path;
@@ -60,7 +64,10 @@ function setupPropertyTree() {
         color: getColourFromType([{ iri: iconType }]),
         iri: iri,
         path: path,
-        typeOf: typeOf
+        typeOf: typeOf,
+        definingProperty: definingProperty,
+        ascending: ascending,
+        descending: descending
       },
       loading: false,
       children: [] as TreeNode[],
@@ -106,7 +113,19 @@ function setupPropertyTree() {
       const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
       name += ` (${value})`;
     }
-    const propertyNode = createNode(index, name!, property.path.iri, "property", RDF.PROPERTY, typeOf, rangeType, parent) as TreeNode;
+    const propertyNode = createNode(
+      index,
+      name!,
+      property.path.iri,
+      "property",
+      RDF.PROPERTY,
+      typeOf,
+      rangeType,
+      parent,
+      property.ascending,
+      property.descending,
+      property.definingProperty
+    ) as TreeNode;
     propertyNode.selectable = true;
     return propertyNode;
   }
@@ -173,10 +192,38 @@ function setupPropertyTree() {
       }
     }
   }
+  function getDefiningProperty(node: TreeNode): string | undefined {
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        if (child.data.definingProperty) return child.data.iri;
+      }
+    }
+    return undefined;
+  }
+
+  function getOrderables(node: TreeNode): Orderable[] {
+    const orderables = [] as Orderable[];
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        if (child.data.ascending) {
+          orderables.push({
+            iri: child.data.iri,
+            name: child.label,
+            ascending: child.data.ascending,
+            descending: child.data.descending
+          });
+        }
+      }
+    }
+    return orderables;
+  }
   return {
     getRootNodes,
+    getOrderables,
+    getDefiningProperty,
     createFeatureTree,
     expandNode,
+    createPropertyTree,
     loading
   };
 }

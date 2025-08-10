@@ -1,5 +1,7 @@
-import { Node, RelativeTo, Where, Assignable, Match, Path } from "@/interfaces/AutoGen";
+import { Node, Order, RelativeTo, Where, Assignable, Match, Path, HasPaths } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
+import { Orderable } from "@/stores/types/orderable";
+import { useQueryStore } from "@/stores/queryStore";
 
 export const relativityOptions = [
   {
@@ -287,4 +289,49 @@ function getPathNameFromPath(nodeRef: string, flatPath: string, path: Path): str
     }
   }
   return flatPath;
+}
+export function getTypeFromClause(match: Match): string | undefined {
+  const queryStore = useQueryStore();
+  if (!match.path) {
+    if (match.nodeRef) {
+      return getTypeFromClause(queryStore.returnMap.get(match.nodeRef)!);
+    } else return undefined;
+  }
+  if (match.return && match.return.property) {
+    for (const property of match.return.property) {
+      if (property.nodeRef) return getTypeFromNodeRef(match, property.nodeRef);
+    }
+  }
+  return undefined;
+}
+
+function getTypeFromNodeRef(aPath: HasPaths, nodeRef: string): string | undefined {
+  if (aPath.path) {
+    for (const subPath of aPath.path) {
+      if (subPath.variable === nodeRef) return subPath.typeOf!.iri!;
+      if (subPath.path) return getTypeFromNodeRef(subPath, nodeRef);
+    }
+  }
+  return undefined;
+}
+
+export function getOrderable(match: Match, orderables: any[]): Orderable | undefined {
+  if (match.orderBy) {
+    const orderProperty = match.orderBy.property![0];
+    return orderables.find(o => o.value.iri === orderProperty.iri && o.value.direction === orderProperty.direction);
+  }
+}
+
+export function getOrderOptions(orderables: Orderable[]): any[] {
+  const results = [];
+  for (const orderable of orderables) {
+    for (const direction of ["ascending", "descending"] as Array<"ascending" | "descending">) {
+      results.push({
+        label: orderable[direction] + " " + orderable.name,
+        value: { iri: orderable.iri, direction: direction as Order, label: orderable[direction] + " " + orderable.name },
+        tooltip: "latest from the entries following the filters"
+      });
+    }
+  }
+  return results;
 }

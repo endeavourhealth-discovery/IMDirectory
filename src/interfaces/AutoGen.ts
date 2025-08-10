@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-25 15:17:21.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-08 09:40:19.
 
 export interface ConceptContextMap {
     id?: string;
@@ -241,6 +241,7 @@ export interface PropertyShape {
     descending?: string;
     orderable?: boolean;
     hasValueSet?: TTIriRef;
+    definingProperty?: boolean;
 }
 
 export interface SetContent {
@@ -280,17 +281,17 @@ export interface ArgumentReference {
 
 export interface Assignable {
     value?: string;
+    qualifier?: string;
+    unit?: TTIriRef;
     operator?: Operator;
     valueParameter?: string;
     valueLabel?: string;
-    unit?: TTIriRef;
-    qualifier?: string;
 }
 
 export interface BoolGroup<T> {
     or?: T[];
-    and?: T[];
     not?: T[];
+    and?: T[];
 }
 
 export interface Case {
@@ -339,8 +340,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
     memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
@@ -357,6 +358,10 @@ export interface GroupBy extends IriLD {
     propertyRef?: string;
 }
 
+export interface HasPaths {
+    path?: Path[];
+}
+
 export interface Instance extends IriLD {
     entailment?: TTIriRef;
 }
@@ -369,7 +374,7 @@ export interface IriLD {
     uuid?: string;
 }
 
-export interface Match extends IriLD, BoolGroup<Match> {
+export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -385,7 +390,6 @@ export interface Match extends IriLD, BoolGroup<Match> {
     aggregate?: FunctionClause;
     variable?: string;
     parameter?: string;
-    path?: Path[];
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
@@ -418,11 +422,10 @@ export interface OrderLimit {
     description?: string;
 }
 
-export interface Path extends Element {
+export interface Path extends Element, HasPaths {
     inverse?: boolean;
     optional?: boolean;
     typeOf?: Node;
-    path?: Path[];
 }
 
 export interface PathDocument {
@@ -485,6 +488,7 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
+    orderBy?: OrderLimit;
 }
 
 export interface ReturnProperty {
@@ -540,6 +544,7 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     inverse?: boolean;
     or?: Where[];
     and?: Where[];
+    shortLabel?: string;
 }
 
 export interface DBEntry {
@@ -615,6 +620,8 @@ export interface QueryRequest extends ContextMap {
     update?: Update;
     name?: string;
     page?: Page;
+    baselineDate?: string;
+    queryStringDefinition?: string;
     askIri?: string;
     timings?: { [index: string]: string }[];
     cohort?: TTIriRef[];
@@ -851,14 +858,14 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
-    status?: TTIriRef;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
+    status?: TTIriRef;
     description?: string;
-    types?: TTIriRef[];
     code?: string;
+    types?: TTIriRef[];
     prefixes?: TTPrefix[];
 }
 
@@ -940,8 +947,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1293,12 +1300,13 @@ export const enum CONFIG {
 export const enum CodeTemplate {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "cTemp",
-    WRAPPER = "http://endhealth.info/im#codeTemplate#wrapper",
+    WRAPPER = "http://endhealth.info/codeTemplate#wrapper",
     LABEL = "http://www.w3.org/2000/01/rdf-schema#label",
     DEFINITION = "http://endhealth.info/im#definition",
-    DATATYPE_MAP = "http://endhealth.info/im#codeTemplate#datatypeMap",
-    EXTENSION = "http://endhealth.info/im#codeTemplate#extension",
-    INCLUDE_COMPLEX_TYPES = "http://endhealth.info/im#codeTemplate#includeComplexTypes",
+    TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    DATATYPE_MAP = "http://endhealth.info/codeTemplate#datatypeMap",
+    EXTENSION = "http://endhealth.info/codeTemplate#extension",
+    INCLUDE_COMPLEX_TYPES = "http://endhealth.info/codeTemplate#includeComplexTypes",
 }
 
 export const enum EDITOR {
@@ -1690,7 +1698,7 @@ export const enum Namespace {
     IM_EDITOR = "http://endhealth.info/im#Editor_",
     IM_QUERY = "http://endhealth.info/im#Query_",
     IM_VALIDATION = "http://endhealth.info/im#Validation_",
-    IM_CODE_TEMPLATE = "http://endhealth.info/im#codeTemplate#",
+    IM_CODE_TEMPLATE = "http://endhealth.info/codeTemplate#",
     TPP = "http://endhealth.info/tpp#",
     ENCOUNTERS = "http://endhealth.info/enc#",
     ICD10 = "http://endhealth.info/icd10#",

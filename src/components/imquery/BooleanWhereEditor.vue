@@ -2,6 +2,7 @@
   <div v-if="loading" class="flex">
     <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
   </div>
+
   <div class="nested-where">
     <div v-if="hasBoolGroups(property)">
       <div v-for="operator in operators" :key="operator">
@@ -9,7 +10,7 @@
           <div class="match-clause">
             <BooleanEditor
               v-model:match="property"
-              v-model:parentMatch="parentProperty"
+              v-model:parentClause="parentProperty"
               :depth="0"
               :hasSubgroups="true"
               :parentOperator="operator as Bool"
@@ -40,7 +41,7 @@
     <div v-else class="property-value-container">
       <BooleanEditor
         v-model:match="property"
-        v-model:parentMatch="parentProperty"
+        v-model:parentClause="parentProperty"
         :depth="0"
         :hasSubgroups="false"
         :parentOperator="parentOperator as Bool"
@@ -99,12 +100,13 @@ import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import WhereValueEditor from "./WhereValueEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import { deletePropertyFromParent, getDataModelFromNodeRef, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
+import { deletePropertyFromParent, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
 import { cloneDeep } from "lodash-es";
 import WhereIsEditor from "./WhereIsEditor.vue";
 import Button from "primevue/button";
-import { getPathName } from "@/helpers/QueryEditorMethods";
+import { getPathName, getTypeFromClause } from "@/helpers/QueryEditorMethods";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+
 const props = withDefaults(
   defineProps<{
     showDelete?: boolean;
@@ -141,7 +143,9 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  dataModelIri.value = getDataModelFromNodeRef(props.match, property.value.nodeRef, props.baseType.iri!);
+  let dataModel = getTypeFromClause(props.match);
+  if (!dataModel) dataModel = props.baseType.iri;
+  dataModelIri.value = dataModel!;
   originalProperty.value = cloneDeep(property.value);
   if (dataModelIri.value && property!.value.iri) selectedProperty.value = await DataModelService.getUIProperty(dataModelIri.value, property!.value.iri);
   loading.value = false;
@@ -180,6 +184,7 @@ function truncateName(name: string) {
   if (name.length > 25) return name.substring(0, 25) + "...";
   return name;
 }
+function updateProperty(newProperty: Where) {}
 
 function addProperty() {
   emit("addProperty");
@@ -232,5 +237,6 @@ function revert() {
   background-color: #ffffff;
   margin: 0.5rem;
   font-size: 1rem;
+  background-color: #488bc210;
 }
 </style>
