@@ -7,7 +7,7 @@
       <slot name="content" />
     </div>
     <div id="topbar-end" class="topbar-end">
-      <div v-if="isLoggedIn" class="topbar-end">
+      <!--      <div v-if="isLoggedIn" class="topbar-end">
         <span class="filter-text filter">Include drafts:</span>
         <ToggleSwitch id="user-graph-switch" class="filter-toggle mx-2 filter" v-model="includeUserGraph" data-testid="user-graph-switch"></ToggleSwitch>
         <IMFontAwesomeIcon
@@ -18,7 +18,7 @@
           icon="fa-regular fa-circle-question"
         >
         </IMFontAwesomeIcon>
-      </div>
+      </div>-->
       <Popover ref="themesMenu" id="themes-menu" @mouseleave="themesMenu.hide()" scrollable>
         <div class="theme-container">
           <h2>Primary</h2>

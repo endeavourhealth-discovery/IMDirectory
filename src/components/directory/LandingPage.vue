@@ -31,7 +31,7 @@ import { IM, SHACL } from "@/vocabulary";
 import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
 import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";
 import Favourites from "@/components/directory/landingPage/Favourites.vue";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 const directService = new DirectService();
 
@@ -82,7 +82,7 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
     label: "ASSIGN UPRN",
     icon: "fa-duotone fa-map-location-dot",
     command: () => directService.uprn(),
-    color: "var(--p-red-500)",
+    color: "var(--p-blue-500)",
     size: 4
   },
   {
@@ -90,6 +90,14 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
     icon: "/logos/ship-small.png",
     url: "https://wiki.endeavourhealth.org/index.php?title=Welcome_to_the_Endeavour_Health_knowledge_base",
     color: "var(--p-blue-500)",
+    size: 4,
+    newTab: true
+  },
+  {
+    label: "Endeavour Predict",
+    icon: "fa-duotone fa-calculator",
+    url: "https://calculator.endeavourpredict.org/Run/",
+    color: "var(--p-red-500)",
     size: 4,
     newTab: true
   }
