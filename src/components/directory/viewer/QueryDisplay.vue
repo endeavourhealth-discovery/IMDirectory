@@ -28,7 +28,6 @@
                   :depth="0"
                   :parent-match="query"
                   :bracketed="false"
-                  :edit-mode="editMode"
                   :eclQuery="eclQuery"
                 />
               </span>
@@ -42,7 +41,6 @@
               :inline="false"
               :parent-match="rootQuery"
               :bracketed="false"
-              :editMode="editMode"
               :eclQuery="eclQuery"
               :expanded="query.name === undefined"
             />
@@ -53,14 +51,14 @@
         <SQLDisplay :sql="sql" />
       </div>
       <div v-else-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
+        <DataSetDisplay v-if="!query.dataSet" :query="query" :key="`dataSetQuery-return`" :matchExpanded="false" :returnExpanded="true" :index="0" />
         <DataSetDisplay
-          v-for="(nestedQuery, index) in query.dataSet"
+          v-for="(nestedQuery, index) in query?.dataSet"
           :query="nestedQuery"
           :key="`nestedQuery-${index}`"
           :matchExpanded="false"
           :returnExpanded="true"
           :index="index"
-          :editMode="editMode"
         />
       </div>
       <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
@@ -89,14 +87,13 @@ enum DisplayOptions {
   LogicalView = "Logical view",
   MySQL = "MySQL",
   PostreSQL = "PostgreSQL",
-  DatasetDefinition = "Dataset definition"
+  DatasetDefinition = "Data output definition"
 }
 
 interface Props {
   entityIri?: string;
   definition?: string;
   queryDefinition?: Query;
-  editMode?: boolean;
   entityType?: string;
   eclQuery?: boolean;
   showDataset?: boolean;
@@ -117,7 +114,6 @@ const loading = ref(true);
 const showTestResults = ref(false);
 const testResults: Ref<string[]> = ref([]);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
-
 const displayOptions: Ref<string[]> = ref([]);
 const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
 const showArgumentSelector = ref(false);

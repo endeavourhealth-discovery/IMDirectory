@@ -152,7 +152,6 @@ declare module 'vue' {
     ImqueryCohortEditor: typeof import('./src/components/imquery/CohortEditor.vue')['default']
     ImqueryDateSelect: typeof import('./src/components/imquery/DateSelect.vue')['default']
     ImqueryEditMatchDialog: typeof import('./src/components/imquery/EditMatchDialog.vue')['default']
-    ImqueryEditOrderBy: typeof import('./src/components/imquery/EditOrderBy.vue')['default']
     ImqueryEditProperty: typeof import('./src/components/imquery/EditProperty.vue')['default']
     ImqueryEntailmentOptionsSelect: typeof import('./src/components/imquery/EntailmentOptionsSelect.vue')['default']
     ImqueryFunctionTemplatesFunctionComponent: typeof import('./src/components/imquery/functionTemplates/FunctionComponent.vue')['default']
