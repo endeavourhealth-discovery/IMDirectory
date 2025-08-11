@@ -1,6 +1,6 @@
 <template>
   <MatchEditor
-    v-if="showEditor"
+    :key="refreshCounter"
     v-model:match="match"
     v-model:showMatchEditor="showEditor"
     :baseType="baseType"
@@ -8,6 +8,7 @@
     :depth="depth"
     :clauseIndex="clauseIndex"
     @cancel="cancelEditMatch"
+    @saveChanges="saveEditMatch"
   />
   <div class="nested-match">
     <div v-if="parentOperator === Bool.rule" class="rule">Rule {{ clauseIndex }}</div>
@@ -169,7 +170,7 @@ const hoverDeleteClause = ref(false);
 const hoverAddClause = ref(false);
 const showEditor = ref(false);
 const operators = ["and", "or", "not"] as const;
-const originalMatch: Ref<Match> = ref({});
+const refreshCounter = ref(0);
 const showBoolean = computed(() => {
   if (props.from) return false;
   if (props.parentOperator) {
@@ -191,7 +192,6 @@ onMounted(async () => {
 });
 
 function init() {
-  originalMatch.value = cloneDeep(match.value);
   if (!matchDefined(match.value)) {
     showEditor.value = true;
   }
@@ -220,8 +220,10 @@ function addMatch() {
 function deleteMatch() {
   deleteMatchFromParent(parentMatch.value, props.clauseIndex);
 }
+function saveEditMatch(editMatch: Match) {
+  match.value = editMatch;
+}
 function editMatch() {
-  originalMatch.value = cloneDeep(match.value);
   showEditor.value = true;
 }
 function mouseover(event: any) {
@@ -232,10 +234,10 @@ function getSubrule(parentIndex: number, index: number): string {
 }
 
 function cancelEditMatch() {
-  match.value = originalMatch.value;
   if (!matchDefined(match.value)) {
     deleteMatchFromParent(parentMatch.value, props.clauseIndex);
   }
+  refreshCounter.value++;
   showEditor.value = false;
 }
 

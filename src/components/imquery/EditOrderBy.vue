@@ -80,7 +80,7 @@ function getDirectionOptions(property: OrderDirection) {
   return directionOptions;
 }
 function deleteOrderBy() {
-  delete editQuery.value.orderBy;
+  delete editQuery.value.return.orderBy;
 }
 </script>
 

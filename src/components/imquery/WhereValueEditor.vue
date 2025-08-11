@@ -104,7 +104,7 @@ const booleanOptions = [
   { name: "true", value: true },
   { name: "false", value: false }
 ];
-
+const emit = defineEmits(["updateProperty"]);
 const relativity: Ref<string | undefined> = ref();
 const originalRelativeTo: Ref<RelativeTo | undefined> = ref();
 const whereDisplay: Ref<string> = ref("");
@@ -161,9 +161,11 @@ function updateRelativity(value: string) {
   }
   init();
   refresh.value++;
+  emit("updateProperty");
 }
 function updateWhereDisplay() {
   whereDisplay.value = getWhereDisplay(property.value, props.uiProperty.valueType);
+  emit("updateProperty");
 }
 </script>
 

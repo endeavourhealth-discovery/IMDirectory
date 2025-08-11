@@ -2,7 +2,6 @@
   <div v-if="loading" class="flex">
     <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
   </div>
-
   <div class="nested-where">
     <div v-if="hasBoolGroups(property)">
       <div v-for="operator in operators" :key="operator">
@@ -33,6 +32,7 @@
               @deletedProperty="deletedProperty"
               @addProperty="emit('addProperty')"
               @updateBool="updateBool"
+              @updateProperty="updateProperty"
             />
           </div>
         </div>
@@ -55,7 +55,7 @@
         <span class="property-label">{{ propertyPath }}</span>
       </div>
       <div v-if="selectedProperty?.propertyType === 'class'">
-        <WhereIsEditor v-model:property="property" :uiProperty="selectedProperty" />
+        <WhereIsEditor :key="refreshCounter" v-model:property="property" :uiProperty="selectedProperty" />
         <Popover ref="dropdown">
           <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
             <span v-for="is of property.is" :key="getNameFromRef(is)" class="p-1">{{ getNameFromRef(is) }}</span>
@@ -63,7 +63,13 @@
         </Popover>
       </div>
       <div v-else-if="selectedProperty?.propertyType === 'datatype'">
-        <WhereValueEditor :ui-property="selectedProperty" v-model:property="property!" :refresh="refresh" />
+        <WhereValueEditor
+          :key="refreshCounter"
+          :ui-property="selectedProperty"
+          v-model:property="property!"
+          :refresh="refreshCounter"
+          @updateProperty="updateProperty"
+        />
       </div>
       <div class="ml-auto flex flex-row">
         <Button data-testid="cancel-edit-feature-button" label="Revert" text @click="revert" />
@@ -119,7 +125,7 @@ const props = withDefaults(
 );
 
 const selectedProperty: Ref<UIProperty | undefined> = ref();
-const emit = defineEmits(["updateBool", "addProperty", "deletedProperty"]);
+const emit = defineEmits(["updateBool", "addProperty", "deletedProperty", "updateProperty"]);
 const expandSet: Ref<boolean> = ref(false);
 const group: Ref<number[]> = ref([]);
 const loading = ref(true);
@@ -135,7 +141,7 @@ const propertyPath = computed(() => {
   else return property.value.name;
 });
 const originalProperty: Ref<Where> = ref({});
-const refresh: Ref<number> = ref(0);
+const refreshCounter: Ref<number> = ref(0);
 
 onMounted(async () => {
   await init();
@@ -184,7 +190,9 @@ function truncateName(name: string) {
   if (name.length > 25) return name.substring(0, 25) + "...";
   return name;
 }
-function updateProperty(newProperty: Where) {}
+function updateProperty() {
+  emit("updateProperty");
+}
 
 function addProperty() {
   emit("addProperty");
@@ -200,7 +208,7 @@ function onSaveCustomSet(newSet: Node) {
 }
 function revert() {
   property.value = originalProperty.value;
-  refresh.value++;
+  refreshCounter.value++;
 }
 </script>
 

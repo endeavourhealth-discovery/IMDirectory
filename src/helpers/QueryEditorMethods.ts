@@ -302,6 +302,15 @@ export function getTypeFromClause(match: Match): string | undefined {
       if (property.nodeRef) return getTypeFromNodeRef(match, property.nodeRef);
     }
   }
+  if (match.where) {
+    const where = match.where;
+    if (where.nodeRef) return getTypeFromNodeRef(match, where.nodeRef);
+    for (const op of ["and", "or"] as const) {
+      if (where[op] && where[op][0].nodeRef) {
+        return getTypeFromNodeRef(match, where[op][0].nodeRef);
+      }
+    }
+  }
   return undefined;
 }
 
@@ -316,8 +325,8 @@ function getTypeFromNodeRef(aPath: HasPaths, nodeRef: string): string | undefine
 }
 
 export function getOrderable(match: Match, orderables: any[]): Orderable | undefined {
-  if (match.orderBy) {
-    const orderProperty = match.orderBy.property![0];
+  if (match.return && match.return.orderBy) {
+    const orderProperty = match.return.orderBy.property![0];
     return orderables.find(o => o.value.iri === orderProperty.iri && o.value.direction === orderProperty.direction);
   }
 }
@@ -334,4 +343,14 @@ export function getOrderOptions(orderables: Orderable[]): any[] {
     }
   }
   return results;
+}
+
+function toMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
+
+export function isTimeInRange(time: string, start: string, end: string): boolean {
+  const t = toMinutes(time);
+  return t >= toMinutes(start) && t <= toMinutes(end);
 }

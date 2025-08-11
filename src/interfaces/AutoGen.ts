@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-08 09:40:19.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-11 11:41:15.
 
 export interface ConceptContextMap {
     id?: string;
@@ -284,14 +284,14 @@ export interface Assignable {
     qualifier?: string;
     unit?: TTIriRef;
     operator?: Operator;
-    valueParameter?: string;
     valueLabel?: string;
+    valueParameter?: string;
 }
 
 export interface BoolGroup<T> {
+    and?: T[];
     or?: T[];
     not?: T[];
-    and?: T[];
 }
 
 export interface Case {
@@ -340,9 +340,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    memberOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
-    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -385,7 +385,6 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     not?: Match[];
     where?: Where;
     graph?: Element;
-    orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
     variable?: string;
@@ -858,11 +857,11 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
+    status?: TTIriRef;
     name?: string;
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     description?: string;
     code?: string;
     types?: TTIriRef[];
@@ -947,8 +946,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1477,7 +1476,6 @@ export const enum IM {
     USED_IN = "http://endhealth.info/im#usedIn",
     IN_RESULT_SET = "http://endhealth.info/im#inResultSet",
     HAS_PROFILE = "http://endhealth.info/im#inResultSet",
-    GMS_PATIENT = "http://endhealth.info/im#2751000252106",
     PROVENANCE_ACTIVITY = "http://endhealth.info/im#ProvenanceActivity",
     PROVENANCE_TARGET = "http://endhealth.info/im#provenanceTarget",
     PROVENANCE_ACTIVITY_TYPE = "http://endhealth.info/im#provenanceActivityType",

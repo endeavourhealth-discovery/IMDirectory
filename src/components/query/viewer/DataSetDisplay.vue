@@ -38,7 +38,7 @@
         />
       </span>
     </span>
-    <span v-if="dataSet.orderBy">{{ dataSet.orderBy.description }}</span>
+    <span v-if="dataSet.return && dataSet.return.orderBy">{{ dataSet.return.orderBy.description }}</span>
     <div v-if="dataSet.return && matchExpand">
       <ReturnColumns :select="dataSet.return" :property-expanded="false" class="pl-8" />
     </div>

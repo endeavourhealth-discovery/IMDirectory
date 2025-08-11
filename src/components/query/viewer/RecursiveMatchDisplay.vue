@@ -69,7 +69,7 @@
         </div>
       </span>
     </span>
-    <span v-if="match.orderBy">{{ match.orderBy.description }}</span>
+    <span v-if="match.return && match.return.orderBy">{{ match.return.orderBy.description }}</span>
     <span v-if="match.where">
       <RecursiveWhereDisplay
         :where="match.where"
