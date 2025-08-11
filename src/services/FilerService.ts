@@ -37,12 +37,7 @@ const FilerService = {
   },
 
   async fileEntity(entity: TTEntity, graph: string, crud: string): Promise<void> {
-    return await axios.post(api + "api/filer/file/entity", entity, {
-      params: {
-        graph,
-        crud
-      }
-    });
+    return await axios.post(api + "api/filer/file/entity", { entity: entity, graph: graph, crud: crud });
   },
 
   async fileDocument(document: TTDocument): Promise<{ [x: string]: string }> {
