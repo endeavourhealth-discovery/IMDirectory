@@ -217,7 +217,11 @@ async function runQuery() {
     const argumentsVerified = await checkArguments();
     if (!argumentsVerified) return;
     confirm.require({
-      message: "Are you sure you want to run this query '" + query.value.name + "'?" + requestArguments.value.toString(),
+      message:
+        "Are you sure you want to run this query '" +
+        query.value.name +
+        " with the following arguments: \n" +
+        requestArguments.value.map(arg => `${arg.parameter}: ${arg.valueData}`).join("\n"),
       header: "Run query",
       icon: "pi pi-exclamation-triangle",
       rejectProps: {

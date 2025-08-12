@@ -20,7 +20,7 @@
         </div>
         <div v-if="argument.dataType && [IM.DATE, IM.DATE_TIME, IM.TIME].includes(argument.dataType.iri)">
           <label>Select date:</label>
-          <DatePicker v-model="argument.value" :showTime="IM.DATE_TIME === argument.dataType.iri" :timeOnly="IM.TIME === argument.dataType.iri" />
+          <DatePicker v-model="argument.value" :showTime="IM.DATE_TIME === argument.dataType.iri" :timeOnly="IM.TIME === argument.dataType.iri"  dateFormat="yy/mm/dd"/>
         </div>
       </div>
     </div>
