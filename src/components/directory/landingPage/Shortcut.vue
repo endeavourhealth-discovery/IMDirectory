@@ -9,7 +9,7 @@
         :style="'color:' + color + ';width: ' + (size + 2) + 'rem'"
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;width:' + (size + 1) + 'rem'" />
-      <p class="label" :style="'width:' + (size + 2) + 'rem'">{{ label }}</p>
+      <p v-tooltip.bottom="{ value: label }" class="label" :style="'width:' + (size + 2) + 'rem'">{{ label }}</p>
     </Button>
     <Button v-if="command" link as="a" class="shortcut-container command-shortcut" @click="command()">
       <IMFontAwesomeIcon
