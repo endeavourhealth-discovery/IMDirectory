@@ -82,22 +82,22 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
     label: "ASSIGN UPRN",
     icon: "fa-duotone fa-map-location-dot",
     command: () => directService.uprn(),
-    color: "var(--p-blue-500)",
+    color: "var(--p-red-500)",
     size: 4
+  },
+  {
+    label: "Endeavour Predict",
+    icon: "fa-duotone fa-calculator",
+    url: "https://calculator.endeavourpredict.org",
+    color: "var(--p-blue-300)",
+    size: 4,
+    newTab: true
   },
   {
     label: "Wiki",
     icon: "/logos/ship-small.png",
     url: "https://wiki.endeavourhealth.org/index.php?title=Welcome_to_the_Endeavour_Health_knowledge_base",
     color: "var(--p-blue-500)",
-    size: 4,
-    newTab: true
-  },
-  {
-    label: "Endeavour Predict",
-    icon: "fa-duotone fa-calculator",
-    url: "https://calculator.endeavourpredict.org/Run/",
-    color: "var(--p-red-500)",
     size: 4,
     newTab: true
   }

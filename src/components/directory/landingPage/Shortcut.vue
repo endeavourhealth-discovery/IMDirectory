@@ -6,10 +6,10 @@
         class="shortcut-icon"
         :icon="icon"
         :size="getIconSize(size)"
-        :style="'color:' + color + ';width: ' + (size + 1) + 'rem'"
+        :style="'color:' + color + ';width: ' + (size + 2) + 'rem'"
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;width:' + (size + 1) + 'rem'" />
-      <p class="label" :style="'width:' + (size + 1) + 'rem'">{{ label }}</p>
+      <p class="label" :style="'width:' + (size + 2) + 'rem'">{{ label }}</p>
     </Button>
     <Button v-if="command" link as="a" class="shortcut-container command-shortcut" @click="command()">
       <IMFontAwesomeIcon
@@ -17,7 +17,7 @@
         class="shortcut-icon"
         :icon="icon"
         :size="getIconSize(size)"
-        :style="'color:' + color + ';width:' + (size + 1) + 'rem'"
+        :style="'color:' + color + ';width:' + (size + 3) + 'rem'"
       />
       <img v-else :src="icon" alt="link-image" class="shortcut-image" :style="'height:' + size + 'rem;' + 'width:' + (size + 1) + 'rem'" />
       <p v-tooltip.bottom="{ value: label }" class="label" :style="'width:' + (size + 2) + 'rem'">{{ label }}</p>
@@ -74,7 +74,9 @@ function getIconSize(size: number): "1x" | "2x" | "3x" | "4x" | "5x" | "6x" | "7
 .shortcut-container {
   display: flex;
   flex-flow: column nowrap;
+  flex-basis: auto;
   align-items: center;
+  width: fit-content;
 }
 
 .shortcut-icon {
@@ -85,8 +87,6 @@ function getIconSize(size: number): "1x" | "2x" | "3x" | "4x" | "5x" | "6x" | "7
 }
 
 .label {
-  text-overflow: ellipsis;
   text-align: center;
-  overflow: hidden;
 }
 </style>
