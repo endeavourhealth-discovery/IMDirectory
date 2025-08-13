@@ -31,6 +31,7 @@
         </div>
         <SecuritySettings v-if="activeItem === 1" />
         <AuthRoles v-if="activeItem === 2" />
+        <UserGraphs v-if="activeItem === 3" />
       </template>
     </Card>
   </div>
@@ -42,6 +43,7 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
 import AuthRoles from "@/components/auth/userDetails/AuthRoles.vue";
 import SecuritySettings from "@/components/auth/userDetails/SecuritySettings.vue";
+import UserGraphs from "./userDetails/UserGraphs.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -71,6 +73,14 @@ const menuItems = ref([
     class: "roles-tab",
     command: () => {
       activeItem.value = 2;
+    }
+  },
+  {
+    label: "Database graphs",
+    icon: "fa-solid fa-database",
+    class: "graphs-tab",
+    command: () => {
+      activeItem.value = 3;
     }
   }
 ]);

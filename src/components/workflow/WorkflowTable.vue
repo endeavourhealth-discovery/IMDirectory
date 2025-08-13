@@ -113,6 +113,10 @@ async function showDetails(data: Task) {
       await router.push({ name: "ViewRoleRequest", params: { id: data.id?.iri } });
       break;
     }
+    case TaskType.GRAPH_REQUEST: {
+      await router.push({ name: "ViewGraphRequest", params: { id: data.id?.iri } });
+      break;
+    }
     default: {
       throw new Error("Unexpected task type: " + data.type);
     }

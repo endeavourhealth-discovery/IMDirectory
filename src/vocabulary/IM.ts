@@ -140,6 +140,7 @@ export class IM {
   public static readonly USED_IN = Namespace.IM + "usedIn"
   public static readonly IN_RESULT_SET = Namespace.IM + "inResultSet"
   public static readonly HAS_PROFILE = Namespace.IM + "inResultSet"
+  public static readonly GMS_PATIENT = Namespace.IM + "2751000252106"
   public static readonly PROVENANCE_ACTIVITY = Namespace.IM + "ProvenanceActivity"
   public static readonly PROVENANCE_TARGET = Namespace.IM + "provenanceTarget"
   public static readonly PROVENANCE_ACTIVITY_TYPE = Namespace.IM + "provenanceActivityType"
