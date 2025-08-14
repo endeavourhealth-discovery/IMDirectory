@@ -76,7 +76,6 @@ function getIconSize(size: number): "1x" | "2x" | "3x" | "4x" | "5x" | "6x" | "7
   flex-flow: column nowrap;
   flex-basis: auto;
   align-items: center;
-  width: fit-content;
 }
 
 .shortcut-icon {
