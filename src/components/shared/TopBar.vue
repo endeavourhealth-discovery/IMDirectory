@@ -162,6 +162,7 @@ import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import Button from "primevue/button";
+import { UserRole } from "@/enums";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -361,7 +362,7 @@ function toggleThemesMenu(event: MouseEvent, key: string | undefined) {
   }
 }
 
-function isLoggedInWithRole(role: string): boolean {
+function isLoggedInWithRole(role: UserRole): boolean {
   return isLoggedIn.value && typeof currentUser.value !== "undefined" && currentUser.value.roles.includes(role);
 }
 
@@ -380,7 +381,7 @@ function setUploadDownloadMenuItems() {
         {
           label: "Upload Document",
           icon: "fa-duotone fa-file-arrow-up",
-          disabled: !(isLoggedInWithRole("create") || isLoggedInWithRole("edit")),
+          disabled: !(isLoggedInWithRole(UserRole.CREATOR) || isLoggedInWithRole(UserRole.EDITOR)),
           command: () => directService.file()
         },
         {

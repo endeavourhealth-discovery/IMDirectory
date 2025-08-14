@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-25 15:17:21.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-13 12:40:40.
 
 export interface ConceptContextMap {
     id?: string;
@@ -280,17 +280,17 @@ export interface ArgumentReference {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
-    valueParameter?: string;
-    valueLabel?: string;
     unit?: TTIriRef;
+    operator?: Operator;
+    valueLabel?: string;
+    valueParameter?: string;
     qualifier?: string;
 }
 
 export interface BoolGroup<T> {
     or?: T[];
-    and?: T[];
     not?: T[];
+    and?: T[];
 }
 
 export interface Case {
@@ -316,7 +316,6 @@ export interface ECLQueryRequest {
     query?: Query;
     showNames?: boolean;
     status?: ECLStatus;
-    graph?: Graph;
 }
 
 export interface ECLStatus {
@@ -340,8 +339,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     ancestorsOf?: boolean;
-    descendantsOf?: boolean;
     memberOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -436,7 +435,6 @@ export interface PathQuery extends TTIriRef {
     source?: TTIriRef;
     target?: TTIriRef;
     depth?: number;
-    graph?: Graph;
 }
 
 export interface Prefix {
@@ -561,7 +559,7 @@ export interface DBEntry {
 
 export interface CognitoGroupRequest {
     username?: string;
-    groupName?: string;
+    groupName?: UserRole;
 }
 
 export interface EclSearchRequest {
@@ -572,7 +570,6 @@ export interface EclSearchRequest {
     page?: number;
     size?: number;
     select?: string[];
-    graph?: Graph;
 }
 
 export interface EditRequest {
@@ -615,13 +612,14 @@ export interface QueryRequest extends ContextMap {
     update?: Update;
     name?: string;
     page?: Page;
+    baselineDate?: string;
+    queryStringDefinition?: string;
     askIri?: string;
     timings?: { [index: string]: string }[];
     cohort?: TTIriRef[];
     includeNames?: boolean;
     textSearchStyle?: TextSearchStyle;
     language?: DatabaseOption;
-    graph?: Graph;
 }
 
 /**
@@ -707,7 +705,6 @@ export interface TransformRequest {
 
 export interface ValidatedEntitiesRequest {
     snomedCodes?: string[];
-    graph?: Graph;
 }
 
 /**
@@ -833,7 +830,6 @@ export interface SetOptions {
     schemes?: string[];
     includeIM1id?: boolean;
     subsumptions?: string[];
-    graph?: Graph;
     includeDefinition?: boolean;
     includeCore?: boolean;
     includeLegacy?: boolean;
@@ -851,15 +847,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
-    status?: TTIriRef;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    types?: TTIriRef[];
-    code?: string;
     prefixes?: TTPrefix[];
+    status?: TTIriRef;
+    code?: string;
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -882,6 +878,10 @@ export interface BugReport extends Task {
 export interface EntityApproval extends Task {
     entityIri?: TTIriRef;
     approvalType?: ApprovalType;
+}
+
+export interface GraphRequest extends Task {
+    graph?: Graph;
 }
 
 export interface RoleRequest extends Task {
@@ -1242,6 +1242,7 @@ export const enum TaskState {
 export const enum TaskType {
     BUG_REPORT = "BUG_REPORT",
     ROLE_REQUEST = "ROLE_REQUEST",
+    GRAPH_REQUEST = "GRAPH_REQUEST",
     ENTITY_APPROVAL = "ENTITY_APPROVAL",
 }
 
@@ -1293,12 +1294,13 @@ export const enum CONFIG {
 export const enum CodeTemplate {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "cTemp",
-    WRAPPER = "http://endhealth.info/im#codeTemplate#wrapper",
+    WRAPPER = "http://endhealth.info/codeTemplate#wrapper",
     LABEL = "http://www.w3.org/2000/01/rdf-schema#label",
     DEFINITION = "http://endhealth.info/im#definition",
-    DATATYPE_MAP = "http://endhealth.info/im#codeTemplate#datatypeMap",
-    EXTENSION = "http://endhealth.info/im#codeTemplate#extension",
-    INCLUDE_COMPLEX_TYPES = "http://endhealth.info/im#codeTemplate#includeComplexTypes",
+    TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    DATATYPE_MAP = "http://endhealth.info/codeTemplate#datatypeMap",
+    EXTENSION = "http://endhealth.info/codeTemplate#extension",
+    INCLUDE_COMPLEX_TYPES = "http://endhealth.info/codeTemplate#includeComplexTypes",
 }
 
 export const enum EDITOR {
@@ -1690,7 +1692,7 @@ export const enum Namespace {
     IM_EDITOR = "http://endhealth.info/im#Editor_",
     IM_QUERY = "http://endhealth.info/im#Query_",
     IM_VALIDATION = "http://endhealth.info/im#Validation_",
-    IM_CODE_TEMPLATE = "http://endhealth.info/im#codeTemplate#",
+    IM_CODE_TEMPLATE = "http://endhealth.info/codeTemplate#",
     TPP = "http://endhealth.info/tpp#",
     ENCOUNTERS = "http://endhealth.info/enc#",
     ICD10 = "http://endhealth.info/icd10#",
@@ -1895,6 +1897,7 @@ export const enum USER {
     USER_MRU = "http://endhealth.info/UserMRU",
     USER_FAVOURITES = "http://endhealth.info/UserFavourites",
     ORGANISATIONS = "http://endhealth.info/ORGANISATIONS",
+    GRAPHS = "http://endhealth.info/GRAPHS",
 }
 
 export const enum VALIDATION {
@@ -1930,6 +1933,7 @@ export const enum WORKFLOW {
     ACTUAL_RESULT = "http://endhealth.info/workflow#actualResult",
     RELATED_VERSION = "http://endhealth.info/workflow#relatedVersion",
     REQUESTED_ROLE = "http://endhealth.info/workflow#requestedRole",
+    REQUESTED_GRAPH = "http://endhealth.info/workflow#requestedGraph",
     APPROVAL_TYPE = "http://endhealth.info/workflow#approvalType",
     HISTORY = "http://endhealth.info/workflow#history",
     HISTORY_PREDICATE = "http://endhealth.info/workflow#historyPredicate",

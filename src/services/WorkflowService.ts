@@ -1,4 +1,4 @@
-import { BugReport, EntityApproval, RoleRequest, Task, WorkflowResponse } from "@/interfaces/AutoGen";
+import { BugReport, EntityApproval, GraphRequest, RoleRequest, Task, WorkflowResponse } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 
@@ -28,6 +28,18 @@ const WorkflowService = {
 
   async updateRoleRequest(roleRequest: RoleRequest): Promise<void> {
     return await axios.post(api + "/updateRoleRequest", roleRequest);
+  },
+
+  async createGraphRequest(roleRequest: GraphRequest): Promise<void> {
+    return await axios.post(api + "/createGraphRequest", roleRequest);
+  },
+
+  async getGraphRequest(id: string): Promise<GraphRequest> {
+    return await axios.get(api + "/graphRequest", { params: { id: id } });
+  },
+
+  async updateGraphRequest(graphRequest: GraphRequest): Promise<void> {
+    return await axios.post(api + "/updateGraphRequest", graphRequest);
   },
 
   async createEntityApproval(entityApproval: EntityApproval): Promise<void> {
@@ -72,6 +84,14 @@ const WorkflowService = {
 
   async rejectRoleRequest(roleRequest: RoleRequest) {
     return await axios.post(api + "/rejectRoleRequest", roleRequest);
+  },
+
+  async approveGraphRequest(graphRequest: GraphRequest) {
+    return await axios.post(api + "/approveGraphRequest", graphRequest);
+  },
+
+  async rejectGraphRequest(graphRequest: GraphRequest) {
+    return await axios.post(api + "/rejectGraphRequest", graphRequest);
   },
 
   async approveEntityApproval(entityApproval: EntityApproval) {
