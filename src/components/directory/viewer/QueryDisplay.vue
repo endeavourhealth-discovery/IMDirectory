@@ -51,7 +51,15 @@
         <SQLDisplay :sql="sql" />
       </div>
       <div v-else-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
-        <DataSetDisplay v-if="!query.dataSet" :query="query" :key="`dataSetQuery-return`" :matchExpanded="false" :returnExpanded="true" :index="0" />
+        <DataSetDisplay
+          v-if="!query.dataSet"
+          :query="query"
+          :key="`dataSetQuery-return`"
+          :matchExpanded="false"
+          :returnExpanded="true"
+          :parentQuery="query"
+          :index="0"
+        />
         <DataSetDisplay
           v-for="(nestedQuery, index) in query?.dataSet"
           :query="nestedQuery"
@@ -59,6 +67,7 @@
           :matchExpanded="false"
           :returnExpanded="true"
           :index="index"
+          :parentQuery="query"
         />
       </div>
       <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />

@@ -1,20 +1,18 @@
 <template>
   <div :style="{ paddingLeft: '1rem' }">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
-    <span v-if="dataSet.name">{{ dataSet.name }}</span>
-    <div v-if="!dataSet.return">{{ dataSet.typeOf?.name }} internal id</div>
-    <span v-if="dataSet.return">
+    <div v-if="dataSet.name">Name : {{ dataSet.name }}</div>
+    <div v-if="dataSet.return">
       <span v-if="dataSet.return.as">Group : {{ dataSet.return.as }}</span>
-    </span>
+    </div>
+    <div v-else>{{ parentQuery.typeOf?.name }} internal id</div>
+
     <div v-if="hasCriteria(dataSet) || dataSet.return">
-      <Button
-        v-if="hasCriteria(dataSet) || dataSet.return"
-        text
-        :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'"
-        @click="matchToggle"
-      /><span>If the following:</span>
-      <span v-if="matchExpand && hasCriteria(dataSet)">
+      <div v-if="hasCriteria(dataSet)">
+        <span>If the following:</span>
+        <Button v-if="hasCriteria(dataSet)" text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
         <RecursiveMatchDisplay
+          v-if="matchExpand"
           :inline="false"
           :match="dataSet"
           :key="index"
@@ -25,24 +23,11 @@
           :expanded="false"
           :parent-match="query"
         />
-        <span v-if="dataSet.where">
-          <RecursiveWhereDisplay
-            :where="dataSet.where"
-            :depth="0"
-            :property-index="index"
-            :key="index"
-            :index="index"
-            :operator="Bool.and"
-            :expandedSet="false"
-            :editMode="editMode"
-            :inline="!dataSet.where.and && !dataSet.where.or"
-          />
-        </span>
-      </span>
-    </div>
-    <span v-if="dataSet.return && dataSet.return.orderBy">{{ dataSet.return.orderBy.description }}</span>
-    <div v-if="dataSet.return && matchExpand">
-      <ReturnColumns :select="dataSet.return" :property-expanded="false" class="pl-8" />
+      </div>
+      <span v-if="dataSet.return && dataSet.return.orderBy">{{ dataSet.return.orderBy.description }}</span>
+      <div v-if="dataSet.return">
+        <ReturnColumns :select="dataSet.return" class="pl-8" :parentQuery="parentQuery" />
+      </div>
     </div>
   </div>
 </template>
@@ -65,7 +50,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const parentQuery = defineModel<Query>("parentQuery", { default: {} });
-const matchExpand = ref(props.matchExpanded);
+const matchExpand = ref(false);
 const loading = ref(false);
 const dataSet = ref({ ...props.query });
 
