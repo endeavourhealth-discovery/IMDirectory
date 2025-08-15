@@ -50,7 +50,7 @@
     <span v-for="operator in operators" :key="operator">
       <span v-if="match[operator]">
         <span v-if="match[operator]!.length > 1 && operator != 'not'" :class="operator">
-          <span>{{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true, match.union) }}</span>
+          <span>{{ getBooleanLabel("match", operator as Bool, parentOperator === Bool.rule ? 0 : clauseIndex, !eclQuery, true, match.union) }}</span>
         </span>
         <div class="tree-node-wrapper">
           <span v-for="(nestedQuery, index) in match[operator]" :key="index">
