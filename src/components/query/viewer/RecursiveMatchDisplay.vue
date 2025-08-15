@@ -6,6 +6,7 @@
     <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && parentOperator != Bool.not" :class="parentOperator">{{
       parentOperator
     }}</span>
+    <div v-if="match.description" class="match-description">{{ match.description }}</div>
     <span v-if="parentMatch?.union && !from">
       <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
       <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
@@ -242,6 +243,9 @@ function getSubrule(index: number): string {
   left: 0;
   width: 1rem;
   border-top: 0.1rem dotted #999;
+}
+.match-description {
+  color: var(--p-blue-700);
 }
 
 #recursive-match-display:deep(.either) {
