@@ -26,6 +26,7 @@ interface Props {
 const props = defineProps<Props>();
 const { nodes, createRelationTree, collapseNode, getDefaultTarget, expandedKeys, loading } = setupRelationTree();
 const property = defineModel<Where>("property", { default: {} });
+const emit = defineEmits(["updateProperty"]);
 const showTreeSearch: Ref<boolean> = ref(false);
 const variableOptions: Ref<TreeNode[]> = ref([]);
 const query = inject("query") as Ref<Query>;
@@ -48,6 +49,7 @@ function cancel() {
 function onNodeSelect(node: any) {
   if (node.data && node.data.type != "nodeShape") {
     updateRelativeTo(property.value, node);
+    emit("updateProperty", node);
   }
 }
 

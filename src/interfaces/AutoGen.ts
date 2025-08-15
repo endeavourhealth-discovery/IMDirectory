@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-13 12:40:40.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-15 08:49:38.
 
 export interface ConceptContextMap {
     id?: string;
@@ -241,6 +241,7 @@ export interface PropertyShape {
     descending?: string;
     orderable?: boolean;
     hasValueSet?: TTIriRef;
+    definingProperty?: boolean;
 }
 
 export interface SetContent {
@@ -281,16 +282,16 @@ export interface ArgumentReference {
 export interface Assignable {
     value?: string;
     unit?: TTIriRef;
-    operator?: Operator;
     valueLabel?: string;
     valueParameter?: string;
     qualifier?: string;
+    operator?: Operator;
 }
 
 export interface BoolGroup<T> {
     or?: T[];
-    not?: T[];
     and?: T[];
+    not?: T[];
 }
 
 export interface Case {
@@ -338,8 +339,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    ancestorsOf?: boolean;
     descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
@@ -356,6 +357,10 @@ export interface GroupBy extends IriLD {
     propertyRef?: string;
 }
 
+export interface HasPaths {
+    path?: Path[];
+}
+
 export interface Instance extends IriLD {
     entailment?: TTIriRef;
 }
@@ -368,7 +373,7 @@ export interface IriLD {
     uuid?: string;
 }
 
-export interface Match extends IriLD, BoolGroup<Match> {
+export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -379,12 +384,10 @@ export interface Match extends IriLD, BoolGroup<Match> {
     not?: Match[];
     where?: Where;
     graph?: Element;
-    orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
     variable?: string;
     parameter?: string;
-    path?: Path[];
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
@@ -417,11 +420,10 @@ export interface OrderLimit {
     description?: string;
 }
 
-export interface Path extends Element {
+export interface Path extends Element, HasPaths {
     inverse?: boolean;
     optional?: boolean;
     typeOf?: Node;
-    path?: Path[];
 }
 
 export interface PathDocument {
@@ -483,6 +485,7 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
+    orderBy?: OrderLimit;
 }
 
 export interface ReturnProperty {
@@ -538,6 +541,7 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     inverse?: boolean;
     or?: Where[];
     and?: Where[];
+    shortLabel?: string;
 }
 
 export interface DBEntry {
@@ -585,6 +589,11 @@ export interface EntityValidationRequest {
     graph?: Graph;
 }
 
+export interface FileDocumentRequest {
+    document?: TTDocument;
+    insertGraph?: Graph;
+}
+
 export interface FunctionRequest {
     functionIri?: string;
     arguments?: Argument[];
@@ -606,13 +615,11 @@ export interface QueryDisplayRequest {
 export interface QueryRequest extends ContextMap {
     textSearch?: string;
     argument?: Argument[];
-    referenceDate?: string;
     query: Query;
     pathQuery?: PathQuery;
     update?: Update;
     name?: string;
     page?: Page;
-    baselineDate?: string;
     queryStringDefinition?: string;
     askIri?: string;
     timings?: { [index: string]: string }[];
@@ -847,15 +854,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    prefixes?: TTPrefix[];
     status?: TTIriRef;
     code?: string;
     types?: TTIriRef[];
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -1471,7 +1478,6 @@ export const enum IM {
     USED_IN = "http://endhealth.info/im#usedIn",
     IN_RESULT_SET = "http://endhealth.info/im#inResultSet",
     HAS_PROFILE = "http://endhealth.info/im#inResultSet",
-    GMS_PATIENT = "http://endhealth.info/im#2751000252106",
     PROVENANCE_ACTIVITY = "http://endhealth.info/im#ProvenanceActivity",
     PROVENANCE_TARGET = "http://endhealth.info/im#provenanceTarget",
     PROVENANCE_ACTIVITY_TYPE = "http://endhealth.info/im#provenanceActivityType",

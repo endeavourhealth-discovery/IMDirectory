@@ -9,7 +9,7 @@
       </div>
       <div class="query-editor-container flex flex-col gap-4">
         <div class="query-editor flex flex-col p-2">
-          <QueryDisplay :showSqlButton="false" :queryDefinition="queryDefinition" />
+          <QueryDisplay :showSqlButton="false" :queryDefinition="queryDefinition" :showDataset="true" />
         </div>
       </div>
     </div>

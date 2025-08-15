@@ -25,7 +25,7 @@
       </span>
     </span>
     <span class="field">{{ getFormattedPath(match) }}</span>
-    <span v-if="match.orderBy" class="order-by">{{ match.orderBy.description }}</span>
+    <span v-if="match.return && match.return.orderBy" class="order-by">{{ match.return.orderBy.description }}</span>
     <span v-if="match.where">
       <WhereDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :property-index="0" :key="0" :index="0" :root="true" :inline="true" />
     </span>

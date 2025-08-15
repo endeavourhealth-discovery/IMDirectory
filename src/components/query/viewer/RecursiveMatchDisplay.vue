@@ -6,6 +6,7 @@
     <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && parentOperator != Bool.not" :class="parentOperator">{{
       parentOperator
     }}</span>
+    <div v-if="match.description" class="match-description">{{ match.description }}</div>
     <span v-if="parentMatch?.union && !from">
       <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
       <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
@@ -69,7 +70,7 @@
         </div>
       </span>
     </span>
-    <span v-if="match.orderBy">{{ match.orderBy.description }}</span>
+    <span v-if="match.return && match.return.orderBy">{{ match.return.orderBy.description }}</span>
     <span v-if="match.where">
       <RecursiveWhereDisplay
         :where="match.where"
@@ -80,12 +81,13 @@
         :root="true"
         :expandedSet="expandSet"
         :inline="true"
+        :then="then"
         :eclQuery="eclQuery"
         :editMode="editMode"
       />
     </span>
 
-    <span v-if="match.return && !match.then">
+    <span v-if="match.return && match.then">
       <span class="field">(as</span>
       <span class="as">{{ match.return?.as }})</span>
     </span>
@@ -102,7 +104,7 @@
         :eclQuery="eclQuery"
       />
     </span>
-    <span v-if="match.return && match.then">
+    <span v-if="match.return && !match.then">
       <span class="field">(as</span>
       <span class="as">{{ match.return?.as }})</span>
     </span>
@@ -117,12 +119,12 @@
 
 <script setup lang="ts">
 import { Match, Bool } from "@/interfaces/AutoGen";
-import { Ref, ref } from "vue";
+import { Ref, ref, computed } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { getBooleanLabel, hasBoolGroups } from "@/composables/buildQuery";
 
-defineProps<{
+interface Props {
   isVariable?: boolean;
   depth: number;
   clauseIndex: number;
@@ -133,8 +135,9 @@ defineProps<{
   from?: Match;
   eclQuery?: boolean;
   parentOperator?: Bool;
-}>();
+}
 
+const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parentMatch = defineModel<Match>("parentMatch", { default: {} });
 const emit = defineEmits<{
@@ -143,7 +146,9 @@ const emit = defineEmits<{
 const editMenu = (match.value.and || match.value.or) && !match.value.instanceOf ? "booleanEditor" : "matchEditor";
 const expandSet: Ref<boolean> = ref(false);
 const operators = ["and", "or", "not"] as const;
-
+const then: Ref<boolean> = computed(() => {
+  return !!props.from;
+});
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
@@ -238,6 +243,9 @@ function getSubrule(index: number): string {
   left: 0;
   width: 1rem;
   border-top: 0.1rem dotted #999;
+}
+.match-description {
+  color: var(--p-blue-700);
 }
 
 #recursive-match-display:deep(.either) {
