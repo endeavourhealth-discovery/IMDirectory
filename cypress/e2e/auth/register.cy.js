@@ -130,7 +130,7 @@ describe("Register", () => {
   });
 
   it("checks if email is already in use", () => {
-    cy.findByTestId("register-email1").type("cypress@cypress.com");
+    cy.findByTestId("register-email1").type("test@example.com");
     cy.findByTestId("register-email1-unverified");
     cy.contains("Email address is already registered");
   });
