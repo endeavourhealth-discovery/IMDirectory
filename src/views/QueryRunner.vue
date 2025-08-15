@@ -110,7 +110,11 @@ async function search() {
   const results = await QueryService.getQueryQueue(page.value, rows.value);
   if (results) {
     totalCount.value = results.totalCount;
-    queryQueueItems.value = results.result;
+    queryQueueItems.value = results.result.sort((a, b) => {
+      if (!a.queuedAt) return 1;
+      if (!b.queuedAt) return -1;
+      return new Date(b.queuedAt).getTime() - new Date(a.queuedAt).getTime();
+    });
   } else {
     totalCount.value = 0;
     queryQueueItems.value = [];

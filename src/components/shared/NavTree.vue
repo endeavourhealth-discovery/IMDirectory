@@ -59,7 +59,7 @@ import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { TTIriRef, UserRole } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
@@ -205,7 +205,7 @@ async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
 
-  if (!currentUser.value || !currentUser.value.roles.includes("IMAdmin")) return;
+  if (!currentUser.value || !currentUser.value.roles.includes(UserRole.ADMIN)) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
   selectedNode.value = node;

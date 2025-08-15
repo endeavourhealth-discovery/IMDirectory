@@ -43,6 +43,7 @@ declare module 'vue' {
     AuthUserDetails: typeof import('./src/components/auth/UserDetails.vue')['default']
     AuthUserDetailsAuthRoles: typeof import('./src/components/auth/userDetails/AuthRoles.vue')['default']
     AuthUserDetailsSecuritySettings: typeof import('./src/components/auth/userDetails/SecuritySettings.vue')['default']
+    AuthUserDetailsUserGraphs: typeof import('./src/components/auth/userDetails/UserGraphs.vue')['default']
     AuthUserEdit: typeof import('./src/components/auth/UserEdit.vue')['default']
     AutoComplete: typeof import('primevue/autocomplete')['default']
     Breadcrumb: typeof import('primevue/breadcrumb')['default']
@@ -53,6 +54,7 @@ declare module 'vue' {
     Column: typeof import('primevue/column')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
     ContextMenu: typeof import('primevue/contextmenu')['default']
+    copy: typeof import('./src/components/workflow/ViewRoleRequest copy.vue')['default']
     CreatorTypeSelector: typeof import('./src/components/creator/TypeSelector.vue')['default']
     DataTable: typeof import('primevue/datatable')['default']
     DataView: typeof import('primevue/dataview')['default']
@@ -269,6 +271,7 @@ declare module 'vue' {
     WorkflowTaskViewer: typeof import('./src/components/workflow/TaskViewer.vue')['default']
     WorkflowViewBugReport: typeof import('./src/components/workflow/ViewBugReport.vue')['default']
     WorkflowViewEntityApproval: typeof import('./src/components/workflow/ViewEntityApproval.vue')['default']
+    WorkflowViewGraphRequest: typeof import('./src/components/workflow/ViewGraphRequest.vue')['default']
     WorkflowViewRoleRequest: typeof import('./src/components/workflow/ViewRoleRequest.vue')['default']
   }
   export interface ComponentCustomProperties {

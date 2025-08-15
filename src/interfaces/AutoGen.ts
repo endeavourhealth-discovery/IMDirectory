@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-11 11:41:15.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-13 12:40:40.
 
 export interface ConceptContextMap {
     id?: string;
@@ -241,7 +241,6 @@ export interface PropertyShape {
     descending?: string;
     orderable?: boolean;
     hasValueSet?: TTIriRef;
-    definingProperty?: boolean;
 }
 
 export interface SetContent {
@@ -281,17 +280,17 @@ export interface ArgumentReference {
 
 export interface Assignable {
     value?: string;
-    qualifier?: string;
     unit?: TTIriRef;
     operator?: Operator;
     valueLabel?: string;
     valueParameter?: string;
+    qualifier?: string;
 }
 
 export interface BoolGroup<T> {
-    and?: T[];
     or?: T[];
     not?: T[];
+    and?: T[];
 }
 
 export interface Case {
@@ -317,7 +316,6 @@ export interface ECLQueryRequest {
     query?: Query;
     showNames?: boolean;
     status?: ECLStatus;
-    graph?: Graph;
 }
 
 export interface ECLStatus {
@@ -340,9 +338,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    ancestorsOf?: boolean;
     memberOf?: boolean;
     descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -358,10 +356,6 @@ export interface GroupBy extends IriLD {
     propertyRef?: string;
 }
 
-export interface HasPaths {
-    path?: Path[];
-}
-
 export interface Instance extends IriLD {
     entailment?: TTIriRef;
 }
@@ -374,7 +368,7 @@ export interface IriLD {
     uuid?: string;
 }
 
-export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
+export interface Match extends IriLD, BoolGroup<Match> {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -385,10 +379,12 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     not?: Match[];
     where?: Where;
     graph?: Element;
+    orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
     variable?: string;
     parameter?: string;
+    path?: Path[];
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
@@ -421,10 +417,11 @@ export interface OrderLimit {
     description?: string;
 }
 
-export interface Path extends Element, HasPaths {
+export interface Path extends Element {
     inverse?: boolean;
     optional?: boolean;
     typeOf?: Node;
+    path?: Path[];
 }
 
 export interface PathDocument {
@@ -438,7 +435,6 @@ export interface PathQuery extends TTIriRef {
     source?: TTIriRef;
     target?: TTIriRef;
     depth?: number;
-    graph?: Graph;
 }
 
 export interface Prefix {
@@ -487,7 +483,6 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
-    orderBy?: OrderLimit;
 }
 
 export interface ReturnProperty {
@@ -543,7 +538,6 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     inverse?: boolean;
     or?: Where[];
     and?: Where[];
-    shortLabel?: string;
 }
 
 export interface DBEntry {
@@ -565,7 +559,7 @@ export interface DBEntry {
 
 export interface CognitoGroupRequest {
     username?: string;
-    groupName?: string;
+    groupName?: UserRole;
 }
 
 export interface EclSearchRequest {
@@ -576,7 +570,6 @@ export interface EclSearchRequest {
     page?: number;
     size?: number;
     select?: string[];
-    graph?: Graph;
 }
 
 export interface EditRequest {
@@ -627,7 +620,6 @@ export interface QueryRequest extends ContextMap {
     includeNames?: boolean;
     textSearchStyle?: TextSearchStyle;
     language?: DatabaseOption;
-    graph?: Graph;
 }
 
 /**
@@ -713,7 +705,6 @@ export interface TransformRequest {
 
 export interface ValidatedEntitiesRequest {
     snomedCodes?: string[];
-    graph?: Graph;
 }
 
 /**
@@ -839,7 +830,6 @@ export interface SetOptions {
     schemes?: string[];
     includeIM1id?: boolean;
     subsumptions?: string[];
-    graph?: Graph;
     includeDefinition?: boolean;
     includeCore?: boolean;
     includeLegacy?: boolean;
@@ -857,15 +847,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    status?: TTIriRef;
     name?: string;
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
+    prefixes?: TTPrefix[];
+    status?: TTIriRef;
     code?: string;
     types?: TTIriRef[];
-    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -888,6 +878,10 @@ export interface BugReport extends Task {
 export interface EntityApproval extends Task {
     entityIri?: TTIriRef;
     approvalType?: ApprovalType;
+}
+
+export interface GraphRequest extends Task {
+    graph?: Graph;
 }
 
 export interface RoleRequest extends Task {
@@ -1248,6 +1242,7 @@ export const enum TaskState {
 export const enum TaskType {
     BUG_REPORT = "BUG_REPORT",
     ROLE_REQUEST = "ROLE_REQUEST",
+    GRAPH_REQUEST = "GRAPH_REQUEST",
     ENTITY_APPROVAL = "ENTITY_APPROVAL",
 }
 
@@ -1476,6 +1471,7 @@ export const enum IM {
     USED_IN = "http://endhealth.info/im#usedIn",
     IN_RESULT_SET = "http://endhealth.info/im#inResultSet",
     HAS_PROFILE = "http://endhealth.info/im#inResultSet",
+    GMS_PATIENT = "http://endhealth.info/im#2751000252106",
     PROVENANCE_ACTIVITY = "http://endhealth.info/im#ProvenanceActivity",
     PROVENANCE_TARGET = "http://endhealth.info/im#provenanceTarget",
     PROVENANCE_ACTIVITY_TYPE = "http://endhealth.info/im#provenanceActivityType",
@@ -1901,6 +1897,7 @@ export const enum USER {
     USER_MRU = "http://endhealth.info/UserMRU",
     USER_FAVOURITES = "http://endhealth.info/UserFavourites",
     ORGANISATIONS = "http://endhealth.info/ORGANISATIONS",
+    GRAPHS = "http://endhealth.info/GRAPHS",
 }
 
 export const enum VALIDATION {
@@ -1936,6 +1933,7 @@ export const enum WORKFLOW {
     ACTUAL_RESULT = "http://endhealth.info/workflow#actualResult",
     RELATED_VERSION = "http://endhealth.info/workflow#relatedVersion",
     REQUESTED_ROLE = "http://endhealth.info/workflow#requestedRole",
+    REQUESTED_GRAPH = "http://endhealth.info/workflow#requestedGraph",
     APPROVAL_TYPE = "http://endhealth.info/workflow#approvalType",
     HISTORY = "http://endhealth.info/workflow#history",
     HISTORY_PREDICATE = "http://endhealth.info/workflow#historyPredicate",
