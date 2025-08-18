@@ -1,19 +1,4 @@
-import {
-  Bool,
-  BoolGroup,
-  Element,
-  Match,
-  Node,
-  OrderDirection,
-  Query,
-  QueryRequest,
-  RuleAction,
-  SearchBinding,
-  TTIriRef,
-  Where,
-  Path,
-  Operator
-} from "@/interfaces/AutoGen";
+import { Bool, BoolGroup, Element, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, Operator } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";
@@ -319,30 +304,6 @@ export function getRuleAction(match: Match): string {
   return "nextreject";
 }
 
-export function getDataModelFromNodeRef(match: Match | Path, nodeRef: string | undefined, baseType: string): string {
-  if (nodeRef === undefined) {
-    return getMatchTypeOf(match, baseType);
-  }
-  if (match.path) {
-    for (const path of match.path) {
-      if (path.variable === nodeRef) {
-        if (path.typeOf) return path.typeOf.iri!;
-        else return getMatchTypeOf(match, baseType);
-      }
-      if (path.path) {
-        const dataModel = getDataModelFromNodeRef(path, nodeRef, baseType);
-        if (dataModel) return dataModel;
-      }
-    }
-  }
-  return getMatchTypeOf(match, baseType);
-}
-
-function getMatchTypeOf(match: Match, baseType: string): string {
-  if (match.typeOf) return match.typeOf.iri!;
-  else return baseType;
-}
-
 export function addMatchToParent(match: Match, parent: Match) {
   for (const key of ["rule", "and", "or", "not"] as const) {
     if (parent[key]) {
@@ -541,19 +502,6 @@ export function setConstraintOperator(constrainer: Element, valueConstraintOpera
   }
 }
 
-export function addSortingToIMQuery(sortingField: TTIriRef, sortDirection: TTIriRef, imQuery: QueryRequest) {
-  if (!imQuery.query.orderBy) {
-    imQuery.query.orderBy = {};
-    imQuery.query.orderBy.property = [];
-  }
-  const orderDirection = {
-    iri: sortingField.iri,
-    name: sortingField.name ? sortingField.name : "",
-    direction: sortDirection.iri === IM.ASCENDING ? "ascending" : "descending"
-  } as OrderDirection;
-  imQuery.query.orderBy.property?.push(orderDirection);
-}
-
 export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
   if (!isArrayHasLength(imQuery.query.and)) imQuery.query.and = [];
   for (const searchBinding of searchBindings) {
@@ -630,4 +578,12 @@ export function updateRelativeTo(property: Where, node: TreeNode) {
     property.relativeTo.iri = node.data.iri;
     delete property.relativeTo.parameter;
   }
+}
+
+export function removeUndefined(obj: any) {
+  Object.keys(obj).forEach(key => {
+    if (obj[key] === undefined) {
+      delete obj[key];
+    }
+  });
 }

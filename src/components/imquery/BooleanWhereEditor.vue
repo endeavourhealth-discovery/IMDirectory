@@ -9,7 +9,7 @@
           <div class="match-clause">
             <BooleanEditor
               v-model:match="property"
-              v-model:parentMatch="parentProperty"
+              v-model:parentClause="parentProperty"
               :depth="0"
               :hasSubgroups="true"
               :parentOperator="operator as Bool"
@@ -32,6 +32,7 @@
               @deletedProperty="deletedProperty"
               @addProperty="emit('addProperty')"
               @updateBool="updateBool"
+              @updateProperty="updateProperty"
             />
           </div>
         </div>
@@ -40,7 +41,7 @@
     <div v-else class="property-value-container">
       <BooleanEditor
         v-model:match="property"
-        v-model:parentMatch="parentProperty"
+        v-model:parentClause="parentProperty"
         :depth="0"
         :hasSubgroups="false"
         :parentOperator="parentOperator as Bool"
@@ -54,7 +55,7 @@
         <span class="property-label">{{ propertyPath }}</span>
       </div>
       <div v-if="selectedProperty?.propertyType === 'class'">
-        <WhereIsEditor v-model:property="property" :uiProperty="selectedProperty" />
+        <WhereIsEditor :key="refreshCounter" v-model:property="property" :uiProperty="selectedProperty" />
         <Popover ref="dropdown">
           <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
             <span v-for="is of property.is" :key="getNameFromRef(is)" class="p-1">{{ getNameFromRef(is) }}</span>
@@ -62,7 +63,13 @@
         </Popover>
       </div>
       <div v-else-if="selectedProperty?.propertyType === 'datatype'">
-        <WhereValueEditor :ui-property="selectedProperty" v-model:property="property!" :refresh="refresh" />
+        <WhereValueEditor
+          :key="refreshCounter"
+          :ui-property="selectedProperty"
+          v-model:property="property!"
+          :refresh="refreshCounter"
+          @updateProperty="updateProperty"
+        />
       </div>
       <div class="ml-auto flex flex-row">
         <Button data-testid="cancel-edit-feature-button" label="Revert" text @click="revert" />
@@ -99,12 +106,13 @@ import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import WhereValueEditor from "./WhereValueEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import { deletePropertyFromParent, getDataModelFromNodeRef, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
+import { deletePropertyFromParent, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
 import { cloneDeep } from "lodash-es";
 import WhereIsEditor from "./WhereIsEditor.vue";
 import Button from "primevue/button";
-import { getPathName } from "@/helpers/QueryEditorMethods";
+import { getPathName, getTypeFromClause } from "@/helpers/QueryEditorMethods";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+
 const props = withDefaults(
   defineProps<{
     showDelete?: boolean;
@@ -117,7 +125,7 @@ const props = withDefaults(
 );
 
 const selectedProperty: Ref<UIProperty | undefined> = ref();
-const emit = defineEmits(["updateBool", "addProperty", "deletedProperty"]);
+const emit = defineEmits(["updateBool", "addProperty", "deletedProperty", "updateProperty"]);
 const expandSet: Ref<boolean> = ref(false);
 const group: Ref<number[]> = ref([]);
 const loading = ref(true);
@@ -133,7 +141,7 @@ const propertyPath = computed(() => {
   else return property.value.name;
 });
 const originalProperty: Ref<Where> = ref({});
-const refresh: Ref<number> = ref(0);
+const refreshCounter: Ref<number> = ref(0);
 
 onMounted(async () => {
   await init();
@@ -141,7 +149,9 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  dataModelIri.value = getDataModelFromNodeRef(props.match, property.value.nodeRef, props.baseType.iri!);
+  let dataModel = getTypeFromClause(props.match);
+  if (!dataModel) dataModel = props.baseType.iri;
+  dataModelIri.value = dataModel!;
   originalProperty.value = cloneDeep(property.value);
   if (dataModelIri.value && property!.value.iri) selectedProperty.value = await DataModelService.getUIProperty(dataModelIri.value, property!.value.iri);
   loading.value = false;
@@ -180,6 +190,9 @@ function truncateName(name: string) {
   if (name.length > 25) return name.substring(0, 25) + "...";
   return name;
 }
+function updateProperty() {
+  emit("updateProperty");
+}
 
 function addProperty() {
   emit("addProperty");
@@ -195,7 +208,7 @@ function onSaveCustomSet(newSet: Node) {
 }
 function revert() {
   property.value = originalProperty.value;
-  refresh.value++;
+  refreshCounter.value++;
 }
 </script>
 
@@ -232,5 +245,6 @@ function revert() {
   background-color: #ffffff;
   margin: 0.5rem;
   font-size: 1rem;
+  background-color: #488bc210;
 }
 </style>

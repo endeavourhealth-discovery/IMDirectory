@@ -1,7 +1,7 @@
 <template>
   <div id="query-display" class="flex flex-1 flex-col">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
-    <div v-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
+    <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
       <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
       <div class="flex flex-row gap-2">
@@ -28,7 +28,6 @@
                   :depth="0"
                   :parent-match="query"
                   :bracketed="false"
-                  :edit-mode="editMode"
                   :eclQuery="eclQuery"
                 />
               </span>
@@ -42,7 +41,6 @@
               :inline="false"
               :parent-match="rootQuery"
               :bracketed="false"
-              :editMode="editMode"
               :eclQuery="eclQuery"
               :expanded="query.name === undefined"
             />
@@ -54,13 +52,22 @@
       </div>
       <div v-else-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
         <DataSetDisplay
-          v-for="(nestedQuery, index) in query.dataSet"
+          v-if="!query.dataSet"
+          :query="query"
+          :key="`dataSetQuery-return`"
+          :matchExpanded="false"
+          :returnExpanded="true"
+          :parentQuery="query"
+          :index="0"
+        />
+        <DataSetDisplay
+          v-for="(nestedQuery, index) in query?.dataSet"
           :query="nestedQuery"
           :key="`nestedQuery-${index}`"
           :matchExpanded="false"
           :returnExpanded="true"
           :index="index"
-          :editMode="editMode"
+          :parentQuery="query"
         />
       </div>
       <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
@@ -89,14 +96,13 @@ enum DisplayOptions {
   LogicalView = "Logical view",
   MySQL = "MySQL",
   PostreSQL = "PostgreSQL",
-  DatasetDefinition = "Dataset definition"
+  DatasetDefinition = "Data output definition"
 }
 
 interface Props {
   entityIri?: string;
   definition?: string;
   queryDefinition?: Query;
-  editMode?: boolean;
   entityType?: string;
   eclQuery?: boolean;
   showDataset?: boolean;
@@ -117,7 +123,6 @@ const loading = ref(true);
 const showTestResults = ref(false);
 const testResults: Ref<string[]> = ref([]);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
-
 const displayOptions: Ref<string[]> = ref([]);
 const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
 const showArgumentSelector = ref(false);

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-25 15:17:21.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-15 08:49:38.
 
 export interface ConceptContextMap {
     id?: string;
@@ -241,6 +241,7 @@ export interface PropertyShape {
     descending?: string;
     orderable?: boolean;
     hasValueSet?: TTIriRef;
+    definingProperty?: boolean;
 }
 
 export interface SetContent {
@@ -280,11 +281,11 @@ export interface ArgumentReference {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
-    valueParameter?: string;
-    valueLabel?: string;
     unit?: TTIriRef;
+    valueLabel?: string;
+    valueParameter?: string;
     qualifier?: string;
+    operator?: Operator;
 }
 
 export interface BoolGroup<T> {
@@ -316,7 +317,6 @@ export interface ECLQueryRequest {
     query?: Query;
     showNames?: boolean;
     status?: ECLStatus;
-    graph?: Graph;
 }
 
 export interface ECLStatus {
@@ -339,9 +339,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    memberOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
-    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -357,6 +357,10 @@ export interface GroupBy extends IriLD {
     propertyRef?: string;
 }
 
+export interface HasPaths {
+    path?: Path[];
+}
+
 export interface Instance extends IriLD {
     entailment?: TTIriRef;
 }
@@ -369,7 +373,7 @@ export interface IriLD {
     uuid?: string;
 }
 
-export interface Match extends IriLD, BoolGroup<Match> {
+export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -380,12 +384,10 @@ export interface Match extends IriLD, BoolGroup<Match> {
     not?: Match[];
     where?: Where;
     graph?: Element;
-    orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
     variable?: string;
     parameter?: string;
-    path?: Path[];
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
@@ -418,11 +420,10 @@ export interface OrderLimit {
     description?: string;
 }
 
-export interface Path extends Element {
+export interface Path extends Element, HasPaths {
     inverse?: boolean;
     optional?: boolean;
     typeOf?: Node;
-    path?: Path[];
 }
 
 export interface PathDocument {
@@ -436,7 +437,6 @@ export interface PathQuery extends TTIriRef {
     source?: TTIriRef;
     target?: TTIriRef;
     depth?: number;
-    graph?: Graph;
 }
 
 export interface Prefix {
@@ -485,6 +485,7 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
+    orderBy?: OrderLimit;
 }
 
 export interface ReturnProperty {
@@ -540,6 +541,7 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     inverse?: boolean;
     or?: Where[];
     and?: Where[];
+    shortLabel?: string;
 }
 
 export interface DBEntry {
@@ -561,7 +563,7 @@ export interface DBEntry {
 
 export interface CognitoGroupRequest {
     username?: string;
-    groupName?: string;
+    groupName?: UserRole;
 }
 
 export interface EclSearchRequest {
@@ -572,7 +574,6 @@ export interface EclSearchRequest {
     page?: number;
     size?: number;
     select?: string[];
-    graph?: Graph;
 }
 
 export interface EditRequest {
@@ -586,6 +587,11 @@ export interface EntityValidationRequest {
     entity?: TTEntity;
     validationIri?: string;
     graph?: Graph;
+}
+
+export interface FileDocumentRequest {
+    document?: TTDocument;
+    insertGraph?: Graph;
 }
 
 export interface FunctionRequest {
@@ -609,19 +615,18 @@ export interface QueryDisplayRequest {
 export interface QueryRequest extends ContextMap {
     textSearch?: string;
     argument?: Argument[];
-    referenceDate?: string;
     query: Query;
     pathQuery?: PathQuery;
     update?: Update;
     name?: string;
     page?: Page;
+    queryStringDefinition?: string;
     askIri?: string;
     timings?: { [index: string]: string }[];
     cohort?: TTIriRef[];
     includeNames?: boolean;
     textSearchStyle?: TextSearchStyle;
     language?: DatabaseOption;
-    graph?: Graph;
 }
 
 /**
@@ -707,7 +712,6 @@ export interface TransformRequest {
 
 export interface ValidatedEntitiesRequest {
     snomedCodes?: string[];
-    graph?: Graph;
 }
 
 /**
@@ -833,7 +837,6 @@ export interface SetOptions {
     schemes?: string[];
     includeIM1id?: boolean;
     subsumptions?: string[];
-    graph?: Graph;
     includeDefinition?: boolean;
     includeCore?: boolean;
     includeLegacy?: boolean;
@@ -852,13 +855,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    types?: TTIriRef[];
+    status?: TTIriRef;
     code?: string;
+    types?: TTIriRef[];
     prefixes?: TTPrefix[];
 }
 
@@ -882,6 +885,10 @@ export interface BugReport extends Task {
 export interface EntityApproval extends Task {
     entityIri?: TTIriRef;
     approvalType?: ApprovalType;
+}
+
+export interface GraphRequest extends Task {
+    graph?: Graph;
 }
 
 export interface RoleRequest extends Task {
@@ -1242,6 +1249,7 @@ export const enum TaskState {
 export const enum TaskType {
     BUG_REPORT = "BUG_REPORT",
     ROLE_REQUEST = "ROLE_REQUEST",
+    GRAPH_REQUEST = "GRAPH_REQUEST",
     ENTITY_APPROVAL = "ENTITY_APPROVAL",
 }
 
@@ -1293,12 +1301,13 @@ export const enum CONFIG {
 export const enum CodeTemplate {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "cTemp",
-    WRAPPER = "http://endhealth.info/im#codeTemplate#wrapper",
+    WRAPPER = "http://endhealth.info/codeTemplate#wrapper",
     LABEL = "http://www.w3.org/2000/01/rdf-schema#label",
     DEFINITION = "http://endhealth.info/im#definition",
-    DATATYPE_MAP = "http://endhealth.info/im#codeTemplate#datatypeMap",
-    EXTENSION = "http://endhealth.info/im#codeTemplate#extension",
-    INCLUDE_COMPLEX_TYPES = "http://endhealth.info/im#codeTemplate#includeComplexTypes",
+    TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    DATATYPE_MAP = "http://endhealth.info/codeTemplate#datatypeMap",
+    EXTENSION = "http://endhealth.info/codeTemplate#extension",
+    INCLUDE_COMPLEX_TYPES = "http://endhealth.info/codeTemplate#includeComplexTypes",
 }
 
 export const enum EDITOR {
@@ -1469,7 +1478,6 @@ export const enum IM {
     USED_IN = "http://endhealth.info/im#usedIn",
     IN_RESULT_SET = "http://endhealth.info/im#inResultSet",
     HAS_PROFILE = "http://endhealth.info/im#inResultSet",
-    GMS_PATIENT = "http://endhealth.info/im#2751000252106",
     PROVENANCE_ACTIVITY = "http://endhealth.info/im#ProvenanceActivity",
     PROVENANCE_TARGET = "http://endhealth.info/im#provenanceTarget",
     PROVENANCE_ACTIVITY_TYPE = "http://endhealth.info/im#provenanceActivityType",
@@ -1690,7 +1698,7 @@ export const enum Namespace {
     IM_EDITOR = "http://endhealth.info/im#Editor_",
     IM_QUERY = "http://endhealth.info/im#Query_",
     IM_VALIDATION = "http://endhealth.info/im#Validation_",
-    IM_CODE_TEMPLATE = "http://endhealth.info/im#codeTemplate#",
+    IM_CODE_TEMPLATE = "http://endhealth.info/codeTemplate#",
     TPP = "http://endhealth.info/tpp#",
     ENCOUNTERS = "http://endhealth.info/enc#",
     ICD10 = "http://endhealth.info/icd10#",
@@ -1895,6 +1903,7 @@ export const enum USER {
     USER_MRU = "http://endhealth.info/UserMRU",
     USER_FAVOURITES = "http://endhealth.info/UserFavourites",
     ORGANISATIONS = "http://endhealth.info/ORGANISATIONS",
+    GRAPHS = "http://endhealth.info/GRAPHS",
 }
 
 export const enum VALIDATION {
@@ -1930,6 +1939,7 @@ export const enum WORKFLOW {
     ACTUAL_RESULT = "http://endhealth.info/workflow#actualResult",
     RELATED_VERSION = "http://endhealth.info/workflow#relatedVersion",
     REQUESTED_ROLE = "http://endhealth.info/workflow#requestedRole",
+    REQUESTED_GRAPH = "http://endhealth.info/workflow#requestedGraph",
     APPROVAL_TYPE = "http://endhealth.info/workflow#approvalType",
     HISTORY = "http://endhealth.info/workflow#history",
     HISTORY_PREDICATE = "http://endhealth.info/workflow#historyPredicate",

@@ -76,7 +76,7 @@ const cohortFilterOptions: Ref<SearchOptions> = ref({
 const cohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
 
 const emit = defineEmits<{
-  (event: "node-selected", query: any): void;
+  (event: "updateProperty"): void;
   (event: "navigateTo", iri: string): void;
   (event: "onCancel", visible: boolean): void;
 }>();
@@ -96,6 +96,7 @@ async function updateCohort(cohort?: SearchResultSummary) {
     match.value.instanceOf = [instanceOf];
   }
   editMode.value = false;
+  emit("updateProperty");
 }
 function deleteCohort() {
   delete match.value.instanceOf;

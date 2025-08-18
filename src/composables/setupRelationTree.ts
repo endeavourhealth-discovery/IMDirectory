@@ -1,72 +1,53 @@
 import type { TreeNode } from "primevue/treenode";
-import { Match, NodeShape, Where } from "@/interfaces/AutoGen";
+import { Match, NodeShape, Where, Query } from "@/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 import { IM } from "@/vocabulary";
 import { DataModelService } from "@/services";
+import { getTypeFromClause } from "@/helpers/QueryEditorMethods";
+import { useQueryStore } from "@/stores/queryStore";
 
 function setupRelationTree() {
   const expandedKeys: Ref<any> = ref({});
   const loading: Ref<boolean> = ref(false);
   const nodes: Ref<TreeNode[]> = ref([]);
+  const queryStore = useQueryStore();
 
   function createReturnTree(match: Match, nodes: TreeNode[], shapes: NodeShape[]): void {
-    if (match.return) {
-      if (match.return.as) {
-        const node = createNode(match.return.as, match.return.as, null, match.return.as, undefined, match, "nodeShape", false);
-        nodes.push(node);
-        if (match.typeOf && match.typeOf.iri) {
-          shapes
-            .find(shape => shape.iri === match.typeOf!.iri!)
-            ?.property?.forEach(property => {
-              node.children!.push(
-                createNode(
-                  match.return!.as! + property.path.iri,
-                  node.label + " (" + property.path.name + ")",
-                  null,
-                  node.data.nodeRef,
-                  property.path.iri,
-                  match,
-                  "propertyShape",
-                  true
-                )
-              );
-            });
-        }
+    for (const as of queryStore.returnMap.keys()) {
+      const match = queryStore.returnMap.get(as) as Match;
+      const node = createNode(as, as, null, as, undefined, match, "nodeShape", false);
+      nodes.push(node);
+      const matchType = getTypeFromClause(match);
+      if (matchType) {
+        shapes
+          .find(shape => shape.iri === matchType)
+          ?.property?.forEach(property => {
+            node.children!.push(
+              createNode(
+                match.return!.as! + property.path.iri,
+                node.label + " (" + property.path.name + ")",
+                null,
+                node.data.nodeRef,
+                property.path.iri,
+                match,
+                "propertyShape",
+                true
+              )
+            );
+          });
       }
     }
-    for (const key of ["rule", "and", "or", "not"] as const) {
-      if (match[key]) {
-        for (const subMatch of match[key]) {
-          createReturnTree(subMatch, nodes, shapes);
-        }
-      }
-    }
-    if (match.then) createReturnTree(match.then, nodes, shapes);
   }
 
-  async function getPotentialTargetsInQuery(query: Match, valueType: string): Promise<NodeShape[]> {
+  async function getPotentialTargetsInQuery(query: Query, valueType: string): Promise<NodeShape[]> {
     const potentialTargetIris = [] as string[];
-    for (const key of ["rule", "and", "or", "not"] as const) {
-      if (query[key]) {
-        for (const match of query[key]) {
-          getPotentialTargetsInMatch(match, potentialTargetIris);
-        }
-      }
+    potentialTargetIris.push(query.typeOf!.iri!);
+    for (const as of queryStore.returnMap.keys()) {
+      const match = queryStore.returnMap.get(as) as Match;
+      const matchType = getTypeFromClause(match);
+      if (matchType) potentialTargetIris.push(matchType);
     }
     return await DataModelService.getDataModelPropertiesWithValueType(potentialTargetIris, valueType);
-  }
-
-  function getPotentialTargetsInMatch(match: Match, potentialTargets: string[]): void {
-    if (match.return && match.typeOf) {
-      if (match.return.as) potentialTargets.push(match.typeOf.iri!);
-    }
-    for (const key of ["rule", "and", "or", "not"] as const) {
-      if (match[key]) {
-        for (const subMatch of match[key]) {
-          getPotentialTargetsInMatch(subMatch, potentialTargets);
-        }
-      }
-    }
   }
 
   async function createRelationTree(match: Match, dataType: string): Promise<TreeNode[]> {
