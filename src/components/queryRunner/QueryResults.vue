@@ -76,6 +76,7 @@ function closeDialog() {
 }
 
 async function downloadQueryResults() {
+  loading.value = true;
   if (props.queryItem?.queryRequest) {
     const request = cloneDeep(props.queryItem.queryRequest);
     // request.page = { pageNumber: pageNumber.value, pageSize: size.value }; //TODO: fix paging mechanism
@@ -85,6 +86,7 @@ async function downloadQueryResults() {
       queryResults.value = results.map(id => ({ id }));
     }
   }
+  loading.value = false;
 }
 
 async function onPage(event: any) {
@@ -98,6 +100,10 @@ watch(showDialog, async (newValue, oldValue) => {
 });
 
 onMounted(async () => {
+  await downloadQueryResults();
+});
+
+watch(showDialog, async () => {
   await downloadQueryResults();
 });
 </script>
