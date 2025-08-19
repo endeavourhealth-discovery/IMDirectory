@@ -2,7 +2,7 @@
   <div>
     <span class="columns-prefix">Columns :</span>
     <span>{{ columnNames.join(",") }}</span>
-    <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle" />
+    <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle"></Button>
     <RecursiveReturnDisplay v-if="propertyExpand" :select="select" :parentQuery="parentQuery" />
   </div>
 </template>

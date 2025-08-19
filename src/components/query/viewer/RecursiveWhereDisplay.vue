@@ -17,7 +17,9 @@
         <span v-if="where.relativeTo.qualifier">
           <span class="field">{{ where.relativeTo.qualifier }}</span>
         </span>
-        <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
+        <span v-if="then" class="node-ref">of the above</span>
+        <span v-else-if="where.relativeTo.targetLabel" class="node-ref">{{ where.relativeTo.targetLabel }}</span>
+        <span v-else-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
       </span>
       <span v-if="isExpanded && isArrayHasLength(where.is)">
         <span>, defined as</span>
@@ -37,6 +39,7 @@
           </span>
         </div>
       </span>
+
       <span v-for="(matches, type) in boolGroup" :key="type">
         <span v-if="!root">(</span>
         <span v-for="(nestedProperty, index) in matches" :key="index">
@@ -48,17 +51,17 @@
               :key="index"
               :depth="depth + 1"
               :expandedSet="expandedSet"
-              :inline="!!root"
+              :inline="index === 0"
               :root="false"
               :eclQuery="eclQuery"
               :editMode="editMode"
               :then="then"
-              :bracketed="index === where[type]!.length - 1"
+              :bracketed="!root"
             />
           </span>
         </span>
-        <span v-if="!root">)</span>
       </span>
+      <span v-if="bracketed">)</span>
     </span>
   </component>
 </template>
@@ -82,7 +85,7 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
-  then?:boolean;
+  then?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -92,6 +95,7 @@ const emit = defineEmits<{
 
 const whereName: Ref<string | undefined> = ref(undefined);
 const isExpanded = ref(props.expandedSet);
+
 const boolGroup = computed(() => {
   return {
     ...(props.where.and ? { and: props.where.and } : {}),
@@ -100,7 +104,7 @@ const boolGroup = computed(() => {
 });
 
 onMounted(async () => {
-  if (props.where.name && (props.where.name != "concept" ||props.then)) whereName.value = props.where.name;
+  if (props.where.name && (props.where.name != "concept" || props.then)) whereName.value = props.where.name;
 });
 function getOperator(operator: Bool | undefined, index: number): string {
   if (operator === "or") {

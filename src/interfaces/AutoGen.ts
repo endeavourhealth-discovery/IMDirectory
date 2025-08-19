@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-15 08:49:38.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-18 14:12:48.
 
 export interface ConceptContextMap {
     id?: string;
@@ -281,10 +281,10 @@ export interface ArgumentReference {
 
 export interface Assignable {
     value?: string;
-    unit?: TTIriRef;
+    qualifier?: string;
     valueLabel?: string;
     valueParameter?: string;
-    qualifier?: string;
+    unit?: TTIriRef;
     operator?: Operator;
 }
 
@@ -339,10 +339,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    ancestorsOf?: boolean;
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -383,6 +383,8 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     or?: Match[];
     not?: Match[];
     where?: Where;
+    return?: Return;
+    then?: Match;
     graph?: Element;
     optional?: boolean;
     aggregate?: FunctionClause;
@@ -394,11 +396,9 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
-    then?: Match;
     rule?: Match[];
     libraryItem?: string;
     invalid?: boolean;
-    return?: Return;
     returx?: Return;
     isUnion?: boolean;
 }
@@ -471,6 +471,7 @@ export interface Range {
 export interface RelativeTo extends Node {
     valueVariable?: string;
     propertyRef?: string;
+    targetLabel?: string;
 }
 
 export interface RequeueQueryRequest {
@@ -486,6 +487,7 @@ export interface Return {
     valueRef?: string;
     propertyRef?: string;
     orderBy?: OrderLimit;
+    sourceLabel?: string;
 }
 
 export interface ReturnProperty {
@@ -859,10 +861,10 @@ export interface TTEntity extends TTNode, Serializable {
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    status?: TTIriRef;
-    code?: string;
     types?: TTIriRef[];
+    status?: TTIriRef;
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface BugReport extends Task {
