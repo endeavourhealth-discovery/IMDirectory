@@ -6,51 +6,63 @@
     <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && parentOperator != Bool.not" :class="parentOperator">{{
       parentOperator
     }}</span>
-    <div v-if="match.description" class="match-description">{{ match.description }}</div>
-    <span v-if="parentMatch?.union && !from">
-      <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
-      <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
-    </span>
-    <span v-if="from">
-      <span class="field">and if the above</span>
-      <span v-if="match.nodeRef">({{ match.nodeRef }})</span>
-    </span>
-    <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
-    <span v-if="match.instanceOf">
-      <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
-      <IMViewerLink
-        v-if="match.instanceOf[0].iri"
-        :iri="match.instanceOf[0].iri"
-        :label="match.instanceOf[0].name"
-        :action="editMode ? 'view' : 'select'"
-        @navigateTo="(iri: string) => emit('navigateTo', iri)"
-      />
-      <span v-if="match.instanceOf.length > 1">
-        <div>
-          <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
-            <span v-if="index > 0">
-              <ul>
-                <li class="tight-spacing">
-                  <span class="or">or</span>
-                  <IMViewerLink
-                    v-if="item.iri"
-                    :iri="item.iri"
-                    :action="editMode ? 'view' : 'select'"
-                    :label="item.name"
-                    @navigateTo="(iri: string) => emit('navigateTo', iri)"
-                  />
-                </li>
-              </ul>
-            </span>
-          </span>
-        </div>
+    <div v-if="match.description">
+      <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
+      <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchExpanded = !matchExpanded"></Button>
+      <span v-if="then" class="field">Then</span>
+      <span class="match-description">{{ match.description }} ...</span>
+    </div>
+    <span v-else-if="parentOperator === Bool.not" class="not">Exclude if </span>
+    <span v-if="matchExpanded">
+      <span v-if="parentMatch?.union && !then">
+        <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
+        <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
       </span>
+      <span v-if="then">
+        <span v-if="!match.path">
+          <span class="field">and if the above</span>
+        </span>
+        <span v-else class="field">Then</span>
+      </span>
+
+      <span v-if="match.instanceOf">
+        <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
+        <IMViewerLink
+          v-if="match.instanceOf[0].iri"
+          :iri="match.instanceOf[0].iri"
+          :label="match.instanceOf[0].name"
+          :action="editMode ? 'view' : 'select'"
+          @navigateTo="(iri: string) => emit('navigateTo', iri)"
+        />
+        <span v-if="match.instanceOf.length > 1">
+          <div>
+            <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
+              <span v-if="index > 0">
+                <ul>
+                  <li class="tight-spacing">
+                    <span class="or">or</span>
+                    <IMViewerLink
+                      v-if="item.iri"
+                      :iri="item.iri"
+                      :action="editMode ? 'view' : 'select'"
+                      :label="item.name"
+                      @navigateTo="(iri: string) => emit('navigateTo', iri)"
+                    />
+                  </li>
+                </ul>
+              </span>
+            </span>
+          </div>
+        </span>
+      </span>
+      <span class="field">{{ getFormattedPath(match) }}</span>
     </span>
-    <span class="field">{{ getFormattedPath(match) }}</span>
     <span v-for="operator in operators" :key="operator">
       <span v-if="match[operator]">
         <span v-if="match[operator]!.length > 1 && operator != 'not'" :class="operator">
-          <span>{{ getBooleanLabel("match", operator as Bool, parentOperator === Bool.rule ? 0 : clauseIndex, !eclQuery, true, match.union) }}</span>
+          <span>{{
+            getBooleanLabel("match", operator as Bool, parentOperator === Bool.rule ? 0 : clauseIndex, !eclQuery, true, match.union, parentOperator)
+          }}</span>
         </span>
         <div class="tree-node-wrapper">
           <span v-for="(nestedQuery, index) in match[operator]" :key="index">
@@ -65,31 +77,33 @@
               :bracketed="index === match[operator]!.length - 1"
               :edit-mode="editMode"
               :eclQuery="eclQuery"
+              :then="then"
             />
           </span>
         </div>
       </span>
     </span>
-    <span v-if="match.return && match.return.orderBy">{{ match.return.orderBy.description }}</span>
-    <span v-if="match.where">
-      <RecursiveWhereDisplay
-        :where="match.where"
-        :depth="depth + (match.nodeRef ? 1 : 0)"
-        :property-index="0"
-        :key="0"
-        :index="0"
-        :root="true"
-        :expandedSet="expandSet"
-        :inline="true"
-        :then="then"
-        :eclQuery="eclQuery"
-        :editMode="editMode"
-      />
+    <span v-if="matchExpanded">
+      <span v-if="match.return && match.return.orderBy" class="fieldpn">{{ match.return.orderBy.description }}</span>
+      <span v-if="match.where">
+        <span class="field">where</span>
+        <RecursiveWhereDisplay
+          :where="match.where"
+          :depth="depth + (match.nodeRef ? 1 : 0)"
+          :key="0"
+          :index="0"
+          :root="true"
+          :expandedSet="expandSet"
+          :inline="true"
+          :then="then"
+          :eclQuery="eclQuery"
+          :editMode="editMode"
+        />
+      </span>
     </span>
-
-    <span v-if="match.return && match.then">
+    <span v-if="match.return && match.return.sourceLabel">
       <span class="field">(as</span>
-      <span class="as">{{ match.return?.as }})</span>
+      <span class="as">{{ match.return.sourceLabel }})</span>
     </span>
     <span v-if="match.then">
       <RecursiveMatchDisplay
@@ -100,13 +114,9 @@
         :depth="depth + 1"
         :parent-match="match"
         :edit-mode="editMode"
-        :from="match"
+        :then="true"
         :eclQuery="eclQuery"
       />
-    </span>
-    <span v-if="match.return && !match.then">
-      <span class="field">(as</span>
-      <span class="as">{{ match.return?.as }})</span>
     </span>
     <div v-if="parentOperator === Bool.rule && clauseIndex > 0">
       <span class="field">if true</span>
@@ -132,7 +142,7 @@ interface Props {
   canExpand?: boolean;
   bracketed?: boolean;
   editMode?: boolean;
-  from?: Match;
+  then?: boolean;
   eclQuery?: boolean;
   parentOperator?: Bool;
 }
@@ -143,12 +153,10 @@ const parentMatch = defineModel<Match>("parentMatch", { default: {} });
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
-const editMenu = (match.value.and || match.value.or) && !match.value.instanceOf ? "booleanEditor" : "matchEditor";
 const expandSet: Ref<boolean> = ref(false);
 const operators = ["and", "or", "not"] as const;
-const then: Ref<boolean> = computed(() => {
-  return !!props.from;
-});
+
+const matchExpanded: Ref<boolean> = ref(!match.value.description);
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
