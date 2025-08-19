@@ -52,8 +52,8 @@ function setupRelationTree() {
 
   async function createRelationTree(match: Match, dataType: string): Promise<TreeNode[]> {
     if (dataType === IM.DATE) {
-      nodes.value.push(createNode("searchDate", "Search date", "$referenceDate", null, undefined, null, "parameter", true));
-      nodes.value.push(createNode("baseline", "Achievement date", "$baseline", null, undefined, null, "parameter", true));
+      nodes.value.push(createNode("searchDate", "Search date", "$searchDate", null, undefined, null, "parameter", true));
+      nodes.value.push(createNode("achievementDate", "Achievement date", "$achievementDate", null, undefined, null, "parameter", true));
     }
     const potentialTargets = await getPotentialTargetsInQuery(match, dataType);
     createReturnTree(match, nodes.value, potentialTargets);

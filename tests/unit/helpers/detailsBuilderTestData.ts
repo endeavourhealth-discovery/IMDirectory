@@ -2787,7 +2787,7 @@ export const hasParameter = {
               name: "Date time"
             }
           ],
-          "http://endhealth.info/im#valueVariable": "$referenceDate"
+          "http://endhealth.info/im#valueVariable": "$searchDate"
         },
         {
           "http://www.w3.org/2000/01/rdf-schema#label": "units",
@@ -2937,7 +2937,7 @@ export const hasParameter = {
             },
             {
               key: "http://endhealth.info/im#valueVariable",
-              label: "value variable: $referenceDate",
+              label: "value variable: $searchDate",
               children: []
             }
           ]
