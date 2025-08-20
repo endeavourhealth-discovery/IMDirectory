@@ -30,7 +30,7 @@
       />
     </div>
     <div class="datatable-container">
-      <Viewer v-if="entity.iri" :entityIri="entity?.iri" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
+      <Viewer v-if="entity.iri" :entity="entity" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>
