@@ -28,6 +28,13 @@
           <Column field="id" header="ID"></Column>
           <Column field="queryIri" header="Iri"></Column>
           <Column field="queryName" header="Query name"></Column>
+          <Column>
+            <template #body="slotProps">
+              {{ slotProps.data.queryRequest.argument }}
+              <Button label="View arguments" @click="viewArgumentDisplay" />
+              <ArgumentDisplay :queryItem="slotProps.data" v-model:showDialog="showArgumentDisplay" />
+            </template>
+          </Column>
           <Column field="userName" header="User"></Column>
           <Column field="queuedAt" header="Queued at">
             <template #body="slotProps">
@@ -81,6 +88,8 @@ import { DBEntry, QueryExecutorStatus } from "@/interfaces/AutoGen";
 import { DirectService, QueryService } from "@/services";
 import { onMounted, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
+import ArgumentSelector from "@/components/queryRunner/ArgumentSelector.vue";
+import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
 
 const directService = new DirectService();
 const router = useRouter();
@@ -94,6 +103,7 @@ const rows = ref(25);
 const rowsOriginal = ref(25);
 const selectedQuery: Ref<DBEntry | undefined> = ref();
 const showQueryResults = ref(false);
+const showArgumentDisplay = ref(false);
 
 onMounted(async () => {
   await init();
@@ -151,6 +161,10 @@ function goToQuery(queryIri: string) {
 async function viewQueryResults(queryItem: DBEntry) {
   selectedQuery.value = queryItem;
   showQueryResults.value = true;
+}
+
+async function viewArgumentDisplay() {
+  showArgumentDisplay.value = true;
 }
 
 async function deleteQuery(queryId: string) {
