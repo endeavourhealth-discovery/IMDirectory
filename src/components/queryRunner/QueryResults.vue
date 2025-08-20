@@ -8,7 +8,6 @@
     class="query-results-dialog"
   >
     <div class="query-results-dialog-content">
-      {{ queryResults }}
       <DataTable
         :value="queryResults"
         :paginator="true"
@@ -78,7 +77,6 @@ function closeDialog() {
 
 async function downloadQueryResults() {
   loading.value = true;
-  console.log(props.queryItem);
   if (props.queryItem?.queryRequest) {
     const request = cloneDeep(props.queryItem.queryRequest);
     // request.page = { pageNumber: pageNumber.value, pageSize: size.value }; //TODO: fix paging mechanism

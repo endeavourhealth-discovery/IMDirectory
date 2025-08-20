@@ -8,46 +8,53 @@
     class="argument-selector"
     :pt="{ content: { class: 'flex-auto' } }"
   >
-    {{ queryArguments }}
-    <DataTable :value="queryArguments" :paginator="true" :scrollable="true" scroll-height="flex" :autoLayout="true" :lazy="true" :loading="loading">
-      <Column field="parameter" header="Parameter"></Column>
-      <Column field="valueData" header="Value"></Column>
+    <DataTable :value="arguments" :lazy="true" :loading="loading">
+      <Column field="parameter" header="Parameter">
+        <template #body="{ data }">{{ formatArgumentDisplayName(data) }}</template>
+      </Column>
+      <Column field="parameter" header="Raw Parameter"></Column>
+      <Column v-if="includeIri" field="referenceIri.iri" header="Reference Iri"></Column>
+      <Column field="valueData" header="Value">
+        <template #body="{ data }">{{ formatArgumentDisplayName(data) }}</template>
+      </Column>
     </DataTable>
-    {{ queryArguments }}
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { Argument, DBEntry } from "@/interfaces/AutoGen";
-import { onMounted, ref, watch } from "vue";
+import { Argument } from "@/interfaces/AutoGen";
+import { onMounted, ref } from "vue";
+import Column from "primevue/column";
 
 interface Props {
-  queryItem: DBEntry | undefined;
+  arguments: any[] | undefined;
 }
 
 const props = defineProps<Props>();
 
 const showDialog = defineModel<boolean>("showDialog");
 
-const queryArguments = ref<Argument[] | undefined>([]);
 const loading = ref(false);
-
-function getQueryArguments() {
-  loading.value = true;
-  if (props.queryItem?.queryRequest) {
-    queryArguments.value = props.queryItem.queryRequest.argument;
-    queryArguments.value.push({ parameter: "$reference", valueData: "2021-08-03T23:00:00.000Z" });
-  }
-  loading.value = false;
-}
+const includeIri = ref(false);
 
 onMounted(() => {
-  getQueryArguments();
+  if (props.arguments) {
+    for (let arg of props.arguments) {
+      if (arg.referenceIri) {
+        includeIri.value = true;
+        break;
+      }
+    }
+  }
 });
 
-watch(showDialog, () => {
-  getQueryArguments();
-});
+function formatArgumentDisplayName(arg: Argument) {
+  const result = arg
+    .parameter!.replace("$", "")
+    .replace(/([A-Z])/g, " $1")
+    .toLowerCase();
+  return result.charAt(0).toUpperCase() + result.slice(1);
+}
 </script>
 
 <style scoped></style>

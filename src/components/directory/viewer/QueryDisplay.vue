@@ -71,6 +71,9 @@
         />
       </div>
       <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
+      {{ requestArguments }}
+      {{ missingArguments }}
+      <ArgumentDisplay :arguments="missingArguments" v-model:showDialog="showArgumentSelector" />
       <ArgumentSelector v-model:showDialog="showArgumentSelector" :missingArguments="missingArguments" @arguments-completed="addArgumentsAndRun" />
     </div>
   </div>
@@ -90,6 +93,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
 import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
 import ArgumentSelector from "@/components/queryRunner/ArgumentSelector.vue";
+import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
 
 enum DisplayOptions {
   RuleView = "Rule view",

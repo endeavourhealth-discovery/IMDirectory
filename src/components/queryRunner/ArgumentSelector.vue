@@ -44,6 +44,7 @@ import TextWithLabel from "../shared/generics/TextWithLabel.vue";
 import { IM, XSD } from "@/vocabulary";
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
+import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
 
 interface Props {
   missingArguments: ArgumentReference[];

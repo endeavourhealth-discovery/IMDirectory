@@ -30,9 +30,8 @@
           <Column field="queryName" header="Query name"></Column>
           <Column>
             <template #body="slotProps">
-              {{ slotProps.data.queryRequest.argument }}
               <Button label="View arguments" @click="viewArgumentDisplay" />
-              <ArgumentDisplay :queryItem="slotProps.data" v-model:showDialog="showArgumentDisplay" />
+              <ArgumentDisplay :arguments="slotProps.data.queryRequest.argument" v-model:showDialog="showArgumentDisplay" />
             </template>
           </Column>
           <Column field="userName" header="User"></Column>
@@ -93,6 +92,8 @@ import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
 
 const directService = new DirectService();
 const router = useRouter();
+
+const showDialog = defineModel<boolean>("showDialog");
 
 const queryQueueItems: Ref<DBEntry[]> = ref([]);
 const loading = ref(true);
