@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-15 08:49:38.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-21 12:28:13.
 
 export interface ConceptContextMap {
     id?: string;
@@ -271,6 +271,7 @@ export interface Argument {
     valueIriList?: TTIriRef[];
     valueDataList?: string[];
     valueObject?: any;
+    dataType?: TTIriRef;
 }
 
 export interface ArgumentReference {
@@ -280,18 +281,18 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
+    argument?: Argument[];
     value?: string;
-    unit?: TTIriRef;
-    valueLabel?: string;
-    valueParameter?: string;
-    qualifier?: string;
     operator?: Operator;
+    qualifier?: string;
+    valueLabel?: string;
+    unit?: TTIriRef;
 }
 
 export interface BoolGroup<T> {
-    or?: T[];
-    and?: T[];
     not?: T[];
+    and?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -347,7 +348,6 @@ export interface Entailment {
 
 export interface FunctionClause extends Value {
     name?: Function;
-    argument?: Argument[];
     range?: Range;
 }
 
@@ -383,6 +383,8 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     or?: Match[];
     not?: Match[];
     where?: Where;
+    return?: Return;
+    then?: Match;
     graph?: Element;
     optional?: boolean;
     aggregate?: FunctionClause;
@@ -394,11 +396,9 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
-    then?: Match;
     rule?: Match[];
     libraryItem?: string;
     invalid?: boolean;
-    return?: Return;
     returx?: Return;
     isUnion?: boolean;
 }
@@ -471,6 +471,7 @@ export interface Range {
 export interface RelativeTo extends Node {
     valueVariable?: string;
     propertyRef?: string;
+    targetLabel?: string;
 }
 
 export interface RequeueQueryRequest {
@@ -486,6 +487,7 @@ export interface Return {
     valueRef?: string;
     propertyRef?: string;
     orderBy?: OrderLimit;
+    sourceLabel?: string;
 }
 
 export interface ReturnProperty {
@@ -516,6 +518,7 @@ export interface Update extends TTIriRef {
 }
 
 export interface Value extends Assignable {
+    valueParameter?: string;
 }
 
 export interface When {
@@ -536,7 +539,6 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     not?: Where[];
     roleGroup?: boolean;
     isNotNull?: boolean;
-    function?: FunctionClause;
     valueVariable?: string;
     inverse?: boolean;
     or?: Where[];
@@ -855,14 +857,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
+    status?: TTIriRef;
+    types?: TTIriRef[];
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    status?: TTIriRef;
-    code?: string;
-    types?: TTIriRef[];
     prefixes?: TTPrefix[];
+    code?: string;
 }
 
 export interface BugReport extends Task {
@@ -947,8 +949,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {

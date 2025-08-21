@@ -31,7 +31,7 @@
           <Column>
             <template #body="slotProps">
               <Button label="View arguments" @click="viewArgumentDisplay" />
-              <ArgumentDisplay :arguments="slotProps.data.queryRequest.argument" v-model:showDialog="showArgumentDisplay" />
+              <ArgumentDisplay :arguments="slotProps.data.queryRequest.argument" :show-footer-buttons="true" v-model:showDialog="showArgumentDisplay" />
             </template>
           </Column>
           <Column field="userName" header="User"></Column>

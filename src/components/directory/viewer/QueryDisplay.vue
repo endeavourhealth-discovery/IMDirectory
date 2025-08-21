@@ -5,9 +5,27 @@
     <div v-else class="query-display-container flex flex-col gap-4">
       <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
       <div class="flex flex-row gap-2">
-        <div v-if="isLoggedIn"><Button label="View arguments" @click="checkArguments" :loading="checkingArguments" /></div>
+        <div v-if="isLoggedIn">
+          <Button
+            label="View arguments"
+            @click="
+              showArgumentsDisplay();
+              runOnConfirm = false;
+            "
+            :loading="checkingArguments"
+          />
+        </div>
         <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
-        <div v-if="isLoggedIn"><Button label="Run query" @click="runQuery" :loading="checkingArguments" /></div>
+        <div v-if="isLoggedIn">
+          <Button
+            label="Run query"
+            @click="
+              runQuery();
+              runOnConfirm = true;
+            "
+            :loading="checkingArguments"
+          />
+        </div>
       </div>
       <div v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView].includes(selectedDisplayOption)" class="query-display-content">
         <div v-if="query" class="rec-query-display">
@@ -73,8 +91,21 @@
       <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
       {{ requestArguments }}
       {{ missingArguments }}
-      <ArgumentDisplay :arguments="missingArguments" v-model:showDialog="showArgumentSelector" />
-      <ArgumentSelector v-model:showDialog="showArgumentSelector" :missingArguments="missingArguments" @arguments-completed="addArgumentsAndRun" />
+      <ConfirmDialog group="templating">
+        <template #message="slotProps">
+          <div class="border-surface-200 dark:border-surface-700 flex w-full flex-col items-center gap-4 border-b">
+            <i :class="slotProps.message.icon" class="text-primary-500 !text-6xl"></i>
+            <p>{{ slotProps.message.message }} aaaaaaaaaaaaaaaaaaa</p>
+          </div>
+        </template>
+      </ConfirmDialog>
+      <ArgumentDisplay
+        :arguments="missingArguments.length ? missingArguments : requestArguments"
+        :runOnConfirm="runOnConfirm"
+        :showFooterButtons="true"
+        v-model:showDialog="showArgumentSelector"
+        @arguments-completed="addArgumentsAndRun"
+      />
     </div>
   </div>
 </template>
@@ -86,13 +117,11 @@ import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
 import { QueryService } from "@/services";
 import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
 import { computed, onMounted, ref, Ref, watch } from "vue";
-import { IM, XSD } from "@/vocabulary";
 import SQLDisplay from "./SQLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
 import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
-import ArgumentSelector from "@/components/queryRunner/ArgumentSelector.vue";
 import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
 
 enum DisplayOptions {
@@ -133,6 +162,7 @@ const showArgumentSelector = ref(false);
 const checkingArguments = ref(false);
 const missingArguments: Ref<ArgumentReference[]> = ref([]);
 const requestArguments: Ref<Argument[]> = ref([]);
+const runOnConfirm = ref(false);
 
 watch(
   () => props.definition,
@@ -206,19 +236,20 @@ async function getQueryDisplay(displayMode: DisplayMode) {
   return undefined;
 }
 
+async function showArgumentsDisplay() {
+  showArgumentSelector.value = true;
+  await checkArguments();
+}
+
 async function checkArguments(): Promise<boolean> {
   if (query.value) {
     checkingArguments.value = true;
     const request: QueryRequest = { query: query.value, argument: requestArguments.value };
     missingArguments.value = await QueryService.findMissingArguments(request);
-    if (isArrayHasLength(missingArguments.value)) {
-      showArgumentSelector.value = true;
-      checkingArguments.value = false;
-      return false;
-    }
+    if (missingArguments.value.length) showArgumentSelector.value = true;
     checkingArguments.value = false;
   }
-  return true;
+  return !missingArguments.value.length;
 }
 
 async function runQuery() {
@@ -226,11 +257,8 @@ async function runQuery() {
     const argumentsVerified = await checkArguments();
     if (!argumentsVerified) return;
     confirm.require({
-      message:
-        "Are you sure you want to run this query '" +
-        query.value.name +
-        " with the following arguments: \n" +
-        requestArguments.value.map(arg => `${arg.parameter}: ${arg.valueData}`).join("\n"),
+      group: "templating",
+      message: "Are you sure you want to run this query '" + query.value.name + " with the following arguments: \n",
       header: "Run query",
       icon: "pi pi-exclamation-triangle",
       rejectProps: {
@@ -250,9 +278,10 @@ async function runQuery() {
   }
 }
 
-async function addArgumentsAndRun(completedArguments: Argument[]) {
+async function addArgumentsAndRun(completedArguments: Argument[], run: boolean) {
   requestArguments.value = completedArguments;
-  await runQuery();
+  showArgumentSelector.value = false;
+  if (run) await runQuery();
 }
 
 async function addQueryToRunnerQueue() {

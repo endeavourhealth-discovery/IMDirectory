@@ -1,41 +1,23 @@
 <template>
-  <Dialog
-    v-model:visible="showDialog"
-    modal
-    maximizable
-    header="Argument values"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
-    class="argument-selector"
-    :pt="{ content: { class: 'flex-auto' } }"
-  >
-    <div class="argument-selector-content">
-      <div class="argument" v-for="argument in argumentSelection">
-        <TextWithLabel label="Parameter" :data="argument.parameter" />
-        <TextWithLabel label="Reference iri" :data="argument.referenceIri?.iri" />
-        <div v-if="argument.dataType && [XSD.STRING].includes(argument.dataType?.iri)">
-          <InputText type="text" v-model="argument.value" data-testid="property-value-input" />
-        </div>
-        <div v-if="argument.dataType && [XSD.BOOLEAN].includes(argument.dataType.iri)">
-          <Select :options="booleanOptions" optionLabel="name" optionValue="value" v-model="argument.value" />
-        </div>
-        <div v-if="argument.dataType && [IM.DATE, IM.DATE_TIME, IM.TIME].includes(argument.dataType.iri)">
-          <label>Select date:</label>
-          <DatePicker
-            v-model="argument.value"
-            :showTime="IM.DATE_TIME === argument.dataType.iri"
-            :timeOnly="IM.TIME === argument.dataType.iri"
-            dateFormat="yy/mm/dd"
-          />
-        </div>
+  <div class="argument-selector-content">
+    <div class="argument" v-for="argument in argumentSelection">
+      <div v-if="argument.dataType && [XSD.STRING].includes(argument.dataType?.iri)">
+        <InputText type="text" v-model="argument.value" data-testid="property-value-input" />
+      </div>
+      <div v-if="argument.dataType && [XSD.BOOLEAN].includes(argument.dataType.iri)">
+        <Select :options="booleanOptions" optionLabel="name" optionValue="value" v-model="argument.value" />
+      </div>
+      <div v-if="argument.dataType && [IM.DATE, IM.DATE_TIME, IM.TIME].includes(argument.dataType.iri)">
+        <label>Select date:</label>
+        <DatePicker
+          v-model="argument.value"
+          :showTime="IM.DATE_TIME === argument.dataType.iri"
+          :timeOnly="IM.TIME === argument.dataType.iri"
+          dateFormat="yy/mm/dd"
+        />
       </div>
     </div>
-    <template #footer>
-      <div>
-        <Button label="Close" @click="showDialog = false" severity="secondary" />
-        <Button label="Confirm" @click="confirmArguments" :loading="submitting" :disabled="!allArgumentsValid" />
-      </div>
-    </template>
-  </Dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -47,7 +29,7 @@ import { cloneDeep } from "lodash-es";
 import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
 
 interface Props {
-  missingArguments: ArgumentReference[];
+  missingArguments: ArgumentReference[] | undefined;
 }
 
 interface ArgumentSelection extends ArgumentReference {
