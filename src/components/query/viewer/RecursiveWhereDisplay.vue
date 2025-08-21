@@ -17,7 +17,7 @@
         <span v-if="where.relativeTo.qualifier">
           <span class="field">{{ where.relativeTo.qualifier }}</span>
         </span>
-        <span v-if="then" class="node-ref">of the above</span>
+        <span v-if="then && !where.relativeTo.parameter" class="node-ref">of the above</span>
         <span v-else-if="where.relativeTo.targetLabel" class="node-ref">{{ where.relativeTo.targetLabel }}</span>
         <span v-else-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
       </span>

@@ -271,6 +271,7 @@ function createPropertyNode(property: PropertyShape, index: number, propertyList
       const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
       name += ` (${value})`;
     }
+    if (property.node) name = name + " (" + property.node.name + ")";
     const propertyType = { iri: RDF.PROPERTY } as TTIriRef;
     if (range && rangeType) {
       const propertyNode = {
