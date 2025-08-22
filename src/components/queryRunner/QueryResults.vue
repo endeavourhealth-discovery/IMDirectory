@@ -104,7 +104,7 @@ onMounted(async () => {
 });
 
 watch(showDialog, async () => {
-  await downloadQueryResults();
+  if (showDialog.value) await downloadQueryResults();
 });
 </script>
 

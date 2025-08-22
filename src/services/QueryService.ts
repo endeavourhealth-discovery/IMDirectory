@@ -47,7 +47,7 @@ const QueryService = {
   },
 
   async getQueryDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
-    return await axios.post(API_URL + "/public/queryDisplayFromQuery", { query, displayMode });
+    return await axios.post(API_URL + "/public/queryDisplayFromQuery", { query: query, displayMode: displayMode });
   },
 
   async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {

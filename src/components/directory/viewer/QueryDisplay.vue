@@ -54,7 +54,7 @@
           <span v-else>
             <RecursiveMatchDisplay
               :match="query"
-              :clauseIndex="-1"
+              :clauseIndex="0"
               :depth="0"
               :inline="false"
               :parent-match="rootQuery"

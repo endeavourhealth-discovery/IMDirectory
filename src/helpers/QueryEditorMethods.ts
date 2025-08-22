@@ -227,9 +227,9 @@ function getRelativeToTerm(relativeTo: RelativeTo): string {
   if (relativeTo.nodeRef) return relativeTo.nodeRef;
   if (relativeTo.parameter) {
     switch (relativeTo.parameter) {
-      case "$referenceDate":
+      case "$searchDate":
         return "Search date";
-      case "$baselineDate":
+      case "$achievementDate":
         return "Achievement date";
       case "$now":
         return "Current date";

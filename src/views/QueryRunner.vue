@@ -36,28 +36,28 @@
           </Column>
           <Column field="userName" header="User"></Column>
           <Column field="queuedAt" header="Queued at">
-            <template #body="slotProps">
-              <span>{{ slotProps.data.queuedAt ? slotProps.data.queuedAt : "-" }}</span>
+            <template #body="{ data }: { data: DBEntry }">
+              <span>{{ data.queuedAt ? getDisplayDateTime(data.queuedAt) : "-" }}</span>
             </template>
           </Column>
           <Column field="startedAt" header="Started at">
-            <template #body="slotProps">
-              <span>{{ slotProps.data.startedAt ? slotProps.data.startedAt : "-" }}</span>
+            <template #body="{ data }: { data: DBEntry }">
+              <span>{{ data.startedAt ? getDisplayDateTime(data.startedAt) : "-" }}</span>
             </template>
           </Column>
           <Column field="finishedAt" header="Finished at">
-            <template #body="slotProps">
-              <span>{{ slotProps.data.finishedAt ? slotProps.data.finishedAt : "-" }}</span>
+            <template #body="{ data }: { data: DBEntry }">
+              <span>{{ data.finishedAt ? getDisplayDateTime(data.finishedAt) : "-" }}</span>
             </template>
           </Column>
           <Column field="killedAt" header="Killed at">
-            <template #body="slotProps">
-              <span>{{ slotProps.data.killedAt ? slotProps.data.killedAt : "-" }}</span>
+            <template #body="{ data }: { data: DBEntry }">
+              <span>{{ data.killedAt ? getDisplayDateTime(data.killedAt) : "-" }}</span>
             </template>
           </Column>
           <Column field="status" header="Status">
-            <template #body="slotProps">
-              <Tag :severity="getStatusSeverity(slotProps.data.status)" :value="slotProps.data.status" />
+            <template #body="{ data }: { data: DBEntry }">
+              <Tag :severity="data.status ? getStatusSeverity(data.status) : '-'" :value="data.status" />
             </template>
           </Column>
           <Column>
@@ -119,6 +119,13 @@ async function search() {
   searchLoading.value = true;
   const results = await QueryService.getQueryQueue(page.value, rows.value);
   if (results) {
+    for (const entry of results.result) {
+      if (entry.queuedAt) entry.queuedAt = new Date(entry.queuedAt);
+      if (entry.startedAt) entry.startedAt = new Date(entry.startedAt);
+      if (entry.finishedAt) entry.finishedAt = new Date(entry.finishedAt);
+      if (entry.killedAt) entry.killedAt = new Date(entry.killedAt);
+    }
+
     totalCount.value = results.totalCount;
     queryQueueItems.value = results.result.sort((a, b) => {
       if (!a.queuedAt) return 1;
@@ -192,6 +199,22 @@ async function onPage(event: any) {
 function scrollToTop() {
   const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
   scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+function getDisplayDateTime(date: Date) {
+  return (
+    date.getUTCDate() +
+    "/" +
+    (date.getUTCMonth() + 1) +
+    "/" +
+    date.getUTCFullYear() +
+    " " +
+    date.getUTCHours() +
+    ":" +
+    date.getUTCMinutes() +
+    ":" +
+    date.getUTCMilliseconds()
+  );
 }
 </script>
 
