@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-21 12:28:13.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-22 11:05:19.
 
 export interface ConceptContextMap {
     id?: string;
@@ -266,11 +266,12 @@ export interface ValueTemplate extends Entity {
 export interface Argument {
     parameter?: string;
     valueData?: string;
-    valueVariable?: string;
+    valueParameter?: string;
     valueIri?: TTIriRef;
     valueIriList?: TTIriRef[];
     valueDataList?: string[];
-    valueObject?: any;
+    valuePath?: Path;
+    valueNodeRef?: string;
     dataType?: TTIriRef;
 }
 
@@ -281,18 +282,17 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    argument?: Argument[];
-    value?: string;
-    operator?: Operator;
     qualifier?: string;
+    function?: FunctionClause;
+    operator?: Operator;
     valueLabel?: string;
-    unit?: TTIriRef;
+    value?: string;
 }
 
 export interface BoolGroup<T> {
+    or?: T[];
     not?: T[];
     and?: T[];
-    or?: T[];
 }
 
 export interface Case {
@@ -346,9 +346,8 @@ export interface Entailment {
     descendantsOrSelfOf?: boolean;
 }
 
-export interface FunctionClause extends Value {
-    name?: Function;
-    range?: Range;
+export interface FunctionClause extends IriLD {
+    argument?: Argument[];
 }
 
 export interface GroupBy extends IriLD {
@@ -399,6 +398,7 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     rule?: Match[];
     libraryItem?: string;
     invalid?: boolean;
+    isCohort?: TTIriRef;
     returx?: Return;
     isUnion?: boolean;
 }
@@ -468,10 +468,12 @@ export interface Range {
     to: Value;
 }
 
-export interface RelativeTo extends Node {
+export interface RelativeTo extends IriLD {
     valueVariable?: string;
     propertyRef?: string;
     targetLabel?: string;
+    nodeRef?: string;
+    parameter?: string;
 }
 
 export interface RequeueQueryRequest {
@@ -539,6 +541,7 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     not?: Where[];
     roleGroup?: boolean;
     isNotNull?: boolean;
+    units?: TTIriRef;
     valueVariable?: string;
     inverse?: boolean;
     or?: Where[];
@@ -856,15 +859,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
     status?: TTIriRef;
-    types?: TTIriRef[];
-    name?: string;
-    scheme?: TTIriRef;
-    version?: number;
     description?: string;
-    prefixes?: TTPrefix[];
+    version?: number;
+    types?: TTIriRef[];
     code?: string;
+    scheme?: TTIriRef;
+    prefixes?: TTPrefix[];
+    type?: TTArray;
+    name?: string;
 }
 
 export interface BugReport extends Task {
@@ -949,8 +952,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1105,15 +1108,6 @@ export const enum Entail {
     descendantsOf = "descendantsOf",
     ancestorsOf = "ancestorsOf",
     equal = "equal",
-}
-
-export const enum Function {
-    sum = "sum",
-    count = "count",
-    average = "average",
-    concatenate = "concatenate",
-    max = "max",
-    min = "min",
 }
 
 export const enum Operator {
@@ -1478,6 +1472,12 @@ export const enum IM {
     PROV_CREATION = "http://endhealth.info/im#2001000252109",
     PROV_UPDATE = "http://endhealth.info/im#1661000252106",
     USED_IN = "http://endhealth.info/im#usedIn",
+    COUNT = "http://endhealth.info/im#Count",
+    SUM = "http://endhealth.info/im#Sum",
+    AVERAGE = "http://endhealth.info/im#Average",
+    MIN = "http://endhealth.info/im#Min",
+    MAX = "http://endhealth.info/im#Max",
+    CONCATENATE = "http://endhealth.info/im#Concatenate",
     IN_RESULT_SET = "http://endhealth.info/im#inResultSet",
     HAS_PROFILE = "http://endhealth.info/im#inResultSet",
     PROVENANCE_ACTIVITY = "http://endhealth.info/im#ProvenanceActivity",
