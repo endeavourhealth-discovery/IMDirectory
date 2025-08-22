@@ -31,7 +31,7 @@
           <Column>
             <template #body="slotProps">
               <Button label="View arguments" @click="viewArgumentDisplay" />
-              <ArgumentDisplay :arguments="slotProps.data.queryRequest.argument" :show-footer-buttons="true" v-model:showDialog="showArgumentDisplay" />
+              <ArgumentDisplayDialog :arguments="slotProps.data.queryRequest.argument" :show-footer-buttons="false" v-model:showDialog="showArgumentDisplay" />
             </template>
           </Column>
           <Column field="userName" header="User"></Column>
@@ -89,6 +89,7 @@ import { onMounted, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
 import ArgumentSelector from "@/components/queryRunner/ArgumentSelector.vue";
 import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
+import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
 
 const directService = new DirectService();
 const router = useRouter();

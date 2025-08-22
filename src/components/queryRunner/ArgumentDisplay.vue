@@ -1,52 +1,37 @@
 <template>
-  <Dialog
-    v-model:visible="showDialog"
-    modal
-    maximizable
-    header="Argument values"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
-    class="argument-selector"
-    :pt="{ content: { class: 'flex-auto' } }"
-  >
-    {{ argumentList }}
-    <DataTable :value="argumentList" :lazy="true" :loading="loading">
-      <Column field="parameter" header="Parameter">
-        <template #body="{ data }">{{ formatArgumentDisplayName(data) }}</template>
-      </Column>
-      <Column field="parameter" header="Raw Parameter"></Column>
-      <Column v-if="includeIri" field="referenceIri.iri" header="Reference Iri"></Column>
-      <Column field="valueData" header="Value">
-        <template #body="{ data }">
-          <div class="argument-selector-content">
-            <div v-if="data.dataType && [XSD.STRING].includes(data.dataType?.iri)">
-              <InputText type="text" v-model="data.valueData" data-testid="property-value-input" />
-            </div>
-            <div v-if="data.dataType && [XSD.BOOLEAN].includes(data.dataType.iri)">
-              <Select :options="booleanOptions" optionLabel="name" optionValue="value" v-model="data.valueData" />
-            </div>
-            <div v-if="data.dataType && [IM.DATE, IM.DATE_TIME, IM.TIME].includes(data.dataType.iri)">
-              <label>Select date:</label>
-              <DatePicker
-                v-model="data.valueData"
-                :showTime="IM.DATE_TIME === data.dataType.iri"
-                :timeOnly="IM.TIME === data.dataType.iri"
-                dateFormat="yy/mm/dd"
-              />
-            </div>
-            {{ data.valueData }}
-            {{ data }}
-            <div v-if="!data.dataType">{{ data.valueData }}</div>
+  <DataTable :value="argumentList" :lazy="true" :loading="loading">
+    <Column field="parameter" header="Parameter">
+      <template #body="{ data }">{{ formatArgumentDisplayName(data) }}</template>
+    </Column>
+    <Column field="parameter" header="Raw Parameter"></Column>
+    <Column v-if="includeIri" field="referenceIri.iri" header="Reference Iri"></Column>
+    <Column field="valueData" header="Value">
+      <template #body="{ data }">
+        <div class="argument-selector-content">
+          <div v-if="data.dataType && [XSD.STRING].includes(data.dataType?.iri)">
+            <InputText type="text" v-model="data.valueData" data-testid="property-value-input" />
           </div>
-        </template>
-      </Column>
-    </DataTable>
-    <template #footer>
-      <div v-if="showFooterButtons">
-        <Button label="Back" @click="resetArguments()" severity="secondary" />
-        <Button label="Confirm" @click="confirmArguments" :loading="submitting" :disabled="!allArgumentsValid" />
-      </div>
-    </template>
-  </Dialog>
+          <div v-if="data.dataType && [XSD.BOOLEAN].includes(data.dataType.iri)">
+            <Select :options="booleanOptions" optionLabel="name" optionValue="value" v-model="data.valueData" />
+          </div>
+          <div v-if="showFooterButtons && data.dataType && [IM.DATE, IM.DATE_TIME, IM.TIME].includes(data.dataType.iri)">
+            <label>Select date:</label>
+            <DatePicker
+              v-model="data.valueData"
+              :showTime="IM.DATE_TIME === data.dataType.iri"
+              :timeOnly="IM.TIME === data.dataType.iri"
+              dateFormat="yy/mm/dd"
+            />
+          </div>
+          <div v-else>{{ data.valueData }}</div>
+        </div>
+      </template>
+    </Column>
+  </DataTable>
+  <div v-if="showFooterButtons" class="button-container">
+    <Button label="Back" @click="resetArguments()" severity="secondary" />
+    <Button label="Confirm" @click="confirmArguments" :loading="submitting" :disabled="!allArgumentsValid" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -69,6 +54,7 @@ interface ArgumentSelection extends ArgumentReference {
 const props = defineProps<Props>();
 const emit = defineEmits<{
   argumentsCompleted: [payload: Argument[], boolean];
+  hideDialog: [payload: boolean];
 }>();
 
 const showDialog = defineModel<boolean>("showDialog");
@@ -114,6 +100,7 @@ function formatArgumentDisplayName(arg: Argument) {
 function resetArguments() {
   showDialog.value = false;
   argumentList.value = cloneDeep(props.arguments);
+  emit("hideDialog", false);
 }
 
 function confirmArguments() {
@@ -142,4 +129,9 @@ function confirmArguments() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+</style>

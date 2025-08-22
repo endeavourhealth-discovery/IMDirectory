@@ -89,17 +89,18 @@
         />
       </div>
       <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
-      {{ requestArguments }}
-      {{ missingArguments }}
       <ConfirmDialog group="templating">
         <template #message="slotProps">
           <div class="border-surface-200 dark:border-surface-700 flex w-full flex-col items-center gap-4 border-b">
-            <i :class="slotProps.message.icon" class="text-primary-500 !text-6xl"></i>
-            <p>{{ slotProps.message.message }} aaaaaaaaaaaaaaaaaaa</p>
+            <div class="confirm-container gap-4">
+              <IMFontAwesomeIcon size="2x" :icon="slotProps.message.icon"></IMFontAwesomeIcon>
+              <p>{{ slotProps.message.message }}</p>
+            </div>
+            <ArgumentDisplay :arguments="missingArguments.length ? missingArguments : requestArguments" :show-footer-buttons="false" />
           </div>
         </template>
       </ConfirmDialog>
-      <ArgumentDisplay
+      <ArgumentDisplayDialog
         :arguments="missingArguments.length ? missingArguments : requestArguments"
         :runOnConfirm="runOnConfirm"
         :showFooterButtons="true"
@@ -123,6 +124,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
 import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
 import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
+import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
 
 enum DisplayOptions {
   RuleView = "Rule view",
@@ -258,9 +260,9 @@ async function runQuery() {
     if (!argumentsVerified) return;
     confirm.require({
       group: "templating",
-      message: "Are you sure you want to run this query '" + query.value.name + " with the following arguments: \n",
+      message: "Are you sure you want to run this query '" + query.value.name + "' with the following arguments: \n",
       header: "Run query",
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-regular fa-circle-exclamation",
       rejectProps: {
         label: "No",
         severity: "secondary",
@@ -329,6 +331,12 @@ async function testRunQuery() {
 </script>
 
 <style scoped>
+.confirm-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 80%;
+}
 .query-display-container {
   width: 100%;
   height: 100%;
