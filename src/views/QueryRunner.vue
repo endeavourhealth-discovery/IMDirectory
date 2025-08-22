@@ -87,8 +87,6 @@ import { DBEntry, QueryExecutorStatus } from "@/interfaces/AutoGen";
 import { DirectService, QueryService } from "@/services";
 import { onMounted, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
-import ArgumentSelector from "@/components/queryRunner/ArgumentSelector.vue";
-import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
 import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
 
 const directService = new DirectService();
