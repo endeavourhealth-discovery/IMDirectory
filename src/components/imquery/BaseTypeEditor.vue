@@ -107,13 +107,11 @@ async function updateBaseType(newBaseType?: SearchResultSummary) {
       const parentCohort = await QueryService.getQueryFromIri(selectedBaseType.iri);
       match.value.typeOf = parentCohort.typeOf;
       if (match.value.rule) {
-        if (match.value.rule[0].instanceOf)
-          match.value.rule[0].instanceOf = [
-            {
-              iri: selectedBaseType.iri,
-              name: selectedBaseType.name
-            }
-          ];
+        if (match.value.rule[0].isCohort)
+          match.value.rule[0].isCohort = {
+            iri: selectedBaseType.iri,
+            name: selectedBaseType.name
+          };
       }
     } else match.value!.typeOf = { iri: newBaseType.iri, name: newBaseType.name };
   }

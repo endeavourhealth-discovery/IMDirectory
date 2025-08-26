@@ -29,8 +29,8 @@
         <Textarea v-model="editMatch.description" autoResize placeholder="Description" rows="2" type="text" />
       </div>
       <div>With the following conditions</div>
-      <div v-if="editMatch.instanceOf || editMatch.where" class="where-container">
-        <CohortEditor v-if="editMatch.instanceOf && !showPropertySelector" v-model:match="editMatch" v-model:editMode="editCohort" @updateProperty="onUpdate" />
+      <div v-if="editMatch.isCohort || editMatch.where" class="where-container">
+        <CohortEditor v-if="editMatch.isCohort && !showPropertySelector" v-model:match="editMatch" v-model:editMode="editCohort" @updateProperty="onUpdate" />
         <div v-else-if="editMatch.where && !showPropertySelector">
           <BooleanWhereEditor
             :match="editMatch"
@@ -187,7 +187,7 @@ async function init() {
 }
 
 function isDefined(): boolean {
-  return !!(editMatch.value.instanceOf || editMatch.value.where);
+  return !!(editMatch.value.isCohort || editMatch.value.where);
 }
 
 function updateOrderable(value: any) {
