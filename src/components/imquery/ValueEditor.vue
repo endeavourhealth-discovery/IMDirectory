@@ -36,12 +36,12 @@
       option-label="name"
     />
     <Select
-      v-if="uiProperty.qualifierOptions && absolute"
+      v-if="uiProperty.qualifierOptions"
       class="qualifier-select"
       type="text"
-      placeholder="qualifier"
+      placeholder="(qualifier)"
       :options="uiProperty.qualifierOptions"
-      v-model="assignable.unit"
+      v-model="property.datatypeQualifier"
       option-label="name"
     />
     <Select
@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { getDateFromString, offsetOptions, operatorOptions, getInclusivityOptions } from "@/helpers/QueryEditorMethods";
-import { Assignable, Operator, Range, RelativeTo, TTIriRef } from "@/interfaces/AutoGen";
+import { Assignable, Operator, Range, Where, RelativeTo, TTIriRef } from "@/interfaces/AutoGen";
 import { removeUndefined } from "@/composables/buildQuery";
 import { UIProperty } from "@/interfaces";
 import { IM, XSD } from "@/vocabulary";
@@ -97,6 +97,7 @@ const props = defineProps<{
 const refresh = defineModel<number>("refresh", { default: 0 });
 const assignable = defineModel<Assignable>("assignable", { default: {} });
 const whereDisplay = defineModel<String>("whereDisplay", { default: "" });
+const property = defineModel<Where>("property", { required: true });
 const date: Ref<Date | undefined> = ref();
 const time: Ref<string | undefined> = ref();
 const numeric: Ref<number | undefined> = ref();
@@ -172,15 +173,15 @@ function init() {
       } else offset.value = "+";
     }
     if (offset.value != "0") {
-      if (!assignable.value.unit) {
+      if (!property.value.units) {
         if (props.uiProperty.unitOptions && props.uiProperty.unitOptions.length > 0) {
-          assignable.value.unit = props.uiProperty.unitOptions[0];
+          property.value.units = props.uiProperty.unitOptions[0];
         }
       }
     }
   }
-  if (assignable.value.unit) {
-    units.value = assignable.value.unit;
+  if (property.value.units) {
+    units.value = property.value.units;
   }
 }
 
@@ -236,7 +237,7 @@ function updateAssignable() {
     }
     if (!numeric.value) numeric.value = 1;
   }
-  assignable.value.unit = units.value;
+  property.value.units = units.value;
   if (offset.value === "-" && numeric.value != null) assignable.value.value = "-" + numeric.value.toString();
   removeUndefined(assignable.value);
   emit("updateProperty");
@@ -248,7 +249,7 @@ function updateOperator(value: string) {
   emit("updateProperty");
 }
 function updateUnits(value: TTIriRef) {
-  assignable.value.unit = value;
+  property.value.units = value;
   emit("updateProperty");
 }
 </script>

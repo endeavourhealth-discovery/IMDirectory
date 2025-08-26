@@ -292,7 +292,7 @@ export function addWhereToMatch(match: Match, node: TreeNode, property: string) 
 }
 
 export function matchDefined(match: Match): boolean {
-  return !!(match.path || match.where || match.instanceOf || match.rule || match.and || match.or || match.not);
+  return !!(match.path || match.where || match.isCohort || match.instanceOf || match.rule || match.and || match.or || match.not);
 }
 export function getRuleAction(match: Match): string {
   if (match.ifTrue) {
