@@ -82,7 +82,7 @@ const PropertyShape: FormGenerator = {
           argument: [
             {
               parameter: "entityIri",
-              valueVariable: "propertyIri"
+              valueParameter: "propertyIri"
             },
             {
               parameter: "fieldName",

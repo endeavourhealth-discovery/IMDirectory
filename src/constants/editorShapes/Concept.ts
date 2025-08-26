@@ -1,6 +1,6 @@
 import { FormGenerator } from "@/interfaces/AutoGen";
 import { RDF, IM, RDFS, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION, XSD } from "@/vocabulary";
-import {SCHEME} from "@/vocabulary/SCHEME";
+import { SCHEME } from "@/vocabulary/SCHEME";
 
 const ConceptShape: FormGenerator = {
   iri: EDITOR.CONCEPT_SHAPE,
@@ -91,7 +91,7 @@ const ConceptShape: FormGenerator = {
               argument: [
                 {
                   parameter: "entityIri",
-                  valueVariable: "conceptIri"
+                  valueParameter: "conceptIri"
                 },
                 {
                   parameter: "fieldName",

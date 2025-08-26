@@ -68,7 +68,7 @@ if (forceValidation) {
   });
 }
 
-if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueParameter) && valueVariableMap) {
   watch(
     () => cloneDeep(valueVariableMap),
     async (newValue, oldValue) => {
@@ -135,9 +135,9 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
   }
   if (isObjectHasKeys(property, ["function", "argument"])) {
     const args = processArguments(property, valueVariableMap?.value);
-    if (props.shape.argument!.find((a: Argument) => a.valueVariable)) {
-      const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
-      if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
+    if (props.shape.argument!.find((a: Argument) => a.valueParameter)) {
+      const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueParameter"]));
+      if (valueVariable && valueVariable.valueParameter && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
         const result = await FunctionService.runFunction(property.function!.iri, args);
         if (result) return result;
       } else return "";

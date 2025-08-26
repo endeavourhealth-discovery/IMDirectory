@@ -145,15 +145,15 @@ export function setupValidity(shape?: FormGenerator) {
       valid = false;
       message = `A maximum of ${shape.maxCount} is required.`;
     }
-    if (isObjectHasKeys(shape, ["argument"]) && isArrayHasLength(shape.argument) && shape.argument![0].valueVariable) {
+    if (isObjectHasKeys(shape, ["argument"]) && isArrayHasLength(shape.argument) && shape.argument![0].valueParameter) {
       if (shape.builderChild) {
-        if (!(valueVariableMap.value.has(shape.argument![0].valueVariable + shape.order) || valueVariableMap.value.has(shape.argument![0].valueVariable))) {
+        if (!(valueVariableMap.value.has(shape.argument![0].valueParameter + shape.order) || valueVariableMap.value.has(shape.argument![0].valueParameter))) {
           valid = false;
-          message = `Missing required related item: ${shape.argument![0].valueVariable}.`;
+          message = `Missing required related item: ${shape.argument![0].valueParameter}.`;
         }
-      } else if (!valueVariableMap.value.has(shape.argument![0].valueVariable)) {
+      } else if (!valueVariableMap.value.has(shape.argument![0].valueParameter)) {
         valid = false;
-        message = `Missing required related item: ${shape.argument![0].valueVariable}.`;
+        message = `Missing required related item: ${shape.argument![0].valueParameter}.`;
       }
     }
     return { isValid: valid, message: message };

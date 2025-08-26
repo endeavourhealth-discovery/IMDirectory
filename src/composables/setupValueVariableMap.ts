@@ -10,7 +10,7 @@ export function setupValueVariableMap() {
   }
 
   function valueVariableHasChanged(shape: PropertyShape, newVVMap: Ref<Map<string, any>>, oldVVMap: Ref<Map<string, any>>) {
-    const valueVariables = shape.argument?.filter(arg => arg.valueVariable).map(v => v.valueVariable);
+    const valueVariables = shape.argument?.filter(arg => arg.valueParameter).map(v => v.valueParameter);
     if (valueVariables && isArrayHasLength(valueVariables)) {
       for (const variable of valueVariables as string[]) {
         if (newVVMap.value.has(variable) && newVVMap.value.get(variable)) {
