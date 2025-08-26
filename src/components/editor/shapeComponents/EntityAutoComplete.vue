@@ -131,7 +131,7 @@ if (forceValidation) {
   });
 }
 
-if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueParameter) && valueVariableMap) {
   watch(
     () => cloneDeep(valueVariableMap),
     async (newValue, oldValue) => {
@@ -175,7 +175,7 @@ const optionsOverlayLocation: Ref<any> = ref({});
 const showValidation = ref(false);
 
 const invalidAssociatedProperty: ComputedRef<boolean> = computed(
-  () => validationErrorMessage.value === `Missing required related item: ${props.shape.argument![0].valueVariable}`
+  () => validationErrorMessage.value === `Missing required related item: ${props.shape.argument![0].valueParameter}`
 );
 
 const showRequired: ComputedRef<boolean> = computed(() => {
@@ -211,21 +211,21 @@ async function init() {
 
 function getAssociatedProperty() {
   if (isObjectHasKeys(props.shape, ["argument"])) {
-    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueVariable"]) && props.shape.argument![0].valueVariable) {
+    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueParameter"]) && props.shape.argument![0].valueParameter) {
       if (props.shape.builderChild) {
         if (
           valueVariableMap &&
-          (valueVariableMap.value.has(props.shape.argument![0].valueVariable + props.shape.order) ||
-            valueVariableMap.value.has(props.shape.argument![0].valueVariable))
+          (valueVariableMap.value.has(props.shape.argument![0].valueParameter + props.shape.order) ||
+            valueVariableMap.value.has(props.shape.argument![0].valueParameter))
         ) {
-          if (valueVariableMap.value.has(props.shape.argument![0].valueVariable)) {
-            associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable);
+          if (valueVariableMap.value.has(props.shape.argument![0].valueParameter)) {
+            associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueParameter);
           } else {
-            associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable + props.shape.order);
+            associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueParameter + props.shape.order);
           }
         }
-      } else if (valueVariableMap && valueVariableMap.value.has(props.shape.argument![0].valueVariable)) {
-        associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable);
+      } else if (valueVariableMap && valueVariableMap.value.has(props.shape.argument![0].valueParameter)) {
+        associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueParameter);
       }
     } else if (isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri) {
       associatedProperty.value = props.shape.argument![0].valueIri.iri;

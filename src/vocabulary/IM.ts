@@ -150,7 +150,6 @@ export class IM {
   public static readonly PROVENANCE_TARGET = Namespace.IM + "provenanceTarget"
   public static readonly PROVENANCE_ACTIVITY_TYPE = Namespace.IM + "provenanceActivityType"
   public static readonly PROVENANCE_AGENT = Namespace.IM + "provenanceAgent"
-  public static readonly INDICATOR = Namespace.IM + "Indicator"
   public static readonly START_TIME = Namespace.IM + "startTime"
   public static readonly EFFECTIVE_DATE = Namespace.IM + "effectiveDate"
   public static readonly END_DATE = Namespace.IM + "endDate"
