@@ -6,6 +6,10 @@
     </span>
 
     <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
+    <span v-if="match.isCohort">
+      <span class="field">in</span>
+      <IMViewerLink v-if="match.isCohort.iri" :iri="match.isCohort.iri" :label="match.isCohort.name" :action="'view'" />
+    </span>
     <span v-if="match.instanceOf">
       <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
       <IMViewerLink v-if="match.instanceOf[0].iri" :iri="match.instanceOf[0].iri" :label="match.instanceOf[0].name" :action="'view'" />

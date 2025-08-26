@@ -24,16 +24,16 @@
     type="text"
     placeholder="units"
     :options="uiProperty.unitOptions"
-    v-model="assignable.unit"
+    v-model="property.units"
     option-label="name"
   />
   <Select
-    v-if="uiProperty.qualifierOptions && uiProperty.valueType != IM.DATE"
+    v-if="uiProperty.qualifierOptions"
     class="qualifier-select"
     type="text"
     placeholder="qualifier"
     :options="uiProperty.qualifierOptions"
-    v-model="assignable.unit"
+    v-model="property.datatypeQualifier"
     option-label="name"
   />
 </template>
@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import { getDateFromString, relativityOptions, operatorOptions } from "@/helpers/QueryEditorMethods";
-import { Assignable, RelativeTo } from "@/interfaces/AutoGen";
+import { Assignable, RelativeTo, Where } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { IM, XSD } from "@/vocabulary";
 import { isEqual } from "lodash-es";
@@ -53,6 +53,7 @@ const props = defineProps<{
 }>();
 const assignable = defineModel<Assignable>("assignable", { default: {} });
 const value = defineModel<string | number>("value", { default: "" });
+const property = defineModel<Where>("property", { required: true });
 const date: Ref<Date> = ref(new Date());
 const numericValue: Ref<number> = ref(0);
 const operator = ref("");

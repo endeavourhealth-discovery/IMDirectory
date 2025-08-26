@@ -166,11 +166,11 @@ export function getWhereDisplay(where: Where, valueType: string): string {
   const isTime = valueType === IM.DATE || valueType === IM.TIME;
   if (where.range) {
     result = "between ";
-    result = result.concat(assignDisplay(where.range.from, relative, isTime));
+    result = result.concat(assignDisplay(where, where.range.from, relative, isTime));
     result = result.concat(" and ");
-    result = result.concat(assignDisplay(where.range.to, relative, isTime));
+    result = result.concat(assignDisplay(where, where.range.to, relative, isTime));
   } else {
-    result = result.concat(assignDisplay(where, relative, isTime));
+    result = result.concat(assignDisplay(where, where, relative, isTime));
   }
   if (relative) result = result.concat(getRelativeToTerm(relative));
   else if (where.isNull) result = result.concat("is not recorded");
@@ -178,7 +178,7 @@ export function getWhereDisplay(where: Where, valueType: string): string {
   return result;
 }
 
-function assignDisplay(assign: Assignable, relative: RelativeTo | undefined, isTime: boolean): string {
+function assignDisplay(where: Where, assign: Assignable, relative: RelativeTo | undefined, isTime: boolean): string {
   let result = "";
   const value = assign.value ? (assign.value.startsWith("-") ? assign.value.substring(1) : assign.value) : undefined;
   const operator = assign.operator ? assign.operator : undefined;
@@ -204,8 +204,8 @@ function assignDisplay(assign: Assignable, relative: RelativeTo | undefined, isT
       if (!relative) result = result.concat("0");
     }
     if (value) {
-      if (!relative && negative) result = result.concat(getValueUnits("-" + value, assign.unit?.name));
-      else result = result.concat(getValueUnits(value, assign.unit?.name));
+      if (!relative && negative) result = result.concat(getValueUnits("-" + value, where.units?.name));
+      else result = result.concat(getValueUnits(value, where.units?.name));
       if (relative) {
         if (negative) {
           result = result.concat(isTime ? "prior to " : "below ");

@@ -41,6 +41,7 @@
           <ValueEditor
             :ui-property="uiProperty"
             v-model:assignable="property"
+            v-model:property="property"
             :relativeTo="property.relativeTo"
             :absolute="relativity === 'absolute'"
             :refresh="refresh"
@@ -53,6 +54,7 @@
             <ValueEditor
               :ui-property="uiProperty"
               v-model:assignable="property.range!.from"
+              v-model:property="property"
               :relativeTo="property.relativeTo"
               :absolute="relativity.includes('absolute')"
               :refresh="refresh"
@@ -65,6 +67,7 @@
             <ValueEditor
               :ui-property="uiProperty"
               v-model:assignable="property.range!.to"
+              v-model:property="property"
               :relativeTo="property.relativeTo"
               :absolute="relativity.includes('absolute')"
               :refresh="refresh"
