@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-20 14:39:59.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-26 13:28:14.
 
 export interface ConceptContextMap {
     id?: string;
@@ -272,8 +272,7 @@ export interface Argument {
     valueDataList?: string[];
     valuePath?: Path;
     valueNodeRef?: string;
-    valueVariable?: string;
-    valueObject?: any;
+    dataType?: TTIriRef;
 }
 
 export interface ArgumentReference {
@@ -285,14 +284,14 @@ export interface ArgumentReference {
 export interface Assignable {
     value?: string;
     function?: FunctionClause;
-    qualifier?: string;
     operator?: Operator;
+    qualifier?: string;
     valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
-    or?: T[];
     and?: T[];
+    or?: T[];
     not?: T[];
 }
 
@@ -341,9 +340,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -548,7 +547,6 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     or?: Where[];
     and?: Where[];
     shortLabel?: string;
-    datatypeQualifier?: TTIriRef;
 }
 
 export interface DBEntry {
@@ -865,9 +863,9 @@ export interface TTEntity extends TTNode, Serializable {
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
-    status?: TTIriRef;
     code?: string;
+    status?: TTIriRef;
+    description?: string;
     types?: TTIriRef[];
     prefixes?: TTPrefix[];
 }
@@ -954,8 +952,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
