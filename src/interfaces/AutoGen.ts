@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-27 11:29:17.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-27 11:46:15.
 
 export interface ConceptContextMap {
     id?: string;
@@ -291,6 +291,7 @@ export interface Argument {
     dataType?: TTIriRef;
     valuePathList?: Path[];
     valueObject?: any;
+    valueVariable?: string;
 }
 
 export interface ArgumentReference {
