@@ -195,7 +195,6 @@ declare module 'vue' {
     QueryRunnerActionButtons: typeof import('./src/components/queryRunner/ActionButtons.vue')['default']
     QueryRunnerArgumentDisplay: typeof import('./src/components/queryRunner/ArgumentDisplay.vue')['default']
     QueryRunnerArgumentDisplayDialog: typeof import('./src/components/queryRunner/ArgumentDisplayDialog.vue')['default']
-    QueryRunnerArgumentSelector: typeof import('./src/components/queryRunner/ArgumentSelector.vue')['default']
     QueryRunnerQueryResults: typeof import('./src/components/queryRunner/QueryResults.vue')['default']
     QueryRunnerTestQueryResults: typeof import('./src/components/queryRunner/TestQueryResults.vue')['default']
     QueryViewerDataSetDisplay: typeof import('./src/components/query/viewer/DataSetDisplay.vue')['default']

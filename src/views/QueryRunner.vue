@@ -9,6 +9,7 @@
     </TopBar>
     <div class="h-[calc(100% - 3.5rem)] overflow-auto">
       <div class="flex h-full flex-auto flex-col flex-nowrap overflow-auto bg-(--p-content-background)">
+        <ArgumentDisplayDialog :arguments="currentArguments" :show-footer-buttons="false" v-model:showDialog="showArgumentDisplay" />
         <div><Button label="Refresh" @click="init()" /></div>
         <DataTable
           :value="queryQueueItems"
@@ -30,8 +31,7 @@
           <Column field="queryName" header="Query name"></Column>
           <Column>
             <template #body="slotProps">
-              <Button label="View arguments" @click="viewArgumentDisplay" />
-              <ArgumentDisplayDialog :arguments="slotProps.data.queryRequest.argument" :show-footer-buttons="false" v-model:showDialog="showArgumentDisplay" />
+              <Button label="View arguments" @click="viewArgumentDisplay(slotProps.data.queryRequest.argument)" />
             </template>
           </Column>
           <Column field="userName" header="User"></Column>
@@ -88,6 +88,7 @@ import { DirectService, QueryService } from "@/services";
 import { onMounted, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
 import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
+import { Argument } from "@/interfaces/AutoGen";
 
 const directService = new DirectService();
 const router = useRouter();
@@ -104,6 +105,7 @@ const rowsOriginal = ref(25);
 const selectedQuery: Ref<DBEntry | undefined> = ref();
 const showQueryResults = ref(false);
 const showArgumentDisplay = ref(false);
+const currentArguments: Ref<Argument[]> = ref([]);
 
 onMounted(async () => {
   await init();
@@ -170,7 +172,8 @@ async function viewQueryResults(queryItem: DBEntry) {
   showQueryResults.value = true;
 }
 
-async function viewArgumentDisplay() {
+async function viewArgumentDisplay(args: Argument[]) {
+  currentArguments.value = args;
   showArgumentDisplay.value = true;
 }
 

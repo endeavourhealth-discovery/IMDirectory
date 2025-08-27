@@ -244,7 +244,7 @@ async function showArgumentsDisplay() {
 }
 
 async function checkArguments(): Promise<boolean> {
-  if (query.value) {
+  if (query.value && query.value.iri) {
     checkingArguments.value = true;
     const request: QueryRequest = { query: query.value, argument: requestArguments.value };
     missingArguments.value = await QueryService.findMissingArguments(request);

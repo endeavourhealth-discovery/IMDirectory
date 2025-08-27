@@ -133,5 +133,7 @@ function confirmArguments() {
 .button-container {
   display: flex;
   justify-content: flex-end;
+  gap: 0.5rem;
+  margin: 0.5rem;
 }
 </style>
