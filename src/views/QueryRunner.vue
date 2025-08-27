@@ -9,6 +9,7 @@
     </TopBar>
     <div class="h-[calc(100% - 3.5rem)] overflow-auto">
       <div class="flex h-full flex-auto flex-col flex-nowrap overflow-auto bg-(--p-content-background)">
+        <ArgumentDisplayDialog :arguments="currentArguments" :show-footer-buttons="false" v-model:showDialog="showArgumentDisplay" />
         <div><Button label="Refresh" @click="init()" /></div>
         <DataTable
           :value="queryQueueItems"
@@ -28,6 +29,11 @@
           <Column field="id" header="ID"></Column>
           <Column field="queryIri" header="Iri"></Column>
           <Column field="queryName" header="Query name"></Column>
+          <Column>
+            <template #body="slotProps">
+              <Button label="View arguments" @click="viewArgumentDisplay(slotProps.data.queryRequest.argument)" />
+            </template>
+          </Column>
           <Column field="userName" header="User"></Column>
           <Column field="queuedAt" header="Queued at">
             <template #body="{ data }: { data: DBEntry }">
@@ -81,9 +87,13 @@ import { DBEntry, QueryExecutorStatus } from "@/interfaces/AutoGen";
 import { DirectService, QueryService } from "@/services";
 import { onMounted, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
+import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
+import { Argument } from "@/interfaces/AutoGen";
 
 const directService = new DirectService();
 const router = useRouter();
+
+const showDialog = defineModel<boolean>("showDialog");
 
 const queryQueueItems: Ref<DBEntry[]> = ref([]);
 const loading = ref(true);
@@ -94,6 +104,8 @@ const rows = ref(25);
 const rowsOriginal = ref(25);
 const selectedQuery: Ref<DBEntry | undefined> = ref();
 const showQueryResults = ref(false);
+const showArgumentDisplay = ref(false);
+const currentArguments: Ref<Argument[]> = ref([]);
 
 onMounted(async () => {
   await init();
@@ -158,6 +170,11 @@ function goToQuery(queryIri: string) {
 async function viewQueryResults(queryItem: DBEntry) {
   selectedQuery.value = queryItem;
   showQueryResults.value = true;
+}
+
+async function viewArgumentDisplay(args: Argument[]) {
+  currentArguments.value = args;
+  showArgumentDisplay.value = true;
 }
 
 async function deleteQuery(queryId: string) {
