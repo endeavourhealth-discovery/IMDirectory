@@ -103,7 +103,7 @@ const DataModelShape: FormGenerator = {
               argument: [
                 {
                   parameter: "entityIri",
-                  valueParameter: "conceptIri"
+                  valueVariable: "conceptIri"
                 },
                 {
                   parameter: "fieldName",

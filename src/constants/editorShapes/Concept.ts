@@ -91,7 +91,7 @@ const ConceptShape: FormGenerator = {
               argument: [
                 {
                   parameter: "entityIri",
-                  valueParameter: "conceptIri"
+                  valueVariable: "conceptIri"
                 },
                 {
                   parameter: "fieldName",

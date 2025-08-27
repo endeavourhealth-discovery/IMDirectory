@@ -55,7 +55,7 @@ if (forceValidation) {
   });
 }
 
-if (props.shape.argument?.some(arg => arg.valueParameter) && valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => cloneDeep(valueVariableMap),
     async (newValue, oldValue) => {
@@ -136,7 +136,7 @@ async function setSelectedEntity() {
     else return { iri: "", name: "" };
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape, valueVariableMap?.value);
-    if (args.filter(a => isObjectHasKeys(a, ["valueParameter"])).every(a => a.valueParameter)) {
+    if (args.filter(a => isObjectHasKeys(a, ["valueVariable"])).every(a => a.valueVariable)) {
       const result = await FunctionService.runFunction(props.shape.function!.iri, args);
       if (isArrayHasLength(result)) return result[0];
       else return result;

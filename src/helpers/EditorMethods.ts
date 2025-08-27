@@ -31,7 +31,7 @@ function processArgument(property: PropertyShape, key: string, value: any, argRe
       argResult["valueDataList"] = foundValueVariable;
     else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
     else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
-    else if (typeof foundValueVariable === "string") argResult["valueParameter"] = foundValueVariable;
+    else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
     else argResult[key] = foundValueVariable;
   } else {
     (argResult as GenericObject)[key] = value;
