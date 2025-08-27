@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-27 11:46:15.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-27 13:24:59.
 
 export interface ConceptContextMap {
     id?: string;
@@ -303,14 +303,14 @@ export interface ArgumentReference {
 export interface Assignable {
     value?: string;
     function?: FunctionClause;
-    qualifier?: string;
     operator?: Operator;
+    qualifier?: string;
     valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
-    not?: T[];
     or?: T[];
+    not?: T[];
     and?: T[];
 }
 
@@ -878,15 +878,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    status?: TTIriRef;
+    description?: string;
+    types?: TTIriRef[];
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
-    prefixes?: TTPrefix[];
-    types?: TTIriRef[];
-    status?: TTIriRef;
     code?: string;
-    description?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -971,8 +971,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {

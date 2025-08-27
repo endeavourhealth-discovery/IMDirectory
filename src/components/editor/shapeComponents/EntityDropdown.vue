@@ -65,7 +65,7 @@ if (forceValidation) {
   });
 }
 
-if (props.shape.argument?.some(arg => arg.valueParameter) && valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => cloneDeep(valueVariableMap),
     async (newValue, oldValue) => {

@@ -303,7 +303,7 @@ const ConceptSetShape: FormGenerator = {
               minCount: 0,
               componentType: { iri: COMPONENT.SUBSET_BUILDER },
               path: { iri: IM.HAS_SUBSET },
-              argument: [{ parameter: "entityIri", valueParameter: "entityIri" }],
+              argument: [{ parameter: "entityIri", valueVariable: "entityIri" }],
               property: [
                 {
                   name: "Inclusions",
