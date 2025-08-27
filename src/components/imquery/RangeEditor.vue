@@ -33,15 +33,16 @@
     type="text"
     placeholder="qualifier"
     :options="uiProperty.qualifierOptions"
-    v-model="property.datatypeQualifier"
+    :modelValue="qualifier"
     option-label="name"
+    @update:model-value="updateQualifier"
   />
 </template>
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import { getDateFromString, relativityOptions, operatorOptions } from "@/helpers/QueryEditorMethods";
-import { Assignable, RelativeTo, Where } from "@/interfaces/AutoGen";
+import { Assignable, RelativeTo, TTIriRef, Where } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { IM, XSD } from "@/vocabulary";
 import { isEqual } from "lodash-es";
@@ -57,7 +58,7 @@ const property = defineModel<Where>("property", { required: true });
 const date: Ref<Date> = ref(new Date());
 const numericValue: Ref<number> = ref(0);
 const operator = ref("");
-
+const qualifier: Ref<TTIriRef | undefined> = ref();
 watch(assignable, (newValue, oldValue) => {
   if (!isEqual(newValue, oldValue)) init();
 });
@@ -75,6 +76,21 @@ function init() {
       else numericValue.value = Number(assignable.value.value);
     }
   }
+}
+function updateQualifier(value: TTIriRef) {
+  assignable.value.function = {
+    iri: value.iri,
+    name: value.name,
+    argument: [
+      {
+        parameter: "qualifier",
+        valuePath: {
+          iri: property.value.iri,
+          name: property.value.name
+        }
+      }
+    ]
+  };
 }
 
 function handleOperator(e: any) {}

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-26 13:28:14.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-27 13:24:59.
 
 export interface ConceptContextMap {
     id?: string;
@@ -151,6 +151,22 @@ export interface FunctionTemplate extends Entity {
 /**
  * Class representing an IRI
  */
+export interface Indicator extends TTIriRef {
+    indicator?: Indicator[];
+    operator?: Bool;
+    query?: TTIriRef;
+    failAction?: IndicatorAction[];
+    successAction?: IndicatorAction[];
+}
+
+export interface IndicatorAction {
+    action?: TTIriRef;
+    target?: TTIriRef[];
+}
+
+/**
+ * Class representing an IRI
+ */
 export interface MapFunction extends TTIriRef {
     argument?: Argument[];
     conceptMap?: { [index: string]: string };
@@ -273,6 +289,9 @@ export interface Argument {
     valuePath?: Path;
     valueNodeRef?: string;
     dataType?: TTIriRef;
+    valuePathList?: Path[];
+    valueObject?: any;
+    valueVariable?: string;
 }
 
 export interface ArgumentReference {
@@ -290,9 +309,9 @@ export interface Assignable {
 }
 
 export interface BoolGroup<T> {
-    and?: T[];
     or?: T[];
     not?: T[];
+    and?: T[];
 }
 
 export interface Case {
@@ -340,10 +359,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -860,13 +879,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
+    status?: TTIriRef;
+    description?: string;
+    types?: TTIriRef[];
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     code?: string;
-    status?: TTIriRef;
-    description?: string;
-    types?: TTIriRef[];
     prefixes?: TTPrefix[];
 }
 
@@ -1117,6 +1136,7 @@ export const enum Operator {
     lte = "<=",
     lt = "<",
     start = "startsWith",
+    isTrue = "isTrue",
     contains = "contains",
 }
 
@@ -1484,6 +1504,7 @@ export const enum IM {
     PROVENANCE_TARGET = "http://endhealth.info/im#provenanceTarget",
     PROVENANCE_ACTIVITY_TYPE = "http://endhealth.info/im#provenanceActivityType",
     PROVENANCE_AGENT = "http://endhealth.info/im#provenanceAgent",
+    INDICATOR = "http://endhealth.info/im#Indicator",
     START_TIME = "http://endhealth.info/im#startTime",
     EFFECTIVE_DATE = "http://endhealth.info/im#effectiveDate",
     END_DATE = "http://endhealth.info/im#endDate",

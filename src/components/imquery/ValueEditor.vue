@@ -41,8 +41,9 @@
       type="text"
       placeholder="(qualifier)"
       :options="uiProperty.qualifierOptions"
-      v-model="property.datatypeQualifier"
+      :modelValue="qualifier"
       option-label="name"
+      @update:model-value="updateQualifier"
     />
     <Select
       v-if="fromOrTo"
@@ -106,6 +107,7 @@ const operator = ref("");
 const offset = ref("0");
 const inclusivity = ref(">=");
 const units: Ref<TTIriRef | undefined> = ref();
+const qualifier: Ref<TTIriRef | undefined> = ref();
 const emit = defineEmits<{
   (event: "updateProperty"): void;
 }>();
@@ -183,6 +185,21 @@ function init() {
   if (property.value.units) {
     units.value = property.value.units;
   }
+}
+function updateQualifier(value: TTIriRef) {
+  property.value.function = {
+    iri: value.iri,
+    name: value.name,
+    argument: [
+      {
+        parameter: "qualifier",
+        valuePath: {
+          iri: property.value.iri,
+          name: property.value.name
+        }
+      }
+    ]
+  };
 }
 
 function handleOperator(e: any) {}

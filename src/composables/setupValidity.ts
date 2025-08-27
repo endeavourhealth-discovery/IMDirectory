@@ -13,6 +13,7 @@ export function setupValidity(shape?: FormGenerator) {
   const validationCheckStatus: Ref<{ key: string; deferred: { promise: any; reject: any; resolve: any } }[]> = ref([]);
 
   constructValidationCheckStatus(shape);
+
   function constructValidationCheckStatus(shape?: FormGenerator) {
     validationCheckStatus.value = [];
     if (shape?.property) {
@@ -119,7 +120,12 @@ export function setupValidity(shape?: FormGenerator) {
   ) {
     await checkValidity(componentShape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
     const index = editorValidity.value.findIndex(item => item.key === key);
-    if (index != -1) editorValidity.value[index] = { key: key, valid: !invalid.value, message: validationErrorMessage.value };
+    if (index != -1)
+      editorValidity.value[index] = {
+        key: key,
+        valid: !invalid.value,
+        message: validationErrorMessage.value
+      };
     else editorValidity.value.push({ key: key, valid: !invalid.value, message: validationErrorMessage.value });
   }
 
