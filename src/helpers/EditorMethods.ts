@@ -18,7 +18,7 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
 }
 
 function processArgument(property: PropertyShape, key: string, value: any, argResult: any, valueVariableMap?: Map<string, any>) {
-  if (key === "valueParameter") {
+  if (key === "valueVariable") {
     let foundValueVariable: any = null;
     if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
     if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {

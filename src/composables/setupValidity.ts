@@ -13,6 +13,7 @@ export function setupValidity(shape?: FormGenerator) {
   const validationCheckStatus: Ref<{ key: string; deferred: { promise: any; reject: any; resolve: any } }[]> = ref([]);
 
   constructValidationCheckStatus(shape);
+
   function constructValidationCheckStatus(shape?: FormGenerator) {
     validationCheckStatus.value = [];
     if (shape?.property) {
@@ -119,7 +120,12 @@ export function setupValidity(shape?: FormGenerator) {
   ) {
     await checkValidity(componentShape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
     const index = editorValidity.value.findIndex(item => item.key === key);
-    if (index != -1) editorValidity.value[index] = { key: key, valid: !invalid.value, message: validationErrorMessage.value };
+    if (index != -1)
+      editorValidity.value[index] = {
+        key: key,
+        valid: !invalid.value,
+        message: validationErrorMessage.value
+      };
     else editorValidity.value.push({ key: key, valid: !invalid.value, message: validationErrorMessage.value });
   }
 
@@ -145,15 +151,15 @@ export function setupValidity(shape?: FormGenerator) {
       valid = false;
       message = `A maximum of ${shape.maxCount} is required.`;
     }
-    if (isObjectHasKeys(shape, ["argument"]) && isArrayHasLength(shape.argument) && shape.argument![0].valueParameter) {
+    if (isObjectHasKeys(shape, ["argument"]) && isArrayHasLength(shape.argument) && shape.argument![0].valueVariable) {
       if (shape.builderChild) {
-        if (!(valueVariableMap.value.has(shape.argument![0].valueParameter + shape.order) || valueVariableMap.value.has(shape.argument![0].valueParameter))) {
+        if (!(valueVariableMap.value.has(shape.argument![0].valueVariable + shape.order) || valueVariableMap.value.has(shape.argument![0].valueVariable))) {
           valid = false;
-          message = `Missing required related item: ${shape.argument![0].valueParameter}.`;
+          message = `Missing required related item: ${shape.argument![0].valueVariable}.`;
         }
-      } else if (!valueVariableMap.value.has(shape.argument![0].valueParameter)) {
+      } else if (!valueVariableMap.value.has(shape.argument![0].valueVariable)) {
         valid = false;
-        message = `Missing required related item: ${shape.argument![0].valueParameter}.`;
+        message = `Missing required related item: ${shape.argument![0].valueVariable}.`;
       }
     }
     return { isValid: valid, message: message };
