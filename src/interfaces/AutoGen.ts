@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-27 13:24:59.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-28 16:18:22.
 
 export interface ConceptContextMap {
     id?: string;
@@ -152,11 +152,14 @@ export interface FunctionTemplate extends Entity {
  * Class representing an IRI
  */
 export interface Indicator extends TTIriRef {
-    indicator?: Indicator[];
     operator?: Bool;
-    query?: TTIriRef;
+    indicator?: Indicator[];
     failAction?: IndicatorAction[];
     successAction?: IndicatorAction[];
+    query?: TTIriRef;
+    stateIfTrue?: Indicator[];
+    stateIfFalse?: Indicator[];
+    indicatorType?: IndicatorType;
 }
 
 export interface IndicatorAction {
@@ -303,15 +306,16 @@ export interface ArgumentReference {
 export interface Assignable {
     value?: string;
     function?: FunctionClause;
-    operator?: Operator;
+    units?: TTIriRef;
     qualifier?: string;
+    operator?: Operator;
     valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
-    or?: T[];
-    not?: T[];
     and?: T[];
+    not?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -361,8 +365,8 @@ export interface Element extends IriLD, Entailment {
 export interface Entailment {
     memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -468,10 +472,10 @@ export interface Query extends Match {
     groupBy?: GroupBy[];
     dataSet?: Query[];
     prefixes?: Prefix[];
+    query?: Query[];
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
-    subquery?: Query;
     bindAs?: string;
 }
 
@@ -560,7 +564,6 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     not?: Where[];
     roleGroup?: boolean;
     isNotNull?: boolean;
-    units?: TTIriRef;
     valueVariable?: string;
     inverse?: boolean;
     or?: Where[];
@@ -878,15 +881,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
-    status?: TTIriRef;
-    description?: string;
-    types?: TTIriRef[];
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
+    status?: TTIriRef;
+    description?: string;
     code?: string;
     prefixes?: TTPrefix[];
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -1066,6 +1069,11 @@ export interface OrgRelationship {
 
 export interface OrgRelTarget {
     OrgId?: OrgId;
+}
+
+export const enum IndicatorType {
+    incidental = "incidental",
+    consequential = "consequential",
 }
 
 export const enum ListMode {

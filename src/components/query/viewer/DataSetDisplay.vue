@@ -7,22 +7,23 @@
     </div>
     <div v-else>{{ parentQuery.typeOf?.name }} internal id</div>
 
-    <div v-if="hasCriteria(dataSet) || dataSet.return">
-      <div v-if="hasCriteria(dataSet)">
+    <div v-if="dataSet.query || dataSet.return">
+      <div v-if="dataSet.query">
         <span>If the following:</span>
-        <Button v-if="hasCriteria(dataSet)" text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
-        <RecursiveMatchDisplay
-          v-if="matchExpand"
-          :inline="false"
-          :match="dataSet"
-          :key="index"
-          :clause-index="index"
-          :property-index="index"
-          :depth="1"
-          :operator="Bool.and"
-          :expanded="false"
-          :parent-match="query"
-        />
+        <Button text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
+        <span v-for="(matchQuery, index) in dataSet.query">
+          <RecursiveMatchDisplay
+            v-if="matchExpand"
+            :inline="false"
+            :match="matchQuery"
+            :key="index"
+            :clause-index="index"
+            :depth="1"
+            :operator="Bool.and"
+            :expanded="false"
+            :parent-match="query"
+          />
+        </span>
       </div>
       <span v-if="dataSet.return && dataSet.return.orderBy">{{ dataSet.return.orderBy.description }}</span>
       <div v-if="dataSet.return">
@@ -59,13 +60,6 @@ onMounted(async () => {
 });
 function matchToggle() {
   matchExpand.value = !matchExpand.value;
-}
-
-function hasCriteria(query: Query): boolean {
-  if (query.instanceOf || query.and || query.or || query.where) {
-    return true;
-  }
-  return false;
 }
 
 async function init() {
