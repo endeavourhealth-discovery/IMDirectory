@@ -1,19 +1,20 @@
 <template>
   <div id="concept-main-container">
-    <div class="flex flex-row">
-      <TextWithLabel label="Iri" :data="entityIri" v-if="!!entityIri" />
-      <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
+    <div class="info-container">
+      <div class="flex flex-row">
+        <TextWithLabel label="Iri" :data="entityIri" v-if="!!entityIri" />
+        <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
+      </div>
+      <div class="flex flex-row justify-start">
+        <ArrayObjectNameTagWithLabel v-if="!!entity[IM.HAS_STATUS]" label="Status" :data="entity[IM.HAS_STATUS]" />
+        <ArrayObjectNamesToStringWithLabel label="Types" :data="entity[RDF.TYPE]" v-if="!!entity[RDF.TYPE]" />
+      </div>
+      <div>
+        <TextWithLabel label="Preferred name" :data="entity[IM.PREFERRED_NAME]" v-if="!!entity[IM.PREFERRED_NAME]" />
+        <ArrayObjectNamesToStringWithLabel label="Return Type" :data="entity[IM.RETURN_TYPE]" v-if="!!entity[IM.RETURN_TYPE]" />
+      </div>
+      <TextHTMLWithLabel label="Description" :data="entity[RDFS.COMMENT]" v-if="!!entity[RDFS.COMMENT]" />
     </div>
-    <div class="flex flex-row justify-start">
-      <ArrayObjectNameTagWithLabel v-if="!!entity[IM.HAS_STATUS]" label="Status" :data="entity[IM.HAS_STATUS]" />
-      <ArrayObjectNamesToStringWithLabel label="Types" :data="entity[RDF.TYPE]" v-if="!!entity[RDF.TYPE]" />
-    </div>
-    <div>
-      <TextWithLabel label="Preferred name" :data="entity[IM.PREFERRED_NAME]" v-if="!!entity[IM.PREFERRED_NAME]" />
-      <ArrayObjectNamesToStringWithLabel label="Return Type" :data="entity[IM.RETURN_TYPE]" v-if="!!entity[IM.RETURN_TYPE]" />
-    </div>
-
-    <TextHTMLWithLabel label="Description" :data="entity[RDFS.COMMENT]" v-if="!!entity[RDFS.COMMENT]" />
     <div v-if="entity.iri === 'http://endhealth.info/im#Favourites'">
       <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
     </div>
@@ -22,7 +23,7 @@
     </div>
     <div v-else id="concept-content-dialogs-container">
       <div id="concept-panel-container">
-        <Tabs id="viewer-tabs" v-model:value="activeTab" :lazy="true">
+        <Tabs id="viewer-tabs" v-model:value="activeTab" :lazy="true" scrollable>
           <TabList id="tab-list">
             <Tab value="0">Details</Tab>
             <Tab v-if="showTerms" value="1">Terms</Tab>
@@ -317,6 +318,10 @@ async function handleControlClick(iri: string) {
   overflow: auto;
 }
 
+#concept-panel-container:deep(.p-tabpanels) {
+  overflow: auto;
+}
+
 #concept-panel-container:deep(.p-tabpanel) {
   height: 100%;
 }
@@ -329,5 +334,9 @@ async function handleControlClick(iri: string) {
 #tab-list {
   flex: 0 0 auto;
   display: flex;
+}
+
+.info-container {
+  padding: 0.25rem;
 }
 </style>
