@@ -317,10 +317,6 @@ async function handleControlClick(iri: string) {
   overflow: auto;
 }
 
-#concept-panel-container:deep(.p-tabpanels) {
-  //overflow: auto;
-}
-
 #concept-panel-container:deep(.p-tabpanel) {
   height: 100%;
 }
