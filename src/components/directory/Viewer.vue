@@ -276,11 +276,9 @@ async function handleControlClick(iri: string) {
 </script>
 <style scoped>
 #concept-main-container {
-  height: 100%;
   width: 100%;
   display: flex;
   flex-flow: column nowrap;
-  overflow-y: scroll;
 }
 
 .loading-container {

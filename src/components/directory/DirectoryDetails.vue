@@ -93,14 +93,16 @@ async function init() {
 
 .datatable-container {
   flex: 0 1 auto;
-  overflow: hidden;
-  padding: 0.5rem;
-  height: 100%;
+  overflow-y: auto;
+  margin: 0 0.5rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--p-content-border-color);
 }
 
 .header-container {
   display: flex;
   flex-flow: column nowrap;
+  padding-bottom: 0.5rem;
 }
 
 .back-to-search {
