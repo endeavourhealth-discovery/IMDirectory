@@ -30,7 +30,7 @@
       />
     </div>
     <div class="datatable-container">
-      <Viewer v-if="entity.iri" :entityIri="entity?.iri" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
+      <Viewer v-if="entity.iri" :entity="entity" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>
@@ -93,14 +93,16 @@ async function init() {
 
 .datatable-container {
   flex: 0 1 auto;
-  overflow: hidden;
-  padding: 0.5rem;
-  height: 100%;
+  overflow-y: auto;
+  margin: 0 0.5rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--p-content-border-color);
 }
 
 .header-container {
   display: flex;
   flex-flow: column nowrap;
+  padding-bottom: 0.5rem;
 }
 
 .back-to-search {
