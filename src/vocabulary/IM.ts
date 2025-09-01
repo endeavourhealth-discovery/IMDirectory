@@ -195,6 +195,7 @@ export class IM {
   public static readonly ENTITY = Namespace.IM + "Entity"
   public static readonly QUERY_SET = Namespace.IM + "QuerySet"
   public static readonly QUERY_TEMPLATE = Namespace.IM + "QueryTemplate"
+  public static readonly HAS_QUERY = Namespace.IM + "hasQuery"
   public static readonly RECORD_TYPE = Namespace.IM + "RecordType"
   public static readonly FEATURE = Namespace.IM + "MatchClause"
   public static readonly DATA_PROPERTY = Namespace.IM + "DataProperty"

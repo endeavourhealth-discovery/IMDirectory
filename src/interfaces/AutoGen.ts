@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-28 16:18:22.
+// Generated using typescript-generator version 3.2.1263 on 2025-09-01 17:23:35.
 
 export interface ConceptContextMap {
     id?: string;
@@ -152,19 +152,8 @@ export interface FunctionTemplate extends Entity {
  * Class representing an IRI
  */
 export interface Indicator extends TTIriRef {
-    operator?: Bool;
     indicator?: Indicator[];
-    failAction?: IndicatorAction[];
-    successAction?: IndicatorAction[];
     query?: TTIriRef;
-    stateIfTrue?: Indicator[];
-    stateIfFalse?: Indicator[];
-    indicatorType?: IndicatorType;
-}
-
-export interface IndicatorAction {
-    action?: TTIriRef;
-    target?: TTIriRef[];
 }
 
 /**
@@ -304,18 +293,18 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
+    operator?: Operator;
+    valueLabel?: string;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
     qualifier?: string;
-    operator?: Operator;
-    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
+    or?: T[];
     and?: T[];
     not?: T[];
-    or?: T[];
 }
 
 export interface Case {
@@ -363,10 +352,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -422,6 +411,7 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     libraryItem?: string;
     invalid?: boolean;
     isCohort?: TTIriRef;
+    retainAs?: Query;
     returx?: Return;
     isUnion?: boolean;
 }
@@ -512,7 +502,7 @@ export interface Return {
     valueRef?: string;
     propertyRef?: string;
     orderBy?: OrderLimit;
-    sourceLabel?: string;
+    asDescription?: string;
 }
 
 export interface ReturnProperty {
@@ -881,15 +871,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    types?: TTIriRef[];
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
     description?: string;
-    code?: string;
     prefixes?: TTPrefix[];
-    types?: TTIriRef[];
+    code?: string;
 }
 
 export interface BugReport extends Task {
@@ -974,8 +964,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1069,11 +1059,6 @@ export interface OrgRelationship {
 
 export interface OrgRelTarget {
     OrgId?: OrgId;
-}
-
-export const enum IndicatorType {
-    incidental = "incidental",
-    consequential = "consequential",
 }
 
 export const enum ListMode {
@@ -1557,6 +1542,7 @@ export const enum IM {
     ENTITY = "http://endhealth.info/im#Entity",
     QUERY_SET = "http://endhealth.info/im#QuerySet",
     QUERY_TEMPLATE = "http://endhealth.info/im#QueryTemplate",
+    HAS_QUERY = "http://endhealth.info/im#hasQuery",
     RECORD_TYPE = "http://endhealth.info/im#RecordType",
     FEATURE = "http://endhealth.info/im#MatchClause",
     DATA_PROPERTY = "http://endhealth.info/im#DataProperty",
