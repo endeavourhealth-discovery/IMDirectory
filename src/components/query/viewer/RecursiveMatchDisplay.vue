@@ -111,9 +111,9 @@
         />
       </span>
     </span>
-    <span v-if="match.return && match.return.sourceLabel">
+    <span v-if="match.return && match.return.asDescription">
       <span class="field">(as</span>
-      <span class="as">{{ match.return.sourceLabel }})</span>
+      <span class="as">{{ match.return.asDescription }})</span>
     </span>
     <span v-if="match.then">
       <RecursiveMatchDisplay
