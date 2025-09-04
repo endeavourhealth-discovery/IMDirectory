@@ -150,11 +150,12 @@ watch(
 watch(
   selectedLocal,
   (newValue, oldValue) => {
+    console.log(newValue);
     if (newValue?.iri !== oldValue?.iri) {
       if (newValue?.name) {
         searchText.value = newValue!.name ? newValue!.name : "";
-        emit("update:selected", newValue);
       }
+      emit("update:selected", newValue);
     }
   },
   { deep: true }

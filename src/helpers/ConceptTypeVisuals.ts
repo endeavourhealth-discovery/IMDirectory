@@ -17,13 +17,14 @@ export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
   else if (isQuery(conceptTypes)) return ["fa-duotone", "fa-magnifying-glass"];
   else if (isFeature(conceptTypes)) return ["fa-duotone", "fa-filter-list"];
   else if (isFunction(conceptTypes)) return ["fa-duotone", "fa-function"];
-  else if (isIndicator(conceptTypes)) return ["fa-solid", "fa-traffic-light-go"];
+  else if (isIndicator(conceptTypes)) return ["fa-duotone", "fa-traffic-light-go"];
   else return ["fa-duotone", "fa-lightbulb"];
 }
 
 export function getColourFromType(conceptTypes: TTIriRef[]): string {
-  const bgs = palette("tol-rainbow", 10);
+  const bgs = palette("tol-rainbow", 11);
   const bgsFixed = bgs.map((color: string) => "#" + color + "88");
+  console.log(bgs);
   if (isRecordModel(conceptTypes)) return bgsFixed[0];
   else if (isTask(conceptTypes)) return bgsFixed[6];
   else if (isProperty(conceptTypes)) return bgsFixed[4];
@@ -32,7 +33,8 @@ export function getColourFromType(conceptTypes: TTIriRef[]): string {
   else if (isQuery(conceptTypes)) return bgsFixed[3];
   else if (isFeature(conceptTypes)) return bgsFixed[7];
   else if (isFunction(conceptTypes)) return bgsFixed[9];
-  else return bgsFixed[5];
+  else if (isIndicator(conceptTypes)) return bgsFixed[5];
+  else return bgsFixed[8];
 }
 export function getTypeIcon(is: Node) {
   if (is.memberOf) {

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-09-01 17:23:35.
+// Generated using typescript-generator version 3.2.1263 on 2025-09-04 15:59:09.
 
 export interface ConceptContextMap {
     id?: string;
@@ -152,8 +152,12 @@ export interface FunctionTemplate extends Entity {
  * Class representing an IRI
  */
 export interface Indicator extends TTIriRef {
-    indicator?: Indicator[];
     query?: TTIriRef;
+    must?: Indicator[];
+    alternative?: Indicator[];
+    definition?: Query;
+    actionIfFalse?: TTIriRef[];
+    actionIfTrue?: TTIriRef[];
 }
 
 /**
@@ -293,18 +297,18 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    operator?: Operator;
-    valueLabel?: string;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
     qualifier?: string;
+    valueLabel?: string;
+    operator?: Operator;
 }
 
 export interface BoolGroup<T> {
-    or?: T[];
     and?: T[];
     not?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -352,10 +356,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
-    memberOf?: boolean;
-    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -425,6 +429,7 @@ export interface Node extends Element {
 
 export interface OrderDirection extends RelativeTo {
     direction?: Order;
+    function?: FunctionClause;
 }
 
 export interface OrderLimit {
@@ -458,11 +463,11 @@ export interface Prefix {
 }
 
 export interface Query extends Match {
+    query?: Query[];
     activeOnly?: boolean;
     groupBy?: GroupBy[];
     dataSet?: Query[];
     prefixes?: Prefix[];
-    query?: Query[];
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
@@ -872,14 +877,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    types?: TTIriRef[];
+    description?: string;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
-    description?: string;
-    prefixes?: TTPrefix[];
+    types?: TTIriRef[];
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -1484,7 +1489,7 @@ export const enum IM {
     DELETE_ALL = "http://endhealth.info/im#DeleteAll",
     PROV_CREATION = "http://endhealth.info/im#2001000252109",
     PROV_UPDATE = "http://endhealth.info/im#1661000252106",
-    USED_IN = "http://endhealth.info/im#usedIn",
+    USES = "http://endhealth.info/im#uses",
     COUNT = "http://endhealth.info/im#Count",
     SUM = "http://endhealth.info/im#Sum",
     AVERAGE = "http://endhealth.info/im#Average",
@@ -1541,6 +1546,7 @@ export const enum IM {
     NATIONALLY_ASSURED_UK = "http://endhealth.info/im#NationallyAssuredUK",
     ENTITY = "http://endhealth.info/im#Entity",
     QUERY_SET = "http://endhealth.info/im#QuerySet",
+    DEPENDENT_ON = "http://endhealth.info/im#dependentOn",
     QUERY_TEMPLATE = "http://endhealth.info/im#QueryTemplate",
     HAS_QUERY = "http://endhealth.info/im#hasQuery",
     RECORD_TYPE = "http://endhealth.info/im#RecordType",

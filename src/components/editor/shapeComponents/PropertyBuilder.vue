@@ -149,7 +149,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 interface Props {
   shape: PropertyShape;
@@ -501,7 +501,6 @@ function updateEntity() {
 .property {
   display: flex;
   margin-bottom: 4px;
-  height: 49px;
 }
 
 .property > * {
@@ -513,7 +512,7 @@ function updateEntity() {
 }
 
 .td-50 {
-  max-width: 50%;
+  width: 50%;
   vertical-align: center;
 }
 
