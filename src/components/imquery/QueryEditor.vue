@@ -27,7 +27,7 @@
     <span v-if="query.typeOf" v-for="operator in operators" :key="operator">
       <span v-if="query[operator]">
         <span v-for="(nestedMatch, index) in query[operator]" :key="index">
-          <ClauseEditor
+          <BooleanMatchEditor
             v-model:match="query[operator][index]"
             :rootBool="true"
             :depth="0"
@@ -56,9 +56,10 @@ import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { Bool, Match, Query } from "@/interfaces/AutoGen";
-import ClauseEditor from "@/components/imquery/ClauseEditor.vue";
+import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
-
+import { useQueryStore } from "@/stores/queryStore";
+import { useFilterStore } from "@/stores/filterStore";
 interface Props {
   showDialog?: boolean;
 }
@@ -83,7 +84,9 @@ const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);
 const op = ref();
 const parentIndex = ref(0);
-
+const nodeRefMap = ref<{ [key: string]: any }>({});
+const queryStore = useQueryStore();
+provide("query", query);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
@@ -105,6 +108,7 @@ function toggle(event: any) {
 }
 
 async function init() {
+  queryStore.createReturnMap(query.value);
   loading.value = false;
 }
 function createDefaultBuild() {

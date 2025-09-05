@@ -1,21 +1,7 @@
-import {
-  Bool,
-  BoolGroup,
-  Element,
-  Match,
-  Node,
-  OrderDirection,
-  Query,
-  QueryRequest,
-  RuleAction,
-  SearchBinding,
-  TTIriRef,
-  Where,
-  Path,
-  Operator
-} from "@/interfaces/AutoGen";
+import { Bool, BoolGroup, Element, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, Operator } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
-import { SearchOptions, TreeNode } from "@/interfaces";
+import { SearchOptions } from "@/interfaces";
+import type { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import Swal from "sweetalert2";
 import { cloneDeep } from "lodash-es";
@@ -154,20 +140,28 @@ export function updateBooleans(clause: BoolGroup<Match | Where | undefined>, old
   delete clause[from];
 }
 export function hasBoolGroups(clause: Match | Where) {
-  if (clause.or || clause.and) return true;
-  return false;
+  return !!(clause.or || clause.and);
 }
 
-export function getBooleanLabel(clauseType: string, operator: Bool, index: number, standardQuery?: boolean, hasSubgroups?: boolean, union?: boolean): string {
+export function getBooleanLabel(
+  clauseType: string,
+  operator: Bool,
+  index: number,
+  standardQuery?: boolean,
+  hasSubgroups?: boolean,
+  union?: boolean,
+  parentOperator?: Bool
+): string {
   const isFirst = index === 0;
   const isMatch = clauseType === "Match";
   if (operator === Bool.and) {
-    if (hasSubgroups) return isFirst ? "all of the following" : "and all of the following";
+    if (hasSubgroups) return isFirst ? "all of the following" : (parentOperator && parentOperator === Bool.or ? "or " : "and ") + "all of the following";
     else return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
   }
   if (operator === Bool.or) {
     if (union) return "merge results from the following";
-    if (hasSubgroups) return isFirst ? "at least one of the following" : "or at least one of the following";
+    if (hasSubgroups)
+      return isFirst ? "at least one of the following" : (parentOperator && parentOperator === Bool.and ? "and " : "or ") + "at least one of the following";
     else return isFirst ? (isMatch ? "Either" : "Either") : "Or";
   }
   return standardQuery ? (hasSubgroups ? "Exclude if the following" : "Exclude") : "Minus";
@@ -208,24 +202,85 @@ export function deleteMatchFromParent(parentMatch: Match, index: number) {
   }
 }
 
-export function addWhereToMatch(match: Match, path: string, property: string) {
-  let nodeRef = ";";
-  if (path != "") {
-    const propertyTypePath = path.split(",");
-    if (!match.path) match.path = [];
-    nodeRef = findMatchPathVariable(match, propertyTypePath);
-    if (nodeRef == "") {
-      const matchPath = {} as Path;
-      for (let i = 0; i < propertyTypePath.length; i += 2) {
-        matchPath.iri = propertyTypePath[i];
-        matchPath.typeOf = { iri: propertyTypePath[i + 1] };
-        match.typeOf = matchPath.typeOf;
+export function deletePropertyFromParent(match: Match, parentWhere: Where, index: number) {
+  if (parentWhere) {
+    for (const key of ["and", "or"] as const) {
+      if (parentWhere[key]) {
+        parentWhere[key]!.splice(index, 1);
       }
-      match.path.push(matchPath);
+    }
+  } else {
+    delete match.where;
+  }
+}
+
+function addPath(match: Match, flatPath: string): string | undefined {
+  if (!match.path) {
+    match.path = [];
+  }
+  let matchPath: Path | undefined = undefined;
+  const paths = flatPath.split("\t");
+  for (let i = 0; i < paths.length - 1; i++) {
+    if (!matchPath) {
+      match.path.push({ iri: paths[i], typeOf: { iri: paths[i + 1] } });
+      matchPath = match.path[0];
+    } else {
+      matchPath.path = [];
+      matchPath.path.push({ iri: paths[i], typeOf: { iri: paths[i + 1] } });
+      matchPath = matchPath.path[0];
+    }
+  }
+  const refNumber = Object.keys(paths || {}).length + 1;
+  let lastPart = paths[paths.length - 1];
+  if (lastPart.includes("#")) lastPart = lastPart.split("#")[1];
+  const nodeRef = lastPart + refNumber.toString();
+  if (matchPath) {
+    matchPath.variable = nodeRef;
+    return nodeRef;
+  }
+  return undefined;
+}
+function getPaths(match: Match): Record<string, string> | undefined {
+  if (!match.path) return undefined;
+  const paths = {} as Record<string, string>;
+  for (const path of match.path) {
+    const flatPath = path.iri! + "\t" + path.typeOf!.iri;
+    if (path.variable != null) {
+      paths[flatPath] = path.variable;
+    }
+    if (path.path) {
+      addSubPaths(flatPath, path, paths);
+    }
+  }
+  return paths;
+}
+
+function addSubPaths(flatPath: string, path: Path, paths: Record<string, string>): void {
+  for (const childPath of path.path!) {
+    const childFlatPath = childPath.iri! + "\t" + childPath.typeOf!.iri;
+    if (childPath.variable != null) {
+      paths[flatPath + "\t" + childFlatPath] = childPath.variable;
+    }
+    if (childPath.path) {
+      addSubPaths(flatPath + "\t" + childFlatPath, childPath, paths);
+    }
+  }
+}
+
+export function addWhereToMatch(match: Match, node: TreeNode, property: string) {
+  let nodeRef;
+  const path = node.data.path;
+  if (path) {
+    const paths = getPaths(match);
+    if (paths && path in paths) {
+      nodeRef = paths[path];
+    } else {
+      nodeRef = addPath(match, path);
     }
   }
   const where = {} as Where;
   where.iri = property;
+  if (nodeRef) where.nodeRef = nodeRef;
   if (match.where) {
     if (!match.where.and) {
       const currentWhere = match.where;
@@ -236,17 +291,8 @@ export function addWhereToMatch(match: Match, path: string, property: string) {
   } else match.where = where;
 }
 
-function findMatchPathVariable(match: Match, path: string[]): string {
-  if (!match.path) return "";
-  let i = -1;
-  for (const pathItem of match.path) {
-    i++;
-    if (pathItem.iri === path[i]) return pathItem.iri;
-  }
-  return "";
-}
 export function matchDefined(match: Match): boolean {
-  return !!(match.path || match.where || match.instanceOf);
+  return !!(match.path || match.where || match.isCohort || match.instanceOf || match.rule || match.and || match.or || match.not);
 }
 export function getRuleAction(match: Match): string {
   if (match.ifTrue) {
@@ -347,13 +393,14 @@ export function getBooleanOptions(
   clauseType: string,
   index: number,
   standardQuery?: boolean,
-  hasSubgroups?: boolean
+  hasSubgroups?: boolean,
+  grandParentOperator?: Bool
 ): any[] {
   const operator = parentOperator as keyof typeof parent;
   const union = ("union" in parent) as boolean;
   const notLabel = getBooleanLabel(clauseType, Bool.not, index, standardQuery, hasSubgroups);
-  const andLabel = getBooleanLabel(clauseType, Bool.and, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups);
-  const orLabel = getBooleanLabel(clauseType, Bool.or, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups, union);
+  const andLabel = getBooleanLabel(clauseType, Bool.and, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups, union, grandParentOperator);
+  const orLabel = getBooleanLabel(clauseType, Bool.or, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups, union, grandParentOperator);
   const options = [];
   if (parentOperator === Bool.not) {
     options.push({
@@ -398,34 +445,6 @@ export function getBooleanOptions(
   return options;
 }
 
-export const constraintOperatorOptions = [
-  {
-    label: "--",
-    value: "",
-    tooltip: "This concept only"
-  },
-  {
-    label: "<<",
-    value: "<<",
-    tooltip: "This concept and all descendants"
-  },
-  {
-    label: "<",
-    value: "<",
-    tooltip: "Descendants of this concept but not this concept"
-  },
-  {
-    label: "^",
-    value: "^",
-    tooltip: "Member of this value set"
-  },
-  {
-    label: ">>!",
-    value: ">>!",
-    tooltip: "This concept and all ancestors"
-  }
-];
-
 export function isGroupable(rootBool?: boolean, parentMatch?: Match, parentOperator?: Bool): boolean {
   if (parentOperator && parentOperator === Bool.rule) return false;
   if (parentMatch && !rootBool && parentOperator) {
@@ -445,48 +464,39 @@ export function getConstraintOperator(constrainer: Element) {
 export function setConstraintOperator(constrainer: Element, valueConstraintOperator: string) {
   switch (valueConstraintOperator) {
     case "<<":
+    case "descendantsOrSelfOf":
       constrainer.descendantsOrSelfOf = true;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
-      constrainer.ancestorsOrSelfOf = false;
+      delete constrainer.descendantsOf;
+      delete constrainer.memberOf;
+      delete constrainer.ancestorsOrSelfOf;
       break;
     case "<":
+    case "descendantsOf":
       constrainer.descendantsOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.memberOf = false;
-      constrainer.ancestorsOrSelfOf = false;
+      delete constrainer.descendantsOrSelfOf;
+      delete constrainer.memberOf;
+      delete constrainer.ancestorsOrSelfOf;
       break;
     case "^":
+    case "memberOf":
       constrainer.memberOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.ancestorsOrSelfOf = false;
+      delete constrainer.descendantsOrSelfOf;
+      delete constrainer.descendantsOf;
+      delete constrainer.ancestorsOrSelfOf;
       break;
     case ">>!":
+    case "ancestorsOrSelfOf":
       constrainer.ancestorsOrSelfOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
+      delete constrainer.descendantsOrSelfOf;
+      delete constrainer.descendantsOf;
+      delete constrainer.memberOf;
       break;
     default:
-      constrainer.ancestorsOrSelfOf = false;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
+      delete constrainer.ancestorsOrSelfOf;
+      delete constrainer.descendantsOrSelfOf;
+      delete constrainer.descendantsOf;
+      delete constrainer.memberOf;
   }
-}
-
-export function addSortingToIMQuery(sortingField: TTIriRef, sortDirection: TTIriRef, imQuery: QueryRequest) {
-  if (!imQuery.query.orderBy) {
-    imQuery.query.orderBy = {};
-    imQuery.query.orderBy.property = [];
-  }
-  const orderDirection = {
-    iri: sortingField.iri,
-    name: sortingField.name ? sortingField.name : "",
-    direction: sortDirection.iri === IM.ASCENDING ? "ascending" : "descending"
-  } as OrderDirection;
-  imQuery.query.orderBy.property?.push(orderDirection);
 }
 
 export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
@@ -545,11 +555,6 @@ function populateFlatListOfNodesRecursively(flatList: TreeNode[], treeNode: Tree
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
   if (treeNode.property) return treeNode.property;
   const property: Where = { iri: treeNode.data } as Where;
-  // string - is ""
-  // boolean - is true
-  // long - is true
-  // DateTime - is today's date
-
   if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
     property.operator = Operator.eq;
     property.value = "";
@@ -558,4 +563,24 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
   }
   (property as any).key = treeNode.key;
   return property;
+}
+export function updateRelativeTo(property: Where, node: TreeNode) {
+  if (!property.relativeTo) property.relativeTo = {};
+  if (node.data.parameter) {
+    property.relativeTo.parameter = node.data.parameter;
+    delete property.relativeTo.nodeRef;
+  }
+  if (node.data.nodeRef) {
+    property.relativeTo.nodeRef = node.data.nodeRef;
+    property.relativeTo.iri = node.data.iri;
+    delete property.relativeTo.parameter;
+  }
+}
+
+export function removeUndefined(obj: any) {
+  Object.keys(obj).forEach(key => {
+    if (obj[key] === undefined) {
+      delete obj[key];
+    }
+  });
 }

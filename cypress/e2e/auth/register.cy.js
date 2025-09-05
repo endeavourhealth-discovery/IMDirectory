@@ -24,20 +24,20 @@ describe("Register", () => {
     cy.get(".p-message-error").should("not.exist");
   });
   it("checks that the email is valid", () => {
-    cy.findByTestId("register-email1").type("cypress@cypress,com");
+    cy.findByTestId("register-email1").type("cypressregister@cypress,com");
     cy.findByTestId("register-email1-unverified");
     cy.findByTestId("register-email1").type("{backspace}{backspace}{backspace}{backspace}.com");
     cy.findByTestId("register-email1-verified");
   });
   it("checks confirm email is valid", () => {
-    cy.findByTestId("register-email1").type("cypress@cypress.com");
+    cy.findByTestId("register-email1").type("cypressregister@cypress.com");
     cy.findByTestId("register-email1-verified");
-    cy.findByTestId("register-email2").type("cypress@cypres.com");
+    cy.findByTestId("register-email2").type("cypressregister@cypres.com");
     cy.findByTestId("register-email1").focus();
     cy.get(".p-message-error").contains("Email addresses do not match");
     cy.findByTestId("register-email2").then($input => {
       cy.wrap($input).clear();
-      cy.wrap($input).type("cypress@cypress.com");
+      cy.wrap($input).type("cypressregister@cypress.com");
     });
     cy.findByTestId("register-email1").focus();
     cy.get(".p-message-error").should("not.exist");
@@ -100,9 +100,9 @@ describe("Register", () => {
   it("enabled submit button if fields are correctly filled", () => {
     cy.findByTestId("register-username").type("CypressTest");
     cy.findByTestId("register-submit").should("be.disabled");
-    cy.findByTestId("register-email1").type("cypress@cypress.com");
+    cy.findByTestId("register-email1").type("cypressregister@cypress.com");
     cy.findByTestId("register-submit").should("be.disabled");
-    cy.findByTestId("register-email2").type("cypress@cypress.com");
+    cy.findByTestId("register-email2").type("cypressregister@cypress.com");
     cy.findByTestId("register-submit").should("be.disabled");
     cy.findByTestId("register-firstname").type("terry");
     cy.findByTestId("register-submit").should("be.disabled");
@@ -118,8 +118,8 @@ describe("Register", () => {
 
   it("checks if username is already taken", () => {
     cy.findByTestId("register-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
-    cy.findByTestId("register-email1").type("cypress@cypress.com");
-    cy.findByTestId("register-email2").type("cypress@cypress.com");
+    cy.findByTestId("register-email1").type("cypressregister@cypress.com");
+    cy.findByTestId("register-email2").type("cypressregister@cypress.com");
     cy.findByTestId("register-firstname").type("terry");
     cy.findByTestId("register-lastname").type("pratchet");
     cy.findByTestId("password-new1").type("1234abcdA%");
@@ -127,6 +127,12 @@ describe("Register", () => {
     cy.get(".p-checkbox-input").click();
     cy.findByTestId("register-submit").click();
     cy.get(".swal2-popup", { timeout: 60000 }).contains("Username already taken");
+  });
+
+  it("checks if email is already in use", () => {
+    cy.findByTestId("register-email1").type("test@example.com");
+    cy.findByTestId("register-email1-unverified");
+    cy.contains("Email address is already registered");
   });
 
   it("can link to login", () => {

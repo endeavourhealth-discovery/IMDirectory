@@ -4,7 +4,7 @@
       <span :class="operator">
         <span>{{ getOperator(operator, index) }}</span>
       </span>
-      <span v-if="where.name" class="field">{{ where.name }}</span>
+      <span class="field">{{ whereName }}</span>
       <span v-if="eclQuery">=</span>
       <span v-if="where.valueLabel || where.qualifier">
         <span v-if="where.qualifier" class="field">{{ where.qualifier }}</span>
@@ -93,6 +93,9 @@ const boolGroup = computed(() => {
     ...(props.where.and ? { and: props.where.and } : {}),
     ...(props.where.or ? { or: props.where.or } : {})
   };
+});
+const whereName = computed(() => {
+  return props.where.name ? (props.where.name === "concept" ? "" : props.where.name) : "";
 });
 
 function getOperator(operator: Bool | undefined, index: number): string {

@@ -12,7 +12,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "rootDirs": ["."],
     "baseUrl": ".",
     "types": ["vite/client", "vitest/globals", "cypress", "@testing-library/cypress"],

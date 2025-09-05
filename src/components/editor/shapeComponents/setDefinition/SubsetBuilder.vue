@@ -94,8 +94,11 @@ onMounted(async () => {
 });
 
 async function init() {
-  if (editorEntity?.value[IM.ID]) {
-    const subsets = await QueryService.queryIM({ query: { iri: QUERY.GET_SUBSETS }, argument: [{ parameter: "this", valueIri: editorEntity.value[IM.ID] }] });
+  if (editorEntity.value?.iri) {
+    const subsets = await QueryService.queryIM({
+      query: { iri: QUERY.GET_SUBSETS },
+      argument: [{ parameter: "this", valueIri: { iri: editorEntity.value.iri } }]
+    });
     if (subsets?.entities) {
       inclusions.value = subsets.entities.map(s => {
         return { iri: s.iri, name: s[RDFS.LABEL] };

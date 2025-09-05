@@ -1,35 +1,25 @@
 <template>
   <div>
-    <h4>Columns:</h4>
-    <div class="pl-8">
-      <span v-html="columnNames.join(', ')" />
-      <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle" />
-      <span v-if="propertyExpand">
-        <RecursiveReturnDisplay :select="select" />
-      </span>
-    </div>
-    <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle" />
-    <span>GraphQL</span>
-    <span v-if="propertyExpand">
-      <RecursiveReturnDisplay :select="select" />
-    </span>
+    <span class="columns-prefix">Columns :</span>
+    <span>{{ columnNames.join(",") }}</span>
+    <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle"></Button>
+    <RecursiveReturnDisplay v-if="propertyExpand" :select="select" :parentQuery="parentQuery" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Return } from "@/interfaces/AutoGen";
+import { Return, Query } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref } from "vue";
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 
 interface Props {
-  propertyExpanded: boolean;
   select: Return;
+  parentQuery: Query;
 }
 const props = defineProps<Props>();
 const editSelect = ref({ ...props.select });
-const propertyExpand = ref(props.propertyExpanded);
-
+const propertyExpand = ref(false);
 const columnNames: Ref<string[]> = ref([]);
 
 onMounted(() => {
@@ -42,6 +32,7 @@ function toggle() {
 
 function getColumnNamesFromReturn(select: Return) {
   if (select.as) columnNames.value.push(select.as);
+  if (select.function && select.function.name) columnNames.value.push(select.function.name);
   if (select.property && isArrayHasLength(select.property)) {
     for (const property of select.property) {
       if (property.return) {
@@ -55,3 +46,9 @@ function getColumnNamesFromReturn(select: Return) {
   }
 }
 </script>
+<style scoped>
+.columns-prefix {
+  font-weight: bold;
+  padding-right: 0.2rem;
+}
+</style>

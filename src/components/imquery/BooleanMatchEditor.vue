@@ -1,34 +1,37 @@
 <template>
   <MatchEditor
-    v-if="showMatchEditor"
+    :key="refreshCounter"
     v-model:match="match"
-    v-model:showMatchEditor="showMatchEditor"
-    @cancel="cancelEditMatch"
+    v-model:showMatchEditor="showEditor"
     :baseType="baseType"
-    v-model:visible="showMatchEditor"
+    :from="from"
+    :depth="depth"
+    :clauseIndex="clauseIndex"
+    @cancel="cancelEditMatch"
+    @saveChanges="saveEditMatch"
   />
-  <!--<AddFeature v-if="addFeature" v-model:match="match" @cancel="addFeature = false" :baseType="baseType" />-->
   <div class="nested-match">
     <div v-if="parentOperator === Bool.rule" class="rule">Rule {{ clauseIndex }}</div>
-    <span v-if="hasBoolGroups(match)">
-      <span v-for="operator in operators" :key="operator">
+    <div v-if="hasBoolGroups(match)">
+      <div v-for="operator in operators" :key="operator">
         <div v-if="match[operator]">
           <div class="match-clause">
             <BooleanEditor
               v-if="showBoolean && operator !== 'not'"
               v-model:match="match"
-              v-model:parentMatch="parentMatch"
+              v-model:parentClause="parentMatch"
               :depth="depth"
               :hasSubgroups="true"
               :parentOperator="operator as Bool"
+              :grandParentOperator="parentOperator as Bool"
               :clauseIndex="clauseIndex"
               v-model:parentGroup="parentGroup"
-              @updateOperator="onUpdateOperator"
+              @updateOperator="onUpdateParentOperator"
               :rootBool="false"
             />
           </div>
           <div v-for="(item, index) in match[operator]" :key="item.uuid">
-            <ClauseEditor
+            <BooleanMatchEditor
               v-model:match="match[operator]![index]"
               v-model:parentMatch="match"
               :depth="depth + 1"
@@ -42,14 +45,14 @@
             />
           </div>
         </div>
-      </span>
-    </span>
+      </div>
+    </div>
     <div v-else class="match-clause">
       <div v-if="parentMatch?.union && !from" class="number">{{ getSubrule(parentIndex, clauseIndex + 1) }}</div>
       <BooleanEditor
         v-if="showBoolean"
         v-model:match="match"
-        v-model:parentMatch="parentMatch"
+        v-model:parentClause="parentMatch"
         :depth="depth"
         :parentOperator="parentOperator"
         :clauseIndex="clauseIndex"
@@ -102,12 +105,13 @@
       </div>
     </div>
     <div v-if="match.then">
-      <ClauseEditor
+      <BooleanMatchEditor
         v-model:match="match.then"
         :from="match"
         :depth="depth + 1"
         :parentOperator="Bool.and"
         :parentIndex="clauseIndex"
+        :parentGroup="group"
         :clauseIndex="0"
         :rootBool="false"
         :baseType="baseType"
@@ -120,8 +124,8 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool, Node } from "@/interfaces/AutoGen";
-import { inject, Ref, ref, computed, onMounted } from "vue";
+import { Match, Bool, Node, SearchResultSummary, Where } from "@/interfaces/AutoGen";
+import { inject, Ref, ref, computed, onMounted, watch } from "vue";
 import {
   hasBoolGroups,
   updateBooleans,
@@ -129,7 +133,8 @@ import {
   isGroupable,
   addMatchToParent,
   matchDefined,
-  deleteMatchFromParent
+  deleteMatchFromParent,
+  setReturn
 } from "@/composables/buildQuery";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
@@ -137,7 +142,7 @@ import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import MatchEditor from "@/components/imquery/MatchEditor.vue";
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isEqual } from "lodash-es";
 interface Props {
   isVariable?: boolean;
   depth: number;
@@ -154,7 +159,7 @@ interface Props {
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parentMatch = defineModel<Match>("parentMatch", { default: {} });
-const parentGroup = defineModel<number[]>("group", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo"]);
 const expandSet: Ref<boolean> = ref(false);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
@@ -165,7 +170,7 @@ const hoverDeleteClause = ref(false);
 const hoverAddClause = ref(false);
 const showEditor = ref(false);
 const operators = ["and", "or", "not"] as const;
-const originalMatch: Ref<Match> = ref({});
+const refreshCounter = ref(0);
 const showBoolean = computed(() => {
   if (props.from) return false;
   if (props.parentOperator) {
@@ -173,17 +178,23 @@ const showBoolean = computed(() => {
   }
   return false;
 });
-const showMatchEditor = computed(() => {
-  if (!matchDefined(match.value)) return true;
-  else if (showEditor.value) return true;
-  else return false;
+
+watch(match.value, (newValue, oldValue) => {
+  if (!isEqual(newValue, oldValue)) {
+    if (!matchDefined(newValue)) {
+      showEditor.value = true;
+    }
+  }
 });
+
 onMounted(async () => {
   init();
 });
 
 function init() {
-  originalMatch.value = cloneDeep(match.value);
+  if (!matchDefined(match.value)) {
+    showEditor.value = true;
+  }
 }
 
 function onUpdateOperator(val: string) {
@@ -191,13 +202,27 @@ function onUpdateOperator(val: string) {
   emit("updateBool", props.parentOperator, val, props.clauseIndex);
 }
 
+function onUpdateParentOperator(val: string) {
+  if (match.value.and) {
+    match.value.or = match.value.and;
+    delete match.value.and;
+  } else if (match.value.or) {
+    match.value.and = match.value.or;
+    delete match.value.or;
+  }
+}
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
   updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
 }
 function addMatch() {
   addMatchToParent({}, parentMatch.value);
 }
-function deleteMatch() {}
+function deleteMatch() {
+  deleteMatchFromParent(parentMatch.value, props.clauseIndex);
+}
+function saveEditMatch(editMatch: Match) {
+  match.value = editMatch;
+}
 function editMatch() {
   showEditor.value = true;
 }
@@ -209,10 +234,10 @@ function getSubrule(parentIndex: number, index: number): string {
 }
 
 function cancelEditMatch() {
-  match.value = originalMatch.value;
   if (!matchDefined(match.value)) {
     deleteMatchFromParent(parentMatch.value, props.clauseIndex);
   }
+  refreshCounter.value++;
   showEditor.value = false;
 }
 

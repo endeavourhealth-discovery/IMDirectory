@@ -1,7 +1,19 @@
 import Env from "./Env";
 import { QueryResponse } from "@/interfaces";
 import axios from "axios";
-import { DisplayMode, Match, PathQuery, Query, QueryRequest, SearchResponse, PropertyShape } from "@/interfaces/AutoGen";
+import {
+  DBEntry,
+  DisplayMode,
+  Match,
+  PathQuery,
+  Query,
+  QueryExecutorStatus,
+  QueryRequest,
+  RequeueQueryRequest,
+  SearchResponse,
+  PropertyShape,
+  ArgumentReference
+} from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/query";
@@ -35,7 +47,7 @@ const QueryService = {
   },
 
   async getQueryDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
-    return await axios.post(API_URL + "/public/queryDisplayFromQuery", query, { params: { displayMode } });
+    return await axios.post(API_URL + "/public/queryDisplayFromQuery", { query: query, displayMode: displayMode });
   },
 
   async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
@@ -56,8 +68,6 @@ const QueryService = {
     return await axios.post(API_URL + "/public/sql", query);
   },
 
-
-
   async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<boolean> {
     const queryResponse = await this.queryIM(queryRequest);
     return (
@@ -65,6 +75,54 @@ const QueryService = {
       isArrayHasLength(queryResponse.entities) &&
       queryResponse.entities.some((entity: TTEntity) => entity.iri === selectedIri)
     );
+  },
+
+  async addQueryToRunnerQueue(queryRequest: QueryRequest): Promise<void> {
+    return axios.post(API_URL + "/addToQueue", queryRequest);
+  },
+
+  async getQueryQueue(page: number, size: number): Promise<{ totalCount: number; result: DBEntry[]; currentPage: number; pageSize: number }> {
+    return axios.get(API_URL + "/userQueryQueue", { params: { page: page, size: size } });
+  },
+
+  async getQueryQueueByStatus(
+    status: string,
+    page: number,
+    size: number
+  ): Promise<{ result: DBEntry[]; totalCount: number; pageSize: number; currentPage: number }> {
+    return axios.get(API_URL + "/userQueryQueueByStatus", {
+      params: { status: status, page: page, size: size }
+    });
+  },
+
+  async deleteFromQueryQueue(id: string): Promise<void> {
+    return axios.delete(API_URL + "/deleteFromQueue", {
+      params: { id: id }
+    });
+  },
+
+  async cancelQuery(id: string): Promise<void> {
+    return axios.post(API_URL + "/cancelQuery", { value: id });
+  },
+
+  async requeueQuery(request: RequeueQueryRequest): Promise<void> {
+    return axios.post(API_URL + "/requeueQuery", request);
+  },
+
+  async getQueryResults(request: QueryRequest): Promise<string[]> {
+    return axios.post(API_URL + "/getQueryResults", request);
+  },
+
+  async killActiveQuery(): Promise<void> {
+    return axios.post(API_URL + "/killActiveQuery");
+  },
+
+  async testRunQuery(request: QueryRequest): Promise<string[]> {
+    return axios.post(API_URL + "/testRunQuery", request);
+  },
+
+  async findMissingArguments(request: QueryRequest): Promise<ArgumentReference[]> {
+    return axios.post(API_URL + "/findRequestMissingArguments", request);
   }
 };
 

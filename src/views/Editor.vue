@@ -93,7 +93,7 @@ import { computed, ComputedRef, onMounted, onUnmounted, onBeforeUnmount, provide
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import Swal, { SweetAlertResult } from "sweetalert2";
@@ -110,12 +110,13 @@ import { processComponentType } from "@/helpers/EditorMethods";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 
 const router = useRouter();
+const route = useRoute();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const dynamicDialog = useDialog();
 const autocompletes = new Map<HTMLElement, () => void>();
 const directService = new DirectService();
-const { editorEntity, editorEntityOriginal, fetchEntity, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
+const { fetchEntity, editorEntity, editorEntityOriginal, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
   setupEditorEntity(EditorMode.EDIT, updateType);
 const { shape, getShapesCombined, groups, processShape } = setupEditorShape();
 const {
@@ -261,7 +262,7 @@ function submit(): void {
                 await SetService.updateSubsetsFromSuper(editorEntity.value);
                 delete editorEntity.value[IM.HAS_SUBSET];
               }
-              const res = await EntityService.updateEntity(editorEntity.value);
+              const res = await EntityService.updateEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
               if (res) {
                 editorStore.updateEditorSavedEntity(undefined);
                 return res;

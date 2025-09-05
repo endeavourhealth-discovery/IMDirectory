@@ -28,7 +28,7 @@ describe("EclService ___ axios success", () => {
     const testQuery: Query = { instanceOf: [{ iri: "testEntity" }] };
     const result = await EclService.getEcl(testQuery);
     expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(Env.API + "api/ecl/public/ecl", testQuery);
+    expect(axios.post).toHaveBeenCalledWith(Env.API + "api/ecl/public/ecl", { eclQuery: testQuery });
     expect(result).toBe("axios post return");
   });
 });

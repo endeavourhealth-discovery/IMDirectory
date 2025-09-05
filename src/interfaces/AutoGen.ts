@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-15 15:07:38.
+// Generated using typescript-generator version 3.2.1263 on 2025-09-04 15:59:09.
 
 export interface ConceptContextMap {
     id?: string;
@@ -151,6 +151,18 @@ export interface FunctionTemplate extends Entity {
 /**
  * Class representing an IRI
  */
+export interface Indicator extends TTIriRef {
+    query?: TTIriRef;
+    must?: Indicator[];
+    alternative?: Indicator[];
+    definition?: Query;
+    actionIfFalse?: TTIriRef[];
+    actionIfTrue?: TTIriRef[];
+}
+
+/**
+ * Class representing an IRI
+ */
 export interface MapFunction extends TTIriRef {
     argument?: Argument[];
     conceptMap?: { [index: string]: string };
@@ -240,6 +252,8 @@ export interface PropertyShape {
     ascending?: string;
     descending?: string;
     orderable?: boolean;
+    hasValueSet?: TTIriRef;
+    definingProperty?: boolean;
 }
 
 export interface SetContent {
@@ -264,26 +278,37 @@ export interface ValueTemplate extends Entity {
 export interface Argument {
     parameter?: string;
     valueData?: string;
-    valueVariable?: string;
+    valueParameter?: string;
     valueIri?: TTIriRef;
     valueIriList?: TTIriRef[];
     valueDataList?: string[];
+    valuePath?: Path;
+    valueNodeRef?: string;
+    dataType?: TTIriRef;
+    valuePathList?: Path[];
     valueObject?: any;
+    valueVariable?: string;
+}
+
+export interface ArgumentReference {
+    parameter?: string;
+    referenceIri?: TTIriRef;
+    dataType?: TTIriRef;
 }
 
 export interface Assignable {
     value?: string;
-    unit?: TTIriRef;
-    valueLabel?: string;
-    valueParameter?: string;
-    operator?: Operator;
+    function?: FunctionClause;
+    units?: TTIriRef;
     qualifier?: string;
+    valueLabel?: string;
+    operator?: Operator;
 }
 
 export interface BoolGroup<T> {
     and?: T[];
-    or?: T[];
     not?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -309,7 +334,6 @@ export interface ECLQueryRequest {
     query?: Query;
     showNames?: boolean;
     status?: ECLStatus;
-    graph?: Graph;
 }
 
 export interface ECLStatus {
@@ -332,22 +356,24 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
-export interface FunctionClause extends Value {
-    name?: Function;
+export interface FunctionClause extends IriLD {
     argument?: Argument[];
-    range?: Range;
 }
 
 export interface GroupBy extends IriLD {
     nodeRef?: string;
     valueRef?: string;
     propertyRef?: string;
+}
+
+export interface HasPaths {
+    path?: Path[];
 }
 
 export interface Instance extends IriLD {
@@ -362,7 +388,7 @@ export interface IriLD {
     uuid?: string;
 }
 
-export interface Match extends IriLD, BoolGroup<Match> {
+export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -372,24 +398,24 @@ export interface Match extends IriLD, BoolGroup<Match> {
     or?: Match[];
     not?: Match[];
     where?: Where;
+    return?: Return;
+    then?: Match;
     graph?: Element;
-    orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
     variable?: string;
     parameter?: string;
-    path?: Path[];
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
     union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
-    then?: Match;
     rule?: Match[];
     libraryItem?: string;
     invalid?: boolean;
-    return?: Return;
+    isCohort?: TTIriRef;
+    retainAs?: Query;
     returx?: Return;
     isUnion?: boolean;
 }
@@ -403,6 +429,7 @@ export interface Node extends Element {
 
 export interface OrderDirection extends RelativeTo {
     direction?: Order;
+    function?: FunctionClause;
 }
 
 export interface OrderLimit {
@@ -411,11 +438,10 @@ export interface OrderLimit {
     description?: string;
 }
 
-export interface Path extends Element {
+export interface Path extends Element, HasPaths {
     inverse?: boolean;
     optional?: boolean;
     typeOf?: Node;
-    path?: Path[];
 }
 
 export interface PathDocument {
@@ -429,7 +455,6 @@ export interface PathQuery extends TTIriRef {
     source?: TTIriRef;
     target?: TTIriRef;
     depth?: number;
-    graph?: Graph;
 }
 
 export interface Prefix {
@@ -438,6 +463,7 @@ export interface Prefix {
 }
 
 export interface Query extends Match {
+    query?: Query[];
     activeOnly?: boolean;
     groupBy?: GroupBy[];
     dataSet?: Query[];
@@ -445,7 +471,6 @@ export interface Query extends Match {
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
-    subquery?: Query;
     bindAs?: string;
 }
 
@@ -461,9 +486,17 @@ export interface Range {
     to: Value;
 }
 
-export interface RelativeTo extends Node {
+export interface RelativeTo extends IriLD {
     valueVariable?: string;
     propertyRef?: string;
+    targetLabel?: string;
+    nodeRef?: string;
+    parameter?: string;
+}
+
+export interface RequeueQueryRequest {
+    queueId?: string;
+    queryRequest?: QueryRequest;
 }
 
 export interface Return {
@@ -473,6 +506,8 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
+    orderBy?: OrderLimit;
+    asDescription?: string;
 }
 
 export interface ReturnProperty {
@@ -503,6 +538,7 @@ export interface Update extends TTIriRef {
 }
 
 export interface Value extends Assignable {
+    valueParameter?: string;
 }
 
 export interface When {
@@ -523,16 +559,33 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     not?: Where[];
     roleGroup?: boolean;
     isNotNull?: boolean;
-    function?: FunctionClause;
     valueVariable?: string;
     inverse?: boolean;
     or?: Where[];
     and?: Where[];
+    shortLabel?: string;
+}
+
+export interface DBEntry {
+    id?: string;
+    queryIri?: string;
+    queryName?: string;
+    queryRequest?: QueryRequest;
+    userId?: string;
+    userName?: string;
+    queuedAt?: Date;
+    startedAt?: Date;
+    pid?: number;
+    finishedAt?: Date;
+    killedAt?: Date;
+    status?: QueryExecutorStatus;
+    queryResult?: string;
+    error?: string;
 }
 
 export interface CognitoGroupRequest {
     username?: string;
-    groupName?: string;
+    groupName?: UserRole;
 }
 
 export interface EclSearchRequest {
@@ -543,7 +596,6 @@ export interface EclSearchRequest {
     page?: number;
     size?: number;
     select?: string[];
-    graph?: Graph;
 }
 
 export interface EditRequest {
@@ -557,6 +609,11 @@ export interface EntityValidationRequest {
     entity?: TTEntity;
     validationIri?: string;
     graph?: Graph;
+}
+
+export interface FileDocumentRequest {
+    document?: TTDocument;
+    insertGraph?: Graph;
 }
 
 export interface FunctionRequest {
@@ -580,18 +637,18 @@ export interface QueryDisplayRequest {
 export interface QueryRequest extends ContextMap {
     textSearch?: string;
     argument?: Argument[];
-    referenceDate?: string;
     query: Query;
     pathQuery?: PathQuery;
     update?: Update;
     name?: string;
     page?: Page;
+    queryStringDefinition?: string;
     askIri?: string;
     timings?: { [index: string]: string }[];
     cohort?: TTIriRef[];
     includeNames?: boolean;
     textSearchStyle?: TextSearchStyle;
-    graph?: Graph;
+    language?: DatabaseOption;
 }
 
 /**
@@ -677,7 +734,6 @@ export interface TransformRequest {
 
 export interface ValidatedEntitiesRequest {
     snomedCodes?: string[];
-    graph?: Graph;
 }
 
 /**
@@ -803,7 +859,6 @@ export interface SetOptions {
     schemes?: string[];
     includeIM1id?: boolean;
     subsumptions?: string[];
-    graph?: Graph;
     includeDefinition?: boolean;
     includeCore?: boolean;
     includeLegacy?: boolean;
@@ -822,13 +877,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    status?: TTIriRef;
+    description?: string;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
-    code?: string;
+    status?: TTIriRef;
     types?: TTIriRef[];
+    code?: string;
     prefixes?: TTPrefix[];
 }
 
@@ -852,6 +907,10 @@ export interface BugReport extends Task {
 export interface EntityApproval extends Task {
     entityIri?: TTIriRef;
     approvalType?: ApprovalType;
+}
+
+export interface GraphRequest extends Task {
+    graph?: Graph;
 }
 
 export interface RoleRequest extends Task {
@@ -910,8 +969,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1042,6 +1101,12 @@ export const enum Comparison {
     lt = "lt",
 }
 
+export const enum DatabaseOption {
+    MYSQL = "MYSQL",
+    POSTGRESQL = "POSTGRESQL",
+    GRAPHDB = "GRAPHDB",
+}
+
 export const enum DisplayMode {
     ORIGINAL = "ORIGINAL",
     RULES = "RULES",
@@ -1062,15 +1127,6 @@ export const enum Entail {
     equal = "equal",
 }
 
-export const enum Function {
-    sum = "sum",
-    count = "count",
-    average = "average",
-    concatenate = "concatenate",
-    max = "max",
-    min = "min",
-}
-
 export const enum Operator {
     eq = "=",
     gte = ">=",
@@ -1078,6 +1134,7 @@ export const enum Operator {
     lte = "<=",
     lt = "<",
     start = "startsWith",
+    isTrue = "isTrue",
     contains = "contains",
 }
 
@@ -1125,6 +1182,14 @@ export const enum VarType {
     NODE = "NODE",
     PATH = "PATH",
     LITERAL = "LITERAL",
+}
+
+export const enum QueryExecutorStatus {
+    QUEUED = "QUEUED",
+    RUNNING = "RUNNING",
+    COMPLETED = "COMPLETED",
+    CANCELLED = "CANCELLED",
+    ERRORED = "ERRORED",
 }
 
 export const enum Browser {
@@ -1198,6 +1263,7 @@ export const enum TaskState {
 export const enum TaskType {
     BUG_REPORT = "BUG_REPORT",
     ROLE_REQUEST = "ROLE_REQUEST",
+    GRAPH_REQUEST = "GRAPH_REQUEST",
     ENTITY_APPROVAL = "ENTITY_APPROVAL",
 }
 
@@ -1249,12 +1315,13 @@ export const enum CONFIG {
 export const enum CodeTemplate {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "cTemp",
-    WRAPPER = "http://endhealth.info/im#codeTemplate#wrapper",
+    WRAPPER = "http://endhealth.info/codeTemplate#wrapper",
     LABEL = "http://www.w3.org/2000/01/rdf-schema#label",
     DEFINITION = "http://endhealth.info/im#definition",
-    DATATYPE_MAP = "http://endhealth.info/im#codeTemplate#datatypeMap",
-    EXTENSION = "http://endhealth.info/im#codeTemplate#extension",
-    INCLUDE_COMPLEX_TYPES = "http://endhealth.info/im#codeTemplate#includeComplexTypes",
+    TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    DATATYPE_MAP = "http://endhealth.info/codeTemplate#datatypeMap",
+    EXTENSION = "http://endhealth.info/codeTemplate#extension",
+    INCLUDE_COMPLEX_TYPES = "http://endhealth.info/codeTemplate#includeComplexTypes",
 }
 
 export const enum EDITOR {
@@ -1342,6 +1409,7 @@ export const enum IM {
     OPENSEARCH_QUERY = "http://endhealth.info/im#OpenSearchQuery",
     DATAMODEL_PROPERTY = "http://endhealth.info/im#dataModelProperty",
     ONTOLOGY_PARENT_FOLDER = "http://endhealth.info/im#HealthModelOntology",
+    CONCEPT_SET_PARENT_FOLDER = "http://endhealth.info/im#QueryConceptSets",
     PROPERTIES_FOLDER = "http://endhealth.info/im#Properties",
     TASK = "http://endhealth.info/im#Task",
     FIELD_GROUP = "http://endhealth.info/im#FieldGroup",
@@ -1415,20 +1483,26 @@ export const enum IM {
     SOURCE_HEADING = "http://endhealth.info/im#sourceHeading",
     TARGET_PROPERTY = "http://endhealth.info/im#targetProperty",
     CONTEXT_NODE = "http://endhealth.info/im#contextNode",
-    UPDATE_ALL = "http://endhealth.info/im#UpdateAll",
+    REPLACE_ALL_PREDICATES = "http://endhealth.info/im#ReplaceAllPredicates",
     ADD_QUADS = "http://endhealth.info/im#AddQuads",
     UPDATE_PREDICATES = "http://endhealth.info/im#UpdatePredicates",
     DELETE_ALL = "http://endhealth.info/im#DeleteAll",
     PROV_CREATION = "http://endhealth.info/im#2001000252109",
     PROV_UPDATE = "http://endhealth.info/im#1661000252106",
-    USED_IN = "http://endhealth.info/im#usedIn",
+    USES = "http://endhealth.info/im#uses",
+    COUNT = "http://endhealth.info/im#Count",
+    SUM = "http://endhealth.info/im#Sum",
+    AVERAGE = "http://endhealth.info/im#Average",
+    MIN = "http://endhealth.info/im#Min",
+    MAX = "http://endhealth.info/im#Max",
+    CONCATENATE = "http://endhealth.info/im#Concatenate",
     IN_RESULT_SET = "http://endhealth.info/im#inResultSet",
     HAS_PROFILE = "http://endhealth.info/im#inResultSet",
-    GMS_PATIENT = "http://endhealth.info/im#2751000252106",
     PROVENANCE_ACTIVITY = "http://endhealth.info/im#ProvenanceActivity",
     PROVENANCE_TARGET = "http://endhealth.info/im#provenanceTarget",
     PROVENANCE_ACTIVITY_TYPE = "http://endhealth.info/im#provenanceActivityType",
     PROVENANCE_AGENT = "http://endhealth.info/im#provenanceAgent",
+    INDICATOR = "http://endhealth.info/im#Indicator",
     START_TIME = "http://endhealth.info/im#startTime",
     EFFECTIVE_DATE = "http://endhealth.info/im#effectiveDate",
     END_DATE = "http://endhealth.info/im#endDate",
@@ -1472,7 +1546,9 @@ export const enum IM {
     NATIONALLY_ASSURED_UK = "http://endhealth.info/im#NationallyAssuredUK",
     ENTITY = "http://endhealth.info/im#Entity",
     QUERY_SET = "http://endhealth.info/im#QuerySet",
+    DEPENDENT_ON = "http://endhealth.info/im#dependentOn",
     QUERY_TEMPLATE = "http://endhealth.info/im#QueryTemplate",
+    HAS_QUERY = "http://endhealth.info/im#hasQuery",
     RECORD_TYPE = "http://endhealth.info/im#RecordType",
     FEATURE = "http://endhealth.info/im#MatchClause",
     DATA_PROPERTY = "http://endhealth.info/im#DataProperty",
@@ -1645,7 +1721,7 @@ export const enum Namespace {
     IM_EDITOR = "http://endhealth.info/im#Editor_",
     IM_QUERY = "http://endhealth.info/im#Query_",
     IM_VALIDATION = "http://endhealth.info/im#Validation_",
-    IM_CODE_TEMPLATE = "http://endhealth.info/im#codeTemplate#",
+    IM_CODE_TEMPLATE = "http://endhealth.info/codeTemplate#",
     TPP = "http://endhealth.info/tpp#",
     ENCOUNTERS = "http://endhealth.info/enc#",
     ICD10 = "http://endhealth.info/icd10#",
@@ -1850,6 +1926,7 @@ export const enum USER {
     USER_MRU = "http://endhealth.info/UserMRU",
     USER_FAVOURITES = "http://endhealth.info/UserFavourites",
     ORGANISATIONS = "http://endhealth.info/ORGANISATIONS",
+    GRAPHS = "http://endhealth.info/GRAPHS",
 }
 
 export const enum VALIDATION {
@@ -1885,6 +1962,7 @@ export const enum WORKFLOW {
     ACTUAL_RESULT = "http://endhealth.info/workflow#actualResult",
     RELATED_VERSION = "http://endhealth.info/workflow#relatedVersion",
     REQUESTED_ROLE = "http://endhealth.info/workflow#requestedRole",
+    REQUESTED_GRAPH = "http://endhealth.info/workflow#requestedGraph",
     APPROVAL_TYPE = "http://endhealth.info/workflow#approvalType",
     HISTORY = "http://endhealth.info/workflow#history",
     HISTORY_PREDICATE = "http://endhealth.info/workflow#historyPredicate",

@@ -5,9 +5,15 @@ import * as path from "path";
 import tailwindcss from "@tailwindcss/vite";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
+import prismjs from "vite-plugin-prismjs";
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss(), Components({resolvers:[PrimeVueResolver()],dts:true, directoryAsNamespace:true, collapseSamePrefixes:true})],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    Components({ resolvers: [PrimeVueResolver()], dts: true, directoryAsNamespace: true, collapseSamePrefixes: true }),
+    prismjs({ languages: ["sql"], theme: "default", css: true, plugins: ["line-numbers", "normalize-whitespace"] })
+  ],
   optimizeDeps: {
     esbuildOptions: {
       plugins: [esbuildCommonjs(["google-palette"])]

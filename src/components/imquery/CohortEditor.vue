@@ -14,7 +14,7 @@
     </div>
 
     <div v-else>
-      <span v-if="match.instanceOf" class="instance-of">{{ match.instanceOf![0].name }}</span>
+      <span v-if="match.isCohort" class="instance-of">{{ match.isCohort.name }}</span>
     </div>
     <div v-if="!editMode" class="edit-button">
       <Button
@@ -49,7 +49,7 @@
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import { IM } from "@/vocabulary";
 import { Namespace } from "@/vocabulary/Namespace";
-import { Match, SearchResultSummary, QueryRequest, Node } from "@/interfaces/AutoGen";
+import { Match, SearchResultSummary, QueryRequest, Node, TTIriRef } from "@/interfaces/AutoGen";
 import { TreeSelectionKeys } from "primevue/tree";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { EntityService, QueryService } from "@/services";
@@ -76,7 +76,7 @@ const cohortFilterOptions: Ref<SearchOptions> = ref({
 const cohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
 
 const emit = defineEmits<{
-  (event: "node-selected", query: any): void;
+  (event: "updateProperty"): void;
   (event: "navigateTo", iri: string): void;
   (event: "onCancel", visible: boolean): void;
 }>();
@@ -92,13 +92,14 @@ async function init() {
 
 async function updateCohort(cohort?: SearchResultSummary) {
   if (cohort) {
-    const instanceOf = { iri: cohort.iri, memberOf: true, name: cohort.name } as Node;
-    match.value.instanceOf = [instanceOf];
+    const isCohort = { iri: cohort.iri, memberOf: true, name: cohort.name } as TTIriRef;
+    match.value.isCohort = isCohort;
   }
   editMode.value = false;
+  emit("updateProperty");
 }
 function deleteCohort() {
-  delete match.value.instanceOf;
+  delete match.value.isCohort;
   editMode.value = false;
 }
 </script>

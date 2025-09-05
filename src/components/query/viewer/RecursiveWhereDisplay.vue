@@ -4,7 +4,7 @@
       <span :class="operator">
         <span>{{ getOperator(operator, index) }}</span>
       </span>
-      <span v-if="where.name" class="field">{{ where.name }}</span>
+      <span v-if="whereName" class="field">{{ whereName }}</span>
       <span v-if="eclQuery">=</span>
       <span v-if="where.valueLabel || where.qualifier">
         <span v-if="where.qualifier" class="field">{{ where.qualifier }}</span>
@@ -17,7 +17,9 @@
         <span v-if="where.relativeTo.qualifier">
           <span class="field">{{ where.relativeTo.qualifier }}</span>
         </span>
-        <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
+        <span v-if="then && !where.relativeTo.parameter" class="node-ref">of the above</span>
+        <span v-else-if="where.relativeTo.targetLabel" class="node-ref">{{ where.relativeTo.targetLabel }}</span>
+        <span v-else-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
       </span>
       <span v-if="isExpanded && isArrayHasLength(where.is)">
         <span>, defined as</span>
@@ -37,6 +39,7 @@
           </span>
         </div>
       </span>
+
       <span v-for="(matches, type) in boolGroup" :key="type">
         <span v-if="!root">(</span>
         <span v-for="(nestedProperty, index) in matches" :key="index">
@@ -48,16 +51,17 @@
               :key="index"
               :depth="depth + 1"
               :expandedSet="expandedSet"
-              :inline="!!root"
+              :inline="index === 0"
               :root="false"
               :eclQuery="eclQuery"
               :editMode="editMode"
-              :bracketed="index === where[type]!.length - 1"
+              :then="then"
+              :bracketed="!root"
             />
           </span>
         </span>
-        <span v-if="!root">)</span>
       </span>
+      <span v-if="bracketed">)</span>
     </span>
   </component>
 </template>
@@ -65,10 +69,10 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { Where, Bool, Node } from "@/interfaces/AutoGen";
-import { computed, ref } from "vue";
+import { computed, Ref, ref, onMounted } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM } from "@/vocabulary/IM";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { getTypeIcon, getIconColor } from "@/helpers/ConceptTypeVisuals";
 
 interface Props {
   where: Where;
@@ -81,15 +85,17 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
+  then?: boolean;
 }
 
 const props = defineProps<Props>();
-
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
+const whereName: Ref<string | undefined> = ref(undefined);
 const isExpanded = ref(props.expandedSet);
+
 const boolGroup = computed(() => {
   return {
     ...(props.where.and ? { and: props.where.and } : {}),
@@ -97,6 +103,9 @@ const boolGroup = computed(() => {
   };
 });
 
+onMounted(async () => {
+  if (props.where.name && (props.where.name != "concept" || props.then)) whereName.value = props.where.name;
+});
 function getOperator(operator: Bool | undefined, index: number): string {
   if (operator === "or") {
     if (index === 0) {
@@ -114,17 +123,6 @@ function getOperator(operator: Bool | undefined, index: number): string {
     if (index < 0) return "and";
     else return "";
   }
-}
-function getTypeIcon(is: Node) {
-  if (is.memberOf) {
-    return getFAIconFromType([{ iri: IM.CONCEPT_SET }]);
-  } else return getFAIconFromType([{ iri: IM.CONCEPT }]);
-}
-
-function getIconColor(is: Node) {
-  if (is.memberOf) {
-    return getColourFromType([{ iri: IM.CONCEPT_SET }]);
-  } else return getColourFromType([{ iri: IM.CONCEPT }]);
 }
 
 function indentationStyle(inLine: boolean, depth: number) {
