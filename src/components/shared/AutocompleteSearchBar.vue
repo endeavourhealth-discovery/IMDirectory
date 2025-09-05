@@ -11,7 +11,6 @@
         :placeholder="searchPlaceholder"
         data-testid="search-input"
         @input="debounceForSearch"
-        g
         @keydown.down="select"
         @keydown.enter="onEnter"
         @keydown.up="select"
