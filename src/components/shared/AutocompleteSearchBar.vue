@@ -11,6 +11,7 @@
         :placeholder="searchPlaceholder"
         data-testid="search-input"
         @input="debounceForSearch"
+        g
         @keydown.down="select"
         @keydown.enter="onEnter"
         @keydown.up="select"
@@ -150,7 +151,6 @@ watch(
 watch(
   selectedLocal,
   (newValue, oldValue) => {
-    console.log(newValue);
     if (newValue?.iri !== oldValue?.iri) {
       if (newValue?.name) {
         searchText.value = newValue!.name ? newValue!.name : "";
