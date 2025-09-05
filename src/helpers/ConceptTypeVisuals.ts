@@ -22,7 +22,7 @@ export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
 }
 
 export function getColourFromType(conceptTypes: TTIriRef[]): string {
-  const bgs = palette("tol-rainbow", 11);
+  const bgs = palette("tol-rainbow", 10);
   const bgsFixed = bgs.map((color: string) => "#" + color + "88");
   console.log(bgs);
   if (isRecordModel(conceptTypes)) return bgsFixed[0];
