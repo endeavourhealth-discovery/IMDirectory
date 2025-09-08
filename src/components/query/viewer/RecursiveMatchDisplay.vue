@@ -55,7 +55,7 @@
           </div>
         </span>
       </span>
-      <span v-if="match.isCohort">
+      <div v-if="match.isCohort">
         <span class="field">in</span>
         <IMViewerLink
           v-if="match.isCohort.iri"
@@ -64,7 +64,7 @@
           :action="editMode ? 'view' : 'select'"
           @navigateTo="(iri: string) => emit('navigateTo', iri)"
         />
-      </span>
+      </div>
       <span class="field">{{ getFormattedPath(match) }}</span>
     </span>
     <span v-for="operator in operators" :key="operator">

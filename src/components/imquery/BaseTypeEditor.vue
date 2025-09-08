@@ -1,6 +1,6 @@
 <template>
   <div class="nested-match base-type-selector">
-    <div>Query Base entity type</div>
+    <div>Query Base entity</div>
     <div v-if="editMode">
       <BaseTypeSelector
         :visible="editMode"
@@ -14,7 +14,10 @@
     </div>
 
     <div v-else>
-      <span class="type-of">{{ match.typeOf?.name }}</span>
+      <span v-if="match.isCohort" class="type-of">
+        {{ match.isCohort.name }}
+      </span>
+      <span v-else class="type-of">{{ match.typeOf?.name }}</span>
     </div>
     <div v-if="!editMode" class="edit-button">
       <Button
@@ -86,7 +89,10 @@ onMounted(async () => {
 async function init() {
   rootBaseEntities.value = await EntityService.getChildEntities(IM.DEFAULT_COHORTS);
   baseCohortQuery.value = buildIMQueryFromFilters(cohortFilterOptions.value);
-  if (match.value.typeOf) {
+  if (match.value.isCohort) {
+    baseType.value.iri = match.value.isCohort.iri;
+    baseType.value.name = match.value.isCohort.name;
+  } else if (match.value.typeOf) {
     baseType.value.iri = match.value.typeOf!.iri!;
     baseType.value.name = match.value.typeOf.name;
   } else {
@@ -106,13 +112,10 @@ async function updateBaseType(newBaseType?: SearchResultSummary) {
     if (selectedBaseType.type[0].iri === IM.QUERY) {
       const parentCohort = await QueryService.getQueryFromIri(selectedBaseType.iri);
       match.value.typeOf = parentCohort.typeOf;
-      if (match.value.rule) {
-        if (match.value.rule[0].isCohort)
-          match.value.rule[0].isCohort = {
-            iri: selectedBaseType.iri,
-            name: selectedBaseType.name
-          };
-      }
+      match.value.isCohort = {
+        iri: selectedBaseType.iri,
+        name: selectedBaseType.name
+      };
     } else match.value!.typeOf = { iri: newBaseType.iri, name: newBaseType.name };
   }
   editMode.value = false;
