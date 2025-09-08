@@ -125,7 +125,7 @@ function setupTree(emit?: any, customPageSize?: number) {
       node.loading = true;
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       if (!expandedData.value.find(x => x.key === node.key)) expandedData.value.push(node);
-      if (node.data === IM.FAVOURITES && node.children.length < favourites.value.length) {
+      if (node.data === IM.FAVOURITES && node.children.length <= favourites.value.length) {
         await expandFavouriteNode(node);
       } else {
         await expandNode(node, typeFilter);
@@ -135,10 +135,13 @@ function setupTree(emit?: any, customPageSize?: number) {
   }
 
   async function expandFavouriteNode(node: any) {
+    node.children = [];
+    let favChildren = [];
     for (const fav of favourites.value) {
       const favChild = await EntityService.getEntityAsEntityReferenceNode(fav);
-      if (favChild) node.children.push(createTreeNode(favChild.name, favChild.iri, favChild.type as TTIriRef[], false, node));
+      if (favChild) favChildren.push(createTreeNode(favChild.name, favChild.iri, favChild.type as TTIriRef[], false, node));
     }
+    node.children = favChildren;
   }
 
   function childrenHasNode(newChildren: TTEntity[], node: TreeNode): boolean {
@@ -288,6 +291,7 @@ function setupTree(emit?: any, customPageSize?: number) {
     expandedData,
     createTreeNode,
     createLoadMoreNode,
+    expandFavouriteNode,
     onNodeCollapse,
     onNodeDblClick,
     onNodeExpand,
