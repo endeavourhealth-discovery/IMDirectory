@@ -130,7 +130,7 @@ watch(
     const favouritesIndex = root.value.findIndex(node => node.data === IM.FAVOURITES);
     if (favouritesIndex !== -1) {
       root.value.splice(favouritesIndex, 1);
-      await addFavouritesToTree();
+      addFavouritesToTree();
     }
   }
 );
@@ -180,7 +180,7 @@ async function addParentFoldersToRoot() {
     }
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
-  if (isLoggedIn.value) await addFavouritesToTree();
+  if (isLoggedIn.value) addFavouritesToTree();
 }
 
 function addFavouritesToTree() {
@@ -373,9 +373,11 @@ async function displayOverlay(event: MouseEvent, node: TreeNode): Promise<void> 
 }
 
 async function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
-  if (node.data === "loadMore") {
-    if (!node.loading) await loadMore(node);
-  } else await customOnClick(event, node, useEmits, updateSelectedKeys);
+  if (node.data === !IM.FAVOURITES) {
+    if (node.data === "loadMore") {
+      if (!node.loading) await loadMore(node);
+    } else await customOnClick(event, node, useEmits, updateSelectedKeys);
+  }
 }
 
 function dragStart(event: DragEvent, data: TreeNode) {
