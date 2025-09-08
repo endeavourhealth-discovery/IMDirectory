@@ -373,7 +373,7 @@ async function displayOverlay(event: MouseEvent, node: TreeNode): Promise<void> 
 }
 
 async function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
-  if (node.data === !IM.FAVOURITES) {
+  if (node.data !== IM.FAVOURITES) {
     if (node.data === "loadMore") {
       if (!node.loading) await loadMore(node);
     } else await customOnClick(event, node, useEmits, updateSelectedKeys);
