@@ -60,6 +60,7 @@ import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 import { useQueryStore } from "@/stores/queryStore";
 import { useFilterStore } from "@/stores/filterStore";
+import CohortEditor from "@/components/imquery/CohortEditor.vue";
 interface Props {
   showDialog?: boolean;
 }
