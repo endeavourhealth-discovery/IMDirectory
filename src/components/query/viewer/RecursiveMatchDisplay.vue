@@ -1,7 +1,7 @@
 <template>
   <div id="recursive-match-display" class="tree-node-line">
-    <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
-      <span class="rule">Rule {{ clauseIndex }}</span>
+    <span v-if="parentOperator === Bool.rule">
+      <span class="rule">Rule {{ clauseIndex + 1 }}</span>
     </span>
     <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && parentOperator != Bool.not" :class="parentOperator">{{
       parentOperator

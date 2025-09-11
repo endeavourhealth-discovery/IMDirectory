@@ -35,6 +35,15 @@
             <span class="include-title text-black-500">with the following features</span>
           </div>
           <span v-if="query.rule">
+            <div v-if="query.isCohort">
+              <span class="field">in</span>
+              <IMViewerLink
+                v-if="query.isCohort.iri"
+                :iri="query.isCohort.iri"
+                :label="query.isCohort.name"
+                @navigateTo="(iri: string) => emit('navigateTo', iri)"
+              />
+            </div>
             <div class="tree-node-wrapper">
               <span v-for="(nestedQuery, index) in query.rule" :key="index">
                 <RecursiveMatchDisplay
@@ -125,6 +134,7 @@ import { useRouter } from "vue-router";
 import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
 import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
 import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 enum DisplayOptions {
   RuleView = "Rule view",
@@ -144,7 +154,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 const userStore = useUserStore();
 const confirm = useConfirm();
 const router = useRouter();
