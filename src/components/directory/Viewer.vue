@@ -40,9 +40,10 @@
             <Tab value="13">Used In</Tab>
             <Tab value="14">Hierarchy Position</Tab>
             <Tab v-if="showGraph" value="15">Entity Chart</Tab>
-            <Tab value="16">Graph</Tab>
-            <Tab value="17">JSON</Tab>
-            <Tab value="18">Provenance</Tab>
+            <Tab value="16">Entity-Model Diagram</Tab>
+            <Tab value="17">Graph</Tab>
+            <Tab value="18">JSON</Tab>
+            <Tab value="19">Provenance</Tab>
           </TabList>
           <TabPanels>
             <TabPanel value="0">
@@ -119,16 +120,21 @@
               </div>
             </TabPanel>
             <TabPanel value="16">
+              <div id="entity-model-container" :class="expandWidth ? 'entity-concept-panel-content' : 'concept-panel-content'">
+                <ModelChart :entityIri="entityIri" :entityName="concept[RDFS.LABEL]" @expand-width="(expand: boolean) => (expandWidth = expand)" />
+              </div>
+            </TabPanel>
+            <TabPanel value="17">
               <div id="graph-container" class="concept-panel-content">
                 <Graph :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="17">
+            <TabPanel value="18">
               <div id="json-container" class="concept-panel-content">
                 <JSONViewer :entityIri="entityIri" />
               </div>
             </TabPanel>
-            <TabPanel value="18">
+            <TabPanel value="19">
               <div id="provenance-container" class="concept-panel-content">
                 <Provenance :entityIri="entityIri" />
               </div>
@@ -170,6 +176,7 @@ import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vue";
 import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
+import ModelChart from "@/components/directory/viewer/ModelChart.vue";
 
 interface Props {
   entity: TTEntity;
@@ -195,6 +202,8 @@ const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.v
 const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
 
 const tabMap = reactive(new Map<string, string>());
+
+const expandWidth = ref(false);
 
 onMounted(async () => {
   await init();
@@ -308,14 +317,21 @@ async function handleControlClick(iri: string) {
 
 .concept-panel-content {
   height: 100%;
-  overflow: auto;
   background-color: var(--p-content-background);
   display: flex;
+  overflow: auto;
 }
 
 #concept-panel-container:deep(.p-tabview-panels) {
   flex: 1 1 auto;
   overflow: auto;
+}
+
+.entity-concept-panel-content {
+  height: 100%;
+  width: 500%;
+  background-color: var(--p-content-background);
+  display: flex;
 }
 
 #concept-panel-container:deep(.p-tabpanels) {

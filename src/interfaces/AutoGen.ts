@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-09-08 14:55:45.
+// Generated using typescript-generator version 3.2.1263 on 2025-09-15 15:43:42.
 
 export interface ConceptContextMap {
     id?: string;
@@ -297,17 +297,17 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    operator?: Operator;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    valueLabel?: string;
     qualifier?: string;
+    operator?: Operator;
+    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
-    and?: T[];
     or?: T[];
+    and?: T[];
     not?: T[];
 }
 
@@ -356,10 +356,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -876,15 +876,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
+    types?: TTIriRef[];
+    prefixes?: TTPrefix[];
     description?: string;
     status?: TTIriRef;
-    prefixes?: TTPrefix[];
     code?: string;
-    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -1477,6 +1477,7 @@ export const enum IM {
     SOURCE_SCHEMA = "http://endhealth.info/im#sourceSchema",
     SOURCE_TABLE = "http://endhealth.info/im#sourceTable",
     SOURCE_FIELD = "http://endhealth.info/im#sourceField",
+    TIME_DIFFERENCE = "http://endhealth.info/im#TimeDifference",
     SOURCE_CODE_SCHEME = "http://endhealth.info/im#sourceCodeScheme",
     SOURCE_VALUE = "http://endhealth.info/im#sourceValue",
     SOURCE_REGEX = "http://endhealth.info/im#sourceRegex",
@@ -1547,6 +1548,8 @@ export const enum IM {
     ENTITY = "http://endhealth.info/im#Entity",
     QUERY_SET = "http://endhealth.info/im#QuerySet",
     DEPENDENT_ON = "http://endhealth.info/im#dependentOn",
+    CARE_ACTIVITY = "http://endhealth.info/im#CareActivity",
+    CARE_TARGET = "http://endhealth.info/im#CareTarget",
     QUERY_TEMPLATE = "http://endhealth.info/im#QueryTemplate",
     HAS_QUERY = "http://endhealth.info/im#hasQuery",
     RECORD_TYPE = "http://endhealth.info/im#RecordType",
