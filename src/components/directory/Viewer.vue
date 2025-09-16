@@ -40,7 +40,7 @@
             <Tab value="13">Used In</Tab>
             <Tab value="14">Hierarchy Position</Tab>
             <Tab v-if="showGraph" value="15">Entity Chart</Tab>
-            <Tab value="16">Entity-Model Diagram</Tab>
+            <Tab v-if="isRecordModel(types)" value="16">Entity-Model Diagram</Tab>
             <Tab value="17">Graph</Tab>
             <Tab value="18">JSON</Tab>
             <Tab value="19">Provenance</Tab>
@@ -119,7 +119,7 @@
                 <EntityChart :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="16">
+            <TabPanel v-if="isRecordModel(types)" value="16">
               <div id="entity-model-container" :class="expandWidth ? 'entity-concept-panel-content' : 'concept-panel-content'">
                 <ModelChart :entityIri="entityIri" :entityName="concept[RDFS.LABEL]" @expand-width="(expand: boolean) => (expandWidth = expand)" />
               </div>
