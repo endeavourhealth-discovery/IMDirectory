@@ -101,7 +101,11 @@ async function handle200() {
     userStore.clearOptionalCookies();
     await userStore.getAllFromUserDatabase();
     if (authReturnPath.value) {
-      await router.push({ path: authReturnPath.value });
+      if (authReturnPath.value.includes("404")) {
+        router.go(-2);
+      } else {
+        await router.push({ path: authReturnPath.value });
+      }
     } else {
       await router.push({ name: "LandingPage" });
     }
