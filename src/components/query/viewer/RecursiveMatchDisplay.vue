@@ -18,7 +18,7 @@
         <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
         <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
       </span>
-      <span v-if="then">
+      <span v-if="then && matchExpanded">
         <span v-if="!match.path">
           <span class="field">and if the above</span>
         </span>
@@ -57,6 +57,7 @@
       </span>
       <div v-if="match.isCohort">
         <span class="field">in</span>
+        <Button text :icon="!cohortExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click=""></Button>
         <IMViewerLink
           v-if="match.isCohort.iri"
           :iri="match.isCohort.iri"
@@ -115,7 +116,7 @@
       <span class="field">(as</span>
       <span class="as">{{ match.return.asDescription }})</span>
     </span>
-    <span v-if="match.then">
+    <span v-if="match.then && matchExpanded">
       <RecursiveMatchDisplay
         :match="match.then"
         :clause-index="0"
@@ -138,10 +139,11 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool } from "@/interfaces/AutoGen";
-import { Ref, ref, computed } from "vue";
+import { Match, Bool, DisplayMode } from "@/interfaces/AutoGen";
+import { Ref, ref, computed, inject } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { QueryService } from "@/services";
 import { getBooleanLabel, hasBoolGroups } from "@/composables/buildQuery";
 
 interface Props {
@@ -165,8 +167,11 @@ const emit = defineEmits<{
 }>();
 const expandSet: Ref<boolean> = ref(false);
 const operators = ["and", "or", "not"] as const;
-
+const cohortExpanded: Ref<boolean> = ref(false);
 const matchExpanded: Ref<boolean> = ref(!match.value.description);
+const queryIri = inject<Ref<string>>("queryIri");
+const displayMode = inject<Ref<DisplayMode>>("displayMode");
+const cohort: Ref<Match | undefined> = ref();
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
@@ -179,6 +184,17 @@ function getFormattedPath(path: any): string {
 }
 function getSubrule(index: number): string {
   return index + String.fromCharCode(96 + index);
+}
+
+async function setExpandedCohort() {
+  if (cohortExpanded) {
+    cohort.value = undefined;
+    cohortExpanded.value = false;
+  } else {
+    if (queryIri) {
+      cohort.value = await QueryService.expandCohort(queryIri.value, match.value.isCohort!.iri, displayMode!.value);
+    }
+  }
 }
 
 // Watch for changes in the prop and update the local copy accordingly

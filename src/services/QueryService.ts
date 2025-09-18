@@ -1,19 +1,7 @@
 import Env from "./Env";
 import { QueryResponse } from "@/interfaces";
 import axios from "axios";
-import {
-  DBEntry,
-  DisplayMode,
-  Match,
-  PathQuery,
-  Query,
-  QueryExecutorStatus,
-  QueryRequest,
-  RequeueQueryRequest,
-  SearchResponse,
-  PropertyShape,
-  ArgumentReference
-} from "@/interfaces/AutoGen";
+import { DBEntry, DisplayMode, Match, PathQuery, Query, QueryRequest, RequeueQueryRequest, SearchResponse, ArgumentReference } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/query";
@@ -55,6 +43,10 @@ const QueryService = {
   },
   async getQueryFromIri(iri: string): Promise<Query> {
     return await axios.get(API_URL + "/public/queryFromIri", { params: { queryIri: iri } });
+  },
+
+  async expandCohort(queryIri: string, cohortIri: string, displayMode: DisplayMode): Promise<Query> {
+    return await axios.get(API_URL + "/public/expandCohort", { params: { queryIri: queryIri, cohortIri: cohortIri, displayMode: displayMode } });
   },
 
   async getDefaultQuery(): Promise<Query> {
