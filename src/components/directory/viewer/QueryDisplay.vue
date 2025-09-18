@@ -126,7 +126,7 @@ import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDispl
 import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
 import { QueryService } from "@/services";
 import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
@@ -177,6 +177,8 @@ const checkingArguments = ref(false);
 const missingArguments: Ref<ArgumentReference[]> = ref([]);
 const requestArguments: Ref<Argument[]> = ref([]);
 const runOnConfirm = ref(false);
+provide("queryIri", props.entityIri);
+provide("displayMode", displayMode);
 
 watch(
   () => props.definition,
