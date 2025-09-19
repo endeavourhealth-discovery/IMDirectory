@@ -325,8 +325,8 @@ function getTypeFromNodeRef(aPath: HasPaths, nodeRef: string): string | undefine
 }
 
 export function getOrderable(match: Match, orderables: any[]): Orderable | undefined {
-  if (match.return && match.return.orderBy) {
-    const orderProperty = match.return.orderBy.property![0];
+  if (match.orderBy) {
+    const orderProperty = match.orderBy.property![0];
     return orderables.find(o => o.value.iri === orderProperty.iri && o.value.direction === orderProperty.direction);
   }
 }

@@ -180,7 +180,7 @@ async function init() {
   if (!isDefined()) showPropertySelector.value = true;
   else {
     orderables.value = getOrderOptions(getOrderables(rootNodes.value[rootNodes.value.length - 1]));
-    if (editMatch.value.return && editMatch.value.return.orderBy) {
+    if (editMatch.value.orderBy) {
       orderable.value = getOrderable(editMatch.value, orderables.value);
     }
   }
@@ -192,8 +192,7 @@ function isDefined(): boolean {
 
 function updateOrderable(value: any) {
   orderable.value = value;
-  if (!editMatch.value.return) editMatch.value.return = {} as Return;
-  editMatch.value.return.orderBy = { property: [{ iri: value.iri, direction: value.direction }] };
+  editMatch.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] };
 }
 
 function addThen() {
@@ -258,8 +257,7 @@ function onCancel() {
 
 function onAddFunctionProperty(args: { property: string; value: any }) {
   if (args.property === "orderBy") {
-    if (!editMatch.value.return) editMatch.value.return = {} as Return;
-    editMatch.value!.return.orderBy = args.value;
+    editMatch.value!.orderBy = args.value;
   }
 }
 </script>
