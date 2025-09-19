@@ -52,7 +52,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from "vue";
-import { AuthService } from "@/services";
+import { AuthService, DirectService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
@@ -71,6 +71,8 @@ const sharedStore = useSharedStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
 const authReturnPath = computed(() => authStore.authReturnPath);
 const isPublicMode = computed(() => sharedStore.isPublicMode);
+
+const directService = new DirectService();
 
 const loading = ref(false);
 
@@ -102,7 +104,9 @@ async function handle200() {
     await userStore.getAllFromUserDatabase();
     if (authReturnPath.value) {
       if (authReturnPath.value.includes("404")) {
-        router.go(-2);
+        let path = authReturnPath.value;
+        path = decodeURIComponent(decodeURIComponent(path.replace("/404/", "")));
+        await directService.select(path);
       } else {
         await router.push({ path: authReturnPath.value });
       }
