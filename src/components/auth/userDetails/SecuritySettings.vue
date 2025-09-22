@@ -67,7 +67,7 @@ function getMfaStatus(mfaKey: string): boolean {
 
 <style scoped>
 .security-container {
-  width: 32rem;
+  width: 32em;
 }
 .two-factor-row {
   display: flex;

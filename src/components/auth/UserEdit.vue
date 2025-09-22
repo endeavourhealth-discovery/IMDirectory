@@ -1,7 +1,8 @@
 <template>
   <div class="flex flex-row">
     <div class="menu-container">
-      <TieredMenu :model="menuItems" />
+      <Button class="home-button" label="Home" @click="goHome" icon="fa-solid fa-home" />
+      <TieredMenu class="tiered-menu" :model="menuItems" />
     </div>
     <Card class="justify-content-sm-around user-edit-card flex flex-col items-center">
       <template #header>
@@ -88,7 +89,7 @@
               @update:password="setNewPassword"
               @update:arePasswordsValid="setIsNewPasswordValid"
             />
-            <div class="flex flex-row items-center justify-between gap-4">
+            <div class="items-right flex flex-row justify-between gap-4">
               <Button
                 v-if="!showPasswordEdit"
                 class="password-edit p-button-secondary"
@@ -219,7 +220,7 @@ const [lastName, lastNameAttrs]: any = defineField("lastName");
 const [email1, email1Attrs]: any = defineField("email1");
 const [email2, email2Attrs]: any = defineField("email2");
 
-watch([firstName, lastName, email1, email2], async () => {
+watch([firstName, lastName, email1, email2, password, selectedAvatar], async () => {
   await setButtonDisabled();
 });
 
@@ -403,6 +404,10 @@ function checkForChanges(): boolean {
     currentUser.value?.avatar === selectedAvatar.value
   );
 }
+
+async function goHome() {
+  await router.push({ name: "Directory" });
+}
 </script>
 
 <style scoped>
@@ -417,7 +422,7 @@ function checkForChanges(): boolean {
 }
 
 .user-edit-form {
-  max-width: 32em;
+  width: 32em;
   display: flex;
   flex-flow: column nowrap;
 }
@@ -428,7 +433,9 @@ function checkForChanges(): boolean {
 }
 
 .user-edit-card {
-  padding: 1.25em 2em 0 2em;
+  margin: 0 1.25em;
+  padding-top: 1.25rem;
+  border: var(--p-surface-200) 1px solid;
 }
 
 .email-check {
@@ -444,5 +451,9 @@ function checkForChanges(): boolean {
 .input-with-button {
   display: flex;
   flex-flow: row nowrap;
+}
+
+.home-button {
+  margin-bottom: 0.25rem;
 }
 </style>

@@ -166,6 +166,7 @@ const onSubmit = handleSubmit(async () => {
 
 .user-submit {
   width: fit-content !important;
+  margin-top: 1em;
 }
 
 .recovery-form {

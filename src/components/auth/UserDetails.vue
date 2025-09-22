@@ -1,10 +1,13 @@
 <template>
   <div class="flex flex-row">
-    <div class="menu-container"><TieredMenu :model="menuItems" /></div>
+    <div class="menu-container">
+      <Button class="home-button" label="Home" @click="goHome" icon="fa-solid fa-home" />
+      <TieredMenu class="tiered-menu" :model="menuItems" />
+    </div>
     <Card v-if="currentUser" class="justify-content-sm-around user-details-card flex flex-col items-center">
       <template #header>
         <h1>My account</h1>
-        <img data-testid="user-details-avatar" id="selected-avatar" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" />
+        <img data-testid="user-details-avatar" id="selected-avatar" :src="currentUser.avatar" alt="avatar icon" />
       </template>
       <template #title> {{ menuItems[activeItem].label }} </template>
       <template #content>
@@ -88,11 +91,16 @@ const menuItems = ref([
 async function handleEditClicked() {
   await router.push({ name: "UserEdit" });
 }
+
+async function goHome() {
+  await router.push({ name: "Directory" });
+}
 </script>
 
 <style scoped>
 .user-edit {
   width: fit-content !important;
+  margin-top: 1em;
 }
 
 .user-details-form {
@@ -107,7 +115,9 @@ async function handleEditClicked() {
 }
 
 .user-details-card {
-  padding: 0 2em;
+  margin: 0 1.25em;
+  padding-top: 1.25rem;
+  border: var(--p-surface-200) 1px solid;
 }
 
 #selected-avatar {
@@ -115,5 +125,9 @@ async function handleEditClicked() {
   width: 10rem;
   border: 1px solid lightgray;
   border-radius: 50%;
+}
+
+.home-button {
+  margin-bottom: 0.25rem;
 }
 </style>

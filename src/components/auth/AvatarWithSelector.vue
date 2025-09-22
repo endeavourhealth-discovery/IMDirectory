@@ -1,6 +1,6 @@
 <template>
   <div class="avatar-container">
-    <img data-testid="avatar-image" id="selected-avatar" :src="`/avatars/${newAvatar}`" alt="avatar icon" />
+    <img data-testid="avatar-image" id="selected-avatar" :src="newAvatar" alt="avatar icon" />
     <Button data-testid="avatar-op-button" icon="fa-solid fa-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
     <Popover ref="avatar" class="avatar-popup">
       <div>
@@ -16,7 +16,7 @@
         :pt="{ 'pc-button': { root: { 'data-testid': 'avatar-select-button' } } }"
       >
         <template #option="{ option }: any">
-          <img class="avatar-select avatar-icon" :src="`/avatars/${option}`" alt="avatar icon" />
+          <img class="avatar-select avatar-icon" :src="option" alt="avatar icon" />
         </template>
       </SelectButton>
     </Popover>
