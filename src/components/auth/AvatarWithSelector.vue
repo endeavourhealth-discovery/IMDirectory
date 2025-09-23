@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { Avatars } from "@/constants";
-import { Ref, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 
 interface Props {
   selectedAvatar: string;
@@ -34,7 +34,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  avatarSelected: (payload: string) => Avatars.includes(payload)
+  avatarSelected: (payload: string) => Avatars.includes(payload.replace(window.location.origin, ""))
 });
 
 const avatar = ref();
@@ -46,8 +46,12 @@ watch(
   }
 );
 
-let avatarOptions: Ref<string[]> = ref([...Avatars]);
+let avatarOptions: Ref<string[]> = ref([]);
 let newAvatar = ref(props.selectedAvatar);
+
+onMounted(async () => {
+  Avatars.forEach((avatar: string) => avatarOptions.value.push(window.location.origin + avatar));
+});
 
 watch(newAvatar, newValue => {
   emit("avatarSelected", newValue);

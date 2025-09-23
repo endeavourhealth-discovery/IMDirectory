@@ -7,6 +7,7 @@
     <Card class="justify-content-sm-around user-edit-card flex flex-col items-center">
       <template #header>
         <h1>Edit my account</h1>
+        {{ currentUser }}
         <avatar-with-selector :selectedAvatar="selectedAvatar" @avatarSelected="updateAvatar" />
       </template>
       <template #title> {{ menuItems[activeItem].label }}</template>

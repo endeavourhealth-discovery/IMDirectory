@@ -1,5 +1,4 @@
 <template>
-  {{ props.action }}
   <div
     v-if="html"
     class="flex-auto justify-start"
