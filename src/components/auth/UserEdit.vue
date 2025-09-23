@@ -89,30 +89,40 @@
               @update:password="setNewPassword"
               @update:arePasswordsValid="setIsNewPasswordValid"
             />
-            <div class="items-right flex flex-row justify-between gap-4">
-              <Button
-                v-if="!showPasswordEdit"
-                class="password-edit p-button-secondary"
-                data-testid="user-edit-password-change-button"
-                label="Change password"
-                @click="editPasswordClicked(true)"
-              />
-              <Button
-                v-else
-                class="password-edit p-button-secondary"
-                data-testid="user-edit-password-change-cancel-button"
-                label="Cancel password edit"
-                @click="editPasswordClicked(false)"
-              />
-              <Button class="form-reset p-button-warning" data-testid="user-edit-reset-changes-button" label="Reset changes" type="button" @click="resetForm" />
-              <Button
-                :disabled="buttonDisabled"
-                :loading="loading"
-                class="user-edit"
-                data-testid="user-edit-update-button"
-                label="Update account"
-                @click="onSubmit"
-              />
+            <div class="flex flex-row items-center justify-between gap-4">
+              <div class="flex items-center justify-start">
+                <Button
+                  v-if="!showPasswordEdit"
+                  class="password-edit p-button-secondary"
+                  data-testid="user-edit-password-change-button"
+                  label="Change password"
+                  @click="editPasswordClicked(true)"
+                />
+                <Button
+                  v-else
+                  class="password-edit p-button-secondary"
+                  data-testid="user-edit-password-change-cancel-button"
+                  label="Cancel password edit"
+                  @click="editPasswordClicked(false)"
+                />
+              </div>
+              <div class="flex items-center justify-end gap-4">
+                <Button
+                  class="form-reset p-button-warning"
+                  data-testid="user-edit-reset-changes-button"
+                  label="Reset changes"
+                  type="button"
+                  @click="resetForm"
+                />
+                <Button
+                  :disabled="buttonDisabled"
+                  :loading="loading"
+                  class="user-edit"
+                  data-testid="user-edit-update-button"
+                  label="Update account"
+                  @click="onSubmit"
+                />
+              </div>
             </div>
           </form>
         </div>
