@@ -6,7 +6,7 @@
         <template #empty> No graphs </template>
         <Column header="Graph" field="graph" />
       </DataTable>
-      <Button label="Request graph" @click="handleRequestGraph" :loading="loadingGraphs" />
+      <Button class="request-button" label="Request graph" @click="handleRequestGraph" :loading="loadingGraphs" />
     </div>
   </div>
   <Dialog v-model:visible="showRequestGraphDialog" :modal="true" header="Request graph">
@@ -84,11 +84,16 @@ async function createGraphRequest() {
 </script>
 
 <style scoped>
-.roles-container {
-  width: 32rem;
+.graphs-container {
+  width: 32em;
 }
 
 .roles-content {
   padding: 1rem;
+}
+
+.request-button {
+  width: fit-content !important;
+  margin-top: 1em;
 }
 </style>

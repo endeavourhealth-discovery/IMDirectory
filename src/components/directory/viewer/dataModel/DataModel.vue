@@ -12,7 +12,7 @@
             class="mr-2"
             fixed-width
           />
-          <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" :action="'select'" />
         </div>
       </template>
       <template #type="{ node }: any">

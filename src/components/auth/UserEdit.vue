@@ -1,11 +1,13 @@
 <template>
   <div class="flex flex-row">
     <div class="menu-container">
-      <TieredMenu :model="menuItems" />
+      <Button class="home-button" label="Home" @click="goHome" icon="fa-solid fa-home" />
+      <TieredMenu class="tiered-menu" :model="menuItems" />
     </div>
     <Card class="justify-content-sm-around user-edit-card flex flex-col items-center">
       <template #header>
         <h1>Edit my account</h1>
+        {{ currentUser }}
         <avatar-with-selector :selectedAvatar="selectedAvatar" @avatarSelected="updateAvatar" />
       </template>
       <template #title> {{ menuItems[activeItem].label }}</template>
@@ -89,29 +91,39 @@
               @update:arePasswordsValid="setIsNewPasswordValid"
             />
             <div class="flex flex-row items-center justify-between gap-4">
-              <Button
-                v-if="!showPasswordEdit"
-                class="password-edit p-button-secondary"
-                data-testid="user-edit-password-change-button"
-                label="Change password"
-                @click="editPasswordClicked(true)"
-              />
-              <Button
-                v-else
-                class="password-edit p-button-secondary"
-                data-testid="user-edit-password-change-cancel-button"
-                label="Cancel password edit"
-                @click="editPasswordClicked(false)"
-              />
-              <Button class="form-reset p-button-warning" data-testid="user-edit-reset-changes-button" label="Reset changes" type="button" @click="resetForm" />
-              <Button
-                :disabled="buttonDisabled"
-                :loading="loading"
-                class="user-edit"
-                data-testid="user-edit-update-button"
-                label="Update account"
-                @click="onSubmit"
-              />
+              <div class="flex items-center justify-start">
+                <Button
+                  v-if="!showPasswordEdit"
+                  class="password-edit p-button-secondary"
+                  data-testid="user-edit-password-change-button"
+                  label="Change password"
+                  @click="editPasswordClicked(true)"
+                />
+                <Button
+                  v-else
+                  class="password-edit p-button-secondary"
+                  data-testid="user-edit-password-change-cancel-button"
+                  label="Cancel password edit"
+                  @click="editPasswordClicked(false)"
+                />
+              </div>
+              <div class="flex items-center justify-end gap-4">
+                <Button
+                  class="form-reset p-button-warning"
+                  data-testid="user-edit-reset-changes-button"
+                  label="Reset changes"
+                  type="button"
+                  @click="resetForm"
+                />
+                <Button
+                  :disabled="buttonDisabled"
+                  :loading="loading"
+                  class="user-edit"
+                  data-testid="user-edit-update-button"
+                  label="Update account"
+                  @click="onSubmit"
+                />
+              </div>
             </div>
           </form>
         </div>
@@ -219,7 +231,7 @@ const [lastName, lastNameAttrs]: any = defineField("lastName");
 const [email1, email1Attrs]: any = defineField("email1");
 const [email2, email2Attrs]: any = defineField("email2");
 
-watch([firstName, lastName, email1, email2], async () => {
+watch([firstName, lastName, email1, email2, password, selectedAvatar], async () => {
   await setButtonDisabled();
 });
 
@@ -403,6 +415,10 @@ function checkForChanges(): boolean {
     currentUser.value?.avatar === selectedAvatar.value
   );
 }
+
+async function goHome() {
+  await router.push({ name: "Directory" });
+}
 </script>
 
 <style scoped>
@@ -417,7 +433,7 @@ function checkForChanges(): boolean {
 }
 
 .user-edit-form {
-  max-width: 32em;
+  width: 32em;
   display: flex;
   flex-flow: column nowrap;
 }
@@ -428,7 +444,9 @@ function checkForChanges(): boolean {
 }
 
 .user-edit-card {
-  padding: 1.25em 2em 0 2em;
+  margin: 0 1.25em;
+  padding-top: 1.25rem;
+  border: var(--p-surface-200) 1px solid;
 }
 
 .email-check {
@@ -444,5 +462,9 @@ function checkForChanges(): boolean {
 .input-with-button {
   display: flex;
   flex-flow: row nowrap;
+}
+
+.home-button {
+  margin-bottom: 0.25rem;
 }
 </style>

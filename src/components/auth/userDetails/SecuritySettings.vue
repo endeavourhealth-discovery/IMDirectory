@@ -4,7 +4,7 @@
       <h3>Two-factor authentication</h3>
       <p>Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to sign in.</p>
       <DataView :value="twoFactorMethods" data-key="label">
-        <template #header> Two-factor methods </template>
+        <template #header> <div class="font-semibold">Two-factor methods</div></template>
         <template #list="slotProps">
           <div v-for="(item, index) in slotProps.items" class="col-span-12" v-bind:key="index">
             <div class="two-factor-row">
@@ -67,12 +67,13 @@ function getMfaStatus(mfaKey: string): boolean {
 
 <style scoped>
 .security-container {
-  width: 32rem;
+  width: 32em;
 }
 .two-factor-row {
   display: flex;
   flex-flow: row nowrap;
-  padding: 0.5rem;
+  //padding: 0.5rem;
+  margin: 1em;
   gap: 1rem;
   align-items: center;
   justify-content: space-between;

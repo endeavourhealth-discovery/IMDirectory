@@ -1,6 +1,6 @@
 <template>
   <div class="avatar-container">
-    <img data-testid="avatar-image" id="selected-avatar" :src="`/avatars/${newAvatar}`" alt="avatar icon" />
+    <img data-testid="avatar-image" id="selected-avatar" :src="newAvatar" alt="avatar icon" />
     <Button data-testid="avatar-op-button" icon="fa-solid fa-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
     <Popover ref="avatar" class="avatar-popup">
       <div>
@@ -16,7 +16,7 @@
         :pt="{ 'pc-button': { root: { 'data-testid': 'avatar-select-button' } } }"
       >
         <template #option="{ option }: any">
-          <img class="avatar-select avatar-icon" :src="`/avatars/${option}`" alt="avatar icon" />
+          <img class="avatar-select avatar-icon" :src="option" alt="avatar icon" />
         </template>
       </SelectButton>
     </Popover>
@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { Avatars } from "@/constants";
-import { Ref, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 
 interface Props {
   selectedAvatar: string;
@@ -34,7 +34,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  avatarSelected: (payload: string) => Avatars.includes(payload)
+  avatarSelected: (payload: string) => Avatars.includes(payload.replace(window.location.origin, ""))
 });
 
 const avatar = ref();
@@ -46,8 +46,12 @@ watch(
   }
 );
 
-let avatarOptions: Ref<string[]> = ref([...Avatars]);
+let avatarOptions: Ref<string[]> = ref([]);
 let newAvatar = ref(props.selectedAvatar);
+
+onMounted(async () => {
+  Avatars.forEach((avatar: string) => avatarOptions.value.push(window.location.origin + avatar));
+});
 
 watch(newAvatar, newValue => {
   emit("avatarSelected", newValue);

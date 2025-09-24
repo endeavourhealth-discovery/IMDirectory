@@ -17,7 +17,7 @@
                 v-if="isLoggedIn"
                 id="user-icon"
                 class="avatar-icon"
-                :src="`/avatars/${currentUser.avatar}`"
+                :src="currentUser.avatar"
                 alt="avatar icon"
                 aria-haspopup="true"
                 aria-controls="overlay_menu"
