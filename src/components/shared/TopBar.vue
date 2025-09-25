@@ -108,7 +108,7 @@
         aria-controls="overlay_menu"
         data-testid="account-menu-logged-in"
       >
-        <img class="avatar-icon" alt="avatar icon" :src="`/avatars/${currentUser.avatar}`" style="min-width: 1.75rem" />
+        <img class="avatar-icon" alt="avatar icon" :src="currentUser.avatar" style="min-width: 1.75rem" />
       </Button>
       <TieredMenu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">

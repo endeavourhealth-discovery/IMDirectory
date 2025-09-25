@@ -35,17 +35,21 @@ export const hasDefinition = {
         {
           key: "http://endhealth.info/im#CSET_Covid0",
           label: "Covid related value sets (Query Value Set)",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://endhealth.info/im#scheme",
       label: "scheme",
+      leaf: false,
       children: [
         {
           key: "http://endhealth.info/im#",
           label: "Endeavour code scheme and graph",
+          leaf: false,
           type: "link"
         }
       ]
@@ -177,80 +181,96 @@ export const hasMultiplePredicates = {
     {
       key: "http://endhealth.info/im#isA",
       label: "is a",
+      leaf: false,
       children: [
         {
           key: "http://snomed.info/sct#416578004",
           label: "Mental and psychological observations (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#186411000000102",
           label: "Mental and psychological observations",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#189851000000107",
           label: "Mental and psychological observations",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#404684003",
           label: "Clinical finding (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#282278008",
           label: "Additional behavior finding (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#844005",
           label: "Behavior finding (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#384821006",
           label: "Mental state, behavior and/or psychosocial function finding (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#365949003",
           label: "Health-related behavior finding (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#8392000",
           label: "Non-smoker (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#316231000",
           label: "[V]Tobacco use (situation)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#399791000000101",
           label: "[V]Tobacco use (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#365981007",
           label: "Finding of tobacco smoking behavior (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#160618006",
           label: "Current non-smoker (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#365980008",
           label: "Finding of tobacco use and exposure (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#405746006",
           label: "Current non smoker but past smoking history unknown (finding)",
+          leaf: false,
           type: "link"
         }
       ]
@@ -263,20 +283,24 @@ export const hasMultiplePredicates = {
     {
       key: "http://endhealth.info/im#usuallySubsumedBy",
       label: "usually subsumed by",
+      leaf: false,
       children: [
         {
           key: "http://snomed.info/sct#282278008",
           label: "Additional behavior finding (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#316231000",
           label: "[V]Tobacco use (situation)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#399791000000101",
           label: "[V]Tobacco use (context-dependent category)",
+          leaf: false,
           type: "link"
         }
       ]
@@ -284,10 +308,12 @@ export const hasMultiplePredicates = {
     {
       key: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
       label: "subClassOf",
+      leaf: false,
       children: [
         {
           key: "http://snomed.info/sct#8392000",
           label: "Non-smoker (finding)",
+          leaf: false,
           type: "link"
         }
       ]
@@ -318,20 +344,24 @@ export const hasMultiplePredicates = {
     {
       key: "http://endhealth.info/im#multipleSubsumedBy",
       label: "multiple subsumed by",
+      leaf: false,
       children: [
         {
           key: "http://snomed.info/sct#416578004",
           label: "Mental and psychological observations (finding)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#186411000000102",
           label: "Mental and psychological observations",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#189851000000107",
           label: "Mental and psychological observations",
+          leaf: false,
           type: "link"
         }
       ]
@@ -339,10 +369,12 @@ export const hasMultiplePredicates = {
     {
       key: "http://endhealth.info/im#scheme",
       label: "scheme",
+      leaf: false,
       children: [
         {
           key: "http://snomed.info/sct#",
           label: "Snomed-CT code scheme and graph",
+          leaf: false,
           type: "link"
         }
       ]
@@ -366,10 +398,12 @@ export const hasMultiplePredicates = {
     {
       key: "http://endhealth.info/im#subsumedBy",
       label: "subsumed by",
+      leaf: false,
       children: [
         {
           key: "http://snomed.info/sct#160618006",
           label: "Current non-smoker (finding)",
+          leaf: false,
           type: "link"
         }
       ]
@@ -762,119 +796,143 @@ export const hasMap = {
         {
           key: "http://snomed.info/sct#2876009",
           label: "Hospital admission, type unclassified, explain by report (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#55402005",
           label: "Hospital admission, for laboratory work-up, radiography, etc. (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#342831000000109",
           label: "Labelling procedure (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#345241000000105",
           label: "Court order procedure (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351871000000104",
           label: "Application for court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351881000000102",
           label: "Granting of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351891000000100",
           label: "Refusal of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351901000000104",
           label: "Discharge of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351911000000102",
           label: "Subject to court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351921000000108",
           label: "Review of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351931000000105",
           label: "Amendment of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351941000000101",
           label: "Expiration of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#397941000000102",
           label: "[V]Other reasons for encounter (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#409891000000104",
           label: "[V]Other reasons for encounter OS (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#411851000000109",
           label: "[X]Other boarder in health care facility (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#416681000000109",
           label: "[V]Other specified reasons for encounter (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#427611000000105",
           label: "[V]Encounter with person who has no complaint or sickness (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#428231000000104",
           label: "[V]Other boarder in health-care facility (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#430251000000105",
           label: "[V]Unspecified reasons for encounter (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#440431000000103",
           label: "[V]Person with other specified health problems (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#440741000000102",
           label: "[V]Healthy person accompanying sick person (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#451961000000105",
           label: "[V]Other reasons for encounter NOS (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#464391000000106",
           label: "[V]Unspecified health problems (context-dependent category)",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://endhealth.info/im#multipleSubsumedBy",
@@ -883,29 +941,35 @@ export const hasMap = {
         {
           key: "http://snomed.info/sct#243797000",
           label: "Referral and admission procedures (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#11781000000101",
           label: "Care Programme Approach administrative procedures (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#24221000000103",
           label: "SNOMED CT UK administrative concepts (administrative concept)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#479091000000102",
           label: "[X]Persons encountering health services in other specified circumstances (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#714351000000107",
           label: "Administration NOS (record artifact)",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://endhealth.info/im#scheme",
@@ -914,9 +978,11 @@ export const hasMap = {
         {
           key: "http://snomed.info/sct#",
           label: "Snomed-CT code scheme and graph",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://endhealth.info/im#hasMap",
@@ -945,9 +1011,11 @@ export const hasMap = {
                     {
                       key: "http://endhealth.info/im#NationallyAssuredUK",
                       label: "Nationally assured UK level",
+                      leaf: false,
                       type: "link"
                     }
-                  ]
+                  ],
+                  leaf: false
                 },
                 {
                   key: "ALWAYS Z76.9http://endhealth.info/im#mappedTo",
@@ -956,9 +1024,11 @@ export const hasMap = {
                     {
                       key: "http://endhealth.info/icd10#Z769",
                       label: "Person encountering health services in unspecified circumstances",
+                      leaf: false,
                       type: "link"
                     }
-                  ]
+                  ],
+                  leaf: false
                 }
               ]
             },
@@ -981,9 +1051,11 @@ export const hasMap = {
                     {
                       key: "http://endhealth.info/im#NationallyAssuredUK",
                       label: "Nationally assured UK level",
+                      leaf: false,
                       type: "link"
                     }
-                  ]
+                  ],
+                  leaf: false
                 },
                 {
                   key: "ALWAYS Z76.4 | ADDITIONAL CODE MANDATORY | CODE MUST NEVER BE USED IN A PRIMARY POSITIONhttp://endhealth.info/im#mappedTo",
@@ -992,9 +1064,11 @@ export const hasMap = {
                     {
                       key: "http://endhealth.info/icd10#Z764",
                       label: "Other boarder in health-care facility",
+                      leaf: false,
                       type: "link"
                     }
-                  ]
+                  ],
+                  leaf: false
                 }
               ]
             },
@@ -1017,9 +1091,11 @@ export const hasMap = {
                     {
                       key: "http://endhealth.info/im#NationallyAssuredUK",
                       label: "Nationally assured UK level",
+                      leaf: false,
                       type: "link"
                     }
-                  ]
+                  ],
+                  leaf: false
                 },
                 {
                   key: "ALWAYS Z76.3 | ADDITIONAL CODE MANDATORY | CODE MUST BE USED IN A PRIMARY POSITIONhttp://endhealth.info/im#mappedTo",
@@ -1028,9 +1104,11 @@ export const hasMap = {
                     {
                       key: "http://endhealth.info/icd10#Z763",
                       label: "Healthy person accompanying sick person",
+                      leaf: false,
                       type: "link"
                     }
-                  ]
+                  ],
+                  leaf: false
                 }
               ]
             },
@@ -1053,9 +1131,11 @@ export const hasMap = {
                     {
                       key: "http://endhealth.info/im#NationallyAssuredUK",
                       label: "Nationally assured UK level",
+                      leaf: false,
                       type: "link"
                     }
-                  ]
+                  ],
+                  leaf: false
                 },
                 {
                   key: "ALWAYS Z76.8http://endhealth.info/im#mappedTo",
@@ -1064,9 +1144,11 @@ export const hasMap = {
                     {
                       key: "http://endhealth.info/icd10#Z768",
                       label: "Persons encountering health services in other specified circumstances",
+                      leaf: false,
                       type: "link"
                     }
-                  ]
+                  ],
+                  leaf: false
                 }
               ]
             }
@@ -1102,44 +1184,53 @@ export const hasMap = {
         {
           key: "http://snomed.info/sct#20641000000101",
           label: "Administration NOS (administrative concept)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#401171000000108",
           label: "[V] Admission for bladder training",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#418621000000107",
           label: "[V]Admitted for commencement of insulin",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#431101000000109",
           label: "[V]Admission for instruction in the use of a nebuliser",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#455051000000105",
           label: "[V]Admitted for conversion to insulin",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#469761000000100",
           label: "[V]Admission for instruction of self-catheterisation",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#857441000000103",
           label: "Admission procedure",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#891081000000104",
           label: "Admission to establishment",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://endhealth.info/im#isA",
@@ -1148,209 +1239,251 @@ export const hasMap = {
         {
           key: "http://snomed.info/sct#32485007",
           label: "Hospital admission (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#71388002",
           label: "Procedure (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#2876009",
           label: "Hospital admission, type unclassified, explain by report (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#55402005",
           label: "Hospital admission, for laboratory work-up, radiography, etc. (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#342831000000109",
           label: "Labelling procedure (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#345241000000105",
           label: "Court order procedure (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351871000000104",
           label: "Application for court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351881000000102",
           label: "Granting of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351891000000100",
           label: "Refusal of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351901000000104",
           label: "Discharge of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351911000000102",
           label: "Subject to court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351921000000108",
           label: "Review of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351931000000105",
           label: "Amendment of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#351941000000101",
           label: "Expiration of court order (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#397941000000102",
           label: "[V]Other reasons for encounter (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#409891000000104",
           label: "[V]Other reasons for encounter OS (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#411851000000109",
           label: "[X]Other boarder in health care facility (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#416681000000109",
           label: "[V]Other specified reasons for encounter (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#427611000000105",
           label: "[V]Encounter with person who has no complaint or sickness (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#428231000000104",
           label: "[V]Other boarder in health-care facility (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#430251000000105",
           label: "[V]Unspecified reasons for encounter (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#440431000000103",
           label: "[V]Person with other specified health problems (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#440741000000102",
           label: "[V]Healthy person accompanying sick person (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#451961000000105",
           label: "[V]Other reasons for encounter NOS (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#464391000000106",
           label: "[V]Unspecified health problems (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#243797000",
           label: "Referral and admission procedures (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#11781000000101",
           label: "Care Programme Approach administrative procedures (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#24221000000103",
           label: "SNOMED CT UK administrative concepts (administrative concept)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#479091000000102",
           label: "[X]Persons encountering health services in other specified circumstances (context-dependent category)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#714351000000107",
           label: "Administration NOS (record artifact)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#20641000000101",
           label: "Administration NOS (administrative concept)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#401171000000108",
           label: "[V] Admission for bladder training",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#418621000000107",
           label: "[V]Admitted for commencement of insulin",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#431101000000109",
           label: "[V]Admission for instruction in the use of a nebuliser",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#455051000000105",
           label: "[V]Admitted for conversion to insulin",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#469761000000100",
           label: "[V]Admission for instruction of self-catheterisation",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#857441000000103",
           label: "Admission procedure",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#891081000000104",
           label: "Admission to establishment",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#14734007",
           label: "Administrative procedure (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#305056002",
           label: "Admission procedure (procedure)",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://snomed.info/sct#305335007",
           label: "Admission to establishment (procedure)",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
@@ -1359,9 +1492,11 @@ export const hasMap = {
         {
           key: "http://snomed.info/sct#305335007",
           label: "Admission to establishment (procedure)",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://endhealth.info/im#usageTotal",
@@ -2719,13 +2854,17 @@ export const hasProperty = {
         {
           key: "http://endhealth.info/im#PeopleAndTeams",
           label: "People",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://endhealth.info/im#MainEntityTypes",
+          label: undefined,
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://endhealth.info/im#weighting",
@@ -2744,9 +2883,11 @@ export const hasProperty = {
         {
           key: "http://endhealth.info/im#",
           label: "Endeavour code scheme and graph",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     }
   ]
 };
@@ -2846,34 +2987,42 @@ export const hasParameter = {
     {
       key: "http://endhealth.info/im#isA",
       label: "is a",
+      leaf: false,
       children: [
         {
           key: "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
           label: "Property",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://www.w3.org/2000/01/rdf-schema#Class",
           label: "Class",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://endhealth.info/im#age",
           label: "age",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://endhealth.info/im#functionProperty",
           label: "function Property",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://endhealth.info/im#dataModelProperty",
           label: "data model property",
+          leaf: false,
           type: "link"
         },
         {
           key: "http://www.w3.org/2000/01/rdf-schema#Entity",
+          label: undefined,
+          leaf: false,
           type: "link"
         }
       ]
@@ -2885,9 +3034,11 @@ export const hasParameter = {
         {
           key: "http://endhealth.info/im#functionProperty",
           label: "function Property",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://www.w3.org/ns/shacl#parameter",
@@ -2909,9 +3060,11 @@ export const hasParameter = {
                 {
                   key: "http://endhealth.info/im#DateTime",
                   label: "Date time",
+                  leaf: false,
                   type: "link"
                 }
-              ]
+              ],
+              leaf: false
             }
           ]
         },
@@ -2931,9 +3084,11 @@ export const hasParameter = {
                 {
                   key: "http://endhealth.info/im#DateTime",
                   label: "Date time",
+                  leaf: false,
                   type: "link"
                 }
-              ]
+              ],
+              leaf: false
             },
             {
               key: "http://endhealth.info/im#valueVariable",
@@ -2958,9 +3113,11 @@ export const hasParameter = {
                 {
                   key: "http://snomed.info/sct#258700003",
                   label: "Non-International System of Units unit of time (qualifier value)",
+                  leaf: false,
                   type: "link"
                 }
-              ]
+              ],
+              leaf: false
             }
           ]
         }
@@ -2973,9 +3130,11 @@ export const hasParameter = {
         {
           key: "http://endhealth.info/im#TimeDifference",
           label: "Time difference",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://endhealth.info/im#scheme",
@@ -2984,9 +3143,11 @@ export const hasParameter = {
         {
           key: "http://endhealth.info/im#",
           label: "Endeavour code scheme and graph",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     },
     {
       key: "http://www.w3.org/2000/01/rdf-schema#range",
@@ -2995,9 +3156,11 @@ export const hasParameter = {
         {
           key: "http://www.w3.org/2001/XMLSchema#double",
           label: "double",
+          leaf: false,
           type: "link"
         }
-      ]
+      ],
+      leaf: false
     }
   ]
 };

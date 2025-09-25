@@ -27,7 +27,10 @@
           />
         </div>
       </div>
-      <div v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView].includes(selectedDisplayOption)" class="query-display-content">
+      <div
+        v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView, DisplayOptions.DatasetDefinition].includes(selectedDisplayOption)"
+        class="query-display-content"
+      >
         <div v-if="query" class="rec-query-display">
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
@@ -77,19 +80,20 @@
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
       </div>
-      <div v-else-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
-        <DataSetDisplay
-          v-if="!query.dataSet"
-          :query="query"
+      <div v-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
+        <span>Output columns:</span>
+        <ColumnGroupDisplay
+          v-if="!query.columnGroup"
+          :match="query"
           :key="`dataSetQuery-return`"
           :matchExpanded="false"
           :returnExpanded="true"
           :parentQuery="query"
           :index="0"
         />
-        <DataSetDisplay
-          v-for="(nestedQuery, index) in query?.dataSet"
-          :query="nestedQuery"
+        <ColumnGroupDisplay
+          v-for="(nestedQuery, index) in query?.columnGroup"
+          :match="nestedQuery"
           :key="`nestedQuery-${index}`"
           :matchExpanded="false"
           :returnExpanded="true"
@@ -123,10 +127,10 @@
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
-import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
+import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { QueryService } from "@/services";
 import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
@@ -171,12 +175,14 @@ const showTestResults = ref(false);
 const testResults: Ref<string[]> = ref([]);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const displayOptions: Ref<string[]> = ref([]);
-const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
+const selectedDisplayOption: Ref<DisplayOptions> = ref(query.value?.columnGroup ? DisplayOptions.DatasetDefinition : DisplayOptions.LogicalView);
 const showArgumentSelector = ref(false);
 const checkingArguments = ref(false);
 const missingArguments: Ref<ArgumentReference[]> = ref([]);
 const requestArguments: Ref<Argument[]> = ref([]);
 const runOnConfirm = ref(false);
+provide("queryIri", props.entityIri);
+provide("displayMode", displayMode);
 
 watch(
   () => props.definition,
@@ -225,9 +231,9 @@ async function init() {
   }
   displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
   setDisplayOptions();
-  if (query.value?.rule) {
-    selectedDisplayOption.value = DisplayOptions.RuleView;
-  } else DisplayOptions.LogicalView;
+  if (query.value?.columnGroup) selectedDisplayOption.value = DisplayOptions.DatasetDefinition;
+  else if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
+  else selectedDisplayOption.value = DisplayOptions.LogicalView;
   loading.value = false;
 }
 

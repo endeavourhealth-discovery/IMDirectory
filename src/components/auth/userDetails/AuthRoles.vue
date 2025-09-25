@@ -14,7 +14,7 @@
         <template #empty> No roles </template>
         <Column field="role" header="Role" />
       </DataTable>
-      <Button label="Request role" @click="handleRequestRole" :loading="loadingRoles" />
+      <Button class="request-role-button" label="Request role" @click="handleRequestRole" :loading="loadingRoles" />
     </div>
   </div>
   <Dialog v-model:visible="showRequestRoleDialog" :modal="true" header="Request role">
@@ -86,10 +86,15 @@ async function createUpdateRoleRequest() {
 
 <style scoped>
 .roles-container {
-  width: 32rem;
+  width: 32em;
 }
 
 .roles-content {
   padding: 1rem;
+}
+
+.request-role-button {
+  width: fit-content !important;
+  margin-top: 1em;
 }
 </style>

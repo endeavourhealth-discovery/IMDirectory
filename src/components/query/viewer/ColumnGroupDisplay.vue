@@ -7,25 +7,23 @@
     </div>
     <div v-else>{{ parentQuery.typeOf?.name }} internal id</div>
 
-    <div v-if="dataSet.query || dataSet.return">
-      <div v-if="dataSet.query">
+    <div v-if="dataSet.return">
+      <div v-if="dataSet.and || dataSet.or || dataSet.where || dataSet.isCohort">
         <span>If the following:</span>
         <Button text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
-        <span v-for="(matchQuery, index) in dataSet.query">
-          <RecursiveMatchDisplay
-            v-if="matchExpand"
-            :inline="false"
-            :match="matchQuery"
-            :key="index"
-            :clause-index="index"
-            :depth="1"
-            :operator="Bool.and"
-            :expanded="false"
-            :parent-match="query"
-          />
-        </span>
+        <RecursiveMatchDisplay
+          v-if="matchExpand"
+          :inline="false"
+          :match="dataSet"
+          :key="index"
+          :clause-index="index"
+          :depth="1"
+          :operator="Bool.and"
+          :expanded="false"
+          :parent-match="dataSet"
+        />
       </div>
-      <span v-if="dataSet.return && dataSet.return.orderBy">{{ dataSet.return.orderBy.description }}</span>
+      <span v-if="dataSet.orderBy">{{ dataSet.orderBy.description }}</span>
       <div v-if="dataSet.return">
         <ReturnColumns :select="dataSet.return" class="pl-8" :parentQuery="parentQuery" />
       </div>
@@ -34,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, DisplayMode, Query } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Match, Query } from "@/interfaces/AutoGen";
 import { onMounted, watch, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
@@ -46,14 +44,14 @@ interface Props {
   returnExpanded: boolean;
   index: number;
   editMode?: boolean;
-  query: Query;
+  match: Match;
 }
 
 const props = defineProps<Props>();
 const parentQuery = defineModel<Query>("parentQuery", { default: {} });
 const matchExpand = ref(false);
 const loading = ref(false);
-const dataSet = ref({ ...props.query });
+const dataSet = ref({ ...props.match });
 
 onMounted(async () => {
   await init();
@@ -63,18 +61,13 @@ function matchToggle() {
 }
 
 async function init() {
-  if (dataSet.value.iri) {
-    dataSet.value = await QueryService.getDisplayFromQueryIri(dataSet.value.iri, DisplayMode.ORIGINAL);
-  } else dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
+  dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
 }
 watch(
-  () => props.query,
+  () => props.match,
   async () => {
-    if (!props.query.return && props.query.iri) {
-      dataSet.value = await QueryService.getDisplayFromQueryIri(props.query.iri, DisplayMode.ORIGINAL);
-    }
-  },
-  { immediate: true, deep: true }
+    dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
+  }
 );
 </script>
 

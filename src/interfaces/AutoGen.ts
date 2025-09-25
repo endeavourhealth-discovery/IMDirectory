@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-09-15 15:43:42.
+// Generated using typescript-generator version 3.2.1263 on 2025-09-19 09:09:31.
 
 export interface ConceptContextMap {
     id?: string;
@@ -300,14 +300,14 @@ export interface Assignable {
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
+    valueLabel?: string;
     qualifier?: string;
     operator?: Operator;
-    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
-    or?: T[];
     and?: T[];
+    or?: T[];
     not?: T[];
 }
 
@@ -356,10 +356,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    memberOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -415,7 +415,9 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     libraryItem?: string;
     invalid?: boolean;
     isCohort?: TTIriRef;
-    retainAs?: Query;
+    groupBy?: GroupBy[];
+    keepAs?: string;
+    orderBy?: OrderLimit;
     returx?: Return;
     isUnion?: boolean;
 }
@@ -465,9 +467,8 @@ export interface Prefix {
 export interface Query extends Match {
     query?: Query[];
     activeOnly?: boolean;
-    groupBy?: GroupBy[];
-    dataSet?: Query[];
     prefixes?: Prefix[];
+    columnGroup?: Match[];
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
@@ -506,7 +507,6 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
-    orderBy?: OrderLimit;
     asDescription?: string;
 }
 
@@ -876,15 +876,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
+    status?: TTIriRef;
+    description?: string;
+    code?: string;
     types?: TTIriRef[];
     prefixes?: TTPrefix[];
-    description?: string;
-    status?: TTIriRef;
-    code?: string;
 }
 
 export interface BugReport extends Task {
@@ -969,8 +969,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
