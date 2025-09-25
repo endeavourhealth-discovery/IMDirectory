@@ -15,8 +15,8 @@
             :loading="checkingArguments"
           />
         </div>
-        <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
-        <div v-if="isLoggedIn">
+        <div v-if="isLoggedIn && currentUser?.roles.includes(UserRole.DEVELOPER)"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
+        <div v-if="isLoggedIn && currentUser?.roles.includes(UserRole.DEVELOPER)">
           <Button
             label="Run query"
             @click="
@@ -129,15 +129,15 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { QueryService } from "@/services";
-import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
+import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest, UserRole } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
-import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
-import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
-import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
+import TestQueryResults from "@/components/directory/viewer/queryDisplay/TestQueryResults.vue";
+import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
+import ArgumentDisplayDialog from "@/components/directory/viewer/queryDisplay/ArgumentDisplayDialog.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 enum DisplayOptions {
@@ -166,6 +166,7 @@ const confirm = useConfirm();
 const router = useRouter();
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
 
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
@@ -291,7 +292,7 @@ async function runQuery() {
       },
       accept: async () => {
         await addQueryToRunnerQueue();
-        router.push({ name: "QueryRunner" });
+        window.open(`${import.meta.env.QUERY_RUNNER_URL}`, "_blank");
       },
       reject: () => confirm.close()
     });

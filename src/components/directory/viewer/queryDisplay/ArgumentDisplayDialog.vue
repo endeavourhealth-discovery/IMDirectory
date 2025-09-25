@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
+import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
 import { Argument, ArgumentReference } from "@/interfaces/AutoGen";
 
 interface Props {
