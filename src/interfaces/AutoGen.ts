@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-09-19 09:09:31.
+// Generated using typescript-generator version 3.2.1263 on 2025-09-25 16:42:30.
 
 export interface ConceptContextMap {
     id?: string;
@@ -300,9 +300,9 @@ export interface Assignable {
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    valueLabel?: string;
-    qualifier?: string;
     operator?: Operator;
+    qualifier?: string;
+    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
@@ -356,8 +356,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    ancestorsOf?: boolean;
     descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
@@ -880,10 +880,10 @@ export interface TTEntity extends TTNode, Serializable {
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     description?: string;
-    code?: string;
+    status?: TTIriRef;
     types?: TTIriRef[];
+    code?: string;
     prefixes?: TTPrefix[];
 }
 
