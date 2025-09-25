@@ -95,6 +95,7 @@ declare module 'vue' {
     DirectoryViewerJSONViewer: typeof import('./src/components/directory/viewer/JSONViewer.vue')['default']
     DirectoryViewerMappingS: typeof import('./src/components/directory/viewer/mapping/Mappings.vue')['default']
     DirectoryViewerMappingSimpleMaps: typeof import('./src/components/directory/viewer/mapping/SimpleMaps.vue')['default']
+    DirectoryViewerModelChart: typeof import('./src/components/directory/viewer/ModelChart.vue')['default']
     DirectoryViewerProvenance: typeof import('./src/components/directory/viewer/Provenance.vue')['default']
     DirectoryViewerQueryDisplay: typeof import('./src/components/directory/viewer/QueryDisplay.vue')['default']
     DirectoryViewerSetCompareSetDialog: typeof import('./src/components/directory/viewer/set/CompareSetDialog.vue')['default']
