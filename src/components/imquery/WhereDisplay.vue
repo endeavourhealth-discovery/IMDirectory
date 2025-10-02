@@ -4,6 +4,7 @@
       <span :class="operator">
         <span>{{ getOperator(operator, index) }}</span>
       </span>
+      <span v-if="where.qualifier">{{ where.qualifier.name }} of </span>
       <span class="field">{{ whereName }}</span>
       <span v-if="eclQuery">=</span>
       <span v-if="where.valueLabel || where.description">
