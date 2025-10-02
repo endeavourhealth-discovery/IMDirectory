@@ -7,10 +7,8 @@
       parentOperator
     }}</span>
     <div v-if="match.description">
-      <span v-if="singleMatch">With</span>
       <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
       <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchExpanded = !matchExpanded"></Button>
-      <span v-if="then" class="field">Then</span>
       <span class="match-description">{{ match.description }}</span>
     </div>
     <span v-else-if="parentOperator === Bool.not" class="not">Exclude if </span>
@@ -21,13 +19,13 @@
       </span>
       <span v-if="then && matchExpanded">
         <span v-if="!match.path">
-          <span class="field">and if the above</span>
+          <span class="field">and from the above</span>
         </span>
         <span v-else class="field">Then</span>
       </span>
 
       <span v-if="match.instanceOf">
-        <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
+        <span v-if="match.instanceOf[0].description">{{ match.instanceOf[0].description }}</span>
         <IMViewerLink
           v-if="match.instanceOf[0].iri"
           :iri="match.instanceOf[0].iri"
@@ -77,7 +75,10 @@
           :eclQuery="eclQuery"
         />
       </span>
-      <span class="field">{{ getFormattedPath(match) }}</span>
+      <span v-if="matchExpanded">
+        <span v-if="match.orderBy" class="fieldpn">{{ match.orderBy.description }}</span>
+        <span class="field">{{ getFormattedPath(match) }}</span>
+      </span>
     </span>
     <span v-for="operator in operators" :key="operator">
       <span v-if="match[operator]">
@@ -107,7 +108,6 @@
       </span>
     </span>
     <span v-if="matchExpanded">
-      <span v-if="match.orderBy" class="fieldpn">{{ match.orderBy.description }}</span>
       <span v-if="match.where">
         <span class="field">where</span>
         <RecursiveWhereDisplay

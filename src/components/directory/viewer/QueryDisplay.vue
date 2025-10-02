@@ -80,6 +80,9 @@
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
       </div>
+      <div v-else-if="selectedDisplayOption == DisplayOptions.IML" class="query-display-content flex flex-col gap-4">
+        <IMLDisplay v-if="iml" :iml="iml" />
+      </div>
       <div v-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
         <span>Output columns:</span>
         <ColumnGroupDisplay
@@ -129,9 +132,10 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { QueryService } from "@/services";
-import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
+import { Argument, ArgumentReference, IMLLanguage, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
+import IMLDisplay from "./IMLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
@@ -145,6 +149,7 @@ enum DisplayOptions {
   LogicalView = "Logical view",
   MySQL = "MySQL",
   PostreSQL = "PostgreSQL",
+  IML = "IMQuery",
   DatasetDefinition = "Data output definition"
 }
 
@@ -170,6 +175,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
 const sql: Ref<string> = ref("");
+const iml: Ref<IMLLanguage | undefined> = ref();
 const loading = ref(true);
 const showTestResults = ref(false);
 const testResults: Ref<string[]> = ref([]);
@@ -215,6 +221,9 @@ watch(selectedDisplayOption, async (newValue, oldValue) => {
     case DisplayOptions.PostreSQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
       break;
+    case DisplayOptions.IML:
+      if (props.entityIri) iml.value = await QueryService.generateQueryIML(props.entityIri);
+      break;
     default:
       break;
   }
@@ -244,6 +253,7 @@ function setDisplayOptions() {
       DisplayOptions.LogicalView,
       DisplayOptions.MySQL,
       DisplayOptions.PostreSQL,
+      DisplayOptions.IML,
       DisplayOptions.DatasetDefinition
     ];
   else displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];

@@ -6,16 +6,16 @@
       </span>
       <span class="field">{{ whereName }}</span>
       <span v-if="eclQuery">=</span>
-      <span v-if="where.valueLabel || where.qualifier">
-        <span v-if="where.qualifier" class="field">{{ where.qualifier }}</span>
+      <span v-if="where.valueLabel || where.description">
+        <span v-if="where.description" class="field">{{ where.description }}</span>
         <span v-if="where.valueLabel && where.is" @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0">
           {{ where.valueLabel }}</span
         >
         <span v-else-if="where.valueLabel" class="field">{{ where.valueLabel }}</span>
       </span>
       <span v-if="where.relativeTo">
-        <span v-if="where.relativeTo.qualifier">
-          <span class="field">{{ where.relativeTo.qualifier }}</span>
+        <span v-if="where.relativeTo.description">
+          <span class="field">{{ where.relativeTo.description }}</span>
         </span>
         <span class="node-ref">{{ where.relativeTo.nodeRef }}</span>
       </span>
@@ -27,7 +27,7 @@
               <ul>
                 <li class="tight-spacing">
                   <IMFontAwesomeIcon :icon="getTypeIcon(item)" :style="'color:' + getIconColor(item)" />
-                  <span v-if="item.qualifier" v-html="item.qualifier"></span>
+                  <span v-if="item.description" v-html="item.description"></span>
                   <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
                   <span v-if="item.parameter">"{{ item.parameter }}" passed into query as a parameter at run time</span>
                   <span v-if="item.descendantsOrSelfOf">+subtypes</span>

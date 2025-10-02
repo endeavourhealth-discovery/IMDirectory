@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-09-25 16:42:30.
+// Generated using typescript-generator version 3.2.1263 on 2025-10-02 09:43:37.
 
 export interface ConceptContextMap {
     id?: string;
@@ -148,6 +148,16 @@ export interface FunctionTemplate extends Entity {
     parameterTemplate?: ParameterTemplate[];
 }
 
+export interface IMLLanguage {
+    text?: string;
+    lang?: string;
+    info?: { [index: string]: string };
+    definitions?: { [index: string]: string };
+    prefixes?: { [index: string]: string };
+    keywords?: string[];
+    iriVariables?: { [index: string]: string[] };
+}
+
 /**
  * Class representing an IRI
  */
@@ -285,7 +295,6 @@ export interface Argument {
     valuePath?: Path;
     valueNodeRef?: string;
     dataType?: TTIriRef;
-    valuePathList?: Path[];
     valueObject?: any;
     valueVariable?: string;
 }
@@ -297,12 +306,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
+    units?: TTIriRef;
+    valueLabel?: string;
     value?: string;
     function?: FunctionClause;
-    units?: TTIriRef;
+    description?: string;
+    qualifier?: TTIriRef;
     operator?: Operator;
-    qualifier?: string;
-    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
@@ -356,10 +366,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    ancestorsOf?: boolean;
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -382,7 +392,6 @@ export interface Instance extends IriLD {
 
 export interface IriLD {
     iri?: string;
-    qualifier?: string;
     name?: string;
     description?: string;
     uuid?: string;
@@ -488,6 +497,7 @@ export interface Range {
 }
 
 export interface RelativeTo extends IriLD {
+    qualifier?: TTIriRef;
     valueVariable?: string;
     propertyRef?: string;
     targetLabel?: string;
@@ -877,14 +887,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
+    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    status?: TTIriRef;
-    types?: TTIriRef[];
     code?: string;
     prefixes?: TTPrefix[];
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -969,8 +979,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {

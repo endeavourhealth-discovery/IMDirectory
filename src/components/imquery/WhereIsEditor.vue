@@ -3,7 +3,7 @@
     <div v-if="property.is && property.is.length > 0" v-for="(node, index) in property.is" :key="index" class="concept-container">
       <div class="set-member-container">
         <IMFontAwesomeIcon :icon="getTypeIcon(node)" :style="'color:' + getIconColor(node)" />
-        <span v-if="node.qualifier" v-html="node.qualifier"></span>
+        <span v-if="node.description" v-html="node.description"></span>
         <IMViewerLink v-if="node.iri" :iri="node.iri" :label="node.name" :action="'view'" />
         <span v-if="node.parameter">"{{ node.parameter }}" passed into query as a parameter at run time</span>
       </div>

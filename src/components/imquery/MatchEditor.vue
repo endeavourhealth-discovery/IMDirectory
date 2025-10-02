@@ -209,6 +209,7 @@ function addThen() {
 async function onMatchTypeSelected(node: TreeNode) {
   showPropertySelector.value = false;
   if (node.data.iri === "cohort") {
+    editMatch.value.isCohort = {} as TTIriRef;
     editCohort.value = true;
   } else {
     if (node.data.typeOf) {
