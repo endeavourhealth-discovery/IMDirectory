@@ -1,7 +1,18 @@
 import Env from "./Env";
 import { QueryResponse } from "@/interfaces";
 import axios from "axios";
-import { DBEntry, DisplayMode, Match, PathQuery, Query, QueryRequest, RequeueQueryRequest, SearchResponse, ArgumentReference } from "@/interfaces/AutoGen";
+import {
+  DBEntry,
+  DisplayMode,
+  Match,
+  PathQuery,
+  Query,
+  QueryRequest,
+  RequeueQueryRequest,
+  SearchResponse,
+  ArgumentReference,
+  IMLLanguage
+} from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/query";
@@ -56,6 +67,9 @@ const QueryService = {
     return await axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri, lang: lang } });
   },
 
+  async generateQueryIML(queryIri: string): Promise<IMLLanguage> {
+    return await axios.get(API_URL + "/public/imlFromIri", { params: { queryIri: queryIri } });
+  },
   async generateQuerySQLfromQuery(query: Query): Promise<string> {
     return await axios.post(API_URL + "/public/sql", query);
   },

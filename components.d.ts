@@ -92,6 +92,7 @@ declare module 'vue' {
     DirectoryViewerExpressionDisplay: typeof import('./src/components/directory/viewer/ExpressionDisplay.vue')['default']
     DirectoryViewerGraph: typeof import('./src/components/directory/viewer/graph/Graph.vue')['default']
     DirectoryViewerGraphComponent: typeof import('./src/components/directory/viewer/graph/GraphComponent.vue')['default']
+    DirectoryViewerIMLDisplay: typeof import('./src/components/directory/viewer/IMLDisplay.vue')['default']
     DirectoryViewerJSONViewer: typeof import('./src/components/directory/viewer/JSONViewer.vue')['default']
     DirectoryViewerMappingS: typeof import('./src/components/directory/viewer/mapping/Mappings.vue')['default']
     DirectoryViewerMappingSimpleMaps: typeof import('./src/components/directory/viewer/mapping/SimpleMaps.vue')['default']
