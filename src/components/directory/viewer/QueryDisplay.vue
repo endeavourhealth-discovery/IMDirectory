@@ -128,7 +128,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import { QueryService } from "@/services";
+import { Env, QueryService } from "@/services";
 import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest, UserRole } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
@@ -292,7 +292,7 @@ async function runQuery() {
       },
       accept: async () => {
         await addQueryToRunnerQueue();
-        window.open(`${import.meta.env.QUERY_RUNNER_URL}`, "_blank");
+        window.open(`${Env.QUERY_RUNNER}`, "_blank");
       },
       reject: () => confirm.close()
     });

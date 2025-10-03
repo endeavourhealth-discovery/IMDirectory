@@ -70,43 +70,7 @@ const QueryService = {
   },
 
   async addQueryToRunnerQueue(queryRequest: QueryRequest): Promise<void> {
-    return axios.post(API_URL + "/addToQueue", queryRequest);
-  },
-
-  async getQueryQueue(page: number, size: number): Promise<{ totalCount: number; result: DBEntry[]; currentPage: number; pageSize: number }> {
-    return axios.get(API_URL + "/userQueryQueue", { params: { page: page, size: size } });
-  },
-
-  async getQueryQueueByStatus(
-    status: string,
-    page: number,
-    size: number
-  ): Promise<{ result: DBEntry[]; totalCount: number; pageSize: number; currentPage: number }> {
-    return axios.get(API_URL + "/userQueryQueueByStatus", {
-      params: { status: status, page: page, size: size }
-    });
-  },
-
-  async deleteFromQueryQueue(id: string): Promise<void> {
-    return axios.delete(API_URL + "/deleteFromQueue", {
-      params: { id: id }
-    });
-  },
-
-  async cancelQuery(id: string): Promise<void> {
-    return axios.post(API_URL + "/cancelQuery", { value: id });
-  },
-
-  async requeueQuery(request: RequeueQueryRequest): Promise<void> {
-    return axios.post(API_URL + "/requeueQuery", request);
-  },
-
-  async getQueryResults(request: QueryRequest): Promise<string[]> {
-    return axios.post(API_URL + "/getQueryResults", request);
-  },
-
-  async killActiveQuery(): Promise<void> {
-    return axios.post(API_URL + "/killActiveQuery");
+    return axios.post(Env.QUERY_RUNNER + "/api/queue/query/add", queryRequest);
   },
 
   async testRunQuery(request: QueryRequest): Promise<string[]> {
