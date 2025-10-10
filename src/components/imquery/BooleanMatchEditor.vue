@@ -18,7 +18,7 @@
           <div class="match-clause">
             <BooleanEditor
               v-if="showBoolean && operator !== 'not'"
-              v-model:match="match"
+              v-model:clause="match"
               v-model:parentClause="parentMatch"
               :depth="depth"
               :hasSubgroups="true"
