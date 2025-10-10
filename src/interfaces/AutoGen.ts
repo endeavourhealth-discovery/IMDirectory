@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-10-10 14:09:40.
+// Generated using typescript-generator version 3.2.1263 on 2025-10-10 14:59:11.
 
 export interface ConceptContextMap {
     id?: string;
