@@ -14,7 +14,7 @@
       <Select
         :disabled="parentGroup.length > 0 && (!parentGroup.includes(clauseIndex) || parentGroup.length === 1)"
         :modelValue="parentOperator"
-        :options="getBooleanOptions(match, parentClause!, parentOperator as Bool,'Match', clauseIndex, true, hasSubgroups, grandParentOperator)"
+        :options="getBooleanOptions(clauseType, match, parentClause!, parentOperator as Bool, clauseIndex, true, hasSubgroups, grandParentOperator)"
         option-label="label"
         option-value="value"
         data-testid="operator-selector"
@@ -53,6 +53,7 @@ interface Props {
   depth: number;
   rootBool?: boolean;
   clauseIndex: number;
+  clauseType: string;
   expanded?: boolean;
   canExpand?: boolean;
   from?: Match;
@@ -63,7 +64,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
-const parentClause = defineModel<Match|Where>("parentClause", { default: {} });
+const parentClause = defineModel<Match | Where>("parentClause", { default: {} });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateOperator", "activateInput", "navigateTo"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;

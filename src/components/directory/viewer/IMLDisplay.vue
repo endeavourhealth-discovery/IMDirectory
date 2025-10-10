@@ -1,7 +1,7 @@
 <template>
   <div class="language-text">
     <div v-for="(line, lineIdx) in parsedLines" :key="lineIdx" :style="{ marginLeft: line.indent * 20 + 'px' }" class="line">
-      <span v-for="(word, idx) in line.words" :key="idx" class="word" :class="{ keyword: keywords.includes(word) }" :title="info[word] || ''">
+      <span v-for="(word, idx) in line.words" :key="idx" class="word" :class="{ keyword: keywords.includes(word.toLowerCase()) }" :title="info[word] || ''">
         {{ word }}
       </span>
     </div>

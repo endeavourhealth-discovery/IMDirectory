@@ -1,4 +1,4 @@
-import { Bool, BoolGroup, Element, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, Operator } from "@/interfaces/AutoGen";
+import { Bool, Element, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, Operator } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";
@@ -77,11 +77,11 @@ function focusChildren(children: Match[] | undefined): string[] {
   return focusConcepts;
 }
 
-function createNewBoolGroup(clause: BoolGroup<Match | Where | undefined>, group: number[], oldBool: Bool, newBool: Bool) {
+function createNewBoolGroup(clause: any, group: number[], oldBool: Bool, newBool: Bool) {
   group.sort((a, b) => a - b);
-  const newGroup: (Match | Where)[] = [];
-  const from = oldBool as keyof typeof clause;
-  const to = newBool as keyof typeof clause;
+  const newGroup: Match[] = [];
+  const from = oldBool as keyof Match;
+  const to = newBool as keyof Match;
   const newGroupIndex = group[0];
   const newItem = {
     [to]: newGroup
@@ -112,32 +112,39 @@ export function addConceptToGroup(match: Match) {
   } else match.instanceOf = [{ descendantsOrSelfOf: true }];
 }
 
-export function updateBooleans(clause: BoolGroup<Match | Where | undefined>, oldBool: Bool, newBool: Bool, index: number, group: number[]) {
+export function updateBooleans(clause: Match | Where | undefined, from: Bool, to: Bool, index: number, group: number[]) {
   if (!clause) return;
   if (group.length > 1) {
-    createNewBoolGroup(clause, group, oldBool, newBool);
+    createNewBoolGroup(clause, group, from, to);
     group.length = 0;
     return;
   }
-  const from = oldBool as keyof typeof clause;
-  const to = newBool as keyof typeof clause;
   if (from === to) return;
-  if (oldBool === Bool.not) {
-    const item = clause.not![index];
+  if (from === Bool.not) {
+    const item = (clause as Match).not![index];
     if (clause.and) clause.and.push(item);
     else if (clause.or) clause.or.push(item);
-    clause.not!.splice(index, 1);
-    if (clause.not!.length === 0) delete clause.not;
+    (clause as Match).not!.splice(index, 1);
+    if ((clause as Match).not!.length === 0) delete (clause as Match).not;
     return;
   }
-  if (newBool === Bool.not) {
-    const item = clause[from]![index];
-    clause[from]!.splice(index, 1);
-    clause.not = [...(clause.not || []), item];
-    return;
+  if (to === Bool.not) {
+    if (from === Bool.and) {
+      const item = clause.and![index];
+      clause.and!.splice(index, 1);
+      (clause as Match).not = [...((clause as Match).not || []), item];
+    } else if (from === Bool.or) {
+      const item = clause.or![index];
+      clause.or!.splice(index, 1);
+      (clause as Match).not = [...((clause as Match).not || []), item];
+    }
+  } else if (from === Bool.and) {
+    clause.or = clause.and;
+    delete clause.and;
+  } else if (from === Bool.or) {
+    clause.and = clause.or;
+    delete clause.or;
   }
-  clause[to] = clause[from];
-  delete clause[from];
 }
 export function hasBoolGroups(clause: Match | Where) {
   return !!(clause.or || clause.and);
@@ -387,18 +394,21 @@ export function getRuleActionOptions(): any[] {
 }
 
 export function getBooleanOptions(
-  clause: Match | Where,
-  parent: BoolGroup<Match | Where>,
-  parentOperator: Bool,
   clauseType: string,
+  clause: Match | Where,
+  parent: Match | Where,
+  parentOperator: Bool,
   index: number,
   standardQuery?: boolean,
   hasSubgroups?: boolean,
   grandParentOperator?: Bool
 ): any[] {
-  const operator = parentOperator as keyof typeof parent;
   const union = ("union" in parent) as boolean;
-  const notLabel = getBooleanLabel(clauseType, Bool.not, index, standardQuery, hasSubgroups);
+  const match = clauseType === "Match" ? parent : undefined;
+  let notLabel = undefined;
+  if (clauseType === "Match") {
+    notLabel = getBooleanLabel(clauseType, Bool.not, index, standardQuery, hasSubgroups);
+  }
   const andLabel = getBooleanLabel(clauseType, Bool.and, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups, union, grandParentOperator);
   const orLabel = getBooleanLabel(clauseType, Bool.or, parentOperator === Bool.not ? 1 : index, standardQuery, hasSubgroups, union, grandParentOperator);
   const options = [];
@@ -435,7 +445,7 @@ export function getBooleanOptions(
     value: "or",
     tooltip: "At least one of this group must be true"
   });
-  if (clauseType != "Where" && parent[operator] && ((parent[operator]!.length > 1 && index > 0) || standardQuery))
+  if (match && ((match.and && (match.and!.length > 1 || (match.or && match.or.length > 1)) && index > 0) || standardQuery))
     options.push({
       label: notLabel,
       value: "not",
