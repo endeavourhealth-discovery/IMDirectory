@@ -175,7 +175,7 @@ import { ToastSeverity } from "@/enums";
 import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef, Node } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getBooleanOptions, updateBooleans, getIsRoleGroup, checkGroupChange } from "@/composables/buildQuery";
+import { getBooleanOptions, updateWhereBooleans, getIsRoleGroup, checkGroupChange } from "@/composables/buildQuery";
 import { setConstraintOperator, getConstraintOperator, manageRoleGroup } from "@/composables/buildQuery";
 import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
 import Button from "primevue/button";
@@ -218,7 +218,7 @@ const operatorOptions = ["=", "!="];
 const hover = ref();
 const propertyConstraintOperator: Ref<string | undefined> = ref<"<<">();
 const inNotIn = computed(() => {
-  if (where.value.notIs) return "!=";
+  if (where.value.not) return "!=";
   else return "=";
 });
 const imQueryForValueSearch: Ref<QueryRequest | undefined> = ref(undefined);
@@ -305,7 +305,7 @@ function updateOperator(val: string) {
   emit("updateBool", props.parentOperator, val, props.index);
 }
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
-  updateBooleans(where.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
+  updateWhereBooleans(where.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
   if (newOperator === props.parentOperator) {
     emit("rationalise");
   }

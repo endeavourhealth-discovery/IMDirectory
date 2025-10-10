@@ -52,7 +52,7 @@
       <div v-if="parentMatch?.union && !from" class="number">{{ getSubrule(parentIndex, clauseIndex + 1) }}</div>
       <BooleanEditor
         v-if="showBoolean"
-        v-model:match="match"
+        v-model:clause="match"
         v-model:parentClause="parentMatch"
         :depth="depth"
         :parentOperator="parentOperator"
@@ -130,7 +130,7 @@ import { Match, Bool, Node, SearchResultSummary, Where } from "@/interfaces/Auto
 import { inject, Ref, ref, computed, onMounted, watch } from "vue";
 import {
   hasBoolGroups,
-  updateBooleans,
+  updateMatchBooleans,
   updateFocusConcepts,
   isGroupable,
   addMatchToParent,
@@ -214,7 +214,7 @@ function onUpdateParentOperator(val: string) {
   }
 }
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
-  updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
+  updateMatchBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
 }
 function addMatch() {
   addMatchToParent({}, parentMatch.value);

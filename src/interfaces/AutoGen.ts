@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-10-04 11:51:21.
+// Generated using typescript-generator version 3.2.1263 on 2025-10-10 14:09:40.
 
 export interface ConceptContextMap {
     id?: string;
@@ -307,13 +307,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    operator?: Operator;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
-    valueLabel?: string;
     qualifier?: TTIriRef;
+    valueLabel?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -361,10 +361,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
     memberOf?: boolean;
     ancestorsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -561,8 +561,7 @@ export interface Where extends Element, Assignable {
     anyRoleGroup?: boolean;
     typeOf?: Node;
     is?: Node[];
-    notIs?: Node[];
-    notValue?: boolean;
+    not?: boolean;
     roleGroup?: boolean;
     isNotNull?: boolean;
     valueVariable?: string;
@@ -884,13 +883,13 @@ export interface TTEntity extends TTNode, Serializable {
     crud?: TTIriRef;
     type?: TTArray;
     status?: TTIriRef;
-    scheme?: TTIriRef;
     name?: string;
+    scheme?: TTIriRef;
     version?: number;
     description?: string;
+    prefixes?: TTPrefix[];
     code?: string;
     types?: TTIriRef[];
-    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -1624,7 +1623,10 @@ export const enum IM {
     TIME = "http://endhealth.info/im#Time",
     INTERVAL_UNIT = "http://endhealth.info/im#intervalUnit",
     PARAMETER = "http://endhealth.info/im#parameter",
+    NUMERIC_DIFFERENCE = "http://endhealth.info/im#NumericDifference",
+    FISCAL_YEAR = "http://endhealth.info/im#fiscalYear",
     YEARS = "http://endhealth.info/im#Years",
+    MONTH = "http://endhealth.info/im#month",
     MONTHS = "http://endhealth.info/im#Months",
     DAYS = "http://endhealth.info/im#Days",
     HOURS = "http://endhealth.info/im#Hours",
