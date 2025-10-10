@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-10-02 09:43:37.
+// Generated using typescript-generator version 3.2.1263 on 2025-10-04 11:51:21.
 
 export interface ConceptContextMap {
     id?: string;
@@ -297,6 +297,7 @@ export interface Argument {
     dataType?: TTIriRef;
     valueObject?: any;
     valueVariable?: string;
+    qualifier?: TTIriRef;
 }
 
 export interface ArgumentReference {
@@ -306,19 +307,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    units?: TTIriRef;
-    valueLabel?: string;
+    operator?: Operator;
     value?: string;
     function?: FunctionClause;
+    units?: TTIriRef;
     description?: string;
+    valueLabel?: string;
     qualifier?: TTIriRef;
-    operator?: Operator;
-}
-
-export interface BoolGroup<T> {
-    and?: T[];
-    or?: T[];
-    not?: T[];
 }
 
 export interface Case {
@@ -366,10 +361,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    memberOf?: boolean;
     descendantsOf?: boolean;
+    memberOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -397,7 +392,7 @@ export interface IriLD {
     uuid?: string;
 }
 
-export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
+export interface Match extends IriLD, HasPaths {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -453,6 +448,7 @@ export interface Path extends Element, HasPaths {
     inverse?: boolean;
     optional?: boolean;
     typeOf?: Node;
+    qualifier?: TTIriRef;
 }
 
 export interface PathDocument {
@@ -558,7 +554,7 @@ export interface When {
     case?: Case;
 }
 
-export interface Where extends Element, Assignable, BoolGroup<Where> {
+export interface Where extends Element, Assignable {
     range?: Range;
     isNull?: boolean;
     relativeTo?: RelativeTo;
@@ -566,7 +562,7 @@ export interface Where extends Element, Assignable, BoolGroup<Where> {
     typeOf?: Node;
     is?: Node[];
     notIs?: Node[];
-    not?: Where[];
+    notValue?: boolean;
     roleGroup?: boolean;
     isNotNull?: boolean;
     valueVariable?: string;
@@ -888,13 +884,13 @@ export interface TTEntity extends TTNode, Serializable {
     crud?: TTIriRef;
     type?: TTArray;
     status?: TTIriRef;
-    name?: string;
     scheme?: TTIriRef;
+    name?: string;
     version?: number;
     description?: string;
     code?: string;
-    prefixes?: TTPrefix[];
     types?: TTIriRef[];
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {

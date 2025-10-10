@@ -27,7 +27,7 @@
                 <Select
                   :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
                   :modelValue="parentOperator"
-                  :options="getBooleanOptions(where, parent!, parentOperator as Bool, 'Where', index)"
+                  :options="getBooleanOptions('Where', where, parent!, parentOperator as Bool, index)"
                   option-label="label"
                   option-value="value"
                   @update:modelValue="val => updateOperator(val as string)"
@@ -81,7 +81,7 @@
               :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
               :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
               :modelValue="parentOperator"
-              :options="getBooleanOptions(where, parent!, parentOperator as Bool, 'Where', index)"
+              :options="getBooleanOptions('Where', where, parent!, parentOperator as Bool, index)"
               option-label="label"
               option-value="value"
               @update:modelValue="val => updateOperator(val as string)"
@@ -218,7 +218,7 @@ const operatorOptions = ["=", "!="];
 const hover = ref();
 const propertyConstraintOperator: Ref<string | undefined> = ref<"<<">();
 const inNotIn = computed(() => {
-  if (where.value.not) return "!=";
+  if (where.value.notIs) return "!=";
   else return "=";
 });
 const imQueryForValueSearch: Ref<QueryRequest | undefined> = ref(undefined);
