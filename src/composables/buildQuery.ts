@@ -112,7 +112,7 @@ export function addConceptToGroup(match: Match) {
   } else match.instanceOf = [{ descendantsOrSelfOf: true }];
 }
 
-export function updateBooleans(clause: Match | Where | undefined, from: Bool, to: Bool, index: number, group: number[]) {
+export function updateMatchBooleans(clause: Match, from: Bool, to: Bool, index: number, group: number[]) {
   if (!clause) return;
   if (group.length > 1) {
     createNewBoolGroup(clause, group, from, to);
@@ -121,22 +121,22 @@ export function updateBooleans(clause: Match | Where | undefined, from: Bool, to
   }
   if (from === to) return;
   if (from === Bool.not) {
-    const item = (clause as Match).not![index];
+    const item = clause.not![index];
     if (clause.and) clause.and.push(item);
     else if (clause.or) clause.or.push(item);
-    (clause as Match).not!.splice(index, 1);
-    if ((clause as Match).not!.length === 0) delete (clause as Match).not;
+    clause.not!.splice(index, 1);
+    if (clause.not!.length === 0) delete (clause as Match).not;
     return;
   }
   if (to === Bool.not) {
     if (from === Bool.and) {
       const item = clause.and![index];
       clause.and!.splice(index, 1);
-      (clause as Match).not = [...((clause as Match).not || []), item];
+      clause.not = [...(clause.not || []), item];
     } else if (from === Bool.or) {
       const item = clause.or![index];
       clause.or!.splice(index, 1);
-      (clause as Match).not = [...((clause as Match).not || []), item];
+      clause.not = [...(clause.not || []), item];
     }
   } else if (from === Bool.and) {
     clause.or = clause.and;
@@ -146,6 +146,24 @@ export function updateBooleans(clause: Match | Where | undefined, from: Bool, to
     delete clause.or;
   }
 }
+
+export function updateWhereBooleans(clause: Where, from: Bool, to: Bool, index: number, group: number[]) {
+  if (!clause) return;
+  if (group.length > 1) {
+    createNewBoolGroup(clause, group, from, to);
+    group.length = 0;
+    return;
+  }
+  if (from === to) return;
+  if (from === Bool.and) {
+    clause.or = clause.and;
+    delete clause.and;
+  } else if (from === Bool.or) {
+    clause.and = clause.or;
+    delete clause.or;
+  }
+}
+
 export function hasBoolGroups(clause: Match | Where) {
   return !!(clause.or || clause.and);
 }
@@ -455,10 +473,10 @@ export function getBooleanOptions(
   return options;
 }
 
-export function isGroupable(rootBool?: boolean, parentMatch?: Match, parentOperator?: Bool): boolean {
+export function isGroupable(rootBool?: boolean, parentClause?: Match | Where, parentOperator?: Bool): boolean {
   if (parentOperator && parentOperator === Bool.rule) return false;
-  if (parentMatch && !rootBool && parentOperator) {
-    const parentGroup = (parentMatch[parentOperator as keyof Match] as Match[]) || [];
+  if (parentClause && !rootBool && parentOperator) {
+    const parentGroup = (parentClause[parentOperator as keyof (Match | Where)] as Match[]) || [];
     return parentGroup.length > 2;
   }
   return false;
