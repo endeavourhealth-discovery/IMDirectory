@@ -41,7 +41,7 @@
     </div>
     <div v-else class="property-value-container">
       <BooleanEditor
-        v-model:match="property"
+        v-model:clause="property"
         v-model:parentClause="parentProperty"
         :depth="0"
         :hasSubgroups="false"
@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts" setup>
-import {Match, Node, Where, Bool } from "@/interfaces/AutoGen";
+import { Where, Match, Node, Bool } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
