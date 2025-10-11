@@ -46,15 +46,7 @@ import { inject, onMounted, Ref, ref, computed } from "vue";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where } from "@/interfaces/AutoGen";
-import {
-  checkGroupChange,
-  getBooleanOptions,
-  isGroupable,
-  hasBoolGroups,
-  updateMatchBooleans,
-  updateWhereBooleans,
-  updateFocusConcepts
-} from "@/composables/buildQuery";
+import { checkGroupChange, getBooleanOptions, isGroupable, updateFocusConcepts } from "@/composables/buildQuery";
 
 interface Props {
   isVariable?: boolean;
