@@ -5,8 +5,8 @@
       severity="secondary"
       text
       draggable="true"
-      @dragstart="onDragStart($event, match, parentClause)"
-      @dragend="onDragEnd(match, parentClause)"
+      @dragstart="onDragStart($event, clause, parentClause)"
+      @dragend="onDragEnd(clause, parentClause)"
     />
   </div>
   <span v-if="parentOperator != Bool.rule">
@@ -14,7 +14,7 @@
       <Select
         :disabled="parentGroup.length > 0 && (!parentGroup.includes(clauseIndex) || parentGroup.length === 1)"
         :modelValue="parentOperator"
-        :options="getBooleanOptions(match, parentClause!, parentOperator as Bool,'Match', clauseIndex, true, hasSubgroups, grandParentOperator)"
+        :options="getBooleanOptions(clauseType, clause, parentClause!, parentOperator as Bool, clauseIndex, true, hasSubgroups, grandParentOperator)"
         option-label="label"
         option-value="value"
         data-testid="operator-selector"
@@ -46,13 +46,14 @@ import { inject, onMounted, Ref, ref, computed } from "vue";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where } from "@/interfaces/AutoGen";
-import { checkGroupChange, getBooleanOptions, isGroupable, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
+import { checkGroupChange, getBooleanOptions, isGroupable, updateFocusConcepts } from "@/composables/buildQuery";
 
 interface Props {
   isVariable?: boolean;
   depth: number;
   rootBool?: boolean;
   clauseIndex: number;
+  clauseType: string;
   expanded?: boolean;
   canExpand?: boolean;
   from?: Match;
@@ -62,8 +63,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
-const parentClause = defineModel<Match|Where>("parentClause", { default: {} });
+const clause = defineModel<Match | Where>("clause", { default: {} });
+const parentClause = defineModel<Match | Where>("parentClause", { default: {} });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateOperator", "activateInput", "navigateTo"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
@@ -72,7 +73,7 @@ const checked = ref(false);
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 
 function updateOperator(val: string) {
-  updateFocusConcepts(match.value);
+  if (props.clauseType == "Match") updateFocusConcepts(clause.value as Match);
   emit("updateOperator", val);
 }
 

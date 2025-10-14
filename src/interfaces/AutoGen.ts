@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-09-04 15:59:09.
+// Generated using typescript-generator version 3.2.1263 on 2025-10-11 09:48:12.
 
 export interface ConceptContextMap {
     id?: string;
@@ -148,13 +148,23 @@ export interface FunctionTemplate extends Entity {
     parameterTemplate?: ParameterTemplate[];
 }
 
+export interface IMLLanguage {
+    text?: string;
+    lang?: string;
+    info?: { [index: string]: string };
+    definitions?: { [index: string]: string };
+    prefixes?: { [index: string]: string };
+    keywords?: string[];
+    iriVariables?: { [index: string]: string[] };
+}
+
 /**
  * Class representing an IRI
  */
 export interface Indicator extends TTIriRef {
     query?: TTIriRef;
-    must?: Indicator[];
-    alternative?: Indicator[];
+    and?: Indicator[];
+    or?: Indicator[];
     definition?: Query;
     actionIfFalse?: TTIriRef[];
     actionIfTrue?: TTIriRef[];
@@ -285,9 +295,9 @@ export interface Argument {
     valuePath?: Path;
     valueNodeRef?: string;
     dataType?: TTIriRef;
-    valuePathList?: Path[];
     valueObject?: any;
     valueVariable?: string;
+    qualifier?: TTIriRef;
 }
 
 export interface ArgumentReference {
@@ -297,18 +307,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    value?: string;
     function?: FunctionClause;
+    value?: string;
     units?: TTIriRef;
-    qualifier?: string;
-    valueLabel?: string;
+    description?: string;
     operator?: Operator;
-}
-
-export interface BoolGroup<T> {
-    and?: T[];
-    not?: T[];
-    or?: T[];
+    valueLabel?: string;
+    qualifier?: TTIriRef;
 }
 
 export interface Case {
@@ -356,10 +361,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -382,13 +387,12 @@ export interface Instance extends IriLD {
 
 export interface IriLD {
     iri?: string;
-    qualifier?: string;
     name?: string;
     description?: string;
     uuid?: string;
 }
 
-export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
+export interface Match extends IriLD, HasPaths {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -415,7 +419,9 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     libraryItem?: string;
     invalid?: boolean;
     isCohort?: TTIriRef;
-    retainAs?: Query;
+    groupBy?: GroupBy[];
+    keepAs?: string;
+    orderBy?: OrderLimit;
     returx?: Return;
     isUnion?: boolean;
 }
@@ -442,6 +448,7 @@ export interface Path extends Element, HasPaths {
     inverse?: boolean;
     optional?: boolean;
     typeOf?: Node;
+    qualifier?: TTIriRef;
 }
 
 export interface PathDocument {
@@ -465,9 +472,8 @@ export interface Prefix {
 export interface Query extends Match {
     query?: Query[];
     activeOnly?: boolean;
-    groupBy?: GroupBy[];
-    dataSet?: Query[];
     prefixes?: Prefix[];
+    columnGroup?: Match[];
     imQuery?: boolean;
     parentResult?: any;
     persistentIri?: TTIriRef;
@@ -487,6 +493,7 @@ export interface Range {
 }
 
 export interface RelativeTo extends IriLD {
+    qualifier?: TTIriRef;
     valueVariable?: string;
     propertyRef?: string;
     targetLabel?: string;
@@ -506,7 +513,6 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
-    orderBy?: OrderLimit;
     asDescription?: string;
 }
 
@@ -548,15 +554,14 @@ export interface When {
     case?: Case;
 }
 
-export interface Where extends Element, Assignable, BoolGroup<Where> {
+export interface Where extends Element, Assignable {
     range?: Range;
     isNull?: boolean;
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
     typeOf?: Node;
     is?: Node[];
-    notIs?: Node[];
-    not?: Where[];
+    not?: boolean;
     roleGroup?: boolean;
     isNotNull?: boolean;
     valueVariable?: string;
@@ -877,14 +882,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    description?: string;
+    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
+    prefixes?: TTPrefix[];
+    description?: string;
     types?: TTIriRef[];
     code?: string;
-    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -969,8 +974,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1477,6 +1482,7 @@ export const enum IM {
     SOURCE_SCHEMA = "http://endhealth.info/im#sourceSchema",
     SOURCE_TABLE = "http://endhealth.info/im#sourceTable",
     SOURCE_FIELD = "http://endhealth.info/im#sourceField",
+    TIME_DIFFERENCE = "http://endhealth.info/im#TimeDifference",
     SOURCE_CODE_SCHEME = "http://endhealth.info/im#sourceCodeScheme",
     SOURCE_VALUE = "http://endhealth.info/im#sourceValue",
     SOURCE_REGEX = "http://endhealth.info/im#sourceRegex",
@@ -1547,6 +1553,8 @@ export const enum IM {
     ENTITY = "http://endhealth.info/im#Entity",
     QUERY_SET = "http://endhealth.info/im#QuerySet",
     DEPENDENT_ON = "http://endhealth.info/im#dependentOn",
+    CARE_ACTIVITY = "http://endhealth.info/im#CareActivity",
+    CARE_TARGET = "http://endhealth.info/im#CareTarget",
     QUERY_TEMPLATE = "http://endhealth.info/im#QueryTemplate",
     HAS_QUERY = "http://endhealth.info/im#hasQuery",
     RECORD_TYPE = "http://endhealth.info/im#RecordType",
@@ -1615,7 +1623,10 @@ export const enum IM {
     TIME = "http://endhealth.info/im#Time",
     INTERVAL_UNIT = "http://endhealth.info/im#intervalUnit",
     PARAMETER = "http://endhealth.info/im#parameter",
+    NUMERIC_DIFFERENCE = "http://endhealth.info/im#NumericDifference",
+    FISCAL_YEAR = "http://endhealth.info/im#fiscalYear",
     YEARS = "http://endhealth.info/im#Years",
+    MONTH = "http://endhealth.info/im#month",
     MONTHS = "http://endhealth.info/im#Months",
     DAYS = "http://endhealth.info/im#Days",
     HOURS = "http://endhealth.info/im#Hours",

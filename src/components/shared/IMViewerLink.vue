@@ -23,10 +23,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { DirectService } from "../../services";
 import OverlaySummary from "./OverlaySummary.vue";
 import setupOverlay from "@/composables/setupOverlay";
+import { cloneDeep } from "lodash-es";
 
 interface Props {
   iri: string;

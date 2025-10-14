@@ -82,7 +82,7 @@ import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { addConceptToGroup, getIsRoleGroup, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
+import { addConceptToGroup, getIsRoleGroup, updateMatchBooleans, updateFocusConcepts } from "@/composables/buildQuery";
 import { v4 } from "uuid";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
@@ -118,7 +118,7 @@ function onRationalise() {
 }
 
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
-  updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
+  updateMatchBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
   if (newOperator === props.parentOperator) {
     emit("rationalise");
   }

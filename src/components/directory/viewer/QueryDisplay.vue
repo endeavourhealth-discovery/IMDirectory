@@ -27,7 +27,10 @@
           />
         </div>
       </div>
-      <div v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView].includes(selectedDisplayOption)" class="query-display-content">
+      <div
+        v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView, DisplayOptions.DatasetDefinition].includes(selectedDisplayOption)"
+        class="query-display-content"
+      >
         <div v-if="query" class="rec-query-display">
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
@@ -35,6 +38,15 @@
             <span class="include-title text-black-500">with the following features</span>
           </div>
           <span v-if="query.rule">
+            <div v-if="query.isCohort">
+              <span class="field">in</span>
+              <IMViewerLink
+                v-if="query.isCohort.iri"
+                :iri="query.isCohort.iri"
+                :label="query.isCohort.name"
+                @navigateTo="(iri: string) => emit('navigateTo', iri)"
+              />
+            </div>
             <div class="tree-node-wrapper">
               <span v-for="(nestedQuery, index) in query.rule" :key="index">
                 <RecursiveMatchDisplay
@@ -68,19 +80,23 @@
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
       </div>
-      <div v-else-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
-        <DataSetDisplay
-          v-if="!query.dataSet"
-          :query="query"
+      <div v-else-if="selectedDisplayOption == DisplayOptions.IML" class="query-display-content flex flex-col gap-4">
+        <IMLDisplay v-if="iml" :iml="iml" />
+      </div>
+      <div v-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
+        <span>Output columns:</span>
+        <ColumnGroupDisplay
+          v-if="!query.columnGroup"
+          :match="query"
           :key="`dataSetQuery-return`"
           :matchExpanded="false"
           :returnExpanded="true"
           :parentQuery="query"
           :index="0"
         />
-        <DataSetDisplay
-          v-for="(nestedQuery, index) in query?.dataSet"
-          :query="nestedQuery"
+        <ColumnGroupDisplay
+          v-for="(nestedQuery, index) in query?.columnGroup"
+          :match="nestedQuery"
           :key="`nestedQuery-${index}`"
           :matchExpanded="false"
           :returnExpanded="true"
@@ -114,23 +130,26 @@
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
-import DataSetDisplay from "@/components/query/viewer/DataSetDisplay.vue";
+import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { QueryService } from "@/services";
-import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { Argument, ArgumentReference, IMLLanguage, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
+import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
+import IMLDisplay from "./IMLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
 import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
 import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
 import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 enum DisplayOptions {
   RuleView = "Rule view",
   LogicalView = "Logical view",
   MySQL = "MySQL",
   PostreSQL = "PostgreSQL",
+  IML = "IMQuery",
   DatasetDefinition = "Data output definition"
 }
 
@@ -144,7 +163,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
+const emit = defineEmits<{
+  navigateTo: [payload: string];
+}>();
 const userStore = useUserStore();
 const confirm = useConfirm();
 const router = useRouter();
@@ -154,17 +175,20 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
 const sql: Ref<string> = ref("");
+const iml: Ref<IMLLanguage | undefined> = ref();
 const loading = ref(true);
 const showTestResults = ref(false);
 const testResults: Ref<string[]> = ref([]);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const displayOptions: Ref<string[]> = ref([]);
-const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
+const selectedDisplayOption: Ref<DisplayOptions> = ref(query.value?.columnGroup ? DisplayOptions.DatasetDefinition : DisplayOptions.LogicalView);
 const showArgumentSelector = ref(false);
 const checkingArguments = ref(false);
 const missingArguments: Ref<ArgumentReference[]> = ref([]);
 const requestArguments: Ref<Argument[]> = ref([]);
 const runOnConfirm = ref(false);
+provide("queryIri", props.entityIri);
+provide("displayMode", displayMode);
 
 watch(
   () => props.definition,
@@ -197,6 +221,9 @@ watch(selectedDisplayOption, async (newValue, oldValue) => {
     case DisplayOptions.PostreSQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
       break;
+    case DisplayOptions.IML:
+      if (props.entityIri) iml.value = await QueryService.generateQueryIML(props.entityIri);
+      break;
     default:
       break;
   }
@@ -213,9 +240,9 @@ async function init() {
   }
   displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
   setDisplayOptions();
-  if (query.value?.rule) {
-    selectedDisplayOption.value = DisplayOptions.RuleView;
-  } else DisplayOptions.LogicalView;
+  if (query.value?.columnGroup) selectedDisplayOption.value = DisplayOptions.DatasetDefinition;
+  else if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
+  else selectedDisplayOption.value = DisplayOptions.LogicalView;
   loading.value = false;
 }
 
@@ -226,6 +253,7 @@ function setDisplayOptions() {
       DisplayOptions.LogicalView,
       DisplayOptions.MySQL,
       DisplayOptions.PostreSQL,
+      DisplayOptions.IML,
       DisplayOptions.DatasetDefinition
     ];
   else displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];

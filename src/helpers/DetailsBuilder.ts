@@ -43,6 +43,7 @@ function addValueToLabel(treeNode: any, divider: string, value: any) {
 }
 
 function addIriLink(treeNode: any, item: TTIriRef) {
+  treeNode.leaf = false;
   if (item.iri === IM.LOAD_MORE)
     treeNode.children?.push({
       key: item.iri,
@@ -50,7 +51,7 @@ function addIriLink(treeNode: any, item: TTIriRef) {
       type: "loadMore",
       data: { predicate: treeNode.key, totalCount: (item as any).totalCount }
     });
-  else treeNode.children?.push({ key: item.iri, label: item.name, type: "link" });
+  else treeNode.children?.push({ key: item.iri, label: item.name, leaf: false, type: "link" });
 }
 
 function addDefinition(treeNode: any, predicates: any, key: string) {

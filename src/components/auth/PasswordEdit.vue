@@ -2,7 +2,7 @@
   <div v-if="currentUser" class="flex flex-row items-center">
     <Card class="justify-content-sm-around password-edit-card flex flex-col items-center">
       <template #header>
-        <img id="user-icon" :src="`/avatars/${currentUser.avatar}`" alt="avatar icon" aria-controls="overlay_menu" aria-haspopup="true" class="avatar-icon" />
+        <img id="user-icon" :src="currentUser.avatar" alt="avatar icon" aria-controls="overlay_menu" aria-haspopup="true" class="avatar-icon" />
       </template>
       <template #title> Change password</template>
       <template #content>
@@ -119,6 +119,7 @@ const onSubmit = handleSubmit(async () => {
   display: flex;
   flex-flow: column nowrap;
   min-width: 20rem;
+  width: 25em;
 }
 
 .field {

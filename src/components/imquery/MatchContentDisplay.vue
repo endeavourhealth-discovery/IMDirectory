@@ -11,7 +11,7 @@
       <IMViewerLink v-if="match.isCohort.iri" :iri="match.isCohort.iri" :label="match.isCohort.name" :action="'view'" />
     </span>
     <span v-if="match.instanceOf">
-      <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
+      <span v-if="match.instanceOf[0].description">{{ match.instanceOf[0].description }}</span>
       <IMViewerLink v-if="match.instanceOf[0].iri" :iri="match.instanceOf[0].iri" :label="match.instanceOf[0].name" :action="'view'" />
       <span v-if="match.instanceOf.length > 1">
         <div>
@@ -29,7 +29,7 @@
       </span>
     </span>
     <span class="field">{{ getFormattedPath(match) }}</span>
-    <span v-if="match.return && match.return.orderBy" class="order-by">{{ match.return.orderBy.description }}</span>
+    <span v-if="match.orderBy" class="order-by">{{ match.orderBy.description }}</span>
     <span v-if="match.where">
       <WhereDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :property-index="0" :key="0" :index="0" :root="true" :inline="true" />
     </span>
