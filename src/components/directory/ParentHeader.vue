@@ -24,20 +24,6 @@
         />
       </div>
     </div>
-    <div class="flex flex-row">
-      <TextWithLabel label="Iri" :data="entity.iri" v-if="!!entity.iri" />
-      <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
-    </div>
-    <div class="flex flex-row justify-start">
-      <ArrayObjectNameTagWithLabel v-if="!!entity[IM.HAS_STATUS]" label="Status" :data="entity[IM.HAS_STATUS]" />
-      <ArrayObjectNamesToStringWithLabel label="Types" :data="entity[RDF.TYPE]" v-if="!!entity[RDF.TYPE]" />
-    </div>
-    <div>
-      <TextWithLabel label="Preferred name" :data="entity[IM.PREFERRED_NAME]" v-if="!!entity[IM.PREFERRED_NAME]" />
-      <ArrayObjectNamesToStringWithLabel label="Return Type" :data="entity[IM.RETURN_TYPE]" v-if="!!entity[IM.RETURN_TYPE]" />
-    </div>
-
-    <TextHTMLWithLabel label="Description" :data="entity[RDFS.COMMENT]" v-if="!!entity[RDFS.COMMENT]" />
   </div>
 </template>
 

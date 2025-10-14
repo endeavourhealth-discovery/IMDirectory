@@ -20,7 +20,7 @@
           </div>
           <div class="flex w-80 flex-col">
             <strong>Avatar</strong>
-            <img class="w-20 self-center" data-testid="avatar-image" id="selected-avatar" :src="`/avatars/${userDetails.avatar}`" alt="avatar icon" />
+            <img class="w-20 self-center" data-testid="avatar-image" id="selected-avatar" :src="userDetails.avatar" alt="avatar icon" />
             <span class="self-center">{{ userDetails.avatar }}</span>
           </div>
           <div class="flex w-80 flex-col">

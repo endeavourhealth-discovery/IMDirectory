@@ -276,9 +276,9 @@ function updateTask(task: Task) {
           product: selectedProduct.value,
           module: selectedModule.value,
           os: selectedOS.value,
-          osOther: osOther.value,
+          osOther: osOther.value ? osOther.value : undefined,
           browser: selectedBrowser.value,
-          browserOther: browserOther.value,
+          browserOther: browserOther.value ? browserOther.value : undefined,
           description: description.value,
           reproduceSteps: stepsToReproduce.value,
           expectedResult: expectedResult.value,
@@ -301,6 +301,7 @@ function updateTask(task: Task) {
         editMode.value = false;
       }
     });
+    submitRequested.value = false;
   }
 }
 

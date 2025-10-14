@@ -24,6 +24,7 @@ export class WORKFLOW {
   public static readonly ACTUAL_RESULT = Namespace.WORKFLOW + "actualResult"
   public static readonly RELATED_VERSION = Namespace.WORKFLOW + "relatedVersion"
   public static readonly REQUESTED_ROLE = Namespace.WORKFLOW + "requestedRole"
+  public static readonly REQUESTED_GRAPH = Namespace.WORKFLOW + "requestedGraph"
   public static readonly APPROVAL_TYPE = Namespace.WORKFLOW + "approvalType"
   public static readonly HISTORY = Namespace.WORKFLOW + "history"
   public static readonly HISTORY_PREDICATE = Namespace.WORKFLOW + "historyPredicate"

@@ -5,6 +5,7 @@ import { RecentActivityItem } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import { UserData } from "@/interfaces/UserData";
+import { Graph } from "@/interfaces/AutoGen";
 
 const UserService = {
   async getUserData(): Promise<UserData> {
@@ -72,6 +73,10 @@ const UserService = {
 
   async updateEmailVerified(verified: boolean): Promise<void> {
     return await axios.post(Env.API + "api/cognito/updateEmailVerified", { value: verified });
+  },
+
+  async getUserGraphs(): Promise<Graph[]> {
+    return await axios.get(Env.API + "api/user/graphs");
   }
 };
 

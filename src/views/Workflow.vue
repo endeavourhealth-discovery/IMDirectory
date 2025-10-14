@@ -1,21 +1,20 @@
 <template>
-  <div id="topbar-mapper-container">
+  <div id="topbar-workflow-container">
     <TopBar>
       <template #content>
-        <span class="title"><strong>IM Workflow</strong></span>
+        <div class="topbar-content">
+          <span class="title"><strong>IM Workflow</strong></span>
+        </div>
       </template>
     </TopBar>
 
-    <SideBar />
-
-    <div :class="showInfo ? 'main-container' : ''">
-      <div :class="showInfo ? 'main-view' : ''">
-        <div v-if="workflowLoading" class="flex flex-1 flex-row items-center justify-center"><ProgressSpinner /></div>
-        <router-view v-else v-slot="{ Component }: any">
-          <keep-alive>
-            <component :is="Component" @showDetails="showDetails" @updateSelected="updateSelected" />
-          </keep-alive>
-        </router-view>
+    <div class="col flex grow overflow-auto">
+      <SideBar />
+      <div id="main-container" class="overflow-auto">
+        <div id="main-view">
+          <div v-if="workflowLoading" class="flex flex-1 flex-row items-center justify-center"><ProgressSpinner /></div>
+          <router-view v-else />
+        </div>
       </div>
     </div>
   </div>
@@ -25,50 +24,19 @@
 import { ref, onMounted, Ref, computed } from "vue";
 import SideBar from "@/components/workflow/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
-import WorkflowService from "@/services/WorkflowService";
-import { Task /*, WorkflowResponse */ } from "@/interfaces/AutoGen";
 import { useLoadingStore } from "@/stores/loadingStore";
 
 const loadingStore = useLoadingStore();
 const workflowLoading = computed(() => loadingStore.workflowLoading);
-
-const showInfo = ref(false);
-const selectedConceptIri = ref("");
-//const myWorkflows: Ref<WorkflowResponse | undefined> = ref();
-//const unassignedTasks: Ref<WorkflowResponse | undefined> = ref();
-const task: Ref<Task | undefined> = ref();
-//const assignedWorkflows: Ref<Task[]> = ref([]);
-
-onMounted(async () => {
-  // myWorkflows.value = await WorkflowService.getTasksByCreatedBy();
-  task.value = await WorkflowService.getBugReport("http://endhealth.info/workflow#10000000");
-  task.value.assignedTo = task.value.createdBy;
-  await WorkflowService.updateTask(task.value);
-  task.value = await WorkflowService.getBugReport("http://endhealth.info/workflow#10000000");
-  // unassignedTasks.value = await WorkflowService.getUnassignedTasks();
-});
-
-function updateSelected(selectedIri: string) {
-  selectedConceptIri.value = selectedIri;
-}
-
-function showDetails(selectedIri: string) {
-  selectedConceptIri.value = selectedIri;
-  showInfo.value = true;
-}
-
-/*
-function hideDetails() {
-  showInfo.value = false;
-}
-*/
 </script>
 
 <style scoped lang="scss">
-#topbar-mapper-container {
-  height: 100vh;
+#topbar-workflow-container {
+  height: 100%;
   width: 100vw;
   overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .title {
@@ -76,11 +44,22 @@ function hideDetails() {
   white-space: nowrap;
 }
 
-.main-container {
+#main-container {
+  flex: 1 1 auto;
   display: flex;
 }
 
-.main-view {
-  flex: 75%;
+#main-view {
+  flex: 1 1 auto;
+  display: flex;
+}
+
+.topbar-content {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
 }
 </style>

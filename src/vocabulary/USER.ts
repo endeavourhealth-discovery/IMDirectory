@@ -14,4 +14,5 @@ export class USER {
   public static readonly USER_MRU = USER.DOMAIN + "UserMRU"
   public static readonly USER_FAVOURITES = USER.DOMAIN + "UserFavourites"
   public static readonly ORGANISATIONS = USER.DOMAIN + "ORGANISATIONS"
+  public static readonly GRAPHS = USER.DOMAIN + "GRAPHS"
 }

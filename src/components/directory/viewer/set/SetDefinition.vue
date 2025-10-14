@@ -110,7 +110,7 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
-import { SetExportRequest, SetOptions } from "@/interfaces/AutoGen";
+import { SetExportRequest, SetOptions, UserRole } from "@/interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
@@ -155,6 +155,7 @@ onMounted(async () => {
   if (entity.value[RDFS.SUBCLASS_OF]) {
     subclassOf.value = entity.value[RDFS.SUBCLASS_OF];
   }
+  if (!hasDefinition.value) showMembers.value = true;
 });
 
 async function onCopy(event: MouseEvent) {
@@ -251,7 +252,7 @@ function getFileName(label: string, format: string) {
 
 function checkAuthorization() {
   if (isLoggedIn.value && currentUser.value) {
-    return currentUser.value.roles.includes("IM1_PUBLISH");
+    return currentUser.value.roles.includes(UserRole.PUBLISHER);
   } else return false;
 }
 

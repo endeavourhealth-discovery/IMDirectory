@@ -6,6 +6,7 @@ import { HistoryItem, RecentActivityItem, User } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
+import { UserRole } from "@/enums";
 
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
@@ -27,7 +28,7 @@ export const useUserStore = defineStore("user", {
   }),
   getters: {
     isLoggedIn: state => isObjectHasKeys(state.currentUser),
-    isAdmin: state => (state.currentUser?.roles.includes("IMAdmin") ? true : false)
+    isAdmin: state => (state.currentUser?.roles.includes(UserRole.ADMIN) ? true : false)
   },
   actions: {
     clearAllFromUserDatabase() {

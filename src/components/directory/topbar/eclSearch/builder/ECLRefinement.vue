@@ -27,7 +27,7 @@
                 <Select
                   :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
                   :modelValue="parentOperator"
-                  :options="getBooleanOptions(where, parent!, parentOperator as Bool, 'Where', index)"
+                  :options="getBooleanOptions('Where', where, parent!, parentOperator as Bool, index)"
                   option-label="label"
                   option-value="value"
                   @update:modelValue="val => updateOperator(val as string)"
@@ -81,7 +81,7 @@
               :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
               :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
               :modelValue="parentOperator"
-              :options="getBooleanOptions(where, parent!, parentOperator as Bool, 'Where', index)"
+              :options="getBooleanOptions('Where', where, parent!, parentOperator as Bool, index)"
               option-label="label"
               option-value="value"
               @update:modelValue="val => updateOperator(val as string)"
@@ -175,9 +175,9 @@ import { ToastSeverity } from "@/enums";
 import { Bool, Where, Match, QueryRequest, SearchResultSummary, TTIriRef, Node } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
-import { getBooleanOptions, updateBooleans, getIsRoleGroup, checkGroupChange } from "@/composables/buildQuery";
-import { setConstraintOperator, constraintOperatorOptions, getConstraintOperator, manageRoleGroup } from "@/composables/buildQuery";
-
+import { getBooleanOptions, updateWhereBooleans, getIsRoleGroup, checkGroupChange } from "@/composables/buildQuery";
+import { setConstraintOperator, getConstraintOperator, manageRoleGroup } from "@/composables/buildQuery";
+import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
 import Button from "primevue/button";
 import ECLRefinementValue from "@/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
@@ -305,7 +305,7 @@ function updateOperator(val: string) {
   emit("updateBool", props.parentOperator, val, props.index);
 }
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
-  updateBooleans(where.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
+  updateWhereBooleans(where.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
   if (newOperator === props.parentOperator) {
     emit("rationalise");
   }

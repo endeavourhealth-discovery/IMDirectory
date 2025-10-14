@@ -25,7 +25,8 @@
         </div>
 
         <div v-else-if="node.data">
-          {{ node.label + " - " }}<IMViewerLink :iri="node.data.iri!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :iri="node.iri" :label="node.label + ' - '" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink :iri="node.data.iri!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
         <div v-else>{{ node.label }}</div>
       </template>
@@ -117,9 +118,15 @@ async function onSelect(node: TreeNode) {
   }
 }
 
-function onExpand(node: TreeNode) {
+async function onExpand(node: TreeNode) {
   const hasLoadMore = node.children?.some(child => child.key === IM.LOAD_MORE);
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
+  if (node.type == "link") {
+    const result = await EntityService.getEntityDetailsDisplay(node.key);
+    if (isArray(result)) {
+      node.children = result.filter((c: any) => c.key !== IM.IS_A);
+    }
+  }
 }
 
 function openTab(predicate: string) {

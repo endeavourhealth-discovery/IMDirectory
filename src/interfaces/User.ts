@@ -1,3 +1,5 @@
+import { UserRole } from "./AutoGen";
+
 export interface User {
   id: string;
   username: string;
@@ -6,6 +8,6 @@ export interface User {
   email: string;
   password: string;
   avatar: string;
-  roles: string[];
+  roles: UserRole[];
   mfaStatus: string[];
 }

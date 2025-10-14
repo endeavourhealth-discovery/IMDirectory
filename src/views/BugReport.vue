@@ -231,6 +231,7 @@ async function onSubmit() {
     if (latestResult) bugReport.version = latestResult.version;
     bugReport.type = TaskType.BUG_REPORT;
     bugReport.state = TaskState.TODO;
+    bugReport.hostUrl = window.location.origin;
     await WorkflowService.createBugReport(bugReport).then(async () => {
       await Swal.fire({
         title: "Success",

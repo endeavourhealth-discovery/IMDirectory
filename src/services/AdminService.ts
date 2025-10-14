@@ -1,18 +1,23 @@
 import axios from "axios";
 import Env from "./Env";
 import { User } from "@/interfaces";
+import { UserRole } from "@/enums";
 
 const AdminService = {
   async getUsers(): Promise<string[]> {
     return await axios.get(Env.API + "api/admin/cognito/users");
   },
 
-  async getGroups(): Promise<string[]> {
+  async getGroups(): Promise<UserRole[]> {
     return await axios.get(Env.API + "api/admin/cognito/groups");
   },
 
   async getUsersInGroup(group: string): Promise<string[]> {
     return await axios.get(Env.API + "api/admin/cognito/group/users", { params: { group: group } });
+  },
+
+  async getUsersInGroupAsUser(group: string): Promise<User[]> {
+    return await axios.get(Env.API + "api/admin/cognito/group/usersAsUser", { params: { group: group } });
   },
 
   async getUser(username: string): Promise<User> {

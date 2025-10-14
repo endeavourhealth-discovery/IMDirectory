@@ -1,6 +1,14 @@
 import { IM, RDFS } from "@/vocabulary";
 import { FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
-import { TTIriRef, SearchResultSummary, DownloadByQueryOptions, Pageable, EntityValidationRequest, EntityReferenceNode } from "@/interfaces/AutoGen";
+import {
+  TTIriRef,
+  SearchResultSummary,
+  DownloadByQueryOptions,
+  Pageable,
+  EntityValidationRequest,
+  EntityReferenceNode,
+  EditRequest
+} from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
@@ -176,9 +184,9 @@ const EntityService = {
     });
   },
 
-  async getBundleByPredicateExclusions(iri: string, predicates: string[]): Promise<TTBundle> {
+  async getBundleByPredicateExclusions(iri: string, predicates: string[], graph?: string): Promise<TTBundle> {
     return await axios.get(API_URL + "/public/bundleByPredicateExclusions", {
-      params: { iri: iri, predicates: predicates.join(",") }
+      params: { iri: iri, predicates: predicates.join(","), graph: graph }
     });
   },
 
@@ -186,12 +194,16 @@ const EntityService = {
     return await axios.get(API_URL + "/checkExists", { params: { iri: iri } });
   },
 
-  async createEntity(entity: TTEntity): Promise<TTEntity> {
-    return await axios.post(API_URL + "/create", entity);
+  async createEntity(editRequest: EditRequest): Promise<TTEntity> {
+    return await axios.post(API_URL + "/create", editRequest);
   },
 
-  async updateEntity(entity: TTEntity): Promise<TTEntity> {
-    return await axios.post(API_URL + "/update", entity);
+  async createDraftEntity(editRequest: EditRequest): Promise<TTEntity> {
+    return await axios.post(API_URL + "/draft", editRequest);
+  },
+
+  async updateEntity(editRequest: EditRequest): Promise<TTEntity> {
+    return await axios.post(API_URL + "/update", editRequest);
   },
 
   async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<ValidatedEntity[]> {

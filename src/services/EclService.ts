@@ -11,7 +11,7 @@ const EclService = {
   },
 
   async getEcl(query: Query): Promise<string> {
-    return await axios.post(Env.API + "api/ecl/public/ecl", query);
+    return await axios.post(Env.API + "api/ecl/public/ecl", { eclQuery: query });
   },
 
   async getQueryFromECL(ecl: string, raw: boolean = false): Promise<ECLQueryRequest> {

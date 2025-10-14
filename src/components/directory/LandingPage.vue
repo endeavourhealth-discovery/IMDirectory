@@ -31,7 +31,7 @@ import { IM, SHACL } from "@/vocabulary";
 import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
 import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";
 import Favourites from "@/components/directory/landingPage/Favourites.vue";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 const directService = new DirectService();
 
@@ -84,6 +84,14 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
     command: () => directService.uprn(),
     color: "var(--p-red-500)",
     size: 4
+  },
+  {
+    label: "Endeavour Predict",
+    icon: "fa-duotone fa-calculator",
+    url: "https://calculator.endeavourpredict.org",
+    color: "var(--p-blue-300)",
+    size: 4,
+    newTab: true
   },
   {
     label: "Wiki",

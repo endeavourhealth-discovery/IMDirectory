@@ -1,6 +1,21 @@
 <template>
-  <div id="concept-main-container" style="'overflow:hidden;'">
-    <div v-if="entityIri === 'http://endhealth.info/im#Favourites'">
+  <div id="concept-main-container">
+    <div class="info-container">
+      <div class="flex flex-row">
+        <TextWithLabel label="Iri" :data="entityIri" v-if="!!entityIri" />
+        <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
+      </div>
+      <div class="flex flex-row justify-start">
+        <ArrayObjectNameTagWithLabel v-if="!!entity[IM.HAS_STATUS]" label="Status" :data="entity[IM.HAS_STATUS]" />
+        <ArrayObjectNamesToStringWithLabel label="Types" :data="entity[RDF.TYPE]" v-if="!!entity[RDF.TYPE]" />
+      </div>
+      <div>
+        <TextWithLabel label="Preferred name" :data="entity[IM.PREFERRED_NAME]" v-if="!!entity[IM.PREFERRED_NAME]" />
+        <ArrayObjectNamesToStringWithLabel label="Return Type" :data="entity[IM.RETURN_TYPE]" v-if="!!entity[IM.RETURN_TYPE]" />
+      </div>
+      <TextHTMLWithLabel label="Description" :data="entity[RDFS.COMMENT]" v-if="!!entity[RDFS.COMMENT]" />
+    </div>
+    <div v-if="entity.iri === 'http://endhealth.info/im#Favourites'">
       <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
     </div>
     <div v-else-if="loading" class="loading-container">
@@ -25,9 +40,10 @@
             <Tab value="13">Used In</Tab>
             <Tab value="14">Hierarchy Position</Tab>
             <Tab v-if="showGraph" value="15">Entity Chart</Tab>
-            <Tab value="16">Graph</Tab>
-            <Tab value="17">JSON</Tab>
-            <Tab value="18">Provenance</Tab>
+            <Tab v-if="isRecordModel(types)" value="16">Entity-Model Diagram</Tab>
+            <Tab value="17">Graph</Tab>
+            <Tab value="18">JSON</Tab>
+            <Tab value="19">Provenance</Tab>
           </TabList>
           <TabPanels>
             <TabPanel value="0">
@@ -103,17 +119,22 @@
                 <EntityChart :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="16">
+            <TabPanel v-if="isRecordModel(types)" value="16">
+              <div id="entity-model-container" :class="expandWidth ? 'entity-concept-panel-content' : 'concept-panel-content'">
+                <ModelChart :entityIri="entityIri" :entityName="concept[RDFS.LABEL]" @expand-width="(expand: boolean) => (expandWidth = expand)" />
+              </div>
+            </TabPanel>
+            <TabPanel value="17">
               <div id="graph-container" class="concept-panel-content">
                 <Graph :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel value="17">
+            <TabPanel value="18">
               <div id="json-container" class="concept-panel-content">
                 <JSONViewer :entityIri="entityIri" />
               </div>
             </TabPanel>
-            <TabPanel value="18">
+            <TabPanel value="19">
               <div id="provenance-container" class="concept-panel-content">
                 <Provenance :entityIri="entityIri" />
               </div>
@@ -151,9 +172,14 @@ import DataModels from "./viewer/DataModels.vue";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
+import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vue";
+import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
+import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
+import ModelChart from "@/components/directory/viewer/ModelChart.vue";
 
 interface Props {
-  entityIri: string;
+  entity: TTEntity;
 }
 
 const props = defineProps<Props>();
@@ -169,6 +195,7 @@ const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
 const concept: Ref<TTEntity> = ref({});
 
+const entityIri = ref("");
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
@@ -176,12 +203,14 @@ const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, SHACL.FUNCTIO
 
 const tabMap = reactive(new Map<string, string>());
 
+const expandWidth = ref(false);
+
 onMounted(async () => {
   await init();
 });
 
 watch(
-  () => props.entityIri,
+  () => props.entity,
   async () => await init()
 );
 
@@ -217,7 +246,10 @@ function setTabMap() {
 
 async function init(): Promise<void> {
   loading.value = true;
-  await getConcept(props.entityIri);
+  if (props.entity.iri) {
+    entityIri.value = props.entity.iri;
+  }
+  await getConcept(entityIri.value);
   types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
   header.value = concept.value[RDFS.LABEL];
   loading.value = false;
@@ -254,7 +286,6 @@ async function handleControlClick(iri: string) {
 </script>
 <style scoped>
 #concept-main-container {
-  height: 100%;
   width: 100%;
   display: flex;
   flex-flow: column nowrap;
@@ -286,9 +317,9 @@ async function handleControlClick(iri: string) {
 
 .concept-panel-content {
   height: 100%;
-  overflow: auto;
   background-color: var(--p-content-background);
   display: flex;
+  overflow: auto;
 }
 
 #concept-panel-container:deep(.p-tabview-panels) {
@@ -296,8 +327,19 @@ async function handleControlClick(iri: string) {
   overflow: auto;
 }
 
+.entity-concept-panel-content {
+  height: 100%;
+  width: 500%;
+  background-color: var(--p-content-background);
+  display: flex;
+}
+
 #concept-panel-container:deep(.p-tabpanels) {
   overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabpanel) {
+  height: 100%;
 }
 
 #viewer-tabs {
@@ -308,5 +350,9 @@ async function handleControlClick(iri: string) {
 #tab-list {
   flex: 0 0 auto;
   display: flex;
+}
+
+.info-container {
+  padding: 0.25rem;
 }
 </style>

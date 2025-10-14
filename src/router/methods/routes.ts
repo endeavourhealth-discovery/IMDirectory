@@ -238,10 +238,37 @@ const routes: Array<RouteRecordRaw> = [
     path: "/workflow",
     name: "Workflow",
     component: () => import("@/views/Workflow.vue"),
+    redirect: { name: "MyWorkflows" },
     meta: {
       requiresAuth: true,
       requiresLicense: true
-    }
+    },
+    children: [
+      {
+        path: "myworkflows/:taskType?",
+        name: "MyWorkflows",
+        component: () => import("@/components/workflow/WorkflowTable.vue"),
+        props: true
+      },
+      {
+        path: "bugReport/:id?",
+        name: "ViewBugReport",
+        component: () => import("@/components/workflow/ViewBugReport.vue"),
+        props: true
+      },
+      {
+        path: "roleRequest/:id?",
+        name: "ViewRoleRequest",
+        component: () => import("@/components/workflow/ViewRoleRequest.vue"),
+        props: true
+      },
+      {
+        path: "entityApproval/:id?",
+        name: "ViewEntityApproval",
+        component: () => import("@/components/workflow/ViewEntityApproval.vue"),
+        props: true
+      }
+    ]
   },
   {
     path: "/filer",
@@ -279,6 +306,15 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/components/uprn/AddressFileDownload.vue")
       }
     ]
+  },
+  {
+    path: "/queryRunner",
+    name: "QueryRunner",
+    component: () => import("@/views/QueryRunner.vue"),
+    meta: {
+      requiresLicense: true,
+      requiresAuth: true
+    }
   },
   {
     path: "/codeGenerator",

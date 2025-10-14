@@ -80,7 +80,7 @@ describe("ConceptTypeMethods", () => {
     });
 
     it("returns correct colour for default no type", () => {
-      expect(getColourFromType([])).toBe(bgsFixed[5]);
+      expect(getColourFromType([])).toBe(bgsFixed[8]);
     });
   });
 });

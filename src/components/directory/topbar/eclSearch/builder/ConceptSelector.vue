@@ -52,8 +52,8 @@ import { QueryRequest, SearchResultSummary, Node } from "@/interfaces/AutoGen";
 import { cloneDeep, isEqual } from "lodash-es";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";
-import { buildIMQueryFromFilters, constraintOperatorOptions, getConstraintOperator, setConstraintOperator } from "@/composables/buildQuery";
-
+import { buildIMQueryFromFilters, getConstraintOperator, setConstraintOperator } from "@/composables/buildQuery";
+import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
 interface Props {
   parent?: any;
 }

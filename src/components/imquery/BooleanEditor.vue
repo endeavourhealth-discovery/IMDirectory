@@ -5,8 +5,8 @@
       severity="secondary"
       text
       draggable="true"
-      @dragstart="onDragStart($event, match, parentMatch)"
-      @dragend="onDragEnd(match, parentMatch)"
+      @dragstart="onDragStart($event, clause, parentClause)"
+      @dragend="onDragEnd(clause, parentClause)"
     />
   </div>
   <span v-if="parentOperator != Bool.rule">
@@ -14,7 +14,7 @@
       <Select
         :disabled="parentGroup.length > 0 && (!parentGroup.includes(clauseIndex) || parentGroup.length === 1)"
         :modelValue="parentOperator"
-        :options="getBooleanOptions(match, parentMatch!, parentOperator as Bool, 'Match', clauseIndex, true, hasSubgroups)"
+        :options="getBooleanOptions(clauseType, clause, parentClause!, parentOperator as Bool, clauseIndex, true, hasSubgroups, grandParentOperator)"
         option-label="label"
         option-value="value"
         data-testid="operator-selector"
@@ -28,8 +28,8 @@
   </span>
   <div class="group-checkbox">
     <Checkbox
-      v-if="isGroupable(rootBool, parentMatch, parentOperator)"
-      :disabled="parentGroup.length + 1 === (parentMatch[parentOperator as keyof typeof parentMatch] as Match[]).length && !parentGroup.includes(clauseIndex)"
+      v-if="isGroupable(rootBool, parentClause, parentOperator)"
+      :disabled="parentGroup.length + 1 === (parentClause[parentOperator as keyof typeof parentClause] as Match[]).length && !parentGroup.includes(clauseIndex)"
       :inputId="'group' + clauseIndex"
       name="Group"
       :value="clauseIndex"
@@ -46,23 +46,25 @@ import { inject, onMounted, Ref, ref, computed } from "vue";
 import Button from "primevue/button";
 import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import { Bool, Match, Where } from "@/interfaces/AutoGen";
-import { checkGroupChange, getBooleanOptions, isGroupable, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
+import { checkGroupChange, getBooleanOptions, isGroupable, updateFocusConcepts } from "@/composables/buildQuery";
 
 interface Props {
   isVariable?: boolean;
   depth: number;
   rootBool?: boolean;
   clauseIndex: number;
+  clauseType: string;
   expanded?: boolean;
   canExpand?: boolean;
   from?: Match;
   parentOperator?: Bool;
   hasSubgroups?: boolean;
+  grandParentOperator?: Bool;
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
-const parentMatch = defineModel<Match>("parentMatch", { default: {} });
+const clause = defineModel<Match | Where>("clause", { default: {} });
+const parentClause = defineModel<Match | Where>("parentClause", { default: {} });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateOperator", "activateInput", "navigateTo"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
@@ -71,7 +73,7 @@ const checked = ref(false);
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 
 function updateOperator(val: string) {
-  updateFocusConcepts(match.value);
+  if (props.clauseType == "Match") updateFocusConcepts(clause.value as Match);
   emit("updateOperator", val);
 }
 

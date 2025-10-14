@@ -3,6 +3,7 @@ import { RouteLocationNormalized, Router } from "vue-router";
 import { directToLogin } from "./intercepts";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
+import { UserRole } from "@/enums";
 
 export async function requiresAuthGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresAuth)) {
@@ -23,7 +24,7 @@ export async function requiresAuthGuard(to: RouteLocationNormalized, from: Route
 export async function requiresAdmin(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresAdmin)) {
     const { user } = await AuthService.getCurrentAuthenticatedUser();
-    if (!user?.roles.includes("IMAdmin")) {
+    if (!user?.roles.includes(UserRole.ADMIN)) {
       if (from.name === "Logout") {
         await router.push({ name: "LandingPage" });
         return false;
@@ -54,7 +55,7 @@ export async function requiresCreateRole(to: RouteLocationNormalized, from: Rout
     if (status !== 200) {
       await directToLogin(router);
       return true;
-    } else if (!userStore.currentUser?.roles?.includes("create")) {
+    } else if (!userStore.currentUser?.roles?.includes(UserRole.CREATOR)) {
       await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
       return true;
     }
@@ -69,7 +70,7 @@ export async function requiresEditRole(to: RouteLocationNormalized, from: RouteL
     if (status !== 200) {
       await directToLogin(router);
       return true;
-    } else if (!userStore.currentUser?.roles?.includes("edit")) {
+    } else if (!userStore.currentUser?.roles?.includes(UserRole.EDITOR)) {
       await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
       return true;
     }

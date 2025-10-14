@@ -1,57 +1,93 @@
 <template>
-  <div id="recursive-match-display" class="tree-node-line">
-    <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
-      <span class="rule">Rule {{ clauseIndex }}</span>
+  <div id="recursive-match-display" :class="!singleMatch ? 'tree-node-line' : 'tree-node'">
+    <span v-if="parentOperator === Bool.rule">
+      <span class="rule">Rule {{ clauseIndex + 1 }}</span>
     </span>
     <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && parentOperator != Bool.not" :class="parentOperator">{{
       parentOperator
     }}</span>
-    <span v-if="parentMatch?.union && !from">
-      <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
-      <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
-    </span>
-    <span v-if="from">
-      <span class="field">and if the above</span>
-      <span v-if="match.nodeRef">({{ match.nodeRef }})</span>
-    </span>
-    <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
-    <span v-if="match.instanceOf">
-      <span v-if="match.instanceOf[0].qualifier">{{ match.instanceOf[0].qualifier }}</span>
-      <IMViewerLink
-        v-if="match.instanceOf[0].iri"
-        :iri="match.instanceOf[0].iri"
-        :label="match.instanceOf[0].name"
-        :action="editMode ? 'view' : 'select'"
-        @navigateTo="(iri: string) => emit('navigateTo', iri)"
-      />
-      <span v-if="match.instanceOf.length > 1">
-        <div>
-          <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
-            <span v-if="index > 0">
-              <ul>
-                <li class="tight-spacing">
-                  <span class="or">or</span>
-                  <IMViewerLink
-                    v-if="item.iri"
-                    :iri="item.iri"
-                    :action="editMode ? 'view' : 'select'"
-                    :label="item.name"
-                    @navigateTo="(iri: string) => emit('navigateTo', iri)"
-                  />
-                </li>
-              </ul>
+    <div v-if="match.description">
+      <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
+      <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchExpanded = !matchExpanded"></Button>
+      <span class="match-description">{{ match.description }}</span>
+    </div>
+    <span v-else-if="parentOperator === Bool.not" class="not">Exclude if </span>
+    <span v-if="matchExpanded">
+      <span v-if="parentMatch?.union && !then">
+        <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
+        <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
+      </span>
+      <span v-if="then && matchExpanded">
+        <span v-if="!match.path">
+          <span class="field">and from the above</span>
+        </span>
+        <span v-else class="field">Then</span>
+      </span>
+
+      <span v-if="match.instanceOf">
+        <span v-if="match.instanceOf[0].description">{{ match.instanceOf[0].description }}</span>
+        <IMViewerLink
+          v-if="match.instanceOf[0].iri"
+          :iri="match.instanceOf[0].iri"
+          :label="match.instanceOf[0].name"
+          :action="editMode ? 'view' : 'select'"
+          @navigateTo="(iri: string) => emit('navigateTo', iri)"
+        />
+        <span v-if="match.instanceOf.length > 1">
+          <div>
+            <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
+              <span v-if="index > 0">
+                <ul>
+                  <li class="tight-spacing">
+                    <span class="or">or</span>
+                    <IMViewerLink
+                      v-if="item.iri"
+                      :iri="item.iri"
+                      :action="editMode ? 'view' : 'select'"
+                      :label="item.name"
+                      @navigateTo="(iri: string) => emit('navigateTo', iri)"
+                    />
+                  </li>
+                </ul>
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
+        </span>
+      </span>
+      <span v-if="match.isCohort">
+        <span class="field">in</span>
+        <Button text :icon="!cohortExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="expandCohort()"></Button>
+        <IMViewerLink
+          v-if="match.isCohort.iri"
+          :iri="match.isCohort.iri"
+          :label="match.isCohort.name"
+          :action="editMode ? 'view' : 'select'"
+          @navigateTo="(iri: string) => emit('navigateTo', iri)"
+        />
+        <RecursiveMatchDisplay
+          v-if="cohort"
+          :match="cohort"
+          :clause-index="0"
+          :property-index="0"
+          :parent-operator="parentOperator"
+          :depth="depth + 1"
+          :parent-match="match"
+          :eclQuery="eclQuery"
+        />
+      </span>
+      <span v-if="matchExpanded">
+        <span v-if="match.orderBy" class="fieldpn">{{ match.orderBy.description }}</span>
+        <span class="field">{{ getFormattedPath(match) }}</span>
       </span>
     </span>
-    <span class="field">{{ getFormattedPath(match) }}</span>
     <span v-for="operator in operators" :key="operator">
       <span v-if="match[operator]">
         <span v-if="match[operator]!.length > 1 && operator != 'not'" :class="operator">
-          <span>{{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true, match.union) }}</span>
+          <span>{{
+            getBooleanLabel("match", operator as Bool, parentOperator === Bool.rule ? 0 : clauseIndex, !eclQuery, true, match.union, parentOperator)
+          }}</span>
         </span>
-        <div class="tree-node-wrapper">
+        <div :class="match[operator].length > 1 ? 'tree-node-wrapper' : ''">
           <span v-for="(nestedQuery, index) in match[operator]" :key="index">
             <RecursiveMatchDisplay
               :match="nestedQuery"
@@ -64,48 +100,47 @@
               :bracketed="index === match[operator]!.length - 1"
               :edit-mode="editMode"
               :eclQuery="eclQuery"
+              :then="then"
+              :singleMatch="match[operator]!.length === 1"
             />
           </span>
         </div>
       </span>
     </span>
-    <span v-if="match.orderBy">{{ match.orderBy.description }}</span>
-    <span v-if="match.where">
-      <RecursiveWhereDisplay
-        :where="match.where"
-        :depth="depth + (match.nodeRef ? 1 : 0)"
-        :property-index="0"
-        :key="0"
-        :index="0"
-        :root="true"
-        :expandedSet="expandSet"
-        :inline="true"
-        :eclQuery="eclQuery"
-        :editMode="editMode"
-      />
+    <span v-if="matchExpanded">
+      <span v-if="match.where">
+        <span class="field">where</span>
+        <RecursiveWhereDisplay
+          :where="match.where"
+          :depth="depth + (match.nodeRef ? 1 : 0)"
+          :key="0"
+          :index="0"
+          :root="true"
+          :expandedSet="expandSet"
+          :inline="true"
+          :then="then"
+          :eclQuery="eclQuery"
+          :editMode="editMode"
+        />
+      </span>
     </span>
-
-    <span v-if="match.return && !match.then">
+    <span v-if="match.return && match.return.asDescription">
       <span class="field">(as</span>
-      <span class="as">{{ match.return?.as }})</span>
+      <span class="as">{{ match.return.asDescription }})</span>
     </span>
-    <span v-if="match.then">
-      <RecursiveMatchDisplay
-        :match="match.then"
-        :clause-index="0"
-        :property-index="0"
-        :parent-operator="Bool.and"
-        :depth="depth + 1"
-        :parent-match="match"
-        :edit-mode="editMode"
-        :from="match"
-        :eclQuery="eclQuery"
-      />
-    </span>
-    <span v-if="match.return && match.then">
-      <span class="field">(as</span>
-      <span class="as">{{ match.return?.as }})</span>
-    </span>
+    <RecursiveMatchDisplay
+      v-if="match.then && matchExpanded"
+      :match="match.then"
+      :clause-index="0"
+      :property-index="0"
+      :parent-operator="Bool.and"
+      :depth="depth + 1"
+      :parent-match="match"
+      :edit-mode="editMode"
+      :then="true"
+      :eclQuery="eclQuery"
+    />
+    <MatchDescription v-if="match.then && !matchExpanded" :depth="1" :match="match.then" />
     <div v-if="parentOperator === Bool.rule && clauseIndex > 0">
       <span class="field">if true</span>
       <span :class="match.ifTrue">{{ match.ifTrue }},</span>
@@ -116,13 +151,15 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool } from "@/interfaces/AutoGen";
-import { Ref, ref } from "vue";
+import { Match, Bool, DisplayMode } from "@/interfaces/AutoGen";
+import { Ref, ref, computed, inject } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { QueryService } from "@/services";
 import { getBooleanLabel, hasBoolGroups } from "@/composables/buildQuery";
+import MatchDescription from "@/components/query/viewer/MatchDescription.vue";
 
-defineProps<{
+interface Props {
   isVariable?: boolean;
   depth: number;
   clauseIndex: number;
@@ -130,20 +167,25 @@ defineProps<{
   canExpand?: boolean;
   bracketed?: boolean;
   editMode?: boolean;
-  from?: Match;
+  then?: boolean;
   eclQuery?: boolean;
   parentOperator?: Bool;
-}>();
+  singleMatch?: boolean;
+}
 
+const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parentMatch = defineModel<Match>("parentMatch", { default: {} });
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
-const editMenu = (match.value.and || match.value.or) && !match.value.instanceOf ? "booleanEditor" : "matchEditor";
 const expandSet: Ref<boolean> = ref(false);
 const operators = ["and", "or", "not"] as const;
-
+const cohortExpanded: Ref<boolean> = ref(false);
+const matchExpanded: Ref<boolean> = ref(!match.value.description);
+const queryIri: Ref<string | undefined> = ref(inject("queryIri"));
+const displayMode = inject<Ref<DisplayMode>>("displayMode");
+const cohort: Ref<Match | undefined> = ref();
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
@@ -156,6 +198,18 @@ function getFormattedPath(path: any): string {
 }
 function getSubrule(index: number): string {
   return index + String.fromCharCode(96 + index);
+}
+
+async function expandCohort() {
+  if (cohortExpanded.value) {
+    cohort.value = undefined;
+    cohortExpanded.value = false;
+  } else {
+    if (queryIri.value) {
+      cohort.value = await QueryService.expandCohort(queryIri.value, match.value.isCohort!.iri, DisplayMode.LOGICAL);
+      cohortExpanded.value = true;
+    }
+  }
 }
 
 // Watch for changes in the prop and update the local copy accordingly
@@ -223,7 +277,7 @@ function getSubrule(index: number): string {
   border-left: 0.1rem dotted #999;
 }
 .tree-node {
-  /* no special styling needed */
+  position: relative;
 }
 .tree-node-line {
   position: relative;
@@ -238,6 +292,9 @@ function getSubrule(index: number): string {
   left: 0;
   width: 1rem;
   border-top: 0.1rem dotted #999;
+}
+.match-description {
+  color: var(--p-blue-700);
 }
 
 #recursive-match-display:deep(.either) {

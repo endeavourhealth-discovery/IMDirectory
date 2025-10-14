@@ -59,7 +59,7 @@ import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { TTIriRef, UserRole } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
@@ -130,7 +130,7 @@ watch(
     const favouritesIndex = root.value.findIndex(node => node.data === IM.FAVOURITES);
     if (favouritesIndex !== -1) {
       root.value.splice(favouritesIndex, 1);
-      await addFavouritesToTree();
+      addFavouritesToTree();
     }
   }
 );
@@ -180,7 +180,7 @@ async function addParentFoldersToRoot() {
     }
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
-  if (isLoggedIn.value) await addFavouritesToTree();
+  if (isLoggedIn.value) addFavouritesToTree();
 }
 
 function addFavouritesToTree() {
@@ -205,7 +205,7 @@ async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
 
-  if (!currentUser.value || !currentUser.value.roles.includes("IMAdmin")) return;
+  if (!currentUser.value || !currentUser.value.roles.includes(UserRole.ADMIN)) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
   selectedNode.value = node;
@@ -373,9 +373,11 @@ async function displayOverlay(event: MouseEvent, node: TreeNode): Promise<void> 
 }
 
 async function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
-  if (node.data === "loadMore") {
-    if (!node.loading) await loadMore(node);
-  } else await customOnClick(event, node, useEmits, updateSelectedKeys);
+  if (node.data !== IM.FAVOURITES) {
+    if (node.data === "loadMore") {
+      if (!node.loading) await loadMore(node);
+    } else await customOnClick(event, node, useEmits, updateSelectedKeys);
+  }
 }
 
 function dragStart(event: DragEvent, data: TreeNode) {
