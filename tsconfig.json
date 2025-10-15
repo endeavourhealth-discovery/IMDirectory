@@ -15,7 +15,7 @@
     "sourceMap": true,
     "rootDirs": ["."],
     "baseUrl": ".",
-    "types": ["vite/client", "vitest/globals", "cypress", "@testing-library/cypress"],
+    "types": ["vite/client", "vitest/globals", "cypress", "@testing-library/cypress", "@vueuse/core", "@vueuse/integrations"],
     "paths": {
       "@/*": ["src/*"]
     },

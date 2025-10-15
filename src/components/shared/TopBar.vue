@@ -163,8 +163,10 @@ import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import Button from "primevue/button";
 import { UserRole } from "@/enums";
+import { useCasdoor } from "casdoor-vue-sdk";
 
 const router = useRouter();
+const { getSigninUrl, getSignupUrl } = useCasdoor();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
@@ -245,7 +247,7 @@ onMounted(async () => {
   if (currentSurfaceColor.value) selectedSurfaceColor.value = currentSurfaceColor.value;
   setUserMenuItems();
   setAppMenuItems();
-  await setUploadDownloadMenuItems();
+  setUploadDownloadMenuItems();
 });
 
 async function toLandingPage() {
@@ -273,12 +275,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      route: "/user/login"
+      command: () => (window.location.href = getSigninUrl())
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      route: "/user/register"
+      command: () => (window.location.href = getSignupUrl())
     },
     {
       separator: true

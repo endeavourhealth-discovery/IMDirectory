@@ -58,100 +58,10 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: "/user",
-    name: "User",
-    component: () => import("@/views/Auth.vue"),
-    redirect: { name: "Login" },
-    children: [
-      {
-        path: "login:returnUrl?",
-        name: "Login",
-        component: () => import("@/components/auth/Login.vue"),
-        meta: { title: "Login" }
-      },
-      {
-        path: "confirm-code:returnUrl?",
-        name: "ConfirmCode",
-        component: () => import("@/components/auth/ConfirmCode.vue"),
-        meta: { title: "Confirm code" }
-      },
-      {
-        path: "register:returnUrl?",
-        name: "Register",
-        component: () => import("@/components/auth/Register.vue"),
-        meta: { title: "Register" }
-      },
-      {
-        path: "my-account:returnUrl?",
-        name: "UserDetails",
-        component: () => import("@/components/auth/UserDetails.vue"),
-        meta: {
-          requiresAuth: true,
-          title: "My account"
-        }
-      },
-      {
-        path: "my-account/edit:returnUrl?",
-        name: "UserEdit",
-        component: () => import("@/components/auth/UserEdit.vue"),
-        meta: {
-          requiresAuth: true,
-          title: "My account"
-        }
-      },
-      {
-        path: "my-account/password-edit:returnUrl?",
-        name: "PasswordEdit",
-        component: () => import("@/components/auth/PasswordEdit.vue"),
-        meta: {
-          requiresAuth: true,
-          title: "My account"
-        }
-      },
-      {
-        path: "logout:returnUrl?",
-        name: "Logout",
-        component: () => import("@/components/auth/Logout.vue"),
-        meta: { title: "Logout" }
-      },
-      {
-        path: "password-recovery:returnUrl?",
-        name: "ForgotPassword",
-        component: () => import("@/components/auth/ForgotPassword.vue"),
-        meta: { title: "Reset password" }
-      },
-      {
-        path: "password-recovery/submit:returnUrl?",
-        name: "ForgotPasswordSubmit",
-        component: () => import("@/components/auth/ForgotPasswordSubmit.vue"),
-        meta: { title: "Reset password" }
-      },
-      {
-        path: "mfa-setup",
-        name: "MFASetup",
-        component: () => import("@/components/auth/MFASetup.vue"),
-        meta: { requiresReAuth: true, title: "My account" }
-      },
-      {
-        path: "mfa-login",
-        name: "MFALogin",
-        component: () => import("@/components/auth/MFALogin.vue"),
-        meta: { title: "Login" }
-      },
-      {
-        path: "mfa-delete",
-        name: "MFADelete",
-        component: () => import("@/components/auth/MFADelete.vue"),
-        meta: { requiresReAuth: true, title: "My account" }
-      },
-      {
-        path: "changeTemporaryPassword:tempPassword?",
-        props: true,
-        name: "ChangeTemporaryPassword",
-        component: () => import("@/components/auth/ChangeTemporaryPassword.vue"),
-        meta: { title: "Reset password" }
-      }
-    ]
+    path: "/callback",
+    name: "Callback",
+    component: () => import("@/views/Callback.vue"),
+    props: true
   },
   {
     path: "/admin",
@@ -169,41 +79,6 @@ const routes: Array<RouteRecordRaw> = [
         path: "github",
         name: "UpdateConfig",
         component: () => import("@/components/adminToolbox/github/UpdateConfig.vue")
-      },
-      {
-        path: "cognito",
-        name: "CognitoManager",
-        component: () => import("@/components/adminToolbox/cognito/CognitoManager.vue"),
-        redirect: { name: "CognitoListUsers" },
-        children: [
-          {
-            path: "listUsers",
-            name: "CognitoListUsers",
-            component: () => import("@/components/adminToolbox/cognito/ListUsers.vue")
-          },
-          {
-            path: "listGroups",
-            name: "CognitoListGroups",
-            component: () => import("@/components/adminToolbox/cognito/ListGroups.vue")
-          },
-          {
-            path: "listUsersInGroup/:group",
-            name: "CognitoUsersInGroup",
-            component: () => import("@/components/adminToolbox/cognito/UsersInGroup.vue"),
-            props: true
-          },
-          {
-            path: "userDetails/:username",
-            name: "CognitoUserDetails",
-            component: () => import("@/components/adminToolbox/cognito/UserDetails.vue"),
-            props: true
-          },
-          {
-            path: "createUser",
-            name: "CognitoCreateUser",
-            component: () => import("@/components/adminToolbox/cognito/CreateUser.vue")
-          }
-        ]
       }
     ]
   },

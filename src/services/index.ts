@@ -13,6 +13,7 @@ import CodeGenService from "./CodeGenService";
 import DataModelService from "./DataModelService";
 import ConceptService from "./ConceptService";
 import StatusService from "./StatusService";
+import CasdoorService from "./CasdoorService";
 
 export {
   AuthService,
@@ -29,5 +30,6 @@ export {
   CodeGenService,
   DataModelService,
   ConceptService,
-  StatusService
+  StatusService,
+  CasdoorService
 };

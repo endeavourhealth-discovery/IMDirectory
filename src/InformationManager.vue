@@ -30,8 +30,7 @@ import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { AuthService, GithubService } from "@/services";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { CasdoorService, GithubService } from "@/services";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
@@ -43,6 +42,8 @@ import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
 import { setModes } from "./router/methods/setModes";
+import { useCookies } from "@vueuse/integrations";
+import { useCasdoor } from "casdoor-vue-sdk";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -54,6 +55,8 @@ const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
+const { getSigninUrl } = useCasdoor();
+const cookies = useCookies(["locale"]);
 const finishedOnMounted = ref(false);
 
 const { changeScale } = setupChangeScale();
@@ -94,7 +97,8 @@ watch(darkMode, async (newValue, oldValue) => {
 });
 
 onMounted(async () => {
-  await AuthService.getCurrentAuthenticatedUser();
+  const user = cookies.get("casdoorUser");
+  if (user) userStore.updateCurrentUser(user);
 
   await setModes();
 
@@ -141,10 +145,11 @@ function setupAxiosInterceptors(axios: AxiosInstance) {
   axios.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
-      request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
+      const token = cookies.get("casdoorToken");
+      request.headers.Authorization = "Bearer " + token;
       request.headers.set("Graph", userStore.includeUserGraph);
     } else if (!isLoggedIn.value && isPublicMode.value === false && !(request.url?.endsWith("isPublicMode") || request.url?.endsWith("isDevMode"))) {
-      await router.push({ name: "Login" });
+      window.location.href = getSigninUrl();
     }
     return request;
   });
