@@ -217,6 +217,7 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string, inde
   updateMatchBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
 }
 function addMatch() {
+
   addMatchToParent({}, parentMatch.value);
 }
 function deleteMatch() {

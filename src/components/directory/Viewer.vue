@@ -34,6 +34,7 @@
             <Tab v-if="isRecordModel(types)" value="6">Data Model</Tab>
             <Tab v-if="isRecordModel(types)" value="7">Properties</Tab>
             <Tab v-if="isQuery(types) || isFunctionalProperty(types)" value="8">Query</Tab>
+            <Tab v-if="isIndicator(types)" value="20">Indicator</Tab>
             <Tab v-if="isFeature(types)" value="10">Feature</Tab>
             <Tab value="11">Contents</Tab>
             <Tab v-if="isProperty(types)" value="12">Data Models</Tab>
@@ -87,6 +88,11 @@
             <TabPanel v-if="isQuery(types) || isFunctionalProperty(types)" value="8">
               <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" :show-dataset="true" />
+              </div>
+            </TabPanel>
+            <TabPanel v-if="isIndicator(types)" value="20">
+              <div id="indicator-container" class="concept-panel-content">
+                <IndicatorDisplay :entityIri="entityIri" />
               </div>
             </TabPanel>
             <TabPanel v-if="isFeature(types)" value="10">
@@ -165,7 +171,18 @@ import { DirectService, EntityService } from "@/services";
 
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isConcept, isFeature, isFolder, isFunctionalProperty, isOfTypes, isProperty, isQuery, isRecordModel, isValueSet } from "@/helpers/ConceptTypeMethods";
+import {
+  isConcept,
+  isFeature,
+  isIndicator,
+  isFolder,
+  isFunctionalProperty,
+  isOfTypes,
+  isProperty,
+  isQuery,
+  isRecordModel,
+  isValueSet
+} from "@/helpers/ConceptTypeMethods";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";
@@ -177,6 +194,7 @@ import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vu
 import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import ModelChart from "@/components/directory/viewer/ModelChart.vue";
+import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";
 
 interface Props {
   entity: TTEntity;
@@ -221,6 +239,8 @@ function setDefaultTab() {
     activeTab.value = tabMap.get("Data Model") ?? "0";
   } else if (isQuery(types.value)) {
     activeTab.value = tabMap.get("Query") ?? "0";
+  } else if (isIndicator(types.value)) {
+    activeTab.value = tabMap.get("Indicator") ?? "0";
   } else if (isFeature(types.value)) {
     activeTab.value = tabMap.get("Feature") ?? "0";
   } else if (isValueSet(types.value)) {

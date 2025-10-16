@@ -141,7 +141,7 @@
       :eclQuery="eclQuery"
     />
     <MatchDescription v-if="match.then && !matchExpanded" :depth="1" :match="match.then" />
-    <div v-if="parentOperator === Bool.rule && clauseIndex > 0">
+    <div v-if="parentOperator === Bool.rule">
       <span class="field">if true</span>
       <span :class="match.ifTrue">{{ match.ifTrue }},</span>
       <span class="field">if false</span>

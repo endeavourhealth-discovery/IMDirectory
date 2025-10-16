@@ -23,7 +23,7 @@
       <Button
         type="button"
         icon="fa-solid fa-pen-to-square"
-        label="Edit base type"
+        label="Edit denominator"
         data-testid="edit-base-type-button"
         :severity="hoverEditClause ? 'success' : 'secondary'"
         :outlined="!hoverEditClause"
@@ -58,7 +58,7 @@ import { Ref, ref, watch, computed, onMounted } from "vue";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import { Match, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
 import { EntityService, QueryService } from "@/services";
-import { buildIMQueryFromFilters, hasBoolGroups } from "@/composables/buildQuery";
+import { addMatchToParent, buildIMQueryFromFilters, hasBoolGroups } from "@/composables/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
@@ -102,7 +102,12 @@ async function init() {
   }
 }
 
-function addMatch() {}
+function addMatch() {
+  if (!match.value.or && !match.value.and) {
+    match.value.and = [];
+    addMatchToParent({}, match.value);
+  } else addMatchToParent({}, match.value);
+}
 
 async function updateBaseType(newBaseType?: SearchResultSummary) {
   if (newBaseType) {
