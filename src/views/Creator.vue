@@ -63,6 +63,7 @@ import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.v
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import IndicatorDefinition from "@/components/editor/shapeComponents/IndicatorDefinition.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
@@ -87,6 +88,7 @@ export default defineComponent({
     HtmlInput,
     ToggleableComponent,
     QueryDefinitionBuilder,
+    IndicatorDefinition,
     ComponentGroup,
     DropdownTextInputConcatenator
   }

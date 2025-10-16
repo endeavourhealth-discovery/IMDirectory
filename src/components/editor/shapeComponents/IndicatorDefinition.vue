@@ -1,5 +1,6 @@
 <template>
   <div id="cohort-query-definition-editor">
+    <spa>not this</spa>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
@@ -118,6 +119,7 @@ async function init() {
   } else {
     queryDefinition.value = await generateDefaultQuery();
     originalDefinition.value = cloneDeep(queryDefinition.value);
+    showEditor.value = true;
   }
 }
 

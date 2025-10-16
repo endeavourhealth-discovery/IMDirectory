@@ -27,6 +27,9 @@ onMounted(async () => {
   const response = await EntityService.getBundleByPredicateExclusions(props.entityIri, [IM.HAS_MEMBER]);
   if (isObjectHasKeys(response, ["entity"])) {
     if (isObjectHasKeys(response.entity, [IM.DEFINITION])) response.entity[IM.DEFINITION] = JSON.parse(response.entity[IM.DEFINITION]);
+    else if (isObjectHasKeys(response.entity, [IM.HAS_DATASET])) {
+      response.entity[IM.HAS_DATASET] = JSON.parse(response.entity[IM.HAS_DATASET]);
+    }
     entityJSON.value = Object.freeze(response);
   }
   loading.value = false;

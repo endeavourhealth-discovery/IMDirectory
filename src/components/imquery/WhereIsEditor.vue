@@ -89,7 +89,7 @@
       <template v-if="setMembers.length > 0">
         <div class="selected-member-container">
           <Select
-            style="width: 100rem; min-height: 2.3rem"
+            style="width: 90rem; min-height: 2.3rem"
             v-model="selectedMember"
             :options="setMembers"
             option-label="name"

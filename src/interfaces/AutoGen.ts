@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-10-11 09:48:12.
+// Generated using typescript-generator version 3.2.1263 on 2025-10-16 08:32:29.
 
 export interface ConceptContextMap {
     id?: string;
@@ -162,12 +162,12 @@ export interface IMLLanguage {
  * Class representing an IRI
  */
 export interface Indicator extends TTIriRef {
-    query?: TTIriRef;
-    and?: Indicator[];
-    or?: Indicator[];
-    definition?: Query;
+    isSubIndicatorOf?: TTIriRef[];
+    enumerator?: TTIriRef;
+    dataset?: Query;
     actionIfFalse?: TTIriRef[];
     actionIfTrue?: TTIriRef[];
+    denominator?: TTIriRef;
 }
 
 /**
@@ -307,13 +307,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    function?: FunctionClause;
     value?: string;
+    function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
-    operator?: Operator;
-    valueLabel?: string;
     qualifier?: TTIriRef;
+    valueLabel?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -361,9 +361,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    descendantsOf?: boolean;
     memberOf?: boolean;
     ancestorsOf?: boolean;
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -882,14 +882,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    prefixes?: TTPrefix[];
-    description?: string;
     types?: TTIriRef[];
+    description?: string;
+    status?: TTIriRef;
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -974,8 +974,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1338,6 +1338,7 @@ export const enum EDITOR {
     DATA_MODEL_SHAPE = "http://endhealth.info/im#Editor_DataModelShape",
     COHORT_QUERY_SHAPE = "http://endhealth.info/im#Editor_CohortQueryShape",
     PROPERTY_SHAPE = "http://endhealth.info/im#Editor_PropertyShape",
+    INDICATOR_SHAPE = "http://endhealth.info/im#Editor_IndicatorShape",
 }
 
 export const enum EntityType {
@@ -1407,7 +1408,6 @@ export const enum IM {
     QUERY = "http://endhealth.info/im#Query",
     COHORT_QUERY = "http://endhealth.info/im#CohortQuery",
     DEFAULT_COHORTS = "http://endhealth.info/im#Q_DefaultCohorts",
-    DATASET_QUERY = "http://endhealth.info/im#DatasetQuery",
     DATA_UPDATE = "http://endhealth.info/im#DataUpdate",
     PATH_QUERY = "http://endhealth.info/im#PathQuery",
     PATH_TO = "http://endhealth.info/im#pathTo",
@@ -1551,12 +1551,15 @@ export const enum IM {
     SELECT = "http://endhealth.info/im#select",
     NATIONALLY_ASSURED_UK = "http://endhealth.info/im#NationallyAssuredUK",
     ENTITY = "http://endhealth.info/im#Entity",
+    IS_SUBINDICATOR_OF = "http://endhealth.info/im#isSubIndicatorOf",
     QUERY_SET = "http://endhealth.info/im#QuerySet",
     DEPENDENT_ON = "http://endhealth.info/im#dependentOn",
     CARE_ACTIVITY = "http://endhealth.info/im#CareActivity",
     CARE_TARGET = "http://endhealth.info/im#CareTarget",
     QUERY_TEMPLATE = "http://endhealth.info/im#QueryTemplate",
-    HAS_QUERY = "http://endhealth.info/im#hasQuery",
+    ENUMERATOR = "http://endhealth.info/im#enumerator",
+    DENOMINATOR = "http://endhealth.info/im#denominator",
+    HAS_DATASET = "http://endhealth.info/im#dataset",
     RECORD_TYPE = "http://endhealth.info/im#RecordType",
     FEATURE = "http://endhealth.info/im#MatchClause",
     DATA_PROPERTY = "http://endhealth.info/im#DataProperty",
