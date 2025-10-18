@@ -80,7 +80,7 @@ const IndicatorShape: FormGenerator = {
               }
             },
             {
-              comment: "optional peferred name for efficiency during searching",
+              comment: "optional preferred name for efficiency during searching",
               order: 4,
               name: "Preferred name",
               showTitle: true,
@@ -242,8 +242,8 @@ const IndicatorShape: FormGenerator = {
               ]
             },
             {
-              label: "Property group - Cohort in array builder",
-              name: "Parent cohort for indicator",
+              label: "Property group - denominator in array builder",
+              name: "denominator for indicator",
               showTitle: true,
               order: 6,
               minCount: 0,
@@ -289,8 +289,8 @@ const IndicatorShape: FormGenerator = {
               ]
             },
             {
-              label: "Property group - Query in array builder",
-              name: "Query that defines indicator",
+              label: "Property group - Query selector in array builder",
+              name: "Enumerator of the indicator",
               showTitle: true,
               order: 6,
               minCount: 1,
@@ -302,9 +302,9 @@ const IndicatorShape: FormGenerator = {
               validation: {
                 iri: VALIDATION.HAS_PARENT
               },
-              validationErrorMessage: "Entity is missing a query. Add a query to 'query'.",
+              validationErrorMessage: "Entity is missing an enumerator. Add an enumerator to the indicator.",
               path: {
-                iri: IM.ENUMERATOR
+                iri: IM.NUMERATOR
               },
               property: [
                 {
@@ -330,7 +330,7 @@ const IndicatorShape: FormGenerator = {
                     }
                   ],
                   path: {
-                    iri: IM.ENUMERATOR
+                    iri: IM.NUMERATOR
                   }
                 }
               ]
