@@ -19,12 +19,12 @@
           <IMViewerLink v-if="subIndicator.iri" :iri="subIndicator.iri" :label="subIndicator.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>
       </div>
-      <div v-if="indicator.enumerator">
-        <span class="field">Enumerator: </span>
+      <div v-if="indicator.numerator">
+        <span class="field">Numerator: </span>
         <IMViewerLink
-          v-if="indicator.enumerator.iri"
-          :iri="indicator.enumerator.iri"
-          :label="indicator.enumerator.name"
+          v-if="indicator.numerator.iri"
+          :iri="indicator.numerator.iri"
+          :label="indicator.numerator.name"
           @navigateTo="(iri: string) => emit('navigateTo', iri)"
         />
       </div>

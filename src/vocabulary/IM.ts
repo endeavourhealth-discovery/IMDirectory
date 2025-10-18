@@ -199,7 +199,7 @@ export class IM {
   public static readonly CARE_ACTIVITY = Namespace.IM + "CareActivity"
   public static readonly CARE_TARGET = Namespace.IM + "CareTarget"
   public static readonly QUERY_TEMPLATE = Namespace.IM + "QueryTemplate"
-  public static readonly ENUMERATOR = Namespace.IM + "enumerator"
+  public static readonly NUMERATOR = Namespace.IM + "numerator"
   public static readonly DENOMINATOR = Namespace.IM + "denominator"
   public static readonly HAS_DATASET = Namespace.IM + "dataset"
   public static readonly RECORD_TYPE = Namespace.IM + "RecordType"

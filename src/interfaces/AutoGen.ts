@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-10-16 08:32:29.
+// Generated using typescript-generator version 3.2.1263 on 2025-10-18 09:05:11.
 
 export interface ConceptContextMap {
     id?: string;
@@ -163,7 +163,7 @@ export interface IMLLanguage {
  */
 export interface Indicator extends TTIriRef {
     isSubIndicatorOf?: TTIriRef[];
-    enumerator?: TTIriRef;
+    numerator?: TTIriRef;
     dataset?: Query;
     actionIfFalse?: TTIriRef[];
     actionIfTrue?: TTIriRef[];
@@ -311,9 +311,9 @@ export interface Assignable {
     function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
+    operator?: Operator;
     qualifier?: TTIriRef;
     valueLabel?: string;
-    operator?: Operator;
 }
 
 export interface Case {
@@ -361,10 +361,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    memberOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -885,11 +885,11 @@ export interface TTEntity extends TTNode, Serializable {
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    types?: TTIriRef[];
     description?: string;
     status?: TTIriRef;
     code?: string;
     prefixes?: TTPrefix[];
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -974,8 +974,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1557,7 +1557,7 @@ export const enum IM {
     CARE_ACTIVITY = "http://endhealth.info/im#CareActivity",
     CARE_TARGET = "http://endhealth.info/im#CareTarget",
     QUERY_TEMPLATE = "http://endhealth.info/im#QueryTemplate",
-    ENUMERATOR = "http://endhealth.info/im#enumerator",
+    NUMERATOR = "http://endhealth.info/im#numerator",
     DENOMINATOR = "http://endhealth.info/im#denominator",
     HAS_DATASET = "http://endhealth.info/im#dataset",
     RECORD_TYPE = "http://endhealth.info/im#RecordType",
