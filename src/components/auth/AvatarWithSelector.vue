@@ -42,7 +42,7 @@ const avatar = ref();
 watch(
   () => props.selectedAvatar,
   newValue => {
-    newAvatar.value = newValue;
+    newAvatar.value = newValue.replace(window.location.origin, "");
   }
 );
 

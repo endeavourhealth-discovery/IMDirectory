@@ -17,7 +17,7 @@
                 v-if="isLoggedIn"
                 id="user-icon"
                 class="avatar-icon"
-                :src="currentUser.avatar"
+                :src="avatarPath"
                 alt="avatar icon"
                 aria-haspopup="true"
                 aria-controls="overlay_menu"
@@ -54,6 +54,7 @@ const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const authReturnPath = computed(() => authStore.authReturnPath);
 const isPublicMode = computed(() => sharedStore.isPublicMode);
+const avatarPath = computed(() => userStore.avatarPath);
 
 async function handleSubmit() {
   await Swal.fire({
