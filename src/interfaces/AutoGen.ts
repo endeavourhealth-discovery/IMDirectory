@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-09-19 09:09:31.
+// Generated using typescript-generator version 3.2.1263 on 2025-10-22 21:13:16.
 
 export interface ConceptContextMap {
     id?: string;
@@ -56,6 +56,23 @@ export interface Pageable<T> {
     currentPage?: number;
     pageSize?: number;
     result?: T[];
+}
+
+export interface User extends Serializable {
+    id?: string;
+    username?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    avatar?: string;
+    roles?: UserRole[];
+    password?: string;
+}
+
+export interface PolicyRequest {
+    userId?: string;
+    dataSource?: string;
+    accessRequest?: AccessRequest;
 }
 
 export interface CodeGenDto {
@@ -300,14 +317,14 @@ export interface Assignable {
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    valueLabel?: string;
-    qualifier?: string;
     operator?: Operator;
+    qualifier?: string;
+    valueLabel?: string;
 }
 
 export interface BoolGroup<T> {
-    and?: T[];
     or?: T[];
+    and?: T[];
     not?: T[];
 }
 
@@ -356,10 +373,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
-    memberOf?: boolean;
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -740,6 +757,7 @@ export interface ValidatedEntitiesRequest {
  * Structure containing search request parameters and filters
  */
 export interface WorkflowRequest {
+    casdoorService?: CasdoorService;
     page?: number;
     size?: number;
     userId?: string;
@@ -880,11 +898,11 @@ export interface TTEntity extends TTNode, Serializable {
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
-    description?: string;
     code?: string;
-    types?: TTIriRef[];
+    description?: string;
+    status?: TTIriRef;
     prefixes?: TTPrefix[];
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -995,6 +1013,10 @@ export interface StackTraceElement extends Serializable {
 export interface Exception extends Throwable {
 }
 
+export interface CasdoorService {
+    userCookie?: HttpSession;
+}
+
 export interface Organisation {
     Name?: string;
     OrgId?: OrgId;
@@ -1026,6 +1048,16 @@ export interface TTNode extends TTValue, Serializable {
 export interface TTValue extends Serializable {
 }
 
+export interface HttpSession {
+    id?: string;
+    creationTime?: number;
+    attributeNames?: Enumeration<string>;
+    maxInactiveInterval?: number;
+    new?: boolean;
+    servletContext?: ServletContext;
+    lastAccessedTime?: number;
+}
+
 export interface OrgId {
     extension?: string;
 }
@@ -1045,6 +1077,32 @@ export interface OrgRelationships {
 export interface Comparable<T> {
 }
 
+export interface Enumeration<E> {
+}
+
+export interface ServletContext {
+    sessionTimeout?: number;
+    classLoader?: ClassLoader;
+    majorVersion?: number;
+    minorVersion?: number;
+    attributeNames?: Enumeration<string>;
+    filterRegistrations?: { [index: string]: FilterRegistration };
+    virtualServerName?: string;
+    servletRegistrations?: { [index: string]: ServletRegistration };
+    jspConfigDescriptor?: JspConfigDescriptor;
+    effectiveMinorVersion?: number;
+    sessionCookieConfig?: SessionCookieConfig;
+    initParameterNames?: Enumeration<string>;
+    servletContextName?: string;
+    effectiveMajorVersion?: number;
+    contextPath?: string;
+    serverInfo?: string;
+    effectiveSessionTrackingModes?: SessionTrackingMode[];
+    requestCharacterEncoding?: string;
+    responseCharacterEncoding?: string;
+    defaultSessionTrackingModes?: SessionTrackingMode[];
+}
+
 export interface OrgLocation {
     AddrLn1?: string;
     AddrLn2?: string;
@@ -1062,8 +1120,74 @@ export interface OrgRelationship {
     id?: string;
 }
 
+export interface ClassLoader {
+}
+
+export interface FilterRegistration extends Registration {
+    urlPatternMappings?: string[];
+    servletNameMappings?: string[];
+}
+
+export interface ServletRegistration extends Registration {
+    runAsRole?: string;
+    mappings?: string[];
+}
+
+export interface JspConfigDescriptor {
+    jspPropertyGroups?: JspPropertyGroupDescriptor[];
+    taglibs?: TaglibDescriptor[];
+}
+
+export interface SessionCookieConfig {
+    domain?: string;
+    name?: string;
+    path?: string;
+    attributes?: { [index: string]: string };
+    /**
+     * @deprecated since Servlet 6.0, for removal
+     */
+    comment?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+    maxAge?: number;
+}
+
 export interface OrgRelTarget {
     OrgId?: OrgId;
+}
+
+export interface Registration {
+    name?: string;
+    className?: string;
+    initParameters?: { [index: string]: string };
+}
+
+export interface JspPropertyGroupDescriptor {
+    buffer?: string;
+    defaultContentType?: string;
+    scriptingInvalid?: string;
+    errorOnELNotFound?: string;
+    urlPatterns?: string[];
+    pageEncoding?: string;
+    includeCodas?: string[];
+    includePreludes?: string[];
+    elIgnored?: string;
+    deferredSyntaxAllowedAsLiteral?: string;
+    errorOnUndeclaredNamespace?: string;
+    trimDirectiveWhitespaces?: string;
+    isXml?: string;
+}
+
+export interface TaglibDescriptor {
+    taglibURI?: string;
+    taglibLocation?: string;
+}
+
+export const enum AccessRequest {
+    READ = "READ",
+    WRITE = "WRITE",
+    DELETE = "DELETE",
+    PUBLISH = "PUBLISH",
 }
 
 export const enum ListMode {
@@ -1990,4 +2114,10 @@ export const enum XSD {
     DATE_TIME = "http://www.w3.org/2001/XMLSchema#dateTime",
     NUMBER = "http://www.w3.org/2001/XMLSchema#number",
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
+}
+
+export const enum SessionTrackingMode {
+    COOKIE = "COOKIE",
+    URL = "URL",
+    SSL = "SSL",
 }

@@ -1,13 +1,14 @@
-import { AuthService, UserService } from "@/services";
+import { CasdoorService, UserService } from "@/services";
 import { RouteLocationNormalized, Router } from "vue-router";
 import { directToLogin } from "./intercepts";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { UserRole } from "@/enums";
+import { useCookies } from "@vueuse/integrations";
 
 export async function requiresAuthGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    const { user } = await AuthService.getCurrentAuthenticatedUser();
+    const user = await CasdoorService.getUser();
     if (!user) {
       if (from.name === "Logout") {
         await router.push({ name: "LandingPage" });
@@ -23,7 +24,7 @@ export async function requiresAuthGuard(to: RouteLocationNormalized, from: Route
 
 export async function requiresAdmin(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresAdmin)) {
-    const { user } = await AuthService.getCurrentAuthenticatedUser();
+    const user = await CasdoorService.getUser();
     if (!user?.roles.includes(UserRole.ADMIN)) {
       if (from.name === "Logout") {
         await router.push({ name: "LandingPage" });
@@ -51,8 +52,8 @@ export async function requiresReAuth(to: RouteLocationNormalized, from: RouteLoc
 export async function requiresCreateRole(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresCreateRole)) {
     const userStore = useUserStore();
-    const { status } = await AuthService.getCurrentAuthenticatedUser();
-    if (status !== 200) {
+    const user = await CasdoorService.getUser();
+    if (!user) {
       await directToLogin(router);
       return true;
     } else if (!userStore.currentUser?.roles?.includes(UserRole.CREATOR)) {
@@ -66,8 +67,8 @@ export async function requiresCreateRole(to: RouteLocationNormalized, from: Rout
 export async function requiresEditRole(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresEditRole)) {
     const userStore = useUserStore();
-    const { status } = await AuthService.getCurrentAuthenticatedUser();
-    if (status !== 200) {
+    const user = await CasdoorService.getUser();
+    if (!user) {
       await directToLogin(router);
       return true;
     } else if (!userStore.currentUser?.roles?.includes(UserRole.EDITOR)) {

@@ -3,22 +3,24 @@ import axios from "axios";
 import { CodeTemplate } from "@/interfaces";
 import { CodeGenDto } from "@/interfaces/AutoGen";
 
+const API_URL = Env.API + "api/codegen";
+
 const CodeGenService = {
   async getCodeTemplateList(): Promise<string[]> {
-    return await axios.get(Env.API + "api/codeGen/public/codeTemplates");
+    return await axios.get(API_URL + "/public/codeTemplates");
   },
   async getCodeTemplate(name: string): Promise<CodeGenDto> {
-    return await axios.get(Env.API + "api/codeGen/public/codeTemplate", {
+    return await axios.get(API_URL + "/public/codeTemplate", {
       params: {
         templateName: name
       }
     });
   },
   async updateCodeTemplate(template: CodeGenDto): Promise<string> {
-    return await axios.post(Env.API + "api/codeGen/public/codeTemplate", template);
+    return await axios.post(API_URL + "/public/codeTemplate", template);
   },
   async generateCodeForAllModels(namespace: string, template: string): Promise<Blob> {
-    return await axios.get(Env.API + "api/codeGen/public/generateCode", {
+    return await axios.get(API_URL + "/public/generateCode", {
       params: {
         template,
         namespace
@@ -27,7 +29,7 @@ const CodeGenService = {
     });
   },
   async generateCodeForModel(template: CodeTemplate, modelIri: string, namespace: string): Promise<string> {
-    return await axios.post(Env.API + "api/codeGen/public/generateCodePreview", template, {
+    return await axios.post(API_URL + "/public/generateCodePreview", template, {
       params: {
         iri: modelIri,
         namespace
