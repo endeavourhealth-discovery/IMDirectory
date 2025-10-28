@@ -395,7 +395,6 @@ function setFromCurrentUser() {
 }
 
 function updateAvatar(newValue: string): void {
-  console.log(newValue);
   selectedAvatar.value = newValue;
 }
 
