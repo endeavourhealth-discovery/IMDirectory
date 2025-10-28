@@ -17,7 +17,7 @@ export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
   else if (isQuery(conceptTypes)) return ["fa-duotone", "fa-magnifying-glass"];
   else if (isFeature(conceptTypes)) return ["fa-duotone", "fa-filter-list"];
   else if (isFunction(conceptTypes)) return ["fa-duotone", "fa-function"];
-  else if (isIndicator(conceptTypes)) return ["fa-duotone-solid", "fa-traffic-light-go"];
+  else if (isIndicator(conceptTypes)) return ["fa-sharp-duotone", "fa-solid", "fa-traffic-light-go"];
   else return ["fa-duotone", "fa-lightbulb"];
 }
 
