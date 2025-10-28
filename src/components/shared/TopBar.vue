@@ -108,7 +108,7 @@
         aria-controls="overlay_menu"
         data-testid="account-menu-logged-in"
       >
-        <img class="avatar-icon" alt="avatar icon" :src="currentUser.avatar" style="min-width: 1.75rem" />
+        <img class="avatar-icon" alt="avatar icon" :src="avatarPath" style="min-width: 1.75rem" />
       </Button>
       <TieredMenu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">
@@ -176,6 +176,7 @@ const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
 const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
 const userDarkMode = computed(() => userStore.darkMode);
 const currentIncludeUserGraph = computed(() => userStore.includeUserGraph);
+const avatarPath = computed(() => userStore.avatarPath);
 
 const { changeScale } = setupChangeScale();
 const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();

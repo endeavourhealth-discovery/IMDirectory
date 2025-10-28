@@ -273,8 +273,8 @@ const AuthService = {
       const tokens = await fetchAuthSession();
       const mfa = await fetchMFAPreference();
       const authenticatedUser = processAwsUser(cognitoUser, userAttributes, tokens, mfa);
-      if (!authenticatedUser.avatar || !Avatars.find((avatar: string) => window.location.origin + avatar === authenticatedUser.avatar)) {
-        authenticatedUser.avatar = window.location.origin + Avatars[0];
+      if (!authenticatedUser.avatar || !Avatars.find((avatar: string) => avatar === authenticatedUser.avatar)) {
+        authenticatedUser.avatar = Avatars[0];
         await this.updateUser(authenticatedUser);
       }
       const userStore = useUserStore();
