@@ -65,7 +65,7 @@ describe("AuthService", () => {
         username: "devtest",
         userId: uuid,
         attributes: {
-          "custom:avatar": window.location.origin + "/avatars/colour/002-man.png",
+          "custom:avatar": "/avatars/colour/002-man.png",
           "custom:forename": "John",
           "custom:surname": "Doe",
           email: "john.doe@ergosoft.co.uk"
@@ -90,7 +90,7 @@ describe("AuthService", () => {
         lastName: "Doe",
         email: "john.doe@ergosoft.co.uk",
         password: "",
-        avatar: window.location.origin + "/avatars/colour/002-man.png",
+        avatar: "/avatars/colour/002-man.png",
         roles: [],
         mfaStatus: ["TOTP"]
       };
@@ -107,7 +107,7 @@ describe("AuthService", () => {
         username: "devtest",
         userId: faker.string.uuid(),
         attributes: {
-          "custom:avatar": window.location.origin + "/avatars/colour/002-man.png",
+          "custom:avatar": "/avatars/colour/002-man.png",
           "custom:forename": "John",
           "custom:surname": "Doe",
           email: "john.doe@ergosoft.co.uk"
