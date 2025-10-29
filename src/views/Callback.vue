@@ -3,10 +3,10 @@
 </template>
 
 <script setup lang="ts">
+import { User } from "@/interfaces";
 import { Env } from "@/services";
 import CasdoorService from "@/services/CasdoorService";
 import { useUserStore } from "@/stores/userStore";
-import { useCookies } from "@vueuse/integrations";
 import axios from "axios";
 import { useCasdoor } from "casdoor-vue-sdk";
 import { onMounted } from "vue";
@@ -16,10 +16,10 @@ const route = useRoute();
 const router = useRouter();
 const { signin } = useCasdoor();
 const userStore = useUserStore();
-const cookies = useCookies(["locale"]);
 
 interface Props {
   code: string;
+  state: string;
 }
 
 const props = defineProps<Props>();
@@ -30,10 +30,10 @@ onMounted(async () => {
   const state = route.query.state;
   if (code && state) {
     await CasdoorService.login(code as string, state as string);
-    const user = cookies.get("casdoorUser");
+    const user: User = await CasdoorService.getUser();
     if (user) userStore.updateCurrentUser(user);
   }
-  // await router.push({ name: "Directory" });
+  await router.push({ name: "Directory" });
 });
 </script>
 

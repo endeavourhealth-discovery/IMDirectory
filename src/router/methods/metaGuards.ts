@@ -4,7 +4,6 @@ import { directToLogin } from "./intercepts";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { UserRole } from "@/enums";
-import { useCookies } from "@vueuse/integrations";
 
 export async function requiresAuthGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresAuth)) {

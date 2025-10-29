@@ -2,11 +2,8 @@ import axios from "axios";
 import Env from "./Env";
 import { AccessRequest, UserRole } from "@/interfaces/AutoGen";
 import { User } from "@/interfaces";
-import { useCookies } from "@vueuse/integrations";
 
 const API_URL = Env.API + "api/casdoor";
-
-const cookies = useCookies();
 
 const CasdoorService = {
   async login(code: string, state: string) {
@@ -17,9 +14,8 @@ const CasdoorService = {
     await axios.get(API_URL + "/logout");
   },
 
-  async getUser() {
-    await axios.get(API_URL + "/user");
-    return cookies.get("casdoorUser");
+  async getUser(raw?: boolean): Promise<User> {
+    return await axios.get(API_URL + "/user", { raw: raw });
   },
 
   async adminGetUsersByGroup(group: UserRole): Promise<User[]> {
