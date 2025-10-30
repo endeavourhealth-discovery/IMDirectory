@@ -16,6 +16,23 @@
       />
       <Button @click="submitAddress" class="button">Search</Button>
     </div>
+
+    <!-- Radio buttons section -->
+    <div class="radio-group">
+      <div class="radio-option">
+        <input type="radio" id="residential" value="100" v-model="searchType" />
+        <label for="residential">Residential</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" id="commercial" value="010" v-model="searchType" />
+        <label for="commercial">Commercial</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" id="both" value="001" v-model="searchType" />
+        <label for="both">Residential or Commercial (residential trumps commercial)</label>
+      </div>
+    </div>
+
     <small v-if="showInvalid" :class="!validAddress && 'invalid'">{{ invalidErrorMessage }}</small>
 
     <div v-if="!loading" class="data-table-container">
@@ -60,8 +77,7 @@ import { isObject } from "@/helpers/DataTypeCheckers";
 const toast = useToast();
 
 const searchAddress = ref("");
-const isCommercial = ref(false);
-
+const searchType = ref("100"); // Default to "residential" option
 const searchResults: Ref<UprnSearchResponse | undefined> = ref();
 const validAddress = computed(() => isValidAddress(searchAddress.value));
 const showInvalid = ref(false);
@@ -72,7 +88,7 @@ watch(searchAddress, () => {
   showInvalid.value = false;
 });
 
-watch(isCommercial, async () => {
+watch(searchType, async () => {
   await submitAddress();
 });
 
@@ -89,7 +105,9 @@ async function submitAddress() {
     return;
   }
   loading.value = true;
-  let ncommercial = "0";
+
+  // Use the searchType value directly as the bit pattern
+  const ncommercial = searchType.value;
 
   const result = await UprnService.search(searchAddress.value, ncommercial);
   if (result && result.Matched) {
@@ -246,6 +264,23 @@ tbody {
 .button {
   flex: 0 0 auto;
   width: fit-content;
+}
+
+.radio-group {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.radio-option input[type="radio"] {
+  margin: 0;
 }
 
 .data-table-container {
