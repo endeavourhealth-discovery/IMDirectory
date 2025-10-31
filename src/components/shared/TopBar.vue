@@ -151,7 +151,7 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, CodeGenService } from "@/services";
+import { DirectService, FilerService, CodeGenService, CasdoorService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -164,11 +164,13 @@ import PrimeVueColors from "@/enums/PrimeVueColors";
 import Button from "primevue/button";
 import { UserRole } from "@/enums";
 import { useCasdoor } from "casdoor-vue-sdk";
+import { useCookies } from "@vueuse/integrations";
 
 const router = useRouter();
-const { getSigninUrl, getSignupUrl } = useCasdoor();
+const { getSigninUrl, getSignupUrl, getMyProfileUrl } = useCasdoor();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const cookies = useCookies();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const isAdmin = computed(() => userStore.isAdmin);
@@ -307,22 +309,12 @@ function setUserMenuItems(): void {
     {
       label: "My account",
       icon: "fa-solid fa-fw fa-user",
-      route: "/user/my-account"
-    },
-    {
-      label: "Edit account",
-      icon: "fa-solid fa-fw fa-user-pen",
-      route: "/user/my-account/edit"
-    },
-    {
-      label: "Change password",
-      icon: "fa-solid fa-fw fa-user-lock",
-      route: "/user/my-account/password-edit"
+      command: async () => await goToMyProfile()
     },
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      route: "/user/logout"
+      command: async () => await logout()
     },
     {
       separator: true
@@ -345,6 +337,15 @@ function setUserMenuItems(): void {
       ]
     }
   ];
+}
+
+async function logout() {
+  await CasdoorService.logout();
+}
+
+async function goToMyProfile() {
+  const url = await CasdoorService.getProfileUrl();
+  if (url) window.location.href = url;
 }
 
 function openUploadDownloadMenu(event: MouseEvent): void {

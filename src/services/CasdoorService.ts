@@ -18,6 +18,10 @@ const CasdoorService = {
     return await axios.get(API_URL + "/user", { raw: raw });
   },
 
+  async getProfileUrl(): Promise<string> {
+    return await axios.get(API_URL + "/user/profileUrl");
+  },
+
   async adminGetUsersByGroup(group: UserRole): Promise<User[]> {
     return await axios.get(API_URL + "/getUsersInGroup", { params: { group: group } });
   },
