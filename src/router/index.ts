@@ -6,6 +6,7 @@ import {
   creatorSaveChangesWarning,
   directoryGuard,
   editorGuard,
+  filerGuard,
   editorSaveChangesWarning,
   pageNotFoundFromCreator,
   pageNotFoundFromEditor,
@@ -55,6 +56,8 @@ router.beforeEach(async (to, from) => {
   if (routedByGuard) return false;
   directoryGuard(iri, to);
   routedByGuard = await editorGuard(iri, to, router);
+  if (routedByGuard) return false;
+  routedByGuard = await filerGuard(iri, to, router);
   if (routedByGuard) return false;
   routedByGuard = await queryGuard(to, router);
   if (routedByGuard) return false;

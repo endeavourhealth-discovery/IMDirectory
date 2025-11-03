@@ -273,12 +273,15 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/filer",
     name: "Filer",
-    component: () => import("@/views/Filer.vue"),
     meta: {
       requiresLicense: true,
       requiresAuth: true,
-      title: "Filer"
-    }
+      title: "IM Filer"
+    },
+    children: [
+      { path: "imFiler", name: "IMFiler", component: () => import("@/views/Filer.vue") },
+      { path: "eqdFiler/:selectedIri?", name: "EQDFiler", component: () => import("@/views/EQDFiler.vue") }
+    ]
   },
   {
     path: "/uprn",

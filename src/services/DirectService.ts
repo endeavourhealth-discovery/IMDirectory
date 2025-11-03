@@ -49,8 +49,8 @@ export default class DirectService {
     });
   }
 
-  public async file() {
-    await this.directTo({ action: "Filed", appRoute: "filer", newTab: true });
+  public async file(filer: string, iri?: string) {
+    await this.directTo({ iri: iri, action: "Filed", appRoute: "filer/" + filer, newTab: true });
   }
 
   public async view(iri: string) {

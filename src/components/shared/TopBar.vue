@@ -380,10 +380,16 @@ function setUploadDownloadMenuItems() {
           command: () => downloadChanges()
         },
         {
-          label: "Upload Document",
+          label: "Upload IM Document",
           icon: "fa-duotone fa-file-arrow-up",
           disabled: !(isLoggedInWithRole(UserRole.CREATOR) || isLoggedInWithRole(UserRole.EDITOR)),
-          command: () => directService.file()
+          command: () => directService.file("imFiler")
+        },
+        {
+          label: "Upload EQD Document",
+          icon: "fa-duotone fa-file-arrow-up",
+          disabled: !(isLoggedInWithRole(UserRole.CREATOR) || isLoggedInWithRole(UserRole.EDITOR)),
+          command: () => directService.file("eqdFiler")
         },
         {
           label: "Download Code",

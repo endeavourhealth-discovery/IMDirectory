@@ -24,7 +24,6 @@ export async function checkExists(iri: string): Promise<boolean> {
 function createNew() {
   const directService = new DirectService();
 
-
   async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
     const selectionWrapperCopy = [
       {
@@ -39,6 +38,15 @@ function createNew() {
       }
     ];
     selectionWrapperCopy[1].command = () => directService.edit(node.data, true);
+
+    if (IM.FOLDER === node.conceptTypes[0].iri) {
+      selectionWrapperCopy.push({
+        label: "File EQD",
+        icon: "fa-duotone fa-file-arrow-up",
+        command: {}
+      });
+      selectionWrapperCopy[2].command = () => directService.file("eqdFiler", node.data);
+    }
 
     const allowableTypes = await EntityService.getAllowableChildTypes(node.data);
     if (!isArrayHasLength(allowableTypes)) {

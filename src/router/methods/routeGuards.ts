@@ -1,4 +1,4 @@
-import {AuthService, EntityService} from "@/services";
+import { AuthService, EntityService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useEditorStore } from "@/stores/editorStore";
@@ -6,6 +6,7 @@ import { useQueryStore } from "@/stores/queryStore";
 import { urlToIri } from "@/helpers/Converters";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { RouteLocationNormalized, Router } from "vue-router";
+import { useFilerStore } from "@/stores/filerStore";
 
 export function directoryGuard(iri: string | string[], to: RouteLocationNormalized) {
   if (to.matched.some(record => record.name === "Directory") && iri) {
@@ -28,6 +29,14 @@ export async function editorGuard(iri: string | string[], to: RouteLocationNorma
       await router.push({ name: "EntityNotFound", params: { iri: iri } });
       return true;
     }
+  }
+  return false;
+}
+
+export async function filerGuard(iri: string | string[], to: RouteLocationNormalized, router: Router): Promise<boolean> {
+  if (iri && typeof iri === "string" && to.name?.toString() == "EQDFiler") {
+    const filerStore = useFilerStore();
+    if (iri) filerStore.updateFilerIri(iri);
   }
   return false;
 }
@@ -73,8 +82,8 @@ export async function pageNotFoundFromEditor(to: RouteLocationNormalized, router
 export async function viewerIriExistsGuard(to: RouteLocationNormalized, router: Router) {
   if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {
     const iri = to.params.selectedIri as string;
-      await AuthService.getCurrentAuthenticatedUser();
-      try {
+    await AuthService.getCurrentAuthenticatedUser();
+    try {
       new URL(iri);
       if (!(await EntityService.iriExists(iri))) {
         await router.push({ name: "EntityNotFound", params: { iri: iri } });
