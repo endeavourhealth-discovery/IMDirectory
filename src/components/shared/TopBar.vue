@@ -151,7 +151,7 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, CodeGenService, CasdoorService } from "@/services";
+import { DirectService, FilerService, CodeGenService, CasdoorService, CasbinService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -165,6 +165,7 @@ import Button from "primevue/button";
 import { UserRole } from "@/enums";
 import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
+import { Action, Resource } from "@/interfaces/AutoGen";
 
 const router = useRouter();
 const { getSigninUrl, getSignupUrl, getMyProfileUrl } = useCasdoor();
@@ -220,6 +221,7 @@ const darkMode = ref(false);
 const selectedPrimaryColor = ref(themeOptions.value.primaryColours[0]);
 const selectedSurfaceColor = ref(themeOptions.value.surfaceColours[0]);
 const includeUserGraph = ref(false);
+const hasPermissionDocumentWrite = ref(false);
 
 const toast = useToast();
 const uploadDownloadMenu = ref();
@@ -241,6 +243,12 @@ watch(includeUserGraph, async newValue => {
   userStore.updateIncludeUserGraph(newValue);
 });
 
+watch(currentUser, async newValue => {
+  if (newValue) {
+    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+  } else hasPermissionDocumentWrite.value = false;
+});
+
 onMounted(async () => {
   darkMode.value = userDarkMode.value;
   includeUserGraph.value = currentIncludeUserGraph.value;
@@ -250,6 +258,9 @@ onMounted(async () => {
   setUserMenuItems();
   setAppMenuItems();
   setUploadDownloadMenuItems();
+  if (isLoggedIn.value) {
+    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+  }
 });
 
 async function toLandingPage() {
@@ -365,10 +376,6 @@ function toggleThemesMenu(event: MouseEvent, key: string | undefined) {
   }
 }
 
-function isLoggedInWithRole(role: UserRole): boolean {
-  return isLoggedIn.value && typeof currentUser.value !== "undefined" && currentUser.value.roles.includes(role);
-}
-
 function setUploadDownloadMenuItems() {
   uploadDownloadItems.value = [
     {
@@ -384,7 +391,7 @@ function setUploadDownloadMenuItems() {
         {
           label: "Upload Document",
           icon: "fa-duotone fa-file-arrow-up",
-          disabled: !(isLoggedInWithRole(UserRole.CREATOR) || isLoggedInWithRole(UserRole.EDITOR)),
+          disabled: !hasPermissionDocumentWrite.value,
           command: () => directService.file()
         },
         {

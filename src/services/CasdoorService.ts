@@ -1,6 +1,6 @@
 import axios from "axios";
 import Env from "./Env";
-import { AccessRequest, UserRole } from "@/interfaces/AutoGen";
+import { UserRole } from "@/interfaces/AutoGen";
 import { User } from "@/interfaces";
 
 const API_URL = Env.API + "api/casdoor";

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-10-22 21:13:16.
+// Generated using typescript-generator version 3.2.1263 on 2025-11-03 15:07:56.
 
 export interface ConceptContextMap {
     id?: string;
@@ -70,9 +70,9 @@ export interface User extends Serializable {
 }
 
 export interface PolicyRequest {
-    userId?: string;
-    dataSource?: string;
-    accessRequest?: AccessRequest;
+    userRole?: UserRole;
+    resource?: Resource;
+    action?: Action;
 }
 
 export interface CodeGenDto {
@@ -323,9 +323,9 @@ export interface Assignable {
 }
 
 export interface BoolGroup<T> {
-    or?: T[];
-    and?: T[];
     not?: T[];
+    and?: T[];
+    or?: T[];
 }
 
 export interface Case {
@@ -373,8 +373,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
 }
@@ -894,15 +894,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    code?: string;
+    types?: TTIriRef[];
+    prefixes?: TTPrefix[];
     description?: string;
     status?: TTIriRef;
-    prefixes?: TTPrefix[];
-    types?: TTIriRef[];
+    code?: string;
 }
 
 export interface BugReport extends Task {
@@ -987,8 +987,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1014,7 +1014,6 @@ export interface Exception extends Throwable {
 }
 
 export interface CasdoorService {
-    userCookie?: HttpSession;
 }
 
 export interface Organisation {
@@ -1048,16 +1047,6 @@ export interface TTNode extends TTValue, Serializable {
 export interface TTValue extends Serializable {
 }
 
-export interface HttpSession {
-    id?: string;
-    creationTime?: number;
-    attributeNames?: Enumeration<string>;
-    maxInactiveInterval?: number;
-    new?: boolean;
-    servletContext?: ServletContext;
-    lastAccessedTime?: number;
-}
-
 export interface OrgId {
     extension?: string;
 }
@@ -1077,32 +1066,6 @@ export interface OrgRelationships {
 export interface Comparable<T> {
 }
 
-export interface Enumeration<E> {
-}
-
-export interface ServletContext {
-    sessionTimeout?: number;
-    classLoader?: ClassLoader;
-    majorVersion?: number;
-    minorVersion?: number;
-    attributeNames?: Enumeration<string>;
-    filterRegistrations?: { [index: string]: FilterRegistration };
-    virtualServerName?: string;
-    servletRegistrations?: { [index: string]: ServletRegistration };
-    jspConfigDescriptor?: JspConfigDescriptor;
-    effectiveMinorVersion?: number;
-    sessionCookieConfig?: SessionCookieConfig;
-    initParameterNames?: Enumeration<string>;
-    servletContextName?: string;
-    effectiveMajorVersion?: number;
-    contextPath?: string;
-    serverInfo?: string;
-    effectiveSessionTrackingModes?: SessionTrackingMode[];
-    requestCharacterEncoding?: string;
-    responseCharacterEncoding?: string;
-    defaultSessionTrackingModes?: SessionTrackingMode[];
-}
-
 export interface OrgLocation {
     AddrLn1?: string;
     AddrLn2?: string;
@@ -1120,74 +1083,42 @@ export interface OrgRelationship {
     id?: string;
 }
 
-export interface ClassLoader {
-}
-
-export interface FilterRegistration extends Registration {
-    urlPatternMappings?: string[];
-    servletNameMappings?: string[];
-}
-
-export interface ServletRegistration extends Registration {
-    runAsRole?: string;
-    mappings?: string[];
-}
-
-export interface JspConfigDescriptor {
-    jspPropertyGroups?: JspPropertyGroupDescriptor[];
-    taglibs?: TaglibDescriptor[];
-}
-
-export interface SessionCookieConfig {
-    domain?: string;
-    name?: string;
-    path?: string;
-    attributes?: { [index: string]: string };
-    /**
-     * @deprecated since Servlet 6.0, for removal
-     */
-    comment?: string;
-    secure?: boolean;
-    httpOnly?: boolean;
-    maxAge?: number;
-}
-
 export interface OrgRelTarget {
     OrgId?: OrgId;
 }
 
-export interface Registration {
-    name?: string;
-    className?: string;
-    initParameters?: { [index: string]: string };
-}
-
-export interface JspPropertyGroupDescriptor {
-    buffer?: string;
-    defaultContentType?: string;
-    scriptingInvalid?: string;
-    errorOnELNotFound?: string;
-    urlPatterns?: string[];
-    pageEncoding?: string;
-    includeCodas?: string[];
-    includePreludes?: string[];
-    elIgnored?: string;
-    deferredSyntaxAllowedAsLiteral?: string;
-    errorOnUndeclaredNamespace?: string;
-    trimDirectiveWhitespaces?: string;
-    isXml?: string;
-}
-
-export interface TaglibDescriptor {
-    taglibURI?: string;
-    taglibLocation?: string;
-}
-
-export const enum AccessRequest {
+export const enum Action {
     READ = "READ",
     WRITE = "WRITE",
     DELETE = "DELETE",
     PUBLISH = "PUBLISH",
+    APPROVE = "APPROVE",
+    EXECUTE = "EXECUTE",
+}
+
+export const enum Resource {
+    ENTITY = "ENTITY",
+    QUERY = "QUERY",
+    USER = "USER",
+    CONFIG = "CONFIG",
+    TASK = "TASK",
+    CODE_GEN = "CODE_GEN",
+    FHIR = "FHIR",
+    GITHUB = "GITHUB",
+    POLICY = "POLICY",
+    CASDOOR_USER = "CASDOOR_USER",
+    DOCUMENT = "DOCUMENT",
+    FOLDER = "FOLDER",
+    DELTA = "DELTA",
+    SET = "SET",
+    BUG_REPORT = "BUG_REPORT",
+    ROLE_REQUEST = "ROLE_REQUEST",
+    GRAPH_REQUEST = "GRAPH_REQUEST",
+    ENTITY_APPROVAL = "ENTITY_APPROVAL",
+    QUERY_RESULTS = "QUERY_RESULTS",
+    PAGE_ADMIN = "PAGE_ADMIN",
+    PAGE_CREATOR = "PAGE_CREATOR",
+    PAGE_EDITOR = "PAGE_EDITOR",
 }
 
 export const enum ListMode {
@@ -1372,6 +1303,7 @@ export const enum UserRole {
     TASK_MANAGER = "TASK_MANAGER",
     AUTHORISER = "AUTHORISER",
     APPROVER = "APPROVER",
+    EXECUTOR = "EXECUTOR",
 }
 
 export const enum TaskState {
@@ -2114,10 +2046,4 @@ export const enum XSD {
     DATE_TIME = "http://www.w3.org/2001/XMLSchema#dateTime",
     NUMBER = "http://www.w3.org/2001/XMLSchema#number",
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
-}
-
-export const enum SessionTrackingMode {
-    COOKIE = "COOKIE",
-    URL = "URL",
-    SSL = "SSL",
 }

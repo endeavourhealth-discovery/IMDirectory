@@ -15,8 +15,8 @@
             :loading="checkingArguments"
           />
         </div>
-        <div v-if="isLoggedIn && currentUser?.roles.includes(UserRole.DEVELOPER)"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
-        <div v-if="isLoggedIn && currentUser?.roles.includes(UserRole.DEVELOPER)">
+        <div v-if="isLoggedIn && hasPermissionQueryExecute"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
+        <div v-if="isLoggedIn && hasPermissionQueryExecute">
           <Button
             label="Run query"
             @click="
@@ -128,8 +128,8 @@
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import { Env, QueryService } from "@/services";
-import { Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest, UserRole } from "@/interfaces/AutoGen";
+import { CasbinService, Env, QueryService } from "@/services";
+import { Action, Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest, Resource, UserRole } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
@@ -182,6 +182,7 @@ const checkingArguments = ref(false);
 const missingArguments: Ref<ArgumentReference[]> = ref([]);
 const requestArguments: Ref<Argument[]> = ref([]);
 const runOnConfirm = ref(false);
+const hasPermissionQueryExecute = ref(false);
 provide("queryIri", props.entityIri);
 provide("displayMode", displayMode);
 
@@ -198,6 +199,10 @@ watch(
     await init();
   }
 );
+
+watch(currentUser, async () => {
+  hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
+});
 
 watch(selectedDisplayOption, async (newValue, oldValue) => {
   if (!newValue) selectedDisplayOption.value = oldValue;
@@ -235,6 +240,9 @@ async function init() {
   if (query.value?.columnGroup) selectedDisplayOption.value = DisplayOptions.DatasetDefinition;
   else if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
   else selectedDisplayOption.value = DisplayOptions.LogicalView;
+  if (isLoggedIn.value) {
+    hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
+  }
   loading.value = false;
 }
 

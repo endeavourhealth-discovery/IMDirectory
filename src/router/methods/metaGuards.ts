@@ -1,21 +1,17 @@
-import { CasdoorService, UserService } from "@/services";
+import { CasbinService, CasdoorService, UserService } from "@/services";
 import { RouteLocationNormalized, Router } from "vue-router";
 import { directToLogin } from "./intercepts";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { UserRole } from "@/enums";
+import { Action, Resource } from "@/interfaces/AutoGen";
 
 export async function requiresAuthGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const user = await CasdoorService.getUser();
     if (!user) {
-      if (from.name === "Logout") {
-        await router.push({ name: "LandingPage" });
-        return false;
-      } else {
-        await directToLogin(router);
-        return true;
-      }
+      await directToLogin(router);
+      return false;
     }
   }
   return false;
@@ -24,14 +20,15 @@ export async function requiresAuthGuard(to: RouteLocationNormalized, from: Route
 export async function requiresAdmin(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresAdmin)) {
     const user = await CasdoorService.getUser();
-    if (!user?.roles.includes(UserRole.ADMIN)) {
-      if (from.name === "Logout") {
-        await router.push({ name: "LandingPage" });
-        return false;
-      } else {
-        await directToLogin(router);
-        return true;
-      }
+    const hasPermission = await CasbinService.hasPermission(Resource.PAGE_ADMIN, Action.READ);
+    if (!user) {
+      await directToLogin(router);
+      return false;
+    } else if (!hasPermission) {
+      await router.push({ name: "AccessDenied" });
+      return false;
+    } else {
+      return true;
     }
   }
   return false;
@@ -39,11 +36,8 @@ export async function requiresAdmin(to: RouteLocationNormalized, from: RouteLoca
 
 export async function requiresReAuth(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresReAuth)) {
-    if (!(from.name === "Login" || from.name === "MFALogin")) {
-      console.log("requires re-authentication");
-      await directToLogin(router);
-      return true;
-    }
+    await directToLogin(router);
+    return true;
   }
   return false;
 }
@@ -52,11 +46,14 @@ export async function requiresCreateRole(to: RouteLocationNormalized, from: Rout
   if (to.matched.some(record => record.meta.requiresCreateRole)) {
     const userStore = useUserStore();
     const user = await CasdoorService.getUser();
+    const hasPermission = await CasbinService.hasPermission(Resource.PAGE_CREATOR, Action.READ);
     if (!user) {
       await directToLogin(router);
-      return true;
-    } else if (!userStore.currentUser?.roles?.includes(UserRole.CREATOR)) {
+      return false;
+    } else if (!hasPermission) {
       await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
+      return false;
+    } else {
       return true;
     }
   }
@@ -67,11 +64,14 @@ export async function requiresEditRole(to: RouteLocationNormalized, from: RouteL
   if (to.matched.some(record => record.meta.requiresEditRole)) {
     const userStore = useUserStore();
     const user = await CasdoorService.getUser();
+    const hasPermission = await CasbinService.hasPermission(Resource.PAGE_EDITOR, Action.READ);
     if (!user) {
       await directToLogin(router);
       return true;
-    } else if (!userStore.currentUser?.roles?.includes(UserRole.EDITOR)) {
+    } else if (!hasPermission) {
       await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
+      return false;
+    } else {
       return true;
     }
   }
