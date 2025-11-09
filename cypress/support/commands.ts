@@ -1,5 +1,4 @@
 import { FilterOptions } from "@/interfaces";
-import "./auth-provider-commands/cognito";
 import { toMatchSnapshot } from "./snapshots";
 import "@testing-library/cypress/add-commands";
 
@@ -75,13 +74,14 @@ Cypress.Commands.add("login", () => {
   cy.get("#topbar", { timeout: 60000 });
   cy.findByTestId("account-menu").click();
   cy.get("#account-menu").find("span").contains("Login").click();
-  cy.url().should("include", "/user/login");
-  cy.findByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
-  cy.get("#login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
-  cy.findByTestId("login-submit").click();
-  cy.get(".swal2-popup", { timeout: 60000 }).contains("Login successful");
-  cy.get(".swal2-confirm").click();
+  cy.origin("http://localhost:8000", () => {
+    cy.get(".login-form");
+    cy.get('input[placeholder="username, Email or phone"]').type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
+    cy.get('input[placeholder="Password"]').type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
+    cy.get("button").contains("Sign In").click();
+  });
   cy.get("#topbar", { timeout: 60000 });
+  cy.findByTestId("my-account", { timeout: 60000 });
 });
 
 Cypress.Commands.add("acceptLicenseAndLogin", () => {
