@@ -11,7 +11,7 @@ export async function requiresAuthGuard(to: RouteLocationNormalized, from: Route
     const user = await CasdoorService.getUser();
     if (!user) {
       await directToLogin(router);
-      return false;
+      return true;
     }
   }
   return false;
@@ -23,12 +23,12 @@ export async function requiresAdmin(to: RouteLocationNormalized, from: RouteLoca
     const hasPermission = await CasbinService.hasPermission(Resource.PAGE_ADMIN, Action.READ);
     if (!user) {
       await directToLogin(router);
-      return false;
+      return true;
     } else if (!hasPermission) {
       await router.push({ name: "AccessDenied" });
-      return false;
-    } else {
       return true;
+    } else {
+      return false;
     }
   }
   return false;
@@ -49,12 +49,12 @@ export async function requiresCreateRole(to: RouteLocationNormalized, from: Rout
     const hasPermission = await CasbinService.hasPermission(Resource.PAGE_CREATOR, Action.READ);
     if (!user) {
       await directToLogin(router);
-      return false;
+      return true;
     } else if (!hasPermission) {
       await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
-      return false;
-    } else {
       return true;
+    } else {
+      return false;
     }
   }
   return false;
@@ -70,9 +70,9 @@ export async function requiresEditRole(to: RouteLocationNormalized, from: RouteL
       return true;
     } else if (!hasPermission) {
       await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
-      return false;
-    } else {
       return true;
+    } else {
+      return false;
     }
   }
   return false;
