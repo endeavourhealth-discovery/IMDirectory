@@ -12,4 +12,6 @@ export interface SharedState {
   error: string | undefined;
   isPublicMode: boolean | undefined;
   isDevMode: boolean | undefined;
+  signinUrl: string;
+  signupUrl: string;
 }

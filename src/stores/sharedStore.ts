@@ -20,7 +20,9 @@ export const useSharedStore = defineStore("shared", {
     activeProfile: { uuid: "", activeClausePath: "" },
     error: undefined,
     isPublicMode: undefined,
-    isDevMode: undefined
+    isDevMode: undefined,
+    signinUrl: "",
+    signupUrl: ""
   }),
   actions: {
     updateShowCookieConsent(bool: boolean) {
@@ -57,6 +59,12 @@ export const useSharedStore = defineStore("shared", {
     },
     updateIsDevMode(devMode: boolean) {
       this.isDevMode = devMode;
+    },
+    updateSigninUrl(url: string) {
+      this.signinUrl = url;
+    },
+    updateSignupUrl(url: string) {
+      this.signupUrl = url;
     }
   }
 });

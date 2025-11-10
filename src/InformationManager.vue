@@ -54,7 +54,9 @@ const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
-const { getSigninUrl } = useCasdoor();
+const { getSigninUrl, getSignupUrl } = useCasdoor();
+sharedStore.updateSigninUrl(getSigninUrl());
+sharedStore.updateSignupUrl(getSignupUrl());
 const finishedOnMounted = ref(false);
 
 const { changeScale } = setupChangeScale();
