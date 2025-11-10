@@ -8,7 +8,7 @@ const API_URL = Env.API + "api/function";
 const FunctionService = {
   async runFunction(iri: string, args?: Argument[]): Promise<any> {
     if (args && args.length > 0) {
-      const result: any = await axios.post(API_URL + "api/functio/public/callFunction", {
+      const result: any = await axios.post(API_URL + "/public/callFunction", {
         functionIri: iri,
         arguments: args
       });
