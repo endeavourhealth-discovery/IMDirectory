@@ -166,6 +166,7 @@ import { UserRole } from "@/enums";
 import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
 import { Action, Resource } from "@/interfaces/AutoGen";
+import Swal from "sweetalert2";
 
 const router = useRouter();
 const { getSigninUrl, getSignupUrl, getMyProfileUrl } = useCasdoor();
@@ -351,7 +352,18 @@ function setUserMenuItems(): void {
 }
 
 async function logout() {
-  await CasdoorService.logout();
+  await Swal.fire({
+    icon: "question",
+    title: "Confirm logout?",
+    text: "Are you sure you want to logout?",
+    confirmButtonText: "Logout",
+    showCancelButton: true
+  }).then(async result => {
+    if (result.isConfirmed) {
+      await CasdoorService.logout();
+      location.reload();
+    }
+  });
 }
 
 async function goToMyProfile() {
