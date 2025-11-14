@@ -44,7 +44,7 @@ const config = {
   clientId: import.meta.env.VITE_CASDOOR_CLIENT_ID,
   organizationName: import.meta.env.VITE_CASDOOR_ORGANISATION_NAME,
   appName: import.meta.env.VITE_CASDOOR_APP_NAME,
-  redirectPath: import.meta.env.VITE_IM_DIRECTORY_URL + "/#/callback"
+  redirectPath: "/#/callback"
 };
 
 // msw initialising
