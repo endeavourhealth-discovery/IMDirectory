@@ -97,7 +97,7 @@ import { DownloadSettings } from "@/interfaces";
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { IM, SNOMED } from "@/vocabulary";
 import { computed, Ref, ref, watch } from "vue";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 interface DownloadOption {
   key: string;
@@ -157,7 +157,7 @@ const contentOptions: Ref<DownloadOption[]> = ref([
   { key: "core", name: "Core", disabled: false, include: props.showCore, cannotUncheck: true },
   { key: "legacy", name: "Legacy", disabled: false, include: props.showLegacy },
   { key: "im1Id", name: "IM1Id", disabled: false, include: props.showIm1Id },
-  { key: "subsumedBy", name: "+Replaced concepts", disabled: false, include: props.showSubsumedBy }
+  { key: "subsumedBy", name: "+Replaced concepts", disabled: true, include: false }
 ]);
 
 const selectedContents: Ref<string[]> = ref(["Core", "+Replaced concepts"]);
@@ -172,6 +172,20 @@ const checked = ref(true);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
 const schemesOptions = filterOptions.value.schemes.filter(c => c.iri !== Namespace.IM && c.iri !== Namespace.SNOMED);
 
+watch(
+  () => props.showSubsumedBy,
+  value => {
+    const opt = contentOptions.value.find(o => o.key === "subsumedBy");
+    if (opt) {
+      opt.disabled = !value;
+      opt.include = value;
+    }
+    if (!value) {
+      selectedContents.value = selectedContents.value.filter(item => item !== "+Replaced concepts");
+    }
+  },
+  { immediate: true }
+);
 watch(
   () => props.showDefinition,
   newValue => {
@@ -207,17 +221,17 @@ function isCoreSelected() {
     if (selectedFormat.value !== "xlsx") {
       contentOptions.value[0].disabled = true;
       contentOptions.value[2].disabled = true;
-      contentOptions.value[4].disabled = true;
+      contentOptions.value[4].disabled = !props.showSubsumedBy;
     }
     contentOptions.value[2].disabled = false;
     contentOptions.value[3].disabled = false;
-    contentOptions.value[4].disabled = false;
+    contentOptions.value[4].disabled = !props.showSubsumedBy;
     coreSelected.value = true;
   } else {
     contentOptions.value[0].disabled = selectedFormat.value === "FHIR";
     contentOptions.value[2].disabled = true;
     contentOptions.value[3].disabled = true;
-    contentOptions.value[4].disabled = true;
+    contentOptions.value[4].disabled = !props.showSubsumedBy;
     checked.value = true;
     checkedLegacy.value = false;
     selectedSchemes.value = [];
