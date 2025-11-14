@@ -4,7 +4,7 @@
       <span :class="operator">
         <span>{{ getOperator(operator, index) }}</span>
       </span>
-      <span v-if="where.qualifier">{{where.qualifier.name}} of </span>
+      <span v-if="where.qualifier">{{ where.qualifier.name }} of </span>
       <span v-if="whereName" class="field">{{ whereName }}</span>
       <span v-if="eclQuery">=</span>
       <span v-if="where.valueLabel || where.description">
@@ -15,11 +15,12 @@
         <span v-else-if="where.valueLabel" class="field">{{ where.valueLabel }}</span>
       </span>
       <span v-if="where.relativeTo">
-        <span v-if="where.relativeTo.description">
-          <span class="field">{{ where.relativeTo.description }}</span>
+        <span v-if="where.relativeTo.name">
+          <span class="field">{{ where.relativeTo.name }} of</span>
         </span>
-        <span v-if="then && !where.relativeTo.parameter" class="node-ref">of the above</span>
-        <span v-else-if="where.relativeTo.targetLabel" class="node-ref">{{ where.relativeTo.targetLabel }}</span>
+        <span v-if="where.relativeTo.parameterName">
+          <span class="field">{{ where.relativeTo.parameterName }} of</span>
+        </span>
         <span v-else-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
       </span>
       <span v-if="isExpanded && isArrayHasLength(where.is)">
@@ -56,7 +57,6 @@
               :root="false"
               :eclQuery="eclQuery"
               :editMode="editMode"
-              :then="then"
               :bracketed="!root"
             />
           </span>
@@ -86,7 +86,6 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
-  then?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -104,9 +103,6 @@ const boolGroup = computed(() => {
   };
 });
 
-onMounted(async () => {
-  if (props.where.name && (props.where.name != "concept" || props.then)) whereName.value = props.where.name;
-});
 function getOperator(operator: Bool | undefined, index: number): string {
   if (operator === "or") {
     if (index === 0) {
