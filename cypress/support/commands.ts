@@ -81,7 +81,8 @@ Cypress.Commands.add("login", () => {
     cy.get("button").contains("Sign In").click();
   });
   cy.get("#topbar", { timeout: 60000 });
-  cy.findByTestId("my-account", { timeout: 60000 });
+  cy.findByTestId("account-menu-logged-in").click();
+  cy.get("#account-menu", { timeout: 60000 }).contains("My account");
 });
 
 Cypress.Commands.add("acceptLicenseAndLogin", () => {

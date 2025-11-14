@@ -148,5 +148,7 @@ Then("routes to IMDirectory", () => {
 });
 
 Then("user is logged in", () => {
-  cy.findByTestId("my-account", { timeout: 60000 });
+  cy.get("#topbar", { timeout: 60000 });
+  cy.findByTestId("account-menu-logged-in").click();
+  cy.get("#account-menu", { timeout: 60000 }).contains("My account");
 });
