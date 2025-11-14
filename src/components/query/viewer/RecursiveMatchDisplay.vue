@@ -6,22 +6,32 @@
     <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && parentOperator != Bool.not" :class="parentOperator">{{
       parentOperator
     }}</span>
+    <RecursiveMatchDisplay
+      v-if="match.from"
+      :match="match.from"
+      :clause-index="0"
+      :property-index="0"
+      :parent-operator="Bool.and"
+      :depth="depth + 1"
+      :parent-match="match"
+      :edit-mode="editMode"
+      :from="true"
+      :eclQuery="eclQuery"
+    />
+    <span v-if="from" class="from">from</span>
     <div v-if="match.description">
       <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
       <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchExpanded = !matchExpanded"></Button>
       <span class="match-description">{{ match.description }}</span>
+      <span v-if="match.keepAs">
+        <span class="as"> (as {{ match.keepAs }})</span>
+      </span>
     </div>
     <span v-else-if="parentOperator === Bool.not" class="not">Exclude if </span>
     <span v-if="matchExpanded">
-      <span v-if="parentMatch?.union && !then">
+      <span v-if="parentMatch?.union">
         <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
         <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
-      </span>
-      <span v-if="then && matchExpanded">
-        <span v-if="!match.path">
-          <span class="field">and from the above</span>
-        </span>
-        <span v-else class="field">Then</span>
       </span>
 
       <span v-if="match.instanceOf">
@@ -80,18 +90,17 @@
         <span class="field">{{ getFormattedPath(match) }}</span>
       </span>
     </span>
-    <span v-for="operator in operators" :key="operator">
-      <span v-if="match[operator]">
-        <span v-if="match[operator]!.length > 1 && operator != 'not'" :class="operator">
-          <span>{{
-            getBooleanLabel("match", operator as Bool, parentOperator === Bool.rule ? 0 : clauseIndex, !eclQuery, true, match.union, parentOperator)
-          }}</span>
-        </span>
+    <template v-for="operator in operators" :key="operator">
+      <template v-if="match[operator]">
+        <template v-if="match[operator]!.length > 1 && operator != 'not'" :class="operator">
+          <div>
+            {{ getBooleanLabel("match", operator as Bool, parentOperator === Bool.rule ? 0 : clauseIndex, !eclQuery, true, match.union, parentOperator) }}
+          </div>
+        </template>
         <div :class="match[operator].length > 1 ? 'tree-node-wrapper' : ''">
-          <span v-for="(nestedQuery, index) in match[operator]" :key="index">
+          <template v-for="(nestedQuery, index) in match[operator]" :key="`nestedQueryDisplay-${index}`">
             <RecursiveMatchDisplay
               :match="nestedQuery"
-              :key="`nestedQueryDisplay-${index}`"
               :clause-index="index"
               :property-index="index"
               :parentOperator="operator as Bool"
@@ -100,13 +109,12 @@
               :bracketed="index === match[operator]!.length - 1"
               :edit-mode="editMode"
               :eclQuery="eclQuery"
-              :then="then"
               :singleMatch="match[operator]!.length === 1"
             />
-          </span>
+          </template>
         </div>
-      </span>
-    </span>
+      </template>
+    </template>
     <span v-if="matchExpanded">
       <span v-if="match.where">
         <span class="field">where</span>
@@ -118,29 +126,13 @@
           :root="true"
           :expandedSet="expandSet"
           :inline="true"
-          :then="then"
+          :from="from"
           :eclQuery="eclQuery"
           :editMode="editMode"
         />
       </span>
     </span>
-    <span v-if="match.return && match.return.asDescription">
-      <span class="field">(as</span>
-      <span class="as">{{ match.return.asDescription }})</span>
-    </span>
-    <RecursiveMatchDisplay
-      v-if="match.then && matchExpanded"
-      :match="match.then"
-      :clause-index="0"
-      :property-index="0"
-      :parent-operator="Bool.and"
-      :depth="depth + 1"
-      :parent-match="match"
-      :edit-mode="editMode"
-      :then="true"
-      :eclQuery="eclQuery"
-    />
-    <MatchDescription v-if="match.then && !matchExpanded" :depth="1" :match="match.then" />
+
     <div v-if="parentOperator === Bool.rule">
       <span class="field">if true</span>
       <span :class="match.ifTrue">{{ match.ifTrue }},</span>
@@ -167,7 +159,7 @@ interface Props {
   canExpand?: boolean;
   bracketed?: boolean;
   editMode?: boolean;
-  then?: boolean;
+  from?: boolean;
   eclQuery?: boolean;
   parentOperator?: Bool;
   singleMatch?: boolean;
@@ -235,7 +227,7 @@ async function expandCohort() {
   padding-right: 2rem;
 }
 
-.then {
+.from {
   padding-right: 0.2rem;
 }
 .field {
@@ -253,6 +245,7 @@ async function expandCohort() {
 }
 
 .as {
+  padding-left: 0.5rem;
   color: var(--p-amber-700) !important;
 }
 .linked-match {
