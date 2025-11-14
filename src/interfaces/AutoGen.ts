@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-10-18 09:05:11.
+// Generated using typescript-generator version 3.2.1263 on 2025-11-14 08:33:19.
 
 export interface ConceptContextMap {
     id?: string;
@@ -155,6 +155,8 @@ export interface IMLLanguage {
     definitions?: { [index: string]: string };
     prefixes?: { [index: string]: string };
     keywords?: string[];
+    booleans?: string[];
+    alerts?: string[];
     iriVariables?: { [index: string]: string[] };
 }
 
@@ -361,10 +363,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -422,6 +424,8 @@ export interface Match extends IriLD, HasPaths {
     groupBy?: GroupBy[];
     keepAs?: string;
     orderBy?: OrderLimit;
+    asDescription?: string;
+    from?: Match;
     returx?: Return;
     isUnion?: boolean;
 }
@@ -497,6 +501,7 @@ export interface RelativeTo extends IriLD {
     valueVariable?: string;
     propertyRef?: string;
     targetLabel?: string;
+    parameterName?: string;
     nodeRef?: string;
     parameter?: string;
 }
@@ -513,7 +518,6 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
-    asDescription?: string;
 }
 
 export interface ReturnProperty {
@@ -882,11 +886,11 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
+    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    status?: TTIriRef;
     code?: string;
     prefixes?: TTPrefix[];
     types?: TTIriRef[];
@@ -1069,6 +1073,13 @@ export interface OrgRelationship {
 
 export interface OrgRelTarget {
     OrgId?: OrgId;
+}
+
+export const enum IMLContext {
+    prefix = "prefix",
+    match = "match",
+    select = "select",
+    comment = "comment",
 }
 
 export const enum ListMode {
@@ -1473,6 +1484,7 @@ export const enum IM {
     SUPPLIER_ASSURED = "http://endhealth.info/im#SupplierAssured",
     HAS_MEMBER = "http://endhealth.info/im#hasMember",
     IS_MEMBER_OF = "http://endhealth.info/im#isMemberOf",
+    AVOID_REPLACED_BY = "http://endhealth.info/im#avoidReplacedBy",
     IS_SUBSET_OF = "http://endhealth.info/im#isSubsetOf",
     HAS_SUBSET = "http://endhealth.info/im#hasSubset",
     SOURCE_CONTEXT = "http://endhealth.info/im#sourceContext",

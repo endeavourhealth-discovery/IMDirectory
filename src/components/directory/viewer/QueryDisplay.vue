@@ -3,30 +3,32 @@
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
-      <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
-      <div class="flex flex-row gap-2">
-        <div v-if="isLoggedIn">
-          <Button
-            label="View arguments"
-            @click="
-              showArgumentsDisplay();
-              runOnConfirm = false;
-            "
-            :loading="checkingArguments"
-          />
+      <template v-if="!eclQuery">
+        <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
+        <div class="flex flex-row gap-2">
+          <div v-if="isLoggedIn">
+            <Button
+              label="View arguments"
+              @click="
+                showArgumentsDisplay();
+                runOnConfirm = false;
+              "
+              :loading="checkingArguments"
+            />
+          </div>
+          <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
+          <div v-if="isLoggedIn">
+            <Button
+              label="Run query"
+              @click="
+                runQuery();
+                runOnConfirm = true;
+              "
+              :loading="checkingArguments"
+            />
+          </div>
         </div>
-        <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
-        <div v-if="isLoggedIn">
-          <Button
-            label="Run query"
-            @click="
-              runQuery();
-              runOnConfirm = true;
-            "
-            :loading="checkingArguments"
-          />
-        </div>
-      </div>
+      </template>
       <div
         v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView, DisplayOptions.DatasetDefinition].includes(selectedDisplayOption)"
         class="query-display-content"

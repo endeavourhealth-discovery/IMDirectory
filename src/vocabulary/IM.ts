@@ -115,6 +115,7 @@ export class IM {
   public static readonly SUPPLIER_ASSURED = Namespace.IM + "SupplierAssured"
   public static readonly HAS_MEMBER = Namespace.IM + "hasMember"
   public static readonly IS_MEMBER_OF = Namespace.IM + "isMemberOf"
+  public static readonly AVOID_REPLACED_BY = Namespace.IM + "avoidReplacedBy"
   public static readonly IS_SUBSET_OF = Namespace.IM + "isSubsetOf"
   public static readonly HAS_SUBSET = Namespace.IM + "hasSubset"
   public static readonly SOURCE_CONTEXT = Namespace.IM + "sourceContext"
