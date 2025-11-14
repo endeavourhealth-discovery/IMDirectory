@@ -61,7 +61,10 @@ const routes: Array<RouteRecordRaw> = [
     path: "/callback",
     name: "Callback",
     component: () => import("@/views/Callback.vue"),
-    props: true
+    props: route => ({
+      state: route.query.state,
+      code: route.query.code
+    })
   },
   {
     path: "/admin",

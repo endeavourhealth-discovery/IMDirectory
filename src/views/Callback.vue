@@ -25,14 +25,9 @@ interface Props {
 const props = defineProps<Props>();
 
 onMounted(async () => {
-  console.log("here");
-  const code = route.query.code;
-  const state = route.query.state;
-  if (code && state) {
-    await CasdoorService.login(code as string, state as string);
-    const user: User = await CasdoorService.getUser();
-    if (user) userStore.updateCurrentUser(user);
-  }
+  await CasdoorService.login(props.code, props.state);
+  const user: User = await CasdoorService.getUser();
+  if (user) userStore.updateCurrentUser(user);
   await router.push({ name: "Directory" });
 });
 </script>
