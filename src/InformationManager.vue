@@ -43,6 +43,7 @@ import { useFilterStore } from "@/stores/filterStore";
 import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
 import { setModes } from "./router/methods/setModes";
 import { useCasdoor } from "casdoor-vue-sdk";
+import { useCookies } from "@vueuse/integrations";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -50,11 +51,12 @@ setupExternalErrorHandler();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
+const cookie = useCookies();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
-const { getSigninUrl, getSignupUrl } = useCasdoor();
+const { getSigninUrl, getSignupUrl, isSilentSigninRequested, silentSignin } = useCasdoor();
 sharedStore.updateSigninUrl(getSigninUrl());
 sharedStore.updateSignupUrl(getSignupUrl());
 const finishedOnMounted = ref(false);
@@ -97,6 +99,12 @@ watch(darkMode, async (newValue, oldValue) => {
 });
 
 onMounted(async () => {
+  if (!cookie.get("casdoorToken")) {
+    const silentUser = await axios.get(import.meta.env.VITE_CASDOOR_URL + "/api/get-account", { raw: true });
+    if (silentUser?.data?.accessToken) {
+      await CasdoorService.loginWithBearerToken(silentUser.data.accessToken);
+    }
+  }
   try {
     const user = await CasdoorService.getUser(true);
     if (user) userStore.updateCurrentUser(user);

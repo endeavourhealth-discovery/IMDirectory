@@ -10,6 +10,10 @@ const CasdoorService = {
     await axios.get(API_URL + "/public/login", { params: { code: code, state: state } });
   },
 
+  async loginWithBearerToken(token: string) {
+    await axios.get(API_URL + "/public/loginWithBearerToken", { headers: { Authorization: `Bearer ${token}` } });
+  },
+
   async logout() {
     await axios.get(API_URL + "/logout");
   },
