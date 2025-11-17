@@ -1,5 +1,6 @@
 <template>
   <div class="nested-match base-cohort-selector">
+    <span>bla</span>
     <div>Is in the cohort :</div>
     <div v-if="editMode">
       <BaseTypeSelector
@@ -46,13 +47,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, ref, watch, computed, onMounted } from "vue";
+import { onMounted, ref, Ref } from "vue";
 import { IM } from "@/vocabulary";
 import { Namespace } from "@/vocabulary/Namespace";
-import { Match, SearchResultSummary, QueryRequest, Node, TTIriRef } from "@/interfaces/AutoGen";
-import { TreeSelectionKeys } from "primevue/tree";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { EntityService, QueryService } from "@/services";
+import { Match, Node, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
 import { buildIMQueryFromFilters } from "@/composables/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
@@ -92,8 +90,7 @@ async function init() {
 
 async function updateCohort(cohort?: SearchResultSummary) {
   if (cohort) {
-    const isCohort = { iri: cohort.iri, memberOf: true, name: cohort.name } as TTIriRef;
-    match.value.isCohort = isCohort;
+    match.value.isCohort = { iri: cohort.iri, name: cohort.name } as TTIriRef;
   }
   editMode.value = false;
   emit("updateProperty");

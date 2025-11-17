@@ -3,30 +3,32 @@
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
-      <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
-      <div class="flex flex-row gap-2">
-        <div v-if="isLoggedIn">
-          <Button
-            label="View arguments"
-            @click="
-              showArgumentsDisplay();
-              runOnConfirm = false;
-            "
-            :loading="checkingArguments"
-          />
+      <template v-if="!eclQuery">
+        <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
+        <div class="flex flex-row gap-2">
+          <div v-if="isLoggedIn">
+            <Button
+              label="View arguments"
+              @click="
+                showArgumentsDisplay();
+                runOnConfirm = false;
+              "
+              :loading="checkingArguments"
+            />
+          </div>
+          <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
+          <div v-if="isLoggedIn">
+            <Button
+              label="Run query"
+              @click="
+                runQuery();
+                runOnConfirm = true;
+              "
+              :loading="checkingArguments"
+            />
+          </div>
         </div>
-        <div v-if="isLoggedIn && hasPermissionQueryExecute"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
-        <div v-if="isLoggedIn && hasPermissionQueryExecute">
-          <Button
-            label="Run query"
-            @click="
-              runQuery();
-              runOnConfirm = true;
-            "
-            :loading="checkingArguments"
-          />
-        </div>
-      </div>
+      </template>
       <div
         v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView, DisplayOptions.DatasetDefinition].includes(selectedDisplayOption)"
         class="query-display-content"
@@ -80,6 +82,9 @@
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
       </div>
+      <div v-else-if="selectedDisplayOption == DisplayOptions.IML" class="query-display-content flex flex-col gap-4">
+        <IMLDisplay v-if="iml" :iml="iml" />
+      </div>
       <div v-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
         <span>Output columns:</span>
         <ColumnGroupDisplay
@@ -129,9 +134,10 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { CasbinService, Env, QueryService } from "@/services";
-import { Action, Argument, ArgumentReference, Bool, DisplayMode, Query, QueryRequest, Resource, UserRole } from "@/interfaces/AutoGen";
+import { Action, Argument, ArgumentReference, Bool, DisplayMode, IMLLanguage, Query, QueryRequest, Resource, UserRole } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
+import IMLDisplay from "./IMLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
@@ -145,6 +151,7 @@ enum DisplayOptions {
   LogicalView = "Logical view",
   MySQL = "MySQL",
   PostreSQL = "PostgreSQL",
+  IML = "IMQuery",
   DatasetDefinition = "Data output definition"
 }
 
@@ -171,6 +178,7 @@ const currentUser = computed(() => userStore.currentUser);
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
 const sql: Ref<string> = ref("");
+const iml: Ref<IMLLanguage | undefined> = ref();
 const loading = ref(true);
 const showTestResults = ref(false);
 const testResults: Ref<string[]> = ref([]);
@@ -221,6 +229,9 @@ watch(selectedDisplayOption, async (newValue, oldValue) => {
     case DisplayOptions.PostreSQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
       break;
+    case DisplayOptions.IML:
+      if (props.entityIri) iml.value = await QueryService.generateQueryIML(props.entityIri);
+      break;
     default:
       break;
   }
@@ -253,6 +264,7 @@ function setDisplayOptions() {
       DisplayOptions.LogicalView,
       DisplayOptions.MySQL,
       DisplayOptions.PostreSQL,
+      DisplayOptions.IML,
       DisplayOptions.DatasetDefinition
     ];
   else displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];

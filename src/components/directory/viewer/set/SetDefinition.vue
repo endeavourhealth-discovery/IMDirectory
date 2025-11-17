@@ -83,6 +83,7 @@
   <DownloadByQueryOptionsDialog
     :show-definition="hasDefinition"
     :showDialog="showOptions"
+    :showSubsumedBy="showSubsumedBy"
     @download="download"
     @downloadIMV1="downloadIMV1"
     @close-dialog="showOptions = false"
@@ -130,7 +131,7 @@ const showCompareSetDialog = ref(false);
 const showMembers = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
 const userStore = useUserStore();
-
+const showSubsumedBy = ref(true);
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
@@ -152,7 +153,13 @@ watch(currentUser, async () => {
 
 onMounted(async () => {
   active.value = ["0", "1", "2"];
-  entity.value = await EntityService.getPartialEntity(props.entityIri, [IM.IS_SUBSET_OF, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.DEFINITION]);
+  entity.value = await EntityService.getPartialEntity(props.entityIri, [
+    IM.IS_SUBSET_OF,
+    IM.IS_CONTAINED_IN,
+    RDFS.SUBCLASS_OF,
+    IM.DEFINITION,
+    IM.AVOID_REPLACED_BY
+  ]);
   if (entity.value[IM.IS_SUBSET_OF]) {
     subsetOf.value = entity.value[IM.IS_SUBSET_OF];
   }
@@ -161,6 +168,9 @@ onMounted(async () => {
   }
   if (entity.value[RDFS.SUBCLASS_OF]) {
     subclassOf.value = entity.value[RDFS.SUBCLASS_OF];
+  }
+  if (entity.value[IM.AVOID_REPLACED_BY]) {
+    showSubsumedBy.value = false;
   }
   if (!hasDefinition.value) showMembers.value = true;
   if (isLoggedIn.value) {
@@ -187,6 +197,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   const core = downloadSettings.selectedContents.includes("Core");
   const legacy = downloadSettings.selectedContents.includes("Legacy");
   const im1id = downloadSettings.selectedContents.includes("IM1Id");
+  const replacedBy = downloadSettings.selectedContents.includes("+Replaced concepts") ? [IM.SUBSUMED_BY] : ([] as string[]);
   showOptions.value = false;
 
   const schemes = [] as string[];
@@ -202,7 +213,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
     includeSubsets: downloadSettings.includeSubsets,
     schemes: schemes,
     includeIM1id: im1id,
-    subsumptions: []
+    subsumptions: replacedBy
   };
   const setRequest: SetExportRequest = {
     ownRow: downloadSettings.legacyInline,

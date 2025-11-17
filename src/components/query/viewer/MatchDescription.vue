@@ -1,9 +1,6 @@
 <template>
   <div v-if="match.description">
-    <span :style="{ paddingLeft: depth * 2 + 'em', color: 'var(--p-blue-700)' }"> Then {{ match.description }} </span>
-  </div>
-  <div>
-    <MatchDescription v-if="match.then" :match="match.then" :depth="depth + 1" />
+    <span :style="{ paddingLeft: depth * 2 + 'em', color: 'var(--p-blue-700)' }">{{ match.description }} </span>
   </div>
 </template>
 

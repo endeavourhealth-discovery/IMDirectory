@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-11-09 20:15:02.
+// Generated using typescript-generator version 3.2.1263 on 2025-11-17 12:20:46.
 
 export interface ConceptContextMap {
     id?: string;
@@ -167,16 +167,28 @@ export interface FunctionTemplate extends Entity {
     parameterTemplate?: ParameterTemplate[];
 }
 
+export interface IMLLanguage {
+    text?: string;
+    lang?: string;
+    info?: { [index: string]: string };
+    definitions?: { [index: string]: string };
+    prefixes?: { [index: string]: string };
+    keywords?: string[];
+    booleans?: string[];
+    alerts?: string[];
+    iriVariables?: { [index: string]: string[] };
+}
+
 /**
  * Class representing an IRI
  */
 export interface Indicator extends TTIriRef {
-    query?: TTIriRef;
-    and?: Indicator[];
-    or?: Indicator[];
-    definition?: Query;
+    isSubIndicatorOf?: TTIriRef[];
+    numerator?: TTIriRef;
+    dataset?: Query;
     actionIfFalse?: TTIriRef[];
     actionIfTrue?: TTIriRef[];
+    denominator?: TTIriRef;
 }
 
 /**
@@ -304,9 +316,9 @@ export interface Argument {
     valuePath?: Path;
     valueNodeRef?: string;
     dataType?: TTIriRef;
-    valuePathList?: Path[];
     valueObject?: any;
     valueVariable?: string;
+    qualifier?: TTIriRef;
 }
 
 export interface ArgumentReference {
@@ -319,15 +331,10 @@ export interface Assignable {
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
+    description?: string;
+    qualifier?: TTIriRef;
     operator?: Operator;
-    qualifier?: string;
     valueLabel?: string;
-}
-
-export interface BoolGroup<T> {
-    not?: T[];
-    or?: T[];
-    and?: T[];
 }
 
 export interface Case {
@@ -375,9 +382,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
-    memberOf?: boolean;
     ancestorsOf?: boolean;
 }
 
@@ -401,13 +408,12 @@ export interface Instance extends IriLD {
 
 export interface IriLD {
     iri?: string;
-    qualifier?: string;
     name?: string;
     description?: string;
     uuid?: string;
 }
 
-export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
+export interface Match extends IriLD, HasPaths {
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
     nodeRef?: string;
@@ -437,6 +443,8 @@ export interface Match extends IriLD, BoolGroup<Match>, HasPaths {
     groupBy?: GroupBy[];
     keepAs?: string;
     orderBy?: OrderLimit;
+    asDescription?: string;
+    from?: Match;
     returx?: Return;
     isUnion?: boolean;
 }
@@ -463,6 +471,7 @@ export interface Path extends Element, HasPaths {
     inverse?: boolean;
     optional?: boolean;
     typeOf?: Node;
+    qualifier?: TTIriRef;
 }
 
 export interface PathDocument {
@@ -507,9 +516,11 @@ export interface Range {
 }
 
 export interface RelativeTo extends IriLD {
+    qualifier?: TTIriRef;
     valueVariable?: string;
     propertyRef?: string;
     targetLabel?: string;
+    parameterName?: string;
     nodeRef?: string;
     parameter?: string;
 }
@@ -526,7 +537,6 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
-    asDescription?: string;
 }
 
 export interface ReturnProperty {
@@ -567,15 +577,14 @@ export interface When {
     case?: Case;
 }
 
-export interface Where extends Element, Assignable, BoolGroup<Where> {
+export interface Where extends Element, Assignable {
     range?: Range;
     isNull?: boolean;
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
     typeOf?: Node;
     is?: Node[];
-    notIs?: Node[];
-    not?: Where[];
+    not?: boolean;
     roleGroup?: boolean;
     isNotNull?: boolean;
     valueVariable?: string;
@@ -897,14 +906,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
+    status?: TTIriRef;
     description?: string;
-    types?: TTIriRef[];
-    code?: string;
     prefixes?: TTPrefix[];
+    code?: string;
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -1121,6 +1130,13 @@ export enum Resource {
     PAGE_ADMIN = "PAGE_ADMIN",
     PAGE_CREATOR = "PAGE_CREATOR",
     PAGE_EDITOR = "PAGE_EDITOR",
+}
+
+export enum IMLContext {
+    prefix = "prefix",
+    match = "match",
+    select = "select",
+    comment = "comment",
 }
 
 export enum ListMode {
@@ -1391,6 +1407,7 @@ export enum EDITOR {
     DATA_MODEL_SHAPE = "http://endhealth.info/im#Editor_DataModelShape",
     COHORT_QUERY_SHAPE = "http://endhealth.info/im#Editor_CohortQueryShape",
     PROPERTY_SHAPE = "http://endhealth.info/im#Editor_PropertyShape",
+    INDICATOR_SHAPE = "http://endhealth.info/im#Editor_IndicatorShape",
 }
 
 export enum EntityType {
@@ -1460,7 +1477,6 @@ export enum IM {
     QUERY = "http://endhealth.info/im#Query",
     COHORT_QUERY = "http://endhealth.info/im#CohortQuery",
     DEFAULT_COHORTS = "http://endhealth.info/im#Q_DefaultCohorts",
-    DATASET_QUERY = "http://endhealth.info/im#DatasetQuery",
     DATA_UPDATE = "http://endhealth.info/im#DataUpdate",
     PATH_QUERY = "http://endhealth.info/im#PathQuery",
     PATH_TO = "http://endhealth.info/im#pathTo",
@@ -1526,6 +1542,7 @@ export enum IM {
     SUPPLIER_ASSURED = "http://endhealth.info/im#SupplierAssured",
     HAS_MEMBER = "http://endhealth.info/im#hasMember",
     IS_MEMBER_OF = "http://endhealth.info/im#isMemberOf",
+    AVOID_REPLACED_BY = "http://endhealth.info/im#avoidReplacedBy",
     IS_SUBSET_OF = "http://endhealth.info/im#isSubsetOf",
     HAS_SUBSET = "http://endhealth.info/im#hasSubset",
     SOURCE_CONTEXT = "http://endhealth.info/im#sourceContext",
@@ -1604,12 +1621,15 @@ export enum IM {
     SELECT = "http://endhealth.info/im#select",
     NATIONALLY_ASSURED_UK = "http://endhealth.info/im#NationallyAssuredUK",
     ENTITY = "http://endhealth.info/im#Entity",
+    IS_SUBINDICATOR_OF = "http://endhealth.info/im#isSubIndicatorOf",
     QUERY_SET = "http://endhealth.info/im#QuerySet",
     DEPENDENT_ON = "http://endhealth.info/im#dependentOn",
     CARE_ACTIVITY = "http://endhealth.info/im#CareActivity",
     CARE_TARGET = "http://endhealth.info/im#CareTarget",
     QUERY_TEMPLATE = "http://endhealth.info/im#QueryTemplate",
-    HAS_QUERY = "http://endhealth.info/im#hasQuery",
+    NUMERATOR = "http://endhealth.info/im#numerator",
+    DENOMINATOR = "http://endhealth.info/im#denominator",
+    HAS_DATASET = "http://endhealth.info/im#dataset",
     RECORD_TYPE = "http://endhealth.info/im#RecordType",
     FEATURE = "http://endhealth.info/im#MatchClause",
     DATA_PROPERTY = "http://endhealth.info/im#DataProperty",
@@ -1676,7 +1696,10 @@ export enum IM {
     TIME = "http://endhealth.info/im#Time",
     INTERVAL_UNIT = "http://endhealth.info/im#intervalUnit",
     PARAMETER = "http://endhealth.info/im#parameter",
+    NUMERIC_DIFFERENCE = "http://endhealth.info/im#NumericDifference",
+    FISCAL_YEAR = "http://endhealth.info/im#fiscalYear",
     YEARS = "http://endhealth.info/im#Years",
+    MONTH = "http://endhealth.info/im#month",
     MONTHS = "http://endhealth.info/im#Months",
     DAYS = "http://endhealth.info/im#Days",
     HOURS = "http://endhealth.info/im#Hours",

@@ -1,4 +1,4 @@
-import { TTDocument } from "@/interfaces/AutoGen";
+import { Graph, TTDocument } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
@@ -41,7 +41,7 @@ const FilerService = {
   },
 
   async fileDocument(document: TTDocument): Promise<{ [x: string]: string }> {
-    return await axios.post(API_URL + "/file/document", document);
+    return await axios.post(API_URL + "/file/document", { document: document, insertGraph: Graph.IM });
   },
 
   async getTaskProgress(taskId: string): Promise<{ [x: string]: number }> {

@@ -49,6 +49,8 @@ export function isIndicator(entityTypes: TTIriRef[]): boolean {
   return isOfTypes(entityTypes, IM.INDICATOR);
 }
 
+
+
 export function isRecordModel(entityTypes: TTIriRef[]): boolean {
   return isOfTypes(entityTypes, SHACL.NODESHAPE);
 }

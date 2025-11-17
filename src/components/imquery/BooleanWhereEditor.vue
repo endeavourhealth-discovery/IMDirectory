@@ -8,13 +8,14 @@
         <div v-if="property[operator]">
           <div class="match-clause">
             <BooleanEditor
-              v-model:match="property"
+              v-model:clause="property"
               v-model:parentClause="parentProperty"
               :depth="0"
               :hasSubgroups="true"
               :parentOperator="operator as Bool"
               :grandParentOperator="parentOperator as Bool"
               :clauseIndex="clauseIndex"
+              :clauseType="'Where'"
               v-model:parentGroup="group"
               @updateOperator="onUpdateParentOperator"
               :rootBool="false"
@@ -40,12 +41,13 @@
     </div>
     <div v-else class="property-value-container">
       <BooleanEditor
-        v-model:match="property"
+        v-model:clause="property"
         v-model:parentClause="parentProperty"
         :depth="0"
         :hasSubgroups="false"
         :parentOperator="parentOperator as Bool"
         :clauseIndex="clauseIndex"
+        :clauseType="'Where'"
         v-model:parentGroup="group"
         @updateOperator="onUpdateOperator"
         :rootBool="false"
@@ -100,13 +102,13 @@
 </template>
 
 <script lang="ts" setup>
-import { Match, Node, Where, Bool } from "@/interfaces/AutoGen";
+import { Match, Node, Bool, Where } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import WhereValueEditor from "./WhereValueEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import { deletePropertyFromParent, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/composables/buildQuery";
+import { deletePropertyFromParent, hasBoolGroups, updateWhereBooleans, updateFocusConcepts } from "@/composables/buildQuery";
 import { cloneDeep } from "lodash-es";
 import WhereIsEditor from "./WhereIsEditor.vue";
 import Button from "primevue/button";
@@ -183,7 +185,7 @@ function onUpdateParentOperator(val: string) {
 }
 
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
-  updateBooleans(property.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
+  updateWhereBooleans(property.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
 }
 
 function truncateName(name: string) {

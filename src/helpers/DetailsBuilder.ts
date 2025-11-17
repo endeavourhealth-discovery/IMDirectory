@@ -31,6 +31,7 @@ function processEntityKey(key: string, treeNode: any, entity: any, predicates: a
   else if (key === IM.BINDING) addBinding(treeNode, entity, predicates, key);
   else if (key === IM.DEFINITION) addDefinition(treeNode, predicates, key);
   else if (key === IM.HAS_MAP) addHasMapNode(treeNode, entity, predicates, key);
+  else if (key === IM.HAS_DATASET) addDefinition(treeNode, predicates, key);
   else if (key !== "iri") {
     const newTreeNode = { key: key, label: predicates[key] ?? key, children: [] };
     treeNode.children?.push(newTreeNode);

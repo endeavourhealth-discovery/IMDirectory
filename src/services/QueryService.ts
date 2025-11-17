@@ -1,7 +1,19 @@
 import Env from "./Env";
 import { QueryResponse } from "@/interfaces";
 import axios from "axios";
-import { DBEntry, DisplayMode, Match, PathQuery, Query, QueryRequest, RequeueQueryRequest, SearchResponse, ArgumentReference } from "@/interfaces/AutoGen";
+import {
+  DBEntry,
+  DisplayMode,
+  Match,
+  PathQuery,
+  Query,
+  QueryRequest,
+  RequeueQueryRequest,
+  SearchResponse,
+  ArgumentReference,
+  IMLLanguage,
+  Indicator
+} from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/query";
@@ -45,6 +57,10 @@ const QueryService = {
     return await axios.get(API_URL + "/public/queryFromIri", { params: { queryIri: iri } });
   },
 
+  async getDisplayFromIndicatorIri(iri: string): Promise<Indicator> {
+    return await axios.get(API_URL + "/public/indicatorDisplay", { params: { queryIri: iri } });
+  },
+
   async expandCohort(queryIri: string, cohortIri: string, displayMode: DisplayMode): Promise<Query> {
     return await axios.get(API_URL + "/public/expandCohort", { params: { queryIri: queryIri, cohortIri: cohortIri, displayMode: displayMode } });
   },
@@ -56,6 +72,9 @@ const QueryService = {
     return await axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri, lang: lang } });
   },
 
+  async generateQueryIML(queryIri: string): Promise<IMLLanguage> {
+    return await axios.get(API_URL + "/public/imlFromIri", { params: { queryIri: queryIri } });
+  },
   async generateQuerySQLfromQuery(query: Query): Promise<string> {
     return await axios.post(API_URL + "/public/sql", query);
   },
