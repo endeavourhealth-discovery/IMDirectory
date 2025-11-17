@@ -99,7 +99,7 @@ watch(darkMode, async (newValue, oldValue) => {
 });
 
 onMounted(async () => {
-  if (!cookie.get("casdoorToken")) {
+  if (!cookie.get("access_token")) {
     const silentUser = await axios.get(import.meta.env.VITE_CASDOOR_URL + "/api/get-account", { raw: true });
     if (silentUser?.data?.accessToken) {
       await CasdoorService.loginWithBearerToken(silentUser.data.accessToken);

@@ -24,8 +24,7 @@ export const useUserStore = defineStore("user", {
     snomedLicenseAccepted: localStorageWithExpiry.getItem("snomedLicenseAccepted") === true ? true : false,
     uprnAgreementAccepted: localStorageWithExpiry.getItem("uprnAgreementAccepted") === true ? true : false,
     organisations: [] as string[],
-    includeUserGraph: false,
-    avatarPath: undefined
+    includeUserGraph: false
   }),
   getters: {
     isLoggedIn: state => isObjectHasKeys(state.currentUser),
@@ -66,13 +65,13 @@ export const useUserStore = defineStore("user", {
       }
       this.clearAllFromLocalStorage();
       const data = await UserService.getUserData();
-      if (data.preset) this.currentPreset = data.preset;
-      if (data.primaryColor) this.currentPrimaryColor = data.primaryColor;
-      if (data.darkMode) this.darkMode = data.darkMode;
-      if (data.scale) this.currentScale = data.scale;
-      if (data.organisations) this.organisations = data.organisations;
-      if (data.favourites) this.favourites = data.favourites;
-      if (data.mru) this.recentLocalActivity = data.mru;
+      if (data?.preset) this.currentPreset = data.preset;
+      if (data?.primaryColor) this.currentPrimaryColor = data.primaryColor;
+      if (data?.darkMode) this.darkMode = data.darkMode;
+      if (data?.scale) this.currentScale = data.scale;
+      if (data?.organisations) this.organisations = data.organisations;
+      if (data?.favourites) this.favourites = data.favourites;
+      if (data?.mru) this.recentLocalActivity = data.mru;
     },
     getAllFromLocalStorage(): void {
       const preset = localStorageWithExpiry.getItem("preset");
@@ -169,7 +168,6 @@ export const useUserStore = defineStore("user", {
     },
     updateCurrentUser(user: User | undefined) {
       this.currentUser = user;
-      if (this.currentUser) this.formatAvatarPath();
     },
     updateSnomedLicenseAccepted(bool: boolean) {
       this.snomedLicenseAccepted = bool;
@@ -185,9 +183,6 @@ export const useUserStore = defineStore("user", {
     },
     updateIncludeUserGraph(includeUserGraph: boolean) {
       this.includeUserGraph = includeUserGraph;
-    },
-    formatAvatarPath() {
-      this.avatarPath = window.location.origin + this.currentUser?.avatar;
     }
   }
 });

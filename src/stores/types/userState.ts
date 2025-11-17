@@ -18,5 +18,4 @@ export interface UserState {
   uprnAgreementAccepted: boolean;
   organisations: string[];
   includeUserGraph: boolean;
-  avatarPath: string | undefined;
 }
