@@ -1,6 +1,6 @@
 <template>
   <div class="nested-ecl-match">
-    <div v-if="match.instanceOf">
+    <div v-if="match.is">
       <div class="instance-of">
         <Button
           icon="drag-icon fa-solid fa-grip-vertical"
@@ -46,14 +46,14 @@
         </span>
         <span class="concept-selector-container">
           <ConceptSelector
-            v-model:node="match.instanceOf[0]"
+            v-model:node="match.is[0]"
             :parent="parent"
             :activeInputId="activeInputId"
             @activateInput="emit('activateInput', $event)"
             @update-match="updateMatch"
           />
         </span>
-        <Button v-if="match.instanceOf[0].invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
+        <Button v-if="match.is[0].invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
         <span class="add-group">
           <Button
             type="button"
@@ -98,7 +98,7 @@
           @rationalise="onRationalise"
         />
       </div>
-      <div v-if="rootBool && match.instanceOf[0].iri">
+      <div v-if="rootBool && match.is[0].iri">
         <Button
           type="button"
           icon="fa-solid fa-plus"
@@ -209,7 +209,7 @@ function onRationalise() {
 
 function deleteMatch() {
   if (!props.parentOperator) {
-    delete match.value.instanceOf;
+    delete match.value.is;
     return;
   }
   if (parent.value) {

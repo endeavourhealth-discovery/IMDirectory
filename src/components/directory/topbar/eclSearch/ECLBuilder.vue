@@ -36,7 +36,7 @@
           @activateInput="activeInputId = $event"
           @rationalise="rationaliseBooleans"
         />
-        <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.instanceOf && !loading">
+        <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.is && !loading">
           *Move pointer over panel above to add concepts, refinements and groups.
         </small>
       </div>
