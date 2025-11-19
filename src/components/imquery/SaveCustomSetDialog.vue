@@ -69,7 +69,7 @@ import { EntityService, FilerService, FunctionService } from "@/services";
 import { IM, RDF, RDFS, IM_FUNCTION } from "@/vocabulary";
 import { useToast } from "primevue/usetoast";
 import * as yup from "yup";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 interface Props {
   setMembers: Node[];
@@ -197,7 +197,7 @@ function getIsContainedIn() {
 function getDefinition() {
   const matches: Match[] = [];
   for (const member of props.setMembers) {
-    matches.push({ name: member.name, instanceOf: [member] });
+    matches.push({ name: member.name, is: [member] });
   }
   const definition = {
     or: matches
