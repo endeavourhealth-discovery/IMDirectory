@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-11-14 08:33:19.
+// Generated using typescript-generator version 3.2.1263 on 2025-11-20 10:37:40.
 
 export interface ConceptContextMap {
     id?: string;
@@ -309,13 +309,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    value?: string;
     function?: FunctionClause;
+    value?: string;
     units?: TTIriRef;
-    description?: string;
-    operator?: Operator;
     qualifier?: TTIriRef;
     valueLabel?: string;
+    description?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -364,8 +364,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -886,13 +886,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    status?: TTIriRef;
+    prefixes?: TTPrefix[];
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
+    status?: TTIriRef;
     code?: string;
-    prefixes?: TTPrefix[];
     types?: TTIriRef[];
 }
 
@@ -1315,6 +1315,7 @@ export const enum COMPONENT {
     IRI_BUILDER = "http://endhealth.info/im#Component_iriBuilder",
     AUTOCOMPLETE_SEARCH_BAR_WRAPPER = "http://endhealth.info/im#Component_autocompleteSearchBarWrapper",
     SUBSET_BUILDER = "http://endhealth.info/im#Component_subsetBuilder",
+    CHECKBOX_DISPLAY = "http://endhealth.info/im#Component_checkboxDisplay",
 }
 
 export const enum CONFIG {

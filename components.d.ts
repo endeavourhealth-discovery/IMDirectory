@@ -117,6 +117,7 @@ declare module 'vue' {
     EditorShapeComponentsBuilderAddNext: typeof import('./src/components/editor/shapeComponents/builder/AddNext.vue')['default']
     EditorShapeComponentsBuilderChildWrapper: typeof import('./src/components/editor/shapeComponents/BuilderChildWrapper.vue')['default']
     EditorShapeComponentsBuilderQuantifierTree: typeof import('./src/components/editor/shapeComponents/builder/quantifier/QuantifierTree.vue')['default']
+    EditorShapeComponentsCheckboxDisplay: typeof import('./src/components/editor/shapeComponents/CheckboxDisplay.vue')['default']
     EditorShapeComponentsComponentGroup: typeof import('./src/components/editor/shapeComponents/ComponentGroup.vue')['default']
     EditorShapeComponentsDisplayAnything: typeof import('./src/components/editor/shapeComponents/DisplayAnything.vue')['default']
     EditorShapeComponentsDropdownTextInputConcatenator: typeof import('./src/components/editor/shapeComponents/DropdownTextInputConcatenator.vue')['default']
