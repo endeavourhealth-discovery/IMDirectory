@@ -29,22 +29,24 @@
           </div>
         </div>
       </template>
-      <template v-if="query" class="query-display-content rec-query-display">
-        <span v-if="query.name" v-html="query.name"> </span>
-        <div v-if="query.typeOf">
-          <span class="field" v-html="query.typeOf.name"></span>
-          <span class="include-title text-black-500">with the following features</span>
+      <template v-if="query">
+        <div  class="query-display-content rec-query-display">
+          <span v-if="query.name" v-html="query.name"> </span>
+          <div v-if="query.typeOf">
+            <span class="field" v-html="query.typeOf.name"></span>
+            <span class="include-title text-black-500">with the following features</span>
+          </div>
+          <RecursiveMatchDisplay
+            :match="query"
+            :clauseIndex="0"
+            :depth="0"
+            :inline="false"
+            :parent-match="rootQuery"
+            :bracketed="false"
+            :eclQuery="eclQuery"
+            :expanded="query.name === undefined"
+          />
         </div>
-        <RecursiveMatchDisplay
-          :match="query"
-          :clauseIndex="0"
-          :depth="0"
-          :inline="false"
-          :parent-match="rootQuery"
-          :bracketed="false"
-          :eclQuery="eclQuery"
-          :expanded="query.name === undefined"
-        />
       </template>
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
