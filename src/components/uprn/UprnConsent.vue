@@ -17,7 +17,7 @@
             pseudonymised or other data based on these.
           </p>
           <p>
-            This service/work/research acknowledges the use of the Open Access Discovery Programme UPRN-match Address Matching Algorithm (current version 4.2)
+            This service/work/research acknowledges the use of the Open Access Discovery Programme UPRN-match Address Matching Algorithm (current version 6)
             which is licensed under AGPL-3.0 License and can be accessed <Button link href="https://github.com/endeavourhealth-discovery/ASSIGN">here</Button>.
             The current version number can be found
             <Button link as="a" class="p-0" href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking"
