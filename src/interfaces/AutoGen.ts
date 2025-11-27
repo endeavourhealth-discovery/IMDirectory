@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-11-19 11:12:30.
+// Generated using typescript-generator version 3.2.1263 on 2025-11-24 15:48:40.
 
 export interface ConceptContextMap {
     id?: string;
@@ -309,13 +309,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    qualifier?: TTIriRef;
-    operator?: Operator;
-    function?: FunctionClause;
-    valueLabel?: string;
     value?: string;
+    function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
+    qualifier?: TTIriRef;
+    valueLabel?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -358,15 +358,17 @@ export interface Element extends IriLD, Entailment {
     childOf?: boolean;
     parentOrSelfOf?: boolean;
     parentOf?: boolean;
+    cohort?: boolean;
     nodeRef?: string;
     invalid?: boolean;
+    isCohort?: boolean;
 }
 
 export interface Entailment {
-    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -882,15 +884,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    code?: string;
-    scheme?: TTIriRef;
-    types?: TTIriRef[];
-    prefixes?: TTPrefix[];
     type?: TTArray;
     name?: string;
+    scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
     description?: string;
+    code?: string;
+    prefixes?: TTPrefix[];
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
