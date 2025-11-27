@@ -15,7 +15,7 @@
     </div>
 
     <div v-else>
-      <span v-if="match.isCohort" class="instance-of">{{ match.isCohort.name }}</span>
+      <span v-if="match.is" class="instance-of">{{ match.is![0].name }}</span>
     </div>
     <div v-if="!editMode" class="edit-button">
       <Button
@@ -56,10 +56,6 @@ import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
 
-interface Props {
-  baseType: Node;
-}
-
 const editMode = defineModel<boolean>("editMode");
 const match = defineModel<Match>("match", { default: {} });
 const rootBaseEntities: Ref<string[]> = ref([]);
@@ -90,13 +86,13 @@ async function init() {
 
 async function updateCohort(cohort?: SearchResultSummary) {
   if (cohort) {
-    match.value.isCohort = { iri: cohort.iri, name: cohort.name } as TTIriRef;
+    match.value.is![0] = { iri: cohort.iri, name: cohort.name } as TTIriRef;
   }
   editMode.value = false;
   emit("updateProperty");
 }
 function deleteCohort() {
-  delete match.value.isCohort;
+  delete match.value.is![0];
   editMode.value = false;
 }
 </script>

@@ -52,7 +52,7 @@ import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import {Namespace} from "@/vocabulary/Namespace";
+import { Namespace } from "@/vocabulary/Namespace";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -163,7 +163,7 @@ async function processRole(newData: any[], role: Role) {
 const request: QueryRequest = {
   query: {
     activeOnly: true,
-    instanceOf: [
+    is: [
       {
         iri: SNOMED.ATTRIBUTE,
         descendantsOrSelfOf: true

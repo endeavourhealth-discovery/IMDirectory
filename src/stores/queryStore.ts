@@ -62,7 +62,6 @@ export const useQueryStore = defineStore("query", {
           }
         }
       }
-      if (match.then) this.createReturnMap(match.then);
     }
   }
 });

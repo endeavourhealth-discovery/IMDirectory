@@ -14,15 +14,11 @@
         >
         <span v-else-if="where.valueLabel" class="field">{{ where.valueLabel }}</span>
       </span>
-      <span v-if="where.relativeTo">
-        <span v-if="where.relativeTo.name">
-          <span class="field">{{ where.relativeTo.name }} of</span>
-        </span>
-        <span v-if="where.relativeTo.parameterName">
-          <span class="field">{{ where.relativeTo.parameterName }} of</span>
-        </span>
-        <span v-else-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
-      </span>
+      <template v-if="where.relativeTo">
+        <span v-if="where.relativeTo.name" class="field">{{ where.relativeTo.name }} of</span>
+        <span v-if="where.relativeTo.parameterName" class="field">{{ where.relativeTo.parameterName }}</span>
+        <span v-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
+      </template>
       <span v-if="isExpanded && isArrayHasLength(where.is)">
         <span>, defined as</span>
         <div>
@@ -93,7 +89,7 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const whereName: Ref<string | undefined> = ref(undefined);
+const whereName: Ref<string | undefined> = ref(props.where.name);
 const isExpanded = ref(props.expandedSet);
 
 const boolGroup = computed(() => {
