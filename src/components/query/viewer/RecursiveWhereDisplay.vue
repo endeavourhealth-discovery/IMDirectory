@@ -89,7 +89,7 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const whereName: Ref<string | undefined> = ref(undefined);
+const whereName: Ref<string | undefined> = ref(props.where.name);
 const isExpanded = ref(props.expandedSet);
 
 const boolGroup = computed(() => {

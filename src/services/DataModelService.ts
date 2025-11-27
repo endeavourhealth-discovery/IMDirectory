@@ -1,6 +1,6 @@
 import Env from "./Env";
 import axios from "axios";
-import { TTIriRef, NodeShape, Match } from "@/interfaces/AutoGen";
+import { TTIriRef, NodeShape} from "@/interfaces/AutoGen";
 import { PropertyDisplay, UIProperty } from "@/interfaces";
 const API_URL = Env.API + "api/dataModel";
 

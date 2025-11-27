@@ -124,7 +124,8 @@ async function updateBaseType(newBaseType?: SearchResultSummary) {
       match.value.is = [
         {
           iri: selectedBaseType.iri,
-          name: selectedBaseType.name
+          name: selectedBaseType.name,
+          cohort: true
         }
       ];
     } else match.value!.typeOf = { iri: newBaseType.iri, name: newBaseType.name };
