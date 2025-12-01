@@ -78,8 +78,8 @@ export const useUserStore = defineStore("user", () => {
   function getAllFromLocalStorage(): void {
     const preset = localStorageWithExpiry.getItem("preset");
     if (preset && Object.values(PrimeVuePresetThemes).includes(preset as PrimeVuePresetThemes)) currentPreset.value = preset as PrimeVuePresetThemes;
-    const darkMode = localStorageWithExpiry.getItem("darkMode");
-    if (darkMode === "true") darkMode.value = true;
+    const localDarkMode = localStorageWithExpiry.getItem("darkMode");
+    if (localDarkMode === "true") darkMode.value = true;
     else darkMode.value = false;
     const primaryColor = localStorageWithExpiry.getItem("primaryColor");
     if (primaryColor && Object.values(PrimeVueColors).includes(primaryColor as PrimeVueColors)) currentPrimaryColor.value = primaryColor as PrimeVueColors;

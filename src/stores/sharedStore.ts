@@ -18,7 +18,7 @@ export const useSharedStore = defineStore("shared", () => {
   const showDevBanner = ref<boolean>(localStorageWithExpiry.getItem("showDevBanner") ?? true);
   const activeProfile = ref<{ uuid: string; activeClausePath: string }>({ uuid: "", activeClausePath: "" });
   const error = ref<string>("");
-  const isPublicMode = ref<boolean>(false);
+  const isPublicMode = ref<boolean | undefined>();
   const isDevMode = ref<boolean>(true);
   const signinUrl = ref<string>("");
   const signupUrl = ref<string>("");
