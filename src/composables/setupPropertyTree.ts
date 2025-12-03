@@ -5,7 +5,7 @@ import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import { Match, Path, PropertyShape, Node } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
-import { Orderable } from "@/stores/types/orderable";
+import { Orderable } from "@/models/orderable";
 
 function setupPropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
