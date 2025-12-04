@@ -10,8 +10,8 @@ import { Graph } from "@/interfaces/AutoGen";
 const API_URL = Env.API + "api/user";
 
 const UserService = {
-  async getUserData(): Promise<UserData> {
-    return await axios.get(API_URL + "/data");
+  async getUserSettings(): Promise<UserData> {
+    return await axios.get(API_URL + "/settings");
   },
   async getUserScale(): Promise<string> {
     return await axios.get(API_URL + "/scale");

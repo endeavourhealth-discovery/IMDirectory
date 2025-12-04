@@ -65,7 +65,7 @@ export const useUserStore = defineStore("user", () => {
       return;
     }
     clearAllFromLocalStorage();
-    const data = await UserService.getUserData();
+    const data = await UserService.getUserSettings();
     if (data?.preset) currentPreset.value = data.preset;
     if (data?.primaryColor) currentPrimaryColor.value = data.primaryColor;
     if (data?.darkMode) darkMode.value = data.darkMode;
