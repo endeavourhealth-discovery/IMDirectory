@@ -1,7 +1,30 @@
 <template>
   <div class="nested-ecl-match">
+    <div v-if="match.where">
+      <span class="subtypes-checkbox">Include subtypes from expression</span>
+      <Checkbox
+        :inputId="'subtypeCheck'"
+        name="subtypeCheck"
+        binary
+        v-model="checkIncludeSubtypes"
+        @update:modelValue="onCheckIncludeSubTypes"
+        v-tooltip="'Select if subtypes are not needed'"
+      />
+    </div>
     <div v-if="match.is">
-      <div class="instance-of">
+      <div v-if="match.is.length > 0 && match.is[0].match">
+        <ExpressionConstraint
+          v-model:match="match.is[0].match"
+          v-model:parent="match"
+          v-model:parentGroup="parentGroup"
+          :index="0"
+          :includeSubtypes="true"
+          @includeSubtypesChanged="onChangeIncludeSubtypes"
+          @rationalise="onRationalise"
+          :rootBool="rootBool"
+        />
+      </div>
+      <div v-else class="instance-of">
         <Button
           icon="drag-icon fa-solid fa-grip-vertical"
           severity="secondary"
@@ -162,19 +185,21 @@ interface Props {
   parentOperator?: string;
   rootBool?: boolean;
   activeInputId?: string;
+  includeSubtypes?: boolean;
 }
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined>;
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const group: Ref<number[]> = ref([]);
-const emit = defineEmits(["updateBool", "rationalise", "activateInput"]);
+const emit = defineEmits(["updateBool", "rationalise", "activateInput", "includeSubtypesChanged"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
 const hoverAddRefinement = ref(false);
 const hoverDeleteConcept = ref(false);
 const hoverAddConcept = ref(false);
 const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
+const checkIncludeSubtypes = ref(props.includeSubtypes);
 const checked = ref(false);
 const focusConcepts = computed(() => {
   return updateFocusConcepts(match.value);
@@ -201,6 +226,18 @@ function updateOperator(val: string) {
 
 function updateMatch() {
   updateFocusConcepts(match.value);
+}
+
+function onCheckIncludeSubTypes() {
+  if (props.includeSubtypes) {
+    emit("includeSubtypesChanged", match.value);
+  } else {
+    match.value = { is: [{ descendantsOrSelfOf: true, match: match.value }] };
+  }
+}
+
+function onChangeIncludeSubtypes(e: Match) {
+  match.value = e;
 }
 
 function onRationalise() {
@@ -316,6 +353,9 @@ function onCheckGroupChange(e: any) {
 ::v-deep(.operator-selector-not .p-select-label) {
   color: var(--p-red-500) !important;
   font-size: 0.85rem;
+}
+.subtypes-checkbox {
+  padding-right: 0.5rem;
 }
 .dropdown-labels {
   min-height: 1rem;
