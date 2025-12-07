@@ -19,26 +19,46 @@
       <component :is="match.description ? 'div' : 'span'">
         <template v-if="match.is">
           <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
-            <span v-if="index > 0" class="or">or</span>
-            <span v-else class="field">in</span>
-            <Button text :icon="!cohorts.has(index) ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="expandCohort(index)"></Button>
-            <IMViewerLink
-              v-if="item.iri"
-              :iri="item.iri"
-              :action="editMode ? 'view' : 'select'"
-              :label="item.name"
-              @navigateTo="(iri: string) => emit('navigateTo', iri)"
-            />
-            <RecursiveMatchDisplay
-              v-if="cohorts.has(index)"
-              :match="cohorts.get(index)"
-              :clause-index="0"
-              :property-index="0"
-              :parent-operator="parentOperator"
-              :depth="depth + 1"
-              :parent-match="match"
-              :eclQuery="eclQuery"
-            />
+            <template v-if="item.match">
+              <span v-if="item.descendantsOrSelfOf" class="field">subtypes of </span>
+              <RecursiveMatchDisplay
+                :match="item.match"
+                :clause-index="0"
+                :property-index="0"
+                :parent-operator="parentOperator"
+                :depth="depth + 1"
+                :parent-match="match"
+                :eclQuery="eclQuery"
+              />
+            </template>
+            <template v-else>
+              <span v-if="index > 0" class="or">or</span>
+              <span v-else class="field">in</span>
+              <Button
+                v-if="item.cohort"
+                text
+                :icon="!cohorts.has(index) ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'"
+                @click="expandCohort(index)"
+              ></Button>
+              <IMViewerLink
+                v-if="item.iri"
+                :iri="item.iri"
+                :action="editMode ? 'view' : 'select'"
+                :label="item.name"
+                @navigateTo="(iri: string) => emit('navigateTo', iri)"
+              />
+              <span v-else-if="item.nodeRef">{{ item.nodeRef }}</span>
+              <RecursiveMatchDisplay
+                v-if="cohorts.has(index)"
+                :match="cohorts.get(index)"
+                :clause-index="0"
+                :property-index="0"
+                :parent-operator="parentOperator"
+                :depth="depth + 1"
+                :parent-match="match"
+                :eclQuery="eclQuery"
+              />
+            </template>
           </template>
         </template>
         <template v-if="parentMatch?.union">
@@ -155,7 +175,9 @@ async function expandCohort(index: number) {
   if (queryIri.value) {
     const newMap = new Map(cohorts.value);
     if (newMap.has(index)) newMap.delete(index);
-    else newMap.set(index, await QueryService.expandCohort(queryIri.value, match.value.is![index]!.iri!, DisplayMode.ORIGINAL));
+    if (match.value.is![index]!.iri && match.value.is![index]!.cohort) {
+      newMap.set(index, await QueryService.expandCohort(queryIri.value, match.value.is![index]!.iri!, DisplayMode.ORIGINAL));
+    }
     cohorts.value = newMap;
   }
 }
