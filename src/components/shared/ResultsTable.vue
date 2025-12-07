@@ -84,6 +84,7 @@
       :show-core="false"
       :show-legacy="false"
       :show-im1-id="false"
+      :show-subsumed-by="false"
       @download="download"
       @close-dialog="showDownloadOptions = false"
     />
