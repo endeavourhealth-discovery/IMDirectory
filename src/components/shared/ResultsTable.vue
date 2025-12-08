@@ -23,7 +23,6 @@
       :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
       :loading="searchLoading"
       :pt="{ thead: { class: 'z-1!' } }"
-      @update:rows="updateRows"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
@@ -85,6 +84,7 @@
       :show-core="false"
       :show-legacy="false"
       :show-im1-id="false"
+      :show-subsumed-by="false"
       @download="download"
       @close-dialog="showDownloadOptions = false"
     />
@@ -220,7 +220,7 @@ async function onSearch() {
     pageCache.value[page.value] = searchResults.value;
   }
   searchLoading.value = false;
-  if (props.searchTerm === lastSearchTerm) {
+  if (!props.eclQuery && lastSearchTerm === props.searchTerm && response && response.entities && response.entities.length < (page.value + 1) * rows.value) {
     search(page.value + 1, rows.value, false).then(slow => {
       if (slow && slow.entities) {
         processSearchResults(slow);
@@ -238,13 +238,11 @@ function updateRows(newRows: number) {
 
 async function search(pageNumber: number, pageSize: number, fast: boolean) {
   let response = undefined;
-
   if (props.eclQuery) {
     props.eclQuery.page = pageNumber;
     props.eclQuery.size = pageSize;
     response = await EclService.ECLSearch(props.eclQuery);
-  }
-  if (props.searchTerm && props.searchTerm.length > 2) {
+  } else if (props.searchTerm && props.searchTerm.length > 2) {
     if (props.imQuery) {
       props.imQuery.textSearch = props.searchTerm;
       props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
@@ -283,7 +281,7 @@ function isFavourite(iri: string) {
 function processSearchResults(searchResponse: SearchResponse | undefined): void {
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
     searchResults.value = mapSearchResults(searchResponse);
-    totalCount.value = searchResponse.count ?? 0;
+    if (searchResponse.page && searchResponse.page == 1) totalCount.value = searchResponse.count ?? 0;
     highestUsage.value = searchResponse.highestUsage ?? 0;
   }
 }
