@@ -1,6 +1,6 @@
 import { Node, Order, RelativeTo, Where, Assignable, Match, Path, HasPaths } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
-import { Orderable } from "@/stores/types/orderable";
+import { Orderable } from "@/models/orderable";
 import { useQueryStore } from "@/stores/queryStore";
 
 export const relativityOptions = [

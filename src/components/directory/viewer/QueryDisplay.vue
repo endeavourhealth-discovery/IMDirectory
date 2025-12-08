@@ -102,17 +102,17 @@
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import { QueryService } from "@/services";
-import { Argument, ArgumentReference, IMLLanguage, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
+import { CasbinService, Env, QueryService } from "@/services";
+import { Action, Argument, ArgumentReference, Bool, DisplayMode, IMLLanguage, Query, QueryRequest, Resource, UserRole } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
 import IMLDisplay from "./IMLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
-import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
-import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
-import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
+import TestQueryResults from "@/components/directory/viewer/queryDisplay/TestQueryResults.vue";
+import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
+import ArgumentDisplayDialog from "@/components/directory/viewer/queryDisplay/ArgumentDisplayDialog.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 enum DisplayOptions {
@@ -142,6 +142,7 @@ const confirm = useConfirm();
 const router = useRouter();
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
 
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
@@ -158,6 +159,7 @@ const checkingArguments = ref(false);
 const missingArguments: Ref<ArgumentReference[]> = ref([]);
 const requestArguments: Ref<Argument[]> = ref([]);
 const runOnConfirm = ref(false);
+const hasPermissionQueryExecute = ref(false);
 provide("queryIri", props.entityIri);
 provide("displayMode", displayMode);
 
@@ -174,6 +176,10 @@ watch(
     await init();
   }
 );
+
+watch(currentUser, async () => {
+  hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
+});
 
 watch(selectedDisplayOption, async (newValue, oldValue) => {
   if (!newValue) selectedDisplayOption.value = oldValue;
@@ -214,6 +220,9 @@ async function init() {
   if (query.value?.columnGroup) selectedDisplayOption.value = DisplayOptions.DatasetDefinition;
   else if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
   else selectedDisplayOption.value = DisplayOptions.LogicalView;
+  if (isLoggedIn.value) {
+    hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
+  }
   loading.value = false;
 }
 
@@ -272,7 +281,7 @@ async function runQuery() {
       },
       accept: async () => {
         await addQueryToRunnerQueue();
-        router.push({ name: "QueryRunner" });
+        window.open(`${Env.QUERY_RUNNER}`, "_blank");
       },
       reject: () => confirm.close()
     });

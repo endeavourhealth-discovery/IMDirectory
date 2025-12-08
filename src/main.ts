@@ -35,13 +35,17 @@ import Ripple from "primevue/ripple";
 
 import { VueShowdownPlugin } from "vue-showdown";
 
-import { Amplify, ResourcesConfig } from "aws-amplify";
 import { createPinia } from "pinia";
 import { useSharedStore } from "@/stores/sharedStore";
-import { AuthService } from "@/services";
 
-const awsconfig = await AuthService.getConfig();
-Amplify.configure(awsconfig.data as ResourcesConfig);
+import Casdoor from "casdoor-vue-sdk";
+const config = {
+  serverUrl: import.meta.env.VITE_CASDOOR_URL,
+  clientId: import.meta.env.VITE_CASDOOR_CLIENT_ID,
+  organizationName: import.meta.env.VITE_CASDOOR_ORGANISATION_NAME,
+  appName: import.meta.env.VITE_CASDOOR_APP_NAME,
+  redirectPath: "/#/callback"
+};
 
 // msw initialising
 if (import.meta.env.MODE === "mock") {
@@ -51,6 +55,7 @@ if (import.meta.env.MODE === "mock") {
 const pinia = createPinia();
 
 const app = createApp(App)
+  .use(Casdoor, config)
   .use(pinia)
   .use(router)
   .use(PrimeVue, {

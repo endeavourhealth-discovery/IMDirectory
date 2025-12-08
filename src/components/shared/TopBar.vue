@@ -108,7 +108,7 @@
         aria-controls="overlay_menu"
         data-testid="account-menu-logged-in"
       >
-        <img class="avatar-icon" alt="avatar icon" :src="avatarPath" style="min-width: 1.75rem" />
+        <img class="avatar-icon" alt="avatar icon" :src="currentUser.avatar" style="min-width: 1.75rem" />
       </Button>
       <TieredMenu ref="userMenu" id="account-menu" :model="getItems()" :popup="true">
         <template #item="{ item, props }">
@@ -151,7 +151,7 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, CodeGenService } from "@/services";
+import { DirectService, FilerService, CodeGenService, CasdoorService, CasbinService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -163,10 +163,16 @@ import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import Button from "primevue/button";
 import { UserRole } from "@/enums";
+import { useCasdoor } from "casdoor-vue-sdk";
+import { useCookies } from "@vueuse/integrations";
+import { Action, Resource } from "@/interfaces/AutoGen";
+import Swal from "sweetalert2";
 
 const router = useRouter();
+const { getSigninUrl, getSignupUrl, getMyProfileUrl } = useCasdoor();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const cookies = useCookies();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const isAdmin = computed(() => userStore.isAdmin);
@@ -176,7 +182,6 @@ const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
 const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
 const userDarkMode = computed(() => userStore.darkMode);
 const currentIncludeUserGraph = computed(() => userStore.includeUserGraph);
-const avatarPath = computed(() => userStore.avatarPath);
 
 const { changeScale } = setupChangeScale();
 const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
@@ -217,6 +222,7 @@ const darkMode = ref(false);
 const selectedPrimaryColor = ref(themeOptions.value.primaryColours[0]);
 const selectedSurfaceColor = ref(themeOptions.value.surfaceColours[0]);
 const includeUserGraph = ref(false);
+const hasPermissionDocumentWrite = ref(false);
 
 const toast = useToast();
 const uploadDownloadMenu = ref();
@@ -238,6 +244,12 @@ watch(includeUserGraph, async newValue => {
   userStore.updateIncludeUserGraph(newValue);
 });
 
+watch(currentUser, async newValue => {
+  if (newValue) {
+    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+  } else hasPermissionDocumentWrite.value = false;
+});
+
 onMounted(async () => {
   darkMode.value = userDarkMode.value;
   includeUserGraph.value = currentIncludeUserGraph.value;
@@ -246,7 +258,10 @@ onMounted(async () => {
   if (currentSurfaceColor.value) selectedSurfaceColor.value = currentSurfaceColor.value;
   setUserMenuItems();
   setAppMenuItems();
-  await setUploadDownloadMenuItems();
+  setUploadDownloadMenuItems();
+  if (isLoggedIn.value) {
+    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+  }
 });
 
 async function toLandingPage() {
@@ -274,12 +289,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      route: "/user/login"
+      command: () => (window.location.href = getSigninUrl())
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      route: "/user/register"
+      command: () => (window.location.href = getSignupUrl())
     },
     {
       separator: true
@@ -306,22 +321,12 @@ function setUserMenuItems(): void {
     {
       label: "My account",
       icon: "fa-solid fa-fw fa-user",
-      route: "/user/my-account"
-    },
-    {
-      label: "Edit account",
-      icon: "fa-solid fa-fw fa-user-pen",
-      route: "/user/my-account/edit"
-    },
-    {
-      label: "Change password",
-      icon: "fa-solid fa-fw fa-user-lock",
-      route: "/user/my-account/password-edit"
+      command: async () => await goToMyProfile()
     },
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      route: "/user/logout"
+      command: async () => await logout()
     },
     {
       separator: true
@@ -346,6 +351,26 @@ function setUserMenuItems(): void {
   ];
 }
 
+async function logout() {
+  await Swal.fire({
+    icon: "question",
+    title: "Confirm logout?",
+    text: "Are you sure you want to logout?",
+    confirmButtonText: "Logout",
+    showCancelButton: true
+  }).then(async result => {
+    if (result.isConfirmed) {
+      await CasdoorService.logout();
+      location.reload();
+    }
+  });
+}
+
+async function goToMyProfile() {
+  const url = await CasdoorService.getProfileUrl();
+  if (url) window.location.href = url;
+}
+
 function openUploadDownloadMenu(event: MouseEvent): void {
   uploadDownloadMenu.value.toggle(event);
 }
@@ -363,10 +388,6 @@ function toggleThemesMenu(event: MouseEvent, key: string | undefined) {
   }
 }
 
-function isLoggedInWithRole(role: UserRole): boolean {
-  return isLoggedIn.value && typeof currentUser.value !== "undefined" && currentUser.value.roles.includes(role);
-}
-
 function setUploadDownloadMenuItems() {
   uploadDownloadItems.value = [
     {
@@ -382,7 +403,7 @@ function setUploadDownloadMenuItems() {
         {
           label: "Upload Document",
           icon: "fa-duotone fa-file-arrow-up",
-          disabled: !(isLoggedInWithRole(UserRole.CREATOR) || isLoggedInWithRole(UserRole.EDITOR)),
+          disabled: !hasPermissionDocumentWrite.value,
           command: () => directService.file()
         },
         {
