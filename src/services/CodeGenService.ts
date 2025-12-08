@@ -3,7 +3,7 @@ import axios from "axios";
 import { CodeTemplate } from "@/interfaces";
 import { CodeGenDto } from "@/interfaces/AutoGen";
 
-const API_URL = Env.API + "api/codegen";
+const API_URL = Env.API + "api/codeGen";
 
 const CodeGenService = {
   async getCodeTemplateList(): Promise<string[]> {
