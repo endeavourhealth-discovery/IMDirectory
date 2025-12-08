@@ -50,8 +50,6 @@ declare module 'vue' {
     DirectoryTopbarEclSearchBuilderECLRefinementValue: typeof import('./src/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue')['default']
     DirectoryTopbarEclSearchBuilderExpressionConstraint: typeof import('./src/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue')['default']
     DirectoryTopbarEclSearchBuilderRoleGroup: typeof import('./src/components/directory/topbar/eclSearch/builder/RoleGroup.vue')['default']
-    DirectoryTopbarEclSearchBuilderSkeletonsConceptSkeleton: typeof import('./src/components/directory/topbar/eclSearch/builder/skeletons/ConceptSkeleton.vue')['default']
-    DirectoryTopbarEclSearchBuilderSkeletonsRefinementSkeleton: typeof import('./src/components/directory/topbar/eclSearch/builder/skeletons/RefinementSkeleton.vue')['default']
     DirectoryTopbarEclSearchECLBuilder: typeof import('./src/components/directory/topbar/eclSearch/ECLBuilder.vue')['default']
     DirectoryViewer: typeof import('./src/components/directory/Viewer.vue')['default']
     DirectoryViewerContent: typeof import('./src/components/directory/viewer/Content.vue')['default']
