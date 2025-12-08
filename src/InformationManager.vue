@@ -37,7 +37,7 @@ import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import setupChangeScale from "@/composables/setupChangeScale";
+import setupChangeFontSize from "@/composables/setupChangeFontSize";
 import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
@@ -61,7 +61,7 @@ sharedStore.updateSigninUrl(getSigninUrl());
 sharedStore.updateSignupUrl(getSignupUrl());
 const finishedOnMounted = ref(false);
 
-const { changeScale } = setupChangeScale();
+const { changeFontSize } = setupChangeFontSize();
 const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
@@ -70,7 +70,7 @@ const showDevBanner: ComputedRef<boolean> = computed(() => sharedStore.showDevBa
 const isPublicMode: ComputedRef<boolean | undefined> = computed(() => sharedStore.isPublicMode);
 const isDevMode: ComputedRef<boolean | undefined> = computed(() => sharedStore.isDevMode);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const currentScale = computed(() => userStore.currentScale);
+const currentFontSize = computed(() => userStore.currentFontSize);
 const currentPreset = computed(() => userStore.currentPreset);
 const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
 const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
@@ -85,8 +85,8 @@ const latestRelease: Ref<GithubRelease | undefined> = ref();
 watch(currentPreset, async (newValue, oldValue) => {
   if (newValue && newValue !== oldValue) await changePreset(newValue);
 });
-watch(currentScale, async (newValue, oldValue) => {
-  if (newValue && newValue !== oldValue) await changeScale(newValue);
+watch(currentFontSize, async (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) await changeFontSize(newValue);
 });
 watch(currentPrimaryColor, async (newValue, oldValue) => {
   if (newValue && newValue !== oldValue) await changePrimaryColor(newValue);
@@ -119,7 +119,7 @@ onMounted(async () => {
   if (isPublicMode.value || isLoggedIn.value) {
     await userStore.getAllFromUserDatabase();
     await setThemeOptions();
-    if (currentScale.value) await changeScale(currentScale.value);
+    if (currentFontSize.value) await changeFontSize(currentFontSize.value);
     await filterStore.fetchFilterSettings();
     await setShowReleaseBanner();
   } else {

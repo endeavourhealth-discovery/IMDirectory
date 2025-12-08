@@ -13,8 +13,8 @@ const UserService = {
   async getUserSettings(): Promise<UserData> {
     return await axios.get(API_URL + "/settings");
   },
-  async getUserScale(): Promise<string> {
-    return await axios.get(API_URL + "/scale");
+  async getUserFontSize(): Promise<string> {
+    return await axios.get(API_URL + "/");
   },
   async getUserMRU(): Promise<RecentActivityItem[]> {
     return await axios.get(API_URL + "/MRU");
@@ -49,8 +49,8 @@ const UserService = {
   async updateUserDarkMode(bool: boolean): Promise<void> {
     return await axios.post(API_URL + "/darkMode", { bool: bool });
   },
-  async updateUserScale(scale: string): Promise<string> {
-    return await axios.post(API_URL + "/scale", scale, { headers: { "Content-Type": "text/plain" } });
+  async updateUserFontSize(fontSize: string): Promise<string> {
+    return await axios.post(API_URL + "/fontSize", fontSize, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserMRU(mru: RecentActivityItem[]): Promise<void> {
     return await axios.post(API_URL + "/MRU", mru);

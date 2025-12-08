@@ -10,7 +10,7 @@ export class USER {
   public static readonly USER_PRIMARY_COLOR = Namespace.USER + "UserPrimaryColor"
   public static readonly USER_SURFACE_COLOR = Namespace.USER + "UserSurfaceColor"
   public static readonly USER_DARK_MODE = Namespace.USER + "UserDarkMode"
-  public static readonly USER_SCALE = Namespace.USER + "UserScale"
+  public static readonly USER_FONT_SIZE = Namespace.USER + "UserFontSize"
   public static readonly USER_MRU = Namespace.USER + "UserMRU"
   public static readonly USER_FAVOURITES = Namespace.USER + "UserFavourites"
   public static readonly ORGANISATIONS = Namespace.USER + "Organisations"

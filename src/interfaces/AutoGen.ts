@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-04 16:00:49.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-08 16:15:43.
 
 export interface ConceptContextMap {
     id?: string;
@@ -75,17 +75,18 @@ export interface User {
     roles?: UserRole[];
     groups?: string[];
     test?: string;
+    roleNames?: string[];
 }
 
 export interface UserSettings {
-    preset?: PrimeVuePresetThemes;
-    primaryColor?: PrimeVueColors;
-    surfaceColor?: PrimeVueColors;
     darkMode?: boolean;
-    scale?: FontSize;
     organisations?: string[];
     favourites?: string[];
     mru?: RecentActivityItemDto[];
+    preset?: string;
+    primaryColor?: PrimeVueColors;
+    surfaceColor?: string;
+    fontSize?: string;
 }
 
 export interface CodeGenDto {
@@ -339,12 +340,12 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    qualifier?: TTIriRef;
-    operator?: Operator;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
+    qualifier?: TTIriRef;
+    operator?: Operator;
     valueLabel?: string;
 }
 
@@ -395,10 +396,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -916,12 +917,12 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
+    status?: TTIriRef;
     types?: TTIriRef[];
+    description?: string;
     code?: string;
     prefixes?: TTPrefix[];
 }
@@ -1018,8 +1019,8 @@ export interface RecentActivityItemDto {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -2027,7 +2028,7 @@ export enum USER {
     USER_PRIMARY_COLOR = "http://endhealth.info/user#UserPrimaryColor",
     USER_SURFACE_COLOR = "http://endhealth.info/user#UserSurfaceColor",
     USER_DARK_MODE = "http://endhealth.info/user#UserDarkMode",
-    USER_SCALE = "http://endhealth.info/user#UserScale",
+    USER_FONT_SIZE = "http://endhealth.info/user#UserFontSize",
     USER_MRU = "http://endhealth.info/user#UserMRU",
     USER_FAVOURITES = "http://endhealth.info/user#UserFavourites",
     ORGANISATIONS = "http://endhealth.info/user#Organisations",
@@ -2094,13 +2095,6 @@ export enum XSD {
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
 }
 
-export enum PrimeVuePresetThemes {
-    AURA = "aura",
-    LARA = "lara",
-    NORA = "nora",
-    MATERIAL = "material",
-}
-
 export enum PrimeVueColors {
     EMERALD = "emerald",
     GREEN = "green",
@@ -2124,11 +2118,4 @@ export enum PrimeVueColors {
     ZINC = "zinc",
     NEUTRAL = "neutral",
     STONE = "stone",
-}
-
-export enum FontSize {
-    SMALL = "12px",
-    MEDIUM = "14px",
-    LARGE = "16px",
-    XL = "18px",
 }

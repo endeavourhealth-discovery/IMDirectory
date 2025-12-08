@@ -4,6 +4,7 @@ import { UserService } from "@/services";
 import { HistoryItem, RecentActivityItem, User } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
+import FontSize from "@/enums/FontSize";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
 import { UserRole } from "@/enums";
 import { computed, ref } from "vue";
@@ -15,7 +16,7 @@ export const useUserStore = defineStore("user", () => {
   const currentPrimaryColor = ref<PrimeVueColors>();
   const currentSurfaceColor = ref<PrimeVueColors>();
   const darkMode = ref<boolean>(false);
-  const currentScale = ref<string>("14px");
+  const currentFontSize = ref<FontSize>(FontSize.MEDIUM);
   const currentUser = ref<User>();
   const favourites = ref<string[]>([]);
   const history = ref<HistoryItem[]>([]);
@@ -33,7 +34,7 @@ export const useUserStore = defineStore("user", () => {
     currentPrimaryColor.value = PrimeVueColors.EMERALD;
     currentSurfaceColor.value = PrimeVueColors.SLATE;
     darkMode.value = false;
-    currentScale.value = "14px";
+    currentFontSize.value = FontSize.MEDIUM;
     favourites.value = [];
     recentLocalActivity.value = [];
   }
@@ -69,7 +70,7 @@ export const useUserStore = defineStore("user", () => {
     if (data?.preset) currentPreset.value = data.preset;
     if (data?.primaryColor) currentPrimaryColor.value = data.primaryColor;
     if (data?.darkMode) darkMode.value = data.darkMode;
-    if (data?.scale) currentScale.value = data.scale;
+    if (data?.fontSize) currentFontSize.value = data.fontSize;
     if (data?.organisations) organisations.value = data.organisations;
     if (data?.favourites) favourites.value = data.favourites;
     if (data?.mru) recentLocalActivity.value = data.mru;
@@ -85,8 +86,8 @@ export const useUserStore = defineStore("user", () => {
     if (primaryColor && Object.values(PrimeVueColors).includes(primaryColor as PrimeVueColors)) currentPrimaryColor.value = primaryColor as PrimeVueColors;
     const surfaceColor = localStorageWithExpiry.getItem("surfaceColor");
     if (surfaceColor && Object.values(PrimeVueColors).includes(surfaceColor as PrimeVueColors)) currentSurfaceColor.value = surfaceColor as PrimeVueColors;
-    const scale = localStorageWithExpiry.getItem("scale");
-    if (scale) currentScale.value = scale;
+    const fontSize = localStorageWithExpiry.getItem("fontSize");
+    if (fontSize) currentFontSize.value = fontSize;
   }
 
   function clearAllFromLocalStorage(): void {
@@ -94,7 +95,7 @@ export const useUserStore = defineStore("user", () => {
     localStorage.removeItem("darkMode");
     localStorage.removeItem("primaryColor");
     localStorage.removeItem("surfaceColor");
-    localStorage.removeItem("scale");
+    localStorage.removeItem("fontSize");
   }
 
   async function updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
@@ -173,10 +174,10 @@ export const useUserStore = defineStore("user", () => {
     else localStorageWithExpiry.setItem("darkMode", bool);
   }
 
-  async function updateCurrentScale(scale: string) {
-    currentScale.value = scale;
-    if (isLoggedIn.value) await UserService.updateUserScale(scale);
-    else localStorageWithExpiry.setItem("scale", scale);
+  async function updateCurrentFontSize(fontSize: FontSize) {
+    currentFontSize.value = fontSize;
+    if (isLoggedIn.value) await UserService.updateUserFontSize(fontSize);
+    else localStorageWithExpiry.setItem("fontSize", fontSize);
   }
 
   function updateCurrentUser(user: User | undefined) {
@@ -206,7 +207,7 @@ export const useUserStore = defineStore("user", () => {
     cookiesOptionalAccepted,
     currentPreset,
     currentPrimaryColor,
-    currentScale,
+    currentFontSize: currentFontSize,
     currentSurfaceColor,
     currentUser,
     darkMode,
@@ -219,7 +220,7 @@ export const useUserStore = defineStore("user", () => {
     includeUserGraph,
     updateCookiesEssentialAccepted,
     updateCookiesOptionalAccepted,
-    updateCurrentScale,
+    updateCurrentFontSize: updateCurrentFontSize,
     updateCurrentUser,
     updateDarkMode,
     updateFavourites,

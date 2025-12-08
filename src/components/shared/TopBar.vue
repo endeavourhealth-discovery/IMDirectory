@@ -125,7 +125,7 @@
           <div v-else v-ripple @mouseenter="toggleThemesMenu($event, item.key)" :target="item.target" v-bind="props.action" style="color: var(--p-text-color)">
             <span :class="item.icon" />
             <span class="ml-2">{{ item.label }} </span>
-            <span v-if="item.key === currentScale" class="theme-icon p-menuitem-icon fa-regular fa-check" />
+            <span v-if="item.key === currentFontSize" class="theme-icon p-menuitem-icon fa-regular fa-check" />
           </div>
         </template>
       </TieredMenu>
@@ -157,12 +157,12 @@ import type { MenuItem } from "primevue/menuitem";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
-import setupChangeScale from "@/composables/setupChangeScale";
+import setupChangeFontSize from "@/composables/setupChangeFontSize";
 import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import Button from "primevue/button";
-import { UserRole } from "@/enums";
+import { FontSize, UserRole } from "@/enums";
 import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
 import { Action, Resource } from "@/interfaces/AutoGen";
@@ -176,14 +176,14 @@ const cookies = useCookies();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const isAdmin = computed(() => userStore.isAdmin);
-const currentScale = computed(() => userStore.currentScale);
+const currentFontSize = computed(() => userStore.currentFontSize);
 const currentPreset = computed(() => userStore.currentPreset);
 const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
 const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
 const userDarkMode = computed(() => userStore.darkMode);
 const currentIncludeUserGraph = computed(() => userStore.includeUserGraph);
 
-const { changeScale } = setupChangeScale();
+const { changeFontSize } = setupChangeFontSize();
 const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
 
 const showCodeDownload = ref(false);
@@ -227,7 +227,7 @@ const hasPermissionDocumentWrite = ref(false);
 const toast = useToast();
 const uploadDownloadMenu = ref();
 const themesMenu = ref();
-const scaleMenu = ref();
+const fontSizeMenu = ref();
 const userMenu = ref();
 const appsOP = ref();
 const directService = new DirectService();
@@ -304,10 +304,10 @@ function setUserMenuItems(): void {
       icon: "fa-solid fa-fw fa-gear",
       items: [
         {
-          key: "scale",
-          label: "Change scale",
+          key: "fontSize",
+          label: "Change font size",
           icon: "fa-duotone fa-text-size",
-          items: getScales()
+          items: getFontSizes()
         },
         {
           key: "themes",
@@ -336,10 +336,10 @@ function setUserMenuItems(): void {
       icon: "fa-solid fa-fw fa-gear",
       items: [
         {
-          key: "scale",
-          label: "Change scale",
+          key: "fontSize",
+          label: "Change font size",
           icon: "fa-duotone fa-text-size",
-          items: getScales()
+          items: getFontSizes()
         },
         {
           key: "themes",
@@ -378,10 +378,10 @@ function toggleThemesMenu(event: MouseEvent, key: string | undefined) {
   if (key) {
     switch (key) {
       case "themes":
-        if (scaleMenu.value && scaleMenu.value.visible) scaleMenu.value.hide();
+        if (fontSizeMenu.value && fontSizeMenu.value.visible) fontSizeMenu.value.hide();
         else themesMenu.value.show(event);
         break;
-      case "scale":
+      case "fontSize":
         if (themesMenu.value.visible) themesMenu.value.hide();
         break;
     }
@@ -416,31 +416,31 @@ function setUploadDownloadMenuItems() {
   ];
 }
 
-function getScales(): MenuItem[] {
+function getFontSizes(): MenuItem[] {
   return [
     {
       key: "12px",
       label: "Small",
       icon: "fa-regular fa-a fa-xs",
-      command: async () => await changeScale("12px")
+      command: async () => await changeFontSize(FontSize.SMALL)
     },
     {
       key: "14px",
       label: "Medium",
       icon: "fa-regular fa-a fa-sm",
-      command: async () => await changeScale("14px")
+      command: async () => await changeFontSize(FontSize.MEDIUM)
     },
     {
       key: "16px",
       label: "Large",
       icon: "fa-regular fa-a",
-      command: async () => await changeScale("16px")
+      command: async () => await changeFontSize(FontSize.LARGE)
     },
     {
       key: "18px",
       label: "XLarge",
       icon: "fa-regular fa-a",
-      command: async () => await changeScale("18px")
+      command: async () => await changeFontSize(FontSize.XL)
     }
   ];
 }
@@ -548,7 +548,7 @@ async function openAdminToolbox() {
   flex-shrink: 0;
 }
 
-.scale-row {
+.font-size-row {
   display: flex;
   flex-flow: row;
   justify-content: flex-start;
