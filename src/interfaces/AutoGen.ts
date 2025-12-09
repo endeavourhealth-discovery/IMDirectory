@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-08 13:11:20.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-09 08:45:19.
 
 export interface ConceptContextMap {
     id?: string;
@@ -117,7 +117,7 @@ export interface Concept extends Entity {
     usage?: number;
     codeId?: string;
     alternativeCode?: string;
-    subsumedBy?: TTIriRef[];
+    subsumed?: boolean;
 }
 
 export interface ConceptSet extends Entity {
@@ -319,9 +319,9 @@ export interface Assignable {
     function?: FunctionClause;
     units?: TTIriRef;
     operator?: Operator;
-    valueLabel?: string;
     qualifier?: TTIriRef;
     description?: string;
+    valueLabel?: string;
 }
 
 export interface Case {
@@ -371,10 +371,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
-    memberOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -778,6 +778,7 @@ export interface SearchResponse {
     highestUsage?: number;
     term?: string;
     entities?: SearchResultSummary[];
+    exactMatch?: boolean;
 }
 
 export interface WorkflowResponse {
@@ -896,11 +897,11 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    prefixes?: TTPrefix[];
-    status?: TTIriRef;
-    description?: string;
     types?: TTIriRef[];
     code?: string;
+    prefixes?: TTPrefix[];
+    description?: string;
+    status?: TTIriRef;
 }
 
 export interface BugReport extends Task {
@@ -985,8 +986,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1085,7 +1086,7 @@ export interface OrgRelTarget {
     OrgId?: OrgId;
 }
 
-export enum Action {
+export const enum Action {
     READ = "READ",
     WRITE = "WRITE",
     DELETE = "DELETE",
@@ -1094,7 +1095,7 @@ export enum Action {
     EXECUTE = "EXECUTE",
 }
 
-export enum Resource {
+export const enum Resource {
     ENTITY = "ENTITY",
     QUERY = "QUERY",
     USER = "USER",
@@ -1119,26 +1120,26 @@ export enum Resource {
     PAGE_EDITOR = "PAGE_EDITOR",
 }
 
-export enum IMLContext {
+export const enum IMLContext {
     prefix = "prefix",
     match = "match",
     select = "select",
     comment = "comment",
 }
 
-export enum ListMode {
+export const enum ListMode {
     ALL = "ALL",
     FIRST = "FIRST",
     REST = "REST",
 }
 
-export enum TargetUpdateMode {
+export const enum TargetUpdateMode {
     REPLACE = "REPLACE",
     APPEND = "APPEND",
     ADDTOLIST = "ADDTOLIST",
 }
 
-export enum Aggregate {
+export const enum Aggregate {
     SUM = "SUM",
     COUNT = "COUNT",
     AVERAGE = "AVERAGE",
@@ -1146,14 +1147,14 @@ export enum Aggregate {
     MAX = "MAX",
 }
 
-export enum Bool {
+export const enum Bool {
     and = "and",
     or = "or",
     not = "not",
     rule = "rule",
 }
 
-export enum Comparison {
+export const enum Comparison {
     eq = "eq",
     gte = "gte",
     gt = "gt",
@@ -1161,25 +1162,25 @@ export enum Comparison {
     lt = "lt",
 }
 
-export enum DatabaseOption {
+export const enum DatabaseOption {
     MYSQL = "MYSQL",
     POSTGRESQL = "POSTGRESQL",
     GRAPHDB = "GRAPHDB",
 }
 
-export enum DisplayMode {
+export const enum DisplayMode {
     ORIGINAL = "ORIGINAL",
     RULES = "RULES",
     LOGICAL = "LOGICAL",
 }
 
-export enum ECLType {
+export const enum ECLType {
     refined = "refined",
     compound = "compound",
     simple = "simple",
 }
 
-export enum Entail {
+export const enum Entail {
     descendantsOrSelfOf = "descendantsOrSelfOf",
     memberOf = "memberOf",
     descendantsOf = "descendantsOf",
@@ -1187,7 +1188,7 @@ export enum Entail {
     equal = "equal",
 }
 
-export enum Operator {
+export const enum Operator {
     eq = "=",
     gte = ">=",
     gt = ">",
@@ -1198,53 +1199,54 @@ export enum Operator {
     contains = "contains",
 }
 
-export enum Order {
+export const enum Order {
     ascending = "ascending",
     descending = "descending",
 }
 
-export enum OrderableDate {
+export const enum OrderableDate {
     latest = "latest",
     earliest = "earliest",
 }
 
-export enum OrderableNumber {
+export const enum OrderableNumber {
     highest = "highest",
     lowest = "lowest",
 }
 
-export enum QueryType {
+export const enum QueryType {
     POP = "POP",
     LIST = "LIST",
     AGGREGATE_REPORT = "AGGREGATE_REPORT",
 }
 
-export enum RuleAction {
+export const enum RuleAction {
     SELECT = "SELECT",
     REJECT = "REJECT",
     NEXT = "NEXT",
 }
 
-export enum TextSearchStyle {
+export const enum TextSearchStyle {
     autocomplete = "autocomplete",
     fuzzy = "fuzzy",
     multiword = "multiword",
     ngram = "ngram",
     exact = "exact",
+    all = "all",
 }
 
-export enum ValidationLevel {
+export const enum ValidationLevel {
     CONCEPT = "CONCEPT",
     ECL = "ECL",
 }
 
-export enum VarType {
+export const enum VarType {
     NODE = "NODE",
     PATH = "PATH",
     LITERAL = "LITERAL",
 }
 
-export enum QueryExecutorStatus {
+export const enum QueryExecutorStatus {
     QUEUED = "QUEUED",
     RUNNING = "RUNNING",
     COMPLETED = "COMPLETED",
@@ -1252,7 +1254,7 @@ export enum QueryExecutorStatus {
     ERRORED = "ERRORED",
 }
 
-export enum Browser {
+export const enum Browser {
     CHROME = "CHROME",
     FIREFOX = "FIREFOX",
     EDGE = "EDGE",
@@ -1260,14 +1262,14 @@ export enum Browser {
     OTHER = "OTHER",
 }
 
-export enum OperatingSystem {
+export const enum OperatingSystem {
     WINDOWS = "WINDOWS",
     MACOS = "MACOS",
     LINUX = "LINUX",
     OTHER = "OTHER",
 }
 
-export enum Severity {
+export const enum Severity {
     CRITICAL = "CRITICAL",
     MAJOR = "MAJOR",
     MINOR = "MINOR",
@@ -1276,7 +1278,7 @@ export enum Severity {
     UNASSIGNED = "UNASSIGNED",
 }
 
-export enum Status {
+export const enum Status {
     NEW = "NEW",
     FIXED = "FIXED",
     ASSIGNED = "ASSIGNED",
@@ -1285,7 +1287,7 @@ export enum Status {
     WONT_FIX = "WONT_FIX",
 }
 
-export enum TaskModule {
+export const enum TaskModule {
     DIRECTORY = "DIRECTORY",
     QUERY = "QUERY",
     CREATOR = "CREATOR",
@@ -1294,12 +1296,12 @@ export enum TaskModule {
     AUTH = "AUTH",
 }
 
-export enum ApprovalType {
+export const enum ApprovalType {
     EDIT = "EDIT",
     CREATE = "CREATE",
 }
 
-export enum UserRole {
+export const enum UserRole {
     ADMIN = "ADMIN",
     DEVELOPER = "DEVELOPER",
     PUBLISHER = "PUBLISHER",
@@ -1311,7 +1313,7 @@ export enum UserRole {
     EXECUTOR = "EXECUTOR",
 }
 
-export enum TaskState {
+export const enum TaskState {
     TODO = "TODO",
     IN_PROGRESS = "IN_PROGRESS",
     APPROVED = "APPROVED",
@@ -1321,18 +1323,18 @@ export enum TaskState {
     UNDER_REVIEW = "UNDER_REVIEW",
 }
 
-export enum TaskType {
+export const enum TaskType {
     BUG_REPORT = "BUG_REPORT",
     ROLE_REQUEST = "ROLE_REQUEST",
     GRAPH_REQUEST = "GRAPH_REQUEST",
     ENTITY_APPROVAL = "ENTITY_APPROVAL",
 }
 
-export enum BNF {
+export const enum BNF {
     DOMAIN = "http://bnf.info/",
 }
 
-export enum COMPONENT {
+export const enum COMPONENT {
     DOMAIN = "http://endhealth.info/im#",
     TAB_LAYOUT = "http://endhealth.info/im#Component_TabLayout",
     TEXT_DISPLAY = "http://endhealth.info/im#Component_textDisplay",
@@ -1362,7 +1364,7 @@ export enum COMPONENT {
     SUBSET_BUILDER = "http://endhealth.info/im#Component_subsetBuilder",
 }
 
-export enum CONFIG {
+export const enum CONFIG {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "cfg",
     LABEL = "http://www.w3.org/2000/01/rdf-schema#label",
@@ -1373,7 +1375,7 @@ export enum CONFIG {
     MONITORING = "http://endhealth.info/config#monitoring",
 }
 
-export enum CodeTemplate {
+export const enum CodeTemplate {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "cTemp",
     WRAPPER = "http://endhealth.info/codeTemplate#wrapper",
@@ -1385,7 +1387,7 @@ export enum CodeTemplate {
     INCLUDE_COMPLEX_TYPES = "http://endhealth.info/codeTemplate#includeComplexTypes",
 }
 
-export enum EDITOR {
+export const enum EDITOR {
     DOMAIN = "http://endhealth.info/im#",
     CONCEPT_SHAPE = "http://endhealth.info/im#Editor_ConceptShape",
     CONCEPT_SET_SHAPE = "http://endhealth.info/im#Editor_ConceptSetShape",
@@ -1397,18 +1399,18 @@ export enum EDITOR {
     INDICATOR_SHAPE = "http://endhealth.info/im#Editor_IndicatorShape",
 }
 
-export enum EntityType {
+export const enum EntityType {
     QUERY = "http://endhealth.info/im#Query",
     NODESHAPE = "http://www.w3.org/ns/shacl#NodeShape",
 }
 
-export enum FHIR {
+export const enum FHIR {
     PREFIX = "fhir",
     DSTU2 = "http://hl7.org/2-0/fhir/StructureDefinition#",
     VALUESET_FOLDER = "http://endhealth.info/im#VSET_FHIR",
 }
 
-export enum Graph {
+export const enum Graph {
     IM = "http://endhealth.info/im#",
     PROV = "http://endhealth.info/prov#",
     USER = "http://endhealth.info/user#",
@@ -1417,7 +1419,7 @@ export enum Graph {
     SMARTLIFE = "http://smartlifehealth.info/smh#",
 }
 
-export enum IM {
+export const enum IM {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "im",
     DISPLAY_LABEL = "http://endhealth.info/im#displayLabel",
@@ -1704,10 +1706,10 @@ export enum IM {
     SORT_DIRECTION_FILTER_DEFAULTS = "http://endhealth.info/im#SortDirectionFilterDefaultOptions",
 }
 
-export enum IMQ {
+export const enum IMQ {
 }
 
-export enum IM_FUNCTION {
+export const enum IM_FUNCTION {
     DOMAIN = "http://endhealth.info/",
     SNOMED_CONCEPT_GENERATOR = "http://endhealth.info/im#Function_SnomedConceptGenerator",
     LOCAL_NAME_RETRIEVER = "http://endhealth.info/im#Function_LocalNameRetriever",
@@ -1723,7 +1725,7 @@ export enum IM_FUNCTION {
     ALLOWABLE_PROPERTY_VALUES = "http://endhealth.info/im#Function_AllowablePropertyValues",
 }
 
-export enum ImportType {
+export const enum ImportType {
     SNOMED = "snomed",
     SKIP_TCT = "tct",
     SKIP_SEARCH = "search",
@@ -1754,12 +1756,12 @@ export enum ImportType {
     QR = "qcodegroups",
 }
 
-export enum MAP {
+export const enum MAP {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "map",
 }
 
-export enum Namespace {
+export const enum Namespace {
     LNWH_SY = "http://endhealth.info/lnwhsy#",
     LNWH_SL = "http://endhealth.info/lnwhsl#",
     THH_SL = "http://endhealth.info/thhsl#",
@@ -1812,14 +1814,14 @@ export enum Namespace {
     KINGS_WINPATH = "http://endhealth.info/kwp#",
 }
 
-export enum ODS {
+export const enum ODS {
     BASE_NAMESPACE = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-",
     ORGANISATION_ROLE_TYPE = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#ODS_RoleType",
     ORGANISATION_RELATIONSHIP = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRelationship-1#ODS_Relationship",
     ORGANISATION_RECORD_CLASS = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRecordClass-1#ODS_RecordClass",
 }
 
-export enum ORG {
+export const enum ORG {
     ORGANISATION_RECORD_CLASS = "http://endhealth.info/im#organisationRecordClass",
     RELATED_ORGANISATION = "http://endhealth.info/im#organisationRelationship",
     TARGET = "http://endhealth.info/im#targetOrganisation",
@@ -1827,7 +1829,7 @@ export enum ORG {
     ODS_CODE = "http://endhealth.info/im#odsCode",
 }
 
-export enum OWL {
+export const enum OWL {
     PREFIX = "owl",
     THING = "http://www.w3.org/2002/07/owl#Thing",
     CLASS = "http://www.w3.org/2002/07/owl#Class",
@@ -1860,7 +1862,7 @@ export enum OWL {
     NAMED_INDIVIDUAL = "http://www.w3.org/2002/07/owl#NamedIndividual",
 }
 
-export enum OpenSearch {
+export const enum OpenSearch {
     NAME = "http://www.w3.org/2000/01/rdf-schema#label",
     DESCRIPTION = "http://www.w3.org/2000/01/rdf-schema#comment",
     CODE = "http://endhealth.info/im#code",
@@ -1874,16 +1876,16 @@ export enum OpenSearch {
     DOMAIN = "http://www.w3.org/2000/01/rdf-schema#domain",
 }
 
-export enum PRSB {
+export const enum PRSB {
     PREFIX = "rs",
 }
 
-export enum QR {
+export const enum QR {
     DOMAIN = "http://apiqcodes.org/",
     PREFIX = "qc",
 }
 
-export enum QUERY {
+export const enum QUERY {
     DOMAIN = "http://endhealth.info/im#",
     IS_ALLOWABLE_RANGE = "http://endhealth.info/im#Query_IsAllowableRange",
     ALLOWABLE_RANGE_SUGGESTIONS = "http://endhealth.info/im#Query_AllowableRangeSuggestions",
@@ -1908,7 +1910,7 @@ export enum QUERY {
     GET_SUBSETS = "http://endhealth.info/im#Query_GetSubsets",
 }
 
-export enum RDF {
+export const enum RDF {
     PREFIX = "rdf",
     TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
     PROPERTY = "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
@@ -1918,7 +1920,7 @@ export enum RDF {
     OBJECT = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object",
 }
 
-export enum RDFS {
+export const enum RDFS {
     PREFIX = "rdfs",
     LABEL = "http://www.w3.org/2000/01/rdf-schema#label",
     COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment",
@@ -1932,7 +1934,7 @@ export enum RDFS {
     IS_DEFINED_BY = "http://www.w3.org/2000/01/rdf-schema#isDefinedBy",
 }
 
-export enum SHACL {
+export const enum SHACL {
     PREFIX = "sh",
     PATH = "http://www.w3.org/ns/shacl#path",
     MININCLUSIVE = "http://www.w3.org/ns/shacl#minInclusive",
@@ -1974,20 +1976,20 @@ export enum SHACL {
     HAS_VALUE = "http://www.w3.org/ns/shacl#hasValue",
 }
 
-export enum SNOMED {
+export const enum SNOMED {
     DOMAIN = "http://snomed.info/",
     PREFIX = "sn",
     ATTRIBUTE = "http://snomed.info/sct#246061005",
     ANY = "http://snomed.info/sct#*",
 }
 
-export enum TransformFunction {
+export const enum TransformFunction {
     CONCATENATE = "http://endhealth.info/im#Concatenate",
     STRING_JOIN = "http://endhealth.info/im#StringJoin",
     SNOMED_CODE_CONCEPT_MAP = "http://endhealth.info/im#SchemedCodeConceptMap",
 }
 
-export enum USER {
+export const enum USER {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "usr",
     USER_PRESET = "http://endhealth.info/UserPreset",
@@ -2001,7 +2003,7 @@ export enum USER {
     GRAPHS = "http://endhealth.info/GRAPHS",
 }
 
-export enum VALIDATION {
+export const enum VALIDATION {
     DOMAIN = "http://endhealth.info/im#",
     IS_DEFINITION = "http://endhealth.info/im#Validation_isDefinition",
     HAS_PARENT = "http://endhealth.info/im#Validation_hasParent",
@@ -2013,7 +2015,7 @@ export enum VALIDATION {
     IS_ROLE_GROUP = "http://endhealth.info/im#Validation_isRoleGroup",
 }
 
-export enum WORKFLOW {
+export const enum WORKFLOW {
     DOMAIN = "http://endhealth.info/",
     BUG_REPORT = "http://endhealth.info/workflow#bugReport",
     DATE_CREATED = "http://endhealth.info/workflow#dateCreated",
@@ -2044,7 +2046,7 @@ export enum WORKFLOW {
     MODIFIED_BY = "http://endhealth.info/workflow#modifiedBy",
 }
 
-export enum XSD {
+export const enum XSD {
     PREFIX = "xsd",
     PATTERN = "http://www.w3.org/2001/XMLSchema#pattern",
     MIN_INCLUSIVE = "http://www.w3.org/2001/XMLSchema#minInclusive",
