@@ -52,14 +52,14 @@ import OverlaySummary from "./OverlaySummary.vue";
 import { useToast } from "primevue/usetoast";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { byKey } from "@/helpers/Sorters";
-import { CasbinService, EntityService, FilerService } from "@/services";
+import { EntityService, FilerService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import setupTree from "@/composables/setupTree";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
-import { Action, Resource, TTIriRef, UserRole } from "@/interfaces/AutoGen";
+import { TTIriRef, UserRole } from "@/interfaces/AutoGen";
 import setupOverlay from "@/composables/setupOverlay";
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
@@ -204,9 +204,8 @@ async function addRootEntitiesToTree() {
 async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
-  const hasPermission = await CasbinService.hasPermission(Resource.ENTITY, Action.WRITE);
 
-  if (!currentUser.value || !hasPermission) return;
+  if (!currentUser.value || !currentUser.value.roles.includes(UserRole.ADMIN)) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
   selectedNode.value = node;

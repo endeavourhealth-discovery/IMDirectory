@@ -2,104 +2,104 @@ import { BugReport, EntityApproval, GraphRequest, RoleRequest, Task, WorkflowRes
 import Env from "./Env";
 import axios from "axios";
 
-const API_URL = Env.API + "api/workflow";
+const api = Env.API + "api/workflow";
 
 const WorkflowService = {
   async createBugReport(bugReport: BugReport): Promise<void> {
     bugReport.error = JSON.stringify(bugReport.error);
-    return await axios.post(API_URL + "/createBugReport", bugReport);
+    return await axios.post(api + "/createBugReport", bugReport);
   },
 
   async getBugReport(id: string): Promise<BugReport> {
-    return await axios.get(API_URL + "/getBugReport", { params: { id: id } });
+    return await axios.get(api + "/getBugReport", { params: { id: id } });
   },
 
   async updateBugReport(bugReport: BugReport): Promise<void> {
-    return await axios.post(API_URL + "/updateBugReport", bugReport);
+    return await axios.post(api + "/updateBugReport", bugReport);
   },
 
   async createRoleRequest(roleRequest: RoleRequest): Promise<void> {
-    return await axios.post(API_URL + "/createRoleRequest", roleRequest);
+    return await axios.post(api + "/createRoleRequest", roleRequest);
   },
 
   async getRoleRequest(id: string): Promise<RoleRequest> {
-    return await axios.get(API_URL + "/roleRequest", { params: { id: id } });
+    return await axios.get(api + "/roleRequest", { params: { id: id } });
   },
 
   async updateRoleRequest(roleRequest: RoleRequest): Promise<void> {
-    return await axios.post(API_URL + "/updateRoleRequest", roleRequest);
+    return await axios.post(api + "/updateRoleRequest", roleRequest);
   },
 
   async createGraphRequest(roleRequest: GraphRequest): Promise<void> {
-    return await axios.post(API_URL + "/createGraphRequest", roleRequest);
+    return await axios.post(api + "/createGraphRequest", roleRequest);
   },
 
   async getGraphRequest(id: string): Promise<GraphRequest> {
-    return await axios.get(API_URL + "/graphRequest", { params: { id: id } });
+    return await axios.get(api + "/graphRequest", { params: { id: id } });
   },
 
   async updateGraphRequest(graphRequest: GraphRequest): Promise<void> {
-    return await axios.post(API_URL + "/updateGraphRequest", graphRequest);
+    return await axios.post(api + "/updateGraphRequest", graphRequest);
   },
 
   async createEntityApproval(entityApproval: EntityApproval): Promise<void> {
-    return await axios.post(API_URL + "/createEntityApproval", entityApproval);
+    return await axios.post(api + "/createEntityApproval", entityApproval);
   },
 
   async getEntityApproval(id: string): Promise<EntityApproval> {
-    return await axios.get(API_URL + "/entityApproval", { params: { id: id } });
+    return await axios.get(api + "/entityApproval", { params: { id: id } });
   },
 
   async updateEntityApproval(entityApproval: EntityApproval): Promise<void> {
-    return await axios.post(API_URL + "/updateEntityApproval", entityApproval);
+    return await axios.post(api + "/updateEntityApproval", entityApproval);
   },
 
   async getTasksByCreatedBy(page?: number, size?: number): Promise<WorkflowResponse> {
-    return await axios.get(API_URL + "/getTasksByCreatedBy", { params: { page: page, size: size } });
+    return await axios.get(api + "/getTasksByCreatedBy", { params: { page: page, size: size } });
   },
 
   async getTasksByAssignedTo(page?: number, size?: number): Promise<WorkflowResponse> {
-    return await axios.get(API_URL + "/getTasksByAssignedTo", { params: { page: page, size: size } });
+    return await axios.get(api + "/getTasksByAssignedTo", { params: { page: page, size: size } });
   },
 
   async getUnassignedTasks(page?: number, size?: number): Promise<WorkflowResponse> {
-    return await axios.get(API_URL + "/getUnassignedTasks", { params: { page: page, size: size } });
+    return await axios.get(api + "/getUnassignedTasks", { params: { page: page, size: size } });
   },
 
   async deleteTask(id: string): Promise<void> {
-    return await axios.delete(API_URL + "/deleteTask", { params: { id: id } });
+    return await axios.delete(api + "/deleteTask", { params: { id: id } });
   },
 
   async updateTask(task: Task): Promise<void> {
-    return await axios.post(API_URL + "/updateTask", task);
+    return await axios.post(api + "/updateTask", task);
   },
 
   async getTask(id: string): Promise<Task> {
-    return await axios.get(API_URL + "/getTask", { params: { id: id } });
+    return await axios.get(api + "/getTask", { params: { id: id } });
   },
 
   async approveRoleRequest(roleRequest: RoleRequest) {
-    return await axios.post(API_URL + "/approveRoleRequest", roleRequest);
+    return await axios.post(api + "/approveRoleRequest", roleRequest);
   },
 
   async rejectRoleRequest(roleRequest: RoleRequest) {
-    return await axios.post(API_URL + "/rejectRoleRequest", roleRequest);
+    return await axios.post(api + "/rejectRoleRequest", roleRequest);
   },
 
   async approveGraphRequest(graphRequest: GraphRequest) {
-    return await axios.post(API_URL + "/approveGraphRequest", graphRequest);
+    return await axios.post(api + "/approveGraphRequest", graphRequest);
   },
 
   async rejectGraphRequest(graphRequest: GraphRequest) {
-    return await axios.post(API_URL + "/rejectGraphRequest", graphRequest);
+    return await axios.post(api + "/rejectGraphRequest", graphRequest);
   },
 
   async approveEntityApproval(entityApproval: EntityApproval) {
-    return await axios.post(API_URL + "/approveEntityApproval", entityApproval);
+    return await axios.post(api + "/approveEntityApproval", entityApproval);
   },
 
   async rejectEntityApproval(entityApproval: EntityApproval) {
-    return await axios.post(API_URL + "/rejectEntityApproval", entityApproval);
+    return await axios.post(api + "/rejectEntityApproval", entityApproval);
   }
 };
 

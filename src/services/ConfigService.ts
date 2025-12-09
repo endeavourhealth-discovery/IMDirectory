@@ -2,11 +2,9 @@ import { Graph } from "@/interfaces/AutoGen";
 import axios from "axios";
 import Env from "./Env";
 
-const API_URL = Env.API + "api/config";
-
 const ConfigService = {
   async getGraphs(): Promise<Graph[]> {
-    return await axios.get(API_URL + "/public/graphs");
+    return await axios.get(Env.API + "api/config/public/graphs");
   }
 };
 

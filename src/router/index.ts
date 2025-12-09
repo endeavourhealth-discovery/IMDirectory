@@ -31,11 +31,8 @@ const router = createRouter({
   routes
 });
 
-const errorRoutes = ["/error", "/500", "/404", "/401"];
-const skipModeNames = ["Login", "PageNotFound"];
-
 router.beforeEach(async (to, from) => {
-  if (!skipModeNames.includes(to.name as string) && !errorRoutes.includes(to.path)) await setModes();
+  if (to.name !== "Login") await setModes();
   startRouterLoading(routes, to, from);
   const authStore = useAuthStore();
   const currentPath = to.path;

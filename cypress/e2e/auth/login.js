@@ -63,21 +63,15 @@ When("I login to the application", () => {
 });
 
 When("I enter a valid username", () => {
-  cy.origin(Cypress.env("CASDOOR_LOGIN_URL"), () => {
-    cy.get('input[placeholder="username, Email or phone"]').type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
-  });
+  cy.findByTestId("login-username").type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
 });
 
 When("I enter a valid password", () => {
-  cy.origin(Cypress.env("CASDOOR_LOGIN_URL"), () => {
-    cy.get('input[placeholder="Password"]').type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
-  });
+  cy.findByTestId("login-password").type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
 });
 
 When("I click on the login button", () => {
-  cy.origin(Cypress.env("CASDOOR_LOGIN_URL"), () => {
-    cy.get("button").contains("Sign In").click();
-  });
+  cy.findByTestId("login-submit").click();
 });
 
 When("I click reveal password", () => {
@@ -98,7 +92,7 @@ Then("I see login option", () => {
 });
 
 Then("I see the login page", () => {
-  cy.get(".login-form").should("exist");
+  cy.get('[data-testid="login-submit"]').should("exist");
 });
 
 Then("I see the home page", () => {
@@ -137,18 +131,6 @@ Then("I see the entity viewer", () => {
   cy.get("#directory-table-container", { timeout: 60000 }).find(".parent-header-container", { timeout: 60000 }).contains("QRISK3 2024");
 });
 
-Then("routes to casdoor", () => {
-  cy.origin(Cypress.env("CASDOOR_LOGIN_URL"), () => {
-    cy.get(".login-form");
-  });
-});
-
-Then("routes to IMDirectory", () => {
-  cy.get("#topbar", { timeout: 60000 });
-});
-
-Then("user is logged in", () => {
-  cy.get("#topbar", { timeout: 60000 });
-  cy.findByTestId("account-menu-logged-in").click();
-  cy.get("#account-menu", { timeout: 60000 }).contains("My account");
+Then(/^the (.*) matches the snapshot$/, function (testId) {
+  cy.findByTestId(testId).toMatchSnapshot(loginSnapshotConfig);
 });

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-09 08:45:19.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-09 17:58:26.
 
 export interface ConceptContextMap {
     id?: string;
@@ -56,12 +56,6 @@ export interface Pageable<T> {
     currentPage?: number;
     pageSize?: number;
     result?: T[];
-}
-
-export interface PolicyRequest {
-    userRole?: UserRole;
-    resource?: Resource;
-    action?: Action;
 }
 
 export interface CodeGenDto {
@@ -315,13 +309,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    value?: string;
-    function?: FunctionClause;
-    units?: TTIriRef;
-    operator?: Operator;
     qualifier?: TTIriRef;
-    description?: string;
     valueLabel?: string;
+    function?: FunctionClause;
+    value?: string;
+    units?: TTIriRef;
+    description?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -371,10 +365,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -755,7 +749,6 @@ export interface ValidatedEntitiesRequest {
  * Structure containing search request parameters and filters
  */
 export interface WorkflowRequest {
-    casdoorService?: CasdoorService;
     page?: number;
     size?: number;
     userId?: string;
@@ -893,15 +886,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
-    types?: TTIriRef[];
-    code?: string;
+    status?: TTIriRef;
     prefixes?: TTPrefix[];
     description?: string;
-    status?: TTIriRef;
+    code?: string;
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -1012,9 +1005,6 @@ export interface StackTraceElement extends Serializable {
 export interface Exception extends Throwable {
 }
 
-export interface CasdoorService {
-}
-
 export interface Organisation {
     Name?: string;
     OrgId?: OrgId;
@@ -1084,40 +1074,6 @@ export interface OrgRelationship {
 
 export interface OrgRelTarget {
     OrgId?: OrgId;
-}
-
-export const enum Action {
-    READ = "READ",
-    WRITE = "WRITE",
-    DELETE = "DELETE",
-    PUBLISH = "PUBLISH",
-    APPROVE = "APPROVE",
-    EXECUTE = "EXECUTE",
-}
-
-export const enum Resource {
-    ENTITY = "ENTITY",
-    QUERY = "QUERY",
-    USER = "USER",
-    CONFIG = "CONFIG",
-    TASK = "TASK",
-    CODE_GEN = "CODE_GEN",
-    FHIR = "FHIR",
-    GITHUB = "GITHUB",
-    POLICY = "POLICY",
-    CASDOOR_USER = "CASDOOR_USER",
-    DOCUMENT = "DOCUMENT",
-    FOLDER = "FOLDER",
-    DELTA = "DELTA",
-    SET = "SET",
-    BUG_REPORT = "BUG_REPORT",
-    ROLE_REQUEST = "ROLE_REQUEST",
-    GRAPH_REQUEST = "GRAPH_REQUEST",
-    ENTITY_APPROVAL = "ENTITY_APPROVAL",
-    QUERY_RESULTS = "QUERY_RESULTS",
-    PAGE_ADMIN = "PAGE_ADMIN",
-    PAGE_CREATOR = "PAGE_CREATOR",
-    PAGE_EDITOR = "PAGE_EDITOR",
 }
 
 export const enum IMLContext {
@@ -1310,7 +1266,6 @@ export const enum UserRole {
     TASK_MANAGER = "TASK_MANAGER",
     AUTHORISER = "AUTHORISER",
     APPROVER = "APPROVER",
-    EXECUTOR = "EXECUTOR",
 }
 
 export const enum TaskState {

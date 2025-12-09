@@ -1,9 +1,8 @@
 describe("creator", () => {
   beforeEach(() => {
     cy.clearLocalStorage();
-    cy.acceptLicenseAndLogin();
     cy.preventRouterNewTab();
-    cy.visit("/");
+    cy.acceptLicenseAndLogin();
     cy.get("#shortcuts-container", { timeout: 60000 }).find(".shortcut").contains("Creator").click();
     cy.visitNewTab("/#/creator/");
     cy.get(".type-buttons-container", { timeout: 60000 }).contains("Type model /Node shape").click();

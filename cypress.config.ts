@@ -45,11 +45,7 @@ export default defineConfig({
     specPattern: ["cypress/e2e/**/*.feature", "cypress/e2e/**/*.cy.*"],
     fixturesFolder: "cypress"
   },
-  env: {
-    CYPRESS_LOGIN_USERNAME: process.env.CYPRESS_LOGIN_USERNAME,
-    CYPRESS_LOGIN_PASSWORD: process.env.CYPRESS_LOGIN_PASSWORD,
-    CASDOOR_LOGIN_URL: process.env.VITE_CASDOOR_URL
-  },
+  env: { CYPRESS_LOGIN_USERNAME: process.env.CYPRESS_LOGIN_USERNAME, CYPRESS_LOGIN_PASSWORD: process.env.CYPRESS_LOGIN_PASSWORD },
   reporter: "junit",
   reporterOptions: {
     mochaFile: "cypress/e2e-tests.xml"

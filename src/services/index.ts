@@ -1,3 +1,4 @@
+import AuthService from "./AuthService";
 import DirectService from "./DirectService";
 import EntityService from "./EntityService";
 import FilerService from "./FilerService";
@@ -12,10 +13,9 @@ import CodeGenService from "./CodeGenService";
 import DataModelService from "./DataModelService";
 import ConceptService from "./ConceptService";
 import StatusService from "./StatusService";
-import CasdoorService from "./CasdoorService";
-import CasbinService from "./CasbinService";
 
 export {
+  AuthService,
   DirectService,
   EntityService,
   FilerService,
@@ -29,7 +29,5 @@ export {
   CodeGenService,
   DataModelService,
   ConceptService,
-  StatusService,
-  CasdoorService,
-  CasbinService
+  StatusService
 };
