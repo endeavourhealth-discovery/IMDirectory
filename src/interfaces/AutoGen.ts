@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-09 17:58:26.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-10 08:47:32.
 
 export interface ConceptContextMap {
     id?: string;
@@ -200,6 +200,7 @@ export interface NodeShape extends TTIriRef {
 export interface Page {
     pageNumber?: number;
     pageSize?: number;
+    offset?: number;
 }
 
 export interface ParameterShape {
@@ -309,13 +310,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    qualifier?: TTIriRef;
-    valueLabel?: string;
-    function?: FunctionClause;
     value?: string;
+    function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
     operator?: Operator;
+    valueLabel?: string;
+    qualifier?: TTIriRef;
 }
 
 export interface Case {
@@ -366,8 +367,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     descendantsOf?: boolean;
-    memberOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -886,15 +887,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
-    prefixes?: TTPrefix[];
     description?: string;
-    code?: string;
+    status?: TTIriRef;
     types?: TTIriRef[];
+    code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -979,8 +980,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
