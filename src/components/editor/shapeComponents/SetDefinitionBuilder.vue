@@ -88,8 +88,8 @@ import { ECLQueryRequest, PropertyShape, SearchResultSummary } from "@/interface
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { showVerificationDialog, showValidationMessage } from "@/composables/eclValidator";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useEclValidator } from "@/composables/useEclValidator";
 import { useDialog } from "primevue/usedialog";
 import { IM } from "@/vocabulary";
 
@@ -104,7 +104,8 @@ const validationDialog = useDialog();
 const eclQuery: Ref<ECLQueryRequest> = ref({ ecl: props.value, query: {}, status: { valid: true } });
 const importMenu = ref();
 const ecl: Ref<string> = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ecl);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(ecl);
+const { showValidationMessage, showVerificationDialog } = useEclValidator();
 const showDialog = ref(false);
 const showAddByCodeListDialog = ref(false);
 const showAddByFileDialog = ref(false);

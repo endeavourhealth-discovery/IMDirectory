@@ -15,16 +15,16 @@
 import { Where, Query } from "@/interfaces/AutoGen";
 import type { TreeNode } from "primevue/treenode";
 import { Ref, inject, onMounted, ref, watch } from "vue";
-import setupRelationTree from "@/composables/setupRelationTree";
+import { useRelationTree } from "@/composables/useRelationTree";
 import { UIProperty } from "@/interfaces";
-import { updateRelativeTo } from "@/composables/buildQuery";
+import { updateRelativeTo } from "@/helpers/buildQuery";
 interface Props {
   propertyIri: string;
   uiProperty: UIProperty;
 }
 
 const props = defineProps<Props>();
-const { nodes, createRelationTree, collapseNode, getDefaultTarget, expandedKeys, loading } = setupRelationTree();
+const { nodes, createRelationTree, collapseNode, getDefaultTarget, expandedKeys, loading } = useRelationTree();
 const property = defineModel<Where>("property", { default: {} });
 const emit = defineEmits(["updateProperty"]);
 const showTreeSearch: Ref<boolean> = ref(false);

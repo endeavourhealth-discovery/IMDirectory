@@ -5,7 +5,7 @@ import { fakerFactory } from "@/mocks/fakerFactory";
 import { mountComposable } from "../TestMethods";
 import { EditorMode } from "@/enums";
 
-import { setupEditorEntity } from "@/composables/setupEditorEntity";
+import { setupEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
 

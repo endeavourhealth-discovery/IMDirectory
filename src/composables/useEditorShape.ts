@@ -5,7 +5,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@/vocabulary";
 import editorShapes from "@/constants/editorShapes";
 
-export function setupEditorShape() {
+export function useEditorShape() {
   const shape: Ref<FormGenerator | undefined> = ref();
   const targetShape: Ref<TTIriRef | undefined> = ref();
   const groups: Ref<PropertyShape[]> = ref([]);

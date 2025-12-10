@@ -65,13 +65,13 @@ import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { DirectService, EntityService } from "@/services";
-import setupOverlay from "@/composables/setupOverlay";
+import { useOverlay } from "@/composables/useOverlay";
 import { RDF, RDFS } from "@/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { useConfirm } from "primevue/useconfirm";
 
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 
 const confirm = useConfirm();
 const directService = new DirectService();

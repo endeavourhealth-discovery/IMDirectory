@@ -48,7 +48,7 @@ import TaskViewer from "./TaskViewer.vue";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { setupEditorEntity } from "@/composables/setupEditorEntity";
+import { useEditorEntity } from "@/composables/useEditorEntity";
 import { EditorMode } from "@/enums";
 import EntityDiffDialog from "./EntityDiffDialog.vue";
 
@@ -101,7 +101,7 @@ async function setOptions() {
 
 async function getEntity() {
   if (entityApproval.value?.approvalType === ApprovalType.EDIT && entityApproval.value?.entityIri) {
-    const { editorEntity } = setupEditorEntity(EditorMode.EDIT, () => {});
+    const { editorEntity } = useEditorEntity(EditorMode.EDIT, () => {});
     originalEntity.value = { ...editorEntity.value };
   }
 }

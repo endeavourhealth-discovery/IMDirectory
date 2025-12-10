@@ -107,9 +107,9 @@ import { ToastSeverity } from "@/enums";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import setupDownloadFile from "@/composables/downloadFile";
+import { useDownloadFile } from "@/composables/useDownloadFile";
 import { useUserStore } from "@/stores/userStore";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
 import { Action, Resource, SetExportRequest, SetOptions, UserRole } from "@/interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
@@ -129,7 +129,7 @@ const subclassOf = ref();
 const active: Ref<string[]> = ref([]);
 const showCompareSetDialog = ref(false);
 const showMembers = ref(false);
-const { downloadFile } = setupDownloadFile(window, document);
+const { downloadFile } = useDownloadFile(window, document);
 const userStore = useUserStore();
 const showSubsumedBy = ref(true);
 const currentUser = computed(() => userStore.currentUser);
@@ -141,7 +141,7 @@ const showOptions = ref(false);
 const entity: Ref<TTEntity> = ref({});
 const hasPermissionSetPublish = ref(false);
 
-const { copyObjectToClipboard } = setupCopyToClipboard();
+const { copyObjectToClipboard } = useCopyToClipboard();
 
 const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION] != undefined);
 

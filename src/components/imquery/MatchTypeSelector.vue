@@ -62,7 +62,7 @@ import type { TreeNode } from "primevue/treenode";
 import { Node } from "@/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TreeSelectionKeys } from "primevue/tree";
-import setupPropertyTree from "@/composables/setupPropertyTree";
+import { usePropertyTree } from "@/composables/usePropertyTree";
 import { isEqual } from "lodash-es";
 
 const visible = defineModel<boolean>("visible");
@@ -77,7 +77,7 @@ const emit = defineEmits<{
   (event: "navigateTo", iri: string): void;
   (event: "cancel"): void;
 }>();
-const { expandNode, loading } = setupPropertyTree();
+const { expandNode, loading } = usePropertyTree();
 const selectedNodeKey = ref<TreeSelectionKeys | undefined>(undefined);
 watch(
   () => props.rootNodes,

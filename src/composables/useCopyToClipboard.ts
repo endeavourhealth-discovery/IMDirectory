@@ -3,7 +3,7 @@ import { ToastOptions } from "@/models";
 import { useToast } from "primevue/usetoast";
 import { Ref } from "vue";
 
-function setupCopyToClipboard(valueToCopy?: Ref<string>, onCopyMessage?: string, onErrorMessage?: string) {
+export function useCopyToClipboard(valueToCopy?: Ref<string>, onCopyMessage?: string, onErrorMessage?: string) {
   const toast = useToast();
 
   function copyToClipboard() {
@@ -36,4 +36,3 @@ function setupCopyToClipboard(valueToCopy?: Ref<string>, onCopyMessage?: string,
     onCopyError
   };
 }
-export default setupCopyToClipboard;

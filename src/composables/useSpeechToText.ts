@@ -1,6 +1,6 @@
 import { ref, Ref, onMounted } from "vue";
 
-function setupSpeechToText(searchText: Ref<string>, searchPlaceholder: Ref<string>) {
+export function useSpeechToText(searchText: Ref<string>, searchPlaceholder: Ref<string>) {
   const listening = ref(false);
   const speech = ref(false);
   let recog: any = false;
@@ -49,5 +49,3 @@ function setupSpeechToText(searchText: Ref<string>, searchPlaceholder: Ref<strin
 
   return { listening, speech, recog, toggleListen };
 }
-
-export default setupSpeechToText;

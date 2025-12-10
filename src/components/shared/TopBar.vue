@@ -157,8 +157,8 @@ import type { MenuItem } from "primevue/menuitem";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
-import setupChangeFontSize from "@/composables/setupChangeFontSize";
-import setupChangeThemeOptions from "@/composables/setupChangeThemeOptions";
+import { useChangeFontSize } from "@/composables/useChangeFontSize";
+import { useChangeThemeOptions } from "@/composables/useChangeThemeOptions";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import Button from "primevue/button";
@@ -183,8 +183,8 @@ const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
 const userDarkMode = computed(() => userStore.darkMode);
 const currentIncludeUserGraph = computed(() => userStore.includeUserGraph);
 
-const { changeFontSize } = setupChangeFontSize();
-const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
+const { changeFontSize } = useChangeFontSize();
+const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = useChangeThemeOptions();
 
 const showCodeDownload = ref(false);
 const namespace = ref();

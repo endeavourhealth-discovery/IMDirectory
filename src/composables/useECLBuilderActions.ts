@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import { useToast } from "primevue/usetoast";
 import { cloneDeep } from "lodash-es";
 
-function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
+export function useECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   const toast = useToast();
 
   function onDragStart(event: any, draggedItem: any, parent: any) {
@@ -139,5 +139,3 @@ function setupECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     onDragLeave
   };
 }
-
-export default setupECLBuilderActions;

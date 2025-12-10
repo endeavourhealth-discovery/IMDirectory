@@ -37,10 +37,10 @@ import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import setupChangeFontSize from "@/composables/setupChangeFontSize";
+import { useChangeFontSize } from "@/composables/useChangeFontSize";
 import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
-import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
+import { useChangeThemeOptions } from "./composables/useChangeThemeOptions";
 import { setModes } from "./router/methods/setModes";
 import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
@@ -61,8 +61,8 @@ sharedStore.updateSigninUrl(getSigninUrl());
 sharedStore.updateSignupUrl(getSignupUrl());
 const finishedOnMounted = ref(false);
 
-const { changeFontSize } = setupChangeFontSize();
-const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
+const { changeFontSize } = useChangeFontSize();
+const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = useChangeThemeOptions();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showReleaseBanner: ComputedRef<boolean> = computed(() => sharedStore.showReleaseBanner);
