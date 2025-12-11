@@ -130,7 +130,7 @@ async function generateDefaultQuery(): Promise<Query> {
     typeOf: defaultBaseType.typeOf,
     and: [
       {
-        instanceOf: [{ iri: defaultIris[0] }]
+        is: [{ iri: defaultIris[0] }]
       }
     ]
   };

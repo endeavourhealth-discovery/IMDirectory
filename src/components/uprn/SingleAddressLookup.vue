@@ -20,16 +20,31 @@
     <!-- Radio buttons section -->
     <div class="radio-group">
       <div class="radio-option">
-        <input type="radio" id="residential" value="100" v-model="searchType" />
+        <input
+          type="radio"
+          id="residential"
+          value="100"
+          v-model="searchType"
+        />
         <label for="residential">Residential</label>
       </div>
       <div class="radio-option">
-        <input type="radio" id="commercial" value="010" v-model="searchType" />
+        <input
+          type="radio"
+          id="commercial"
+          value="010"
+          v-model="searchType"
+        />
         <label for="commercial">Commercial</label>
       </div>
       <div class="radio-option">
-        <input type="radio" id="both" value="001" v-model="searchType" />
-        <label for="both">Residential or Commercial (residential trumps commercial)</label>
+        <input
+          type="radio"
+          id="both"
+          value="001"
+          v-model="searchType"
+        />
+        <label for="both">Residential or Commercial (residential takes precedence)</label>
       </div>
     </div>
 
@@ -38,27 +53,27 @@
     <div v-if="!loading" class="data-table-container">
       <table v-if="searchResults" class="data-table">
         <thead>
-          <tr>
-            <th>Field</th>
-            <th>Value</th>
-          </tr>
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+        </tr>
         </thead>
 
         <tbody>
-          <tr v-for="(value, key) in searchResults" :key="key">
-            <td>
-              <span v-tooltip="getDefinition(key)">{{ variableToReadable(key) }}</span>
-            </td>
-            <td v-if="isObject(value)">
-              <tr v-for="[subKey, subValue] of Object.entries(value)" :key="subKey">
-                <td>
-                  <span v-tooltip="getDefinition(subKey, key)">{{ variableToReadable(subKey) }}</span>
-                </td>
-                <td>{{ subValue }}</td>
-              </tr>
-            </td>
-            <td v-else>{{ value }}</td>
-          </tr>
+        <tr v-for="(value, key) in searchResults" :key="key">
+          <td>
+            <span v-tooltip="getDefinition(key)">{{ variableToReadable(key) }}</span>
+          </td>
+          <td v-if="isObject(value)">
+            <tr v-for="[subKey, subValue] of Object.entries(value)" :key="subKey">
+              <td>
+                <span v-tooltip="getDefinition(subKey, key)">{{ variableToReadable(subKey) }}</span>
+              </td>
+              <td>{{ subValue }}</td>
+            </tr>
+          </td>
+          <td v-else>{{ value }}</td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -268,8 +283,8 @@ tbody {
 
 .radio-group {
   display: flex;
-  flex-flow: column nowrap;
-  gap: 0.5rem;
+  flex-flow: row nowrap;
+  gap: 1.5rem;
   margin: 0.5rem 0;
 }
 

@@ -4,40 +4,32 @@
       <span class="field">and if the above</span>
       <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
     </span>
-
     <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
-    <span v-if="match.isCohort">
+    <span v-if="match.is">
       <span class="field">in</span>
-      <IMViewerLink v-if="match.isCohort.iri" :iri="match.isCohort.iri" :label="match.isCohort.name" :action="'view'" />
+      <ul>
+        <span v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
+          <IMViewerLink v-if="item.iri" :iri="item.iri" :action="'view'" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        </span>
+      </ul>
     </span>
-    <span v-if="match.instanceOf">
-      <span v-if="match.instanceOf[0].description">{{ match.instanceOf[0].description }}</span>
-      <IMViewerLink v-if="match.instanceOf[0].iri" :iri="match.instanceOf[0].iri" :label="match.instanceOf[0].name" :action="'view'" />
-      <span v-if="match.instanceOf.length > 1">
-        <div>
-          <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
-            <span v-if="index > 0">
-              <ul>
-                <li class="tight-spacing">
-                  <span class="or">or</span>
-                  <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" :action="'view'" />
-                </li>
-              </ul>
-            </span>
-          </span>
-        </div>
-      </span>
+  </span>
+  <span v-if="match.is">
+    <span v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
+      <span v-if="index > 0">or</span>
+      <li class="tight-spacing">
+        <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" :action="'view'" />
+      </li>
     </span>
-    <span class="field">{{ getFormattedPath(match) }}</span>
-    <span v-if="match.orderBy" class="order-by">{{ match.orderBy.description }}</span>
-    <span v-if="match.where">
-      <WhereDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :property-index="0" :key="0" :index="0" :root="true" :inline="true" />
-    </span>
-
-    <span v-if="match.return">
-      <span class="field">(as</span>
-      <span class="as">{{ match.return?.as }})</span>
-    </span>
+  </span>
+  <span class="field">{{ getFormattedPath(match) }}</span>
+  <span v-if="match.orderBy" class="order-by">{{ match.orderBy.description }}</span>
+  <span v-if="match.where">
+    <WhereDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :property-index="0" :key="0" :index="0" :root="true" :inline="true" />
+  </span>
+  <span v-if="match.return">
+    <span class="field">(as</span>
+    <span class="as">{{ match.return?.as }})</span>
   </span>
 </template>
 
