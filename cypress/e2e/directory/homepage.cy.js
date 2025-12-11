@@ -52,10 +52,9 @@ describe("homepage", () => {
   });
   describe("Loggedin", () => {
     beforeEach(() => {
+      cy.acceptLicenseAndLogin();
       cy.preventRouterNewTab();
-      cy.loginByCognitoApi(Cypress.env("CYPRESS_LOGIN_USERNAME"), Cypress.env("CYPRESS_LOGIN_PASSWORD"));
       cy.clearFavouritesAndSuggested();
-      cy.acceptLicenseAndCookies();
       cy.visit("/");
       cy.get("#landing-content", { timeout: 60000 });
       cy.get(".p-progressspinner").should("not.exist");

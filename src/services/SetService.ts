@@ -1,7 +1,7 @@
 import axios from "axios";
 import Env from "./Env";
 import { SetDiffObject } from "@/interfaces";
-import { Node, Pageable, SetExportRequest, TTIriRef } from "@/interfaces/AutoGen";
+import { EclSearchRequest, Node, Pageable, Query, SetExportRequest, TTIriRef } from "@/interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/set";
 
@@ -24,6 +24,11 @@ const SetService = {
       params: { iri: iri, entailments: entailments, page: pageIndex, size: pageSize },
       signal: controller?.signal
     });
+  },
+
+  async getMembersFromQuery(query: Query, pageIndex: number, pageSize: number): Promise<Pageable<Node>> {
+    const request = { eclQuery: query, page: pageIndex, size: pageSize } as EclSearchRequest;
+    return await axios.post(API_URL + "/public/membersFromQuery", request);
   },
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {

@@ -63,19 +63,19 @@ When("I login to the application", () => {
 });
 
 When("I enter a valid username", () => {
-  cy.origin("http://localhost:8000", () => {
+  cy.origin(Cypress.env("CASDOOR_LOGIN_URL"), () => {
     cy.get('input[placeholder="username, Email or phone"]').type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
   });
 });
 
 When("I enter a valid password", () => {
-  cy.origin("http://localhost:8000", () => {
+  cy.origin(Cypress.env("CASDOOR_LOGIN_URL"), () => {
     cy.get('input[placeholder="Password"]').type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
   });
 });
 
 When("I click on the login button", () => {
-  cy.origin("http://localhost:8000", () => {
+  cy.origin(Cypress.env("CASDOOR_LOGIN_URL"), () => {
     cy.get("button").contains("Sign In").click();
   });
 });
@@ -138,7 +138,7 @@ Then("I see the entity viewer", () => {
 });
 
 Then("routes to casdoor", () => {
-  cy.origin("http://localhost:8000", () => {
+  cy.origin(Cypress.env("CASDOOR_LOGIN_URL"), () => {
     cy.get(".login-form");
   });
 });

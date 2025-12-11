@@ -14,7 +14,6 @@ declare global {
       searchAndSelect(searchTerm: string): Chainable<void>;
       acceptLicenseAndLogin(): Chainable<void>;
       populateBaseType(): Chainable<void>;
-      loginByCognitoApi(username: string, password: string): Chainable<void>;
       setLocalStorage(localStorageMap: Map<string, string>): Chainable<void>;
       requestWithAuth(method: "POST" | "GET", url: string, body: any): Chainable<any>;
       clearFavouritesAndSuggested(): Chainable<void>;
@@ -74,20 +73,19 @@ Cypress.Commands.add("login", () => {
   cy.get("#topbar", { timeout: 60000 });
   cy.findByTestId("account-menu").click();
   cy.get("#account-menu").find("span").contains("Login").click();
-  cy.origin("http://localhost:8000", () => {
+  cy.origin(Cypress.env("CASDOOR_LOGIN_URL"), () => {
     cy.get(".login-form");
     cy.get('input[placeholder="username, Email or phone"]').type(Cypress.env("CYPRESS_LOGIN_USERNAME"));
     cy.get('input[placeholder="Password"]').type(Cypress.env("CYPRESS_LOGIN_PASSWORD"));
     cy.get("button").contains("Sign In").click();
   });
   cy.get("#topbar", { timeout: 60000 });
-  cy.findByTestId("account-menu-logged-in").click();
-  cy.get("#account-menu", { timeout: 60000 }).contains("My account");
+  cy.findByTestId("account-menu-logged-in");
 });
 
 Cypress.Commands.add("acceptLicenseAndLogin", () => {
-  cy.loginByCognitoApi(Cypress.env("CYPRESS_LOGIN_USERNAME"), Cypress.env("CYPRESS_LOGIN_PASSWORD"));
   cy.acceptLicenseAndCookies();
+  cy.login();
 });
 
 Cypress.Commands.add("expandTreeNode", (treeId: string, contains: string) => {

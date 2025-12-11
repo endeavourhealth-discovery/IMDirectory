@@ -124,6 +124,7 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string, inde
   }
 }
 
+
 function mouseover(event: any) {
   event.stopPropagation();
 }

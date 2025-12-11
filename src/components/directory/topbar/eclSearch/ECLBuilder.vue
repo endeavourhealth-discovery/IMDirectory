@@ -80,12 +80,13 @@ import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builde
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { Match, ECLQueryRequest } from "@/interfaces/AutoGen";
+import { Match, ECLQueryRequest, Query } from "@/interfaces/AutoGen";
 import { useEclValidator } from "@/composables/useEclValidator";
 interface Props {
   showDialog?: boolean;
   eclString?: string;
   showNames?: boolean;
+  query?: Query;
 }
 const props = defineProps<Props>();
 const emit = defineEmits<{
@@ -127,13 +128,6 @@ watch(
     if (val) init();
   }
 );
-watch(
-  () => props.eclString,
-  async newValue => {
-    if (newValue) await createBuildFromEclString(newValue);
-    else createDefaultBuild();
-  }
-);
 
 watch(includeTerms, async () => await generateQueryString());
 
@@ -148,7 +142,7 @@ function toggle(event: any) {
 async function init() {
   loading.value = true;
   if (props.eclString) {
-    await createBuildFromEclString(props.eclString);
+    if (props.query) await createBuildFromQuery(props.query);
   } else createDefaultBuild();
   loading.value = false;
 }
@@ -159,17 +153,11 @@ async function rationaliseBooleans() {
   build.value = await QueryService.flattenBooleans(build.value);
 }
 
-async function createBuildFromEclString(ecl: string) {
-  if (ecl === "") {
-    createDefaultBuild();
-    return;
-  }
+async function createBuildFromQuery(query: Query) {
   try {
     loading.value = true;
-    const eclQuery = await EclService.getQueryFromECL(ecl, true);
+    const eclQuery = { query: query } as ECLQueryRequest;
     build.value = eclQuery.query!;
-    await EclService.validateModelFromQuery(build.value);
-    eclConversionError.value = { error: false, message: "" };
   } catch (err: any) {
     createDefaultBuild();
     if (err?.response?.data) eclConversionError.value = { error: true, message: err.response.data.debugMessage };

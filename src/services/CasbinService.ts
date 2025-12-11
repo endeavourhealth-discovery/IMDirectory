@@ -6,7 +6,7 @@ const API_URL = Env.API + "api/casbin";
 
 const CasbinService = {
   async hasPermission(resource: Resource, action: Action): Promise<boolean> {
-    return await axios.get(API_URL + "/hasPermission", { params: { resource: resource, action: action } });
+    return await axios.get(API_URL + "/public/hasPermission", { params: { resource: resource, action: action } });
   }
 };
 

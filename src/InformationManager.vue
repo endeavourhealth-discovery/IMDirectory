@@ -123,7 +123,7 @@ onMounted(async () => {
     await filterStore.fetchFilterSettings();
     await setShowReleaseBanner();
   } else {
-    await router.push({ name: "Login" });
+    window.location.href = getSigninUrl();
   }
   loadingStore.updateViewsLoading(false);
   finishedOnMounted.value = true;
@@ -213,7 +213,7 @@ async function handle401(error: AxiosError) {
 async function handle403(error: any) {
   if (!isPublicMode.value && error.response?.data === "Access forbidden") {
     if (route.path !== "/user/login") {
-      await router.push({ name: "Login" });
+      window.location.href = getSigninUrl();
     } else console.error(error);
   } else if (error.response?.data) {
     toast.add({

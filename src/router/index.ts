@@ -32,7 +32,7 @@ const router = createRouter({
 });
 
 const errorRoutes = ["/error", "/500", "/404", "/401"];
-const skipModeNames = ["Login", "PageNotFound"];
+const skipModeNames = ["Callback", "PageNotFound"];
 
 router.beforeEach(async (to, from) => {
   if (!skipModeNames.includes(to.name as string) && !errorRoutes.includes(to.path)) await setModes();

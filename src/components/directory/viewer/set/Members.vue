@@ -1,6 +1,6 @@
 <template>
-  <div id="members-table-container">
-
+  <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
+  <div v-if="!loading" id="members-table-container">
     <DataTable
       :value="members"
       showGridlines
@@ -41,14 +41,15 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
-import { Node } from "@/interfaces/AutoGen";
+import { Node, Query } from "@/interfaces/AutoGen";
 import { EntityService, SetService } from "@/services";
 import { IM } from "@/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
 const props = defineProps<{
-  entityIri: string;
+  entityIri?: string;
+  eclQuery?: Query;
 }>();
 
 const emit = defineEmits<{
@@ -57,7 +58,7 @@ const emit = defineEmits<{
   openDownloadDialog: [];
 }>();
 const hasDefinition: Ref<boolean> = ref(false);
-const loading = ref(false);
+const loading = ref(true);
 const members: Ref<Node[] | undefined> = ref([]);
 
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
@@ -67,6 +68,13 @@ const pageSize = ref(25);
 
 watch(
   () => props.entityIri,
+  async () => {
+    await init();
+  }
+);
+
+watch(
+  () => props.eclQuery,
   async () => {
     await init();
   }
@@ -82,16 +90,28 @@ async function init() {
 }
 
 async function setHasDefinition() {
-  const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
-  hasDefinition.value = isObjectHasKeys(entity, [IM.DEFINITION]);
+  if (props.entityIri) {
+    const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
+    hasDefinition.value = isObjectHasKeys(entity, [IM.DEFINITION]);
+  }
+  if (props.eclQuery) {
+    hasDefinition.value = true;
+  }
 }
 
 async function getMembers(): Promise<void> {
   loading.value = true;
-  const paged = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
-  members.value = paged.result;
-  totalCount.value = paged.totalCount;
-  templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
+  if (props.entityIri) {
+    const paged = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
+    members.value = paged.result;
+    totalCount.value = paged.totalCount;
+    templateString.value = "Displaying {first} to {last} of {totalRecords}  concepts";
+  } else if (props.eclQuery) {
+    const paged = await SetService.getMembersFromQuery(props.eclQuery, currentPage.value + 1, 15);
+    members.value = paged.result;
+    totalCount.value = paged.totalCount;
+    templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
+  }
   loading.value = false;
 }
 
@@ -99,8 +119,14 @@ async function getPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  const pagedNewMembers = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
-  members.value = pagedNewMembers.result;
+  if (props.entityIri) {
+    const pagedNewMembers = await SetService.getMembers(props.entityIri, true, currentPage.value + 1, pageSize.value);
+    members.value = pagedNewMembers.result;
+  } else if (props.eclQuery) {
+    const pagedNewMembers = await SetService.getMembersFromQuery(props.eclQuery, currentPage.value + 1, pageSize.value);
+    members.value = pagedNewMembers.result;
+  }
+
   loading.value = false;
 }
 

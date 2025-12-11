@@ -15,7 +15,7 @@ const CasdoorService = {
   },
 
   async logout() {
-    await axios.get(API_URL + "/logout");
+    await axios.get(API_URL + "/public/logout");
   },
 
   async getUser(raw?: boolean): Promise<User> {

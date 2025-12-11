@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-08 16:15:43.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-11 22:17:54.
 
 export interface ConceptContextMap {
     id?: string;
@@ -396,10 +396,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -449,6 +449,7 @@ export interface Match extends IriLD, HasPaths {
     union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
+    activeOnly?: boolean;
     rule?: Match[];
     libraryItem?: string;
     invalid?: boolean;
@@ -462,6 +463,7 @@ export interface Match extends IriLD, HasPaths {
 
 export interface Node extends Element {
     type?: string;
+    match?: Match;
     exclude?: boolean;
     code?: string;
     inverse?: boolean;
@@ -504,8 +506,6 @@ export interface Prefix {
 }
 
 export interface Query extends Match {
-    query?: Query[];
-    activeOnly?: boolean;
     prefixes?: Prefix[];
     columnGroup?: Match[];
     imQuery?: boolean;
@@ -603,6 +603,7 @@ export interface Where extends Element, Assignable {
     or?: Where[];
     and?: Where[];
     shortLabel?: string;
+    propertyList?: Node[];
 }
 
 export interface DBEntry {
@@ -917,12 +918,12 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
+    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
-    types?: TTIriRef[];
     description?: string;
+    types?: TTIriRef[];
     code?: string;
     prefixes?: TTPrefix[];
 }
