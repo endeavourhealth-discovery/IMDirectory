@@ -6,7 +6,7 @@ const API_URL = Env.API + "api/concept";
 
 const ConceptService = {
   async getMatchedFrom(iri: string): Promise<SimpleMap[]> {
-    return await axios.get(API_URL + "/public/matchedFrom", {
+    return await axios.get(API_URL + "/private/matchedFrom", {
       params: {
         iri: iri
       }
@@ -14,7 +14,7 @@ const ConceptService = {
   },
 
   async getMatchedTo(iri: string): Promise<SimpleMap[]> {
-    return await axios.get(API_URL + "/public/matchedTo", {
+    return await axios.get(API_URL + "/private/matchedTo", {
       params: {
         iri: iri
       }
@@ -22,13 +22,13 @@ const ConceptService = {
   },
 
   async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
-    return await axios.get(API_URL + "/public/termCode", {
+    return await axios.get(API_URL + "/private/termCode", {
       params: { iri: iri, includeInactive: includeInactive }
     });
   },
 
   async getContextMaps(conceptIri: string): Promise<ConceptContextMap[]> {
-    return await axios.get(API_URL + "/public/conceptContextMaps", {
+    return await axios.get(API_URL + "/private/conceptContextMaps", {
       params: { iri: conceptIri }
     });
   }
