@@ -12,14 +12,14 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IM } from "@/vocabulary";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 
 const props = defineProps<{
   entityIri: string;
 }>();
 
 const entityJSON = ref({ entity: {}, predicates: {} });
-const { copyObjectToClipboard } = setupCopyToClipboard();
+const { copyObjectToClipboard } = useCopyToClipboard();
 const loading = ref(false);
 
 onMounted(async () => {

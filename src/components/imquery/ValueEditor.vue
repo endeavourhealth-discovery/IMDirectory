@@ -76,7 +76,7 @@
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { getDateFromString, offsetOptions, operatorOptions, getInclusivityOptions } from "@/helpers/QueryEditorMethods";
 import { Assignable, Operator, Range, Where, RelativeTo, TTIriRef } from "@/interfaces/AutoGen";
-import { removeUndefined } from "@/composables/buildQuery";
+import { removeUndefined } from "@/helpers/buildQuery";
 import { UIProperty } from "@/interfaces";
 import { IM, XSD } from "@/vocabulary";
 import { isEqual } from "lodash-es";

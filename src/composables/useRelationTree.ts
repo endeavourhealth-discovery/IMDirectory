@@ -6,7 +6,7 @@ import { DataModelService } from "@/services";
 import { getTypeFromClause } from "@/helpers/QueryEditorMethods";
 import { useQueryStore } from "@/stores/queryStore";
 
-function setupRelationTree() {
+export function useRelationTree() {
   const expandedKeys: Ref<any> = ref({});
   const loading: Ref<boolean> = ref(false);
   const nodes: Ref<TreeNode[]> = ref([]);
@@ -116,4 +116,3 @@ function setupRelationTree() {
     getDefaultTarget
   };
 }
-export default setupRelationTree;

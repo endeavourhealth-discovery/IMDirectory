@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-function setupOverlay() {
+export function useOverlay() {
   const OS = ref();
 
   async function showOverlay(event: MouseEvent, data: any): Promise<void> {
@@ -17,5 +17,3 @@ function setupOverlay() {
     hideOverlay
   };
 }
-
-export default setupOverlay;

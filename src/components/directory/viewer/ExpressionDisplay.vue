@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { onMounted, ref } from "vue";
 import { IM, RDFS } from "@/vocabulary";
 import { EntityService } from "@/services";
@@ -31,7 +31,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const expression = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(expression);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(expression);
 
 const loading = ref(true);
 onMounted(async () => await init());

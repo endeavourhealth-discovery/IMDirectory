@@ -79,9 +79,9 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { Match, ECLQueryRequest, Query } from "@/interfaces/AutoGen";
-import { showValidationMessage, showVerificationDialog } from "@/composables/eclValidator";
+import { useEclValidator } from "@/composables/useEclValidator";
 interface Props {
   showDialog?: boolean;
   eclString?: string;
@@ -101,7 +101,8 @@ const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(queryString);
+const { showValidationMessage, showVerificationDialog } = useEclValidator();
 const previewECL = ref(false);
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const eclStringError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
@@ -312,7 +313,7 @@ function stripValidation(build: any) {
   padding: 1rem;
   margin: 0;
   height: 100%;
-  grow: 100;
+  flex-grow: 100;
   overflow-y: auto;
   tab-size: 4;
 }

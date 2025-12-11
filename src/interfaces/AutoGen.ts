@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-11 09:31:09.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-11 22:17:54.
 
 export interface ConceptContextMap {
     id?: string;
@@ -62,6 +62,31 @@ export interface PolicyRequest {
     userRole?: UserRole;
     resource?: Resource;
     action?: Action;
+}
+
+export interface User {
+    id?: string;
+    username?: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    password?: string;
+    avatar?: string;
+    roles?: UserRole[];
+    groups?: string[];
+    test?: string;
+    roleNames?: string[];
+}
+
+export interface UserSettings {
+    darkMode?: boolean;
+    organisations?: string[];
+    favourites?: string[];
+    mru?: RecentActivityItemDto[];
+    preset?: string;
+    primaryColor?: PrimeVueColors;
+    surfaceColor?: string;
+    fontSize?: string;
 }
 
 export interface CodeGenDto {
@@ -319,8 +344,8 @@ export interface Assignable {
     function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
-    operator?: Operator;
     qualifier?: TTIriRef;
+    operator?: Operator;
     valueLabel?: string;
 }
 
@@ -371,10 +396,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -893,14 +918,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
+    status?: TTIriRef;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    status?: TTIriRef;
+    types?: TTIriRef[];
     code?: string;
     prefixes?: TTPrefix[];
-    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -982,6 +1007,16 @@ export interface Serializable {
 export interface TTArray extends Serializable {
     elements?: TTValue[];
     list?: boolean;
+}
+
+export interface RecentActivityItemDto {
+    iri?: string;
+    name?: string;
+    type?: string;
+    dateTime?: Date;
+    action?: string;
+    color?: string;
+    icon?: string[];
 }
 
 export interface TTContext extends Serializable {
@@ -1990,15 +2025,15 @@ export enum TransformFunction {
 export enum USER {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "usr",
-    USER_PRESET = "http://endhealth.info/UserPreset",
-    USER_PRIMARY_COLOR = "http://endhealth.info/UserPrimaryColor",
-    USER_SURFACE_COLOR = "http://endhealth.info/UserSurfaceColor",
-    USER_DARK_MODE = "http://endhealth.info/UserDarkMode",
-    USER_SCALE = "http://endhealth.info/UserScale",
-    USER_MRU = "http://endhealth.info/UserMRU",
-    USER_FAVOURITES = "http://endhealth.info/UserFavourites",
-    ORGANISATIONS = "http://endhealth.info/ORGANISATIONS",
-    GRAPHS = "http://endhealth.info/GRAPHS",
+    USER_PRESET = "http://endhealth.info/user#UserPreset",
+    USER_PRIMARY_COLOR = "http://endhealth.info/user#UserPrimaryColor",
+    USER_SURFACE_COLOR = "http://endhealth.info/user#UserSurfaceColor",
+    USER_DARK_MODE = "http://endhealth.info/user#UserDarkMode",
+    USER_FONT_SIZE = "http://endhealth.info/user#UserFontSize",
+    USER_MRU = "http://endhealth.info/user#UserMRU",
+    USER_FAVOURITES = "http://endhealth.info/user#UserFavourites",
+    ORGANISATIONS = "http://endhealth.info/user#Organisations",
+    GRAPHS = "http://endhealth.info/user#Graphs",
 }
 
 export enum VALIDATION {
@@ -2059,4 +2094,29 @@ export enum XSD {
     DATE_TIME = "http://www.w3.org/2001/XMLSchema#dateTime",
     NUMBER = "http://www.w3.org/2001/XMLSchema#number",
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
+}
+
+export enum PrimeVueColors {
+    EMERALD = "emerald",
+    GREEN = "green",
+    LIME = "lime",
+    RED = "red",
+    ORANGE = "orange",
+    AMBER = "amber",
+    YELLOW = "yellow",
+    TEAL = "teal",
+    CYAN = "cyan",
+    SKY = "sky",
+    BLUE = "blue",
+    INDIGO = "indigo",
+    VIOLET = "violet",
+    PURPLE = "purple",
+    FUCHSIA = "fuchsia",
+    PINK = "pink",
+    ROSE = "rose",
+    SLATE = "slate",
+    GRAY = "gray",
+    ZINC = "zinc",
+    NEUTRAL = "neutral",
+    STONE = "stone",
 }

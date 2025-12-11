@@ -44,9 +44,9 @@
 <script setup lang="ts">
 import { inject, onMounted, Ref, ref, computed } from "vue";
 import Button from "primevue/button";
-import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
+import { useECLBuilderActions } from "@/composables/useECLBuilderActions";
 import { Bool, Match, Where } from "@/interfaces/AutoGen";
-import { checkGroupChange, getBooleanOptions, isGroupable, updateFocusConcepts } from "@/composables/buildQuery";
+import { checkGroupChange, getBooleanOptions, isGroupable, updateFocusConcepts } from "@/helpers/buildQuery";
 
 interface Props {
   isVariable?: boolean;
@@ -70,7 +70,7 @@ const emit = defineEmits(["updateOperator", "activateInput", "navigateTo"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const group: Ref<number[]> = ref([]);
 const checked = ref(false);
-const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragOver } = useECLBuilderActions(wasDraggedAndDropped);
 
 function updateOperator(val: string) {
   if (props.clauseType == "Match") updateFocusConcepts(clause.value as Match);

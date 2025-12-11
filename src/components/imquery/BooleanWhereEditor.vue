@@ -108,7 +108,7 @@ import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import WhereValueEditor from "./WhereValueEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import { deletePropertyFromParent, hasBoolGroups, updateWhereBooleans, updateFocusConcepts } from "@/composables/buildQuery";
+import { deletePropertyFromParent, hasBoolGroups, updateWhereBooleans, updateFocusConcepts } from "@/helpers/buildQuery";
 import { cloneDeep } from "lodash-es";
 import WhereIsEditor from "./WhereIsEditor.vue";
 import Button from "primevue/button";

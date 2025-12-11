@@ -101,17 +101,17 @@ import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog
 import BatteryBar from "./BatteryBar.vue";
 import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import setupDownloadFile from "@/composables/downloadFile";
+import { useDownloadFile } from "@/composables/useDownloadFile";
 import { useUserStore } from "@/stores/userStore";
 import { cloneDeep } from "lodash-es";
-import setupOverlay from "@/composables/setupOverlay";
+import { useOverlay } from "@/composables/useOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
 import { DownloadByQueryOptions, EclSearchRequest, QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
 import { DownloadSettings, ExtendedSearchResultSummary, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
-import { buildIMQueryFromFilters } from "@/composables/buildQuery";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { MenuItem } from "primevue/menuitem";
 import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 import { nextTick } from "vue";
@@ -153,7 +153,7 @@ const dynamicDialog = useDialog();
 const favourites = computed(() => userStore.favourites);
 const filterStore = useFilterStore();
 const searchLoading: Ref<boolean> = ref(false);
-const { downloadFile } = setupDownloadFile(window, document);
+const { downloadFile } = useDownloadFile(window, document);
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 const schemes: Ref<Namespace[]> = ref([]);
 const directService = new DirectService();
@@ -189,7 +189,7 @@ const rClickOptions: Ref<MenuItem[]> = ref([
 ]);
 const showDownloadOptions = ref(false);
 
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 
 const contextMenu = ref();
 

@@ -8,7 +8,7 @@ import { isArray } from "lodash-es";
 import { Ref, ref } from "vue";
 import Swal from "sweetalert2";
 
-export function setupValidity(shape?: FormGenerator) {
+export function useValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);
   const validationCheckStatus: Ref<{ key: string; deferred: { promise: any; reject: any; resolve: any } }[]> = ref([]);
 

@@ -33,7 +33,7 @@
         <Button data-testid="close-button" label="Close" @click="showSql = false" />
       </template>
     </Dialog>
-<!--    <TestQueryResults :show-dialog="showTestQueryResults" :test-query-results="queryTestResults" />-->
+    <!--    <TestQueryResults :show-dialog="showTestQueryResults" :test-query-results="queryTestResults" />-->
   </div>
 </template>
 
@@ -45,7 +45,7 @@ import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import QueryEditor from "@/components/imquery/QueryEditor.vue";
 import SQLDisplay from "@/components/directory/viewer/SQLDisplay.vue";
@@ -89,7 +89,7 @@ const showSql: Ref<boolean> = ref(false);
 const sql: Ref<string> = ref("");
 const queryTestResults: Ref<string[]> = ref([]);
 const showTestQueryResults = ref(false);
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(sql);
 
 const key = props.shape.path.iri;
 

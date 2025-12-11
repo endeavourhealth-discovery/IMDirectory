@@ -2,7 +2,7 @@ import { expect, vi } from "vitest";
 import testData from "./setupEditorShape.testData";
 import { mountComposable } from "../TestMethods";
 
-import { setupEditorShape } from "@/composables/setupEditorShape";
+import { setupEditorShape } from "@/composables/useEditorShape";
 import { IM } from "@/vocabulary";
 import ConceptShape from "@/constants/editorShapes/Concept";
 

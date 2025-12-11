@@ -129,7 +129,7 @@ import { Ref, ref, computed, inject } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { QueryService } from "@/services";
-import { getBooleanLabel, hasBoolGroups } from "@/composables/buildQuery";
+import { getBooleanLabel, hasBoolGroups } from "@/helpers/buildQuery";
 import MatchDescription from "@/components/query/viewer/MatchDescription.vue";
 
 interface Props {

@@ -8,7 +8,7 @@ import { computed, ref, Ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import { useUserStore } from "@/stores/userStore";
 
-function setupTree(emit?: any, customPageSize?: number) {
+export function useTree(emit?: any, customPageSize?: number) {
   const toast = useToast();
   const userStore = useUserStore();
   const favourites = computed(() => userStore.favourites);
@@ -77,7 +77,7 @@ function setupTree(emit?: any, customPageSize?: number) {
 
   async function customOnClick(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
     if (useEmits) {
-      if (!emit) throw new Error("setupTree requires vue emits for custom clicks");
+      if (!emit) throw new Error("useTree requires vue emits for custom clicks");
       if (checkForControlClick(event)) emit("rowControlClicked", node.data);
       else emit("rowClicked", node.data);
     } else if (checkForControlClick(event)) {
@@ -308,5 +308,3 @@ function setupTree(emit?: any, customPageSize?: number) {
     pageSize
   };
 }
-
-export default setupTree;

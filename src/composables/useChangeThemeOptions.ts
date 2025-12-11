@@ -8,7 +8,7 @@ import Nora from "@primeuix/themes/nora";
 import Material from "@primeuix/themes/material";
 import { PaletteDesignToken } from "@primeuix/themes/types";
 
-function setupChangeThemeOptions() {
+export function useChangeThemeOptions() {
   const userStore = useUserStore();
 
   async function changePreset(preset: PrimeVuePresetThemes) {
@@ -56,5 +56,3 @@ function setupChangeThemeOptions() {
 
   return { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode };
 }
-
-export default setupChangeThemeOptions;

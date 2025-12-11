@@ -94,7 +94,7 @@ import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useUserStore } from "@/stores/userStore";
 import { useDialog } from "primevue/usedialog";
 import { useConfirm } from "primevue/useconfirm";
-import setupDownloadFile from "@/composables/downloadFile";
+import { useDownloadFile } from "@/composables/useDownloadFile";
 import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 
 const directService = new DirectService();
@@ -128,7 +128,7 @@ onMounted(() => {
 });
 
 const dynamicDialog = useDialog();
-const { downloadFile } = setupDownloadFile(window, document);
+const { downloadFile } = useDownloadFile(window, document);
 
 const loadingFavourites = ref(false);
 
