@@ -1,5 +1,5 @@
-import { setupValidity } from "@/composables/setupValidity";
-import testData from "./setupValidity.testData";
+import { useValidity } from "@/composables/useValidity";
+import testData from "./useValidity.testData";
 import { mountComposable } from "../TestMethods";
 import { flushPromises } from "@vue/test-utils";
 import { IM } from "@/vocabulary";
@@ -8,14 +8,14 @@ import { EntityService } from "@/services";
 import { cloneDeep } from "lodash-es";
 import { describe, vi, it, expect, beforeEach } from "vitest";
 
-describe("setupValidity", () => {
+describe("useValidity", () => {
   describe("constructValidationCheckStatus", () => {
     beforeEach(() => {
       vi.resetAllMocks();
     });
 
     it("constructs validationCheckStatus", () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
 
       wrapper.vm.constructValidationCheckStatus(testData.testShape);
       expect(wrapper.vm.validationCheckStatus).toEqual(testData.validationCheckStatus);
@@ -29,7 +29,7 @@ describe("setupValidity", () => {
 
     it("can remove a check", () => {
       const itemToRemove = testData.testShape.property[0].property[0].property[0];
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
       expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: itemToRemove.path.iri, deferred: expect.anything() });
       wrapper.vm.removeValidationCheckStatus(itemToRemove);
@@ -44,7 +44,7 @@ describe("setupValidity", () => {
     });
 
     it("can clear validationCheckStatus", () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
       wrapper.vm.clearValidationCheckStatus();
       expect(wrapper.vm.validationCheckStatus).toEqual([]);
@@ -58,7 +58,7 @@ describe("setupValidity", () => {
     });
 
     it("checks if validations are completed ___ true", async () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       wrapper.vm.validationChecksCompleted().then(res => expect(res).toBe(true));
       wrapper.vm.validationCheckStatus = [...testData.validationCheckStatus].map(item => {
         return { key: item.key, checkCompleted: true };
@@ -69,7 +69,7 @@ describe("setupValidity", () => {
     });
 
     it("checks if validations are completed ___ false", async () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       wrapper.vm.validationChecksCompleted().catch(err => expect(err).toBe(expect.stringContaining("Validation checks timed out:")));
       wrapper.vm.validationCheckStatus = [...testData.validationCheckStatus].map(item => {
         return { key: item.key, checkCompleted: true };
@@ -86,7 +86,7 @@ describe("setupValidity", () => {
     });
 
     it("adds properties to validation check status", () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       wrapper.vm.validationCheckStatus = [];
       wrapper.vm.addPropertyToValidationCheckStatus(testData.testShape.property[0].property[0].property[0]);
       expect(wrapper.vm.validationCheckStatus).toEqual([
@@ -98,14 +98,14 @@ describe("setupValidity", () => {
     });
 
     it("adds children properties", () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       wrapper.vm.validationCheckStatus = [];
       wrapper.vm.addPropertyToValidationCheckStatus(testData.testShape.property[0]);
       expect(wrapper.vm.validationCheckStatus).toEqual(testData.validationCheckStatus);
     });
 
     it("excludes horizontal_layout, verticalLayout, toggleable", () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       wrapper.vm.validationCheckStatus = [];
       wrapper.vm.addPropertyToValidationCheckStatus(testData.testShape.property[0]);
       expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: IM.CONCEPT, checkCompleted: false });
@@ -119,7 +119,7 @@ describe("setupValidity", () => {
     });
 
     it("can change status", async () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: testData.validationCheckStatus[0].key, deferred: expect.anything() });
       wrapper.vm.updateValidationCheckStatus(testData.validationCheckStatus[0].key);
       await flushPromises();
@@ -144,7 +144,7 @@ describe("setupValidity", () => {
       const editorEntity = ref({ ...testData.testEntity });
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ valid: true, message: undefined });
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[7].validation).toBeDefined();
       await wrapper.vm.updateValidity(
         testData.testShape.property[0].property[0].property[7],
@@ -165,7 +165,7 @@ describe("setupValidity", () => {
       const editorEntity = ref({ ...testData.testEntity });
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[7].validation).toBeDefined();
       await wrapper.vm.updateValidity(
         testData.testShape.property[0].property[0].property[7],
@@ -186,7 +186,7 @@ describe("setupValidity", () => {
       const editorEntity = ref({ ...testData.testEntity });
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
       await wrapper.vm.updateValidity(
         testData.testShape.property[0].property[0].property[0],
@@ -208,7 +208,7 @@ describe("setupValidity", () => {
       delete editorEntity.value[testData.testShape.property[0].property[0].property[0].path.iri];
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
       await wrapper.vm.updateValidity(
         testData.testShape.property[0].property[0].property[0],
@@ -236,7 +236,7 @@ describe("setupValidity", () => {
       testShape.maxCount = 1;
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
       await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path.iri, invalid, validationErrorMessage);
       await flushPromises();
@@ -252,7 +252,7 @@ describe("setupValidity", () => {
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
       valueVariableMap.value.delete("conceptIri");
       checkValidationSpy.mockResolvedValue({ valid: false, message: "Test error" });
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[2].validation).toBeUndefined();
       await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path.iri, invalid, validationErrorMessage);
       await flushPromises();
@@ -274,7 +274,7 @@ describe("setupValidity", () => {
       const editorEntity = ref({ ...testData.testEntity });
       const valueVariableMap = ref(cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
       await wrapper.vm.updateValidity(
         testData.testShape.property[0].property[0].property[0],
@@ -293,7 +293,7 @@ describe("setupValidity", () => {
 
   describe("isValidEntity", () => {
     it("can check if entity is valid ___ true", () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       wrapper.vm.editorValidity = [
         { key: "test1", valid: true },
         { key: "test2", valid: true }
@@ -302,7 +302,7 @@ describe("setupValidity", () => {
     });
 
     it("can check if entity is valid ___ false", () => {
-      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      const wrapper = mountComposable(useValidity, [testData.testShape]);
       wrapper.vm.editorValidity = [
         { key: "test1", valid: true },
         { key: "test2", valid: false }

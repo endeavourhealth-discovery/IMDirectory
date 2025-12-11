@@ -62,9 +62,9 @@ import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.v
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
-import { setupValidity } from "@/composables/setupValidity";
-import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
-import { handleFocusChange } from "@/composables/useAutocompleteRegistry";
+import { useValidity } from "@/composables/useValidity";
+import { useValueVariableMap } from "@/composables/useValueVariableMap";
+import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
 import { useDialog } from "primevue/usedialog";
 
 export default defineComponent({
@@ -97,8 +97,8 @@ import { useRoute, useRouter } from "vue-router";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
 import Swal, { SweetAlertResult } from "sweetalert2";
-import { setupEditorEntity } from "@/composables/setupEditorEntity";
-import { setupEditorShape } from "@/composables/setupEditorShape";
+import { useEditorEntity } from "@/composables/useEditorEntity";
+import { useEditorShape } from "@/composables/useEditorShape";
 import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@/enums";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
@@ -117,8 +117,8 @@ const dynamicDialog = useDialog();
 const autocompletes = new Map<HTMLElement, () => void>();
 const directService = new DirectService();
 const { fetchEntity, editorEntity, editorEntityOriginal, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
-  setupEditorEntity(EditorMode.EDIT, updateType);
-const { shape, getShapesCombined, groups, processShape } = setupEditorShape();
+  useEditorEntity(EditorMode.EDIT, updateType);
+const { shape, getShapesCombined, groups, processShape } = useEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -131,8 +131,9 @@ const {
   removeValidationCheckStatus,
   validationChecksCompleted,
   checkValidity
-} = setupValidity(shape.value);
-const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
+} = useValidity(shape.value);
+const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = useValueVariableMap();
+const { handleFocusChange } = useAutocompleteRegistry();
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
 const loading = ref(true);

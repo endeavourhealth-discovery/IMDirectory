@@ -33,9 +33,9 @@
 
 <script setup lang="ts">
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import setupOverlay from "@/composables/setupOverlay";
-import { buildIMQueryFromFilters } from "@/composables/buildQuery";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useOverlay } from "@/composables/useOverlay";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { DirectService, EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
@@ -60,7 +60,7 @@ const emit = defineEmits<{
 }>();
 
 const directService = new DirectService();
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const menu = ref();
@@ -68,7 +68,7 @@ const menu = ref();
 const selected: Ref<Concept | undefined> = ref();
 const searchQuery: Ref<QueryRequest | undefined> = ref();
 const loading = ref(true);
-const { copyObjectToClipboard } = setupCopyToClipboard();
+const { copyObjectToClipboard } = useCopyToClipboard();
 
 const rClickItems = ref([
   {

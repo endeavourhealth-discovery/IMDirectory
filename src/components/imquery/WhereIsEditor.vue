@@ -121,7 +121,7 @@ import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue
 import { QueryRequest, SearchResultSummary, Node, Where, Pageable } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";
-import { buildIMQueryFromFilters, setConstraintOperator } from "@/composables/buildQuery";
+import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
 import {
   plainConstraintOperatorOptions,
   nodeInclusionOptions,

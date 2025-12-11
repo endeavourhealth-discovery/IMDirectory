@@ -1,4 +1,4 @@
-function setupDownloadFile(window: Window & typeof globalThis, document: Document) {
+export function useDownloadFile(window: Window & typeof globalThis, document: Document) {
   const currentWindow = window;
   const currentDocument = document;
 
@@ -11,5 +11,3 @@ function setupDownloadFile(window: Window & typeof globalThis, document: Documen
   }
   return { downloadFile };
 }
-
-export default setupDownloadFile;

@@ -1,7 +1,7 @@
 import { FontSize } from "@/enums";
 import { useUserStore } from "@/stores/userStore";
 
-function setupChangeFontSize() {
+export function useChangeFontSize() {
   const userStore = useUserStore();
 
   async function changeFontSize(newFontSize: FontSize) {
@@ -14,5 +14,3 @@ function setupChangeFontSize() {
 
   return { changeFontSize: changeFontSize };
 }
-
-export default setupChangeFontSize;

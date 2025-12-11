@@ -39,7 +39,7 @@ import { IM, RDF, RDFS } from "@/vocabulary";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Match, Node, TTIriRef } from "@/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import setupOverlay from "@/composables/setupOverlay";
+import { useOverlay } from "@/composables/useOverlay";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
 import { isConcept, isValueSet } from "@/helpers/ConceptTypeMethods";
@@ -52,7 +52,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 
 interface SelectedEntity extends TTEntity {
   icon: string[];

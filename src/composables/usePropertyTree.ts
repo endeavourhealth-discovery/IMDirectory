@@ -7,7 +7,7 @@ import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisua
 import { Ref, ref } from "vue";
 import { Orderable } from "@/models/orderable";
 
-function setupPropertyTree() {
+export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
   const loading: Ref<boolean> = ref(false);
 
@@ -227,4 +227,3 @@ function setupPropertyTree() {
     loading
   };
 }
-export default setupPropertyTree;

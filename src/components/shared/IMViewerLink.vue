@@ -26,7 +26,7 @@
 import { ref, watch } from "vue";
 import { DirectService } from "../../services";
 import OverlaySummary from "./OverlaySummary.vue";
-import setupOverlay from "@/composables/setupOverlay";
+import { useOverlay } from "@/composables/useOverlay";
 import { cloneDeep } from "lodash-es";
 
 interface Props {
@@ -54,7 +54,7 @@ const items = ref([
     command: () => directService.view(props.iri)
   }
 ]);
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 const directService = new DirectService();
 
 function onNodeContext(event: MouseEvent) {

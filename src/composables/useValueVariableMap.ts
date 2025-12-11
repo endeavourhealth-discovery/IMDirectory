@@ -2,7 +2,7 @@ import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { PropertyShape } from "@/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 
-export function setupValueVariableMap() {
+export function useValueVariableMap() {
   const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
 
   function updateValueVariableMap(key: string, value: any) {

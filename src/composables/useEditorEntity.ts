@@ -8,7 +8,7 @@ import { TTIriRef } from "@/interfaces/AutoGen";
 import { EditorMode } from "@/enums";
 import { isEqual } from "lodash-es";
 
-export function setupEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]) => void) {
+export function useEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]) => void) {
   const editorStore = useEditorStore();
   const creatorStore = useCreatorStore();
   const editorEntityOriginal: Ref<any> = ref({});
