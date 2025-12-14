@@ -1,4 +1,5 @@
 <template>
+  <MembersPreview v-if="showMembersDialog" :query="eclQuery.query" @closeMemberDialog="showMembersDialog = false" />
   <div class="set-definition-container">
     <div class="ecl-container" id="ecl-text-editor">
       <div class="text-copy-container">
@@ -47,6 +48,7 @@
         <Menu id="import_menu" ref="importMenu" :model="buttonOptions" :popup="true" />
         <Button label="Set builder" @click="showBuilder" severity="help" data-testid="builder-button" :loading="loading" />
         <Button label="Validate model" severity="info" @click="validateModel(false)" data-testid="ecl-validate-button" />
+        <Button label="Preview expansion" severity="info" @click="previewExpansion()" data-testid="expansion-preview-button" />
         <Button
           icon="fa-solid fa-copy"
           label="Copy to clipboard"
@@ -62,6 +64,7 @@
       v-if="showDialog"
       :showDialog="showDialog"
       :eclString="lastValidEcl"
+      :query="eclQuery.query"
       :showNames="showNames"
       @eclSubmitted="updatefromBuilder"
       @closeDialog="() => (showDialog = false)"
@@ -92,6 +95,7 @@ import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { showVerificationDialog, showValidationMessage } from "@/composables/eclValidator";
 import { useDialog } from "primevue/usedialog";
 import { IM } from "@/vocabulary";
+import MembersPreview from "@/components/directory/viewer/set/MembersPreview.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -101,7 +105,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const validationDialog = useDialog();
-const eclQuery: Ref<ECLQueryRequest> = ref({ ecl: props.value, query: {}, status: { valid: true } });
+const eclQuery: Ref<ECLQueryRequest> = ref({ status: { valid: true } } as ECLQueryRequest);
 const importMenu = ref();
 const ecl: Ref<string> = ref("");
 const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ecl);
@@ -124,6 +128,8 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 const textarea = ref<HTMLTextAreaElement | null>(null);
 const highlightDiv = ref<HTMLDivElement | null>(null);
 const lastValidEcl: Ref<string> = ref("");
+const showMembersDialog = ref(false);
+const initialised = ref(false);
 
 const key = props.shape.path.iri;
 const buttonOptions = [
@@ -171,6 +177,10 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 }
 
 watch(ecl, newValue => {
+  if (!initialised.value) {
+    initialised.value = true;
+    return;
+  }
   clearTimeout(debounceTimer.value);
   debounceTimer.value = window.setTimeout(async (): Promise<void> => {
     eclQuery.value = await EclService.validateECL(newValue, showNames.value);
@@ -209,7 +219,12 @@ async function showOrHideNames() {
   eclQuery.value = await EclService.getEclFromEcl(ecl.value, showNames.value);
   if (eclQuery.value.status && eclQuery.value.status.valid) {
     ecl.value = eclQuery.value.ecl!;
+    lastValidEcl.value = ecl.value;
   } else showNames.value = !showNames.value;
+}
+
+function previewExpansion() {
+  showMembersDialog.value = !showMembersDialog.value;
 }
 
 function updateEntity() {
@@ -228,6 +243,8 @@ async function processProps() {
     eclQuery.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
     ecl.value = eclQuery.value.ecl!;
     lastValidEcl.value = ecl.value;
+  } else {
+    initialised.value = true;
   }
 }
 

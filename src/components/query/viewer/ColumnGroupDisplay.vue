@@ -8,8 +8,8 @@
     <div v-else>{{ parentQuery.typeOf?.name }} internal id</div>
 
     <div v-if="dataSet.return">
-      <div v-if="dataSet.and || dataSet.or || dataSet.where || dataSet.isCohort">
-        <span>If the following:</span>
+      <div v-if="dataSet.and || dataSet.or || dataSet.where || dataSet.is">
+        <span>filter:</span>
         <Button text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
         <RecursiveMatchDisplay
           v-if="matchExpand"

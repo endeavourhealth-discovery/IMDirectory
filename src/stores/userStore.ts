@@ -24,7 +24,8 @@ export const useUserStore = defineStore("user", {
     snomedLicenseAccepted: localStorageWithExpiry.getItem("snomedLicenseAccepted") === true ? true : false,
     uprnAgreementAccepted: localStorageWithExpiry.getItem("uprnAgreementAccepted") === true ? true : false,
     organisations: [] as string[],
-    includeUserGraph: false
+    includeUserGraph: false,
+    avatarPath: undefined
   }),
   getters: {
     isLoggedIn: state => isObjectHasKeys(state.currentUser),
@@ -168,6 +169,7 @@ export const useUserStore = defineStore("user", {
     },
     updateCurrentUser(user: User | undefined) {
       this.currentUser = user;
+      if (this.currentUser) this.formatAvatarPath();
     },
     updateSnomedLicenseAccepted(bool: boolean) {
       this.snomedLicenseAccepted = bool;
@@ -183,6 +185,9 @@ export const useUserStore = defineStore("user", {
     },
     updateIncludeUserGraph(includeUserGraph: boolean) {
       this.includeUserGraph = includeUserGraph;
+    },
+    formatAvatarPath() {
+      this.avatarPath = window.location.origin + this.currentUser?.avatar;
     }
   }
 });

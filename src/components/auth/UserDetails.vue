@@ -7,7 +7,7 @@
     <Card v-if="currentUser" class="justify-content-sm-around user-details-card flex flex-col items-center">
       <template #header>
         <h1>My account</h1>
-        <img data-testid="user-details-avatar" id="selected-avatar" :src="currentUser.avatar" alt="avatar icon" />
+        <img data-testid="user-details-avatar" id="selected-avatar" :src="avatarPath" alt="avatar icon" />
       </template>
       <template #title> {{ menuItems[activeItem].label }} </template>
       <template #content>
@@ -52,6 +52,7 @@ const router = useRouter();
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);
+const avatarPath = computed(() => userStore.avatarPath);
 const activeItem = ref(0);
 const menuItems = ref([
   {

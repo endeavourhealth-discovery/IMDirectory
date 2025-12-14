@@ -59,7 +59,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ onOpenTab: [payload: string]; navigateTo: [payload: string] }>();
 
-const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
+const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION, IM.HAS_DATASET];
 const definition: Ref<any> = ref();
 const expandedKeys: Ref<GenericObject> = ref({});
 const selectedKeys: Ref<GenericObject> = ref({});

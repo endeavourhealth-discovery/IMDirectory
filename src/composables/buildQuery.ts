@@ -61,7 +61,7 @@ function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
 }
 
 export function updateFocusConcepts(match: Match): string[] {
-  if (match.instanceOf && match.instanceOf[0].iri) return [match.instanceOf[0].iri];
+  if (match.is && match.is[0].iri) return [match.is[0].iri];
   const focusConcepts: string[] = [];
   focusConcepts.push(...focusChildren(match.or));
   focusConcepts.push(...focusChildren(match.and));
@@ -100,16 +100,16 @@ function createNewBoolGroup(clause: any, group: number[], oldBool: Bool, newBool
 }
 
 export function addConceptToGroup(match: Match) {
-  if (match.instanceOf) {
-    const subMatch = { uuid: match.uuid, instanceOf: match.instanceOf } as Match;
-    delete match.instanceOf;
+  if (match.is) {
+    const subMatch = { uuid: match.uuid, is: match.is } as Match;
+    delete match.is;
     match.or = [subMatch];
   }
   const bool = match.and ? Bool.and : match.or ? Bool.or : undefined;
   if (bool) {
-    const subMatch = { instanceOf: [{ descendantsOrSelfOf: true }] };
+    const subMatch = { is: [{ descendantsOrSelfOf: true }] };
     match[bool]!.push(subMatch);
-  } else match.instanceOf = [{ descendantsOrSelfOf: true }];
+  } else match.is = [{ descendantsOrSelfOf: true }];
 }
 
 export function updateMatchBooleans(clause: Match, from: Bool, to: Bool, index: number, group: number[]) {
@@ -317,7 +317,7 @@ export function addWhereToMatch(match: Match, node: TreeNode, property: string) 
 }
 
 export function matchDefined(match: Match): boolean {
-  return !!(match.path || match.where || match.isCohort || match.instanceOf || match.rule || match.and || match.or || match.not);
+  return !!(match.path || match.where || match.is || match.rule || match.and || match.or || match.not);
 }
 export function getRuleAction(match: Match): string {
   if (match.ifTrue) {

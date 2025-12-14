@@ -11,7 +11,8 @@ import {
   RequeueQueryRequest,
   SearchResponse,
   ArgumentReference,
-  IMLLanguage
+  IMLLanguage,
+  Indicator
 } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
@@ -54,6 +55,10 @@ const QueryService = {
   },
   async getQueryFromIri(iri: string): Promise<Query> {
     return await axios.get(API_URL + "/public/queryFromIri", { params: { queryIri: iri } });
+  },
+
+  async getDisplayFromIndicatorIri(iri: string): Promise<Indicator> {
+    return await axios.get(API_URL + "/public/indicatorDisplay", { params: { queryIri: iri } });
   },
 
   async expandCohort(queryIri: string, cohortIri: string, displayMode: DisplayMode): Promise<Query> {

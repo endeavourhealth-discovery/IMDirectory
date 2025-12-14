@@ -4,7 +4,7 @@
       <span :class="operator">
         <span>{{ getOperator(operator, index) }}</span>
       </span>
-      <span v-if="where.qualifier">{{where.qualifier.name}} of </span>
+      <span v-if="where.qualifier">{{ where.qualifier.name }} of </span>
       <span v-if="whereName" class="field">{{ whereName }}</span>
       <span v-if="eclQuery">=</span>
       <span v-if="where.valueLabel || where.description">
@@ -14,14 +14,11 @@
         >
         <span v-else-if="where.valueLabel" class="field">{{ where.valueLabel }}</span>
       </span>
-      <span v-if="where.relativeTo">
-        <span v-if="where.relativeTo.description">
-          <span class="field">{{ where.relativeTo.description }}</span>
-        </span>
-        <span v-if="then && !where.relativeTo.parameter" class="node-ref">of the above</span>
-        <span v-else-if="where.relativeTo.targetLabel" class="node-ref">{{ where.relativeTo.targetLabel }}</span>
-        <span v-else-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
-      </span>
+      <template v-if="where.relativeTo">
+        <span v-if="where.relativeTo.name" class="field">{{ where.relativeTo.name }} of</span>
+        <span v-if="where.relativeTo.parameterName" class="field">{{ where.relativeTo.parameterName }}</span>
+        <span v-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
+      </template>
       <span v-if="isExpanded && isArrayHasLength(where.is)">
         <span>, defined as</span>
         <div>
@@ -56,7 +53,6 @@
               :root="false"
               :eclQuery="eclQuery"
               :editMode="editMode"
-              :then="then"
               :bracketed="!root"
             />
           </span>
@@ -86,7 +82,6 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
-  then?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -94,7 +89,7 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const whereName: Ref<string | undefined> = ref(undefined);
+const whereName: Ref<string | undefined> = ref(props.where.name);
 const isExpanded = ref(props.expandedSet);
 
 const boolGroup = computed(() => {
@@ -104,9 +99,6 @@ const boolGroup = computed(() => {
   };
 });
 
-onMounted(async () => {
-  if (props.where.name && (props.where.name != "concept" || props.then)) whereName.value = props.where.name;
-});
 function getOperator(operator: Bool | undefined, index: number): string {
   if (operator === "or") {
     if (index === 0) {

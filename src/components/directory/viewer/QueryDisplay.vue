@@ -3,80 +3,51 @@
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
-      <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
-      <div class="flex flex-row gap-2">
-        <div v-if="isLoggedIn">
-          <Button
-            label="View arguments"
-            @click="
-              showArgumentsDisplay();
-              runOnConfirm = false;
-            "
-            :loading="checkingArguments"
-          />
+      <template v-if="!eclQuery">
+        <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
+        <div class="flex flex-row gap-2">
+          <div v-if="isLoggedIn">
+            <Button
+              label="View arguments"
+              @click="
+                showArgumentsDisplay();
+                runOnConfirm = false;
+              "
+              :loading="checkingArguments"
+            />
+          </div>
+          <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
+          <div v-if="isLoggedIn">
+            <Button
+              label="Run query"
+              @click="
+                runQuery();
+                runOnConfirm = true;
+              "
+              :loading="checkingArguments"
+            />
+          </div>
         </div>
-        <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
-        <div v-if="isLoggedIn">
-          <Button
-            label="Run query"
-            @click="
-              runQuery();
-              runOnConfirm = true;
-            "
-            :loading="checkingArguments"
-          />
-        </div>
-      </div>
-      <div
-        v-if="[DisplayOptions.LogicalView, DisplayOptions.RuleView, DisplayOptions.DatasetDefinition].includes(selectedDisplayOption)"
-        class="query-display-content"
-      >
-        <div v-if="query" class="rec-query-display">
+      </template>
+      <template v-if="query">
+        <div  class="query-display-content rec-query-display">
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
             <span class="field" v-html="query.typeOf.name"></span>
             <span class="include-title text-black-500">with the following features</span>
           </div>
-          <span v-if="query.rule">
-            <div v-if="query.isCohort">
-              <span class="field">in</span>
-              <IMViewerLink
-                v-if="query.isCohort.iri"
-                :iri="query.isCohort.iri"
-                :label="query.isCohort.name"
-                @navigateTo="(iri: string) => emit('navigateTo', iri)"
-              />
-            </div>
-            <div class="tree-node-wrapper">
-              <span v-for="(nestedQuery, index) in query.rule" :key="index">
-                <RecursiveMatchDisplay
-                  :match="nestedQuery"
-                  :key="`nestedQueryDisplay-${index}`"
-                  :clause-index="index"
-                  :property-index="index"
-                  :parentOperator="Bool.rule"
-                  :depth="0"
-                  :parent-match="query"
-                  :bracketed="false"
-                  :eclQuery="eclQuery"
-                />
-              </span>
-            </div>
-          </span>
-          <span v-else>
-            <RecursiveMatchDisplay
-              :match="query"
-              :clauseIndex="0"
-              :depth="0"
-              :inline="false"
-              :parent-match="rootQuery"
-              :bracketed="false"
-              :eclQuery="eclQuery"
-              :expanded="query.name === undefined"
-            />
-          </span>
+          <RecursiveMatchDisplay
+            :match="query"
+            :clauseIndex="0"
+            :depth="0"
+            :inline="false"
+            :parent-match="rootQuery"
+            :bracketed="false"
+            :eclQuery="eclQuery"
+            :expanded="query.name === undefined"
+          />
         </div>
-      </div>
+      </template>
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
       </div>

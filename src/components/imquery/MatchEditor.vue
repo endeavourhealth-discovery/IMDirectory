@@ -29,18 +29,18 @@
         <Textarea v-model="editMatch.description" autoResize placeholder="Description" rows="2" type="text" />
       </div>
       <div>With the following conditions</div>
-      <div v-if="editMatch.isCohort || editMatch.where" class="where-container">
-        <CohortEditor v-if="editMatch.isCohort && !showPropertySelector" v-model:match="editMatch" v-model:editMode="editCohort" @updateProperty="onUpdate" />
-        <div v-else-if="editMatch.where && !showPropertySelector">
-          <BooleanWhereEditor
-            :match="editMatch"
-            :base-type="baseType"
-            v-model:property="editMatch.where"
-            :clauseIndex="0"
-            @addProperty="showPropertySelector = true"
-            @updateProperty="onUpdate"
-          />
-        </div>
+      <span v-if="editMatch.is" class="where-container">
+        <CohortEditor v-model:match="editMatch" v-model:editMode="editCohort" @updateProperty="onUpdate" />
+      </span>
+      <div v-if="editMatch.where && !showPropertySelector">
+        <BooleanWhereEditor
+          :match="editMatch"
+          :base-type="baseType"
+          v-model:property="editMatch.where"
+          :clauseIndex="0"
+          @addProperty="showPropertySelector = true"
+          @updateProperty="onUpdate"
+        />
       </div>
       <div v-if="showPropertySelector">
         <MatchTypeSelector
@@ -80,14 +80,7 @@
             </div>
           </template>
         </Select>
-        <Button v-if="!editMatch.then" data-testid="add-test-button" label="Add test" @click="addThen" />
-      </div>
-      <div v-if="editMatch.then">
-        <div>Then test</div>
-        <div v-if="!hasBoolGroups(editMatch.then)" class="match-display">
-          <MatchContentDisplay :match="editMatch.then" :parentMatch="editMatch" :from="editMatch" :depth="0" :clauseIndex="0" :expandSet="false" />
-        </div>
-        <div v-else>Multiple tests - see main editor</div>
+        <Button data-testid="add-test-button" label="Add test" @click="addThen" />
       </div>
       <template #footer>
         <div class="button-footer">
@@ -187,7 +180,7 @@ async function init() {
 }
 
 function isDefined(): boolean {
-  return !!(editMatch.value.isCohort || editMatch.value.where);
+  return !!(editMatch.value.is || editMatch.value.where);
 }
 
 function updateOrderable(value: any) {
@@ -196,21 +189,21 @@ function updateOrderable(value: any) {
 }
 
 function addThen() {
-  if (!editMatch.value.return) {
-    const as = keepAs ? keepAs : "Match_" + props.depth + "_" + props.clauseIndex;
-    editMatch.value.return = {
-      as: as
-    } as Return;
-  }
-  if (!editMatch.value.then) editMatch.value.then = { nodeRef: editMatch.value.return!.as! } as Match;
+  const as = keepAs.value ? keepAs.value : "Match_" + props.depth + "_" + props.clauseIndex;
+  editMatch.value.keepAs = as;
+  const fromMatch = editMatch.value;
+  editMatch.value = { and: [fromMatch] };
+  editMatch.value.and!.push({ nodeRef: as } as Match);
   showMatchEditor.value = false;
 }
 
 async function onMatchTypeSelected(node: TreeNode) {
   showPropertySelector.value = false;
   if (node.data.iri === "cohort") {
-    editMatch.value.isCohort = {} as TTIriRef;
     editCohort.value = true;
+    if (!editMatch.value.is) {
+      editMatch.value.is = [{} as Node];
+    }
   } else {
     if (node.data.typeOf) {
       if (node.children && node.children.length === 0) {

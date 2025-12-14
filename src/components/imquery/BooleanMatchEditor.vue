@@ -63,7 +63,7 @@
         :rootBool="false"
       />
       <div class="match-display">
-        <MatchContentDisplay :match="match" :parentMatch="parentMatch" :from="from" :depth="depth" :clauseIndex="clauseIndex" :expandSet="expandSet" />
+        <MatchContentDisplay :match="match" :parentMatch="parentMatch" :from="from" :depth="depth" :clauseIndex="clauseIndex" />
       </div>
       <div class="edit-button">
         <Button
@@ -106,19 +106,7 @@
         />
       </div>
     </div>
-    <div v-if="match.then">
-      <BooleanMatchEditor
-        v-model:match="match.then"
-        :from="match"
-        :depth="depth + 1"
-        :parentOperator="Bool.and"
-        :parentIndex="clauseIndex"
-        :parentGroup="group"
-        :clauseIndex="0"
-        :rootBool="false"
-        :baseType="baseType"
-      />
-    </div>
+
     <div v-if="parentOperator === Bool.rule">
       <RuleActionEditor :rule="match" />
     </div>

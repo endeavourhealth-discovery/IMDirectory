@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-10-11 09:48:12.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-10 08:47:32.
 
 export interface ConceptContextMap {
     id?: string;
@@ -111,7 +111,7 @@ export interface Concept extends Entity {
     usage?: number;
     codeId?: string;
     alternativeCode?: string;
-    subsumedBy?: TTIriRef[];
+    subsumed?: boolean;
 }
 
 export interface ConceptSet extends Entity {
@@ -155,6 +155,8 @@ export interface IMLLanguage {
     definitions?: { [index: string]: string };
     prefixes?: { [index: string]: string };
     keywords?: string[];
+    booleans?: string[];
+    alerts?: string[];
     iriVariables?: { [index: string]: string[] };
 }
 
@@ -162,12 +164,12 @@ export interface IMLLanguage {
  * Class representing an IRI
  */
 export interface Indicator extends TTIriRef {
-    query?: TTIriRef;
-    and?: Indicator[];
-    or?: Indicator[];
-    definition?: Query;
+    isSubIndicatorOf?: TTIriRef[];
+    numerator?: TTIriRef;
+    dataset?: Query;
     actionIfFalse?: TTIriRef[];
     actionIfTrue?: TTIriRef[];
+    denominator?: TTIriRef;
 }
 
 /**
@@ -198,6 +200,7 @@ export interface NodeShape extends TTIriRef {
 export interface Page {
     pageNumber?: number;
     pageSize?: number;
+    offset?: number;
 }
 
 export interface ParameterShape {
@@ -307,8 +310,8 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    function?: FunctionClause;
     value?: string;
+    function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
     operator?: Operator;
@@ -356,14 +359,16 @@ export interface Element extends IriLD, Entailment {
     childOf?: boolean;
     parentOrSelfOf?: boolean;
     parentOf?: boolean;
+    cohort?: boolean;
     nodeRef?: string;
     invalid?: boolean;
+    isCohort?: boolean;
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -397,13 +402,12 @@ export interface Match extends IriLD, HasPaths {
     ifFalse?: RuleAction;
     nodeRef?: string;
     typeOf?: Node;
-    instanceOf?: Node[];
+    is?: Node[];
     and?: Match[];
     or?: Match[];
     not?: Match[];
     where?: Where;
     return?: Return;
-    then?: Match;
     graph?: Element;
     optional?: boolean;
     aggregate?: FunctionClause;
@@ -415,19 +419,21 @@ export interface Match extends IriLD, HasPaths {
     union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
+    activeOnly?: boolean;
     rule?: Match[];
     libraryItem?: string;
     invalid?: boolean;
-    isCohort?: TTIriRef;
     groupBy?: GroupBy[];
     keepAs?: string;
     orderBy?: OrderLimit;
+    asDescription?: string;
     returx?: Return;
     isUnion?: boolean;
 }
 
 export interface Node extends Element {
     type?: string;
+    match?: Match;
     exclude?: boolean;
     code?: string;
     inverse?: boolean;
@@ -470,8 +476,6 @@ export interface Prefix {
 }
 
 export interface Query extends Match {
-    query?: Query[];
-    activeOnly?: boolean;
     prefixes?: Prefix[];
     columnGroup?: Match[];
     imQuery?: boolean;
@@ -497,6 +501,7 @@ export interface RelativeTo extends IriLD {
     valueVariable?: string;
     propertyRef?: string;
     targetLabel?: string;
+    parameterName?: string;
     nodeRef?: string;
     parameter?: string;
 }
@@ -513,7 +518,6 @@ export interface Return {
     as?: string;
     valueRef?: string;
     propertyRef?: string;
-    asDescription?: string;
 }
 
 export interface ReturnProperty {
@@ -557,10 +561,10 @@ export interface When {
 export interface Where extends Element, Assignable {
     range?: Range;
     isNull?: boolean;
+    is?: Node[];
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
     typeOf?: Node;
-    is?: Node[];
     not?: boolean;
     roleGroup?: boolean;
     isNotNull?: boolean;
@@ -569,6 +573,7 @@ export interface Where extends Element, Assignable {
     or?: Where[];
     and?: Where[];
     shortLabel?: string;
+    propertyList?: Node[];
 }
 
 export interface DBEntry {
@@ -767,6 +772,7 @@ export interface SearchResponse {
     highestUsage?: number;
     term?: string;
     entities?: SearchResultSummary[];
+    exactMatch?: boolean;
 }
 
 export interface WorkflowResponse {
@@ -881,15 +887,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
-    status?: TTIriRef;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    prefixes?: TTPrefix[];
     description?: string;
+    status?: TTIriRef;
     types?: TTIriRef[];
     code?: string;
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -1071,6 +1077,13 @@ export interface OrgRelTarget {
     OrgId?: OrgId;
 }
 
+export const enum IMLContext {
+    prefix = "prefix",
+    match = "match",
+    select = "select",
+    comment = "comment",
+}
+
 export const enum ListMode {
     ALL = "ALL",
     FIRST = "FIRST",
@@ -1176,6 +1189,7 @@ export const enum TextSearchStyle {
     multiword = "multiword",
     ngram = "ngram",
     exact = "exact",
+    all = "all",
 }
 
 export const enum ValidationLevel {
@@ -1338,6 +1352,7 @@ export const enum EDITOR {
     DATA_MODEL_SHAPE = "http://endhealth.info/im#Editor_DataModelShape",
     COHORT_QUERY_SHAPE = "http://endhealth.info/im#Editor_CohortQueryShape",
     PROPERTY_SHAPE = "http://endhealth.info/im#Editor_PropertyShape",
+    INDICATOR_SHAPE = "http://endhealth.info/im#Editor_IndicatorShape",
 }
 
 export const enum EntityType {
@@ -1391,7 +1406,7 @@ export const enum IM {
     USAGE_STATS = "http://endhealth.info/im#usageStats",
     IN_TASK = "http://endhealth.info/im#inTask",
     DEFINITION = "http://endhealth.info/im#definition",
-    INSTANCE_OF = "http://endhealth.info/im#instanceOf",
+    IS = "http://endhealth.info/im#is",
     RETURN_TYPE = "http://endhealth.info/im#returnType",
     UPDATE_PROCEDURE = "http://endhealth.info/im#updateProcedure",
     INVERSE_PATH = "http://endhealth.info/im#inversePath",
@@ -1407,7 +1422,6 @@ export const enum IM {
     QUERY = "http://endhealth.info/im#Query",
     COHORT_QUERY = "http://endhealth.info/im#CohortQuery",
     DEFAULT_COHORTS = "http://endhealth.info/im#Q_DefaultCohorts",
-    DATASET_QUERY = "http://endhealth.info/im#DatasetQuery",
     DATA_UPDATE = "http://endhealth.info/im#DataUpdate",
     PATH_QUERY = "http://endhealth.info/im#PathQuery",
     PATH_TO = "http://endhealth.info/im#pathTo",
@@ -1471,8 +1485,10 @@ export const enum IM {
     MAP_ADVICE = "http://endhealth.info/im#mapAdvice",
     NATIONALLY_ASSURED = "http://endhealth.info/im#NationallyAssuredUK",
     SUPPLIER_ASSURED = "http://endhealth.info/im#SupplierAssured",
+    COHORT = "http://endhealth.info/im#Cohort",
     HAS_MEMBER = "http://endhealth.info/im#hasMember",
     IS_MEMBER_OF = "http://endhealth.info/im#isMemberOf",
+    AVOID_REPLACED_BY = "http://endhealth.info/im#avoidReplacedBy",
     IS_SUBSET_OF = "http://endhealth.info/im#isSubsetOf",
     HAS_SUBSET = "http://endhealth.info/im#hasSubset",
     SOURCE_CONTEXT = "http://endhealth.info/im#sourceContext",
@@ -1551,12 +1567,15 @@ export const enum IM {
     SELECT = "http://endhealth.info/im#select",
     NATIONALLY_ASSURED_UK = "http://endhealth.info/im#NationallyAssuredUK",
     ENTITY = "http://endhealth.info/im#Entity",
+    IS_SUBINDICATOR_OF = "http://endhealth.info/im#isSubIndicatorOf",
     QUERY_SET = "http://endhealth.info/im#QuerySet",
     DEPENDENT_ON = "http://endhealth.info/im#dependentOn",
     CARE_ACTIVITY = "http://endhealth.info/im#CareActivity",
     CARE_TARGET = "http://endhealth.info/im#CareTarget",
     QUERY_TEMPLATE = "http://endhealth.info/im#QueryTemplate",
-    HAS_QUERY = "http://endhealth.info/im#hasQuery",
+    NUMERATOR = "http://endhealth.info/im#numerator",
+    DENOMINATOR = "http://endhealth.info/im#denominator",
+    HAS_DATASET = "http://endhealth.info/im#dataset",
     RECORD_TYPE = "http://endhealth.info/im#RecordType",
     FEATURE = "http://endhealth.info/im#MatchClause",
     DATA_PROPERTY = "http://endhealth.info/im#DataProperty",
