@@ -48,6 +48,7 @@
             id="conceptType"
             optionLabel="name"
             display="chip"
+            data-testid="concept-type-multiselect"
             v-model="selectedTypes"
             :options="storeFilterOptions.types"
             @change="emitFilterUpdate()"
@@ -67,7 +68,7 @@ import { TTIriRef } from "@/interfaces/AutoGen";
 import { GRAPH } from "@/vocabulary";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
-import {SCHEME} from "@/vocabulary/SCHEME";
+import { SCHEME } from "@/vocabulary/SCHEME";
 interface Props {
   selectedFilterOptions?: FilterOptions;
 }
