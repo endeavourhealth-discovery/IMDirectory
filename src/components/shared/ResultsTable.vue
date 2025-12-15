@@ -1,6 +1,5 @@
 <template>
   <div id="search-results-main-container">
-    <span>first = {{ first }}</span>
     <DataTable
       :paginator="true"
       :paginatorTemplate="'PrevPageLink NextPageLink RowsPerPageDropdown'"
@@ -218,7 +217,7 @@ watch(
 
 async function onSearch() {
   searchLoading.value = true;
-  const response = await search(page.value + 1, rows.value, page.value == 0 ? TextSearchStyle.autocomplete : TextSearchStyle.all,undefined);
+  const response = await search(page.value + 1, rows.value, page.value == 0 ? TextSearchStyle.autocomplete : TextSearchStyle.all, undefined);
   emit("searchResultsUpdated", response);
   const lastSearchTerm = props.searchTerm;
   if (response?.entities && isArrayHasLength(response.entities)) {
@@ -227,13 +226,13 @@ async function onSearch() {
   }
   searchLoading.value = false;
   if (!props.eclQuery && lastSearchTerm === props.searchTerm && page.value == 0) {
-    let offset= undefined;
-    let rowsLeft= rows.value;
+    let offset = undefined;
+    let rowsLeft = rows.value;
     if (response?.entities) {
       offset = response.entities.length;
       rowsLeft = rows.value - offset;
     }
-    search(2, rowsLeft,TextSearchStyle.all,offset).then(slow => {
+    search(2, rowsLeft, TextSearchStyle.all, offset).then(slow => {
       addSearchResults(slow);
       pageCache.value[page.value] = searchResults.value;
       emit("searchResultsUpdated", response);
@@ -246,7 +245,7 @@ function updateRows(newRows: number) {
   onSearch();
 }
 
-async function search(pageNumber: number, pageSize: number, searchStyle: TextSearchStyle,offset?: number) {
+async function search(pageNumber: number, pageSize: number, searchStyle: TextSearchStyle, offset?: number) {
   let response = undefined;
   if (props.eclQuery) {
     props.eclQuery.page = pageNumber;
@@ -257,15 +256,13 @@ async function search(pageNumber: number, pageSize: number, searchStyle: TextSea
       props.imQuery.textSearch = props.searchTerm;
       props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
       props.imQuery.textSearchStyle = searchStyle;
-      if (offset)
-        props.imQuery.page.offset = offset;
+      if (offset) props.imQuery.page.offset = offset;
       response = await QueryService.queryIMSearch(props.imQuery);
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
       searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
-      if (offset)
-        searchOptions.page.offset = offset;
+      if (offset) searchOptions.page.offset = offset;
       const imQuery = buildIMQueryFromFilters(searchOptions);
       imQuery.textSearchStyle = searchStyle;
       response = await QueryService.queryIMSearch(imQuery);

@@ -46,6 +46,7 @@ describe("Search", () => {
     cy.findByTestId("total-results", { timeout: 60000 }).invoke("text").then(parseFloat).as("startCount", { type: "static" }).should("be.gt", 0);
     cy.findByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
     cy.get(".p-multiselect-overlay").contains("Snomed").click();
+    cy.get(".p-multiselect-overlay").contains("EMIS codes").click();
     cy.findByTestId("scheme-filter").find(".p-multiselect-dropdown").click();
     cy.wait(1000);
     cy.get("p-datatable-mask").should("not.exist");

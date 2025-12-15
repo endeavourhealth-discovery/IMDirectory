@@ -204,9 +204,13 @@ describe("viewer", () => {
       });
     });
   });
-  describe("Set", () => {
+  describe.only("Set", () => {
     beforeEach(() => {
       cy.clearFavouritesAndSuggested();
+      cy.findByTestId("filters-open-button").click();
+      cy.findByTestId("filters");
+      cy.findByTestId("concept-type-multiselect").click();
+      cy.get(".p-multiselect-overlay").contains("Data model bound value set").click();
       cy.searchAndSelect("Autism Spectrum Disorders (Data model value set)");
     });
 
@@ -232,6 +236,10 @@ describe("Query", () => {
   beforeEach(() => {
     cy.acceptLicenseAndLogin();
     cy.clearFavouritesAndSuggested();
+    cy.findByTestId("filters-open-button").click();
+    cy.findByTestId("filters");
+    cy.findByTestId("concept-type-multiselect").click();
+    cy.get(".p-multiselect-overlay").contains("Query").click();
     cy.searchAndSelect("Patients 65-70, or diabetes or prediabetes that need invitations for blood pressure measuring");
   });
 

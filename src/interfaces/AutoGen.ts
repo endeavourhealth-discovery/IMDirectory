@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-10 08:47:32.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-14 12:48:46.
 
 export interface ConceptContextMap {
     id?: string;
@@ -314,9 +314,9 @@ export interface Assignable {
     function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
+    qualifier?: TTIriRef;
     operator?: Operator;
     valueLabel?: string;
-    qualifier?: TTIriRef;
 }
 
 export interface Case {
@@ -366,10 +366,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
-    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -887,14 +887,14 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    status?: TTIriRef;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    status?: TTIriRef;
-    types?: TTIriRef[];
     code?: string;
+    types?: TTIriRef[];
     prefixes?: TTPrefix[];
 }
 
@@ -1399,6 +1399,7 @@ export const enum IM {
     KEY_TERM = "http://endhealth.info/im#keyTerm",
     PREFERRED_NAME = "http://endhealth.info/im#preferredName",
     HAS_SCHEME = "http://endhealth.info/im#scheme",
+    DEFAULT_SCHEME = "http://endhealth.info/im#defaultScheme",
     BINDING = "http://endhealth.info/im#binding",
     HAS_STATUS = "http://endhealth.info/im#status",
     STATUS = "http://endhealth.info/im#Status",
