@@ -204,7 +204,7 @@ describe("viewer", () => {
       });
     });
   });
-  describe.only("Set", () => {
+  describe("Set", () => {
     beforeEach(() => {
       cy.clearFavouritesAndSuggested();
       cy.findByTestId("filters-open-button").click();
@@ -240,7 +240,8 @@ describe("Query", () => {
     cy.findByTestId("filters");
     cy.findByTestId("concept-type-multiselect").click();
     cy.get(".p-multiselect-overlay").contains("Query").click();
-    cy.searchAndSelect("Patients 65-70, or diabetes or prediabetes that need invitations for blood pressure measuring");
+    cy.wait(5000);
+    cy.searchAndSelect("Patients 65-70");
   });
 
   it("starts with query tab open", () => {
