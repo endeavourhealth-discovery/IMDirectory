@@ -46,6 +46,25 @@ export const useFilterStore = defineStore("filter", {
       this.selectedFilterOptions = filters;
     },
 
+    updateWithDefaultFilterOptions(oldFilters: FilterOptions, filters: FilterOptions) {
+      const oldTypes = new Set(oldFilters.types.map(t => t.iri));
+      const oldScheme = new Set(oldFilters.schemes.map(s => s.iri));
+      const typeSchemes = this.defaultFilterOptions.typeSchemes;
+      if (!typeSchemes) return;
+      for (const type of filters.types) {
+        if (!oldTypes.has(type.iri)) {
+          const schemes = typeSchemes[type.iri];
+          if (!schemes) continue;
+          for (const newScheme of schemes) {
+            if (!oldScheme.has(newScheme.iri)) {
+              filters.schemes.push(newScheme);
+            }
+          }
+        }
+      }
+      this.selectedFilterOptions = filters;
+    },
+
     updateHierarchySelectedFilters(filters: Namespace[]) {
       this.hierarchySelectedFilters = filters;
     },

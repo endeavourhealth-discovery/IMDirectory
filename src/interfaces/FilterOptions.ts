@@ -4,5 +4,5 @@ export interface FilterOptions {
   status: TTIriRef[];
   schemes: TTIriRef[];
   types: TTIriRef[];
-  typeSchemes?: Map<string, TTIriRef[]>;
+  typeSchemes?: Record<string, TTIriRef[]>;
 }

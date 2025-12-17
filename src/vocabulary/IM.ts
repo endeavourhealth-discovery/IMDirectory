@@ -283,7 +283,6 @@ export class IM {
   public static readonly TYPE_FILTER_OPTIONS = Namespace.IM + "TypeFilterOptions"
   public static readonly SORT_FIELD_FILTER_OPTIONS = Namespace.IM + "SortFieldFilterOptions"
   public static readonly SORT_DIRECTION_FILTER_OPTIONS = Namespace.IM + "SortDirectionFilterOptions"
-  public static readonly SCHEME_FILTER_DEFAULTS = Namespace.IM + "SchemeFilterDefaultOptions"
   public static readonly STATUS_FILTER_DEFAULTS = Namespace.IM + "StatusFilterDefaultOptions"
   public static readonly TYPE_FILTER_DEFAULTS = Namespace.IM + "TypeFilterDefaultOptions"
   public static readonly SORT_FIELD_FILTER_DEFAULTS = Namespace.IM + "SortFieldFilterDefaultOptions"

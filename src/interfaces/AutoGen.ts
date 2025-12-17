@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-14 12:48:46.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-17 10:19:31.
 
 export interface ConceptContextMap {
     id?: string;
@@ -366,10 +366,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -893,8 +893,8 @@ export interface TTEntity extends TTNode, Serializable {
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    code?: string;
     types?: TTIriRef[];
+    code?: string;
     prefixes?: TTPrefix[];
 }
 
@@ -1421,7 +1421,6 @@ export const enum IM {
     NAMESPACE = "http://endhealth.info/im#Namespace",
     FUNCTION = "http://endhealth.info/im#FunctionClause",
     QUERY = "http://endhealth.info/im#Query",
-    COHORT_QUERY = "http://endhealth.info/im#CohortQuery",
     DEFAULT_COHORTS = "http://endhealth.info/im#Q_DefaultCohorts",
     DATA_UPDATE = "http://endhealth.info/im#DataUpdate",
     PATH_QUERY = "http://endhealth.info/im#PathQuery",
@@ -1656,7 +1655,6 @@ export const enum IM {
     TYPE_FILTER_OPTIONS = "http://endhealth.info/im#TypeFilterOptions",
     SORT_FIELD_FILTER_OPTIONS = "http://endhealth.info/im#SortFieldFilterOptions",
     SORT_DIRECTION_FILTER_OPTIONS = "http://endhealth.info/im#SortDirectionFilterOptions",
-    SCHEME_FILTER_DEFAULTS = "http://endhealth.info/im#SchemeFilterDefaultOptions",
     STATUS_FILTER_DEFAULTS = "http://endhealth.info/im#StatusFilterDefaultOptions",
     TYPE_FILTER_DEFAULTS = "http://endhealth.info/im#TypeFilterDefaultOptions",
     SORT_FIELD_FILTER_DEFAULTS = "http://endhealth.info/im#SortFieldFilterDefaultOptions",
