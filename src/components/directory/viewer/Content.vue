@@ -69,7 +69,7 @@ import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
-import setupOverlay from "@/composables/setupOverlay";
+import { useOverlay } from "@/composables/useOverlay";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { MenuItem } from "primevue/menuitem";
 import { ExtendedEntityReferenceNode } from "@/interfaces/ExtendedAutoGen";
@@ -86,7 +86,7 @@ const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 const directService = new DirectService();
 
 watch(

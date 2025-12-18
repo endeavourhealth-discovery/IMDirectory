@@ -9,6 +9,9 @@ import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
 import { ErrorType } from "./ErrorType";
 import { TaskState, TaskType, TaskModule, Browser, OperatingSystem, Severity, Status, UserRole } from "../interfaces/AutoGen";
+import PrimeVueColors from "./PrimeVueColors";
+import PrimeVuePresetThemes from "./PrimeVuePresetThemes";
+import FontSize from "./FontSize";
 
 export {
   BuilderType,
@@ -28,5 +31,8 @@ export {
   OperatingSystem,
   Severity,
   Status,
-  UserRole
+  UserRole,
+  PrimeVueColors,
+  PrimeVuePresetThemes,
+  FontSize
 };

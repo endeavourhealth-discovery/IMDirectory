@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { IMLLanguage } from "@/interfaces/AutoGen";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 
 interface Props {
   iml: IMLLanguage;
@@ -49,7 +49,7 @@ const keywords = props.iml.keywords!;
 const booleans = props.iml.booleans!;
 const alerts = props.iml.alerts!;
 const parsedLines: Ref<Lines[]> = ref([]);
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ref(props.iml.text!));
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(ref(props.iml.text!));
 
 function parseLines() {
   parsedLines.value = [];

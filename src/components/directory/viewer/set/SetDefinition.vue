@@ -6,7 +6,7 @@
         <ArrayObjectNamesToStringWithLabel v-if="subsetOf" :data="subsetOf" label="Subset of" />
         <ArrayObjectNamesToStringWithLabel v-if="subclassOf" :data="subclassOf" label="Subclass of" />
         <div class="buttons-container">
-          <template v-if="checkAuthorization()">
+          <template v-if="hasPermissionSetPublish">
             <Button :loading="isPublishing" data-testid="publishButton" label="Publish" type="button" @click="publish"></Button>
           </template>
           <Button
@@ -96,8 +96,8 @@ import CompareSetDialog from "./CompareSetDialog.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
-import { computed, ComputedRef, markRaw, onMounted, Ref, ref } from "vue";
-import { EntityService, SetService } from "@/services";
+import { computed, ComputedRef, markRaw, onMounted, Ref, ref, watch } from "vue";
+import { CasbinService, EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@/vocabulary";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
@@ -107,11 +107,11 @@ import { ToastSeverity } from "@/enums";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import setupDownloadFile from "@/composables/downloadFile";
+import { useDownloadFile } from "@/composables/useDownloadFile";
 import { useUserStore } from "@/stores/userStore";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
-import { SetExportRequest, SetOptions, UserRole } from "@/interfaces/AutoGen";
+import { Action, Resource, SetExportRequest, SetOptions, UserRole } from "@/interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
@@ -129,7 +129,7 @@ const subclassOf = ref();
 const active: Ref<string[]> = ref([]);
 const showCompareSetDialog = ref(false);
 const showMembers = ref(false);
-const { downloadFile } = setupDownloadFile(window, document);
+const { downloadFile } = useDownloadFile(window, document);
 const userStore = useUserStore();
 const showSubsumedBy = ref(true);
 const currentUser = computed(() => userStore.currentUser);
@@ -139,10 +139,17 @@ const downloading = ref(false);
 const isPublishing = ref(false);
 const showOptions = ref(false);
 const entity: Ref<TTEntity> = ref({});
+const hasPermissionSetPublish = ref(false);
 
-const { copyObjectToClipboard } = setupCopyToClipboard();
+const { copyObjectToClipboard } = useCopyToClipboard();
 
 const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION] != undefined);
+
+watch(currentUser, async () => {
+  if (isLoggedIn.value) {
+    hasPermissionSetPublish.value = await CasbinService.hasPermission(Resource.SET, Action.PUBLISH);
+  } else hasPermissionSetPublish.value = false;
+});
 
 onMounted(async () => {
   active.value = ["0", "1", "2"];
@@ -166,6 +173,9 @@ onMounted(async () => {
     showSubsumedBy.value = false;
   }
   if (!hasDefinition.value) showMembers.value = true;
+  if (isLoggedIn.value) {
+    hasPermissionSetPublish.value = await CasbinService.hasPermission(Resource.SET, Action.PUBLISH);
+  }
 });
 
 async function onCopy(event: MouseEvent) {
@@ -259,12 +269,6 @@ function getFileName(label: string, format: string) {
     label = label.substring(0, 100);
   }
   return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + format;
-}
-
-function checkAuthorization() {
-  if (isLoggedIn.value && currentUser.value) {
-    return currentUser.value.roles.includes(UserRole.PUBLISHER);
-  } else return false;
 }
 
 function publish() {

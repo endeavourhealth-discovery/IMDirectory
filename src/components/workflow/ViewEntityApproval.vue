@@ -39,7 +39,6 @@
 <script setup lang="ts">
 import { enumToArray } from "@/helpers/Converters";
 import { ApprovalType, EntityApproval, RoleRequest, Task, UserRole } from "@/interfaces/AutoGen";
-import AdminService from "@/services/AdminService";
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
@@ -49,7 +48,7 @@ import TaskViewer from "./TaskViewer.vue";
 import { EntityService } from "@/services";
 import { IM } from "@/vocabulary";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { setupEditorEntity } from "@/composables/setupEditorEntity";
+import { useEditorEntity } from "@/composables/useEditorEntity";
 import { EditorMode } from "@/enums";
 import EntityDiffDialog from "./EntityDiffDialog.vue";
 
@@ -102,7 +101,7 @@ async function setOptions() {
 
 async function getEntity() {
   if (entityApproval.value?.approvalType === ApprovalType.EDIT && entityApproval.value?.entityIri) {
-    const { editorEntity } = setupEditorEntity(EditorMode.EDIT, () => {});
+    const { editorEntity } = useEditorEntity(EditorMode.EDIT, () => {});
     originalEntity.value = { ...editorEntity.value };
   }
 }

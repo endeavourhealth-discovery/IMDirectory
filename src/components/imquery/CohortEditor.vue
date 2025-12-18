@@ -51,7 +51,7 @@ import { onMounted, ref, Ref } from "vue";
 import { IM } from "@/vocabulary";
 import { Namespace } from "@/vocabulary/Namespace";
 import { Match, Node, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
-import { buildIMQueryFromFilters } from "@/composables/buildQuery";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";

@@ -38,7 +38,7 @@ import { ToastOptions } from "@/models";
 import { ToastSeverity } from "@/enums";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import ResultsTable from "../shared/ResultsTable.vue";
 
 const emit = defineEmits<{
@@ -48,7 +48,7 @@ const emit = defineEmits<{
 
 const toast = useToast();
 const imQueryString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(imQueryString);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(imQueryString);
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
@@ -95,7 +95,7 @@ function format() {
   width: 100%;
   height: 10rem;
   overflow: auto;
-  grow: 100;
+  flex-grow: 100;
 }
 
 .info {

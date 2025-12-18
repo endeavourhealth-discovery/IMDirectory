@@ -79,10 +79,10 @@
 <script setup lang="ts">
 import { inject, onMounted, Ref, ref, computed } from "vue";
 import Button from "primevue/button";
-import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
+import { useECLBuilderActions } from "@/composables/useECLBuilderActions";
 import { Bool, Match, Where, QueryRequest } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { addConceptToGroup, getIsRoleGroup, updateMatchBooleans, updateFocusConcepts } from "@/composables/buildQuery";
+import { addConceptToGroup, getIsRoleGroup, updateMatchBooleans, updateFocusConcepts } from "@/helpers/buildQuery";
 import { v4 } from "uuid";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
@@ -102,7 +102,7 @@ const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const operators = ["and", "or", "not"] as const;
-const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragOver } = useECLBuilderActions(wasDraggedAndDropped);
 const hoverAddConcept = ref(false);
 const hoverAddRefinement = ref(false);
 const focusConcepts = computed(() => {

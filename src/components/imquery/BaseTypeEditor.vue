@@ -64,7 +64,7 @@ import { Ref, ref, watch, computed, onMounted } from "vue";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import { Match, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
 import { EntityService, QueryService } from "@/services";
-import { addMatchToParent, buildIMQueryFromFilters, hasBoolGroups } from "@/composables/buildQuery";
+import { addMatchToParent, buildIMQueryFromFilters, hasBoolGroups } from "@/helpers/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";

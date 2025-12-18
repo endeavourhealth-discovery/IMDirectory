@@ -85,7 +85,7 @@ import { byName } from "@/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { GenericObject } from "@/interfaces/GenericObject";
 
 const emit = defineEmits<{
@@ -98,7 +98,7 @@ const editorStore = useEditorStore();
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
 const eclQueryString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(eclQueryString);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(eclQueryString);
 const showDialog = ref(false);
 const showNames = ref(false);
 const eclErrorMessage = ref("");
@@ -219,7 +219,7 @@ function setFilterDefaults() {
   width: 100%;
   height: 10rem;
   overflow: auto;
-  grow: 100;
+  flex-grow: 100;
 }
 
 .info {
