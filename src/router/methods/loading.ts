@@ -49,6 +49,8 @@ function getViewPathFromRoutePath(routeLocation: RouteLocationNormalized, routes
   if (routeLocation.fullPath === "/") {
     const found = routes.find(r => r.name === "Directory");
     if (found) return found.path;
+  } else if (routeLocation.fullPath === "/?silentSignin=1") {
+    return "/";
   } else {
     const found = routes.find(r => routeLocation.fullPath.startsWith(r.path));
     if (found) return found.path;

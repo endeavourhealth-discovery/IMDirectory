@@ -30,8 +30,7 @@ import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { AuthService, GithubService } from "@/services";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { CasdoorService, GithubService } from "@/services";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
@@ -43,6 +42,8 @@ import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
 import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
 import { setModes } from "./router/methods/setModes";
+import { useCasdoor } from "casdoor-vue-sdk";
+import { useCookies } from "@vueuse/integrations";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -50,10 +51,14 @@ setupExternalErrorHandler();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
+const cookie = useCookies();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
+const { getSigninUrl, getSignupUrl, isSilentSigninRequested, silentSignin } = useCasdoor();
+sharedStore.updateSigninUrl(getSigninUrl());
+sharedStore.updateSignupUrl(getSignupUrl());
 const finishedOnMounted = ref(false);
 
 const { changeScale } = setupChangeScale();
@@ -94,7 +99,18 @@ watch(darkMode, async (newValue, oldValue) => {
 });
 
 onMounted(async () => {
-  await AuthService.getCurrentAuthenticatedUser();
+  if (!cookie.get("access_token")) {
+    const silentUser = await axios.get(import.meta.env.VITE_CASDOOR_URL + "/api/get-account", { raw: true });
+    if (silentUser?.data?.accessToken) {
+      await CasdoorService.loginWithBearerToken(silentUser.data.accessToken);
+    }
+  }
+  try {
+    const user = await CasdoorService.getUser(true);
+    if (user) userStore.updateCurrentUser(user);
+  } catch (e: any) {
+    console.log("No user session found");
+  }
 
   await setModes();
 
@@ -138,13 +154,13 @@ function getLocalVersion(repoName: string): string | null {
 }
 
 function setupAxiosInterceptors(axios: AxiosInstance) {
+  axios.defaults.withCredentials = true;
   axios.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
-      request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
       request.headers.set("Graph", userStore.includeUserGraph);
     } else if (!isLoggedIn.value && isPublicMode.value === false && !(request.url?.endsWith("isPublicMode") || request.url?.endsWith("isDevMode"))) {
-      await router.push({ name: "Login" });
+      window.location.href = getSigninUrl();
     }
     return request;
   });

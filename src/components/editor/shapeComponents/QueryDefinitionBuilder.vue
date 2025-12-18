@@ -45,7 +45,7 @@ import { inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
 import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
+import TestQueryResults from "@/components/directory/viewer/queryDisplay/TestQueryResults.vue";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import QueryEditor from "@/components/imquery/QueryEditor.vue";
 import SQLDisplay from "@/components/directory/viewer/SQLDisplay.vue";
