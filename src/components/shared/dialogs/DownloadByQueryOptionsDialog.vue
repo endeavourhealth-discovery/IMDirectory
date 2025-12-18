@@ -157,10 +157,10 @@ const contentOptions: Ref<DownloadOption[]> = ref([
   { key: "core", name: "Core", disabled: false, include: props.showCore, cannotUncheck: true },
   { key: "legacy", name: "Legacy", disabled: false, include: props.showLegacy },
   { key: "im1Id", name: "IM1Id", disabled: false, include: props.showIm1Id },
-  { key: "subsumedBy", name: "+Replaced concepts", disabled: true, include: false }
+  { key: "subsumedBy", name: "+ Probably subsumed concepts", disabled: true, include: false }
 ]);
 
-const selectedContents: Ref<string[]> = ref(["Core", "+Replaced concepts"]);
+const selectedContents: Ref<string[]> = ref(["Core"]);
 const selectedFormat = ref("tsv");
 const displayLegacyOptions = ref(false);
 const coreSelected = ref(false);
@@ -181,7 +181,7 @@ watch(
       opt.include = value;
     }
     if (!value) {
-      selectedContents.value = selectedContents.value.filter(item => item !== "+Replaced concepts");
+      selectedContents.value = selectedContents.value.filter(item => item !== "+ Probably subsumed concepts");
     }
   },
   { immediate: true }

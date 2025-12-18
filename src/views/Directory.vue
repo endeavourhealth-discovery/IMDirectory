@@ -42,7 +42,7 @@ const updateSearch: Ref<boolean> = ref(false);
 const storeSelectedFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 
 async function onSelectedFiltersUpdated(filters: FilterOptions) {
-  filterStore.updateSelectedFilterOptions(filters);
+  filterStore.updateWithDefaultFilterOptions(storeSelectedFilterOptions.value, filters);
   if (directorySearchTerm.value && directorySearchTerm.value.length > 2) await toSearch();
 }
 

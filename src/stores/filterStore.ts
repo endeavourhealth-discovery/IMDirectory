@@ -45,6 +45,25 @@ export const useFilterStore = defineStore("filter", () => {
     selectedFilterOptions.value = filters;
   }
 
+  function updateWithDefaultFilterOptions(oldFilters: FilterOptions, filters: FilterOptions) {
+    const oldTypes = new Set(oldFilters.types.map(t => t.iri));
+    const oldScheme = new Set(oldFilters.schemes.map(s => s.iri));
+    const typeSchemes = defaultFilterOptions.value.typeSchemes;
+    if (!typeSchemes) return;
+    for (const type of filters.types) {
+      if (!oldTypes.has(type.iri)) {
+        const schemes = typeSchemes[type.iri];
+        if (!schemes) continue;
+        for (const newScheme of schemes) {
+          if (!oldScheme.has(newScheme.iri)) {
+            filters.schemes.push(newScheme);
+          }
+        }
+      }
+    }
+    selectedFilterOptions.value = filters;
+  }
+
   function updateHierarchySelectedFilters(filters: Namespace[]) {
     hierarchySelectedFilters.value = filters;
   }
@@ -64,6 +83,7 @@ export const useFilterStore = defineStore("filter", () => {
     updateFilterOptions,
     updateHierarchySelectedFilters,
     updateSelectedFilterOptions,
-    fetchFilterSettings
+    fetchFilterSettings,
+    updateWithDefaultFilterOptions
   };
 });

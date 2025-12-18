@@ -5,7 +5,7 @@
       :paginatorTemplate="'PrevPageLink NextPageLink RowsPerPageDropdown'"
       :rows="rows"
       :value="searchResults"
-      :first="page * rows"
+      :first="first"
       class="p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
@@ -19,7 +19,7 @@
       :autoLayout="true"
       @page="onPage($event)"
       :lazy="true"
-      :total-records="totalCount"
+      :total-records="pageForcer"
       :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
       :loading="searchLoading"
       :pt="{ thead: { class: 'z-1!' } }"
@@ -164,9 +164,11 @@ const searchResults: Ref<ExtendedSearchResultSummary[]> = ref([]);
 const totalCount = ref(0);
 const highestUsage = ref(0);
 const page = ref(0);
+const first = ref(0);
 const rows = ref(props.pageSize ? props.pageSize : 25);
 const rowsOriginal = ref(20);
 const searchTable = ref<InstanceType<typeof DataTable> | null>(null);
+const pageForcer = ref(1000);
 const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Select",
@@ -200,6 +202,9 @@ watch(
       searchResults.value = [];
       totalCount.value = 0;
       page.value = 0;
+      for (const key in pageCache.value) {
+        delete pageCache.value[key];
+      }
       await onSearch();
     }
   }
@@ -212,7 +217,7 @@ watch(
 
 async function onSearch() {
   searchLoading.value = true;
-  const response = await search(page.value + 1, rows.value, true);
+  const response = await search(page.value + 1, rows.value, page.value == 0 ? TextSearchStyle.autocomplete : TextSearchStyle.all, undefined);
   emit("searchResultsUpdated", response);
   const lastSearchTerm = props.searchTerm;
   if (response?.entities && isArrayHasLength(response.entities)) {
@@ -220,13 +225,17 @@ async function onSearch() {
     pageCache.value[page.value] = searchResults.value;
   }
   searchLoading.value = false;
-  if (!props.eclQuery && lastSearchTerm === props.searchTerm && response && response.entities && response.entities.length < (page.value + 1) * rows.value) {
-    search(page.value + 1, rows.value, false).then(slow => {
-      if (slow && slow.entities) {
-        processSearchResults(slow);
-        pageCache.value[page.value] = searchResults.value;
-        emit("searchResultsUpdated", response);
-      }
+  if (!props.eclQuery && lastSearchTerm === props.searchTerm && page.value == 0) {
+    let offset = undefined;
+    let rowsLeft = rows.value;
+    if (response?.entities) {
+      offset = response.entities.length;
+      rowsLeft = rows.value - offset;
+    }
+    search(2, rowsLeft, TextSearchStyle.all, offset).then(slow => {
+      addSearchResults(slow);
+      pageCache.value[page.value] = searchResults.value;
+      emit("searchResultsUpdated", response);
     });
   }
 }
@@ -236,7 +245,7 @@ function updateRows(newRows: number) {
   onSearch();
 }
 
-async function search(pageNumber: number, pageSize: number, fast: boolean) {
+async function search(pageNumber: number, pageSize: number, searchStyle: TextSearchStyle, offset?: number) {
   let response = undefined;
   if (props.eclQuery) {
     props.eclQuery.page = pageNumber;
@@ -246,16 +255,16 @@ async function search(pageNumber: number, pageSize: number, fast: boolean) {
     if (props.imQuery) {
       props.imQuery.textSearch = props.searchTerm;
       props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
-      if (fast) props.imQuery.textSearchStyle = TextSearchStyle.autocomplete;
-      else props.imQuery.textSearchStyle = TextSearchStyle.fuzzy;
+      props.imQuery.textSearchStyle = searchStyle;
+      if (offset) props.imQuery.page.offset = offset;
       response = await QueryService.queryIMSearch(props.imQuery);
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
       searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
+      if (offset) searchOptions.page.offset = offset;
       const imQuery = buildIMQueryFromFilters(searchOptions);
-      if (fast) imQuery.textSearchStyle = TextSearchStyle.autocomplete;
-      else imQuery.textSearchStyle = TextSearchStyle.fuzzy;
+      imQuery.textSearchStyle = searchStyle;
       response = await QueryService.queryIMSearch(imQuery);
     }
   }
@@ -280,6 +289,7 @@ function isFavourite(iri: string) {
 
 function processSearchResults(searchResponse: SearchResponse | undefined): void {
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
+    //if (searchResults.value && searchResults.value.length) addSearchResults(searchResponse);
     searchResults.value = mapSearchResults(searchResponse);
     if (searchResponse.page && searchResponse.page == 1) totalCount.value = searchResponse.count ?? 0;
     highestUsage.value = searchResponse.highestUsage ?? 0;
@@ -320,6 +330,7 @@ function updateRClickOptions() {
 
 async function onPage(event: DataTablePageEvent) {
   page.value = event.page;
+  first.value = page.value * rows.value;
   if (pageCache.value[event.page]) {
     searchResults.value = pageCache.value[event.page]!;
   } else {
