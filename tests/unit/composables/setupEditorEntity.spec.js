@@ -5,7 +5,7 @@ import { fakerFactory } from "@/mocks/fakerFactory";
 import { mountComposable } from "../TestMethods";
 import { EditorMode } from "@/enums";
 
-import { setupEditorEntity } from "@/composables/useEditorEntity";
+import { useEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
 
@@ -21,7 +21,7 @@ describe("fetchEntity", () => {
   });
 
   it("does nothing if no editorIri", async () => {
-    const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType], { editor: { editorIri: undefined } });
+    const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType], { editor: { editorIri: undefined } });
 
     await wrapper.vm.fetchEntity();
     expect(wrapper.vm.editorEntity).toEqual({});
@@ -33,7 +33,7 @@ describe("fetchEntity", () => {
     const testEntity = fakerFactory.entity.create();
     getFullEntitySpy.mockResolvedValue(testEntity);
     getEntityTypesSpy.mockResolvedValue([]);
-    const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType], { editor: { editorIri: "testIri" } });
+    const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType], { editor: { editorIri: "testIri" } });
 
     await wrapper.vm.fetchEntity();
     expect(getFullEntitySpy).toHaveBeenCalled();
@@ -53,7 +53,7 @@ describe("processEntity", () => {
     const testEntity = fakerFactory.entity.create();
     testEntity[IM.IM_1_ID] = "testIri";
     testEntity[IM.IM_1_SCHEME] = [{ iri: "testScheme" }];
-    const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+    const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
     const result = wrapper.vm.processEntity(testEntity);
     expect(result).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity.iri }));
     expect(result).toEqual(
@@ -69,14 +69,14 @@ describe("processEntity", () => {
     });
 
     it("returns undefined if no types", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       wrapper.vm.editorEntity = {};
       expect(wrapper.vm.findPrimaryType()).toBeUndefined();
     });
 
     it("returns type if edit and original same type", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       expect(wrapper.vm.findPrimaryType()).toEqual({
@@ -85,7 +85,7 @@ describe("processEntity", () => {
     });
 
     it("returns new type if types different", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT_SET }] };
       expect(wrapper.vm.findPrimaryType()).toEqual({
@@ -94,7 +94,7 @@ describe("processEntity", () => {
     });
 
     it("returns nodeshape if present in multiple types", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT_SET }, { iri: SHACL.NODESHAPE }] };
       expect(wrapper.vm.findPrimaryType()).toEqual({
@@ -103,7 +103,7 @@ describe("processEntity", () => {
     });
 
     it("returns first if multiple types no rules", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       wrapper.vm.editorEntityOriginal = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
       wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }] };
       expect(wrapper.vm.findPrimaryType()).toEqual({
@@ -120,7 +120,7 @@ describe("processEntity", () => {
     });
 
     it("can update entity ___ array ___ editor", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const store = useEditorStore();
       const store2 = useCreatorStore();
       const dataToAdd = [{ testIri1: "testValue1" }, { testIri2: "testValue2" }];
@@ -131,7 +131,7 @@ describe("processEntity", () => {
     });
 
     it("can update entity ___ array ___ creator", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.CREATE, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.CREATE, mockUpdateType]);
       const store = useCreatorStore();
       const store2 = useEditorStore();
       const dataToAdd = [{ testIri1: "testValue1" }, { testIri2: "testValue2" }];
@@ -142,7 +142,7 @@ describe("processEntity", () => {
     });
 
     it("can update entity ___ object", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const store = useEditorStore();
       const store2 = useCreatorStore();
       const dataToAdd = { testIri1: "testValue1", testIri2: "testValue2" };
@@ -153,7 +153,7 @@ describe("processEntity", () => {
     });
 
     it("can update entity ___ object ___ with type missing from editor", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const store = useEditorStore();
       const store2 = useCreatorStore();
       const dataToAdd = {
@@ -168,7 +168,7 @@ describe("processEntity", () => {
     });
 
     it("can update entity ___ object ___ with type different from editor", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const store = useEditorStore();
       const store2 = useCreatorStore();
       wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
@@ -184,7 +184,7 @@ describe("processEntity", () => {
     });
 
     it("can update entity ___ object ___ with type same as editor", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const store = useEditorStore();
       const store2 = useCreatorStore();
       wrapper.vm.editorEntity = { "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: IM.CONCEPT }] };
@@ -203,7 +203,7 @@ describe("processEntity", () => {
   describe("deleteEntityKey", () => {
     it("can delete a key from the enditorEntity", () => {
       let mockUpdateType = vi.fn();
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       wrapper.vm.editorEntity = { testIri1: "testValue1", testIri2: "testValue2" };
       wrapper.vm.deleteEntityKey("testIri1");
       expect(wrapper.vm.editorEntity).toEqual(expect.not.objectContaining({ testIri1: "testValue1" }));
@@ -218,7 +218,7 @@ describe("processEntity", () => {
     });
 
     it("can check for changes ___ has changes ___ editor", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const editorStore = useEditorStore();
       wrapper.vm.editorEntity = { testIri1: "testValue1", testIri2: "testValue2" };
       wrapper.vm.editorEntityOriginal = { testIri1: "testValue1" };
@@ -227,7 +227,7 @@ describe("processEntity", () => {
     });
 
     it("can check for changes ___ no changes ___ editor", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
       const editorStore = useEditorStore();
       wrapper.vm.editorEntity = { testIri1: "testValue1", testIri2: "testValue2" };
       wrapper.vm.editorEntityOriginal = { testIri1: "testValue1", testIri2: "testValue2" };
@@ -236,7 +236,7 @@ describe("processEntity", () => {
     });
 
     it("can check for changes ___ has changes ___ creator", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.CREATE, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.CREATE, mockUpdateType]);
       const creatorStore = useCreatorStore();
       wrapper.vm.editorEntity = { testIri1: "testValue1", testIri2: "testValue2" };
       wrapper.vm.editorEntityOriginal = { testIri1: "testValue1" };
@@ -245,7 +245,7 @@ describe("processEntity", () => {
     });
 
     it("can check for changes ___ no changes ___ creator", () => {
-      const wrapper = mountComposable(setupEditorEntity, [EditorMode.CREATE, mockUpdateType]);
+      const wrapper = mountComposable(useEditorEntity, [EditorMode.CREATE, mockUpdateType]);
       const creatorStore = useCreatorStore();
       wrapper.vm.editorEntity = { testIri1: "testValue1", testIri2: "testValue2" };
       wrapper.vm.editorEntityOriginal = { testIri1: "testValue1", testIri2: "testValue2" };
