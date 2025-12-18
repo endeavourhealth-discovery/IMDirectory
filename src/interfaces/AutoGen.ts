@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-11 22:17:54.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-18 12:48:19.
 
 export interface ConceptContextMap {
     id?: string;
@@ -85,8 +85,8 @@ export interface UserSettings {
     mru?: RecentActivityItemDto[];
     preset?: string;
     primaryColor?: PrimeVueColors;
-    surfaceColor?: string;
-    fontSize?: string;
+    surfaceColor?: PrimeVueColors;
+    fontSize?: FontSize;
 }
 
 export interface CodeGenDto {
@@ -142,7 +142,7 @@ export interface Concept extends Entity {
     usage?: number;
     codeId?: string;
     alternativeCode?: string;
-    subsumedBy?: TTIriRef[];
+    subsumed?: boolean;
 }
 
 export interface ConceptSet extends Entity {
@@ -231,6 +231,7 @@ export interface NodeShape extends TTIriRef {
 export interface Page {
     pageNumber?: number;
     pageSize?: number;
+    offset?: number;
 }
 
 export interface ParameterShape {
@@ -343,9 +344,9 @@ export interface Assignable {
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    description?: string;
     qualifier?: TTIriRef;
     operator?: Operator;
+    description?: string;
     valueLabel?: string;
 }
 
@@ -396,10 +397,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
-    ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -803,6 +804,7 @@ export interface SearchResponse {
     highestUsage?: number;
     term?: string;
     entities?: SearchResultSummary[];
+    exactMatch?: boolean;
 }
 
 export interface WorkflowResponse {
@@ -917,15 +919,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
-    status?: TTIriRef;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
     types?: TTIriRef[];
     code?: string;
     prefixes?: TTPrefix[];
+    status?: TTIriRef;
+    description?: string;
 }
 
 export interface BugReport extends Task {
@@ -1020,8 +1022,8 @@ export interface RecentActivityItemDto {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1266,6 +1268,7 @@ export enum TextSearchStyle {
     multiword = "multiword",
     ngram = "ngram",
     exact = "exact",
+    all = "all",
 }
 
 export enum ValidationLevel {
@@ -1476,6 +1479,7 @@ export enum IM {
     KEY_TERM = "http://endhealth.info/im#keyTerm",
     PREFERRED_NAME = "http://endhealth.info/im#preferredName",
     HAS_SCHEME = "http://endhealth.info/im#scheme",
+    DEFAULT_SCHEME = "http://endhealth.info/im#defaultScheme",
     BINDING = "http://endhealth.info/im#binding",
     HAS_STATUS = "http://endhealth.info/im#status",
     STATUS = "http://endhealth.info/im#Status",
@@ -1497,7 +1501,6 @@ export enum IM {
     NAMESPACE = "http://endhealth.info/im#Namespace",
     FUNCTION = "http://endhealth.info/im#FunctionClause",
     QUERY = "http://endhealth.info/im#Query",
-    COHORT_QUERY = "http://endhealth.info/im#CohortQuery",
     DEFAULT_COHORTS = "http://endhealth.info/im#Q_DefaultCohorts",
     DATA_UPDATE = "http://endhealth.info/im#DataUpdate",
     PATH_QUERY = "http://endhealth.info/im#PathQuery",
@@ -1732,7 +1735,6 @@ export enum IM {
     TYPE_FILTER_OPTIONS = "http://endhealth.info/im#TypeFilterOptions",
     SORT_FIELD_FILTER_OPTIONS = "http://endhealth.info/im#SortFieldFilterOptions",
     SORT_DIRECTION_FILTER_OPTIONS = "http://endhealth.info/im#SortDirectionFilterOptions",
-    SCHEME_FILTER_DEFAULTS = "http://endhealth.info/im#SchemeFilterDefaultOptions",
     STATUS_FILTER_DEFAULTS = "http://endhealth.info/im#StatusFilterDefaultOptions",
     TYPE_FILTER_DEFAULTS = "http://endhealth.info/im#TypeFilterDefaultOptions",
     SORT_FIELD_FILTER_DEFAULTS = "http://endhealth.info/im#SortFieldFilterDefaultOptions",
@@ -2119,4 +2121,11 @@ export enum PrimeVueColors {
     ZINC = "zinc",
     NEUTRAL = "neutral",
     STONE = "stone",
+}
+
+export enum FontSize {
+    SMALL = "12px",
+    MEDIUM = "14px",
+    LARGE = "16px",
+    XL = "18px",
 }
