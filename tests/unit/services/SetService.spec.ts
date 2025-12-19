@@ -21,7 +21,7 @@ describe("SetService.ts ___ axios success", () => {
   it("can get IMV1", async () => {
     const result = await SetService.IMV1("testIri");
     expect(axios.get).toBeCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/public/export", { params: { iri: "testIri" }, responseType: "blob" });
+    expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/private/export", { params: { iri: "testIri" }, responseType: "blob" });
     expect(result).toBe("axios get return");
   });
 });
