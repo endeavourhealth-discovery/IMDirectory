@@ -4,10 +4,8 @@ import { Argument, PropertyShape, QueryRequest, TTIriRef } from "../interfaces/A
 import { enumToArray } from "./Converters";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { isTTIriRef } from "./TypeGuards";
-import { IM, RDF, SHACL } from "@/vocabulary";
-import { useFilterStore } from "@/stores/filterStore";
+import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 
-const filterStore = useFilterStore();
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
@@ -28,7 +26,7 @@ export function updateRangeQuery(rangeQuery: QueryRequest, rangeType: string) {
     if (typeClause) {
       if (rangeType === "concept") typeClause.is = [{ iri: IM.CONCEPT }, { iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }];
       else if (rangeType === "datatype") {
-        typeClause.is = filterStore.datatypes;
+        typeClause.is = [{ iri: RDFS.DATATYPE }];
       } else if (rangeType === "shape") {
         typeClause.is = [{ iri: SHACL.NODESHAPE }];
       }
