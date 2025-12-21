@@ -30,7 +30,7 @@
         </div>
       </template>
       <template v-if="query">
-        <div  class="query-display-content rec-query-display">
+        <div class="query-display-content rec-query-display">
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
             <span class="field" v-html="query.typeOf.name"></span>
@@ -220,9 +220,9 @@ async function init() {
   if (query.value?.columnGroup) selectedDisplayOption.value = DisplayOptions.DatasetDefinition;
   else if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
   else selectedDisplayOption.value = DisplayOptions.LogicalView;
- // if (isLoggedIn.value) {
-   // hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
-  //}
+  if (isLoggedIn.value) {
+    hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
+  }
   loading.value = false;
 }
 
