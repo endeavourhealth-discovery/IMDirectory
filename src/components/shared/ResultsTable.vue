@@ -227,6 +227,7 @@ async function onSearch() {
   searchLoading.value = false;
   if (!props.eclQuery && lastSearchTerm === props.searchTerm && page.value == 0) {
     let offset = undefined;
+    let lefttoDo = 0;
     if (response?.entities) {
       offset = response.entities.length;
     }
