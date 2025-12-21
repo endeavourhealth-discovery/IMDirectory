@@ -220,9 +220,9 @@ async function init() {
   if (query.value?.columnGroup) selectedDisplayOption.value = DisplayOptions.DatasetDefinition;
   else if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
   else selectedDisplayOption.value = DisplayOptions.LogicalView;
-  if (isLoggedIn.value) {
-    hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
-  }
+ // if (isLoggedIn.value) {
+   // hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
+  //}
   loading.value = false;
 }
 
