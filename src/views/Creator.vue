@@ -361,16 +361,19 @@ async function submit(): Promise<void> {
               title: "Success",
               text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
               icon: "success",
-              showCancelButton: true,
+              showCloseButton: true,
               reverseButtons: true,
-              confirmButtonText: "Open in Viewer",
+              confirmButtonText: "Close creator",
               confirmButtonColor: "#2196F3",
               cancelButtonColor: "#607D8B"
             }).then(async (result: SweetAlertResult) => {
               if (result.isConfirmed) {
-                await directService.view(editorEntity.value[IM.ID]);
-              } else {
-                await directService.edit(editorEntity.value[IM.ID], true);
+                window.onbeforeunload = null;
+                // If added via addEventListener
+                window.removeEventListener("beforeunload", beforeWindowUnload);
+                setTimeout(() => {
+                  window.close();
+                }, 0);
               }
             });
           }

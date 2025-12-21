@@ -1,9 +1,13 @@
 import { GenericObject } from "@/interfaces/GenericObject";
 import { ComponentType } from "../enums";
-import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
+import { Argument, PropertyShape, QueryRequest, TTIriRef } from "../interfaces/AutoGen";
 import { enumToArray } from "./Converters";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { isTTIriRef } from "./TypeGuards";
+import { IM, RDF, SHACL } from "@/vocabulary";
+import { useFilterStore } from "@/stores/filterStore";
+
+const filterStore = useFilterStore();
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
@@ -16,6 +20,39 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
   });
   return result;
 }
+
+export function updateRangeQuery(rangeQuery: QueryRequest, rangeType: string) {
+  if (rangeQuery.query && rangeQuery.query.where && rangeQuery.query.where.and) {
+    const andClauses = rangeQuery.query.where.and;
+    const typeClause = andClauses.find(clause => clause.iri === RDF.TYPE);
+    if (typeClause) {
+      if (rangeType === "concept") typeClause.is = [{ iri: IM.CONCEPT }, { iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }];
+      else if (rangeType === "datatype") {
+        typeClause.is = filterStore.datatypes;
+      } else if (rangeType === "shape") {
+        typeClause.is = [{ iri: SHACL.NODESHAPE }];
+      }
+    }
+  }
+}
+
+export const propertyRangeTypes = [
+  {
+    label: "concept",
+    value: "concept",
+    tooltip: "The range is a concept or set"
+  },
+  {
+    label: "datatype",
+    value: "datatype",
+    tooltip: "The range is a simple or complex data type"
+  },
+  {
+    label: "shape",
+    value: "shape",
+    tooltip: "The range is a data model shape "
+  }
+];
 
 function processArgument(property: PropertyShape, key: string, value: any, argResult: any, valueVariableMap?: Map<string, any>) {
   if (key === "valueVariable") {
