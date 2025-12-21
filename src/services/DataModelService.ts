@@ -21,6 +21,9 @@ const DataModelService = {
       }
     });
   },
+  async getDatatypes(): Promise<TTIriRef[]> {
+    return await axios.get(API_URL + "/public/datatypes");
+  },
 
   async getDataModelsFromProperty(propIri: string): Promise<TTIriRef[]> {
     return await axios.get(API_URL + "/private/dataModels", {

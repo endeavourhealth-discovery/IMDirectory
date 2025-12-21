@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
 import { FilterOptions, Namespace } from "@/interfaces";
-import { EntityService } from "@/services";
+import { EntityService, DataModelService } from "@/services";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { ref } from "vue";
+import { TTIriRef } from "@/interfaces/AutoGen";
 
 export const useFilterStore = defineStore("filter", () => {
   const filterOptions = ref<FilterOptions>({} as FilterOptions);
@@ -10,11 +11,14 @@ export const useFilterStore = defineStore("filter", () => {
   const selectedFilterOptions = ref<FilterOptions>({} as FilterOptions);
   const hierarchySelectedFilters = ref<Namespace[]>([]);
   const coreSchemes = ref<string[]>([]);
+  const datatypes = ref<TTIriRef[]>([]);
 
   async function fetchFilterSettings() {
     const apiFilterOptions = await EntityService.getFilterOptions();
     const filterDefaults = await EntityService.getFilterDefaultOptions();
     const coreSchemes = await EntityService.getCoreSchemes();
+    const datatypes = await DataModelService.getDatatypes();
+    updateDatatypes(datatypes);
     if (isObjectHasKeys(apiFilterOptions, ["status", "schemes", "types"]) && isObjectHasKeys(filterDefaults, ["status", "schemes", "types"])) {
       updateDefaultFilterOptions(filterDefaults);
       updateFilterOptions(apiFilterOptions);
@@ -35,6 +39,10 @@ export const useFilterStore = defineStore("filter", () => {
 
   function updateFilterOptions(filters: FilterOptions) {
     filterOptions.value = filters;
+  }
+
+  function updateDatatypes(datatypeList: TTIriRef[]) {
+    datatypes.value = datatypeList;
   }
 
   function updateDefaultFilterOptions(filters: FilterOptions) {
@@ -74,6 +82,7 @@ export const useFilterStore = defineStore("filter", () => {
 
   return {
     filterOptions,
+    datatypes,
     defaultFilterOptions,
     selectedFilterOptions,
     hierarchySelectedFilters,
