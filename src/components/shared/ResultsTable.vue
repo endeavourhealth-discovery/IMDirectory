@@ -227,12 +227,10 @@ async function onSearch() {
   searchLoading.value = false;
   if (!props.eclQuery && lastSearchTerm === props.searchTerm && page.value == 0) {
     let offset = undefined;
-    let rowsLeft = rows.value;
     if (response?.entities) {
       offset = response.entities.length;
-      rowsLeft = rows.value - offset;
     }
-    search(2, rowsLeft, TextSearchStyle.all, offset).then(slow => {
+    search(2, rows.value, TextSearchStyle.all, offset).then(slow => {
       addSearchResults(slow);
       pageCache.value[page.value] = searchResults.value;
       emit("searchResultsUpdated", response);
