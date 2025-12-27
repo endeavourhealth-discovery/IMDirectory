@@ -303,7 +303,9 @@ function generateSimpleMapsNodes(simpleMaps: SimpleMap[], location: string, posi
       name: mapItem.name,
       iri: mapItem.iri,
       scheme: mapItem.scheme,
-      code: mapItem.code
+      code: mapItem.code,
+      alternativeCode: mapItem.alternativeCode,
+      codeId: mapItem.codeId
     });
   });
   simpleMapsList.sort(byScheme);
