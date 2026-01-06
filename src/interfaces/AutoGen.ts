@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-27 07:43:29.
+// Generated using typescript-generator version 3.2.1263 on 2026-01-06 08:51:19.
 
 export interface ConceptContextMap {
     id?: string;
@@ -83,7 +83,7 @@ export interface UserSettings {
     organisations?: string[];
     favourites?: string[];
     mru?: RecentActivityItemDto[];
-    preset?: PrimeVuePresetThemes;
+    preset?: string;
     primaryColor?: string;
     surfaceColor?: PrimeVueColors;
     fontSize?: FontSize;
@@ -197,7 +197,7 @@ export interface IMLLanguage {
 export interface Indicator extends TTIriRef {
     isSubIndicatorOf?: TTIriRef[];
     numerator?: TTIriRef;
-    dataset?: Query;
+    dataset?: TTIriRef;
     actionIfFalse?: TTIriRef[];
     actionIfTrue?: TTIriRef[];
     denominator?: TTIriRef;
@@ -341,12 +341,12 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
+    description?: string;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    description?: string;
-    qualifier?: TTIriRef;
     operator?: Operator;
+    qualifier?: TTIriRef;
     valueLabel?: string;
 }
 
@@ -397,10 +397,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -415,6 +415,7 @@ export interface GroupBy extends IriLD {
 
 export interface HasPaths {
     path?: Path[];
+    iri?: string;
 }
 
 export interface Instance extends IriLD {
@@ -920,14 +921,14 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
+    description?: string;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
-    description?: string;
-    prefixes?: TTPrefix[];
     code?: string;
     types?: TTIriRef[];
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -2096,13 +2097,6 @@ export const enum XSD {
     DATE_TIME = "http://www.w3.org/2001/XMLSchema#dateTime",
     NUMBER = "http://www.w3.org/2001/XMLSchema#number",
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
-}
-
-export const enum PrimeVuePresetThemes {
-    AURA = "Aura",
-    LARA = "Lara",
-    NORA = "Nora",
-    MATERIAL = "Material",
 }
 
 export const enum PrimeVueColors {
