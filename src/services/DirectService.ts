@@ -35,20 +35,6 @@ export default class DirectService {
     }
   }
 
-  public directWithConfirmation(iri: string, action: string, component: ComponentPublicInstance, appRoute: string) {
-    component.$confirm.require({
-      message: this._message,
-      header: "Confirmation",
-      icon: "fa-solid fa-triangle-exclamation",
-      accept: async () => {
-        await this.directTo({ iri: iri, action: action, appRoute: appRoute, newTab: true });
-      },
-      reject: () => {
-        component.$confirm.close();
-      }
-    });
-  }
-
   public async file() {
     await this.directTo({ action: "Filed", appRoute: "filer", newTab: true });
   }

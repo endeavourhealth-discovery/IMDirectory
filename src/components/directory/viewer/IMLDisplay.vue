@@ -62,6 +62,14 @@ function parseLines() {
       const match = line.match(/^(.*?)(?<!https?:)\/\/(.*)$/);
       if (match) [, line, comment] = match;
       line = line.trim();
+      if (line === ">>") {
+        indentLevel++;
+        continue;
+      }
+      if (line === "<<") {
+        indentLevel--;
+        continue;
+      }
       const words = [];
       if (line.includes('"')) {
         words.push(line);
@@ -73,15 +81,6 @@ function parseLines() {
         indent: indentLevel,
         comment: comment
       });
-      if (/[{(]$/.test(line)) {
-        indentLevel++;
-      } else if (line.endsWith(":")) {
-        indentLevel++;
-        then = true;
-      } else if (/[})]$/.test(line) || then) {
-        then = false;
-        indentLevel = Math.max(0, indentLevel - 1);
-      }
     }
   }
 }
@@ -98,7 +97,7 @@ function init() {
 
 <style scoped>
 .keyword {
-  color: #c678dd; /* purple for keywords */
+  color: #c678dd;
   font-weight: bold;
 }
 .word::after {
@@ -113,6 +112,9 @@ function init() {
 
 .operator {
   color: #7591bf;
+}
+.alert {
+  color: darkmagenta;
 }
 
 .language-text {

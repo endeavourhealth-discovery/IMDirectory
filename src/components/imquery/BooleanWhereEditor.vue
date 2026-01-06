@@ -30,7 +30,7 @@
               :baseType="baseType"
               :parentOperator="operator as Bool"
               :show-delete="showDelete"
-              @deletedProperty="deletedProperty"
+              @deletedProperty="onDeletedProperty"
               @addProperty="emit('addProperty')"
               @updateBool="updateBool"
               @updateProperty="updateProperty"
@@ -73,8 +73,9 @@
           @updateProperty="updateProperty"
         />
       </div>
-      <div class="ml-auto flex flex-row">
-        <Button data-testid="cancel-edit-feature-button" label="Revert" text @click="revert" />
+      <div class="mt-auto ml-auto flex flex-row items-end">
+        <Button v-if="updated" data-testid="cancel-edit-feature-button" label="Revert" text @click="revert" />
+
         <Button
           type="button"
           icon="fa-solid fa-plus"
@@ -126,17 +127,18 @@ const props = withDefaults(
   { showDelete: true }
 );
 
+const property = defineModel<Where>("property", { default: {} });
 const selectedProperty: Ref<UIProperty | undefined> = ref();
 const emit = defineEmits(["updateBool", "addProperty", "deletedProperty", "updateProperty"]);
 const expandSet: Ref<boolean> = ref(false);
 const group: Ref<number[]> = ref([]);
 const loading = ref(true);
-const property = defineModel<Where>("property", { default: {} });
 const parentProperty = defineModel<Where>("parentProperty", { default: {} });
 const dropdown = ref();
 const operators = ["and", "or"] as const;
 const hoverAddProperty = ref(false);
 const hoverDeleteProperty = ref(false);
+
 const dataModelIri: Ref<string> = ref("");
 const propertyPath = computed(() => {
   if (property.value.nodeRef) return getPathName(property.value.nodeRef, props.match) + "/" + property.value.name;
@@ -145,9 +147,15 @@ const propertyPath = computed(() => {
 const originalProperty: Ref<Where> = ref({});
 const refreshCounter: Ref<number> = ref(0);
 
-onMounted(async () => {
-  await init();
-});
+const updated = ref(false);
+
+watch(
+  () => property.value,
+  newProperty => {
+    init();
+  },
+  { immediate: true }
+);
 
 async function init() {
   loading.value = true;
@@ -163,7 +171,7 @@ function deleteProperty() {
   deletePropertyFromParent(props.match, parentProperty.value, props.clauseIndex);
   emit("deletedProperty");
 }
-function deletedProperty() {
+function onDeletedProperty() {
   if (property.value.and && property.value.and.length === 0) {
     emit("deletedProperty");
   } else if (property.value.or && property.value.or.length === 0) {
