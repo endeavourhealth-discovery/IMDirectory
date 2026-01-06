@@ -3,7 +3,6 @@
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
-      <span>{{ displayOptions }}</span>
       <template v-if="!eclQuery">
         <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
         <div class="flex flex-row gap-2">
