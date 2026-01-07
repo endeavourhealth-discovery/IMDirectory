@@ -66,14 +66,13 @@ export const useUserStore = defineStore("user", () => {
       return;
     }
     clearAllFromLocalStorage();
-    const data = await UserService.getUserSettings();
-    if (data?.preset) currentPreset.value = data.preset;
-    if (data?.primaryColor) currentPrimaryColor.value = data.primaryColor;
-    if (data?.darkMode) darkMode.value = data.darkMode;
-    if (data?.fontSize) currentFontSize.value = data.fontSize;
-    if (data?.organisations) organisations.value = data.organisations;
-    if (data?.favourites) favourites.value = data.favourites;
-    if (data?.mru) recentLocalActivity.value = data.mru;
+    if (currentUser.value?.theme) currentPreset.value = currentUser.value.theme;
+    if (currentUser.value?.primaryColor) currentPrimaryColor.value = currentUser.value?.primaryColor;
+    if (currentUser.value?.darkMode) darkMode.value = currentUser.value?.darkMode;
+    if (currentUser.value?.fontSize) currentFontSize.value = currentUser.value?.fontSize;
+    if (currentUser.value?.organisations) organisations.value = currentUser.value?.organisations;
+    if (currentUser.value?.favourites) favourites.value = currentUser.value?.favourites;
+    if (currentUser.value?.recentActivity) recentLocalActivity.value = currentUser.value?.recentActivity;
   }
 
   function getAllFromLocalStorage(): void {
@@ -101,7 +100,7 @@ export const useUserStore = defineStore("user", () => {
   async function updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
     let activity: RecentActivityItem[] = [];
 
-    if (isLoggedIn.value) activity = await UserService.getUserMRU();
+    if (isLoggedIn.value && currentUser.value) activity = currentUser.value?.recentActivity;
     else activity = recentLocalActivity.value ? recentLocalActivity.value : [];
 
     activity.forEach(activityItem => {
@@ -125,12 +124,12 @@ export const useUserStore = defineStore("user", () => {
         activity.push(recentActivityItem);
       }
     }
-    if (isLoggedIn.value) await UserService.updateUserMRU(activity);
+    if (isLoggedIn.value) await UserService.updateUserRecentActivity(activity);
     recentLocalActivity.value = activity;
   }
 
   async function clearRecentLocalActivity() {
-    if (isLoggedIn.value) await UserService.updateUserMRU([]);
+    if (isLoggedIn.value) await UserService.updateUserRecentActivity([]);
     recentLocalActivity.value = [];
   }
 

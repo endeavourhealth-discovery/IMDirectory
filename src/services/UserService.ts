@@ -10,33 +10,6 @@ import { Graph } from "@/interfaces/AutoGen";
 const API_URL = Env.API + "api/user";
 
 const UserService = {
-  async getUserSettings(): Promise<UserData> {
-    return await axios.get(API_URL + "/settings");
-  },
-  async getUserFontSize(): Promise<string> {
-    return await axios.get(API_URL + "/");
-  },
-  async getUserMRU(): Promise<RecentActivityItem[]> {
-    return await axios.get(API_URL + "/MRU");
-  },
-  async getUserFavourites(): Promise<string[]> {
-    return await axios.get(API_URL + "/favourites");
-  },
-  async getUserOrganisations(): Promise<string[]> {
-    return await axios.get(API_URL + "/organisations");
-  },
-  async getUserPreset(): Promise<PrimeVuePresetThemes> {
-    return await axios.get(API_URL + "/preset");
-  },
-  async getUserPrimaryColor(): Promise<PrimeVueColors> {
-    return await axios.get(API_URL + "/primaryColor");
-  },
-  async getUserSurfaceColor(): Promise<PrimeVueColors> {
-    return await axios.get(API_URL + "/surfaceColor");
-  },
-  async getUserDarkMode(): Promise<boolean> {
-    return await axios.get(API_URL + "/darkMode");
-  },
   async updateUserPreset(preset: PrimeVuePresetThemes): Promise<void> {
     return await axios.post(API_URL + "/preset", preset, { headers: { "Content-Type": "text/plain" } });
   },
@@ -52,8 +25,8 @@ const UserService = {
   async updateUserFontSize(fontSize: string): Promise<string> {
     return await axios.post(API_URL + "/fontSize", fontSize, { headers: { "Content-Type": "text/plain" } });
   },
-  async updateUserMRU(mru: RecentActivityItem[]): Promise<void> {
-    return await axios.post(API_URL + "/MRU", mru);
+  async updateUserRecentActivity(recentActivity: RecentActivityItem[]): Promise<void> {
+    return await axios.post(API_URL + "/recentActivity", recentActivity);
   },
   async updateUserFavourites(favourites: string[]): Promise<void> {
     return await axios.post(API_URL + "/favourites", favourites);
@@ -75,10 +48,6 @@ const UserService = {
 
   async updateEmailVerified(verified: boolean): Promise<void> {
     return await axios.post(Env.API + "api/cognito/updateEmailVerified", { value: verified });
-  },
-
-  async getUserGraphs(): Promise<Graph[]> {
-    return await axios.get(Env.API + "api/user/graphs");
   }
 };
 
