@@ -263,7 +263,6 @@ function submit(): void {
                 await SetService.updateSubsetsFromSuper(editorEntity.value);
                 delete editorEntity.value[IM.HAS_SUBSET];
               }
-              console.log(editorEntity.value);
               const res = await EntityService.updateEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
               if (res) {
                 editorStore.updateEditorSavedEntity(undefined);
